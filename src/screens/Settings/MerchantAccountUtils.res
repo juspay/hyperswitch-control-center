@@ -253,10 +253,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     valuesDict->getOptionBool("is_click_to_pay_enabled"),
   )
 
-  profileDetailsDict->Dict.set(
-    "authentication_product_ids",
-    valuesDict->getJsonObjectFromDict("authentication_product_ids"),
-  )
+  let authenticationProductIds = valuesDict->getJsonObjectFromDict("authentication_product_ids")
+  if !(authenticationProductIds->getDictFromJsonObject->isEmptyDict) {
+    profileDetailsDict->Dict.set("authentication_product_ids", authenticationProductIds)
+  }
 
   profileDetailsDict
 }

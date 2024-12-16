@@ -147,7 +147,7 @@ let getCell = (item: profileEntity, colType): Table.cell => {
 
 let itemToObjMapper = dict => {
   open LogicUtils
-  let a = {
+  {
     profile_id: getString(dict, "profile_id", ""),
     profile_name: getString(dict, ProfileName->getStringFromVariant, ""),
     merchant_id: getString(dict, "merchant_id", ""),
@@ -178,11 +178,9 @@ let itemToObjMapper = dict => {
     max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: dict->getOptionBool("is_click_to_pay_enabled"),
     authentication_product_ids: dict
-    ->LogicUtils.getDictfromDict("authentication_product_ids")
+    ->getDictfromDict("authentication_product_ids")
     ->getJsonObjectFromDict("click_to_pay"),
   }
-  Js.log2("Check -----> ", a)
-  a
 }
 
 let getItems: JSON.t => array<profileEntity> = json => {
