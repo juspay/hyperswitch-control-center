@@ -179,7 +179,7 @@ let itemToObjMapper = dict => {
     is_click_to_pay_enabled: dict->getOptionBool("is_click_to_pay_enabled"),
     authentication_product_ids: dict
     ->getDictfromDict("authentication_product_ids")
-    ->getJsonObjectFromDict("click_to_pay"),
+    ->Identity.genericTypeToJson,
   }
 }
 

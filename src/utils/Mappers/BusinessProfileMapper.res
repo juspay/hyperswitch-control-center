@@ -60,7 +60,7 @@ let businessProfileTypeMapper = values => {
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
     authentication_product_ids: jsonDict
     ->getDictfromDict("authentication_product_ids")
-    ->getJsonObjectFromDict("click_to_pay"),
+    ->Identity.genericTypeToJson,
   }
 }
 

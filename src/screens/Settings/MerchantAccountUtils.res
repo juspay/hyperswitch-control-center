@@ -72,7 +72,11 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson(
     "authentication_product_ids",
-    Some(authentication_product_ids->getDictFromJsonObject->getJsonObjectFromDict("click_to_pay")),
+    Some(
+      authentication_product_ids
+      ->getDictFromJsonObject
+      ->getJsonObjectFromDict("authentication_product_ids"),
+    ),
   )
 
   profileInfo->setOptionDict(
