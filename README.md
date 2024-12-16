@@ -115,10 +115,6 @@ The `frm` feature flag enables the Fraud and Risk Management (FRM) module within
 
 The `sample_data` feature flag enables the ability to load simulated sample data into the dashboard for preview purposes. When enabled, dummy transactions, analytics, and reporting data can be generated.
 
-#### System Metrics
-
-The `system_metrics` feature flag unlocks access to system monitoring and metrics pages within the dashboard. When enabled, users can view technical performance data like payment latency, uptime, API response times, error rates, and more.
-
 #### Audit trail
 
 The `audit_trail` feature flag enables access to payment and refund audit logs within the dashboard. When turned on, users can view detailed trails showing the history of transactions including status changes, approvals, edits, and more.
@@ -139,10 +135,6 @@ The `email` feature flag enables user sign-in and sign-up using magic links inst
 ### Surcharge
 
 The `surcharge` feature flag enables the ability to apply surcharges to payments. When enabled, you can create advanced rules based on payment parameters like amount, currency, and payment method to enforce surcharges as needed.
-
-### User Journey
-
-Enabling `user_journey_analytics` grants access to the user journey module within the analytics section of the dashboard. This feature provides comprehensive graphical representations of payment analytics, facilitating a deeper understanding of user behavior and usage patterns.
 
 ### Branding
 

@@ -292,40 +292,14 @@ let refundAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let userJourneyAnalytics = SubLevelLink({
-  name: "User Journey",
-  link: `/analytics-user-journey`,
-  access: Access,
-  iconTag: "betaTag",
-  searchOptions: [("View analytics", "")],
-})
-
-let authenticationAnalytics = SubLevelLink({
-  name: "Authentication",
-  link: `/analytics-authentication`,
-  access: Access,
-  iconTag: "betaTag",
-  searchOptions: [("View analytics", "")],
-})
-
 let analytics = (
   isAnalyticsEnabled,
-  userJourneyAnalyticsFlag,
-  authenticationAnalyticsFlag,
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
   ~userHasResourceAccess,
 ) => {
   let links = [paymentAnalytcis, refundAnalytics]
-
-  if userJourneyAnalyticsFlag {
-    links->Array.push(userJourneyAnalytics)
-  }
-
-  if authenticationAnalyticsFlag {
-    links->Array.push(authenticationAnalytics)
-  }
 
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
@@ -527,7 +501,6 @@ let paymentSettings = userHasResourceAccess => {
 
 let developers = (
   isDevelopersEnabled,
-  systemMetrics,
   ~userHasResourceAccess,
   ~checkUserEntity,
   ~roleId,
@@ -540,7 +513,7 @@ let developers = (
 
   let defaultDevelopersOptions = [paymentSettings]
 
-  if isInternalUser && systemMetrics {
+  if isInternalUser {
     defaultDevelopersOptions->Array.push(systemMetric)
   }
   if !isProfileUser {
@@ -666,9 +639,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     payOut,
     recon,
     default,
-    systemMetrics,
-    userJourneyAnalytics: userJourneyAnalyticsFlag,
-    authenticationAnalytics: authenticationAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
     threedsAuthenticator,
@@ -700,8 +670,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~userHasResourceAccess,
     ),
     default->analytics(
-      userJourneyAnalyticsFlag,
-      authenticationAnalyticsFlag,
       disputeAnalytics,
       performanceMonitorFlag,
       isNewAnalyticsEnable,
@@ -714,7 +682,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~userEntity,
     ),
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(systemMetrics, ~userHasResourceAccess, ~checkUserEntity, ~roleId),
+    default->developers(~userHasResourceAccess, ~checkUserEntity, ~roleId),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 

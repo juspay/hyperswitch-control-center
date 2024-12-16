@@ -39,7 +39,6 @@ let make = () => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
 
-  let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
 
@@ -134,13 +133,6 @@ let make = () => {
                         }}
                       />
                     </div>
-                    {switch url.path->urlPath {
-                    | list{"home"} =>
-                      <RenderIf condition=isLiveUsersCounterEnabled>
-                        <ActivePaymentsCounter />
-                      </RenderIf>
-                    | _ => React.null
-                    }}
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
@@ -208,25 +200,6 @@ let make = () => {
                             />
                           </AccessControl>
                         | list{"users", ..._} => <UserManagementContainer />
-                        | list{"analytics-user-journey"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.userJourneyAnalytics &&
-                            [#Organization, #Merchant]->checkUserEntity}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
-                              <UserJourneyAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-authentication"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.authenticationAnalytics &&
-                            [#Organization, #Merchant]->checkUserEntity}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext
-                              key="AuthenticationAnalytics" index="AuthenticationAnalytics">
-                              <AuthenticationAnalytics />
-                            </FilterContext>
-                          </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
                             // TODO: Remove `MerchantDetailsManage` permission in future
@@ -239,7 +212,7 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
-                            isEnabled={isInternalUser && featureFlagDetails.systemMetrics}
+                            isEnabled={isInternalUser}
                             authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />

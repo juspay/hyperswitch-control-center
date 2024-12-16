@@ -197,7 +197,6 @@ module OverviewInfo = {
 
 @react.component
 let make = () => {
-  let {systemMetrics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   <div className="flex flex-col gap-4">
@@ -207,7 +206,7 @@ let make = () => {
       <RenderIf condition={userHasAccess(~groupAccess=AnalyticsView) === Access}>
         <PaymentOverview />
       </RenderIf>
-      <RenderIf condition={systemMetrics}>
+      <RenderIf condition={userHasAccess(~groupAccess=AnalyticsView) === Access}>
         <SystemMetricsInsights />
       </RenderIf>
     </div>
