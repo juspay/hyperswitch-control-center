@@ -68,7 +68,7 @@ module ShowRecoveryCodes = {
   @react.component
   let make = (~recoveryCodes) => {
     <div
-      className="border border-gray-200 rounded-md bg-jp-gray-100 py-6 px-12 flex gap-8 flex justify-evenly">
+      className="border border-gray-200 rounded-md bg-jp-gray-100 py-6 px-12 flex gap-8 justify-evenly">
       <div className="grid grid-cols-2 gap-4">
         {recoveryCodes
         ->Array.map(recoveryCode =>

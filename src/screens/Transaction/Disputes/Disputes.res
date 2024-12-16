@@ -13,7 +13,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (filters, setFilters) = React.useState(_ => None)
 
-  let {generateReport, transactionView} =
+  let {generateReport, isLiveMode} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
@@ -107,7 +107,7 @@ let make = () => {
         </RenderIf>
       </div>
     </div>
-    <RenderIf condition={transactionView}>
+    <RenderIf condition={isLiveMode}>
       <div className="flex gap-6 justify-around">
         <TransactionView entity=TransactionViewTypes.Disputes />
       </div>

@@ -28,7 +28,7 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, transactionView} =
+  let {generateReport, isLiveMode} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
@@ -147,7 +147,7 @@ let make = (~previewOnly=false) => {
           </RenderIf>
         </div>
       </div>
-      <RenderIf condition={transactionView}>
+      <RenderIf condition={isLiveMode}>
         <div className="flex gap-6 justify-around">
           <TransactionView entity=TransactionViewTypes.Orders />
         </div>

@@ -64,7 +64,7 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport, transactionView} =
+  let {generateReport, isLiveMode} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
@@ -82,7 +82,7 @@ let make = () => {
           </RenderIf>
         </div>
       </div>
-      <RenderIf condition={transactionView}>
+      <RenderIf condition={isLiveMode}>
         <div className="flex gap-6 justify-around">
           <TransactionView entity=TransactionViewTypes.Refunds />
         </div>
