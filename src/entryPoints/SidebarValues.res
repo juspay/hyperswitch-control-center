@@ -672,7 +672,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     surcharge: isSurchargeEnabled,
     isLiveMode,
     threedsAuthenticator,
-    quickStart,
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
@@ -688,7 +687,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let isNewAnalyticsEnable =
     newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
-    productionAccessComponent(quickStart, userHasAccess, hasAnyGroupAccess),
+    productionAccessComponent(isLiveMode, userHasAccess, hasAnyGroupAccess),
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(
