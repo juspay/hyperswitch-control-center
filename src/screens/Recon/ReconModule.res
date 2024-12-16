@@ -51,6 +51,7 @@ let make = (~urlList) => {
         ->safeParse
         ->getDictFromJsonObject
         ->getString("event", "")
+        ->ReconUtils.getEventTypeFromString
 
       let status =
         dictFromEvent
@@ -60,7 +61,7 @@ let make = (~urlList) => {
         ->getString("AuthenticationStatus", "")
         ->ReconUtils.getAuthStatusFromMessage
 
-      if eventType == "AuthenticationStatus" && status == IframeLoggedOut {
+      if eventType == AuthenticationStatus && status == IframeLoggedOut {
         handleLogout()->ignore
       }
     }

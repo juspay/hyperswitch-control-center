@@ -4,3 +4,10 @@ let getAuthStatusFromMessage = authStatus =>
   | "LoggedOut" => IframeLoggedOut
   | _ => IframeLoggedIn
   }
+
+let getEventTypeFromString = eventTypeString =>
+  switch eventTypeString {
+  | "AuthenticationStatus"
+  | _ =>
+    AuthenticationStatus
+  }
