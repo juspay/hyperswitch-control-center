@@ -56,7 +56,12 @@ let businessProfileTypeMapper = values => {
       : None,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
+    is_click_to_pay_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
+    authentication_product_ids: jsonDict
+    ->LogicUtils.getDictfromDict("authentication_product_ids")
+    ->getJsonObjectFromDict("click_to_pay"),
   }
+  Console.log2("Check ---->", businessProfile)
   businessProfile
 }
 

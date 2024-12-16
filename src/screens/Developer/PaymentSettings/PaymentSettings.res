@@ -437,6 +437,57 @@ module AutoRetries = {
   }
 }
 
+module ClickToPaySection = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+    open LogicUtils
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let connectorListAtom = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+
+    let isClickToPayEnabled =
+      formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
+
+    let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
+      {
+        label: `${item.connector_name} - ${item.merchant_connector_id}`,
+        value: item.merchant_connector_id,
+      }
+    })
+
+    <>
+      <DesktopRow>
+        <FieldRenderer
+          labelClass="!text-base !text-grey-700 font-semibold"
+          fieldWrapperClass="max-w-xl"
+          field={makeFieldInfo(
+            ~name="is_click_to_pay_enabled",
+            ~label="Click to Pay",
+            ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+          )}
+        />
+      </DesktopRow>
+      <RenderIf condition={isClickToPayEnabled}>
+        <FormRenderer.FieldRenderer
+          labelClass="font-semibold !text-black"
+          field={FormRenderer.makeFieldInfo(
+            ~label="Connector ID",
+            ~name="authentication_product_ids.click_to_pay",
+            ~placeholder="",
+            ~customInput=InputFields.selectInput(
+              ~options=dropDownOptions,
+              ~buttonText="Select Connector ID",
+              ~deselectDisable=true,
+            ),
+          )}
+        />
+      </RenderIf>
+    </>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
@@ -623,6 +674,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   </DesktopRow>
                 </RenderIf>
                 <AutoRetries setCheckMaxAutoRetry />
+                <ClickToPaySection />
                 <ReturnUrl />
                 <WebHook />
                 <DesktopRow>
@@ -643,7 +695,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </DesktopRow>
-                // <FormValuesSpy />
+                <FormValuesSpy />
               </form>
             }}
           />

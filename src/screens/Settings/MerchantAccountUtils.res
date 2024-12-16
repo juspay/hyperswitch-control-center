@@ -4,6 +4,7 @@ let parseKey = api_key => {
 }
 
 let parseBussinessProfileJson = (profileRecord: profileEntity) => {
+  Js.log2("profileRecord", profileRecord)
   open LogicUtils
   let {
     merchant_id,
@@ -21,6 +22,8 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     always_collect_shipping_details_from_wallet_connector,
     is_auto_retries_enabled,
     max_auto_retries_enabled,
+    is_click_to_pay_enabled,
+    authentication_product_ids,
   } = profileRecord
 
   let profileInfo =
@@ -67,6 +70,12 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     authentication_connector_details.three_ds_requestor_url,
   )
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
+  profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
+  profileInfo->setOptionString(
+    "authentication_product_ids",
+    authentication_product_ids->getDictFromJsonObject->getOptionString("click_to_pay"),
+  )
+
   profileInfo->setOptionDict(
     "outgoing_webhook_custom_http_headers",
     outgoing_webhook_custom_http_headers,
@@ -237,6 +246,11 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionDict(
     "authentication_connector_details",
     !(authenticationConnectorDetails->isEmptyDict) ? Some(authenticationConnectorDetails) : None,
+  )
+
+  profileDetailsDict->setOptionBool(
+    "is_click_to_pay_enabled",
+    valuesDict->getOptionBool("is_click_to_pay_enabled"),
   )
 
   profileDetailsDict
@@ -505,6 +519,8 @@ let defaultValueForBusinessProfile = {
   is_connector_agnostic_mit_enabled: None,
   is_auto_retries_enabled: None,
   max_auto_retries_enabled: None,
+  is_click_to_pay_enabled: None,
+  authentication_product_ids: JSON.Encode.null,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
