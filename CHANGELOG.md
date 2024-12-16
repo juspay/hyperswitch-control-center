@@ -3,6 +3,34 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.16.0
+
+### Features
+
+- Refunds success rate ([#1917](https://github.com/juspay/hyperswitch-control-center/pull/1917)) ([`4693520`](https://github.com/juspay/hyperswitch-control-center/commit/4693520ea4ac550d510d2f15fe2d01c5ba5c925b))
+
+### Bug Fixes
+
+- Handle recon-iframe logout in dashboard ([#1914](https://github.com/juspay/hyperswitch-control-center/pull/1914)) ([`dc07d46`](https://github.com/juspay/hyperswitch-control-center/commit/dc07d46a0e0098b3e4162d48d4c7879a3df35aa3))
+
+**Full Changelog:** [`2024.12.13.1...2024.12.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.13.1...2024.12.16.0)
+
+- - -
+
+## 2024.12.13.1
+
+### Bug Fixes
+
+- Separate section custom headers ([#1916](https://github.com/juspay/hyperswitch-control-center/pull/1916)) ([`d86074a`](https://github.com/juspay/hyperswitch-control-center/commit/d86074ab9e3cd85aab2ba79c12b5e2451693cc59))
+
+### Miscellaneous Tasks
+
+- Refunds analytics v2 file refactor ([#1913](https://github.com/juspay/hyperswitch-control-center/pull/1913)) ([`16761f4`](https://github.com/juspay/hyperswitch-control-center/commit/16761f4c510a477f54c2dc49ed0ace391f45eae2))
+
+**Full Changelog:** [`2024.12.13.0...2024.12.13.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.13.0...2024.12.13.1)
+
+- - -
+
 ## 2024.12.13.0
 
 ### Features
