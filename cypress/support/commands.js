@@ -24,14 +24,37 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add("login_UI", (name = "", pass = "") => {
+Cypress.Commands.add("enable_email_feature_flag", () => {
+  cy.intercept("GET", "/dashboard/config/feature?domain=default", {
+    statusCode: 200,
+    body: {
+      theme: {
+        primary_color: "#006DF9",
+        primary_hover_color: "#005ED6",
+        sidebar_color: "#242F48",
+      },
+      endpoints: {
+        api_url: "http://localhost:8080",
+      },
+      features: {
+        email: true,
+      },
+    },
+  }).as("getFeatureData");
   cy.visit("/");
-  const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
-  const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
-  cy.get("[data-testid=email]").type(username);
-  cy.get("[data-testid=password]").type(password);
-  cy.get('button[type="submit"]').click({ force: true });
-  cy.get("[data-testid=skip-now]").click({ force: true });
+  cy.wait("@getFeatureData");
+});
+
+Cypress.Commands.add("mock_magic_link_signin_success", (user_email = "") => {
+  const email =
+    user_email.length > 0 ? user_email : Cypress.env("CYPRESS_USERNAME");
+
+  cy.intercept("POST", "/user/connect_account?auth_id=&domain=", {
+    statusCode: 200,
+    body: {
+      is_email_sent: true,
+    },
+  }).as("getMagicLinkSuccess");
 });
 
 Cypress.Commands.add("singup_curl", (name = "", pass = "") => {
@@ -69,6 +92,16 @@ Cypress.Commands.add("login_curl", (name = "", pass = "") => {
     },
     body: { email: username, password: password, country: "IN" },
   });
+});
+
+Cypress.Commands.add("login_UI", (name = "", pass = "") => {
+  cy.visit("/");
+  const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
+  const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
+  cy.get("[data-testid=email]").type(username);
+  cy.get("[data-testid=password]").type(password);
+  cy.get('button[type="submit"]').click({ force: true });
+  cy.get("[data-testid=skip-now]").click({ force: true });
 });
 
 Cypress.Commands.add("deleteConnector", (mca_id) => {

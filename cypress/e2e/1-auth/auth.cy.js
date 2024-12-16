@@ -1,30 +1,37 @@
-let username = `cypress+${Math.round(+new Date() / 1000)}@gmail.com`;
+import * as helper from "../../support/helper";
+import SignInPage from "../../support/pages/auth/SignInPage";
+import SignUpPage from "../../support/pages/auth/SignUpPage";
 
-describe("Signup", () => {
-  it("Verify sign up page contains all components", () => {
+const signinPage = new SignInPage();
+const signupPage = new SignUpPage();
+
+describe("Sign up", () => {
+  it("should verify all components on the sign-up page", () => {
     cy.visit("/");
-    cy.get("#card-subtitle").click();
+
+    signinPage.signUpLink.click();
     cy.url().should("include", "/register");
-    cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
-    cy.get("#card-subtitle").should("contain", "Sign in");
-    cy.get("#auth-submit-btn")
-      .contains("Get started, for free!")
-      .should("exist");
-    cy.get("[data-testid=email] input").should(
+
+    signupPage.headerText.should("contain", "Welcome to Hyperswitch");
+    signupPage.signInLink.should("contain", "Sign in");
+    signupPage.emailInput.should(
       "have.attr",
       "placeholder",
       "Enter your Email",
     );
-    cy.get("[data-testid=password] input").should(
+    signupPage.passwordInput.should(
       "have.attr",
       "placeholder",
       "Enter your Password",
     );
-    cy.get("#tc-text").should("exist");
-    cy.get("#footer").should("exist");
+    signupPage.signUpButton.contains("Get started, for free!").should("exist");
+    signupPage.signUpButton.should("be.disabled");
+
+    signinPage.tcText.should("exist");
+    signinPage.footerText.should("exist");
   });
 
-  it.skip('Verify "Email" field', () => {
+  it("should display an error message for an invalid email", () => {
     const invalidEmails = [
       "@#$%",
       "plainaddress",
@@ -43,155 +50,393 @@ describe("Signup", () => {
       "abc..xyz@abc.com",
     ];
 
-    Cypress._.each(invalidEmails, (invalidEmail) => {
-      cy.visit("/register");
+    cy.visit("/register");
 
-      cy.get("[data-testid=email]").type(invalidEmail);
+    invalidEmails.forEach((invalidEmail) => {
+      signupPage.emailInput.clear();
 
-      cy.get("body").click(100, 100);
-
-      cy.get("[data-form-error]")
+      signupPage.emailInput.type(invalidEmail).blur();
+      signupPage.invalidInputError
         .should("be.visible")
-        .and("contain.text", "Please enter valid Email ID");
+        .and("contain", "Please enter valid Email ID");
+      signupPage.signUpButton.should("be.disabled");
+
+      signupPage.emailInput.clear().type(Cypress.env("CYPRESS_USERNAME"));
+      signupPage.invalidInputError.should("not.exist");
     });
   });
 
-  it("check signup flow", () => {
-    const password = "Cypress98#";
-    cy.visit("/");
-    cy.get("#card-subtitle").click();
-    cy.url().should("include", "/register");
-    cy.get("[data-testid=email]").type(username);
-    cy.get("[data-testid=password]").type(password);
-    cy.get('button[type="submit"]').click({ force: true });
-    cy.get("[data-testid=skip-now]").click({ force: true });
+  it("should display an error message for an invalid password", () => {
+    const validPassword = "vaLidP@ssw0rd";
+    const invalidPasswords = [
+      {
+        password: "gdfRT5^",
+        expectedMessage:
+          "Your password is not strong enough. Password size must be more than 8",
+      },
+      {
+        password: "abcdefgh",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast uppercase,numeric,special character",
+      },
+      {
+        password: "ABCDEFGH",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast lowercase,numeric,special character",
+      },
+      {
+        password: "1234567",
+        expectedMessage:
+          "Your password is not strong enough. Password size must be more than 8",
+      },
+      {
+        password: "!@#$%^&*",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast uppercase,lowercase,numeric character",
+      },
+      {
+        password: "passWORD",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast numeric,special character",
+      },
+      {
+        password: "passWORD1",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast special character",
+      },
+      {
+        password: "passWORD@",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast numeric character",
+      },
+      {
+        password: "1234%^&*",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast uppercase,lowercase character",
+      },
+      {
+        password: "3123 As@6",
+        expectedMessage: "Password should not contain whitespaces.",
+      },
+    ];
+
+    cy.visit("/register");
+
+    signupPage.emailInput.type(Cypress.env("CYPRESS_USERNAME"));
+
+    invalidPasswords.forEach(({ password, expectedMessage }) => {
+      signupPage.passwordInput.clear().type(password).blur();
+      signupPage.invalidInputError
+        .should("be.visible")
+        .and("contain", expectedMessage);
+      signupPage.signUpButton.should("be.disabled");
+
+      signupPage.passwordInput.clear().type(validPassword).blur();
+      signupPage.invalidInputError.should("not.exist");
+    });
+  });
+
+  it("should allow users to signin in with a valid email and password", () => {
+    const email = helper.generateUniqueEmail();
+    cy.visit("/register");
+
+    signupPage.emailInput.type(email);
+    signupPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
+    signupPage.signUpButton.click();
+    signinPage.skip2FAButton.click();
+
     cy.url().should("include", "/dashboard/home");
+  });
+
+  it("should verify all components on the signup page when email feature flag is enabled", () => {
+    cy.enable_email_feature_flag();
+    signinPage.signUpLink.click();
+
+    signupPage.emailInput.should("be.visible");
+    signupPage.emailInput.should(
+      "have.attr",
+      "placeholder",
+      "Enter your Email",
+    );
+    signupPage.signUpButton.should("contain", "Get started, for free!");
+    signupPage.footerText.should("be.visible");
+  });
+
+  it("should show success message page after using magic link", () => {
+    cy.enable_email_feature_flag();
+    signinPage.signUpLink.click();
+    signupPage.emailInput.type(Cypress.env("CYPRESS_USERNAME"));
+
+    cy.mock_magic_link_signin_success();
+    signupPage.signUpButton.click();
+    cy.wait("@getMagicLinkSuccess");
+
+    signupPage.headerText.should("contain", "Please check your inbox");
+
+    signupPage.headerText
+      .next("div")
+      .should("contain", "A magic link has been sent to")
+      .should("contain", Cypress.env("CYPRESS_USERNAME"));
+
+    signupPage.footerText.should("be.visible").should("contain", "Cancel");
+  });
+
+  it("should navigate back to the login page when the cancel button in signup page is clicked", () => {
+    cy.enable_email_feature_flag();
+    signinPage.signUpLink.click();
+    signupPage.emailInput.type(Cypress.env("CYPRESS_USERNAME"));
+
+    cy.mock_magic_link_signin_success();
+    signupPage.signUpButton.click();
+    cy.wait("@getMagicLinkSuccess");
+
+    signupPage.footerText.click();
+    cy.url().should("include", "/login");
   });
 });
 
-describe("Login", () => {
-  it("check the components in the login page", () => {
-    cy.visit("/dashboard/login");
-    cy.url().should("include", "/login");
-    cy.get("#card-header").should("contain", "Hey there, Welcome back!");
-    cy.get("#card-subtitle").should("contain", "Sign up");
-    cy.get("#auth-submit-btn").should("exist");
-    cy.get("#tc-text").should("exist");
-    cy.get("#footer").should("exist");
-  });
-
-  it("check auth page back button functioning", () => {
+describe("Sign in", () => {
+  it("should verify all required components on the login page", () => {
     cy.visit("/");
-    cy.get("#card-subtitle").click();
+    cy.url().should("include", "/dashboard/login");
+
+    signinPage.headerText.should("contain", "Hey there, Welcome back!");
+    signinPage.signUpLink.should("contain", "Sign up");
+    signinPage.emailInput.should("be.visible");
+    signupPage.emailInput.should(
+      "have.attr",
+      "placeholder",
+      "Enter your Email",
+    );
+    signinPage.passwordInput.should("be.visible");
+    signupPage.passwordInput.should(
+      "have.attr",
+      "placeholder",
+      "Enter your Password",
+    );
+    signinPage.signinButton.should("be.visible");
+    signinPage.tcText.should("exist");
+    signinPage.footerText.should("exist");
+  });
+
+  it("should return to login page when clicked on 'Sign in'", () => {
+    cy.visit("/");
+    signinPage.signUpLink.click();
     cy.url().should("include", "/register");
-    cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
-    cy.get("#card-subtitle").should("contain", "Sign in");
-    cy.get("#card-subtitle").click();
+
+    signupPage.headerText.should("contain", "Welcome to Hyperswitch");
+    signupPage.signInLink.click();
+
     cy.url().should("include", "/login");
-    cy.get("#card-header").should("contain", "Hey there, Welcome back!");
+    signinPage.headerText.should("contain", "Hey there, Welcome back!");
   });
 
-  it("sets true the feature flag for magic link and forgot password,then checks auth page back button functioning", () => {
-    cy.intercept("GET", "/dashboard/config/feature?domain=default", {
-      statusCode: 200,
-      body: {
-        theme: {
-          primary_color: "#006DF9",
-          primary_hover_color: "#005ED6",
-          sidebar_color: "#242F48",
-        },
-        endpoints: {
-          api_url: "http://localhost:8080",
-          sdk_url: "",
-          logo_url: "",
-          favicon_url: "",
-          agreement_url: "",
-          agreement_version: "",
-          apple_pay_certificate_url: "",
-          mixpanel_token: "",
-          recon_iframe_url: "",
-          dss_certificate_url: "",
-        },
-        features: {
-          test_live_toggle: false,
-          is_live_mode: false,
-          email: true,
-          quick_start: false,
-          audit_trail: false,
-          system_metrics: false,
-          sample_data: false,
-          frm: false,
-          payout: true,
-          recon: false,
-          test_processors: true,
-          feedback: false,
-          mixpanel: false,
-          generate_report: false,
-          user_journey_analytics: false,
-          authentication_analytics: false,
-          surcharge: false,
-          dispute_evidence_upload: false,
-          paypal_automatic_flow: false,
-          threeds_authenticator: false,
-          global_search: false,
-          dispute_analytics: false,
-          configure_pmts: false,
-          branding: false,
-          live_users_counter: false,
-          granularity: false,
-          custom_webhook_headers: false,
-          compliance_certificate: false,
-          user_management_revamp: false,
-          pm_authentication_processor: true,
-          performance_monitor: false,
-          new_analytics: false,
-          down_time: false,
-          tax_processor: true,
-        },
-      },
-    }).as("getFeatureData");
-    cy.visit("");
-    cy.wait("@getFeatureData");
-    cy.get("[data-testid=card-foot-text]").click();
-    cy.url().should("include", "/login");
-    cy.get("#card-header").should("contain", "Hey there, Welcome back!");
-    cy.get("#card-subtitle").should("contain", "Sign up");
-    cy.get("[data-testid=card-foot-text]")
-      .should("contain", "sign in using password")
-      .click();
+  it("should successfully login in with valid credentials", () => {
+    const email = helper.generateUniqueEmail();
+    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.visit("/");
 
-    cy.get("[data-testid=forgot-password]").click();
-    cy.url().should("include", "/forget-password");
-    cy.get("#card-header").should("contain", "Forgot Password?");
-  });
+    signinPage.emailInput.type(email);
+    signinPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
+    signinPage.signinButton.click();
+    signinPage.skip2FAButton.click();
 
-  it("should successfully log in with valid credentials", () => {
-    const password = "Cypress98#";
-    cy.visit("/dashboard/login");
-    cy.get("[data-testid=email]").type(username);
-    cy.get("[data-testid=password]").type(password);
-    cy.get('button[type="submit"]').click({ force: true });
-    cy.get("[data-testid=skip-now]").click({ force: true });
     cy.url().should("include", "/dashboard/home");
   });
 
   it("should display an error message with invalid credentials", () => {
     cy.visit("/");
-    cy.get("[data-testid=email]").type("xxx@gmail.com");
-    cy.get("[data-testid=password]").type("xxxx");
-    cy.get('button[type="submit"]').click({ force: true });
+
+    signinPage.emailInput.type("abc@gmail.com");
+    signinPage.passwordInput.type("aAbcd");
+    signinPage.signinButton.click();
+
     cy.contains("Incorrect email or password").should("be.visible");
   });
 
   it("should login successfully with email containing spaces", () => {
-    const password = "Cypress98#";
+    const email = helper.generateUniqueEmail();
     cy.visit("/");
-    cy.get("[data-testid=email]").type(`  ${username}  `);
-    cy.get("[data-testid=password]").type(password);
-    cy.get('button[type="submit"]').click({ force: true });
-    cy.get("[data-testid=skip-now]").click({ force: true });
+    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+
+    signinPage.signin(` ${email} `, Cypress.env("CYPRESS_PASSWORD"));
+
     cy.url().should("include", "/dashboard/home");
+  });
+
+  it("should verify all components on the signin page when email feature flag is enabled", () => {
+    cy.enable_email_feature_flag();
+
+    signinPage.headerText.should("contain", "Hey there, Welcome back!");
+    signinPage.signUpLink.should("contain", "Sign up");
+    signinPage.emailInput.should("be.visible");
+    signupPage.emailInput.should(
+      "have.attr",
+      "placeholder",
+      "Enter your Email",
+    );
+    signinPage.passwordInput.should("be.visible");
+    signupPage.passwordInput.should(
+      "have.attr",
+      "placeholder",
+      "Enter your Password",
+    );
+    signinPage.forgetPasswordLink
+      .should("be.visible")
+      .and("contains.text", "Forgot Password?");
+    signinPage.signinButton.should("be.visible");
+    signinPage.emailSigninLink
+      .should("be.visible")
+      .and("contains.text", "sign in with an email");
+    signinPage.tcText.should("exist");
+    signinPage.footerText.should("exist");
+  });
+
+  it("should display only email field when 'sign in with an email' is clicked", () => {
+    cy.enable_email_feature_flag();
+
+    cy.get('[data-testid="password"]').should("exist");
+    cy.get('[data-testid="forgot-password"]').should("exist");
+
+    signinPage.emailSigninLink.click();
+
+    cy.get('[data-testid="password"]').should("not.exist");
+    cy.get('[data-testid="forgot-password"]').should("not.exist");
+  });
+
+  it("should verify components displayed in 2FA setup page", () => {
+    const email = helper.generateUniqueEmail();
+    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.visit("/");
+    signinPage.emailInput.type(email);
+    signinPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
+    signinPage.signinButton.click();
+
+    signinPage.headerText2FA.should(
+      "contain",
+      "Enable Two Factor Authentication",
+    );
+
+    signinPage.instructions2FA
+      .should("contain", "Use any authenticator app to complete the setup")
+      .and(
+        "contain",
+        "Follow these steps to configure two factor authentication",
+      )
+      .and(
+        "contain",
+        "Scan the QR code shown on the screen with your authenticator application",
+      )
+      .and(
+        "contain",
+        "Enter the OTP code displayed on the authenticator app in below text field or textbox",
+      );
+
+    signinPage.otpBox2FA.should(
+      "contain",
+      "Enter a 6-digit authentication code generated by you authenticator app",
+    );
+    signinPage.otpBox2FA
+      .children()
+      .eq(1)
+      .find("div.w-16.h-16")
+      .should("have.length", 6);
+
+    signinPage.skip2FAButton.should("be.visible");
+    signinPage.enable2FA
+      .should("be.visible")
+      .and("be.disabled")
+      .and("contain", "Enable 2FA");
+    signinPage.footerText2FA
+      .should("be.visible")
+      .contains("Log in with a different account?");
+    signinPage.footerText2FA.should("contain", "Click here to log out.");
+  });
+
+  it("should display error message with invalid TOTP in 2FA page", () => {
+    const email = helper.generateUniqueEmail();
+    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    const otp = "123456";
+
+    cy.visit("/");
+    signinPage.emailInput.type(email);
+    signinPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
+    signinPage.signinButton.click();
+
+    signinPage.headerText2FA.should(
+      "contain",
+      "Enable Two Factor Authentication",
+    );
+
+    signinPage.otpBox2FA
+      .children()
+      .eq(1)
+      .find("div.w-16.h-16")
+      .each(($input, index) => {
+        cy.wrap($input).type(otp.charAt(index));
+      });
+
+    signinPage.enable2FA.click();
+
+    cy.contains("Invalid TOTP").should("be.visible");
+  });
+
+  it("should navigate to homepage when 2FA is skipped", () => {
+    const email = helper.generateUniqueEmail();
+    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+
+    cy.visit("/");
+    signinPage.emailInput.type(email);
+    signinPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
+    signinPage.signinButton.click();
+
+    signinPage.headerText2FA.should(
+      "contain",
+      "Enable Two Factor Authentication",
+    );
+
+    signinPage.skip2FAButton.click();
+
+    cy.url().should("include", "/dashboard/home");
+  });
+
+  it("should navigate to signin page when 'Click here to log out.' is clickeed in 2FA page", () => {
+    const email = helper.generateUniqueEmail();
+    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+
+    cy.visit("/");
+    signinPage.emailInput.type(email);
+    signinPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
+    signinPage.signinButton.click();
+
+    signinPage.headerText2FA.should(
+      "contain",
+      "Enable Two Factor Authentication",
+    );
+
+    signinPage.footerText2FA.children().eq(0).click();
+
+    signinPage.headerText.should("contain", "Hey there, Welcome back!");
   });
 });
 
-describe("Forgot password", () => {});
+describe("Forgot password", () => {
+  it("should verify all components in forgot passowrd page", () => {
+    cy.enable_email_feature_flag();
+
+    signinPage.forgetPasswordLink.click();
+    cy.url().should("include", "/dashboard/forget-password");
+    signinPage.forgetPasswordHeader.should("contain", "Forgot Password?");
+
+    signinPage.emailInput.should("be.visible");
+    signinPage.emailInput
+      .children()
+      .eq(0)
+      .should("have.attr", "placeholder", "Enter your Email");
+
+    signinPage.resetPasswordButton.should("be.visible").and("be.disabled");
+    signinPage.cancelForgetPassword
+      .should("be.visible")
+      .and("contain", "Cancel");
+  });
+});
