@@ -28,7 +28,7 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, transactionView} =
+  let {generateReport, transactionView, email} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
@@ -142,7 +142,7 @@ let make = (~previewOnly=false) => {
             selectedEntity={transactionEntity}
             onChange={updateTransactionEntity}
           />
-          <RenderIf condition={generateReport && orderData->Array.length > 0}>
+          <RenderIf condition={generateReport && email && orderData->Array.length > 0}>
             <GenerateReport entityName={PAYMENT_REPORT} />
           </RenderIf>
         </div>

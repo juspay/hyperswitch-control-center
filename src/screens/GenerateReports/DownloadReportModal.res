@@ -74,12 +74,6 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     modalClass="w-1/4 m-auto">
     <Form onSubmit initialValues>
       <FormRenderer.FieldRenderer
-        field={FormRenderer.makeFieldInfo(~label="Report Type", ~name="view", ~customInput=(
-          ~input as _,
-          ~placeholder as _,
-        ) => <TextInput input={viewInput} placeholder="" isDisabled=true />)}
-      />
-      <FormRenderer.FieldRenderer
         field={FormRenderer.makeMultiInputFieldInfo(
           ~label="Date Range",
           ~comboCustomInput=InputFields.dateRangeField(
@@ -99,6 +93,12 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
           ~inputFields=[],
           ~isRequired=true,
         )}
+      />
+      <FormRenderer.FieldRenderer
+        field={FormRenderer.makeFieldInfo(~label="Report Type", ~name="view", ~customInput=(
+          ~input as _,
+          ~placeholder as _,
+        ) => <TextInput input={viewInput} placeholder="" isDisabled=true />)}
       />
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeFieldInfo(
