@@ -337,56 +337,32 @@ module ConnectorConfigurationFields = {
 
 module BusinessProfileRender = {
   @react.component
-  let make = (~isUpdateFlow: bool, ~selectedConnector) => {
+  let make = (~isUpdateFlow: bool, ~selectedConnector as _) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-    let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-    let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
-
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
-
+    let profileview = `${getNameForId(#Profile)} (${profileId})`
+    let profileInput: ReactFinalForm.fieldRenderPropsInput = {
+      name: "profile",
+      onBlur: _ => (),
+      onChange: _ => (),
+      onFocus: _ => (),
+      value: profileview->JSON.Encode.string,
+      checked: true,
+    }
     let hereTextStyle = isUpdateFlow
       ? "text-grey-700 opacity-50 cursor-not-allowed"
       : `${textColor.primaryNormal}  cursor-pointer`
 
     <>
       <FormRenderer.FieldRenderer
-        labelClass="font-semibold !text-black"
-        field={FormRenderer.makeFieldInfo(
-          ~label="Profile",
-          ~isRequired=true,
-          ~name="profile_id",
-          ~customInput=(~input, ~placeholder as _) =>
-            InputFields.selectInput(
-              ~deselectDisable=true,
-              ~disableSelect={isUpdateFlow || businessProfiles->HomeUtils.isDefaultBusinessProfile},
-              ~customStyle="max-h-48",
-              ~options={
-                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
-              },
-              ~buttonText="Select Profile",
-            )(
-              ~input={
-                ...input,
-                onChange: {
-                  ev => {
-                    let profileName = (
-                      businessProfiles
-                      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
-                        ele.profile_id === ev->Identity.formReactEventToString
-                      )
-                      ->Option.getOr(defaultBusinessProfile)
-                    ).profile_name
-                    connectorLabelOnChange(
-                      `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,
-                    )
-                    input.onChange(ev)
-                  }
-                },
-              },
-              ~placeholder="",
-            ),
+        field={FormRenderer.makeFieldInfo(~label="Profile", ~name="profile_id", ~customInput=(
+          ~input as _,
+          ~placeholder as _,
+        ) =>
+          <TextInput input={profileInput} placeholder="" isDisabled=true customStyle="!w-34-rem" />
         )}
       />
       <RenderIf condition={!isUpdateFlow}>
