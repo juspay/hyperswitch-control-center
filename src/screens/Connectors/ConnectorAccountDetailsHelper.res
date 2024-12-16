@@ -362,7 +362,12 @@ module BusinessProfileRender = {
           ~input as _,
           ~placeholder as _,
         ) =>
-          <TextInput input={profileInput} placeholder="" isDisabled=true customStyle="!w-34-rem" />
+          <TextInput
+            input={profileInput}
+            placeholder=""
+            isDisabled=true
+            customStyle="!w-34-rem font-semibold"
+          />
         )}
       />
       <RenderIf condition={!isUpdateFlow}>
