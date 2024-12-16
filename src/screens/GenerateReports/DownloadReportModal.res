@@ -28,10 +28,9 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   }
 
   let onSubmit = (values, _) => {
-    let body = values
-    let metadata = body->Identity.genericTypeToJson
+    let metadata = values->Identity.genericTypeToJson
     mixpanelEvent(~eventName="generate_reports_download", ~metadata)
-    downloadReport(body->Identity.genericTypeToJson)
+    downloadReport(values->Identity.genericTypeToJson)
   }
 
   let getPreviousDate = () => {
