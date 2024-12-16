@@ -117,34 +117,27 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
     <div className="w-full flex flex-wrap gap-2 border p-2 text-sm rounded-md">
       {items
       ->Array.mapWithIndex((item, i) =>
-        switch editingItem {
-        | Some(selected) =>
-          <RenderIf condition={selected == item}>
-            <div key={Int.toString(i)} className="flex flex-wrap gap-1 p-1 border rounded-md">
-              <input
-                type_="text"
-                value={editInput}
-                onBlur={_ => saveItem(item)}
-                onInput=handleEditChange
-                onKeyDown={ev => handleEditKeydown(item, ev)}
-                className="rounded-md p-1 flex-grow"
-              />
-              <button onClick={_ => removeItem(item)} className=" hover:bg-gray-300 rounded-md p-1">
-                <Icon name="cross-outline" size=14 />
-              </button>
-            </div>
+        <div key={Int.toString(i)} className="flex flex-wrap gap-1 p-1 border rounded-md">
+          <RenderIf condition={editingItem == Some(item)}>
+            <input
+              type_="text"
+              value={editInput}
+              onBlur={_ => saveItem(item)}
+              onInput=handleEditChange
+              onKeyDown={ev => handleEditKeydown(item, ev)}
+              className="rounded-md p-1 flex-grow"
+            />
           </RenderIf>
-        | None =>
-          <div key={Int.toString(i)} className="flex flex-wrap gap-1 p-1 border rounded-md">
+          <RenderIf condition={editingItem != Some(item)}>
             <div
               className="cursor-pointer px-2 py-1 flex-grow" onClick={_ => toggleEditingItem(item)}>
               {React.string(item)}
             </div>
-            <button onClick={_ => removeItem(item)} className=" hover:bg-gray-300 rounded-md p-1">
-              <Icon name="cross-outline" size=14 />
-            </button>
-          </div>
-        }
+          </RenderIf>
+          <button onClick={_ => removeItem(item)} className="hover:bg-gray-300 rounded-md p-1">
+            <Icon name="cross-outline" size=14 />
+          </button>
+        </div>
       )
       ->React.array}
       <div className="relative">
@@ -163,7 +156,7 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
             className="absolute z-10 min-w-80 bg-white border rounded-md shadow-lg mt-1 cursor-pointer top-10 h-16">
             <div className="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4">
               <div className="flex items-center gap-2">
-                <img alt="user_icon" src={`/icons/user_icon.svg`} className="h-6 w-6" />
+                <Icon name="user" size=14 className="text-blue-600" />
                 <span className="font-medium"> {React.string(suggestion->Option.getOr(""))} </span>
               </div>
             </div>
