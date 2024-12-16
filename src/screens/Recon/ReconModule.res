@@ -47,12 +47,16 @@ let make = (~urlList) => {
 
       let eventType =
         dictFromEvent
-        ->getDictfromDict("data")
+        ->getString("data", "")
+        ->safeParse
+        ->getDictFromJsonObject
         ->getString("event", "")
 
       let status =
         dictFromEvent
-        ->getDictfromDict("data")
+        ->getString("data", "")
+        ->safeParse
+        ->getDictFromJsonObject
         ->getString("AuthenticationStatus", "")
         ->ReconUtils.getAuthStatusFromMessage
 
