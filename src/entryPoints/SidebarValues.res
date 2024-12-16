@@ -499,12 +499,7 @@ let paymentSettings = userHasResourceAccess => {
   })
 }
 
-let developers = (
-  isDevelopersEnabled,
-  ~userHasResourceAccess,
-  ~checkUserEntity,
-  ~roleId,
-) => {
+let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity, ~roleId) => {
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
