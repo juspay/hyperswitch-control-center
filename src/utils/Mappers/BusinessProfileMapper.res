@@ -30,7 +30,8 @@ let businessProfileTypeMapper = values => {
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
-  let businessProfile = {
+
+  {
     merchant_id: jsonDict->getString("merchant_id", ""),
     profile_id: jsonDict->getString("profile_id", ""),
     profile_name: jsonDict->getString("profile_name", ""),
@@ -58,11 +59,9 @@ let businessProfileTypeMapper = values => {
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
     authentication_product_ids: jsonDict
-    ->LogicUtils.getDictfromDict("authentication_product_ids")
+    ->getDictfromDict("authentication_product_ids")
     ->getJsonObjectFromDict("click_to_pay"),
   }
-  Console.log2("Check ---->", businessProfile)
-  businessProfile
 }
 
 let convertObjectToType = value => {

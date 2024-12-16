@@ -4,7 +4,6 @@ let parseKey = api_key => {
 }
 
 let parseBussinessProfileJson = (profileRecord: profileEntity) => {
-  Js.log2("profileRecord", profileRecord)
   open LogicUtils
   let {
     merchant_id,
