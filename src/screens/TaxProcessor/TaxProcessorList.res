@@ -36,6 +36,9 @@ let make = () => {
         ->Array.filter(item =>
           item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === TaxProcessor
         )
+      connectorsList->Array.sort((a, b) =>
+        LogicUtils.numericArraySortComperator(a.disabled ? 1.0 : 0.0, b.disabled ? 1.0 : 0.0)
+      )
 
       setConfiguredConnectors(_ => connectorsList)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
