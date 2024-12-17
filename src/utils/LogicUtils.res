@@ -125,10 +125,6 @@ let getOptionalArrayFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.array)
 }
 
-let getOptionalJsonFromDict = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.array)
-}
-
 let getArrayFromDict = (dict, key, default) => {
   dict->getOptionalArrayFromDict(key)->Option.getOr(default)
 }
