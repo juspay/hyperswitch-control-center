@@ -799,7 +799,7 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
-            Js.log("Inside 401")
+
             handleLogout()->ignore
             AuthUtils.redirectToLogin()
             sessionExpired := true
