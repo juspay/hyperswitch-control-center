@@ -5,6 +5,7 @@ let parseKey = api_key => {
 
 let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   open LogicUtils
+  Js.log2("Champ ---> profileRecord", profileRecord)
   let {
     merchant_id,
     profile_id,
@@ -70,14 +71,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   )
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
-  profileInfo->setOptionJson(
-    "authentication_product_ids",
-    Some(
-      authentication_product_ids
-      ->getDictFromJsonObject
-      ->getJsonObjectFromDict("authentication_product_ids"),
-    ),
-  )
+  profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
 
   profileInfo->setOptionDict(
     "outgoing_webhook_custom_http_headers",
@@ -163,6 +157,8 @@ let getCustomHeadersPayload = (values: JSON.t) => {
 }
 
 let getBusinessProfilePayload = (values: JSON.t) => {
+  Js.log2("Champ ---> values", values)
+
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let webhookSettingsValue = Dict.make()
@@ -528,7 +524,7 @@ let defaultValueForBusinessProfile = {
   is_auto_retries_enabled: None,
   max_auto_retries_enabled: None,
   is_click_to_pay_enabled: None,
-  authentication_product_ids: JSON.Encode.null,
+  authentication_product_ids: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

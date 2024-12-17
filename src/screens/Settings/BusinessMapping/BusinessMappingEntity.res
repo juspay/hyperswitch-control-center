@@ -146,6 +146,8 @@ let getCell = (item: profileEntity, colType): Table.cell => {
 }
 
 let itemToObjMapper = dict => {
+  Js.log2("Champ ---> dict", dict)
+
   open LogicUtils
   {
     profile_id: getString(dict, "profile_id", ""),
@@ -177,9 +179,11 @@ let itemToObjMapper = dict => {
     is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: dict->getOptionBool("is_click_to_pay_enabled"),
-    authentication_product_ids: dict
-    ->getDictfromDict("authentication_product_ids")
-    ->Identity.genericTypeToJson,
+    authentication_product_ids: Some(
+      dict
+      ->getDictfromDict("authentication_product_ids")
+      ->JSON.Encode.object,
+    ),
   }
 }
 
