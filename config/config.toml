@@ -41,7 +41,6 @@ configure_pmts=false
 branding=false
 live_users_counter=false
 granularity=false
-custom_webhook_headers=false
 compliance_certificate=false
 pm_authentication_processor=true
 performance_monitor=false
@@ -50,7 +49,6 @@ new_analytics_smart_retries=false
 new_analytics_refunds=false
 down_time=false
 tax_processor=true
-transaction_view=false
 x_feature_route=false
 tenant_user=false
 [default.merchant_config]
