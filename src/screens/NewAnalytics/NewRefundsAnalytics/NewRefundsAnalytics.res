@@ -8,6 +8,13 @@ let make = () => {
     <RefundsSuccessRate
       entity={refundsSuccessRateEntity} chartEntity={refundsSuccessRateChartEntity}
     />
+    <FailedRefundsDistribution
+      entity={failedRefundsDistributionEntity} chartEntity={failedRefundsDistributionChartEntity}
+    />
+    <SuccessfulRefundsDistribution
+      entity={successfulRefundsDistributionEntity}
+      chartEntity={successfulRefundsDistributionChartEntity}
+    />
     <RefundsReasons entity={refundsReasonsEntity} />
   </div>
 }
