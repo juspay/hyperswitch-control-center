@@ -67,8 +67,16 @@ module SmartRetryPaymentsProcessedHeader = {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
 
-    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=selectedMetric.value)
-    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=selectedMetric.value)
+    let primaryValue = getMetaDataValue(
+      ~data,
+      ~index=0,
+      ~key=selectedMetric.value->getMetaDataMapper,
+    )
+    let secondaryValue = getMetaDataValue(
+      ~data,
+      ~index=1,
+      ~key=selectedMetric.value->getMetaDataMapper,
+    )
 
     let (primaryValue, secondaryValue) = if selectedMetric.value->isAmountMetric {
       (primaryValue /. 100.0, secondaryValue /. 100.0)
@@ -103,7 +111,9 @@ module SmartRetryPaymentsProcessedHeader = {
           {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
         </div>
         <RenderIf condition={comparison == EnableComparison}>
-          <StatisticsCard value direction />
+          <StatisticsCard
+            value direction tooltipValue={`${secondaryValue->valueFormatter(metricType)} ${suffix}`}
+          />
         </RenderIf>
       </div>
       // will enable it in future

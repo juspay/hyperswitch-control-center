@@ -28,8 +28,7 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, transactionView} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -145,16 +144,14 @@ let make = (~previewOnly=false) => {
               entityMapper=UserInfoUtils.transactionEntityMapper
             />
           </Portal>
-          <RenderIf condition={generateReport && orderData->Array.length > 0}>
+          <RenderIf condition={generateReport && email && orderData->Array.length > 0}>
             <GenerateReport entityName={PAYMENT_REPORT} />
           </RenderIf>
         </div>
       </div>
-      <RenderIf condition={transactionView}>
-        <div className="flex gap-6 justify-around">
-          <TransactionView entity=TransactionViewTypes.Orders />
-        </div>
-      </RenderIf>
+      <div className="flex gap-6 justify-around">
+        <TransactionView entity=TransactionViewTypes.Orders />
+      </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>

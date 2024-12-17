@@ -145,3 +145,28 @@ let failedPaymentsDistributionTableEntity = {
     ~getHeading,
   )
 }
+
+// Payments Failure Reasons
+let failureReasonsEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#failure_reasons],
+    groupBy: [#error_reason],
+  },
+  title: "Failure Reasons ",
+  domain: #payments,
+}
+
+let failureReasonsTableEntity = {
+  open FailureReasonsPaymentsUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=[],
+    ~requiredSearchFieldsList=[],
+    ~allColumns=[],
+    ~getCell,
+    ~getHeading,
+  )
+}
