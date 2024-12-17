@@ -172,8 +172,8 @@ let make = () => {
           filters={<TableSearchFilter
             data={previouslyConnectedData}
             filterLogic
-            placeholder="Search FRM Player Name"
-            customSearchBarWrapperWidth="w-full lg:w-1/3"
+            placeholder="Search Processor or Merchant Connector Id or Connector Label"
+            customSearchBarWrapperWidth="w-full lg:w-1/2"
             customInputBoxWidth="w-full"
             searchVal=searchText
             setSearchVal=setSearchText

@@ -129,8 +129,8 @@ let make = (~isPayoutFlow=false) => {
             filters={<TableSearchFilter
               data={previouslyConnectedData}
               filterLogic
-              placeholder="Search Processor or Country or Business Label"
-              customSearchBarWrapperWidth="w-full lg:w-1/3"
+              placeholder="Search Processor or Merchant Connector Id or Connector Label"
+              customSearchBarWrapperWidth="w-full lg:w-1/2"
               customInputBoxWidth="w-full"
               searchVal=searchText
               setSearchVal=setSearchText

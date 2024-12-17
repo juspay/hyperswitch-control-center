@@ -71,8 +71,8 @@ let make = () => {
             filters={<TableSearchFilter
               data={configuredConnectors->Array.map(Nullable.make)}
               filterLogic
-              placeholder="Search a processor"
-              customSearchBarWrapperWidth="w-full lg:w-1/3"
+              placeholder="Search Processor or Merchant Connector Id or Connector Label"
+              customSearchBarWrapperWidth="w-full lg:w-1/2"
               customInputBoxWidth="w-full"
               searchVal={searchText}
               setSearchVal={setSearchText}
