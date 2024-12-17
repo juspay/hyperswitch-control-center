@@ -47,7 +47,7 @@ let make = (~children) => {
     | LoggedOut => {
         setAuth(_ => LoggedOut)
         CommonAuthUtils.clearLocalStorage()
-        AuthUtils.redirectToLogin()
+        // AuthUtils.redirectToLogin()
       }
     | CheckingAuthStatus => setAuth(_ => CheckingAuthStatus)
     }
