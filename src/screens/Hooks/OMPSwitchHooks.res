@@ -3,7 +3,6 @@ type userInfo = {
   updateTransactionEntity: UserInfoTypes.entity => unit,
   updateAnalytcisEntity: UserInfoTypes.entity => unit,
 }
-
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()

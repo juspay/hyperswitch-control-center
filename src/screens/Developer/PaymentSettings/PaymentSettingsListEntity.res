@@ -29,7 +29,6 @@ let getCell = (item: profileEntity, colType): Table.cell => {
 }
 
 let itemToObjMapper = dict => {
-  Js.log2("Champ --->", dict)
   open LogicUtils
   {
     profile_id: getString(dict, "profile_id", ""),

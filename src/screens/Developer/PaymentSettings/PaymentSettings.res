@@ -442,15 +442,15 @@ module ClickToPaySection = {
   let make = () => {
     open FormRenderer
     open LogicUtils
+
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let connectorListAtom = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-
+    let conneectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     let isClickToPayEnabled =
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
-
     let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
       {
         label: `${item.connector_name} - ${item.merchant_connector_id}`,
@@ -458,7 +458,6 @@ module ClickToPaySection = {
       }
     })
 
-    let conneectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     <RenderIf condition={conneectorView}>
       <DesktopRow>
         <FieldRenderer
@@ -483,7 +482,6 @@ module ClickToPaySection = {
                 ~options=dropDownOptions,
                 ~buttonText="Select Connector ID",
                 ~deselectDisable=true,
-                ~customStyle="",
               ),
             )}
           />
