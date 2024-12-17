@@ -467,13 +467,15 @@ module ClickToPaySection = {
             ~name="is_click_to_pay_enabled",
             ~label="Click to Pay",
             ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+            ~description="Click to Pay is a secure, seamless digital payment solution that lets customers checkout quickly using saved cards without entering details",
+            ~toolTipPosition=Right,
           )}
         />
       </DesktopRow>
       <RenderIf condition={isClickToPayEnabled}>
         <DesktopRow>
           <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-black"
+            labelClass="!text-base !text-grey-700 font-semibold"
             field={FormRenderer.makeFieldInfo(
               ~label="Connector ID",
               ~name="authentication_product_ids.click_to_pay",
