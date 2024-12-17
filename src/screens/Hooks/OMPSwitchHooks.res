@@ -4,11 +4,6 @@ type userInfo = {
   updateAnalytcisEntity: UserInfoTypes.entity => unit,
 }
 
-type useOMPDataType = {
-  getList: unit => OMPSwitchTypes.ompList,
-  getNameForId: UserManagementTypes.userModuleTypes => string,
-}
-
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
@@ -198,5 +193,5 @@ let useOMPData = () => {
     | _ => ""
     }
 
-  {getList, getNameForId}
+  (getList, getNameForId)
 }
