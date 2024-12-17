@@ -71,8 +71,6 @@ let make = (~isPayoutFlow=false) => {
     ? payoutConnectorList
     : connectorList
 
-  // Console.log(configuredConnectors)
-
   <div>
     <PageLoaderWrapper screenState>
       <RenderIf
