@@ -35,6 +35,10 @@ class SignInPage {
     return cy.get('[data-testid="card-foot-text"]');
   }
 
+  get invalidCredsToast() {
+    return cy.get('[data-toast="Incorrect email or password"]');
+  }
+
   // 2FA setup
   get headerText2FA() {
     return cy.get('[class="text-2xl font-semibold leading-8 text-grey-900"]');

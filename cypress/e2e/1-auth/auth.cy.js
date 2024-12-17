@@ -251,7 +251,7 @@ describe("Sign in", () => {
     signinPage.passwordInput.type("aAbcd");
     signinPage.signinButton.click();
 
-    cy.contains("Incorrect email or password").should("be.visible");
+    signinPage.invalidCredsToast.should("be.visible");
   });
 
   it("should login successfully with email containing spaces", () => {
