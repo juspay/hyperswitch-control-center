@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.17.1
+
+### Miscellaneous Tasks
+
+- Package update ([#1946](https://github.com/juspay/hyperswitch-control-center/pull/1946)) ([`8c8a444`](https://github.com/juspay/hyperswitch-control-center/commit/8c8a4441886bfa47590b3a81de35adbca30d2fb6))
+
+**Full Changelog:** [`2024.12.17.0...2024.12.17.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.17.0...2024.12.17.1)
+
+- - -
+
+## 2024.12.17.0
+
+### Features
+
+- Additional recipients in generate report ([#1911](https://github.com/juspay/hyperswitch-control-center/pull/1911)) ([`73478b5`](https://github.com/juspay/hyperswitch-control-center/commit/73478b58de6b762ee3db76d258d27f7325f706f0))
+- Refunds amount count module ([#1915](https://github.com/juspay/hyperswitch-control-center/pull/1915)) ([`3493139`](https://github.com/juspay/hyperswitch-control-center/commit/3493139c91f8a0256983dd2937ed156e62960403))
+
+### Bug Fixes
+
+- Removing unused feature flags ([#1920](https://github.com/juspay/hyperswitch-control-center/pull/1920)) ([`1a55514`](https://github.com/juspay/hyperswitch-control-center/commit/1a555148efe72b01bab729db84d3d8bb17c8803a))
+
+**Full Changelog:** [`2024.12.16.0...2024.12.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.16.0...2024.12.17.0)
+
+- - -
+
 ## 2024.12.16.0
 
 ### Features
