@@ -66,17 +66,15 @@ let make = () => {
               `tax-processor`,
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
-            filters={
-              <TableSearchFilter
-                data={configuredConnectors->Array.map(Nullable.make)}
-                filterLogic
-                placeholder="Search a processor"
-                customSearchBarWrapperWidth="w-full lg:w-1/3"
-                customInputBoxWidth="w-full"
-                searchVal=searchText
-                setSearchVal=setSearchText
-              />
-            }
+            filters={<TableSearchFilter
+              data={configuredConnectors->Array.map(Nullable.make)}
+              filterLogic
+              placeholder="Search a processor"
+              customSearchBarWrapperWidth="w-full lg:w-1/3"
+              customInputBoxWidth="w-full"
+              searchVal=searchText
+              setSearchVal=setSearchText
+            />}
             offset
             setOffset
             currrentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
