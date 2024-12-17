@@ -55,7 +55,7 @@ let customBuild = (appName = "hyperswitch") => {
         {
           test: /\.js$/,
           use: {
-            loader: "istanbul-instrumenter-loader",
+            loader: "@jsdevtools/coverage-istanbul-loader",
             options: { esModules: true },
           },
           enforce: "post",
