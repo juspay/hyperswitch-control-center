@@ -23,9 +23,7 @@ let make = (~isPayoutFlow=false) => {
       // TODO : maintain separate list for multiple types of connectors
       let connectorsList = connectorListFromRecoil->getProcessorsListFromJson(~removeFromList)
       connectorsList->Array.reverse
-      connectorsList->Array.sort((a, b) =>
-        LogicUtils.numericArraySortComperator(a.disabled ? 1.0 : 0.0, b.disabled ? 1.0 : 0.0)
-      )
+      HSwitchUtils.sortByDisableField(connectorsList, c => c.disabled)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>

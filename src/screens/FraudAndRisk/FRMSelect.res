@@ -117,10 +117,7 @@ let make = () => {
         let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
         setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
         setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
-        previousData->Array.sort(
-          (a, b) =>
-            LogicUtils.numericArraySortComperator(a.disabled ? 1.0 : 0.0, b.disabled ? 1.0 : 0.0),
-        )
+        HSwitchUtils.sortByDisableField(previousData, p => p.disabled)
         let arr: array<ConnectorTypes.connectorTypes> = frmList->Array.map(
           paymentMethod =>
             paymentMethod
