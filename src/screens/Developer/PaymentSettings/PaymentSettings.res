@@ -448,7 +448,7 @@ module ClickToPaySection = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let connectorListAtom = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-    let conneectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
+    let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     let isClickToPayEnabled =
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
     let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
@@ -458,7 +458,7 @@ module ClickToPaySection = {
       }
     })
 
-    <RenderIf condition={conneectorView}>
+    <RenderIf condition={connectorView}>
       <DesktopRow>
         <FieldRenderer
           labelClass="!text-base !text-grey-700 font-semibold"
