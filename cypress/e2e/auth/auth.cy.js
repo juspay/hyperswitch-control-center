@@ -77,6 +77,7 @@ describe("Auth Module", () => {
           payout: true,
           recon: false,
           test_processors: true,
+          click_to_pay: false,
           feedback: false,
           mixpanel: false,
           generate_report: false,

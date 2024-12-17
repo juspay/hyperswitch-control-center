@@ -448,6 +448,7 @@ module ClickToPaySection = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let connectorListAtom = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     let isClickToPayEnabled =
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
@@ -458,7 +459,7 @@ module ClickToPaySection = {
       }
     })
 
-    <RenderIf condition={connectorView}>
+    <RenderIf condition={featureFlagDetails.clickToPay && connectorView}>
       <DesktopRow>
         <FieldRenderer
           labelClass="!text-base !text-grey-700 font-semibold"
