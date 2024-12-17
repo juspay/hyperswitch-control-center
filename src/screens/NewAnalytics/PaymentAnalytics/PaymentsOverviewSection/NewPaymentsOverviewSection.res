@@ -171,7 +171,7 @@ let make = (~entity: moduleEntity) => {
       getData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (compareToStartTime, compareToEndTime, comparison))
 
   let mockDelay = async () => {
     if data != []->JSON.Encode.array {
