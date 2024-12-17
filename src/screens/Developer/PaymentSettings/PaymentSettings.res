@@ -442,6 +442,7 @@ module ClickToPaySection = {
   let make = () => {
     open FormRenderer
     open LogicUtils
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -457,7 +458,8 @@ module ClickToPaySection = {
       }
     })
 
-    <>
+    let conneectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
+    <RenderIf condition={conneectorView}>
       <DesktopRow>
         <FieldRenderer
           labelClass="!text-base !text-grey-700 font-semibold"
@@ -470,21 +472,24 @@ module ClickToPaySection = {
         />
       </DesktopRow>
       <RenderIf condition={isClickToPayEnabled}>
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="Connector ID",
-            ~name="authentication_product_ids.click_to_pay",
-            ~placeholder="",
-            ~customInput=InputFields.selectInput(
-              ~options=dropDownOptions,
-              ~buttonText="Select Connector ID",
-              ~deselectDisable=true,
-            ),
-          )}
-        />
+        <DesktopRow>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-black"
+            field={FormRenderer.makeFieldInfo(
+              ~label="Connector ID",
+              ~name="authentication_product_ids.click_to_pay",
+              ~placeholder="",
+              ~customInput=InputFields.selectInput(
+                ~options=dropDownOptions,
+                ~buttonText="Select Connector ID",
+                ~deselectDisable=true,
+                ~customStyle="",
+              ),
+            )}
+          />
+        </DesktopRow>
       </RenderIf>
-    </>
+    </RenderIf>
   }
 }
 

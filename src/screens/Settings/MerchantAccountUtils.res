@@ -5,7 +5,6 @@ let parseKey = api_key => {
 
 let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   open LogicUtils
-  Js.log2("Champ ---> profileRecord", profileRecord)
   let {
     merchant_id,
     profile_id,
@@ -157,8 +156,6 @@ let getCustomHeadersPayload = (values: JSON.t) => {
 }
 
 let getBusinessProfilePayload = (values: JSON.t) => {
-  Js.log2("Champ ---> values", values)
-
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let webhookSettingsValue = Dict.make()
