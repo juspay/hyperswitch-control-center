@@ -477,12 +477,12 @@ module ClickToPaySection = {
           <FormRenderer.FieldRenderer
             labelClass="!text-base !text-grey-700 font-semibold"
             field={FormRenderer.makeFieldInfo(
-              ~label="Connector ID",
+              ~label="Click to Pay - Connector ID",
               ~name="authentication_product_ids.click_to_pay",
               ~placeholder="",
               ~customInput=InputFields.selectInput(
                 ~options=dropDownOptions,
-                ~buttonText="Select Connector ID",
+                ~buttonText="Select Click to Pay - Connector ID",
                 ~deselectDisable=true,
               ),
             )}
