@@ -3,6 +3,35 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.17.0
+
+### Features
+
+- Additional recipients in generate report ([#1911](https://github.com/juspay/hyperswitch-control-center/pull/1911)) ([`73478b5`](https://github.com/juspay/hyperswitch-control-center/commit/73478b58de6b762ee3db76d258d27f7325f706f0))
+- Refunds amount count module ([#1915](https://github.com/juspay/hyperswitch-control-center/pull/1915)) ([`3493139`](https://github.com/juspay/hyperswitch-control-center/commit/3493139c91f8a0256983dd2937ed156e62960403))
+
+### Bug Fixes
+
+- Removing unused feature flags ([#1920](https://github.com/juspay/hyperswitch-control-center/pull/1920)) ([`1a55514`](https://github.com/juspay/hyperswitch-control-center/commit/1a555148efe72b01bab729db84d3d8bb17c8803a))
+
+**Full Changelog:** [`2024.12.16.0...2024.12.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.16.0...2024.12.17.0)
+
+- - -
+
+## 2024.12.16.0
+
+### Features
+
+- Refunds success rate ([#1917](https://github.com/juspay/hyperswitch-control-center/pull/1917)) ([`4693520`](https://github.com/juspay/hyperswitch-control-center/commit/4693520ea4ac550d510d2f15fe2d01c5ba5c925b))
+
+### Bug Fixes
+
+- Handle recon-iframe logout in dashboard ([#1914](https://github.com/juspay/hyperswitch-control-center/pull/1914)) ([`dc07d46`](https://github.com/juspay/hyperswitch-control-center/commit/dc07d46a0e0098b3e4162d48d4c7879a3df35aa3))
+
+**Full Changelog:** [`2024.12.13.1...2024.12.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.13.1...2024.12.16.0)
+
+- - -
+
 ## 2024.12.13.1
 
 ### Bug Fixes
