@@ -63,7 +63,7 @@ let make = () => {
   <PageLoaderWrapper screenState={screenStateUsers}>
     <div className="relative mt-5 w-full flex flex-col gap-12">
       <div className="flex gap-2 items-center absolute right-0 z-10">
-        <UserManagementHelper.NewUserOmpView
+        <UserManagementHelper.UserOmpView
           views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
           userModuleEntity
           setUserModuleEntity
