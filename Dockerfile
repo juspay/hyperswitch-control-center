@@ -7,7 +7,7 @@ COPY . .
 ARG BRANCH_NAME=hyperswitch
 ARG RUN_TEST=false
 RUN echo git branch is $BRANCH_NAME
-RUN npm i --force
+RUN npm i
 RUN npm run build:prod
 
 
