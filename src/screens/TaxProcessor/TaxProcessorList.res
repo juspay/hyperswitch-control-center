@@ -5,6 +5,27 @@ let make = () => {
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let (searchText, setSearchText) = React.useState(_ => "")
+  let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
+
+  let filterLogic = ReactDebounce.useDebounced(ob => {
+    open LogicUtils
+    let (searchText, arr) = ob
+    let filteredList = if searchText->isNonEmptyString {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
+        switch Nullable.toOption(obj) {
+        | Some(obj) =>
+          isContainingStringLowercase(obj.connector_name, searchText) ||
+          isContainingStringLowercase(obj.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(obj.connector_label, searchText)
+        | None => false
+        }
+      })
+    } else {
+      arr
+    }
+    setFilteredConnectorData(_ => filteredList)
+  }, ~wait=200)
 
   let getConnectorList = async _ => {
     try {
@@ -17,6 +38,7 @@ let make = () => {
         )
 
       setConfiguredConnectors(_ => connectorsList)
+      setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -38,12 +60,23 @@ let make = () => {
           <LoadedTable
             title="Connected Processors"
             actualData={configuredConnectors->Array.map(Nullable.make)}
-            totalResults={configuredConnectors->Array.map(Nullable.make)->Array.length}
+            totalResults={filteredConnectorData->Array.length}
             resultsPerPage=20
             entity={TaxProcessorTableEntity.taxProcessorEntity(
               `tax-processor`,
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
+            filters={
+              <TableSearchFilter
+                data={configuredConnectors->Array.map(Nullable.make)}
+                filterLogic
+                placeholder="Search a processor"
+                customSearchBarWrapperWidth="w-full lg:w-1/3"
+                customInputBoxWidth="w-full"
+                searchVal=searchText
+                setSearchVal=setSearchText
+              />
+            }
             offset
             setOffset
             currrentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}

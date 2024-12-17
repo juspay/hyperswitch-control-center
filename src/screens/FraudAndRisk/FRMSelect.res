@@ -145,7 +145,10 @@ let make = () => {
     let filteredList = if searchText->isNonEmptyString {
       arr->Array.filter((frmPlayer: Nullable.t<ConnectorTypes.connectorPayload>) => {
         switch Nullable.toOption(frmPlayer) {
-        | Some(frmPlayer) => isContainingStringLowercase(frmPlayer.connector_name, searchText)
+        | Some(frmPlayer) => 
+          isContainingStringLowercase(frmPlayer.connector_name, searchText) ||
+          isContainingStringLowercase(frmPlayer.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(frmPlayer.connector_label, searchText)
         | None => false
         }
       })

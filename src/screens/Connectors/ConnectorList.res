@@ -47,7 +47,8 @@ let make = (~isPayoutFlow=false) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.profile_id, searchText)
+          isContainingStringLowercase(obj.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(obj.connector_label, searchText)
         | None => false
         }
       })
@@ -98,7 +99,7 @@ let make = (~isPayoutFlow=false) => {
             />
           </div>
           <RenderIf condition={!isMobileView}>
-            <div className="h-30 md:w-[37rem] flex justify-end hidden laptop:block">
+            <div className="h-30 md:w-[37rem] justify-end hidden laptop:block">
               <img alt="dummy-connector" src="/assets/DummyConnectorImage.svg" />
             </div>
           </RenderIf>
