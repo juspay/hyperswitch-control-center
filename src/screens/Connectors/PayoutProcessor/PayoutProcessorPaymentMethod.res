@@ -35,7 +35,7 @@ let make = (
           setPaymentMethods,
           setMetaData,
           isUpdateFlow,
-          false,
+          true,
           connector,
           updateDetails,
         )
@@ -128,7 +128,7 @@ let make = (
               paymentMethodsEnabled
               updateDetails
               setMetaData
-              isPayoutFlow=false
+              isPayoutFlow=true
               initialValues
               setInitialValues
             />

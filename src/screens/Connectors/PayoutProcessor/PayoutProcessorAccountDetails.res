@@ -32,7 +32,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = Window.getConnectorConfig(connector)
+        let dict = Window.getPayoutConnectorConfig(connector)
         setScreenState(_ => Success)
         dict
       } else {
@@ -114,7 +114,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         ~values,
         ~connector,
         ~bodyType,
-        ~isPayoutFlow=false,
+        ~isPayoutFlow=true,
         ~isLiveMode={featureFlagDetails.isLiveMode},
       )
       setScreenState(_ => Loading)
@@ -157,7 +157,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           ~values,
           ~connector,
           ~bodyType,
-          ~isPayoutFlow=false,
+          ~isPayoutFlow=true,
           ~isLiveMode={featureFlagDetails.isLiveMode},
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 

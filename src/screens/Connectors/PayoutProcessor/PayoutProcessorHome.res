@@ -189,10 +189,10 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
     None
   }, [connector])
 
-  let (title, link) = ("Processor", "/connectors")
+  let (title, link) = ("Payout Processor", "/payoutconnectors")
 
-  let stepsArr = stepsArr
-  let borderWidth = "w-9/12"
+  let stepsArr = payoutStepsArr
+  let borderWidth = "w-8/12"
 
   let customUiForPaypal =
     <DefaultLandingPage
@@ -250,11 +250,11 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           | _ => React.null
           }
         | IntegFields =>
-          <ConnectorAccountDetails
+          <PayoutProcessorAccountDetails
             setCurrentStep setInitialValues initialValues isUpdateFlow
           />
         | PaymentMethods =>
-          <ConnectorPaymentMethod
+          <PayoutProcessorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
         | SummaryAndTest

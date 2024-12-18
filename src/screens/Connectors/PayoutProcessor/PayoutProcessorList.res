@@ -18,7 +18,7 @@ let make = () => {
 
   let getConnectorListAndUpdateState = async () => {
     try {
-      let removeFromList = ConnectorTypes.FRMPlayer
+      let removeFromList = ConnectorTypes.PayoutConnector
 
       // TODO : maintain separate list for multiple types of connectors
       let connectorsList = connectorListFromRecoil->getProcessorsListFromJson(~removeFromList)
@@ -58,12 +58,13 @@ let make = () => {
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
 
-  let urlPrefix = "connectors/new"
+  let entityPrefix = "payout"
+  let urlPrefix = "payoutconnectors/new"
   let isMobileView = MatchMedia.useMobileChecker()
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? connectorListForLive
-    : connectorList
+    : payoutConnectorList
 
   <div>
     <PageLoaderWrapper screenState>
@@ -103,9 +104,9 @@ let make = () => {
         </div>
       </RenderIf>
       <PageUtils.PageHeading
-        title={"Payment Processors"}
+        title={"Payout Processors"}
         customHeadingStyle="mb-10"
-        subTitle={"Connect a test processor and get started with testing your payments"}
+        subTitle={"Connect and manage payout processors for disbursements and settlements"}
       />
       <div className="flex flex-col gap-14">
         <RenderIf condition={showFeedbackModal}>
@@ -134,7 +135,7 @@ let make = () => {
             offset
             setOffset
             entity={ConnectorTableUtils.connectorEntity(
-              `connectors`,
+              `${entityPrefix}connectors`,
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
