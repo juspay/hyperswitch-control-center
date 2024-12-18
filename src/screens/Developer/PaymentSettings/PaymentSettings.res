@@ -437,6 +437,63 @@ module AutoRetries = {
   }
 }
 
+module ClickToPaySection = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+    open LogicUtils
+
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let connectorListAtom = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
+    let isClickToPayEnabled =
+      formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
+    let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
+      {
+        label: `${item.connector_name} - ${item.merchant_connector_id}`,
+        value: item.merchant_connector_id,
+      }
+    })
+
+    <RenderIf condition={featureFlagDetails.clickToPay && connectorView}>
+      <DesktopRow>
+        <FieldRenderer
+          labelClass="!text-base !text-grey-700 font-semibold"
+          fieldWrapperClass="max-w-xl"
+          field={makeFieldInfo(
+            ~name="is_click_to_pay_enabled",
+            ~label="Click to Pay",
+            ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+            ~description="Click to Pay is a secure, seamless digital payment solution that lets customers checkout quickly using saved cards without entering details",
+            ~toolTipPosition=Right,
+          )}
+        />
+      </DesktopRow>
+      <RenderIf condition={isClickToPayEnabled}>
+        <DesktopRow>
+          <FormRenderer.FieldRenderer
+            labelClass="!text-base !text-grey-700 font-semibold"
+            field={FormRenderer.makeFieldInfo(
+              ~label="Click to Pay - Connector ID",
+              ~name="authentication_product_ids.click_to_pay",
+              ~placeholder="",
+              ~customInput=InputFields.selectInput(
+                ~options=dropDownOptions,
+                ~buttonText="Select Click to Pay - Connector ID",
+                ~deselectDisable=true,
+              ),
+            )}
+          />
+        </DesktopRow>
+      </RenderIf>
+    </RenderIf>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
@@ -623,6 +680,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   </DesktopRow>
                 </RenderIf>
                 <AutoRetries setCheckMaxAutoRetry />
+                <ClickToPaySection />
                 <ReturnUrl />
                 <WebHook />
                 <DesktopRow>
@@ -643,7 +701,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </DesktopRow>
-                // <FormValuesSpy />
+                <FormValuesSpy />
               </form>
             }}
           />
