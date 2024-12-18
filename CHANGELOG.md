@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.18.0
+
+### Features
+
+- Refunds reasons ([#1941](https://github.com/juspay/hyperswitch-control-center/pull/1941)) ([`e93ba39`](https://github.com/juspay/hyperswitch-control-center/commit/e93ba39eab5f0c4cfee047dcb6fa320ce02f66f6))
+- Refunds overview section ([#1932](https://github.com/juspay/hyperswitch-control-center/pull/1932)) ([`8f7bd7d`](https://github.com/juspay/hyperswitch-control-center/commit/8f7bd7d0c9c4b31a8a6fd27bfbc74643719c85a0))
+- Refunds success distribution ([#1935](https://github.com/juspay/hyperswitch-control-center/pull/1935)) ([`fdab784`](https://github.com/juspay/hyperswitch-control-center/commit/fdab784075f146b3db70aa0561e850696043072f))
+- Refunds failure distribution ([#1937](https://github.com/juspay/hyperswitch-control-center/pull/1937)) ([`bcf649b`](https://github.com/juspay/hyperswitch-control-center/commit/bcf649bb582d2e1bbf717b1b9a78d2249c44b654))
+- Refunds failure reasons ([#1938](https://github.com/juspay/hyperswitch-control-center/pull/1938)) ([`971ecca`](https://github.com/juspay/hyperswitch-control-center/commit/971ecca6e97d0994603075bccee429fa36a3bd45))
+
+### Bug Fixes
+
+- Search box issues in "Connectors" pages ([#1942](https://github.com/juspay/hyperswitch-control-center/pull/1942)) ([`3690346`](https://github.com/juspay/hyperswitch-control-center/commit/3690346060b48ac23e4f4b05a4aaa4430276171c))
+- List invitation error on logout from recon ([#1944](https://github.com/juspay/hyperswitch-control-center/pull/1944)) ([`939457d`](https://github.com/juspay/hyperswitch-control-center/commit/939457d996c07eea31f4de25858cfe0939af602d))
+
+**Full Changelog:** [`2024.12.17.1...2024.12.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.17.1...2024.12.18.0)
+
+- - -
+
 ## 2024.12.17.1
 
 ### Miscellaneous Tasks
