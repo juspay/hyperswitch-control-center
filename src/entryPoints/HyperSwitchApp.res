@@ -168,11 +168,11 @@ let make = () => {
                         | list{"fraud-risk-management", ..._}
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}
-                        | list{"payoutrouting", ..._} =>
+                        | list{"payoutrouting", ..._}
+                        | list{"payment-settings", ..._} =>
                           <ConnectorContainer />
                         | list{"business-details", ..._}
-                        | list{"business-profiles", ..._}
-                        | list{"payment-settings", ..._} =>
+                        | list{"business-profiles", ..._} =>
                           <BusinessProfileContainer />
                         | list{"payments", ..._}
                         | list{"refunds", ..._}

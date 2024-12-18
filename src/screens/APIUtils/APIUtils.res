@@ -734,7 +734,6 @@ let useHandleLogout = () => {
         })
       setAuthStateToLogout()
       clearRecoilValue()
-      AuthUtils.redirectToLogin()
       LocalStorage.clear()
     } catch {
     | _ => LocalStorage.clear()
@@ -800,6 +799,7 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
+
             handleLogout()->ignore
             AuthUtils.redirectToLogin()
             sessionExpired := true

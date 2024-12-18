@@ -133,6 +133,7 @@ let make = (~children) => {
   React.useEffect(() => {
     if authStatus === LoggedOut {
       getAuthMethods()->ignore
+      AuthUtils.redirectToLogin()
     }
     None
   }, [authStatus])

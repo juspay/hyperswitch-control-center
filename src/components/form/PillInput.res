@@ -1,3 +1,4 @@
+@send external focus: Dom.element => unit = "focus"
 @react.component
 let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateCheck=true) => {
   let form = ReactFinalForm.useForm()
@@ -108,18 +109,28 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
     }
   }
 
-  let toggleEditingItem = item => {
+  let toggleEditingItem = (item, event) => {
+    event->ReactEvent.Mouse.stopPropagation
     setEditingItem(_ => Some(item))
     setEditInput(_ => item)
   }
 
-  <div className="w-full">
+  let inputRef = React.useRef(Nullable.null)
+  let handleContainerClick = () => {
+    switch inputRef.current->Nullable.toOption {
+    | Some(inputElement) => inputElement->focus
+    | None => ()
+    }
+  }
+
+  <div className="w-full cursor-text" onClick={_ => handleContainerClick()}>
     <div className="w-full flex flex-wrap gap-2 border p-2 text-sm rounded-md">
       {items
       ->Array.mapWithIndex((item, i) =>
         <div key={Int.toString(i)} className="flex flex-wrap gap-1 p-1 border rounded-md">
           <RenderIf condition={editingItem == Some(item)}>
             <input
+              onClick={event => event->ReactEvent.Mouse.stopPropagation}
               type_="text"
               value={editInput}
               onBlur={_ => saveItem(item)}
@@ -130,7 +141,8 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
           </RenderIf>
           <RenderIf condition={editingItem != Some(item)}>
             <div
-              className="cursor-pointer px-2 py-1 flex-grow" onClick={_ => toggleEditingItem(item)}>
+              className="cursor-pointer px-2 py-1 flex-grow"
+              onClick={event => toggleEditingItem(item, event)}>
               {React.string(item)}
             </div>
           </RenderIf>
@@ -142,6 +154,7 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
       ->React.array}
       <div className="relative">
         <input
+          ref={inputRef->ReactDOM.Ref.domRef}
           type_="text"
           value={inputValue}
           placeholder
