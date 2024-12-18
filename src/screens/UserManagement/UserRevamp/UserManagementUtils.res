@@ -1,22 +1,5 @@
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
-let inviteEmail = FormRenderer.makeFieldInfo(
-  ~label="Enter email",
-  ~name="emailList",
-  ~customInput=(
-    (~input, ~placeholder as _) => {
-      let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
-      InputFields.textTagInput(
-        ~input,
-        ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
-        ~customButtonStyle="!rounded-full !px-4",
-        ~seperateByComma=true,
-      )
-    }
-  )->InputFields.iconFieldWithMessageDes(~description="Press Enter to add more"),
-  ~isRequired=true,
-)
-
 let createCustomRole = FormRenderer.makeFieldInfo(
   ~label="Enter custom role name",
   ~name="role_name",
