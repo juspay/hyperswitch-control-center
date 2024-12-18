@@ -250,9 +250,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           | _ => React.null
           }
         | IntegFields =>
-          <ConnectorAccountDetails
-            setCurrentStep setInitialValues initialValues isUpdateFlow
-          />
+          <ConnectorAccountDetails setCurrentStep setInitialValues initialValues isUpdateFlow />
         | PaymentMethods =>
           <ConnectorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow

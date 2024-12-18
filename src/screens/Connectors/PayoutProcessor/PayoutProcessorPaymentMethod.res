@@ -1,11 +1,5 @@
 @react.component
-let make = (
-  ~setCurrentStep,
-  ~connector,
-  ~setInitialValues,
-  ~initialValues,
-  ~isUpdateFlow,
-) => {
+let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isUpdateFlow) => {
   open ConnectorUtils
   open APIUtils
   open PageLoaderWrapper
