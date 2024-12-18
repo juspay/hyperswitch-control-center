@@ -222,7 +222,7 @@ module SwitchMerchantForUserAction = {
   }
 }
 
-module OMPViewBaseComp = {
+module UserOmpViewBaseComp = {
   @react.component
   let make = (~userModuleEntity: UserManagementTypes.userModuleTypes, ~arrow) => {
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
@@ -263,7 +263,7 @@ module OMPViewBaseComp = {
 }
 
 let generateDropdownOptionsOMPViews = (
-  dropdownList: array<UserManagementTypes.ompViewType>,
+  dropdownList: array<UserManagementTypes.usersOmpViewType>,
   getNameForId,
 ) => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
@@ -287,10 +287,15 @@ let generateDropdownOptionsOMPViews = (
   options
 }
 
+// Separate module is created for Users OMP Views because we need to
+// handle the #Default view case which is specific to Users Module.
+// To use OMPViews Component from OMPSwitchHelper we need to declare #Default entity
+// in UserInfoTypes entity type as well and handle it at all places unneccesarily
+
 module UserOmpView = {
   @react.component
   let make = (
-    ~views: array<UserManagementTypes.ompViewType>,
+    ~views: array<UserManagementTypes.usersOmpViewType>,
     ~userModuleEntity: UserManagementTypes.userModuleTypes,
     ~setUserModuleEntity,
   ) => {
@@ -335,7 +340,7 @@ module UserOmpView = {
           addButton=false
           customStyle="rounded absolute w-fit left-0"
           searchable=false
-          baseComponent={<OMPViewBaseComp userModuleEntity arrow />}
+          baseComponent={<UserOmpViewBaseComp userModuleEntity arrow />}
           baseComponentCustomStyle="bg-white rounded"
           optionClass="font-inter text-fs-14 font-normal leading-5"
           selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"
