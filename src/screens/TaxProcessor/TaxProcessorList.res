@@ -37,6 +37,8 @@ let make = () => {
           item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === TaxProcessor
         )
 
+      HSwitchUtils.sortByDisableField(connectorsList, c => c.disabled)
+
       setConfiguredConnectors(_ => connectorsList)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setScreenState(_ => Success)

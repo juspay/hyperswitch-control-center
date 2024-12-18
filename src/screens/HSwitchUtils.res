@@ -248,3 +248,12 @@ let getConnectorIDFromUrl = (urlList, defaultValue) => {
   | _ => urlList->Array.get(1)->Option.getOr(defaultValue)
   }
 }
+
+let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
+  arr->Array.sort((a, b) =>
+    LogicUtils.numericArraySortComperator(
+      getDisabledStatus(a) ? 1.0 : 0.0,
+      getDisabledStatus(b) ? 1.0 : 0.0,
+    )
+  )
+}
