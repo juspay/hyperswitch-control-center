@@ -1,3 +1,4 @@
+@send external focus: Dom.element => unit = "focus"
 @react.component
 let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateCheck=true) => {
   let form = ReactFinalForm.useForm()
@@ -113,7 +114,15 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
     setEditInput(_ => item)
   }
 
-  <div className="w-full">
+  let inputRef = React.useRef(Nullable.null)
+  let handleContainerClick = () => {
+    switch inputRef.current->Nullable.toOption {
+    | Some(inputElement) => inputElement->focus
+    | None => ()
+    }
+  }
+
+  <div className="w-full cursor-text" onClick={_ => handleContainerClick()}>
     <div className="w-full flex flex-wrap gap-2 border p-2 text-sm rounded-md">
       {items
       ->Array.mapWithIndex((item, i) =>
@@ -142,6 +151,7 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
       ->React.array}
       <div className="relative">
         <input
+          ref={inputRef->ReactDOM.Ref.domRef}
           type_="text"
           value={inputValue}
           placeholder

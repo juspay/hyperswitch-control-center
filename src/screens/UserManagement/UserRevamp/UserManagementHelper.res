@@ -191,16 +191,10 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   ~name="email_list",
   ~customInput=(~input, ~placeholder as _) => {
     let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
-    InputFields.textTagInput(
-      ~input,
-      ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
-      ~customButtonStyle="!rounded-full !px-4",
-      ~seperateByComma=true,
-    )
+    <PillInput name="email_list" placeholder={showPlaceHolder ? "Eg: abc.sa@wise.com" : ""} />
   },
   ~isRequired=true,
 )
-
 module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
