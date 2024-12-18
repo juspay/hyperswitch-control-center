@@ -109,7 +109,8 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
     }
   }
 
-  let toggleEditingItem = item => {
+  let toggleEditingItem = (item, event) => {
+    event->ReactEvent.Mouse.stopPropagation
     setEditingItem(_ => Some(item))
     setEditInput(_ => item)
   }
@@ -129,6 +130,7 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
         <div key={Int.toString(i)} className="flex flex-wrap gap-1 p-1 border rounded-md">
           <RenderIf condition={editingItem == Some(item)}>
             <input
+              onClick={event => event->ReactEvent.Mouse.stopPropagation}
               type_="text"
               value={editInput}
               onBlur={_ => saveItem(item)}
@@ -139,7 +141,8 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
           </RenderIf>
           <RenderIf condition={editingItem != Some(item)}>
             <div
-              className="cursor-pointer px-2 py-1 flex-grow" onClick={_ => toggleEditingItem(item)}>
+              className="cursor-pointer px-2 py-1 flex-grow"
+              onClick={event => toggleEditingItem(item, event)}>
               {React.string(item)}
             </div>
           </RenderIf>

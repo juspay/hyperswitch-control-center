@@ -42,6 +42,7 @@ type processorTypes =
   | WORLDPAY
   | CYBERSOURCE
   | EBANX
+  | ELAVON
   | ACI
   | WORLDLINE
   | FISERV
