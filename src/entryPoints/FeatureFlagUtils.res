@@ -62,7 +62,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     payOut: dict->getBool("payout", false),
     recon: dict->getBool("recon", false),
     testProcessors: dict->getBool("test_processors", false),
-    clickToPay: dict->getBool("click_to_pay", false),
+    clickToPay: dict->getBool("dev_click_to_pay", false),
     feedback: dict->getBool("feedback", false),
     generateReport: dict->getBool("generate_report", false),
     mixpanel: dict->getBool("mixpanel", false),
