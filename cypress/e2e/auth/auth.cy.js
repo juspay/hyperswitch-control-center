@@ -16,10 +16,7 @@ describe("Auth Module", () => {
     cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
-    cy.get("[data-testid=email]").type(username);
-    cy.get("[data-testid=password]").type(password);
-    cy.get('button[type="submit"]').click({ force: true });
-    cy.get("[data-testid=skip-now]").click({ force: true });
+    cy.sign_up_with_email(username, password);
     cy.url().should("eq", "http://localhost:9000/dashboard/home");
   });
 

@@ -40,10 +40,7 @@ describe("connector", () => {
     cy.get("[data-testid=tc-text]").should("exist");
     cy.get("[data-testid=footer]").should("exist");
 
-    cy.get("[data-testid=email]").type(username);
-    cy.get("[data-testid=password]").type(password);
-    cy.get('button[type="submit"]').click({ force: true });
-    cy.get("[data-testid=skip-now]").click({ force: true });
+    cy.sign_up_with_email(username, password);
 
     cy.get('[data-form-label="Business name"]').should("exist");
     cy.get("[data-testid=merchant_name]").type("test_business");
@@ -226,8 +223,8 @@ describe("connector", () => {
     cy.get("[data-table-location=Orders_tr1_td2]")
       .invoke("text")
       .then((expectedPaymentId) => {
-        cy.get('[data-id="Search payment id"]').should("exist");
-        cy.get('[data-id="Search payment id"]')
+        cy.get('[data-id="Search for payment ID"]').should("exist");
+        cy.get('[data-id="Search for payment ID"]')
           .click()
           .type(`${expectedPaymentId}{enter}`);
         cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
@@ -242,13 +239,13 @@ describe("connector", () => {
     cy.get("[data-testid=operations]").click();
     cy.get("[data-testid=payments]").click();
     cy.contains("Payment Operations").should("be.visible");
-    cy.get('[data-id="Search payment id"]').should("exist");
+    cy.get('[data-id="Search for payment ID"]').should("exist");
     const paymentIds = ["abacd", "something", "createdAt"];
     paymentIds.forEach((id) => {
-      cy.get('[data-id="Search payment id"]').click();
-      cy.get('[data-id="Search payment id"]').type(`${id}{enter}`);
+      cy.get('[data-id="Search for payment ID"]').click();
+      cy.get('[data-id="Search for payment ID"]').type(`${id}{enter}`);
       cy.get("[data-table-location=Orders_tr1_td1]").should("not.exist");
-      cy.get('[placeholder="Search payment id"]').click().clear();
+      cy.get('[placeholder="Search for payment ID"]').click().clear();
     });
   });
 });
