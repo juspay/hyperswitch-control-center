@@ -83,12 +83,14 @@ let make = (~setAppScreenState) => {
           authorization={userHasResourceAccess(~resourceAccess=ReconConfig)}>
           <ReconModule urlList={url.path->urlPath} />
         </AccessControl>
-      | list{"file-processor"} =>
-        <AccessControl
-          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
-          authorization={userHasResourceAccess(~resourceAccess=ReconFiles)}>
-          <ReconModule urlList={url.path->urlPath} />
-        </AccessControl>
+
+      // Commented as not needed now
+      // | list{"file-processor"} =>
+      //   <AccessControl
+      //     isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
+      //     authorization={userHasResourceAccess(~resourceAccess=ReconFiles)}>
+      //     <ReconModule urlList={url.path->urlPath} />
+      //   </AccessControl>
       | list{"sdk"} =>
         <AccessControl
           isEnabled={!featureFlagDetails.isLiveMode}
