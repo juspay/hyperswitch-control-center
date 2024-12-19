@@ -222,47 +222,7 @@ module SwitchMerchantForUserAction = {
   }
 }
 
-module UserOmpViewBaseComp = {
-  @react.component
-  let make = (~userModuleEntity: UserManagementTypes.userModuleTypes, ~arrow) => {
-    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
-
-    let arrowUpClass = "rotate-0 transition duration-[250ms] opacity-70"
-    let arrowDownClass = "rotate-180 transition duration-[250ms] opacity-70"
-
-    let displayName = switch userModuleEntity {
-    | #Default => "My Team"
-    | _ => userModuleEntity->getNameForId
-    }
-
-    let truncatedDisplayName = if displayName->String.length > 15 {
-      <HelperComponents.EllipsisText
-        displayValue=displayName endValue=15 showCopy=false expandText=false
-      />
-    } else {
-      {displayName->React.string}
-    }
-
-    <div className={`text-sm font-medium cursor-pointer px-4`}>
-      <div className={`flex flex-col items-start`}>
-        <div className="text-left flex items-center gap-1">
-          <Icon name="settings-new" size=18 />
-          <p className={`text-jp-gray-900 fs-10 overflow-scroll text-nowrap`}>
-            {`View data for:`->React.string}
-          </p>
-          <span className="text-blue-500 text-nowrap"> {truncatedDisplayName} </span>
-          <Icon
-            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
-            name="arrow-without-tail"
-            size=15
-          />
-        </div>
-      </div>
-    </div>
-  }
-}
-
-let generateDropdownOptionsOMPViews = (
+let generateDropdownOptionsUserOMPViews = (
   dropdownList: array<UserManagementTypes.usersOmpViewType>,
   getNameForId,
 ) => {
@@ -287,19 +247,13 @@ let generateDropdownOptionsOMPViews = (
   options
 }
 
-// Separate module is created for Users OMP Views because we need to
-// handle the #Default view case which is specific to Users Module.
-// To use OMPViews Component from OMPSwitchHelper we need to declare #Default entity
-// in UserInfoTypes entity type as well and handle it at all places unneccesarily
-
 module UserOmpView = {
   @react.component
   let make = (
     ~views: array<UserManagementTypes.usersOmpViewType>,
-    ~userModuleEntity: UserManagementTypes.userModuleTypes,
-    ~setUserModuleEntity,
+    ~selectedEntity: UserManagementTypes.userModuleTypes,
+    ~onChange,
   ) => {
-    let (arrow, setArrow) = React.useState(_ => false)
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -311,49 +265,20 @@ module UserOmpView = {
         | "Default" => #Default
         | _ => value->UserInfoUtils.entityMapper
         }
-        setUserModuleEntity(_ => selection)
+        onChange(selection)->ignore
       },
       onFocus: _ => (),
-      value: (userModuleEntity :> string)->JSON.Encode.string,
+      value: (selectedEntity :> string)->JSON.Encode.string,
       checked: true,
     }
 
-    let toggleChevronState = () => {
-      setArrow(prev => !prev)
+    let options = views->generateDropdownOptionsUserOMPViews(getNameForId)
+
+    let displayName = switch selectedEntity {
+    | #Default => "My Team"
+    | _ => selectedEntity->getNameForId
     }
 
-    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
-    let dropdownContainerStyle = "rounded-ls border w-full shadow-md"
-
-    <div className="flex">
-      <div
-        className="flex h-fit border border-grey-100 bg-white rounded-lg py-2 hover:bg-opacity-80">
-        <SelectBox.BaseDropdown
-          allowMultiSelect=false
-          buttonText=""
-          input
-          deselectDisable=true
-          customButtonStyle="!rounded-md"
-          options={views->generateDropdownOptionsOMPViews(getNameForId)}
-          marginTop="mt-8"
-          hideMultiSelectButtons=true
-          addButton=false
-          customStyle="rounded absolute w-fit left-0"
-          searchable=false
-          baseComponent={<UserOmpViewBaseComp userModuleEntity arrow />}
-          baseComponentCustomStyle="bg-white rounded"
-          optionClass="font-inter text-fs-14 font-normal leading-5"
-          selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"
-          labelDescriptionClass="font-inter text-fs-12 font-normal leading-4"
-          customDropdownOuterClass="!border-none !w-full"
-          toggleChevronState
-          customScrollStyle
-          dropdownContainerStyle
-          shouldDisplaySelectedOnTop=true
-          descriptionOnHover=true
-          textEllipsisForDropDownOptions=true
-        />
-      </div>
-    </div>
+    <OMPSwitchHelper.OMPViewsComp input options displayName />
   }
 }

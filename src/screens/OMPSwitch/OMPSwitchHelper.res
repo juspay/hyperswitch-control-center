@@ -105,20 +105,16 @@ module AddNewOMPButton = {
 
 module OMPViewBaseComp = {
   @react.component
-  let make = (~selectedEntity: UserInfoTypes.entity, ~arrow) => {
-    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
-
+  let make = (~displayName, ~arrow) => {
     let arrowUpClass = "rotate-0 transition duration-[250ms] opacity-70"
     let arrowDownClass = "rotate-180 transition duration-[250ms] opacity-70"
 
-    let name = selectedEntity->getNameForId
-
-    let displayName = if name->String.length > 15 {
+    let truncatedDisplayName = if displayName->String.length > 15 {
       <HelperComponents.EllipsisText
-        displayValue=name endValue=15 showCopy=false expandText=false
+        displayValue=displayName endValue=15 showCopy=false expandText=false
       />
     } else {
-      {name->React.string}
+      {displayName->React.string}
     }
 
     <div className={`text-sm font-medium cursor-pointer px-4`}>
@@ -128,7 +124,7 @@ module OMPViewBaseComp = {
           <p className={`text-jp-gray-900 fs-10 overflow-scroll text-nowrap`}>
             {`View data for:`->React.string}
           </p>
-          <span className="text-blue-500 text-nowrap"> {displayName} </span>
+          <span className="text-blue-500 text-nowrap"> {truncatedDisplayName} </span>
           <Icon
             className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
             name="arrow-without-tail"
@@ -154,28 +150,10 @@ let generateDropdownOptionsOMPViews = (dropdownList: OMPSwitchTypes.ompViews, ge
   options
 }
 
-module OMPViews = {
+module OMPViewsComp = {
   @react.component
-  let make = (
-    ~views: OMPSwitchTypes.ompViews,
-    ~selectedEntity: UserInfoTypes.entity,
-    ~onChange,
-    ~entityMapper=UserInfoUtils.entityMapper,
-  ) => {
+  let make = (~input, ~options, ~displayName, ~entityMapper=UserInfoUtils.entityMapper) => {
     let (arrow, setArrow) = React.useState(_ => false)
-    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
-
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      name: "name",
-      onBlur: _ => (),
-      onChange: ev => {
-        let value = ev->Identity.formReactEventToString
-        onChange(value->UserInfoUtils.entityMapper)->ignore
-      },
-      onFocus: _ => (),
-      value: (selectedEntity :> string)->JSON.Encode.string,
-      checked: true,
-    }
 
     let toggleChevronState = () => {
       setArrow(prev => !prev)
@@ -191,13 +169,13 @@ module OMPViews = {
         input
         deselectDisable=true
         customButtonStyle="!rounded-md"
-        options={views->generateDropdownOptionsOMPViews(getNameForId)}
+        options
         marginTop="mt-8"
         hideMultiSelectButtons=true
         addButton=false
         customStyle="rounded w-fit absolute left-0"
         searchable=false
-        baseComponent={<OMPViewBaseComp selectedEntity arrow />}
+        baseComponent={<OMPViewBaseComp displayName arrow />}
         baseComponentCustomStyle="bg-white rounded"
         optionClass="font-inter text-fs-14 font-normal leading-5"
         selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"
@@ -211,6 +189,36 @@ module OMPViews = {
         textEllipsisForDropDownOptions=true
       />
     </div>
+  }
+}
+
+module OMPViews = {
+  @react.component
+  let make = (
+    ~views: OMPSwitchTypes.ompViews,
+    ~selectedEntity: UserInfoTypes.entity,
+    ~onChange,
+    ~entityMapper=UserInfoUtils.entityMapper,
+  ) => {
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "name",
+      onBlur: _ => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToString
+        onChange(value->UserInfoUtils.entityMapper)->ignore
+      },
+      onFocus: _ => (),
+      value: (selectedEntity :> string)->JSON.Encode.string,
+      checked: true,
+    }
+
+    let options = views->generateDropdownOptionsOMPViews(getNameForId)
+
+    let displayName = selectedEntity->getNameForId
+
+    <OMPViewsComp input options displayName />
   }
 }
 

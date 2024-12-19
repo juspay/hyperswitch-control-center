@@ -19,7 +19,7 @@ let make = () => {
     setUserModuleEntity,
   ) = React.useState(_ => #Default)
 
-  let getUserData = async () => {
+  let getUserData = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
@@ -34,6 +34,7 @@ let make = () => {
       let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
       setUsersData(_ => userData->Array.map(Nullable.make))
       setUsersFilterData(_ => userData->Array.map(Nullable.make))
+      setUserModuleEntity(_ => userModuleEntity)
       setScreenStateUsers(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenStateUsers(_ => PageLoaderWrapper.Error(""))
@@ -41,9 +42,9 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getUserData()->ignore
+    getUserData(#Default)->ignore
     None
-  }, [userModuleEntity])
+  }, [])
 
   let filterLogicForUsers = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
@@ -65,8 +66,8 @@ let make = () => {
       <div className="flex gap-2 items-center absolute right-0 z-10">
         <UserManagementHelper.UserOmpView
           views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
-          userModuleEntity
-          setUserModuleEntity
+          selectedEntity=userModuleEntity
+          onChange={getUserData}
         />
         <ACLButton
           authorization={userHasAccess(~groupAccess=UsersManage)}
