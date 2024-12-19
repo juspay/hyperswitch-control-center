@@ -1,3 +1,13 @@
+// colors
+let redColor = "#BA3535"
+let blue = "#1059C1B2"
+let green = "#0EB025B2"
+let barGreenColor = "#7CC88F"
+let sankyBlue = "#E4EFFF"
+let sankyRed = "#F7E0E0"
+let sankyLightBlue = "#91B7EE"
+let sankyLightRed = "#EC6262"
+
 let getBucketSize = granularity => {
   switch granularity {
   | "hour_wise" => "hour"
@@ -129,7 +139,7 @@ let getLabelName = (~key, ~index, ~points) => {
 
     let startDate = startPoint->formatDateValue
     let endDate = endPoint->formatDateValue
-    `${startDate}-${endDate}`
+    `${startDate} - ${endDate}`
   } else {
     `Series ${(index + 1)->Int.toString}`
   }
@@ -164,6 +174,7 @@ let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
 }
 
 open LogicUtils
+// removes the NA buckets
 let filterQueryData = (query, key) => {
   query->Array.filter(data => {
     let valueDict = data->getDictFromJsonObject
@@ -178,6 +189,24 @@ let sortQueryDataByDate = query => {
     compareLogic(valueB, valueA)
   })
   query
+}
+
+let getMaxValue = (data: JSON.t, index: int, key: string) => {
+  data
+  ->getArrayFromJson([])
+  ->getValueFromArray(index, []->JSON.Encode.array)
+  ->getArrayFromJson([])
+  ->Array.reduce(0.0, (acc, item) => {
+    let value = item->getDictFromJsonObject->getFloat(key, 0.0)
+    Math.max(acc, value)
+  })
+}
+
+let isEmptyGraph = (data: JSON.t, key: string) => {
+  let primaryMaxValue = data->getMaxValue(0, key)
+  let secondaryMaxValue = data->getMaxValue(1, key)
+
+  Math.max(primaryMaxValue, secondaryMaxValue) == 0.0
 }
 
 let getCategories = (data: JSON.t, index: int, key: string) => {
@@ -251,6 +280,146 @@ let bargraphTooltipFormatter = (~title, ~metricType) => {
       let content = `
           <div style=" 
           padding:5px 12px;
+          display:flex;
+          flex-direction:column;
+          justify-content: space-between;
+          gap: 7px;">
+              ${title}
+              <div style="
+                margin-top: 5px;
+                display:flex;
+                flex-direction:column;
+                gap: 7px;">
+                ${tableItems}
+              </div>
+        </div>`
+
+      `<div style="
+    padding: 10px;
+    width:fit-content;
+    border-radius: 7px;
+    background-color:#FFFFFF;
+    padding:10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid #E5E5E5;
+    position:relative;">
+        ${content}
+    </div>`
+    }
+  )->asTooltipPointFormatter
+}
+
+let getColor = index => {
+  [blue, green]->Array.get(index)->Option.getOr(blue)
+}
+
+let getAmountValue = (data, ~id) => {
+  switch data->getOptionFloat(id) {
+  | Some(value) => value /. 100.0
+  | _ => 0.0
+  }
+}
+
+let getLineGraphObj = (
+  ~array: array<JSON.t>,
+  ~key: string,
+  ~name: string,
+  ~color,
+  ~isAmount=false,
+): LineGraphTypes.dataObj => {
+  let data = array->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+    if isAmount {
+      dict->getAmountValue(~id=key)
+    } else {
+      dict->getFloat(key, 0.0)
+    }
+  })
+  let dataObj: LineGraphTypes.dataObj = {
+    showInLegend: true,
+    name,
+    data,
+    color,
+  }
+  dataObj
+}
+
+let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false) => {
+  data
+  ->getArrayFromJson([])
+  ->Array.mapWithIndex((item, index) => {
+    let name = getLabelName(~key=yKey, ~index, ~points=item)
+    let color = index->getColor
+    getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color, ~isAmount)
+  })
+}
+
+let tooltipFormatter = (
+  ~secondaryCategories,
+  ~title,
+  ~metricType,
+  ~comparison: option<DateRangeUtils.comparison>=None,
+) => {
+  open LineGraphTypes
+
+  (
+    @this
+    (this: pointFormatter) => {
+      let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
+
+      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}}
+      let primartPoint = this.points->getValueFromArray(0, defaultValue)
+      let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
+
+      // TODO:Currency need to be picked from filter
+      let suffix = metricType == NewAnalyticsTypes.Amount ? "USD" : ""
+
+      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
+        let valueString = valueFormatter(value, metricType)
+        `<div style="display: flex; align-items: center;">
+            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
+            <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString} ${suffix}</div>
+        </div>`
+      }
+
+      let tableItems = [
+        getRowsHtml(
+          ~iconColor=primartPoint.color,
+          ~date=primartPoint.x,
+          ~value=primartPoint.y,
+          ~comparisionComponent={
+            switch comparison {
+            | Some(value) =>
+              value == DateRangeUtils.EnableComparison
+                ? getToolTipConparision(
+                    ~primaryValue=primartPoint.y,
+                    ~secondaryValue=secondaryPoint.y,
+                  )
+                : ""
+            | None => ""
+            }
+          },
+        ),
+        {
+          switch comparison {
+          | Some(value) =>
+            value == DateRangeUtils.EnableComparison
+              ? getRowsHtml(
+                  ~iconColor=secondaryPoint.color,
+                  ~date=secondaryCategories->getValueFromArray(secondaryPoint.point.index, ""),
+                  ~value=secondaryPoint.y,
+                )
+              : ""
+          | None => ""
+          }
+        },
+      ]->Array.joinWith("")
+
+      let content = `
+          <div style=" 
+          padding:5px 12px;
+          border-left: 3px solid #0069FD;
           display:flex;
           flex-direction:column;
           justify-content: space-between;

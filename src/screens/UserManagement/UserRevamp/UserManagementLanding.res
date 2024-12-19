@@ -11,7 +11,7 @@ let make = () => {
     },
   ]
 
-  <div className="flex flex-col overflow-y-scroll">
+  <div className="flex flex-col">
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title={"Team management"} />
     </div>

@@ -191,16 +191,10 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   ~name="email_list",
   ~customInput=(~input, ~placeholder as _) => {
     let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
-    InputFields.textTagInput(
-      ~input,
-      ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
-      ~customButtonStyle="!rounded-full !px-4",
-      ~seperateByComma=true,
-    )
+    <PillInput name="email_list" placeholder={showPlaceHolder ? "Eg: abc.sa@wise.com" : ""} />
   },
   ~isRequired=true,
 )
-
 module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
@@ -228,48 +222,8 @@ module SwitchMerchantForUserAction = {
   }
 }
 
-module OMPViewBaseComp = {
-  @react.component
-  let make = (~userModuleEntity: UserManagementTypes.userModuleTypes, ~arrow) => {
-    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
-
-    let arrowUpClass = "rotate-0 transition duration-[250ms] opacity-70"
-    let arrowDownClass = "rotate-180 transition duration-[250ms] opacity-70"
-
-    let displayName = switch userModuleEntity {
-    | #Default => "My Team"
-    | _ => userModuleEntity->getNameForId
-    }
-
-    let truncatedDisplayName = if displayName->String.length > 15 {
-      <HSwitchOrderUtils.EllipsisText
-        displayValue=displayName endValue=15 showCopy=false expandText=false
-      />
-    } else {
-      {displayName->React.string}
-    }
-
-    <div className={`text-sm font-medium cursor-pointer}`}>
-      <div className={`flex flex-col items-start`}>
-        <div className="text-left flex items-center gap-1">
-          <Icon name="settings-new" size=18 />
-          <p className={`text-jp-gray-900 fs-10 overflow-scroll text-nowrap`}>
-            {`Viewing data for:`->React.string}
-          </p>
-          <span className="text-blue-500"> {truncatedDisplayName} </span>
-          <Icon
-            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
-            name="arrow-without-tail"
-            size=15
-          />
-        </div>
-      </div>
-    </div>
-  }
-}
-
-let newGenerateDropdownOptions = (
-  dropdownList: array<UserManagementTypes.ompViewType>,
+let generateDropdownOptionsUserOMPViews = (
+  dropdownList: array<UserManagementTypes.usersOmpViewType>,
   getNameForId,
 ) => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
@@ -277,26 +231,29 @@ let newGenerateDropdownOptions = (
   ): SelectBox.dropdownOption => {
     switch item.entity {
     | #Default => {
-        label: `${item.label} (${(item.entity :> string)})`,
+        label: `${item.label}`,
         value: `${(item.entity :> string)}`,
+        labelDescription: `(${(item.entity :> string)})`,
+        description: `${item.label}`,
       }
     | _ => {
         label: `${item.entity->getNameForId} (${(item.entity :> string)})`,
         value: `${(item.entity :> string)}`,
+        labelDescription: `(${(item.entity :> string)})`,
+        description: `${item.entity->getNameForId}`,
       }
     }
   })
   options
 }
 
-module NewUserOmpView = {
+module UserOmpView = {
   @react.component
   let make = (
-    ~views: array<UserManagementTypes.ompViewType>,
-    ~userModuleEntity: UserManagementTypes.userModuleTypes,
-    ~setUserModuleEntity,
+    ~views: array<UserManagementTypes.usersOmpViewType>,
+    ~selectedEntity: UserManagementTypes.userModuleTypes,
+    ~onChange,
   ) => {
-    let (arrow, setArrow) = React.useState(_ => false)
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -308,105 +265,20 @@ module NewUserOmpView = {
         | "Default" => #Default
         | _ => value->UserInfoUtils.entityMapper
         }
-        setUserModuleEntity(_ => selection)
+        onChange(selection)->ignore
       },
       onFocus: _ => (),
-      value: (userModuleEntity :> string)->JSON.Encode.string,
+      value: (selectedEntity :> string)->JSON.Encode.string,
       checked: true,
     }
 
-    let toggleChevronState = () => {
-      setArrow(prev => !prev)
+    let options = views->generateDropdownOptionsUserOMPViews(getNameForId)
+
+    let displayName = switch selectedEntity {
+    | #Default => "My Team"
+    | _ => selectedEntity->getNameForId
     }
 
-    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
-    let dropdownContainerStyle = "rounded-ls border w-fit min-w-[15rem] max-w-[20rem]"
-
-    <div className="flex">
-      <div
-        className="flex h-fit border border-grey-100 bg-white rounded-lg px-4 py-2 hover:bg-opacity-80">
-        <SelectBox.BaseDropdown
-          allowMultiSelect=false
-          buttonText=""
-          input
-          deselectDisable=true
-          customButtonStyle="!rounded-md"
-          options={views->newGenerateDropdownOptions(getNameForId)}
-          marginTop="mt-10"
-          hideMultiSelectButtons=true
-          addButton=false
-          customStyle="rounded w-fit absolute left-0"
-          searchable=false
-          baseComponent={<OMPViewBaseComp userModuleEntity arrow />}
-          baseComponentCustomStyle="bg-white rounded"
-          optionClass="text-jp-gray-900 text-opacity-75 text-fs-14"
-          selectClass="text-jp-gray-900 text-opacity-75 text-fs-14"
-          customDropdownOuterClass="!border-none min-w-[20rem] w-fit max-w-[20rem]"
-          toggleChevronState
-          customScrollStyle
-          dropdownContainerStyle
-          shouldDisplaySelectedOnTop=true
-        />
-      </div>
-    </div>
-  }
-}
-
-module UserOmpView = {
-  @react.component
-  let make = (
-    ~views: array<UserManagementTypes.ompViewType>,
-    ~userModuleEntity: UserManagementTypes.userModuleTypes,
-    ~setUserModuleEntity,
-  ) => {
-    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
-
-    let cssBasedOnIndex = index => {
-      if views->Array.length == 1 {
-        "rounded-md"
-      } else if index == 0 {
-        "rounded-l-md"
-      } else if index == views->Array.length - 1 {
-        "rounded-r-md"
-      } else {
-        ""
-      }
-    }
-
-    let getName = entityType => {
-      let name = getNameForId(entityType)
-      name->String.length > 10
-        ? name
-          ->String.substring(~start=0, ~end=10)
-          ->String.concat("...")
-        : name
-    }
-
-    let onChange = entity => {
-      setUserModuleEntity(_ => entity)
-    }
-
-    let labelBasedOnEntity: UserManagementTypes.ompViewType => string = value =>
-      switch value.entity {
-      | #Default => value.label
-      | _ => `${value.label} (${value.entity->getName})`
-      }
-
-    <div className="flex">
-      <div className="flex h-fit">
-        {views
-        ->Array.mapWithIndex((value, index) => {
-          let selectedStyle = userModuleEntity == value.entity ? `bg-blue-200` : ""
-
-          <div
-            key={index->Int.toString}
-            onClick={_ => onChange(value.entity)->ignore}
-            className={`text-xs py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer break-all`}>
-            {`${value->labelBasedOnEntity}`->React.string}
-          </div>
-        })
-        ->React.array}
-      </div>
-    </div>
+    <OMPSwitchHelper.OMPViewsComp input options displayName />
   }
 }

@@ -146,7 +146,7 @@ module TableRow = {
             ) {
               "cursor-not-allowed"
             } else {
-              "cursor-default"
+              "cursor-pointer"
             }
             let getDate = date => {
               let datevalue = Js.Date.makeWithYMD(

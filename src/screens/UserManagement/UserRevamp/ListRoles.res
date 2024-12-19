@@ -15,7 +15,7 @@ let make = () => {
     setUserModuleEntity,
   ) = React.useState(_ => #Default)
 
-  let getRolesAvailable = async () => {
+  let getRolesAvailable = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
@@ -29,6 +29,7 @@ let make = () => {
       let res = await fetchDetails(userDataURL)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
       setRolesAvailableData(_ => rolesData->Array.map(Nullable.make))
+      setUserModuleEntity(_ => userModuleEntity)
       setScreenStateRoles(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenStateRoles(_ => PageLoaderWrapper.Error(""))
@@ -36,17 +37,17 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getRolesAvailable()->ignore
+    getRolesAvailable(#Default)->ignore
     None
-  }, [userModuleEntity])
+  }, [])
 
   <div className="relative mt-5 flex flex-col gap-6">
     <PageLoaderWrapper screenState={screenStateRoles}>
       <div className="flex flex-1 gap-2 items-center justify-end">
-        <UserManagementHelper.NewUserOmpView
+        <UserManagementHelper.UserOmpView
           views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
-          userModuleEntity
-          setUserModuleEntity
+          selectedEntity=userModuleEntity
+          onChange={getRolesAvailable}
         />
         <ACLButton
           authorization={userHasAccess(~groupAccess=UsersManage)}

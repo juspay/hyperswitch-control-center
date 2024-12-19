@@ -59,6 +59,7 @@ let connectorList: array<connectorTypes> = [
   Processors(CYBERSOURCE),
   Processors(DATATRANS),
   Processors(DLOCAL),
+  Processors(ELAVON),
   Processors(FISERV),
   Processors(FISERVIPG),
   Processors(FORTE),
@@ -117,6 +118,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CRYPTOPAY),
   Processors(CASHTOCODE),
   Processors(CYBERSOURCE),
+  Processors(FIUU),
   Processors(IATAPAY),
   Processors(KLARNA),
   Processors(MIFINITY),
@@ -261,6 +263,10 @@ let cybersourceInfo = {
 
 let ebanxInfo = {
   description: "Ebanx enables global organizations to grow exponentially in Rising Markets by leveraging a platform of end-to-end localized payment and financial solutions.",
+}
+
+let elavonInfo = {
+  description: "Elavon is a global payment processing company that provides businesses with secure and reliable payment solutions. As a subsidiary of U.S. Bank, Elavon serves merchants in various industries, offering services such as credit card processing, mobile payments, e-commerce solutions, and fraud prevention tools.",
 }
 
 let aciInfo = {
@@ -546,6 +552,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WORLDPAY => "worldpay"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
+  | ELAVON => "elavon"
   | ACI => "aci"
   | WORLDLINE => "worldline"
   | FISERV => "fiserv"
@@ -662,6 +669,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpay" => Processors(WORLDPAY)
     | "cybersource" => Processors(CYBERSOURCE)
     | "ebanx" => Processors(EBANX)
+    | "elavon" => Processors(ELAVON)
     | "aci" => Processors(ACI)
     | "worldline" => Processors(WORLDLINE)
     | "fiserv" => Processors(FISERV)
@@ -763,6 +771,7 @@ let getProcessorInfo = connector => {
   | WORLDPAY => worldpayInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
+  | ELAVON => elavonInfo
   | ACI => aciInfo
   | WORLDLINE => worldlineInfo
   | FISERV => fiservInfo
@@ -1589,6 +1598,7 @@ let getDisplayNameForProcessor = connector =>
   | WORLDPAY => "Worldpay"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
+  | ELAVON => "Elavon"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
   | FISERV => "Fiserv Commerce Hub"

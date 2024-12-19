@@ -5,6 +5,7 @@ type statisticsDirection = Upward | Downward | No_Change
 type analyticsPagesRoutes =
   | @as("new-analytics-payment") NewAnalyticsPayment
   | @as("new-analytics-smart-retry") NewAnalyticsSmartRetry
+  | @as("new-analytics-refund") NewAnalyticsRefund
 
 type domain = [#payments | #refunds | #disputes]
 type dimension = [
@@ -13,8 +14,11 @@ type dimension = [
   | #payment_method_type
   | #card_network
   | #authentication_type
+  | #error_reason
+  | #refund_error_message
+  | #refund_reason
 ]
-type status = [#charged | #failure]
+type status = [#charged | #failure | #success | #pending]
 type metrics = [
   | #sessionized_smart_retried_amount
   | #sessionized_payments_success_rate
@@ -22,10 +26,17 @@ type metrics = [
   | #refund_processed_amount
   | #dispute_status_metric
   | #payments_distribution
-  | #sessionized_payments_distribution // without smart retry
   | #failure_reasons
   | #payments_distribution
   | #payment_success_rate
+  | #failure_reasons
+  | // Refunds
+  #sessionized_refund_processed_amount
+  | #sessionized_refund_success_count
+  | #sessionized_refund_success_rate
+  | #sessionized_refund_count
+  | #sessionized_refund_error_message
+  | #sessionized_refund_reason
 ]
 type granularity = [
   | #G_ONEDAY
@@ -72,3 +83,9 @@ type valueType =
 type metricType =
   | Smart_Retry
   | Default
+
+type singleStatConfig = {
+  titleText: string,
+  description: string,
+  valueType: valueType,
+}
