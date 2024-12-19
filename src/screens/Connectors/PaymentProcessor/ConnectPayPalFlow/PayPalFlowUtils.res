@@ -55,7 +55,13 @@ let stringToVariantMapper = strValue => {
   }
 }
 
-let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateToNextPage, ~connectorType) => {
+let handleObjectResponse = (
+  ~dict,
+  ~setInitialValues,
+  ~connector,
+  ~handleStateToNextPage,
+  ~connectorType,
+) => {
   open LogicUtils
   let values = dict->getJsonObjectFromDict("connector_integrated")
   let bodyTypeValue =
@@ -63,7 +69,12 @@ let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateTo
     ->getDictFromJsonObject
     ->getDictfromDict("connector_account_details")
     ->getString("auth_type", "")
-  let body = ConnectorUtils.generateInitialValuesDict(~values, ~connector, ~bodyType=bodyTypeValue, ~connectorType)
+  let body = ConnectorUtils.generateInitialValuesDict(
+    ~values,
+    ~connector,
+    ~bodyType=bodyTypeValue,
+    ~connectorType,
+  )
   setInitialValues(_ => body)
   handleStateToNextPage()
 }
