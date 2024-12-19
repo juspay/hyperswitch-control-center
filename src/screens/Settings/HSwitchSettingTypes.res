@@ -153,6 +153,8 @@ type profileEntity = {
   collect_billing_details_from_wallet_connector: option<bool>,
   always_collect_billing_details_from_wallet_connector: option<bool>,
   is_connector_agnostic_mit_enabled: option<bool>,
+  is_click_to_pay_enabled: option<bool>,
+  authentication_product_ids: option<JSON.t>,
   outgoing_webhook_custom_http_headers: option<Dict.t<JSON.t>>,
   is_auto_retries_enabled: option<bool>,
   max_auto_retries_enabled: option<int>,
