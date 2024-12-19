@@ -155,7 +155,7 @@ module ConnectorSummaryGrid = {
         if connectorName->LogicUtils.isNonEmptyString {
           let dict = switch processorType {
           | PaymentProcessor => Window.getConnectorConfig(connectorName)
-          | PayoutConnector => Window.getPayoutConnectorConfig(connectorName)
+          | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
           | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
           | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
           | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
@@ -385,18 +385,18 @@ let make = (
           />
           <h2 className="text-xl font-semibold">
             {connectorInfo.connector_name
-            ->getDisplayNameForConnector(~connectorType=PayoutConnector)
+            ->getDisplayNameForConnector(~connectorType=PayoutProcessor)
             ->React.string}
           </h2>
         </div>
         <div className="self-center">
           {switch (
             currentStep,
-            connector->getConnectorNameTypeFromString(~connectorType=PayoutConnector),
+            connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor),
             connectorInfo.status,
             paypalAutomaticFlow,
           ) {
-          | (Preview, PayoutConnector(PAYPAL), "inactive", true) =>
+          | (Preview, PayoutProcessor(PAYPAL), "inactive", true) =>
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
           | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
@@ -406,7 +406,7 @@ let make = (
               </div>
               <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
-                | (PayoutConnector(PAYPAL), true) =>
+                | (PayoutProcessor(PAYPAL), true) =>
                   <MenuOptionForPayPal
                     setCurrentStep
                     disableConnector

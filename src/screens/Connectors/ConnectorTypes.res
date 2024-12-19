@@ -117,7 +117,7 @@ type taxProcessorTypes = TAXJAR
 
 type connectorTypes =
   | Processors(processorTypes)
-  | PayoutConnector(payoutProcessorTypes)
+  | PayoutProcessor(payoutProcessorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | FRM(frmTypes)
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
@@ -327,7 +327,7 @@ type connectorPayload = {
 type connector =
   | FRMPlayer
   | Processor
-  | PayoutConnector
+  | PayoutProcessor
   | ThreeDsAuthenticator
   | PMAuthenticationProcessor
   | TaxProcessor
@@ -335,7 +335,7 @@ type connector =
 type connectorTypeVariants =
   | PaymentProcessor
   | PaymentVas
-  | PayoutConnector
+  | PayoutProcessor
   | AuthenticationProcessor
   | PMAuthProcessor
   | TaxProcessor

@@ -1,6 +1,6 @@
 module ConnectorCurrentStepIndicator = {
   @react.component
-  let make = (~currentStep: ConnectorTypes.steps, ~stepsArr, ~borderWidth="w-8/12") => {
+  let make = (~currentStep: ConnectorTypes.steps, ~stepsArr) => {
     let cols = stepsArr->Array.length->Int.toString
     let currIndex = stepsArr->Array.findIndex(item => item === currentStep)
     <div className=" w-full md:w-2/3">
@@ -121,8 +121,12 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           setCurrentStep(_ => AutomaticFlow)
         }
       | Object(dict) =>
-        handleObjectResponse(~dict, ~setInitialValues, ~connector, ~handleStateToNextPage=_ =>
-          setCurrentStep(_ => PaymentMethods)
+        handleObjectResponse(
+          ~dict,
+          ~setInitialValues,
+          ~connector,
+          ~connectorType=PayoutProcessor,
+          ~handleStateToNextPage=_ => setCurrentStep(_ => PaymentMethods),
         )
       | _ => ()
       }
@@ -148,7 +152,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let determinePageState = () => {
     switch (connectorTypeFromName, featureFlagDetails.paypalAutomaticFlow) {
-    | (PayoutConnector(PAYPAL), true) =>
+    | (PayoutProcessor(PAYPAL), true) =>
       PayPalFlowUtils.payPalPageState(
         ~setScreenState,
         ~url,
@@ -220,7 +224,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
                 },
           ]
           currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector(
-            ~connectorType=PayoutConnector,
+            ~connectorType=PayoutProcessor,
           )}
           cursorStyle="cursor-pointer"
         />
@@ -239,7 +243,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         {switch currentStep {
         | AutomaticFlow =>
           switch connectorTypeFromName {
-          | PayoutConnector(PAYPAL) =>
+          | PayoutProcessor(PAYPAL) =>
             <ConnectPayPal
               connector isUpdateFlow setInitialValues initialValues setCurrentStep getPayPalStatus
             />

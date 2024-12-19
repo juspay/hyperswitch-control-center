@@ -1,6 +1,6 @@
 module ConnectorCurrentStepIndicator = {
   @react.component
-  let make = (~currentStep: ConnectorTypes.steps, ~stepsArr, ~borderWidth="w-9/12") => {
+  let make = (~currentStep: ConnectorTypes.steps, ~stepsArr) => {
     let cols = stepsArr->Array.length->Int.toString
     let currIndex = stepsArr->Array.findIndex(item => item === currentStep)
     <div className=" w-full md:w-2/3">
@@ -121,8 +121,12 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           setCurrentStep(_ => AutomaticFlow)
         }
       | Object(dict) =>
-        handleObjectResponse(~dict, ~setInitialValues, ~connector, ~handleStateToNextPage=_ =>
-          setCurrentStep(_ => PaymentMethods)
+        handleObjectResponse(
+          ~dict,
+          ~setInitialValues,
+          ~connector,
+          ~connectorType=Processor,
+          ~handleStateToNextPage=_ => setCurrentStep(_ => PaymentMethods),
         )
       | _ => ()
       }

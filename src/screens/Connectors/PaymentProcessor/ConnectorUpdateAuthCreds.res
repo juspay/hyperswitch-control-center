@@ -20,7 +20,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       if connectorName->LogicUtils.isNonEmptyString {
         let dict = switch processorType {
         | PaymentProcessor => Window.getConnectorConfig(connectorName)
-        | PayoutConnector => Window.getPayoutConnectorConfig(connectorName)
+        | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
         | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)

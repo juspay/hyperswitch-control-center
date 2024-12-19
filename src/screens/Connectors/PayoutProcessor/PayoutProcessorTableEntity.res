@@ -58,7 +58,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   | Name =>
     CustomCell(
       <HelperComponents.ConnectorCustomCell
-        connectorName=connector.connector_name connectorType={PayoutConnector}
+        connectorName=connector.connector_name connectorType={PayoutProcessor}
       />,
       "",
     )

@@ -21,7 +21,7 @@ let make = () => {
         response
         ->ConnectorListMapper.getArrayOfConnectorListPayloadType
         ->Array.filter(item =>
-          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PayoutConnector
+          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PayoutProcessor
         )
       connectorsList->Array.reverse
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
@@ -62,9 +62,9 @@ let make = () => {
   <div>
     <PageLoaderWrapper screenState>
       <PageUtils.PageHeading
-        title={"Payout Processors"}
+        title="Payout Processors"
         customHeadingStyle="mb-10"
-        subTitle={"Connect and manage payout processors for disbursements and settlements"}
+        subTitle="Connect and manage payout processors for disbursements and settlements"
       />
       <div className="flex flex-col gap-14">
         <RenderIf condition={showFeedbackModal}>
@@ -93,7 +93,7 @@ let make = () => {
             offset
             setOffset
             entity={PayoutProcessorTableEntity.payoutProcessorEntity(
-              `payoutconnectors`,
+              "payoutconnectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
@@ -103,15 +103,15 @@ let make = () => {
         <ProcessorCards
           configuredConnectors
           connectorsAvailableForIntegration={payoutConnectorList}
-          connectorType={PayoutConnector}
-          urlPrefix={"payoutconnectors/new"}
+          connectorType={PayoutProcessor}
+          urlPrefix="payoutconnectors/new"
           setProcessorModal
         />
         <RenderIf condition={processorModal}>
           <DummyProcessorModal
             processorModal
             setProcessorModal
-            urlPrefix={"payoutconnectors/new"}
+            urlPrefix="payoutconnectors/new"
             configuredConnectors
             connectorsAvailableForIntegration={payoutConnectorList}
           />

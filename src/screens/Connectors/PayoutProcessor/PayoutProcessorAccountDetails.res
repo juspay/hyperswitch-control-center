@@ -8,7 +8,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -18,9 +18,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
-  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName =
-    connector->getConnectorNameTypeFromString(~connectorType=PayoutConnector)
+    connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
 
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
@@ -113,7 +112,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         ~connector,
         ~bodyType,
         ~isLiveMode={featureFlagDetails.isLiveMode},
-        ~connectorType=ConnectorTypes.PayoutConnector,
+        ~connectorType=ConnectorTypes.PayoutProcessor,
       )
       setScreenState(_ => Loading)
       setCurrentStep(_ => PaymentMethods)
@@ -156,6 +155,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           ~connector,
           ~bodyType,
           ~isLiveMode={featureFlagDetails.isLiveMode},
+          ~connectorType=ConnectorTypes.PayoutProcessor,
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector))
@@ -231,7 +231,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
       formClass="flex flex-col ">
       <ConnectorHeaderWrapper
         connector
-        connectorType={PayoutConnector}
+        connectorType={PayoutProcessor}
         headerButton={<AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
           <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
         </AddDataAttributes>}
@@ -244,12 +244,10 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         <div className={`flex flex-col gap-2 p-2 md:px-10`}>
           <div className="grid grid-cols-2 flex-1">
             <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-              connector={connectorName->getConnectorNameTypeFromString(
-                ~connectorType=PayoutConnector,
-              )}
+              connector={connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)}
               connectorAccountFields
-              selectedConnector={connectorName
-              ->getConnectorNameTypeFromString(~connectorType=PayoutConnector)
+              selectedConnector={connector
+              ->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
               ->getConnectorInfo}
               connectorMetaDataFields
               connectorWebHookDetails

@@ -99,9 +99,9 @@ let make = () => {
         </div>
       </RenderIf>
       <PageUtils.PageHeading
-        title={"Payment Processors"}
+        title="Payment Processors"
         customHeadingStyle="mb-10"
-        subTitle={"Connect a test processor and get started with testing your payments"}
+        subTitle="Connect a test processor and get started with testing your payments"
       />
       <div className="flex flex-col gap-14">
         <RenderIf condition={showFeedbackModal}>
@@ -140,14 +140,14 @@ let make = () => {
         <ProcessorCards
           configuredConnectors
           connectorsAvailableForIntegration
-          urlPrefix={"connectors/new"}
+          urlPrefix="connectors/new"
           setProcessorModal
         />
         <RenderIf condition={processorModal}>
           <DummyProcessorModal
             processorModal
             setProcessorModal
-            urlPrefix={"connectors/new"}
+            urlPrefix="connectors/new"
             configuredConnectors
             connectorsAvailableForIntegration
           />

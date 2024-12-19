@@ -19,13 +19,13 @@ let getStepName = step => {
 }
 
 let payoutConnectorList: array<connectorTypes> = [
-  PayoutConnector(ADYEN),
-  PayoutConnector(ADYENPLATFORM),
-  PayoutConnector(CYBERSOURCE),
-  PayoutConnector(EBANX),
-  PayoutConnector(PAYPAL),
-  PayoutConnector(STRIPE),
-  PayoutConnector(WISE),
+  PayoutProcessor(ADYEN),
+  PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CYBERSOURCE),
+  PayoutProcessor(EBANX),
+  PayoutProcessor(PAYPAL),
+  PayoutProcessor(STRIPE),
+  PayoutProcessor(WISE),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -649,7 +649,7 @@ let getTaxProcessorNameString = (taxProcessor: taxProcessorTypes) => {
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
-  | PayoutConnector(connector) => connector->getPayoutProcessorNameString
+  | PayoutProcessor(connector) => connector->getPayoutProcessorNameString
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getThreeDsAuthenticatorNameString
   | FRM(frmConnector) => frmConnector->getFRMNameString
@@ -734,15 +734,15 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "nexixpay" => Processors(NEXIXPAY)
     | _ => UnknownConnector("Not known")
     }
-  | PayoutConnector =>
+  | PayoutProcessor =>
     switch connector {
-    | "adyen" => PayoutConnector(ADYEN)
-    | "adyenplatform" => PayoutConnector(ADYENPLATFORM)
-    | "cybersource" => PayoutConnector(CYBERSOURCE)
-    | "ebanx" => PayoutConnector(EBANX)
-    | "paypal" => PayoutConnector(PAYPAL)
-    | "stripe" => PayoutConnector(STRIPE)
-    | "wise" => PayoutConnector(WISE)
+    | "adyen" => PayoutProcessor(ADYEN)
+    | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
+    | "cybersource" => PayoutProcessor(CYBERSOURCE)
+    | "ebanx" => PayoutProcessor(EBANX)
+    | "paypal" => PayoutProcessor(PAYPAL)
+    | "stripe" => PayoutProcessor(STRIPE)
+    | "wise" => PayoutProcessor(WISE)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -883,7 +883,7 @@ let getTaxProcessorInfo = (taxProcessor: ConnectorTypes.taxProcessorTypes) => {
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
-  | PayoutConnector(connector) => connector->getPayoutProcessorInfo
+  | PayoutProcessor(connector) => connector->getPayoutProcessorInfo
   | ThreeDsAuthenticator(threeDsAuthenticator) => threeDsAuthenticator->getThreedsAuthenticatorInfo
   | FRM(frm) => frm->getFrmInfo
   | PMAuthenticationProcessor(pmAuthenticationConnector) =>
@@ -998,12 +998,12 @@ let mapAuthType = (authType: string) => {
 let getConnectorType = (connector: ConnectorTypes.connectorTypes) => {
   switch connector {
   | Processors(_) => "payment_processor"
-  | PayoutConnector(_) => "payout_processor"
+  | PayoutProcessor(_) => "payout_processor"
   | ThreeDsAuthenticator(_) => "authentication_processor"
   | PMAuthenticationProcessor(_) => "payment_method_auth"
   | TaxProcessor(_) => "tax_processor"
+  | FRM(_) => "payment_vas"
   | UnknownConnector(str) => str
-  | _ => "unknown"
   }
 }
 
@@ -1575,13 +1575,13 @@ let getConnectorPaymentMethodDetails = async (
 let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
   items->Array.filter(dict => {
     let connectorType = dict.connector_type
-    let isPayoutConnector = connectorType == "payout_processor"
+    let isPayoutProcessor = connectorType == "payout_processor"
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
     let isPMAuthenticationProcessor = connectorType == "payment_method_auth"
     let isTaxProcessor = connectorType == "tax_processor"
     let isConnector =
       connectorType !== "payment_vas" &&
-      !isPayoutConnector &&
+      !isPayoutProcessor &&
       !isThreeDsAuthenticator &&
       !isPMAuthenticationProcessor &&
       !isTaxProcessor
@@ -1589,7 +1589,7 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
     switch removeFromList {
     | Processor => !isConnector
     | FRMPlayer => isConnector
-    | PayoutConnector => isPayoutConnector
+    | PayoutProcessor => isPayoutProcessor
     | ThreeDsAuthenticator => isThreeDsAuthenticator
     | PMAuthenticationProcessor => isPMAuthenticationProcessor
     | TaxProcessor => isTaxProcessor
@@ -1676,8 +1676,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | NEXIXPAY => "Nexixpay"
   }
 
-let getDisplayNameForPayoutProcessor = (payoutConnector: ConnectorTypes.payoutProcessorTypes) =>
-  switch payoutConnector {
+let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
+  switch payoutProcessor {
   | ADYEN => "Adyen"
   | ADYENPLATFORM => "Adyen Platform"
   | CYBERSOURCE => "Cybersource"
@@ -1715,7 +1715,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
   | Processors(connector) => connector->getDisplayNameForProcessor
-  | PayoutConnector(payoutConnector) => payoutConnector->getDisplayNameForPayoutProcessor
+  | PayoutProcessor(payoutProcessor) => payoutProcessor->getDisplayNameForPayoutProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
   | FRM(frmConnector) => frmConnector->getDisplayNameForFRMConnector
@@ -1739,7 +1739,7 @@ let connectorTypeTuple = connectorType => {
   switch connectorType {
   | "payment_processor" => (PaymentProcessor, Processor)
   | "payment_vas" => (PaymentVas, FRMPlayer)
-  | "payout_processor" => (PayoutConnector, PayoutConnector)
+  | "payout_processor" => (PayoutProcessor, PayoutProcessor)
   | "authentication_processor" => (AuthenticationProcessor, ThreeDsAuthenticator)
   | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
   | "tax_processor" => (TaxProcessor, TaxProcessor)
@@ -1751,7 +1751,7 @@ let connectorTypeStringToTypeMapper = connector_type => {
   switch connector_type {
   | "payment_processor" => PaymentProcessor
   | "payment_vas" => PaymentVas
-  | "payout_processor" => PayoutConnector
+  | "payout_processor" => PayoutProcessor
   | "authentication_processor" => AuthenticationProcessor
   | "payment_method_auth" => PMAuthProcessor
   | "tax_processor" => TaxProcessor

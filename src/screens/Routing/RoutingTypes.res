@@ -74,6 +74,6 @@ type historyData = {
 type value = {"type": JSON.t, "value": JSON.t}
 
 type filterType =
-  PaymentConnector | FRMPlayer | PayoutConnector | PMAuthenticationProcessor | TaxProcessor
+  PaymentConnector | FRMPlayer | PayoutProcessor | PMAuthenticationProcessor | TaxProcessor
 
 type workFlowTypes = Routing | PayoutRouting | ThreedsRouting | SurchargeRouting
