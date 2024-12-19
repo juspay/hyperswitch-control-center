@@ -51,7 +51,7 @@ module SwitchOrg = {
       customWidth="w-80"
       placeholder="Switch org"
       onKeyUp=handleKeyUp
-      customStyle="!text-grey-300 !placeholder-grey-300 font-inter-style bg-blue-840"
+      customStyle="!text-grey-300 !placeholder-grey-200 placeholder: text-sm font-inter-style bg-blue-840"
       customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
     />
   }
@@ -311,9 +311,9 @@ let make = () => {
         dropdownContainerStyle
         shouldDisplaySelectedOnTop=true
       />
-      <RenderIf condition={tenantUser && isTenantAdmin && orgList->Array.length > 20}>
-        <SwitchOrg setShowModal={setShowSwitchingOrg} />
-      </RenderIf>
+      // <RenderIf condition={tenantUser && isTenantAdmin && orgList->Array.length > 20}>
+      <SwitchOrg setShowModal={setShowSwitchingOrg} />
+      // </RenderIf>
     </div>
     <EditOrgName
       showModal={showEditOrgModal} setShowModal={setShowEditOrgModal} orgList orgId getOrgList
