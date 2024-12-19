@@ -256,4 +256,7 @@ type boundingClient = {x: int, y: int, width: int, height: int}
 external appendStyle: HyperSwitchConfigTypes.customStyle => unit = "appendStyle"
 
 @val @scope("window")
+external appendThemesStyle: 'a => unit = "appendThemesStyle"
+
+@val @scope("window")
 external env: HyperSwitchConfigTypes.urlConfig = "_env_"

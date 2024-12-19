@@ -17,6 +17,7 @@ type customUIConfig = {
   theme: theme,
   themeSetter: theme => unit,
   configCustomDomainTheme: JSON.t => unit,
+  configCustomThemeDynamic: JSON.t => unit,
 }
 
 let defaultGlobalConfig: customStyle = {
@@ -25,11 +26,55 @@ let defaultGlobalConfig: customStyle = {
   sidebar: "#242F48",
 }
 
+let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
+  settings: {
+    colors: {
+      primary: "#3498db",
+      secondary: "#2ecc71",
+      sidebar: "#2ecc71",
+      background: "#F7F8FB",
+    },
+    typography: {
+      fontFamily: "Roboto, sans-serif",
+      fontSize: "14px",
+      headingFontSize: "24px",
+      textColor: "#2c3e50",
+      linkColor: "#3498db",
+      linkHoverColor: "#2980b9",
+    },
+    buttons: {
+      primary: {
+        backgroundColor: "#3498db",
+        textColor: "#ffffff",
+        hoverBackgroundColor: "#2980b9",
+      },
+      secondary: {
+        backgroundColor: "#2ecc71",
+        textColor: "#ffffff",
+        hoverBackgroundColor: "#27ae60",
+      },
+    },
+    borders: {
+      defaultRadius: "4px",
+      borderColor: "#dcdde1",
+    },
+    spacing: {
+      padding: "16px",
+      margin: "16px",
+    },
+  },
+  urls: {
+    faviconUrl: None,
+    logoUrl: None,
+  },
+}
+
 let themeContext = {
   globalUIConfig: UIConfig.defaultUIConfig,
   theme: Light,
   themeSetter: defaultSetter,
   configCustomDomainTheme: _ => (),
+  configCustomThemeDynamic: _ => (),
 }
 
 let themeContext = React.createContext(themeContext)
@@ -87,12 +132,91 @@ let make = (~children) => {
     Window.appendStyle(value)
   }, [])
 
+  let configCustomThemeDynamic = React.useCallback((uiConfg: JSON.t) => {
+    open LogicUtils
+    let dict = uiConfg->getDictFromJsonObject
+    let settings = dict->getDictfromDict("settings")
+    let url = dict->getDictfromDict("urls")
+    let colorsConfig = settings->getDictfromDict("colors")
+    let typography = settings->getDictfromDict("typography")
+    let borders = settings->getDictfromDict("borders")
+    let spacing = settings->getDictfromDict("spacing")
+    let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("Primary")
+    let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
+    let {settings, _} = newDefaultConfig
+    let value: HyperSwitchConfigTypes.customStylesTheme = {
+      settings: {
+        colors: {
+          primary: colorsConfig->getString("primary", settings.colors.primary),
+          secondary: colorsConfig->getString("secondary", settings.colors.secondary),
+          sidebar: colorsConfig->getString("sidebar", settings.colors.sidebar),
+          background: colorsConfig->getString("background", settings.colors.background),
+        },
+        typography: {
+          fontFamily: typography->getString("fontFamily", settings.typography.fontFamily),
+          fontSize: typography->getString("fontSize", settings.typography.fontSize),
+          headingFontSize: typography->getString(
+            "headingFontSize",
+            settings.typography.headingFontSize,
+          ),
+          textColor: typography->getString("textColor", settings.typography.textColor),
+          linkColor: typography->getString("linkColor", settings.typography.linkColor),
+          linkHoverColor: typography->getString(
+            "linkHoverColor",
+            settings.typography.linkHoverColor,
+          ),
+        },
+        buttons: {
+          primary: {
+            backgroundColor: colorsBtnPrimary->getString(
+              "backgroundColor",
+              settings.buttons.primary.backgroundColor,
+            ),
+            textColor: colorsBtnPrimary->getString("textColor", settings.buttons.primary.textColor),
+            hoverBackgroundColor: colorsBtnPrimary->getString(
+              "hoverBackgroundColor",
+              settings.buttons.primary.hoverBackgroundColor,
+            ),
+          },
+          secondary: {
+            backgroundColor: colorsBtnSecondary->getString(
+              "backgroundColor",
+              settings.buttons.primary.backgroundColor,
+            ),
+            textColor: colorsBtnSecondary->getString(
+              "textColor",
+              settings.buttons.primary.textColor,
+            ),
+            hoverBackgroundColor: colorsBtnSecondary->getString(
+              "hoverBackgroundColor",
+              settings.buttons.primary.hoverBackgroundColor,
+            ),
+          },
+        },
+        borders: {
+          defaultRadius: borders->getString("defaultRadius", settings.borders.defaultRadius),
+          borderColor: borders->getString("borderColor", settings.borders.borderColor),
+        },
+        spacing: {
+          padding: spacing->getString("padding", settings.spacing.padding),
+          margin: spacing->getString("margin", settings.spacing.margin),
+        },
+      },
+      urls: {
+        faviconUrl: url->getOptionString("faviconUrl"),
+        logoUrl: url->getOptionString("logoUrl"),
+      },
+    }
+    Window.appendThemesStyle(value)
+  }, [])
+
   let value = React.useMemo(() => {
     {
       globalUIConfig: UIConfig.defaultUIConfig,
       theme,
       themeSetter: setTheme,
       configCustomDomainTheme,
+      configCustomThemeDynamic,
     }
   }, (theme, setTheme))
 
