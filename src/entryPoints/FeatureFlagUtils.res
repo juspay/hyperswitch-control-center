@@ -43,12 +43,14 @@ type featureFlag = {
   taxProcessor: bool,
   xFeatureRoute: bool,
   tenantUser: bool,
+  clickToPay: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
   open LogicUtils
   let dict = featureFlags->getDictFromJsonObject->getDictfromDict("features")
-  let typedFeatureFlag: featureFlag = {
+
+  {
     default: dict->getBool("default", true),
     testLiveToggle: dict->getBool("test_live_toggle", false),
     email: dict->getBool("email", false),
@@ -60,6 +62,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     payOut: dict->getBool("payout", false),
     recon: dict->getBool("recon", false),
     testProcessors: dict->getBool("test_processors", false),
+    clickToPay: dict->getBool("dev_click_to_pay", false),
     feedback: dict->getBool("feedback", false),
     generateReport: dict->getBool("generate_report", false),
     mixpanel: dict->getBool("mixpanel", false),
@@ -88,7 +91,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     xFeatureRoute: dict->getBool("x_feature_route", false),
     tenantUser: dict->getBool("tenant_user", false),
   }
-  typedFeatureFlag
 }
 
 let configMapper = dict => {
