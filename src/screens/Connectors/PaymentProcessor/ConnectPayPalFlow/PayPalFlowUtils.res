@@ -67,7 +67,6 @@ let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateTo
     ~values,
     ~connector,
     ~bodyType=bodyTypeValue,
-    ~isPayoutFlow=false,
   )
   setInitialValues(_ => body)
   handleStateToNextPage()
@@ -108,7 +107,6 @@ let generateConnectorPayloadPayPal = (
     ~values={initialValues},
     ~connector,
     ~bodyType,
-    ~isPayoutFlow=false,
   )->ignoreFields(connectorId, connectorIgnoredField)
 }
 

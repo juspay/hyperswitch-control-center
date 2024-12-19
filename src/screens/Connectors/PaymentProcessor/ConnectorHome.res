@@ -1,6 +1,6 @@
 module ConnectorCurrentStepIndicator = {
   @react.component
-  let make = (~currentStep: ConnectorTypes.steps, ~stepsArr, ~borderWidth="w-8/12") => {
+  let make = (~currentStep: ConnectorTypes.steps, ~stepsArr, ~borderWidth="w-9/12") => {
     let cols = stepsArr->Array.length->Int.toString
     let currIndex = stepsArr->Array.findIndex(item => item === currentStep)
     <div className=" w-full md:w-2/3">
@@ -191,9 +191,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let (title, link) = ("Processor", "/connectors")
 
-  let stepsArr = stepsArr
-  let borderWidth = "w-9/12"
-
   let customUiForPaypal =
     <DefaultLandingPage
       title="Oops, we hit a little bump on the road!"
@@ -230,7 +227,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr borderWidth />
+        <ConnectorCurrentStepIndicator currentStep stepsArr />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>

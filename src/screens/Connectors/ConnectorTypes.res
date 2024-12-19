@@ -99,6 +99,15 @@ type processorTypes =
   | DEUTSCHEBANK
   | NEXIXPAY
 
+type payoutProcessorTypes =
+  | ADYEN
+  | ADYENPLATFORM
+  | CYBERSOURCE
+  | EBANX
+  | PAYPAL
+  | STRIPE
+  | WISE
+
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
 type frmTypes =
@@ -111,6 +120,7 @@ type taxProcessorTypes = TAXJAR
 
 type connectorTypes =
   | Processors(processorTypes)
+  | PayoutConnector(payoutProcessorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | FRM(frmTypes)
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)

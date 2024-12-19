@@ -191,9 +191,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let (title, link) = ("Payout Processor", "/payoutconnectors")
 
-  let stepsArr = payoutStepsArr
-  let borderWidth = "w-8/12"
-
   let customUiForPaypal =
     <DefaultLandingPage
       title="Oops, we hit a little bump on the road!"
@@ -230,7 +227,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr borderWidth />
+        <ConnectorCurrentStepIndicator currentStep stepsArr=payoutStepsArr />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>

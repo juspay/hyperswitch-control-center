@@ -19,13 +19,13 @@ let getStepName = step => {
 }
 
 let payoutConnectorList: array<connectorTypes> = [
-  Processors(ADYEN),
-  Processors(ADYENPLATFORM),
-  Processors(CYBERSOURCE),
-  Processors(EBANX),
-  Processors(PAYPAL),
-  Processors(STRIPE),
-  Processors(WISE),
+  PayoutConnector(ADYEN),
+  PayoutConnector(ADYENPLATFORM),
+  PayoutConnector(CYBERSOURCE),
+  PayoutConnector(EBANX),
+  PayoutConnector(PAYPAL),
+  PayoutConnector(STRIPE),
+  PayoutConnector(WISE),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -611,6 +611,17 @@ let getConnectorNameString = (connector: processorTypes) =>
   | NEXIXPAY => "nexixpay"
   }
 
+let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
+  switch payoutProcessor {
+  | ADYEN => "adyen"
+  | ADYENPLATFORM => "adyenplatform"
+  | CYBERSOURCE => "cybersource"
+  | EBANX => "ebanx"
+  | PAYPAL => "paypal"
+  | STRIPE => "stripe"
+  | WISE => "wise"
+  }
+
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "threedsecureio"
@@ -641,6 +652,7 @@ let getTaxProcessorNameString = (taxProcessor: taxProcessorTypes) => {
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
+  | PayoutConnector(connector) => connector->getPayoutProcessorNameString
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getThreeDsAuthenticatorNameString
   | FRM(frmConnector) => frmConnector->getFRMNameString
@@ -728,6 +740,17 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "nexixpay" => Processors(NEXIXPAY)
     | _ => UnknownConnector("Not known")
     }
+  | PayoutConnector =>
+    switch connector {
+    | "adyen" => PayoutConnector(ADYEN)
+    | "adyenplatform" => PayoutConnector(ADYENPLATFORM)
+    | "cybersource" => PayoutConnector(CYBERSOURCE)
+    | "ebanx" => PayoutConnector(EBANX)
+    | "paypal" => PayoutConnector(PAYPAL)
+    | "stripe" => PayoutConnector(STRIPE)
+    | "wise" => PayoutConnector(WISE)
+    | _ => UnknownConnector("Not known")
+    }
   | ThreeDsAuthenticator =>
     switch connector {
     | "threedsecureio" => ThreeDsAuthenticator(THREEDSECUREIO)
@@ -750,11 +773,10 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "taxjar" => TaxProcessor(TAXJAR)
     | _ => UnknownConnector("Not known")
     }
-  | _ => UnknownConnector("Not known")
   }
 }
 
-let getProcessorInfo = connector => {
+let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   switch connector {
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
@@ -829,6 +851,19 @@ let getProcessorInfo = connector => {
   | NEXIXPAY => nexixpayInfo
   }
 }
+
+let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTypes) => {
+  switch payoutconnector {
+  | ADYEN => adyenInfo
+  | ADYENPLATFORM => adyenPlatformInfo
+  | CYBERSOURCE => cybersourceInfo
+  | EBANX => ebanxInfo
+  | PAYPAL => paypalInfo
+  | STRIPE => stripeInfo
+  | WISE => wiseInfo
+  }
+}
+
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => threedsecuredotioInfo
@@ -857,6 +892,7 @@ let getTaxProcessorInfo = (taxProcessor: ConnectorTypes.taxProcessorTypes) => {
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
+  | PayoutConnector(connector) => connector->getPayoutProcessorInfo
   | ThreeDsAuthenticator(threeDsAuthenticator) => threeDsAuthenticator->getThreedsAuthenticatorInfo
   | FRM(frm) => frm->getFrmInfo
   | PMAuthenticationProcessor(pmAuthenticationConnector) =>
@@ -968,16 +1004,16 @@ let mapAuthType = (authType: string) => {
   }
 }
 
-let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow) => {
-  isPayoutFlow
-    ? "payout_processor"
-    : switch connector {
-      | ThreeDsAuthenticator(_) => "authentication_processor"
-      | PMAuthenticationProcessor(_) => "payment_method_auth"
-      | TaxProcessor(_) => "tax_processor"
-      | UnknownConnector(str) => str
-      | _ => "payment_processor"
-      }
+let getConnectorType = (connector: ConnectorTypes.connectorTypes) => {
+  switch connector {
+  | Processors(_) => "payment_processor"
+  | PayoutConnector(_) => "payout_processor"
+  | ThreeDsAuthenticator(_) => "authentication_processor"
+  | PMAuthenticationProcessor(_) => "payment_method_auth"
+  | TaxProcessor(_) => "tax_processor"
+  | UnknownConnector(str) => str
+  | _ => "unknown"
+  }
 }
 
 let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>, paymentMethod) => {
@@ -1088,7 +1124,6 @@ let generateInitialValuesDict = (
   ~values,
   ~connector: string,
   ~bodyType,
-  ~isPayoutFlow=false,
   ~isLiveMode=false,
   ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
 ) => {
@@ -1107,7 +1142,6 @@ let generateInitialValuesDict = (
     "connector_type",
     getConnectorType(
       connector->getConnectorNameTypeFromString(~connectorType),
-      ~isPayoutFlow,
     )->JSON.Encode.string,
   )
   dict->Dict.set("disabled", dict->getBool("disabled", false)->JSON.Encode.bool)
@@ -1515,13 +1549,13 @@ let defaultSelectAllCards = (
 }
 
 let getConnectorPaymentMethodDetails = async (
-  initialValues,
-  setPaymentMethods,
-  setMetaData,
-  isUpdateFlow,
-  isPayoutFlow,
-  connector,
-  updateDetails,
+  ~initialValues,
+  ~setPaymentMethods,
+  ~setMetaData,
+  ~isUpdateFlow,
+  ~isPayoutFlow,
+  ~connector,
+  ~updateDetails,
 ) => {
   open LogicUtils
   try {
@@ -1581,7 +1615,7 @@ let getProcessorsListFromJson = (
   connnectorList->filterList(~removeFromList)
 }
 
-let getDisplayNameForProcessor = connector =>
+let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
   | ADYEN => "Adyen"
   | ADYENPLATFORM => "Adyen Platform"
@@ -1656,6 +1690,17 @@ let getDisplayNameForProcessor = connector =>
   | NEXIXPAY => "Nexixpay"
   }
 
+let getDisplayNameForPayoutProcessor = (payoutConnector: ConnectorTypes.payoutProcessorTypes) =>
+  switch payoutConnector {
+  | ADYEN => "Adyen"
+  | ADYENPLATFORM => "Adyen Platform"
+  | CYBERSOURCE => "Cybersource"
+  | EBANX => "Ebanx"
+  | PAYPAL => "PayPal"
+  | STRIPE => "Stripe"
+  | WISE => "Wise"
+  }
+
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
@@ -1684,6 +1729,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
   | Processors(connector) => connector->getDisplayNameForProcessor
+  | PayoutConnector(payoutConnector) => payoutConnector->getDisplayNameForPayoutProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
   | FRM(frmConnector) => frmConnector->getDisplayNameForFRMConnector

@@ -25,13 +25,14 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     try {
       setScreenState(_ => Loading)
       let _ =
-        initialValues->getConnectorPaymentMethodDetails(
-          setPaymentMethods,
-          setMetaData,
-          isUpdateFlow,
-          true,
-          connector,
-          updateDetails,
+        getConnectorPaymentMethodDetails(
+          ~initialValues,
+          ~setPaymentMethods,
+          ~setMetaData,
+          ~isUpdateFlow,
+          ~isPayoutFlow=true,
+          ~connector,
+          ~updateDetails,
         )
       setScreenState(_ => Success)
     } catch {

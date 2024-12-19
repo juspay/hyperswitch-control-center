@@ -134,7 +134,7 @@ let make = () => {
             offset
             setOffset
             entity={ConnectorTableUtils.connectorEntity(
-              `connectors`,
+              "connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             currrentFetchCount={filteredConnectorData->Array.length}

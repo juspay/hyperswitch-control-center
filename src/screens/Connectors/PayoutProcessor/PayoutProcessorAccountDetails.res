@@ -114,8 +114,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         ~values,
         ~connector,
         ~bodyType,
-        ~isPayoutFlow=true,
         ~isLiveMode={featureFlagDetails.isLiveMode},
+        ~connectorType=ConnectorTypes.PayoutConnector
       )
       setScreenState(_ => Loading)
       setCurrentStep(_ => PaymentMethods)
@@ -157,7 +157,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           ~values,
           ~connector,
           ~bodyType,
-          ~isPayoutFlow=true,
           ~isLiveMode={featureFlagDetails.isLiveMode},
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
