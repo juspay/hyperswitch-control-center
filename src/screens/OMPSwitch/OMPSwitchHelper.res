@@ -30,7 +30,7 @@ module ListBaseComp = {
     let endValue = isDarkBg ? 23 : 15
 
     let subHeadingElement = if subHeading->String.length > 15 {
-      <HSwitchOrderUtils.EllipsisText
+      <HelperComponents.EllipsisText
         displayValue=subHeading
         endValue
         showCopy=false
@@ -103,57 +103,122 @@ module AddNewOMPButton = {
   }
 }
 
+module OMPViewBaseComp = {
+  @react.component
+  let make = (~displayName, ~arrow) => {
+    let arrowUpClass = "rotate-0 transition duration-[250ms] opacity-70"
+    let arrowDownClass = "rotate-180 transition duration-[250ms] opacity-70"
+
+    let truncatedDisplayName = if displayName->String.length > 15 {
+      <HelperComponents.EllipsisText
+        displayValue=displayName endValue=15 showCopy=false expandText=false
+      />
+    } else {
+      {displayName->React.string}
+    }
+
+    <div className={`text-sm font-medium cursor-pointer px-4`}>
+      <div className={`flex flex-col items-start`}>
+        <div className="text-left flex items-center gap-1">
+          <Icon name="settings-new" size=18 />
+          <p className={`text-jp-gray-900 fs-10 overflow-scroll text-nowrap`}>
+            {`View data for:`->React.string}
+          </p>
+          <span className="text-blue-500 text-nowrap"> {truncatedDisplayName} </span>
+          <Icon
+            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
+            name="arrow-without-tail"
+            size=15
+          />
+        </div>
+      </div>
+    </div>
+  }
+}
+
+let generateDropdownOptionsOMPViews = (dropdownList: OMPSwitchTypes.ompViews, getNameForId) => {
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+    item
+  ): SelectBox.dropdownOption => {
+    {
+      label: `${item.entity->getNameForId}`,
+      value: `${(item.entity :> string)}`,
+      labelDescription: `(${item.lable})`,
+      description: `${item.entity->getNameForId}`,
+    }
+  })
+  options
+}
+
+module OMPViewsComp = {
+  @react.component
+  let make = (~input, ~options, ~displayName, ~entityMapper=UserInfoUtils.entityMapper) => {
+    let (arrow, setArrow) = React.useState(_ => false)
+
+    let toggleChevronState = () => {
+      setArrow(prev => !prev)
+    }
+
+    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
+    let dropdownContainerStyle = "rounded-lg border w-full shadow-md"
+
+    <div className="flex h-fit border border-grey-100 bg-white rounded-lg py-2 hover:bg-opacity-80">
+      <SelectBox.BaseDropdown
+        allowMultiSelect=false
+        buttonText=""
+        input
+        deselectDisable=true
+        customButtonStyle="!rounded-md"
+        options
+        marginTop="mt-8"
+        hideMultiSelectButtons=true
+        addButton=false
+        customStyle="rounded w-fit absolute left-0"
+        searchable=false
+        baseComponent={<OMPViewBaseComp displayName arrow />}
+        baseComponentCustomStyle="bg-white rounded"
+        optionClass="font-inter text-fs-14 font-normal leading-5"
+        selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"
+        labelDescriptionClass="font-inter text-fs-12 font-normal leading-4"
+        customDropdownOuterClass="!border-none !w-full"
+        toggleChevronState
+        customScrollStyle
+        dropdownContainerStyle
+        shouldDisplaySelectedOnTop=true
+        descriptionOnHover=true
+        textEllipsisForDropDownOptions=true
+      />
+    </div>
+  }
+}
+
 module OMPViews = {
   @react.component
   let make = (
     ~views: OMPSwitchTypes.ompViews,
     ~selectedEntity: UserInfoTypes.entity,
     ~onChange,
+    ~entityMapper=UserInfoUtils.entityMapper,
   ) => {
-    open OMPSwitchUtils
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
-    let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-
-    let cssBasedOnIndex = index => {
-      if index == 0 {
-        "rounded-l-md"
-      } else if index == views->Array.length - 1 {
-        "rounded-r-md"
-      } else {
-        ""
-      }
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "name",
+      onBlur: _ => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToString
+        onChange(value->UserInfoUtils.entityMapper)->ignore
+      },
+      onFocus: _ => (),
+      value: (selectedEntity :> string)->JSON.Encode.string,
+      checked: true,
     }
 
-    let getName = entityType => {
-      let name = switch entityType {
-      | #Organization => currentOMPName(orgList, userInfo.orgId)
-      | #Merchant => currentOMPName(merchantList, userInfo.merchantId)
-      | #Profile => currentOMPName(profileList, userInfo.profileId)
-      | _ => ""
-      }
-      name->String.length > 10
-        ? name
-          ->String.substring(~start=0, ~end=10)
-          ->String.concat("...")
-        : name
-    }
+    let options = views->generateDropdownOptionsOMPViews(getNameForId)
 
-    <div className="flex h-fit">
-      {views
-      ->Array.mapWithIndex((value, index) => {
-        let selectedStyle = selectedEntity == value.entity ? `bg-blue-200` : ""
-        <div
-          key={index->Int.toString}
-          onClick={_ => onChange(value.entity)->ignore}
-          className={`text-xs py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer break-all`}>
-          {`${value.lable} (${value.entity->getName})`->React.string}
-        </div>
-      })
-      ->React.array}
-    </div>
+    let displayName = selectedEntity->getNameForId
+
+    <OMPViewsComp input options displayName />
   }
 }
 

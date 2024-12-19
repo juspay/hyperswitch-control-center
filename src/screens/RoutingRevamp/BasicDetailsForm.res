@@ -130,7 +130,7 @@ let make = (
                 </span>
                 <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
                   <span className="font-semibold">
-                    <HelperComponents.BusinessProfileComponent
+                    <BusinessProfileHook.BusinessProfileComponent
                       profile_id={profile->Option.getOr(defaultBusinessProfile.profile_id)}
                     />
                   </span>

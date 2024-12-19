@@ -110,7 +110,7 @@ type userStatusTypes = Active | InviteSent | None
 
 type userModuleTypes = [UserInfoTypes.entity | #Default]
 
-type ompViewType = {
+type usersOmpViewType = {
   label: string,
   entity: userModuleTypes,
 }
