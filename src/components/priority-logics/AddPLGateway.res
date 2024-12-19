@@ -7,7 +7,7 @@ module GatewayView = {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
 
     let connectorType = switch url->RoutingUtils.urlToVariantMapper {
-    | PayoutRouting => RoutingTypes.PayoutConnector
+    | PayoutRouting => RoutingTypes.PayoutProcessor
     | _ => RoutingTypes.PaymentConnector
     }
     let connectorList =

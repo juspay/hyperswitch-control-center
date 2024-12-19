@@ -28,7 +28,6 @@ type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
   | ADYEN
-  | ADYENPLATFORM
   | CHECKOUT
   | BRAINTREE
   | BANKOFAMERICA
@@ -41,7 +40,6 @@ type processorTypes =
   | AIRWALLEX
   | WORLDPAY
   | CYBERSOURCE
-  | EBANX
   | ELAVON
   | ACI
   | WORLDLINE
@@ -78,7 +76,6 @@ type processorTypes =
   | STRIPE_TEST
   | PAYPAL_TEST
   | STAX
-  | WISE
   | GOCARDLESS
   | VOLT
   | PROPHETPAY
@@ -99,6 +96,15 @@ type processorTypes =
   | DEUTSCHEBANK
   | NEXIXPAY
 
+type payoutProcessorTypes =
+  | ADYEN
+  | ADYENPLATFORM
+  | CYBERSOURCE
+  | EBANX
+  | PAYPAL
+  | STRIPE
+  | WISE
+
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
 type frmTypes =
@@ -111,6 +117,7 @@ type taxProcessorTypes = TAXJAR
 
 type connectorTypes =
   | Processors(processorTypes)
+  | PayoutProcessor(payoutProcessorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | FRM(frmTypes)
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
@@ -320,7 +327,7 @@ type connectorPayload = {
 type connector =
   | FRMPlayer
   | Processor
-  | PayoutConnector
+  | PayoutProcessor
   | ThreeDsAuthenticator
   | PMAuthenticationProcessor
   | TaxProcessor

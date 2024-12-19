@@ -53,9 +53,9 @@ let make = () => {
         <EntityScaffold
           entityName="PayoutConnectors"
           remainingPath
-          renderList={() => <ConnectorList isPayoutFlow=true />}
-          renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
-          renderShow={(_, _) => <ConnectorHome isPayoutFlow=true />}
+          renderList={() => <PayoutProcessorList />}
+          renderNewForm={() => <PayoutProcessorHome />}
+          renderShow={(_, _) => <PayoutProcessorHome />}
         />
       </AccessControl>
     | list{"3ds-authenticators", ...remainingPath} =>

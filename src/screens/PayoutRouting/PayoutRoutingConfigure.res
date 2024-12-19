@@ -12,7 +12,7 @@ let make = (~routingType) => {
   let connectorList =
     HyperswitchAtom.connectorListAtom
     ->Recoil.useRecoilValueFromAtom
-    ->filterConnectorList(~retainInList=PayoutConnector)
+    ->filterConnectorList(~retainInList=PayoutProcessor)
 
   let baseUrlForRedirection = "/payoutrouting"
 

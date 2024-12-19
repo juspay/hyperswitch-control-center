@@ -735,7 +735,7 @@ let make = (
   }
 
   let connectorType = switch url->RoutingUtils.urlToVariantMapper {
-  | PayoutRouting => RoutingTypes.PayoutConnector
+  | PayoutRouting => RoutingTypes.PayoutProcessor
   | _ => RoutingTypes.PaymentConnector
   }
 

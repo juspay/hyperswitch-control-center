@@ -9,7 +9,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   let isDistribute = isDistributeInput.value->LogicUtils.getBoolFromJson(false)
 
   let connectorType = switch url->RoutingUtils.urlToVariantMapper {
-  | PayoutRouting => RoutingTypes.PayoutConnector
+  | PayoutRouting => RoutingTypes.PayoutProcessor
   | _ => RoutingTypes.PaymentConnector
   }
 

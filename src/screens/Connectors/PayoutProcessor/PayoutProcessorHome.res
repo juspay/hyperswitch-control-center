@@ -73,7 +73,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let fetchDetails = useGetMethod()
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
-  | list{"connectors", "new"} => false
+  | list{"payoutconnectors", "new"} => false
   | _ => true
   }
 
@@ -125,7 +125,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           ~dict,
           ~setInitialValues,
           ~connector,
-          ~connectorType=Processor,
+          ~connectorType=PayoutProcessor,
           ~handleStateToNextPage=_ => setCurrentStep(_ => PaymentMethods),
         )
       | _ => ()
@@ -152,7 +152,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let determinePageState = () => {
     switch (connectorTypeFromName, featureFlagDetails.paypalAutomaticFlow) {
-    | (Processors(PAYPAL), true) =>
+    | (PayoutProcessor(PAYPAL), true) =>
       PayPalFlowUtils.payPalPageState(
         ~setScreenState,
         ~url,
@@ -201,7 +201,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))
         setScreenState(_ => PageLoaderWrapper.Success)
       }}
       isButton=true
@@ -214,21 +214,23 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           path=[
             connectorID === "new"
               ? {
-                  title: "Processor",
-                  link: "/connectors",
+                  title: "Payout Processor",
+                  link: "/payoutconnectors",
                   warning: `You have not yet completed configuring your ${connector->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
                 }
               : {
-                  title: "Processor",
-                  link: "/connectors",
+                  title: "Payout Processor",
+                  link: "/payoutconnectors",
                 },
           ]
-          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector}
+          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector(
+            ~connectorType=PayoutProcessor,
+          )}
           cursorStyle="cursor-pointer"
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr />
+        <ConnectorCurrentStepIndicator currentStep stepsArr=payoutStepsArr />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
@@ -241,21 +243,23 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         {switch currentStep {
         | AutomaticFlow =>
           switch connectorTypeFromName {
-          | Processors(PAYPAL) =>
+          | PayoutProcessor(PAYPAL) =>
             <ConnectPayPal
               connector isUpdateFlow setInitialValues initialValues setCurrentStep getPayPalStatus
             />
           | _ => React.null
           }
         | IntegFields =>
-          <ConnectorAccountDetails setCurrentStep setInitialValues initialValues isUpdateFlow />
+          <PayoutProcessorAccountDetails
+            setCurrentStep setInitialValues initialValues isUpdateFlow
+          />
         | PaymentMethods =>
-          <ConnectorPaymentMethod
+          <PayoutProcessorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
         | SummaryAndTest
         | Preview =>
-          <ConnectorPreview
+          <PayoutProcessorPreview
             connectorInfo={initialValues}
             currentStep
             setCurrentStep

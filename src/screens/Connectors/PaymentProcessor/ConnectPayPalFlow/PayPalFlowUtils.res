@@ -55,7 +55,13 @@ let stringToVariantMapper = strValue => {
   }
 }
 
-let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateToNextPage) => {
+let handleObjectResponse = (
+  ~dict,
+  ~setInitialValues,
+  ~connector,
+  ~handleStateToNextPage,
+  ~connectorType,
+) => {
   open LogicUtils
   let values = dict->getJsonObjectFromDict("connector_integrated")
   let bodyTypeValue =
@@ -67,7 +73,7 @@ let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateTo
     ~values,
     ~connector,
     ~bodyType=bodyTypeValue,
-    ~isPayoutFlow=false,
+    ~connectorType,
   )
   setInitialValues(_ => body)
   handleStateToNextPage()
@@ -104,12 +110,10 @@ let generateConnectorPayloadPayPal = (
       ("connector_label", connectorLabel->JSON.Encode.string),
     ]->LogicUtils.getJsonFromArrayOfJson
 
-  generateInitialValuesDict(
-    ~values={initialValues},
-    ~connector,
-    ~bodyType,
-    ~isPayoutFlow=false,
-  )->ignoreFields(connectorId, connectorIgnoredField)
+  generateInitialValuesDict(~values={initialValues}, ~connector, ~bodyType)->ignoreFields(
+    connectorId,
+    connectorIgnoredField,
+  )
 }
 
 let generatePayPalBody = (~returnUrl=None, ~connectorId, ~profileId=None) => {
