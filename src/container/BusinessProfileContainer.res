@@ -34,13 +34,6 @@ let make = () => {
       <AccessControl authorization=Access>
         <BusinessProfile />
       </AccessControl>
-    | list{"payment-settings", ...remainingPath} =>
-      <EntityScaffold
-        entityName="PaymentSettings"
-        remainingPath
-        renderList={() => <PaymentSettingsList />}
-        renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
-      />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
