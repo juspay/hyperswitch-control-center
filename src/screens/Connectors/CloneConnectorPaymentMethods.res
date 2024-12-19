@@ -23,11 +23,11 @@ module ClonePaymentMethodsModal = {
     }
 
     let modalBody = {
-      <div className="m-4 p-2">
+      <>
         <div className="pt-3 m-3 flex justify-between">
           <CardUtils.CardHeader
-            heading="Clone Payment Method"
-            subHeading="Select the target profile where you want to clone payment methods"
+            heading="Clone Payment Methods"
+            subHeading=""
             customSubHeadingStyle="w-full !max-w-none pr-10"
           />
           <div
@@ -39,22 +39,30 @@ module ClonePaymentMethodsModal = {
             <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
           </div>
         </div>
-        <div className="m-4 flex flex-col gap-2">
-          <p className="text-md font-medium leading-7 text-gray-700">
-            {"Target Profile"->React.string}
-          </p>
-          <RenderIf condition={retainCloneModal}>
-            <div className="w-48">
-              <ProfileSwitch
-                showSwitchModal=false setButtonState showHeading=false customMargin="mt-8"
-              />
+        <hr />
+        <div>
+          <div
+            className="flex flex-col gap-2 py-10 text-md font-small leading-7 text-gray-600 mx-3">
+            <p>
+              {"Select the target profile where you want to clone payment methods"->React.string}
+            </p>
+            <div>
+              <p> {"Target Profile"->React.string} </p>
+              <RenderIf condition={retainCloneModal}>
+                <div className="w-48">
+                  <ProfileSwitch
+                    showSwitchModal=false setButtonState showHeading=false customMargin="mt-8"
+                  />
+                </div>
+              </RenderIf>
             </div>
-          </RenderIf>
-          <div className="flex justify-center my-4">
+          </div>
+          <hr className="mt-4" />
+          <div className="flex justify-end my-4 mr-4">
             <Button text="Next" onClick={_ => onNextClick()} buttonState buttonType={Primary} />
           </div>
         </div>
-      </div>
+      </>
     }
 
     <div>
