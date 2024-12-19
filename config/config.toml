@@ -51,6 +51,7 @@ down_time=false
 tax_processor=true
 x_feature_route=false
 tenant_user=false
+dev_click_to_pay=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]

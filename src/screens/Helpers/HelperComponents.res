@@ -38,6 +38,51 @@ module CopyTextCustomComp = {
   }
 }
 
+module EllipsisText = {
+  @react.component
+  let make = (
+    ~displayValue,
+    ~endValue=17,
+    ~showCopy=true,
+    ~customTextStyle="",
+    ~expandText=true,
+  ) => {
+    open LogicUtils
+    let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
+
+    let handleClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      if expandText {
+        setIsTextVisible(_ => true)
+      }
+    }
+
+    let text = if showCopy {
+      <CopyTextCustomComp displayValue customTextCss="text-nowrap" />
+    } else {
+      <div> {displayValue->React.string} </div>
+    }
+
+    <div>
+      <RenderIf condition={isTextVisible}>
+        <div> {text} </div>
+      </RenderIf>
+      <RenderIf condition={!isTextVisible && displayValue->isNonEmptyString}>
+        <div className="flex text-nowrap gap-1">
+          <p className="">
+            {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
+          </p>
+          <span
+            className={`flex text-blue-811 text-sm font-extrabold ${customTextStyle}`}
+            onClick={ev => handleClick(ev)}>
+            {"..."->React.string}
+          </span>
+        </div>
+      </RenderIf>
+    </div>
+  }
+}
+
 module BluredTableComponent = {
   @react.component
   let make = (
@@ -149,15 +194,5 @@ module ConnectorCustomCell = {
     } else {
       "NA"->React.string
     }
-  }
-}
-
-module BusinessProfileComponent = {
-  @react.component
-  let make = (~profile_id: string, ~className="") => {
-    let {profile_name} = BusinessProfileHook.useGetBusinessProflile(profile_id)
-    <div className>
-      {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
-    </div>
   }
 }

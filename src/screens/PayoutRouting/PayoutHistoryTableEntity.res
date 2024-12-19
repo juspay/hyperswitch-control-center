@@ -55,7 +55,7 @@ let getTableCell = activeRoutingIds => {
     | ProfileId => Text(historyData.profile_id)
     | ProfileName =>
       Table.CustomCell(
-        <HelperComponents.BusinessProfileComponent profile_id={historyData.profile_id} />,
+        <BusinessProfileHook.BusinessProfileComponent profile_id={historyData.profile_id} />,
         "",
       )
     | Description => Text(historyData.description)

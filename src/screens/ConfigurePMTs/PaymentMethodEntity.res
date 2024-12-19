@@ -43,7 +43,7 @@ let getCell = (~setReferesh) => {
       Table.CustomCell(
         <PaymentMethodConfig
           paymentMethodConfig
-          element={<HelperComponents.BusinessProfileComponent
+          element={<BusinessProfileHook.BusinessProfileComponent
             profile_id={paymentMethodConfig.profile_id}
           />}
           setReferesh

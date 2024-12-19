@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.19.0
+
+### Features
+
+- Addition of new connector - Elavon ([#1950](https://github.com/juspay/hyperswitch-control-center/pull/1950)) ([`e5ee018`](https://github.com/juspay/hyperswitch-control-center/commit/e5ee018cb2126307b02635e6e0b9497444779c83))
+- Add click to pay in payment settings ([#1927](https://github.com/juspay/hyperswitch-control-center/pull/1927)) ([`db89acf`](https://github.com/juspay/hyperswitch-control-center/commit/db89acf233da6960895185630e7c07fb36b7db3d))
+
+### Refactors
+
+- Invite user input ([#1919](https://github.com/juspay/hyperswitch-control-center/pull/1919)) ([`84cf9aa`](https://github.com/juspay/hyperswitch-control-center/commit/84cf9aa35af7a7a8b68b6890f56020ffa5cdd84b))
+- Changed folder structure of connectors ([#1952](https://github.com/juspay/hyperswitch-control-center/pull/1952)) ([`e5bae80`](https://github.com/juspay/hyperswitch-control-center/commit/e5bae806282ef90fc8669c73cfb7f1c871a9a734))
+
+**Full Changelog:** [`2024.12.18.0...2024.12.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.18.0...2024.12.19.0)
+
+- - -
+
 ## 2024.12.18.0
 
 ### Features
