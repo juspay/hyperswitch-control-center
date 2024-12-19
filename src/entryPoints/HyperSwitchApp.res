@@ -128,10 +128,7 @@ let make = () => {
                 />
               </RenderIf>
               <PageLoaderWrapper
-                screenState={screenState}
-                customUI
-                sectionHeight="!h-screen w-full"
-                showLogoutButton=true>
+                screenState customUI sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="border-b shadow hyperswitch_box_shadow ">

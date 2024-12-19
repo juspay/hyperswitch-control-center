@@ -41,8 +41,7 @@ module ClonePaymentMethodsModal = {
         </div>
         <hr />
         <div>
-          <div
-            className="flex flex-col gap-2 py-10 text-md font-small leading-7 text-gray-600 mx-3">
+          <div className="flex flex-col gap-2 py-10 text-sm leading-7 text-gray-600 mx-3">
             <p>
               {"Select the target profile where you want to clone payment methods"->React.string}
             </p>
