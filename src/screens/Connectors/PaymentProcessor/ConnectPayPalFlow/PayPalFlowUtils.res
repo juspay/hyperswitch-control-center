@@ -63,11 +63,7 @@ let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateTo
     ->getDictFromJsonObject
     ->getDictfromDict("connector_account_details")
     ->getString("auth_type", "")
-  let body = ConnectorUtils.generateInitialValuesDict(
-    ~values,
-    ~connector,
-    ~bodyType=bodyTypeValue,
-  )
+  let body = ConnectorUtils.generateInitialValuesDict(~values, ~connector, ~bodyType=bodyTypeValue)
   setInitialValues(_ => body)
   handleStateToNextPage()
 }
@@ -103,11 +99,10 @@ let generateConnectorPayloadPayPal = (
       ("connector_label", connectorLabel->JSON.Encode.string),
     ]->LogicUtils.getJsonFromArrayOfJson
 
-  generateInitialValuesDict(
-    ~values={initialValues},
-    ~connector,
-    ~bodyType,
-  )->ignoreFields(connectorId, connectorIgnoredField)
+  generateInitialValuesDict(~values={initialValues}, ~connector, ~bodyType)->ignoreFields(
+    connectorId,
+    connectorIgnoredField,
+  )
 }
 
 let generatePayPalBody = (~returnUrl=None, ~connectorId, ~profileId=None) => {

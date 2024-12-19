@@ -1140,9 +1140,7 @@ let generateInitialValuesDict = (
   dict->Dict.set("connector_name", connector->JSON.Encode.string)
   dict->Dict.set(
     "connector_type",
-    getConnectorType(
-      connector->getConnectorNameTypeFromString(~connectorType),
-    )->JSON.Encode.string,
+    getConnectorType(connector->getConnectorNameTypeFromString(~connectorType))->JSON.Encode.string,
   )
   dict->Dict.set("disabled", dict->getBool("disabled", false)->JSON.Encode.bool)
   dict->Dict.set("test_mode", (isLiveMode ? false : true)->JSON.Encode.bool)

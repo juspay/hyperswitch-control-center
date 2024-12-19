@@ -24,16 +24,15 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   let setPaymentMethodDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let _ =
-        getConnectorPaymentMethodDetails(
-          ~initialValues,
-          ~setPaymentMethods,
-          ~setMetaData,
-          ~isUpdateFlow,
-          ~isPayoutFlow=true,
-          ~connector,
-          ~updateDetails,
-        )
+      let _ = getConnectorPaymentMethodDetails(
+        ~initialValues,
+        ~setPaymentMethods,
+        ~setMetaData,
+        ~isUpdateFlow,
+        ~isPayoutFlow=true,
+        ~connector,
+        ~updateDetails,
+      )
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) => {
