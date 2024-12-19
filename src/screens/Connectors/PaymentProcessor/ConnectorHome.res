@@ -74,7 +74,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"connectors", "new"} => false
-  | list{"payoutconnectors", "new"} => false
   | _ => true
   }
 
@@ -189,8 +188,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
     None
   }, [connector])
 
-  let (title, link) = ("Processor", "/connectors")
-
   let customUiForPaypal =
     <DefaultLandingPage
       title="Oops, we hit a little bump on the road!"
@@ -213,13 +210,13 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           path=[
             connectorID === "new"
               ? {
-                  title,
-                  link,
+                  title: "Processor",
+                  link: "/connectors",
                   warning: `You have not yet completed configuring your ${connector->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
                 }
               : {
-                  title,
-                  link,
+                  title: "Processor",
+                  link: "/connectors",
                 },
           ]
           currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector}

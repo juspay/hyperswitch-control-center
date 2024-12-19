@@ -18,11 +18,9 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString
-
-  let selectedConnector = React.useMemo(() => {
-    connectorTypeFromName->getConnectorInfo
-  }, [connector])
+  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connectorTypeFromName =
+    connector->getConnectorNameTypeFromString(~connectorType=PayoutConnector)
 
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
@@ -173,7 +171,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           setShowVerifyModal(_ => true)
           setVerifyDone(_ => Failure)
         }
-
       | None => setScreenState(_ => Error("Failed to Fetch!"))
       }
     }
@@ -234,6 +231,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
       formClass="flex flex-col ">
       <ConnectorHeaderWrapper
         connector
+        connectorType={PayoutConnector}
         headerButton={<AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
           <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
         </AddDataAttributes>}
@@ -245,10 +243,14 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         </div>
         <div className={`flex flex-col gap-2 p-2 md:px-10`}>
           <div className="grid grid-cols-2 flex-1">
-            <ConnectorConfigurationFields
-              connector={connectorTypeFromName}
+            <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
+              connector={connectorName->getConnectorNameTypeFromString(
+                ~connectorType=PayoutConnector,
+              )}
               connectorAccountFields
-              selectedConnector
+              selectedConnector={connectorName
+              ->getConnectorNameTypeFromString(~connectorType=PayoutConnector)
+              ->getConnectorInfo}
               connectorMetaDataFields
               connectorWebHookDetails
               connectorLabelDetailField

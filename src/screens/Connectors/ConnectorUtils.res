@@ -539,7 +539,6 @@ let riskifyedInfo = {
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
-  | ADYENPLATFORM => "adyenplatform"
   | CHECKOUT => "checkout"
   | BRAINTREE => "braintree"
   | AUTHORIZEDOTNET => "authorizedotnet"
@@ -550,7 +549,6 @@ let getConnectorNameString = (connector: processorTypes) =>
   | AIRWALLEX => "airwallex"
   | WORLDPAY => "worldpay"
   | CYBERSOURCE => "cybersource"
-  | EBANX => "ebanx"
   | ELAVON => "elavon"
   | ACI => "aci"
   | WORLDLINE => "worldline"
@@ -585,7 +583,6 @@ let getConnectorNameString = (connector: processorTypes) =>
   | NOON => "noon"
   | STRIPE_TEST => "stripe_test"
   | PAYPAL_TEST => "paypal_test"
-  | WISE => "wise"
   | STAX => "stax"
   | GOCARDLESS => "gocardless"
   | VOLT => "volt"
@@ -668,7 +665,6 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | Processor =>
     switch connector {
     | "adyen" => Processors(ADYEN)
-    | "adyenplatform" => Processors(ADYENPLATFORM)
     | "checkout" => Processors(CHECKOUT)
     | "braintree" => Processors(BRAINTREE)
     | "authorizedotnet" => Processors(AUTHORIZEDOTNET)
@@ -679,7 +675,6 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "airwallex" => Processors(AIRWALLEX)
     | "worldpay" => Processors(WORLDPAY)
     | "cybersource" => Processors(CYBERSOURCE)
-    | "ebanx" => Processors(EBANX)
     | "elavon" => Processors(ELAVON)
     | "aci" => Processors(ACI)
     | "worldline" => Processors(WORLDLINE)
@@ -714,7 +709,6 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "powertranz" => Processors(POWERTRANZ)
     | "tsys" => Processors(TSYS)
     | "noon" => Processors(NOON)
-    | "wise" => Processors(WISE)
     | "stax" => Processors(STAX)
     | "cryptopay" => Processors(CRYPTOPAY)
     | "gocardless" => Processors(GOCARDLESS)
@@ -780,7 +774,6 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   switch connector {
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
-  | ADYENPLATFORM => adyenPlatformInfo
   | GOCARDLESS => goCardLessInfo
   | CHECKOUT => checkoutInfo
   | BRAINTREE => braintreeInfo
@@ -791,7 +784,6 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | AIRWALLEX => airwallexInfo
   | WORLDPAY => worldpayInfo
   | CYBERSOURCE => cybersourceInfo
-  | EBANX => ebanxInfo
   | ELAVON => elavonInfo
   | ACI => aciInfo
   | WORLDLINE => worldlineInfo
@@ -823,7 +815,6 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYME => paymeInfo
   | GLOBEPAY => globepayInfo
   | POWERTRANZ => powertranzInfo
-  | WISE => wiseInfo
   | TSYS => tsysInfo
   | NOON => noonInfo
   | STRIPE_TEST => stripeTestInfo
@@ -1616,7 +1607,6 @@ let getProcessorsListFromJson = (
 let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
   | ADYEN => "Adyen"
-  | ADYENPLATFORM => "Adyen Platform"
   | CHECKOUT => "Checkout"
   | BRAINTREE => "Braintree"
   | BILLWERK => "Billwerk"
@@ -1628,7 +1618,6 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | AIRWALLEX => "Airwallex"
   | WORLDPAY => "Worldpay"
   | CYBERSOURCE => "Cybersource"
-  | EBANX => "Ebanx"
   | ELAVON => "Elavon"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
@@ -1663,7 +1652,6 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | NOON => "Noon"
   | STRIPE_TEST => "Stripe Dummy"
   | PAYPAL_TEST => "Paypal Dummy"
-  | WISE => "Wise"
   | STAX => "Stax"
   | GOCARDLESS => "GoCardless"
   | VOLT => "Volt"
@@ -1751,7 +1739,7 @@ let connectorTypeTuple = connectorType => {
   switch connectorType {
   | "payment_processor" => (PaymentProcessor, Processor)
   | "payment_vas" => (PaymentVas, FRMPlayer)
-  | "payout_processor" => (PayoutProcessor, PayoutConnector)
+  | "payout_processor" => (PayoutConnector, PayoutConnector)
   | "authentication_processor" => (AuthenticationProcessor, ThreeDsAuthenticator)
   | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
   | "tax_processor" => (TaxProcessor, TaxProcessor)
@@ -1763,7 +1751,7 @@ let connectorTypeStringToTypeMapper = connector_type => {
   switch connector_type {
   | "payment_processor" => PaymentProcessor
   | "payment_vas" => PaymentVas
-  | "payout_processor" => PayoutProcessor
+  | "payout_processor" => PayoutConnector
   | "authentication_processor" => AuthenticationProcessor
   | "payment_method_auth" => PMAuthProcessor
   | "tax_processor" => TaxProcessor

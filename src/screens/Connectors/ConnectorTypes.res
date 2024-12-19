@@ -28,7 +28,6 @@ type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
   | ADYEN
-  | ADYENPLATFORM
   | CHECKOUT
   | BRAINTREE
   | BANKOFAMERICA
@@ -41,7 +40,6 @@ type processorTypes =
   | AIRWALLEX
   | WORLDPAY
   | CYBERSOURCE
-  | EBANX
   | ELAVON
   | ACI
   | WORLDLINE
@@ -78,7 +76,6 @@ type processorTypes =
   | STRIPE_TEST
   | PAYPAL_TEST
   | STAX
-  | WISE
   | GOCARDLESS
   | VOLT
   | PROPHETPAY
@@ -338,7 +335,7 @@ type connector =
 type connectorTypeVariants =
   | PaymentProcessor
   | PaymentVas
-  | PayoutProcessor
+  | PayoutConnector
   | AuthenticationProcessor
   | PMAuthProcessor
   | TaxProcessor

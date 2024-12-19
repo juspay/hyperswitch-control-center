@@ -1,3 +1,4 @@
+// TODO: Need optimization
 module InfoField = {
   @react.component
   let make = (~render, ~label) => {
@@ -383,17 +384,19 @@ let make = (
             gateway={connectorInfo.connector_name->String.toUpperCase} className="w-14 h-14"
           />
           <h2 className="text-xl font-semibold">
-            {connectorInfo.connector_name->getDisplayNameForConnector->React.string}
+            {connectorInfo.connector_name
+            ->getDisplayNameForConnector(~connectorType=PayoutConnector)
+            ->React.string}
           </h2>
         </div>
         <div className="self-center">
           {switch (
             currentStep,
-            connector->getConnectorNameTypeFromString,
+            connector->getConnectorNameTypeFromString(~connectorType=PayoutConnector),
             connectorInfo.status,
             paypalAutomaticFlow,
           ) {
-          | (Preview, Processors(PAYPAL), "inactive", true) =>
+          | (Preview, PayoutConnector(PAYPAL), "inactive", true) =>
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
           | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
@@ -403,7 +406,7 @@ let make = (
               </div>
               <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
-                | (Processors(PAYPAL), true) =>
+                | (PayoutConnector(PAYPAL), true) =>
                   <MenuOptionForPayPal
                     setCurrentStep
                     disableConnector
@@ -426,7 +429,7 @@ let make = (
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }
-                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))
               }}
               text="Done"
               buttonType={Primary}

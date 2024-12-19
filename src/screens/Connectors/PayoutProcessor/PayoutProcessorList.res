@@ -9,16 +9,20 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
-  let connectorListFromRecoil = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let getConnectorListAndUpdateState = async () => {
     try {
-      let removeFromList = ConnectorTypes.PayoutConnector
+      let response = await fetchConnectorListResponse()
 
       // TODO : maintain separate list for multiple types of connectors
-      let connectorsList = connectorListFromRecoil->getProcessorsListFromJson(~removeFromList)
+      let connectorsList =
+        response
+        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
+        ->Array.filter(item =>
+          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PayoutConnector
+        )
       connectorsList->Array.reverse
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
@@ -55,10 +59,6 @@ let make = () => {
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
 
-  let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? connectorListForLive
-    : payoutConnectorList
-
   <div>
     <PageLoaderWrapper screenState>
       <PageUtils.PageHeading
@@ -92,7 +92,7 @@ let make = () => {
             resultsPerPage=20
             offset
             setOffset
-            entity={ConnectorTableUtils.connectorEntity(
+            entity={PayoutProcessorTableEntity.payoutProcessorEntity(
               `payoutconnectors`,
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
@@ -102,7 +102,8 @@ let make = () => {
         </RenderIf>
         <ProcessorCards
           configuredConnectors
-          connectorsAvailableForIntegration
+          connectorsAvailableForIntegration={payoutConnectorList}
+          connectorType={PayoutConnector}
           urlPrefix={"payoutconnectors/new"}
           setProcessorModal
         />
@@ -112,7 +113,7 @@ let make = () => {
             setProcessorModal
             urlPrefix={"payoutconnectors/new"}
             configuredConnectors
-            connectorsAvailableForIntegration
+            connectorsAvailableForIntegration={payoutConnectorList}
           />
         </RenderIf>
       </div>

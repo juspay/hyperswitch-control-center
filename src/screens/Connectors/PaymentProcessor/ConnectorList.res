@@ -18,10 +18,9 @@ let make = () => {
 
   let getConnectorListAndUpdateState = async () => {
     try {
-      let removeFromList = ConnectorTypes.FRMPlayer
-
       // TODO : maintain separate list for multiple types of connectors
-      let connectorsList = connectorListFromRecoil->getProcessorsListFromJson(~removeFromList)
+      let connectorsList =
+        connectorListFromRecoil->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
       connectorsList->Array.reverse
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
@@ -58,7 +57,6 @@ let make = () => {
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
 
-  let urlPrefix = "connectors/new"
   let isMobileView = MatchMedia.useMobileChecker()
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
@@ -68,9 +66,7 @@ let make = () => {
   <div>
     <PageLoaderWrapper screenState>
       <RenderIf
-        condition={!featureFlagDetails.isLiveMode &&
-        configuredConnectors->Array.length == 0 &&
-        urlPrefix == "connectors/new"}>
+        condition={!featureFlagDetails.isLiveMode && configuredConnectors->Array.length == 0}>
         <div
           className="flex flex-col md:flex-row border rounded-md bg-white gap-4 shadow-generic_shadow mb-12">
           <div className="flex flex-col justify-evenly gap-6 pl-14 pb-14 pt-14 pr-2 md:pr-0">
@@ -142,13 +138,16 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors connectorsAvailableForIntegration urlPrefix setProcessorModal
+          configuredConnectors
+          connectorsAvailableForIntegration
+          urlPrefix={"connectors/new"}
+          setProcessorModal
         />
         <RenderIf condition={processorModal}>
           <DummyProcessorModal
             processorModal
             setProcessorModal
-            urlPrefix
+            urlPrefix={"connectors/new"}
             configuredConnectors
             connectorsAvailableForIntegration
           />
