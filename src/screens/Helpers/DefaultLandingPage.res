@@ -40,7 +40,7 @@ let make = (
         />
         <RenderIf condition={showLogoutButton}>
           <Button
-            text={"Logout"}
+            text="Logout"
             buttonSize={Large}
             onClick={_ => onLogoutHandle()}
             buttonType={Secondary}
