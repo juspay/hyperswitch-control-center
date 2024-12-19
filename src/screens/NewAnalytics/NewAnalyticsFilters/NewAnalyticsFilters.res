@@ -88,7 +88,7 @@ module PaymentsTabFilter = {
 
     <PageLoaderWrapper screenState customLoader={<FilterLoader />}>
       <NewAnalyticsHelper.CustomDropDown
-        buttonText={selectedCurrency} options={currencOptions} setOption
+        buttonText={selectedCurrency} options={currencOptions} setOption positionClass="left-0"
       />
     </PageLoaderWrapper>
   }
