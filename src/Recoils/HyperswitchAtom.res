@@ -89,3 +89,5 @@ let cloneModalButtonStateAtom: Recoil.recoilAtom<Button.buttonState> = Recoil.at
 )
 
 let cloneConnectorAtom: Recoil.recoilAtom<string> = Recoil.atom("cloneConnectorAtom", "")
+
+let isClonePMFlow: Recoil.recoilAtom<bool> = Recoil.atom("isClonePMFlow", false)

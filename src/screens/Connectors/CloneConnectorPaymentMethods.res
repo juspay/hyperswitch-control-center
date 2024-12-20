@@ -9,6 +9,7 @@ module ClonePaymentMethodsModal = {
     let (buttonState, setButtonState) = Recoil.useRecoilState(
       HyperswitchAtom.cloneModalButtonStateAtom,
     )
+    let setIsClonePMFlow = Recoil.useSetRecoilState(HyperswitchAtom.isClonePMFlow)
 
     let onNextClick = _ => {
       RescriptReactRouter.push(
@@ -20,6 +21,7 @@ module ClonePaymentMethodsModal = {
         ~message="Payment Methods Cloned Successfully",
         ~autoClose=true,
       )
+      setIsClonePMFlow(_ => true)
     }
 
     let modalBody = {
