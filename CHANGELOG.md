@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.20.0
+
+### Miscellaneous Tasks
+
+- Add fiuu to prod ([#1956](https://github.com/juspay/hyperswitch-control-center/pull/1956)) ([`4addc3e`](https://github.com/juspay/hyperswitch-control-center/commit/4addc3e56af1672433a36499d6186ebc0c65000e))
+- Omp views redesign changes ([#1894](https://github.com/juspay/hyperswitch-control-center/pull/1894)) ([`2dfb19a`](https://github.com/juspay/hyperswitch-control-center/commit/2dfb19a8e63f5374ebc61d9b9755054e06fc2f73))
+- Omp views new analytics ([#1898](https://github.com/juspay/hyperswitch-control-center/pull/1898)) ([`b227695`](https://github.com/juspay/hyperswitch-control-center/commit/b2276953814e5089753bf3363c6c4a55a80217d7))
+
+**Full Changelog:** [`2024.12.19.0...2024.12.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.19.0...2024.12.20.0)
+
+- - -
+
 ## 2024.12.19.0
 
 ### Features

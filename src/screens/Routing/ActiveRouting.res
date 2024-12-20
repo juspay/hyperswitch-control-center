@@ -103,7 +103,7 @@ module ActiveSection = {
           </div>
           <RenderIf condition={profileId->isNonEmptyString}>
             <div className="flex gap-2">
-              <BusinessProfileHook.BusinessProfileComponent
+              <HelperComponents.BusinessProfileComponent
                 profile_id={profileId} className="text-lightgray_background  opacity-50 text-sm"
               />
               <p className="text-lightgray_background  opacity-50 text-sm">
