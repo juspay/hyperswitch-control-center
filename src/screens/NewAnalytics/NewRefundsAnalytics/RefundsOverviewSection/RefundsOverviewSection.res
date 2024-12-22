@@ -34,6 +34,7 @@ let make = (~entity: moduleEntity) => {
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
+        ~filter=None,
       )
 
       // TODO: need refactor on filters
@@ -77,6 +78,7 @@ let make = (~entity: moduleEntity) => {
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
+        ~filter=None,
       )
 
       let secondaryStatusCountBodyRefunds = NewAnalyticsUtils.requestBody(

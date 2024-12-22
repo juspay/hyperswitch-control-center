@@ -192,6 +192,7 @@ let make = (
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=None,
       )
 
       let secondaryBody = NewAnalyticsUtils.requestBody(
@@ -200,6 +201,7 @@ let make = (
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=None,
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)

@@ -26,6 +26,7 @@ let make = () => {
         ~startTime=date,
         ~endTime=date,
         ~metrics=[#sessionized_payment_processed_amount],
+        ~filter=None,
       )
       let _ = await updateDetails(url, body, Post)
       setScreenState(_ => Success)

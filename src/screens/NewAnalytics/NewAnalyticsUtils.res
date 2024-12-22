@@ -52,12 +52,14 @@ let fillMissingDataPoints = (
 }
 
 open NewAnalyticsTypes
+//let globalFilter: array<filters> = [#currency]
+
 let requestBody = (
   ~startTime: string,
   ~endTime: string,
   ~metrics: array<metrics>,
   ~groupByNames: option<array<string>>=None,
-  ~filter: option<JSON.t>=None,
+  ~filter: option<JSON.t>,
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,
@@ -448,3 +450,31 @@ let tooltipFormatter = (
     }
   )->asTooltipPointFormatter
 }
+
+// let generateFilterObject = (~globalFilters, ~localFilters) => {
+//   let filters = Dict.make()
+
+//   let globalFiltersList = globalFilter->Array.map(filter => {
+//     (filter: filters :> string)
+//   })
+
+//   Js.log2(">> here", globalFilters)
+
+//   globalFilters
+//   ->Dict.toArray
+//   ->Array.forEach(item => {
+//     let (key, value) = item
+//     if globalFiltersList->Array.includes(key) {
+//       filters->Dict.set(key, value)
+//     }
+//   })
+
+//   localFilters
+//   ->Dict.toArray
+//   ->Array.forEach(item => {
+//     let (key, value) = item
+//     filters->Dict.set(key, value)
+//   })
+
+//   filters->JSON.Encode.object
+// }

@@ -106,6 +106,7 @@ let make = (
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[groupBy.value]->Some,
+        ~filter=None,
       )
 
       let response = await updateDetails(url, body, Post)

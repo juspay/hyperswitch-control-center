@@ -82,6 +82,7 @@ let make = (~entity: moduleEntity) => {
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames,
+        ~filter=None,
       )
 
       let response = await updateDetails(url, body, Post)

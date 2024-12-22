@@ -57,6 +57,7 @@ let make = (~entity: moduleEntity) => {
         ],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=None,
       )
 
       let primaryBodyRefunds = getPayload(
@@ -64,6 +65,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#refund_processed_amount],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=None,
       )
 
       let primaryBodyDisputes = getPayload(
@@ -71,6 +73,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#dispute_status_metric],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=None,
       )
 
       let primaryResponsePayments = await updateDetails(paymentsUrl, primaryBodyPayments, Post)
@@ -105,6 +108,7 @@ let make = (~entity: moduleEntity) => {
         ],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
+        ~filter=None,
       )
 
       let secondaryBodyRefunds = getPayload(
@@ -112,6 +116,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#refund_processed_amount],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
+        ~filter=None,
       )
 
       let secondaryBodyDisputes = getPayload(
@@ -119,6 +124,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#dispute_status_metric],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
+        ~filter=None,
       )
 
       let secondaryData = switch comparison {
