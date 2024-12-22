@@ -61,14 +61,20 @@ module RefundsTabFilter = {
     }
 
     let updateFilterContext = () => {
-      filterValue->Dict.set((#currency: filters :> string), selectedCurrency.value)
-      filterValue->updateExistingKeys
+      let newValue = filterValue->Dict.copy
+      newValue->Dict.set((#currency: filters :> string), selectedCurrency.value)
+      newValue->updateExistingKeys
     }
 
     React.useEffect(() => {
       loadInfo()->ignore
       None
     }, [])
+
+    React.useEffect(() => {
+      updateFilterContext()
+      None
+    }, [selectedCurrency.value])
 
     React.useEffect(() => {
       if (
@@ -151,8 +157,9 @@ module PaymentsTabFilter = {
     }
 
     let updateFilterContext = () => {
-      filterValue->Dict.set((#currency: filters :> string), selectedCurrency.value)
-      filterValue->updateExistingKeys
+      let newValue = filterValue->Dict.copy
+      newValue->Dict.set((#currency: filters :> string), selectedCurrency.value)
+      newValue->updateExistingKeys
     }
 
     React.useEffect(() => {
@@ -161,13 +168,17 @@ module PaymentsTabFilter = {
     }, [])
 
     React.useEffect(() => {
+      updateFilterContext()
+      None
+    }, [selectedCurrency.value])
+
+    React.useEffect(() => {
       if (
         startTimeVal->isNonEmptyString &&
         endTimeVal->isNonEmptyString &&
         dimensions->Array.length > 0
       ) {
         setSelectedCurrency(_ => defaultCurrency)
-        updateFilterContext()
         loadFilters()->ignore
       }
       None
