@@ -475,6 +475,7 @@ module ModalSearchBox = {
   open ReactEvent.Keyboard
   @react.component
   let make = (
+    ~inputRef: React.ref<'a>,
     ~leftIcon,
     ~setShowModal,
     ~setFilterText,
@@ -492,7 +493,6 @@ module ModalSearchBox = {
     ~onFilterClicked,
     ~onSuggestionClicked,
   ) => {
-    let inputRef = React.useRef(Nullable.null)
     let (errorMessage, setErrorMessage) = React.useState(_ => "")
 
     let tabKey = 9
@@ -525,10 +525,7 @@ module ModalSearchBox = {
     }
 
     let tabKeyPressHandler = e => {
-      switch inputRef.current->Js.Nullable.toOption {
-      | Some(elem) => elem->MultipleFileUpload.focus
-      | None => ()
-      }
+      revertFocus(~inputRef)
 
       let keyPressed = e->keyCode
 

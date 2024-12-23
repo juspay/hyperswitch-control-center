@@ -562,3 +562,10 @@ let sidebarScrollbarCss = `
       }
 }
   `
+
+let revertFocus = (~inputRef: React.ref<'a>) => {
+  switch inputRef.current->Js.Nullable.toOption {
+  | Some(elem) => elem->MultipleFileUpload.focus
+  | None => ()
+  }
+}

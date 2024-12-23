@@ -30,6 +30,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let inputRef = React.useRef(Nullable.null)
 
   let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect")
@@ -191,6 +192,8 @@ let make = () => {
       setLocalSearchText(_ => `${searchText} ${newFilter}:`)
       setFilterText(newFilter)
     }
+
+    revertFocus(~inputRef)
   }
 
   let onSuggestionClicked = option => {
@@ -204,6 +207,8 @@ let make = () => {
     let saparater = searchText->getEndChar == filterSeparator ? "" : filterSeparator
     setLocalSearchText(_ => `${key}${saparater}${option}`)
     setFilterText("")
+
+    revertFocus(~inputRef)
   }
 
   React.useEffect(() => {
@@ -232,6 +237,7 @@ let make = () => {
       <ModalWrapper showModal setShowModal>
         <div className="w-full">
           <ModalSearchBox
+            inputRef
             leftIcon
             setShowModal
             setFilterText
