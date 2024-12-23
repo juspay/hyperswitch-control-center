@@ -52,7 +52,7 @@ module HyperSwitchEntryComponent = {
     let themeJson = {
       "settings": {
         "colors": {
-          "primary": "#006DF9",
+          "primary": "#ff0000",
           "secondary": "#FFFFFF",
           "sidebar": "#242F48",
           "background": "#F7F8FB",
@@ -67,9 +67,9 @@ module HyperSwitchEntryComponent = {
         },
         "buttons": {
           "primary": {
-            "backgroundColor": "#006DF9",
+            "backgroundColor": "#ff0000",
             "textColor": "#006df9",
-            "hoverBackgroundColor": "#005ED6",
+            "hoverBackgroundColor": "#ff0000",
           },
           "secondary": {
             "backgroundColor": "#F7F7F7",
@@ -93,12 +93,40 @@ module HyperSwitchEntryComponent = {
     }->Identity.genericTypeToJson
     let fetchConfig = async () => {
       try {
+        open LogicUtils
         let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="default")
         let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
-        let _ = res->configCustomDomainTheme
+        let themeFeature = true
+        let themeJson = if themeFeature {
+          let dict = res->getDictFromJsonObject->getDictfromDict("theme")
+          let defaultStyle = {
+            "settings": {
+              "colors": {
+                "primary": dict->getString("primary_color", ""),
+                "sidebar": dict->getString("sidebar", ""),
+              },
+              "buttons": {
+                "primary": {
+                  "backgroundColor": dict->getString("primary_color", ""),
+                  "textColor": dict->getString("primary_color", ""),
+                  "hoverBackgroundColor": dict->getString("primary_hover_color", ""),
+                },
+              },
+            },
+          }
+          defaultStyle->Identity.genericTypeToJson
+        } else {
+          try {
+            // make a API to fetch the theme
+            JSON.Encode.null
+          } catch {
+          | _ => JSON.Encode.null
+          }
+        }
+        Js.log(themeJson)
         let _ = themeJson->configCustomThemeDynamic
         let _ = res->configURL
         // Delay added on Expecting feature flag recoil gets updated
