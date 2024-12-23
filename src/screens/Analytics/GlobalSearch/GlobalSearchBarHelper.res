@@ -160,6 +160,21 @@ module ShowMoreLink = {
   }
 }
 
+module KeyValueFilter = {
+  open GlobalSearchBarUtils
+  @react.component
+  let make = (~filter) => {
+    let itemValue =
+      filter.categoryType
+      ->getcategoryFromVariant
+      ->String.toLocaleLowerCase
+
+    <div className="font-medium px-2 py-1">
+      {`Enter ${itemValue} (e.g.,${filter.placeholder})`->React.string}
+    </div>
+  }
+}
+
 module FilterOption = {
   @react.component
   let make = (~onClick, ~value, ~placeholder=None, ~filter, ~selectedFilter=None, ~viewType) => {
@@ -295,6 +310,17 @@ module FilterResultsComponent = {
       }
     }
 
+    let isFreeTextKey = if filters->Array.length == 1 {
+      switch filters->Array.get(0) {
+      | Some(val) => val.options->Array.length == 0
+      | None => false
+      }
+    } else {
+      false
+    }
+
+    let sectionHeader = isFreeTextKey ? "" : "Suggested Filters"
+
     <RenderIf condition={filters->Array.length > 0}>
       <Div
         initial={{opacity: 0.5}}
@@ -302,7 +328,7 @@ module FilterResultsComponent = {
         layoutId="categories-section"
         className="px-2 pt-2 border-t dark:border-jp-gray-960">
         <Div layoutId="categories-title" className="font-bold px-2">
-          {"Suggested Filters"->String.toUpperCase->React.string}
+          {sectionHeader->String.toUpperCase->React.string}
         </Div>
         <div>
           <RenderIf condition={filters->Array.length === 1 && filters->checkFilterKey}>
@@ -355,21 +381,29 @@ module FilterResultsComponent = {
           </RenderIf>
           <RenderIf condition={!(filters->Array.length === 1 && filters->checkFilterKey)}>
             <div className=optionsFlexClass>
-              {filters
-              ->Array.map(category => {
-                let itemValue = `${category.categoryType
-                  ->getcategoryFromVariant
-                  ->String.toLocaleLowerCase} : `
-                <FilterOption
-                  onClick={_ => category->onFilterClicked}
-                  value=itemValue
-                  placeholder={Some(category.placeholder)}
-                  filter={category}
-                  selectedFilter
-                  viewType
-                />
-              })
-              ->React.array}
+              {if isFreeTextKey {
+                filters
+                ->Array.map(filter => {
+                  <KeyValueFilter filter />
+                })
+                ->React.array
+              } else {
+                filters
+                ->Array.map(category => {
+                  let itemValue = `${category.categoryType
+                    ->getcategoryFromVariant
+                    ->String.toLocaleLowerCase} : `
+                  <FilterOption
+                    onClick={_ => category->onFilterClicked}
+                    value=itemValue
+                    placeholder={Some(category.placeholder)}
+                    filter={category}
+                    selectedFilter
+                    viewType
+                  />
+                })
+                ->React.array
+              }}
             </div>
           </RenderIf>
         </div>
