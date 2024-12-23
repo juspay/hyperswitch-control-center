@@ -41,6 +41,7 @@ let make = () => {
 
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
+  let recondSidebars = HSReconSidebarValues.useGetReconSideBar()
   sessionExpired := false
 
   let setUpDashboard = async () => {
@@ -102,7 +103,10 @@ let make = () => {
             <div className="flex relative overflow-auto h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
-                  path={url.path} sidebars={hyperSwitchAppSidebars} key={(screenState :> string)}
+                  path={url.path}
+                  sidebars={hyperSwitchAppSidebars}
+                  key={(screenState :> string)}
+                  productSiebars={recondSidebars}
                 />
               </RenderIf>
               <PageLoaderWrapper
@@ -148,6 +152,7 @@ let make = () => {
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
+                        | list{"v2", "recon", ..._} => <HSReconApp />
                         | list{"home", ..._}
                         | list{"recon"}
                         | list{"upload-files"}
