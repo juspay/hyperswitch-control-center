@@ -52,6 +52,51 @@ module ConnectorCurrentStepIndicator = {
   }
 }
 
+module MenuOption = {
+  open HeadlessUI
+  @react.component
+  let make = (~disableConnector, ~isConnectorDisabled) => {
+    let showPopUp = PopUpState.useShowPopUp()
+    let openConfirmationPopUp = _ => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action?",
+        description: `You are about to ${isConnectorDisabled
+            ? "Enable"
+            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
+
+    let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
+
+    <Popover \"as"="div" className="relative inline-block text-left">
+      {_ => <>
+        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
+        <Popover.Panel className="absolute z-20 right-5 top-4">
+          {panelProps => {
+            <div
+              id="neglectTopbarTheme"
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              {<Navbar.MenuOption
+                text={connectorStatusAvailableToSwitch}
+                onClick={_ => {
+                  panelProps["close"]()
+                  openConfirmationPopUp()
+                }}
+              />}
+            </div>
+          }}
+        </Popover.Panel>
+      </>}
+    </Popover>
+  }
+}
+
 @react.component
 let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   open ConnectorTypes
@@ -64,9 +109,13 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let updateDetails = useUpdateMethod()
+  let showToast = ToastState.useShowToast()
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
+  let connectorInfo =
+    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"payoutconnectors", "new"} => false
@@ -112,6 +161,47 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       }
     | _ => setScreenState(_ => Error("Something went wrong"))
     }
+  }
+
+  let connectorStatusStyle = connectorStatus =>
+    switch connectorStatus {
+    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
+    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
+    }
+
+  let isConnectorDisabled = connectorInfo.disabled
+
+  let disableConnector = async isConnectorDisabled => {
+    try {
+      let connectorID = connectorInfo.merchant_connector_id
+      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
+        connectorInfo.connector_type,
+        isConnectorDisabled,
+      )
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))
+    } catch {
+    | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+    }
+  }
+
+  let summaryPageButton = switch currentStep {
+  | Preview =>
+    <div className="flex gap-6 items-center">
+      <div
+        className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
+        {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
+      </div>
+      <MenuOption disableConnector isConnectorDisabled />
+    </div>
+  | _ =>
+    <Button
+      text="Done"
+      buttonType=Primary
+      onClick={_ => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))}
+    />
   }
 
   React.useEffect(() => {
@@ -168,14 +258,17 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           />
         | SummaryAndTest
         | Preview =>
-          <PayoutProcessorPreview
-            connectorInfo={initialValues}
-            currentStep
-            setCurrentStep
-            isUpdateFlow
-            setInitialValues
-            getConnectorDetails={Some(getConnectorDetails)}
-          />
+          <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
+            connector=connector connectorType={PayoutProcessor} headerButton={summaryPageButton}>
+            <ConnectorPreview.ConnectorSummaryGrid
+              connectorInfo={initialValues
+              ->LogicUtils.getDictFromJsonObject
+              ->ConnectorListMapper.getProcessorPayloadType}
+              connector=connector
+              setCurrentStep
+              getConnectorDetails={Some(getConnectorDetails)}
+            />
+          </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
         }}
       </div>
     </div>
