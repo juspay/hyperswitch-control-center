@@ -58,6 +58,7 @@ module MerchantSelection = {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
 
     let disableSelect = switch userEntity {
     | #Merchant | #Profile => true
@@ -66,10 +67,12 @@ module MerchantSelection = {
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
+        setShowSwitchingMerchant(_ => true)
         let selectedMerchantValue = event->Identity.formReactEventToString
         if selectedMerchantValue->stringToVariantForAllSelection->Option.isNone {
           let _ = await internalSwitch(~expectedMerchantId=Some(selectedMerchantValue))
         }
+        setShowSwitchingMerchant(_ => false)
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -102,7 +105,15 @@ module MerchantSelection = {
           ~placeholder="Select a merchant",
         ),
     )
-    <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+
+    <>
+      <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+      <LoaderModal
+        showModal={showSwitchingMerchant}
+        setShowModal={setShowSwitchingMerchant}
+        text="Switching merchant..."
+      />
+    </>
   }
 }
 
@@ -117,6 +128,7 @@ module ProfileSelection = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
 
     let disableSelect = switch userEntity {
     | #Profile => true
@@ -144,11 +156,13 @@ module ProfileSelection = {
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
+        setShowSwitchingProfile(_ => true)
         let selectedProfileValue = event->Identity.formReactEventToString
 
         if selectedProfileValue->stringToVariantForAllSelection->Option.isNone {
           let _ = await internalSwitch(~expectedProfileId=Some(selectedProfileValue))
         }
+        setShowSwitchingProfile(_ => true)
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -182,7 +196,14 @@ module ProfileSelection = {
         ),
     )
 
-    <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+    <>
+      <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+      <LoaderModal
+        showModal={showSwitchingProfile}
+        setShowModal={setShowSwitchingProfile}
+        text="Switching profile..."
+      />
+    </>
   }
 }
 
