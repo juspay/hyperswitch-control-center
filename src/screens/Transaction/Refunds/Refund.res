@@ -71,11 +71,14 @@ let make = () => {
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Refunds" />
         <div className="flex gap-4">
-          <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-            selectedEntity={transactionEntity}
-            onChange={updateTransactionEntity}
-          />
+          <Portal to="RefundsOMPView">
+            <OMPSwitchHelper.OMPViews
+              views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+              selectedEntity={transactionEntity}
+              onChange={updateTransactionEntity}
+              entityMapper=UserInfoUtils.transactionEntityMapper
+            />
+          </Portal>
           <RenderIf condition={generateReport && refundData->Array.length > 0}>
             <GenerateReport entityName={REFUND_REPORT} />
           </RenderIf>
