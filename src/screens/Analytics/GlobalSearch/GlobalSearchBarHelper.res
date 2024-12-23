@@ -176,13 +176,7 @@ module FilterOption = {
     }
 
     switch viewType {
-    | Results =>
-      <span
-        className={`${activeClass} py-1 px-2 rounded-md flex gap-1 items-center w-fit cursor-pointer font-medium text-sm`}
-        onClick>
-        {value->React.string}
-      </span>
-    | _ =>
+    | FiltersSugsestions =>
       <div
         className={`flex justify-between p-2 group items-center cursor-pointer ${activeWrapperClass}`}
         onClick>
@@ -193,6 +187,12 @@ module FilterOption = {
           <div className="text-sm opacity-70"> {placeholder->Option.getOr("")->React.string} </div>
         </RenderIf>
       </div>
+    | _ =>
+      <span
+        className={`${activeClass} py-1 px-2 rounded-md flex gap-1 items-center w-fit cursor-pointer font-medium text-sm`}
+        onClick>
+        {value->React.string}
+      </span>
     }
   }
 }
@@ -285,10 +285,10 @@ module FilterResultsComponent = {
       None
     }, [filters->Array.length])
 
-    let optionsFlexClass = viewType == Results ? "flex flex-wrap gap-3 px-2 pt-2" : ""
+    let optionsFlexClass = viewType != FiltersSugsestions ? "flex flex-wrap gap-3 px-2 pt-2" : ""
 
     let filterOptions = index => {
-      if viewType == Results {
+      if viewType != FiltersSugsestions {
         index < sectionsViewResultsCount
       } else {
         true
@@ -394,6 +394,8 @@ module SearchResultsComponent = {
     ~setSelectedFilter,
     ~onFilterClicked,
     ~onSuggestionClicked,
+    ~viewType,
+    ~prefix,
   ) => {
     <div className={"w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm "}>
       <FilterResultsComponent
@@ -405,55 +407,64 @@ module SearchResultsComponent = {
         onFilterClicked
         onSuggestionClicked
         setSelectedFilter
-        viewType={Results}
+        viewType
       />
-      <Div className="mt-3 border-t" layoutId="border">
-        {searchResults
-        ->Array.mapWithIndex((section: resultType, index) => {
-          <Div
-            key={Int.toString(index)}
-            layoutId={`${section.section->getSectionHeader} ${Int.toString(index)}`}
-            className={`px-3 mb-3 py-1`}>
+      {switch viewType {
+      | Load =>
+        <div className="mb-24">
+          <Loader />
+        </div>
+      | EmptyResult => <EmptyResult prefix searchText />
+      | _ =>
+        <Div className="mt-3 border-t" layoutId="border">
+          {searchResults
+          ->Array.mapWithIndex((section: resultType, index) => {
             <Div
-              layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
-              className="text-lightgray_background  px-2 pb-1 flex justify-between ">
-              <div className="font-bold opacity-50">
-                {section.section->getSectionHeader->String.toUpperCase->React.string}
-              </div>
-              <ShowMoreLink
-                section
-                cleanUpFunction={() => {setShowModal(_ => false)}}
-                textStyleClass="text-xs"
-                searchText
-              />
-            </Div>
-            {section.results
-            ->Array.mapWithIndex((item, i) => {
-              let elementsArray = item.texts
-              <OptionWrapper
-                key={Int.toString(i)} index={i} value={item} selectedOption redirectOnSelect>
-                {elementsArray
-                ->Array.mapWithIndex(
-                  (item, index) => {
-                    let elementValue = item->JSON.Decode.string->Option.getOr("")
-                    <RenderIf condition={elementValue->isNonEmptyString} key={index->Int.toString}>
-                      <RenderedComponent ele=elementValue searchText />
-                      <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
-                        <span className="mx-2 text-lightgray_background opacity-50">
-                          {">"->React.string}
-                        </span>
+              key={Int.toString(index)}
+              layoutId={`${section.section->getSectionHeader} ${Int.toString(index)}`}
+              className={`px-3 mb-3 py-1`}>
+              <Div
+                layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
+                className="text-lightgray_background  px-2 pb-1 flex justify-between ">
+                <div className="font-bold opacity-50">
+                  {section.section->getSectionHeader->String.toUpperCase->React.string}
+                </div>
+                <ShowMoreLink
+                  section
+                  cleanUpFunction={() => {setShowModal(_ => false)}}
+                  textStyleClass="text-xs"
+                  searchText
+                />
+              </Div>
+              {section.results
+              ->Array.mapWithIndex((item, i) => {
+                let elementsArray = item.texts
+                <OptionWrapper
+                  key={Int.toString(i)} index={i} value={item} selectedOption redirectOnSelect>
+                  {elementsArray
+                  ->Array.mapWithIndex(
+                    (item, index) => {
+                      let elementValue = item->JSON.Decode.string->Option.getOr("")
+                      <RenderIf
+                        condition={elementValue->isNonEmptyString} key={index->Int.toString}>
+                        <RenderedComponent ele=elementValue searchText />
+                        <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
+                          <span className="mx-2 text-lightgray_background opacity-50">
+                            {">"->React.string}
+                          </span>
+                        </RenderIf>
                       </RenderIf>
-                    </RenderIf>
-                  },
-                )
-                ->React.array}
-              </OptionWrapper>
-            })
-            ->React.array}
-          </Div>
-        })
-        ->React.array}
-      </Div>
+                    },
+                  )
+                  ->React.array}
+                </OptionWrapper>
+              })
+              ->React.array}
+            </Div>
+          })
+          ->React.array}
+        </Div>
+      }}
     </div>
   }
 }

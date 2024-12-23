@@ -224,7 +224,7 @@ let make = () => {
     </div>
   }
 
-  let viewType = getViewType(~state, ~searchResults, ~searchText)
+  let viewType = getViewType(~state, ~searchResults)
 
   <div className="w-max">
     <SearchBox openModalOnClickHandler />
@@ -250,11 +250,7 @@ let make = () => {
             onSuggestionClicked
           />
           {switch viewType {
-          | Load =>
-            <div className="mb-24">
-              <Loader />
-            </div>
-          | Results =>
+          | Results | Load | EmptyResult =>
             <SearchResultsComponent
               searchResults
               searchText
@@ -268,6 +264,8 @@ let make = () => {
               setSelectedFilter
               onFilterClicked
               onSuggestionClicked
+              viewType
+              prefix
             />
           | FiltersSugsestions =>
             <FilterResultsComponent
@@ -280,7 +278,6 @@ let make = () => {
               onSuggestionClicked
               setSelectedFilter
             />
-          | EmptyResult => <EmptyResult prefix searchText />
           }}
         </div>
       </ModalWrapper>

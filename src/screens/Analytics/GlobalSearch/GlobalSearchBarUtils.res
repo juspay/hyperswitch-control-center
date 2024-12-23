@@ -4,7 +4,7 @@ open LogicUtils
 let defaultRoute = "/search"
 let global_search_activate_key = "k"
 let filterSeparator = ":"
-let sectionsViewResultsCount = 5
+let sectionsViewResultsCount = 4
 
 let getEndChar = string => {
   string->String.charAt(string->String.length - 1)
@@ -518,20 +518,14 @@ let validateQuery = searchQuery => {
   freeTextCount.contents > 1
 }
 
-let getViewType = (~state, ~searchResults, ~searchText) => {
+let getViewType = (~state, ~searchResults) => {
   switch state {
   | Loading => Load
-  | Loaded => {
-      let endChar = searchText->String.charAt(searchText->String.length - 1)
-      let isFilter = endChar == filterSeparator || endChar == " "
-
-      if isFilter {
-        FiltersSugsestions
-      } else if searchResults->Array.length > 0 {
-        Results
-      } else {
-        EmptyResult
-      }
+  | Loaded =>
+    if searchResults->Array.length > 0 {
+      Results
+    } else {
+      EmptyResult
     }
   | Idle => FiltersSugsestions
   }
