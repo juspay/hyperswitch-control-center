@@ -63,7 +63,7 @@ module EmptyResult = {
 module OptionWrapper = {
   @react.component
   let make = (~index, ~value, ~children, ~selectedOption, ~redirectOnSelect) => {
-    let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg border" : ""
+    let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg" : ""
 
     <div
       onClick={_ => value->redirectOnSelect}
@@ -227,15 +227,9 @@ module FilterOption = {
     let (activeWrapperClass, activeClass) = switch selectedFilter {
     | Some(val) =>
       filter == val
-        ? (`${activeBg} ${rounded} border`, `${wrapperBg} border`)
-        : (
-            `hover:${activeBg} hover:${rounded} hover:border`,
-            `hover:${wrapperBg} hover:border ${activeBg}`,
-          )
-    | None => (
-        `hover:${activeBg} hover:${rounded} hover:border`,
-        `hover:${wrapperBg} hover:border ${activeBg}`,
-      )
+        ? (`${activeBg} ${rounded}`, `${wrapperBg}`)
+        : (`hover:${activeBg} hover:${rounded}`, `hover:${wrapperBg} ${activeBg}`)
+    | None => (`hover:${activeBg} hover:${rounded} `, `hover:${wrapperBg} ${activeBg}`)
     }
 
     <div
