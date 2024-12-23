@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.23.0
+
+### Miscellaneous Tasks
+
+- Moving business profile component to helper file ([#1959](https://github.com/juspay/hyperswitch-control-center/pull/1959)) ([`49471d3`](https://github.com/juspay/hyperswitch-control-center/commit/49471d3fb2dcaf43fd9b7dc72b7fdee96b81d0cf))
+
+**Full Changelog:** [`2024.12.20.0...2024.12.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.20.0...2024.12.23.0)
+
+- - -
+
 ## 2024.12.20.0
 
 ### Miscellaneous Tasks
