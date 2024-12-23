@@ -328,8 +328,7 @@ let make = (
 ) => {
   open APIUtils
   open ConnectorUtils
-  let {feedback} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {feedback} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
