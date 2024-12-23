@@ -26,12 +26,10 @@ let make = () => {
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let loader = LottieFiles.useLottieJson("loader-circle.json")
-  let {globalSearch, globalSearchFilters} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let filtersEnabled = globalSearchFilters
 
   let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect")
@@ -165,7 +163,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if userHasAccess(~groupAccess=AnalyticsView) === Access && filtersEnabled {
+    if userHasAccess(~groupAccess=AnalyticsView) === Access {
       getCategoryOptions()->ignore
     }
 
@@ -178,8 +176,7 @@ let make = () => {
   }
 
   let setGlobalSearchText = ReactDebounce.useDebounced(value => {
-    let text = filtersEnabled ? value : value->String.trim
-    setSearchText(_ => text)
+    setSearchText(_ => value)
   }, ~wait=500)
 
   let onFilterClicked = category => {
@@ -227,7 +224,7 @@ let make = () => {
     </div>
   }
 
-  let viewType = getViewType(~state, ~searchResults, ~searchText, ~filtersEnabled)
+  let viewType = getViewType(~state, ~searchResults, ~searchText)
 
   <div className="w-max">
     <SearchBox openModalOnClickHandler />
@@ -272,7 +269,6 @@ let make = () => {
               onFilterClicked
               onSuggestionClicked
             />
-
           | FiltersSugsestions =>
             <FilterResultsComponent
               categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}

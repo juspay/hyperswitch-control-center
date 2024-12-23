@@ -35,7 +35,6 @@ dispute_evidence_upload=false
 paypal_automatic_flow=false
 threeds_authenticator=false
 global_search=false
-global_search_filters=false
 dispute_analytics=false
 configure_pmts=false
 branding=false
