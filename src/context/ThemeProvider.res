@@ -29,9 +29,9 @@ let defaultGlobalConfig: customStyle = {
 let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
   settings: {
     colors: {
-      primary: "#3498db",
-      secondary: "#2ecc71",
-      sidebar: "#2ecc71",
+      primary: "#006DF9",
+      secondary: "#FFC0CB",
+      sidebar: "#242F48",
       background: "#F7F8FB",
     },
     typography: {
@@ -40,18 +40,18 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
       headingFontSize: "24px",
       textColor: "#2c3e50",
       linkColor: "#3498db",
-      linkHoverColor: "#2980b9",
+      linkHoverColor: "#005ED6",
     },
     buttons: {
       primary: {
         backgroundColor: "#3498db",
-        textColor: "#ffffff",
-        hoverBackgroundColor: "#2980b9",
+        textColor: "#006df9",
+        hoverBackgroundColor: "#005ED6",
       },
       secondary: {
-        backgroundColor: "#2ecc71",
-        textColor: "#ffffff",
-        hoverBackgroundColor: "#27ae60",
+        backgroundColor: "#F7F7F7",
+        textColor: "#202124",
+        hoverBackgroundColor: "#EEEEEE",
       },
     },
     borders: {
@@ -141,7 +141,7 @@ let make = (~children) => {
     let typography = settings->getDictfromDict("typography")
     let borders = settings->getDictfromDict("borders")
     let spacing = settings->getDictfromDict("spacing")
-    let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("Primary")
+    let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("primary")
     let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
     let {settings, _} = newDefaultConfig
     let value: HyperSwitchConfigTypes.customStylesTheme = {

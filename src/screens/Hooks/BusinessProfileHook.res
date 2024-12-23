@@ -25,13 +25,3 @@ let useGetBusinessProflile = profileId => {
   ->Array.find(profile => profile.profile_id == profileId)
   ->Option.getOr(MerchantAccountUtils.defaultValueForBusinessProfile)
 }
-
-module BusinessProfileComponent = {
-  @react.component
-  let make = (~profile_id: string, ~className="") => {
-    let {profile_name} = useGetBusinessProflile(profile_id)
-    <div className>
-      {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
-    </div>
-  }
-}

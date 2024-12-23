@@ -66,7 +66,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   | ProfileId => Text(connector.profile_id)
   | ProfileName =>
     Table.CustomCell(
-      <BusinessProfileHook.BusinessProfileComponent profile_id={connector.profile_id} />,
+      <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
       "",
     )
   | ConnectorLabel => Text(connector.connector_label)
