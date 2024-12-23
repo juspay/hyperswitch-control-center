@@ -200,7 +200,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
     <Button
       text="Done"
       buttonType=Primary
-      onClick={_ => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))}
+      onClick={_ =>
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))}
     />
   }
 
@@ -259,12 +260,12 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         | SummaryAndTest
         | Preview =>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
-            connector=connector connectorType={PayoutProcessor} headerButton={summaryPageButton}>
+            connector connectorType={PayoutProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={initialValues
               ->LogicUtils.getDictFromJsonObject
               ->ConnectorListMapper.getProcessorPayloadType}
-              connector=connector
+              connector
               setCurrentStep
               getConnectorDetails={Some(getConnectorDetails)}
             />
