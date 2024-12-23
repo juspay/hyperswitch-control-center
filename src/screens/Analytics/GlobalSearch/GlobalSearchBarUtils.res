@@ -4,6 +4,7 @@ open LogicUtils
 let defaultRoute = "/search"
 let global_search_activate_key = "k"
 let filterSeparator = ":"
+let sectionsViewResultsCount = 5
 
 let getEndChar = string => {
   string->String.charAt(string->String.length - 1)
@@ -213,7 +214,10 @@ let getRemoteResults = json => {
   ->Array.forEach(item => {
     let value = item->JSON.Decode.object->Option.getOr(Dict.make())
     let section = value->getString("index", "")->getSectionVariant
-    let hints = value->getArrayFromDict("hits", [])
+    let hints =
+      value
+      ->getArrayFromDict("hits", [])
+      ->Array.filterWithIndex((_, index) => index < sectionsViewResultsCount)
     let total_results = value->getInt("count", hints->Array.length)
     let key = value->getString("index", "")
 

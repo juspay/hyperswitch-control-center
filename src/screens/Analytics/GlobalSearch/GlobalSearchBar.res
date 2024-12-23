@@ -259,8 +259,20 @@ let make = () => {
             </div>
           | Results =>
             <SearchResultsComponent
-              searchResults searchText setShowModal selectedOption redirectOnSelect
+              searchResults
+              searchText
+              setShowModal
+              selectedOption
+              redirectOnSelect
+              categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+              activeFilter
+              setAllFilters
+              selectedFilter
+              setSelectedFilter
+              onFilterClicked
+              onSuggestionClicked
             />
+
           | FiltersSugsestions =>
             <FilterResultsComponent
               categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
