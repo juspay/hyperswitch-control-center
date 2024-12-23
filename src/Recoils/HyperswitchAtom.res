@@ -85,7 +85,7 @@ let retainCloneModalAtom: Recoil.recoilAtom<bool> = Recoil.atom("retainCloneModa
 
 let cloneModalButtonStateAtom: Recoil.recoilAtom<Button.buttonState> = Recoil.atom(
   "cloneModalButtonStateAtom",
-  Button.Disabled,
+  Button.Normal,
 )
 
 let cloneConnectorAtom: Recoil.recoilAtom<string> = Recoil.atom("cloneConnectorAtom", "")

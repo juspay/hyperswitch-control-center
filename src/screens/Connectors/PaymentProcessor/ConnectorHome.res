@@ -214,11 +214,9 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     />
 
   let infoBanner =
-    <div
-      className="flex items-center gap-3 w-full bg-orange-200 bg-opacity-40 px-6 py-3 rounded-lg">
-      <Icon name="info-circle-unfilled" size=20 />
-      <p> {`This Connector contains Cloned Payment Methods from source profile.`->React.string} </p>
-    </div>
+    <HSwitchUtils.WarningArea
+      warningText="This connector contains Cloned Payment Methods from source profile."
+    />
 
   let warningText = `You have not yet completed configuring your ${connector->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`
 
