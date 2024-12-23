@@ -594,7 +594,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   | ProfileId => Text(order.profile_id)
   | ProfileName =>
     Table.CustomCell(
-      <BusinessProfileHook.BusinessProfileComponent profile_id={order.profile_id} />,
+      <HelperComponents.BusinessProfileComponent profile_id={order.profile_id} />,
       "",
     )
   | CaptureMethod => Text(order.capture_method)
