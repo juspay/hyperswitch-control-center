@@ -62,25 +62,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
 
     // TODO: Refactor for generic case
     if !isUpdateFlow {
-      if (
-        switch connectorTypeFromName {
-        | Processors(PAYPAL) => true
-        | _ => false
-        } &&
-        featureFlagDetails.paypalAutomaticFlow
-      ) {
-        initialValuesToDict->Dict.set(
-          "connector_label",
-          initialValues
-          ->getDictFromJsonObject
-          ->getString("connector_label", "")
-          ->JSON.Encode.string,
-        )
-        initialValuesToDict->Dict.set(
-          "profile_id",
-          initialValuesToDict->getString("profile_id", "")->JSON.Encode.string,
-        )
-      } else if connector->isNonEmptyString {
+      if connector->isNonEmptyString {
         initialValuesToDict->Dict.set(
           "connector_label",
           `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,

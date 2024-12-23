@@ -324,12 +324,11 @@ let make = (
   ~isUpdateFlow,
   ~showMenuOption=true,
   ~setInitialValues,
-  ~getPayPalStatus,
   ~getConnectorDetails=None,
 ) => {
   open APIUtils
   open ConnectorUtils
-  let {feedback, paypalAutomaticFlow} =
+  let {feedback} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -338,8 +337,6 @@ let make = (
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let connectorCount =
@@ -376,7 +373,7 @@ let make = (
 
   let mixpanelEventName = isUpdateFlow ? "processor_step3_onUpdate" : "processor_step3"
 
-  <PageLoaderWrapper screenState>
+  <PageLoaderWrapper screenState={PageLoaderWrapper.Success}>
     <div>
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
@@ -394,34 +391,17 @@ let make = (
             currentStep,
             connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor),
             connectorInfo.status,
-            paypalAutomaticFlow,
           ) {
-          | (Preview, PayoutProcessor(PAYPAL), "inactive", true) =>
-            <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
-          | (Preview, _, _, _) =>
+          | (Preview, _, _) =>
             <div className="flex gap-6 items-center">
               <div
                 className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
               <RenderIf condition={showMenuOption}>
-                {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
-                | (PayoutProcessor(PAYPAL), true) =>
-                  <MenuOptionForPayPal
-                    setCurrentStep
-                    disableConnector
-                    isConnectorDisabled
-                    updateStepValue={ConnectorTypes.PaymentMethods}
-                    connectorInfoDict
-                    setScreenState
-                    isUpdateFlow
-                    setInitialValues
-                  />
-                | (_, _) => <MenuOption disableConnector isConnectorDisabled />
-                }}
+                <MenuOption disableConnector isConnectorDisabled />
               </RenderIf>
             </div>
-
           | _ =>
             <Button
               onClick={_ => {
