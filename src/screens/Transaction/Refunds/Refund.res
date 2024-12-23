@@ -32,14 +32,16 @@ let make = () => {
         filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
         filters->Dict.set("refund_id", searchText->String.trim->JSON.Encode.string)
       }
-
-      dict
+      //to create amount_filter query
+      let newdict = AmountFilterUtils.createAmountQuery(~dict)
+      newdict
       ->Dict.toArray
       ->Array.forEach(item => {
         let (key, value) = item
         filters->Dict.set(key, value)
       })
-
+      //to delete unused keys
+      filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
       filters
       ->getRefundsList(
         ~updateDetails,
@@ -62,29 +64,29 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport, transactionView} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Refunds" />
         <div className="flex gap-4">
-          <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-            selectedEntity={transactionEntity}
-            onChange={updateTransactionEntity}
-          />
+          <Portal to="RefundsOMPView">
+            <OMPSwitchHelper.OMPViews
+              views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+              selectedEntity={transactionEntity}
+              onChange={updateTransactionEntity}
+              entityMapper=UserInfoUtils.transactionEntityMapper
+            />
+          </Portal>
           <RenderIf condition={generateReport && refundData->Array.length > 0}>
             <GenerateReport entityName={REFUND_REPORT} />
           </RenderIf>
         </div>
       </div>
-      <RenderIf condition={transactionView}>
-        <div className="flex gap-6 justify-around">
-          <TransactionView entity=TransactionViewTypes.Refunds />
-        </div>
-      </RenderIf>
+      <div className="flex gap-6 justify-around">
+        <TransactionView entity=TransactionViewTypes.Refunds />
+      </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
@@ -95,7 +97,7 @@ let make = () => {
             initialFixedFilter
             setOffset
             customLeftView={<SearchBarFilter
-              placeholder="Search for any payment id or refund id"
+              placeholder="Search for payment ID or refund ID"
               setSearchVal=setSearchText
               searchVal=searchText
             />}

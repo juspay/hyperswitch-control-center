@@ -208,16 +208,13 @@ module ShowCodeEditor = {
 module DiffCodeEditor = {
   @react.component
   let make = (~valueToShow: migratestripecode, ~langauge: languages) => {
-    let oldValue = valueToShow.from
+    let _oldValue = valueToShow.from
     let newValue = valueToShow.to
     <div
       className="flex flex-col gap-6 border bg-white overflow-x-scroll w-full !shadow-hyperswitch_box_shadow rounded-md">
       <HeaderComponentView value=newValue headerText="Replace" langauge />
-      <div className="p-4">
-        <ReactDiffViewer
-          oldValue newValue splitView={true} hideLineNumbers={false} useDarkTheme=false
-        />
-      </div>
+      // Add Diff Editior
+      <div className="p-4" />
     </div>
   }
 }

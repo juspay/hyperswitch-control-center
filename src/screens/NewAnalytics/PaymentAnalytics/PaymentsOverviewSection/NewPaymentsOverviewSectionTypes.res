@@ -20,9 +20,3 @@ type dataObj = {
   total_refund_processed_amount_in_usd: float,
   total_dispute: int,
 }
-
-type singleStatConfig = {
-  titleText: string,
-  description: string,
-  valueType: NewAnalyticsTypes.valueType,
-}

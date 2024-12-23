@@ -212,6 +212,7 @@ let transformData = (data: array<(string, int)>) => {
 let paymentsLifeCycleMapper = (
   ~params: NewAnalyticsTypes.getObjects<paymentLifeCycle>,
 ): SankeyGraphTypes.sankeyPayload => {
+  open NewAnalyticsUtils
   let {data, xKey} = params
 
   let isSmartRetryEnabled = xKey->getBoolFromString(true)
@@ -362,29 +363,29 @@ let paymentsLifeCycleMapper = (
 
   let processedData = if isSmartRetryEnabled {
     [
-      ("Payments Initiated", "Succeeded on First Attempt", normalSuccess, "#E4EFFF"),
-      ("Payments Initiated", "Succeeded on Subsequent Attempts", smartRetriedSuccess, "#E4EFFF"), // smart retry
-      ("Payments Initiated", "Failed", totalFailure, "#F7E0E0"),
-      ("Payments Initiated", "Pending", pending, "#E4EFFF"),
-      ("Payments Initiated", "Cancelled", cancelled, "#F7E0E0"),
-      ("Payments Initiated", "Drop-offs", dropoff, "#F7E0E0"),
-      ("Succeeded on First Attempt", "Success", normalSuccess, "#E4EFFF"),
-      ("Succeeded on Subsequent Attempts", "Success", smartRetriedSuccess, "#E4EFFF"),
-      ("Failed", "Smart Retried Failure", smartRetriedFailure, "#F7E0E0"), // smart retry
-      ("Success", "Refunds Issued", refunded, "#E4EFFF"),
-      ("Success", "Partial Refunded", partialRefunded, "#E4EFFF"),
-      ("Success", "Dispute Raised", disputed, "#F7E0E0"),
+      ("Payments Initiated", "Succeeded on First Attempt", normalSuccess, sankyBlue),
+      ("Payments Initiated", "Succeeded on Subsequent Attempts", smartRetriedSuccess, sankyBlue), // smart retry
+      ("Payments Initiated", "Failed", totalFailure, sankyRed),
+      ("Payments Initiated", "Pending", pending, sankyBlue),
+      ("Payments Initiated", "Cancelled", cancelled, sankyRed),
+      ("Payments Initiated", "Drop-offs", dropoff, sankyRed),
+      ("Succeeded on First Attempt", "Success", normalSuccess, sankyBlue),
+      ("Succeeded on Subsequent Attempts", "Success", smartRetriedSuccess, sankyBlue),
+      ("Failed", "Smart Retried Failure", smartRetriedFailure, sankyRed), // smart retry
+      ("Success", "Refunds Issued", refunded, sankyBlue),
+      ("Success", "Partial Refunded", partialRefunded, sankyBlue),
+      ("Success", "Dispute Raised", disputed, sankyRed),
     ]
   } else {
     [
-      ("Payments Initiated", "Success", normalSuccess, "#E4EFFF"),
-      ("Payments Initiated", "Failed", totalFailure, "#F7E0E0"),
-      ("Payments Initiated", "Pending", pending, "#E4EFFF"),
-      ("Payments Initiated", "Cancelled", cancelled, "#F7E0E0"),
-      ("Payments Initiated", "Drop-offs", dropoff, "#F7E0E0"),
-      ("Success", "Refunds Issued", refunded, "#E4EFFF"),
-      ("Success", "Partial Refunded", partialRefunded, "#E4EFFF"),
-      ("Success", "Dispute Raised", disputed, "#F7E0E0"),
+      ("Payments Initiated", "Success", normalSuccess, sankyBlue),
+      ("Payments Initiated", "Failed", totalFailure, sankyRed),
+      ("Payments Initiated", "Pending", pending, sankyBlue),
+      ("Payments Initiated", "Cancelled", cancelled, sankyRed),
+      ("Payments Initiated", "Drop-offs", dropoff, sankyRed),
+      ("Success", "Refunds Issued", refunded, sankyBlue),
+      ("Success", "Partial Refunded", partialRefunded, sankyBlue),
+      ("Success", "Dispute Raised", disputed, sankyRed),
     ]
   }
 
@@ -394,31 +395,30 @@ let paymentsLifeCycleMapper = (
 
   let colors = if isSmartRetryEnabled {
     [
-      "#91B7EE",
-      "#91B7EE",
-      "#91B7EE",
-      "#EC6262",
-      "#91B7EE",
-      "#EC6262",
-      "#EC6262",
-      "#91B7EE",
-      "#EC6262",
-      "#91B7EE",
-      "#91B7EE",
-      "#EC6262",
+      sankyLightBlue, // "Payments Initiated"
+      sankyLightBlue, // "Succeeded on First Attempt"
+      sankyLightBlue, // "Succeeded on Subsequent Attempts"
+      sankyLightRed, // "Failed"
+      sankyLightBlue, // "Pending"
+      sankyLightRed, // "Cancelled"
+      sankyLightRed, // "Drop-offs"
+      sankyLightBlue, // "Success"
+      sankyLightRed, // "Smart Retried Failure"
+      sankyLightBlue, // "Refunds Issued"
+      sankyLightBlue, // "Partial Refunded"
+      sankyLightRed, // "Dispute Raised"
     ]
   } else {
     [
-      "#91B7EE",
-      "#91B7EE",
-      "#EC6262",
-      "#91B7EE",
-      "#EC6262",
-      "#EC6262",
-      "#91B7EE",
-      "#91B7EE",
-      "#EC6262",
-      "#EC6262",
+      sankyLightBlue, // "Payments Initiated"
+      sankyLightBlue, // "Success"
+      sankyLightRed, // "Failed"
+      sankyLightBlue, // "Pending"
+      sankyLightRed, // "Cancelled"
+      sankyLightRed, // "Drop-offs"
+      sankyLightBlue, // "Refunds Issued"
+      sankyLightBlue, // "Partial Refunded"
+      sankyLightRed, // "Dispute Raised"
     ]
   }
 

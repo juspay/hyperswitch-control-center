@@ -265,10 +265,10 @@ let paymentAnalytcis = SubLevelLink({
 })
 
 let performanceMonitor = SubLevelLink({
-  name: "Performance Monitor",
+  name: "Performance",
   link: `/performance-monitor`,
   access: Access,
-  searchOptions: [("View Performance Monitor", "")],
+  searchOptions: [("View Performance", "")],
 })
 
 let newAnalytics = SubLevelLink({
@@ -330,12 +330,13 @@ let analytics = (
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
   }
-  if performanceMonitorFlag {
-    links->Array.push(performanceMonitor)
-  }
 
   if newAnalyticsflag {
     links->Array.push(newAnalytics)
+  }
+
+  if performanceMonitorFlag {
+    links->Array.push(performanceMonitor)
   }
 
   isAnalyticsEnabled
@@ -599,14 +600,15 @@ let reconConfigurator = {
     searchOptions: [("Recon configurator", "")],
   })
 }
-let reconFileProcessor = {
-  SubLevelLink({
-    name: "File Processor",
-    link: `/file-processor`,
-    access: Access,
-    searchOptions: [("Recon file processor", "")],
-  })
-}
+// Commented as not needed now
+// let reconFileProcessor = {
+//   SubLevelLink({
+//     name: "File Processor",
+//     link: `/file-processor`,
+//     access: Access,
+//     searchOptions: [("Recon file processor", "")],
+//   })
+// }
 
 let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
   switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization])) {
@@ -629,9 +631,10 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
       if userHasResourceAccess(~resourceAccess=ReconConfig) == CommonAuthTypes.Access {
         links->Array.push(reconConfigurator)
       }
-      if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
-        links->Array.push(reconFileProcessor)
-      }
+      // Commented as not needed now
+      // if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
+      //   links->Array.push(reconFileProcessor)
+      // }
       Section({
         name: "Recon And Settlement",
         icon: "recon",
@@ -669,7 +672,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     surcharge: isSurchargeEnabled,
     isLiveMode,
     threedsAuthenticator,
-    quickStart,
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
@@ -685,7 +687,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let isNewAnalyticsEnable =
     newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
-    productionAccessComponent(quickStart, userHasAccess, hasAnyGroupAccess),
+    productionAccessComponent(isLiveMode, userHasAccess, hasAnyGroupAccess),
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(

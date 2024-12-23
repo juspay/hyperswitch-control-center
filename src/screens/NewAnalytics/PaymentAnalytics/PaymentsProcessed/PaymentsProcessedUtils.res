@@ -1,5 +1,4 @@
 open PaymentsProcessedTypes
-open NewPaymentAnalyticsUtils
 open LogicUtils
 
 let getStringFromVariant = value => {
@@ -56,20 +55,7 @@ let paymentsProcessedMapper = (
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
-  let lineGraphData =
-    data
-    ->getArrayFromJson([])
-    ->Array.mapWithIndex((item, index) => {
-      let name = NewAnalyticsUtils.getLabelName(~key=yKey, ~index, ~points=item)
-      let color = index->getColor
-      getLineGraphObj(
-        ~array=item->getArrayFromJson([]),
-        ~key=xKey,
-        ~name,
-        ~color,
-        ~isAmount=xKey->isAmountMetric,
-      )
-    })
+  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric)
   let title = {
     text: "Payments Processed",
   }
@@ -80,32 +66,26 @@ let paymentsProcessedMapper = (
   | _ => Volume
   }
 
+  let tooltipFormatter = tooltipFormatter(
+    ~secondaryCategories,
+    ~title="Payments Processed",
+    ~metricType,
+    ~comparison,
+  )
+
   {
     categories: primaryCategories,
     data: lineGraphData,
     title,
     yAxisMaxValue: None,
-    tooltipFormatter: tooltipFormatter(
-      ~secondaryCategories,
-      ~title="Payments Processed",
-      ~metricType,
-      ~comparison,
-    ),
+    tooltipFormatter,
   }
 }
-// Need to modify
-let getMetaData = json =>
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
-  ->getArrayFromDict("metaData", [])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
 
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
+  open NewAnalyticsUtils
   {
     payment_processed_amount_in_usd: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,

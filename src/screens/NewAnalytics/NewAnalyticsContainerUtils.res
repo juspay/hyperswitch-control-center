@@ -2,21 +2,28 @@ open NewAnalyticsTypes
 
 let getPageVariant = string => {
   switch string {
+  | "new-analytics-smart-retry" => NewAnalyticsSmartRetry
+  | "new-analytics-refund" => NewAnalyticsRefund
   | "new-analytics-payment" | _ => NewAnalyticsPayment
   }
 }
 
 let getPageIndex = (url: RescriptReactRouter.url) => {
   switch url.path->HSwitchUtils.urlPath {
+  | list{"new-analytics-smart-retry"} => 1
+  | list{"new-analytics-refund"} => 2
   | list{"new-analytics-payment"} | _ => 0
   }
 }
 
 let getPageFromIndex = index => {
   switch index {
-  | 1 | _ => NewAnalyticsPayment
+  | 1 => NewAnalyticsSmartRetry
+  | 2 => NewAnalyticsRefund
+  | 0 | _ => NewAnalyticsPayment
   }
 }
+
 let renderValueInp = () => (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   React.null
 }

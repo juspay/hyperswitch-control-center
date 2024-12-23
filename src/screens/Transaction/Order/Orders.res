@@ -28,8 +28,7 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, transactionView} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -53,36 +52,16 @@ let make = (~previewOnly=false) => {
             ]->getJsonFromArrayOfJson,
           )
         }
-        let encodeFloatOrDefault = val => (val->getFloatFromJson(0.0) *. 100.0)->JSON.Encode.float
-        let hasAmountError = AmountFilterUtils.validateAmount(dict)
-        if !hasAmountError {
-          filters->Dict.set(
-            "amount_filter",
-            [
-              (
-                "start_amount",
-                getvalFromDict(dict, "start_amount")->mapOptionOrDefault(
-                  JSON.Encode.null,
-                  encodeFloatOrDefault,
-                ),
-              ),
-              (
-                "end_amount",
-                getvalFromDict(dict, "end_amount")->mapOptionOrDefault(
-                  JSON.Encode.null,
-                  encodeFloatOrDefault,
-                ),
-              ),
-            ]->getJsonFromArrayOfJson,
-          )
-        }
-        dict
+        //to create amount_filter query
+        let newDict = AmountFilterUtils.createAmountQuery(~dict)
+        newDict
         ->Dict.toArray
         ->Array.forEach(item => {
           let (key, value) = item
           filters->Dict.set(key, value)
         })
-        filters->OrderUIUtils.deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
+        //to delete unused keys
+        filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
         filters
         ->getOrdersList(
           ~updateDetails,
@@ -146,7 +125,7 @@ let make = (~previewOnly=false) => {
       setOffset
       submitInputOnEnter=true
       customLeftView={<SearchBarFilter
-        placeholder="Search for any payment id" setSearchVal=setSearchText searchVal=searchText
+        placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
       entityName=ORDER_FILTERS
     />
@@ -157,21 +136,22 @@ let make = (~previewOnly=false) => {
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div className="flex gap-4">
-          <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-            selectedEntity={transactionEntity}
-            onChange={updateTransactionEntity}
-          />
-          <RenderIf condition={generateReport && orderData->Array.length > 0}>
+          <Portal to="OrdersOMPView">
+            <OMPSwitchHelper.OMPViews
+              views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+              selectedEntity={transactionEntity}
+              onChange={updateTransactionEntity}
+              entityMapper=UserInfoUtils.transactionEntityMapper
+            />
+          </Portal>
+          <RenderIf condition={generateReport && email && orderData->Array.length > 0}>
             <GenerateReport entityName={PAYMENT_REPORT} />
           </RenderIf>
         </div>
       </div>
-      <RenderIf condition={transactionView}>
-        <div className="flex gap-6 justify-around">
-          <TransactionView entity=TransactionViewTypes.Orders />
-        </div>
-      </RenderIf>
+      <div className="flex gap-6 justify-around">
+        <TransactionView entity=TransactionViewTypes.Orders />
+      </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>

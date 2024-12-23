@@ -734,7 +734,6 @@ let useHandleLogout = () => {
         })
       setAuthStateToLogout()
       clearRecoilValue()
-      AuthUtils.redirectToLogin()
       LocalStorage.clear()
     } catch {
     | _ => LocalStorage.clear()
@@ -779,6 +778,8 @@ let responseHandler = async (
     sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
   }
 
+  let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
+
   switch responseStatus {
   | 200 => json
   | _ => {
@@ -800,6 +801,7 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
+
             handleLogout()->ignore
             AuthUtils.redirectToLogin()
             sessionExpired := true
@@ -810,7 +812,7 @@ let responseHandler = async (
             popUpType: (Warning, WithIcon),
             heading: "Access Forbidden",
             description: {
-              HSwitchUtils.noAccessControlText->React.string
+              noAccessControlText->React.string
             },
             handleConfirm: {
               text: "Close",

@@ -177,9 +177,11 @@ let make = () => {
                         | list{"recon-analytics"}
                         | list{"reports"}
                         | list{"config-settings"}
-                        | list{"file-processor"}
                         | list{"sdk"} =>
                           <MerchantAccountContainer setAppScreenState=setScreenState />
+                        // Commented as not needed now
+                        // list{"file-processor"}
+
                         | list{"connectors", ..._}
                         | list{"payoutconnectors", ..._}
                         | list{"3ds-authenticators", ..._}
@@ -188,11 +190,11 @@ let make = () => {
                         | list{"fraud-risk-management", ..._}
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}
-                        | list{"payoutrouting", ..._} =>
+                        | list{"payoutrouting", ..._}
+                        | list{"payment-settings", ..._} =>
                           <ConnectorContainer />
                         | list{"business-details", ..._}
-                        | list{"business-profiles", ..._}
-                        | list{"payment-settings", ..._} =>
+                        | list{"business-profiles", ..._} =>
                           <BusinessProfileContainer />
                         | list{"payments", ..._}
                         | list{"refunds", ..._}
@@ -204,7 +206,9 @@ let make = () => {
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainer />
-                        | list{"new-analytics-payment"} =>
+                        | list{"new-analytics-payment"}
+                        | list{"new-analytics-refund"}
+                        | list{"new-analytics-smart-retry"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics &&
                             useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
@@ -339,7 +343,7 @@ let make = () => {
                 setShowModal={setShowFeedbackModal}
               />
             </RenderIf>
-            <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
+            <RenderIf condition={!featureFlagDetails.isLiveMode}>
               <ProdIntentForm />
             </RenderIf>
           </div>
