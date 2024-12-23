@@ -4,7 +4,7 @@ let make = () => {
 
   <div className="flex flex-col gap-14 mt-5 pt-7">
     <div className="flex gap-2">
-      <NewAnalyticsFilters.RefundsTabFilter />
+      <NewAnalyticsFilters domain={#refunds} entityName={ANALYTICS_REFUNDS} />
     </div>
     <RefundsOverviewSection entity={overviewSectionEntity} />
     <RefundsProcessed entity={refundsProcessedEntity} chartEntity={refundsProcessedChartEntity} />

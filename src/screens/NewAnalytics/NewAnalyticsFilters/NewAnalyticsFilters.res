@@ -5,76 +5,28 @@ open NewAnalyticsFiltersUtils
 open NewAnalyticsFiltersHelper
 open NewAnalyticsTypes
 
-module RefundsTabFilter = {
+module PaymentsFilter = {
   @react.component
-  let make = () => {
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
-    let updateDetails = useUpdateMethod()
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let make = (
+    ~startTimeVal,
+    ~endTimeVal,
+    ~dimensions,
+    ~loadFilters,
+    ~screenState,
+    ~updateFilterContext,
+  ) => {
     let (currencOptions, setCurrencOptions) = React.useState(_ => [])
-    let {filterValueJson, updateExistingKeys, filterValue} = React.useContext(
-      FilterContext.filterContext,
-    )
     let (selectedCurrency, setSelectedCurrency) = React.useState(_ => defaultCurrency)
-    let (dimensions, setDimensions) = React.useState(_ => [])
-    let domain = (#refunds: NewAnalyticsTypes.domain :> string)
-    let startTimeVal = filterValueJson->getString("startTime", "")
-    let endTimeVal = filterValueJson->getString("endTime", "")
 
-    let loadInfo = async () => {
-      try {
-        let infoUrl = getURL(~entityName=ANALYTICS_REFUNDS, ~methodType=Get, ~id=Some(domain))
-        let infoDetails = await fetchDetails(infoUrl)
-        setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
-      } catch {
-      | _ => ()
-      }
+    let filterValueModifier = dict => {
+      dict->Dict.set((#currency: filters :> string), selectedCurrency.value)
+      dict
     }
 
-    let loadFilters = async () => {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      try {
-        let url = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
-
-        let body =
-          {
-            startTime: startTimeVal,
-            endTime: endTimeVal,
-            groupByNames: HSAnalyticsUtils.getStringListFromArrayDict(dimensions),
-            source: "BATCH",
-          }
-          ->AnalyticsUtils.filterBody
-          ->JSON.Encode.object
-
-        updateDetails(url, body, Post)
-        ->thenResolve(json => {
-          let options = json->getOptions
-          setCurrencOptions(_ => options)
-          setScreenState(_ => PageLoaderWrapper.Success)
-        })
-        ->catch(_ => resolve())
-        ->ignore
-      } catch {
-      | _ => ()
-      }
+    let responseHandler = json => {
+      let options = json->getOptions
+      setCurrencOptions(_ => options)
     }
-
-    let updateFilterContext = () => {
-      let newValue = filterValue->Dict.copy
-      newValue->Dict.set((#currency: filters :> string), selectedCurrency.value)
-      newValue->updateExistingKeys
-    }
-
-    React.useEffect(() => {
-      loadInfo()->ignore
-      None
-    }, [])
-
-    React.useEffect(() => {
-      updateFilterContext()
-      None
-    }, [selectedCurrency.value])
 
     React.useEffect(() => {
       if (
@@ -83,11 +35,15 @@ module RefundsTabFilter = {
         dimensions->Array.length > 0
       ) {
         setSelectedCurrency(_ => defaultCurrency)
-        updateFilterContext()
-        loadFilters()->ignore
+        loadFilters(responseHandler)->ignore
       }
       None
     }, (startTimeVal, endTimeVal, dimensions))
+
+    React.useEffect(() => {
+      updateFilterContext(filterValueModifier)
+      None
+    }, [selectedCurrency.value])
 
     let setOption = value => {
       setSelectedCurrency(_ => value)
@@ -101,97 +57,76 @@ module RefundsTabFilter = {
   }
 }
 
-module PaymentsTabFilter = {
-  @react.component
-  let make = () => {
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
-    let updateDetails = useUpdateMethod()
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let (currencOptions, setCurrencOptions) = React.useState(_ => [])
-    let {filterValueJson, updateExistingKeys, filterValue} = React.useContext(
-      FilterContext.filterContext,
-    )
-    let (selectedCurrency, setSelectedCurrency) = React.useState(_ => defaultCurrency)
-    let (dimensions, setDimensions) = React.useState(_ => [])
-    let domain = (#payments: NewAnalyticsTypes.domain :> string)
-    let startTimeVal = filterValueJson->getString("startTime", "")
-    let endTimeVal = filterValueJson->getString("endTime", "")
+@react.component
+let make = (~entityName, ~domain) => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let {filterValueJson, updateExistingKeys, filterValue} = React.useContext(
+    FilterContext.filterContext,
+  )
+  let (dimensions, setDimensions) = React.useState(_ => [])
+  let domainString = (domain: NewAnalyticsTypes.domain :> string)
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
 
-    let loadInfo = async () => {
-      try {
-        let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
-        let infoDetails = await fetchDetails(infoUrl)
-        setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
-      } catch {
-      | _ => ()
-      }
+  let loadInfo = async () => {
+    try {
+      let infoUrl = getURL(~entityName, ~methodType=Get, ~id=Some(domainString))
+      let infoDetails = await fetchDetails(infoUrl)
+      setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
+    } catch {
+    | _ => ()
     }
+  }
 
-    let loadFilters = async () => {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      try {
-        let url = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let loadFilters = async responseHandler => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    try {
+      let url = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domainString))
 
-        let body =
-          {
-            startTime: startTimeVal,
-            endTime: endTimeVal,
-            groupByNames: HSAnalyticsUtils.getStringListFromArrayDict(dimensions),
-            source: "BATCH",
-          }
-          ->AnalyticsUtils.filterBody
-          ->JSON.Encode.object
+      let body =
+        {
+          startTime: startTimeVal,
+          endTime: endTimeVal,
+          groupByNames: HSAnalyticsUtils.getStringListFromArrayDict(dimensions),
+          source: "BATCH",
+        }
+        ->AnalyticsUtils.filterBody
+        ->JSON.Encode.object
 
-        updateDetails(url, body, Post)
-        ->thenResolve(json => {
-          let options = json->getOptions
-          setCurrencOptions(_ => options)
-          setScreenState(_ => PageLoaderWrapper.Success)
-        })
-        ->catch(_ => resolve())
-        ->ignore
-      } catch {
-      | _ => ()
-      }
+      updateDetails(url, body, Post)
+      ->thenResolve(json => {
+        json->responseHandler
+        setScreenState(_ => PageLoaderWrapper.Success)
+      })
+      ->catch(_ => resolve())
+      ->ignore
+    } catch {
+    | _ => ()
     }
+  }
 
-    let updateFilterContext = () => {
-      let newValue = filterValue->Dict.copy
-      newValue->Dict.set((#currency: filters :> string), selectedCurrency.value)
-      newValue->updateExistingKeys
-    }
+  let updateFilterContext = valueModifier => {
+    let newValue = filterValue->Dict.copy
+    newValue->valueModifier->updateExistingKeys
+  }
 
-    React.useEffect(() => {
-      loadInfo()->ignore
-      None
-    }, [])
+  React.useEffect(() => {
+    loadInfo()->ignore
+    None
+  }, [])
 
-    React.useEffect(() => {
-      updateFilterContext()
-      None
-    }, [selectedCurrency.value])
-
-    React.useEffect(() => {
-      if (
-        startTimeVal->isNonEmptyString &&
-        endTimeVal->isNonEmptyString &&
-        dimensions->Array.length > 0
-      ) {
-        setSelectedCurrency(_ => defaultCurrency)
-        loadFilters()->ignore
-      }
-      None
-    }, (startTimeVal, endTimeVal, dimensions))
-
-    let setOption = value => {
-      setSelectedCurrency(_ => value)
-    }
-
-    <PageLoaderWrapper screenState customLoader={<FilterLoader />}>
-      <NewAnalyticsHelper.CustomDropDown
-        buttonText={selectedCurrency} options={currencOptions} setOption positionClass="left-0"
-      />
-    </PageLoaderWrapper>
+  switch domain {
+  | #payments =>
+    <PaymentsFilter
+      dimensions loadFilters screenState updateFilterContext startTimeVal endTimeVal
+    />
+  | #refunds =>
+    <PaymentsFilter
+      dimensions loadFilters screenState updateFilterContext startTimeVal endTimeVal
+    />
+  | _ => React.null
   }
 }
