@@ -6,8 +6,10 @@ module HyperSwitchEntryComponent = {
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
-
+    //Remove configCustomDomainTheme in future
+    let {configCustomDomainTheme, configCustomThemeDynamic} = React.useContext(
+      ThemeProvider.themeContext,
+    )
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
@@ -46,8 +48,49 @@ module HyperSwitchEntryComponent = {
       | _ => Exn.raiseError("Error on configuring endpoint")
       }
     }
-    // Need to modify based on the usedcase
-
+    // Need to modify based on the usecase and will recieve this dynamically
+    let themeJson = {
+      "settings": {
+        "colors": {
+          "primary": "#006DF9",
+          "secondary": "#FFFFFF",
+          "sidebar": "#242F48",
+          "background": "#F7F8FB",
+        },
+        "typography": {
+          "fontFamily": "Roboto, sans-serif",
+          "fontSize": "14px",
+          "headingFontSize": "24px",
+          "textColor": "#2c3e50",
+          "linkColor": "#3498db",
+          "linkHoverColor": "#005ED6",
+        },
+        "buttons": {
+          "primary": {
+            "backgroundColor": "#006DF9",
+            "textColor": "#006df9",
+            "hoverBackgroundColor": "#005ED6",
+          },
+          "secondary": {
+            "backgroundColor": "#F7F7F7",
+            "textColor": "#202124",
+            "hoverBackgroundColor": "#EEEEEE",
+          },
+        },
+        "borders": {
+          "defaultRadius": "4px",
+          "borderColor": "#dcdde1",
+        },
+        "spacing": {
+          "padding": "16px",
+          "margin": "16px",
+        },
+      },
+      "urls": {
+        "faviconUrl": "",
+        "logoUrl": "",
+      },
+    }->Identity.genericTypeToJson
     let fetchConfig = async () => {
       try {
         let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="default")
@@ -56,6 +99,7 @@ module HyperSwitchEntryComponent = {
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
         let _ = res->configCustomDomainTheme
+        let _ = themeJson->configCustomThemeDynamic
         let _ = res->configURL
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
