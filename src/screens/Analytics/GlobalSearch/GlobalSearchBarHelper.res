@@ -63,7 +63,7 @@ module EmptyResult = {
 module OptionWrapper = {
   @react.component
   let make = (~index, ~value, ~children, ~selectedOption, ~redirectOnSelect) => {
-    let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg border" : ""
+    let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg" : ""
 
     <div
       onClick={_ => value->redirectOnSelect}
@@ -160,66 +160,24 @@ module ShowMoreLink = {
   }
 }
 
-module SearchResultsComponent = {
-  open FramerMotion.Motion
+module KeyValueFilter = {
+  open GlobalSearchBarUtils
   @react.component
-  let make = (~searchResults, ~searchText, ~setShowModal, ~selectedOption, ~redirectOnSelect) => {
-    let borderClass = searchResults->Array.length > 0 ? "border-t dark:border-jp-gray-960" : ""
+  let make = (~filter) => {
+    let itemValue =
+      filter.categoryType
+      ->getcategoryFromVariant
+      ->String.toLocaleLowerCase
 
-    <div
-      className={`w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm ${borderClass}`}>
-      {searchResults
-      ->Array.mapWithIndex((section: resultType, index) => {
-        <Div
-          key={Int.toString(index)}
-          layoutId={`${section.section->getSectionHeader} ${Int.toString(index)}`}
-          className={`px-3 mb-3 py-1`}>
-          <Div
-            layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
-            className="text-lightgray_background  px-2 pb-1 flex justify-between ">
-            <div className="font-bold opacity-50">
-              {section.section->getSectionHeader->String.toUpperCase->React.string}
-            </div>
-            <ShowMoreLink
-              section
-              cleanUpFunction={() => {setShowModal(_ => false)}}
-              textStyleClass="text-xs"
-              searchText
-            />
-          </Div>
-          {section.results
-          ->Array.mapWithIndex((item, i) => {
-            let elementsArray = item.texts
-            <OptionWrapper
-              key={Int.toString(i)} index={i} value={item} selectedOption redirectOnSelect>
-              {elementsArray
-              ->Array.mapWithIndex(
-                (item, index) => {
-                  let elementValue = item->JSON.Decode.string->Option.getOr("")
-                  <RenderIf condition={elementValue->isNonEmptyString} key={index->Int.toString}>
-                    <RenderedComponent ele=elementValue searchText />
-                    <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
-                      <span className="mx-2 text-lightgray_background opacity-50">
-                        {">"->React.string}
-                      </span>
-                    </RenderIf>
-                  </RenderIf>
-                },
-              )
-              ->React.array}
-            </OptionWrapper>
-          })
-          ->React.array}
-        </Div>
-      })
-      ->React.array}
+    <div className="font-medium px-2 py-1">
+      {`Enter ${itemValue} (e.g.,${filter.placeholder})`->React.string}
     </div>
   }
 }
 
 module FilterOption = {
   @react.component
-  let make = (~onClick, ~value, ~placeholder=None, ~filter, ~selectedFilter=None) => {
+  let make = (~onClick, ~value, ~placeholder=None, ~filter, ~selectedFilter=None, ~viewType) => {
     let activeBg = "bg-gray-200"
     let wrapperBg = "bg-gray-400/40"
     let rounded = "rounded-lg"
@@ -227,27 +185,30 @@ module FilterOption = {
     let (activeWrapperClass, activeClass) = switch selectedFilter {
     | Some(val) =>
       filter == val
-        ? (`${activeBg} ${rounded} border`, `${wrapperBg} border`)
-        : (
-            `hover:${activeBg} hover:${rounded} hover:border`,
-            `hover:${wrapperBg} hover:border ${activeBg}`,
-          )
-    | None => (
-        `hover:${activeBg} hover:${rounded} hover:border`,
-        `hover:${wrapperBg} hover:border ${activeBg}`,
-      )
+        ? (`${activeBg} ${rounded}`, `${wrapperBg}`)
+        : (`hover:${activeBg} hover:${rounded}`, `hover:${wrapperBg} ${activeBg}`)
+    | None => (`hover:${activeBg} hover:${rounded} `, `hover:${wrapperBg} ${activeBg}`)
     }
 
-    <div
-      className={`flex justify-between p-2 group items-center cursor-pointer ${activeWrapperClass}`}
-      onClick>
-      <div className={`${activeClass} py-1 px-2 rounded-md flex gap-1 items-center w-fit`}>
-        <span className="font-medium text-sm"> {value->React.string} </span>
+    switch viewType {
+    | FiltersSugsestions =>
+      <div
+        className={`flex justify-between p-2 group items-center cursor-pointer ${activeWrapperClass}`}
+        onClick>
+        <div className={`${activeClass} py-1 px-2 rounded-md flex gap-1 items-center w-fit`}>
+          <span className="font-medium text-sm"> {value->React.string} </span>
+        </div>
+        <RenderIf condition={placeholder->Option.isSome}>
+          <div className="text-sm opacity-70"> {placeholder->Option.getOr("")->React.string} </div>
+        </RenderIf>
       </div>
-      <RenderIf condition={placeholder->Option.isSome}>
-        <div className="text-sm opacity-70"> {placeholder->Option.getOr("")->React.string} </div>
-      </RenderIf>
-    </div>
+    | _ =>
+      <span
+        className={`${activeClass} py-1 px-2 rounded-md flex gap-1 items-center w-fit cursor-pointer font-medium text-sm`}
+        onClick>
+        {value->React.string}
+      </span>
+    }
   }
 }
 
@@ -271,6 +232,7 @@ module FilterResultsComponent = {
     ~setSelectedFilter,
     ~onFilterClicked,
     ~onSuggestionClicked,
+    ~viewType=FiltersSugsestions,
   ) => {
     let filterKey = activeFilter->String.split(filterSeparator)->getValueFromArray(0, "")
 
@@ -338,6 +300,27 @@ module FilterResultsComponent = {
       None
     }, [filters->Array.length])
 
+    let optionsFlexClass = viewType != FiltersSugsestions ? "flex flex-wrap gap-3 px-2 pt-2" : ""
+
+    let filterOptions = index => {
+      if viewType != FiltersSugsestions {
+        index < sectionsViewResultsCount
+      } else {
+        true
+      }
+    }
+
+    let isFreeTextKey = if filters->Array.length == 1 {
+      switch filters->Array.get(0) {
+      | Some(val) => val.options->Array.length == 0
+      | None => false
+      }
+    } else {
+      false
+    }
+
+    let sectionHeader = isFreeTextKey ? "" : "Suggested Filters"
+
     <RenderIf condition={filters->Array.length > 0}>
       <Div
         initial={{opacity: 0.5}}
@@ -345,7 +328,7 @@ module FilterResultsComponent = {
         layoutId="categories-section"
         className="px-2 pt-2 border-t dark:border-jp-gray-960">
         <Div layoutId="categories-title" className="font-bold px-2">
-          {"Suggested Filters"->String.toUpperCase->React.string}
+          {sectionHeader->String.toUpperCase->React.string}
         </Div>
         <div>
           <RenderIf condition={filters->Array.length === 1 && filters->checkFilterKey}>
@@ -363,26 +346,32 @@ module FilterResultsComponent = {
                 }
 
                 if options->Array.length > 0 {
-                  options
-                  ->Array.map(option => {
-                    let filter = {
-                      categoryType: value.categoryType,
-                      options: [option],
-                      placeholder: value.placeholder,
-                    }
+                  <div className=optionsFlexClass>
+                    {options
+                    ->Array.filterWithIndex((_, index) => {
+                      index->filterOptions
+                    })
+                    ->Array.map(option => {
+                      let filter = {
+                        categoryType: value.categoryType,
+                        options: [option],
+                        placeholder: value.placeholder,
+                      }
 
-                    let itemValue = `${value.categoryType
-                      ->getcategoryFromVariant
-                      ->String.toLocaleLowerCase} : ${option}`
+                      let itemValue = `${value.categoryType
+                        ->getcategoryFromVariant
+                        ->String.toLocaleLowerCase} : ${option}`
 
-                    <FilterOption
-                      onClick={_ => option->onSuggestionClicked}
-                      value=itemValue
-                      filter
-                      selectedFilter
-                    />
-                  })
-                  ->React.array
+                      <FilterOption
+                        onClick={_ => option->onSuggestionClicked}
+                        value=itemValue
+                        filter
+                        selectedFilter
+                        viewType
+                      />
+                    })
+                    ->React.array}
+                  </div>
                 } else {
                   <NoResults />
                 }
@@ -391,24 +380,129 @@ module FilterResultsComponent = {
             </div>
           </RenderIf>
           <RenderIf condition={!(filters->Array.length === 1 && filters->checkFilterKey)}>
-            {filters
-            ->Array.map(category => {
-              let itemValue = `${category.categoryType
-                ->getcategoryFromVariant
-                ->String.toLocaleLowerCase} : `
-              <FilterOption
-                onClick={_ => category->onFilterClicked}
-                value=itemValue
-                placeholder={Some(category.placeholder)}
-                filter={category}
-                selectedFilter
-              />
-            })
-            ->React.array}
+            <div className=optionsFlexClass>
+              {if isFreeTextKey {
+                filters
+                ->Array.map(filter => {
+                  <KeyValueFilter filter />
+                })
+                ->React.array
+              } else {
+                filters
+                ->Array.map(category => {
+                  let itemValue = `${category.categoryType
+                    ->getcategoryFromVariant
+                    ->String.toLocaleLowerCase} : `
+                  <FilterOption
+                    onClick={_ => category->onFilterClicked}
+                    value=itemValue
+                    placeholder={Some(category.placeholder)}
+                    filter={category}
+                    selectedFilter
+                    viewType
+                  />
+                })
+                ->React.array
+              }}
+            </div>
           </RenderIf>
         </div>
       </Div>
     </RenderIf>
+  }
+}
+
+module SearchResultsComponent = {
+  open FramerMotion.Motion
+  @react.component
+  let make = (
+    ~searchResults,
+    ~searchText,
+    ~setShowModal,
+    ~selectedOption,
+    ~redirectOnSelect,
+    ~categorySuggestions,
+    ~activeFilter,
+    ~setAllFilters,
+    ~selectedFilter,
+    ~setSelectedFilter,
+    ~onFilterClicked,
+    ~onSuggestionClicked,
+    ~viewType,
+    ~prefix,
+    ~filtersEnabled,
+  ) => {
+    <div className={"w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm "}>
+      <RenderIf condition={filtersEnabled}>
+        <FilterResultsComponent
+          categorySuggestions
+          activeFilter
+          searchText
+          setAllFilters
+          selectedFilter
+          onFilterClicked
+          onSuggestionClicked
+          setSelectedFilter
+          viewType
+        />
+      </RenderIf>
+      {switch viewType {
+      | Load =>
+        <div className="mb-24">
+          <Loader />
+        </div>
+      | EmptyResult => <EmptyResult prefix searchText />
+      | _ =>
+        <Div className="mt-3 border-t" layoutId="border">
+          {searchResults
+          ->Array.mapWithIndex((section: resultType, index) => {
+            <Div
+              key={Int.toString(index)}
+              layoutId={`${section.section->getSectionHeader} ${Int.toString(index)}`}
+              className={`px-3 mb-3 py-1`}>
+              <Div
+                layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
+                className="text-lightgray_background  px-2 pb-1 flex justify-between ">
+                <div className="font-bold opacity-50">
+                  {section.section->getSectionHeader->String.toUpperCase->React.string}
+                </div>
+                <ShowMoreLink
+                  section
+                  cleanUpFunction={() => {setShowModal(_ => false)}}
+                  textStyleClass="text-xs"
+                  searchText
+                />
+              </Div>
+              {section.results
+              ->Array.mapWithIndex((item, i) => {
+                let elementsArray = item.texts
+                <OptionWrapper
+                  key={Int.toString(i)} index={i} value={item} selectedOption redirectOnSelect>
+                  {elementsArray
+                  ->Array.mapWithIndex(
+                    (item, index) => {
+                      let elementValue = item->JSON.Decode.string->Option.getOr("")
+                      <RenderIf
+                        condition={elementValue->isNonEmptyString} key={index->Int.toString}>
+                        <RenderedComponent ele=elementValue searchText />
+                        <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
+                          <span className="mx-2 text-lightgray_background opacity-50">
+                            {">"->React.string}
+                          </span>
+                        </RenderIf>
+                      </RenderIf>
+                    },
+                  )
+                  ->React.array}
+                </OptionWrapper>
+              })
+              ->React.array}
+            </Div>
+          })
+          ->React.array}
+        </Div>
+      }}
+    </div>
   }
 }
 
@@ -418,6 +512,7 @@ module ModalSearchBox = {
   open ReactEvent.Keyboard
   @react.component
   let make = (
+    ~inputRef: React.ref<'a>,
     ~leftIcon,
     ~setShowModal,
     ~setFilterText,
@@ -435,7 +530,6 @@ module ModalSearchBox = {
     ~onFilterClicked,
     ~onSuggestionClicked,
   ) => {
-    let inputRef = React.useRef(Nullable.null)
     let (errorMessage, setErrorMessage) = React.useState(_ => "")
 
     let tabKey = 9
@@ -468,10 +562,7 @@ module ModalSearchBox = {
     }
 
     let tabKeyPressHandler = e => {
-      switch inputRef.current->Js.Nullable.toOption {
-      | Some(elem) => elem->MultipleFileUpload.focus
-      | None => ()
-      }
+      revertFocus(~inputRef)
 
       let keyPressed = e->keyCode
 
@@ -593,13 +684,17 @@ module ModalSearchBox = {
     let validateForm = _ => {
       let errors = Dict.make()
       let lastChar = localSearchText->getEndChar
-      if lastChar == " " && localSearchText->GlobalSearchBarUtils.validateQuery {
-        setErrorMessage(_ => "Multiple free-text terms found")
-      } else if !(localSearchText->GlobalSearchBarUtils.validateQuery) {
+      if lastChar == " " && localSearchText->validateQuery {
+        setErrorMessage(_ =>
+          "Only one free-text search is allowed and additional text will be ignored."
+        )
+      } else if !(localSearchText->validateQuery) {
         setErrorMessage(_ => "")
       }
       errors->JSON.Encode.object
     }
+
+    let textColor = errorMessage->isNonEmptyString ? "text-red-900" : "text-jp-gray-900"
 
     <Form
       key="global-search"
@@ -621,7 +716,7 @@ module ModalSearchBox = {
                       autoComplete="off"
                       autoFocus=true
                       placeholder="Search"
-                      className="w-full pr-2 pl-2 text-jp-gray-900 text-opacity-75 focus:text-opacity-100  placeholder-jp-gray-900  focus:outline-none rounded  h-10 text-lg font-normal  placeholder-opacity-50 "
+                      className={`w-full pr-2 pl-2 ${textColor} text-opacity-75 focus:text-opacity-100  placeholder-jp-gray-900  focus:outline-none rounded  h-10 text-lg font-normal  placeholder-opacity-50 `}
                       name={input.name}
                       label="No"
                       value=localSearchText
@@ -641,7 +736,7 @@ module ModalSearchBox = {
                   </div>
                 </div>
                 <RenderIf condition={errorMessage->isNonEmptyString}>
-                  <div className="text-sm text-orange-500 ml-12 pl-2">
+                  <div className="text-sm text-red-900 ml-12 pl-2">
                     {errorMessage->React.string}
                   </div>
                 </RenderIf>
