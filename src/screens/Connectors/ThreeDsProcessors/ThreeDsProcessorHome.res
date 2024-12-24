@@ -117,7 +117,6 @@ let make = () => {
           ~values,
           ~connector=connectorName,
           ~bodyType,
-          ~isPayoutFlow=false,
           ~isLiveMode={false},
           ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
         )->ignoreFields(connectorID, connectorIgnoredField)

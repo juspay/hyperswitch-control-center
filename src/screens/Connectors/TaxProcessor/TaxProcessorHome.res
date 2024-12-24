@@ -203,7 +203,6 @@ let make = () => {
           ~values,
           ~connector=connectorName,
           ~bodyType,
-          ~isPayoutFlow=false,
           ~isLiveMode={false},
           ~connectorType=ConnectorTypes.TaxProcessor,
         )->ignoreFields(connectorID, connectorIgnoredField)

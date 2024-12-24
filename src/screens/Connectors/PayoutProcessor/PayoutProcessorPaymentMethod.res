@@ -29,7 +29,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         ~setPaymentMethods,
         ~setMetaData,
         ~isUpdateFlow,
-        ~isPayoutFlow=false,
+        ~isPayoutFlow=true,
         ~connector,
         ~updateDetails,
       )
@@ -122,7 +122,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
               paymentMethodsEnabled
               updateDetails
               setMetaData
-              isPayoutFlow=false
+              isPayoutFlow=true
               initialValues
               setInitialValues
             />
