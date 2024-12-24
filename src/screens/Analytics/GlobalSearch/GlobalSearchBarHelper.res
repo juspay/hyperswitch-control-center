@@ -686,7 +686,7 @@ module ModalSearchBox = {
       let lastChar = localSearchText->getEndChar
       if lastChar == " " && localSearchText->validateQuery {
         setErrorMessage(_ =>
-          "Only one free-text search is allowed and additional text will be ignored. Please combine additional terms using filters."
+          "Only one free-text search is allowed and additional text will be ignored."
         )
       } else if !(localSearchText->validateQuery) {
         setErrorMessage(_ => "")

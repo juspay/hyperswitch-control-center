@@ -236,6 +236,7 @@ let make = () => {
   }
 
   let viewType = getViewType(~state, ~searchResults)
+  let categorySuggestions = {getCategorySuggestions(categorieSuggestionResponse)}
 
   <div className="w-max">
     <SearchBox openModalOnClickHandler />
@@ -269,7 +270,7 @@ let make = () => {
               setShowModal
               selectedOption
               redirectOnSelect
-              categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+              categorySuggestions
               activeFilter
               setAllFilters
               selectedFilter
@@ -283,7 +284,7 @@ let make = () => {
           | FiltersSugsestions =>
             <RenderIf condition={filtersEnabled}>
               <FilterResultsComponent
-                categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+                categorySuggestions
                 activeFilter
                 searchText
                 setAllFilters
