@@ -24,6 +24,7 @@ let make = () => {
           item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PayoutProcessor
         )
       connectorsList->Array.reverse
+      ConnectorUtils.sortByDisableField(connectorsList, connectorPayload => connectorPayload.disabled)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>
