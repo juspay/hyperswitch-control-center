@@ -22,7 +22,7 @@ let make = () => {
       let connectorsList =
         connectorListFromRecoil->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
       connectorsList->Array.reverse
-      HSwitchUtils.sortByDisableField(connectorsList, c => c.disabled)
+      ConnectorUtils.sortByDisableField(connectorsList, c => c.disabled)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>
