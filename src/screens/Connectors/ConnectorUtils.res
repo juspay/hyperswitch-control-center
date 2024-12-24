@@ -1714,7 +1714,7 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
   | NETCETERA => "Netcetera"
-  | CLICK_TO_PAY_MASTERCARD => "ctp_mastercard"
+  | CLICK_TO_PAY_MASTERCARD => "Unified Click to Pay"
   }
 
 let getDisplayNameForFRMConnector = frmConnector =>
