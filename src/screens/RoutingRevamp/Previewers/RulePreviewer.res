@@ -7,7 +7,7 @@ module GatewayView = {
     let url = RescriptReactRouter.useUrl()
 
     let connectorType = switch url->RoutingUtils.urlToVariantMapper {
-    | PayoutRouting => RoutingTypes.PayoutConnector
+    | PayoutRouting => RoutingTypes.PayoutProcessor
     | _ => RoutingTypes.PaymentConnector
     }
 

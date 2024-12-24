@@ -331,7 +331,6 @@ let make = (
   let {feedback, paypalAutomaticFlow} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getURL = useGetURL()
-  let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -349,10 +348,6 @@ let make = (
     ->Array.length
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
-  let redirectPath = switch url.path->HSwitchUtils.urlPath {
-  | list{"payoutconnectors", _} => "/payoutconnectors"
-  | _ => "/connectors"
-  }
 
   let isConnectorDisabled = connectorInfo.disabled
   let disableConnector = async isConnectorDisabled => {
@@ -431,7 +426,7 @@ let make = (
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }
-                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=redirectPath))
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
               }}
               text="Done"
               buttonType={Primary}

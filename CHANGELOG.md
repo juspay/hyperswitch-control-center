@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.24.0
+
+### Miscellaneous Tasks
+
+- Show switch org input box for tenant admin ([#1925](https://github.com/juspay/hyperswitch-control-center/pull/1925)) ([`4f8af0e`](https://github.com/juspay/hyperswitch-control-center/commit/4f8af0ed3e51e51350b5c169a680856c2de1b177))
+
+**Full Changelog:** [`2024.12.23.0...2024.12.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.23.0...2024.12.24.0)
+
+- - -
+
 ## 2024.12.23.0
 
 ### Miscellaneous Tasks
