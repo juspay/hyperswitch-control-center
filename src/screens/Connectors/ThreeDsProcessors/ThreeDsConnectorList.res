@@ -39,6 +39,8 @@ let make = () => {
             AuthenticationProcessor
         )
 
+      ConnectorUtils.sortByDisableField(connectorsList, connectorPayload => connectorPayload.disabled)
+
       setConfiguredConnectors(_ => connectorsList)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setScreenState(_ => Success)
