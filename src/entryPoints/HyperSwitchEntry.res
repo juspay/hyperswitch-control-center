@@ -20,13 +20,13 @@ module HyperSwitchEntryComponent = {
       }
     }
 
-    let configThemeURL = (~configData: JSON.t, ~themesData: JSON.t, themeFeature) => {
+    let configThemeURL = (~configData: JSON.t, ~themesData: JSON.t, devThemeFeature) => {
       open LogicUtils
       open HyperSwitchConfigTypes
       try {
         let dict = configData->getDictFromJsonObject->getDictfromDict("endpoints")
         let urlvalues = {
-          if !themeFeature {
+          if !devThemeFeature {
             let val = {
               faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
               logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
@@ -69,8 +69,8 @@ module HyperSwitchEntryComponent = {
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
-        let themeFeature = featureFlags.themeFeature
-        let themeJson = if !themeFeature {
+        let devThemeFeature = featureFlags.devThemeFeature
+        let themeJson = if !devThemeFeature {
           let dict = res->getDictFromJsonObject->getDictfromDict("theme")
           let defaultStyle = {
             "settings": {
@@ -87,13 +87,13 @@ module HyperSwitchEntryComponent = {
               },
             },
           }
-          let _ = configThemeURL(~configData={res}, ~themesData=JSON.Encode.null, themeFeature)
+          let _ = configThemeURL(~configData={res}, ~themesData=JSON.Encode.null, devThemeFeature)
           defaultStyle->Identity.genericTypeToJson
         } else {
           try {
             // make a API to fetch the theme
             //call configThemeURL with the response of themes api as themesData
-            // let _ = configThemeURL(~configData={res}, ~themesData=themesData, themeFeature)
+            // let _ = configThemeURL(~configData={res}, ~themesData=themesData, devThemeFeature)
             JSON.Encode.null
           } catch {
           | _ => JSON.Encode.null
