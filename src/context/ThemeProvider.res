@@ -6,23 +6,11 @@ type themeType = LightTheme
 
 type x = {theme: string}
 
-type customStyle = {
-  primaryColor: string,
-  primaryHover: string,
-  sidebar: string,
-}
-
 type customUIConfig = {
   globalUIConfig: UIConfig.t,
   theme: theme,
   themeSetter: theme => unit,
   configCustomDomainTheme: JSON.t => unit,
-}
-
-let defaultGlobalConfig: customStyle = {
-  primaryColor: "#006DF9",
-  primaryHover: "#005ED6",
-  sidebar: "#242F48",
 }
 
 let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
@@ -130,63 +118,66 @@ let make = (~children) => {
     let spacing = settings->getDictfromDict("spacing")
     let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("primary")
     let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
-    let {settings, _} = newDefaultConfig
+    let {settings: defaultSettings, _} = newDefaultConfig
     let value: HyperSwitchConfigTypes.customStylesTheme = {
       settings: {
         colors: {
-          primary: colorsConfig->getString("primary", settings.colors.primary),
-          secondary: colorsConfig->getString("secondary", settings.colors.secondary),
-          sidebar: colorsConfig->getString("sidebar", settings.colors.sidebar),
-          background: colorsConfig->getString("background", settings.colors.background),
+          primary: colorsConfig->getString("primary", defaultSettings.colors.primary),
+          secondary: colorsConfig->getString("secondary", defaultSettings.colors.secondary),
+          sidebar: colorsConfig->getString("sidebar", defaultSettings.colors.sidebar),
+          background: colorsConfig->getString("background", defaultSettings.colors.background),
         },
         typography: {
-          fontFamily: typography->getString("fontFamily", settings.typography.fontFamily),
-          fontSize: typography->getString("fontSize", settings.typography.fontSize),
+          fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
+          fontSize: typography->getString("fontSize", defaultSettings.typography.fontSize),
           headingFontSize: typography->getString(
             "headingFontSize",
-            settings.typography.headingFontSize,
+            defaultSettings.typography.headingFontSize,
           ),
-          textColor: typography->getString("textColor", settings.typography.textColor),
-          linkColor: typography->getString("linkColor", settings.typography.linkColor),
+          textColor: typography->getString("textColor", defaultSettings.typography.textColor),
+          linkColor: typography->getString("linkColor", defaultSettings.typography.linkColor),
           linkHoverColor: typography->getString(
             "linkHoverColor",
-            settings.typography.linkHoverColor,
+            defaultSettings.typography.linkHoverColor,
           ),
         },
         buttons: {
           primary: {
             backgroundColor: colorsBtnPrimary->getString(
               "backgroundColor",
-              settings.buttons.primary.backgroundColor,
+              defaultSettings.buttons.primary.backgroundColor,
             ),
-            textColor: colorsBtnPrimary->getString("textColor", settings.buttons.primary.textColor),
+            textColor: colorsBtnPrimary->getString(
+              "textColor",
+              defaultSettings.buttons.primary.textColor,
+            ),
             hoverBackgroundColor: colorsBtnPrimary->getString(
               "hoverBackgroundColor",
-              settings.buttons.primary.hoverBackgroundColor,
+              defaultSettings.buttons.primary.hoverBackgroundColor,
             ),
           },
           secondary: {
             backgroundColor: colorsBtnSecondary->getString(
               "backgroundColor",
-              settings.buttons.secondary.backgroundColor,
+              defaultSettings.buttons.secondary.backgroundColor,
             ),
             textColor: colorsBtnSecondary->getString(
               "textColor",
-              settings.buttons.secondary.textColor,
+              defaultSettings.buttons.secondary.textColor,
             ),
             hoverBackgroundColor: colorsBtnSecondary->getString(
               "hoverBackgroundColor",
-              settings.buttons.secondary.hoverBackgroundColor,
+              defaultSettings.buttons.secondary.hoverBackgroundColor,
             ),
           },
         },
         borders: {
-          defaultRadius: borders->getString("defaultRadius", settings.borders.defaultRadius),
-          borderColor: borders->getString("borderColor", settings.borders.borderColor),
+          defaultRadius: borders->getString("defaultRadius", defaultSettings.borders.defaultRadius),
+          borderColor: borders->getString("borderColor", defaultSettings.borders.borderColor),
         },
         spacing: {
-          padding: spacing->getString("padding", settings.spacing.padding),
-          margin: spacing->getString("margin", settings.spacing.margin),
+          padding: spacing->getString("padding", defaultSettings.spacing.padding),
+          margin: spacing->getString("margin", defaultSettings.spacing.margin),
         },
       },
       urls: {
