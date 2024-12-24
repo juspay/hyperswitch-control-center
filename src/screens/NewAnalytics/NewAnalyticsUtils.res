@@ -52,6 +52,9 @@ let fillMissingDataPoints = (
 }
 
 open NewAnalyticsTypes
+let globalFilter: array<filters> = [#currency]
+let globalExcludeValue = ["all_currencies"]
+
 let requestBody = (
   ~startTime: string,
   ~endTime: string,
@@ -447,4 +450,45 @@ let tooltipFormatter = (
     </div>`
     }
   )->asTooltipPointFormatter
+}
+
+let generateFilterObject = (~globalFilters, ~localFilters=None) => {
+  let filters = Dict.make()
+
+  let globalFiltersList = globalFilter->Array.map(filter => {
+    (filter: filters :> string)
+  })
+
+  let parseStringValue = string => {
+    string
+    ->JSON.Decode.string
+    ->Option.getOr("")
+    ->String.split(",")
+    ->Array.filter(value => {
+      !(globalExcludeValue->Array.includes(value))
+    })
+    ->Array.map(JSON.Encode.string)
+  }
+
+  globalFilters
+  ->Dict.toArray
+  ->Array.forEach(item => {
+    let (key, value) = item
+    if globalFiltersList->Array.includes(key) && value->parseStringValue->Array.length > 0 {
+      filters->Dict.set(key, value->parseStringValue->JSON.Encode.array)
+    }
+  })
+
+  switch localFilters {
+  | Some(arr) =>
+    arr
+    ->Dict.toArray
+    ->Array.forEach(item => {
+      let (key, value) = item
+      filters->Dict.set(key, value)
+    })
+  | None => ()
+  }
+
+  filters->JSON.Encode.object
 }
