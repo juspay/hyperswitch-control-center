@@ -26,11 +26,13 @@ let make = () => {
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let loader = LottieFiles.useLottieJson("loader-circle.json")
-  let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {globalSearch, globalSearchFilters} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let inputRef = React.useRef(Nullable.null)
+  let filtersEnabled = globalSearchFilters
 
   let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect")
@@ -110,7 +112,11 @@ let make = () => {
   React.useEffect(_ => {
     let results = []
 
-    if searchText->isNonEmptyString && searchText->getSearchValidation {
+    if (
+      searchText->isNonEmptyString &&
+      searchText->getSearchValidation &&
+      !(searchText->validateQuery)
+    ) {
       setState(_ => Loading)
       let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 
@@ -272,18 +278,21 @@ let make = () => {
               onSuggestionClicked
               viewType
               prefix
+              filtersEnabled
             />
           | FiltersSugsestions =>
-            <FilterResultsComponent
-              categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-              activeFilter
-              searchText
-              setAllFilters
-              selectedFilter
-              onFilterClicked
-              onSuggestionClicked
-              setSelectedFilter
-            />
+            <RenderIf condition={filtersEnabled}>
+              <FilterResultsComponent
+                categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+                activeFilter
+                searchText
+                setAllFilters
+                selectedFilter
+                onFilterClicked
+                onSuggestionClicked
+                setSelectedFilter
+              />
+            </RenderIf>
           }}
         </div>
       </ModalWrapper>

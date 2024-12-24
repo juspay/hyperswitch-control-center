@@ -479,7 +479,7 @@ let generateQuery = searchQuery => {
     } else if !(query->CommonAuthUtils.isValidEmail) {
       let filter = `${Customer_Email->getcategoryFromVariant}:${query}`
       filters->Array.push(filter)
-    } else {
+    } else if queryText.contents->isEmptyString {
       queryText := query
     }
   })

@@ -430,19 +430,22 @@ module SearchResultsComponent = {
     ~onSuggestionClicked,
     ~viewType,
     ~prefix,
+    ~filtersEnabled,
   ) => {
     <div className={"w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm "}>
-      <FilterResultsComponent
-        categorySuggestions
-        activeFilter
-        searchText
-        setAllFilters
-        selectedFilter
-        onFilterClicked
-        onSuggestionClicked
-        setSelectedFilter
-        viewType
-      />
+      <RenderIf condition={filtersEnabled}>
+        <FilterResultsComponent
+          categorySuggestions
+          activeFilter
+          searchText
+          setAllFilters
+          selectedFilter
+          onFilterClicked
+          onSuggestionClicked
+          setSelectedFilter
+          viewType
+        />
+      </RenderIf>
       {switch viewType {
       | Load =>
         <div className="mb-24">
@@ -681,13 +684,17 @@ module ModalSearchBox = {
     let validateForm = _ => {
       let errors = Dict.make()
       let lastChar = localSearchText->getEndChar
-      if lastChar == " " && localSearchText->GlobalSearchBarUtils.validateQuery {
-        setErrorMessage(_ => "Multiple free-text terms found")
-      } else if !(localSearchText->GlobalSearchBarUtils.validateQuery) {
+      if lastChar == " " && localSearchText->validateQuery {
+        setErrorMessage(_ =>
+          "Only one free-text search is allowed and additional text will be ignored. Please combine additional terms using filters."
+        )
+      } else if !(localSearchText->validateQuery) {
         setErrorMessage(_ => "")
       }
       errors->JSON.Encode.object
     }
+
+    let textColor = errorMessage->isNonEmptyString ? "text-red-900" : "text-jp-gray-900"
 
     <Form
       key="global-search"
@@ -709,7 +716,7 @@ module ModalSearchBox = {
                       autoComplete="off"
                       autoFocus=true
                       placeholder="Search"
-                      className="w-full pr-2 pl-2 text-jp-gray-900 text-opacity-75 focus:text-opacity-100  placeholder-jp-gray-900  focus:outline-none rounded  h-10 text-lg font-normal  placeholder-opacity-50 "
+                      className={`w-full pr-2 pl-2 ${textColor} text-opacity-75 focus:text-opacity-100  placeholder-jp-gray-900  focus:outline-none rounded  h-10 text-lg font-normal  placeholder-opacity-50 `}
                       name={input.name}
                       label="No"
                       value=localSearchText
@@ -729,7 +736,7 @@ module ModalSearchBox = {
                   </div>
                 </div>
                 <RenderIf condition={errorMessage->isNonEmptyString}>
-                  <div className="text-sm text-orange-500 ml-12 pl-2">
+                  <div className="text-sm text-red-900 ml-12 pl-2">
                     {errorMessage->React.string}
                   </div>
                 </RenderIf>
