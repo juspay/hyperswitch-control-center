@@ -98,6 +98,7 @@ module.exports = {
         "fs-20": "20px",
         "fs-24": "24px",
         "fs-28": "28px",
+        "fs-48": "48px",
       },
       colors: {
         primary: {
