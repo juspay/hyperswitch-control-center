@@ -4,7 +4,7 @@ let make = () => {
 
   let handleGetStarted = (): unit => {()}
 
-  <div className="flex flex-col w-full gap-8 items-center justify-center">
+  <div className="flex flex-col w-full gap-6 items-center justify-center">
     <PageHeading
       customHeadingStyle="gap-3 max-w-860 flex flex-col items-center"
       title="Effortless Realtime Payment Reconciliation"
@@ -20,6 +20,6 @@ let make = () => {
       buttonState=Normal
       customButtonStyle="rounded-md"
     />
-    <img alt="sdk" className="sm:w-10/12 -mt-7 w-full" src="/assets/reconLanding.svg" />
+    <img alt="reconLanding" className="sm:w-10/12 w-full" src="/assets/reconLanding.svg" />
   </div>
 }
