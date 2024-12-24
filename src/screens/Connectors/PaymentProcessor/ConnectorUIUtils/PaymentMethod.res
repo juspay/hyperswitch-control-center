@@ -98,7 +98,6 @@ module CardRenderer = {
         {
           switch connector->getConnectorNameTypeFromString {
           | Processors(TRUSTPAY)
-          | Processors(AIRWALLEX)
           | Processors(STRIPE_TEST) => false
           | _ => true
           }
@@ -303,7 +302,7 @@ module CardRenderer = {
           (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)}>
           <Modal
             modalHeading
-            headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
+            headerTextClass={`${textColor.primaryNormal} font-bold text-xs`}
             headBgClass="sticky top-0 z-30 bg-white"
             showModal={showWalletConfigurationModal}
             setShowModal={setShowWalletConfigurationModal}
