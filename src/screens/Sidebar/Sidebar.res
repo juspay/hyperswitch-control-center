@@ -450,7 +450,6 @@ let make = (
   ~verticalOffset="120px",
   ~productSiebars: array<topLevelItem>,
 ) => {
-  Js.log(productSiebars)
   open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ThemeProvider.themeContext,

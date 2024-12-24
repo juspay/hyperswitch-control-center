@@ -1,5 +1,13 @@
 open SidebarTypes
 
+let reconOnBoarding = {
+  SubLevelLink({
+    name: "Home",
+    link: `v2/recon/onboarding`,
+    access: Access,
+    searchOptions: [("Recon onboarding", "")],
+  })
+}
 let reconHome = {
   SubLevelLink({
     name: "Home",
@@ -18,7 +26,7 @@ let reconAnalytics = {
 }
 
 let recon = () => {
-  let links = [reconHome, reconAnalytics]
+  let links = [reconOnBoarding, reconHome, reconAnalytics]
   Section({
     name: "Recon And Settlement",
     icon: "v2/recon",
