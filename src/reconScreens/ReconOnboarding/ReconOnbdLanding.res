@@ -2,16 +2,14 @@
 let make = () => {
   open PageUtils
 
-  let handleGetStarted = (): unit => {
-    Js.log("Get Started")
-  }
+  let handleGetStarted = (): unit => {()}
 
   <div className="flex flex-col w-full gap-8 items-center justify-center">
     <PageHeading
-      customHeadingStyle="gap-3 max-w-[860px] flex flex-col items-center"
+      customHeadingStyle="gap-3 max-w-860 flex flex-col items-center"
       title="Effortless Realtime Payment Reconciliation"
-      customTitleStyle="text-fs-48 leading-[60px] text-center max-w-[600px] font-bold"
-      customSubTitleStyle="text-fs-16 text-center max-w-[700px]"
+      customTitleStyle="text-fs-48 leading-60 text-center max-w-600 font-bold"
+      customSubTitleStyle="text-fs-16 text-center max-w-700"
       subTitle="Effortlessly Track, Match, and Reconcile Transactions with Ease. Gain Real-Time Accuracy and Unmatched Confidence in Financial Operations"
     />
     <Button

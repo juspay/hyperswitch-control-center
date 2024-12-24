@@ -72,6 +72,12 @@ module.exports = {
       },
       maxWidth: {
         fixedPageWidth: "82.75rem",
+        860: "860px",
+        600: "600px",
+        700: "700px",
+      },
+      lineHeight: {
+        60: "60px",
       },
 
       boxShadow: {
