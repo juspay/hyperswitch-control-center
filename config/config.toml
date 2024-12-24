@@ -52,6 +52,7 @@ tax_processor=true
 x_feature_route=false
 tenant_user=false
 dev_click_to_pay=false
+dev_recon_v2_product=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
