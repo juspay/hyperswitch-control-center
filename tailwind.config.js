@@ -102,13 +102,6 @@ module.exports = {
         "fs-28": "28px",
       },
       colors: {
-        //older tailwind config
-        // primary: {
-        //   DEFAULT: withOpacity("--color-primary"), // Default primary color
-        //   hover: withOpacity("--color-hover"),
-        //   sidebar: withOpacity("--color-sidebar"),
-        //   custom: "#006DF9", // Custom primary color
-        // },
         primary: {
           DEFAULT: withOpacity("--colors-primary"),
           custom: "#006DF9",
