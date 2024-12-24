@@ -155,7 +155,7 @@ let defaultUIConfig: t = {
   },
   font: {
     textColor: {
-      primaryNormal: "text-primary",
+      primaryNormal: "text-typography",
     },
   },
   shadow: {
@@ -166,8 +166,8 @@ let defaultUIConfig: t = {
   },
   border: {
     borderColor: {
-      primaryNormal: "border border-primary",
-      primaryFocused: "focus:border-primary",
+      primaryNormal: "border border-outline",
+      primaryFocused: "focus:border-outline",
     },
   },
   primaryColor: "primary",

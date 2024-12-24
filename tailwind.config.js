@@ -117,7 +117,7 @@ module.exports = {
         background: {
           DEFAULT: withOpacity("--colors-background"),
         },
-        text: {
+        typography: {
           DEFAULT: withOpacity("--base-text-color"),
           link: withOpacity("--base-link-color"),
           link_hover: withOpacity("--base-link-hover-color"),
@@ -134,7 +134,7 @@ module.exports = {
             hoverbg: withOpacity("--btn-secondary-hover-background-color"),
           },
         },
-        border: withOpacity("--borders-border-color"),
+        outline: withOpacity("--borders-border-color"),
         blue: {
           100: "#F1F2F4",
           200: "#DAECFF",

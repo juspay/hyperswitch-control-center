@@ -37,7 +37,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
       fontFamily: "Roboto, sans-serif",
       fontSize: "14px",
       headingFontSize: "24px",
-      textColor: "#2c3e50",
+      textColor: "#006DF9",
       linkColor: "#3498db",
       linkHoverColor: "#005ED6",
     },
@@ -55,7 +55,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     },
     borders: {
       defaultRadius: "4px",
-      borderColor: "#dcdde1",
+      borderColor: "#006DF9",
     },
     spacing: {
       padding: "16px",
