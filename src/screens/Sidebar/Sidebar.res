@@ -448,6 +448,7 @@ let make = (
   ~path,
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",
+  ~productSiebars: array<topLevelItem>,
 ) => {
   open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
@@ -523,7 +524,7 @@ let make = (
   `
 
   <div
-    className={`${backgroundColor.primaryNormal} flex group border-r border-jp-gray-500 relative`}>
+    className={`${backgroundColor.sidebarNormal} flex group border-r border-jp-gray-500 relative`}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
       className={`flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
@@ -533,7 +534,7 @@ let make = (
       className={`absolute z-40 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
-        className={`${backgroundColor.primaryNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
+        className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
         style={width: sidebarWidth}>
         <RenderIf condition={isMobileView}>
           <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
@@ -553,51 +554,75 @@ let make = (
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
           style={height: `calc(100vh - ${verticalOffset})`}>
           <style> {React.string(sidebarScrollbarCss)} </style>
-          {sidebars
-          ->Array.mapWithIndex((tabInfo, index) => {
-            switch tabInfo {
-            | RemoteLink(record)
-            | Link(record) => {
-                let isSelected = linkSelectionCheck(firstPart, record.link)
-                <SidebarItem
-                  key={Int.toString(index)} tabInfo isSelected isSidebarExpanded setOpenItem
-                />
-              }
+          <div>
+            {sidebars
+            ->Array.mapWithIndex((tabInfo, index) => {
+              switch tabInfo {
+              | RemoteLink(record)
+              | Link(record) => {
+                  let isSelected = linkSelectionCheck(firstPart, record.link)
+                  <SidebarItem
+                    key={Int.toString(index)} tabInfo isSelected isSidebarExpanded setOpenItem
+                  />
+                }
 
-            | LinkWithTag(record) => {
-                let isSelected = linkSelectionCheck(firstPart, record.link)
-                <SidebarItem key={Int.toString(index)} tabInfo isSelected isSidebarExpanded />
-              }
+              | LinkWithTag(record) => {
+                  let isSelected = linkSelectionCheck(firstPart, record.link)
+                  <SidebarItem key={Int.toString(index)} tabInfo isSelected isSidebarExpanded />
+                }
 
-            | Section(section) =>
-              <RenderIf condition={section.showSection} key={Int.toString(index)}>
-                <SidebarNestedSection
+              | Section(section) =>
+                <RenderIf condition={section.showSection} key={Int.toString(index)}>
+                  <SidebarNestedSection
+                    key={Int.toString(index)}
+                    section
+                    linkSelectionCheck
+                    firstPart
+                    isSideBarExpanded={isSidebarExpanded}
+                    openItem
+                    setOpenItem
+                    isSectionAutoCollapseEnabled=true
+                  />
+                </RenderIf>
+              | Heading(headingOptions) =>
+                <div
                   key={Int.toString(index)}
-                  section
-                  linkSelectionCheck
-                  firstPart
-                  isSideBarExpanded={isSidebarExpanded}
-                  openItem
-                  setOpenItem
-                  isSectionAutoCollapseEnabled=true
-                />
-              </RenderIf>
-            | Heading(headingOptions) =>
-              <div
-                key={Int.toString(index)}
-                className={`text-xs font-semibold leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isSidebarExpanded
-                    ? "mx-2"
-                    : "mx-1"} mt-5 mb-3`}>
-                {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
-              </div>
+                  className={`text-xs font-semibold leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isSidebarExpanded
+                      ? "mx-2"
+                      : "mx-1"} mt-5 mb-3`}>
+                  {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
+                </div>
 
-            | CustomComponent(customComponentOptions) =>
-              <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
-                customComponentOptions.component
-              </RenderIf>
-            }
-          })
-          ->React.array}
+              | CustomComponent(customComponentOptions) =>
+                <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
+                  customComponentOptions.component
+                </RenderIf>
+              }
+            })
+            ->React.array}
+          </div>
+          <div className="border-t border-blue-840 mt-5">
+            {productSiebars
+            ->Array.mapWithIndex((tabInfo, index) => {
+              switch tabInfo {
+              | Section(section) =>
+                <RenderIf condition={section.showSection} key={Int.toString(index)}>
+                  <SidebarNestedSection
+                    key={Int.toString(index)}
+                    section
+                    linkSelectionCheck
+                    firstPart
+                    isSideBarExpanded={isSidebarExpanded}
+                    openItem
+                    setOpenItem
+                    isSectionAutoCollapseEnabled=true
+                  />
+                </RenderIf>
+              | _ => React.null
+              }
+            })
+            ->React.array}
+          </div>
         </div>
         <div className="flex items-center justify-between mb-5 mt-2 mx-2 mr-2 hover:bg-[#334264]">
           <RenderIf condition={isSidebarExpanded}>

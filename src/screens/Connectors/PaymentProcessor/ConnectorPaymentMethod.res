@@ -1,12 +1,5 @@
 @react.component
-let make = (
-  ~setCurrentStep,
-  ~connector,
-  ~setInitialValues,
-  ~initialValues,
-  ~isUpdateFlow,
-  ~isPayoutFlow,
-) => {
+let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isUpdateFlow) => {
   open ConnectorUtils
   open APIUtils
   open PageLoaderWrapper
@@ -31,15 +24,15 @@ let make = (
   let setPaymentMethodDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let _ =
-        initialValues->getConnectorPaymentMethodDetails(
-          setPaymentMethods,
-          setMetaData,
-          isUpdateFlow,
-          isPayoutFlow,
-          connector,
-          updateDetails,
-        )
+      let _ = getConnectorPaymentMethodDetails(
+        ~initialValues,
+        ~setPaymentMethods,
+        ~setMetaData,
+        ~isUpdateFlow,
+        ~isPayoutFlow=false,
+        ~connector,
+        ~updateDetails,
+      )
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) => {
@@ -129,7 +122,7 @@ let make = (
               paymentMethodsEnabled
               updateDetails
               setMetaData
-              isPayoutFlow
+              isPayoutFlow=false
               initialValues
               setInitialValues
             />

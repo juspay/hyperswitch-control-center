@@ -11,7 +11,7 @@ let make = (~setSelectedAuthId) => {
   let {fetchAuthMethods} = AuthModuleHooks.useAuthMethods()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (logoVariant, iconUrl) = switch Window.env.logoUrl {
+  let (logoVariant, iconUrl) = switch Window.env.urlThemeConfig.logoUrl {
   | Some(url) => (IconWithURL, Some(url))
   | _ => (IconWithText, None)
   }
