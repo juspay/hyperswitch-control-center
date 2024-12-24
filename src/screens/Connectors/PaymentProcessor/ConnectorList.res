@@ -22,6 +22,7 @@ let make = () => {
       let connectorsList =
         connectorListFromRecoil->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
       connectorsList->Array.reverse
+      ConnectorUtils.sortByDisableField(connectorsList, connectorPayload => connectorPayload.disabled)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>

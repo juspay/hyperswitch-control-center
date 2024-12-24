@@ -1794,3 +1794,12 @@ let updateMetaData = (~metaData) => {
   | false => ()
   }
 }
+
+let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
+  arr->Array.sort((a, b) =>
+    LogicUtils.numericArraySortComperator(
+      getDisabledStatus(a) ? 1.0 : 0.0,
+      getDisabledStatus(b) ? 1.0 : 0.0,
+    )
+  )
+}
