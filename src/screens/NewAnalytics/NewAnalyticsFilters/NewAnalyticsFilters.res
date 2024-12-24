@@ -7,14 +7,9 @@ open NewAnalyticsTypes
 
 module RefundsFilter = {
   @react.component
-  let make = (
-    ~startTimeVal,
-    ~endTimeVal,
-    ~dimensions,
-    ~loadFilters,
-    ~screenState,
-    ~updateFilterContext,
-  ) => {
+  let make = (~filterValueJson, ~dimensions, ~loadFilters, ~screenState, ~updateFilterContext) => {
+    let startTimeVal = filterValueJson->getString("startTime", "")
+    let endTimeVal = filterValueJson->getString("endTime", "")
     let (currencOptions, setCurrencOptions) = React.useState(_ => [])
     let (selectedCurrency, setSelectedCurrency) = React.useState(_ => defaultCurrency)
 
@@ -59,14 +54,9 @@ module RefundsFilter = {
 
 module PaymentsFilter = {
   @react.component
-  let make = (
-    ~startTimeVal,
-    ~endTimeVal,
-    ~dimensions,
-    ~loadFilters,
-    ~screenState,
-    ~updateFilterContext,
-  ) => {
+  let make = (~filterValueJson, ~dimensions, ~loadFilters, ~screenState, ~updateFilterContext) => {
+    let startTimeVal = filterValueJson->getString("startTime", "")
+    let endTimeVal = filterValueJson->getString("endTime", "")
     let (currencOptions, setCurrencOptions) = React.useState(_ => [])
     let (selectedCurrency, setSelectedCurrency) = React.useState(_ => defaultCurrency)
 
@@ -172,11 +162,9 @@ let make = (~entityName, ~domain) => {
 
   switch domain {
   | #payments =>
-    <PaymentsFilter
-      dimensions loadFilters screenState updateFilterContext startTimeVal endTimeVal
-    />
+    <PaymentsFilter dimensions loadFilters screenState updateFilterContext filterValueJson />
   | #refunds =>
-    <RefundsFilter dimensions loadFilters screenState updateFilterContext startTimeVal endTimeVal />
+    <RefundsFilter dimensions loadFilters screenState updateFilterContext filterValueJson />
   | _ => React.null
   }
 }
