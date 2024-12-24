@@ -41,7 +41,7 @@ let make = () => {
 
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
-  let recondSidebars = HSReconSidebarValues.useGetReconSideBar()
+  let reconSidebars = HSReconSidebarValues.useGetReconSideBar()
   sessionExpired := false
 
   let setUpDashboard = async () => {
@@ -106,7 +106,7 @@ let make = () => {
                   path={url.path}
                   sidebars={hyperSwitchAppSidebars}
                   key={(screenState :> string)}
-                  productSiebars={recondSidebars}
+                  productSiebars={reconSidebars}
                 />
               </RenderIf>
               <PageLoaderWrapper
