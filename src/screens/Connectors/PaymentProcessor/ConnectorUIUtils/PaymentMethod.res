@@ -98,7 +98,6 @@ module CardRenderer = {
         {
           switch connector->getConnectorNameTypeFromString {
           | Processors(TRUSTPAY)
-          | Processors(AIRWALLEX)
           | Processors(STRIPE_TEST) => false
           | _ => true
           }
