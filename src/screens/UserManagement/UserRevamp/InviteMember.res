@@ -28,12 +28,12 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       // TODO : Change this condition when user org level user_invite is enabled
       initialvalue->Array.pushMany([
         ("merchant_value", merchantId->JSON.Encode.string),
-        ("profile_value", "all_profiles"->JSON.Encode.string),
+        ("profile_value", profileId->JSON.Encode.string),
       ])
     } else if userEntity == #Merchant {
       initialvalue->Array.pushMany([
         ("merchant_value", merchantId->JSON.Encode.string),
-        ("profile_value", "all_profiles"->JSON.Encode.string),
+        ("profile_value", profileId->JSON.Encode.string),
       ])
     } else if userEntity == #Profile {
       initialvalue->Array.pushMany([

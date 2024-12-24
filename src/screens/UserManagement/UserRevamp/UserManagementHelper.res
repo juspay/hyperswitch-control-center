@@ -67,12 +67,13 @@ module MerchantSelection = {
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
-        setShowSwitchingMerchant(_ => true)
         let selectedMerchantValue = event->Identity.formReactEventToString
         if selectedMerchantValue->stringToVariantForAllSelection->Option.isNone {
+          setShowSwitchingMerchant(_ => true)
           let _ = await internalSwitch(~expectedMerchantId=Some(selectedMerchantValue))
+          setShowSwitchingMerchant(_ => false)
         }
-        setShowSwitchingMerchant(_ => false)
+
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -156,13 +157,14 @@ module ProfileSelection = {
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
-        setShowSwitchingProfile(_ => true)
         let selectedProfileValue = event->Identity.formReactEventToString
 
         if selectedProfileValue->stringToVariantForAllSelection->Option.isNone {
+          setShowSwitchingProfile(_ => true)
           let _ = await internalSwitch(~expectedProfileId=Some(selectedProfileValue))
+          setShowSwitchingProfile(_ => false)
         }
-        setShowSwitchingProfile(_ => true)
+
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
