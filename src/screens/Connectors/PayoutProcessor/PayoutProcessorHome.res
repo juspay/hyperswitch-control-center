@@ -52,6 +52,51 @@ module ConnectorCurrentStepIndicator = {
   }
 }
 
+module MenuOption = {
+  open HeadlessUI
+  @react.component
+  let make = (~disableConnector, ~isConnectorDisabled) => {
+    let showPopUp = PopUpState.useShowPopUp()
+    let openConfirmationPopUp = _ => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action?",
+        description: `You are about to ${isConnectorDisabled
+            ? "Enable"
+            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
+
+    let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
+
+    <Popover \"as"="div" className="relative inline-block text-left">
+      {_ => <>
+        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
+        <Popover.Panel className="absolute z-20 right-5 top-4">
+          {panelProps => {
+            <div
+              id="neglectTopbarTheme"
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              {<Navbar.MenuOption
+                text={connectorStatusAvailableToSwitch}
+                onClick={_ => {
+                  panelProps["close"]()
+                  openConfirmationPopUp()
+                }}
+              />}
+            </div>
+          }}
+        </Popover.Panel>
+      </>}
+    </Popover>
+  }
+}
+
 @react.component
 let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   open ConnectorTypes
@@ -59,25 +104,23 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   open APIUtils
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let updateDetails = useUpdateMethod()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
-  let profileIdFromUrl =
-    UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let updateDetails = useUpdateMethod()
+  let showToast = ToastState.useShowToast()
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
+  let connectorInfo =
+    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
-  | list{"connectors", "new"} => false
+  | list{"payoutconnectors", "new"} => false
   | _ => true
   }
-
-  let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
 
   let getConnectorDetails = async () => {
     try {
@@ -93,54 +136,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
     }
   }
 
-  let profileID =
-    initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("profile_id")
-
-  let getPayPalStatus = React.useCallback(async () => {
-    open PayPalFlowUtils
-    open LogicUtils
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let profileId = switch profileID {
-      | Some(value) => value
-      | _ =>
-        switch profileIdFromUrl {
-        | Some(profileIdValue) => profileIdValue
-        | _ => Exn.raiseError("Profile Id not found!")
-        }
-      }
-
-      let paypalBody = generatePayPalBody(~connectorId={connectorID}, ~profileId=Some(profileId))
-      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post)
-      let responseValue = await updateDetails(url, paypalBody, Post)
-      let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
-
-      switch paypalDict->JSON.Classify.classify {
-      | String(str) => {
-          setSetupAccountStatus(_ => str->stringToVariantMapper)
-          setCurrentStep(_ => AutomaticFlow)
-        }
-      | Object(dict) =>
-        handleObjectResponse(
-          ~dict,
-          ~setInitialValues,
-          ~connector,
-          ~connectorType=Processor,
-          ~handleStateToNextPage=_ => setCurrentStep(_ => PaymentMethods),
-        )
-      | _ => ()
-      }
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      if err->String.includes("Profile") {
-        showToast(~message="Profile Id not found. Try Again", ~toastType=ToastError)
-      }
-      setScreenState(_ => PageLoaderWrapper.Custom)
-    }
-  }, (connector, profileID, profileIdFromUrl, connectorID))
-
   let commonPageState = () => {
     if isUpdateFlow {
       setCurrentStep(_ => Preview)
@@ -150,21 +145,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
     setScreenState(_ => Success)
   }
 
-  let determinePageState = () => {
-    switch (connectorTypeFromName, featureFlagDetails.paypalAutomaticFlow) {
-    | (Processors(PAYPAL), true) =>
-      PayPalFlowUtils.payPalPageState(
-        ~setScreenState,
-        ~url,
-        ~setSetupAccountStatus,
-        ~getPayPalStatus,
-        ~setCurrentStep,
-        ~isUpdateFlow,
-      )->ignore
-    | (_, _) => commonPageState()
-    }
-  }
-
   let getDetails = async () => {
     try {
       setScreenState(_ => Loading)
@@ -172,7 +152,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       if isUpdateFlow {
         await getConnectorDetails()
       }
-      determinePageState()
+      commonPageState()
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) => {
@@ -181,6 +161,48 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       }
     | _ => setScreenState(_ => Error("Something went wrong"))
     }
+  }
+
+  let connectorStatusStyle = connectorStatus =>
+    switch connectorStatus {
+    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
+    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
+    }
+
+  let isConnectorDisabled = connectorInfo.disabled
+
+  let disableConnector = async isConnectorDisabled => {
+    try {
+      let connectorID = connectorInfo.merchant_connector_id
+      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
+        connectorInfo.connector_type,
+        isConnectorDisabled,
+      )
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))
+    } catch {
+    | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+    }
+  }
+
+  let summaryPageButton = switch currentStep {
+  | Preview =>
+    <div className="flex gap-6 items-center">
+      <div
+        className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
+        {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
+      </div>
+      <MenuOption disableConnector isConnectorDisabled />
+    </div>
+  | _ =>
+    <Button
+      text="Done"
+      buttonType=Primary
+      onClick={_ =>
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))}
+    />
   }
 
   React.useEffect(() => {
@@ -192,43 +214,30 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
     None
   }, [connector])
 
-  let customUiForPaypal =
-    <DefaultLandingPage
-      title="Oops, we hit a little bump on the road!"
-      customStyle={`py-16 !m-0 `}
-      overriddingStylesTitle="text-2xl font-semibold"
-      buttonText="Go back to processor"
-      overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
-      subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
-      onClickHandler={_ => {
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }}
-      isButton=true
-    />
-
-  <PageLoaderWrapper screenState customUI={customUiForPaypal}>
+  <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-10 overflow-scroll h-full w-full">
       <RenderIf condition={showBreadCrumb}>
         <BreadCrumbNavigation
           path=[
             connectorID === "new"
               ? {
-                  title: "Processor",
-                  link: "/connectors",
+                  title: "Payout Processor",
+                  link: "/payoutconnectors",
                   warning: `You have not yet completed configuring your ${connector->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
                 }
               : {
-                  title: "Processor",
-                  link: "/connectors",
+                  title: "Payout Processor",
+                  link: "/payoutconnectors",
                 },
           ]
-          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector}
+          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector(
+            ~connectorType=PayoutProcessor,
+          )}
           cursorStyle="cursor-pointer"
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr />
+        <ConnectorCurrentStepIndicator currentStep stepsArr=payoutStepsArr />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
@@ -239,31 +248,28 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {
-        | AutomaticFlow =>
-          switch connectorTypeFromName {
-          | Processors(PAYPAL) =>
-            <ConnectPayPal
-              connector isUpdateFlow setInitialValues initialValues setCurrentStep getPayPalStatus
-            />
-          | _ => React.null
-          }
+        | AutomaticFlow => React.null
         | IntegFields =>
-          <ConnectorAccountDetails setCurrentStep setInitialValues initialValues isUpdateFlow />
+          <PayoutProcessorAccountDetails
+            setCurrentStep setInitialValues initialValues isUpdateFlow
+          />
         | PaymentMethods =>
-          <ConnectorPaymentMethod
+          <PayoutProcessorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
         | SummaryAndTest
         | Preview =>
-          <ConnectorPreview
-            connectorInfo={initialValues}
-            currentStep
-            setCurrentStep
-            isUpdateFlow
-            setInitialValues
-            getPayPalStatus
-            getConnectorDetails={Some(getConnectorDetails)}
-          />
+          <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
+            connector connectorType={PayoutProcessor} headerButton={summaryPageButton}>
+            <ConnectorPreview.ConnectorSummaryGrid
+              connectorInfo={initialValues
+              ->LogicUtils.getDictFromJsonObject
+              ->ConnectorListMapper.getProcessorPayloadType}
+              connector
+              setCurrentStep
+              getConnectorDetails={Some(getConnectorDetails)}
+            />
+          </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
         }}
       </div>
     </div>

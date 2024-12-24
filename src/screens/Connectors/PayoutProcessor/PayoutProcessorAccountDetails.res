@@ -8,7 +8,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -18,11 +18,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString
-
-  let selectedConnector = React.useMemo(() => {
-    connectorTypeFromName->getConnectorInfo
-  }, [connector])
+  let connectorTypeFromName =
+    connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
 
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
@@ -32,7 +29,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = Window.getConnectorConfig(connector)
+        let dict = Window.getPayoutConnectorConfig(connector)
         setScreenState(_ => Success)
         dict
       } else {
@@ -65,25 +62,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
 
     // TODO: Refactor for generic case
     if !isUpdateFlow {
-      if (
-        switch connectorTypeFromName {
-        | Processors(PAYPAL) => true
-        | _ => false
-        } &&
-        featureFlagDetails.paypalAutomaticFlow
-      ) {
-        initialValuesToDict->Dict.set(
-          "connector_label",
-          initialValues
-          ->getDictFromJsonObject
-          ->getString("connector_label", "")
-          ->JSON.Encode.string,
-        )
-        initialValuesToDict->Dict.set(
-          "profile_id",
-          initialValuesToDict->getString("profile_id", "")->JSON.Encode.string,
-        )
-      } else if connector->isNonEmptyString {
+      if connector->isNonEmptyString {
         initialValuesToDict->Dict.set(
           "connector_label",
           `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
@@ -115,6 +94,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         ~connector,
         ~bodyType,
         ~isLiveMode={featureFlagDetails.isLiveMode},
+        ~connectorType=ConnectorTypes.PayoutProcessor,
       )
       setScreenState(_ => Loading)
       setCurrentStep(_ => PaymentMethods)
@@ -157,6 +137,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           ~connector,
           ~bodyType,
           ~isLiveMode={featureFlagDetails.isLiveMode},
+          ~connectorType=ConnectorTypes.PayoutProcessor,
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector))
@@ -172,7 +153,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           setShowVerifyModal(_ => true)
           setVerifyDone(_ => Failure)
         }
-
       | None => setScreenState(_ => Error("Failed to Fetch!"))
       }
     }
@@ -233,6 +213,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
       formClass="flex flex-col ">
       <ConnectorHeaderWrapper
         connector
+        connectorType={PayoutProcessor}
         headerButton={<AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
           <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
         </AddDataAttributes>}
@@ -244,10 +225,12 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         </div>
         <div className={`flex flex-col gap-2 p-2 md:px-10`}>
           <div className="grid grid-cols-2 flex-1">
-            <ConnectorConfigurationFields
-              connector={connectorTypeFromName}
+            <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
+              connector={connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)}
               connectorAccountFields
-              selectedConnector
+              selectedConnector={connector
+              ->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
+              ->getConnectorInfo}
               connectorMetaDataFields
               connectorWebHookDetails
               connectorLabelDetailField
