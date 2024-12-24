@@ -450,16 +450,11 @@ let make = (
   ~verticalOffset="120px",
   ~productSiebars: array<topLevelItem>,
 ) => {
+  Js.log(productSiebars)
   open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ThemeProvider.themeContext,
   )
-  // let t = productSiebars->Array.map(ele =>
-  //   switch ele {
-  //   | SubLevelLink(record) => record.link
-  //   | _ => ""
-  //   }
-  // )
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
@@ -607,7 +602,7 @@ let make = (
             })
             ->React.array}
           </div>
-          <div className="border-t mt-5">
+          <div className="border-t border-blue-840 mt-5">
             {productSiebars
             ->Array.mapWithIndex((tabInfo, index) => {
               switch tabInfo {

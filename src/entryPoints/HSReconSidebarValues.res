@@ -26,9 +26,12 @@ let recon = () => {
     links,
   })
 }
+let emptyComponent = CustomComponent({
+  component: React.null,
+})
 
 let useGetReconSideBar = () => {
-  let sidebar = [recon()]
-
+  let {devReconv2Product} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let sidebar = [devReconv2Product ? recon() : emptyComponent]
   sidebar
 }
