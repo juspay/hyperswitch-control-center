@@ -255,7 +255,7 @@ let filter = (connector_type, ~retainInList) => {
   switch retainInList {
   | PaymentConnector => connector_type === "payment_processor"
   | FRMPlayer => connector_type === "payment_vas"
-  | PayoutConnector => connector_type === "payout_processor"
+  | PayoutProcessor => connector_type === "payout_processor"
   | PMAuthenticationProcessor => connector_type === "payment_method_auth"
   | TaxProcessor => connector_type === "tax_processor"
   }
