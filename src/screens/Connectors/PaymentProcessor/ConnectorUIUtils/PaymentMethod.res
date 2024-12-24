@@ -302,7 +302,7 @@ module CardRenderer = {
           (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)}>
           <Modal
             modalHeading
-            headerTextClass={`${textColor.primaryNormal} font-bold text-xs`}
+            headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
             headBgClass="sticky top-0 z-30 bg-white"
             showModal={showWalletConfigurationModal}
             setShowModal={setShowWalletConfigurationModal}
