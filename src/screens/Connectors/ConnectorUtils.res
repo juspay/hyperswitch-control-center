@@ -434,7 +434,7 @@ let netceteraInfo = {
 }
 
 let clickToPayInfo = {
-  description: "to be decided",
+  description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
 }
 
 let unknownConnectorInfo = {
