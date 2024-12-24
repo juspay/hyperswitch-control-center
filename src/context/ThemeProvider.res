@@ -17,7 +17,6 @@ type customUIConfig = {
   theme: theme,
   themeSetter: theme => unit,
   configCustomDomainTheme: JSON.t => unit,
-  configCustomThemeDynamic: JSON.t => unit,
 }
 
 let defaultGlobalConfig: customStyle = {
@@ -30,7 +29,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
   settings: {
     colors: {
       primary: "#006DF9",
-      secondary: "#FFC0CB",
+      secondary: "#F7F7F7",
       sidebar: "#242F48",
       background: "#F7F8FB",
     },
@@ -44,7 +43,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     },
     buttons: {
       primary: {
-        backgroundColor: "#3498db",
+        backgroundColor: "#006DF9",
         textColor: "#006df9",
         hoverBackgroundColor: "#005ED6",
       },
@@ -74,7 +73,6 @@ let themeContext = {
   theme: Light,
   themeSetter: defaultSetter,
   configCustomDomainTheme: _ => (),
-  configCustomThemeDynamic: _ => (),
 }
 
 let themeContext = React.createContext(themeContext)
@@ -120,19 +118,8 @@ let make = (~children) => {
   | Dark => "dark"
   | Light => ""
   }
-  let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
-    open LogicUtils
-    let dict = uiConfg->getDictFromJsonObject->getDictfromDict("theme")
-    let {primaryColor, primaryHover, sidebar} = defaultGlobalConfig
-    let value: HyperSwitchConfigTypes.customStyle = {
-      primaryColor: dict->getString("primary_color", primaryColor),
-      primaryHover: dict->getString("primary_hover_color", primaryHover),
-      sidebar: dict->getString("sidebar_color", sidebar),
-    }
-    Window.appendStyle(value)
-  }, [])
 
-  let configCustomThemeDynamic = React.useCallback((uiConfg: JSON.t) => {
+  let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
     open LogicUtils
     let dict = uiConfg->getDictFromJsonObject
     let settings = dict->getDictfromDict("settings")
@@ -181,15 +168,15 @@ let make = (~children) => {
           secondary: {
             backgroundColor: colorsBtnSecondary->getString(
               "backgroundColor",
-              settings.buttons.primary.backgroundColor,
+              settings.buttons.secondary.backgroundColor,
             ),
             textColor: colorsBtnSecondary->getString(
               "textColor",
-              settings.buttons.primary.textColor,
+              settings.buttons.secondary.textColor,
             ),
             hoverBackgroundColor: colorsBtnSecondary->getString(
               "hoverBackgroundColor",
-              settings.buttons.primary.hoverBackgroundColor,
+              settings.buttons.secondary.hoverBackgroundColor,
             ),
           },
         },
@@ -216,7 +203,6 @@ let make = (~children) => {
       theme,
       themeSetter: setTheme,
       configCustomDomainTheme,
-      configCustomThemeDynamic,
     }
   }, (theme, setTheme))
 

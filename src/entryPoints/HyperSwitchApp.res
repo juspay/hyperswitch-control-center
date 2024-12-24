@@ -124,7 +124,7 @@ let make = () => {
                             </div>
                           </div>
                         </div>}
-                        headerLeftActions={switch Window.env.logoUrl {
+                        headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
                         | Some(url) =>
                           <>
                             <img className="w-40" alt="image" src={`${url}`} />

@@ -1,14 +1,17 @@
+type urlThemeConfig = {
+  faviconUrl: option<string>,
+  logoUrl: option<string>,
+}
 type urlConfig = {
   apiBaseUrl: string,
   mixpanelToken: string,
-  faviconUrl: option<string>,
-  logoUrl: option<string>,
   sdkBaseUrl: option<string>,
   agreementUrl: option<string>,
   agreementVersion: option<string>,
   applePayCertificateUrl: option<string>,
   reconIframeUrl: option<string>,
   dssCertificateUrl: option<string>,
+  urlThemeConfig: urlThemeConfig,
 }
 
 type customStyle = {
@@ -49,11 +52,6 @@ type borderConfig = {
 type spacingConfig = {
   padding: string,
   margin: string,
-}
-
-type urlThemeConfig = {
-  faviconUrl: option<string>,
-  logoUrl: option<string>,
 }
 
 type buttonConfig = {

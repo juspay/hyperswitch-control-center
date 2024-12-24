@@ -6,10 +6,7 @@ module HyperSwitchEntryComponent = {
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    //Remove configCustomDomainTheme in future
-    let {configCustomDomainTheme, configCustomThemeDynamic} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
@@ -23,16 +20,30 @@ module HyperSwitchEntryComponent = {
       }
     }
 
-    let configURL = (urlConfig: JSON.t) => {
+    let configThemeURL = (~configData: JSON.t, ~themesData: JSON.t, themeFeature) => {
       open LogicUtils
       open HyperSwitchConfigTypes
       try {
-        let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
+        let dict = configData->getDictFromJsonObject->getDictfromDict("endpoints")
+        let urlvalues = {
+          if !themeFeature {
+            let val = {
+              faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
+              logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
+            }
+            val
+          } else {
+            let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
+            let val = {
+              faviconUrl: urlsDict->getString("faviconUrl", "")->getNonEmptyString,
+              logoUrl: urlsDict->getString("logoUrl", "")->getNonEmptyString,
+            }
+            val
+          }
+        }
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanel_token", ""),
-          faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
-          logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
           agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
           dssCertificateUrl: dict->getString("dss_certificate_url", "")->getNonEmptyString,
@@ -41,56 +52,15 @@ module HyperSwitchEntryComponent = {
           ->getNonEmptyString,
           agreementVersion: dict->getString("agreement_version", "")->getNonEmptyString,
           reconIframeUrl: dict->getString("recon_iframe_url", "")->getNonEmptyString,
+          urlThemeConfig: urlvalues,
         }
         DOMUtils.window._env_ = value
-        configureFavIcon(value.faviconUrl)->ignore
+        configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
       } catch {
       | _ => Exn.raiseError("Error on configuring endpoint")
       }
     }
-    // Need to modify based on the usecase and will recieve this dynamically
-    let themeJson = {
-      "settings": {
-        "colors": {
-          "primary": "#ff0000",
-          "secondary": "#FFFFFF",
-          "sidebar": "#242F48",
-          "background": "#F7F8FB",
-        },
-        "typography": {
-          "fontFamily": "Roboto, sans-serif",
-          "fontSize": "14px",
-          "headingFontSize": "24px",
-          "textColor": "#2c3e50",
-          "linkColor": "#3498db",
-          "linkHoverColor": "#005ED6",
-        },
-        "buttons": {
-          "primary": {
-            "backgroundColor": "#ff0000",
-            "textColor": "#006df9",
-            "hoverBackgroundColor": "#ff0000",
-          },
-          "secondary": {
-            "backgroundColor": "#F7F7F7",
-            "textColor": "#202124",
-            "hoverBackgroundColor": "#EEEEEE",
-          },
-        },
-        "borders": {
-          "defaultRadius": "4px",
-          "borderColor": "#dcdde1",
-        },
-        "spacing": {
-          "padding": "16px",
-          "margin": "16px",
-        },
-      },
-      "urls": {
-        "faviconUrl": "",
-        "logoUrl": "",
-      },
-    }->Identity.genericTypeToJson
+
     let fetchConfig = async () => {
       try {
         open LogicUtils
@@ -99,14 +69,14 @@ module HyperSwitchEntryComponent = {
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
-        let themeFeature = true
-        let themeJson = if themeFeature {
+        let themeFeature = featureFlags.themeFeature
+        let themeJson = if !themeFeature {
           let dict = res->getDictFromJsonObject->getDictfromDict("theme")
           let defaultStyle = {
             "settings": {
               "colors": {
                 "primary": dict->getString("primary_color", ""),
-                "sidebar": dict->getString("sidebar", ""),
+                "sidebar": dict->getString("sidebar_color", ""),
               },
               "buttons": {
                 "primary": {
@@ -117,18 +87,20 @@ module HyperSwitchEntryComponent = {
               },
             },
           }
+          let _ = configThemeURL(~configData={res}, ~themesData=JSON.Encode.null, themeFeature)
           defaultStyle->Identity.genericTypeToJson
         } else {
           try {
             // make a API to fetch the theme
+            //call configThemeURL with the response of themes api as themesData
+            // let _ = configThemeURL(~configData={res}, ~themesData=themesData, themeFeature)
             JSON.Encode.null
           } catch {
           | _ => JSON.Encode.null
           }
         }
-        Js.log(themeJson)
-        let _ = themeJson->configCustomThemeDynamic
-        let _ = res->configURL
+        let _ = themeJson->configCustomDomainTheme
+
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)
