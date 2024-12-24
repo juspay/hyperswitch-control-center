@@ -117,7 +117,7 @@ let make = () => {
         let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
         setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
         setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
-        ConnectorUtils.sortByDisableField(previousData, p => p.disabled)
+        ConnectorUtils.sortByDisableField(previousData, connectorPayload => connectorPayload.disabled)
         let arr: array<ConnectorTypes.connectorTypes> = frmList->Array.map(
           paymentMethod =>
             paymentMethod
