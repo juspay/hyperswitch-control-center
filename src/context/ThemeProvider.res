@@ -194,7 +194,7 @@ let make = (~children) => {
         logoUrl: url->getOptionString("logoUrl"),
       },
     }
-    Window.appendThemesStyle(value)
+    Window.appendStyle(value)
   }, [])
 
   let value = React.useMemo(() => {

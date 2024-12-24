@@ -225,30 +225,6 @@ const getRGBvalue = (hex) => {
   return `${r}, ${g}, ${b};`;
 };
 
-function appendStyle(customStyle) {
-  let { primaryColor, primaryHover, sidebar } = customStyle;
-  let cssVariables = `
-:root {
-  ${getRGBColor(primaryColor, "primary")}
-  ${getRGBColor(primaryHover, "hover")}
- ${getRGBColor(sidebar, "sidebar")}
-
-}
-`;
-  let style;
-
-  if (document.getElementById("custom-style")) {
-    style = document.getElementById("custom-style");
-  } else {
-    style = document.createElement("style");
-  }
-  // let style = document.createElement("style")
-  let text = document.createTextNode(cssVariables);
-  style.setAttribute("id", "custom-style");
-  style.appendChild(text);
-  document.head.appendChild(style);
-}
-
 const toSnakeCase = (str) => {
   return str
     .replace(/([A-Z])/g, "-$1")
@@ -281,7 +257,7 @@ const generateButtonVariables = (buttons) => {
   `;
 };
 
-function appendThemesStyle(themesConfig) {
+function appendStyle(themesConfig) {
   const settings = themesConfig.settings;
   let cssVariables = `:root{
   /* Colors */

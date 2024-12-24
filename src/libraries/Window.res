@@ -253,10 +253,7 @@ type boundingClient = {x: int, y: int, width: int, height: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
 @val @scope("window")
-external appendStyle: HyperSwitchConfigTypes.customStyle => unit = "appendStyle"
-
-@val @scope("window")
-external appendThemesStyle: 'a => unit = "appendThemesStyle"
+external appendStyle: HyperSwitchConfigTypes.customStylesTheme => unit = "appendStyle"
 
 @val @scope("window")
 external env: HyperSwitchConfigTypes.urlConfig = "_env_"

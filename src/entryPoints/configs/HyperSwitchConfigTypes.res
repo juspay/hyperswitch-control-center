@@ -14,12 +14,6 @@ type urlConfig = {
   urlThemeConfig: urlThemeConfig,
 }
 
-type customStyle = {
-  primaryColor: string,
-  primaryHover: string,
-  sidebar: string,
-}
-
 // themes struct type
 
 type colorPalette = {
