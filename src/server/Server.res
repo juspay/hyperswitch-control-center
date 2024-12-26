@@ -57,14 +57,12 @@ external execSync: (string, encodeType) => string = "execSync"
 let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
-  let arr = request.url.toString()->String.split("?")
-  let domain =
-    arr
-    ->Array.get(1)
-    ->Option.getOr("domain=default")
-    ->Js.String2.split("=")
-    ->Array.get(1)
-    ->Option.getOr("default")
+  let arr = request.url.toString()->String.split(".")
+
+  let domain = switch arr->Array.get(0)->Option.getOr("domain=default") {
+  | "app" => "default"
+  | value => value
+  }
 
   let path =
     arr
