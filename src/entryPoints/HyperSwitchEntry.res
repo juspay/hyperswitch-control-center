@@ -109,9 +109,17 @@ module HyperSwitchEntryComponent = {
       }
     }
 
+    let hostName = Window.Location.hostname
+    let domain = switch hostName->String.split(".")->Array.get(0)->Option.getOr("") {
+    | "app"
+    | "integ"
+    | "live" => "default"
+    | value => value
+    }
+
     React.useEffect(() => {
       let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
-      let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search)
+      let _ = HyperSwitchEntryUtils.setSessionDataFromHostname(~key="domain", ~domain)
 
       let _ = fetchConfig()->ignore
       None

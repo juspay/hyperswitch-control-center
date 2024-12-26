@@ -8,6 +8,11 @@ let setSessionData = (~key, ~searchParams) => {
   }
 }
 
+let setSessionDataFromHostname = (~key, ~domain) =>
+  if domain != "default" {
+    sessionStorage.setItem(key, domain)
+  }
+
 let getSessionData = (~key, ~defaultValue="") => {
   let result = sessionStorage.getItem(key)->Nullable.toOption->Option.getOr("")->getNonEmptyString
   switch result {
