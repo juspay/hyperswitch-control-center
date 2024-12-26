@@ -60,7 +60,9 @@ let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split(".")
 
   let domain = switch arr->Array.get(0)->Option.getOr("domain=default") {
-  | "app" => "default"
+  | "app"
+  | "integ"
+  | "live" => "default"
   | value => value
   }
 
