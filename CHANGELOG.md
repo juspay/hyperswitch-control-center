@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.25.0
+
+### Features
+
+- New Theme Structure and Custom Style Integration ([#1958](https://github.com/juspay/hyperswitch-control-center/pull/1958)) ([`e15d0a1`](https://github.com/juspay/hyperswitch-control-center/commit/e15d0a167372b1784c1706751af0e66b0a881299))
+- Recon Landing Page ([#1970](https://github.com/juspay/hyperswitch-control-center/pull/1970)) ([`9c1005b`](https://github.com/juspay/hyperswitch-control-center/commit/9c1005be2230804f94c321597a125190f08ef366))
+- Added 3ds connector for click to pay - mastercard ([#1974](https://github.com/juspay/hyperswitch-control-center/pull/1974)) ([`09f68c9`](https://github.com/juspay/hyperswitch-control-center/commit/09f68c92ba108c376c9a5665b48d610ec20dab08))
+
+### Bug Fixes
+
+- Move disabled connectors at bottom ([#1949](https://github.com/juspay/hyperswitch-control-center/pull/1949)) ([`c278fbd`](https://github.com/juspay/hyperswitch-control-center/commit/c278fbdf6a9689966963c950226fabccb0d2d559))
+
+### Refactors
+
+- Separated payout processors files ([#1953](https://github.com/juspay/hyperswitch-control-center/pull/1953)) ([`3baac29`](https://github.com/juspay/hyperswitch-control-center/commit/3baac29e94d3393b31a0865397dbe2a4df2067f9))
+
+### Miscellaneous Tasks
+
+- Setup recon product ([#1966](https://github.com/juspay/hyperswitch-control-center/pull/1966)) ([`31bac54`](https://github.com/juspay/hyperswitch-control-center/commit/31bac5427d0b3f38fd1e6f85cf559ee5faf9a56e))
+- Setup recon configuration ([#1972](https://github.com/juspay/hyperswitch-control-center/pull/1972)) ([`1bb4347`](https://github.com/juspay/hyperswitch-control-center/commit/1bb43476e5b24e64c0cf4058c85312b35969b9c7))
+
+**Full Changelog:** [`2024.12.24.0...2024.12.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.24.0...2024.12.25.0)
+
+- - -
+
 ## 2024.12.24.0
 
 ### Miscellaneous Tasks
