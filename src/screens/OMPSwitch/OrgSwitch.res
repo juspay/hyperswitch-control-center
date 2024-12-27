@@ -311,7 +311,7 @@ let make = () => {
         dropdownContainerStyle
         shouldDisplaySelectedOnTop=true
       />
-      <RenderIf condition={tenantUser && isTenantAdmin && orgList->Array.length > 20}>
+      <RenderIf condition={tenantUser && isTenantAdmin && orgList->Array.length >= 20}>
         <SwitchOrg setShowModal={setShowSwitchingOrg} />
       </RenderIf>
     </div>
