@@ -131,6 +131,22 @@ module ProfileSelection = {
     )
     let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
 
+    React.useEffect(() => {
+      switch userEntity {
+      | #Tenant
+      | #Organization
+      | #Merchant =>
+        form.change(
+          "profile_value",
+          (#All_Profiles: UserManagementTypes.allSelectionType :> string)
+          ->String.toLowerCase
+          ->JSON.Encode.string,
+        )
+      | #Profile => ()
+      }
+      None
+    }, [])
+
     let disableSelect = switch userEntity {
     | #Profile => true
     | #Tenant
