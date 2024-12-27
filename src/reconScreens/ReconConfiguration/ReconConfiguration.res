@@ -13,6 +13,5 @@ let make = () => {
       | ScheduleReconReports => <ScheduleReconReports setCurrentStep />
       }}
     </div>
-    
   </div>
 }

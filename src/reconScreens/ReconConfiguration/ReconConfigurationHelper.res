@@ -64,12 +64,12 @@ module Heading = {
     <div className="flex flex-col">
       <div className={`h-3/4 p-2 md:p-7 ${customHeadingStyle}`}>
         <div className={`${customTitleStyle}`}> {title->React.string} </div>
-        <div className={`opacity-50 mt-1 ${customSubTitleStyle}`}> {
-          switch subTitle {
+        <div className={`opacity-50 mt-1 ${customSubTitleStyle}`}>
+          {switch subTitle {
           | Some(subTitle) => subTitle->React.string
           | None => ""->React.string
-          }
-        } </div>
+          }}
+        </div>
       </div>
       <div className="border-b border-grey-outline" />
     </div>

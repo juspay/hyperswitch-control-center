@@ -8,7 +8,12 @@ let getStepName = step => {
   | ScheduleReconReports => "Schedule Recon Reports"
   }
 }
-let stepsArr: array<steps> = [ConnectOrderData, ConnectProcessorData, ConnectSettlementData, ScheduleReconReports]
+let stepsArr: array<steps> = [
+  ConnectOrderData,
+  ConnectProcessorData,
+  ConnectSettlementData,
+  ScheduleReconReports,
+]
 
 let getNextStep: steps => steps = step => {
   switch step {

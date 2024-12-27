@@ -1,9 +1,7 @@
 @react.component
 let make = (~setCurrentStep) => {
   <div>
-    <ReconConfigurationHelper.Heading
-      title="Schedule Recon Reports"
-    />
+    <ReconConfigurationHelper.Heading title="Schedule Recon Reports" />
     <div className="flex justify-end">
       <Button
         text="Back"

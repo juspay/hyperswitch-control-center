@@ -9,7 +9,12 @@ let getStepName = step => {
   }
 }
 
-let orderDataStepsArr: array<orderDataSteps> = [OrderManagementSystem, Hyperswitch, BigQuery, GoogleDrive]
+let orderDataStepsArr: array<orderDataSteps> = [
+  OrderManagementSystem,
+  Hyperswitch,
+  BigQuery,
+  GoogleDrive,
+]
 
 let getIconName = step => {
   switch step {
@@ -50,4 +55,3 @@ let getFlowTypeNameString = flowType => {
 }
 
 let connectOrderDataFlowOptions = flowTypeList->Array.map(getFlowTypeNameString)
-

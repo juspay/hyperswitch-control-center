@@ -1,9 +1,7 @@
 @react.component
 let make = (~setCurrentStep) => {
   <div>
-    <ReconConfigurationHelper.Heading
-      title="Connect processor data"
-    />
+    <ReconConfigurationHelper.Heading title="Connect processor data" />
     <div className="flex justify-end">
       <Button
         text="Back"

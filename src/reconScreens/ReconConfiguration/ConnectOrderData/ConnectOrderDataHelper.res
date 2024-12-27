@@ -2,9 +2,7 @@ module SFTPSetup = {
   @react.component
   let make = (~setCurrentStep) => {
     <div className="flex flex-col gap-y-5 mt-10">
-      <h3 className="font-semibold px-1.5">
-        {"Enter credentials for SFTP Setup"->React.string}
-      </h3>
+      <h3 className="font-semibold px-1.5"> {"Enter credentials for SFTP Setup"->React.string} </h3>
       <div className="flex justify-end">
         <Button
           text="Continue"
@@ -82,9 +80,7 @@ module ManualUpload = {
   @react.component
   let make = (~setCurrentStep) => {
     <div className="flex flex-col gap-y-5 mt-10">
-      <h3 className="font-semibold px-1.5">
-        {"Upload your file manually"->React.string}
-      </h3>
+      <h3 className="font-semibold px-1.5"> {"Upload your file manually"->React.string} </h3>
       <div className="flex justify-end">
         <Button
           text="Continue"
