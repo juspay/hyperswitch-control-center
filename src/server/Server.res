@@ -60,7 +60,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
   let header =
     request.headers
-    ->Dict.get(":authority")
+    ->Dict.get("authority")
     ->Option.getOr(request.headers->Dict.get("host")->Option.getOr(""))
 
   let domain = switch header
