@@ -76,7 +76,6 @@ module Heading = {
   }
 }
 
-// StepCard Component
 module StepCard = {
   @react.component
   let make = (~stepName, ~isSelected, ~onClick, ~iconName) => {
