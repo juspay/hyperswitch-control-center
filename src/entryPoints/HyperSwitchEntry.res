@@ -6,7 +6,9 @@ module HyperSwitchEntryComponent = {
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
+    let {configCustomDomainTheme, getThemesJson, updateThemeURLs} = React.useContext(
+      ThemeProvider.themeContext,
+    )
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
@@ -20,27 +22,14 @@ module HyperSwitchEntryComponent = {
       }
     }
 
-    let configThemeURL = (~configData: JSON.t, ~themesData: JSON.t, devThemeFeature) => {
+    let themesID =
+      url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("theme_id")->Option.getOr("")
+
+    let configEnv = (urlConfig: JSON.t) => {
       open LogicUtils
       open HyperSwitchConfigTypes
       try {
-        let dict = configData->getDictFromJsonObject->getDictfromDict("endpoints")
-        let urlvalues = {
-          if !devThemeFeature {
-            let val = {
-              faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
-              logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
-            }
-            val
-          } else {
-            let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
-            let val = {
-              faviconUrl: urlsDict->getString("faviconUrl", "")->getNonEmptyString,
-              logoUrl: urlsDict->getString("logoUrl", "")->getNonEmptyString,
-            }
-            val
-          }
-        }
+        let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanel_token", ""),
@@ -52,7 +41,10 @@ module HyperSwitchEntryComponent = {
           ->getNonEmptyString,
           agreementVersion: dict->getString("agreement_version", "")->getNonEmptyString,
           reconIframeUrl: dict->getString("recon_iframe_url", "")->getNonEmptyString,
-          urlThemeConfig: urlvalues,
+          urlThemeConfig: {
+            faviconUrl: dict->getString("faviconUrl", "")->getNonEmptyString,
+            logoUrl: dict->getString("logoUrl", "")->getNonEmptyString,
+          },
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
@@ -63,44 +55,16 @@ module HyperSwitchEntryComponent = {
 
     let fetchConfig = async () => {
       try {
-        open LogicUtils
         let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="default")
         let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
         let devThemeFeature = featureFlags.devThemeFeature
-        let themeJson = if !devThemeFeature {
-          let dict = res->getDictFromJsonObject->getDictfromDict("theme")
-          let defaultStyle = {
-            "settings": {
-              "colors": {
-                "primary": dict->getString("primary_color", ""),
-                "sidebar": dict->getString("sidebar_color", ""),
-              },
-              "buttons": {
-                "primary": {
-                  "backgroundColor": dict->getString("primary_color", ""),
-                  "textColor": dict->getString("primary_color", ""),
-                  "hoverBackgroundColor": dict->getString("primary_hover_color", ""),
-                },
-              },
-            },
-          }
-          let _ = configThemeURL(~configData={res}, ~themesData=JSON.Encode.null, devThemeFeature)
-          defaultStyle->Identity.genericTypeToJson
-        } else {
-          try {
-            // make a API to fetch the theme
-            //call configThemeURL with the response of themes api as themesData
-            // let _ = configThemeURL(~configData={res}, ~themesData=themesData, devThemeFeature)
-            JSON.Encode.null
-          } catch {
-          | _ => JSON.Encode.null
-          }
-        }
+        let _ = configEnv(res) // to set initial env
+        let themeJson = await getThemesJson(themesID, res, devThemeFeature)
+        let _ = updateThemeURLs(themeJson)
         let _ = themeJson->configCustomDomainTheme
-
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)

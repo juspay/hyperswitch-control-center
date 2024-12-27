@@ -11,6 +11,8 @@ type customUIConfig = {
   theme: theme,
   themeSetter: theme => unit,
   configCustomDomainTheme: JSON.t => unit,
+  getThemesJson: (string, JSON.t, bool) => promise<JSON.t>,
+  updateThemeURLs: JSON.t => option<string>,
 }
 
 let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
@@ -61,6 +63,8 @@ let themeContext = {
   theme: Light,
   themeSetter: defaultSetter,
   configCustomDomainTheme: _ => (),
+  getThemesJson: (_, _, _) => JSON.Encode.null->Promise.resolve,
+  updateThemeURLs: _ => Some(""),
 }
 
 let themeContext = React.createContext(themeContext)
@@ -76,6 +80,7 @@ let useTheme = () => {
 @react.component
 let make = (~children) => {
   let eventTheme = ThemeUtils.useThemeFromEvent()
+  let fetchApi = AuthHooks.useApiFetcher()
   let isCurrentlyDark = MatchMedia.useMatchMedia("(prefers-color-scheme: dark)")
 
   let initialTheme = Light
@@ -188,15 +193,100 @@ let make = (~children) => {
     Window.appendStyle(value)
   }, [])
 
+  let getThemesJson = async (themesID, configRes, devThemeFeature) => {
+    open LogicUtils
+    //will remove configRes once feature flag is removed.
+    try {
+      let themeJson = if !devThemeFeature {
+        let dict = configRes->getDictFromJsonObject->getDictfromDict("theme")
+        let {settings: defaultSettings, _} = newDefaultConfig
+        let defaultStyle = {
+          "settings": {
+            "colors": {
+              "primary": dict->getString("primary_color", defaultSettings.colors.primary),
+              "sidebar": dict->getString("sidebar_color", defaultSettings.colors.sidebar),
+            },
+            "buttons": {
+              "primary": {
+                "backgroundColor": dict->getString(
+                  "primary_color",
+                  defaultSettings.buttons.primary.backgroundColor,
+                ),
+                "textColor": dict->getString(
+                  "primary_color",
+                  defaultSettings.buttons.primary.textColor,
+                ),
+                "hoverBackgroundColor": dict->getString(
+                  "primary_hover_color",
+                  defaultSettings.buttons.primary.hoverBackgroundColor,
+                ),
+              },
+            },
+          },
+        }
+        defaultStyle->Identity.genericTypeToJson
+      } else {
+        //for testing
+        // let url = `http://localhost:9000/theme.json`
+        let url = `${GlobalVars.getHostUrl}/themes/${themesID}/theme.json`
+        let themeResponse = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute=true)
+        let themesData = await themeResponse->(res => res->Fetch.Response.json)
+        themesData
+      }
+      themeJson
+    } catch {
+    | _ => JSON.Encode.null
+    }
+  }
+
+  let configureFavIcon = (faviconUrl: option<string>) => {
+    try {
+      open DOMUtils
+      let a = createElement(DOMUtils.document, "link")
+      let _ = setAttribute(a, "href", `${faviconUrl->Option.getOr("/HyperswitchFavicon.png")}`)
+      let _ = setAttribute(a, "rel", "shortcut icon")
+      let _ = setAttribute(a, "type", "image/x-icon")
+      let _ = appendHead(a)
+      Js.log(a)
+    } catch {
+    | _ => Exn.raiseError("Error on configuring favicon")
+    }
+  }
+
+  let updateThemeURLs = themesData => {
+    open LogicUtils
+    open HyperSwitchConfigTypes
+    try {
+      let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
+      let val = {
+        faviconUrl: urlsDict->getString("faviconUrl", "")->getNonEmptyString,
+        logoUrl: urlsDict->getString("logoUrl", "")->getNonEmptyString,
+      }
+      Js.log2("val", val)
+      let existingEnv = DOMUtils.window._env_
+
+      let updatedUrlConfig = {
+        ...existingEnv,
+        urlThemeConfig: val,
+      }
+      DOMUtils.window._env_ = updatedUrlConfig
+      configureFavIcon(updatedUrlConfig.urlThemeConfig.faviconUrl)->ignore
+      updatedUrlConfig.urlThemeConfig.faviconUrl
+    } catch {
+    | _ => Exn.raiseError("Error while updating theme URL and favicon")
+    }
+  }
+
   let value = React.useMemo(() => {
     {
       globalUIConfig: UIConfig.defaultUIConfig,
       theme,
       themeSetter: setTheme,
       configCustomDomainTheme,
+      getThemesJson,
+      updateThemeURLs,
     }
   }, (theme, setTheme))
-
   React.useEffect(() => {
     if theme === Dark {
       setTheme(Light)
