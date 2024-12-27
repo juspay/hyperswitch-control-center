@@ -31,6 +31,7 @@ let payoutConnectorList: array<connectorTypes> = [
 let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(THREEDSECUREIO),
   ThreeDsAuthenticator(NETCETERA),
+  ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD),
 ]
 
 let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
@@ -432,6 +433,10 @@ let netceteraInfo = {
   description: "Cost-effective 3DS authentication platform ensuring security. Elevate checkout experience, boost conversion rates, and maintain regulatory compliance with Netcetera",
 }
 
+let clickToPayInfo = {
+  description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
+}
+
 let unknownConnectorInfo = {
   description: "unkown connector",
 }
@@ -624,6 +629,7 @@ let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthentica
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "threedsecureio"
   | NETCETERA => "netcetera"
+  | CLICK_TO_PAY_MASTERCARD => "ctp_mastercard"
   }
 
 let getFRMNameString = (frm: frmTypes) => {
@@ -750,6 +756,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "threedsecureio" => ThreeDsAuthenticator(THREEDSECUREIO)
     | "netcetera" => ThreeDsAuthenticator(NETCETERA)
+    | "ctp_mastercard" => ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD)
     | _ => UnknownConnector("Not known")
     }
   | FRMPlayer =>
@@ -860,6 +867,7 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => threedsecuredotioInfo
   | NETCETERA => netceteraInfo
+  | CLICK_TO_PAY_MASTERCARD => clickToPayInfo
   }
 let getFrmInfo = frm =>
   switch frm {
@@ -1257,8 +1265,22 @@ let validateConnectorRequiredFields = (
       | Toggle => valuesFlattenJson->getBool(`${key}`, false)->getStringFromBool
       | _ => ""
       }
-      if value->String.length === 0 && required {
-        Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+
+      let multiSelectValue = switch \"type" {
+      | MultiSelect => valuesFlattenJson->getArrayFromDict(key, [])
+      | _ => []
+      }
+
+      switch \"type" {
+      | Text | Select | Toggle =>
+        if value->isEmptyString && required {
+          Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+        }
+      | MultiSelect =>
+        if multiSelectValue->Array.length === 0 && required {
+          Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+        }
+      | _ => ()
       }
     })
   }
@@ -1692,6 +1714,7 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
   | NETCETERA => "Netcetera"
+  | CLICK_TO_PAY_MASTERCARD => "Unified Click to Pay"
   }
 
 let getDisplayNameForFRMConnector = frmConnector =>
