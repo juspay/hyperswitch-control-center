@@ -98,8 +98,6 @@ module ListItem = {
     }
     let backgroundClass = if showToggle {
       ""
-    } else if isSelected && customStyle->LogicUtils.isNonEmptyString {
-      customSelectStyle
     } else if isDropDown && isSelected && !isDisabled {
       `${bgClass} transition ease-[cubic-bezier(0.33, 1, 0.68, 1)]`
     } else {
@@ -216,7 +214,7 @@ module ListItem = {
                   : <CheckBoxIcon isSelected isDisabled size=optionSize isSelectedStateMinus />}
               </span>
             } else {
-              <div className=toggleClass>
+              <div className={`${toggleClass} ${customSelectStyle}`}>
                 <RadioIcon isSelected size=optionSize fill isDisabled />
               </div>
             }
@@ -245,7 +243,7 @@ module ListItem = {
                 <Icon className={`align-middle ${optionIconStroke}`} size={12} name=iconName />
               | _ => React.null
               }}
-              <div className="w-full">
+              <div className="w-full flex">
                 {listText
                 ->Array.filter(str => str->LogicUtils.isNonEmptyString)
                 ->Array.mapWithIndex((item, i) => {
@@ -1214,10 +1212,15 @@ module RenderListItemInBaseRadio = {
         }
       }
     `
-    let (className, styleElement) = switch customScrollStyle {
-    | None => ("", React.null)
-    | Some(style) => (
-        `${style}  sidebar-scrollbar`,
+    let (className, styleElement) = switch (customScrollStyle, isHorizontal) {
+    | (None, false) => ("", React.null)
+    | (Some(style), false) => (
+        `${style} sidebar-scrollbar`,
+        <style> {React.string(sidebarScrollbarCss)} </style>,
+      )
+    | (None, true) => ("flex flex-row", React.null)
+    | (Some(style), true) => (
+        `${style}  sidebar-scrollbar flex flex-row`,
         <style> {React.string(sidebarScrollbarCss)} </style>,
       )
     }

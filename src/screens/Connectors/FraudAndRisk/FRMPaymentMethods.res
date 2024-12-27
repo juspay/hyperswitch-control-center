@@ -255,6 +255,8 @@ module PaymentMethodsRenderer = {
       None
     }, [])
 
+    Js.log(frmConfigs)
+
     <PageLoaderWrapper screenState={pageState}>
       <div className="flex flex-col gap-4">
         {frmConfigs

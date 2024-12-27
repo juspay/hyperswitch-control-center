@@ -2,8 +2,6 @@
 let make = () => {
   open PageUtils
 
-  let handleGetStarted = (): unit => {()}
-
   <div className="flex flex-col w-full gap-6 items-center justify-center">
     <PageHeading
       customHeadingStyle="gap-3 max-w-860 flex flex-col items-center"
@@ -14,7 +12,9 @@ let make = () => {
     />
     <Button
       text="Get Started"
-      onClick={_ => handleGetStarted()}
+      onClick={_ => {
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/configuration"))
+      }}
       buttonType=Primary
       buttonSize=Large
       buttonState=Normal
