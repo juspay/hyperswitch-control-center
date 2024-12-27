@@ -298,7 +298,7 @@ module UserOmpView = {
     let options = views->generateDropdownOptionsUserOMPViews(getNameForId)
 
     let displayName = switch selectedEntity {
-    | #Default => "My Team"
+    | #Default => "All"
     | _ => selectedEntity->getNameForId
     }
 
