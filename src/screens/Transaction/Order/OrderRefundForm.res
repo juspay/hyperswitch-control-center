@@ -121,7 +121,17 @@ let make = (
       <div className="flex flex-col w-full max-w-4xl mx-auto p-6">
         <div
           className="border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75 pb-4 mb-6">
-          <CardUtils.CardHeader heading="Initiate Refund" subHeading="" customSubHeadingStyle="" />
+          <div className="flex flex-row justify-between items-center ">
+            <CardUtils.CardHeader
+              heading="Initiate Refund" subHeading="" customSubHeadingStyle=""
+            />
+            <DisplayKeyValueParams
+              heading={getHeading(Status)}
+              value={getCell(order, Status)}
+              showTitle=false
+              labelMargin="mt-0 py-0 "
+            />
+          </div>
           <div className="flex text-fs-13 ">
             <Icon size={14} name="exclamation-circle" className="text-red-600 mr-2 mt-1" />
             <span className="font-medium text-jp-gray-700 mt-2">
@@ -131,7 +141,6 @@ let make = (
             </span>
           </div>
         </div>
-        // First Row - Amount and Payment ID
         <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
@@ -146,7 +155,6 @@ let make = (
             />
           </FormRenderer.DesktopRow>
         </div>
-        // Second Row - Customer ID and Email
         <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
@@ -157,7 +165,6 @@ let make = (
             <DisplayKeyValueParams heading={getHeading(Email)} value={getCell(order, Email)} />
           </FormRenderer.DesktopRow>
         </div>
-        //  Third Row - Amount Refunded and Pending Amount
         <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
@@ -172,7 +179,6 @@ let make = (
             />
           </FormRenderer.DesktopRow>
         </div>
-        //  Fourth Row - Refund Amount and Reason
         <div className="grid grid-cols-2 gap-8 mb-16">
           <FormRenderer.DesktopRow>
             <FormRenderer.FieldRenderer field={amountField} labelClass="text-fs-11" />
@@ -183,7 +189,6 @@ let make = (
             </FormRenderer.DesktopRow>
           </RenderIf>
         </div>
-        // Buttons
         <div className="flex justify-end gap-4">
           <Button
             text="Cancel"
