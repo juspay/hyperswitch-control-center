@@ -6,7 +6,9 @@ module InfoField = {
     <RenderIf condition={str->LogicUtils.isNonEmptyString}>
       <div>
         <h2 className="text-medium font-semibold"> {label->React.string} </h2>
-        <h3 className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold"> {str->React.string} </h3>
+        <h3 className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold">
+          {str->React.string}
+        </h3>
       </div>
     </RenderIf>
   }
@@ -17,7 +19,8 @@ module KeyAndCopyArea = {
   let make = (~copyValue) => {
     let showToast = ToastState.useShowToast()
     <div className="flex flex-col md:flex-row items-center">
-      <p className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold w-89.5-per">
+      <p
+        className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold w-89.5-per">
         {copyValue->React.string}
       </p>
       <div
@@ -26,7 +29,9 @@ module KeyAndCopyArea = {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
-        <img alt="copy-clipboard" className="w-1.1-rem h-1.1-rem" src={`/assets/CopyToClipboard.svg`} />
+        <img
+          alt="copy-clipboard" className="w-1.1-rem h-1.1-rem" src={`/assets/CopyToClipboard.svg`}
+        />
       </div>
     </div>
   }

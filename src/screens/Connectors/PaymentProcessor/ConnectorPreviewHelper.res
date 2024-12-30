@@ -2,12 +2,10 @@ module InfoField = {
   @react.component
   let make = (~label, ~str) => {
     <div className="flex items-center">
-      <h2 className="flex-[1] text-base font-semibold text-grey-700 opacity-70"> 
-        {label->React.string} 
+      <h2 className="flex-[1] text-base font-semibold text-grey-700 opacity-70">
+        {label->React.string}
       </h2>
-      <h3
-        className="flex-[3] border p-1.5 bg-gray-50 rounded-lg overflow-scroll whitespace-nowrap"
-      >
+      <h3 className="flex-[3] border p-1.5 bg-gray-50 rounded-lg overflow-scroll whitespace-nowrap">
         {str->React.string}
       </h3>
     </div>
