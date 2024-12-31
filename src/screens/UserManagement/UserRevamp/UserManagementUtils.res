@@ -23,7 +23,7 @@ let roleScope = userRole => {
       ~options=roleScopeArray,
       ~buttonText="Select Option",
       ~deselectDisable=true,
-      ~disableSelect=userRole === "org_admin" ? false : true,
+      ~disableSelect=userRole === "org_admin" || userRole === "tenant_admin" ? false : true,
     ),
     ~isRequired=true,
   )
