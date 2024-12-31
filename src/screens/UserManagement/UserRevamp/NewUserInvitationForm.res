@@ -170,7 +170,7 @@ let make = () => {
   }
 
   <div className="flex flex-col h-full">
-    <div className="grid grid-cols-6 gap-6 items-end p-6 !pb-10 border-b">
+    <div className="grid md:grid-cols-6 grid-cols-2 gap-6 items-end p-6 !pb-10 border-b">
       <div className="col-span-5 w-full">
         <FormRenderer.FieldRenderer
           field=inviteEmail labelClass="!text-black !text-base !-ml-[0.5px]"
@@ -186,9 +186,11 @@ let make = () => {
         />
       </div>
     </div>
-    <div className="grid grid-cols-5 h-full">
+    <div className="grid md:grid-cols-5 grid-cols-2 h-full">
       <div className="col-span-2 border-r p-6  flex flex-col gap-2">
-        <OrganisationSelection />
+        <div className="overflow-scroll">
+          <OrganisationSelection />
+        </div>
         <MerchantSelection />
         <ProfileSelection />
         <DropdownWithLoading
