@@ -212,7 +212,7 @@ module ControlCenter = {
     let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
 
     let isLiveModeEnabledStyles = isLiveMode
-      ? "flex flex-col md:flex-row gap-5 w-fullr"
+      ? "flex flex-col md:flex-row gap-5 w-full"
       : "flex flex-col gap-5 md:w-1/2 w-full"
 
     <div className="flex flex-col gap-5 md:flex-row">
