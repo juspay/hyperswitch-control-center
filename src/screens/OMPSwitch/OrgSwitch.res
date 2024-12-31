@@ -36,7 +36,10 @@ module SwitchOrg = {
         let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
         setShowModal(_ => false)
       } catch {
-      | _ => showToast(~message="Failed to switch the org! Try again.", ~toastType=ToastError)
+      | _ => {
+          showToast(~message="Failed to switch the org! Try again.", ~toastType=ToastError)
+          setShowModal(_ => false)
+        }
       }
     }
 
