@@ -72,6 +72,12 @@ module.exports = {
       },
       maxWidth: {
         fixedPageWidth: "82.75rem",
+        860: "860px",
+        600: "600px",
+        700: "700px",
+      },
+      lineHeight: {
+        60: "60px",
       },
 
       boxShadow: {
@@ -100,6 +106,7 @@ module.exports = {
         "fs-20": "20px",
         "fs-24": "24px",
         "fs-28": "28px",
+        "fs-48": "48px",
       },
       colors: {
         primary: {

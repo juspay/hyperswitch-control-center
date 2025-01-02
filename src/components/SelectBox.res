@@ -245,7 +245,7 @@ module ListItem = {
                 <Icon className={`align-middle ${optionIconStroke}`} size={12} name=iconName />
               | _ => React.null
               }}
-              <div className="w-full">
+              <div className="w-full flex">
                 {listText
                 ->Array.filter(str => str->LogicUtils.isNonEmptyString)
                 ->Array.mapWithIndex((item, i) => {
