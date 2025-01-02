@@ -106,7 +106,7 @@ let make = () => {
           />
         </div>
       </div>
-      <PageLoaderWrapper screenState customUI>
+      <PageLoaderWrapper screenState customUI={customUI()}>
         <LoadedTableWithCustomColumns
           hideTitle=true
           title="Refunds"

@@ -90,7 +90,7 @@ let make = () => {
         </div>
         <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />
       </div>
-      <PageLoaderWrapper screenState customUI>
+      <PageLoaderWrapper screenState customUI={customUI()}>
         <LoadedTableWithCustomColumns
           hideTitle=true
           title="Payouts"

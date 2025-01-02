@@ -3,10 +3,11 @@ let make = () => {
   open APIUtils
   open HSwitchRemoteFilter
   open DisputesUtils
+  open LogicUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (disputesData, setDisputesData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
@@ -18,8 +19,15 @@ let make = () => {
   let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let startTime = filterValueJson->getString("start_time", "")
+  let handleClick = _ => {
+    let startDateObj = startTime->DayJs.getDayJsForString
+    let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
+    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
+    let extendedEndDate = startDateObj.subtract(1, "day").toDate()->Date.toISOString
+    updateExistingKeys(Dict.fromArray([("end_time", {extendedEndDate})]))
+  }
   let getDisputesList = async () => {
-    open LogicUtils
     try {
       setScreenState(_ => Loading)
       if searchText->isNonEmptyString {
@@ -74,8 +82,24 @@ let make = () => {
 
   let customUI =
     <NoDataFound
-      customCssClass={"my-6"} message="There are no disputes as of now" renderType=Painting
-    />
+      customCssClass={"my-6"}
+      message="There are no disputes as of now"
+      renderType={ExtendDateWithNoResult}>
+      <ACLButton
+        buttonType={Primary}
+        onClick={handleClick}
+        text="Expand the search range to include the past 90 days."
+      />
+      <div className="flex justify-center">
+        <p className="mt-6">
+          {React.string("Or try the following:")}
+          <ul className="list-disc">
+            <li> {React.string("Try a different search parameter")} </li>
+            <li> {React.string("Adjust or remove filters and search once more")} </li>
+          </ul>
+        </p>
+      </div>
+    </NoDataFound>
 
   let filtersUI =
     <RemoteTableFilters

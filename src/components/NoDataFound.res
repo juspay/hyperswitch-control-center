@@ -1,4 +1,4 @@
-type renderType = InfoBox | Painting | NotFound | Locked | LoadError
+type renderType = InfoBox | Painting | NotFound | Locked | LoadError | ExtendDateWithNoResult
 
 @react.component
 let make = (
@@ -19,10 +19,11 @@ let make = (
     | Locked => "mt-32 p-16"
     | LoadError => "mt-32 p-16"
     | InfoBox => ""
+    | ExtendDateWithNoResult => "mt-16 p-16"
     }
     isMobileView ? "" : marginPaddingClass
   }
-  let containerClass = `flex flex-col ${marginPaddingClass} container mx-auto items-center`
+  let containerClass = `flex flex-col ${marginPaddingClass} container mx-auto items-center `
   let msgCss = isMobileView
     ? `text-l text-center mt-4 ${customMessageCss}`
     : `px-3 text-2xl mt-32 ${customMessageCss}`
@@ -94,6 +95,18 @@ let make = (
               <img alt="load-error" src={`/icons/LoadError.svg`} />
             </div>
             <div className="px-3 text-base"> {React.string(message)} </div>
+            <div>
+              {switch children {
+              | Some(child) => child
+              | None => React.null
+              }}
+            </div>
+          </div>
+        | ExtendDateWithNoResult =>
+          <div className={containerClass}>
+            <div className={`px-3 text-2xl text-black font-bold mb-6`}>
+              {React.string("No results found")}
+            </div>
             <div>
               {switch children {
               | Some(child) => child
