@@ -346,15 +346,9 @@ let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.
 module LowRecoveryCodeBanner = {
   @react.component
   let make = (~recoveryCode) => {
-    <div
-      className="w-full bg-orange-200 bg-opacity-40 px-6 py-3 flex items-center justify-between rounded-lg">
-      <div className="flex items-center gap-3">
-        <Icon name="warning-outlined" size=25 />
-        <div className="flex gap-2">
-          {`You are low on recovery-codes. Only`->React.string}
-          <span className="font-bold"> {`${recoveryCode->Int.toString} left`->React.string} </span>
-        </div>
-      </div>
+    <HSwitchUtils.AlertBanner
+      warningText={`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`}
+      bannerType=Warning>
       <Button
         text="Regenerate recovery-codes"
         buttonType={Secondary}
@@ -364,6 +358,6 @@ module LowRecoveryCodeBanner = {
             GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
           )}
       />
-    </div>
+    </HSwitchUtils.AlertBanner>
   }
 }

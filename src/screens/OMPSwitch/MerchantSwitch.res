@@ -133,6 +133,9 @@ let make = () => {
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
+  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.merchantDetailsValueAtom,
+  )
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
 
@@ -189,6 +192,11 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
+  let subHeading =
+    merchantDetailsTypedValue.merchant_name->Option.isNone
+      ? currentOMPName(merchantList, merchantId)
+      : merchantDetailsTypedValue.merchant_name->Option.getOr("")
+
   <div className="w-fit">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -202,9 +210,7 @@ let make = () => {
       addButton=false
       customStyle="rounded w-fit"
       searchable=false
-      baseComponent={<ListBaseComp
-        heading="Merchant" subHeading={currentOMPName(merchantList, merchantId)} arrow
-      />}
+      baseComponent={<ListBaseComp heading="Merchant" subHeading arrow />}
       baseComponentCustomStyle="bg-white rounded"
       bottomComponent={<AddNewOMPButton user=#Merchant setShowModal customStyle addItemBtnStyle />}
       optionClass="text-gray-600 text-fs-14"

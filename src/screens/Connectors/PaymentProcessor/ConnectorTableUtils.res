@@ -132,13 +132,12 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
 let connectorEntity = (
   path: string,
   ~authorization: CommonAuthTypes.authorization,
-  ~isPayoutFlow=false,
   ~isCloningEnabled=false,
 ) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
-    ~defaultColumns={isCloningEnabled && !isPayoutFlow ? defaultPaymentColumns : defaultColumns},
+    ~defaultColumns={isCloningEnabled ? defaultPaymentColumns : defaultColumns},
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),
     ~dataKey="",

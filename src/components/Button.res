@@ -121,15 +121,10 @@ let useGetBgColor = (
     switch buttonState {
     | Focused
     | Normal =>
-      showBorder
-        ? "bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  dark:bg-jp-gray-darkgray_background  dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none"
-        : "text-jp-gray-900 hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-40 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme dark:text-opacity-50 dark:hover:bg-jp-gray-950 focus:outline-none"
-    | Loading =>
-      showBorder
-        ? "bg-jp-gray-button_gray  dark:bg-jp-gray-darkgray_background"
-        : "bg-jp-gray-lightmode_steelgray bg-opacity-40 dark:bg-jp-gray-950 dark:bg-opacity-100"
+      showBorder ? buttonConfig.secondaryNormal : buttonConfig.secondaryNoBorder
+    | Loading => showBorder ? buttonConfig.secondaryLoading : buttonConfig.secondaryNoBorder
     | Disabled => showBorder ? "bg-jp-gray-300 dark:bg-gray-800 dark:bg-opacity-10" : "px-4"
-    | NoHover => "bg-jp-gray-button_gray text-jp-gray-900 text-opacity-50  hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme focus:outline-none dark:text-opacity-50 "
+    | NoHover => buttonConfig.secondaryNoHover
     }
   | Pill =>
     switch buttonState {
@@ -218,9 +213,9 @@ let useGetTextColor = (
     }
   | Secondary =>
     switch buttonState {
-    | Disabled => "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25"
-    | Loading => "text-jp-gray-950 hover:text-black dark:text-jp-gray-text_darktheme dark:text-opacity-75"
-    | _ => "text-jp-gray-950 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75"
+    | Disabled => textConfig.secondaryDisabled
+    | Loading => textConfig.secondaryLoading
+    | _ => textConfig.secondaryNormal
     }
   | SecondaryFilled =>
     switch buttonState {

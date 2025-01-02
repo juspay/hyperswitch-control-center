@@ -1,6 +1,6 @@
 module ConnectorCurrentStepIndicator = {
   @react.component
-  let make = (~currentStep: ConnectorTypes.steps, ~stepsArr, ~borderWidth="w-8/12") => {
+  let make = (~currentStep: ConnectorTypes.steps, ~stepsArr) => {
     let cols = stepsArr->Array.length->Int.toString
     let currIndex = stepsArr->Array.findIndex(item => item === currentStep)
     <div className=" w-full md:w-2/3">
@@ -53,7 +53,7 @@ module ConnectorCurrentStepIndicator = {
 }
 
 @react.component
-let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) => {
+let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   open ConnectorTypes
   open ConnectorUtils
   open APIUtils
@@ -76,7 +76,6 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"connectors", "new"} => false
-  | list{"payoutconnectors", "new"} => false
   | _ => true
   }
 
@@ -124,8 +123,12 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
           setCurrentStep(_ => AutomaticFlow)
         }
       | Object(dict) =>
-        handleObjectResponse(~dict, ~setInitialValues, ~connector, ~handleStateToNextPage=_ =>
-          setCurrentStep(_ => PaymentMethods)
+        handleObjectResponse(
+          ~dict,
+          ~setInitialValues,
+          ~connector,
+          ~connectorType=Processor,
+          ~handleStateToNextPage=_ => setCurrentStep(_ => PaymentMethods),
         )
       | _ => ()
       }
@@ -191,13 +194,6 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     None
   }, [connector])
 
-  let (title, link) = isPayoutFlow
-    ? ("Payout Processor", "/payoutconnectors")
-    : ("Processor", "/connectors")
-
-  let stepsArr = isPayoutFlow ? payoutStepsArr : stepsArr
-  let borderWidth = isPayoutFlow ? "w-8/12" : "w-9/12"
-
   let customUiForPaypal =
     <DefaultLandingPage
       title="Oops, we hit a little bump on the road!"
@@ -214,8 +210,9 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     />
 
   let infoBanner =
-    <HSwitchUtils.WarningArea
+    <HSwitchUtils.AlertBanner
       warningText="This connector contains Cloned Payment Methods from source profile."
+      bannerType=Warning
     />
 
   let warningText = `You have not yet completed configuring your ${connector->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`
@@ -227,8 +224,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
           path=[
             connectorID === "new"
               ? {
-                  title,
-                  link,
+                  title: "Processor",
+                  link: "/connectors",
                   onClick: _ =>
                     showPopUp({
                       popUpType: (Warning, WithIcon),
@@ -242,7 +239,10 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
                           if isClonePMFlow {
                             setIsClonePMFlow(_ => false)
                           }
-                          _ => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=link))
+                          _ =>
+                            RescriptReactRouter.push(
+                              GlobalVars.appendDashboardPath(~url="/connectors"),
+                            )
                         },
                       },
                       handleCancel: {
@@ -251,8 +251,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
                     }),
                 }
               : {
-                  title,
-                  link,
+                  title: "Processor",
+                  link: "/connectors",
                 },
           ]
           currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector}
@@ -260,12 +260,13 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr borderWidth />
+        <ConnectorCurrentStepIndicator currentStep stepsArr />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
-        <HSwitchUtils.WarningArea
+        <HSwitchUtils.AlertBanner
           warningText="This is a test connector and will not be reflected on your payment processor dashboard."
+          bannerType=Warning
         />
       </RenderIf>
       <RenderIf condition={isClonePMFlow && featureFlagDetails.clonePaymentMethods}>
@@ -283,12 +284,10 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
           | _ => React.null
           }
         | IntegFields =>
-          <ConnectorAccountDetails
-            setCurrentStep setInitialValues initialValues isUpdateFlow isPayoutFlow
-          />
+          <ConnectorAccountDetails setCurrentStep setInitialValues initialValues isUpdateFlow />
         | PaymentMethods =>
           <ConnectorPaymentMethod
-            setCurrentStep connector setInitialValues initialValues isUpdateFlow isPayoutFlow
+            setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
         | SummaryAndTest
         | Preview =>

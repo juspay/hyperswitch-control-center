@@ -43,6 +43,7 @@ let make = () => {
 
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
+  let reconSidebars = HSReconSidebarValues.useGetReconSideBar()
   sessionExpired := false
 
   React.useEffect(() => {
@@ -124,7 +125,10 @@ let make = () => {
             <div className="flex relative overflow-auto h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
-                  path={url.path} sidebars={hyperSwitchAppSidebars} key={(screenState :> string)}
+                  path={url.path}
+                  sidebars={hyperSwitchAppSidebars}
+                  key={(screenState :> string)}
+                  productSiebars={reconSidebars}
                 />
               </RenderIf>
               <PageLoaderWrapper
@@ -146,7 +150,7 @@ let make = () => {
                             </div>
                           </div>
                         </div>}
-                        headerLeftActions={switch Window.env.logoUrl {
+                        headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
                         | Some(url) =>
                           <>
                             <img className="w-40" alt="image" src={`${url}`} />
@@ -170,6 +174,7 @@ let make = () => {
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
+                        | list{"v2", "recon", ..._} => <HSReconApp />
                         | list{"home", ..._}
                         | list{"recon"}
                         | list{"upload-files"}
