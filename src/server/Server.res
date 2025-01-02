@@ -60,10 +60,12 @@ let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
   let header = request.headers
   let hostHeader = header->Dict.get("host")
+  let xTenantId = header->Dict.get("x-tenant-id")
 
   Js.log2("Server.res request", request)
   Js.log2("Server.res request header", header)
   Js.log2("Server.res hostHeader", header)
+  Js.log2("Server.res xTenantId", xTenantId)
 
   let domain = switch hostHeader
   ->Option.getOr("")
