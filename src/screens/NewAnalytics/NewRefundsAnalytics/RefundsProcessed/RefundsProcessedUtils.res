@@ -40,6 +40,7 @@ let refundsProcessedMapper = (
   | Some(val) => Some(val)
   | None => None
   }
+  let currency = params.currency->Option.getOr("")
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
@@ -60,6 +61,7 @@ let refundsProcessedMapper = (
     ~title="Refunds Processed",
     ~metricType,
     ~comparison,
+    ~currency,
   )
 
   {

@@ -8,6 +8,7 @@ module SmartRetryCard = {
     open LogicUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let currency = filterValueJson->getString((#currency: NewAnalyticsTypes.filters :> string), "")
     let config = getInfo(~responseKey)
     let primaryValue = getValueFromObj(data, 0, responseKey->getStringFromVariant)
     let secondaryValue = getValueFromObj(data, 1, responseKey->getStringFromVariant)
@@ -20,14 +21,14 @@ module SmartRetryCard = {
           <img alt="connector-list" className="h-20 w-fit" src="/assets/smart-retry.svg" />
           <div className="flex gap-1 items-center">
             <div className="font-semibold  text-2xl dark:text-white">
-              {`Saved ${valueFormatter(primaryValue, config.valueType)} USD`->React.string} // TODO:Currency need to be picked from filter
+              {`Saved ${valueFormatter(primaryValue, config.valueType, ~currency)}`->React.string}
             </div>
             <RenderIf condition={comparison === EnableComparison}>
               <StatisticsCard
                 value
                 direction
                 isOverviewComponent=true
-                tooltipValue={`${valueFormatter(secondaryValue, config.valueType)} USD`}
+                tooltipValue={`${valueFormatter(secondaryValue, config.valueType, ~currency)}`}
               />
             </RenderIf>
           </div>

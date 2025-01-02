@@ -81,15 +81,24 @@ let requestBody = (
   ]->JSON.Encode.array
 }
 
-let valueFormatter = (value, statType: valueType) => {
+let formatCurrency = currency => {
+  switch currency {
+  | "all_currencies" => "USD*"
+  | _ => currency->String.toUpperCase
+  }
+}
+
+let valueFormatter = (value, statType: valueType, ~currency="") => {
   open LogicUtils
+
+  let amountSuffix = currency->formatCurrency
 
   let percentFormat = value => {
     `${Float.toFixedWithPrecision(value, ~digits=2)}%`
   }
 
   switch statType {
-  | Amount => value->indianShortNum
+  | Amount => `${value->indianShortNum} ${amountSuffix}`
   | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
   | Volume => value->indianShortNum
   | Latency => latencyShortNum(~labelValue=value)
@@ -362,6 +371,7 @@ let tooltipFormatter = (
   ~title,
   ~metricType,
   ~comparison: option<DateRangeUtils.comparison>=None,
+  ~currency="",
 ) => {
   open LineGraphTypes
 
@@ -374,15 +384,12 @@ let tooltipFormatter = (
       let primartPoint = this.points->getValueFromArray(0, defaultValue)
       let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
 
-      // TODO:Currency need to be picked from filter
-      let suffix = metricType == NewAnalyticsTypes.Amount ? "USD" : ""
-
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType)
+        let valueString = valueFormatter(value, metricType, ~currency)
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
             <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString} ${suffix}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
         </div>`
       }
 

@@ -58,7 +58,6 @@ module TableModule = {
 }
 
 module PaymentsProcessedHeader = {
-  open NewAnalyticsTypes
   open NewAnalyticsUtils
   open LogicUtils
   @react.component
@@ -73,6 +72,7 @@ module PaymentsProcessedHeader = {
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let currency = filterValueJson->getString((#currency: filters :> string), "")
     let isSmartRetryEnabled =
       filterValueJson
       ->getString("is_smart_retry_enabled", "true")
@@ -117,16 +117,14 @@ module PaymentsProcessedHeader = {
     | _ => Volume
     }
 
-    let suffix = metricType == Amount ? "USD" : ""
-
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
-          {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
+          {primaryValue->valueFormatter(metricType, ~currency)->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard
-            value direction tooltipValue={`${secondaryValue->valueFormatter(metricType)} ${suffix}`}
+            value direction tooltipValue={secondaryValue->valueFormatter(metricType, ~currency)}
           />
         </RenderIf>
       </div>
@@ -300,6 +298,7 @@ let make = (
     xKey: selectedMetric.value->getKeyForModule(~isSmartRetryEnabled),
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
+    currency,
   }
   <div>
     <ModuleHeader title={entity.title} />
