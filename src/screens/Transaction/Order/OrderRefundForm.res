@@ -118,70 +118,78 @@ let make = (
 
   <div>
     <Form onSubmit validate initialValues=initiateValueJson>
-      <div className="flex flex-col mx-1 mt-2">
+      <div className="flex flex-col w-full max-w-4xl mx-auto p-6">
         <div
-          className="flex border-b-2 px-2 h-24 items-center border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75">
-          <FormRenderer.DesktopRow wrapperClass="ml-2">
+          className="border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75 pb-4 mb-6">
+          <div className="flex flex-row justify-between items-center ">
+            <CardUtils.CardHeader
+              heading="Initiate Refund" subHeading="" customSubHeadingStyle=""
+            />
+            <DisplayKeyValueParams
+              heading={getHeading(Status)}
+              value={getCell(order, Status)}
+              showTitle=false
+              labelMargin="mt-0 py-0 "
+            />
+          </div>
+          <div className="flex text-fs-13 ">
+            <Icon size={14} name="exclamation-circle" className="text-red-600 mr-2 mt-1" />
+            <span className="font-medium text-jp-gray-700 mt-2">
+              {React.string(
+                "Note: Refunds cannot be canceled once placed. Please verify before proceeding.",
+              )}
+            </span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-8 mb-2">
+          <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
               heading={Table.makeHeaderInfo(~key="amount", ~title="Amount")}
               value={getCell(order, Amount)}
               isInHeader=true
             />
           </FormRenderer.DesktopRow>
-          // <CurrencyElement currency=order.currency />
-          <span className="ml-5 pb-1">
+          <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
-              heading={getHeading(Status)} value={getCell(order, Status)} showTitle=false
+              heading={getHeading(PaymentId)} value={getCell(order, PaymentId)}
             />
-          </span>
+          </FormRenderer.DesktopRow>
         </div>
-        <div
-          className="flex items-start border border-red-500 p-3 bg-red-100/[0.5] dark:bg-jp-gray-950 rounded-lg mx-6 my-6 text-fs-14 font-medium">
-          <Icon size=14 name="exclamation-circle" className="fill-red-500 mr-2 mt-1" />
-          {React.string(
-            "Note : Once a refund is placed, it cannot be cancelled. Please Verify before proceeding further",
-          )}
+        <div className="grid grid-cols-2 gap-8 mb-2">
+          <FormRenderer.DesktopRow>
+            <DisplayKeyValueParams
+              heading={getHeading(CustomerId)} value={getCell(order, CustomerId)}
+            />
+          </FormRenderer.DesktopRow>
+          <FormRenderer.DesktopRow>
+            <DisplayKeyValueParams heading={getHeading(Email)} value={getCell(order, Email)} />
+          </FormRenderer.DesktopRow>
         </div>
-        <div className="flex flex-row mx-3">
-          <div className="flex flex-col w-1/2 gap-7">
-            <FormRenderer.DesktopRow>
-              <DisplayKeyValueParams
-                heading={getHeading(CustomerId)} value={getCell(order, CustomerId)}
-              />
-            </FormRenderer.DesktopRow>
-            <FormRenderer.DesktopRow>
-              <DisplayKeyValueParams
-                heading={getHeading(PaymentId)} value={getCell(order, PaymentId)}
-              />
-            </FormRenderer.DesktopRow>
-            <FormRenderer.DesktopRow>
-              <DisplayKeyValueParams heading={getHeading(Email)} value={getCell(order, Email)} />
-            </FormRenderer.DesktopRow>
-            <FormRenderer.DesktopRow>
-              <DisplayKeyValueParams
-                heading={Table.makeHeaderInfo(~key="amount", ~title="Amount Refunded")}
-                value={Currency(amountRefunded.contents /. 100.0, order.currency)}
-              />
-            </FormRenderer.DesktopRow>
-          </div>
-          <div className="flex flex-col w-1/2 gap-2">
-            <FormRenderer.DesktopRow>
-              <DisplayKeyValueParams
-                heading={Table.makeHeaderInfo(~key="amount", ~title="Pending Requested Amount")}
-                value={Currency(requestedRefundAmount.contents /. 100.0, order.currency)}
-              />
-            </FormRenderer.DesktopRow>
-            <FormRenderer.DesktopRow>
-              <FormRenderer.FieldRenderer field=amountField labelClass="text-fs-11" />
-            </FormRenderer.DesktopRow>
-            <RenderIf condition={showRefundReason}>
-              <FormRenderer.DesktopRow>
-                <FormRenderer.FieldRenderer field=reasonField labelClass="text-fs-11" />
-              </FormRenderer.DesktopRow>
-            </RenderIf>
-          </div>
+        <div className="grid grid-cols-2 gap-8 mb-2">
+          <FormRenderer.DesktopRow>
+            <DisplayKeyValueParams
+              heading={Table.makeHeaderInfo(~key="amount", ~title="Amount Refunded")}
+              value={Currency(amountRefunded.contents /. 100.0, order.currency)}
+            />
+          </FormRenderer.DesktopRow>
+          <FormRenderer.DesktopRow>
+            <DisplayKeyValueParams
+              heading={Table.makeHeaderInfo(~key="amount", ~title="Pending Requested Amount")}
+              value={Currency(requestedRefundAmount.contents /. 100.0, order.currency)}
+            />
+          </FormRenderer.DesktopRow>
         </div>
-        <div className="flex justify-end gap-4 pr-5 pb-2 mb-3 mt-14">
+        <div className="grid grid-cols-2 gap-8 mb-16">
+          <FormRenderer.DesktopRow>
+            <FormRenderer.FieldRenderer field={amountField} labelClass="text-fs-11" />
+          </FormRenderer.DesktopRow>
+          <RenderIf condition={showRefundReason}>
+            <FormRenderer.DesktopRow>
+              <FormRenderer.FieldRenderer field={reasonField} labelClass="text-fs-11" />
+            </FormRenderer.DesktopRow>
+          </RenderIf>
+        </div>
+        <div className="flex justify-end gap-4">
           <Button
             text="Cancel"
             onClick={_ => {
