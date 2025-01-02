@@ -6,6 +6,7 @@ let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
   open NewAnalyticsHelper
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => []->JSON.Encode.array)
@@ -57,6 +58,7 @@ let make = (~entity: moduleEntity) => {
         ],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryBodyRefunds = getPayload(
@@ -64,6 +66,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#refund_processed_amount],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryBodyDisputes = getPayload(
@@ -71,6 +74,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#dispute_status_metric],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryResponsePayments = await updateDetails(paymentsUrl, primaryBodyPayments, Post)
@@ -105,6 +109,7 @@ let make = (~entity: moduleEntity) => {
         ],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let secondaryBodyRefunds = getPayload(
@@ -112,6 +117,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#refund_processed_amount],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let secondaryBodyDisputes = getPayload(
@@ -119,6 +125,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#dispute_status_metric],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let secondaryData = switch comparison {
