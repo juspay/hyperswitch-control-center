@@ -231,7 +231,7 @@ let make = (~children) => {
     open LogicUtils
     //will remove configRes once feature flag is removed.
     try {
-      let themeJson = if !devThemeFeature {
+      let themeJson = if !devThemeFeature || themesID->isEmptyString {
         let dict = configRes->getDictFromJsonObject->getDictfromDict("theme")
         let {settings: defaultSettings, _} = newDefaultConfig
         let defaultStyle = {
