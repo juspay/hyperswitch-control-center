@@ -3,6 +3,39 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.31.0
+
+### Features
+
+- Enable google pay for airwallex ([#1976](https://github.com/juspay/hyperswitch-control-center/pull/1976)) ([`0138abe`](https://github.com/juspay/hyperswitch-control-center/commit/0138abe72e100d64421f615893645d4f9fbf7a3d))
+
+### Bug Fixes
+
+- Background color default config fix ([#1988](https://github.com/juspay/hyperswitch-control-center/pull/1988)) ([`f768696`](https://github.com/juspay/hyperswitch-control-center/commit/f768696c728627da95b299836f7ac5403c380a72))
+
+### Refactors
+
+- Refunds popup design ([#1983](https://github.com/juspay/hyperswitch-control-center/pull/1983)) ([`9c18971`](https://github.com/juspay/hyperswitch-control-center/commit/9c18971e4f9a5f8b162de393b55e01ded382f8dc))
+
+### Miscellaneous Tasks
+
+- Connector search results fix in routing ([#1984](https://github.com/juspay/hyperswitch-control-center/pull/1984)) ([`f88d360`](https://github.com/juspay/hyperswitch-control-center/commit/f88d360060f2de60fecab722833b6e863e0d2e3b))
+- Update merchant name after sbx onbaording ([#1987](https://github.com/juspay/hyperswitch-control-center/pull/1987)) ([`1cc440b`](https://github.com/juspay/hyperswitch-control-center/commit/1cc440b0f5f54e202868680d79f97b5cc6781af0))
+
+**Full Changelog:** [`2024.12.30.0...2024.12.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.30.0...2024.12.31.0)
+
+- - -
+
+## 2024.12.30.0
+
+### Features
+
+- Global search filters ux enhancements ([#1977](https://github.com/juspay/hyperswitch-control-center/pull/1977)) ([`cde0b70`](https://github.com/juspay/hyperswitch-control-center/commit/cde0b709b40061dbf0962ac6f087ff10b0c0a52d))
+
+**Full Changelog:** [`2024.12.25.0...2024.12.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.25.0...2024.12.30.0)
+
+- - -
+
 ## 2024.12.25.0
 
 ### Features

@@ -89,3 +89,7 @@ type singleStatConfig = {
   description: string,
   valueType: valueType,
 }
+
+type filters = [#currency]
+
+type defaultFilters = [#all_currencies]
