@@ -6,9 +6,7 @@ module HyperSwitchEntryComponent = {
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let {configCustomDomainTheme, getThemesJson, updateThemeURLs} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
@@ -62,9 +60,7 @@ module HyperSwitchEntryComponent = {
         setFeatureFlag(_ => featureFlags)
         let devThemeFeature = featureFlags.devThemeFeature
         let _ = configEnv(res) // to set initial env
-        let themeJson = await getThemesJson(themesID, res, devThemeFeature)
-        let _ = updateThemeURLs(themeJson)
-        let _ = themeJson->configCustomDomainTheme
+        let _ = await getThemesJson(themesID, res, devThemeFeature)
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)

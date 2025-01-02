@@ -18,9 +18,7 @@ let make = () => {
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
-  let {getThemesJson, configCustomDomainTheme, updateThemeURLs} = React.useContext(
-    ThemeProvider.themeContext,
-  )
+  let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
     fetchMerchantSpecificConfig,
@@ -56,9 +54,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      let themeData = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
-      let _ = updateThemeURLs(themeData)
-      let _ = themeData->configCustomDomainTheme
+      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()

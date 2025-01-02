@@ -12,7 +12,6 @@ type customUIConfig = {
   themeSetter: theme => unit,
   configCustomDomainTheme: JSON.t => unit,
   getThemesJson: (string, JSON.t, bool) => promise<JSON.t>,
-  updateThemeURLs: JSON.t => option<string>,
 }
 
 let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
@@ -64,7 +63,6 @@ let themeContext = {
   themeSetter: defaultSetter,
   configCustomDomainTheme: _ => (),
   getThemesJson: (_, _, _) => JSON.Encode.null->Promise.resolve,
-  updateThemeURLs: _ => Some(""),
 }
 
 let themeContext = React.createContext(themeContext)
@@ -193,6 +191,42 @@ let make = (~children) => {
     Window.appendStyle(value)
   }, [])
 
+  let configureFavIcon = (faviconUrl: option<string>) => {
+    try {
+      open DOMUtils
+      let a = createElement(DOMUtils.document, "link")
+      let _ = setAttribute(a, "href", `${faviconUrl->Option.getOr("/HyperswitchFavicon.png")}`)
+      let _ = setAttribute(a, "rel", "shortcut icon")
+      let _ = setAttribute(a, "type", "image/x-icon")
+      let _ = appendHead(a)
+    } catch {
+    | _ => Exn.raiseError("Error on configuring favicon")
+    }
+  }
+
+  let updateThemeURLs = themesData => {
+    open LogicUtils
+    open HyperSwitchConfigTypes
+    try {
+      let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
+      let val = {
+        faviconUrl: urlsDict->getString("faviconUrl", "")->getNonEmptyString,
+        logoUrl: urlsDict->getString("logoUrl", "")->getNonEmptyString,
+      }
+      let existingEnv = DOMUtils.window._env_
+
+      let updatedUrlConfig = {
+        ...existingEnv,
+        urlThemeConfig: val,
+      }
+      DOMUtils.window._env_ = updatedUrlConfig
+      configureFavIcon(updatedUrlConfig.urlThemeConfig.faviconUrl)->ignore
+      updatedUrlConfig.urlThemeConfig.faviconUrl
+    } catch {
+    | _ => Exn.raiseError("Error while updating theme URL and favicon")
+    }
+  }
+
   let getThemesJson = async (themesID, configRes, devThemeFeature) => {
     open LogicUtils
     //will remove configRes once feature flag is removed.
@@ -233,47 +267,11 @@ let make = (~children) => {
         let themesData = await themeResponse->(res => res->Fetch.Response.json)
         themesData
       }
+      let _ = updateThemeURLs(themeJson)
+      let _ = themeJson->configCustomDomainTheme
       themeJson
     } catch {
     | _ => JSON.Encode.null
-    }
-  }
-
-  let configureFavIcon = (faviconUrl: option<string>) => {
-    try {
-      open DOMUtils
-      let a = createElement(DOMUtils.document, "link")
-      let _ = setAttribute(a, "href", `${faviconUrl->Option.getOr("/HyperswitchFavicon.png")}`)
-      let _ = setAttribute(a, "rel", "shortcut icon")
-      let _ = setAttribute(a, "type", "image/x-icon")
-      let _ = appendHead(a)
-      Js.log(a)
-    } catch {
-    | _ => Exn.raiseError("Error on configuring favicon")
-    }
-  }
-
-  let updateThemeURLs = themesData => {
-    open LogicUtils
-    open HyperSwitchConfigTypes
-    try {
-      let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
-      let val = {
-        faviconUrl: urlsDict->getString("faviconUrl", "")->getNonEmptyString,
-        logoUrl: urlsDict->getString("logoUrl", "")->getNonEmptyString,
-      }
-      Js.log2("val", val)
-      let existingEnv = DOMUtils.window._env_
-
-      let updatedUrlConfig = {
-        ...existingEnv,
-        urlThemeConfig: val,
-      }
-      DOMUtils.window._env_ = updatedUrlConfig
-      configureFavIcon(updatedUrlConfig.urlThemeConfig.faviconUrl)->ignore
-      updatedUrlConfig.urlThemeConfig.faviconUrl
-    } catch {
-    | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
   }
 
@@ -284,7 +282,6 @@ let make = (~children) => {
       themeSetter: setTheme,
       configCustomDomainTheme,
       getThemesJson,
-      updateThemeURLs,
     }
   }, (theme, setTheme))
   React.useEffect(() => {
