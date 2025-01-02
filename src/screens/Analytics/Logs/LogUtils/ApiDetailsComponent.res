@@ -213,8 +213,7 @@ let make = (
         className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${borderClass} mb-6
         `}
         key={selectedOption.value->Int.toString}
-        onClick={event => {
-          event->scrollIntoView
+        onClick={_ => {
           setLogDetails(_ => {
             response: responseObject,
             request: requestObject,
