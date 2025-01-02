@@ -110,7 +110,7 @@ module CustomDropDown = {
       {_ =>
         <div>
           <Menu.Button
-            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border border-outline">
+            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border">
             {_ => {
               <>
                 {buttonText.label->React.string}
@@ -244,7 +244,7 @@ module SmartRetryToggle = {
     }
 
     <div
-      className="w-full py-3 -mb-5 -mt-2 px-4 border rounded-lg bg-white flex gap-2 items-center">
+      className="w-fit px-3 py-2 border rounded-lg bg-white gap-2 items-center h-fit inline-flex whitespace-pre leading-5 justify-center">
       <BoolInput.BaseComponent
         isSelected={isEnabled}
         setIsSelected={onClick}
@@ -252,11 +252,19 @@ module SmartRetryToggle = {
         boolCustomClass="rounded-lg !bg-blue-500"
         toggleBorder="border-blue-500"
       />
-      <p className="!text-base text-grey-700 ml-2">
-        <span className="font-semibold"> {"Include Payment Retries data: "->React.string} </span>
-        <span>
-          {"Your data will consist of all the payment retries that contributed to the success rate"->React.string}
+      <p
+        className="!text-base text-grey-700 gap-2 inline-flex whitespace-pre justify-center font-medium text-start">
+        <span className="text-sm font-medium">
+          {"Include Payment Retries data"->React.string}
         </span>
+        <ToolTip
+          description="Your data will consist of all the payment retries that contributed to the success rate"
+          toolTipFor={<div className="cursor-pointer">
+            <Icon name="info-vacent" size=13 className="mt-1" />
+          </div>}
+          toolTipPosition=ToolTip.Top
+          newDesign=true
+        />
       </p>
     </div>
   }
