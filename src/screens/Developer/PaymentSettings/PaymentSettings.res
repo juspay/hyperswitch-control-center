@@ -484,7 +484,6 @@ module ClickToPaySection = {
         <DesktopRow>
           <FormRenderer.FieldRenderer
             labelClass="!text-fs-15 !text-grey-700 font-semibold"
-            fieldWrapperClass="w-full border-t border-gray-200 pt-8 "
             field={FormRenderer.makeFieldInfo(
               ~label="Click to Pay - Connector ID",
               ~name="authentication_product_ids.click_to_pay",
@@ -669,8 +668,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
-                <AutoRetries setCheckMaxAutoRetry />
                 <ClickToPaySection />
+                <AutoRetries setCheckMaxAutoRetry />
                 <RenderIf condition={isBusinessProfileHasThreeds}>
                   <DesktopRow>
                     <FieldRenderer
