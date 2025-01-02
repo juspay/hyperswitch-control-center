@@ -112,13 +112,10 @@ module DownloadAPIKey = {
   @react.component
   let make = (~currentRoute, ~currentTabName) => {
     <div className="flex flex-col gap-10">
-      <div
-        className="border-2 border-orange-border_orange bg-orange-warning_background_orange p-4 flex items-center gap-2 rounded">
-        <Icon name="badge-warning" />
-        <p className="text-base">
-          {"API key once misplaced cannot be restored. If misplaced, please re-generate a new key from Dashboard > Developers."->React.string}
-        </p>
-      </div>
+      <HSwitchUtils.AlertBanner
+        warningText="API key once misplaced cannot be restored. If misplaced, please re-generate a new key from Dashboard > Developers."
+        bannerType=Warning
+      />
       <div className="p-10 bg-gray-50 border rounded flex flex-col gap-6">
         <div className="flex flex-col gap-2.5">
           <div className="text-base text-grey-900 font-medium">
