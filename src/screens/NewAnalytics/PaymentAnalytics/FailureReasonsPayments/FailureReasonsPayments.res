@@ -69,6 +69,7 @@ let make = (~entity: moduleEntity) => {
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -122,7 +123,7 @@ let make = (~entity: moduleEntity) => {
       getPaymentsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value])
+  }, [startTimeVal, endTimeVal, groupBy.value, currency])
 
   <div>
     <ModuleHeader title={entity.title} />

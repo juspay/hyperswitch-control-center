@@ -54,6 +54,7 @@ let make = (~entity: moduleEntity) => {
   let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -107,7 +108,7 @@ let make = (~entity: moduleEntity) => {
       getRefundsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, [startTimeVal, endTimeVal, currency])
 
   <div>
     <ModuleHeader title={entity.title} />

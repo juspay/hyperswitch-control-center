@@ -80,6 +80,7 @@ let make = (
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getPaymentsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -124,7 +125,7 @@ let make = (
       getPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value])
+  }, [startTimeVal, endTimeVal, groupBy.value, currency])
   let params = {
     data: paymentsDistribution,
     xKey: Payments_Success_Rate_Distribution_With_Only_Retries->getStringFromVariant,

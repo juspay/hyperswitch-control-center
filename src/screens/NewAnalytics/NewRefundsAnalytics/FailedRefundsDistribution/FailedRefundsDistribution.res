@@ -72,6 +72,7 @@ let make = (
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getRefundsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -135,7 +136,7 @@ let make = (
       getRefundsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, [startTimeVal, endTimeVal, currency])
 
   let params = {
     data: refundsDistribution,

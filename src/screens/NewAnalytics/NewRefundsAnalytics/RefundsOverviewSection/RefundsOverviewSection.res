@@ -17,6 +17,7 @@ let make = (~entity: moduleEntity) => {
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -142,7 +143,7 @@ let make = (~entity: moduleEntity) => {
       getData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
 
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 grid-rows-2 gap-6">

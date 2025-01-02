@@ -171,6 +171,7 @@ let make = (
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let isSmartRetryEnabled =
     filterValueJson
@@ -280,7 +281,7 @@ let make = (
       getPaymentsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
 
   let mockDelay = async () => {
     if paymentsProcessedData != []->JSON.Encode.array {

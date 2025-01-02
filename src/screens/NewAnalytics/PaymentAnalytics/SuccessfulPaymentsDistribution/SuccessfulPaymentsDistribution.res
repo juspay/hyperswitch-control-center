@@ -91,6 +91,7 @@ let make = (
     ->getString("is_smart_retry_enabled", "true")
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getPaymentsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -133,7 +134,7 @@ let make = (
       getPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value])
+  }, [startTimeVal, endTimeVal, groupBy.value, currency])
 
   let params = {
     data: paymentsDistribution,

@@ -64,6 +64,7 @@ let make = (
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -157,7 +158,7 @@ let make = (
       getPaymentsSuccessRate()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
 
   let params = {
     data: paymentsSuccessRateData,
