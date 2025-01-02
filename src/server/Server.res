@@ -75,11 +75,6 @@ let serverHandler: Http.serverHandler = (request, response) => {
 
   let domain = domainFromQueryParam == "" ? domainFromXTenantId : domainFromQueryParam
 
-  Js.log2("Server.res xTenantId", xTenantId)
-  Js.log2("Server.res domainFromQueryParam", domainFromQueryParam)
-  Js.log2("Server.res domainFromXTenantId", domainFromXTenantId)
-  Js.log2("Server.res domain", domain)
-
   let path =
     arr
     ->Array.get(0)
