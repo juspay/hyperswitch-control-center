@@ -21,7 +21,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
       primary: "#006DF9",
       secondary: "#F7F7F7",
       sidebar: "#242F48",
-      background: "#F7F8FB",
+      background: "#006df9",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
