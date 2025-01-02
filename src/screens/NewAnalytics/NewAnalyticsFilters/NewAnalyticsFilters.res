@@ -1,5 +1,4 @@
 open LogicUtils
-open Promise
 open APIUtils
 open NewAnalyticsFiltersUtils
 open NewAnalyticsFiltersHelper
@@ -138,13 +137,10 @@ let make = (~entityName, ~domain) => {
         ->AnalyticsUtils.filterBody
         ->JSON.Encode.object
 
-      updateDetails(url, body, Post)
-      ->thenResolve(json => {
-        json->responseHandler
-        setScreenState(_ => PageLoaderWrapper.Success)
-      })
-      ->catch(_ => resolve())
-      ->ignore
+      let response = await updateDetails(url, body, Post)
+
+      response->responseHandler
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => ()
     }
