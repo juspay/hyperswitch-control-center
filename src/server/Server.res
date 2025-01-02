@@ -59,22 +59,14 @@ let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
   let header = request.headers
-  let hostHeader = header->Dict.get("host")
   let xTenantId = header->Dict.get("x-tenant-id")
 
   Js.log2("Server.res request", request)
-  Js.log2("Server.res request header", header)
-  Js.log2("Server.res hostHeader", header)
+  Js.log2("Server.res headers", header)
   Js.log2("Server.res xTenantId", xTenantId)
 
-  let domain = switch hostHeader
-  ->Option.getOr("")
-  ->String.split(".")
-  ->Array.get(0)
-  ->Option.getOr("default") {
-  | "app"
-  | "integ"
-  | "live" => "default"
+  let domain = switch xTenantId->Option.getOr("public") {
+  | "public" => "default"
   | value => value
   }
 
