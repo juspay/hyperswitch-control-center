@@ -93,4 +93,4 @@ type singleStatConfig = {
 
 type filters = [#currency]
 
-type defaultFilters = [#all_currencies]
+type defaultFilters = [#all_currencies | #none]

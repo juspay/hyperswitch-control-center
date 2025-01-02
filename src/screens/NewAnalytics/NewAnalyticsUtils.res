@@ -53,7 +53,7 @@ let fillMissingDataPoints = (
 
 open NewAnalyticsTypes
 let globalFilter: array<filters> = [#currency]
-let globalExcludeValue = ["all_currencies"]
+let globalExcludeValue = [(#all_currencies: defaultFilters :> string)]
 
 let requestBody = (
   ~startTime: string,
@@ -82,8 +82,8 @@ let requestBody = (
 }
 
 let formatCurrency = currency => {
-  switch currency {
-  | "all_currencies" => "USD*"
+  switch currency->NewAnalyticsFiltersUtils.getTypeValue {
+  | #all_currencies => "USD*"
   | _ => currency->String.toUpperCase
   }
 }
