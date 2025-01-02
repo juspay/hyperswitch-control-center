@@ -62,6 +62,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -81,12 +82,13 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let body = NewAnalyticsUtils.requestBody(
+      let body = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[Connector->getStringFromVariant]->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let response = await updateDetails(url, body, Post)
@@ -95,17 +97,19 @@ let make = (
         response->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
       if responseTotalNumberData->Array.length > 0 {
-        // TODO: need refactor on filters
         let filters = Dict.make()
         filters->Dict.set("refund_status", ["failure"->JSON.Encode.string]->JSON.Encode.array)
 
-        let body = NewAnalyticsUtils.requestBody(
+        let body = requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
-          ~filter=filters->JSON.Encode.object->Some,
           ~delta=entity.requestBodyConfig.delta,
           ~metrics=entity.requestBodyConfig.metrics,
           ~groupByNames=[Connector->getStringFromVariant]->Some,
+          ~filter=generateFilterObject(
+            ~globalFilters=filterValueJson,
+            ~localFilters=filters->Some,
+          )->Some,
         )
 
         let response = await updateDetails(url, body, Post)

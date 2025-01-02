@@ -29,13 +29,14 @@ let defaultValue =
   ->Identity.genericTypeToJson
   ->LogicUtils.getDictFromJsonObject
 
-let getPayload = (~entity, ~metrics, ~startTime, ~endTime) => {
+let getPayload = (~entity, ~metrics, ~startTime, ~endTime, ~filter=None) => {
   open NewAnalyticsTypes
   NewAnalyticsUtils.requestBody(
     ~startTime,
     ~endTime,
     ~delta=entity.requestBodyConfig.delta,
     ~metrics,
+    ~filter,
   )
 }
 

@@ -60,7 +60,7 @@ let requestBody = (
   ~endTime: string,
   ~metrics: array<metrics>,
   ~groupByNames: option<array<string>>=None,
-  ~filter: option<JSON.t>=None,
+  ~filter: option<JSON.t>,
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,
@@ -480,8 +480,8 @@ let generateFilterObject = (~globalFilters, ~localFilters=None) => {
   })
 
   switch localFilters {
-  | Some(arr) =>
-    arr
+  | Some(dict) =>
+    dict
     ->Dict.toArray
     ->Array.forEach(item => {
       let (key, value) = item

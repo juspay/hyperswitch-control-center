@@ -3,6 +3,7 @@ let make = () => {
   open NewAnalyticsContainerUtils
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
@@ -26,10 +27,11 @@ let make = () => {
       let date = (Date.make()->Date.toString->DayJs.getDayJsForString).format(
         "YYYY-MM-DDTHH:mm:00[Z]",
       )
-      let body = NewAnalyticsUtils.requestBody(
+      let body = requestBody(
         ~startTime=date,
         ~endTime=date,
         ~metrics=[#sessionized_payment_processed_amount],
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
       let _ = await updateDetails(url, body, Post)
       setScreenState(_ => Success)

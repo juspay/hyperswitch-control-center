@@ -4,6 +4,7 @@ open RefundsOverviewSectionUtils
 open NewAnalyticsHelper
 open LogicUtils
 open APIUtils
+open NewAnalyticsUtils
 @react.component
 let make = (~entity: moduleEntity) => {
   let getURL = useGetURL()
@@ -29,14 +30,14 @@ let make = (~entity: moduleEntity) => {
         ~id=Some((#refunds: domain :> string)),
       )
 
-      let amountRateBodyRefunds = NewAnalyticsUtils.requestBody(
+      let amountRateBodyRefunds = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      // TODO: need refactor on filters
       let filters = Dict.make()
       filters->Dict.set(
         "refund_status",
@@ -47,13 +48,16 @@ let make = (~entity: moduleEntity) => {
         ->JSON.Encode.array,
       )
 
-      let statusCountBodyRefunds = NewAnalyticsUtils.requestBody(
+      let statusCountBodyRefunds = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~groupByNames=["refund_status"]->Some,
-        ~filter=filters->JSON.Encode.object->Some,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_count],
+        ~filter=generateFilterObject(
+          ~globalFilters=filterValueJson,
+          ~localFilters=filters->Some,
+        )->Some,
       )
 
       let amountRateResponseRefunds = await updateDetails(refundsUrl, amountRateBodyRefunds, Post)
@@ -72,20 +76,24 @@ let make = (~entity: moduleEntity) => {
         ~ids=[Successful_Refund_Count, Failed_Refund_Count, Pending_Refund_Count],
       )
 
-      let secondaryAmountRateBodyRefunds = NewAnalyticsUtils.requestBody(
+      let secondaryAmountRateBodyRefunds = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let secondaryStatusCountBodyRefunds = NewAnalyticsUtils.requestBody(
+      let secondaryStatusCountBodyRefunds = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~groupByNames=["refund_status"]->Some,
-        ~filter=filters->JSON.Encode.object->Some,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_count],
+        ~filter=generateFilterObject(
+          ~globalFilters=filterValueJson,
+          ~localFilters=filters->Some,
+        )->Some,
       )
 
       let secondaryData = switch comparison {
