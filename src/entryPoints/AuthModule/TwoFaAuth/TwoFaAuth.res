@@ -48,7 +48,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=USERS,
         ~userType=#CONNECT_ACCOUNT,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}`),
+        ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}`), // todo: domain shall be removed from query params later
       )
       let res = await updateDetails(url, body, Post)
       let valuesDict = res->getDictFromJsonObject
