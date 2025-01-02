@@ -60,6 +60,9 @@ let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
   let header = request.headers->Dict.get("host")
 
+  Js.log2("Server.res request", request)
+  Js.log2("Server.res host_header", header)
+
   let domain = switch header
   ->Option.getOr("")
   ->String.split(".")
@@ -70,6 +73,8 @@ let serverHandler: Http.serverHandler = (request, response) => {
   | "live" => "default"
   | value => value
   }
+
+  Js.log2("Server.res domain", domain)
 
   let path =
     arr

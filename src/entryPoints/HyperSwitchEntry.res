@@ -117,6 +117,9 @@ module HyperSwitchEntryComponent = {
     | value => value
     }
 
+    Js.log2("HyperSwitchEntry.res hostName", hostName)
+    Js.log2("HyperSwitchEntry.res domain", domain)
+
     React.useEffect(() => {
       let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
       let _ = HyperSwitchEntryUtils.setSessionDataFromHostname(~key="domain", ~domain)
