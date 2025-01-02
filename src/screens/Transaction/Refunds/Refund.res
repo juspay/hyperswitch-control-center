@@ -20,6 +20,7 @@ let make = () => {
   let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
 
   let fetchRefunds = () => {
     switch filters {
@@ -106,7 +107,7 @@ let make = () => {
           />
         </div>
       </div>
-      <PageLoaderWrapper screenState customUI={customUI()}>
+      <PageLoaderWrapper screenState customUI={customUI(filterValueJson, updateExistingKeys)}>
         <LoadedTableWithCustomColumns
           hideTitle=true
           title="Refunds"

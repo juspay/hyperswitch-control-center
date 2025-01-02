@@ -72,9 +72,8 @@ let getRefundsList = async (
   }
 }
 
-let customUI = () => {
+let customUI = (filterValueJson, updateExistingKeys) => {
   open LogicUtils
-  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString("start_time", "")
 
   let handleClick = _ => {
