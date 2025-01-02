@@ -100,7 +100,7 @@ let getUserManagementViewValues = (~checkUserEntity) => {
     entity: #Profile,
   }
   let default = {
-    label: "My Team",
+    label: "All",
     entity: #Default,
   }
 
