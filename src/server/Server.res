@@ -58,12 +58,14 @@ let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
-  let header = request.headers->Dict.get("host")
+  let header = request.headers
+  let hostHeader = header->Dict.get("host")
 
   Js.log2("Server.res request", request)
-  Js.log2("Server.res host_header", header)
+  Js.log2("Server.res request header", header)
+  Js.log2("Server.res hostHeader", header)
 
-  let domain = switch header
+  let domain = switch hostHeader
   ->Option.getOr("")
   ->String.split(".")
   ->Array.get(0)
