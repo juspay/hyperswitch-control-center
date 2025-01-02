@@ -49,7 +49,7 @@ module ClonePaymentMethodsModal = {
             </p>
             <div>
               <p> {"Target Profile"->React.string} </p>
-              <RenderIf condition={retainCloneModal}>
+              <RenderIf condition={retainCloneModal && showModal}>
                 <div className="w-48">
                   <ProfileSwitch
                     showSwitchModal=false setButtonState showHeading=false customMargin="mt-8"
