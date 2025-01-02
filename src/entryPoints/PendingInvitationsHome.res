@@ -55,8 +55,14 @@ module InviteForMultipleInvitation = {
                   <div className="flex items-center gap-3">
                     <Icon size=40 name="group-users-without-circle" />
                     <div>
-                      {`You've been invited to the Hyperswitch dashboard by `->React.string}
-                      <span className="font-bold"> {ele.entityId->React.string} </span>
+                      {`You've been invited to `->React.string}
+                      <span className="font-bold">
+                        {(
+                          ele.entityName->isNonEmptyString ? ele.entityName : ele.entityId
+                        )->React.string}
+                      </span>
+                      {` as `->React.string}
+                      <span className="font-bold"> {ele.roleId->snakeToTitle->React.string} </span>
                     </div>
                   </div>
                   {switch checkIfInvitationAccepted(ele.entityId, ele.entityType) {
@@ -107,10 +113,16 @@ module InviteForSingleInvitation = {
       <div className="flex items-center gap-3">
         <Icon size=40 name="group-users-without-circle" />
         <div>
-          {`You've been invited to the Hyperswitch dashboard by `->React.string}
-          <span className="font-bold"> {inviteValue.entityId->React.string} </span>
+          {`You've been invited to `->React.string}
+          <span className="font-bold">
+            {(
+              inviteValue.entityName->isNonEmptyString
+                ? inviteValue.entityName
+                : inviteValue.entityId
+            )->React.string}
+          </span>
           {` as `->React.string}
-          <span className="font-bold"> {inviteValue.roleId->React.string} </span>
+          <span className="font-bold"> {inviteValue.roleId->snakeToTitle->React.string} </span>
         </div>
       </div>
       <Button
@@ -123,7 +135,7 @@ module InviteForSingleInvitation = {
   }
 }
 @react.component
-let make = () => {
+let make = (~setAppScreenState) => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
@@ -147,6 +159,7 @@ let make = () => {
 
   let acceptInvite = async acceptedInvitesArray => {
     try {
+      setAppScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITATION_HOME, ~methodType=Post)
 
       let body =
@@ -164,6 +177,7 @@ let make = () => {
       let _ = await updateDetails(url, body, Post)
       setShowModal(_ => false)
       getListOfMerchantIds()->ignore
+      setAppScreenState(_ => Success)
     } catch {
     | _ => showToast(~message="Failed to accept invitations!", ~toastType=ToastError)
     }

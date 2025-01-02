@@ -125,7 +125,9 @@ module PaymentsProcessedHeader = {
           {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
         </div>
         <RenderIf condition={comparison == EnableComparison}>
-          <StatisticsCard value direction />
+          <StatisticsCard
+            value direction tooltipValue={`${secondaryValue->valueFormatter(metricType)} ${suffix}`}
+          />
         </RenderIf>
       </div>
       // will enable it in future
@@ -185,26 +187,18 @@ let make = (
       )
 
       let primaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
-        ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
-        ~customFilter=entity.requestBodyConfig.customFilter,
-        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
 
       let secondaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
-        ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
-        ~customFilter=entity.requestBodyConfig.customFilter,
-        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
 

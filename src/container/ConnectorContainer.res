@@ -53,9 +53,9 @@ let make = () => {
         <EntityScaffold
           entityName="PayoutConnectors"
           remainingPath
-          renderList={() => <ConnectorList isPayoutFlow=true />}
-          renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
-          renderShow={(_, _) => <ConnectorHome isPayoutFlow=true />}
+          renderList={() => <PayoutProcessorList />}
+          renderNewForm={() => <PayoutProcessorHome />}
+          renderShow={(_, _) => <PayoutProcessorHome />}
         />
       </AccessControl>
     | list{"3ds-authenticators", ...remainingPath} =>
@@ -141,6 +141,13 @@ let make = () => {
           renderShow={(routingType, _) => <PayoutRoutingConfigure routingType />}
         />
       </AccessControl>
+    | list{"payment-settings", ...remainingPath} =>
+      <EntityScaffold
+        entityName="PaymentSettings"
+        remainingPath
+        renderList={() => <PaymentSettingsList />}
+        renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
+      />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

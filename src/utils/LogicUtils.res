@@ -40,25 +40,6 @@ let safeParse = st => {
   safeParseOpt(st)->Option.getOr(JSON.Encode.null)
 }
 
-type numericComparisionType =
-  | LessThan(int, bool)
-  | GreaterThan(int, bool)
-  | EqualTo(array<int>)
-
-type numericConditionCheck = {key: string, validRules: array<numericComparisionType>}
-type conditionCheck = {key: string, vals: array<string>, not: bool}
-
-type condition =
-  | NoCondition
-  | NumericCondition(numericConditionCheck)
-  | ComparisionCheck(conditionCheck)
-
-type rec logics = Return(array<(int, array<string>)>) | IfElse(array<logic>)
-and logic = {
-  condition: condition,
-  logics: logics,
-}
-
 let getDictFromJsonObject = json => {
   switch json->JSON.Decode.object {
   | Some(dict) => dict
@@ -329,6 +310,9 @@ let setDictNull = (dict, key, optionStr) => {
 }
 let setOptionString = (dict, key, optionStr) =>
   optionStr->Option.mapOr((), str => dict->Dict.set(key, str->JSON.Encode.string))
+
+let setOptionJson = (dict, key, optionJson) =>
+  optionJson->Option.mapOr((), json => dict->Dict.set(key, json))
 
 let setOptionBool = (dict, key, optionInt) =>
   optionInt->Option.mapOr((), bool => dict->Dict.set(key, bool->JSON.Encode.bool))
@@ -695,3 +679,6 @@ let getValFromNullableValue = (val, default) => {
 }
 
 let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).format(format)
+
+let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
+  keys->Array.forEach(key => dict->Dict.delete(key))

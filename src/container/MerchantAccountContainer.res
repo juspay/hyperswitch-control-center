@@ -2,12 +2,17 @@
 Modules that depend on Merchant data are located within this container.
  */
 @react.component
-let make = () => {
+let make = (~setAppScreenState) => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
-  let {userHasAccess, hasAnyGroupAccess, hasAllGroupsAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {
+    userHasAccess,
+    hasAnyGroupAccess,
+    hasAllGroupsAccess,
+    userHasResourceAccess,
+  } = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
@@ -40,23 +45,52 @@ let make = () => {
   <div>
     <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
       {switch url.path->urlPath {
-      | list{"home"} => <Home />
+      | list{"home"} => <Home setAppScreenState />
 
       | list{"recon"} =>
         <AccessControl
-          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} authorization=Access>
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
+          authorization={userHasResourceAccess(~resourceAccess=ReconToken)}>
           <Recon />
         </AccessControl>
-      | list{"upload-files"}
-      | list{"run-recon"}
-      | list{"recon-analytics"}
-      | list{"reports"}
-      | list{"config-settings"}
-      | list{"file-processor"} =>
+      | list{"upload-files"} =>
         <AccessControl
-          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} authorization=Access>
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
+          authorization={userHasResourceAccess(~resourceAccess=ReconUpload)}>
           <ReconModule urlList={url.path->urlPath} />
         </AccessControl>
+      | list{"run-recon"} =>
+        <AccessControl
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
+          authorization={userHasResourceAccess(~resourceAccess=RunRecon)}>
+          <ReconModule urlList={url.path->urlPath} />
+        </AccessControl>
+      | list{"recon-analytics"} =>
+        <AccessControl
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
+          authorization={userHasResourceAccess(~resourceAccess=ReconAndSettlementAnalytics)}>
+          <ReconModule urlList={url.path->urlPath} />
+        </AccessControl>
+      | list{"reports"} =>
+        <AccessControl
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
+          authorization={userHasResourceAccess(~resourceAccess=ReconReports)}>
+          <ReconModule urlList={url.path->urlPath} />
+        </AccessControl>
+      | list{"config-settings"} =>
+        <AccessControl
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
+          authorization={userHasResourceAccess(~resourceAccess=ReconConfig)}>
+          <ReconModule urlList={url.path->urlPath} />
+        </AccessControl>
+
+      // Commented as not needed now
+      // | list{"file-processor"} =>
+      //   <AccessControl
+      //     isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}
+      //     authorization={userHasResourceAccess(~resourceAccess=ReconFiles)}>
+      //     <ReconModule urlList={url.path->urlPath} />
+      //   </AccessControl>
       | list{"sdk"} =>
         <AccessControl
           isEnabled={!featureFlagDetails.isLiveMode}

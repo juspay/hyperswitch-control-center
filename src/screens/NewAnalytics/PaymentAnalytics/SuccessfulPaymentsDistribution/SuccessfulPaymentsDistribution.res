@@ -19,7 +19,7 @@ module TableModule = {
       ->getString("is_smart_retry_enabled", "true")
       ->getBoolFromString(true)
       ->getSmartRetryMetricType
-    let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
+
     let defaultCol = isSmartRetryEnabled->isSmartRetryEnbldForSuccessPmtDist
     let visibleColumns = [selectedTab->getColumn]->Array.concat([defaultCol])
     let tableData = getTableData(data)
@@ -101,15 +101,11 @@ let make = (
       )
 
       let body = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
-        ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[groupBy.value]->Some,
-        ~customFilter=entity.requestBodyConfig.customFilter,
-        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
       )
 
       let response = await updateDetails(url, body, Post)

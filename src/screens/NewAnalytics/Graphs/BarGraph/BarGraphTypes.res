@@ -19,7 +19,11 @@ type showInLegend = bool
 type name = string
 
 type title = {text: string}
-type style = {color: color}
+type style = {
+  color: color,
+  fontFamily: string,
+  fontSize: string,
+}
 type enabled = {enabled: bool}
 type credits = {
   ...enabled,
@@ -57,6 +61,7 @@ type yAxis = {
   tickInterval: tickInterval,
   min: min,
   max: max,
+  labels: labels,
 }
 
 type xAxis = {

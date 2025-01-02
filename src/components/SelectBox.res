@@ -62,6 +62,8 @@ module ListItem = {
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
     ~customRowClass="",
+    ~labelDescription=Some(""),
+    ~labelDescriptionClass="",
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let labelText = switch labelValue->String.length {
@@ -243,7 +245,7 @@ module ListItem = {
                 <Icon className={`align-middle ${optionIconStroke}`} size={12} name=iconName />
               | _ => React.null
               }}
-              <div className="w-full">
+              <div className="w-full flex">
                 {listText
                 ->Array.filter(str => str->LogicUtils.isNonEmptyString)
                 ->Array.mapWithIndex((item, i) => {
@@ -271,9 +273,14 @@ module ListItem = {
                     let selectOptions =
                       <AddDataAttributes
                         attributes=[("data-text", labelText)] key={i->Int.toString}>
-                        <span key={i->Int.toString} className=textClass value=labelText>
-                          {item->React.string}
-                        </span>
+                        {<div className="flex gap-1 items-center">
+                          <span key={i->Int.toString} className=textClass value=labelText>
+                            {item->React.string}
+                          </span>
+                          <p className={`${labelDescriptionClass}`}>
+                            {`${labelDescription->Option.getOr("")}`->React.string}
+                          </p>
+                        </div>}
                       </AddDataAttributes>
 
                     {
@@ -365,6 +372,7 @@ type dropdownOptionWithoutOptional = {
   isDisabled: bool,
   icon: Button.iconType,
   description: option<string>,
+  labelDescription: option<string>,
   iconStroke: string,
   textColor: string,
   optGroup: string,
@@ -373,6 +381,7 @@ type dropdownOptionWithoutOptional = {
 type dropdownOption = {
   label: string,
   value: string,
+  labelDescription?: string,
   optGroup?: string,
   isDisabled?: bool,
   icon?: Button.iconType,
@@ -393,6 +402,7 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     textColor: dropdownOption.textColor->Option.getOr(""),
     optGroup: dropdownOption.optGroup->Option.getOr("-"),
     customRowClass: dropdownOption.customRowClass->Option.getOr(""),
+    labelDescription: dropdownOption.labelDescription,
   }
 }
 
@@ -1105,6 +1115,7 @@ module RenderListItemInBaseRadio = {
     ~selectClass="",
     ~customScrollStyle=?,
     ~shouldDisplaySelectedOnTop,
+    ~labelDescriptionClass="",
   ) => {
     let decodedValue = value->JSON.Decode.string
     switch (decodedValue, shouldDisplaySelectedOnTop) {
@@ -1161,6 +1172,8 @@ module RenderListItemInBaseRadio = {
             customRowClass={option.customRowClass}
             optionClass
             selectClass
+            labelDescription=option.labelDescription
+            labelDescriptionClass
           />
 
         if !descriptionOnHover {
@@ -1293,6 +1306,7 @@ module BaseRadio = {
     ~customScrollStyle=?,
     ~dropdownContainerStyle="",
     ~shouldDisplaySelectedOnTop=false,
+    ~labelDescriptionClass="",
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1483,6 +1497,7 @@ module BaseRadio = {
             selectClass
             ?customScrollStyle
             shouldDisplaySelectedOnTop
+            labelDescriptionClass
           />
         } else {
           {
@@ -1613,6 +1628,7 @@ module BaseDropdown = {
     ~customScrollStyle=?,
     ~dropdownContainerStyle="",
     ~shouldDisplaySelectedOnTop=false,
+    ~labelDescriptionClass="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1883,6 +1899,7 @@ module BaseDropdown = {
         ?customScrollStyle
         dropdownContainerStyle
         shouldDisplaySelectedOnTop
+        labelDescriptionClass
       />
     }
 

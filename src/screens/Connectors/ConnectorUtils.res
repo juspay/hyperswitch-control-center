@@ -19,18 +19,19 @@ let getStepName = step => {
 }
 
 let payoutConnectorList: array<connectorTypes> = [
-  Processors(ADYEN),
-  Processors(ADYENPLATFORM),
-  Processors(CYBERSOURCE),
-  Processors(EBANX),
-  Processors(PAYPAL),
-  Processors(STRIPE),
-  Processors(WISE),
+  PayoutProcessor(ADYEN),
+  PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CYBERSOURCE),
+  PayoutProcessor(EBANX),
+  PayoutProcessor(PAYPAL),
+  PayoutProcessor(STRIPE),
+  PayoutProcessor(WISE),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(THREEDSECUREIO),
   ThreeDsAuthenticator(NETCETERA),
+  ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD),
 ]
 
 let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
@@ -59,6 +60,7 @@ let connectorList: array<connectorTypes> = [
   Processors(CYBERSOURCE),
   Processors(DATATRANS),
   Processors(DLOCAL),
+  Processors(ELAVON),
   Processors(FISERV),
   Processors(FISERVIPG),
   Processors(FORTE),
@@ -117,6 +119,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CRYPTOPAY),
   Processors(CASHTOCODE),
   Processors(CYBERSOURCE),
+  Processors(FIUU),
   Processors(IATAPAY),
   Processors(KLARNA),
   Processors(MIFINITY),
@@ -153,6 +156,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "paypal" => PayPal
   | "open_banking_pis" => OpenBankingPIS
   | "samsung_pay" => SamsungPay
+  | "paze" => Paze
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -260,6 +264,10 @@ let cybersourceInfo = {
 
 let ebanxInfo = {
   description: "Ebanx enables global organizations to grow exponentially in Rising Markets by leveraging a platform of end-to-end localized payment and financial solutions.",
+}
+
+let elavonInfo = {
+  description: "Elavon is a global payment processing company that provides businesses with secure and reliable payment solutions. As a subsidiary of U.S. Bank, Elavon serves merchants in various industries, offering services such as credit card processing, mobile payments, e-commerce solutions, and fraud prevention tools.",
 }
 
 let aciInfo = {
@@ -425,6 +433,10 @@ let netceteraInfo = {
   description: "Cost-effective 3DS authentication platform ensuring security. Elevate checkout experience, boost conversion rates, and maintain regulatory compliance with Netcetera",
 }
 
+let clickToPayInfo = {
+  description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
+}
+
 let unknownConnectorInfo = {
   description: "unkown connector",
 }
@@ -533,7 +545,6 @@ let riskifyedInfo = {
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
-  | ADYENPLATFORM => "adyenplatform"
   | CHECKOUT => "checkout"
   | BRAINTREE => "braintree"
   | AUTHORIZEDOTNET => "authorizedotnet"
@@ -544,7 +555,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | AIRWALLEX => "airwallex"
   | WORLDPAY => "worldpay"
   | CYBERSOURCE => "cybersource"
-  | EBANX => "ebanx"
+  | ELAVON => "elavon"
   | ACI => "aci"
   | WORLDLINE => "worldline"
   | FISERV => "fiserv"
@@ -578,7 +589,6 @@ let getConnectorNameString = (connector: processorTypes) =>
   | NOON => "noon"
   | STRIPE_TEST => "stripe_test"
   | PAYPAL_TEST => "paypal_test"
-  | WISE => "wise"
   | STAX => "stax"
   | GOCARDLESS => "gocardless"
   | VOLT => "volt"
@@ -604,10 +614,22 @@ let getConnectorNameString = (connector: processorTypes) =>
   | NEXIXPAY => "nexixpay"
   }
 
+let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
+  switch payoutProcessor {
+  | ADYEN => "adyen"
+  | ADYENPLATFORM => "adyenplatform"
+  | CYBERSOURCE => "cybersource"
+  | EBANX => "ebanx"
+  | PAYPAL => "paypal"
+  | STRIPE => "stripe"
+  | WISE => "wise"
+  }
+
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "threedsecureio"
   | NETCETERA => "netcetera"
+  | CLICK_TO_PAY_MASTERCARD => "ctp_mastercard"
   }
 
 let getFRMNameString = (frm: frmTypes) => {
@@ -634,6 +656,7 @@ let getTaxProcessorNameString = (taxProcessor: taxProcessorTypes) => {
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
+  | PayoutProcessor(connector) => connector->getPayoutProcessorNameString
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getThreeDsAuthenticatorNameString
   | FRM(frmConnector) => frmConnector->getFRMNameString
@@ -649,7 +672,6 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | Processor =>
     switch connector {
     | "adyen" => Processors(ADYEN)
-    | "adyenplatform" => Processors(ADYENPLATFORM)
     | "checkout" => Processors(CHECKOUT)
     | "braintree" => Processors(BRAINTREE)
     | "authorizedotnet" => Processors(AUTHORIZEDOTNET)
@@ -660,7 +682,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "airwallex" => Processors(AIRWALLEX)
     | "worldpay" => Processors(WORLDPAY)
     | "cybersource" => Processors(CYBERSOURCE)
-    | "ebanx" => Processors(EBANX)
+    | "elavon" => Processors(ELAVON)
     | "aci" => Processors(ACI)
     | "worldline" => Processors(WORLDLINE)
     | "fiserv" => Processors(FISERV)
@@ -694,7 +716,6 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "powertranz" => Processors(POWERTRANZ)
     | "tsys" => Processors(TSYS)
     | "noon" => Processors(NOON)
-    | "wise" => Processors(WISE)
     | "stax" => Processors(STAX)
     | "cryptopay" => Processors(CRYPTOPAY)
     | "gocardless" => Processors(GOCARDLESS)
@@ -720,10 +741,22 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "nexixpay" => Processors(NEXIXPAY)
     | _ => UnknownConnector("Not known")
     }
+  | PayoutProcessor =>
+    switch connector {
+    | "adyen" => PayoutProcessor(ADYEN)
+    | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
+    | "cybersource" => PayoutProcessor(CYBERSOURCE)
+    | "ebanx" => PayoutProcessor(EBANX)
+    | "paypal" => PayoutProcessor(PAYPAL)
+    | "stripe" => PayoutProcessor(STRIPE)
+    | "wise" => PayoutProcessor(WISE)
+    | _ => UnknownConnector("Not known")
+    }
   | ThreeDsAuthenticator =>
     switch connector {
     | "threedsecureio" => ThreeDsAuthenticator(THREEDSECUREIO)
     | "netcetera" => ThreeDsAuthenticator(NETCETERA)
+    | "ctp_mastercard" => ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD)
     | _ => UnknownConnector("Not known")
     }
   | FRMPlayer =>
@@ -742,15 +775,13 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "taxjar" => TaxProcessor(TAXJAR)
     | _ => UnknownConnector("Not known")
     }
-  | _ => UnknownConnector("Not known")
   }
 }
 
-let getProcessorInfo = connector => {
+let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   switch connector {
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
-  | ADYENPLATFORM => adyenPlatformInfo
   | GOCARDLESS => goCardLessInfo
   | CHECKOUT => checkoutInfo
   | BRAINTREE => braintreeInfo
@@ -761,7 +792,7 @@ let getProcessorInfo = connector => {
   | AIRWALLEX => airwallexInfo
   | WORLDPAY => worldpayInfo
   | CYBERSOURCE => cybersourceInfo
-  | EBANX => ebanxInfo
+  | ELAVON => elavonInfo
   | ACI => aciInfo
   | WORLDLINE => worldlineInfo
   | FISERV => fiservInfo
@@ -792,7 +823,6 @@ let getProcessorInfo = connector => {
   | PAYME => paymeInfo
   | GLOBEPAY => globepayInfo
   | POWERTRANZ => powertranzInfo
-  | WISE => wiseInfo
   | TSYS => tsysInfo
   | NOON => noonInfo
   | STRIPE_TEST => stripeTestInfo
@@ -820,10 +850,24 @@ let getProcessorInfo = connector => {
   | NEXIXPAY => nexixpayInfo
   }
 }
+
+let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTypes) => {
+  switch payoutconnector {
+  | ADYEN => adyenInfo
+  | ADYENPLATFORM => adyenPlatformInfo
+  | CYBERSOURCE => cybersourceInfo
+  | EBANX => ebanxInfo
+  | PAYPAL => paypalInfo
+  | STRIPE => stripeInfo
+  | WISE => wiseInfo
+  }
+}
+
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => threedsecuredotioInfo
   | NETCETERA => netceteraInfo
+  | CLICK_TO_PAY_MASTERCARD => clickToPayInfo
   }
 let getFrmInfo = frm =>
   switch frm {
@@ -848,6 +892,7 @@ let getTaxProcessorInfo = (taxProcessor: ConnectorTypes.taxProcessorTypes) => {
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
+  | PayoutProcessor(connector) => connector->getPayoutProcessorInfo
   | ThreeDsAuthenticator(threeDsAuthenticator) => threeDsAuthenticator->getThreedsAuthenticatorInfo
   | FRM(frm) => frm->getFrmInfo
   | PMAuthenticationProcessor(pmAuthenticationConnector) =>
@@ -959,16 +1004,16 @@ let mapAuthType = (authType: string) => {
   }
 }
 
-let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow) => {
-  isPayoutFlow
-    ? "payout_processor"
-    : switch connector {
-      | ThreeDsAuthenticator(_) => "authentication_processor"
-      | PMAuthenticationProcessor(_) => "payment_method_auth"
-      | TaxProcessor(_) => "tax_processor"
-      | UnknownConnector(str) => str
-      | _ => "payment_processor"
-      }
+let getConnectorType = (connector: ConnectorTypes.connectorTypes) => {
+  switch connector {
+  | Processors(_) => "payment_processor"
+  | PayoutProcessor(_) => "payout_processor"
+  | ThreeDsAuthenticator(_) => "authentication_processor"
+  | PMAuthenticationProcessor(_) => "payment_method_auth"
+  | TaxProcessor(_) => "tax_processor"
+  | FRM(_) => "payment_vas"
+  | UnknownConnector(str) => str
+  }
 }
 
 let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>, paymentMethod) => {
@@ -1079,7 +1124,6 @@ let generateInitialValuesDict = (
   ~values,
   ~connector: string,
   ~bodyType,
-  ~isPayoutFlow=false,
   ~isLiveMode=false,
   ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
 ) => {
@@ -1096,10 +1140,7 @@ let generateInitialValuesDict = (
   dict->Dict.set("connector_name", connector->JSON.Encode.string)
   dict->Dict.set(
     "connector_type",
-    getConnectorType(
-      connector->getConnectorNameTypeFromString(~connectorType),
-      ~isPayoutFlow,
-    )->JSON.Encode.string,
+    getConnectorType(connector->getConnectorNameTypeFromString(~connectorType))->JSON.Encode.string,
   )
   dict->Dict.set("disabled", dict->getBool("disabled", false)->JSON.Encode.bool)
   dict->Dict.set("test_mode", (isLiveMode ? false : true)->JSON.Encode.bool)
@@ -1224,8 +1265,22 @@ let validateConnectorRequiredFields = (
       | Toggle => valuesFlattenJson->getBool(`${key}`, false)->getStringFromBool
       | _ => ""
       }
-      if value->String.length === 0 && required {
-        Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+
+      let multiSelectValue = switch \"type" {
+      | MultiSelect => valuesFlattenJson->getArrayFromDict(key, [])
+      | _ => []
+      }
+
+      switch \"type" {
+      | Text | Select | Toggle =>
+        if value->isEmptyString && required {
+          Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+        }
+      | MultiSelect =>
+        if multiSelectValue->Array.length === 0 && required {
+          Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+        }
+      | _ => ()
       }
     })
   }
@@ -1506,13 +1561,13 @@ let defaultSelectAllCards = (
 }
 
 let getConnectorPaymentMethodDetails = async (
-  initialValues,
-  setPaymentMethods,
-  setMetaData,
-  isUpdateFlow,
-  isPayoutFlow,
-  connector,
-  updateDetails,
+  ~initialValues,
+  ~setPaymentMethods,
+  ~setMetaData,
+  ~isUpdateFlow,
+  ~isPayoutFlow,
+  ~connector,
+  ~updateDetails,
 ) => {
   open LogicUtils
   try {
@@ -1543,13 +1598,13 @@ let getConnectorPaymentMethodDetails = async (
 let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
   items->Array.filter(dict => {
     let connectorType = dict.connector_type
-    let isPayoutConnector = connectorType == "payout_processor"
+    let isPayoutProcessor = connectorType == "payout_processor"
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
     let isPMAuthenticationProcessor = connectorType == "payment_method_auth"
     let isTaxProcessor = connectorType == "tax_processor"
     let isConnector =
       connectorType !== "payment_vas" &&
-      !isPayoutConnector &&
+      !isPayoutProcessor &&
       !isThreeDsAuthenticator &&
       !isPMAuthenticationProcessor &&
       !isTaxProcessor
@@ -1557,7 +1612,7 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
     switch removeFromList {
     | Processor => !isConnector
     | FRMPlayer => isConnector
-    | PayoutConnector => isPayoutConnector
+    | PayoutProcessor => isPayoutProcessor
     | ThreeDsAuthenticator => isThreeDsAuthenticator
     | PMAuthenticationProcessor => isPMAuthenticationProcessor
     | TaxProcessor => isTaxProcessor
@@ -1572,10 +1627,9 @@ let getProcessorsListFromJson = (
   connnectorList->filterList(~removeFromList)
 }
 
-let getDisplayNameForProcessor = connector =>
+let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
   | ADYEN => "Adyen"
-  | ADYENPLATFORM => "Adyen Platform"
   | CHECKOUT => "Checkout"
   | BRAINTREE => "Braintree"
   | BILLWERK => "Billwerk"
@@ -1587,7 +1641,7 @@ let getDisplayNameForProcessor = connector =>
   | AIRWALLEX => "Airwallex"
   | WORLDPAY => "Worldpay"
   | CYBERSOURCE => "Cybersource"
-  | EBANX => "Ebanx"
+  | ELAVON => "Elavon"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
   | FISERV => "Fiserv Commerce Hub"
@@ -1621,7 +1675,6 @@ let getDisplayNameForProcessor = connector =>
   | NOON => "Noon"
   | STRIPE_TEST => "Stripe Dummy"
   | PAYPAL_TEST => "Paypal Dummy"
-  | WISE => "Wise"
   | STAX => "Stax"
   | GOCARDLESS => "GoCardless"
   | VOLT => "Volt"
@@ -1646,10 +1699,22 @@ let getDisplayNameForProcessor = connector =>
   | NEXIXPAY => "Nexixpay"
   }
 
+let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
+  switch payoutProcessor {
+  | ADYEN => "Adyen"
+  | ADYENPLATFORM => "Adyen Platform"
+  | CYBERSOURCE => "Cybersource"
+  | EBANX => "Ebanx"
+  | PAYPAL => "PayPal"
+  | STRIPE => "Stripe"
+  | WISE => "Wise"
+  }
+
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
   | NETCETERA => "Netcetera"
+  | CLICK_TO_PAY_MASTERCARD => "Unified Click to Pay"
   }
 
 let getDisplayNameForFRMConnector = frmConnector =>
@@ -1674,6 +1739,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
   | Processors(connector) => connector->getDisplayNameForProcessor
+  | PayoutProcessor(payoutProcessor) => payoutProcessor->getDisplayNameForPayoutProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
   | FRM(frmConnector) => frmConnector->getDisplayNameForFRMConnector
@@ -1697,7 +1763,7 @@ let connectorTypeTuple = connectorType => {
   switch connectorType {
   | "payment_processor" => (PaymentProcessor, Processor)
   | "payment_vas" => (PaymentVas, FRMPlayer)
-  | "payout_processor" => (PayoutProcessor, PayoutConnector)
+  | "payout_processor" => (PayoutProcessor, PayoutProcessor)
   | "authentication_processor" => (AuthenticationProcessor, ThreeDsAuthenticator)
   | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
   | "tax_processor" => (TaxProcessor, TaxProcessor)
@@ -1750,4 +1816,13 @@ let updateMetaData = (~metaData) => {
     }
   | false => ()
   }
+}
+
+let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
+  arr->Array.sort((a, b) =>
+    LogicUtils.numericArraySortComperator(
+      getDisabledStatus(a) ? 1.0 : 0.0,
+      getDisabledStatus(b) ? 1.0 : 0.0,
+    )
+  )
 }

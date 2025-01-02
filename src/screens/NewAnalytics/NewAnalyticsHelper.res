@@ -1,3 +1,4 @@
+let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 module Card = {
   @react.component
   let make = (~children) => {
@@ -169,21 +170,35 @@ module CustomDropDown = {
 module StatisticsCard = {
   open NewAnalyticsTypes
   @react.component
-  let make = (~value, ~direction) => {
+  let make = (~value, ~tooltipValue, ~direction, ~isOverviewComponent=false) => {
     let (bgColor, textColor) = switch direction {
     | Upward => ("bg-green-light", "text-green-dark")
     | Downward => ("bg-red-light", "text-red-dark")
     | No_Change => ("bg-gray-100", "text-gray-500")
     }
 
-    <div className={`${bgColor} ${textColor} w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
-      <div className="-mb-0.5 flex">
-        <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
-        <div className="font-semibold text-sm pt-0.5 pr-0.5">
-          {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
+    let icon = switch direction {
+    | Downward => <img alt="image" className="h-6 w-5 mb-1 mr-1" src={`/icons/arrow.svg`} />
+    | Upward | No_Change => <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
+    }
+
+    let wrapperClass = isOverviewComponent ? "scale-[0.9]" : ""
+
+    <ToolTip
+      description=tooltipValue
+      toolTipFor={<div
+        className={`${wrapperClass} ${bgColor} ${textColor} cursor-pointer w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
+        <div className="-mb-0.5 flex">
+          {icon}
+          <div className="font-semibold text-sm pt-0.5 pr-0.5">
+            {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
+          </div>
         </div>
-      </div>
-    </div>
+      </div>}
+      toolTipPosition={Top}
+      newDesign=true
+      tooltipArrowSize=0
+    />
   }
 }
 
@@ -201,24 +216,6 @@ module ModuleHeader = {
   @react.component
   let make = (~title) => {
     <h2 className="font-semibold text-xl text-jp-gray-900 pb-5"> {title->React.string} </h2>
-  }
-}
-
-module GraphHeader = {
-  open NewAnalyticsTypes
-  @react.component
-  let make = (~title, ~showTabSwitch, ~viewType, ~setViewType=_ => ()) => {
-    <div className="w-full px-7 py-8 flex justify-between">
-      <div className="flex gap-2 items-center">
-        <div className="text-3xl font-600"> {title->React.string} </div>
-        <StatisticsCard value=8.8 direction={Upward} />
-      </div>
-      <RenderIf condition={showTabSwitch}>
-        <div className="flex gap-2">
-          <TabSwitch viewType setViewType />
-        </div>
-      </RenderIf>
-    </div>
   }
 }
 
@@ -261,5 +258,53 @@ module SmartRetryToggle = {
         </span>
       </p>
     </div>
+  }
+}
+
+module OverViewStat = {
+  open NewAnalyticsUtils
+  open NewAnalyticsTypes
+  @react.component
+  let make = (
+    ~responseKey,
+    ~data,
+    ~config: singleStatConfig,
+    ~getValueFromObj,
+    ~getStringFromVariant,
+  ) => {
+    open LogicUtils
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+
+    let primaryValue = getValueFromObj(data, 0, responseKey->getStringFromVariant)
+    let secondaryValue = getValueFromObj(data, 1, responseKey->getStringFromVariant)
+
+    let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
+    let displyValue = valueFormatter(primaryValue, config.valueType)
+    let suffix = config.valueType == Amount ? "USD" : ""
+
+    <Card>
+      <div className="p-6 flex flex-col gap-4 justify-between h-full gap-auto relative">
+        <div className="flex justify-between w-full items-end">
+          <div className="flex gap-1 items-center">
+            <div className="font-bold text-3xl"> {`${displyValue} ${suffix}`->React.string} </div>
+            <div className="scale-[0.9]">
+              <RenderIf condition={comparison === EnableComparison}>
+                <StatisticsCard
+                  value
+                  direction
+                  tooltipValue={`${valueFormatter(secondaryValue, config.valueType)} ${suffix}`}
+                />
+              </RenderIf>
+            </div>
+          </div>
+        </div>
+        <div className={"flex flex-col gap-1  text-black"}>
+          <div className="font-semibold  dark:text-white"> {config.titleText->React.string} </div>
+          <div className="opacity-50 text-sm"> {config.description->React.string} </div>
+        </div>
+      </div>
+    </Card>
   }
 }

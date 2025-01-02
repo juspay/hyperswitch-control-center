@@ -1,4 +1,3 @@
-open NewPaymentAnalyticsUtils
 open SuccessfulPaymentsDistributionTypes
 open LogicUtils
 
@@ -27,6 +26,7 @@ let successfulPaymentsDistributionMapper = (
   ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
+  open NewAnalyticsUtils
   let {data, xKey, yKey} = params
   let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
 
@@ -34,7 +34,7 @@ let successfulPaymentsDistributionMapper = (
     ~array=data->getArrayFromJson([]),
     ~key=xKey,
     ~name=xKey->snakeToTitle,
-    ~color="#7CC88F",
+    ~color=barGreenColor,
   )
   let title = {
     text: "",

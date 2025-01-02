@@ -62,15 +62,19 @@ let make = () => {
     <div className="min-h-[50vh]">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-          selectedEntity={transactionEntity}
-          onChange={updateTransactionEntity}
-        />
+        <Portal to="PayoutsOMPView">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+            entityMapper=UserInfoUtils.transactionEntityMapper
+          />
+        </Portal>
       </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
+            title="Payouts"
             apiType=Post
             setFilters
             endTimeFilterKey
@@ -79,7 +83,7 @@ let make = () => {
             initialFixedFilter
             setOffset
             customLeftView={<SearchBarFilter
-              placeholder="Search payout id" setSearchVal=setSearchText searchVal=searchText
+              placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
             />}
             entityName=PAYOUTS_FILTERS
           />

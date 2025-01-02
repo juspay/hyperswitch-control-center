@@ -6,12 +6,18 @@ let make = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
+  let {newAnalyticsSmartRetries, newAnalyticsRefunds} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let tempRecallAmountMetrics = async () => {
     try {
       //Currency Conversion is failing in Backend for the first time so to fix that we are the calling the api for one time and ignoring the error
@@ -21,7 +27,6 @@ let make = () => {
         "YYYY-MM-DDTHH:mm:00[Z]",
       )
       let body = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=date,
         ~endTime=date,
         ~metrics=[#sessionized_payment_processed_amount],
@@ -72,12 +77,28 @@ let make = () => {
         </div>,
     },
   ]
-  <PageLoaderWrapper screenState>
+
+  if newAnalyticsSmartRetries {
+    tabs->Array.push({
+      title: "Smart Retries",
+      renderContent: () => <NewSmartRetryAnalytics />,
+    })
+  }
+
+  if newAnalyticsRefunds {
+    tabs->Array.push({
+      title: "Refunds",
+      renderContent: () => <NewRefundsAnalytics />,
+    })
+  }
+
+  <PageLoaderWrapper key={(analyticsEntity :> string)} screenState>
     <div>
       <PageUtils.PageHeading title="Insights" />
       <div
         className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
+          title="NewAnalytics"
           initialFilters=[]
           options=[]
           popupFilterFields=[]
@@ -100,6 +121,14 @@ let make = () => {
           refreshFilters=false
         />
       </div>
+      <Portal to="NewAnalyticsOMPView">
+        <OMPSwitchHelper.OMPViews
+          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+          selectedEntity={analyticsEntity}
+          onChange={updateAnalytcisEntity}
+          entityMapper=UserInfoUtils.analyticsEntityMapper
+        />
+      </Portal>
       <Tabs
         initialIndex={url->getPageIndex}
         tabs

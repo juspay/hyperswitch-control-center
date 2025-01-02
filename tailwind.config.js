@@ -72,6 +72,12 @@ module.exports = {
       },
       maxWidth: {
         fixedPageWidth: "82.75rem",
+        860: "860px",
+        600: "600px",
+        700: "700px",
+      },
+      lineHeight: {
+        60: "60px",
       },
 
       boxShadow: {
@@ -89,6 +95,8 @@ module.exports = {
           "0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 0px 0px 4px rgba(232, 243, 255, 1)",
       },
       fontSize: {
+        base: "var(--base-font-size)",
+        heading: "var(--base-heading-font-size)",
         "fs-10": "10px",
         "fs-11": "11px",
         "fs-13": "13px",
@@ -98,14 +106,42 @@ module.exports = {
         "fs-20": "20px",
         "fs-24": "24px",
         "fs-28": "28px",
+        "fs-48": "48px",
       },
       colors: {
         primary: {
-          DEFAULT: withOpacity("--color-primary"), // Default primary color
-          hover: withOpacity("--color-hover"),
-          sidebar: withOpacity("--color-sidebar"),
-          custom: "#006DF9", // Custom primary color
+          DEFAULT: withOpacity("--colors-primary"),
+          custom: "#006DF9",
         },
+        secondary: {
+          DEFAULT: withOpacity("--colors-secondary"),
+          hover: withOpacity("--btn-secondary-hover-background-color"),
+        },
+        sidebar: {
+          DEFAULT: withOpacity("--colors-sidebar"),
+        },
+
+        background: {
+          DEFAULT: withOpacity("--colors-background"),
+        },
+        typography: {
+          DEFAULT: withOpacity("--base-text-color"),
+          link: withOpacity("--base-link-color"),
+          link_hover: withOpacity("--base-link-hover-color"),
+        },
+        button: {
+          primary: {
+            bg: withOpacity("--btn-primary-background-color"),
+            text: withOpacity("--btn-primary-text-color"),
+            hoverbg: withOpacity("--btn-primary-hover-background-color"),
+          },
+          secondary: {
+            bg: withOpacity("--btn-secondary-background-color"),
+            text: withOpacity("--btn-secondary-text-color"),
+            hoverbg: withOpacity("--btn-secondary-hover-background-color"),
+          },
+        },
+        outline: withOpacity("--borders-border-color"),
         blue: {
           100: "#F1F2F4",
           200: "#DAECFF",
@@ -233,6 +269,12 @@ module.exports = {
         offset_white: "#FEFEFE",
         light_white: "#FFFFFF0D",
         unselected_white: "#9197A3",
+      },
+      borderRadius: {
+        DEFAULT: "var(--borders-default-radius)",
+      },
+      spacing: {
+        DEFAULT: "var(--spacing-padding)",
       },
     },
   },

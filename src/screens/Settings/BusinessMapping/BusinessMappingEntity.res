@@ -176,6 +176,12 @@ let itemToObjMapper = dict => {
     is_connector_agnostic_mit_enabled: None,
     is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
+    is_click_to_pay_enabled: dict->getOptionBool("is_click_to_pay_enabled"),
+    authentication_product_ids: Some(
+      dict
+      ->getDictfromDict("authentication_product_ids")
+      ->JSON.Encode.object,
+    ),
   }
 }
 

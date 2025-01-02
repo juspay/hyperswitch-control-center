@@ -340,12 +340,12 @@ let make = (
                                 `group flex rounded-md items-center w-48 px-2 py-2 text-sm font-medium ${activeClasses}`
                               }>
                               <RenderIf condition={option.label->isNonEmptyString}>
-                                <div className="mr-5">
+                                <div className="mr-5 text-left">
                                   {option.label->snakeToTitle->React.string}
                                 </div>
                               </RenderIf>
                               <RenderIf condition={option.label->isEmptyString}>
-                                <div className="mr-5">
+                                <div className="mr-5 text-left">
                                   {option.inputNames
                                   ->getValueFromArray(0, "")
                                   ->snakeToTitle
@@ -365,8 +365,7 @@ let make = (
         </div>}
     </Menu>
 
-  <Form
-    onSubmit initialValues=initialValueJson validate={values => values->OrderUIUtils.validateForm}>
+  <Form onSubmit initialValues=initialValueJson>
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys submitInputOnEnter />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
@@ -383,6 +382,7 @@ let make = (
                 fieldWrapperClass="p-0"
               />
             </RenderIf>
+            <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
             <PortalCapture key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} />
           </div>
         </div>
