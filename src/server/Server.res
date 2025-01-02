@@ -58,18 +58,13 @@ let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
-  let header = request.headers->Dict.get("host")
-
-  let domain = switch header
-  ->Option.getOr("")
-  ->String.split(".")
-  ->Array.get(0)
-  ->Option.getOr("default") {
-  | "app"
-  | "integ"
-  | "live" => "default"
-  | value => value
-  }
+  let domain =
+    arr
+    ->Array.get(1)
+    ->Option.getOr("domain=default")
+    ->Js.String2.split("=")
+    ->Array.get(1)
+    ->Option.getOr("default")
 
   let path =
     arr
