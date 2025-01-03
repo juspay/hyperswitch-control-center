@@ -611,7 +611,7 @@ let reconConfigurator = {
 // }
 
 let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
-  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization])) {
+  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization, #Tenant])) {
   | (true, true, true) => {
       let links = []
       if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
