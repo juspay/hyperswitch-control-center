@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.03.1
+
+### Miscellaneous Tasks
+
+- Support multitenancy domain ([#1979](https://github.com/juspay/hyperswitch-control-center/pull/1979)) ([`93f318c`](https://github.com/juspay/hyperswitch-control-center/commit/93f318cf33254a4fc9363834e727dc8243a0f52d))
+
+**Full Changelog:** [`2025.01.03.0...2025.01.03.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.03.0...2025.01.03.1)
+
+- - -
+
 ## 2025.01.03.0
 
 ### Features
