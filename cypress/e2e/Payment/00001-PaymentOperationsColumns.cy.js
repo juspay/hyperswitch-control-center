@@ -5,16 +5,7 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
   const TEST_USERNAME = `cypress_${uuidv4().slice(0, 8)}@example.com`;
   const BASE_URL = "http://localhost:9000";
   const columnSize = 23;
-  const requiredColumnsSize = 13;
-
-  const selectors = {
-    email: "[data-testid=email]",
-    password: "[data-testid=password]",
-    submitButton: 'button[type="submit"]',
-    authSubmitButton: '[data-testid="auth-submit-btn"]',
-    skipNowButton: "[data-testid=skip-now]",
-    cardHeader: "[data-testid=card-header]",
-  };
+  const requiredColumnsSize = 14;
 
   before(() => {
     cy.visit(`${BASE_URL}/dashboard/login`);
@@ -23,10 +14,7 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
     cy.get("[data-testid=auth-submit-btn]").should("exist");
     cy.get("[data-testid=tc-text]").should("exist");
     cy.get("[data-testid=footer]").should("exist");
-    cy.get(selectors.email).type(TEST_USERNAME);
-    cy.get(selectors.password).type(TEST_PASSWORD);
-    cy.get(selectors.authSubmitButton).click();
-    cy.get(selectors.skipNowButton).click();
+    cy.sign_up_with_email(TEST_USERNAME, TEST_PASSWORD);
     cy.get('[data-form-label="Business name"]').should("exist");
     cy.get("[data-testid=merchant_name]").type("test_business");
     cy.get("[data-button-for=startExploring]").click();
@@ -75,7 +63,6 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
       optional: [
         "AmountCapturable",
         "Authentication Type",
-        "Profile Id",
         "Capture Method",
         "Client Secret",
         "Currency",

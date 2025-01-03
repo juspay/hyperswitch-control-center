@@ -206,15 +206,6 @@ module CheckoutForm = {
       setBtnState(_ => Button.Normal)
     }
 
-    React.useEffect(() => {
-      hyper.retrievePaymentIntent(clientSecret)
-      ->then(_ => {
-        resolve()
-      })
-      ->ignore
-      None
-    }, [hyper])
-
     <div>
       {switch paymentStatus {
       | LOADING => <Loader />

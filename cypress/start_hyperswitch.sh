@@ -1,4 +1,4 @@
-git clone https://github.com/juspay/hyperswitch
+git clone --depth 1 --branch add-mailhog https://github.com/juspay/hyperswitch
 
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 # Navigate to the cloned directory
@@ -28,4 +28,4 @@ echo "[network_tokenization_service] section removed from $toml_file."
 
 chmod +x /usr/local/bin/docker-compose
 # Start Docker Compose services in detached mode
-docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web
+docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog
