@@ -338,6 +338,8 @@ let make = (
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (isClonePMFlow, setIsClonePMFlow) = Recoil.useRecoilState(HyperswitchAtom.isClonePMFlow)
+
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
@@ -425,6 +427,9 @@ let make = (
                 mixpanelEvent(~eventName=mixpanelEventName)
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
+                }
+                if isClonePMFlow {
+                  setIsClonePMFlow(_ => false)
                 }
                 RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
               }}
