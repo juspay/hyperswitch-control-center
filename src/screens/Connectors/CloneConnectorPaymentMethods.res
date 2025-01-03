@@ -144,7 +144,7 @@ let make = (~connectorID, ~connectorName) => {
   }
   <>
     <div className="flex" onClick={handleCloneClick}>
-      <p> {"Clone"->React.string} </p>
+      <p className="text-nowrap"> {"Clone Payment Methods"->React.string} </p>
       <img alt="copy" src={`/assets/CopyToClipboard.svg`} />
     </div>
     <ClonePaymentMethodsModal showModal setShowModal />
