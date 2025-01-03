@@ -1,5 +1,5 @@
 @react.component
-let make = (~isPayoutFlow=false) => {
+let make = () => {
   open ConnectorUtils
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -18,11 +18,13 @@ let make = (~isPayoutFlow=false) => {
 
   let getConnectorListAndUpdateState = async () => {
     try {
-      let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
-
       // TODO : maintain separate list for multiple types of connectors
-      let connectorsList = connectorListFromRecoil->getProcessorsListFromJson(~removeFromList)
+      let connectorsList =
+        connectorListFromRecoil->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
       connectorsList->Array.reverse
+      ConnectorUtils.sortByDisableField(connectorsList, connectorPayload =>
+        connectorPayload.disabled
+      )
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>
@@ -37,7 +39,7 @@ let make = (~isPayoutFlow=false) => {
   React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
     None
-  }, [isPayoutFlow])
+  }, [])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -58,22 +60,16 @@ let make = (~isPayoutFlow=false) => {
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
 
-  let entityPrefix = isPayoutFlow ? "payout" : ""
-  let urlPrefix = isPayoutFlow ? "payoutconnectors/new" : "connectors/new"
   let isMobileView = MatchMedia.useMobileChecker()
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? connectorListForLive
-    : isPayoutFlow
-    ? payoutConnectorList
     : connectorList
 
   <div>
     <PageLoaderWrapper screenState>
       <RenderIf
-        condition={!featureFlagDetails.isLiveMode &&
-        configuredConnectors->Array.length == 0 &&
-        urlPrefix == "connectors/new"}>
+        condition={!featureFlagDetails.isLiveMode && configuredConnectors->Array.length == 0}>
         <div
           className="flex flex-col md:flex-row border rounded-md bg-white gap-4 shadow-generic_shadow mb-12">
           <div className="flex flex-col justify-evenly gap-6 pl-14 pb-14 pt-14 pr-2 md:pr-0">
@@ -106,11 +102,9 @@ let make = (~isPayoutFlow=false) => {
         </div>
       </RenderIf>
       <PageUtils.PageHeading
-        title={isPayoutFlow ? "Payout Processors" : `Payment Processors`}
+        title="Payment Processors"
         customHeadingStyle="mb-10"
-        subTitle={isPayoutFlow
-          ? "Connect and manage payout processors for disbursements and settlements"
-          : "Connect a test processor and get started with testing your payments"}
+        subTitle="Connect a test processor and get started with testing your payments"
       />
       <div className="flex flex-col gap-14">
         <RenderIf condition={showFeedbackModal}>
@@ -139,7 +133,7 @@ let make = (~isPayoutFlow=false) => {
             offset
             setOffset
             entity={ConnectorTableUtils.connectorEntity(
-              `${entityPrefix}connectors`,
+              "connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
@@ -147,13 +141,16 @@ let make = (~isPayoutFlow=false) => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors connectorsAvailableForIntegration urlPrefix setProcessorModal
+          configuredConnectors
+          connectorsAvailableForIntegration
+          urlPrefix="connectors/new"
+          setProcessorModal
         />
         <RenderIf condition={processorModal}>
           <DummyProcessorModal
             processorModal
             setProcessorModal
-            urlPrefix
+            urlPrefix="connectors/new"
             configuredConnectors
             connectorsAvailableForIntegration
           />

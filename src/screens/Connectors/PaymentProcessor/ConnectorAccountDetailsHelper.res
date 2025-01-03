@@ -521,18 +521,10 @@ module ConnectorHeaderWrapper = {
         | Processors(BRAINTREE) => true
         | _ => false
         }}>
-        <div className="flex flex-col gap-2 p-2 md:p-10">
-          <h1
-            className="flex items-center mx-12 leading-6 text-orange-950 bg-orange-100 border w-fit p-2 rounded-md ">
-            <div className="flex items-center text-orange-950 font-bold text-fs-14 mx-2">
-              <Icon name="hswitch-warning" size=18 className="mr-2" />
-              {"Disclaimer:"->React.string}
-            </div>
-            <div>
-              {"Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."->React.string}
-            </div>
-          </h1>
-        </div>
+        <HSwitchUtils.AlertBanner
+          warningText="Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."
+          bannerType=Warning
+        />
       </RenderIf>
       {children}
     </>

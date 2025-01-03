@@ -1,12 +1,5 @@
 @react.component
-let make = (
-  ~setCurrentStep,
-  ~connector,
-  ~setInitialValues,
-  ~initialValues,
-  ~isUpdateFlow,
-  ~isPayoutFlow,
-) => {
+let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isUpdateFlow) => {
   open ConnectorUtils
   open APIUtils
   open PageLoaderWrapper
@@ -31,15 +24,15 @@ let make = (
   let setPaymentMethodDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let _ =
-        initialValues->getConnectorPaymentMethodDetails(
-          setPaymentMethods,
-          setMetaData,
-          isUpdateFlow,
-          isPayoutFlow,
-          connector,
-          updateDetails,
-        )
+      let _ = getConnectorPaymentMethodDetails(
+        ~initialValues,
+        ~setPaymentMethods,
+        ~setMetaData,
+        ~isUpdateFlow,
+        ~isPayoutFlow=false,
+        ~connector,
+        ~updateDetails,
+      )
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) => {
@@ -117,19 +110,17 @@ let make = (
         </div>
         <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
           <div className="flex flex-col gap-6 col-span-3">
-            <h1 className="text-orange-950 bg-orange-100 border w-full p-2 rounded-md ">
-              <span className="text-orange-950 font-bold text-fs-14 mx-2">
-                {"NOTE:"->React.string}
-              </span>
-              {"Please verify if the payment methods are turned on at the processor end as well."->React.string}
-            </h1>
+            <HSwitchUtils.AlertBanner
+              warningText="Please verify if the payment methods are turned on at the processor end as well."
+              bannerType=Warning
+            />
             <PaymentMethod.PaymentMethodsRender
               _showAdvancedConfiguration
               connector
               paymentMethodsEnabled
               updateDetails
               setMetaData
-              isPayoutFlow
+              isPayoutFlow=false
               initialValues
               setInitialValues
             />
