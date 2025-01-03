@@ -204,6 +204,15 @@ module.exports = {
           dark: "#F04E42",
           light: "#FEEDEC",
         },
+        purple: {
+          700: "#804A9D",
+        },
+        cyan: {
+          800: "#4795AF",
+        },
+        brown: {
+          700: "#9B535A",
+        },
         "yellow-bg": "#F7D59B4D",
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",

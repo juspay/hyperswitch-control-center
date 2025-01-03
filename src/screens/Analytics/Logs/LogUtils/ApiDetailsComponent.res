@@ -179,23 +179,21 @@ let make = (
   let borderClass = isSelected ? `${statusCodeBorderColor} rounded-md` : "border border-transparent"
 
   let (iconName, iconColor) = switch logType {
-  | SDK => ("adjust", "text-green-dark")
+  | SDK => ("desktop", "text-brown-700")
   | WEBHOOKS => ("anchor", "text-grey-700")
-  | API_EVENTS => ("asterisk", "text-yellow-600")
-  | CONNECTOR => ("book", "text-blue-830")
+  | API_EVENTS => ("api-icon", "text-cyan-600")
+  | CONNECTOR => ("connector-icon", "text-purple-700")
   }
 
   <div className="flex items-start gap-4">
     <div className="flex flex-col items-center h-full my-4">
       <RenderIf condition={showLogType}>
-        <Icon name=iconName size=16 className=iconColor />
+        <Icon name=iconName size=12 className={iconColor} />
         <div
           className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
         />
       </RenderIf>
-      <div
-        className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300 ml-0.5`}
-      />
+      <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
       <div
         className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
       />
