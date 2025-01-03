@@ -53,8 +53,8 @@ module HyperSwitchEntryComponent = {
 
     let fetchConfig = async () => {
       try {
-        let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="default")
-        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}`
+        let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="")
+        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
@@ -71,7 +71,7 @@ module HyperSwitchEntryComponent = {
 
     React.useEffect(() => {
       let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
-      let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search)
+      let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search) // todo: setting domain in session storage shall be removed later
 
       let _ = fetchConfig()->ignore
       None

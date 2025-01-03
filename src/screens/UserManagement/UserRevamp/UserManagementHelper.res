@@ -58,6 +58,7 @@ module MerchantSelection = {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
 
     let disableSelect = switch userEntity {
     | #Merchant | #Profile => true
@@ -68,8 +69,11 @@ module MerchantSelection = {
       try {
         let selectedMerchantValue = event->Identity.formReactEventToString
         if selectedMerchantValue->stringToVariantForAllSelection->Option.isNone {
+          setShowSwitchingMerchant(_ => true)
           let _ = await internalSwitch(~expectedMerchantId=Some(selectedMerchantValue))
+          setShowSwitchingMerchant(_ => false)
         }
+
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -102,7 +106,15 @@ module MerchantSelection = {
           ~placeholder="Select a merchant",
         ),
     )
-    <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+
+    <>
+      <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+      <LoaderModal
+        showModal={showSwitchingMerchant}
+        setShowModal={setShowSwitchingMerchant}
+        text="Switching merchant..."
+      />
+    </>
   }
 }
 
@@ -117,6 +129,23 @@ module ProfileSelection = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
+
+    React.useEffect(() => {
+      switch userEntity {
+      | #Tenant
+      | #Organization
+      | #Merchant =>
+        form.change(
+          "profile_value",
+          (#All_Profiles: UserManagementTypes.allSelectionType :> string)
+          ->String.toLowerCase
+          ->JSON.Encode.string,
+        )
+      | #Profile => ()
+      }
+      None
+    }, [])
 
     let disableSelect = switch userEntity {
     | #Profile => true
@@ -147,8 +176,11 @@ module ProfileSelection = {
         let selectedProfileValue = event->Identity.formReactEventToString
 
         if selectedProfileValue->stringToVariantForAllSelection->Option.isNone {
+          setShowSwitchingProfile(_ => true)
           let _ = await internalSwitch(~expectedProfileId=Some(selectedProfileValue))
+          setShowSwitchingProfile(_ => false)
         }
+
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -182,7 +214,14 @@ module ProfileSelection = {
         ),
     )
 
-    <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+    <>
+      <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+      <LoaderModal
+        showModal={showSwitchingProfile}
+        setShowModal={setShowSwitchingProfile}
+        text="Switching profile..."
+      />
+    </>
   }
 }
 
@@ -275,7 +314,7 @@ module UserOmpView = {
     let options = views->generateDropdownOptionsUserOMPViews(getNameForId)
 
     let displayName = switch selectedEntity {
-    | #Default => "My Team"
+    | #Default => "All"
     | _ => selectedEntity->getNameForId
     }
 
