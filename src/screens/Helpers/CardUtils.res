@@ -1,16 +1,16 @@
 module CardHeader = {
   @react.component
   let make = (~heading, ~subHeading, ~leftIcon=None, ~customSubHeadingStyle="") => {
-    <div className="flex gap-3">
+    <div className="md:flex gap-3">
       {switch leftIcon {
       | Some(icon) =>
         <img alt="image" className="h-6 inline-block align-top" src={`/icons/${icon}.svg`} />
       | None => React.null
       }}
-      <div>
+      <div className="w-2/3">
         <div className="text-xl font-semibold"> {heading->React.string} </div>
         <div
-          className={`text-md font-medium leading-7 opacity-50 mt-2 w-full max-w-sm ${customSubHeadingStyle}`}>
+          className={`text-medium font-medium leading-7 opacity-50 mt-2 ${customSubHeadingStyle}`}>
           {subHeading->React.string}
         </div>
       </div>

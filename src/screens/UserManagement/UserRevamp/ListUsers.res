@@ -63,7 +63,7 @@ let make = () => {
 
   <PageLoaderWrapper screenState={screenStateUsers}>
     <div className="relative mt-5 w-full flex flex-col gap-12">
-      <div className="flex gap-2 items-center absolute right-0 z-10">
+      <div className="flex md:flex-row flex-col gap-2 items-center lg:absolute lg:right-0 lg:z-10">
         <UserManagementHelper.UserOmpView
           views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
           selectedEntity=userModuleEntity
@@ -77,7 +77,7 @@ let make = () => {
             mixpanelEvent(~eventName="invite_users")
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users/invite-users"))
           }}
-          customButtonStyle="w-fit !rounded-md"
+          customButtonStyle="!w-fit !rounded-md"
         />
       </div>
       <LoadedTable

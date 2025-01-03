@@ -1,8 +1,8 @@
 let h2OptionalStyle = HSwitchUtils.getTextClass((H2, Optional))
 let p1MediumStyle = HSwitchUtils.getTextClass((P1, Medium))
 let p2RegularStyle = HSwitchUtils.getTextClass((P1, Regular))
-let itemParentContainerCss = "flex gap-4 justify-between items-center"
-let itemsContainerCss = "flex flex-col items-start"
+let itemParentContainerCss = "flex flex-wrap gap-4 md:justify-between items-center"
+let itemsContainerCss = "flex flex-col items-start w-full md:w-auto"
 
 module ChangeRoleSection = {
   @react.component
@@ -241,7 +241,7 @@ module ManageUserModal = {
       modalHeadingClass=h2OptionalStyle
       setShowModal
       closeOnOutsideClick=true
-      modalClass="m-auto !bg-white w-2/5">
+      modalClass="m-auto !bg-white md:w-2/5 w-full">
       <ManageUserModalBody
         options
         defaultRole={userInfoValue.roleId}

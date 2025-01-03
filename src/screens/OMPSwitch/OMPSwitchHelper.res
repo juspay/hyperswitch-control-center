@@ -117,11 +117,11 @@ module OMPViewBaseComp = {
       {displayName->React.string}
     }
 
-    <div className={`text-sm font-medium cursor-pointer px-4`}>
-      <div className={`flex flex-col items-start`}>
+    <div className="text-sm font-medium cursor-pointer px-4">
+      <div className="flex flex-col items-start">
         <div className="text-left flex items-center gap-1">
           <Icon name="settings-new" size=18 />
-          <p className={`text-jp-gray-900 fs-10 overflow-scroll text-nowrap`}>
+          <p className="text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
             {`View data for:`->React.string}
           </p>
           <span className="text-blue-500 text-nowrap"> {truncatedDisplayName} </span>
@@ -159,21 +159,20 @@ module OMPViewsComp = {
       setArrow(prev => !prev)
     }
 
-    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
-    let dropdownContainerStyle = "rounded-lg border w-full shadow-md"
+    let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
+    let dropdownContainerStyle = "md:rounded-lg md:border md:w-full md:shadow-md"
 
     <div className="flex h-fit border border-grey-100 bg-white rounded-lg py-2 hover:bg-opacity-80">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText=""
         input
-        deselectDisable=true
         customButtonStyle="!rounded-md"
         options
         marginTop="mt-8"
-        hideMultiSelectButtons=true
+        hideMultiSelectButtons=false
         addButton=false
-        customStyle="rounded w-fit absolute left-0"
+        customStyle="md:rounded"
         searchable=false
         baseComponent={<OMPViewBaseComp displayName arrow />}
         baseComponentCustomStyle="bg-white rounded"

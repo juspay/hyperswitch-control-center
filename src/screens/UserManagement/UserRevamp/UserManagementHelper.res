@@ -36,7 +36,7 @@ module OrganisationSelection = {
           ~fullLength=true,
           ~customButtonStyle="!rounded-lg",
           ~dropdownCustomWidth="!w-full",
-          ~textStyle="!text-gray-500",
+          ~textStyle="!text-gray-500 truncate",
           ~disableSelect,
         )(
           ~input={
