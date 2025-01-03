@@ -72,14 +72,6 @@ let getRefundsList = async (
   }
 }
 
-let customUI =
-  <HelperComponents.BluredTableComponent
-    infoText="No refund records as of now. Try initiating a refund for a successful payment."
-    buttonText="Take me to payments"
-    onClickUrl="payments"
-    moduleName=""
-  />
-
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let filterByData = (txnArr, value) => {
