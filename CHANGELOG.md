@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.03.0
+
+### Features
+
+- New analytics filter component ([#1962](https://github.com/juspay/hyperswitch-control-center/pull/1962)) ([`b754615`](https://github.com/juspay/hyperswitch-control-center/commit/b7546155c0705c04b1468e1985015b0ab24eaf53))
+
+### Bug Fixes
+
+- Get production access component visibility in sandbox ([#2000](https://github.com/juspay/hyperswitch-control-center/pull/2000)) ([`1636ab2`](https://github.com/juspay/hyperswitch-control-center/commit/1636ab21c37402d113a64db8a7794a67fe4655c6))
+
+### Miscellaneous Tasks
+
+- Invite users enhancement ([#1964](https://github.com/juspay/hyperswitch-control-center/pull/1964)) ([`b47d5f5`](https://github.com/juspay/hyperswitch-control-center/commit/b47d5f5626f16a2b42ddca103f6a9024d9a92ef1))
+- Banner revamp ([#1990](https://github.com/juspay/hyperswitch-control-center/pull/1990)) ([`6cf5697`](https://github.com/juspay/hyperswitch-control-center/commit/6cf56970079a4354caa4e4dae7c6c14a9883e3f6))
+
+**Full Changelog:** [`2024.12.31.0...2025.01.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.31.0...2025.01.03.0)
+
+- - -
+
 ## 2024.12.31.0
 
 ### Features
