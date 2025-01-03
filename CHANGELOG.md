@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.03.2
+
+### Refactors
+
+- Payment settings redesign ([#1996](https://github.com/juspay/hyperswitch-control-center/pull/1996)) ([`c009366`](https://github.com/juspay/hyperswitch-control-center/commit/c009366f5b22b36d06efe5200c7d57a440452c0a))
+
+### Miscellaneous Tasks
+
+- Added required tenant user checks ([#2008](https://github.com/juspay/hyperswitch-control-center/pull/2008)) ([`8144ae1`](https://github.com/juspay/hyperswitch-control-center/commit/8144ae1cc53a312b1b19555d73c486b30acb07db))
+
+**Full Changelog:** [`2025.01.03.1...2025.01.03.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.03.1...2025.01.03.2)
+
+- - -
+
 ## 2025.01.03.1
 
 ### Miscellaneous Tasks
