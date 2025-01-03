@@ -30,14 +30,18 @@ let make = (~previewOnly=false) => {
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+
   let startTime = filterValueJson->getString("start_time", "")
+
   let handleClick = _ => {
     let startDateObj = startTime->DayJs.getDayJsForString
     let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
-    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
     let extendedEndDate = startDateObj.subtract(1, "day").toDate()->Date.toISOString
+
+    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
     updateExistingKeys(Dict.fromArray([("end_time", {extendedEndDate})]))
   }
+
   let fetchOrders = () => {
     if !previewOnly {
       switch filters {
@@ -119,21 +123,18 @@ let make = (~previewOnly=false) => {
 
   let customUI =
     <NoDataFound
-      customCssClass={"my-6 "}
-      message="No results found"
-      renderType={ExtendDateWithNoResult}
-      customMessageCss="">
+      customCssClass="my-6 " message="No results found" renderType=ExtendDateWithNoResult>
       <ACLButton
-        buttonType={Primary}
+        buttonType=Primary
         onClick={handleClick}
         text="Expand the search range to include the past 90 days."
       />
       <div className="flex justify-center">
         <p className="mt-6">
-          {React.string("Or try the following:")}
+          {"Or try the following:"->React.string}
           <ul className="list-disc">
-            <li> {React.string("Try a different search parameter")} </li>
-            <li> {React.string("Adjust or remove filters and search once more")} </li>
+            <li> {"Try a different search parameter"->React.string} </li>
+            <li> {"Adjust or remove filters and search once more"->React.string} </li>
           </ul>
         </p>
       </div>

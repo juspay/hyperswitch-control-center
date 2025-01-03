@@ -23,7 +23,7 @@ let make = (
     }
     isMobileView ? "" : marginPaddingClass
   }
-  let containerClass = `flex flex-col ${marginPaddingClass} container mx-auto items-center `
+  let containerClass = `flex flex-col ${marginPaddingClass} container mx-auto items-center`
   let msgCss = isMobileView
     ? `text-l text-center mt-4 ${customMessageCss}`
     : `px-3 text-2xl mt-32 ${customMessageCss}`
@@ -105,7 +105,7 @@ let make = (
         | ExtendDateWithNoResult =>
           <div className={containerClass}>
             <div className={`px-3 text-2xl text-black font-bold mb-6`}>
-              {React.string("No results found")}
+              {"No results found"->React.string}
             </div>
             <div>
               {switch children {
