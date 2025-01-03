@@ -36,7 +36,10 @@ module SwitchOrg = {
         let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
         setShowModal(_ => false)
       } catch {
-      | _ => showToast(~message="Failed to switch the org! Try again.", ~toastType=ToastError)
+      | _ => {
+          showToast(~message="Failed to switch the org! Try again.", ~toastType=ToastError)
+          setShowModal(_ => false)
+        }
       }
     }
 
@@ -311,7 +314,7 @@ let make = () => {
         dropdownContainerStyle
         shouldDisplaySelectedOnTop=true
       />
-      <RenderIf condition={tenantUser && isTenantAdmin && orgList->Array.length > 20}>
+      <RenderIf condition={tenantUser && isTenantAdmin && orgList->Array.length >= 20}>
         <SwitchOrg setShowModal={setShowSwitchingOrg} />
       </RenderIf>
     </div>
