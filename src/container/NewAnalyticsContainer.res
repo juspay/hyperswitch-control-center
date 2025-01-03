@@ -14,6 +14,10 @@ let make = () => {
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let tempRecallAmountMetrics = async () => {
     try {
       //Currency Conversion is failing in Backend for the first time so to fix that we are the calling the api for one time and ignoring the error
@@ -88,12 +92,13 @@ let make = () => {
     })
   }
 
-  <PageLoaderWrapper screenState>
+  <PageLoaderWrapper key={(analyticsEntity :> string)} screenState>
     <div>
       <PageUtils.PageHeading title="Insights" />
       <div
         className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
+          title="NewAnalytics"
           initialFilters=[]
           options=[]
           popupFilterFields=[]
@@ -116,6 +121,14 @@ let make = () => {
           refreshFilters=false
         />
       </div>
+      <Portal to="NewAnalyticsOMPView">
+        <OMPSwitchHelper.OMPViews
+          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+          selectedEntity={analyticsEntity}
+          onChange={updateAnalytcisEntity}
+          entityMapper=UserInfoUtils.analyticsEntityMapper
+        />
+      </Portal>
       <Tabs
         initialIndex={url->getPageIndex}
         tabs

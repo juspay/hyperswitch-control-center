@@ -611,7 +611,7 @@ let reconConfigurator = {
 // }
 
 let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
-  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization])) {
+  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization, #Tenant])) {
   | (true, true, true) => {
       let links = []
       if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
@@ -687,7 +687,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let isNewAnalyticsEnable =
     newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
-    productionAccessComponent(isLiveMode, userHasAccess, hasAnyGroupAccess),
+    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess),
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(

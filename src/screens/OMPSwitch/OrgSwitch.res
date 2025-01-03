@@ -1,3 +1,64 @@
+module SwitchOrg = {
+  @react.component
+  let make = (~setShowModal) => {
+    let showToast = ToastState.useShowToast()
+    let showPopUp = PopUpState.useShowPopUp()
+    let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+    let (value, setValue) = React.useState(() => "")
+    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+
+    let input = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
+      {
+        name: "-",
+        onBlur: _ => (),
+        onChange: ev => {
+          let value = {ev->ReactEvent.Form.target}["value"]
+          if value->String.includes("<script>") || value->String.includes("</script>") {
+            showPopUp({
+              popUpType: (Warning, WithIcon),
+              heading: `Script Tags are not allowed`,
+              description: React.string(`Input cannot contain <script>, </script> tags`),
+              handleConfirm: {text: "OK"},
+            })
+          }
+          let val = value->String.replace("<script>", "")->String.replace("</script>", "")
+          setValue(_ => val)
+        },
+        onFocus: _ => (),
+        value: JSON.Encode.string(value),
+        checked: false,
+      }
+    }, [value])
+
+    let switchOrg = async () => {
+      try {
+        setShowModal(_ => true)
+        let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+        setShowModal(_ => false)
+      } catch {
+      | _ => {
+          showToast(~message="Failed to switch the org! Try again.", ~toastType=ToastError)
+          setShowModal(_ => false)
+        }
+      }
+    }
+
+    let handleKeyUp = event => {
+      if event->ReactEvent.Keyboard.keyCode === 13 {
+        switchOrg()->ignore
+      }
+    }
+
+    <TextInput
+      input
+      customWidth="w-80"
+      placeholder="Switch org"
+      onKeyUp=handleKeyUp
+      customStyle="!text-grey-300 !placeholder-grey-200 placeholder: text-sm font-inter-style bg-blue-840"
+      customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
+    />
+  }
+}
 module NewOrgCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~getOrgList) => {
@@ -211,47 +272,52 @@ let make = () => {
   let customScrollStyle = "bg-blue-840 max-h-72 overflow-scroll px-1 pt-1"
   let dropdownContainerStyle = "min-w-[15rem] rounded"
 
-  <div className="w-full py-3.5 px-2">
-    <SelectBox.BaseDropdown
-      allowMultiSelect=false
-      buttonText=""
-      input
-      deselectDisable=true
-      customButtonStyle="!rounded-md"
-      options={orgList->generateDropdownOptions}
-      marginTop="mt-14"
-      hideMultiSelectButtons=true
-      addButton=false
-      customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
-      customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
-      searchable=false
-      baseComponent={<ListBaseComp
-        heading="Org"
-        subHeading={currentOMPName(orgList, orgId)}
-        arrow
-        showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
-        onEditClick
-        isDarkBg=true
-      />}
-      baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
-      bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
-        <OMPSwitchHelper.AddNewOMPButton
-          user=#Organization
-          setShowModal={setShowAddOrgModal}
-          customPadding
-          customStyle
-          customHRTagStyle
-        />
-      </RenderIf>}
-      optionClass="text-gray-200 text-fs-14"
-      selectClass="text-gray-200 text-fs-14"
-      customDropdownOuterClass="!border-none !w-full"
-      fullLength=true
-      toggleChevronState
-      customScrollStyle
-      dropdownContainerStyle
-      shouldDisplaySelectedOnTop=true
-    />
+  <div className="w-full py-3.5 px-2 ">
+    <div className="flex flex-col gap-4">
+      <SelectBox.BaseDropdown
+        allowMultiSelect=false
+        buttonText=""
+        input
+        deselectDisable=true
+        customButtonStyle="!rounded-md"
+        options={orgList->generateDropdownOptions}
+        marginTop="mt-14"
+        hideMultiSelectButtons=true
+        addButton=false
+        customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
+        customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
+        searchable=false
+        baseComponent={<ListBaseComp
+          heading="Org"
+          subHeading={currentOMPName(orgList, orgId)}
+          arrow
+          showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
+          onEditClick
+          isDarkBg=true
+        />}
+        baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
+        bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
+          <OMPSwitchHelper.AddNewOMPButton
+            user=#Organization
+            setShowModal={setShowAddOrgModal}
+            customPadding
+            customStyle
+            customHRTagStyle
+          />
+        </RenderIf>}
+        optionClass="text-gray-200 text-fs-14"
+        selectClass="text-gray-200 text-fs-14"
+        customDropdownOuterClass="!border-none !w-full"
+        fullLength=true
+        toggleChevronState
+        customScrollStyle
+        dropdownContainerStyle
+        shouldDisplaySelectedOnTop=true
+      />
+      <RenderIf condition={tenantUser && isTenantAdmin && orgList->Array.length >= 20}>
+        <SwitchOrg setShowModal={setShowSwitchingOrg} />
+      </RenderIf>
+    </div>
     <EditOrgName
       showModal={showEditOrgModal} setShowModal={setShowEditOrgModal} orgList orgId getOrgList
     />

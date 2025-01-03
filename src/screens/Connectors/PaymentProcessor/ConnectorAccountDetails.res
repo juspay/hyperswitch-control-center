@@ -1,5 +1,5 @@
 @react.component
-let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~isPayoutFlow) => {
+let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) => {
   open ConnectorUtils
   open APIUtils
   open LogicUtils
@@ -32,9 +32,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = isPayoutFlow
-          ? Window.getPayoutConnectorConfig(connector)
-          : Window.getConnectorConfig(connector)
+        let dict = Window.getConnectorConfig(connector)
         setScreenState(_ => Success)
         dict
       } else {
@@ -116,7 +114,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         ~values,
         ~connector,
         ~bodyType,
-        ~isPayoutFlow,
         ~isLiveMode={featureFlagDetails.isLiveMode},
       )
       setScreenState(_ => Loading)
@@ -159,7 +156,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           ~values,
           ~connector,
           ~bodyType,
-          ~isPayoutFlow,
           ~isLiveMode={featureFlagDetails.isLiveMode},
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
