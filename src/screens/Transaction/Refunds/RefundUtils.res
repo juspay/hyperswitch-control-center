@@ -72,38 +72,6 @@ let getRefundsList = async (
   }
 }
 
-let customUI = (filterValueJson, updateExistingKeys) => {
-  open LogicUtils
-
-  let startTime = filterValueJson->getString("start_time", "")
-
-  let handleClick = _ => {
-    let startDateObj = startTime->DayJs.getDayJsForString
-    let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
-    let extendedEndDate = startDateObj.subtract(1, "day").toDate()->Date.toISOString
-
-    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
-    updateExistingKeys(Dict.fromArray([("end_time", {extendedEndDate})]))
-  }
-
-  <NoDataFound customCssClass="my-6 " message="No results found" renderType=ExtendDateWithNoResult>
-    <ACLButton
-      buttonType=Primary
-      onClick={handleClick}
-      text="Expand the search range to include the past 90 days."
-    />
-    <div className="flex justify-center">
-      <p className="mt-6">
-        {"Or try the following:"->React.string}
-        <ul className="list-disc">
-          <li> {"Try a different search parameter"->React.string} </li>
-          <li> {"Adjust or remove filters and search once more"->React.string} </li>
-        </ul>
-      </p>
-    </div>
-  </NoDataFound>
-}
-
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let filterByData = (txnArr, value) => {

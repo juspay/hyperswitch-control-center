@@ -19,7 +19,10 @@ let make = () => {
   let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+
+  let customUI = {
+    <NoDataFound customCssClass="my-6 " message="No results found" renderType=ExtendDateUI />
+  }
 
   let fetchPayouts = () => {
     switch filters {
@@ -91,7 +94,7 @@ let make = () => {
         </div>
         <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />
       </div>
-      <PageLoaderWrapper screenState customUI={customUI(filterValueJson, updateExistingKeys)}>
+      <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
           hideTitle=true
           title="Payouts"
