@@ -20,7 +20,7 @@ let base64Format = (~value, ~name as _) => {
 let toggleDefaultStyle = "mb-2 relative inline-flex flex-shrink-0 h-6 w-12 border-2 rounded-full  transition-colors ease-in-out duration-200 focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 items-center"
 
 let accordionDefaultStyle = "border pointer-events-none inline-block h-3 w-3 rounded-full bg-white dark:bg-white shadow-lg transform ring-0 transition ease-in-out duration-200"
-let size = "w-14 h-14 rounded-full"
+let size = "w-14 h-14"
 
 let generateInitialValuesDict = (~selectedFRMName, ~isLiveMode) => {
   let frmAccountDetailsDict =

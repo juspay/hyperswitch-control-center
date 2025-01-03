@@ -85,7 +85,7 @@ let radioInput = (
   ) =>
     InputFields.radioInput(
       ~customStyle="cursor-pointer gap-2",
-      ~isHorizontal=true,
+      ~isHorizontal=false,
       ~options=options->SelectBox.makeOptions,
       ~buttonText="",
       ~fill,

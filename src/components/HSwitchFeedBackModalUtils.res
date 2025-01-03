@@ -28,7 +28,7 @@ let selectFeedbackType = makeFieldInfo(
   ~customInput=InputFields.radioInput(
     ~options=feedbackTypeList->Array.map(getFeedBackStringFromVariant)->SelectBox.makeOptions,
     ~buttonText="options",
-    ~isHorizontal=true,
+    ~isHorizontal=false,
   ),
 )
 
