@@ -222,7 +222,7 @@ const getRGBvalue = (hex) => {
   var g = parseInt(color.substr(2, 2), 16);
   var b = parseInt(color.substr(4, 2), 16);
 
-  return `${r}, ${g}, ${b};`;
+  return `${r}, ${g}, ${b}`;
 };
 
 const toSnakeCase = (str) => {
