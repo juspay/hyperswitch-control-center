@@ -78,7 +78,7 @@ let make = (
     switch statusCode {
     | "200" => "green-700"
     | "500" => "gray-700 opacity-50"
-    | "400" => "yellow-800"
+    | "400" | "422" => "orange-950"
     | _ => "gray-700 opacity-50"
     }
   }
@@ -100,7 +100,7 @@ let make = (
     switch statusCode {
     | "200" => "green-50"
     | "500" => "gray-100"
-    | "400" => "orange-100"
+    | "400" | "422" => "orange-100"
     | _ => "gray-100"
     }
   }
@@ -125,7 +125,7 @@ let make = (
         switch statusCode {
         | "200" => "green-700"
         | "500" => "gray-700 opacity-50"
-        | "400" => "yellow-300"
+        | "400" | "422" => "orange-950"
         | _ => "gray-700 opacity-50"
         }
       }
@@ -148,7 +148,7 @@ let make = (
         switch statusCode {
         | "200" => "green-700"
         | "500" => "gray-600"
-        | "400" => "orange-500"
+        | "400" | "422" => "orange-950"
         | _ => "gray-600"
         }
       }
@@ -171,24 +171,24 @@ let make = (
     switch statusCode {
     | "200" => "border border-green-700"
     | "500" => "border border-gray-700 opacity-50"
-    | "400" => "border border-yellow-800"
+    | "400" | "422" => "border border-orange-950"
     | _ => "border border-gray-700 opacity-50"
     }
   }
 
   let borderClass = isSelected ? `${statusCodeBorderColor} rounded-md` : "border border-transparent"
 
-  let (iconName, iconColor) = switch logType {
-  | SDK => ("desktop", "text-brown-700")
-  | WEBHOOKS => ("anchor", "text-grey-700")
-  | API_EVENTS => ("api-icon", "text-cyan-600")
-  | CONNECTOR => ("connector-icon", "text-purple-700")
+  let iconName = switch logType {
+  | SDK => "desktop"
+  | WEBHOOKS => "anchor"
+  | API_EVENTS => "api-icon"
+  | CONNECTOR => "connector-icon"
   }
 
   <div className="flex items-start gap-4">
-    <div className="flex flex-col items-center h-full my-4">
+    <div className="flex flex-col items-center h-full my-4 relative">
       <RenderIf condition={showLogType}>
-        <Icon name=iconName size=12 className={iconColor} />
+        <Icon name=iconName size=12 className="text-jp-gray-900" />
         <div
           className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
         />
@@ -201,9 +201,10 @@ let make = (
         <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
       </RenderIf>
     </div>
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 w-full">
       <RenderIf condition={showLogType}>
-        <span className={`text-base font-bold break-all flex gap-1 leading-none my-4 ${iconColor}`}>
+        <span
+          className={`text-base font-bold break-all flex gap-1 leading-none my-4 text-jp-gray-900`}>
           {`${logType->getTagName}`->React.string}
         </span>
       </RenderIf>
