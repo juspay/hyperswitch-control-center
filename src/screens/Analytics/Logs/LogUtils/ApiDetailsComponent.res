@@ -4,13 +4,14 @@ open LogTypes
 let make = (
   ~dataDict,
   ~setLogDetails,
+  ~selectedOption,
   ~setSelectedOption,
-  ~currentSelected: int,
   ~index,
   ~logsDataLength,
   ~getLogType,
   ~nameToURLMapper,
   ~filteredKeys=[],
+  ~showLogType=true,
 ) => {
   let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
   let headerStyle = "text-sm font-medium text-gray-700 break-all"
@@ -77,7 +78,7 @@ let make = (
     switch statusCode {
     | "200" => "green-700"
     | "500" => "gray-700 opacity-50"
-    | "400" => "yellow-800"
+    | "400" | "422" => "orange-950"
     | _ => "gray-700 opacity-50"
     }
   }
@@ -99,12 +100,12 @@ let make = (
     switch statusCode {
     | "200" => "green-50"
     | "500" => "gray-100"
-    | "400" => "orange-100"
+    | "400" | "422" => "orange-100"
     | _ => "gray-100"
     }
   }
 
-  let isSelected = currentSelected === index
+  let isSelected = selectedOption.value === index
 
   let stepperColor = isSelected
     ? switch logType {
@@ -124,7 +125,7 @@ let make = (
         switch statusCode {
         | "200" => "green-700"
         | "500" => "gray-700 opacity-50"
-        | "400" => "yellow-300"
+        | "400" | "422" => "orange-950"
         | _ => "gray-700 opacity-50"
         }
       }
@@ -141,13 +142,13 @@ let make = (
       | WEBHOOKS =>
         switch statusCode {
         | "200" => "green-700"
-        | "500" | _ => "gray-600"
+        | "500" | _ => "gray-700 opacity-50"
         }
       | API_EVENTS | CONNECTOR =>
         switch statusCode {
         | "200" => "green-700"
         | "500" => "gray-600"
-        | "400" => "orange-500"
+        | "400" | "422" => "orange-950"
         | _ => "gray-600"
         }
       }
@@ -170,60 +171,82 @@ let make = (
     switch statusCode {
     | "200" => "border border-green-700"
     | "500" => "border border-gray-700 opacity-50"
-    | "400" => "border border-yellow-800"
+    | "400" | "422" => "border border-orange-950"
     | _ => "border border-gray-700 opacity-50"
     }
   }
 
   let borderClass = isSelected ? `${statusCodeBorderColor} rounded-md` : "border border-transparent"
 
+  let iconName = switch logType {
+  | SDK => "desktop"
+  | WEBHOOKS => "anchor"
+  | API_EVENTS => "api-icon"
+  | CONNECTOR => "connector-icon"
+  }
+
   <div className="flex items-start gap-4">
-    <div className="flex flex-col items-center h-full">
-      <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
-      <RenderIf condition={index !== logsDataLength}>
+    <div className="flex flex-col items-center h-full my-4 relative">
+      <RenderIf condition={showLogType}>
+        <Icon name=iconName size=12 className="text-jp-gray-900" />
         <div
-          className={`h-full border-${stepperBorderColor} border-dashed rounded divide-x-2 border-2 my-1`}
+          className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
         />
       </RenderIf>
+      <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
+      <div
+        className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
+      />
+      <RenderIf condition={index === logsDataLength}>
+        <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
+      </RenderIf>
     </div>
-    <div
-      className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${borderClass} -mt-5 mb-8`}
-      key={currentSelected->Int.toString}
-      onClick={_ => {
-        setLogDetails(_ => {
-          response: responseObject,
-          request: requestObject,
-          data: dataDict,
-        })
-        setSelectedOption(_ => {
-          value: index,
-          optionType: logType,
-        })
-      }}>
-      <div className="flex flex-col gap-1">
-        <div className="flex gap-3">
-          <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-1 rounded-md`}>
-            <p className={`text-${statusCodeTextColor} text-sm font-bold `}>
-              {statusCode->React.string}
-            </p>
+    <div className="flex flex-col gap-3 w-full">
+      <RenderIf condition={showLogType}>
+        <span
+          className={`text-base font-bold break-all flex gap-1 leading-none my-4 text-jp-gray-900`}>
+          {`${logType->getTagName}`->React.string}
+        </span>
+      </RenderIf>
+      <div
+        className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${borderClass} mb-6
+        `}
+        key={selectedOption.value->Int.toString}
+        onClick={_ => {
+          setLogDetails(_ => {
+            response: responseObject,
+            request: requestObject,
+            data: dataDict,
+          })
+          setSelectedOption(_ => {
+            value: index,
+            optionType: logType,
+          })
+        }}>
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-3">
+            <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-1 rounded-md`}>
+              <p className={`text-${statusCodeTextColor} text-sm font-bold `}>
+                {statusCode->React.string}
+              </p>
+            </div>
+            {switch logType {
+            | SDK =>
+              <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
+                {apiName->String.toLowerCase->snakeToTitle->React.string}
+              </p>
+            | API_EVENTS | WEBHOOKS | CONNECTOR =>
+              <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>
+                <span className="mr-3 border-2 px-1 py-0.5 rounded text-sm">
+                  {method->String.toUpperCase->React.string}
+                </span>
+                <span className="leading-7"> {apiName->React.string} </span>
+              </p>
+            }}
           </div>
-          {switch logType {
-          | SDK =>
-            <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
-              {apiName->String.toLowerCase->snakeToTitle->React.string}
-            </p>
-          | API_EVENTS | WEBHOOKS | CONNECTOR =>
-            <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>
-              <span className="mr-3 border-2 px-1 py-0.5 rounded text-sm">
-                {method->String.toUpperCase->React.string}
-              </span>
-              <span className="leading-7"> {apiName->React.string} </span>
-            </p>
-          }}
-        </div>
-        <div className={`${headerStyle} opacity-40 flex gap-1`}>
-          {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
-          <span> {`, [ ${logType->getTagName} ]`->React.string} </span>
+          <div className={`${headerStyle} opacity-40 flex gap-1`}>
+            {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
+          </div>
         </div>
       </div>
     </div>

@@ -224,23 +224,29 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     getDetails()->ignore
     None
   }, [])
+  let prevLogType = ref("")
 
   let timeLine =
     <div className="flex flex-col w-2/5 overflow-y-scroll no-scrollbar pt-7 pl-5">
       <div className="flex flex-col">
         {data
         ->Array.mapWithIndex((detailsValue, index) => {
+          let showLogType =
+            prevLogType.contents !== detailsValue->getDictFromJsonObject->getLogType->getTagName
+          prevLogType := detailsValue->getDictFromJsonObject->getLogType->getTagName
+
           <ApiDetailsComponent
             key={index->Int.toString}
             dataDict={detailsValue->getDictFromJsonObject}
             setLogDetails
             setSelectedOption
-            currentSelected=selectedOption.value
+            selectedOption
             index
             logsDataLength={data->Array.length - 1}
             getLogType
             nameToURLMapper={nameToURLMapper(~id={id}, ~merchantId)}
             filteredKeys
+            showLogType
           />
         })
         ->React.array}
