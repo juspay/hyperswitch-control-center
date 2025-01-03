@@ -120,7 +120,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   }, [connectorName])
   <>
     <div
-      className="cursor-pointer"
+      className="cursor-pointer py-2"
       onClick={_ => {
         mixpanelEvent(~eventName=`processor_update_creds_${connectorName}`)
         setShowFeedbackModal(_ => true)
