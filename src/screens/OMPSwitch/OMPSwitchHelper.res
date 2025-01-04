@@ -84,7 +84,8 @@ module AddNewOMPButton = {
     let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
 
     switch hasOMPCreateAccess {
-    | Access => <ACLDiv
+    | Access =>
+      <ACLDiv
         authorization={hasOMPCreateAccess}
         noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
         onClick={_ => setShowModal(_ => true)}
