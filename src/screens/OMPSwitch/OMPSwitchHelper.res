@@ -83,23 +83,26 @@ module AddNewOMPButton = {
     let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
     let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
 
-    <ACLDiv
-      authorization={hasOMPCreateAccess}
-      noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
-      onClick={_ => setShowModal(_ => true)}
-      isRelative=false
-      contentAlign=Default
-      tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}>
-      {<>
-        <hr className={customHRTagStyle} />
-        <div
-          className={`group flex  items-center gap-2 font-medium px-2 py-2 text-sm ${customStyle}`}>
-          <Icon name="plus-circle" size=15 />
-          {`Add new ${(user :> string)->String.toLowerCase}`->React.string}
-        </div>
-      </>}
-    </ACLDiv>
+    switch hasOMPCreateAccess {
+    | Access => <ACLDiv
+        authorization={hasOMPCreateAccess}
+        noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
+        onClick={_ => setShowModal(_ => true)}
+        isRelative=false
+        contentAlign=Default
+        tooltipForWidthClass="!h-full"
+        className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}>
+        {<>
+          <hr className={customHRTagStyle} />
+          <div
+            className={`group flex  items-center gap-2 font-medium px-2 py-2 text-sm ${customStyle}`}>
+            <Icon name="plus-circle" size=15 />
+            {`Add new ${(user :> string)->String.toLowerCase}`->React.string}
+          </div>
+        </>}
+      </ACLDiv>
+    | NoAccess => React.null
+    }
   }
 }
 
