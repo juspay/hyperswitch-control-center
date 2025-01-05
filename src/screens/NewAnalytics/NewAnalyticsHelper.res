@@ -268,13 +268,7 @@ module OverViewStat = {
   open NewAnalyticsUtils
   open NewAnalyticsTypes
   @react.component
-  let make = (
-    ~responseKey,
-    ~data,
-    ~config: singleStatConfig,
-    ~getValueFromObj,
-    ~getStringFromVariant,
-  ) => {
+  let make = (~responseKey, ~data, ~getInfo, ~getValueFromObj, ~getStringFromVariant) => {
     open LogicUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
@@ -285,6 +279,7 @@ module OverViewStat = {
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
 
+    let config = getInfo(~responseKey)
     let displyValue = valueFormatter(primaryValue, config.valueType, ~currency)
 
     <Card>

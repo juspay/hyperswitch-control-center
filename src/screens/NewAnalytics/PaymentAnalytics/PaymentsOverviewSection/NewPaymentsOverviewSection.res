@@ -88,18 +88,16 @@ let make = (~entity: moduleEntity) => {
 
       primaryData->setValue(
         ~data=primaryDataPayments,
-        ~ids=[
-          Total_Smart_Retried_Amount,
-          Total_Smart_Retried_Amount_Without_Smart_Retries,
-          Total_Success_Rate,
-          Total_Success_Rate_Without_Smart_Retries,
-          Total_Payment_Processed_Amount,
-          Total_Payment_Processed_Amount_Without_Smart_Retries,
-        ],
+        ~ids=[Total_Smart_Retried_Amount, Total_Success_Rate, Total_Payment_Processed_Amount],
+        ~metricType,
       )
 
-      primaryData->setValue(~data=primaryDataRefunds, ~ids=[Total_Refund_Processed_Amount])
-      primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute])
+      primaryData->setValue(
+        ~data=primaryDataRefunds,
+        ~ids=[Total_Refund_Processed_Amount],
+        ~metricType,
+      )
+      primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute], ~metricType)
 
       let secondaryBodyPayments = getPayload(
         ~entity,
@@ -149,18 +147,16 @@ let make = (~entity: moduleEntity) => {
 
           secondaryData->setValue(
             ~data=secondaryDataPayments,
-            ~ids=[
-              Total_Smart_Retried_Amount,
-              Total_Smart_Retried_Amount_Without_Smart_Retries,
-              Total_Success_Rate,
-              Total_Success_Rate_Without_Smart_Retries,
-              Total_Payment_Processed_Amount,
-              Total_Payment_Processed_Amount_Without_Smart_Retries,
-            ],
+            ~ids=[Total_Smart_Retried_Amount, Total_Success_Rate, Total_Payment_Processed_Amount],
+            ~metricType,
           )
 
-          secondaryData->setValue(~data=secondaryDataRefunds, ~ids=[Total_Refund_Processed_Amount])
-          secondaryData->setValue(~data=secondaryDataDisputes, ~ids=[Total_Dispute])
+          secondaryData->setValue(
+            ~data=secondaryDataRefunds,
+            ~ids=[Total_Refund_Processed_Amount],
+            ~metricType,
+          )
+          secondaryData->setValue(~data=secondaryDataDisputes, ~ids=[Total_Dispute], ~metricType)
           secondaryData->JSON.Encode.object
         }
       | DisableComparison => JSON.Encode.null
@@ -179,54 +175,41 @@ let make = (~entity: moduleEntity) => {
       getData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
-
-  let mockDelay = async () => {
-    if data != []->JSON.Encode.array {
-      setScreenState(_ => Loading)
-      await HyperSwitchUtils.delay(300)
-      setScreenState(_ => Success)
-    }
-  }
-
-  React.useEffect(() => {
-    mockDelay()->ignore
-    None
-  }, [metricType])
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    metricType,
+  ))
 
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 gap-6">
       <NewPaymentsOverviewSectionHelper.SmartRetryCard
-        data responseKey={Total_Smart_Retried_Amount->getKeyForModule(~metricType)}
+        data responseKey={Total_Smart_Retried_Amount}
       />
       <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-6">
         <OverViewStat
-          data
-          responseKey={Total_Success_Rate}
-          config={getInfo(~responseKey=Total_Success_Rate)}
-          getValueFromObj
-          getStringFromVariant
+          data responseKey={Total_Success_Rate} getInfo getValueFromObj getStringFromVariant
         />
         <OverViewStat
           data
           responseKey={Total_Payment_Processed_Amount}
-          config={getInfo(~responseKey=Total_Payment_Processed_Amount)}
+          getInfo
           getValueFromObj
           getStringFromVariant
         />
         <OverViewStat
           data
           responseKey={Total_Refund_Processed_Amount}
-          config={getInfo(~responseKey=Total_Refund_Processed_Amount)}
+          getInfo
           getValueFromObj
           getStringFromVariant
         />
         <OverViewStat
-          data
-          responseKey={Total_Dispute}
-          config={getInfo(~responseKey=Total_Dispute)}
-          getValueFromObj
-          getStringFromVariant
+          data responseKey={Total_Dispute} getInfo getValueFromObj getStringFromVariant
         />
       </div>
     </div>

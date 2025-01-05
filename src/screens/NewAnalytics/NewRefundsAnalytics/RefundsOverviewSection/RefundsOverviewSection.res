@@ -148,39 +148,23 @@ let make = (~entity: moduleEntity) => {
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 grid-rows-2 gap-6">
       <OverViewStat
-        data
-        responseKey={Total_Refund_Success_Rate}
-        config={getInfo(~responseKey=Total_Refund_Success_Rate)}
-        getValueFromObj
-        getStringFromVariant
+        data responseKey={Total_Refund_Success_Rate} getInfo getValueFromObj getStringFromVariant
       />
       <OverViewStat
         data
         responseKey={Total_Refund_Processed_Amount}
-        config={getInfo(~responseKey=Total_Refund_Processed_Amount)}
+        getInfo
         getValueFromObj
         getStringFromVariant
       />
       <OverViewStat
-        data
-        responseKey={Successful_Refund_Count}
-        config={getInfo(~responseKey=Successful_Refund_Count)}
-        getValueFromObj
-        getStringFromVariant
+        data responseKey={Successful_Refund_Count} getInfo getValueFromObj getStringFromVariant
       />
       <OverViewStat
-        data
-        responseKey={Failed_Refund_Count}
-        config={getInfo(~responseKey=Failed_Refund_Count)}
-        getValueFromObj
-        getStringFromVariant
+        data responseKey={Failed_Refund_Count} getInfo getValueFromObj getStringFromVariant
       />
       <OverViewStat
-        data
-        responseKey={Pending_Refund_Count}
-        config={getInfo(~responseKey=Pending_Refund_Count)}
-        getValueFromObj
-        getStringFromVariant
+        data responseKey={Pending_Refund_Count} getInfo getValueFromObj getStringFromVariant
       />
     </div>
   </PageLoaderWrapper>
