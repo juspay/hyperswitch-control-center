@@ -75,7 +75,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#dispute_status_metric],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        ~filter=None,
       )
 
       let primaryResponsePayments = await updateDetails(paymentsUrl, primaryBodyPayments, Post)
@@ -90,14 +90,16 @@ let make = (~entity: moduleEntity) => {
         ~data=primaryDataPayments,
         ~ids=[Total_Smart_Retried_Amount, Total_Success_Rate, Total_Payment_Processed_Amount],
         ~metricType,
+        ~currency,
       )
 
       primaryData->setValue(
         ~data=primaryDataRefunds,
         ~ids=[Total_Refund_Processed_Amount],
         ~metricType,
+        ~currency,
       )
-      primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute], ~metricType)
+      primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute], ~metricType, ~currency)
 
       let secondaryBodyPayments = getPayload(
         ~entity,
@@ -149,14 +151,21 @@ let make = (~entity: moduleEntity) => {
             ~data=secondaryDataPayments,
             ~ids=[Total_Smart_Retried_Amount, Total_Success_Rate, Total_Payment_Processed_Amount],
             ~metricType,
+            ~currency,
           )
 
           secondaryData->setValue(
             ~data=secondaryDataRefunds,
             ~ids=[Total_Refund_Processed_Amount],
             ~metricType,
+            ~currency,
           )
-          secondaryData->setValue(~data=secondaryDataDisputes, ~ids=[Total_Dispute], ~metricType)
+          secondaryData->setValue(
+            ~data=secondaryDataDisputes,
+            ~ids=[Total_Dispute],
+            ~metricType,
+            ~currency,
+          )
           secondaryData->JSON.Encode.object
         }
       | DisableComparison => JSON.Encode.null
