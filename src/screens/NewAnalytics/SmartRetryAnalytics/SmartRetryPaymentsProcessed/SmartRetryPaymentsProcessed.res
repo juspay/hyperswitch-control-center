@@ -202,7 +202,7 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("metaData", [])
-        ->modifySmartRetryMetaData
+        ->modifySmartRetryMetaData(~currency)
       setSmartRetryPaymentsProcessedTableData(_ => primaryData)
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
@@ -218,7 +218,7 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("metaData", [])
-            ->modifySmartRetryMetaData
+            ->modifySmartRetryMetaData(~currency)
 
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
             NewAnalyticsUtils.fillMissingDataPoints(
