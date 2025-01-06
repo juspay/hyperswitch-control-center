@@ -318,7 +318,6 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        // Need to modify
         <PaymentsProcessedHeader
           data=paymentsProcessedMetaData
           viewType
