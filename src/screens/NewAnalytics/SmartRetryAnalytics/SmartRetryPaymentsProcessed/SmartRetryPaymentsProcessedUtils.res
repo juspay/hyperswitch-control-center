@@ -161,12 +161,18 @@ let modifySmartRetryQueryData = data => {
     let key = Payment_Processed_Amount->getStringFromVariant
 
     let paymentProcessedAmount =
-      valueDict->getFloat(key->modifyKey(~currency="all_currencies"), 0.0)
+      valueDict->getFloat(
+        key->modifyKey(~currency=(#all_currencies: defaultFilters :> string)),
+        0.0,
+      )
 
     let key = Payment_Processed_Amount->getStringFromVariant
     let paymentProcessedAmountWithoutSmartRetries =
       valueDict->getFloat(
-        key->modifyKey(~isSmartRetryEnabled=Smart_Retry, ~currency="all_currencies"),
+        key->modifyKey(
+          ~isSmartRetryEnabled=Smart_Retry,
+          ~currency=(#all_currencies: defaultFilters :> string),
+        ),
         0.0,
       )
 
@@ -263,12 +269,18 @@ let modifySmartRetryMetaData = data => {
 
     let key = Total_Payment_Processed_Amount->getStringFromVariant
     let paymentProcessedAmount =
-      valueDict->getFloat(key->modifyKey(~currency="all_currencies"), 0.0)
+      valueDict->getFloat(
+        key->modifyKey(~currency=(#all_currencies: defaultFilters :> string)),
+        0.0,
+      )
 
     let key = Total_Payment_Processed_Amount->getStringFromVariant
     let paymentProcessedAmountWithoutSmartRetries =
       valueDict->getFloat(
-        key->modifyKey(~isSmartRetryEnabled=Smart_Retry, ~currency="all_currencies"),
+        key->modifyKey(
+          ~isSmartRetryEnabled=Smart_Retry,
+          ~currency=(#all_currencies: defaultFilters :> string),
+        ),
         0.0,
       )
 
