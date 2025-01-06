@@ -6,7 +6,7 @@ type overviewColumns =
   | Pending_Refund_Count
 
 type dataObj = {
-  total_refund_processed_amount_in_usd: float,
+  total_refund_processed_amount: float,
   total_refund_success_rate: float,
   successful_refund_count: int,
   failed_refund_count: int,

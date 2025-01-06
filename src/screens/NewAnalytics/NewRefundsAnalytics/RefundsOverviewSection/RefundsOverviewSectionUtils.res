@@ -2,7 +2,7 @@ open RefundsOverviewSectionTypes
 
 let getStringFromVariant = value => {
   switch value {
-  | Total_Refund_Processed_Amount => "total_refund_processed_amount_in_usd"
+  | Total_Refund_Processed_Amount => "total_refund_processed_amount"
   | Total_Refund_Success_Rate => "total_refund_success_rate"
   | Successful_Refund_Count => "successful_refund_count"
   | Failed_Refund_Count => "failed_refund_count"
@@ -12,7 +12,7 @@ let getStringFromVariant = value => {
 
 let defaultValue =
   {
-    total_refund_processed_amount_in_usd: 0.0,
+    total_refund_processed_amount: 0.0,
     total_refund_success_rate: 0.0,
     successful_refund_count: 0,
     failed_refund_count: 0,
@@ -40,15 +40,19 @@ let getValueFromObj = (data, index, responseKey) => {
 }
 
 open NewAnalyticsTypes
-let setValue = (dict, ~data, ~ids: array<overviewColumns>) => {
+let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~currency) => {
   open NewAnalyticsUtils
   open LogicUtils
 
   ids->Array.forEach(id => {
     let key = id->getStringFromVariant
     let value = switch id {
-    | Total_Refund_Processed_Amount =>
-      data->getAmountValue(~id=id->getStringFromVariant)->JSON.Encode.float
+    | Total_Refund_Processed_Amount => {
+        let amountSuffix =
+          currency->NewAnalyticsFiltersUtils.getTypeValue == #all_currencies ? "_in_usd" : ""
+        data->getAmountValue(~id={`${key}${amountSuffix}`})->JSON.Encode.float
+      }
+
     | _ =>
       data
       ->getFloat(id->getStringFromVariant, 0.0)

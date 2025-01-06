@@ -70,11 +70,13 @@ let make = (~entity: moduleEntity) => {
       primaryData->setValue(
         ~data=amountRateDataRefunds,
         ~ids=[Total_Refund_Processed_Amount, Total_Refund_Success_Rate],
+        ~currency,
       )
 
       primaryData->setValue(
         ~data=statusCountDataRefunds,
         ~ids=[Successful_Refund_Count, Failed_Refund_Count, Pending_Refund_Count],
+        ~currency,
       )
 
       let secondaryAmountRateBodyRefunds = requestBody(
@@ -118,11 +120,13 @@ let make = (~entity: moduleEntity) => {
           secondaryData->setValue(
             ~data=secondaryAmountRateDataRefunds,
             ~ids=[Total_Refund_Processed_Amount, Total_Refund_Success_Rate],
+            ~currency,
           )
 
           secondaryData->setValue(
             ~data=secondaryStatusCountDataRefunds,
             ~ids=[Successful_Refund_Count, Failed_Refund_Count, Pending_Refund_Count],
+            ~currency,
           )
 
           secondaryData->JSON.Encode.object
