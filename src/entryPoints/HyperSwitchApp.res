@@ -40,6 +40,7 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
+  let underMaintenance = featureFlagDetails.underMaintenance
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let reconSidebars = HSReconSidebarValues.useGetReconSideBar()
   sessionExpired := false
@@ -100,6 +101,13 @@ let make = () => {
         <div className="relative">
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
+            //to be removed once maintenance is done
+            <RenderIf condition={underMaintenance}>
+              <HSwitchUtils.AlertBanner
+                warningText="Maintenance Alert: The Sandbox Dashboard will be unavailable from 12:30 PM to 1:30 PM for scheduled maintenance."
+                bannerType={Info}
+              />
+            </RenderIf>
             <div className="flex relative overflow-auto h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
