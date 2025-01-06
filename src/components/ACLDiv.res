@@ -15,7 +15,8 @@ let make = (
   ~height=?,
 ) => {
   switch authorization {
-  | CommonAuthTypes.Access => <ACLToolTip
+  | CommonAuthTypes.Access =>
+    <ACLToolTip
       authorization
       ?noAccessDescription
       ?tooltipForWidthClass
