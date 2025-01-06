@@ -153,6 +153,63 @@ let defaulGranularity = {
   value: (#G_ONEDAY: granularity :> string),
 }
 
+let modifyQueryData = (data, ~currency) => {
+  let amountSuffix =
+    currency->NewAnalyticsFiltersUtils.getTypeValue == #all_currencies ? "_in_usd" : ""
+  let dataDict = Dict.make()
+
+  data->Array.forEach(item => {
+    let valueDict = item->getDictFromJsonObject
+    let time = valueDict->getString(Time_Bucket->getStringFromVariant, "")
+
+    switch dataDict->Dict.get(time) {
+    | Some(prevVal) => {
+        let key = Payment_Processed_Count->getStringFromVariant
+        let paymentProcessedCount = valueDict->getInt(key, 0)
+        let prevProcessedCount = prevVal->getInt(key, 0)
+        let key = `${Payment_Processed_Amount->getStringFromVariant}${amountSuffix}`
+        let paymentProcessedAmount = valueDict->getFloat(key, 0.0)
+        let prevProcessedAmount = prevVal->getFloat(key, 0.0)
+        let key = `${Total_Payment_Processed_Amount->getStringFromVariant}_without_smart_retries${amountSuffix}`
+        let paymentProcessedAmountWithoutSmartRetries = valueDict->getFloat(key, 0.0)
+        let prevProcessedAmountWithoutSmartRetries = prevVal->getFloat(key, 0.0)
+        let key = `${Total_Payment_Processed_Count->getStringFromVariant}_without_smart_retries`
+        let paymentProcessedCountWithoutSmartRetries = valueDict->getInt(key, 0)
+        let prevProcessedCountWithoutSmartRetries = prevVal->getInt(key, 0)
+
+        let totalPaymentProcessedCount = paymentProcessedCount + prevProcessedCount
+        let totalPaymentProcessedAmount = paymentProcessedAmount +. prevProcessedAmount
+        let totalPaymentProcessedAmountWithoutSmartRetries =
+          paymentProcessedAmountWithoutSmartRetries +. prevProcessedAmountWithoutSmartRetries
+        let totalPaymentProcessedCountWithoutSmartRetries =
+          paymentProcessedCountWithoutSmartRetries + prevProcessedCountWithoutSmartRetries
+
+        prevVal->Dict.set(
+          Payment_Processed_Count->getStringFromVariant,
+          totalPaymentProcessedCount->JSON.Encode.int,
+        )
+        prevVal->Dict.set(
+          Payment_Processed_Amount->getStringFromVariant,
+          totalPaymentProcessedAmount->JSON.Encode.float,
+        )
+        prevVal->Dict.set(
+          `${Total_Payment_Processed_Amount->getStringFromVariant}_without_smart_retries`,
+          totalPaymentProcessedAmountWithoutSmartRetries->JSON.Encode.float,
+        )
+        prevVal->Dict.set(
+          `${Total_Payment_Processed_Count->getStringFromVariant}_without_smart_retries`,
+          totalPaymentProcessedCountWithoutSmartRetries->JSON.Encode.int,
+        )
+
+        dataDict->Dict.set(time, prevVal)
+      }
+    | None => dataDict->Dict.set(time, valueDict)
+    }
+  })
+
+  dataDict->Dict.valuesToArray->Array.map(JSON.Encode.object)
+}
+
 let modifySmartRetryQueryData = data => {
   data->Array.map(item => {
     let valueDict = item->getDictFromJsonObject
