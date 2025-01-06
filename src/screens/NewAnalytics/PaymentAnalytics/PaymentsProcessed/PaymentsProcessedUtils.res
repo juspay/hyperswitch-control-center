@@ -175,7 +175,7 @@ let modifyQueryData = (data, ~isSmartRetryEnabled=Smart_Retry, ~currency) => {
     | Some(prevVal) => {
         let keySuffix = isSmartRetryEnabled == Default ? "_without_smart_retries" : ""
         let amountSuffix =
-          currency->NewAnalyticsFiltersUtils.getTypeValue == #all_currencies ? "" : ""
+          currency->NewAnalyticsFiltersUtils.getTypeValue == #all_currencies ? "_in_usd" : ""
         let key = Payment_Processed_Count->getStringFromVariant
         let paymentProcessedCount = valueDict->getInt(`${key}${keySuffix}`, 0)
         let prevProcessedCount = prevVal->getInt(key, 0)
