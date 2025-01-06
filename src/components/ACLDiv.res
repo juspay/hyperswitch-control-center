@@ -8,14 +8,15 @@ let make = (
   ~description=?,
   ~tooltipWidthClass=?,
   ~isRelative=?,
+  ~showTooltip=true,
   ~contentAlign=?,
   ~justifyClass=?,
   ~tooltipForWidthClass=?,
   ~dataAttrStr=?,
   ~height=?,
 ) => {
-  switch authorization {
-  | CommonAuthTypes.Access =>
+  switch showTooltip {
+  | true =>
     <ACLToolTip
       authorization
       ?noAccessDescription
@@ -34,6 +35,6 @@ let make = (
       </AddDataAttributes>}
       toolTipPosition={Top}
     />
-  | CommonAuthTypes.NoAccess => React.null
+  | false => React.null
   }
 }
