@@ -6,7 +6,7 @@ open PaymentsProcessedUtils
 open NewPaymentAnalyticsUtils
 module TableModule = {
   open LogicUtils
-
+  open PaymentsProcessedTypes
   @react.component
   let make = (~data, ~className="") => {
     let (offset, setOffset) = React.useState(_ => 0)
@@ -15,7 +15,7 @@ module TableModule = {
       order: Table.INC,
     }
     let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
     let paymentsProcessed =
       data
       ->Array.map(item => {
@@ -23,13 +23,7 @@ module TableModule = {
       })
       ->Array.map(Nullable.make)
 
-    let isSmartRetryEnabled =
-      filterValueJson
-      ->getString("is_smart_retry_enabled", "true")
-      ->getBoolFromString(true)
-      ->getSmartRetryMetricType
-
-    let defaultCols = isSmartRetryEnabled->isSmartRetryEnbldForPmtProcessed
+    let defaultCols = [Payment_Processed_Amount, Payment_Processed_Count]
     let visibleColumns = defaultCols->Array.concat(visibleColumns)
 
     <div className>
@@ -73,25 +67,20 @@ module PaymentsProcessedHeader = {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let currency = filterValueJson->getString((#currency: filters :> string), "")
-    let isSmartRetryEnabled =
-      filterValueJson
-      ->getString("is_smart_retry_enabled", "true")
-      ->getBoolFromString(true)
-      ->getSmartRetryMetricType
 
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
-      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
+      ~key=selectedMetric.value->getMetaDataMapper,
     )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
+      ~key=selectedMetric.value->getMetaDataMapper,
     )
 
     let (primaryValue, secondaryValue) = if (
-      selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled)->isAmountMetric
+      selectedMetric.value->getMetaDataMapper->isAmountMetric
     ) {
       (primaryValue /. 100.0, secondaryValue /. 100.0)
     } else {
@@ -209,7 +198,7 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->modifyQueryData
+        ->modifyQueryData(~isSmartRetryEnabled)
         ->sortQueryDataByDate
 
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
@@ -222,7 +211,7 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->modifyQueryData
+            ->modifyQueryData(~isSmartRetryEnabled)
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
@@ -295,7 +284,7 @@ let make = (
   }, [isSmartRetryEnabled])
   let params = {
     data: paymentsProcessedData,
-    xKey: selectedMetric.value->getKeyForModule(~isSmartRetryEnabled),
+    xKey: selectedMetric.value,
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
     currency,
