@@ -46,7 +46,7 @@ type featureFlag = {
   clickToPay: bool,
   devThemeFeature: bool,
   devReconv2Product: bool,
-  clonePaymentMethods: bool,
+  devClonePaymentMethods: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -95,7 +95,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     tenantUser: dict->getBool("tenant_user", false),
     devThemeFeature: dict->getBool("dev_theme_feature", false),
     devReconv2Product: dict->getBool("dev_recon_v2_product", false),
-    clonePaymentMethods: dict->getBool("clone_payment_methods", false),
+    devClonePaymentMethods: dict->getBool("dev_clone_payment_methods", false),
   }
 }
 

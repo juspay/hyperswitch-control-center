@@ -269,7 +269,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           bannerType=Warning
         />
       </RenderIf>
-      <RenderIf condition={isClonePMFlow && featureFlagDetails.clonePaymentMethods}>
+      <RenderIf condition={isClonePMFlow && featureFlagDetails.devClonePaymentMethods}>
         {infoBanner}
       </RenderIf>
       <div
