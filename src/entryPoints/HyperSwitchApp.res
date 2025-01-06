@@ -104,7 +104,7 @@ let make = () => {
             //to be removed once maintenance is done
             <RenderIf condition={underMaintenance}>
               <HSwitchUtils.AlertBanner
-                warningText="Maintenance Alert: The Sandbox Dashboard will be unavailable from 12:30 PM to 1:30 PM for scheduled maintenance."
+                warningText="Maintenance Alert: The Sandbox Dashboard will be unavailable from 12:30 PM to 1:30 PM IST for scheduled maintenance."
                 bannerType={Info}
               />
             </RenderIf>
