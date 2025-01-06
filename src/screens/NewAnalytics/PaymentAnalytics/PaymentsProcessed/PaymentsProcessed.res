@@ -71,16 +71,16 @@ module PaymentsProcessedHeader = {
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~currency),
     )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~currency),
     )
 
     let (primaryValue, secondaryValue) = if (
-      selectedMetric.value->getMetaDataMapper->isAmountMetric
+      selectedMetric.value->getMetaDataMapper(~currency)->isAmountMetric
     ) {
       (primaryValue /. 100.0, secondaryValue /. 100.0)
     } else {
@@ -198,7 +198,7 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->modifyQueryData(~isSmartRetryEnabled)
+        ->modifyQueryData(~isSmartRetryEnabled, ~currency)
         ->sortQueryDataByDate
 
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
@@ -211,7 +211,7 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->modifyQueryData(~isSmartRetryEnabled)
+            ->modifyQueryData(~isSmartRetryEnabled, ~currency)
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
@@ -268,20 +268,16 @@ let make = (
       getPaymentsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    isSmartRetryEnabled,
+  ))
 
-  let mockDelay = async () => {
-    if paymentsProcessedData != []->JSON.Encode.array {
-      setScreenState(_ => Loading)
-      await HyperSwitchUtils.delay(300)
-      setScreenState(_ => Success)
-    }
-  }
-
-  React.useEffect(() => {
-    mockDelay()->ignore
-    None
-  }, [isSmartRetryEnabled])
   let params = {
     data: paymentsProcessedData,
     xKey: selectedMetric.value,

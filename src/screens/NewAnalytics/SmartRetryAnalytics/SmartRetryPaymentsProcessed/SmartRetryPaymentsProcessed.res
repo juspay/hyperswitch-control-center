@@ -196,7 +196,7 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->PaymentsProcessedUtils.modifyQueryData
+        ->PaymentsProcessedUtils.modifyQueryData(~currency)
         ->modifySmartRetryQueryData
       let primaryMetaData =
         primaryResponse
@@ -212,7 +212,7 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->PaymentsProcessedUtils.modifyQueryData
+            ->PaymentsProcessedUtils.modifyQueryData(~currency)
             ->modifySmartRetryQueryData
           let secondaryMetaData =
             secondaryResponse

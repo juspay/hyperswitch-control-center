@@ -3,9 +3,9 @@ open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
-  | Payment_Processed_Amount => "payment_processed_amount_in_usd"
+  | Payment_Processed_Amount => "payment_processed_amount"
   | Payment_Processed_Count => "payment_processed_count"
-  | Total_Payment_Processed_Amount => "total_payment_processed_amount_in_usd"
+  | Total_Payment_Processed_Amount => "total_payment_processed_amount"
   | Total_Payment_Processed_Count => "total_payment_processed_count"
   | Time_Bucket => "time_bucket"
   }
@@ -13,9 +13,9 @@ let getStringFromVariant = value => {
 
 let getVariantValueFromString = value => {
   switch value {
-  | "payment_processed_amount_in_usd" => Payment_Processed_Amount
+  | "payment_processed_amount" => Payment_Processed_Amount
   | "payment_processed_count" => Payment_Processed_Count
-  | "total_payment_processed_amount_in_usd" => Total_Payment_Processed_Amount
+  | "total_payment_processed_amount" => Total_Payment_Processed_Amount
   | "total_payment_processed_count" => Total_Payment_Processed_Count
   | "time_bucket" | _ => Time_Bucket
   }
@@ -76,11 +76,11 @@ let visibleColumns = [Time_Bucket]
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
   open NewAnalyticsUtils
   {
-    payment_processed_amount_in_usd: dict->getAmountValue(
+    payment_processed_amount: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,
     ),
     payment_processed_count: dict->getInt(Payment_Processed_Count->getStringFromVariant, 0),
-    total_payment_processed_amount_in_usd: dict->getAmountValue(
+    total_payment_processed_amount: dict->getAmountValue(
       ~id=Total_Payment_Processed_Amount->getStringFromVariant,
     ),
     total_payment_processed_count: dict->getInt(
@@ -125,7 +125,7 @@ let getHeading = colType => {
 let getCell = (obj, colType): Table.cell => {
   open NewAnalyticsUtils
   switch colType {
-  | Payment_Processed_Amount => Text(obj.payment_processed_amount_in_usd->valueFormatter(Amount))
+  | Payment_Processed_Amount => Text(obj.payment_processed_amount->valueFormatter(Amount))
   | Payment_Processed_Count => Text(obj.payment_processed_count->Int.toString)
   | Time_Bucket => Text(obj.time_bucket->formatDateValue(~includeYear=true))
   | Total_Payment_Processed_Amount
@@ -152,15 +152,19 @@ let defaulGranularity = {
   value: (#G_ONEDAY: granularity :> string),
 }
 
-let getMetaDataMapper = key => {
+let getMetaDataMapper = (key, ~currency) => {
   let field = key->getVariantValueFromString
   switch field {
-  | Payment_Processed_Amount => Total_Payment_Processed_Amount
-  | Payment_Processed_Count | _ => Total_Payment_Processed_Count
-  }->getStringFromVariant
+  | Payment_Processed_Amount => {
+      let amountSuffix =
+        currency->NewAnalyticsFiltersUtils.getTypeValue == #all_currencies ? "_in_usd" : ""
+      `${Total_Payment_Processed_Amount->getStringFromVariant}${amountSuffix}`
+    }
+  | Payment_Processed_Count | _ => Total_Payment_Processed_Count->getStringFromVariant
+  }
 }
 
-let modifyQueryData = (data, ~isSmartRetryEnabled=Smart_Retry) => {
+let modifyQueryData = (data, ~isSmartRetryEnabled=Smart_Retry, ~currency) => {
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
@@ -170,11 +174,13 @@ let modifyQueryData = (data, ~isSmartRetryEnabled=Smart_Retry) => {
     switch dataDict->Dict.get(time) {
     | Some(prevVal) => {
         let keySuffix = isSmartRetryEnabled == Default ? "_without_smart_retries" : ""
+        let amountSuffix =
+          currency->NewAnalyticsFiltersUtils.getTypeValue == #all_currencies ? "" : ""
         let key = Payment_Processed_Count->getStringFromVariant
         let paymentProcessedCount = valueDict->getInt(`${key}${keySuffix}`, 0)
         let prevProcessedCount = prevVal->getInt(key, 0)
         let key = Payment_Processed_Amount->getStringFromVariant
-        let paymentProcessedAmount = valueDict->getFloat(`${key}${keySuffix}`, 0.0)
+        let paymentProcessedAmount = valueDict->getFloat(`${key}${keySuffix}${amountSuffix}`, 0.0)
         let prevProcessedAmount = prevVal->getFloat(key, 0.0)
 
         let totalPaymentProcessedCount = paymentProcessedCount + prevProcessedCount
