@@ -44,28 +44,26 @@ let parseResponse = (response, key) => {
 
 let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~metricType, ~currency) => {
   open LogicUtils
-  open NewAnalyticsTypes
+  open NewAnalyticsUtils
   ids->Array.forEach(id => {
     let key = id->getStringFromVariant
-    let amountSuffix =
-      currency->NewAnalyticsFiltersUtils.getTypeValue == #all_currencies ? "_in_usd" : ""
 
     let value = switch id {
     | Total_Smart_Retried_Amount
-    | Total_Payment_Processed_Amount => {
-        let id = metricType == Smart_Retry ? key : `${key}_without_smart_retries`
-        data->NewAnalyticsUtils.getAmountValue(~id={`${id}${amountSuffix}`})->JSON.Encode.float
-      }
+    | Total_Payment_Processed_Amount =>
+      data
+      ->getAmountValue(~id=key->modifyKey(~isSmartRetryEnabled=metricType, ~currency))
+      ->JSON.Encode.float
     | Total_Refund_Processed_Amount =>
       data
-      ->NewAnalyticsUtils.getAmountValue(~id={`${key}${amountSuffix}`})
+      ->getAmountValue(~id={key->modifyKey(~currency)})
       ->JSON.Encode.float
     | Total_Dispute =>
       data
       ->getFloat(key, 0.0)
       ->JSON.Encode.float
     | _ => {
-        let id = metricType == Smart_Retry ? key : `${key}_without_smart_retries`
+        let id = key->modifyKey(~isSmartRetryEnabled=metricType)
         data
         ->getFloat(id, 0.0)
         ->JSON.Encode.float

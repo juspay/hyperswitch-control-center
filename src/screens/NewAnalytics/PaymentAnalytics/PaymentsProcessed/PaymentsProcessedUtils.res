@@ -156,15 +156,15 @@ let getMetaDataMapper = (key, ~currency) => {
   let field = key->getVariantValueFromString
   switch field {
   | Payment_Processed_Amount => {
-      let amountSuffix =
-        currency->NewAnalyticsFiltersUtils.getTypeValue == #all_currencies ? "_in_usd" : ""
-      `${Total_Payment_Processed_Amount->getStringFromVariant}${amountSuffix}`
+      let key = Total_Payment_Processed_Amount->getStringFromVariant
+      key->NewAnalyticsUtils.modifyKey(~currency)
     }
   | Payment_Processed_Count | _ => Total_Payment_Processed_Count->getStringFromVariant
   }
 }
 
 let modifyQueryData = (data, ~isSmartRetryEnabled=Smart_Retry, ~currency) => {
+  open NewAnalyticsUtils
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
@@ -173,14 +173,12 @@ let modifyQueryData = (data, ~isSmartRetryEnabled=Smart_Retry, ~currency) => {
 
     switch dataDict->Dict.get(time) {
     | Some(prevVal) => {
-        let keySuffix = isSmartRetryEnabled == Default ? "_without_smart_retries" : ""
-        let amountSuffix =
-          currency->NewAnalyticsFiltersUtils.getTypeValue == #all_currencies ? "_in_usd" : ""
         let key = Payment_Processed_Count->getStringFromVariant
-        let paymentProcessedCount = valueDict->getInt(`${key}${keySuffix}`, 0)
+        let paymentProcessedCount = valueDict->getInt(key->modifyKey(~isSmartRetryEnabled), 0)
         let prevProcessedCount = prevVal->getInt(key, 0)
         let key = Payment_Processed_Amount->getStringFromVariant
-        let paymentProcessedAmount = valueDict->getFloat(`${key}${keySuffix}${amountSuffix}`, 0.0)
+        let paymentProcessedAmount =
+          valueDict->getFloat(key->modifyKey(~isSmartRetryEnabled, ~currency), 0.0)
         let prevProcessedAmount = prevVal->getFloat(key, 0.0)
 
         let totalPaymentProcessedCount = paymentProcessedCount + prevProcessedCount

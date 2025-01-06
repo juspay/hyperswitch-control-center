@@ -159,13 +159,20 @@ let modifySmartRetryQueryData = data => {
     let paymentProcessedCount = valueDict->getInt(key, 0)
 
     let key = Payment_Processed_Amount->getStringFromVariant
-    let paymentProcessedAmount = valueDict->getFloat(`${key}_in_usd`, 0.0)
 
-    let key = `${Payment_Processed_Amount->getStringFromVariant}_without_smart_retries_in_usd`
-    let paymentProcessedAmountWithoutSmartRetries = valueDict->getFloat(key, 0.0)
+    let paymentProcessedAmount =
+      valueDict->getFloat(key->modifyKey(~currency="all_currencies"), 0.0)
 
-    let key = `${Payment_Processed_Count->getStringFromVariant}_without_smart_retries`
-    let paymentProcessedCountWithoutSmartRetries = valueDict->getInt(key, 0)
+    let key = Payment_Processed_Amount->getStringFromVariant
+    let paymentProcessedAmountWithoutSmartRetries =
+      valueDict->getFloat(
+        key->modifyKey(~isSmartRetryEnabled=Smart_Retry, ~currency="all_currencies"),
+        0.0,
+      )
+
+    let key = Payment_Processed_Count->getStringFromVariant
+    let paymentProcessedCountWithoutSmartRetries =
+      valueDict->getInt(key->modifyKey(~isSmartRetryEnabled=Smart_Retry), 0)
 
     let totalPaymentProcessedCount =
       paymentProcessedCount - paymentProcessedCountWithoutSmartRetries
@@ -201,11 +208,13 @@ let modifyQueryData = data => {
         let key = Payment_Processed_Amount->getStringFromVariant
         let paymentProcessedAmount = valueDict->getFloat(key, 0.0)
         let prevProcessedAmount = prevVal->getFloat(key, 0.0)
-        let key = `${Payment_Processed_Amount->getStringFromVariant}_without_smart_retries`
-        let paymentProcessedAmountWithoutSmartRetries = valueDict->getFloat(key, 0.0)
+        let key = Payment_Processed_Amount->getStringFromVariant
+        let paymentProcessedAmountWithoutSmartRetries =
+          valueDict->getFloat(key->modifyKey(~isSmartRetryEnabled=Smart_Retry), 0.0)
         let prevProcessedAmountWithoutSmartRetries = prevVal->getFloat(key, 0.0)
-        let key = `${Payment_Processed_Count->getStringFromVariant}_without_smart_retries`
-        let paymentProcessedCountWithoutSmartRetries = valueDict->getInt(key, 0)
+        let key = Payment_Processed_Count->getStringFromVariant
+        let paymentProcessedCountWithoutSmartRetries =
+          valueDict->getInt(key->modifyKey(~isSmartRetryEnabled=Smart_Retry), 0)
         let prevProcessedCountWithoutSmartRetries = prevVal->getInt(key, 0)
 
         let totalPaymentProcessedCount = paymentProcessedCount + prevProcessedCount
@@ -224,11 +233,15 @@ let modifyQueryData = data => {
           totalPaymentProcessedAmount->JSON.Encode.float,
         )
         prevVal->Dict.set(
-          `${Payment_Processed_Amount->getStringFromVariant}_without_smart_retries`,
+          Payment_Processed_Amount
+          ->getStringFromVariant
+          ->modifyKey(~isSmartRetryEnabled=Smart_Retry),
           totalPaymentProcessedAmountWithoutSmartRetries->JSON.Encode.float,
         )
         prevVal->Dict.set(
-          `${Payment_Processed_Count->getStringFromVariant}_without_smart_retries`,
+          Payment_Processed_Count
+          ->getStringFromVariant
+          ->modifyKey(~isSmartRetryEnabled=Smart_Retry),
           totalPaymentProcessedCountWithoutSmartRetries->JSON.Encode.int,
         )
 
@@ -249,13 +262,19 @@ let modifySmartRetryMetaData = data => {
     let paymentProcessedCount = valueDict->getInt(key, 0)
 
     let key = Total_Payment_Processed_Amount->getStringFromVariant
-    let paymentProcessedAmount = valueDict->getFloat(`${key}_in_usd`, 0.0)
+    let paymentProcessedAmount =
+      valueDict->getFloat(key->modifyKey(~currency="all_currencies"), 0.0)
 
-    let key = `${Total_Payment_Processed_Amount->getStringFromVariant}_without_smart_retries_in_usd`
-    let paymentProcessedAmountWithoutSmartRetries = valueDict->getFloat(key, 0.0)
+    let key = Total_Payment_Processed_Amount->getStringFromVariant
+    let paymentProcessedAmountWithoutSmartRetries =
+      valueDict->getFloat(
+        key->modifyKey(~isSmartRetryEnabled=Smart_Retry, ~currency="all_currencies"),
+        0.0,
+      )
 
-    let key = `${Total_Payment_Processed_Count->getStringFromVariant}_without_smart_retries`
-    let paymentProcessedCountWithoutSmartRetries = valueDict->getInt(key, 0)
+    let key = Total_Payment_Processed_Count->getStringFromVariant
+    let paymentProcessedCountWithoutSmartRetries =
+      valueDict->getInt(key->modifyKey(~isSmartRetryEnabled=Smart_Retry), 0)
 
     let totalPaymentProcessedCount =
       paymentProcessedCount - paymentProcessedCountWithoutSmartRetries
