@@ -110,7 +110,7 @@ let make = (~previewOnly=false) => {
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
   let customUI =
-    <NoDataFound customCssClass="my-6 " message="No results found" renderType=ExtendDateUI />
+    <NoDataFound customCssClass="my-6" message="No results found" renderType=ExtendDateUI />
 
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters

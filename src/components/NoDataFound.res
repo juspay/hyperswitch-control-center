@@ -138,9 +138,7 @@ let make = (
           </div>
         | ExtendDateUI =>
           <div className=containerClass>
-            <div className={`px-3 text-2xl text-black font-bold mb-6`}>
-              {message->React.string}
-            </div>
+            <div className="px-3 text-2xl text-black font-bold mb-6"> {message->React.string} </div>
             <ExtendDateComponent />
           </div>
         }}

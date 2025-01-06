@@ -21,7 +21,7 @@ let make = () => {
   )
 
   let customUI = {
-    <NoDataFound customCssClass="my-6 " message="No results found" renderType=ExtendDateUI />
+    <NoDataFound customCssClass="my-6" message="No results found" renderType=ExtendDateUI />
   }
 
   let fetchPayouts = () => {
