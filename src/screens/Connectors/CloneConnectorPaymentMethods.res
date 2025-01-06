@@ -91,14 +91,16 @@ let make = (~connectorID, ~connectorName) => {
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
+  let (metaData, setMetaData) = React.useState(_ => JSON.Encode.null)
   let setPaymentMethodsClone = Recoil.useSetRecoilState(HyperswitchAtom.paymentMethodsClonedAtom)
+  let setMetaDataClone = Recoil.useSetRecoilState(HyperswitchAtom.metaDataClonedAtom)
   let setRetainCloneModal = Recoil.useSetRecoilState(HyperswitchAtom.retainCloneModalAtom)
   let setCloneConnector = Recoil.useSetRecoilState(HyperswitchAtom.cloneConnectorAtom)
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let setPaymentMethodDetails = async () => {
     try {
-      initialValues->setConnectorPaymentMethods(setPaymentMethods)->ignore
+      initialValues->setConnectorPaymentMethods(setPaymentMethods, setMetaData)->ignore
     } catch {
     | _ => showToast(~message="Failed to Clone Payment methods", ~toastType=ToastError)
     }
@@ -120,7 +122,7 @@ let make = (~connectorID, ~connectorName) => {
         ->LogicUtils.safeParse
         ->getPaymentMethodEnabled
       setPaymentMethodsClone(_ => paymentMethodsClone)
-
+      setMetaDataClone(_ => metaData)
       setShowModal(_ => true)
       setRetainCloneModal(_ => true)
     }
@@ -143,9 +145,12 @@ let make = (~connectorID, ~connectorName) => {
     setCloneConnector(_ => connectorName)
   }
   <>
-    <div className="flex" onClick={handleCloneClick}>
-      <p className="text-nowrap"> {"Clone Payment Methods"->React.string} </p>
-      <img alt="copy" src={`/assets/CopyToClipboard.svg`} />
+    <div onClick={handleCloneClick}>
+      <ToolTip
+        description="Clone Payment Methods"
+        toolTipFor={<Icon name="clone" size=15 />}
+        toolTipPosition=Top
+      />
     </div>
     <ClonePaymentMethodsModal showModal setShowModal />
   </>

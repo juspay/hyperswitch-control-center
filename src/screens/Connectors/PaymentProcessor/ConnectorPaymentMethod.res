@@ -19,6 +19,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   let (paymentMethodsClone, setPaymentMethodsClone) = Recoil.useRecoilState(
     HyperswitchAtom.paymentMethodsClonedAtom,
   )
+  let (metaDataClone, setMetaDataClone) = Recoil.useRecoilState(HyperswitchAtom.metaDataClonedAtom)
 
   let updateDetails = value => {
     setPaymentMethods(_ => value->Array.copy)
@@ -76,6 +77,8 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
+      setMetaDataClone(_ => JSON.Encode.null)
+      setPaymentMethodsClone(_ => [])
       showToast(
         ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
         ~toastType=ToastSuccess,
@@ -105,8 +108,9 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         ->JSON.stringify
         ->safeParse
         ->getPaymentMethodEnabled
+      let clonedMetaData = metaDataClone
+      setMetaData(_ => clonedMetaData)
       setPaymentMethods(_ => clonedData)
-      setPaymentMethodsClone(_ => [])
     }
     None
   }, [paymentMethodsClone])

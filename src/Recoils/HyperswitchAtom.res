@@ -81,6 +81,11 @@ let paymentMethodsClonedAtom: Recoil.recoilAtom<
   array<ConnectorTypes.paymentMethodEnabled>,
 > = Recoil.atom("paymentMethodsClonedAtom", [])
 
+let metaDataClonedAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom(
+  "metaDataClonedAtom",
+  JSON.Encode.null,
+)
+
 let retainCloneModalAtom: Recoil.recoilAtom<bool> = Recoil.atom("retainCloneModalAtom", false)
 
 let cloneModalButtonStateAtom: Recoil.recoilAtom<Button.buttonState> = Recoil.atom(
