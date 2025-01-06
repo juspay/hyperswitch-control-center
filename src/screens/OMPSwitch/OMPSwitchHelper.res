@@ -53,7 +53,7 @@ module ListBaseComp = {
             {subHeadingElement}
           </p>
           <RenderIf condition={showEditIcon}>
-            <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
+            <Icon name="settings" size=20 onClick=onEditClick className="mx-2" />
           </RenderIf>
           <Icon
             className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15

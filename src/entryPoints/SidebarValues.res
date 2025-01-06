@@ -437,6 +437,15 @@ let userManagement = userHasResourceAccess => {
   })
 }
 
+let organizationSettings = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Organization Settings",
+    link: `/organization-settings`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("Organization settings", "")],
+  })
+}
+
 let businessDetails = userHasResourceAccess => {
   SubLevelLink({
     name: "Business Details",
@@ -475,6 +484,7 @@ let complianceCertificateSection = {
 
 let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
   let settingsLinkArray = [
+    organizationSettings(userHasResourceAccess),
     businessDetails(userHasResourceAccess),
     businessProfiles(userHasResourceAccess),
   ]

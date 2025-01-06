@@ -177,7 +177,8 @@ let make = () => {
                         | list{"payment-settings", ..._} =>
                           <ConnectorContainer />
                         | list{"business-details", ..._}
-                        | list{"business-profiles", ..._} =>
+                        | list{"business-profiles", ..._}
+                        | list{"organization-settings", ..._} =>
                           <BusinessProfileContainer />
                         | list{"payments", ..._}
                         | list{"refunds", ..._}

@@ -207,7 +207,6 @@ let make = () => {
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
-  let (showEditOrgModal, setShowEditOrgModal) = React.useState(_ => false)
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
@@ -245,8 +244,8 @@ let make = () => {
   }
 
   let onEditClick = e => {
-    setShowEditOrgModal(_ => true)
     e->ReactEvent.Mouse.stopPropagation
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/organization-settings"))
   }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -318,9 +317,6 @@ let make = () => {
         <SwitchOrg setShowModal={setShowSwitchingOrg} />
       </RenderIf>
     </div>
-    <EditOrgName
-      showModal={showEditOrgModal} setShowModal={setShowEditOrgModal} orgList orgId getOrgList
-    />
     <RenderIf condition={showAddOrgModal}>
       <NewOrgCreationModal
         setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} getOrgList

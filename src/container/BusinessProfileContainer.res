@@ -34,6 +34,10 @@ let make = () => {
       <AccessControl authorization=Access>
         <BusinessProfile />
       </AccessControl>
+    | list{"organization-settings"} =>
+      <AccessControl authorization=Access>
+        <OrganizationSettings />
+      </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
