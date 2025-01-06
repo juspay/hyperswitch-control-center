@@ -92,6 +92,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let paymentConnectorList =
     connectorList->RoutingUtils.filterConnectorList(~retainInList=PaymentConnector)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -114,6 +115,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       if userHasAccess(~groupAccess=ConnectorsView) === Access {
         if !featureFlagDetails.isLiveMode {
+          let _ = await fetchBusinessProfiles()
           let _ = await fetchConnectorListResponse()
         }
       }
