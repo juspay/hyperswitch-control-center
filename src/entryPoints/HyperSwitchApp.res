@@ -101,13 +101,6 @@ let make = () => {
         <div className="relative">
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
-            //to be removed once maintenance is done
-            <RenderIf condition={underMaintenance}>
-              <HSwitchUtils.AlertBanner
-                warningText="Maintenance Alert: The Sandbox Dashboard will be unavailable from 12:30 PM to 1:30 PM IST for scheduled maintenance."
-                bannerType={Info}
-              />
-            </RenderIf>
             <div className="flex relative overflow-auto h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
@@ -156,6 +149,13 @@ let make = () => {
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
+                    //to be removed once maintenance is done
+                    <RenderIf condition={underMaintenance}>
+                      <HSwitchUtils.AlertBanner
+                        warningText="Maintenance Alert: The Sandbox Dashboard will be unavailable from 12:30 PM to 1:30 PM IST for scheduled maintenance."
+                        bannerType={Info}
+                      />
+                    </RenderIf>
                     <div
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
