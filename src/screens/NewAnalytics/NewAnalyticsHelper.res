@@ -74,8 +74,15 @@ module Tabs = {
 
       let borderStyle = index === 0 ? "" : "border-l"
 
-      let borderRadius =
-        index === 0 ? "rounded-l-lg" : index === options->Array.length - 1 ? "rounded-r-lg" : ""
+      let borderRadius = if options->Array.length == 1 {
+        "rounded-lg"
+      } else if index === 0 {
+        "rounded-l-lg"
+      } else if index === options->Array.length - 1 {
+        "rounded-r-lg"
+      } else {
+        ""
+      }
 
       `${textStyle} ${borderStyle} ${borderRadius}`
     }
@@ -110,7 +117,7 @@ module CustomDropDown = {
       {_ =>
         <div>
           <Menu.Button
-            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border border-outline">
+            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border ">
             {_ => {
               <>
                 {buttonText.label->React.string}

@@ -492,3 +492,44 @@ let generateFilterObject = (~globalFilters, ~localFilters=None) => {
 
   filters->JSON.Encode.object
 }
+
+let getGranularityLabel = option => {
+  switch option {
+  | #G_ONEDAY => "Day-wise"
+  | #G_ONEHOUR => "Hour-wise"
+  | #G_THIRTYMIN => "30min-wise"
+  | #G_FIFTEENMIN => "15min-wise"
+  }
+}
+
+let defaulGranularity = {
+  label: #G_ONEDAY->getGranularityLabel,
+  value: (#G_ONEDAY: granularity :> string),
+}
+
+let getGranularityOptions = (~startTime, ~endTime) => {
+  let startingPoint = startTime->DayJs.getDayJsForString
+  let endingPoint = endTime->DayJs.getDayJsForString
+  let gap = endingPoint.diff(startingPoint.toString(), "hour") // diff between points
+
+  let options = if gap < 1 {
+    [#G_THIRTYMIN, #G_FIFTEENMIN]
+  } else if gap < 24 {
+    [#G_ONEHOUR, #G_THIRTYMIN, #G_FIFTEENMIN]
+  } else if gap < 168 {
+    [#G_ONEDAY, #G_ONEHOUR]
+  } else {
+    [#G_ONEDAY]
+  }
+
+  options->Array.map(option => {
+    label: option->getGranularityLabel,
+    value: (option: granularity :> string),
+  })
+}
+
+let getDefaultGranularity = (~startTime, ~endTime) => {
+  let options = getGranularityOptions(~startTime, ~endTime)
+
+  options->Array.get(0)->Option.getOr(defaulGranularity)
+}

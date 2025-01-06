@@ -70,6 +70,7 @@ module PaymentsProcessedHeader = {
     ~setSelectedMetric,
     ~granularity,
     ~setGranularity,
+    ~granularityOptions,
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
@@ -119,10 +120,10 @@ module PaymentsProcessedHeader = {
 
     let suffix = metricType == Amount ? "USD" : ""
 
-    <div className="w-full px-7 py-8 grid grid-cols-1">
+    <div className="w-full px-7 py-8 flex justify-between item-center">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
-          {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
+          {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard
@@ -130,12 +131,7 @@ module PaymentsProcessedHeader = {
           />
         </RenderIf>
       </div>
-      // will enable it in future
-      <RenderIf condition={false}>
-        <div className="flex justify-center">
-          <Tabs option={granularity} setOption={setGranularity} options={tabs} />
-        </div>
-      </RenderIf>
+      <Tabs option={granularity} setOption={setGranularity} options={granularityOptions} />
       <div className="flex gap-2 justify-end">
         <CustomDropDown
           buttonText={selectedMetric} options={dropDownOptions} setOption={setSelectedMetric}
@@ -153,6 +149,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -163,13 +160,25 @@ let make = (
     JSON.Encode.array([])
   )
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
+
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
+
+  React.useEffect(() => {
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      setGranularity(_ => getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal))
+    }
+    None
+  }, (startTimeVal, endTimeVal))
 
   let isSmartRetryEnabled =
     filterValueJson
@@ -277,7 +286,14 @@ let make = (
       getPaymentsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    granularity.value,
+  ))
 
   let mockDelay = async () => {
     if paymentsProcessedData != []->JSON.Encode.array {
@@ -311,6 +327,7 @@ let make = (
           setSelectedMetric
           granularity
           setGranularity
+          granularityOptions
         />
         <div className="mb-5">
           {switch viewType {
