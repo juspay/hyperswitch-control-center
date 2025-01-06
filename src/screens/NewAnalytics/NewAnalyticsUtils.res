@@ -170,16 +170,31 @@ let isEmptyGraph = (data: JSON.t, key: string) => {
 }
 
 let getCategories = (data: JSON.t, index: int, key: string) => {
-  data
-  ->getArrayFromJson([])
-  ->getValueFromArray(index, []->JSON.Encode.array)
-  ->getArrayFromJson([])
-  ->Array.map(item => {
+  let options =
+    data
+    ->getArrayFromJson([])
+    ->getValueFromArray(index, []->JSON.Encode.array)
+    ->getArrayFromJson([])
+  let isShowTime = options->Array.reduce(false, (flag, item) => {
+    let value = item->getDictFromJsonObject->getString(key, "NA")
+    if value->isNonEmptyString && key == "time_bucket" {
+      let dateObj = value->DayJs.getDayJsForString
+      dateObj.format("HH") != "00" || flag
+    } else {
+      false
+    }
+  })
+
+  options->Array.map(item => {
     let value = item->getDictFromJsonObject->getString(key, "NA")
 
     if value->isNonEmptyString && key == "time_bucket" {
       let dateObj = value->DayJs.getDayJsForString
-      `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+      if isShowTime {
+        `${dateObj.month()->getMonthName} ${dateObj.format("DD")}, ${dateObj.format("HH:mm")}`
+      } else {
+        `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+      }
     } else {
       value
     }
