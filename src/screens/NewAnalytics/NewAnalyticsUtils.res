@@ -8,49 +8,6 @@ let sankyRed = "#F7E0E0"
 let sankyLightBlue = "#91B7EE"
 let sankyLightRed = "#EC6262"
 
-let getBucketSize = granularity => {
-  switch granularity {
-  | "hour_wise" => "hour"
-  | "week_wise" => "week"
-  | "day_wise" | _ => "day"
-  }
-}
-
-let fillMissingDataPoints = (
-  ~data,
-  ~startDate,
-  ~endDate,
-  ~timeKey="time_bucket",
-  ~defaultValue: JSON.t,
-  ~granularity: string,
-) => {
-  open LogicUtils
-  let dataDict = Dict.make()
-  data->Array.forEach(item => {
-    let time = item->getDictFromJsonObject->getString(timeKey, "")
-    dataDict->Dict.set(time, item)
-  })
-  let dataPoints = Dict.make()
-  let startingPoint = startDate->DayJs.getDayJsForString
-  let endingPoint = endDate->DayJs.getDayJsForString
-  let gap = granularity->getBucketSize
-  for x in 0 to endingPoint.diff(startingPoint.toString(), gap) {
-    let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-    let timeVal = startingPoint.add(x, gap).endOf(gap).format("YYYY-MM-DD 00:00:00")
-    switch dataDict->Dict.get(timeVal) {
-    | Some(val) => {
-        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        dataPoints->Dict.set(timeVal, val)
-      }
-    | None => {
-        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
-      }
-    }
-  }
-  dataPoints->Dict.valuesToArray
-}
-
 open NewAnalyticsTypes
 let globalFilter: array<filters> = [#currency]
 let globalExcludeValue = ["all_currencies"]
@@ -530,6 +487,56 @@ let getGranularityOptions = (~startTime, ~endTime) => {
 
 let getDefaultGranularity = (~startTime, ~endTime) => {
   let options = getGranularityOptions(~startTime, ~endTime)
-
   options->Array.get(0)->Option.getOr(defaulGranularity)
+}
+
+let getGranularityGap = option => {
+  switch option {
+  | "G_ONEHOUR" => 60
+  | "G_THIRTYMIN" => 30
+  | "G_FIFTEENMIN" => 15
+  | "G_ONEDAY" | _ => 1440
+  }
+}
+
+let fillMissingDataPoints = (
+  ~data,
+  ~startDate,
+  ~endDate,
+  ~timeKey="time_bucket",
+  ~defaultValue: JSON.t,
+  ~granularity: string,
+) => {
+  let dataDict = Dict.make()
+  data->Array.forEach(item => {
+    let time = item->getDictFromJsonObject->getString(timeKey, "")
+    dataDict->Dict.set(time, item)
+  })
+  let dataPoints = Dict.make()
+  let startingPoint = startDate->DayJs.getDayJsForString
+  let startingPoint = startingPoint.format("YYYY-MM-DD HH:00:00")->DayJs.getDayJsForString
+  let endingPoint = endDate->DayJs.getDayJsForString
+  let gap = "minute"
+  let devider = granularity->getGranularityGap
+  let limit =
+    (endingPoint.diff(startingPoint.toString(), gap)->Int.toFloat /. devider->Int.toFloat)
+    ->Math.floor
+    ->Float.toInt
+
+  for x in 0 to limit {
+    let newDict = defaultValue->getDictFromJsonObject->Dict.copy
+    let timeVal = startingPoint.add(x * devider, gap).format("YYYY-MM-DD HH:mm:ss")
+    switch dataDict->Dict.get(timeVal) {
+    | Some(val) => {
+        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
+        dataPoints->Dict.set(timeVal, val)
+      }
+    | None => {
+        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
+        dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
+      }
+    }
+  }
+
+  dataPoints->Dict.valuesToArray
 }
