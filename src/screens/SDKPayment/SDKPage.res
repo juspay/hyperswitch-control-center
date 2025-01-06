@@ -78,6 +78,7 @@ module SDKConfiguarationFields = {
 @react.component
 let make = () => {
   open MerchantAccountUtils
+  open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
@@ -88,9 +89,12 @@ let make = () => {
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let paymentConnectorList =
     connectorList->RoutingUtils.filterConnectorList(~retainInList=PaymentConnector)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   React.useEffect(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
@@ -104,6 +108,25 @@ let make = () => {
     setInitialValues(_ => defaultBusinessProfile->SDKPaymentUtils.initialValueForForm)
     None
   }, [defaultBusinessProfile.profile_id])
+
+  let setUpConnectoreContainer = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      if userHasAccess(~groupAccess=ConnectorsView) === Access {
+        if !featureFlagDetails.isLiveMode {
+          let _ = await fetchConnectorListResponse()
+        }
+      }
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    }
+  }
+
+  React.useEffect(() => {
+    setUpConnectoreContainer()->ignore
+    None
+  }, [])
 
   let onProceed = async (~paymentId) => {
     switch paymentId {
@@ -121,7 +144,7 @@ let make = () => {
     Nullable.null->Promise.resolve
   }
 
-  <>
+  <PageLoaderWrapper screenState={screenState}>
     <BreadCrumbNavigation
       path=[{title: "Home", link: `/home`}] currentPageTitle="Explore Demo Checkout Experience"
     />
@@ -173,5 +196,5 @@ let make = () => {
         }}
       </div>
     </div>
-  </>
+  </PageLoaderWrapper>
 }
