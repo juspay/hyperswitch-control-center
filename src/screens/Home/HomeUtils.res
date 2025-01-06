@@ -111,18 +111,23 @@ module MerchantAuthInfo = {
       ]->Dict.fromArray
 
     <Form initialValues={dataDict->JSON.Encode.object} formClass="md:ml-9 my-4">
-      <div className="flex flex-col md:flex-row gap-3">
+      <div className="flex flex-col lg:flex-row gap-3">
         <div>
-          <div className="font-semibold text-dark_black"> {"Merchant ID"->React.string} </div>
+          <div className="font-semibold text-dark_black md:text-base text-sm">
+            {"Merchant ID"->React.string}
+          </div>
           <div className="flex items-center">
-            <div className="font-medium text-dark_black opacity-40">
+            <div
+              className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
               {merchantDetailsValue.merchant_id->React.string}
             </div>
             <CopyFieldValue fieldkey="merchant_id" />
           </div>
         </div>
         <div>
-          <div className="font-semibold text-dark_black"> {"Publishable Key"->React.string} </div>
+          <div className="font-semibold text-dark_black md:text-base text-sm">
+            {"Publishable Key"->React.string}
+          </div>
           <div className="flex items-center">
             <div
               className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
@@ -221,12 +226,12 @@ module ControlCenter = {
             subHeading="Give a headstart to the control centre by connecting with more than 20+ gateways, payment methods, and networks."
             leftIcon=Some("connector")
           />
-          <img
-            alt="connector-list"
-            className="inline-block absolute right-5 bottom-5  lg:block"
-            src="/assets/connectorsList.svg"
-          />
-          <CardFooter>
+          <CardFooter customFooterStyle="mt-5">
+            <img
+              alt="connector-list"
+              className="inline-block absolute lg:right-5 lg:bottom-5 bottom-0 right-0 lg:block lg:w-40 md:w-24 w-36"
+              src="/assets/connectorsList.svg"
+            />
             <Button
               text="+  Connect"
               buttonType={Secondary}
@@ -299,7 +304,7 @@ module DevResources = {
             subHeading="Learn about payments, payment orchestration and all the tech behind it."
             leftIcon=Some("blogs")
           />
-          <CardFooter>
+          <CardFooter customFooterStyle="mt-5">
             <Button
               text="Explore"
               buttonType={Secondary}

@@ -225,7 +225,7 @@ let make = () => {
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
                             authorization={userHasAccess(~groupAccess=OperationsView)}
-                            isEnabled={[#Organization, #Merchant]->checkUserEntity}>
+                            isEnabled={[#Tenant, #Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
                               remainingPath
@@ -238,7 +238,7 @@ let make = () => {
                         | list{"analytics-user-journey"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.userJourneyAnalytics &&
-                            [#Organization, #Merchant]->checkUserEntity}
+                            [#Tenant, #Organization, #Merchant]->checkUserEntity}
                             authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
@@ -247,7 +247,7 @@ let make = () => {
                         | list{"analytics-authentication"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.authenticationAnalytics &&
-                            [#Organization, #Merchant]->checkUserEntity}
+                            [#Tenant, #Organization, #Merchant]->checkUserEntity}
                             authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">

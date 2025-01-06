@@ -65,6 +65,7 @@ module.exports = {
         "77-rem": "77rem",
         "30-rem": "30rem",
         "10.25-rem": "10.25rem",
+        "89.5-per": "89.5%",
 
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",
@@ -101,6 +102,7 @@ module.exports = {
         "fs-11": "11px",
         "fs-13": "13px",
         "fs-14": "14px",
+        "fs-15": "15px",
         "fs-16": "16px",
         "fs-18": "18px",
         "fs-20": "20px",

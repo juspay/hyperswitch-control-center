@@ -1,4 +1,12 @@
 open NewAnalyticsTypes
+
+let getTypeValue = value => {
+  switch value {
+  | "all_currencies" => #all_currencies
+  | _ => #none
+  }
+}
+
 let defaultCurrency = {
   label: "All Currencies (Converted to USD*)",
   value: (#all_currencies: defaultFilters :> string),
