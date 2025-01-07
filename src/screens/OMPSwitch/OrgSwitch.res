@@ -54,7 +54,7 @@ module SwitchOrg = {
       customWidth="w-80"
       placeholder="Switch org"
       onKeyUp=handleKeyUp
-      customStyle="!text-grey-300 !placeholder-grey-200 placeholder: text-sm font-inter-style bg-blue-840"
+      customStyle="!text-grey-300 !placeholder-grey-200 placeholder: text-sm font-inter-style bg-secondary"
       customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
     />
   }
@@ -267,9 +267,9 @@ let make = () => {
 
   let customHRTagStyle = "border-t border-blue-830"
   let customPadding = "py-1 w-full"
-  let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100 !w-full"
+  let customStyle = "w-56 text-gray-200 bg-secondary dark:bg-black hover:bg-secondary-hover hover:text-gray-100 !w-full"
 
-  let customScrollStyle = "bg-blue-840 max-h-72 overflow-scroll px-1 pt-1"
+  let customScrollStyle = "bg-secondary max-h-72 overflow-scroll px-1 pt-1"
   let dropdownContainerStyle = "min-w-[15rem] rounded"
 
   <div className="w-full py-3.5 px-2 ">
@@ -284,8 +284,8 @@ let make = () => {
         marginTop="mt-14"
         hideMultiSelectButtons=true
         addButton=false
-        customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
-        customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
+        customStyle="bg-secondary hover:bg-secondary hover:brightness-90 rounded !w-full"
+        customSelectStyle="md:bg-secondary rounded"
         searchable=false
         baseComponent={<ListBaseComp
           heading="Org"
@@ -295,7 +295,7 @@ let make = () => {
           onEditClick
           isDarkBg=true
         />}
-        baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
+        baseComponentCustomStyle="border-blue-820 rounded bg-secondary rounded text-white"
         bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
           <OMPSwitchHelper.AddNewOMPButton
             user=#Organization

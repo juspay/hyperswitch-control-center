@@ -24,7 +24,7 @@ let allColumns = [
 
 let useGetStatus = (dispute: disputes) => {
   open DisputesUtils
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+  let {globalUIConfig: {button}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = dispute.dispute_status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch dispute.dispute_status->disputeStatusVariantMapper {
@@ -41,11 +41,11 @@ let useGetStatus = (dispute: disputes) => {
   | DisputeOpened
   | DisputeCancelled
   | DisputeChallenged =>
-    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedCss} ${button.backgroundColor.primaryNormal} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedCss} ${button.backgroundColor.primaryNormal} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }

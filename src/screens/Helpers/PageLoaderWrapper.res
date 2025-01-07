@@ -4,6 +4,9 @@ type viewType = Loading | Error(string) | Success | Custom
 module ScreenLoader = {
   @react.component
   let make = (~sectionHeight="h-80-vh") => {
+    let {userInfo: {themeId}} = React.useContext(UserInfoProvider.defaultContext)
+    let loader = LottieFiles.useLottieJson("loader-circle.json")
+    open LogicUtils
     let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
     let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -12,7 +15,11 @@ module ScreenLoader = {
         <div className="w-20 h-16">
           <ReactSuspenseWrapper>
             <div className="scale-400 pt-px">
-              <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
+              <Lottie
+                animationData={themeId->isNonEmptyString ? loader : loaderLottieFile}
+                autoplay=true
+                loop=true
+              />
             </div>
           </ReactSuspenseWrapper>
         </div>

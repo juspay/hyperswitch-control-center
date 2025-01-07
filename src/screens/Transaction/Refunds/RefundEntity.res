@@ -49,7 +49,7 @@ let allColumns = [
 ]
 
 let useGetStatus = order => {
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+  let {globalUIConfig: {button}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch order.status->statusVariantMapper {
@@ -65,11 +65,11 @@ let useGetStatus = order => {
   | Processing
   | RequiresCustomerAction
   | RequiresPaymentMethod =>
-    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedCss} ${button.backgroundColor.primaryNormal} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedCss} ${button.backgroundColor.primaryNormal} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }
