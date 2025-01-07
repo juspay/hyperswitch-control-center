@@ -71,6 +71,7 @@ let make = () => {
 
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
       let body = searchText->generateQuery
+      body->sendMixpanelEvents(~mixpanelEvent)
 
       let response = await fetchDetails(url, body->JSON.Encode.object, Post)
 
