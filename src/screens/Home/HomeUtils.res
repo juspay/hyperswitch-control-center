@@ -103,7 +103,8 @@ let isDefaultBusinessProfile = details => details->Array.length === 1
 
 module MerchantAuthInfo = {
   @react.component
-  let make = (~merchantDetailsValue: HSwitchSettingTypes.merchantPayload) => {
+  let make = () => {
+    let merchantDetailsValue = useMerchantDetailsValue()
     let dataDict =
       [
         ("merchant_id", merchantDetailsValue.merchant_id->JSON.Encode.string),
@@ -207,7 +208,6 @@ module CheckoutCard = {
 module ControlCenter = {
   @react.component
   let make = () => {
-    let merchantDetailsValue = useMerchantDetailsValue()
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -250,7 +250,7 @@ module ControlCenter = {
               leftIcon=Some("merchantInfo")
               customSubHeadingStyle="w-full max-w-none"
             />
-            <MerchantAuthInfo merchantDetailsValue />
+            <MerchantAuthInfo />
             <CardFooter>
               <Button
                 text="Go to API keys"
