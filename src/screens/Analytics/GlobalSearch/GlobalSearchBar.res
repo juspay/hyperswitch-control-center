@@ -261,6 +261,8 @@ let make = () => {
             activeFilter
             onFilterClicked
             onSuggestionClicked
+            categorySuggestions
+            searchText
           />
           {switch viewType {
           | Results | Load | EmptyResult =>
