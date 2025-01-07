@@ -2,8 +2,8 @@ open NewAnalyticsTypes
 open NewAnalyticsHelper
 open LineGraphTypes
 open SmartRetryPaymentsProcessedUtils
-open SmartRetryPaymentsProcessedTypes
 open NewSmartRetryAnalyticsEntity
+open PaymentsProcessedTypes
 
 module TableModule = {
   open LogicUtils

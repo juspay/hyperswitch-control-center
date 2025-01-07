@@ -1,6 +1,7 @@
 open SmartRetryPaymentsProcessedTypes
 open NewAnalyticsUtils
 open LogicUtils
+open PaymentsProcessedTypes
 
 let getStringFromVariant = value => {
   switch value {
