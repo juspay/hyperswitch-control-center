@@ -464,25 +464,6 @@ let generateFilter = (queryArray: array<string>) => {
   ->Dict.fromArray
 }
 
-let sendMixpanelEvents = (
-  body,
-  ~mixpanelEvent: (
-    ~eventName: string,
-    ~email: string=?,
-    ~description: option<'a>=?,
-    ~section: string=?,
-    ~metadata: JSON.t=?,
-  ) => unit,
-) => {
-  let metaData =
-    [
-      ("query", body->getString("query", "")->JSON.Encode.string),
-      ("filters", body->getObj("filters", Dict.make())->JSON.Encode.object),
-    ]->getJsonFromArrayOfJson
-
-  mixpanelEvent(~eventName="global_search", ~metadata=metaData)
-}
-
 let generateQuery = searchQuery => {
   let filters = []
   let queryText = ref("")
