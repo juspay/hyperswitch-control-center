@@ -63,6 +63,7 @@ type getObjects<'data> = {
   xKey: string,
   yKey: string,
   comparison?: DateRangeUtils.comparison,
+  currency?: string,
 }
 
 type chartEntity<'t, 'chartOption, 'data> = {
@@ -92,4 +93,4 @@ type singleStatConfig = {
 
 type filters = [#currency]
 
-type defaultFilters = [#all_currencies]
+type defaultFilters = [#all_currencies | #none]

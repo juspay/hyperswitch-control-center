@@ -36,7 +36,7 @@ module OrganisationSelection = {
           ~fullLength=true,
           ~customButtonStyle="!rounded-lg",
           ~dropdownCustomWidth="!w-full",
-          ~textStyle="!text-gray-500",
+          ~textStyle="!text-gray-500 truncate",
           ~disableSelect,
         )(
           ~input={
@@ -276,7 +276,7 @@ let generateDropdownOptionsUserOMPViews = (
         description: `${item.label}`,
       }
     | _ => {
-        label: `${item.entity->getNameForId} (${(item.entity :> string)})`,
+        label: `${item.entity->getNameForId}`,
         value: `${(item.entity :> string)}`,
         labelDescription: `(${(item.entity :> string)})`,
         description: `${item.entity->getNameForId}`,

@@ -66,7 +66,7 @@ module TableRowForUserDetails = {
   ) => {
     open LogicUtils
 
-    let tableElementCss = "table-cell text-left h-fit w-fit p-4"
+    let tableElementCss = "text-left py-4 px-4 h-fit w-fit"
     let noOfElementsForMerchants = arrayValue->Array.length
 
     let borderStyle = index =>
@@ -88,7 +88,7 @@ module TableRowForUserDetails = {
       <tr className={`${index->borderStyle}`}>
         <RenderIf condition={index == 0}>
           <td
-            className={`${tableElementCss} ${cssValueWithMultipleValues} pt-4 font-semibold`}
+            className={`${tableElementCss} ${cssValueWithMultipleValues} font-semibold`}
             rowSpan={noOfElementsForMerchants}>
             {merchantName->capitalizeString->React.string}
           </td>
@@ -114,7 +114,7 @@ module TableRowForUserDetails = {
 module UserAccessInfo = {
   @react.component
   let make = (~userData: array<UserManagementTypes.userDetailstype>) => {
-    let tableHeaderCss = "table-cell text-left py-2 px-4 text-sm font-normal text-gray-400"
+    let tableHeaderCss = "py-2 px-4 text-sm font-normal text-gray-400"
     let groupByMerchantData = userData->UserUtils.groupByMerchants
 
     let getObjectForThekey = key =>
@@ -128,27 +128,31 @@ module UserAccessInfo = {
       ->Dict.keysToArray
       ->Array.length
 
-    <table>
-      <thead className="border-b">
-        <tr className="p-4">
-          <th className={`${tableHeaderCss} w-[15%]`}> {"Merchants"->React.string} </th>
-          <th className={`${tableHeaderCss} w-[15%]`}> {"Profile Name"->React.string} </th>
-          <th className={`${tableHeaderCss} w-[30%]`}> {"Role"->React.string} </th>
-          <th className={`${tableHeaderCss} w-[20%]`}> {"Status"->React.string} </th>
-          <th className={`${tableHeaderCss} w-[10%]`}> {""->React.string} </th>
-        </tr>
-      </thead>
-      <tbody>
-        {groupByMerchantData
-        ->Dict.keysToArray
-        ->Array.mapWithIndex((items, parentIndex) => {
-          <TableRowForUserDetails
-            arrayValue={items->getObjectForThekey} parentIndex noOfElementsInParent
-          />
-        })
-        ->React.array}
-      </tbody>
-    </table>
+    <div className="overflow-x-auto">
+      <table className="min-w-full border-collapse border-spacing-0">
+        <thead className="border-b">
+          <tr>
+            <th className={`${tableHeaderCss} w-[15%] text-left`}> {"Merchants"->React.string} </th>
+            <th className={`${tableHeaderCss} w-[15%] text-left`}>
+              {"Profile Name"->React.string}
+            </th>
+            <th className={`${tableHeaderCss} w-[30%] text-left`}> {"Role"->React.string} </th>
+            <th className={`${tableHeaderCss} w-[20%] text-left`}> {"Status"->React.string} </th>
+            <th className={`${tableHeaderCss} w-[10%] text-left`}> {""->React.string} </th>
+          </tr>
+        </thead>
+        <tbody>
+          {groupByMerchantData
+          ->Dict.keysToArray
+          ->Array.mapWithIndex((items, parentIndex) => {
+            <TableRowForUserDetails
+              arrayValue={items->getObjectForThekey} parentIndex noOfElementsInParent
+            />
+          })
+          ->React.array}
+        </tbody>
+      </table>
+    </div>
   }
 }
 

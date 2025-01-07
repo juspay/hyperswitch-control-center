@@ -17,9 +17,7 @@ module ExtendDateComponent = {
     }
     <div>
       <ACLButton
-        buttonType=Primary
-        onClick=handleClick
-        text="Expand the search range to include the past 90 days."
+        buttonType=Primary onClick=handleClick text="Expand the search to the previous 90 days"
       />
       <div className="flex justify-center">
         <p className="mt-6">
