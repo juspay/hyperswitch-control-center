@@ -25,3 +25,26 @@ let useGetBusinessProflile = profileId => {
   ->Array.find(profile => profile.profile_id == profileId)
   ->Option.getOr(MerchantAccountUtils.defaultValueForBusinessProfile)
 }
+
+let useGetProfileList = () => {
+  open APIUtils
+  open LogicUtils
+  open OMPSwitchUtils
+
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+  let setProfileList = Recoil.useSetRecoilState(HyperswitchAtom.profileListAtom)
+
+  async _ => {
+    try {
+      let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
+      let response = await fetchDetails(url)
+      setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
+      }
+    }
+  }
+}

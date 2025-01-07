@@ -6,13 +6,14 @@ module ProfileActions = {
   let make = (~defaultProfileName, ~profileId) => {
     open APIUtils
     let getURL = useGetURL()
-    let updateDetails = useUpdateMethod()
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
     let (showModal, setShowModal) = React.useState(_ => false)
     let (businessProfiles, setBusinessProfiles) = Recoil.useRecoilState(
       HyperswitchAtom.businessProfilesAtom,
     )
     let initialValues = [("profile_name", defaultProfileName->JSON.Encode.string)]->Dict.fromArray
+    let fetchProfileList = BusinessProfileHook.useGetProfileList()
 
     let validateForm = (values: JSON.t) => {
       open LogicUtils
@@ -45,8 +46,8 @@ module ProfileActions = {
           businessProfiles
           ->Array.filter(businessProfile => businessProfile.profile_id !== profileId)
           ->Array.concat([res->BusinessProfileMapper.businessProfileTypeMapper])
-
         setBusinessProfiles(_ => filteredProfileList)
+        fetchProfileList()->ignore
         showToast(~message="Updated profile name!", ~toastType=ToastSuccess)
       } catch {
       | _ => showToast(~message="Failed to update profile name!", ~toastType=ToastError)

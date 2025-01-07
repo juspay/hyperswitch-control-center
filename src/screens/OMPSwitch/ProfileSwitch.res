@@ -1,17 +1,19 @@
 module NewProfileCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~getProfileList) => {
+  let make = (~setShowModal, ~showModal) => {
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let getProfileList = BusinessProfileHook.useGetProfileList()
 
     let createNewProfile = async values => {
       try {
         let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
         let body = values
         let _ = await updateDetails(url, body, Post)
-        getProfileList()->ignore
+        let _ = await getProfileList()
+
         showToast(
           ~toastType=ToastSuccess,
           ~message="Profile Created Successfully!",
@@ -121,12 +123,9 @@ module NewProfileCreationModal = {
 
 @react.component
 let make = () => {
-  open APIUtils
-  open LogicUtils
   open OMPSwitchUtils
   open OMPSwitchHelper
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+
   let showToast = ToastState.useShowToast()
   let profileSwitch = OMPSwitchHooks.useProfileSwitch()
   let url = RescriptReactRouter.useUrl()
@@ -135,13 +134,12 @@ let make = () => {
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+
+  let fetchProfileList = BusinessProfileHook.useGetProfileList()
 
   let getProfileList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
-      let response = await fetchDetails(url)
-      setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
+      let _ = fetchProfileList()
     } catch {
     | _ => {
         setProfileList(_ => ompDefaultValue(profileId, ""))
@@ -182,7 +180,7 @@ let make = () => {
   React.useEffect(() => {
     getProfileList()->ignore
     None
-  }, [businessProfiles])
+  }, [])
 
   let toggleChevronState = () => {
     setArrow(prev => !prev)
@@ -216,7 +214,7 @@ let make = () => {
       shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal}>
-      <NewProfileCreationModal setShowModal showModal getProfileList />
+      <NewProfileCreationModal setShowModal showModal />
     </RenderIf>
     <LoaderModal
       showModal={showSwitchingProfile}
