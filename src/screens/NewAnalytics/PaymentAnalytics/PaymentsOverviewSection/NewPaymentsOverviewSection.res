@@ -193,32 +193,24 @@ let make = (~entity: moduleEntity) => {
       />
       <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-6">
         <OverViewStat
-          data
-          responseKey={Total_Success_Rate}
-          config={getInfo(~responseKey=Total_Success_Rate)}
-          getValueFromObj
-          getStringFromVariant
+          data responseKey={Total_Success_Rate} getInfo getValueFromObj getStringFromVariant
         />
         <OverViewStat
           data
           responseKey={Total_Payment_Processed_Amount}
-          config={getInfo(~responseKey=Total_Payment_Processed_Amount)}
+          getInfo
           getValueFromObj
           getStringFromVariant
         />
         <OverViewStat
           data
           responseKey={Total_Refund_Processed_Amount}
-          config={getInfo(~responseKey=Total_Refund_Processed_Amount)}
+          getInfo
           getValueFromObj
           getStringFromVariant
         />
         <OverViewStat
-          data
-          responseKey={Total_Dispute}
-          config={getInfo(~responseKey=Total_Dispute)}
-          getValueFromObj
-          getStringFromVariant
+          data responseKey={Total_Dispute} getInfo getValueFromObj getStringFromVariant
         />
       </div>
     </div>
