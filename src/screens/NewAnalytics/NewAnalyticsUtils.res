@@ -82,22 +82,6 @@ let requestBody = (
 }
 
 open NewAnalyticsFiltersUtils
-let getAmountSuffix = currency => {
-  switch currency->getTypeValue {
-  | #all_currencies => "_in_usd"
-  | _ => ""
-  }
-}
-
-let modifyKey = (key, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
-  let baseKey = switch isSmartRetryEnabled {
-  | Default => `${key}_without_smart_retries`
-  | Smart_Retry => key
-  }
-
-  `${baseKey}${getAmountSuffix(currency)}`
-}
-
 let formatCurrency = currency => {
   switch currency->getTypeValue {
   | #all_currencies => "USD*"

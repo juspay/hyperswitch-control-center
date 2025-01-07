@@ -68,19 +68,25 @@ module PaymentsProcessedHeader = {
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let currency = filterValueJson->getString((#currency: filters :> string), "")
 
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
+
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
-      ~key=selectedMetric.value->getMetaDataMapper(~currency),
+      ~key=selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled),
     )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataMapper(~currency),
+      ~key=selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled),
     )
 
     let (primaryValue, secondaryValue) = if (
-      selectedMetric.value->getMetaDataMapper(~currency)->isAmountMetric
+      selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled)->isAmountMetric
     ) {
       (primaryValue /. 100.0, secondaryValue /. 100.0)
     } else {

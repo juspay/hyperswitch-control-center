@@ -15,7 +15,6 @@ let defaultValue =
     total_smart_retried_amount: 0.0,
     total_success_rate: 0.0,
     total_payment_processed_amount: 0.0,
-    total_payment_processed_count: 0,
     total_refund_processed_amount: 0.0,
     total_dispute: 0,
   }
@@ -42,6 +41,39 @@ let parseResponse = (response, key) => {
   ->getDictFromJsonObject
 }
 
+open NewAnalyticsTypes
+let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
+  open NewAnalyticsFiltersUtils
+  let key = switch id {
+  | Total_Dispute => #total_dispute
+  | Total_Refund_Processed_Amount =>
+    switch currency->getTypeValue {
+    | #all_currencies => #total_refund_processed_amount_in_usd
+    | _ => #total_refund_processed_amount
+    }
+  | Total_Success_Rate =>
+    switch isSmartRetryEnabled {
+    | Smart_Retry => #total_success_rate
+    | Default => #total_success_rate_without_smart_retries
+    }
+  | Total_Smart_Retried_Amount =>
+    switch (isSmartRetryEnabled, currency->getTypeValue) {
+    | (Smart_Retry, #all_currencies) => #total_smart_retried_amount_in_usd
+    | (Smart_Retry, _) => #total_smart_retried_amount
+    | (Default, #all_currencies) => #total_smart_retried_amount_without_smart_retries_in_usd
+    | (Default, _) => #total_smart_retried_amount_without_smart_retries
+    }
+  | Total_Payment_Processed_Amount =>
+    switch (isSmartRetryEnabled, currency->getTypeValue) {
+    | (Smart_Retry, #all_currencies) => #total_payment_processed_amount_in_usd
+    | (Smart_Retry, _) => #total_payment_processed_amount
+    | (Default, #all_currencies) => #total_payment_processed_amount_without_smart_retries_in_usd
+    | (Default, _) => #total_payment_processed_amount_without_smart_retries
+    }
+  }
+  (key: responseKeys :> string)
+}
+
 let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~metricType, ~currency) => {
   open LogicUtils
   open NewAnalyticsUtils
@@ -52,18 +84,18 @@ let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~metricType, ~currenc
     | Total_Smart_Retried_Amount
     | Total_Payment_Processed_Amount =>
       data
-      ->getAmountValue(~id=key->modifyKey(~isSmartRetryEnabled=metricType, ~currency))
+      ->getAmountValue(~id=id->getKey(~isSmartRetryEnabled=metricType, ~currency))
       ->JSON.Encode.float
     | Total_Refund_Processed_Amount =>
       data
-      ->getAmountValue(~id={key->modifyKey(~currency)})
+      ->getAmountValue(~id={id->getKey(~currency)})
       ->JSON.Encode.float
     | Total_Dispute =>
       data
       ->getFloat(key, 0.0)
       ->JSON.Encode.float
     | _ => {
-        let id = key->modifyKey(~isSmartRetryEnabled=metricType)
+        let id = id->getKey(~isSmartRetryEnabled=metricType)
         data
         ->getFloat(id, 0.0)
         ->JSON.Encode.float

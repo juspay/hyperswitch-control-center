@@ -152,19 +152,50 @@ let defaulGranularity = {
   value: (#G_ONEDAY: granularity :> string),
 }
 
-let getMetaDataMapper = (key, ~currency) => {
+open NewAnalyticsTypes
+let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
+  open NewAnalyticsFiltersUtils
+  let key = switch id {
+  | Time_Bucket => #time_bucket
+  | Payment_Processed_Count =>
+    switch isSmartRetryEnabled {
+    | Smart_Retry => #payment_processed_count
+    | Default => #payment_processed_count_without_smart_retries
+    }
+  | Total_Payment_Processed_Count =>
+    switch isSmartRetryEnabled {
+    | Smart_Retry => #total_payment_processed_count
+    | Default => #total_payment_processed_count_without_smart_retries
+    }
+
+  | Payment_Processed_Amount =>
+    switch (isSmartRetryEnabled, currency->getTypeValue) {
+    | (Smart_Retry, #all_currencies) => #payment_processed_amount_in_usd
+    | (Smart_Retry, _) => #payment_processed_amount
+    | (Default, #all_currencies) => #payment_processed_amount_without_smart_retries_in_usd
+    | (Default, _) => #payment_processed_amount_without_smart_retrie
+    }
+  | Total_Payment_Processed_Amount =>
+    switch (isSmartRetryEnabled, currency->getTypeValue) {
+    | (Smart_Retry, #all_currencies) => #total_payment_processed_amount_in_usd
+    | (Smart_Retry, _) => #total_payment_processed_amount
+    | (Default, #all_currencies) => #total_payment_processed_amount_without_smart_retries_in_usd
+    | (Default, _) => #total_payment_processed_amount_without_smart_retries
+    }
+  }
+  (key: responseKeys :> string)
+}
+
+let getMetaDataMapper = (key, ~isSmartRetryEnabled, ~currency) => {
   let field = key->getVariantValueFromString
   switch field {
-  | Payment_Processed_Amount => {
-      let key = Total_Payment_Processed_Amount->getStringFromVariant
-      key->NewAnalyticsUtils.modifyKey(~currency)
-    }
-  | Payment_Processed_Count | _ => Total_Payment_Processed_Count->getStringFromVariant
+  | Payment_Processed_Amount =>
+    Total_Payment_Processed_Amount->getKey(~currency, ~isSmartRetryEnabled)
+  | Payment_Processed_Count | _ => Total_Payment_Processed_Count->getKey(~isSmartRetryEnabled)
   }
 }
 
-let modifyQueryData = (data, ~isSmartRetryEnabled=Smart_Retry, ~currency) => {
-  open NewAnalyticsUtils
+let modifyQueryData = (data, ~isSmartRetryEnabled, ~currency) => {
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
@@ -173,12 +204,17 @@ let modifyQueryData = (data, ~isSmartRetryEnabled=Smart_Retry, ~currency) => {
 
     switch dataDict->Dict.get(time) {
     | Some(prevVal) => {
+        let paymentProcessedCount =
+          valueDict->getInt(Payment_Processed_Count->getKey(~isSmartRetryEnabled), 0)
         let key = Payment_Processed_Count->getStringFromVariant
-        let paymentProcessedCount = valueDict->getInt(key->modifyKey(~isSmartRetryEnabled), 0)
         let prevProcessedCount = prevVal->getInt(key, 0)
-        let key = Payment_Processed_Amount->getStringFromVariant
+
         let paymentProcessedAmount =
-          valueDict->getFloat(key->modifyKey(~isSmartRetryEnabled, ~currency), 0.0)
+          valueDict->getFloat(
+            Payment_Processed_Amount->getKey(~currency, ~isSmartRetryEnabled),
+            0.0,
+          )
+        let key = Payment_Processed_Amount->getStringFromVariant
         let prevProcessedAmount = prevVal->getFloat(key, 0.0)
 
         let totalPaymentProcessedCount = paymentProcessedCount + prevProcessedCount

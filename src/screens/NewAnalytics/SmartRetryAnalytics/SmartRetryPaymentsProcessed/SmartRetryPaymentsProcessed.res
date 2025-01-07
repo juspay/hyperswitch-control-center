@@ -193,7 +193,6 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->modifyQueryData
         ->modifySmartRetryQueryData
       let primaryMetaData =
         primaryResponse
@@ -209,7 +208,6 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->modifyQueryData
             ->modifySmartRetryQueryData
           let secondaryMetaData =
             secondaryResponse
