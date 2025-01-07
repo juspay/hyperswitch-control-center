@@ -14,8 +14,6 @@ let make = (~setAppScreenState) => {
     userHasResourceAccess,
   } = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
@@ -25,12 +23,6 @@ let make = (~setAppScreenState) => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       if !checkUserEntity([#Profile]) {
         let _ = await fetchMerchantAccountDetails()
-      }
-      if userHasAccess(~groupAccess=ConnectorsView) === Access {
-        if !featureFlagDetails.isLiveMode {
-          let _ = await fetchConnectorListResponse()
-          let _ = await fetchBusinessProfiles()
-        }
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -42,11 +34,11 @@ let make = (~setAppScreenState) => {
     setUpConnectoreContainer()->ignore
     None
   }, [])
+
   <div>
     <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
       {switch url.path->urlPath {
       | list{"home"} => <Home setAppScreenState />
-
       | list{"recon"} =>
         <AccessControl
           isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}

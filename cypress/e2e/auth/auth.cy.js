@@ -101,7 +101,7 @@ describe("Auth Module", () => {
       },
     }).as("getFeatureData");
     cy.visit("http://localhost:9000");
-    cy.wait("@getFeatureData");
+    // cy.wait("@getFeatureData");
     cy.get("[data-testid=card-foot-text]").click();
     cy.url().should("include", "/login");
     cy.get("#card-header").should("contain", "Hey there, Welcome back!");
