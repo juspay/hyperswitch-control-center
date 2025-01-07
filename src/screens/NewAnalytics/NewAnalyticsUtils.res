@@ -81,9 +81,8 @@ let requestBody = (
   ]->JSON.Encode.array
 }
 
-open NewAnalyticsFiltersUtils
 let formatCurrency = currency => {
-  switch currency->getTypeValue {
+  switch currency->NewAnalyticsFiltersUtils.getTypeValue {
   | #all_currencies => "USD*"
   | _ => currency->String.toUpperCase
   }
