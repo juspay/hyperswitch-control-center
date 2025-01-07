@@ -267,11 +267,16 @@ let make = (~children) => {
         let themesData = await themeResponse->(res => res->Fetch.Response.json)
         themesData
       }
-      let _ = updateThemeURLs(themeJson)
-      let _ = themeJson->configCustomDomainTheme
+      updateThemeURLs(themeJson)->ignore
+      configCustomDomainTheme(themeJson)->ignore
       themeJson
     } catch {
-    | _ => JSON.Encode.null
+    | _ => {
+        let defaultStyle = {"settings": newDefaultConfig.settings}->Identity.genericTypeToJson
+        updateThemeURLs(defaultStyle)->ignore
+        configCustomDomainTheme(defaultStyle)->ignore
+        defaultStyle
+      }
     }
   }
 
