@@ -60,6 +60,7 @@ module FailureReasonsPaymentsHeader = {
 let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -68,6 +69,7 @@ let make = (~entity: moduleEntity) => {
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -87,12 +89,13 @@ let make = (~entity: moduleEntity) => {
       | _ => None
       }
 
-      let body = NewAnalyticsUtils.requestBody(
+      let body = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let response = await updateDetails(url, body, Post)
@@ -120,7 +123,7 @@ let make = (~entity: moduleEntity) => {
       getPaymentsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value])
+  }, [startTimeVal, endTimeVal, groupBy.value, currency])
 
   <div>
     <ModuleHeader title={entity.title} />
