@@ -21,6 +21,9 @@ let make = () => {
     UserInfoProvider.defaultContext,
   )
 
+  let customUI = {
+    <NoDataFound customCssClass="my-6" message="No results found" renderType=ExtendDateUI />
+  }
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>

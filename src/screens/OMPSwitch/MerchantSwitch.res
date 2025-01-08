@@ -183,19 +183,18 @@ let make = () => {
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 w-[14rem] max-w-[20rem]"
 
+  let subHeading = {currentOMPName(merchantList, merchantId)}
+
   React.useEffect(() => {
-    getMerchantList()->ignore
+    if subHeading != merchantDetailsTypedValue.merchant_name->Option.getOr("") {
+      getMerchantList()->ignore
+    }
     None
-  }, [])
+  }, [merchantDetailsTypedValue.merchant_name])
 
   let toggleChevronState = () => {
     setArrow(prev => !prev)
   }
-
-  let subHeading =
-    merchantDetailsTypedValue.merchant_name->Option.isNone
-      ? currentOMPName(merchantList, merchantId)
-      : merchantDetailsTypedValue.merchant_name->Option.getOr("")
 
   <div className="w-fit">
     <SelectBox.BaseDropdown
