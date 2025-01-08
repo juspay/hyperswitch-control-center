@@ -1,7 +1,7 @@
 let getMerchantSelectBoxOption = (
   ~label,
   ~value,
-  ~dropdownList: array<OMPSwitchTypes.ompListTypes>,
+  ~dropdownList: array<OMPSwitchTypes.profileList>,
   ~showAllSelection=false,
 ) => {
   let allOptions: SelectBox.dropdownOption = {

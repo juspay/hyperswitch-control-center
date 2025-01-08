@@ -146,7 +146,8 @@ let make = () => {
       setMerchantList(_ => response->getArrayDataFromJson(merchantItemToObjMapper))
     } catch {
     | _ => {
-        setMerchantList(_ => ompDefaultValue(merchantId, ""))
+        // setMerchantList(_ => ompDefaultValue(merchantId, ""))
+        setMerchantList(_ => [HyperswitchAtom.merchantDefaultValue])
         showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
       }
     }
@@ -183,7 +184,12 @@ let make = () => {
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 w-[15rem]"
 
-  let subHeading = {currentOMPName(merchantList, merchantId)}
+  let subHeading = {currentMerchantName(merchantList, merchantId)}
+
+  React.useEffect(() => {
+    let _isPlatform = checkIfPlatformMerchant(~merchantList, ~merchantId)
+    None
+  }, [merchantList])
 
   React.useEffect(() => {
     if subHeading != merchantDetailsTypedValue.merchant_name->Option.getOr("") {
@@ -203,7 +209,10 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options={merchantList->generateDropdownOptions}
+      options={merchantList
+      ->Identity.genericTypeToJson
+      ->OMPSwitchUtils.convertToProfileListType
+      ->generateDropdownOptions}
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false

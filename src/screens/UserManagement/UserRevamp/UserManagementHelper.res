@@ -29,7 +29,9 @@ module OrganisationSelection = {
           ~options=getMerchantSelectBoxOption(
             ~label="All organizations",
             ~value="all_organizations",
-            ~dropdownList=orgList,
+            ~dropdownList=orgList
+            ->Identity.genericTypeToJson
+            ->OMPSwitchUtils.convertToProfileListType,
           ),
           ~deselectDisable=true,
           ~buttonText="Select an organization",
@@ -88,7 +90,9 @@ module MerchantSelection = {
           ~options=getMerchantSelectBoxOption(
             ~label="All merchants",
             ~value="all_merchants",
-            ~dropdownList=merchList,
+            ~dropdownList=merchList
+            ->Identity.genericTypeToJson
+            ->OMPSwitchUtils.convertToProfileListType,
             ~showAllSelection=true,
           ),
           ~deselectDisable=true,
@@ -195,7 +199,9 @@ module ProfileSelection = {
           ~options=getMerchantSelectBoxOption(
             ~label="All profiles",
             ~value="all_profiles",
-            ~dropdownList=profileList,
+            ~dropdownList=profileList
+            ->Identity.genericTypeToJson
+            ->OMPSwitchUtils.convertToProfileListType,
             ~showAllSelection=true,
           ),
           ~deselectDisable=true,

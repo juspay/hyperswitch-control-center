@@ -1,4 +1,11 @@
-type ompListTypes = {id: string, name: string}
+// type ompListTypes = {id: string, name: string}
+
+type orgType = Default | Platform
+type merchantType = Default | Platform | Connected
+
+type orgList = {id: string, name: string, orgType: orgType}
+type merchantList = {id: string, name: string, merchantType: merchantType}
+type profileList = {id: string, name: string}
 
 type opmView = {
   lable: string,
@@ -7,9 +14,9 @@ type opmView = {
 type ompViews = array<opmView>
 
 type ompList = {
-  orgList: array<ompListTypes>,
-  merchantList: array<ompListTypes>,
-  profileList: array<ompListTypes>,
+  orgList: array<orgList>,
+  merchantList: array<merchantList>,
+  profileList: array<profileList>,
 }
 
 type adminType = [#tenant_admin | #org_admin | #merchant_admin | #non_admin]

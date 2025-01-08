@@ -2,7 +2,11 @@ type accessMapping = {
   groups: Map.t<UserManagementTypes.groupAccessType, CommonAuthTypes.authorization>,
   resources: Map.t<UserManagementTypes.resourceAccessType, CommonAuthTypes.authorization>,
 }
-let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
+
+let orgDefaultValue: OMPSwitchTypes.orgList = {id: "", name: "", orgType: Default}
+let merchantDefaultValue: OMPSwitchTypes.merchantList = {id: "", name: "", merchantType: Default}
+let profileDefaultValue: OMPSwitchTypes.profileList = {id: "", name: ""}
+
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
@@ -57,22 +61,24 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
   },
 )
 
-let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
+let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.orgList>> = Recoil.atom(
   "orgListAtom",
-  [ompDefaultValue],
+  [orgDefaultValue],
 )
 
-let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
+let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.merchantList>> = Recoil.atom(
   "merchantListAtom",
-  [ompDefaultValue],
+  [merchantDefaultValue],
 )
 
-let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
+let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.profileList>> = Recoil.atom(
   "profileListAtom",
-  [ompDefaultValue],
+  [profileDefaultValue],
 )
 
 let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(
   "moduleListRecoil",
   [],
 )
+
+let isPlatform: Recoil.recoilAtom<bool> = Recoil.atom("isPlatform", false)

@@ -261,7 +261,7 @@ module OMPCopyTextCustomComp = {
   }
 }
 
-let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
+let generateDropdownOptions: array<OMPSwitchTypes.profileList> => array<
   SelectBox.dropdownOption,
 > = dropdownList => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
@@ -293,7 +293,7 @@ module EditOrgName = {
     let showToast = ToastState.useShowToast()
     let initialValues =
       [
-        ("organization_name", OMPSwitchUtils.currentOMPName(orgList, orgId)->JSON.Encode.string),
+        ("organization_name", OMPSwitchUtils.currentOrgName(orgList, orgId)->JSON.Encode.string),
       ]->Dict.fromArray
 
     let validateForm = (values: JSON.t) => {

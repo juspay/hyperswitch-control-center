@@ -1,6 +1,6 @@
 module PlatformAccountConfirmationModal = {
   @react.component
-  let make = (~showModal, ~setShowModal, ~setIsPlatform) => {
+  let make = (~showModal, ~setShowModal) => {
     open OMPSwitchUtils
     open APIUtils
     let getURL = useGetURL()
@@ -8,6 +8,7 @@ module PlatformAccountConfirmationModal = {
     let showToast = ToastState.useShowToast()
     let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let setIsPlatform = Recoil.useSetRecoilState(HyperswitchAtom.isPlatform)
     let (arrow, setArrow) = React.useState(_ => true)
 
     let (selectedMerchant, setSelectedMerchant) = React.useState(_ => merchantId)
@@ -27,7 +28,7 @@ module PlatformAccountConfirmationModal = {
     let toggleChevronState = () => {
       setArrow(prev => !prev)
     }
-    let subHeading = currentOMPName(merchantList, selectedMerchant)
+    let subHeading = currentMerchantName(merchantList, selectedMerchant)
 
     let createPlatformMerchant = async values => {
       try {
@@ -84,7 +85,10 @@ module PlatformAccountConfirmationModal = {
                 input
                 deselectDisable=true
                 customButtonStyle="!rounded-md"
-                options={merchantList->OMPSwitchHelper.generateDropdownOptions}
+                options={merchantList
+                ->Identity.genericTypeToJson
+                ->OMPSwitchUtils.convertToProfileListType
+                ->OMPSwitchHelper.generateDropdownOptions}
                 marginTop="mt-8"
                 hideMultiSelectButtons=true
                 addButton=false
@@ -117,7 +121,7 @@ module PlatformAccountConfirmationModal = {
 
 module MakePlatformAccount = {
   @react.component
-  let make = (~setIsPlatform) => {
+  let make = () => {
     let (showEditOrgModal, setShowEditOrgModal) = React.useState(_ => false)
 
     let convertToPlatform = e => {
@@ -128,7 +132,7 @@ module MakePlatformAccount = {
     <>
       <Button text="Convert to Platform" onClick={convertToPlatform} />
       <PlatformAccountConfirmationModal
-        showModal={showEditOrgModal} setShowModal={setShowEditOrgModal} setIsPlatform
+        showModal={showEditOrgModal} setShowModal={setShowEditOrgModal}
       />
     </>
   }
@@ -154,7 +158,7 @@ module EditOrgNameButton = {
         setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
       } catch {
       | _ => {
-          setOrgList(_ => ompDefaultValue(orgId, ""))
+          setOrgList(_ => [HyperswitchAtom.orgDefaultValue])
           showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
         }
       }
@@ -178,7 +182,7 @@ module BasicDetailsSection = {
   let make = () => {
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let orgName = OMPSwitchUtils.currentOMPName(orgList, orgId)
+    let orgName = OMPSwitchUtils.currentOrgName(orgList, orgId)
     let orgId = <HelperComponents.CopyTextCustomComp displayValue=orgId />
 
     <div>
@@ -274,8 +278,9 @@ module LearnMoreModal = {
 module PlatformMerchantAccount = {
   @react.component
   let make = () => {
+    let isPlatform = Recoil.useRecoilValueFromAtom(HyperswitchAtom.isPlatform)
     let (showModal, setShowModal) = React.useState(_ => false)
-    let (isPlatform, setIsPlatform) = React.useState(_ => false)
+    // let (iisPlatform, setPlatform) = React.useState(_ => false)
 
     let openLearnMoreModal = _ => {
       setShowModal(_ => true)
@@ -298,7 +303,7 @@ module PlatformMerchantAccount = {
           </div>
           <LearnMoreModal showModal setShowModal />
           <div>
-            <MakePlatformAccount setIsPlatform />
+            <MakePlatformAccount />
           </div>
         </div>
       </RenderIf>

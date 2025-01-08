@@ -6,14 +6,52 @@ let ompDefaultValue = (currUserId, currUserName) => [
   },
 ]
 
-let currentOMPName = (list: array<ompListTypes>, id: string) => {
+let currentOrgName = (list: array<orgList>, id: string) => {
+  switch list->Array.find(user => user.id == id) {
+  | Some(user) => user.name
+  | None => id
+  }
+}
+let currentMerchantName = (list: array<merchantList>, id: string) => {
+  switch list->Array.find(user => user.id == id) {
+  | Some(user) => user.name
+  | None => id
+  }
+}
+let currentProfileName = (list: array<profileList>, id: string) => {
   switch list->Array.find(user => user.id == id) {
   | Some(user) => user.name
   | None => id
   }
 }
 
-let orgItemToObjMapper = dict => {
+let convertToProfileListType = (list: JSON.t) => {
+  open LogicUtils
+  list
+  ->getArrayFromJson([])
+  ->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+    {id: dict->getString("id", ""), name: dict->getString("name", "")}
+  })
+}
+
+let orgTypeMapper: string => orgType = orgType => {
+  switch orgType {
+  | "default" => Default
+  | "platform" => Platform
+  | _ => Default
+  }
+}
+
+let merchantTypeMapper: string => merchantType = merchantType =>
+  switch merchantType {
+  | "default" => Default
+  | "platform" => Platform
+  | "connected" => Connected
+  | _ => Default
+  }
+
+let orgItemToObjMapper: dict<JSON.t> => orgList = dict => {
   open LogicUtils
   {
     id: dict->getString("org_id", ""),
@@ -22,6 +60,7 @@ let orgItemToObjMapper = dict => {
         ? dict->getString("org_id", "")
         : dict->getString("org_name", "")
     },
+    orgType: dict->getString("org_type", "")->orgTypeMapper,
   }
 }
 
@@ -34,6 +73,7 @@ let merchantItemToObjMapper = dict => {
         ? dict->getString("merchant_id", "")
         : dict->getString("merchant_name", "")
     },
+    merchantType: dict->getString("merchant_type", "")->merchantTypeMapper,
   }
 }
 
@@ -81,5 +121,28 @@ let analyticsViewList = (~checkUserEntity): ompViews => {
     [profile]
   } else {
     []
+  }
+}
+
+let checkIfPlatformOrg = (~orgList: array<orgList>, ~orgId) => {
+  let currOrg =
+    orgList
+    ->Array.find(item => item.id == orgId)
+    ->Option.getOr(HyperswitchAtom.orgDefaultValue)
+  switch currOrg.orgType {
+  | Platform => true
+  | Default => false
+  }
+}
+
+let checkIfPlatformMerchant = (~merchantList: array<merchantList>, ~merchantId) => {
+  let currMerchant =
+    merchantList
+    ->Array.find(item => item.id == merchantId)
+    ->Option.getOr(HyperswitchAtom.merchantDefaultValue)
+  switch currMerchant.merchantType {
+  | Connected
+  | Platform => true
+  | Default => false
   }
 }

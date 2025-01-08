@@ -209,6 +209,7 @@ let make = () => {
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
+  let setIsPlatform = Recoil.useSetRecoilState(HyperswitchAtom.isPlatform)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
 
   let getOrgList = async () => {
@@ -218,11 +219,17 @@ let make = () => {
       setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
     } catch {
     | _ => {
-        setOrgList(_ => ompDefaultValue(orgId, ""))
+        setOrgList(_ => [HyperswitchAtom.orgDefaultValue])
         showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
       }
     }
   }
+
+  React.useEffect(() => {
+    let isPlatform = checkIfPlatformOrg(~orgList, ~orgId)
+    setIsPlatform(_ => isPlatform)
+    None
+  }, [orgList])
 
   React.useEffect(() => {
     getOrgList()->ignore
@@ -279,7 +286,10 @@ let make = () => {
         input
         deselectDisable=true
         customButtonStyle="!rounded-md"
-        options={orgList->generateDropdownOptions}
+        options={orgList
+        ->Identity.genericTypeToJson
+        ->OMPSwitchUtils.convertToProfileListType
+        ->generateDropdownOptions}
         marginTop="mt-14"
         hideMultiSelectButtons=true
         addButton=false
@@ -288,7 +298,7 @@ let make = () => {
         searchable=false
         baseComponent={<ListBaseComp
           heading="Org"
-          subHeading={currentOMPName(orgList, orgId)}
+          subHeading={currentOrgName(orgList, orgId)}
           arrow
           showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
           onEditClick

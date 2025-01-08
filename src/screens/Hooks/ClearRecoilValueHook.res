@@ -27,9 +27,9 @@ let useClearRecoilValue = () => {
     setUserGroupACLAtom(_ => None)
     setSwitchMerchantListAtom(_ => [SwitchMerchantUtils.defaultValue])
     setCurrentTabNameRecoilAtom(_ => "ActiveTab")
-    setOrgListRecoilAtom(_ => [ompDefaultValue])
-    setMerchantListRecoilAtom(_ => [ompDefaultValue])
-    setProfileListRecoilAtom(_ => [ompDefaultValue])
+    setOrgListRecoilAtom(_ => [orgDefaultValue])
+    setMerchantListRecoilAtom(_ => [merchantDefaultValue])
+    setProfileListRecoilAtom(_ => [profileDefaultValue])
     setModuleListListRecoilAtom(_ => [])
   }
   clearRecoilValue

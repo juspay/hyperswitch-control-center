@@ -202,7 +202,7 @@ let make = () => {
       searchable=true
       customStyle="absolute w-fit left-0"
       baseComponent={<ListBaseComp
-        heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
+        heading="Profile" subHeading={currentProfileName(profileList, profileId)} arrow
       />}
       baseComponentCustomStyle="bg-white"
       bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
