@@ -113,7 +113,7 @@ module DownloadAPIKey = {
   let make = (~currentRoute, ~currentTabName) => {
     <div className="flex flex-col gap-10">
       <HSwitchUtils.AlertBanner
-        warningText="API key once misplaced cannot be restored. If misplaced, please re-generate a new key from Dashboard > Developers."
+        bannerText="API key once misplaced cannot be restored. If misplaced, please re-generate a new key from Dashboard > Developers."
         bannerType=Warning
       />
       <div className="p-10 bg-gray-50 border rounded flex flex-col gap-6">
