@@ -2,8 +2,8 @@ open NewAnalyticsTypes
 open NewAnalyticsHelper
 open LineGraphTypes
 open SmartRetryPaymentsProcessedUtils
-open SmartRetryPaymentsProcessedTypes
 open NewSmartRetryAnalyticsEntity
+open PaymentsProcessedTypes
 
 module TableModule = {
   open LogicUtils
@@ -194,7 +194,6 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->PaymentsProcessedUtils.modifyQueryData
         ->modifySmartRetryQueryData
         ->sortQueryDataByDate
 
@@ -212,7 +211,6 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->PaymentsProcessedUtils.modifyQueryData
             ->modifySmartRetryQueryData
           let secondaryMetaData =
             secondaryResponse
