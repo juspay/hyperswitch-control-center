@@ -103,7 +103,9 @@ module NewProfileCreationModal = {
             </div>
             <hr className="mt-4" />
             <div className="flex justify-end w-full p-3">
-              <FormRenderer.SubmitButton text="Add Profile" buttonSize=Small />
+              <FormRenderer.SubmitButton
+                text="Add Profile" buttonSize=Small loadingText="Loading..."
+              />
             </div>
           </div>
         </Form>
@@ -139,7 +141,7 @@ let make = () => {
 
   let getProfileList = async () => {
     try {
-      let _ = fetchProfileList()
+      let _ = await fetchProfileList()
     } catch {
     | _ => {
         setProfileList(_ => ompDefaultValue(profileId, ""))
