@@ -274,8 +274,8 @@ module LearnMoreModal = {
 module PlatformMerchantAccount = {
   @react.component
   let make = () => {
-    let (isPlatform, setIsPlatform) = Recoil.useRecoilState(HyperswitchAtom.isPlatformAccount)
     let (showModal, setShowModal) = React.useState(_ => false)
+    let (isPlatform, setIsPlatform) = React.useState(_ => false)
 
     let openLearnMoreModal = _ => {
       setShowModal(_ => true)

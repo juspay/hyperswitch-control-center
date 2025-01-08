@@ -3,7 +3,6 @@ let ompDefaultValue = (currUserId, currUserName) => [
   {
     id: currUserId,
     name: {currUserName->LogicUtils.isEmptyString ? currUserId : currUserName},
-    isPlatformAccount: false,
   },
 ]
 
@@ -23,7 +22,6 @@ let orgItemToObjMapper = dict => {
         ? dict->getString("org_id", "")
         : dict->getString("org_name", "")
     },
-    isPlatformAccount: dict->getBool("is_platform_account", false),
   }
 }
 
@@ -36,7 +34,6 @@ let merchantItemToObjMapper = dict => {
         ? dict->getString("merchant_id", "")
         : dict->getString("merchant_name", "")
     },
-    isPlatformAccount: dict->getBool("is_platform_account", false),
   }
 }
 
@@ -49,7 +46,6 @@ let profileItemToObjMapper = dict => {
         ? dict->getString("profile_id", "")
         : dict->getString("profile_name", "")
     },
-    isPlatformAccount: false,
   }
 }
 
@@ -86,20 +82,4 @@ let analyticsViewList = (~checkUserEntity): ompViews => {
   } else {
     []
   }
-}
-
-let checkIsPlatformAccount = (~orgList, ~currentOrgId) => {
-  let currentOrgDetails =
-    orgList
-    ->Array.find(item => item.id === currentOrgId)
-    ->Option.getOr(Dict.make()->orgItemToObjMapper)
-  currentOrgDetails.isPlatformAccount->Option.getOr(false)
-}
-
-let checkIsPlatformAccountMerchant = (~merchantList, ~merchantId) => {
-  let currentOrgDetails =
-    merchantList
-    ->Array.find(item => item.id === merchantId)
-    ->Option.getOr(Dict.make()->merchantItemToObjMapper)
-  currentOrgDetails.isPlatformAccount->Option.getOr(false)
 }

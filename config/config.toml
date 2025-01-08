@@ -3,7 +3,7 @@ primary_color="#006DF9"
 primary_hover_color="#005ED6"
 sidebar_color="#242F48"
 [default.endpoints]
-api_url="http://localhost:9001/api"
+api_url="http://localhost:9000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
 logo_url=""
 favicon_url=""

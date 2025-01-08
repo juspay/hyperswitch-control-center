@@ -1,4 +1,4 @@
-type ompListTypes = {id: string, name: string, isPlatformAccount?: bool}
+type ompListTypes = {id: string, name: string}
 
 type opmView = {
   lable: string,

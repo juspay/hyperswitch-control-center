@@ -267,29 +267,18 @@ let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
     item
   ): SelectBox.dropdownOption => {
-    Js.log2("item.isPlatformAccount >>>", item.isPlatformAccount)
-
-    let labelDesc = switch item.isPlatformAccount->Option.getOr(false) {
-    | true => "(Platform)"
-    | false => ""
-    }
-
-    Js.log("")
-    {
-      label: item.name,
-      value: item.id,
-      icon: Button.CustomRightIcon(
-        <ToolTip
-          description={item.id}
-          customStyle="!whitespace-nowrap"
-          toolTipFor={<div className="cursor-pointer">
-            <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
-          </div>}
-          toolTipPosition=ToolTip.TopRight
-        />,
-      ),
-      labelDescription: labelDesc,
-    }
+    label: item.name,
+    value: item.id,
+    icon: Button.CustomRightIcon(
+      <ToolTip
+        description={item.id}
+        customStyle="!whitespace-nowrap"
+        toolTipFor={<div className="cursor-pointer">
+          <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+        </div>}
+        toolTipPosition=ToolTip.TopRight
+      />,
+    ),
   })
   options
 }

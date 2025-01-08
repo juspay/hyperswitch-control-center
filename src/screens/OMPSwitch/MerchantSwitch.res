@@ -136,11 +136,8 @@ let make = () => {
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
   )
-  let (_isPlatform, setIsPlatform) = Recoil.useRecoilState(HyperswitchAtom.isPlatformAccount)
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
-
-  Js.log2("merchantList >>", merchantList)
 
   let getMerchantList = async () => {
     try {
@@ -154,12 +151,6 @@ let make = () => {
       }
     }
   }
-
-  React.useEffect(() => {
-    let isPlatform = checkIsPlatformAccountMerchant(~merchantList, ~merchantId)
-    setIsPlatform(_ => isPlatform)
-    None
-  }, [merchantList])
 
   let switchMerch = async value => {
     try {
