@@ -17,7 +17,7 @@
     "re:clean": "rescript clean",
     "re:start": "rescript -w",
     "re:format": "rescript format -all",
-    "test:start": "node dist/server/server.js",
+    "test:start": "cross-env default__endpoints__api_url=http://localhost:8080 node dist/server/server.js",
     "postinstall": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg",
     "cy:open": "sh cypress/start_hyperswitch.sh && cypress open",
     "cy:run": "sh cypress/start_hyperswitch.sh && cypress run",
