@@ -81,7 +81,6 @@ module HyperSwitchEntryComponent = {
               "buttons": {
                 "primary": {
                   "backgroundColor": dict->getString("primary_color", ""),
-                  "textColor": dict->getString("primary_color", ""),
                   "hoverBackgroundColor": dict->getString("primary_hover_color", ""),
                 },
               },
