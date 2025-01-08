@@ -767,13 +767,16 @@ let responseHandler = async (
   }
 
   let responseStatus = res->Fetch.Response.status
+  let responseHeaders = res->Fetch.Response.headers
 
   if responseStatus >= 500 && responseStatus < 600 {
+    let xRequestId = responseHeaders->Fetch.Headers.get("x-request-id")->Option.getOr("")
     let metaData =
       [
         ("url", url->JSON.Encode.string),
         ("response", json),
         ("status", responseStatus->JSON.Encode.int),
+        ("x-request-id", xRequestId->JSON.Encode.string),
       ]->getJsonFromArrayOfJson
     sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
   }
