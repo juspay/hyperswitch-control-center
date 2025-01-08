@@ -7,7 +7,7 @@ const config = import("./src/server/config.mjs");
 const appName = process.env.appName;
 const integ = process.env.integ;
 
-let port = 9000;
+let port = 9001;
 // proxy is setup to make frontend and backend url same for local testing
 let proxy = {
   "/api": {

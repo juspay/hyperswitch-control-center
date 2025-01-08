@@ -4,7 +4,7 @@ external env: Dict.t<string> = "env"
 let appName = env->Dict.get("appName")
 
 let serverPath = "dist/hyperswitch"
-let port = 9000
+let port = 9001
 
 open NodeJs
 

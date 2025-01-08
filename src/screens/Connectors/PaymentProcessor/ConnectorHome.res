@@ -207,6 +207,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       isButton=true
     />
 
+  Js.log2("initialValues >>>in", initialValues)
+
   <PageLoaderWrapper screenState customUI={customUiForPaypal}>
     <div className="flex flex-col gap-10 overflow-scroll h-full w-full">
       <RenderIf condition={showBreadCrumb}>

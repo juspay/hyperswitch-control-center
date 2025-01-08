@@ -2,7 +2,7 @@ type accessMapping = {
   groups: Map.t<UserManagementTypes.groupAccessType, CommonAuthTypes.authorization>,
   resources: Map.t<UserManagementTypes.resourceAccessType, CommonAuthTypes.authorization>,
 }
-let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
+let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: "", isPlatformAccount: false}
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
@@ -76,3 +76,5 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   "moduleListRecoil",
   [],
 )
+
+let isPlatformAccount: Recoil.recoilAtom<bool> = Recoil.atom("isPlatformAccount", false)

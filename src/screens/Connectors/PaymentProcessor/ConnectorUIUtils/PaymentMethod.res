@@ -50,6 +50,8 @@ module CardRenderer = {
 
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
+    Js.log2("card renderer >>>", initialValues)
+
     let pmAuthProcessorList =
       connectorList->getProcessorsListFromJson(
         ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
