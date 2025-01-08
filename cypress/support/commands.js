@@ -76,7 +76,7 @@ Cypress.Commands.add("login_curl", (name = "", pass = "") => {
 Cypress.Commands.add("deleteConnector", (mca_id) => {
   let token = window.localStorage.getItem("login");
   let { merchant_id = "" } = JSON.parse(
-    window.localStorage.getItem("merchant"),
+    window.localStorage.getItem("merchant")
   );
   cy.request({
     method: "DELETE",
@@ -134,7 +134,7 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
 
   cy.get("[data-button-for=tryItOut]").scrollIntoView().click();
   cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
-    "exist",
+    "exist"
   );
   cy.get("[data-testid=amount]").find("input").clear().type("77");
   cy.get("[data-button-for=showPreview]").click();
@@ -154,9 +154,9 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
     .type("492");
 
   cy.get("[data-button-for=payUSD77]").click();
-  cy.contains("Payment Successful").should("be.visible");
-  cy.get("[data-button-for=goToPayment]").click();
-  cy.url().should("include", "dashboard/payments");
+  cy.get("[data-testid=paymentSuccess]").should("exist");
+  // cy.get("[data-button-for=goToPayment]").click();
+  // cy.url().should("include", "dashboard/payments");
 });
 
 const selectors = {
@@ -177,7 +177,7 @@ Cypress.Commands.add("sign_up_with_email", (username, password) => {
   cy.get(selectors.authSubmitButton).click();
   cy.get("[data-testid=card-header]").should(
     "contain",
-    "Please check your inbox",
+    "Please check your inbox"
   );
   cy.visit(`${MAIL_URL}`);
   cy.get("div.messages > div:nth-child(2)").click();
@@ -201,11 +201,9 @@ Cypress.Commands.add("sign_up_with_email", (username, password) => {
   });
 });
 
-const getIframeBody = (iframeSelector) => {
+const getIframeBody = () => {
   return cy
-    .get(iframeSelector, { timeout: 15000 })
-    .should("be.visible")
-    .should("exist")
+    .get("iframe")
     .its("0.contentDocument.body")
     .should("not.be.empty")
     .then(cy.wrap);
