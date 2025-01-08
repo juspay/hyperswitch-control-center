@@ -28,7 +28,7 @@ describe("connector", () => {
     cy.url().should("include", "/login");
     cy.get("[data-testid=card-header]").should(
       "contain",
-      "Hey there, Welcome back!"
+      "Hey there, Welcome back!",
     );
     cy.get("[data-testid=card-subtitle]")
       .should("contain", "Sign up")
@@ -51,7 +51,7 @@ describe("connector", () => {
       cy.url().should("include", "/login");
       cy.get("[data-testid=card-header]").should(
         "contain",
-        "Hey there, Welcome back!"
+        "Hey there, Welcome back!",
       );
       cy.get("[data-testid=email]").type(username);
       cy.get("[data-testid=password]").type(password);
@@ -104,7 +104,7 @@ describe("connector", () => {
     cy.get("[data-testid=home]").click();
     cy.get("[data-button-for=tryItOut]").click();
     cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
-      "exist"
+      "exist",
     );
     cy.get('[data-value="unitedStates(USD)"]').click();
     cy.get('[data-dropdown-value="Germany (EUR)"]').click();
@@ -173,7 +173,7 @@ describe("connector", () => {
       day: "2-digit",
     });
     cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).should(
-      "exist"
+      "exist",
     );
     cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).click();
     cy.get("[data-date-picker-predifined=predefined-options]").should("exist");
@@ -202,7 +202,7 @@ describe("connector", () => {
       cy.get(`[data-button-text='This Month']`).should("exist");
     } else {
       cy.get(
-        `[data-button-text='${formattedDate30DaysAgo} - ${formattedDate}']`
+        `[data-button-text='${formattedDate30DaysAgo} - ${formattedDate}']`,
       ).should("exist");
     }
 
