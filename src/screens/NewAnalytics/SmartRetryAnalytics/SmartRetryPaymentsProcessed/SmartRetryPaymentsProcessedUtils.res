@@ -185,9 +185,8 @@ let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
   (key: responseKeys :> string)
 }
 
-let modifyQueryData = data => {
+let modifyQueryData = (data, ~currency) => {
   let dataDict = Dict.make()
-  let currency = (#all_currencies: defaultFilters :> string)
   let isSmartRetryEnabled = Smart_Retry
 
   data->Array.forEach(item => {
@@ -249,9 +248,9 @@ let modifyQueryData = data => {
   dataDict->Dict.valuesToArray->Array.map(JSON.Encode.object)
 }
 
-let modifySmartRetryQueryData = data => {
-  let data = data->modifyQueryData
-  let currency = (#all_currencies: defaultFilters :> string)
+let modifySmartRetryQueryData = (data, ~currency) => {
+  let data = data->modifyQueryData(~currency)
+
   let isSmartRetryEnabled = Smart_Retry
 
   data->Array.map(item => {
@@ -290,8 +289,7 @@ let modifySmartRetryQueryData = data => {
   })
 }
 
-let modifySmartRetryMetaData = data => {
-  let currency = (#all_currencies: defaultFilters :> string)
+let modifySmartRetryMetaData = (data, ~currency) => {
   let isSmartRetryEnabled = Smart_Retry
 
   data->Array.map(item => {

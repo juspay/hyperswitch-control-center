@@ -163,6 +163,7 @@ let make = (
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getSmartRetryPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -194,14 +195,14 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->modifySmartRetryQueryData
+        ->modifySmartRetryQueryData(~currency)
         ->sortQueryDataByDate
 
       let primaryMetaData =
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("metaData", [])
-        ->modifySmartRetryMetaData
+        ->modifySmartRetryMetaData(~currency)
       setSmartRetryPaymentsProcessedTableData(_ => primaryData)
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
@@ -211,12 +212,12 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->modifySmartRetryQueryData
+            ->modifySmartRetryQueryData(~currency)
           let secondaryMetaData =
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("metaData", [])
-            ->modifySmartRetryMetaData
+            ->modifySmartRetryMetaData(~currency)
 
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
             fillMissingDataPoints(
@@ -272,7 +273,7 @@ let make = (
       getSmartRetryPaymentsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
 
   let params = {
     data: smartRetryPaymentsProcessedData,
