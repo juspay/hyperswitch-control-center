@@ -529,6 +529,8 @@ module ModalSearchBox = {
     ~activeFilter,
     ~onFilterClicked,
     ~onSuggestionClicked,
+    ~categorySuggestions,
+    ~searchText,
   ) => {
     let (errorMessage, setErrorMessage) = React.useState(_ => "")
 
@@ -681,10 +683,24 @@ module ModalSearchBox = {
       }
     }
 
+    let filterKey = activeFilter->String.split(filterSeparator)->getValueFromArray(0, "")
+
+    let filters = categorySuggestions->Array.filter(category => {
+      if activeFilter->isNonEmptyString {
+        let categoryType = category.categoryType->getcategoryFromVariant
+        if searchText->getEndChar == filterSeparator {
+          `${categoryType}:` == `${filterKey}:`
+        } else {
+          categoryType->String.includes(filterKey)
+        }
+      } else {
+        true
+      }
+    })
+
     let validateForm = _ => {
       let errors = Dict.make()
-      let lastChar = localSearchText->getEndChar
-      if lastChar == " " && localSearchText->validateQuery {
+      if localSearchText->validateQuery && filters->Array.length == 0 {
         setErrorMessage(_ =>
           "Only one free-text search is allowed and additional text will be ignored."
         )
