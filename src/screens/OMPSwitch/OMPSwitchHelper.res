@@ -22,7 +22,7 @@ module ListBaseComp = {
       ? "-rotate-180 transition duration-[250ms] opacity-70"
       : "rotate-0 transition duration-[250ms] opacity-70"
 
-    let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
+    let textColor = isDarkBg ? "text-typography" : "text-grey-900"
     let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
     let paddingSubheading = isDarkBg ? "pl-2" : ""
     let paddingHeading = isDarkBg ? "pl-2" : ""

@@ -155,7 +155,7 @@ let defaultUIConfig: t = {
   },
   font: {
     textColor: {
-      primaryNormal: "text-typography",
+      primaryNormal: "text-primary",
     },
   },
   shadow: {

@@ -25,7 +25,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
       fontFamily: "Roboto, sans-serif",
       fontSize: "14px",
       headingFontSize: "24px",
-      textColor: "#006DF9",
+      textColor: "#ffffff",
       linkColor: "#3498db",
       linkHoverColor: "#005ED6",
     },

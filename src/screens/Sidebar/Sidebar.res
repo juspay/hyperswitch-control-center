@@ -35,12 +35,12 @@ module SidebarOption = {
   @react.component
   let make = (~isSidebarExpanded, ~name, ~icon, ~isSelected) => {
     let textBoldStyles = isSelected ? "font-bold" : "font-semibold opacity-60"
-    let iconColor = isSelected ? "text-white" : "text-white opacity-60"
+    let iconColor = isSelected ? "text-typography" : "text-typography opacity-60"
 
     if isSidebarExpanded {
       <div className="flex items-center gap-5">
         <Icon size={getIconSize("small")} name=icon className=iconColor />
-        <div className={`text-offset_white text-sm ${textBoldStyles} whitespace-nowrap`}>
+        <div className={`text-typography text-sm ${textBoldStyles} whitespace-nowrap`}>
           {React.string(name)}
         </div>
       </div>
@@ -53,7 +53,7 @@ module SidebarOption = {
 module SidebarSubOption = {
   @react.component
   let make = (~name, ~isSectionExpanded, ~isSelected, ~children=React.null, ~isSideBarExpanded) => {
-    let subOptionClass = isSelected ? "bg-light_white" : ""
+    let subOptionClass = isSelected ? "bg-typography/10" : ""
     let alignmentClasses = children == React.null ? "" : "flex flex-row items-center"
 
     <div
@@ -64,7 +64,7 @@ module SidebarSubOption = {
           : "mx-1"} border-l-2 border-light_grey`}>
       <div className="w-6" />
       <div
-        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 rounded-sm flex items-center hover:bg-light_white whitespace-nowrap my-0.5`}>
+        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 rounded-sm flex items-center hover:bg-typography/10 whitespace-nowrap my-0.5`}>
         {React.string(name)}
         {children}
       </div>
@@ -116,7 +116,7 @@ module SidebarItem = {
                 onClick={onSidebarItemClick}
                 className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer ${selectedClass} p-3 ${isSidebarExpanded
                     ? ""
-                    : "mx-1"} hover:bg-light_white my-0.5`}>
+                    : "mx-1"} hover:bg-typography/10 my-0.5`}>
                 <SidebarOption name icon isSidebarExpanded isSelected />
               </div>
             </AddDataAttributes>
@@ -151,7 +151,7 @@ module SidebarItem = {
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
               className={`${textColor} flex flex-row items-center cursor-pointer transition duration-300 ${selectedClass} p-3 ${isSidebarExpanded
                   ? "mx-2"
-                  : "mx-1"} hover:bg-light_white my-0.5`}>
+                  : "mx-1"} hover:bg-typography/10 my-0.5`}>
               <SidebarOption name icon isSidebarExpanded isSelected />
               <RenderIf condition={isSidebarExpanded}>
                 <Icon
@@ -185,9 +185,9 @@ module NestedSidebarItem = {
     }
 
     let textColor = if isSelected {
-      `text-md font-small text-offset_white`
+      `text-md font-small text-typography`
     } else {
-      `text-md font-small text-unselected_white`
+      `text-md font-small text-typography/60`
     }
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let paddingClass = if isSideBarExpanded {
@@ -250,7 +250,7 @@ module NestedSectionItem = {
     ~isSubLevelItemSelected,
     ~isSideBarExpanded,
   ) => {
-    let iconColor = isAnySubItemSelected ? "text-white" : "text-white opacity-60"
+    let iconColor = isAnySubItemSelected ? "text-typography" : "text-typography opacity-60"
 
     let iconOuterClass = if !isSideBarExpanded {
       `${isAnySubItemSelected ? "" : ""} rounded-sm p-4 rounded-lg`
@@ -281,7 +281,7 @@ module NestedSectionItem = {
               ? ""
               : sectionExpandedAnimation} border-l-2 ${isAnySubItemSelected
               ? "border-white"
-              : "border-transparent"} hover:bg-light_white`}
+              : "border-transparent"} hover:bg-typography/10`}
           onClick=toggleSectionExpansion>
           <div className="flex-row items-center select-none min-w-max flex  gap-5">
             {if isSideBarExpanded {
@@ -301,8 +301,8 @@ module NestedSectionItem = {
             <Icon
               name={"Nested_arrow_down"}
               className={isSectionExpanded
-                ? `-rotate-180 transition duration-[250ms] mr-2 text-white opacity-60`
-                : `-rotate-0 transition duration-[250ms] mr-2 text-white opacity-60`}
+                ? `-rotate-180 transition duration-[250ms] mr-2 text-typography opacity-60`
+                : `-rotate-0 transition duration-[250ms] mr-2 text-typography opacity-60`}
               size=16
             />
           </RenderIf>
@@ -383,12 +383,12 @@ module SidebarNestedSection = {
     let textColor = {
       if isSideBarExpanded {
         if isAnySubItemSelected {
-          "text-gray-900"
+          "text-typography"
         } else {
           "text-unselected_white"
         }
       } else if isAnySubItemSelected {
-        "text-white"
+        "text-typography"
       } else {
         "text-unselected_white"
       }
@@ -399,7 +399,9 @@ module SidebarNestedSection = {
     } else {
       `cursor-pointer`
     }
-    let expandedTextColor = isAnySubItemSelected ? "text-white" : "!text-offset_white !opacity-60"
+    let expandedTextColor = isAnySubItemSelected
+      ? "text-typography"
+      : "!text-typography !opacity-60"
     let areAllSubLevelsHidden = section.links->Array.reduce(true, (acc, subLevelItem) => {
       acc &&
       switch subLevelItem {
@@ -542,7 +544,7 @@ let make = (
               className="mr-1"
               size=20
               name="collapse-cross"
-              customIconColor="text-white"
+              customIconColor="text-typography"
               onClick={_ => setIsSidebarExpanded(_ => false)}
             />
           </div>
@@ -647,7 +649,7 @@ let make = (
                         description=email
                         toolTipFor={<RenderIf condition={isSidebarExpanded}>
                           <div
-                            className={`w-[${profileMaxWidth}] text-sm font-medium text-gray-400 dark:text-gray-600 text-ellipsis overflow-hidden`}>
+                            className={`w-[${profileMaxWidth}] text-sm font-medium text-typography/80 dark:text-gray-600 text-ellipsis overflow-hidden`}>
                             {email->React.string}
                           </div>
                         </RenderIf>}
