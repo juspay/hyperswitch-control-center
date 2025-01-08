@@ -4,6 +4,7 @@ open RefundsOverviewSectionUtils
 open NewAnalyticsHelper
 open LogicUtils
 open APIUtils
+open NewAnalyticsUtils
 @react.component
 let make = (~entity: moduleEntity) => {
   let getURL = useGetURL()
@@ -29,7 +30,7 @@ let make = (~entity: moduleEntity) => {
         ~id=Some((#refunds: domain :> string)),
       )
 
-      let amountRateBodyRefunds = NewAnalyticsUtils.requestBody(
+      let amountRateBodyRefunds = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
@@ -47,7 +48,7 @@ let make = (~entity: moduleEntity) => {
         ->JSON.Encode.array,
       )
 
-      let statusCountBodyRefunds = NewAnalyticsUtils.requestBody(
+      let statusCountBodyRefunds = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~groupByNames=["refund_status"]->Some,
@@ -72,14 +73,14 @@ let make = (~entity: moduleEntity) => {
         ~ids=[Successful_Refund_Count, Failed_Refund_Count, Pending_Refund_Count],
       )
 
-      let secondaryAmountRateBodyRefunds = NewAnalyticsUtils.requestBody(
+      let secondaryAmountRateBodyRefunds = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
       )
 
-      let secondaryStatusCountBodyRefunds = NewAnalyticsUtils.requestBody(
+      let secondaryStatusCountBodyRefunds = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~groupByNames=["refund_status"]->Some,

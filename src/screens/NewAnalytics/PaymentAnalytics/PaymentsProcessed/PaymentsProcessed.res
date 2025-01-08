@@ -221,7 +221,7 @@ let make = (
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
-            NewAnalyticsUtils.fillMissingDataPoints(
+            fillMissingDataPoints(
               ~data,
               ~startDate=compareToStartTime,
               ~endDate=compareToEndTime,
@@ -241,7 +241,7 @@ let make = (
 
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
-          NewAnalyticsUtils.fillMissingDataPoints(
+          fillMissingDataPoints(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,

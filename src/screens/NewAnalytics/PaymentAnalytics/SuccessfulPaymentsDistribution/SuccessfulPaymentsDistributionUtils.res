@@ -123,9 +123,9 @@ let getCell = (obj, colType): Table.cell => {
   open NewAnalyticsUtils
   switch colType {
   | Payments_Success_Rate_Distribution =>
-    Text(obj.payments_success_rate_distribution->valueFormatter(Amount))
+    Text(obj.payments_success_rate_distribution->valueFormatter(Rate))
   | Payments_Success_Rate_Distribution_Without_Smart_Retries =>
-    Text(obj.payments_success_rate_distribution_without_smart_retries->valueFormatter(Amount))
+    Text(obj.payments_success_rate_distribution_without_smart_retries->valueFormatter(Rate))
   | Connector => Text(obj.connector)
   | Payment_Method => Text(obj.payment_method)
   | Payment_Method_Type => Text(obj.payment_method_type)
