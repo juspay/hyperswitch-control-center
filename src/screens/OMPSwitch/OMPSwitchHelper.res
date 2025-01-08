@@ -90,7 +90,8 @@ module AddNewOMPButton = {
       isRelative=false
       contentAlign=Default
       tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}>
+      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}
+      showTooltip={hasOMPCreateAccess == Access}>
       {<>
         <hr className={customHRTagStyle} />
         <div

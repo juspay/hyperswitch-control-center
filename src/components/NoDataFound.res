@@ -1,4 +1,36 @@
-type renderType = InfoBox | Painting | NotFound | Locked | LoadError
+type renderType = InfoBox | Painting | NotFound | Locked | LoadError | ExtendDateUI
+
+module ExtendDateComponent = {
+  open LogicUtils
+  @react.component
+  let make = () => {
+    let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+    let startTime = filterValueJson->getString("start_time", "")
+
+    let handleClick = _ => {
+      let startDateObj = startTime->DayJs.getDayJsForString
+      let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
+      let extendedEndDate = startDateObj.subtract(1, "day").toDate()->Date.toISOString
+
+      updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
+      updateExistingKeys(Dict.fromArray([("end_time", {extendedEndDate})]))
+    }
+    <div>
+      <ACLButton
+        buttonType=Primary onClick=handleClick text="Expand the search to the previous 90 days"
+      />
+      <div className="flex justify-center">
+        <p className="mt-6">
+          {"Or try the following:"->React.string}
+          <ul className="list-disc">
+            <li> {"Try a different search parameter"->React.string} </li>
+            <li> {"Adjust or remove filters and search once more"->React.string} </li>
+          </ul>
+        </p>
+      </div>
+    </div>
+  }
+}
 
 @react.component
 let make = (
@@ -19,6 +51,7 @@ let make = (
     | Locked => "mt-32 p-16"
     | LoadError => "mt-32 p-16"
     | InfoBox => ""
+    | ExtendDateUI => "mt-16 p-16"
     }
     isMobileView ? "" : marginPaddingClass
   }
@@ -100,6 +133,11 @@ let make = (
               | None => React.null
               }}
             </div>
+          </div>
+        | ExtendDateUI =>
+          <div className=containerClass>
+            <div className="px-3 text-2xl text-black font-bold mb-6"> {message->React.string} </div>
+            <ExtendDateComponent />
           </div>
         }}
       </div>

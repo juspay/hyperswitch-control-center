@@ -4,6 +4,7 @@ open RefundsOverviewSectionUtils
 open NewAnalyticsHelper
 open LogicUtils
 open APIUtils
+open NewAnalyticsUtils
 @react.component
 let make = (~entity: moduleEntity) => {
   let getURL = useGetURL()
@@ -29,7 +30,7 @@ let make = (~entity: moduleEntity) => {
         ~id=Some((#refunds: domain :> string)),
       )
 
-      let amountRateBodyRefunds = NewAnalyticsUtils.requestBody(
+      let amountRateBodyRefunds = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
@@ -47,7 +48,7 @@ let make = (~entity: moduleEntity) => {
         ->JSON.Encode.array,
       )
 
-      let statusCountBodyRefunds = NewAnalyticsUtils.requestBody(
+      let statusCountBodyRefunds = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~groupByNames=["refund_status"]->Some,
@@ -72,14 +73,14 @@ let make = (~entity: moduleEntity) => {
         ~ids=[Successful_Refund_Count, Failed_Refund_Count, Pending_Refund_Count],
       )
 
-      let secondaryAmountRateBodyRefunds = NewAnalyticsUtils.requestBody(
+      let secondaryAmountRateBodyRefunds = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
       )
 
-      let secondaryStatusCountBodyRefunds = NewAnalyticsUtils.requestBody(
+      let secondaryStatusCountBodyRefunds = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~groupByNames=["refund_status"]->Some,
@@ -139,39 +140,23 @@ let make = (~entity: moduleEntity) => {
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 grid-rows-2 gap-6">
       <OverViewStat
-        data
-        responseKey={Total_Refund_Success_Rate}
-        config={getInfo(~responseKey=Total_Refund_Success_Rate)}
-        getValueFromObj
-        getStringFromVariant
+        data responseKey={Total_Refund_Success_Rate} getInfo getValueFromObj getStringFromVariant
       />
       <OverViewStat
         data
         responseKey={Total_Refund_Processed_Amount}
-        config={getInfo(~responseKey=Total_Refund_Processed_Amount)}
+        getInfo
         getValueFromObj
         getStringFromVariant
       />
       <OverViewStat
-        data
-        responseKey={Successful_Refund_Count}
-        config={getInfo(~responseKey=Successful_Refund_Count)}
-        getValueFromObj
-        getStringFromVariant
+        data responseKey={Successful_Refund_Count} getInfo getValueFromObj getStringFromVariant
       />
       <OverViewStat
-        data
-        responseKey={Failed_Refund_Count}
-        config={getInfo(~responseKey=Failed_Refund_Count)}
-        getValueFromObj
-        getStringFromVariant
+        data responseKey={Failed_Refund_Count} getInfo getValueFromObj getStringFromVariant
       />
       <OverViewStat
-        data
-        responseKey={Pending_Refund_Count}
-        config={getInfo(~responseKey=Pending_Refund_Count)}
-        getValueFromObj
-        getStringFromVariant
+        data responseKey={Pending_Refund_Count} getInfo getValueFromObj getStringFromVariant
       />
     </div>
   </PageLoaderWrapper>
