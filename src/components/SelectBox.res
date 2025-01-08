@@ -186,6 +186,9 @@ module ListItem = {
 
     let customCss =
       listFlexDirection->LogicUtils.isEmptyString ? `flex-row ${paddingClass}` : listFlexDirection
+
+    let searchStyle = searchString->String.length > 0 ? "flex" : ""
+
     RippleEffectBackground.useLinearRippleHook(parentRef, isDropDown)
     let comp =
       <AddDataAttributes
@@ -243,7 +246,7 @@ module ListItem = {
                 <Icon className={`align-middle ${optionIconStroke}`} size={12} name=iconName />
               | _ => React.null
               }}
-              <div className="w-full flex">
+              <div className={`w-full ${searchStyle}`}>
                 {listText
                 ->Array.filter(str => str->LogicUtils.isNonEmptyString)
                 ->Array.mapWithIndex((item, i) => {

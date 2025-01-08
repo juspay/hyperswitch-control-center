@@ -102,6 +102,7 @@ module CustomDropDown = {
     ~buttonText: optionType,
     ~options: array<optionType>,
     ~setOption: optionType => unit,
+    ~positionClass="right-0",
   ) => {
     open HeadlessUI
     let (arrow, setArrow) = React.useState(_ => false)
@@ -109,7 +110,7 @@ module CustomDropDown = {
       {_ =>
         <div>
           <Menu.Button
-            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border border-outline">
+            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border">
             {_ => {
               <>
                 {buttonText.label->React.string}
@@ -132,7 +133,7 @@ module CustomDropDown = {
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95">
             {<Menu.Items
-              className="absolute right-0 z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+              className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
               {props => {
                 setArrow(_ => props["open"])
 
@@ -170,7 +171,7 @@ module CustomDropDown = {
 module StatisticsCard = {
   open NewAnalyticsTypes
   @react.component
-  let make = (~value, ~tooltipValue, ~direction, ~isOverviewComponent=false) => {
+  let make = (~value, ~tooltipValue as _, ~direction, ~isOverviewComponent=false) => {
     let (bgColor, textColor) = switch direction {
     | Upward => ("bg-green-light", "text-green-dark")
     | Downward => ("bg-red-light", "text-red-dark")
@@ -184,21 +185,15 @@ module StatisticsCard = {
 
     let wrapperClass = isOverviewComponent ? "scale-[0.9]" : ""
 
-    <ToolTip
-      description=tooltipValue
-      toolTipFor={<div
-        className={`${wrapperClass} ${bgColor} ${textColor} cursor-pointer w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
-        <div className="-mb-0.5 flex">
-          {icon}
-          <div className="font-semibold text-sm pt-0.5 pr-0.5">
-            {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
-          </div>
+    <div
+      className={`${wrapperClass} ${bgColor} ${textColor} w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
+      <div className="-mb-0.5 flex">
+        {icon}
+        <div className="font-semibold text-sm pt-0.5 pr-0.5">
+          {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
         </div>
-      </div>}
-      toolTipPosition={Top}
-      newDesign=true
-      tooltipArrowSize=0
-    />
+      </div>
+    </div>
   }
 }
 
@@ -243,7 +238,7 @@ module SmartRetryToggle = {
     }
 
     <div
-      className="w-full py-3 -mb-5 -mt-2 px-4 border rounded-lg bg-white flex gap-2 items-center">
+      className="w-fit px-3 py-2 border rounded-lg bg-white gap-2 items-center h-fit inline-flex whitespace-pre leading-5 justify-center">
       <BoolInput.BaseComponent
         isSelected={isEnabled}
         setIsSelected={onClick}
@@ -251,11 +246,19 @@ module SmartRetryToggle = {
         boolCustomClass="rounded-lg !bg-blue-500"
         toggleBorder="border-blue-500"
       />
-      <p className="!text-base text-grey-700 ml-2">
-        <span className="font-semibold"> {"Include Payment Retries data: "->React.string} </span>
-        <span>
-          {"Your data will consist of all the payment retries that contributed to the success rate"->React.string}
+      <p
+        className="!text-base text-grey-700 gap-2 inline-flex whitespace-pre justify-center font-medium text-start">
+        <span className="text-sm font-medium">
+          {"Include Payment Retries data"->React.string}
         </span>
+        <ToolTip
+          description="Your data will consist of all the payment retries that contributed to the success rate"
+          toolTipFor={<div className="cursor-pointer">
+            <Icon name="info-vacent" size=13 className="mt-1" />
+          </div>}
+          toolTipPosition=ToolTip.Top
+          newDesign=true
+        />
       </p>
     </div>
   }
@@ -265,36 +268,31 @@ module OverViewStat = {
   open NewAnalyticsUtils
   open NewAnalyticsTypes
   @react.component
-  let make = (
-    ~responseKey,
-    ~data,
-    ~config: singleStatConfig,
-    ~getValueFromObj,
-    ~getStringFromVariant,
-  ) => {
+  let make = (~responseKey, ~data, ~getInfo, ~getValueFromObj, ~getStringFromVariant) => {
     open LogicUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let currency = filterValueJson->getString((#currency: NewAnalyticsTypes.filters :> string), "")
 
     let primaryValue = getValueFromObj(data, 0, responseKey->getStringFromVariant)
     let secondaryValue = getValueFromObj(data, 1, responseKey->getStringFromVariant)
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
 
-    let displyValue = valueFormatter(primaryValue, config.valueType)
-    let suffix = config.valueType == Amount ? "USD" : ""
+    let config = getInfo(~responseKey)
+    let displyValue = valueFormatter(primaryValue, config.valueType, ~currency)
 
     <Card>
       <div className="p-6 flex flex-col gap-4 justify-between h-full gap-auto relative">
         <div className="flex justify-between w-full items-end">
           <div className="flex gap-1 items-center">
-            <div className="font-bold text-3xl"> {`${displyValue} ${suffix}`->React.string} </div>
+            <div className="font-bold text-3xl"> {displyValue->React.string} </div>
             <div className="scale-[0.9]">
               <RenderIf condition={comparison === EnableComparison}>
                 <StatisticsCard
                   value
                   direction
-                  tooltipValue={`${valueFormatter(secondaryValue, config.valueType)} ${suffix}`}
+                  tooltipValue={valueFormatter(secondaryValue, config.valueType, ~currency)}
                 />
               </RenderIf>
             </div>

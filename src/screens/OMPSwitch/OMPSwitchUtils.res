@@ -63,18 +63,22 @@ let profile = {
 }
 
 let transactionViewList = (~checkUserEntity): ompViews => {
-  if checkUserEntity([#Merchant, #Organization]) {
+  if checkUserEntity([#Tenant, #Merchant, #Organization]) {
     [merchant, profile]
+  } else if checkUserEntity([#Profile]) {
+    [profile]
   } else {
     []
   }
 }
 
 let analyticsViewList = (~checkUserEntity): ompViews => {
-  if checkUserEntity([#Organization]) {
+  if checkUserEntity([#Tenant, #Organization]) {
     [org, merchant, profile]
   } else if checkUserEntity([#Merchant]) {
     [merchant, profile]
+  } else if checkUserEntity([#Profile]) {
+    [profile]
   } else {
     []
   }

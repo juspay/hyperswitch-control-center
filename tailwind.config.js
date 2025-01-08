@@ -66,6 +66,7 @@ module.exports = {
         "77-rem": "77rem",
         "30-rem": "30rem",
         "10.25-rem": "10.25rem",
+        "89.5-per": "89.5%",
 
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",
@@ -102,6 +103,7 @@ module.exports = {
         "fs-11": "11px",
         "fs-13": "13px",
         "fs-14": "14px",
+        "fs-15": "15px",
         "fs-16": "16px",
         "fs-18": "18px",
         "fs-20": "20px",
@@ -145,6 +147,7 @@ module.exports = {
         outline: withOpacity("--borders-border-color"),
         blue: {
           100: "#F1F2F4",
+          150: "#E6F7FF",
           200: "#DAECFF",
           300: "#BED4F0",
           400: "#006DF9CC",
@@ -178,6 +181,7 @@ module.exports = {
         },
         green: {
           50: "#EFF4EF",
+          100: "#F6FFED",
           600: "#B8D1B4",
           700: "#6CB851",
           950: "#79A779",
@@ -188,7 +192,7 @@ module.exports = {
           light: "#0E92551A",
         },
         orange: {
-          100: "#FEF2E9",
+          100: "#FFFBE6",
           600: "#FDD4B6",
           950: "#D88B54",
           960: "#E89519",
@@ -198,7 +202,7 @@ module.exports = {
         },
         red: {
           DEFAULT: "#FF0000",
-          100: "#F9EDED",
+          100: "#FFF1F0",
           800: "#C04141",
           900: "#DA0E0F",
           950: "#F04849",
