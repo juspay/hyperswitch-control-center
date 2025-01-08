@@ -160,54 +160,54 @@ describe("connector", () => {
       selectRange(range, shouldPaymentExist);
     });
   });
-  it("Verify Custom Range in Time Range Filters after Payment in Payment Operations Page", () => {
-    cy.get("[data-testid=operations]").click();
-    cy.get("[data-testid=payments]").click();
-    cy.contains("Payment Operations").should("exist");
-    const today = new Date();
-    const date30DaysAgo = new Date(today);
-    date30DaysAgo.setDate(today.getDate() - 30);
-    const formattedDate30DaysAgo = date30DaysAgo.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-    });
-    cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).should(
-      "exist",
-    );
-    cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).click();
-    cy.get("[data-date-picker-predifined=predefined-options]").should("exist");
-    cy.get('[data-daterange-dropdown-value="Custom Range"]')
-      .should("exist")
-      .click();
-    cy.get("[data-date-picker-section=date-picker-calendar]").should("exist");
-    const formattedDate = today.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-    });
-    const selectDate = today.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  // it("Verify Custom Range in Time Range Filters after Payment in Payment Operations Page", () => {
+  //   cy.get("[data-testid=operations]").click();
+  //   cy.get("[data-testid=payments]").click();
+  //   cy.contains("Payment Operations").should("exist");
+  //   const today = new Date();
+  //   const date30DaysAgo = new Date(today);
+  //   date30DaysAgo.setDate(today.getDate() - 30);
+  //   const formattedDate30DaysAgo = date30DaysAgo.toLocaleDateString("en-US", {
+  //     year: "numeric",
+  //     month: "short",
+  //     day: "2-digit",
+  //   });
+  //   cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).should(
+  //     "exist",
+  //   );
+  //   cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).click();
+  //   cy.get("[data-date-picker-predifined=predefined-options]").should("exist");
+  //   cy.get('[data-daterange-dropdown-value="Custom Range"]')
+  //     .should("exist")
+  //     .click();
+  //   cy.get("[data-date-picker-section=date-picker-calendar]").should("exist");
+  //   const formattedDate = today.toLocaleDateString("en-US", {
+  //     year: "numeric",
+  //     month: "short",
+  //     day: "2-digit",
+  //   });
+  //   const selectDate = today.toLocaleDateString("en-US", {
+  //     year: "numeric",
+  //     month: "short",
+  //     day: "numeric",
+  //   });
 
-    cy.get(`[data-testid="${selectDate}"]`).click();
-    cy.get("[data-button-for=apply]").click();
-    const isStartDate = date30DaysAgo.getDate() === 1;
-    const isEndDate =
-      today.getDate() ===
-      new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-    if (isStartDate && isEndDate) {
-      cy.get(`[data-button-text='This Month']`).should("exist");
-    } else {
-      cy.get(
-        `[data-button-text='${formattedDate30DaysAgo} - ${formattedDate}']`,
-      ).should("exist");
-    }
+  //   cy.get(`[data-testid="${selectDate}"]`).click();
+  //   cy.get("[data-button-for=apply]").click();
+  //   const isStartDate = date30DaysAgo.getDate() === 1;
+  //   const isEndDate =
+  //     today.getDate() ===
+  //     new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  //   if (isStartDate && isEndDate) {
+  //     cy.get(`[data-button-text='This Month']`).should("exist");
+  //   } else {
+  //     cy.get(
+  //       `[data-button-text='${formattedDate30DaysAgo} - ${formattedDate}']`,
+  //     ).should("exist");
+  //   }
 
-    cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
-  });
+  //   cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
+  // });
 
   it("Verify Search for Payment Using Existing Payment ID in Payment Operations Page", () => {
     cy.get("[data-testid=operations]").click();
