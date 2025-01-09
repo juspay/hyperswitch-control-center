@@ -30,10 +30,10 @@ module PlatformAccountConfirmationModal = {
     }
     let subHeading = currentMerchantName(merchantList, selectedMerchant)
 
-    let createPlatformMerchant = async values => {
+    let createPlatformMerchant = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_PLATFORM, ~methodType=Post)
-        let _ = await updateDetails(url, values, Post)
+        let _ = await updateDetails(url, JSON.Encode.null, Post)
         setIsPlatform(_ => true)
         showToast(
           ~toastType=ToastSuccess,
@@ -50,9 +50,7 @@ module PlatformAccountConfirmationModal = {
     }
 
     let onSubmit = (_, _) => {
-      let value = Dict.make()
-      value->Dict.set("merchant_id", selectedMerchant->JSON.Encode.string)
-      createPlatformMerchant(value->JSON.Encode.object)
+      createPlatformMerchant()
     }
 
     let customScrollStyle = "max-h-36 overflow-scroll pt-1 border border-b-0"
@@ -280,7 +278,6 @@ module PlatformMerchantAccount = {
   let make = () => {
     let isPlatform = Recoil.useRecoilValueFromAtom(HyperswitchAtom.isPlatform)
     let (showModal, setShowModal) = React.useState(_ => false)
-    // let (iisPlatform, setPlatform) = React.useState(_ => false)
 
     let openLearnMoreModal = _ => {
       setShowModal(_ => true)

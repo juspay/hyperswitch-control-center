@@ -3,8 +3,16 @@ type accessMapping = {
   resources: Map.t<UserManagementTypes.resourceAccessType, CommonAuthTypes.authorization>,
 }
 
-let orgDefaultValue: OMPSwitchTypes.orgList = {id: "", name: "", orgType: Default}
-let merchantDefaultValue: OMPSwitchTypes.merchantList = {id: "", name: "", merchantType: Default}
+let orgDefaultValue: OMPSwitchTypes.orgMerchantList = {
+  id: "",
+  name: "",
+  isPlatformAccount: false,
+}
+let merchantDefaultValue: OMPSwitchTypes.orgMerchantList = {
+  id: "",
+  name: "",
+  isPlatformAccount: false,
+}
 let profileDefaultValue: OMPSwitchTypes.profileList = {id: "", name: ""}
 
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
@@ -61,12 +69,12 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
   },
 )
 
-let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.orgList>> = Recoil.atom(
+let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.orgMerchantList>> = Recoil.atom(
   "orgListAtom",
   [orgDefaultValue],
 )
 
-let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.merchantList>> = Recoil.atom(
+let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.orgMerchantList>> = Recoil.atom(
   "merchantListAtom",
   [merchantDefaultValue],
 )
