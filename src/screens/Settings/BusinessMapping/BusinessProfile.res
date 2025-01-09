@@ -54,7 +54,7 @@ module AddEntryBtn = {
         | Successful =>
           <div className="flex flex-col gap-6 justify-center items-end mx-4">
             <AlertBanner
-              warningText="Now that you've configured more than one profile, you must pass 'profile_id' in payments API request every time"
+              bannerText="Now that you've configured more than one profile, you must pass 'profile_id' in payments API request every time"
               bannerType=Warning
             />
             <p className="text-grey-700">
@@ -173,7 +173,7 @@ let make = (
           />
           <RenderIf condition={businessProfileValues->Array.length > 1}>
             <HSwitchUtils.AlertBanner
-              warningText="Now that you've configured more than one profile, you must pass 'profile_id' in payments API request every time"
+              bannerText="Now that you've configured more than one profile, you must pass 'profile_id' in payments API request every time"
               bannerType=Warning
             />
           </RenderIf>

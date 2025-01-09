@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.09.0
+
+### Features
+
+- Global search mixpanel events ([#2028](https://github.com/juspay/hyperswitch-control-center/pull/2028)) ([`2356530`](https://github.com/juspay/hyperswitch-control-center/commit/2356530d37f23d980c6c2dcd6490f835beb2d9a5))
+- New analytics filter payments ([#2019](https://github.com/juspay/hyperswitch-control-center/pull/2019)) ([`90c0be2`](https://github.com/juspay/hyperswitch-control-center/commit/90c0be2f71bcbbd00d9d28df56306f544ccf5b72))
+- New analytics currency filter smart retry ([#2037](https://github.com/juspay/hyperswitch-control-center/pull/2037)) ([`951bda8`](https://github.com/juspay/hyperswitch-control-center/commit/951bda85721db84f2eab511fd837da2e3ec70bac))
+- Mixpanel x request id on alert events ([#2042](https://github.com/juspay/hyperswitch-control-center/pull/2042)) ([`a3dd8cd`](https://github.com/juspay/hyperswitch-control-center/commit/a3dd8cd8babfff780c8c85f2af77f03f4840ad97))
+
+### Miscellaneous Tasks
+
+- Minor file refactor and table data ordering ([#2031](https://github.com/juspay/hyperswitch-control-center/pull/2031)) ([`88f6af5`](https://github.com/juspay/hyperswitch-control-center/commit/88f6af5e02520e29bb5717539cdf9980c5576a0a))
+- Global search free text handling ([#2034](https://github.com/juspay/hyperswitch-control-center/pull/2034)) ([`04b7f20`](https://github.com/juspay/hyperswitch-control-center/commit/04b7f203ea7b2a231a92edecfdd4ada447584655))
+- Show merchant switch toast ([#2040](https://github.com/juspay/hyperswitch-control-center/pull/2040)) ([`e540954`](https://github.com/juspay/hyperswitch-control-center/commit/e54095412fb1dfd42b2884ad52b0c76c0026bc81))
+
+**Full Changelog:** [`2025.01.08.0...2025.01.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.08.0...2025.01.09.0)
+
+- - -
+
 ## 2025.01.08.0
 
 ### Features

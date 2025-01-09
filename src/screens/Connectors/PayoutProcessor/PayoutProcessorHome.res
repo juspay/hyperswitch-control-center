@@ -242,7 +242,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
         <HSwitchUtils.AlertBanner
-          warningText="This is a test connector and will not be reflected on your payment processor dashboard."
+          bannerText="This is a test connector and will not be reflected on your payment processor dashboard."
           bannerType=Warning
         />
       </RenderIf>
