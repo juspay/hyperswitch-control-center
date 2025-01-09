@@ -179,7 +179,7 @@ module Footer = {
     let isFirstStep = currentStep->isFirstStep
     let isLastStep = currentStep->isLastStep
 
-    <div className="flex justify-end items-center p-4 bg-white w-full">
+    <div className="flex justify-end items-center p-4 bg-white w-full rounded-br-lg">
       {switch (isFirstStep, isLastStep) {
       | (true, false) =>
         <Button
