@@ -166,7 +166,7 @@ module ListItem = {
     }
     let textGap = ""
 
-    let selectedNoBadgeColor = "bg-blue-500"
+    let selectedNoBadgeColor = "bg-primary"
     let optionIconStroke = ""
 
     let optionTextSize = !isDropDown && optionSize === Large ? "text-fs-16" : "text-base"
