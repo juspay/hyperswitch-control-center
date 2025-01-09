@@ -81,7 +81,9 @@ module.exports = {
       lineHeight: {
         60: "60px",
       },
-
+      borderWidth: {
+        1.5: "1.5px",
+      },
       boxShadow: {
         generic_shadow: "0 2px 5px 0 rgba(0, 0, 0, 0.12)",
         generic_shadow_dark: "0px 2px 5px 0 rgba(0, 0, 0, 0.78)",
