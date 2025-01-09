@@ -34,12 +34,60 @@ let make = () => {
   let inputRef = React.useRef(Nullable.null)
   let filtersEnabled = globalSearchFilters
 
-  let redirectOnSelect = element => {
-    mixpanelEvent(~eventName="global_search_redirect")
-    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr(defaultRoute)
-    if redirectLink->isNonEmptyString {
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+
+  // let redirectOnSelect = async element => {
+  //   try {
+  //     let metaData: GlobalSearchTypes.metadataType = switch element.metadata {
+  //     | Some(metadata) => metadata
+  //     | None => {
+  //         orgId: "",
+  //         merchantId: "",
+  //         profileId: "",
+  //       }
+  //     }
+  //     mixpanelEvent(~eventName="global_search_redirect")
+
+  //     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
+  //     if redirectLink->isNonEmptyString {
+  //       let _ = await internalSwitch(
+  //         ~expectedOrgId=Some(metaData.orgId),
+  //         ~expectedMerchantId=Some(metaData.merchantId),
+  //         ~expectedProfileId=Some(metaData.profileId),
+  //       )
+  //       GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+  //       setShowModal(_ => false)
+  //     }
+  //   } catch {
+  //   | _ => ()
+  //   }
+  // }
+
+  let redirectOnSelect = async element => {
+    try {
+      let metaData: GlobalSearchTypes.metadataType = switch element.metadata {
+      | Some(metadata) => metadata
+      | None => {
+          orgId: "",
+          merchantId: "",
+          profileId: "",
+        }
+      }
+      mixpanelEvent(~eventName="global_search_redirect")
+      let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr(defaultRoute)
+      if redirectLink->isNonEmptyString && !(redirectLink->String.includes("search")) {
+        let _ = await internalSwitch(
+          ~expectedOrgId=Some(metaData.orgId),
+          ~expectedMerchantId=Some(metaData.merchantId),
+          ~expectedProfileId=Some(metaData.profileId),
+        )
+
+        //
+      }
       setShowModal(_ => false)
       GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+    } catch {
+    | _ => ()
     }
   }
 

@@ -126,27 +126,37 @@ let getElements = (hits, section) => {
     let amount = value->getAmount("amount", "currency")
     let status = value->getString("status", "")
     let profileId = value->getString("profile_id", "")
+    let merchantId = value->getString("merchant_id", "")
+    let orgId = value->getString("organization_id", "")
 
-    (payId, amount, status, profileId)
+    let metadata = {
+      orgId,
+      merchantId,
+      profileId,
+    }
+
+    (payId, amount, status, metadata)
   }
 
   switch section {
   | PaymentAttempts | SessionizerPaymentAttempts =>
     hits->Array.map(item => {
-      let (payId, amount, status, profileId) = item->getValues
+      let (payId, amount, status, metadata) = item->getValues
 
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/payments/${payId}/${profileId}`->JSON.Encode.string,
+        redirect_link: `/payments/${payId}/${metadata.profileId}`->JSON.Encode.string,
+        metadata,
       }
     })
   | PaymentIntents | SessionizerPaymentIntents =>
     hits->Array.map(item => {
-      let (payId, amount, status, profileId) = item->getValues
+      let (payId, amount, status, metadata) = item->getValues
 
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/payments/${payId}/${profileId}`->JSON.Encode.string,
+        redirect_link: `/payments/${payId}/${metadata.profileId}`->JSON.Encode.string,
+        metadata,
       }
     })
 
@@ -157,10 +167,19 @@ let getElements = (hits, section) => {
       let amount = value->getAmount("total_amount", "currency")
       let status = value->getString("refund_status", "")
       let profileId = value->getString("profile_id", "")
+      let orgId = value->getString("organization_id", "")
+      let merchantId = value->getString("merchant_id", "")
+
+      let metadata = {
+        profileId,
+        orgId,
+        merchantId,
+      }
 
       {
         texts: [refId, amount, status]->Array.map(JSON.Encode.string),
         redirect_link: `/refunds/${refId}/${profileId}`->JSON.Encode.string,
+        metadata,
       }
     })
   | Disputes | SessionizerPaymentDisputes =>
@@ -170,10 +189,18 @@ let getElements = (hits, section) => {
       let amount = value->getAmount("dispute_amount", "currency")
       let status = value->getString("dispute_status", "")
       let profileId = value->getString("profile_id", "")
+      let orgId = value->getString("organization_id", "")
+      let merchantId = value->getString("merchant_id", "")
 
+      let metadata = {
+        profileId,
+        orgId,
+        merchantId,
+      }
       {
         texts: [disId, amount, status]->Array.map(JSON.Encode.string),
         redirect_link: `/disputes/${disId}/${profileId}`->JSON.Encode.string,
+        metadata,
       }
     })
   | Local

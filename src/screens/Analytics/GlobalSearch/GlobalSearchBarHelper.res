@@ -66,7 +66,7 @@ module OptionWrapper = {
     let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg" : ""
 
     <div
-      onClick={_ => value->redirectOnSelect}
+      onClick={_ => redirectOnSelect(value)->ignore}
       className={`flex ${activeClass} flex-row truncate hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center`}
       key={index->Int.toString}>
       {children}
@@ -627,7 +627,7 @@ module ModalSearchBox = {
             | _ => ()
             }
           } else if keyPressed == enterKey {
-            selectedOption->redirectOnSelect
+            redirectOnSelect(selectedOption)->ignore
           }
         }
 

@@ -117,6 +117,9 @@ let useProfileSwitch = () => {
 
   async (~expectedProfileId, ~currentProfileId) => {
     try {
+      Js.log3("inside expectedProfileId", expectedProfileId, currentProfileId)
+      Js.log2("inside profile switch", userInfoFromRef)
+
       // Need to remove the Empty string check once userInfo contains the profileId
       if expectedProfileId !== currentProfileId && currentProfileId->LogicUtils.isNonEmptyString {
         let url = getURL(~entityName=USERS, ~userType=#SWITCH_PROFILE, ~methodType=Post)
@@ -140,6 +143,7 @@ let useProfileSwitch = () => {
 }
 
 let useInternalSwitch = () => {
+  Js.log("useInternalSwitch")
   let orgSwitch = useOrgSwitch()
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
@@ -156,6 +160,7 @@ let useInternalSwitch = () => {
         ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),
         ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
       )
+      Js.log2("inside userInfoResFromSwitchMerch", userInfoResFromSwitchMerch)
       let _ = await profileSwitch(
         ~expectedProfileId=expectedProfileId->Option.getOr(userInfoResFromSwitchMerch.profileId),
         ~currentProfileId=userInfoResFromSwitchMerch.profileId,

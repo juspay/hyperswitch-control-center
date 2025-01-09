@@ -17,7 +17,9 @@ let make = () => {
             remainingPath
             access=Access
             renderList={() => <Orders />}
-            renderShow={(id, key) => <ShowOrder id profileId={key} />}
+            // renderShow={(id, key) => <ShowOrder id profileId={key} />}
+            renderCustomWithOMP={(id, profileId, merchantId, orgId) =>
+              <ShowOrder id profileId merchantId orgId />}
           />
         </FilterContext>
       </AccessControl>
@@ -29,7 +31,8 @@ let make = () => {
             remainingPath
             access=Access
             renderList={() => <PayoutsList />}
-            renderShow={(id, key) => <ShowPayout id profileId={key} />}
+            renderCustomWithOMP={(id, profileId, merchantId, orgId) =>
+              <ShowPayout id profileId merchantId orgId />}
           />
         </FilterContext>
       </AccessControl>
@@ -41,7 +44,9 @@ let make = () => {
             remainingPath
             access=Access
             renderList={() => <Refund />}
-            renderShow={(id, key) => <ShowRefund id profileId={key} />}
+            renderCustomWithOMP={(id, profileId, merchantId, orgId) =>
+              <ShowRefund id profileId merchantId orgId />}
+            // renderShow={(id, key) => <ShowRefund id profileId={key} />}
           />
         </FilterContext>
       </AccessControl>
@@ -53,7 +58,9 @@ let make = () => {
             remainingPath
             access=Access
             renderList={() => <Disputes />}
-            renderShow={(id, key) => <ShowDisputes id profileId={key} />}
+            // renderShow={(id, key) => <ShowDisputes id profileId={key} />}
+            renderCustomWithOMP={(id, profileId, merchantId, orgId) =>
+              <ShowDisputes id profileId merchantId orgId />}
           />
         </FilterContext>
       </AccessControl>

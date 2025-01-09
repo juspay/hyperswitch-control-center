@@ -586,7 +586,7 @@ module FraudRiskBanner = {
 }
 
 @react.component
-let make = (~id, ~profileId) => {
+let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   open OrderUIUtils
   let url = RescriptReactRouter.useUrl()
@@ -601,10 +601,16 @@ let make = (~id, ~profileId) => {
   let frmDetailsRef = React.useRef(Nullable.null)
   let fetchDetails = useGetMethod()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+
   let fetchOrderDetails = async url => {
     try {
       setScreenState(_ => Loading)
-      let _ = await internalSwitch(~expectedProfileId=profileId)
+      Js.log4("inside showorder", profileId, merchantId, orgId)
+      let _ = await internalSwitch(
+        ~expectedOrgId=orgId,
+        ~expectedMerchantId=merchantId,
+        ~expectedProfileId=profileId,
+      )
       let res = await fetchDetails(url)
       let order = OrderEntity.itemToObjMapper(res->getDictFromJsonObject)
       setOrderData(_ => order)
@@ -634,7 +640,7 @@ let make = (~id, ~profileId) => {
     )
     fetchOrderDetails(accountUrl)->ignore
     None
-  }, [url])
+  }, [])
 
   let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 

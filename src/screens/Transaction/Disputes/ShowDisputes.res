@@ -168,7 +168,7 @@ module DisputesInfo = {
 }
 
 @react.component
-let make = (~id, ~profileId) => {
+let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
@@ -183,7 +183,11 @@ let make = (~id, ~profileId) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ~id=Some(id))
-      let _ = await internalSwitch(~expectedProfileId=profileId)
+      let _ = await internalSwitch(
+        ~expectedOrgId=orgId,
+        ~expectedMerchantId=merchantId,
+        ~expectedProfileId=profileId,
+      )
       let response = await fetchDetails(disputesUrl)
       setDisputeData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

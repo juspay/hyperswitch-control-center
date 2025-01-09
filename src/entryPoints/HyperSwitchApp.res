@@ -26,7 +26,7 @@ let make = () => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
+  let {userInfoFromRef: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
