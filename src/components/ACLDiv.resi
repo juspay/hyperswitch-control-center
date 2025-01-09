@@ -8,6 +8,7 @@ let make: (
   ~description: string=?,
   ~tooltipWidthClass: string=?,
   ~isRelative: bool=?,
+  ~showTooltip: bool=?,
   ~contentAlign: ToolTip.contentPosition=?,
   ~justifyClass: string=?,
   ~tooltipForWidthClass: string=?,

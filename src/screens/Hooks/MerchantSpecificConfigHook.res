@@ -29,8 +29,8 @@ let useMerchantSpecificConfig = () => {
     HyperswitchAtom.merchantSpecificConfigAtom->Recoil.useRecoilValueFromAtom
   let fetchMerchantSpecificConfig = async () => {
     try {
-      let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="default")
-      let merchantConfigURL = ` ${GlobalVars.getHostUrlWithBasePath}/config/merchant?domain=${domain}`
+      let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="")
+      let merchantConfigURL = ` ${GlobalVars.getHostUrlWithBasePath}/config/merchant?domain=${domain}` // todo: domain shall be removed from query params later
       let body =
         [
           ("org_id", orgId->JSON.Encode.string),

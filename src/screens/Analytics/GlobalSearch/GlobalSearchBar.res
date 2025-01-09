@@ -31,6 +31,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let inputRef = React.useRef(Nullable.null)
   let filtersEnabled = globalSearchFilters
 
   let redirectOnSelect = element => {
@@ -70,6 +71,8 @@ let make = () => {
 
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
       let body = searchText->generateQuery
+
+      mixpanelEvent(~eventName="global_search", ~metadata=body->JSON.Encode.object)
 
       let response = await fetchDetails(url, body->JSON.Encode.object, Post)
 
@@ -111,7 +114,11 @@ let make = () => {
   React.useEffect(_ => {
     let results = []
 
-    if searchText->isNonEmptyString && searchText->getSearchValidation {
+    if (
+      searchText->isNonEmptyString &&
+      searchText->getSearchValidation &&
+      !(searchText->validateQuery)
+    ) {
       setState(_ => Loading)
       let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 
@@ -165,7 +172,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if userHasAccess(~groupAccess=AnalyticsView) === Access && filtersEnabled {
+    if userHasAccess(~groupAccess=AnalyticsView) === Access {
       getCategoryOptions()->ignore
     }
 
@@ -178,8 +185,7 @@ let make = () => {
   }
 
   let setGlobalSearchText = ReactDebounce.useDebounced(value => {
-    let text = filtersEnabled ? value : value->String.trim
-    setSearchText(_ => text)
+    setSearchText(_ => value)
   }, ~wait=500)
 
   let onFilterClicked = category => {
@@ -194,6 +200,8 @@ let make = () => {
       setLocalSearchText(_ => `${searchText} ${newFilter}:`)
       setFilterText(newFilter)
     }
+
+    revertFocus(~inputRef)
   }
 
   let onSuggestionClicked = option => {
@@ -207,6 +215,8 @@ let make = () => {
     let saparater = searchText->getEndChar == filterSeparator ? "" : filterSeparator
     setLocalSearchText(_ => `${key}${saparater}${option}`)
     setFilterText("")
+
+    revertFocus(~inputRef)
   }
 
   React.useEffect(() => {
@@ -227,7 +237,8 @@ let make = () => {
     </div>
   }
 
-  let viewType = getViewType(~state, ~searchResults, ~searchText, ~filtersEnabled)
+  let viewType = getViewType(~state, ~searchResults)
+  let categorySuggestions = {getCategorySuggestions(categorieSuggestionResponse)}
 
   <div className="w-max">
     <SearchBox openModalOnClickHandler />
@@ -235,6 +246,7 @@ let make = () => {
       <ModalWrapper showModal setShowModal>
         <div className="w-full">
           <ModalSearchBox
+            inputRef
             leftIcon
             setShowModal
             setFilterText
@@ -251,28 +263,41 @@ let make = () => {
             activeFilter
             onFilterClicked
             onSuggestionClicked
+            categorySuggestions
+            searchText
           />
           {switch viewType {
-          | Load =>
-            <div className="mb-24">
-              <Loader />
-            </div>
-          | Results =>
+          | Results | Load | EmptyResult =>
             <SearchResultsComponent
-              searchResults searchText setShowModal selectedOption redirectOnSelect
-            />
-          | FiltersSugsestions =>
-            <FilterResultsComponent
-              categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-              activeFilter
+              searchResults
               searchText
+              setShowModal
+              selectedOption
+              redirectOnSelect
+              categorySuggestions
+              activeFilter
               setAllFilters
               selectedFilter
+              setSelectedFilter
               onFilterClicked
               onSuggestionClicked
-              setSelectedFilter
+              viewType
+              prefix
+              filtersEnabled
             />
-          | EmptyResult => <EmptyResult prefix searchText />
+          | FiltersSugsestions =>
+            <RenderIf condition={filtersEnabled}>
+              <FilterResultsComponent
+                categorySuggestions
+                activeFilter
+                searchText
+                setAllFilters
+                selectedFilter
+                onFilterClicked
+                onSuggestionClicked
+                setSelectedFilter
+              />
+            </RenderIf>
           }}
         </div>
       </ModalWrapper>
