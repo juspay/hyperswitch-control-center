@@ -28,8 +28,9 @@ module ListBaseComp = {
     let paddingHeading = isDarkBg ? "pl-2" : ""
 
     let endValue = isDarkBg ? 23 : 15
+    let maxLength = isDarkBg ? 23 : 15
 
-    let subHeadingElement = if subHeading->String.length > 15 {
+    let subHeadingElement = if subHeading->String.length > maxLength {
       <HelperComponents.EllipsisText
         displayValue=subHeading
         endValue
