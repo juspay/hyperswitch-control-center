@@ -233,10 +233,10 @@ module SuccessUI = {
               customParentClass="flex items-center gap-5"
             />
           </div>
-          <h1 className="whitespace-pre-line text-orange-950 w-full p-2 rounded-md ">
-            <span className="text-orange-950 font-bold text-fs-14"> {"NOTE: "->React.string} </span>
-            {"Please note down the API key for your future use as you won't be able to view it later."->React.string}
-          </h1>
+          <HSwitchUtils.AlertBanner
+            bannerType=Info
+            bannerText="Please note down the API key for your future use as you won't be able to view it later."
+          />
         </div>
       </div>
       <div className="flex justify-end gap-5 mt-5 mb-1 mr-1">
