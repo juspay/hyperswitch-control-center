@@ -5,7 +5,7 @@ let make = (~currentStep, ~setCurrentStep) => {
   let currentStepCount = currentStep->getSectionFromStep->getSectionCount
 
   <div className="flex flex-col h-full">
-    <div className="flex flex-col gap-10 p-2 md:p-7">
+    <div className="flex flex-col gap-10 p-2 md:p-6">
       <ReconConfigurationHelper.SubHeading
         currentStepCount
         title="Manual Mapping"

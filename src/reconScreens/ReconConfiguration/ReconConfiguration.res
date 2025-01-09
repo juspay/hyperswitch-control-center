@@ -6,7 +6,7 @@ let make = () => {
 
   <Form>
     <div className="flex flex-col gap-10">
-      <div className="bg-white rounded-xl border border-grey-outline h-screen flex flex-col">
+      <div className="bg-white rounded-lg border border-grey-outline h-923-px flex flex-col">
         <ReconConfigurationHelper.Heading title="Reconciliation Setup" />
         <div className="flex justify-center items-center h-full">
           <div className="flex-[3] border-r h-full">
@@ -16,7 +16,7 @@ let make = () => {
               <ReconConfigurationHelper.ReconConfigurationCurrentStepIndicator currentStep />
             </div>
           </div>
-          <div className="flex-[6] h-full bg-gray-50 flex flex-col justify-between">
+          <div className="flex-[7] h-full bg-gray-50 flex flex-col justify-between">
             <div className="flex-1">
               {switch currentStep->ReconConfigurationUtils.getSectionFromStep {
               | ConnectOrderData =>

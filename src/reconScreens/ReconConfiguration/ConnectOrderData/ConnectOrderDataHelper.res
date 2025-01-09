@@ -6,25 +6,27 @@ module SelectSource = {
 
     let (selectedStep, setSelectedStep) = React.useState(_ => Hyperswitch)
     <div className="flex flex-col h-full">
-      <div className="flex flex-col gap-4 flex-grow p-2 md:p-7">
+      <div className="flex flex-col gap-3 flex-grow p-2 md:p-7">
         <p className="text-medium text-grey-800 font-semibold mb-5">
           {"Select your order data source"->React.string}
         </p>
-        {orderDataStepsArr
-        ->Array.map(step => {
-          let stepName = step->getSelectedStepName
-          let description = step->getSelectedStepDescription
-          let isSelected = selectedStep === step
-          <ReconConfigurationHelper.StepCard
-            key={stepName}
-            stepName={stepName}
-            description={description}
-            isSelected={isSelected}
-            iconName={step->getIconName}
-            onClick={_ => setSelectedStep(_ => step)}
-          />
-        })
-        ->React.array}
+        <div className="flex flex-col gap-4">
+          {orderDataStepsArr
+          ->Array.map(step => {
+            let stepName = step->getSelectedStepName
+            let description = step->getSelectedStepDescription
+            let isSelected = selectedStep === step
+            <ReconConfigurationHelper.StepCard
+              key={stepName}
+              stepName={stepName}
+              description={description}
+              isSelected={isSelected}
+              iconName={step->getIconName}
+              onClick={_ => setSelectedStep(_ => step)}
+            />
+          })
+          ->React.array}
+        </div>
       </div>
       <div className="flex justify-end items-center border-t">
         <ReconConfigurationHelper.Footer
@@ -35,7 +37,7 @@ module SelectSource = {
   }
 }
 
-module SetupCredentials = {
+module SetupAPIConnection = {
   @react.component
   let make = (~currentStep, ~setCurrentStep) => {
     <div className="flex flex-col h-full">

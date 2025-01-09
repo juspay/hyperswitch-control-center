@@ -4,7 +4,7 @@ let sectionsArr: array<sections> = [ConnectOrderData, ConnectProcessorData, Manu
 
 let subSectionsArr: array<subSections> = [
   SelectSource,
-  SetupCredentials,
+  SetupAPIConnection,
   APIKeysAndLiveEndpoints,
   WebHooks,
   TestLivePayment,
@@ -31,7 +31,7 @@ let getSectionFromStep = (step: steps): sections =>
 let getSubsectionName = (subSection: subSections): string =>
   switch subSection {
   | SelectSource => "Select Source"
-  | SetupCredentials => "Setup Credentials"
+  | SetupAPIConnection => "Setup Your API Connection"
   | APIKeysAndLiveEndpoints => "Replace API keys & Live Endpoints"
   | WebHooks => "Setup Webhook on your end"
   | TestLivePayment => "Test a live Payment"
@@ -41,7 +41,7 @@ let getSubsectionName = (subSection: subSections): string =>
 let getSubsectionFromStep = (section: steps): subSections =>
   switch section {
   | ConnectOrderData(SelectSource) => SelectSource
-  | ConnectOrderData(SetupCredentials) => SetupCredentials
+  | ConnectOrderData(SetupAPIConnection) => SetupAPIConnection
   | ConnectProcessorData(APIKeysAndLiveEndpoints) => APIKeysAndLiveEndpoints
   | ConnectProcessorData(WebHooks) => WebHooks
   | ManualMapping(TestLivePayment) => TestLivePayment
@@ -50,15 +50,15 @@ let getSubsectionFromStep = (section: steps): subSections =>
 
 let getSubSections = (section: sections): array<subSections> =>
   switch section {
-  | ConnectOrderData => [SelectSource, SetupCredentials]
+  | ConnectOrderData => [SelectSource, SetupAPIConnection]
   | ConnectProcessorData => [APIKeysAndLiveEndpoints, WebHooks]
   | ManualMapping => [TestLivePayment, SetupCompleted]
   }
 
 let getNextStep = (currentStep: steps): steps => {
   switch currentStep {
-  | ConnectOrderData(SelectSource) => ConnectOrderData(SetupCredentials)
-  | ConnectOrderData(SetupCredentials) => ConnectProcessorData(APIKeysAndLiveEndpoints)
+  | ConnectOrderData(SelectSource) => ConnectOrderData(SetupAPIConnection)
+  | ConnectOrderData(SetupAPIConnection) => ConnectProcessorData(APIKeysAndLiveEndpoints)
   | ConnectProcessorData(APIKeysAndLiveEndpoints) => ConnectProcessorData(WebHooks)
   | ConnectProcessorData(WebHooks) => ManualMapping(TestLivePayment)
   | ManualMapping(TestLivePayment) => ManualMapping(SetupCompleted)
@@ -68,8 +68,8 @@ let getNextStep = (currentStep: steps): steps => {
 
 let getPreviousStep = (currentStep: steps): steps =>
   switch currentStep {
-  | ConnectOrderData(SetupCredentials) => ConnectOrderData(SelectSource)
-  | ConnectProcessorData(APIKeysAndLiveEndpoints) => ConnectOrderData(SetupCredentials)
+  | ConnectOrderData(SetupAPIConnection) => ConnectOrderData(SelectSource)
+  | ConnectProcessorData(APIKeysAndLiveEndpoints) => ConnectOrderData(SetupAPIConnection)
   | ConnectProcessorData(WebHooks) => ConnectProcessorData(APIKeysAndLiveEndpoints)
   | ManualMapping(TestLivePayment) => ConnectProcessorData(WebHooks)
   | ManualMapping(SetupCompleted) => ManualMapping(TestLivePayment)

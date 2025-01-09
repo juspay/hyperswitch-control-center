@@ -6,7 +6,7 @@ module Heading = {
     ~customHeadingStyle="",
   ) => {
     <div>
-      <div className={`p-2 md:p-7 ${customHeadingStyle}`}>
+      <div className={`p-2 md:p-6 ${customHeadingStyle}`}>
         <div className={`${customTitleStyle}`}> {title->React.string} </div>
       </div>
       <div className="border-b border-grey-outline" />
@@ -33,12 +33,10 @@ module ProgressBar = {
     open ReconConfigurationUtils
     let percentage = currentStep->getPercentage
 
-    <div className="p-2 md:p-7">
+    <div className="p-2 md:p-6">
       <p> {`${percentage->Int.toString}% Completed`->React.string} </p>
-      <div className="w-full bg-blue-150 rounded-sm h-2 mt-3">
-        <div
-          className="bg-blue-500 h-2 rounded-sm" style={{width: `${percentage->Int.toString}%`}}
-        />
+      <div className="w-full bg-blue-150 rounded h-2 mt-3">
+        <div className="bg-blue-500 h-2 rounded" style={{width: `${percentage->Int.toString}%`}} />
       </div>
     </div>
   }
@@ -53,27 +51,27 @@ module ReconConfigurationCurrentStepIndicator = {
       sectionsArr->Array.findIndex(item =>
         item === currentStep->ReconConfigurationUtils.getSectionFromStep
       )
-    <div className="w-full p-2 md:p-7">
-      <div className={`grid grid-rows-${rows} relative gap-y-14`}>
+    <div className="w-full p-2 md:p-6">
+      <div className={`grid grid-rows-${rows} relative gap-y-4`}>
         {sectionsArr
         ->Array.mapWithIndex((step, i) => {
           let isStepCompleted = i < currIndex
           let isCurrentStep = i == currIndex
           let subSectionsArr = step->ReconConfigurationUtils.getSubSections
 
-          let stepNumberIndicator = if isCurrentStep || isStepCompleted {
+          let stepNumberIndicator = if isCurrentStep {
             "bg-blue-500"
           } else {
             "border-blue-500 bg-white border"
           }
 
-          let stepNameIndicator = if isCurrentStep || isStepCompleted {
+          let stepNameIndicator = if isCurrentStep {
             "text-blue-500 break-all font-semibold text-base"
           } else {
             "text-gray-500 break-all font-semibold text-base"
           }
 
-          let textColor = isCurrentStep || isStepCompleted ? "text-white" : "text-blue-500"
+          let textColor = isCurrentStep ? "text-white" : "text-blue-500"
 
           <div key={i->Int.toString} className="font-semibold flex flex-col gap-y-5">
             <div className="flex gap-x-3 items-center w-full">
@@ -100,7 +98,7 @@ module ReconConfigurationCurrentStepIndicator = {
                 }}
               </div>
             </div>
-            <div className="flex flex-col gap-y-2">
+            <div className="flex flex-col gap-y-1">
               {subSectionsArr
               ->Array.mapWithIndex((subSection, j) => {
                 let subStepIndex =
@@ -157,9 +155,9 @@ module StepCard = {
     }
     <div
       key={stepName}
-      className={`flex items-center gap-x-3 border ${ringClass} rounded-lg p-4 transition-shadow cursor-pointer justify-between`}
+      className={`flex items-center gap-x-2.5 border ${ringClass} rounded-lg p-4 transition-shadow cursor-pointer justify-between`}
       onClick={onClick}>
-      <div className="flex items-center gap-x-3">
+      <div className="flex items-center gap-x-2.5">
         <img alt={iconName} src={`/Recon/${iconName}.svg`} className="w-8 h-8" />
         <div className="flex flex-col gap-1">
           <h3 className="text-medium font-medium text-grey-900"> {stepName->React.string} </h3>
@@ -181,22 +179,20 @@ module Footer = {
     let isFirstStep = currentStep->isFirstStep
     let isLastStep = currentStep->isLastStep
 
-    <div className="flex justify-end items-center p-4">
+    <div className="flex justify-end items-center p-4 bg-white w-full">
       {switch (isFirstStep, isLastStep) {
       | (true, false) =>
         <Button
           text="Continue"
-          customButtonStyle="rounded-lg"
+          customButtonStyle="rounded"
           buttonType={Primary}
-          buttonSize={XSmall}
           onClick={_ => setCurrentStep(prev => getNextStep(prev))}
         />
       | (false, true) =>
         <Button
           text="Back"
-          customButtonStyle="rounded-lg"
+          customButtonStyle="rounded w-90-px"
           buttonType={Secondary}
-          buttonSize={XSmall}
           onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
         />
       | (true, true) => <div />
@@ -204,16 +200,14 @@ module Footer = {
         <div className="flex gap-4">
           <Button
             text="Back"
-            customButtonStyle="rounded-lg"
+            customButtonStyle="rounded w-90-px"
             buttonType={Secondary}
-            buttonSize={XSmall}
             onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
           />
           <Button
             text={buttonName}
-            customButtonStyle="rounded-lg"
+            customButtonStyle="rounded w-90-px"
             buttonType={Primary}
-            buttonSize={XSmall}
             onClick={_ => setCurrentStep(prev => getNextStep(prev))}
           />
         </div>
