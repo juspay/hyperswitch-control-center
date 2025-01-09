@@ -246,10 +246,6 @@ let make = (~children) => {
                   "primary_color",
                   defaultSettings.buttons.primary.backgroundColor,
                 ),
-                "textColor": dict->getString(
-                  "primary_color",
-                  defaultSettings.buttons.primary.textColor,
-                ),
                 "hoverBackgroundColor": dict->getString(
                   "primary_hover_color",
                   defaultSettings.buttons.primary.hoverBackgroundColor,
