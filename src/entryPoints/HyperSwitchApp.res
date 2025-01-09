@@ -18,7 +18,8 @@ let make = () => {
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
-
+  let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
+  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
     fetchMerchantSpecificConfig,
     useIsFeatureEnabledForMerchant,
@@ -26,9 +27,10 @@ let make = () => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {
+    userInfo: {orgId, merchantId, profileId, roleId, themeId},
+    checkUserEntity,
+  } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -52,6 +54,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
+      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -66,7 +69,7 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [orgId, merchantId, profileId])
+  }, [orgId, merchantId, profileId, themeId])
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {
