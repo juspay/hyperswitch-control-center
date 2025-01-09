@@ -241,7 +241,7 @@ let getConnectorIDFromUrl = (urlList, defaultValue) => {
 
 module AlertBanner = {
   @react.component
-  let make = (~warningText, ~bannerType: HSwitchUtilsTypes.bannerType, ~children=?) => {
+  let make = (~bannerText, ~bannerType: HSwitchUtilsTypes.bannerType, ~children=?) => {
     let bgClass = switch bannerType {
     | Success => " bg-green-100"
     | Warning => "bg-orange-100"
@@ -260,7 +260,7 @@ module AlertBanner = {
       className={`${bgClass} flex justify-between border border-none w-full py-4 px-4 rounded-md`}>
       <div className="flex items-center gap-4">
         <Icon name=iconName size=20 />
-        {warningText->React.string}
+        {bannerText->React.string}
       </div>
       <div>
         {switch children {
