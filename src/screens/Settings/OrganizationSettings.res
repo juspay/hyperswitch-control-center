@@ -77,31 +77,7 @@ module PlatformAccountConfirmationModal = {
             />
             <div className="text-sm leading-7 text-gray-600 p-2">
               <p> {"Choose merchant to make it the platform merchant account"->React.string} </p>
-              <SelectBox.BaseDropdown
-                allowMultiSelect=false
-                buttonText=""
-                input
-                deselectDisable=true
-                customButtonStyle="!rounded-md"
-                options={merchantList
-                ->Identity.genericTypeToJson
-                ->OMPSwitchUtils.convertToProfileListType
-                ->OMPSwitchHelper.generateDropdownOptions}
-                marginTop="mt-8"
-                hideMultiSelectButtons=true
-                addButton=false
-                customStyle="rounded w-fit"
-                searchable=false
-                baseComponent={<OMPSwitchHelper.ListBaseComp heading="" subHeading arrow />}
-                baseComponentCustomStyle="bg-white rounded"
-                optionClass="text-gray-600 text-fs-14"
-                selectClass="text-gray-600 text-fs-14"
-                customDropdownOuterClass="!border-none w-fit"
-                toggleChevronState
-                customScrollStyle
-                dropdownContainerStyle
-                shouldDisplaySelectedOnTop=true
-              />
+              <MerchantSwitch />
             </div>
           </div>
           <hr className="mt-4" />
