@@ -14,6 +14,19 @@ module Heading = {
   }
 }
 
+module SubHeading = {
+  @react.component
+  let make = (~currentStepCount, ~title, ~subTitle) => {
+    <div className="flex flex-col gap-1">
+      <p className="text-base text-gray-500">
+        {`STEP ${currentStepCount->Int.toString} / 3`->React.string}
+      </p>
+      <p className="text-lg font-semibold text-grey-800"> {title->React.string} </p>
+      <p className="text-sm text-gray-500"> {subTitle->React.string} </p>
+    </div>
+  }
+}
+
 module ProgressBar = {
   @react.component
   let make = (~currentStep) => {
@@ -137,17 +150,74 @@ module ReconConfigurationCurrentStepIndicator = {
 
 module StepCard = {
   @react.component
-  let make = (~stepName, ~isSelected, ~onClick, ~iconName) => {
+  let make = (~stepName, ~description, ~isSelected, ~onClick, ~iconName) => {
     let ringClass = switch isSelected {
     | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
     | false => "ring-grey-outline"
     }
     <div
       key={stepName}
-      className={`flex items-center gap-x-3 border ${ringClass} rounded-lg p-4 transition-shadow cursor-pointer`}
+      className={`flex items-center gap-x-3 border ${ringClass} rounded-lg p-4 transition-shadow cursor-pointer justify-between`}
       onClick={onClick}>
-      <img alt={iconName} src={`/Recon/${iconName}.svg`} className="w-8 h-8" />
-      <h3 className="text-medium font-medium text-grey-900"> {stepName->React.string} </h3>
+      <div className="flex items-center gap-x-3">
+        <img alt={iconName} src={`/Recon/${iconName}.svg`} className="w-8 h-8" />
+        <div className="flex flex-col gap-1">
+          <h3 className="text-medium font-medium text-grey-900"> {stepName->React.string} </h3>
+          <p className="text-sm text-gray-500"> {description->React.string} </p>
+        </div>
+      </div>
+      {switch isSelected {
+      | true => <Icon name="blue-circle" customHeight="20" />
+      | false => <div />
+      }}
+    </div>
+  }
+}
+
+module Footer = {
+  @react.component
+  let make = (~currentStep, ~setCurrentStep, ~buttonName) => {
+    open ReconConfigurationUtils
+    let isFirstStep = currentStep->isFirstStep
+    let isLastStep = currentStep->isLastStep
+
+    <div className="flex justify-end items-center p-4">
+      {switch (isFirstStep, isLastStep) {
+      | (true, false) =>
+        <Button
+          text="Continue"
+          customButtonStyle="rounded-lg"
+          buttonType={Primary}
+          buttonSize={XSmall}
+          onClick={_ => setCurrentStep(prev => getNextStep(prev))}
+        />
+      | (false, true) =>
+        <Button
+          text="Back"
+          customButtonStyle="rounded-lg"
+          buttonType={Secondary}
+          buttonSize={XSmall}
+          onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
+        />
+      | (true, true) => <div />
+      | (false, false) =>
+        <div className="flex gap-4">
+          <Button
+            text="Back"
+            customButtonStyle="rounded-lg"
+            buttonType={Secondary}
+            buttonSize={XSmall}
+            onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
+          />
+          <Button
+            text={buttonName}
+            customButtonStyle="rounded-lg"
+            buttonType={Primary}
+            buttonSize={XSmall}
+            onClick={_ => setCurrentStep(prev => getNextStep(prev))}
+          />
+        </div>
+      }}
     </div>
   }
 }
