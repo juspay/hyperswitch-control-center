@@ -7,7 +7,7 @@ module CardHeader = {
         <img alt="image" className="h-6 inline-block align-top" src={`/icons/${icon}.svg`} />
       | None => React.null
       }}
-      <div className="w-2/3">
+      <div>
         <div className="text-xl font-semibold"> {heading->React.string} </div>
         <div
           className={`text-medium font-medium leading-7 opacity-50 mt-2 ${customSubHeadingStyle}`}>

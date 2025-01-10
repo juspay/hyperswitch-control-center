@@ -69,7 +69,7 @@ module ClonePaymentMethodsModal = {
     <div>
       <Modal
         showModal
-        closeOnOutsideClick=true
+        closeOnOutsideClick=false
         setShowModal
         childClass="p-0"
         borderBottom=true
@@ -155,7 +155,11 @@ let make = (~connectorID, ~connectorName) => {
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
-    | _ => Exn.raiseError("Something went wrong")
+    | _ =>
+      showToast(
+        ~message="Unable to fetch Payment Methods. Please try cloning again.",
+        ~toastType=ToastError,
+      )
     }
   }
 
