@@ -14,9 +14,10 @@ let getStringFromVariant = value => {
 
 let getVariantValueFromString = value => {
   switch value {
-  | "refund_processed_amount" => Refund_Processed_Amount
+  | "refund_processed_amount" | "refund_processed_amount_in_usd" => Refund_Processed_Amount
   | "refund_processed_count" => Refund_Processed_Count
-  | "total_refund_processed_amount" => Total_Refund_Processed_Amount
+  | "total_refund_processed_amount" | "total_refund_processed_amount_in_usd" =>
+    Total_Refund_Processed_Amount
   | "total_refund_processed_count" => Total_Refund_Processed_Count
   | "time_bucket" | _ => Time_Bucket
   }
