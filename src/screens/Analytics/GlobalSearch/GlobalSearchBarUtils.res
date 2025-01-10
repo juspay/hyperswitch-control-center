@@ -145,7 +145,7 @@ let getElements = (hits, section) => {
 
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/payments/${payId}/${metadata.profileId}`->JSON.Encode.string,
+        redirect_link: `/payments/${payId}/${metadata.profileId}/${metadata.merchantId}/${metadata.orgId}`->JSON.Encode.string,
         metadata,
       }
     })
@@ -155,7 +155,7 @@ let getElements = (hits, section) => {
 
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/payments/${payId}/${metadata.profileId}`->JSON.Encode.string,
+        redirect_link: `/payments/${payId}/${metadata.profileId}/${metadata.merchantId}/${metadata.orgId}`->JSON.Encode.string,
         metadata,
       }
     })
@@ -178,7 +178,7 @@ let getElements = (hits, section) => {
 
       {
         texts: [refId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/refunds/${refId}/${profileId}`->JSON.Encode.string,
+        redirect_link: `/refunds/${refId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
         metadata,
       }
     })
@@ -199,7 +199,7 @@ let getElements = (hits, section) => {
       }
       {
         texts: [disId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/disputes/${disId}/${profileId}`->JSON.Encode.string,
+        redirect_link: `/disputes/${disId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
         metadata,
       }
     })

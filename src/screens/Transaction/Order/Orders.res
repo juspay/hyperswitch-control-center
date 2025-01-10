@@ -8,7 +8,7 @@ let make = (~previewOnly=false) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+  let {userInfo: {transactionEntity, merchantId, orgId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -159,7 +159,7 @@ let make = (~previewOnly=false) => {
         <LoadedTableWithCustomColumns
           title="Orders"
           actualData=orderData
-          entity={OrderEntity.orderEntity}
+          entity={OrderEntity.orderEntity(merchantId, orgId)}
           resultsPerPage=20
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}

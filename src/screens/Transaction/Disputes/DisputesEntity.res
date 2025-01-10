@@ -81,14 +81,14 @@ let amountValue = (amount, currency) => {
   `${amountInFloat->Float.toString} ${currency}`
 }
 
-let getCell = (disputesData, colType): Table.cell => {
+let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
   open DisputesUtils
   open HelperComponents
   switch colType {
   | DisputeId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}`}
+        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}/${merchantId}/${orgId}`}
         displayValue={disputesData.dispute_id}
         copyValue={Some(disputesData.dispute_id)}
       />,
@@ -149,18 +149,19 @@ let getDisputes: JSON.t => array<disputes> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let disputesEntity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=getDisputes,
-  ~defaultColumns,
-  ~allColumns,
-  ~getHeading,
-  ~getCell,
-  ~dataKey="",
-  ~getShowLink={
-    disputesData =>
-      GlobalVars.appendDashboardPath(
-        ~url=`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}`,
-      )
-  },
-)
+let disputesEntity = (merchantId, orgId) =>
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=getDisputes,
+    ~defaultColumns,
+    ~allColumns,
+    ~getHeading,
+    ~getCell=(disputes, disputesColsType) => getCell(disputes, disputesColsType, merchantId, orgId),
+    ~dataKey="",
+    ~getShowLink={
+      disputesData =>
+        GlobalVars.appendDashboardPath(
+          ~url=`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}/${merchantId}/${orgId}`,
+        )
+    },
+  )

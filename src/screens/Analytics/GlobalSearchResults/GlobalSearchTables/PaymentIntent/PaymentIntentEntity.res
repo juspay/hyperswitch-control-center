@@ -259,7 +259,6 @@ let tableEntity = EntityType.makeEntity(
   ~getHeading,
   ~getShowLink={
     order => {
-      Js.log4("inside tableEntity", order.profile_id, order.merchant_id, order.organization_id)
       GlobalVars.appendDashboardPath(
         ~url=`/payments/${order.payment_id}/${order.profile_id}/${order.merchant_id}/${order.organization_id}`,
       )

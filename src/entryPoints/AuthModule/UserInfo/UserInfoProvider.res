@@ -10,19 +10,6 @@ let make = (~children) => {
   let (userInfo, setUserInfo) = React.useState(_ => UserInfoUtils.defaultValueOfUserInfo)
   let fetchApi = AuthHooks.useApiFetcher()
   let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let userInfoRef = Some(React.useRef(userInfo))
-
-  let updateUserInfoRef = updatedUserInfo => {
-    switch userInfoRef {
-    | Some(ref) => ref.current = updatedUserInfo
-    | None => ()
-    }
-  }
-
-  let userInfoFromRef = switch userInfoRef {
-  | Some(ref) => ref.current
-  | None => userInfo
-  }
 
   let getUserInfo = async () => {
     open LogicUtils
@@ -31,7 +18,6 @@ let make = (~children) => {
       let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute)
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
-      updateUserInfoRef(userInfo)
       setUserInfo(_ => userInfo)
       setScreenState(_ => Success)
     } catch {
@@ -58,8 +44,6 @@ let make = (~children) => {
 
   <Provider
     value={
-      updateUserInfoRef,
-      userInfoFromRef,
       userInfo,
       setUserInfoData,
       getUserInfoData,

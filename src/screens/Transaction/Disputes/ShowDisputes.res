@@ -52,7 +52,7 @@ module Details = {
     open DisputeTypes
     open DisputesUtils
     open LogicUtils
-
+    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)
@@ -126,7 +126,7 @@ module Details = {
               <div className={`flex ${widthClass} items-center`}>
                 <OrderUtils.DisplayKeyValueParams
                   heading={getHeading(colType)}
-                  value={getCell(data, colType)}
+                  value={getCell(data, colType, merchantId, orgId)}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
                   overiddingHeadingStyles="text-black text-sm font-medium"

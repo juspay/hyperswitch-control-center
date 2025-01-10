@@ -186,6 +186,7 @@ module AttemptsSection = {
 module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
+    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let widthClass = "w-4/12"
     <div className="flex flex-row flex-wrap">
       <div className="w-1/2 p-2">
@@ -194,7 +195,8 @@ module DisputesSection = {
           data
           detailsFields=DisputesEntity.columnsInPaymentPage
           getHeading=DisputesEntity.getHeading
-          getCell=DisputesEntity.getCell
+          getCell={(disputes, disputesColsType) =>
+            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId)}
           widthClass
         />
       </div>
@@ -338,6 +340,7 @@ module Disputes = {
   open DisputesEntity
   @react.component
   let make = (~disputesData) => {
+    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = columnsInPaymentPage->Array.map(getHeading)
@@ -372,7 +375,7 @@ module Disputes = {
     }
 
     let rows = disputesData->Array.map(item => {
-      columnsInPaymentPage->Array.map(colType => getCell(item, colType))
+      columnsInPaymentPage->Array.map(colType => getCell(item, colType, merchantId, orgId))
     })
 
     let getRowDetails = rowIndex => {
@@ -589,7 +592,6 @@ module FraudRiskBanner = {
 let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   open OrderUIUtils
-  let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -597,7 +599,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (orderData, setOrderData) = React.useState(_ => Dict.make()->OrderEntity.itemToObjMapper)
-
   let frmDetailsRef = React.useRef(Nullable.null)
   let fetchDetails = useGetMethod()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
@@ -605,7 +606,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let fetchOrderDetails = async url => {
     try {
       setScreenState(_ => Loading)
-      Js.log4("inside showorder", profileId, merchantId, orgId)
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,

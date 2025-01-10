@@ -56,6 +56,7 @@ module RefundInfo = {
   @react.component
   let make = (~orderDict) => {
     let refundData = itemToObjMapper(orderDict)
+    let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
@@ -63,7 +64,7 @@ module RefundInfo = {
       <Details
         data=refundData
         getHeading
-        getCell
+        getCell={(refunds, refundsColType) => getCell(refunds, refundsColType, merchantId, orgId)}
         excludeColKeys=[RefundStatus, Amount]
         detailsFields=allColumns
       />
@@ -82,6 +83,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
+
   let (refundData, setRefundData) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (offset, setOffset) = React.useState(_ => 0)
   let (orderData, setOrdersData) = React.useState(_ => [])
@@ -90,6 +92,9 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let {userInfo: {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
 
   let fetchRefundData = async () => {
     try {
@@ -207,7 +212,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <LoadedTable
           title="Payment"
           actualData=orderData
-          entity={OrderEntity.orderEntity}
+          entity={OrderEntity.orderEntity(merchantIdFromUserInfo, orgIdFromUserInfo)}
           resultsPerPage=1
           showSerialNumber=true
           totalResults=1

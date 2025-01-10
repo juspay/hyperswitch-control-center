@@ -20,7 +20,7 @@ let make = (
   let showRefundReason = !(
     notShowRefundReasonList->Array.includes(order.connector->String.toLowerCase)
   )
-
+  let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let initiateValue = Dict.make()
   let initiateValueJson = initiateValue->JSON.Encode.object
 
@@ -127,7 +127,7 @@ let make = (
             />
             <DisplayKeyValueParams
               heading={getHeading(Status)}
-              value={getCell(order, Status)}
+              value={getCell(order, Status, merchantId, orgId)}
               showTitle=false
               labelMargin="mt-0 py-0 "
             />
@@ -145,24 +145,26 @@ let make = (
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
               heading={Table.makeHeaderInfo(~key="amount", ~title="Amount")}
-              value={getCell(order, Amount)}
+              value={getCell(order, Amount, merchantId, orgId)}
               isInHeader=true
             />
           </FormRenderer.DesktopRow>
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
-              heading={getHeading(PaymentId)} value={getCell(order, PaymentId)}
+              heading={getHeading(PaymentId)} value={getCell(order, PaymentId, merchantId, orgId)}
             />
           </FormRenderer.DesktopRow>
         </div>
         <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
-              heading={getHeading(CustomerId)} value={getCell(order, CustomerId)}
+              heading={getHeading(CustomerId)} value={getCell(order, CustomerId, merchantId, orgId)}
             />
           </FormRenderer.DesktopRow>
           <FormRenderer.DesktopRow>
-            <DisplayKeyValueParams heading={getHeading(Email)} value={getCell(order, Email)} />
+            <DisplayKeyValueParams
+              heading={getHeading(Email)} value={getCell(order, Email, merchantId, orgId)}
+            />
           </FormRenderer.DesktopRow>
         </div>
         <div className="grid grid-cols-2 gap-8 mb-2">
