@@ -352,7 +352,7 @@ module LowRecoveryCodeBanner = {
   @react.component
   let make = (~recoveryCode) => {
     <HSwitchUtils.AlertBanner
-      warningText={`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`}
+      bannerText={`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`}
       bannerType=Warning>
       <Button
         text="Regenerate recovery-codes"

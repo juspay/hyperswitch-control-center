@@ -17,7 +17,7 @@ module MenuOption = {
   @react.component
   let make = (~text=?, ~children=?, ~onClick=?) => {
     <button
-      className={`px-4 py-3 flex text-sm w-full text-offset_white cursor-pointer bg-popover-background hover:bg-popover-background-hover`}
+      className={`px-4 py-3 flex text-sm w-full text-offset_white cursor-pointer bg-secondary hover:bg-black/10`}
       ?onClick>
       {switch text {
       | Some(str) => React.string(str)
@@ -601,7 +601,7 @@ let make = (
             })
             ->React.array}
           </div>
-          <div className="border-t border-blue-840 mt-5">
+          <div className="border-t border-secondary mt-5">
             {productSiebars
             ->Array.mapWithIndex((tabInfo, index) => {
               switch tabInfo {
@@ -624,7 +624,7 @@ let make = (
             ->React.array}
           </div>
         </div>
-        <div className="flex items-center justify-between mb-5 mt-2 mx-2 mr-2 hover:bg-[#334264]">
+        <div className="flex items-center justify-between mb-5 mt-2 mx-2 mr-2 hover:bg-secondary">
           <RenderIf condition={isSidebarExpanded}>
             <Popover className="relative inline-block text-left">
               {popoverProps => <>
@@ -673,7 +673,7 @@ let make = (
                     {panelProps => {
                       <div
                         id="neglectTopbarTheme"
-                        className="relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-60 bg-popover-background">
+                        className="relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-60 bg-secondary">
                         <MenuOption
                           onClick={_ => {
                             panelProps["close"]()

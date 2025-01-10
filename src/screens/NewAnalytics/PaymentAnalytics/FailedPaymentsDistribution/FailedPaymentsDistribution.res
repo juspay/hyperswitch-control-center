@@ -93,6 +93,7 @@ let make = (
     ->getString("is_smart_retry_enabled", "true")
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getFailedPaymentsDistribution = async () => {
     try {
@@ -109,6 +110,7 @@ let make = (
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[groupBy.value]->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let response = await updateDetails(url, body, Post)
@@ -134,7 +136,7 @@ let make = (
       getFailedPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value])
+  }, [startTimeVal, endTimeVal, groupBy.value, currency])
   let params = {
     data: failedPaymentsDistribution,
     xKey: Payments_Failure_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
