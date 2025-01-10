@@ -15,6 +15,10 @@ let proxy = {
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
+  "/themes": {
+    target: "https://integ.hyperswitch.io/",
+    changeOrigin: true,
+  },
 };
 
 let configMiddleware = (req, res, next) => {
