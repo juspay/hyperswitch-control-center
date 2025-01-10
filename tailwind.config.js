@@ -51,12 +51,14 @@ module.exports = {
         "30-vh": "30vh",
         "40-vh": "40vh",
         "75-vh": "75vh",
+        "923-px": "923px",
         onBordingSupplier: "calc(100vh - 300px)",
       },
       maxHeight: {
         "25-rem": "25rem",
       },
       width: {
+        "90-px": "90px",
         100: "25rem",
         133: "35rem",
         200: "58rem",

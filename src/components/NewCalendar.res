@@ -156,7 +156,7 @@ module TableRow = {
                 : "text-jp-gray-900 text-opacity-75 dark:text-opacity-75"
               let classN = `h-10 w-10 p-0  text-center ${textColor}  dark:text-jp-gray-text_darktheme  ${dayClass}`
 
-              let selectedcellClass = `h-10 w-10 flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-full `
+              let selectedcellClass = `h-10 w-10 flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary dark:bg-opacity-100 text-white rounded-full `
               let c2 =
                 obj->isNonEmptyString && hSelf.highlightSelf ? selectedcellClass : "h-10 w-10"
 
@@ -335,7 +335,7 @@ module TableRow = {
                         : Some((Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-D")),
                     )}
                     {isTodayHighlight
-                      ? <div className="bg-blue-500 h-1.5 w-1.5 rounded-full" />
+                      ? <div className="bg-primary h-1.5 w-1.5 rounded-full" />
                       : React.null}
                   </span>
                 </AddDataAttributes>

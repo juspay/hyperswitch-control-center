@@ -1,6 +1,6 @@
 type sections = ConnectOrderData | ConnectProcessorData | ManualMapping
 
-type connectOrderDataSubsections = SelectSource | ConnectionType
+type connectOrderDataSubsections = SelectSource | SetupAPIConnection
 type connectProcessorDataSubsections = APIKeysAndLiveEndpoints | WebHooks
 type manualMappingSubsections = TestLivePayment | SetupCompleted
 
@@ -11,8 +11,10 @@ type steps =
 
 type subSections =
   | SelectSource
-  | ConnectionType
+  | SetupAPIConnection
   | APIKeysAndLiveEndpoints
   | WebHooks
   | TestLivePayment
   | SetupCompleted
+
+type subSectionsArr = array<subSections>
