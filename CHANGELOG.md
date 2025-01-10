@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.10.0
+
+### Bug Fixes
+
+- Font color primary ([#2048](https://github.com/juspay/hyperswitch-control-center/pull/2048)) ([`c19764f`](https://github.com/juspay/hyperswitch-control-center/commit/c19764fd71235a579ead51a32b898f16e5db29f1))
+
+### Miscellaneous Tasks
+
+- Show info banner for download api key ([#2041](https://github.com/juspay/hyperswitch-control-center/pull/2041)) ([`a0c429b`](https://github.com/juspay/hyperswitch-control-center/commit/a0c429bfef34eb91ef2a7561c03d2034c6d4f7f8))
+- Themes API Frontend Support ([#1982](https://github.com/juspay/hyperswitch-control-center/pull/1982)) ([`01cc69c`](https://github.com/juspay/hyperswitch-control-center/commit/01cc69c026dbc725876c766612b63588c2969fd4))
+
+**Full Changelog:** [`2025.01.09.0...2025.01.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.09.0...2025.01.10.0)
+
+- - -
+
 ## 2025.01.09.0
 
 ### Features
