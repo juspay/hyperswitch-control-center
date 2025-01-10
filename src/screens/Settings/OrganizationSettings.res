@@ -1,34 +1,11 @@
 module PlatformAccountConfirmationModal = {
   @react.component
   let make = (~showModal, ~setShowModal) => {
-    open OMPSwitchUtils
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let setIsPlatform = Recoil.useSetRecoilState(HyperswitchAtom.isPlatform)
-    let (arrow, setArrow) = React.useState(_ => true)
-
-    let (selectedMerchant, setSelectedMerchant) = React.useState(_ => merchantId)
-
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      name: "name",
-      onBlur: _ => (),
-      onChange: ev => {
-        let value = ev->Identity.formReactEventToString
-        setSelectedMerchant(_ => value)
-      },
-      onFocus: _ => (),
-      value: merchantId->JSON.Encode.string,
-      checked: true,
-    }
-
-    let toggleChevronState = () => {
-      setArrow(prev => !prev)
-    }
-    let subHeading = currentMerchantName(merchantList, selectedMerchant)
 
     let createPlatformMerchant = async () => {
       try {
@@ -52,9 +29,6 @@ module PlatformAccountConfirmationModal = {
     let onSubmit = (_, _) => {
       createPlatformMerchant()
     }
-
-    let customScrollStyle = "max-h-36 overflow-scroll pt-1 border border-b-0"
-    let dropdownContainerStyle = "rounded-md  w-[10rem]"
 
     let modalBody =
       <div className="">
@@ -312,13 +286,17 @@ module PlatformMerchantAccount = {
 
 @react.component
 let make = () => {
+  let {platformAccount} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading
       title="Organization" subTitle="Manage your organization settings here."
     />
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
-      <PlatformMerchantAccount />
+      <RenderIf condition={platformAccount}>
+        <PlatformMerchantAccount />
+      </RenderIf>
     </div>
   </div>
 }
