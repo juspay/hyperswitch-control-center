@@ -99,7 +99,7 @@ module ListBaseComp = {
               toolTipFor={<div className="cursor-pointer">
                 <OMPCopyTextCustomComp displayValue=" " copyValue=Some({subHeading}) />
               </div>}
-              toolTipPosition=ToolTip.TopRight
+              toolTipPosition=ToolTip.Right
             />
           </RenderIf>
           <RenderIf condition={showEditIcon}>
