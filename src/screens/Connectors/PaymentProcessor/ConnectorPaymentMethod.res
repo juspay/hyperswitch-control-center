@@ -108,8 +108,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         ->JSON.stringify
         ->safeParse
         ->getPaymentMethodEnabled
-      let clonedMetaData = metaDataClone
-      setMetaData(_ => clonedMetaData)
+      setMetaData(_ => metaDataClone)
       setPaymentMethods(_ => clonedData)
     }
     None

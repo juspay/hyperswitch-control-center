@@ -84,76 +84,40 @@ module ClonePaymentMethodsModal = {
 let make = (~connectorID, ~connectorName) => {
   open APIUtils
   open ConnectorUtils
+  open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let (initialValues, setInitialValues) = React.useState(_ => JSON.Encode.null)
-  let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
-  )
-  let (metaData, setMetaData) = React.useState(_ => JSON.Encode.null)
   let setPaymentMethodsClone = Recoil.useSetRecoilState(HyperswitchAtom.paymentMethodsClonedAtom)
   let setMetaDataClone = Recoil.useSetRecoilState(HyperswitchAtom.metaDataClonedAtom)
   let setRetainCloneModal = Recoil.useSetRecoilState(HyperswitchAtom.retainCloneModalAtom)
   let setCloneConnector = Recoil.useSetRecoilState(HyperswitchAtom.cloneConnectorAtom)
   let (showModal, setShowModal) = React.useState(_ => false)
 
-  let setConnectorPaymentMethods = async (initialValues, setPaymentMethods, setMetaData) => {
-    open LogicUtils
+  let getConnectorDetails = async () => {
     try {
-      let json = Window.getResponsePayload(initialValues)
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
+      let response = await fetchDetails(connectorUrl)
+      let json = Window.getResponsePayload(response)
       let metaData = json->getDictFromJsonObject->getJsonObjectFromDict("metadata")
       let paymentMethodEnabled =
         json
         ->getDictFromJsonObject
         ->getJsonObjectFromDict("payment_methods_enabled")
         ->getPaymentMethodEnabled
-      setPaymentMethods(_ => paymentMethodEnabled)
-      setMetaData(_ => metaData)
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Something went wrong")
-        Exn.raiseError(err)
+
+      if paymentMethodEnabled->Array.length > 0 {
+        let paymentMethodsClone =
+          paymentMethodEnabled
+          ->Identity.genericTypeToJson
+          ->JSON.stringify
+          ->LogicUtils.safeParse
+          ->getPaymentMethodEnabled
+        setPaymentMethodsClone(_ => paymentMethodsClone)
+        setMetaDataClone(_ => metaData)
+        setShowModal(_ => true)
+        setRetainCloneModal(_ => true)
       }
-    }
-  }
-
-  let setPaymentMethodDetails = async () => {
-    try {
-      initialValues->setConnectorPaymentMethods(setPaymentMethods, setMetaData)->ignore
-    } catch {
-    | _ => showToast(~message="Failed to Clone Payment methods", ~toastType=ToastError)
-    }
-  }
-
-  React.useEffect(() => {
-    if initialValues != JSON.Encode.null {
-      setPaymentMethodDetails()->ignore
-    }
-    None
-  }, [initialValues])
-
-  React.useEffect(() => {
-    if paymentMethodsEnabled->Array.length > 0 {
-      let paymentMethodsClone =
-        paymentMethodsEnabled
-        ->Identity.genericTypeToJson
-        ->JSON.stringify
-        ->LogicUtils.safeParse
-        ->getPaymentMethodEnabled
-      setPaymentMethodsClone(_ => paymentMethodsClone)
-      setMetaDataClone(_ => metaData)
-      setShowModal(_ => true)
-      setRetainCloneModal(_ => true)
-    }
-    None
-  }, [paymentMethodsEnabled])
-
-  let getConnectorDetails = async () => {
-    try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
-      let json = await fetchDetails(connectorUrl)
-      setInitialValues(_ => json)
     } catch {
     | _ =>
       showToast(
