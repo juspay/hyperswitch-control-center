@@ -90,7 +90,8 @@ module AddNewOMPButton = {
       isRelative=false
       contentAlign=Default
       tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}>
+      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}
+      showTooltip={hasOMPCreateAccess == Access}>
       {<>
         <hr className={customHRTagStyle} />
         <div
@@ -124,7 +125,7 @@ module OMPViewBaseComp = {
           <p className="text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
             {`View data for:`->React.string}
           </p>
-          <span className="text-blue-500 text-nowrap"> {truncatedDisplayName} </span>
+          <span className="text-primary text-nowrap"> {truncatedDisplayName} </span>
           <Icon
             className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
             name="arrow-without-tail"

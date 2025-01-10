@@ -3,31 +3,20 @@ open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
-  | Payment_Processed_Amount => "payment_processed_amount_in_usd"
+  | Payment_Processed_Amount => "payment_processed_amount"
   | Payment_Processed_Count => "payment_processed_count"
-  | Payment_Processed_Amount_Without_Smart_Retries => "payment_processed_amount_without_smart_retries_in_usd"
-  | Payment_Processed_Count_Without_Smart_Retries => "payment_processed_count_without_smart_retries"
-  | Total_Payment_Processed_Amount => "total_payment_processed_amount_in_usd"
+  | Total_Payment_Processed_Amount => "total_payment_processed_amount"
   | Total_Payment_Processed_Count => "total_payment_processed_count"
-  | Total_Payment_Processed_Amount_Without_Smart_Retries => "total_payment_processed_amount_without_smart_retries_in_usd"
-  | Total_Payment_Processed_Count_Without_Smart_Retriess => "total_payment_processed_count_without_smart_retries"
   | Time_Bucket => "time_bucket"
   }
 }
 
 let getVariantValueFromString = value => {
   switch value {
-  | "payment_processed_amount_in_usd" => Payment_Processed_Amount
+  | "payment_processed_amount" => Payment_Processed_Amount
   | "payment_processed_count" => Payment_Processed_Count
-  | "payment_processed_amount_without_smart_retries_in_usd" =>
-    Payment_Processed_Amount_Without_Smart_Retries
-  | "payment_processed_count_without_smart_retries" => Payment_Processed_Count_Without_Smart_Retries
-  | "total_payment_processed_amount_in_usd" => Total_Payment_Processed_Amount
+  | "total_payment_processed_amount" => Total_Payment_Processed_Amount
   | "total_payment_processed_count" => Total_Payment_Processed_Count
-  | "total_payment_processed_amount_without_smart_retries_in_usd" =>
-    Total_Payment_Processed_Amount_Without_Smart_Retries
-  | "total_payment_processed_count_without_smart_retries" =>
-    Total_Payment_Processed_Count_Without_Smart_Retriess
   | "time_bucket" | _ => Time_Bucket
   }
 }
@@ -35,9 +24,7 @@ let getVariantValueFromString = value => {
 let isAmountMetric = key => {
   switch key->getVariantValueFromString {
   | Payment_Processed_Amount
-  | Payment_Processed_Amount_Without_Smart_Retries
-  | Total_Payment_Processed_Amount
-  | Total_Payment_Processed_Amount_Without_Smart_Retries => true
+  | Total_Payment_Processed_Amount => true
   | _ => false
   }
 }
@@ -52,6 +39,7 @@ let paymentsProcessedMapper = (
   | Some(val) => Some(val)
   | None => None
   }
+  let currency = params.currency->Option.getOr("")
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
@@ -71,6 +59,7 @@ let paymentsProcessedMapper = (
     ~title="Payments Processed",
     ~metricType,
     ~comparison,
+    ~currency,
   )
 
   {
@@ -87,29 +76,15 @@ let visibleColumns = [Time_Bucket]
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
   open NewAnalyticsUtils
   {
-    payment_processed_amount_in_usd: dict->getAmountValue(
+    payment_processed_amount: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,
     ),
     payment_processed_count: dict->getInt(Payment_Processed_Count->getStringFromVariant, 0),
-    payment_processed_amount_without_smart_retries_in_usd: dict->getAmountValue(
-      ~id=Payment_Processed_Amount_Without_Smart_Retries->getStringFromVariant,
-    ),
-    payment_processed_count_without_smart_retries: dict->getInt(
-      Payment_Processed_Count_Without_Smart_Retries->getStringFromVariant,
-      0,
-    ),
-    total_payment_processed_amount_in_usd: dict->getAmountValue(
+    total_payment_processed_amount: dict->getAmountValue(
       ~id=Total_Payment_Processed_Amount->getStringFromVariant,
     ),
     total_payment_processed_count: dict->getInt(
       Total_Payment_Processed_Count->getStringFromVariant,
-      0,
-    ),
-    total_payment_processed_amount_without_smart_retries_in_usd: dict->getAmountValue(
-      ~id=Total_Payment_Processed_Amount_Without_Smart_Retries->getStringFromVariant,
-    ),
-    total_payment_processed_count_without_smart_retries: dict->getInt(
-      Total_Payment_Processed_Count_Without_Smart_Retriess->getStringFromVariant,
       0,
     ),
     time_bucket: dict->getString(Time_Bucket->getStringFromVariant, "NA"),
@@ -132,21 +107,9 @@ let getHeading = colType => {
       ~title="Amount",
       ~dataType=TextType,
     )
-  | Payment_Processed_Amount_Without_Smart_Retries =>
-    Table.makeHeaderInfo(
-      ~key=Payment_Processed_Amount_Without_Smart_Retries->getStringFromVariant,
-      ~title="Amount",
-      ~dataType=TextType,
-    )
   | Payment_Processed_Count =>
     Table.makeHeaderInfo(
       ~key=Payment_Processed_Count->getStringFromVariant,
-      ~title="Count",
-      ~dataType=TextType,
-    )
-  | Payment_Processed_Count_Without_Smart_Retries =>
-    Table.makeHeaderInfo(
-      ~key=Payment_Processed_Count_Without_Smart_Retries->getStringFromVariant,
       ~title="Count",
       ~dataType=TextType,
     )
@@ -154,9 +117,7 @@ let getHeading = colType => {
     Table.makeHeaderInfo(~key=Time_Bucket->getStringFromVariant, ~title="Date", ~dataType=TextType)
 
   | Total_Payment_Processed_Amount
-  | Total_Payment_Processed_Count
-  | Total_Payment_Processed_Amount_Without_Smart_Retries
-  | Total_Payment_Processed_Count_Without_Smart_Retriess =>
+  | Total_Payment_Processed_Count =>
     Table.makeHeaderInfo(~key="", ~title="", ~dataType=TextType)
   }
 }
@@ -164,17 +125,11 @@ let getHeading = colType => {
 let getCell = (obj, colType): Table.cell => {
   open NewAnalyticsUtils
   switch colType {
-  | Payment_Processed_Amount => Text(obj.payment_processed_amount_in_usd->valueFormatter(Amount))
-  | Payment_Processed_Amount_Without_Smart_Retries =>
-    Text(obj.payment_processed_amount_without_smart_retries_in_usd->valueFormatter(Amount))
+  | Payment_Processed_Amount => Text(obj.payment_processed_amount->valueFormatter(Amount))
   | Payment_Processed_Count => Text(obj.payment_processed_count->Int.toString)
-  | Payment_Processed_Count_Without_Smart_Retries =>
-    Text(obj.payment_processed_count_without_smart_retries->Int.toString)
   | Time_Bucket => Text(obj.time_bucket->formatDateValue(~includeYear=true))
   | Total_Payment_Processed_Amount
-  | Total_Payment_Processed_Count
-  | Total_Payment_Processed_Amount_Without_Smart_Retries
-  | Total_Payment_Processed_Count_Without_Smart_Retriess =>
+  | Total_Payment_Processed_Count =>
     Text("")
   }
 }
@@ -190,37 +145,55 @@ let defaultMetric = {
   value: Payment_Processed_Amount->getStringFromVariant,
 }
 
-let getKeyForModule = (key, ~isSmartRetryEnabled) => {
-  let field = key->getVariantValueFromString
-  switch (field, isSmartRetryEnabled) {
-  | (Payment_Processed_Amount, Smart_Retry) => Payment_Processed_Amount
-  | (Payment_Processed_Count, Smart_Retry) => Payment_Processed_Count
-  | (Payment_Processed_Amount, Default) => Payment_Processed_Amount_Without_Smart_Retries
-  | (Payment_Processed_Count, Default) | _ => Payment_Processed_Count_Without_Smart_Retries
-  }->getStringFromVariant
+let defaulGranularity = {
+  label: "Daily",
+  value: (#G_ONEDAY: granularity :> string),
 }
 
-let getMetaDataMapper = (key, ~isSmartRetryEnabled) => {
-  let field = key->getVariantValueFromString
-  switch (field, isSmartRetryEnabled) {
-  | (Payment_Processed_Amount, Smart_Retry) => Total_Payment_Processed_Amount
-  | (Payment_Processed_Count, Smart_Retry) => Total_Payment_Processed_Count
-  | (Payment_Processed_Amount, Default) => Total_Payment_Processed_Amount_Without_Smart_Retries
-  | (Payment_Processed_Count, Default) | _ => Total_Payment_Processed_Count_Without_Smart_Retriess
-  }->getStringFromVariant
+open NewAnalyticsTypes
+let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
+  open NewAnalyticsFiltersUtils
+  let key = switch id {
+  | Time_Bucket => #time_bucket
+  | Payment_Processed_Count =>
+    switch isSmartRetryEnabled {
+    | Smart_Retry => #payment_processed_count
+    | Default => #payment_processed_count_without_smart_retries
+    }
+  | Total_Payment_Processed_Count =>
+    switch isSmartRetryEnabled {
+    | Smart_Retry => #total_payment_processed_count
+    | Default => #total_payment_processed_count_without_smart_retries
+    }
+
+  | Payment_Processed_Amount =>
+    switch (isSmartRetryEnabled, currency->getTypeValue) {
+    | (Smart_Retry, #all_currencies) => #payment_processed_amount_in_usd
+    | (Smart_Retry, _) => #payment_processed_amount
+    | (Default, #all_currencies) => #payment_processed_amount_without_smart_retries_in_usd
+    | (Default, _) => #payment_processed_amount_without_smart_retrie
+    }
+  | Total_Payment_Processed_Amount =>
+    switch (isSmartRetryEnabled, currency->getTypeValue) {
+    | (Smart_Retry, #all_currencies) => #total_payment_processed_amount_in_usd
+    | (Smart_Retry, _) => #total_payment_processed_amount
+    | (Default, #all_currencies) => #total_payment_processed_amount_without_smart_retries_in_usd
+    | (Default, _) => #total_payment_processed_amount_without_smart_retries
+    }
+  }
+  (key: responseKeys :> string)
 }
 
-let isSmartRetryEnbldForPmtProcessed = isEnabled => {
-  switch isEnabled {
-  | Smart_Retry => [Payment_Processed_Amount, Payment_Processed_Count]
-  | Default => [
-      Payment_Processed_Amount_Without_Smart_Retries,
-      Payment_Processed_Count_Without_Smart_Retries,
-    ]
+let getMetaDataMapper = (key, ~isSmartRetryEnabled, ~currency) => {
+  let field = key->getVariantValueFromString
+  switch field {
+  | Payment_Processed_Amount =>
+    Total_Payment_Processed_Amount->getKey(~currency, ~isSmartRetryEnabled)
+  | Payment_Processed_Count | _ => Total_Payment_Processed_Count->getKey(~isSmartRetryEnabled)
   }
 }
 
-let modifyQueryData = data => {
+let modifyQueryData = (data, ~isSmartRetryEnabled, ~currency) => {
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
@@ -229,25 +202,21 @@ let modifyQueryData = data => {
 
     switch dataDict->Dict.get(time) {
     | Some(prevVal) => {
+        let paymentProcessedCount =
+          valueDict->getInt(Payment_Processed_Count->getKey(~isSmartRetryEnabled), 0)
         let key = Payment_Processed_Count->getStringFromVariant
-        let paymentProcessedCount = valueDict->getInt(key, 0)
         let prevProcessedCount = prevVal->getInt(key, 0)
+
+        let paymentProcessedAmount =
+          valueDict->getFloat(
+            Payment_Processed_Amount->getKey(~currency, ~isSmartRetryEnabled),
+            0.0,
+          )
         let key = Payment_Processed_Amount->getStringFromVariant
-        let paymentProcessedAmount = valueDict->getFloat(key, 0.0)
         let prevProcessedAmount = prevVal->getFloat(key, 0.0)
-        let key = Payment_Processed_Amount_Without_Smart_Retries->getStringFromVariant
-        let paymentProcessedAmountWithoutSmartRetries = valueDict->getFloat(key, 0.0)
-        let prevProcessedAmountWithoutSmartRetries = prevVal->getFloat(key, 0.0)
-        let key = Payment_Processed_Count_Without_Smart_Retries->getStringFromVariant
-        let paymentProcessedCountWithoutSmartRetries = valueDict->getInt(key, 0)
-        let prevProcessedCountWithoutSmartRetries = prevVal->getInt(key, 0)
 
         let totalPaymentProcessedCount = paymentProcessedCount + prevProcessedCount
         let totalPaymentProcessedAmount = paymentProcessedAmount +. prevProcessedAmount
-        let totalPaymentProcessedAmountWithoutSmartRetries =
-          paymentProcessedAmountWithoutSmartRetries +. prevProcessedAmountWithoutSmartRetries
-        let totalPaymentProcessedCountWithoutSmartRetries =
-          paymentProcessedCountWithoutSmartRetries + prevProcessedCountWithoutSmartRetries
 
         prevVal->Dict.set(
           Payment_Processed_Count->getStringFromVariant,
@@ -256,14 +225,6 @@ let modifyQueryData = data => {
         prevVal->Dict.set(
           Payment_Processed_Amount->getStringFromVariant,
           totalPaymentProcessedAmount->JSON.Encode.float,
-        )
-        prevVal->Dict.set(
-          Payment_Processed_Amount_Without_Smart_Retries->getStringFromVariant,
-          totalPaymentProcessedAmountWithoutSmartRetries->JSON.Encode.float,
-        )
-        prevVal->Dict.set(
-          Payment_Processed_Count_Without_Smart_Retries->getStringFromVariant,
-          totalPaymentProcessedCountWithoutSmartRetries->JSON.Encode.int,
         )
 
         dataDict->Dict.set(time, prevVal)

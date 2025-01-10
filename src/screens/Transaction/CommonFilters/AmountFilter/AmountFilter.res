@@ -178,7 +178,7 @@ let make = (~options) => {
       key={buttonText}
       allowMultiSelect=false
       buttonText={buttonText}
-      textStyle={displayCustomCss ? "text-blue-500" : ""}
+      textStyle={displayCustomCss ? "text-primary" : ""}
       buttonType=Button.SecondaryFilled
       input
       options
