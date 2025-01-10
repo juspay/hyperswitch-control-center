@@ -3,8 +3,17 @@ module SelectSource = {
   let make = (~currentStep, ~setCurrentStep) => {
     open ConnectOrderDataUtils
     open ConnectOrderDataTypes
-
+    open ReconConfigurationUtils
+    open TempAPIUtils
+    let stepConfig = useStepConfig()
     let (selectedStep, setSelectedStep) = React.useState(_ => Hyperswitch)
+
+    let onSubmit = async () => {
+      // API Calls
+      let _ = await stepConfig()
+      setCurrentStep(prev => getNextStep(prev))
+    }
+
     <div className="flex flex-col h-full">
       <div className="flex flex-col gap-3 flex-grow p-2 md:p-7">
         <p className="text-medium text-grey-800 font-semibold mb-5">
@@ -30,7 +39,10 @@ module SelectSource = {
       </div>
       <div className="flex justify-end items-center border-t">
         <ReconConfigurationHelper.Footer
-          currentStep={currentStep} setCurrentStep={setCurrentStep} buttonName="Continue"
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          buttonName="Continue"
+          onSubmit={_ => ()}
         />
       </div>
     </div>
@@ -71,7 +83,10 @@ module SetupAPIConnection = {
       </div>
       <div className="flex justify-end items-center border-t">
         <ReconConfigurationHelper.Footer
-          currentStep={currentStep} setCurrentStep={setCurrentStep} buttonName="Continue"
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          buttonName="Validate"
+          onSubmit={_ => ()}
         />
       </div>
     </div>

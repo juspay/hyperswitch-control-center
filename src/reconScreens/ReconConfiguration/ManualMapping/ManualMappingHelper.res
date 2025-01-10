@@ -9,7 +9,10 @@ module TestLivePayment = {
       </div>
       <div className="flex justify-end items-center border-t">
         <ReconConfigurationHelper.Footer
-          currentStep={currentStep} setCurrentStep={setCurrentStep} buttonName="Continue"
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          buttonName="Continue"
+          onSubmit={_ => ()}
         />
       </div>
     </div>
@@ -27,7 +30,10 @@ module SetupCompleted = {
       </div>
       <div className="flex justify-end items-center border-t">
         <ReconConfigurationHelper.Footer
-          currentStep={currentStep} setCurrentStep={setCurrentStep} buttonName="Continue"
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          buttonName="Continue"
+          onSubmit={_ => ()}
         />
       </div>
     </div>
