@@ -4,9 +4,9 @@ open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
-  | Refund_Processed_Amount => "refund_processed_amount_in_usd"
+  | Refund_Processed_Amount => "refund_processed_amount"
   | Refund_Processed_Count => "refund_processed_count"
-  | Total_Refund_Processed_Amount => "total_refund_processed_amount_in_usd"
+  | Total_Refund_Processed_Amount => "total_refund_processed_amount"
   | Total_Refund_Processed_Count => "total_refund_processed_count"
   | Time_Bucket => "time_bucket"
   }
@@ -14,9 +14,9 @@ let getStringFromVariant = value => {
 
 let getVariantValueFromString = value => {
   switch value {
-  | "refund_processed_amount_in_usd" => Refund_Processed_Amount
+  | "refund_processed_amount" => Refund_Processed_Amount
   | "refund_processed_count" => Refund_Processed_Count
-  | "total_refund_processed_amount_in_usd" => Total_Refund_Processed_Amount
+  | "total_refund_processed_amount" => Total_Refund_Processed_Amount
   | "total_refund_processed_count" => Total_Refund_Processed_Count
   | "time_bucket" | _ => Time_Bucket
   }
@@ -36,6 +36,7 @@ let refundsProcessedMapper = (
   open LineGraphTypes
 
   let {data, xKey, yKey} = params
+  let currency = params.currency->Option.getOr("")
   let comparison = switch params.comparison {
   | Some(val) => Some(val)
   | None => None
@@ -60,6 +61,7 @@ let refundsProcessedMapper = (
     ~title="Refunds Processed",
     ~metricType,
     ~comparison,
+    ~currency,
   )
 
   {
@@ -75,11 +77,11 @@ let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => refundsProcessedObject = dict => {
   {
-    refund_processed_amount_in_usd: dict->getAmountValue(
+    refund_processed_amount: dict->getAmountValue(
       ~id=Refund_Processed_Amount->getStringFromVariant,
     ),
     refund_processed_count: dict->getInt(Refund_Processed_Count->getStringFromVariant, 0),
-    total_refund_processed_amount_in_usd: dict->getAmountValue(
+    total_refund_processed_amount: dict->getAmountValue(
       ~id=Total_Refund_Processed_Amount->getStringFromVariant,
     ),
     total_refund_processed_count: dict->getInt(
@@ -122,7 +124,7 @@ let getHeading = colType => {
 
 let getCell = (obj, colType): Table.cell => {
   switch colType {
-  | Refund_Processed_Amount => Text(obj.refund_processed_amount_in_usd->valueFormatter(Amount))
+  | Refund_Processed_Amount => Text(obj.refund_processed_amount->valueFormatter(Amount))
   | Refund_Processed_Count => Text(obj.refund_processed_count->Int.toString)
   | Time_Bucket => Text(obj.time_bucket->formatDateValue(~includeYear=true))
   | Total_Refund_Processed_Amount
@@ -149,19 +151,40 @@ let defaulGranularity = {
   value: (#G_ONEDAY: granularity :> string),
 }
 
-let getMetaDataMapper = key => {
-  let field = key->getVariantValueFromString
-  switch field {
-  | Refund_Processed_Amount => Total_Refund_Processed_Amount
-  | Refund_Processed_Count | _ => Total_Refund_Processed_Count
-  }->getStringFromVariant
-}
-
 let getKeyForModule = key => {
   key->getVariantValueFromString->getStringFromVariant
 }
 
-let modifyQueryData = data => {
+let getKey = (id, ~currency="") => {
+  open NewAnalyticsFiltersUtils
+  let key = switch id {
+  | Refund_Processed_Count => #refund_processed_count
+
+  | Total_Refund_Processed_Count => #total_refund_processed_count
+  | Time_Bucket => #time_bucket
+  | Refund_Processed_Amount =>
+    switch currency->getTypeValue {
+    | #all_currencies => #refund_processed_amount_in_usd
+    | _ => #refund_processed_amount
+    }
+  | Total_Refund_Processed_Amount =>
+    switch currency->getTypeValue {
+    | #all_currencies => #total_refund_processed_amount_in_usd
+    | _ => #total_refund_processed_amount
+    }
+  }
+  (key: responseKeys :> string)
+}
+
+let getMetaDataMapper = (key, ~currency) => {
+  let field = key->getVariantValueFromString
+  switch field {
+  | Refund_Processed_Amount => Total_Refund_Processed_Amount->getKey(~currency)
+  | Refund_Processed_Count | _ => Total_Refund_Processed_Count->getStringFromVariant
+  }
+}
+
+let modifyQueryData = (data, ~currency) => {
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
@@ -173,9 +196,10 @@ let modifyQueryData = data => {
         let key = Refund_Processed_Count->getStringFromVariant
         let refundProcessedCount = valueDict->getInt(key, 0)
         let prevProcessedCount = prevVal->getInt(key, 0)
-        let key = Refund_Processed_Amount->getStringFromVariant
+        let key = Refund_Processed_Amount->getKey(~currency)
         let refundProcessedAmount = valueDict->getFloat(key, 0.0)
-        let prevProcessedAmount = prevVal->getFloat(key, 0.0)
+        let prevProcessedAmount =
+          prevVal->getFloat(Refund_Processed_Amount->getStringFromVariant, 0.0)
 
         let totalRefundProcessedCount = refundProcessedCount + prevProcessedCount
         let totalRefundProcessedAmount = refundProcessedAmount +. prevProcessedAmount
