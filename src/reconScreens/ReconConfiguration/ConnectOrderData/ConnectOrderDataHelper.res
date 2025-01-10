@@ -10,8 +10,12 @@ module SelectSource = {
 
     let onSubmit = async () => {
       // API Calls
-      let _ = await stepConfig()
-      setCurrentStep(prev => getNextStep(prev))
+      try {
+        let _ = await stepConfig()
+        setCurrentStep(prev => getNextStep(prev))
+      } catch {
+      | _ => ()
+      }
     }
 
     <div className="flex flex-col h-full">
@@ -42,7 +46,7 @@ module SelectSource = {
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
           buttonName="Continue"
-          onSubmit={_ => ()}
+          onSubmit={_ => onSubmit()->ignore}
         />
       </div>
     </div>

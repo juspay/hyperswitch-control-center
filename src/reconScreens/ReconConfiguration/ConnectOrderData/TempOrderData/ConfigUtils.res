@@ -1,45 +1,37 @@
-let reportConfig = [
-  {
-    "custom_alerts": {
-      "dashboard": false,
-      "email": true,
-      "mailing_list": {
-        "Bcc": [],
-        "Cc": [],
-        "To": [],
+let reportConfig =
+  [
+    {
+      "custom_alerts": {
+        "dashboard": false,
+        "email": true,
+        "mailing_list": {
+          "Bcc": [],
+          "Cc": [],
+          "To": ["recon_dev@juspay.in"],
+        },
+        "slack": true,
+        "slack_channel": "reconciliation_slack_channel",
       },
-      "slack": true,
-      "slack_channel": "reconciliation_slack_channel",
-    },
-    "custom_reports": {
-      "mappings": {
-        "convenience_fees": "Convenience Fees",
-        "fee": "Fee",
-        "gateway": "Connector",
-        "mdr": "MDR",
-        "merchant_id": "Merchant",
-        "payment_entity_txn_id": "Connector Id",
-        "payment_method": "Payment Method",
-        "payment_method_type": "Payment Method Type",
-        "platform_fees": "Platform Fees",
-        "recon_id": "Recon Id",
-        "recon_secondary_status": "ConnectorvsBank Status",
-        "recon_secondary_sub_status": "ConnectorvsBank Sub Status",
-        "recon_status": "MerchantvsConnector status",
-        "recon_sub_status": "MerchantvsConnector Sub Status",
-        "reconciled_at": "Reconciled At",
-        "settlement_amount": "Settlement Amount",
-        "settlement_id": "Settlement Id",
-        "tax": "Tax",
-        "txn_amount": "Txn Amount",
-        "txn_currency": "Txn Currency",
-        "txn_date": "Txn Date",
-        "txn_id": "Merchant Id",
-        "txn_type": "Txn Type",
+      "custom_reports": {
+        "mappings": {
+          "gateway": "Connector",
+          "merchant_id": "Merchant",
+          "payment_entity_txn_id": "Connector Id",
+          "recon_id": "Recon Id",
+          "recon_status": "Recon status",
+          "recon_sub_status": "Recon Sub Status",
+          "reconciled_at": "Reconciled At",
+          "settlement_amount": "Settlement Amount",
+          "settlement_id": "Settlement Id",
+          "txn_amount": "Txn Amount",
+          "txn_currency": "Txn Currency",
+          "txn_type": "Txn Type",
+        },
       },
     },
-  },
-]->Identity.genericTypeToJson
+  ]
+  ->Identity.genericTypeToJson
+  ->JSON.stringify
 
 let baseHyperswitchConfig = (merchantId: string) =>
   {

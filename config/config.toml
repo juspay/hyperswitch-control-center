@@ -3,7 +3,7 @@ primary_color="#006DF9"
 primary_hover_color="#005ED6"
 sidebar_color="#242F48"
 [default.endpoints]
-api_url="http://localhost:9000/api"
+api_url="http://localhost:8000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
 logo_url=""
 favicon_url=""
@@ -16,14 +16,14 @@ dss_certificate_url=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
-email=false
+email=true
 quick_start=false
 audit_trail=false
 system_metrics=false
 sample_data=false
 frm=false
 payout=true
-recon=false
+recon=true
 test_processors=true
 feedback=false
 mixpanel=false
@@ -53,7 +53,7 @@ tax_processor=true
 x_feature_route=false
 tenant_user=false
 dev_click_to_pay=false
-dev_recon_v2_product=false
+dev_recon_v2_product=true
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
