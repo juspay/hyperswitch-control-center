@@ -152,7 +152,7 @@ let make = () => {
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
-                    <RenderIf condition={!(underMaintenance->LogicUtils.isEmptyString)}>
+                    <RenderIf condition={underMaintenance->LogicUtils.isNonEmptyString}>
                       <HSwitchUtils.AlertBanner bannerText={underMaintenance} bannerType={Info} />
                     </RenderIf>
                     <div
