@@ -98,6 +98,26 @@ let make = (~connectorID, ~connectorName) => {
   let setCloneConnector = Recoil.useSetRecoilState(HyperswitchAtom.cloneConnectorAtom)
   let (showModal, setShowModal) = React.useState(_ => false)
 
+  let setConnectorPaymentMethods = async (initialValues, setPaymentMethods, setMetaData) => {
+    open LogicUtils
+    try {
+      let json = Window.getResponsePayload(initialValues)
+      let metaData = json->getDictFromJsonObject->getJsonObjectFromDict("metadata")
+      let paymentMethodEnabled =
+        json
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("payment_methods_enabled")
+        ->getPaymentMethodEnabled
+      setPaymentMethods(_ => paymentMethodEnabled)
+      setMetaData(_ => metaData)
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        Exn.raiseError(err)
+      }
+    }
+  }
+
   let setPaymentMethodDetails = async () => {
     try {
       initialValues->setConnectorPaymentMethods(setPaymentMethods, setMetaData)->ignore

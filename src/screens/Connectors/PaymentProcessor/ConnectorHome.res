@@ -73,6 +73,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
   let (isClonePMFlow, setIsClonePMFlow) = Recoil.useRecoilState(HyperswitchAtom.isClonePMFlow)
+  let setPaymentMethodsClone = Recoil.useSetRecoilState(HyperswitchAtom.paymentMethodsClonedAtom)
+  let setMetaDataClone = Recoil.useSetRecoilState(HyperswitchAtom.metaDataClonedAtom)
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"connectors", "new"} => false
@@ -237,6 +239,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
                         text: "Yes, go back",
                         onClick: {
                           if isClonePMFlow {
+                            setMetaDataClone(_ => JSON.Encode.null)
+                            setPaymentMethodsClone(_ => [])
                             setIsClonePMFlow(_ => false)
                           }
                           _ =>
