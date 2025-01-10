@@ -67,7 +67,7 @@ module Badge = {
   @react.component
   let make = (~number, ~color: color=Blue) => {
     let (badgeColor, textColor) = switch color {
-    | Blue => ("bg-blue-500", " text-white")
+    | Blue => ("bg-primary", " text-white")
     | Gray => ("bg-jp-2-light-gray-300", "text-jp-2-light-gray-1800")
     }
     <AddDataAttributes attributes=[("data-badge-value", Int.toString(number))]>

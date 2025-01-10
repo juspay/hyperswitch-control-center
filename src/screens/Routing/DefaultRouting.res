@@ -16,7 +16,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
   let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
@@ -147,7 +147,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
               <div className="flex flex-row items-center gap-4 ml-2">
                 <Icon name="grip-vertical" size=14 className={"cursor-pointer"} />
                 <div
-                  className={`px-1.5 rounded-full ${backgroundColor} text-white font-semibold text-sm`}>
+                  className={`px-1.5 rounded-full ${primaryColor} text-white font-semibold text-sm`}>
                   {React.string(Int.toString(index + 1))}
                 </div>
                 <div className="flex gap-1 items-center">

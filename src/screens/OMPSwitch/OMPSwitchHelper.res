@@ -1,162 +1,3 @@
-module ListBaseComp = {
-  @react.component
-  let make = (
-    ~heading,
-    ~subHeading,
-    ~arrow,
-    ~showEditIcon=false,
-    ~onEditClick=_ => (),
-    ~isDarkBg=false,
-  ) => {
-    let baseCompStyle = isDarkBg
-      ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
-      : "text-black hover:bg-opacity-80"
-
-    let iconName = isDarkBg ? "arrow-without-tail-new" : "arrow-without-tail"
-
-    let arrowDownClass = isDarkBg
-      ? "rotate-0 transition duration-[250ms] opacity-70"
-      : "rotate-180 transition duration-[250ms] opacity-70"
-
-    let arrowUpClass = isDarkBg
-      ? "-rotate-180 transition duration-[250ms] opacity-70"
-      : "rotate-0 transition duration-[250ms] opacity-70"
-
-    let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
-    let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
-    let paddingSubheading = isDarkBg ? "pl-2" : ""
-    let paddingHeading = isDarkBg ? "pl-2" : ""
-
-    let endValue = isDarkBg ? 23 : 15
-
-    let subHeadingElement = if subHeading->String.length > 15 {
-      <HSwitchOrderUtils.EllipsisText
-        displayValue=subHeading
-        endValue
-        showCopy=false
-        customTextStyle={`${textColor} font-extrabold`}
-      />
-    } else {
-      {subHeading->React.string}
-    }
-
-    <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
-      <div className={`flex flex-col items-start`}>
-        <RenderIf condition={heading->LogicUtils.isNonEmptyString}>
-          <p className={`text-xs text-left text-gray-400 ${paddingHeading}`}>
-            {heading->React.string}
-          </p>
-        </RenderIf>
-        <div className="text-left flex gap-2">
-          <p
-            className={`fs-10 ${textColor} ${width} ${paddingSubheading} overflow-scroll text-nowrap`}>
-            {subHeadingElement}
-          </p>
-          <RenderIf condition={showEditIcon}>
-            <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
-          </RenderIf>
-          <Icon
-            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
-          />
-        </div>
-      </div>
-    </div>
-  }
-}
-
-module AddNewOMPButton = {
-  @react.component
-  let make = (
-    ~user: UserInfoTypes.entity,
-    ~setShowModal,
-    ~customPadding="",
-    ~customStyle="",
-    ~customHRTagStyle="",
-    ~addItemBtnStyle="",
-  ) => {
-    let allowedRoles = switch user {
-    | #Organization => [#tenant_admin]
-    | #Merchant => [#tenant_admin, #org_admin]
-    | #Profile => [#tenant_admin, #org_admin, #merchant_admin]
-    | _ => []
-    }
-    let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
-    let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
-
-    <ACLDiv
-      authorization={hasOMPCreateAccess}
-      noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
-      onClick={_ => setShowModal(_ => true)}
-      isRelative=false
-      contentAlign=Default
-      tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}>
-      {<>
-        <hr className={customHRTagStyle} />
-        <div
-          className={`group flex  items-center gap-2 font-medium px-2 py-2 text-sm ${customStyle}`}>
-          <Icon name="plus-circle" size=15 />
-          {`Add new ${(user :> string)->String.toLowerCase}`->React.string}
-        </div>
-      </>}
-    </ACLDiv>
-  }
-}
-
-module OMPViews = {
-  @react.component
-  let make = (
-    ~views: OMPSwitchTypes.ompViews,
-    ~selectedEntity: UserInfoTypes.entity,
-    ~onChange,
-  ) => {
-    open OMPSwitchUtils
-
-    let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-
-    let cssBasedOnIndex = index => {
-      if index == 0 {
-        "rounded-l-md"
-      } else if index == views->Array.length - 1 {
-        "rounded-r-md"
-      } else {
-        ""
-      }
-    }
-
-    let getName = entityType => {
-      let name = switch entityType {
-      | #Organization => currentOMPName(orgList, userInfo.orgId)
-      | #Merchant => currentOMPName(merchantList, userInfo.merchantId)
-      | #Profile => currentOMPName(profileList, userInfo.profileId)
-      | _ => ""
-      }
-      name->String.length > 10
-        ? name
-          ->String.substring(~start=0, ~end=10)
-          ->String.concat("...")
-        : name
-    }
-
-    <div className="flex h-fit">
-      {views
-      ->Array.mapWithIndex((value, index) => {
-        let selectedStyle = selectedEntity == value.entity ? `bg-blue-200` : ""
-        <div
-          key={index->Int.toString}
-          onClick={_ => onChange(value.entity)->ignore}
-          className={`text-xs py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer break-all`}>
-          {`${value.lable} (${value.entity->getName})`->React.string}
-        </div>
-      })
-      ->React.array}
-    </div>
-  }
-}
-
 module OMPCopyTextCustomComp = {
   @react.component
   let make = (
@@ -193,6 +34,244 @@ module OMPCopyTextCustomComp = {
     } else {
       "NA"->React.string
     }
+  }
+}
+module ListBaseComp = {
+  @react.component
+  let make = (
+    ~heading,
+    ~subHeading,
+    ~arrow,
+    ~showEditIcon=false,
+    ~onEditClick=_ => (),
+    ~isDarkBg=false,
+    ~showDropdownArrow=true,
+  ) => {
+    let baseCompStyle = isDarkBg
+      ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
+      : "text-black hover:bg-opacity-80"
+
+    let iconName = isDarkBg ? "arrow-without-tail-new" : "arrow-without-tail"
+
+    let arrowDownClass = isDarkBg
+      ? "rotate-0 transition duration-[250ms] opacity-70"
+      : "rotate-180 transition duration-[250ms] opacity-70"
+
+    let arrowUpClass = isDarkBg
+      ? "-rotate-180 transition duration-[250ms] opacity-70"
+      : "rotate-0 transition duration-[250ms] opacity-70"
+
+    let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
+    let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
+    let paddingSubheading = isDarkBg ? "pl-2" : ""
+    let paddingHeading = isDarkBg ? "pl-2" : ""
+
+    let endValue = isDarkBg ? 20 : 15
+    let maxLength = isDarkBg ? 20 : 15
+
+    let subHeadingElement = if subHeading->String.length > maxLength {
+      <HelperComponents.EllipsisText
+        displayValue=subHeading
+        endValue
+        showCopy=false
+        customTextStyle={`${textColor} font-extrabold`}
+      />
+    } else {
+      {subHeading->React.string}
+    }
+
+    <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
+      <div className={`flex flex-col items-start`}>
+        <RenderIf condition={heading->LogicUtils.isNonEmptyString}>
+          <p className={`text-xs text-left text-gray-400 ${paddingHeading}`}>
+            {heading->React.string}
+          </p>
+        </RenderIf>
+        <div className="text-left flex gap-2">
+          <p
+            className={`fs-10 ${textColor} ${width} ${paddingSubheading} overflow-scroll text-nowrap`}>
+            {subHeadingElement}
+          </p>
+          <RenderIf condition={!showDropdownArrow}>
+            <ToolTip
+              description={subHeading}
+              customStyle="!whitespace-nowrap"
+              toolTipFor={<div className="cursor-pointer">
+                <OMPCopyTextCustomComp displayValue=" " copyValue=Some({subHeading}) />
+              </div>}
+              toolTipPosition=ToolTip.Right
+            />
+          </RenderIf>
+          <RenderIf condition={showEditIcon}>
+            <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
+          </RenderIf>
+          <RenderIf condition={showDropdownArrow}>
+            <Icon
+              className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
+            />
+          </RenderIf>
+        </div>
+      </div>
+    </div>
+  }
+}
+
+module AddNewOMPButton = {
+  @react.component
+  let make = (
+    ~user: UserInfoTypes.entity,
+    ~setShowModal,
+    ~customPadding="",
+    ~customStyle="",
+    ~customHRTagStyle="",
+    ~addItemBtnStyle="",
+  ) => {
+    let allowedRoles = switch user {
+    | #Organization => [#tenant_admin]
+    | #Merchant => [#tenant_admin, #org_admin]
+    | #Profile => [#tenant_admin, #org_admin, #merchant_admin]
+    | _ => []
+    }
+    let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
+    let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
+
+    <ACLDiv
+      authorization={hasOMPCreateAccess}
+      noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
+      onClick={_ => setShowModal(_ => true)}
+      isRelative=false
+      contentAlign=Default
+      tooltipForWidthClass="!h-full"
+      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}
+      showTooltip={hasOMPCreateAccess == Access}>
+      {<>
+        <hr className={customHRTagStyle} />
+        <div
+          className={`group flex  items-center gap-2 font-medium px-2 py-2 text-sm ${customStyle}`}>
+          <Icon name="plus-circle" size=15 />
+          {`Add new ${(user :> string)->String.toLowerCase}`->React.string}
+        </div>
+      </>}
+    </ACLDiv>
+  }
+}
+
+module OMPViewBaseComp = {
+  @react.component
+  let make = (~displayName, ~arrow) => {
+    let arrowUpClass = "rotate-0 transition duration-[250ms] opacity-70"
+    let arrowDownClass = "rotate-180 transition duration-[250ms] opacity-70"
+
+    let truncatedDisplayName = if displayName->String.length > 15 {
+      <HelperComponents.EllipsisText
+        displayValue=displayName endValue=15 showCopy=false expandText=false
+      />
+    } else {
+      {displayName->React.string}
+    }
+
+    <div className="text-sm font-medium cursor-pointer px-4">
+      <div className="flex flex-col items-start">
+        <div className="text-left flex items-center gap-1">
+          <Icon name="settings-new" size=18 />
+          <p className="text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
+            {`View data for:`->React.string}
+          </p>
+          <span className="text-primary text-nowrap"> {truncatedDisplayName} </span>
+          <Icon
+            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
+            name="arrow-without-tail"
+            size=15
+          />
+        </div>
+      </div>
+    </div>
+  }
+}
+
+let generateDropdownOptionsOMPViews = (dropdownList: OMPSwitchTypes.ompViews, getNameForId) => {
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+    item
+  ): SelectBox.dropdownOption => {
+    {
+      label: `${item.entity->getNameForId}`,
+      value: `${(item.entity :> string)}`,
+      labelDescription: `(${item.lable})`,
+      description: `${item.entity->getNameForId}`,
+    }
+  })
+  options
+}
+
+module OMPViewsComp = {
+  @react.component
+  let make = (~input, ~options, ~displayName, ~entityMapper=UserInfoUtils.entityMapper) => {
+    let (arrow, setArrow) = React.useState(_ => false)
+
+    let toggleChevronState = () => {
+      setArrow(prev => !prev)
+    }
+
+    let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
+    let dropdownContainerStyle = "md:rounded-lg md:border md:w-full md:shadow-md"
+
+    <div className="flex h-fit border border-grey-100 bg-white rounded-lg py-2 hover:bg-opacity-80">
+      <SelectBox.BaseDropdown
+        allowMultiSelect=false
+        buttonText=""
+        input
+        deselectDisable=true
+        customButtonStyle="!rounded-md"
+        options
+        marginTop="mt-8"
+        hideMultiSelectButtons=false
+        addButton=false
+        customStyle="md:rounded"
+        searchable=false
+        baseComponent={<OMPViewBaseComp displayName arrow />}
+        baseComponentCustomStyle="bg-white rounded"
+        optionClass="font-inter text-fs-14 font-normal leading-5"
+        selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"
+        labelDescriptionClass="font-inter text-fs-12 font-normal leading-4"
+        customDropdownOuterClass="!border-none !w-full"
+        toggleChevronState
+        customScrollStyle
+        dropdownContainerStyle
+        shouldDisplaySelectedOnTop=true
+        descriptionOnHover=true
+        textEllipsisForDropDownOptions=true
+      />
+    </div>
+  }
+}
+
+module OMPViews = {
+  @react.component
+  let make = (
+    ~views: OMPSwitchTypes.ompViews,
+    ~selectedEntity: UserInfoTypes.entity,
+    ~onChange,
+    ~entityMapper=UserInfoUtils.entityMapper,
+  ) => {
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "name",
+      onBlur: _ => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToString
+        onChange(value->UserInfoUtils.entityMapper)->ignore
+      },
+      onFocus: _ => (),
+      value: (selectedEntity :> string)->JSON.Encode.string,
+      checked: true,
+    }
+
+    let options = views->generateDropdownOptionsOMPViews(getNameForId)
+
+    let displayName = selectedEntity->getNameForId
+
+    <OMPViewsComp input options displayName />
   }
 }
 

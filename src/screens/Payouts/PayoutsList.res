@@ -20,6 +20,10 @@ let make = () => {
     UserInfoProvider.defaultContext,
   )
 
+  let customUI = {
+    <NoDataFound customCssClass="my-6" message="No results found" renderType=ExtendDateUI />
+  }
+
   let fetchPayouts = () => {
     switch filters {
     | Some(dict) =>
@@ -62,15 +66,19 @@ let make = () => {
     <div className="min-h-[50vh]">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-          selectedEntity={transactionEntity}
-          onChange={updateTransactionEntity}
-        />
+        <Portal to="PayoutsOMPView">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+            entityMapper=UserInfoUtils.transactionEntityMapper
+          />
+        </Portal>
       </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
+            title="Payouts"
             apiType=Post
             setFilters
             endTimeFilterKey

@@ -6,6 +6,7 @@ let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
   open NewAnalyticsHelper
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => []->JSON.Encode.array)
@@ -22,6 +23,7 @@ let make = (~entity: moduleEntity) => {
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -57,6 +59,7 @@ let make = (~entity: moduleEntity) => {
         ],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryBodyRefunds = getPayload(
@@ -64,6 +67,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#refund_processed_amount],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryBodyDisputes = getPayload(
@@ -71,6 +75,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#dispute_status_metric],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=None,
       )
 
       let primaryResponsePayments = await updateDetails(paymentsUrl, primaryBodyPayments, Post)
@@ -83,18 +88,18 @@ let make = (~entity: moduleEntity) => {
 
       primaryData->setValue(
         ~data=primaryDataPayments,
-        ~ids=[
-          Total_Smart_Retried_Amount,
-          Total_Smart_Retried_Amount_Without_Smart_Retries,
-          Total_Success_Rate,
-          Total_Success_Rate_Without_Smart_Retries,
-          Total_Payment_Processed_Amount,
-          Total_Payment_Processed_Amount_Without_Smart_Retries,
-        ],
+        ~ids=[Total_Smart_Retried_Amount, Total_Success_Rate, Total_Payment_Processed_Amount],
+        ~metricType,
+        ~currency,
       )
 
-      primaryData->setValue(~data=primaryDataRefunds, ~ids=[Total_Refund_Processed_Amount])
-      primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute])
+      primaryData->setValue(
+        ~data=primaryDataRefunds,
+        ~ids=[Total_Refund_Processed_Amount],
+        ~metricType,
+        ~currency,
+      )
+      primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute], ~metricType, ~currency)
 
       let secondaryBodyPayments = getPayload(
         ~entity,
@@ -105,6 +110,7 @@ let make = (~entity: moduleEntity) => {
         ],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let secondaryBodyRefunds = getPayload(
@@ -112,6 +118,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#refund_processed_amount],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let secondaryBodyDisputes = getPayload(
@@ -119,6 +126,7 @@ let make = (~entity: moduleEntity) => {
         ~metrics=[#dispute_status_metric],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let secondaryData = switch comparison {
@@ -141,18 +149,23 @@ let make = (~entity: moduleEntity) => {
 
           secondaryData->setValue(
             ~data=secondaryDataPayments,
-            ~ids=[
-              Total_Smart_Retried_Amount,
-              Total_Smart_Retried_Amount_Without_Smart_Retries,
-              Total_Success_Rate,
-              Total_Success_Rate_Without_Smart_Retries,
-              Total_Payment_Processed_Amount,
-              Total_Payment_Processed_Amount_Without_Smart_Retries,
-            ],
+            ~ids=[Total_Smart_Retried_Amount, Total_Success_Rate, Total_Payment_Processed_Amount],
+            ~metricType,
+            ~currency,
           )
 
-          secondaryData->setValue(~data=secondaryDataRefunds, ~ids=[Total_Refund_Processed_Amount])
-          secondaryData->setValue(~data=secondaryDataDisputes, ~ids=[Total_Dispute])
+          secondaryData->setValue(
+            ~data=secondaryDataRefunds,
+            ~ids=[Total_Refund_Processed_Amount],
+            ~metricType,
+            ~currency,
+          )
+          secondaryData->setValue(
+            ~data=secondaryDataDisputes,
+            ~ids=[Total_Dispute],
+            ~metricType,
+            ~currency,
+          )
           secondaryData->JSON.Encode.object
         }
       | DisableComparison => JSON.Encode.null
@@ -171,54 +184,41 @@ let make = (~entity: moduleEntity) => {
       getData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
-
-  let mockDelay = async () => {
-    if data != []->JSON.Encode.array {
-      setScreenState(_ => Loading)
-      await HyperSwitchUtils.delay(300)
-      setScreenState(_ => Success)
-    }
-  }
-
-  React.useEffect(() => {
-    mockDelay()->ignore
-    None
-  }, [metricType])
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    metricType,
+  ))
 
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 gap-6">
       <NewPaymentsOverviewSectionHelper.SmartRetryCard
-        data responseKey={Total_Smart_Retried_Amount->getKeyForModule(~metricType)}
+        data responseKey={Total_Smart_Retried_Amount}
       />
       <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-6">
         <OverViewStat
-          data
-          responseKey={Total_Success_Rate}
-          config={getInfo(~responseKey=Total_Success_Rate)}
-          getValueFromObj
-          getStringFromVariant
+          data responseKey={Total_Success_Rate} getInfo getValueFromObj getStringFromVariant
         />
         <OverViewStat
           data
           responseKey={Total_Payment_Processed_Amount}
-          config={getInfo(~responseKey=Total_Payment_Processed_Amount)}
+          getInfo
           getValueFromObj
           getStringFromVariant
         />
         <OverViewStat
           data
           responseKey={Total_Refund_Processed_Amount}
-          config={getInfo(~responseKey=Total_Refund_Processed_Amount)}
+          getInfo
           getValueFromObj
           getStringFromVariant
         />
         <OverViewStat
-          data
-          responseKey={Total_Dispute}
-          config={getInfo(~responseKey=Total_Dispute)}
-          getValueFromObj
-          getStringFromVariant
+          data responseKey={Total_Dispute} getInfo getValueFromObj getStringFromVariant
         />
       </div>
     </div>

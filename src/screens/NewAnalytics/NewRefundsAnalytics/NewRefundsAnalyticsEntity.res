@@ -127,6 +127,31 @@ let failedRefundsDistributionTableEntity = {
   )
 }
 
+// Refunds Failure Reasons
+let failureReasonsEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#sessionized_refund_error_message],
+    groupBy: [#refund_error_message, #connector],
+  },
+  title: "Failed Refund Error Reasons",
+  domain: #refunds,
+}
+
+let failureReasonsTableEntity = {
+  open FailureReasonsRefundsUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=[],
+    ~requiredSearchFieldsList=[],
+    ~allColumns=[],
+    ~getCell,
+    ~getHeading,
+  )
+}
+
 // Refunds Reasons
 let refundsReasonsEntity: moduleEntity = {
   requestBodyConfig: {

@@ -3,6 +3,7 @@ let make = () => {
   open APIUtils
   open HSwitchRemoteFilter
   open DisputesUtils
+  open LogicUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -18,8 +19,8 @@ let make = () => {
   let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+
   let getDisputesList = async () => {
-    open LogicUtils
     try {
       setScreenState(_ => Loading)
       if searchText->isNonEmptyString {
@@ -73,9 +74,7 @@ let make = () => {
   }, (filters, searchText))
 
   let customUI =
-    <NoDataFound
-      customCssClass={"my-6"} message="There are no disputes as of now" renderType=Painting
-    />
+    <NoDataFound customCssClass="my-6" message="No results found" renderType=ExtendDateUI />
 
   let filtersUI =
     <RemoteTableFilters
@@ -96,11 +95,14 @@ let make = () => {
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
       <div className="flex gap-4">
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-          selectedEntity={transactionEntity}
-          onChange={updateTransactionEntity}
-        />
+        <Portal to="DisputesOMPView">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+            entityMapper=UserInfoUtils.transactionEntityMapper
+          />
+        </Portal>
         <RenderIf condition={generateReport && disputesData->Array.length > 0}>
           <GenerateReport entityName={DISPUTE_REPORT} />
         </RenderIf>

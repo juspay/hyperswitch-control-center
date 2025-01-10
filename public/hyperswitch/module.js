@@ -213,26 +213,72 @@ const getRGBColor = (hex, type) => {
   return `--color-${type}: ${r}, ${g}, ${b};`;
 };
 
-function appendStyle(customStyle) {
-  let { primaryColor, primaryHover, sidebar } = customStyle;
-  let cssVariables = `
-:root {
-  ${getRGBColor(primaryColor, "primary")}
-  ${getRGBColor(primaryHover, "hover")}
- ${getRGBColor(sidebar, "sidebar")}
+const getRGBvalue = (hex) => {
+  let color = hex.replace(/#/g, "");
+  if (color.length !== 6) {
+    color = `${color}${color}`;
+  }
+  var r = parseInt(color.substr(0, 2), 16);
+  var g = parseInt(color.substr(2, 2), 16);
+  var b = parseInt(color.substr(4, 2), 16);
 
-}
-`;
-  let style;
+  return `${r}, ${g}, ${b}`;
+};
 
-  if (document.getElementById("custom-style")) {
-    style = document.getElementById("custom-style");
+const toSnakeCase = (str) => {
+  return str
+    .replace(/([A-Z])/g, "-$1")
+    .replace(/\s+/g, "-")
+    .replace(/^-/, "")
+    .toLowerCase();
+};
+
+const generateVariablesForSection = (sectionData, sectionName) => {
+  return (
+    Object.entries(sectionData)
+      .map(([key, value]) => {
+        const processedValue =
+          typeof value === "string" && value.startsWith("#")
+            ? getRGBvalue(value)
+            : value;
+        return `  --${sectionName}-${toSnakeCase(key)}: ${processedValue};`;
+      })
+      .join("\n") + "\n"
+  );
+};
+
+const generateButtonVariables = (buttons) => {
+  return `
+  /* Primary Button */
+  ${generateVariablesForSection(buttons.primary, "btn-primary")}
+
+  /* Secondary Button */
+  ${generateVariablesForSection(buttons.secondary, "btn-secondary")}
+  `;
+};
+
+function appendStyle(themesConfig) {
+  const settings = themesConfig.settings;
+  let cssVariables = `:root{
+  /* Colors */
+  ${generateVariablesForSection(settings.colors, "colors")}
+  /* Typography */
+  ${generateVariablesForSection(settings.typography, "base")}
+ /* Buttons */
+  ${generateButtonVariables(settings.buttons)}
+  /* Borders */
+  ${generateVariablesForSection(settings.borders, "borders")}
+  /* Spacing */
+  ${generateVariablesForSection(settings.spacing, "spacing")}
+
+}`;
+  if (document.getElementById("custom-themes-style")) {
+    style = document.getElementById("custom-themes-style");
   } else {
     style = document.createElement("style");
   }
-  // let style = document.createElement("style")
   let text = document.createTextNode(cssVariables);
-  style.setAttribute("id", "custom-style");
+  style.setAttribute("id", "custom-themes-style");
   style.appendChild(text);
   document.head.appendChild(style);
 }

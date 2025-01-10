@@ -428,7 +428,7 @@ let getHeading = (colType: colType) => {
 }
 
 let useGetStatus = order => {
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
@@ -446,11 +446,11 @@ let useGetStatus = order => {
   | RequiresCustomerAction
   | RequiresConfirmation
   | RequiresPaymentMethod =>
-    <div className={`${fixedStatusCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedStatusCss} ${primaryColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedStatusCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedStatusCss} ${primaryColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }
@@ -592,7 +592,11 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   | ConnectorLabel => Text(order.connector_label)
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)
-  | ProfileName => Table.CustomCell(<BusinessProfileComponent profile_id={order.profile_id} />, "")
+  | ProfileName =>
+    Table.CustomCell(
+      <HelperComponents.BusinessProfileComponent profile_id={order.profile_id} />,
+      "",
+    )
   | CaptureMethod => Text(order.capture_method)
   | CardNetwork => {
       let dict = switch order.payment_method_data {
@@ -652,7 +656,7 @@ let getCell = (order, colType: colType): Table.cell => {
   switch colType {
   | Metadata =>
     CustomCell(
-      <HSwitchOrderUtils.EllipsisText
+      <HelperComponents.EllipsisText
         displayValue={order.metadata->JSON.Encode.object->JSON.stringify}
       />,
       "",
@@ -698,7 +702,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | Description =>
-    CustomCell(<HSwitchOrderUtils.EllipsisText displayValue={order.description} endValue={5} />, "")
+    CustomCell(<HelperComponents.EllipsisText displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)

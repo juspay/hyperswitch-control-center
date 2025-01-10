@@ -1,12 +1,3 @@
-// module WarningArea = {
-//   @react.component
-//   let make = (~warningText) => {
-//     <h1 className="text-orange-950 bg-orange-100 border w-full py-2 px-4 rounded-md ">
-//       <span className="text-orange-950 font-bold text-fs-14 mr-2"> {"NOTE:"->React.string} </span>
-//       {warningText->React.string}
-//     </h1>
-//   }
-// }
 module AddEntryBtn = {
   @react.component
   let make = (
@@ -62,8 +53,9 @@ module AddEntryBtn = {
           </Form>
         | Successful =>
           <div className="flex flex-col gap-6 justify-center items-end mx-4">
-            <WarningArea
-              warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
+            <AlertBanner
+              bannerText="Now that you've configured more than one profile, you must pass 'profile_id' in payments API request every time"
+              bannerType=Warning
             />
             <p className="text-grey-700">
               {"Business Profile successfully created! Set up your payments settings like webhooks, return url for your new profile before trying a payment."->React.string}
@@ -180,8 +172,9 @@ let make = (
             subTitle="Add and manage profiles to represent different businesses across countries."
           />
           <RenderIf condition={businessProfileValues->Array.length > 1}>
-            <HSwitchUtils.WarningArea
-              warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
+            <HSwitchUtils.AlertBanner
+              bannerText="Now that you've configured more than one profile, you must pass 'profile_id' in payments API request every time"
+              bannerType=Warning
             />
           </RenderIf>
           <LoadedTable
