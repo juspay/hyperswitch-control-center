@@ -7,6 +7,7 @@ module ListBaseComp = {
     ~showEditIcon=false,
     ~onEditClick=_ => (),
     ~isDarkBg=false,
+    ~showDropdownArrow=true,
   ) => {
     let baseCompStyle = isDarkBg
       ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
@@ -56,9 +57,11 @@ module ListBaseComp = {
           <RenderIf condition={showEditIcon}>
             <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
           </RenderIf>
-          <Icon
-            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
-          />
+          <RenderIf condition={showDropdownArrow}>
+            <Icon
+              className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
+            />
+          </RenderIf>
         </div>
       </div>
     </div>
