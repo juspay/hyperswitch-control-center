@@ -146,7 +146,6 @@ let getElements = (hits, section) => {
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
         redirect_link: `/payments/${payId}/${metadata.profileId}/${metadata.merchantId}/${metadata.orgId}`->JSON.Encode.string,
-        metadata,
       }
     })
   | PaymentIntents | SessionizerPaymentIntents =>
@@ -156,7 +155,6 @@ let getElements = (hits, section) => {
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
         redirect_link: `/payments/${payId}/${metadata.profileId}/${metadata.merchantId}/${metadata.orgId}`->JSON.Encode.string,
-        metadata,
       }
     })
 
@@ -170,16 +168,9 @@ let getElements = (hits, section) => {
       let orgId = value->getString("organization_id", "")
       let merchantId = value->getString("merchant_id", "")
 
-      let metadata = {
-        profileId,
-        orgId,
-        merchantId,
-      }
-
       {
         texts: [refId, amount, status]->Array.map(JSON.Encode.string),
         redirect_link: `/refunds/${refId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
-        metadata,
       }
     })
   | Disputes | SessionizerPaymentDisputes =>
@@ -192,15 +183,9 @@ let getElements = (hits, section) => {
       let orgId = value->getString("organization_id", "")
       let merchantId = value->getString("merchant_id", "")
 
-      let metadata = {
-        profileId,
-        orgId,
-        merchantId,
-      }
       {
         texts: [disId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/disputes/${disId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
-        metadata,
+        redirect_link: `/${disId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
       }
     })
   | Local

@@ -141,29 +141,24 @@ let useInternalSwitch = () => {
 
   async (~expectedOrgId=None, ~expectedMerchantId=None, ~expectedProfileId=None) => {
     try {
-      Js.log2("userInfoFromProfile", userInfo)
       let userInfoResFromSwitchOrg = await orgSwitch(
         ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
         ~currentOrgId=userInfo.orgId,
         ~defaultValue=userInfo,
       )
-      // Js.log2("inside userInfoResFromSwitchOrg", userInfoResFromSwitchOrg)
+
       let userInfoResFromSwitchMerch = await merchSwitch(
         ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),
         ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
         ~defaultValue=userInfoResFromSwitchOrg,
       )
-      Js.log2("userInfoResFromSwitchMerch", userInfoResFromSwitchMerch)
-      // Js.log2("inside userInfoResFromSwitchMerch", userInfoResFromSwitchMerch)
+
       let userInfoFromProfile = await profileSwitch(
         ~expectedProfileId=expectedProfileId->Option.getOr(userInfoResFromSwitchMerch.profileId),
         ~currentProfileId=userInfoResFromSwitchMerch.profileId,
         ~defaultValue=userInfoResFromSwitchMerch,
       )
-      Js.log2("userInfoFromProfile", userInfoFromProfile)
       setUserInfoData(userInfoFromProfile)
-      // setUserInfoData(userInfoFromProfile)
-      // let _userInfoRef = updateUserInfoRef(userInfoFromProfile)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to switch!")

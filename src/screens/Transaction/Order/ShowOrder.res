@@ -592,6 +592,7 @@ module FraudRiskBanner = {
 let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   open OrderUIUtils
+  let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -640,7 +641,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     )
     fetchOrderDetails(accountUrl)->ignore
     None
-  }, [])
+  }, [url])
 
   let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 

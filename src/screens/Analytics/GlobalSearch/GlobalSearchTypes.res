@@ -19,7 +19,6 @@ type metadataType = {
 type element = {
   texts: array<JSON.t>,
   redirect_link: JSON.t,
-  metadata?: metadataType,
 }
 
 type resultType = {

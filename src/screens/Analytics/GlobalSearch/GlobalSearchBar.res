@@ -34,7 +34,7 @@ let make = () => {
   let inputRef = React.useRef(Nullable.null)
   let filtersEnabled = globalSearchFilters
 
-  let redirectOnSelect = async element => {
+  let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect")
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr(defaultRoute)
     if redirectLink->isNonEmptyString {
