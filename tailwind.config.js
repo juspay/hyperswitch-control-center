@@ -51,17 +51,20 @@ module.exports = {
         "30-vh": "30vh",
         "40-vh": "40vh",
         "75-vh": "75vh",
+        "923-px": "923px",
         onBordingSupplier: "calc(100vh - 300px)",
       },
       maxHeight: {
         "25-rem": "25rem",
       },
       width: {
+        "90-px": "90px",
         100: "25rem",
         133: "35rem",
         200: "58rem",
         150: "9.375rem",
         "1.1-rem": "1.125rem",
+        "18-rem": "18rem",
         "77-rem": "77rem",
         "30-rem": "30rem",
         "10.25-rem": "10.25rem",
@@ -80,7 +83,9 @@ module.exports = {
       lineHeight: {
         60: "60px",
       },
-
+      borderWidth: {
+        1.5: "1.5px",
+      },
       boxShadow: {
         generic_shadow: "0 2px 5px 0 rgba(0, 0, 0, 0.12)",
         generic_shadow_dark: "0px 2px 5px 0 rgba(0, 0, 0, 0.78)",
@@ -156,6 +161,7 @@ module.exports = {
           800: "#F5F9FF",
           810: "#B9D3F8",
           811: "#0069FD",
+          812: "#1B85FF",
           820: "#37476C",
           830: "#465B8B",
           840: "#303E5F",
@@ -164,10 +170,12 @@ module.exports = {
         },
         grey: {
           0: "#FEFEFE",
+          100: "#666666",
           200: "#B9BABC",
           300: "#CCCCCC",
           400: "#D1D5DB",
           700: "#151A1F",
+          800: "#383838",
           900: "#333333",
           dark: "#1E1E1E",
           light: "#F6F6F6",

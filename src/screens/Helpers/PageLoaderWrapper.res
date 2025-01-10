@@ -5,6 +5,8 @@ module ScreenLoader = {
   @react.component
   let make = (~sectionHeight="h-80-vh") => {
     let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
+    let loader = LottieFiles.useLottieJson("loader-circle.json")
+    let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     <div className={`${sectionHeight} w-scrren flex flex-col justify-center items-center`}>
@@ -12,7 +14,9 @@ module ScreenLoader = {
         <div className="w-20 h-16">
           <ReactSuspenseWrapper>
             <div className="scale-400 pt-px">
-              <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
+              <Lottie
+                animationData={devThemeFeature ? loader : loaderLottieFile} autoplay=true loop=true
+              />
             </div>
           </ReactSuspenseWrapper>
         </div>

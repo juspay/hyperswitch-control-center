@@ -3,7 +3,10 @@ let make = () => {
   open NewPaymentAnalyticsEntity
 
   <div className="flex flex-col gap-14 mt-5 pt-7">
-    <NewAnalyticsHelper.SmartRetryToggle />
+    <div className="flex gap-2">
+      <NewAnalyticsHelper.SmartRetryToggle />
+      <NewAnalyticsFilters domain={#payments} entityName={ANALYTICS_PAYMENTS} />
+    </div>
     <NewPaymentsOverviewSection entity={overviewSectionEntity} />
     <PaymentsLifeCycle
       entity={paymentsLifeCycleEntity} chartEntity={paymentsLifeCycleChartEntity}
