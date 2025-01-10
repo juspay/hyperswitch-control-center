@@ -42,6 +42,7 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
+  let maintainenceAlert = featureFlagDetails.maintainenceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let reconSidebars = HSReconSidebarValues.useGetReconSideBar()
   sessionExpired := false
@@ -151,6 +152,9 @@ let make = () => {
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
+                    <RenderIf condition={maintainenceAlert->LogicUtils.isNonEmptyString}>
+                      <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
+                    </RenderIf>
                     <div
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
