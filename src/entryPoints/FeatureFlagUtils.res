@@ -95,7 +95,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     tenantUser: dict->getBool("tenant_user", false),
     devThemeFeature: dict->getBool("dev_theme_feature", false),
     devReconv2Product: dict->getBool("dev_recon_v2_product", false),
-    underMaintenance: dict->getString("under_maintenance", "bannerText"),
+    underMaintenance: dict->getString("under_maintenance", ""),
   }
 }
 
