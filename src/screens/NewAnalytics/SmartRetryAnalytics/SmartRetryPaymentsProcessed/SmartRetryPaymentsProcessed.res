@@ -156,7 +156,6 @@ let make = (
     setSmartRetryPaymentsProcessedMetaData,
   ) = React.useState(_ => JSON.Encode.array([]))
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
@@ -164,6 +163,10 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
+
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
 
   let getSmartRetryPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)

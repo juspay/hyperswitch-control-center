@@ -45,7 +45,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open NewAnalyticsUtils
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -57,13 +57,17 @@ let make = (
     JSON.Encode.array([])
   )
 
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  open NewAnalyticsUtils
+
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)

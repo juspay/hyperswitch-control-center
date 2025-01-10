@@ -141,7 +141,6 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -152,13 +151,16 @@ let make = (
     JSON.Encode.array([])
   )
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+
+  let (granularity, setGranularity) = React.useState(_ =>
+    NewAnalyticsUtils.getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
 
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -169,7 +171,7 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = requestBody(
+      let primaryBody = NewAnalyticsUtils.requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
@@ -177,7 +179,7 @@ let make = (
         ~granularity=granularity.value->Some,
       )
 
-      let secondaryBody = requestBody(
+      let secondaryBody = NewAnalyticsUtils.requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
@@ -187,11 +189,7 @@ let make = (
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
       let primaryData =
-        primaryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-        ->modifyQueryData
-        ->sortQueryDataByDate
+        primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])->modifyQueryData
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
       setRefundsProcessedTableData(_ => primaryData)
 
@@ -206,7 +204,7 @@ let make = (
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
-            fillMissingDataPoints(
+            NewAnalyticsUtils.fillMissingDataPoints(
               ~data,
               ~startDate=compareToStartTime,
               ~endDate=compareToEndTime,
@@ -226,7 +224,7 @@ let make = (
 
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
-          fillMissingDataPoints(
+          NewAnalyticsUtils.fillMissingDataPoints(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
