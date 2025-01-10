@@ -17,6 +17,7 @@ let make = (~entity: moduleEntity) => {
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -35,9 +36,9 @@ let make = (~entity: moduleEntity) => {
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      // TODO: need refactor on filters
       let filters = Dict.make()
       filters->Dict.set(
         "refund_status",
@@ -52,7 +53,10 @@ let make = (~entity: moduleEntity) => {
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~groupByNames=["refund_status"]->Some,
-        ~filter=filters->JSON.Encode.object->Some,
+        ~filter=generateFilterObject(
+          ~globalFilters=filterValueJson,
+          ~localFilters=filters->Some,
+        )->Some,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_count],
       )
@@ -78,13 +82,17 @@ let make = (~entity: moduleEntity) => {
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let secondaryStatusCountBodyRefunds = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~groupByNames=["refund_status"]->Some,
-        ~filter=filters->JSON.Encode.object->Some,
+        ~filter=generateFilterObject(
+          ~globalFilters=filterValueJson,
+          ~localFilters=filters->Some,
+        )->Some,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_count],
       )
@@ -135,7 +143,7 @@ let make = (~entity: moduleEntity) => {
       getData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
 
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 grid-rows-2 gap-6">

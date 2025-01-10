@@ -46,6 +46,7 @@ module TableModule = {
 let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -53,6 +54,7 @@ let make = (~entity: moduleEntity) => {
   let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -71,12 +73,13 @@ let make = (~entity: moduleEntity) => {
       | _ => None
       }
 
-      let body = NewAnalyticsUtils.requestBody(
+      let body = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let response = await updateDetails(url, body, Post)
@@ -105,7 +108,7 @@ let make = (~entity: moduleEntity) => {
       getRefundsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, [startTimeVal, endTimeVal, currency])
 
   <div>
     <ModuleHeader title={entity.title} />
