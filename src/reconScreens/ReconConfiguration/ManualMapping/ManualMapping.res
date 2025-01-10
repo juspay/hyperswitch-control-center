@@ -8,17 +8,17 @@ let make = (~currentStep, ~setCurrentStep) => {
     <div className="flex flex-col gap-10 p-2 md:p-6">
       <ReconConfigurationHelper.SubHeading
         currentStepCount
-        title="Connect Order Data"
-        subTitle="Enable automatic fetching of your order data to ensure seamless transaction matching and reconciliation"
+        title="Manual Mapping"
+        subTitle="Map the fields from your order data to the processor data to ensure accurate reconciliation"
       />
     </div>
     {switch currentStep->getSubsectionFromStep {
-    | SelectSource =>
-      <ConnectOrderDataHelper.SelectSource
+    | TestLivePayment =>
+      <ManualMappingHelper.TestLivePayment
         currentStep={currentStep} setCurrentStep={setCurrentStep}
       />
-    | SetupAPIConnection =>
-      <ConnectOrderDataHelper.SetupAPIConnection
+    | SetupCompleted =>
+      <ManualMappingHelper.SetupCompleted
         currentStep={currentStep} setCurrentStep={setCurrentStep}
       />
     | _ => <div />
