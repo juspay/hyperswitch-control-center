@@ -284,7 +284,7 @@ let make = () => {
         marginTop="mt-14"
         hideMultiSelectButtons=true
         addButton=false
-        customStyle="bg-secondary hover:bg-black/10 rounded !w-full"
+        customStyle="bg-secondary md:bg-secondary hover:bg-black/10 rounded !w-full"
         customSelectStyle="md:bg-secondary hover:bg-black/10 rounded"
         searchable=false
         baseComponent={<ListBaseComp
