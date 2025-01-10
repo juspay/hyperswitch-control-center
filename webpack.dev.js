@@ -16,7 +16,7 @@ let proxy = {
     changeOrigin: true,
   },
   "/themes": {
-    target: "https://integ.hyperswitch.io/",
+    target: "",
     changeOrigin: true,
   },
 };
