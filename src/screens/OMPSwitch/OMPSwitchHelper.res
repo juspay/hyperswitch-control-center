@@ -220,6 +220,7 @@ module OMPViewsComp = {
         allowMultiSelect=false
         buttonText=""
         input
+        deselectDisable=true
         customButtonStyle="!rounded-md"
         options
         marginTop="mt-8"
