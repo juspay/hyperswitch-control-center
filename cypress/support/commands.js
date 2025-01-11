@@ -43,7 +43,7 @@ Cypress.Commands.add("enable_email_feature_flag", () => {
         sidebar_color: "#242F48",
       },
       endpoints: {
-        api_url: "http://localhost:8080",
+        api_url: "http://localhost:9000/api",
       },
       features: {
         email: true,
@@ -58,7 +58,7 @@ Cypress.Commands.add("mock_magic_link_signin_success", (user_email = "") => {
   const email =
     user_email.length > 0 ? user_email : Cypress.env("CYPRESS_USERNAME");
 
-  cy.intercept("POST", "/user/connect_account?auth_id=&domain=", {
+  cy.intercept("POST", "/api/user/connect_account?auth_id=&domain=", {
     statusCode: 200,
     body: {
       is_email_sent: true,
@@ -72,7 +72,7 @@ Cypress.Commands.add("singup_curl", (name = "", pass = "") => {
   // /user/signin
   cy.request({
     method: "POST",
-    url: `http://localhost:8080/user/signup`,
+    url: `http://localhost:9000/api/user/signup`,
     headers: {
       "Content-Type": "application/json",
     },
@@ -95,7 +95,7 @@ Cypress.Commands.add("login_curl", (name = "", pass = "") => {
   // /user/signin
   cy.request({
     method: "POST",
-    url: `http://localhost:8080/user/signin`,
+    url: `http://localhost:9000/api/user/signin`,
     headers: {
       "Content-Type": "application/json",
     },
@@ -120,7 +120,7 @@ Cypress.Commands.add("deleteConnector", (mca_id) => {
   );
   cy.request({
     method: "DELETE",
-    url: `http://localhost:8080/account/${merchant_id}/connectors/${mca_id}`,
+    url: `http://localhost:9000/api/account/${merchant_id}/connectors/${mca_id}`,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

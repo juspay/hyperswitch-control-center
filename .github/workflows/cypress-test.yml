@@ -34,10 +34,17 @@ jobs:
       - name: Make Curl Request
         run: |
           # Once the service is up, make the actual curl request
-          response=$(curl --location --request GET 'http://0.0.0.0:8080/health')
+          response=$(curl --location --request GET 'http://0.0.0.0:9000/api/health')
 
           echo "Response:"
           echo "$response"
+
+          response=$(curl --location 'http://0.0.0.0:9000/api/user/signup' \ --header 'Content-Type: application/json' \ --data-raw '{ "email": "demo2@test.in", "password": "Asdf@123", "country": "IN"}')
+
+          echo "Response:"
+          echo "$response"
+
+
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
@@ -46,6 +53,13 @@ jobs:
           build: npm run build:test
           start: npm run test:start
           # spec: cypress/e2e/quick-start/sbx-quick-start.cy.js
+        
+      - name: Test Artifacts
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: ./cypress/screenshots
 
       # - name: Check Coverage Thresholds
       #   run: |
