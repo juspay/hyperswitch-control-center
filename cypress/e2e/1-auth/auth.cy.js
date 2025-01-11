@@ -7,10 +7,7 @@ const signupPage = new SignUpPage();
 
 describe("Sign up", () => {
   it("should verify all components on the sign-up page", () => {
-    cy.visit("/");
-
-    signinPage.signUpLink.click();
-    cy.url().should("include", "/register");
+    cy.visit_signupPage();
 
     signupPage.headerText.should("contain", "Welcome to Hyperswitch");
     signupPage.signInLink.should("contain", "Sign in");
@@ -50,7 +47,7 @@ describe("Sign up", () => {
       "abc..xyz@abc.com",
     ];
 
-    cy.visit("/register");
+    cy.visit_signupPage();
 
     invalidEmails.forEach((invalidEmail) => {
       signupPage.emailInput.clear();
@@ -120,7 +117,7 @@ describe("Sign up", () => {
       },
     ];
 
-    cy.visit("/register");
+    cy.visit_signupPage();
 
     signupPage.emailInput.type(Cypress.env("CYPRESS_USERNAME"));
 
@@ -138,7 +135,8 @@ describe("Sign up", () => {
 
   it("should allow users to signin in with a valid email and password", () => {
     const email = helper.generateUniqueEmail();
-    cy.visit("/register");
+
+    cy.visit_signupPage();
 
     signupPage.emailInput.type(email);
     signupPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));

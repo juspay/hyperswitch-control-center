@@ -23,9 +23,18 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+import SignInPage from "../support/pages/auth/SignInPage";
+
+const signinPage = new SignInPage();
+
+Cypress.Commands.add("visit_signupPage", () => {
+  cy.visit("/");
+  signinPage.signUpLink.click();
+  cy.url().should("include", "/register");
+});
 
 Cypress.Commands.add("enable_email_feature_flag", () => {
-  cy.intercept("GET", "/dashboard/config/feature?domain=default", {
+  cy.intercept("GET", "/dashboard/config/feature?domain=", {
     statusCode: 200,
     body: {
       theme: {
