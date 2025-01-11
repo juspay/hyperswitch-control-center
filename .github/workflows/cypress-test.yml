@@ -39,13 +39,6 @@ jobs:
           echo "Response:"
           echo "$response"
 
-          response=$(curl --location 'http://0.0.0.0:8080/user/signup' \ --header 'Content-Type: application/json' \ --data-raw '{ "email": "demo2@test.in", "password": "Asdf@123", "country": "IN"}')
-
-          echo "Response:"
-          echo "$response"
-
-
-
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
