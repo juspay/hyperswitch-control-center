@@ -59,7 +59,7 @@ let useStepConfig = () => {
       let _ = await updateAPIHook(url, body, Post)
 
       let _ = await updateAPIHook(baseUrl, baseBody, Post)
-      // let _ = await updateAPIHook(pspUrl, pspBody, Post)
+      let _ = await updateAPIHook(pspUrl, pspBody, Post)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to update!")
