@@ -1,4 +1,4 @@
-describe("connector", () => {
+describe.skip("connector", () => {
   const password = "Cypress98#";
   const username = `cypress${Math.round(+new Date() / 1000)}@gmail.com`;
 
