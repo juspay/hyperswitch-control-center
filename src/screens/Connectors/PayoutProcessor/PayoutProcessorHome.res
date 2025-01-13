@@ -121,7 +121,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   | list{"payoutconnectors", "new"} => false
   | _ => true
   }
-
   let getConnectorDetails = async () => {
     try {
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
@@ -206,6 +205,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   }
 
   React.useEffect(() => {
+    Js.log("inside connector use effect in payoutprocesorhome")
     if connector->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {

@@ -61,6 +61,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let activeBusinessProfile =
     Recoil.useRecoilValueFromAtom(
@@ -212,6 +213,7 @@ let make = () => {
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
       let response = await updateAPIHook(connectorUrl, body, Post)
+
       if !isUpdateFlow {
         let mcaId =
           response
@@ -219,6 +221,7 @@ let make = () => {
           ->getString("merchant_connector_id", "")
         let _ = await updateBusinessProfileDetails(mcaId)
       }
+      let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
     } catch {
