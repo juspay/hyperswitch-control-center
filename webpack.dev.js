@@ -20,18 +20,18 @@ let proxy = {
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
-  "/recon-settlement-api": {
-    target: "https://app.hyperswitch.io",
-    pathRewrite: { "^/api": "" },
-    changeOrigin: true,
-  },
+  // "/recon-settlement-api": {
+  //   target: "https://app.hyperswitch.io",
+  //   pathRewrite: { "^/api": "" },
+  //   changeOrigin: true,
+  // },
   "/fileUploader": {
     target: "https://app.hyperswitch.io",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
   "/recon-settlement-api": {
-    target: "https://app.hyperswitch.io",
+    target: "https://sandbox.hyperswitch.io",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },

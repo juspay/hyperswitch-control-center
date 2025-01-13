@@ -167,7 +167,7 @@ let approvePSPConfigAPI = (~merchantId, ~configUUID) => {
 }
 
 let getBaseConfigUUIDAPI = (~merchantId) => {
-  let url = `https://sandbox.hyperswitch.io/recon-settlement-api/recon/settlements/v1/configuration/list?merchant_id=${merchantId}&limit=50&offset=0`
+  let url = `http://localhost:8000/recon-settlement-api/recon/settlements/v1/configuration/list?merchant_id=${merchantId}&limit=50&offset=0`
   url
 }
 
@@ -178,7 +178,7 @@ let useStepConfig = (
 ) => {
   open APIUtils
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let _getAPIHook = useGetMethod(~showErrorToast=false)
+  let getAPIHook = useGetMethod(~showErrorToast=false)
 
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   async _ => {
@@ -196,12 +196,13 @@ let useStepConfig = (
             ~merchantId,
             ~configUUID,
           )
-          let listAPI = getBaseConfigUUIDAPI(~merchantId)
-          let res = await _getAPIHook(listAPI)
-          Js.log2("res", res)
-          // let _ = await updateAPIHook(url, body, Post)
-          // let _ = await updateAPIHook(baseUrl, baseBody, Post)
+
+          let _ = await updateAPIHook(url, body, Post)
+          let _ = await updateAPIHook(baseUrl, baseBody, Post)
           // let _ = await updateAPIHook(approveBaseConfigUrl, approveBaseConfigBody, Put)
+          let listAPI = getBaseConfigUUIDAPI(~merchantId)
+          let res = await getAPIHook(listAPI)
+          Js.log2("res", res)
         }
       | SetupAPIConnection => {
           let (url, formData) = baseFileUploadAPI(~fileUploadedDict, ~merchantId)
