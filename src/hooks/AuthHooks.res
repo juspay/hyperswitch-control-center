@@ -69,6 +69,7 @@ let useApiFetcher = () => {
       ~betaEndpointConfig=?,
       ~contentType=Headers("application/json"),
       ~xFeatureRoute,
+      ~forceCookies,
     ) => {
       let token = {
         switch authStatus {
@@ -101,7 +102,7 @@ let useApiFetcher = () => {
           Fetch.RequestInit.make(
             ~method_,
             ~body?,
-            ~credentials=SameOrigin,
+            ~credentials={forceCookies ? SameOrigin : Omit},
             ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ~xFeatureRoute),
           ),
         )

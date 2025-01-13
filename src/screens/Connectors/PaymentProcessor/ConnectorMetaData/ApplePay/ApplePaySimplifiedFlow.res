@@ -63,7 +63,12 @@ let make = (
   let downloadApplePayCert = () => {
     open Promise
     let downloadURL = Window.env.applePayCertificateUrl->Option.getOr("")
-    fetchApi(downloadURL, ~method_=Get, ~xFeatureRoute=featureFlagDetails.xFeatureRoute)
+    fetchApi(
+      downloadURL,
+      ~method_=Get,
+      ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
+      ~forceCookies=featureFlagDetails.forceCookies,
+    )
     ->then(Fetch.Response.blob)
     ->then(content => {
       DownloadUtils.download(

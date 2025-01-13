@@ -3,9 +3,8 @@ module SwitchOrg = {
   let make = (~setShowModal) => {
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
-    let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let (value, setValue) = React.useState(() => "")
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
 
     let input = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
@@ -33,7 +32,7 @@ module SwitchOrg = {
     let switchOrg = async () => {
       try {
         setShowModal(_ => true)
-        let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+        let _ = await internalSwitch(~expectedOrgId=Some(value))
         setShowModal(_ => false)
       } catch {
       | _ => {
@@ -200,7 +199,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -233,7 +232,7 @@ let make = () => {
   let orgSwitch = async value => {
     try {
       setShowSwitchingOrg(_ => true)
-      let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+      let _ = await internalSwitch(~expectedOrgId=Some(value))
       RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {

@@ -215,7 +215,7 @@ module OMPViewsComp = {
     let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
     let dropdownContainerStyle = "md:rounded-lg md:border md:w-full md:shadow-md"
 
-    <div className="flex h-fit border border-grey-100 bg-white rounded-lg py-2 hover:bg-opacity-80">
+    <div className="flex h-fit border bg-white rounded-lg py-2 hover:bg-opacity-80">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText=""

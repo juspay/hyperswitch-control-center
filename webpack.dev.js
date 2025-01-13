@@ -35,6 +35,10 @@ let proxy = {
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
+  "/themes": {
+    target: "",
+    changeOrigin: true,
+  },
 };
 
 let configMiddleware = (req, res, next) => {
