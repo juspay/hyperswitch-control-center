@@ -17,7 +17,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+  let {userInfo: {transactionEntity, merchantId, orgId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
 
@@ -114,7 +114,7 @@ let make = () => {
           hideTitle=true
           title="Refunds"
           actualData=refundData
-          entity={RefundEntity.refundEntity}
+          entity={RefundEntity.refundEntity(merchantId, orgId)}
           resultsPerPage=20
           showSerialNumber=true
           totalResults={totalCount}
