@@ -257,7 +257,12 @@ let make = (~children) => {
         defaultStyle->Identity.genericTypeToJson
       } else {
         let url = `${GlobalVars.getHostUrl}/themes/${themesID}/theme.json`
-        let themeResponse = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute=true)
+        let themeResponse = await fetchApi(
+          `${url}`,
+          ~method_=Get,
+          ~xFeatureRoute=true,
+          ~forceCookies=false,
+        )
         let themesData = await themeResponse->(res => res->Fetch.Response.json)
         themesData
       }
