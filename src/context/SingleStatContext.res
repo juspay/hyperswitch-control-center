@@ -57,7 +57,7 @@ let make = (
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
   let fetchApi = AuthHooks.useApiFetcher()
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getTopLevelSingleStatFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
@@ -260,6 +260,7 @@ let make = (
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
+            ~forceCookies,
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat histotic data for metrics ${metrics->metrixMapper}`,
@@ -311,6 +312,7 @@ let make = (
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
+            ~forceCookies,
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
           ->then(
@@ -361,6 +363,7 @@ let make = (
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
+            ~forceCookies,
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat Time Series data for metrics ${metrics->metrixMapper}`,

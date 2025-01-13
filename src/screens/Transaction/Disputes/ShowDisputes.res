@@ -52,7 +52,7 @@ module Details = {
     open DisputeTypes
     open DisputesUtils
     open LogicUtils
-
+    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)
@@ -126,7 +126,7 @@ module Details = {
               <div className={`flex ${widthClass} items-center`}>
                 <OrderUtils.DisplayKeyValueParams
                   heading={getHeading(colType)}
-                  value={getCell(data, colType)}
+                  value={getCell(data, colType, merchantId, orgId)}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
                   overiddingHeadingStyles="text-black text-sm font-medium"
@@ -168,7 +168,7 @@ module DisputesInfo = {
 }
 
 @react.component
-let make = (~id, ~profileId) => {
+let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
@@ -183,7 +183,11 @@ let make = (~id, ~profileId) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ~id=Some(id))
-      let _ = await internalSwitch(~expectedProfileId=profileId)
+      let _ = await internalSwitch(
+        ~expectedOrgId=orgId,
+        ~expectedMerchantId=merchantId,
+        ~expectedProfileId=profileId,
+      )
       let response = await fetchDetails(disputesUrl)
       setDisputeData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

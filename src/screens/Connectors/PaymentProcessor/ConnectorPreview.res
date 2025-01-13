@@ -306,7 +306,7 @@ module ConnectorSummaryGrid = {
                       GlobalVars.appendDashboardPath(~url="/configure-pmts"),
                     )}
                   target="_blank"
-                  className="text-blue-500 underline cursor-pointer">
+                  className="text-primary underline cursor-pointer">
                   {"Configure PMTs at Checkout"->React.string}
                 </a>
               </p>

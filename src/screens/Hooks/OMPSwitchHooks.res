@@ -6,19 +6,15 @@ type userInfo = {
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {setUserInfoData, userInfo, updateUserInfoRef} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {setUserInfoData, userInfo} = React.useContext(UserInfoProvider.defaultContext)
   let url = `${Window.env.apiBaseUrl}/user`
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getUserInfo = async () => {
     try {
-      let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute)
+      let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute, ~forceCookies)
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
-      setUserInfoData(userInfo)
-      updateUserInfoRef(userInfo)
       userInfo
     } catch {
     | Exn.Error(e) => {
@@ -50,9 +46,8 @@ let useOrgSwitch = () => {
   let updateDetails = useUpdateMethod()
   let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {userInfoFromRef} = React.useContext(UserInfoProvider.defaultContext)
 
-  async (~expectedOrgId, ~currentOrgId) => {
+  async (~expectedOrgId, ~currentOrgId, ~defaultValue) => {
     try {
       if expectedOrgId !== currentOrgId {
         let url = getURL(~entityName=USERS, ~userType=#SWITCH_ORG, ~methodType=Post)
@@ -63,7 +58,7 @@ let useOrgSwitch = () => {
         let userInfoRes = await getUserInfo()
         userInfoRes
       } else {
-        userInfoFromRef
+        defaultValue
       }
     } catch {
     | Exn.Error(e) => {
@@ -78,11 +73,11 @@ let useMerchantSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let showToast = ToastState.useShowToast()
   let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {userInfoFromRef} = React.useContext(UserInfoProvider.defaultContext)
 
-  async (~expectedMerchantId, ~currentMerchantId) => {
+  async (~expectedMerchantId, ~currentMerchantId, ~defaultValue) => {
     try {
       if expectedMerchantId !== currentMerchantId {
         let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT_NEW, ~methodType=Post)
@@ -93,9 +88,10 @@ let useMerchantSwitch = () => {
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
+        showToast(~message=`Your merchant has been switched successfully.`, ~toastType=ToastSuccess)
         userInfoRes
       } else {
-        userInfoFromRef
+        defaultValue
       }
     } catch {
     | Exn.Error(e) => {
@@ -113,9 +109,8 @@ let useProfileSwitch = () => {
   let showToast = ToastState.useShowToast()
   let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {userInfoFromRef} = React.useContext(UserInfoProvider.defaultContext)
 
-  async (~expectedProfileId, ~currentProfileId) => {
+  async (~expectedProfileId, ~currentProfileId, ~defaultValue) => {
     try {
       // Need to remove the Empty string check once userInfo contains the profileId
       if expectedProfileId !== currentProfileId && currentProfileId->LogicUtils.isNonEmptyString {
@@ -128,7 +123,7 @@ let useProfileSwitch = () => {
         showToast(~message=`Your profile has been switched successfully.`, ~toastType=ToastSuccess)
         userInfoRes
       } else {
-        userInfoFromRef
+        defaultValue
       }
     } catch {
     | Exn.Error(e) => {
@@ -144,22 +139,28 @@ let useInternalSwitch = () => {
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
 
-  let {userInfoFromRef} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
 
   async (~expectedOrgId=None, ~expectedMerchantId=None, ~expectedProfileId=None) => {
     try {
       let userInfoResFromSwitchOrg = await orgSwitch(
-        ~expectedOrgId=expectedOrgId->Option.getOr(userInfoFromRef.orgId),
-        ~currentOrgId=userInfoFromRef.orgId,
+        ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
+        ~currentOrgId=userInfo.orgId,
+        ~defaultValue=userInfo,
       )
+
       let userInfoResFromSwitchMerch = await merchSwitch(
         ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),
         ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
+        ~defaultValue=userInfoResFromSwitchOrg,
       )
-      let _ = await profileSwitch(
+
+      let userInfoFromProfile = await profileSwitch(
         ~expectedProfileId=expectedProfileId->Option.getOr(userInfoResFromSwitchMerch.profileId),
         ~currentProfileId=userInfoResFromSwitchMerch.profileId,
+        ~defaultValue=userInfoResFromSwitchMerch,
       )
+      setUserInfoData(userInfoFromProfile)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to switch!")

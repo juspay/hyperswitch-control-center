@@ -18,6 +18,8 @@ let make = () => {
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
+  let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
+  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let retainCloneModal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.retainCloneModalAtom)
   let (showModal, setShowModal) = React.useState(_ => false)
 
@@ -28,9 +30,10 @@ let make = () => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {
+    userInfo: {orgId, merchantId, profileId, roleId, themeId},
+    checkUserEntity,
+  } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -42,6 +45,7 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
+  let maintainenceAlert = featureFlagDetails.maintainenceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let reconSidebars = HSReconSidebarValues.useGetReconSideBar()
   sessionExpired := false
@@ -65,6 +69,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
+      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -82,7 +87,7 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [orgId, merchantId, profileId])
+  }, [orgId, merchantId, profileId, themeId])
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {
@@ -170,6 +175,9 @@ let make = () => {
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
+                    <RenderIf condition={maintainenceAlert->LogicUtils.isNonEmptyString}>
+                      <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
+                    </RenderIf>
                     <div
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>

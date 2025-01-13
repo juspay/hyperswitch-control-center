@@ -1,3 +1,41 @@
+module OMPCopyTextCustomComp = {
+  @react.component
+  let make = (
+    ~displayValue,
+    ~copyValue=None,
+    ~customTextCss="",
+    ~customParentClass="flex items-center",
+    ~customOnCopyClick=() => (),
+  ) => {
+    let showToast = ToastState.useShowToast()
+    let copyVal = switch copyValue {
+    | Some(val) => val
+    | None => displayValue
+    }
+    let onCopyClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(copyVal)
+      customOnCopyClick()
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+    }
+
+    if displayValue->LogicUtils.isNonEmptyString {
+      <div className=customParentClass>
+        <div className=customTextCss> {displayValue->React.string} </div>
+        <img
+          alt="cursor"
+          src={`/assets/copyid.svg`}
+          className="cursor-pointer"
+          onClick={ev => {
+            onCopyClick(ev)
+          }}
+        />
+      </div>
+    } else {
+      "NA"->React.string
+    }
+  }
+}
 module ListBaseComp = {
   @react.component
   let make = (
@@ -7,6 +45,7 @@ module ListBaseComp = {
     ~showEditIcon=false,
     ~onEditClick=_ => (),
     ~isDarkBg=false,
+    ~showDropdownArrow=true,
   ) => {
     let baseCompStyle = isDarkBg
       ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
@@ -27,8 +66,8 @@ module ListBaseComp = {
     let paddingSubheading = isDarkBg ? "pl-2" : ""
     let paddingHeading = isDarkBg ? "pl-2" : ""
 
-    let endValue = isDarkBg ? 23 : 15
-    let maxLength = isDarkBg ? 23 : 15
+    let endValue = isDarkBg ? 20 : 15
+    let maxLength = isDarkBg ? 20 : 15
 
     let subHeadingElement = if subHeading->String.length > maxLength {
       <HelperComponents.EllipsisText
@@ -53,12 +92,24 @@ module ListBaseComp = {
             className={`fs-10 ${textColor} ${width} ${paddingSubheading} overflow-scroll text-nowrap`}>
             {subHeadingElement}
           </p>
+          <RenderIf condition={!showDropdownArrow}>
+            <ToolTip
+              description={subHeading}
+              customStyle="!whitespace-nowrap"
+              toolTipFor={<div className="cursor-pointer">
+                <OMPCopyTextCustomComp displayValue=" " copyValue=Some({subHeading}) />
+              </div>}
+              toolTipPosition=ToolTip.Right
+            />
+          </RenderIf>
           <RenderIf condition={showEditIcon}>
             <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
           </RenderIf>
-          <Icon
-            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
-          />
+          <RenderIf condition={showDropdownArrow}>
+            <Icon
+              className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
+            />
+          </RenderIf>
         </div>
       </div>
     </div>
@@ -126,7 +177,7 @@ module OMPViewBaseComp = {
           <p className="text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
             {`View data for:`->React.string}
           </p>
-          <span className="text-blue-500 text-nowrap"> {truncatedDisplayName} </span>
+          <span className="text-primary text-nowrap"> {truncatedDisplayName} </span>
           <Icon
             className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
             name="arrow-without-tail"
@@ -164,11 +215,12 @@ module OMPViewsComp = {
     let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
     let dropdownContainerStyle = "md:rounded-lg md:border md:w-full md:shadow-md"
 
-    <div className="flex h-fit border border-grey-100 bg-white rounded-lg py-2 hover:bg-opacity-80">
+    <div className="flex h-fit border bg-white rounded-lg py-2 hover:bg-opacity-80">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText=""
         input
+        deselectDisable=true
         customButtonStyle="!rounded-md"
         options
         marginTop="mt-8"
@@ -220,45 +272,6 @@ module OMPViews = {
     let displayName = selectedEntity->getNameForId
 
     <OMPViewsComp input options displayName />
-  }
-}
-
-module OMPCopyTextCustomComp = {
-  @react.component
-  let make = (
-    ~displayValue,
-    ~copyValue=None,
-    ~customTextCss="",
-    ~customParentClass="flex items-center",
-    ~customOnCopyClick=() => (),
-  ) => {
-    let showToast = ToastState.useShowToast()
-    let copyVal = switch copyValue {
-    | Some(val) => val
-    | None => displayValue
-    }
-    let onCopyClick = ev => {
-      ev->ReactEvent.Mouse.stopPropagation
-      Clipboard.writeText(copyVal)
-      customOnCopyClick()
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-    }
-
-    if displayValue->LogicUtils.isNonEmptyString {
-      <div className=customParentClass>
-        <div className=customTextCss> {displayValue->React.string} </div>
-        <img
-          alt="cursor"
-          src={`/assets/copyid.svg`}
-          className="cursor-pointer"
-          onClick={ev => {
-            onCopyClick(ev)
-          }}
-        />
-      </div>
-    } else {
-      "NA"->React.string
-    }
   }
 }
 
