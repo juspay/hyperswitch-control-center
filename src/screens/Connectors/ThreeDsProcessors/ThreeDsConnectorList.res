@@ -8,11 +8,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
-  let threeDsConnectorsList =
-    connectorList->Array.filter(item =>
-      item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
-        AuthenticationProcessor
-    )
+
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
     let (searchText, arr) = ob
@@ -34,6 +30,11 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
+      let threeDsConnectorsList =
+        connectorList->Array.filter(item =>
+          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
+            AuthenticationProcessor
+        )
       ConnectorUtils.sortByDisableField(threeDsConnectorsList, connectorPayload =>
         connectorPayload.disabled
       )
