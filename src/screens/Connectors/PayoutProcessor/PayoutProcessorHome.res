@@ -205,7 +205,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   }
 
   React.useEffect(() => {
-    Js.log("inside connector use effect in payoutprocesorhome")
     if connector->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {
