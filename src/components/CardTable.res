@@ -3,7 +3,11 @@ module TextCard = {
   let make = (~text) => {
     if String.length(String.trim(text)) > 0 {
       <p className="break-words font-semibold">
-        {React.string(String.length(String.trim(text)) > 0 ? text : "N/A")}
+        <HelperComponents.EllipsisText
+          endValue=10
+          displayValue={String.length(String.trim(text)) > 0 ? text : "N/A"}
+          showCopy=false
+        />
       </p>
     } else {
       React.string("-")
