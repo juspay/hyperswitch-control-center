@@ -8,7 +8,7 @@ open LogicUtils
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~fileType=".pdf",
+  ~fileType=".csv,.pdf",
   ~fileNamesInput: option<ReactFinalForm.fieldRenderPropsInput>=?,
   ~isDisabled=false,
   ~shouldParse=true,
