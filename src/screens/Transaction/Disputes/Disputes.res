@@ -16,7 +16,7 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+  let {userInfo: {transactionEntity, orgId, merchantId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
 
@@ -118,7 +118,7 @@ let make = () => {
           title="Disputes"
           hideTitle=true
           actualData=disputesData
-          entity={DisputesEntity.disputesEntity}
+          entity={DisputesEntity.disputesEntity(merchantId, orgId)}
           resultsPerPage=10
           showSerialNumber=true
           totalResults={disputesData->Array.length}

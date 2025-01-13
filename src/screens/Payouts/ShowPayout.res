@@ -145,7 +145,7 @@ module PayoutInfo = {
 }
 
 @react.component
-let make = (~id, ~profileId) => {
+let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -156,7 +156,11 @@ let make = (~id, ~profileId) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some(id))
-      let _ = await internalSwitch(~expectedProfileId=profileId)
+      let _ = await internalSwitch(
+        ~expectedOrgId=orgId,
+        ~expectedMerchantId=merchantId,
+        ~expectedProfileId=profileId,
+      )
       let response = await fetchDetails(payoutsUrl)
       setPayoutsData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

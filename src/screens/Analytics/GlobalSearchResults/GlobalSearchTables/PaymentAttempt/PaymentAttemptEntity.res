@@ -54,6 +54,7 @@ type paymentAttemptObject = {
   client_source: string,
   client_version: string,
   profile_id: string,
+  organization_id: string,
 }
 
 type cols =
@@ -110,6 +111,7 @@ type cols =
   | ClientSource
   | ClientVersion
   | ProfileId
+  | OrganizationId
 
 let visibleColumns = [
   PaymentId,
@@ -177,6 +179,7 @@ let colMapper = (col: cols) => {
   | ClientSource => "client_source"
   | ClientVersion => "client_version"
   | ProfileId => "profile_id"
+  | OrganizationId => "organization_id"
   }
 }
 
@@ -237,6 +240,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
     client_source: dict->getString(ClientSource->colMapper, "NA"),
     client_version: dict->getString(ClientVersion->colMapper, "NA"),
     profile_id: dict->getString(ProfileId->colMapper, "NA"),
+    organization_id: dict->getString(OrganizationId->colMapper, "NA"),
   }
 }
 
@@ -313,6 +317,7 @@ let getHeading = colType => {
   | ClientSource => Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=TextType)
   | ClientVersion => Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=TextType)
   | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
+  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
   }
 }
 
@@ -417,6 +422,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | ClientSource => Text(paymentObj.client_source)
   | ClientVersion => Text(paymentObj.client_version)
   | ProfileId => Text(paymentObj.profile_id)
+  | OrganizationId => Text(paymentObj.organization_id)
   }
 }
 
@@ -431,6 +437,8 @@ let tableEntity = EntityType.makeEntity(
   ~getHeading,
   ~getShowLink={
     order =>
-      GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}/${order.profile_id}`)
+      GlobalVars.appendDashboardPath(
+        ~url=`/payments/${order.payment_id}/${order.profile_id}/${order.merchant_id}/${order.organization_id}`,
+      )
   },
 )

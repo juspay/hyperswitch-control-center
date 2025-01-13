@@ -128,7 +128,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let profileSwitch = OMPSwitchHooks.useProfileSwitch()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let url = RescriptReactRouter.useUrl()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -156,7 +156,7 @@ let make = () => {
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)
-      let _ = await profileSwitch(~expectedProfileId=value, ~currentProfileId=profileId)
+      let _ = await internalSwitch(~expectedProfileId=Some(value))
       RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingProfile(_ => false)
     } catch {
