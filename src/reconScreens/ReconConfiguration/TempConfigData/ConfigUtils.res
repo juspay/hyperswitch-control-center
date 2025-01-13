@@ -293,3 +293,99 @@ let pspConfig = (merchantId: string, pspType: string) =>
       ],
     },
   }->Identity.genericTypeToJson
+
+let reconConfig = (merchantId: string, pspType: string) =>
+  {
+    "historical_check": "30 days",
+    "probable_match": false,
+    "recon": [
+      {
+        "allowed_buffer": 0,
+        "buffer_columns": [],
+        "deciders": [
+          {
+            "alias": "amount",
+            "system_1_decider": "txn_amount",
+            "system_2_decider": "txn_amount",
+          },
+        ],
+        "primary_lookup": {
+          "system_1_key": "payment_entity_txn_id",
+          "system_2_key": "payment_entity_txn_id",
+        },
+      },
+    ],
+    "recon_observations": {
+      "columns": {
+        "recon1_status": "status",
+        "recon1_sub_status": "sub_status",
+        "recon_id": "recon_id",
+        "reconciled_at": "reconciled_at",
+        "remarks": "remarks",
+        "system_a_file_id": "system_a_uuid",
+        "system_a_id": "system_a_identifier",
+        "system_a_name": "system_a",
+        "system_b_file_id": "system_b_uuid",
+        "system_b_id": "system_b_identifier",
+        "system_b_name": "system_b",
+      },
+      "table": "reconciliation",
+    },
+    "system_a": {
+      "aggregated": false,
+      "aggregation_info": null,
+      "file_id": "uuid",
+      "filters": [
+        {
+          "fixed": false,
+          "value": "uuid IN (SELECT file_uuid FROM {schema}.files_metadata WHERE batch_id IN (system_a_uuid))",
+        },
+      ],
+      "identifier": "payment_entity_txn_id",
+      "name": merchantId,
+      "secondary_lookups": null,
+      "selection_columns": [
+        "txn_id",
+        "txn_type",
+        "payment_entity_txn_id",
+        "txn_amount",
+        "txn_status",
+        "uuid",
+      ],
+      "table": "entity_transactions",
+    },
+    "system_b": {
+      "aggregated": false,
+      "aggregation_info": null,
+      "file_id": "uuid",
+      "filters": [
+        {
+          "fixed": false,
+          "value": "uuid IN (SELECT file_uuid FROM {schema}.files_metadata WHERE batch_id IN (system_b_uuid))",
+        },
+      ],
+      "identifier": "payment_entity_txn_id",
+      "name": pspType,
+      "secondary_lookups": null,
+      "selection_columns": [
+        "payment_entity_txn_id",
+        "txn_type",
+        "txn_amount",
+        "settlement_id",
+        "settlement_amount",
+        "uuid",
+      ],
+      "table": "payment_entity_transactions",
+    },
+    "system_c": null,
+    "three_way": false,
+  }
+  ->Identity.genericTypeToJson
+  ->JSON.stringify
+
+let baseProcessMetadata =
+  {
+    "Transformer": null,
+  }
+  ->Identity.genericTypeToJson
+  ->JSON.stringify

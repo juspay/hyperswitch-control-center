@@ -3,7 +3,7 @@ primary_color="#006DF9"
 primary_hover_color="#005ED6"
 sidebar_color="#242F48"
 [default.endpoints]
-api_url="http://localhost:8000/api"
+api_url="https://sandbox.hyperswitch.io"
 sdk_url="http://localhost:9050/HyperLoader.js"
 logo_url=""
 favicon_url=""
@@ -54,7 +54,6 @@ x_feature_route=false
 tenant_user=false
 dev_click_to_pay=false
 dev_recon_v2_product=true
-dev_recon_v2_product=false
 maintainence_alert=""
 [default.merchant_config]
 [default.merchant_config.new_analytics]
