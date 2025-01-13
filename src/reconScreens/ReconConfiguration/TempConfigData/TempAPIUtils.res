@@ -166,7 +166,7 @@ let approvePSPConfigAPI = (~merchantId, ~configUUID) => {
   (url, body)
 }
 
-let getBaseConfigUUIDAPI = (~merchantId) => {
+let getConfigUUIDAPI = (~merchantId) => {
   let url = `http://localhost:8000/recon-settlement-api/recon/settlements/v1/configuration/list?merchant_id=${merchantId}&limit=50&offset=0`
   url
 }
@@ -174,35 +174,56 @@ let getBaseConfigUUIDAPI = (~merchantId) => {
 let useStepConfig = (
   ~step: ReconConfigurationTypes.subSections,
   ~fileUploadedDict: option<Dict.t<Core__JSON.t>>=?,
-  ~configUUID: option<string>=?,
 ) => {
   open APIUtils
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let getAPIHook = useGetMethod(~showErrorToast=false)
-
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+
+  let getConfigUUID = res => {
+    let arrayFromJson = res->getDictFromJsonObject->Dict.get("data")
+
+    switch arrayFromJson {
+    | Some(data) =>
+      switch Js.Json.classify(data) {
+      | Js.Json.JSONArray(dataArray) =>
+        switch dataArray->Array.get(0) {
+        | Some(firstElement) =>
+          switch firstElement->getDictFromJsonObject->Dict.get("config_uuid") {
+          | Some(configUUID) => configUUID->Js.Json.decodeString
+          | None => Exn.raiseError("Failed to get configUUID from the first element")
+          }
+        | None => Exn.raiseError("No elements in the 'data' array")
+        }
+      | _ => Exn.raiseError("'data' is not an array")
+      }
+    | None => Exn.raiseError("Failed to get 'data' from the response")
+    }
+  }
+
   async _ => {
     try {
       switch step {
       | SelectSource => {
-          let (url, body) = reportConfigAPI(
+          let (reportUrl, reportBody) = reportConfigAPI(
             ~configName="Hyperswitch",
             ~base=merchantId,
             ~connectionId="JP_RECON",
             ~source="SFTP",
           )
+          let _ = await updateAPIHook(reportUrl, reportBody, Post)
+          // Below API should return the configUUID to approve the base config
           let (baseUrl, baseBody) = baseConfigAPI(~merchantId, ~userName="")
+          let _ = await updateAPIHook(baseUrl, baseBody, Post)
+
+          let listAPI = getConfigUUIDAPI(~merchantId)
+          let res = await getAPIHook(listAPI)
+          let configUUID = getConfigUUID(res)
           let (approveBaseConfigUrl, approveBaseConfigBody) = approveBaseConfigAPI(
             ~merchantId,
             ~configUUID,
           )
-
-          let _ = await updateAPIHook(url, body, Post)
-          let _ = await updateAPIHook(baseUrl, baseBody, Post)
-          // let _ = await updateAPIHook(approveBaseConfigUrl, approveBaseConfigBody, Put)
-          let listAPI = getBaseConfigUUIDAPI(~merchantId)
-          let res = await getAPIHook(listAPI)
-          Js.log2("res", res)
+          let _ = await updateAPIHook(approveBaseConfigUrl, approveBaseConfigBody, Put)
         }
       | SetupAPIConnection => {
           let (url, formData) = baseFileUploadAPI(~fileUploadedDict, ~merchantId)
@@ -219,20 +240,24 @@ let useStepConfig = (
           let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
         }
       | APIKeysAndLiveEndpoints => {
-          let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity="FIUU")
+          let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity="PAYU")
+          let _ = await updateAPIHook(pspUrl, pspBody, Post)
+
+          let listAPI = getConfigUUIDAPI(~merchantId)
+          let res = await getAPIHook(listAPI)
+          let configUUID = getConfigUUID(res)
           let (approvePSPConfigUrl, approvePSPConfigBody) = approvePSPConfigAPI(
             ~merchantId,
             ~configUUID,
           )
 
-          let _ = await updateAPIHook(pspUrl, pspBody, Post)
           let _ = await updateAPIHook(approvePSPConfigUrl, approvePSPConfigBody, Put)
         }
       | WebHooks => {
-          let (url, formData) = pspFileUploadAPI(~fileUploadedDict, ~merchantId, ~pspType="FIUU")
+          let (url, formData) = pspFileUploadAPI(~fileUploadedDict, ~merchantId, ~pspType="PAYU")
           let (transformPSPFileUrl, transformPSPFileBody) = transformPSPFileAPI(
             ~merchantId,
-            ~paymentEntity="FIUU",
+            ~paymentEntity="PAYU",
           )
           let _ = await updateAPIHook(
             ~bodyFormData=formData,
@@ -249,7 +274,7 @@ let useStepConfig = (
             ~base=merchantId,
             ~connectionId="JP_RECON",
             ~source="SFTP",
-            ~pspType="FIUU",
+            ~pspType="PAYU",
           )
           let _ = await updateAPIHook(reconUrl, reconBody, Post)
         }
