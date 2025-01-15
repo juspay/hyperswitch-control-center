@@ -4,7 +4,7 @@ module TestLivePayment = {
     open ReconConfigurationUtils
     open TempAPIUtils
 
-    let stepConfig = useStepConfig(~step=currentStep->getSubsectionFromStep)
+    let stepConfig = useStepConfig(~step=currentStep->getSubsectionFromStep, ~paymentEntity="FIUU")
 
     let onSubmit = async () => {
       try {

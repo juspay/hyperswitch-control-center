@@ -13,7 +13,10 @@ module APIKeysAndLiveEndpoints = {
     let connectorList = [Processors(FIUU)]
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let (selectedConnector, setSelectedConnector) = React.useState(() => "")
-    let stepConfig = useStepConfig(~step=currentStep->getSubsectionFromStep)
+    let stepConfig = useStepConfig(
+      ~step=currentStep->getSubsectionFromStep,
+      ~paymentEntity=selectedConnector->String.toUpperCase,
+    )
 
     let onSubmit = async () => {
       try {
@@ -82,7 +85,11 @@ module WebHooks = {
     let (fileUploadedDict, setFileUploadedDict) = React.useState(_ => Dict.make())
     let uploadEvidenceType = "PSPfile"->String.toLowerCase->titleToSnake
     let showToast = ToastState.useShowToast()
-    let stepConfig = useStepConfig(~step=currentStep->getSubsectionFromStep, ~fileUploadedDict)
+    let stepConfig = useStepConfig(
+      ~step=currentStep->getSubsectionFromStep,
+      ~fileUploadedDict,
+      ~paymentEntity="FIUU",
+    )
 
     let toast = (message, toastType) => {
       showToast(~message, ~toastType)

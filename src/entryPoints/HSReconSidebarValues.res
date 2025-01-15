@@ -24,9 +24,17 @@ let reconAnalytics = {
     searchOptions: [("Recon analytics", "")],
   })
 }
+let reconReports = {
+  SubLevelLink({
+    name: "Reports",
+    link: `v2/recon/reports`,
+    access: Access,
+    searchOptions: [("Recon reports", "")],
+  })
+}
 
 let recon = () => {
-  let links = [reconOnBoarding, reconAnalytics]
+  let links = [reconOnBoarding, reconAnalytics, reconReports]
   Section({
     name: "Recon And Settlement",
     icon: "v2/recon",
