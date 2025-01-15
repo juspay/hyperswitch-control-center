@@ -650,7 +650,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   }
 }
 
-let getCell = (order, colType: colType): Table.cell => {
+let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   open HelperComponents
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
@@ -664,7 +664,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | PaymentId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/payments/${order.payment_id}/${order.profile_id}`}
+        url={`/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`}
         displayValue={order.payment_id}
         copyValue={Some(order.payment_id)}
       />,
@@ -921,16 +921,19 @@ let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let orderEntity = EntityType.makeEntity(
-  ~uri=``,
-  ~getObjects=getOrders,
-  ~defaultColumns,
-  ~allColumns,
-  ~getHeading,
-  ~getCell,
-  ~dataKey="",
-  ~getShowLink={
-    order =>
-      GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}/${order.profile_id}`)
-  },
-)
+let orderEntity = (merchantId, orgId) =>
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects=getOrders,
+    ~defaultColumns,
+    ~allColumns,
+    ~getHeading,
+    ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
+    ~dataKey="",
+    ~getShowLink={
+      order =>
+        GlobalVars.appendDashboardPath(
+          ~url=`/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`,
+        )
+    },
+  )

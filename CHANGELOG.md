@@ -3,6 +3,40 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.14.0
+
+### Bug Fixes
+
+- Global search id search fix ([#2054](https://github.com/juspay/hyperswitch-control-center/pull/2054)) ([`6dcaf1f`](https://github.com/juspay/hyperswitch-control-center/commit/6dcaf1f834464dc4fc966719ec6be39d597f7f1a))
+
+### Miscellaneous Tasks
+
+- Conditional enforcement of cookies ([#2050](https://github.com/juspay/hyperswitch-control-center/pull/2050)) ([`7c25c4b`](https://github.com/juspay/hyperswitch-control-center/commit/7c25c4b42be1bc5fe48777fece35cb9c1f2f42dd))
+
+**Full Changelog:** [`2025.01.13.0...2025.01.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.13.0...2025.01.14.0)
+
+- - -
+
+## 2025.01.13.0
+
+### Features
+
+- Recon Setup ([#1981](https://github.com/juspay/hyperswitch-control-center/pull/1981)) ([`1a13c1e`](https://github.com/juspay/hyperswitch-control-center/commit/1a13c1e10909e05f64d83f7b9f9dda6c4af9cbf8))
+- Banner for maintenance ([#2022](https://github.com/juspay/hyperswitch-control-center/pull/2022)) ([`0695232`](https://github.com/juspay/hyperswitch-control-center/commit/0695232e3fff0abc3fc6824fcba8fc2693ae8dcc))
+
+### Bug Fixes
+
+- Disable deselecting item ([#2058](https://github.com/juspay/hyperswitch-control-center/pull/2058)) ([`64347ef`](https://github.com/juspay/hyperswitch-control-center/commit/64347ef3a81bf3b0ac48931fd5ff76fe10dd14d6))
+
+### Miscellaneous Tasks
+
+- Limit unusually large width of dropdown ([#2046](https://github.com/juspay/hyperswitch-control-center/pull/2046)) ([`edaf8b4`](https://github.com/juspay/hyperswitch-control-center/commit/edaf8b441f1ede8ed4b1dcb753ff198d3e0464cd))
+- Org dropdown for tenant admin ([#2053](https://github.com/juspay/hyperswitch-control-center/pull/2053)) ([`ec27e2c`](https://github.com/juspay/hyperswitch-control-center/commit/ec27e2c5a6bce6842329e13103364f5d58b848f4))
+
+**Full Changelog:** [`2025.01.10.0...2025.01.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.10.0...2025.01.13.0)
+
+- - -
+
 ## 2025.01.10.0
 
 ### Bug Fixes

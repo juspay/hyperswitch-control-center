@@ -26,6 +26,7 @@ type paymentIntentObject = {
   sign_flag: int,
   timestamp: string,
   profile_id: string,
+  organization_id: string,
 }
 
 type cols =
@@ -54,6 +55,7 @@ type cols =
   | SignFlag
   | Timestamp
   | ProfileId
+  | OrganizationId
 
 let visibleColumns = [
   PaymentId,
@@ -94,6 +96,7 @@ let colMapper = (col: cols) => {
   | SignFlag => "sign_flag"
   | Timestamp => "@timestamp"
   | ProfileId => "profile_id"
+  | OrganizationId => "organization_id"
   }
 }
 
@@ -126,11 +129,13 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentIntentObject = dict => {
     sign_flag: dict->getInt(SignFlag->colMapper, 0),
     timestamp: dict->getString(Timestamp->colMapper, "NA"),
     profile_id: dict->getString(ProfileId->colMapper, "NA"),
+    organization_id: dict->getString(OrganizationId->colMapper, "NA"),
   }
 }
 
 let getObjects: JSON.t => array<paymentIntentObject> = json => {
   open LogicUtils
+
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {
@@ -168,6 +173,7 @@ let getHeading = colType => {
   | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType)
   | Timestamp => Table.makeHeaderInfo(~key, ~title="Time Stamp", ~dataType=TextType)
   | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
+  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
   }
 }
 
@@ -238,6 +244,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | SignFlag => Text(paymentObj.sign_flag->Int.toString)
   | Timestamp => Text(paymentObj.timestamp)
   | ProfileId => Text(paymentObj.profile_id)
+  | OrganizationId => Text(paymentObj.organization_id)
   }
 }
 
@@ -251,7 +258,10 @@ let tableEntity = EntityType.makeEntity(
   ~getCell,
   ~getHeading,
   ~getShowLink={
-    order =>
-      GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}/${order.profile_id}`)
+    order => {
+      GlobalVars.appendDashboardPath(
+        ~url=`/payments/${order.payment_id}/${order.profile_id}/${order.merchant_id}/${order.organization_id}`,
+      )
+    }
   },
 )

@@ -2,7 +2,7 @@
 let make = () => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let merchSwitch = OMPSwitchHooks.useMerchantSwitch()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let (value, setValue) = React.useState(() => "")
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -31,7 +31,7 @@ let make = () => {
 
   let switchMerchant = async () => {
     try {
-      let _ = await merchSwitch(~expectedMerchantId=value, ~currentMerchantId=merchantId)
+      let _ = await internalSwitch(~expectedMerchantId=Some(value))
     } catch {
     | _ => showToast(~message="Failed to switch the merchant! Try again.", ~toastType=ToastError)
     }

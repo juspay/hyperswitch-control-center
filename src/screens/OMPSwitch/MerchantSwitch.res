@@ -128,7 +128,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let merchSwitch = OMPSwitchHooks.useMerchantSwitch()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let url = RescriptReactRouter.useUrl()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -155,7 +155,7 @@ let make = () => {
   let switchMerch = async value => {
     try {
       setShowSwitchingMerch(_ => true)
-      let _ = await merchSwitch(~expectedMerchantId=value, ~currentMerchantId=merchantId)
+      let _ = await internalSwitch(~expectedMerchantId=Some(value))
       RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingMerch(_ => false)
     } catch {
@@ -181,7 +181,7 @@ let make = () => {
   let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
   let addItemBtnStyle = "border border-t-0 w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
-  let dropdownContainerStyle = "rounded-md border border-1 w-[15rem]"
+  let dropdownContainerStyle = "rounded-md border border-1 w-[14rem] max-w-[20rem]"
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
