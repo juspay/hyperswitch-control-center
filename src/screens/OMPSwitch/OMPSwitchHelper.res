@@ -57,12 +57,12 @@ module ListBaseComp = {
     let iconName = isDarkBg ? "arrow-without-tail-new" : "arrow-without-tail"
 
     let arrowDownClass = isDarkBg
-      ? "rotate-0 transition duration-[250ms] opacity-70"
-      : "rotate-180 transition duration-[250ms] opacity-70"
+      ? `rotate-0 transition duration-[250ms] opacity-70 !${secondaryTextColor}`
+      : `rotate-180 transition duration-[250ms] opacity-70 `
 
     let arrowUpClass = isDarkBg
-      ? "-rotate-180 transition duration-[250ms] opacity-70"
-      : "rotate-0 transition duration-[250ms] opacity-70"
+      ? `-rotate-180 transition duration-[250ms] opacity-70 !${secondaryTextColor}`
+      : `rotate-0 transition duration-[250ms] opacity-70 `
 
     let textColor = isDarkBg ? `${secondaryTextColor}` : "text-grey-900"
     let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"

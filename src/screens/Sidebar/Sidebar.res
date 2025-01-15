@@ -679,7 +679,9 @@ let make = (
                     </div>
                     <div
                       className={`flex flex-row border-transparent dark:border-transparent rounded-2xl p-2 border-2`}>
-                      <Icon name="dropdown-menu" className="cursor-pointer" />
+                      <Icon
+                        name="dropdown-menu" className={`cursor-pointer ${secondaryTextColor}`}
+                      />
                     </div>
                   </>}
                 </Popover.Button>
