@@ -17,7 +17,7 @@ let requestBody = (
   ~endTime: string,
   ~metrics: array<metrics>,
   ~groupByNames: option<array<string>>=None,
-  ~filter: option<JSON.t>=None,
+  ~filter: option<JSON.t>,
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,
