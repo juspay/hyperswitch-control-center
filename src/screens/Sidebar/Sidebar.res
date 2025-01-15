@@ -37,16 +37,18 @@ module MenuOption = {
 module SidebarOption = {
   @react.component
   let make = (~isSidebarExpanded, ~name, ~icon, ~isSelected) => {
-    let {globalUIConfig: {sidebarColor: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let textBoldStyles = isSelected ? "font-bold" : "font-semibold opacity-70"
-    let iconColor = isSelected ? `${textColor}` : `${textColor} opacity-70`
+    let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
+    let textBoldStyles = isSelected
+      ? `${primaryTextColor} font-bold`
+      : `${secondaryTextColor} font-semibold !opacity-70`
+    let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor} opacity-70`
 
     if isSidebarExpanded {
       <div className="flex items-center gap-5">
         <Icon size={getIconSize("small")} name=icon className=iconColor />
-        <div className={`${textColor} text-sm ${textBoldStyles} whitespace-nowrap`}>
-          {React.string(name)}
-        </div>
+        <div className={`text-sm ${textBoldStyles} whitespace-nowrap`}> {React.string(name)} </div>
       </div>
     } else {
       <Icon size={getIconSize("small")} name=icon className=iconColor />
@@ -70,7 +72,7 @@ module SidebarSubOption = {
           : "mx-1"} border-l-2 border-light_grey`}>
       <div className="w-6" />
       <div
-        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 rounded-sm flex items-center ${hoverColor} whitespace-nowrap my-0.5`}>
+        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 rounded-sm flex items-center ${hoverColor} whitespace-nowrap my-0.5 `}>
         {React.string(name)}
         {children}
       </div>
@@ -85,7 +87,7 @@ module SidebarItem = {
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(String.substringToEnd(link, ~start=0))
     let {
-      globalUIConfig: {sidebarColor: {textColor: sidebarTextColor, hoverColor}},
+      globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let selectedClass = if isSelected {
       `border-l-2 border-white ${hoverColor}`
@@ -94,9 +96,9 @@ module SidebarItem = {
     }
 
     let textColor = if isSelected {
-      `text-sm font-bold ${sidebarTextColor}`
+      `text-sm font-bold ${primaryTextColor}`
     } else {
-      `text-sm font-semibold text-unselected_white`
+      `text-sm font-semibold ${secondaryTextColor} opacity-70`
     }
     let isMobileView = MatchMedia.useMobileChecker()
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
@@ -124,7 +126,7 @@ module SidebarItem = {
                 onClick={onSidebarItemClick}
                 className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer ${selectedClass} p-3 ${isSidebarExpanded
                     ? ""
-                    : "mx-1"} ${hoverColor} my-0.5`}>
+                    : "mx-1"} ${hoverColor} my-0.5 `}>
                 <SidebarOption name icon isSidebarExpanded isSelected />
               </div>
             </AddDataAttributes>
@@ -183,7 +185,9 @@ module SidebarItem = {
 module NestedSidebarItem = {
   @react.component
   let make = (~tabInfo, ~isSelected, ~isSideBarExpanded, ~isSectionExpanded) => {
-    let {globalUIConfig: {sidebarColor: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+    let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
 
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
@@ -195,9 +199,9 @@ module NestedSidebarItem = {
     }
 
     let textColor = if isSelected {
-      `text-md font-small ${textColor}`
+      `text-md font-small ${primaryTextColor}`
     } else {
-      `text-md font-small ${textColor} opacity-70`
+      `text-md font-small ${secondaryTextColor} opacity-70`
     }
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let paddingClass = if isSideBarExpanded {
@@ -261,9 +265,11 @@ module NestedSectionItem = {
     ~isSideBarExpanded,
   ) => {
     let {
-      globalUIConfig: {sidebarColor: {textColor: sidebarTextColor, hoverColor}},
+      globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let iconColor = isAnySubItemSelected ? `${sidebarTextColor}` : `${sidebarTextColor} opacity-70`
+    let iconColor = isAnySubItemSelected
+      ? `${primaryTextColor}`
+      : `${secondaryTextColor} opacity-70`
 
     let iconOuterClass = if !isSideBarExpanded {
       `${isAnySubItemSelected ? "" : ""} rounded-sm p-4 rounded-lg`
@@ -314,8 +320,8 @@ module NestedSectionItem = {
             <Icon
               name={"Nested_arrow_down"}
               className={isSectionExpanded
-                ? `-rotate-180 transition duration-[250ms] mr-2 ${sidebarTextColor} opacity-70`
-                : `-rotate-0 transition duration-[250ms] mr-2 ${sidebarTextColor} opacity-70`}
+                ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`
+                : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`}
               size=16
             />
           </RenderIf>
@@ -350,7 +356,7 @@ module SidebarNestedSection = {
     ~setOpenItem=_ => (),
     ~isSectionAutoCollapseEnabled=false,
   ) => {
-    let {globalUIConfig: {sidebarColor: {textColor: sidebarTextColor}}} = React.useContext(
+    let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
     let isSubLevelItemSelected = tabInfo => {
@@ -399,14 +405,14 @@ module SidebarNestedSection = {
     let textColor = {
       if isSideBarExpanded {
         if isAnySubItemSelected {
-          `${sidebarTextColor}`
+          `${primaryTextColor}`
         } else {
-          `${sidebarTextColor} opacity-70`
+          `${secondaryTextColor} opacity-70`
         }
       } else if isAnySubItemSelected {
-        `${sidebarTextColor}`
+        `${primaryTextColor}`
       } else {
-        `${sidebarTextColor} opacity-70`
+        `${secondaryTextColor} opacity-70`
       }
     }
 
@@ -416,8 +422,8 @@ module SidebarNestedSection = {
       `cursor-pointer`
     }
     let expandedTextColor = isAnySubItemSelected
-      ? `${sidebarTextColor}`
-      : `${sidebarTextColor} !opacity-70`
+      ? `${primaryTextColor}`
+      : `${secondaryTextColor} !opacity-70`
     let areAllSubLevelsHidden = section.links->Array.reduce(true, (acc, subLevelItem) => {
       acc &&
       switch subLevelItem {
@@ -469,9 +475,9 @@ let make = (
   ~productSiebars: array<topLevelItem>,
 ) => {
   open CommonAuthHooks
-  let {globalUIConfig: {sidebarColor: {backgroundColor, textColor, hoverColor}}} = React.useContext(
-    ThemeProvider.themeContext,
-  )
+  let {
+    globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
+  } = React.useContext(ThemeProvider.themeContext)
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
@@ -560,7 +566,7 @@ let make = (
               className="mr-1"
               size=20
               name="collapse-cross"
-              customIconColor={`${textColor}`}
+              customIconColor={`${secondaryTextColor}`}
               onClick={_ => setIsSidebarExpanded(_ => false)}
             />
           </div>
@@ -619,7 +625,7 @@ let make = (
             })
             ->React.array}
           </div>
-          <div className="border-t border-secondary mt-5">
+          <div className={`border-t border-secondary mt-5`}>
             {productSiebars
             ->Array.mapWithIndex((tabInfo, index) => {
               switch tabInfo {

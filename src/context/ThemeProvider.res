@@ -14,7 +14,7 @@ type customUIConfig = {
   getThemesJson: (string, JSON.t, bool) => promise<JSON.t>,
 }
 
-let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme2 = {
+let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
   settings: {
     colors: {
       primary: "#006DF9",
@@ -24,8 +24,9 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme2 = {
     sidebar: {
       primary: "#242F48",
       secondary: "#303E5F",
-      hoverColor: "#303a52",
-      textColor: "#ffffff",
+      hoverColor: "#ffffff",
+      primaryTextColor: "#ffffff",
+      secondaryTextColor: "#ffffff",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -128,7 +129,7 @@ let make = (~children) => {
     let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("primary")
     let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
     let {settings: defaultSettings, _} = newDefaultConfig
-    let value: HyperSwitchConfigTypes.customStylesTheme2 = {
+    let value: HyperSwitchConfigTypes.customStylesTheme = {
       settings: {
         colors: {
           primary: colorsConfig->getString("primary", defaultSettings.colors.primary),
@@ -136,11 +137,20 @@ let make = (~children) => {
           background: colorsConfig->getString("background", defaultSettings.colors.background),
         },
         sidebar: {
-          //has to be changed to sidebarconfig once api changes are done
-          primary: sidebarConfig->getString("primary", defaultSettings.sidebar.primary),
-          secondary: sidebarConfig->getString("secondary", defaultSettings.sidebar.secondary),
+          // This 'colorsConfig' will be replaced with 'sidebarConfig', and the 'sidebar' key will be changed to 'primary' after API Changes.
+          primary: colorsConfig->getString("sidebar", defaultSettings.sidebar.primary),
+          // This 'colorsConfig' will be replaced with 'sidebarConfig' once the API changes are done.
+          secondary: colorsConfig->getString("secondary", defaultSettings.sidebar.secondary),
           hoverColor: sidebarConfig->getString("hoverColor", defaultSettings.sidebar.hoverColor),
-          textColor: sidebarConfig->getString("textColor", defaultSettings.sidebar.textColor),
+          // This property is currently required to support current sidebar changes. It will be removed in a future update.
+          primaryTextColor: sidebarConfig->getString(
+            "primaryTextColor",
+            defaultSettings.sidebar.primaryTextColor,
+          ),
+          secondaryTextColor: sidebarConfig->getString(
+            "secondaryTextColor",
+            defaultSettings.sidebar.secondaryTextColor,
+          ),
         },
         typography: {
           fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
@@ -275,39 +285,7 @@ let make = (~children) => {
           ~xFeatureRoute=true,
           ~forceCookies=false,
         )
-        // let themesData = await themeResponse->(res => res->Fetch.Response.json)
-
-        let themesData = {
-          "settings": {
-            "colors": {
-              "primary": "#2167AE",
-              "secondary": "#1c2c5c",
-              // "sidebar": "#E8E8E8",
-              "background": "#0A0A0A",
-            },
-            "sidebar": {
-              "primary": "#F9F9FA",
-              "secondary": "#d1d1d1",
-              "textColor": "#646F86",
-              "hoverColor": "#F1F1F6",
-            },
-            "typography": {
-              "textColor": "#f5f5f2",
-            },
-            "buttons": {
-              "primary": {
-                "backgroundColor": "#2167AE",
-                "textColor": "#ffffff",
-                "hoverBackgroundColor": "#5495cf",
-              },
-              "secondary": {
-                "backgroundColor": "#dde4e3",
-                "textColor": "#474D59",
-                "hoverBackgroundColor": "#dad2bd",
-              },
-            },
-          },
-        }->Identity.genericTypeToJson
+        let themesData = await themeResponse->(res => res->Fetch.Response.json)
         themesData
       }
       updateThemeURLs(themeJson)->ignore

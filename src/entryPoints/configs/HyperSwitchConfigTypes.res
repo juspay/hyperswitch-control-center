@@ -14,15 +14,12 @@ type urlConfig = {
   urlThemeConfig: urlThemeConfig,
 }
 
-// themes struct type
-
+// Type definition for themes
 type colorPalette = {
   primary: string,
   secondary: string,
-  sidebar: string,
   background: string,
 }
-
 type typographyConfig = {
   fontFamily: string,
   fontSize: string,
@@ -53,8 +50,17 @@ type buttonConfig = {
   secondary: buttonStyleConfig,
 }
 
+type sidebarConfig = {
+  primary: string,
+  secondary: string,
+  hoverColor: string,
+  primaryTextColor: string,
+  secondaryTextColor: string,
+}
+
 type themeSettings = {
   colors: colorPalette,
+  sidebar: sidebarConfig,
   typography: typographyConfig,
   buttons: buttonConfig,
   borders: borderConfig,
@@ -63,31 +69,5 @@ type themeSettings = {
 
 type customStylesTheme = {
   settings: themeSettings,
-  urls: urlThemeConfig,
-}
-
-////type for extended themes
-type colorPalette2 = {
-  primary: string,
-  secondary: string,
-  background: string,
-}
-type sidebarConfig = {
-  primary: string,
-  secondary: string,
-  hoverColor: string,
-  textColor: string,
-}
-type themeSettings2 = {
-  colors: colorPalette2,
-  sidebar: sidebarConfig,
-  typography: typographyConfig,
-  buttons: buttonConfig,
-  borders: borderConfig,
-  spacing: spacingConfig,
-}
-
-type customStylesTheme2 = {
-  settings: themeSettings2,
   urls: urlThemeConfig,
 }

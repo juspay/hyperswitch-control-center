@@ -213,7 +213,7 @@ let make = () => {
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
-  let {globalUIConfig: {sidebarColor: {backgroundColor, hoverColor}}} = React.useContext(
+  let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ThemeProvider.themeContext,
   )
   let getOrgList = async () => {
