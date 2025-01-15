@@ -254,8 +254,6 @@ let modifyQueryData = (data, ~currency) => {
 let modifySmartRetryQueryData = (data, ~currency) => {
   let data = data->modifyQueryData(~currency)
 
-  Js.log2(">>", data)
-
   let isSmartRetryEnabled = Default
 
   data->Array.map(item => {
