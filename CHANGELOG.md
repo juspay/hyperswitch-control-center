@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.14.0
+
+### Bug Fixes
+
+- Global search id search fix ([#2054](https://github.com/juspay/hyperswitch-control-center/pull/2054)) ([`6dcaf1f`](https://github.com/juspay/hyperswitch-control-center/commit/6dcaf1f834464dc4fc966719ec6be39d597f7f1a))
+
+### Miscellaneous Tasks
+
+- Conditional enforcement of cookies ([#2050](https://github.com/juspay/hyperswitch-control-center/pull/2050)) ([`7c25c4b`](https://github.com/juspay/hyperswitch-control-center/commit/7c25c4b42be1bc5fe48777fece35cb9c1f2f42dd))
+
+**Full Changelog:** [`2025.01.13.0...2025.01.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.13.0...2025.01.14.0)
+
+- - -
+
 ## 2025.01.13.0
 
 ### Features
