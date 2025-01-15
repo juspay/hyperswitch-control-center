@@ -113,7 +113,7 @@ module PaymentsProcessedHeader = {
     | _ => Volume
     }
 
-    <div className="w-full px-7 py-8 grid grid-cols-1">
+    <div className="w-full px-7 py-8 flex justify-between">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
           {primaryValue->valueFormatter(metricType, ~currency)->React.string}
