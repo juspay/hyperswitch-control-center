@@ -20,9 +20,25 @@ let make = () => {
   let {userInfo: {transactionEntity, merchantId, orgId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let startTime = filterValueJson->getString("start_time", "")
+
+  let handleExtendDateButtonClick = _ => {
+    let startDateObj = startTime->DayJs.getDayJsForString
+    let prevStartdate = startDateObj.toDate()->Date.toISOString
+    let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
+
+    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
+    updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
+  }
 
   let customUI = {
-    <NoDataFound customCssClass="my-6" message="No results found" renderType=ExtendDateUI />
+    <NoDataFound
+      customCssClass="my-6"
+      message="No results found"
+      renderType=ExtendDateUI
+      handleClick=handleExtendDateButtonClick
+    />
   }
   let fetchRefunds = () => {
     switch filters {
