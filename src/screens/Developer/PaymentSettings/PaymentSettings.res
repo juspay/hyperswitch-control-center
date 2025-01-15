@@ -459,12 +459,15 @@ module ClickToPaySection = {
     let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     let isClickToPayEnabled =
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
-    let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
-      {
-        label: `${item.connector_name} - ${item.merchant_connector_id}`,
-        value: item.merchant_connector_id,
-      }
-    })
+    let dropDownOptions =
+      connectorListAtom
+      ->Array.filter(ele => ele.connector_type === "authentication_processor")
+      ->Array.map((item): SelectBox.dropdownOption => {
+        {
+          label: `${item.connector_label} - ${item.merchant_connector_id}`,
+          value: item.merchant_connector_id,
+        }
+      })
 
     <RenderIf condition={featureFlagDetails.clickToPay && connectorView}>
       <DesktopRow>
