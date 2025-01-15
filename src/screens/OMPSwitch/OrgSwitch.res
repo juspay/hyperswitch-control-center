@@ -271,7 +271,7 @@ let make = () => {
 
   let customHRTagStyle = "border-t border-blue-830"
   let customPadding = "py-1 w-full"
-  let customStyle = `w-56 text-gray-200 ${backgroundColor.sidebarSecondary} dark:bg-black hover:${backgroundColor.sidebarSecondary} hover:text-gray-100 !w-full`
+  let customStyle = `w-56 text-gray-200 ${backgroundColor.sidebarSecondary} dark:bg-black hover:text-gray-100 !w-full`
 
   let customScrollStyle = `${backgroundColor.sidebarSecondary} max-h-72 overflow-scroll px-1 pt-1`
   let dropdownContainerStyle = "min-w-[15rem] rounded"
