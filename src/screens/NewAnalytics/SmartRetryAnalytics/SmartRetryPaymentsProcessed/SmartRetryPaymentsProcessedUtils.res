@@ -234,11 +234,11 @@ let modifyQueryData = (data, ~currency) => {
         )
         // without smart retry
         prevVal->Dict.set(
-          Payment_Processed_Count->getKey(~isSmartRetryEnabled=Smart_Retry),
+          Payment_Processed_Count->getKey(~isSmartRetryEnabled),
           totalPaymentProcessedCountWithoutSmartRetries->JSON.Encode.int,
         )
         prevVal->Dict.set(
-          Payment_Processed_Amount->getKey(~isSmartRetryEnabled=Smart_Retry, ~currency),
+          Payment_Processed_Amount->getKey(~isSmartRetryEnabled, ~currency),
           totalPaymentProcessedAmountWithoutSmartRetries->JSON.Encode.float,
         )
 
