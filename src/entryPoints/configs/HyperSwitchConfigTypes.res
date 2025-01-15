@@ -65,3 +65,29 @@ type customStylesTheme = {
   settings: themeSettings,
   urls: urlThemeConfig,
 }
+
+////type for extended themes
+type colorPalette2 = {
+  primary: string,
+  secondary: string,
+  background: string,
+}
+type sidebarConfig = {
+  primary: string,
+  secondary: string,
+  hoverColor: string,
+  textColor: string,
+}
+type themeSettings2 = {
+  colors: colorPalette2,
+  sidebar: sidebarConfig,
+  typography: typographyConfig,
+  buttons: buttonConfig,
+  borders: borderConfig,
+  spacing: spacingConfig,
+}
+
+type customStylesTheme2 = {
+  settings: themeSettings2,
+  urls: urlThemeConfig,
+}

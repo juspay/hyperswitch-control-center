@@ -5,6 +5,9 @@ module SwitchOrg = {
     let showPopUp = PopUpState.useShowPopUp()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let (value, setValue) = React.useState(() => "")
+    let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
 
     let input = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
@@ -53,7 +56,7 @@ module SwitchOrg = {
       customWidth="w-80"
       placeholder="Switch org"
       onKeyUp=handleKeyUp
-      customStyle="!text-grey-300 !placeholder-grey-200 placeholder: text-sm font-inter-style bg-secondary"
+      customStyle={`!text-grey-300 !placeholder-grey-200 placeholder: text-sm font-inter-style ${backgroundColor.sidebarSecondary}`}
       customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
     />
   }
@@ -210,7 +213,9 @@ let make = () => {
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
-
+  let {globalUIConfig: {sidebarColor: {backgroundColor, hoverColor}}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
   let getOrgList = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
@@ -266,9 +271,9 @@ let make = () => {
 
   let customHRTagStyle = "border-t border-blue-830"
   let customPadding = "py-1 w-full"
-  let customStyle = "w-56 text-gray-200 bg-secondary dark:bg-black hover:bg-secondary hover:text-gray-100 !w-full"
+  let customStyle = `w-56 text-gray-200 ${backgroundColor.sidebarSecondary} dark:bg-black hover:${backgroundColor.sidebarSecondary} hover:text-gray-100 !w-full`
 
-  let customScrollStyle = "bg-secondary max-h-72 overflow-scroll px-1 pt-1"
+  let customScrollStyle = `${backgroundColor.sidebarSecondary} max-h-72 overflow-scroll px-1 pt-1`
   let dropdownContainerStyle = "min-w-[15rem] rounded"
 
   let showOrgDropdown = !(tenantUser && isTenantAdmin && orgList->Array.length >= 20)
@@ -283,8 +288,8 @@ let make = () => {
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
-      customStyle="bg-secondary md:bg-secondary hover:!bg-black/10 rounded !w-full"
-      customSelectStyle="md:bg-secondary hover:!bg-black/10 rounded"
+      customStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded !w-full`}
+      customSelectStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded`}
       searchable=false
       baseComponent={<ListBaseComp
         heading="Org"
@@ -294,7 +299,7 @@ let make = () => {
         onEditClick
         isDarkBg=true
       />}
-      baseComponentCustomStyle="border-blue-820 rounded bg-secondary rounded text-white"
+      baseComponentCustomStyle={`border-blue-820 rounded ${backgroundColor.sidebarSecondary} rounded text-white`}
       bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
         <OMPSwitchHelper.AddNewOMPButton
           user=#Organization

@@ -77,7 +77,10 @@ let config: UIConfig.t = {
   },
   sidebarColor: {
     backgroundColor: {
-      sidebarNormal: "bg-sidebar",
+      sidebarNormal: "bg-sidebar-primary",
+      sidebarSecondary: "bg-sidebar-secondary",
     },
+    textColor: "text-sidebar-textColor",
+    hoverColor: "bg-sidebar-hoverColor",
   },
 }
