@@ -174,8 +174,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let disableConnector = async isConnectorDisabled => {
     try {
       let connectorID = connectorInfo.merchant_connector_id
-      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
-        connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
+      let disableConnectorPayload = getDisableConnectorPayload(
+        connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
