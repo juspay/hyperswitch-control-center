@@ -16,11 +16,11 @@ let getIconSize = buttonType => {
 module MenuOption = {
   @react.component
   let make = (~text=?, ~children=?, ~onClick=?) => {
-    let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
+    let {globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
     <button
-      className={`px-4 py-3 flex text-sm w-full text-offset_white cursor-pointer ${backgroundColor.sidebarSecondary} hover:bg-black/10`}
+      className={`px-4 py-3 flex text-sm w-full ${secondaryTextColor} cursor-pointer ${backgroundColor.sidebarSecondary} hover:bg-black/10`}
       ?onClick>
       {switch text {
       | Some(str) => React.string(str)
@@ -42,7 +42,7 @@ module SidebarOption = {
     )
     let textBoldStyles = isSelected
       ? `${primaryTextColor} font-bold`
-      : `${secondaryTextColor} font-semibold !opacity-70`
+      : `${secondaryTextColor} font-semibold `
     let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor} opacity-70`
 
     if isSidebarExpanded {
@@ -421,9 +421,7 @@ module SidebarNestedSection = {
     } else {
       `cursor-pointer`
     }
-    let expandedTextColor = isAnySubItemSelected
-      ? `${primaryTextColor}`
-      : `${secondaryTextColor} !opacity-70`
+    let expandedTextColor = isAnySubItemSelected ? `${primaryTextColor}` : `${secondaryTextColor}`
     let areAllSubLevelsHidden = section.links->Array.reduce(true, (acc, subLevelItem) => {
       acc &&
       switch subLevelItem {
@@ -671,7 +669,7 @@ let make = (
                         description=email
                         toolTipFor={<RenderIf condition={isSidebarExpanded}>
                           <div
-                            className={`w-[${profileMaxWidth}] text-sm font-medium text-gray-400 dark:text-gray-600 text-ellipsis overflow-hidden`}>
+                            className={`w-[${profileMaxWidth}] text-sm font-medium ${secondaryTextColor} dark:text-gray-600 text-ellipsis overflow-hidden`}>
                             {email->React.string}
                           </div>
                         </RenderIf>}

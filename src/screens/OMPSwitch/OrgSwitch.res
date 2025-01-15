@@ -213,7 +213,7 @@ let make = () => {
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
-  let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
+  let {globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor}}} = React.useContext(
     ThemeProvider.themeContext,
   )
   let getOrgList = async () => {
@@ -271,7 +271,7 @@ let make = () => {
 
   let customHRTagStyle = "border-t border-blue-830"
   let customPadding = "py-1 w-full"
-  let customStyle = `w-56 text-gray-200 ${backgroundColor.sidebarSecondary} dark:bg-black hover:text-gray-100 !w-full`
+  let customStyle = `w-56 ${secondaryTextColor} ${backgroundColor.sidebarSecondary} dark:bg-black hover:text-gray-100 !w-full`
 
   let customScrollStyle = `${backgroundColor.sidebarSecondary} max-h-72 overflow-scroll px-1 pt-1`
   let dropdownContainerStyle = "min-w-[15rem] rounded"
@@ -309,8 +309,8 @@ let make = () => {
           customHRTagStyle
         />
       </RenderIf>}
-      optionClass="text-gray-200 text-fs-14"
-      selectClass="text-gray-200 text-fs-14"
+      optionClass={`${secondaryTextColor} text-fs-14`}
+      selectClass={`${secondaryTextColor} text-fs-14`}
       customDropdownOuterClass="!border-none !w-full"
       fullLength=true
       toggleChevronState
