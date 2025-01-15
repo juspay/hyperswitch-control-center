@@ -461,7 +461,10 @@ module ClickToPaySection = {
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
     let dropDownOptions =
       connectorListAtom
-      ->Array.filter(ele => ele.connector_type === "authentication_processor")
+      ->Array.filter(ele =>
+        ele.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
+          AuthenticationProcessor
+      )
       ->Array.map((item): SelectBox.dropdownOption => {
         {
           label: `${item.connector_label} - ${item.merchant_connector_id}`,
