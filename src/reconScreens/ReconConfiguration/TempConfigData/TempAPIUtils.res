@@ -19,6 +19,10 @@ let baseConfigAPI = (~userName, ~merchantId) => {
   let body = {
     "username": userName,
     "merchant_id": merchantId,
+    "payment_entity": "null",
+    "sub_entity": "NULL",
+    "payment_sub_entity": "NULL",
+    "settlement_entity": "NULL",
     "config_type": "BASE",
     "config": ConfigUtils.baseHyperswitchConfig(merchantId),
   }->Identity.genericTypeToJson
@@ -32,9 +36,9 @@ let pspConfigAPI = (~merchantId, ~paymentEntity) => {
     "username": "",
     "merchant_id": merchantId,
     "payment_entity": paymentEntity,
-    "sub_entity": null,
-    "payment_sub_entity": null,
-    "settlement_entity": null,
+    "sub_entity": "NULL",
+    "payment_sub_entity": "NULL",
+    "settlement_entity": "NULL",
     "config_type": "PSP",
     "config": ConfigUtils.pspConfig(merchantId, "PAYU"),
   }->Identity.genericTypeToJson
@@ -55,10 +59,12 @@ let baseFileUploadAPI = (
         ->getDictFromJsonObject
         ->getJsonObjectFromDict("uploadedFile")
 
+      Js.log2("fileValue", fileValue)
+
       let metaDict = Dict.make()
       metaDict->Dict.set(
         "file_dates",
-        JSON.Encode.array(["2025-01-13"]->Array.map(JSON.Encode.string)),
+        JSON.Encode.array(["2025-01-15"]->Array.map(JSON.Encode.string)),
       )
       metaDict->Dict.set("mid", JSON.Encode.array([merchantId]->Array.map(JSON.Encode.string)))
       metaDict->Dict.set("token", JSON.Encode.string(""))
@@ -88,7 +94,7 @@ let pspFileUploadAPI = (
       let metaDict = Dict.make()
       metaDict->Dict.set(
         "file_dates",
-        JSON.Encode.array(["2025-01-13"]->Array.map(JSON.Encode.string)),
+        JSON.Encode.array(["2025-01-15"]->Array.map(JSON.Encode.string)),
       )
       metaDict->Dict.set("mid", JSON.Encode.array([merchantId]->Array.map(JSON.Encode.string)))
       metaDict->Dict.set("token", JSON.Encode.string(""))
