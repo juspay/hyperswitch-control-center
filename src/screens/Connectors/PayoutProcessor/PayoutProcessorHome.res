@@ -175,7 +175,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
     try {
       let connectorID = connectorInfo.merchant_connector_id
       let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
-        connectorInfo.connector_type,
+        connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))

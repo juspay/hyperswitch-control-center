@@ -90,7 +90,12 @@ let encodeConnectorPayload = (typedValue: ConnectorTypes.connectorPayload) => {
   let paymentMethodEnabled =
     typedValue.payment_methods_enabled->Array.map(encodePaymentMethodEnabled)->JSON.Encode.array
   [
-    ("connector_type", JSON.Encode.string(typedValue.connector_type)),
+    (
+      "connector_type",
+      JSON.Encode.string(
+        typedValue.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
+      ),
+    ),
     ("payment_methods_enabled", paymentMethodEnabled),
   ]->LogicUtils.getJsonFromArrayOfJson
 }
@@ -196,7 +201,7 @@ let filterItemObjMapper = (
   let connectorPayload = dict->getProcessorPayloadType
   let {profile_id, connector_type} = connectorPayload
 
-  if connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PaymentProcessor {
+  if connector_type === PaymentProcessor {
     switch filters.profileId {
     | Some(profileIds) =>
       if profileIds->Array.includes(profile_id) {

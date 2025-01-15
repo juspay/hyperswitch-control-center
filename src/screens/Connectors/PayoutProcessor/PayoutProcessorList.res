@@ -20,9 +20,7 @@ let make = () => {
       let connectorsList =
         response
         ->ConnectorListMapper.getArrayOfConnectorListPayloadType
-        ->Array.filter(item =>
-          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PayoutProcessor
-        )
+        ->Array.filter(item => item.connector_type === PayoutProcessor)
       connectorsList->Array.reverse
       ConnectorUtils.sortByDisableField(connectorsList, connectorPayload =>
         connectorPayload.disabled
