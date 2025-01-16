@@ -51,7 +51,11 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(customerId) => `customers/${customerId}`
-        | None => `customers/list?limit=10000`
+        | None =>
+          switch queryParamerters {
+          | Some(queryParams) => `customers/list?${queryParams}`
+          | None => `customers/list?limit=500`
+          }
         }
       | _ => ""
       }
