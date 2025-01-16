@@ -2,7 +2,8 @@
 let make = () => {
   open PageUtils
 
-  <div className="flex flex-col w-full gap-6 items-center justify-center">
+  <div
+    className="flex flex-col w-full gap-6 items-center border bg-white rounded-lg py-14 h-923-px">
     <PageHeading
       customHeadingStyle="gap-3 flex flex-col items-center"
       title="Effortless, Realtime Payment Reconciliation"

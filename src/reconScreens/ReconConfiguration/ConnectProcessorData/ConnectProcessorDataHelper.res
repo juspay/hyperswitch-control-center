@@ -17,16 +17,25 @@ module APIKeysAndLiveEndpoints = {
       ~paymentEntity=selectedProcessor->String.toUpperCase,
     )
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+    let showToast = ToastState.useShowToast()
+
+    let toast = (message, toastType) => {
+      showToast(~message, ~toastType)
+    }
 
     let onSubmit = async () => {
-      try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let _ = await stepConfig()
-        setCurrentStep(prev => getNextStep(prev))
-      } catch {
-      | Exn.Error(e) =>
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
+      if selectedProcessor === "" {
+        toast("Please select a processor", ToastError)
+      } else {
+        try {
+          setScreenState(_ => PageLoaderWrapper.Loading)
+          let _ = await stepConfig()
+          setCurrentStep(prev => getNextStep(prev))
+        } catch {
+        | Exn.Error(e) =>
+          let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
       }
     }
 
