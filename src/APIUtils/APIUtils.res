@@ -51,7 +51,11 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(customerId) => `customers/${customerId}`
-        | None => `customers/list?limit=10000`
+        | None =>
+          switch queryParamerters {
+          | Some(queryParams) => `customers/list?${queryParams}`
+          | None => `customers/list?limit=500`
+          }
         }
       | _ => ""
       }
@@ -718,13 +722,13 @@ let useHandleLogout = () => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   () => {
     try {
       let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
       let _ =
-        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute)
+        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
         ->then(Fetch.Response.json)
         ->then(json => {
           json->resolve
@@ -887,11 +891,11 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async url => {
     try {
-      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
       await responseHandler(
         ~url,
         ~res,
@@ -933,7 +937,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -952,6 +956,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~headers,
         ~contentType,
         ~xFeatureRoute,
+        ~forceCookies,
       )
       await responseHandler(
         ~url,

@@ -66,20 +66,21 @@ module RefundsProcessedHeader = {
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let currency = filterValueJson->getString((#currency: filters :> string), "")
 
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~currency),
     )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~currency),
     )
 
     let (primaryValue, secondaryValue) = if (
-      selectedMetric.value->getMetaDataMapper->isAmountMetric
+      selectedMetric.value->getMetaDataMapper(~currency)->isAmountMetric
     ) {
       (primaryValue /. 100.0, secondaryValue /. 100.0)
     } else {
@@ -105,16 +106,14 @@ module RefundsProcessedHeader = {
     | _ => Volume
     }
 
-    let suffix = metricType == Amount ? "USD" : ""
-
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
-          {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
+          {primaryValue->valueFormatter(metricType, ~currency)->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard
-            value direction tooltipValue={`${secondaryValue->valueFormatter(metricType)} ${suffix}`}
+            value direction tooltipValue={secondaryValue->valueFormatter(metricType, ~currency)}
           />
         </RenderIf>
       </div>
@@ -159,6 +158,7 @@ let make = (
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -175,6 +175,7 @@ let make = (
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let secondaryBody = requestBody(
@@ -183,6 +184,7 @@ let make = (
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
@@ -190,7 +192,7 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->modifyQueryData
+        ->modifyQueryData(~currency)
         ->sortQueryDataByDate
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
       setRefundsProcessedTableData(_ => primaryData)
@@ -202,7 +204,7 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->modifyQueryData
+            ->modifyQueryData(~currency)
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
@@ -259,13 +261,14 @@ let make = (
       getRefundsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
 
   let params = {
     data: refundsProcessedData,
     xKey: selectedMetric.value->getKeyForModule,
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
+    currency,
   }
   <div>
     <ModuleHeader title={entity.title} />

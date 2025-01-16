@@ -24,7 +24,7 @@ let allColumns = [
 
 let useGetStatus = (dispute: disputes) => {
   open DisputesUtils
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = dispute.dispute_status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch dispute.dispute_status->disputeStatusVariantMapper {
@@ -41,11 +41,11 @@ let useGetStatus = (dispute: disputes) => {
   | DisputeOpened
   | DisputeCancelled
   | DisputeChallenged =>
-    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedCss} ${primaryColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedCss} ${primaryColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }
@@ -81,14 +81,14 @@ let amountValue = (amount, currency) => {
   `${amountInFloat->Float.toString} ${currency}`
 }
 
-let getCell = (disputesData, colType): Table.cell => {
+let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
   open DisputesUtils
   open HelperComponents
   switch colType {
   | DisputeId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}`}
+        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}/${merchantId}/${orgId}`}
         displayValue={disputesData.dispute_id}
         copyValue={Some(disputesData.dispute_id)}
       />,
@@ -149,18 +149,19 @@ let getDisputes: JSON.t => array<disputes> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let disputesEntity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=getDisputes,
-  ~defaultColumns,
-  ~allColumns,
-  ~getHeading,
-  ~getCell,
-  ~dataKey="",
-  ~getShowLink={
-    disputesData =>
-      GlobalVars.appendDashboardPath(
-        ~url=`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}`,
-      )
-  },
-)
+let disputesEntity = (merchantId, orgId) =>
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=getDisputes,
+    ~defaultColumns,
+    ~allColumns,
+    ~getHeading,
+    ~getCell=(disputes, disputesColsType) => getCell(disputes, disputesColsType, merchantId, orgId),
+    ~dataKey="",
+    ~getShowLink={
+      disputesData =>
+        GlobalVars.appendDashboardPath(
+          ~url=`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}/${merchantId}/${orgId}`,
+        )
+    },
+  )

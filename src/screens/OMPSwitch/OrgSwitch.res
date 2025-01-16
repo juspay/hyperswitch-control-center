@@ -3,9 +3,8 @@ module SwitchOrg = {
   let make = (~setShowModal) => {
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
-    let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let (value, setValue) = React.useState(() => "")
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
 
     let input = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
@@ -33,7 +32,7 @@ module SwitchOrg = {
     let switchOrg = async () => {
       try {
         setShowModal(_ => true)
-        let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+        let _ = await internalSwitch(~expectedOrgId=Some(value))
         setShowModal(_ => false)
       } catch {
       | _ => {
@@ -54,7 +53,7 @@ module SwitchOrg = {
       customWidth="w-80"
       placeholder="Switch org"
       onKeyUp=handleKeyUp
-      customStyle="!text-grey-300 !placeholder-grey-200 placeholder: text-sm font-inter-style bg-blue-840"
+      customStyle="!text-grey-300 !placeholder-grey-200 placeholder: text-sm font-inter-style bg-secondary"
       customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
     />
   }
@@ -200,7 +199,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -233,7 +232,7 @@ let make = () => {
   let orgSwitch = async value => {
     try {
       setShowSwitchingOrg(_ => true)
-      let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+      let _ = await internalSwitch(~expectedOrgId=Some(value))
       RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {
@@ -267,54 +266,71 @@ let make = () => {
 
   let customHRTagStyle = "border-t border-blue-830"
   let customPadding = "py-1 w-full"
-  let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100 !w-full"
+  let customStyle = "w-56 text-gray-200 bg-secondary dark:bg-black hover:bg-secondary hover:text-gray-100 !w-full"
 
-  let customScrollStyle = "bg-blue-840 max-h-72 overflow-scroll px-1 pt-1"
+  let customScrollStyle = "bg-secondary max-h-72 overflow-scroll px-1 pt-1"
   let dropdownContainerStyle = "min-w-[15rem] rounded"
+
+  let showOrgDropdown = !(tenantUser && isTenantAdmin && orgList->Array.length >= 20)
+  let orgDropdown =
+    <SelectBox.BaseDropdown
+      allowMultiSelect=false
+      buttonText=""
+      input
+      deselectDisable=true
+      customButtonStyle="!rounded-md"
+      options={orgList->generateDropdownOptions}
+      marginTop="mt-14"
+      hideMultiSelectButtons=true
+      addButton=false
+      customStyle="bg-secondary md:bg-secondary hover:!bg-black/10 rounded !w-full"
+      customSelectStyle="md:bg-secondary hover:!bg-black/10 rounded"
+      searchable=false
+      baseComponent={<ListBaseComp
+        heading="Org"
+        subHeading={currentOMPName(orgList, orgId)}
+        arrow
+        showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
+        onEditClick
+        isDarkBg=true
+      />}
+      baseComponentCustomStyle="border-blue-820 rounded bg-secondary rounded text-white"
+      bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
+        <OMPSwitchHelper.AddNewOMPButton
+          user=#Organization
+          setShowModal={setShowAddOrgModal}
+          customPadding
+          customStyle
+          customHRTagStyle
+        />
+      </RenderIf>}
+      optionClass="text-gray-200 text-fs-14"
+      selectClass="text-gray-200 text-fs-14"
+      customDropdownOuterClass="!border-none !w-full"
+      fullLength=true
+      toggleChevronState
+      customScrollStyle
+      dropdownContainerStyle
+      shouldDisplaySelectedOnTop=true
+    />
+
+  let orgBaseComp =
+    <ListBaseComp
+      heading="Org"
+      subHeading=orgId
+      arrow
+      showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
+      onEditClick
+      isDarkBg=true
+      showDropdownArrow=false
+    />
+
+  let orgComp = showOrgDropdown ? orgDropdown : orgBaseComp
 
   <div className="w-full py-3.5 px-2 ">
     <div className="flex flex-col gap-4">
-      <SelectBox.BaseDropdown
-        allowMultiSelect=false
-        buttonText=""
-        input
-        deselectDisable=true
-        customButtonStyle="!rounded-md"
-        options={orgList->generateDropdownOptions}
-        marginTop="mt-14"
-        hideMultiSelectButtons=true
-        addButton=false
-        customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
-        customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
-        searchable=false
-        baseComponent={<ListBaseComp
-          heading="Org"
-          subHeading={currentOMPName(orgList, orgId)}
-          arrow
-          showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
-          onEditClick
-          isDarkBg=true
-        />}
-        baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
-        bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
-          <OMPSwitchHelper.AddNewOMPButton
-            user=#Organization
-            setShowModal={setShowAddOrgModal}
-            customPadding
-            customStyle
-            customHRTagStyle
-          />
-        </RenderIf>}
-        optionClass="text-gray-200 text-fs-14"
-        selectClass="text-gray-200 text-fs-14"
-        customDropdownOuterClass="!border-none !w-full"
-        fullLength=true
-        toggleChevronState
-        customScrollStyle
-        dropdownContainerStyle
-        shouldDisplaySelectedOnTop=true
-      />
-      <RenderIf condition={tenantUser && isTenantAdmin && orgList->Array.length >= 20}>
+      {orgComp}
+      <RenderIf condition={!showOrgDropdown}>
         <SwitchOrg setShowModal={setShowSwitchingOrg} />
       </RenderIf>
     </div>

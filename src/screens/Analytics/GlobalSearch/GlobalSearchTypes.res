@@ -11,6 +11,11 @@ type section =
   | Others
   | Default
 
+type metadataType = {
+  profileId: string,
+  orgId: string,
+  merchantId: string,
+}
 type element = {
   texts: array<JSON.t>,
   redirect_link: JSON.t,

@@ -65,7 +65,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         )
       // Need to refactor
       let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-      let _ = ConnectorUtils.updateMetaData(~metaData)
+      let _ = updateMetaData(~metaData)
       //
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID)
       let response = await updateAPIHook(connectorUrl, body, Post)
@@ -111,7 +111,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
           <div className="flex flex-col gap-6 col-span-3">
             <HSwitchUtils.AlertBanner
-              warningText="Please verify if the payment methods are turned on at the processor end as well."
+              bannerText="Please verify if the payment methods are turned on at the processor end as well."
               bannerType=Warning
             />
             <PaymentMethod.PaymentMethodsRender

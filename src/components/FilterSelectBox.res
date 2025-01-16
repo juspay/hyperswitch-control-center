@@ -165,7 +165,7 @@ module ListItem = {
     }
     let textGap = ""
 
-    let selectedNoBadgeColor = "bg-blue-500"
+    let selectedNoBadgeColor = "bg-primary"
     let optionIconStroke = ""
 
     let optionTextSize = "text-fs-14"
@@ -1889,7 +1889,7 @@ module BaseDropdown = {
                       {buttonIcon}
                       <RenderIf condition={badgeForSelect.color === BadgeBlue}>
                         <div
-                          className="px-2 py-0.5 bg-blue-500 rounded-lg text-white text-sm font-medium leading-5 mx-1 h-fit">
+                          className="px-2 py-0.5 bg-primary rounded-lg text-white text-sm font-medium leading-5 mx-1 h-fit">
                           {badgeForSelect.value->React.string}
                         </div>
                       </RenderIf>

@@ -149,6 +149,7 @@ let make = () => {
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let showToast = ToastState.useShowToast()
 
   let getWasm = async () => {
     try {
@@ -231,6 +232,7 @@ let make = () => {
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
+      showToast(~message="Configuration saved successfully!", ~toastType=ToastState.ToastSuccess)
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
