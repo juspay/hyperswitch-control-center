@@ -1,5 +1,5 @@
 @react.component
-let make = (~currentStep, ~setCurrentStep) => {
+let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~setSelectedProcessor) => {
   open ReconConfigurationUtils
 
   let currentStepCount = currentStep->getSectionFromStep->getSectionCount
@@ -15,11 +15,14 @@ let make = (~currentStep, ~setCurrentStep) => {
     {switch currentStep->getSubsectionFromStep {
     | APIKeysAndLiveEndpoints =>
       <ConnectProcessorDataHelper.APIKeysAndLiveEndpoints
-        currentStep={currentStep} setCurrentStep={setCurrentStep}
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+        selectedProcessor
+        setSelectedProcessor
       />
     | WebHooks =>
       <ConnectProcessorDataHelper.WebHooks
-        currentStep={currentStep} setCurrentStep={setCurrentStep}
+        currentStep={currentStep} setCurrentStep={setCurrentStep} selectedProcessor
       />
     | _ => <div />
     }}

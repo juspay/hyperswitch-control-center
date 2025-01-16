@@ -1,5 +1,5 @@
 @react.component
-let make = (~currentStep, ~setCurrentStep) => {
+let make = (~currentStep, ~setCurrentStep, ~selectedProcessor) => {
   open ReconConfigurationUtils
 
   let currentStepCount = currentStep->getSectionFromStep->getSectionCount
@@ -15,7 +15,7 @@ let make = (~currentStep, ~setCurrentStep) => {
     {switch currentStep->getSubsectionFromStep {
     | TestLivePayment =>
       <ManualMappingHelper.TestLivePayment
-        currentStep={currentStep} setCurrentStep={setCurrentStep}
+        currentStep={currentStep} setCurrentStep={setCurrentStep} selectedProcessor
       />
     | SetupCompleted =>
       <ManualMappingHelper.SetupCompleted
