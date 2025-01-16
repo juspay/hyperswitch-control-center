@@ -1,13 +1,10 @@
 module TextCard = {
   @react.component
   let make = (~text) => {
-        open LogicUtils
-    if text-> isNonEmptyString {
+    if text->LogicUtils.isNonEmptyString {
       <p className="break-words font-semibold">
         <HelperComponents.EllipsisText
-          endValue=10
-          displayValue={text->isNonEmptyString  ? text : "N/A"}
-          showCopy=false
+          endValue=10 displayValue={text->LogicUtils.isNonEmptyString ? text : "N/A"} showCopy=false
         />
       </p>
     } else {
