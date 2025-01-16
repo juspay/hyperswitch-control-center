@@ -461,10 +461,7 @@ module ClickToPaySection = {
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
     let dropDownOptions =
       connectorListAtom
-      ->Array.filter(ele =>
-        ele.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
-          AuthenticationProcessor
-      )
+      ->Array.filter(ele => ele.connector_type === AuthenticationProcessor)
       ->Array.map((item): SelectBox.dropdownOption => {
         {
           label: `${item.connector_label} - ${item.merchant_connector_id}`,
@@ -540,10 +537,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let threedsConnectorList =
     HyperswitchAtom.connectorListAtom
     ->Recoil.useRecoilValueFromAtom
-    ->Array.filter(item =>
-      item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
-        AuthenticationProcessor
-    )
+    ->Array.filter(item => item.connector_type === AuthenticationProcessor)
 
   let isBusinessProfileHasThreeds = threedsConnectorList->Array.some(item => item.profile_id == id)
 

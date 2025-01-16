@@ -155,7 +155,9 @@ let getAccountDetails = (dict): connectorAuthTypeObj => {
 
 let getProcessorPayloadType = dict => {
   {
-    connector_type: dict->getString("connector_type", ""),
+    connector_type: dict
+    ->getString("connector_type", "")
+    ->ConnectorUtils.connectorTypeStringToTypeMapper,
     connector_name: dict->getString("connector_name", ""),
     connector_label: dict->getString("connector_label", ""),
     connector_account_details: dict
