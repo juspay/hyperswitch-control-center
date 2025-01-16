@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.16.0
+
+### Features
+
+- New analytics filter refunds ([#2056](https://github.com/juspay/hyperswitch-control-center/pull/2056)) ([`db5b503`](https://github.com/juspay/hyperswitch-control-center/commit/db5b503fd5f4160ae78968a48b063a79cd39d7e8))
+
+### Bug Fixes
+
+- Fixed extend date button functionality ([#2064](https://github.com/juspay/hyperswitch-control-center/pull/2064)) ([`aee1f0c`](https://github.com/juspay/hyperswitch-control-center/commit/aee1f0c13f32fa9787fb058885c7c23a4dca6c82))
+- Currency filter value fixes ([#2067](https://github.com/juspay/hyperswitch-control-center/pull/2067)) ([`41b7f64`](https://github.com/juspay/hyperswitch-control-center/commit/41b7f645b643288fea6d525934875ba35f3d047e))
+
+### Miscellaneous Tasks
+
+- Filter authentication processor ([#2065](https://github.com/juspay/hyperswitch-control-center/pull/2065)) ([`94c8a45`](https://github.com/juspay/hyperswitch-control-center/commit/94c8a4540c2898c8f64d69b539bcd15624f568ef))
+
+**Full Changelog:** [`2025.01.14.0...2025.01.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.14.0...2025.01.16.0)
+
+- - -
+
 ## 2025.01.14.0
 
 ### Bug Fixes
