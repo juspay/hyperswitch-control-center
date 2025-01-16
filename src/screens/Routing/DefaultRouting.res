@@ -11,6 +11,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
   let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
+  let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
@@ -84,6 +85,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
         GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),
       )
       setScreenState(_ => PageLoaderWrapper.Success)
+      showToast(~message="Configuration saved successfully!", ~toastType=ToastState.ToastSuccess)
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong")
