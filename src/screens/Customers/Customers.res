@@ -10,7 +10,7 @@ let make = () => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let total = 50
+  let total = 50 // TODO: take this value from API response [currenctly set to 5 pages]
 
   let getCustomersList = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
