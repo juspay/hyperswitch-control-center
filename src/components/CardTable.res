@@ -1,11 +1,12 @@
 module TextCard = {
   @react.component
   let make = (~text) => {
-    if String.length(String.trim(text)) > 0 {
+        open LogicUtils
+    if text-> isNonEmptyString {
       <p className="break-words font-semibold">
         <HelperComponents.EllipsisText
           endValue=10
-          displayValue={String.length(String.trim(text)) > 0 ? text : "N/A"}
+          displayValue={text->isNonEmptyString  ? text : "N/A"}
           showCopy=false
         />
       </p>
