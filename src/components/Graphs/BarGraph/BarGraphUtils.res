@@ -3,6 +3,8 @@ let fontFamily = "Arial, sans-serif"
 let darkGray = "#666666"
 let gridLineColor = "#e6e6e6"
 
+external barGraphOptionsToJson: BarGraphTypes.barGraphOptions => JSON.t = "%identity"
+
 open BarGraphTypes
 let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
   let {categories, data, title, tooltipFormatter} = barGraphOptions

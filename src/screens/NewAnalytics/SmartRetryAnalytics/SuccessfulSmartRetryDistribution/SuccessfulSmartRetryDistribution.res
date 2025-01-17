@@ -5,8 +5,6 @@ open NewSmartRetryAnalyticsEntity
 open SuccessfulSmartRetryDistributionUtils
 open SuccessfulSmartRetryDistributionTypes
 
-external barGraphOptionsToJson: BarGraphTypes.barGraphOptions => JSON.t = "%identity"
-
 module TableModule = {
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {
@@ -135,7 +133,7 @@ let make = (
     yKey: groupBy.value,
   }
 
-  let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))->barGraphOptionsToJson
+  let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
 
   <div>
     <ModuleHeader title={entity.title} />
@@ -145,7 +143,7 @@ let make = (
         <SuccessfulSmartRetryDistributionHeader viewType setViewType groupBy setGroupBy />
         <div className="mb-5">
           {switch viewType {
-          | Graph => <BarGraph options={options} className="mr-3" />
+          | Graph => <BarGraph options className="mr-3" />
           | Table =>
             <TableModule data={paymentsDistribution} className="mx-7" selectedTab={groupBy.value} />
           }}

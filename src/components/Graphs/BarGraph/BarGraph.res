@@ -1,6 +1,8 @@
 @react.component
-let make = (~options, ~className="") => {
+let make = (~options: BarGraphTypes.barGraphOptions, ~className="") => {
   <div className>
-    <Highcharts.Chart options highcharts={Highcharts.highcharts} />
+    <Highcharts.Chart
+      options={options->BarGraphUtils.barGraphOptionsToJson} highcharts={Highcharts.highcharts}
+    />
   </div>
 }
