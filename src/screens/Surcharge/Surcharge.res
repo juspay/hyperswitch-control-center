@@ -181,6 +181,7 @@ let make = () => {
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/surcharge"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
+      showToast(~message="Saved successfully!", ~toastType=ToastState.ToastSuccess)
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")

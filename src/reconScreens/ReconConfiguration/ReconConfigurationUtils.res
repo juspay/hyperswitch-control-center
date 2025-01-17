@@ -62,7 +62,7 @@ let getNextStep = (currentStep: steps): steps => {
   | ConnectProcessorData(APIKeysAndLiveEndpoints) => ConnectProcessorData(WebHooks)
   | ConnectProcessorData(WebHooks) => ManualMapping(TestLivePayment)
   | ManualMapping(TestLivePayment) => ManualMapping(SetupCompleted)
-  | ManualMapping(SetupCompleted) => ManualMapping(SetupCompleted)
+  | ManualMapping(SetupCompleted) => ConnectOrderData(SelectSource)
   }
 }
 

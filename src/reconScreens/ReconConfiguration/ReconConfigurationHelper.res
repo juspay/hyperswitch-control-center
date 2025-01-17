@@ -174,7 +174,7 @@ module StepCard = {
 
 module Footer = {
   @react.component
-  let make = (~currentStep, ~setCurrentStep, ~buttonName, ~onSubmit) => {
+  let make = (~currentStep, ~buttonName, ~onSubmit) => {
     open ReconConfigurationUtils
     let isFirstStep = currentStep->isFirstStep
     let isLastStep = currentStep->isLastStep
@@ -183,24 +183,24 @@ module Footer = {
       {switch (isFirstStep, isLastStep) {
       | (true, false) =>
         <Button
-          text="Continue" customButtonStyle="rounded" buttonType={Primary} onClick={onSubmit}
+          text="Continue"
+          customButtonStyle="rounded w-90-px"
+          buttonType={Primary}
+          onClick={onSubmit}
         />
       | (false, true) =>
         <Button
-          text="Back"
-          customButtonStyle="rounded w-90-px"
-          buttonType={Secondary}
-          onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
+          text="Done" customButtonStyle="rounded w-90-px" buttonType={Primary} onClick={onSubmit}
         />
       | (true, true) => <div />
       | (false, false) =>
         <div className="flex gap-4">
-          <Button
-            text="Back"
-            customButtonStyle="rounded w-90-px"
-            buttonType={Secondary}
-            onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
-          />
+          // <Button
+          //   text="Back"
+          //   customButtonStyle="rounded w-90-px"
+          //   buttonType={Secondary}
+          //   onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
+          // />
           <Button
             text={buttonName}
             customButtonStyle="rounded w-90-px"

@@ -3,6 +3,7 @@ let make = () => {
   open ReconConfigurationTypes
 
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectOrderData(SelectSource))
+  let (selectedProcessor, setSelectedProcessor) = React.useState(() => "")
 
   <Form>
     <div className="flex flex-col gap-10">
@@ -22,9 +23,16 @@ let make = () => {
               | ConnectOrderData =>
                 <ConnectOrderData currentStep={currentStep} setCurrentStep={setCurrentStep} />
               | ConnectProcessorData =>
-                <ConnectProcessorData currentStep={currentStep} setCurrentStep={setCurrentStep} />
+                <ConnectProcessorData
+                  currentStep={currentStep}
+                  setCurrentStep={setCurrentStep}
+                  selectedProcessor
+                  setSelectedProcessor
+                />
               | ManualMapping =>
-                <ManualMapping currentStep={currentStep} setCurrentStep={setCurrentStep} />
+                <ManualMapping
+                  currentStep={currentStep} setCurrentStep={setCurrentStep} selectedProcessor
+                />
               }}
             </div>
           </div>
