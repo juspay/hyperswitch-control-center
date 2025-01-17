@@ -80,8 +80,13 @@ module BorderConfig = {
 }
 
 module SidebarConfig = {
-  type backgroundColor = {sidebarNormal: string}
-  type t = {backgroundColor: backgroundColor}
+  type backgroundColor = {sidebarNormal: string, sidebarSecondary: string}
+  type t = {
+    backgroundColor: backgroundColor,
+    primaryTextColor: string,
+    secondaryTextColor: string,
+    hoverColor: string,
+  }
 }
 
 type t = {
@@ -174,7 +179,11 @@ let defaultUIConfig: t = {
   secondaryColor: "bg-secondary",
   sidebarColor: {
     backgroundColor: {
-      sidebarNormal: "bg-sidebar",
+      sidebarNormal: "bg-sidebar-primary",
+      sidebarSecondary: "bg-sidebar-secondary md:bg-sidebar-secondary ",
     },
+    primaryTextColor: "text-sidebar-primaryTextColor",
+    secondaryTextColor: "text-sidebar-secondaryTextColor/80",
+    hoverColor: "hover:bg-sidebar-hoverColor/10",
   },
 }
