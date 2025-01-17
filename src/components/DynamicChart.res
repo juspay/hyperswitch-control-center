@@ -234,7 +234,7 @@ let makeEntity = (
 let useChartFetch = (~setStatusDict) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchChartData = (updatedChartBody: array<fetchDataConfig>, setState) => {
     open Promise
@@ -247,6 +247,7 @@ let useChartFetch = (~setStatusDict) => {
         ~bodyStr=item.body,
         ~headers=[("QueryType", "Chart")]->Dict.fromArray,
         ~xFeatureRoute,
+        ~forceCookies,
       )
       ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
       ->then(json => {
@@ -262,6 +263,7 @@ let useChartFetch = (~setStatusDict) => {
             ~bodyStr=legendBody,
             ~headers=[("QueryType", "Chart")]->Dict.fromArray,
             ~xFeatureRoute,
+            ~forceCookies,
           )
           ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
           ->then(

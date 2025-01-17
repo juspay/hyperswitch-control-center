@@ -23,6 +23,7 @@ type disputesObject = {
   merchant_connector_id: string,
   sign_flag: int,
   timestamp: string,
+  organization_id: string,
 }
 
 type cols =
@@ -48,6 +49,7 @@ type cols =
   | MerchantConnectorId
   | SignFlag
   | Timestamp
+  | OrganizationId
 
 let visibleColumns = [DisputeId, PaymentId, DisputeStatus, DisputeAmount, Currency, Connector]
 
@@ -75,6 +77,7 @@ let colMapper = (col: cols) => {
   | MerchantConnectorId => "merchant_connector_id"
   | SignFlag => "sign_flag"
   | Timestamp => "timestamp"
+  | OrganizationId => "organization_id"
   }
 }
 
@@ -103,6 +106,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
     merchant_connector_id: dict->getString(MerchantConnectorId->colMapper, "NA"),
     sign_flag: dict->getInt(SignFlag->colMapper, 0),
     timestamp: dict->getString(Timestamp->colMapper, "NA"),
+    organization_id: dict->getString(OrganizationId->colMapper, "NA"),
   }
 }
 
@@ -146,6 +150,7 @@ let getHeading = colType => {
     Table.makeHeaderInfo(~key, ~title="Merchant Connector Id", ~dataType=TextType)
   | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType)
   | Timestamp => Table.makeHeaderInfo(~key, ~title="Timestamp", ~dataType=TextType)
+  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
   }
 }
 
@@ -198,6 +203,7 @@ let getCell = (disputeObj, colType): Table.cell => {
   | MerchantConnectorId => Text(disputeObj.merchant_connector_id)
   | SignFlag => Text(disputeObj.sign_flag->Int.toString)
   | Timestamp => Text(disputeObj.timestamp)
+  | OrganizationId => Text(disputeObj.organization_id)
   }
 }
 
@@ -212,6 +218,8 @@ let tableEntity = EntityType.makeEntity(
   ~getHeading,
   ~getShowLink={
     dispute =>
-      GlobalVars.appendDashboardPath(~url=`/disputes/${dispute.dispute_id}/${dispute.profile_id}`)
+      GlobalVars.appendDashboardPath(
+        ~url=`/disputes/${dispute.dispute_id}/${dispute.profile_id}/${dispute.merchant_id}/${dispute.organization_id}`,
+      )
   },
 )

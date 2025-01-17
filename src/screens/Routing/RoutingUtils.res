@@ -263,7 +263,11 @@ let filter = (connector_type, ~retainInList) => {
 
 let filterConnectorList = (items, ~retainInList) => {
   open ConnectorTypes
-  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
+  items->Array.filter(connector =>
+    connector.connector_type
+    ->ConnectorUtils.connectorTypeTypedValueToStringMapper
+    ->filter(~retainInList)
+  )
 }
 
 let filterConnectorListJson = (json, ~retainInList) => {

@@ -243,8 +243,8 @@ module SmartRetryToggle = {
         isSelected={isEnabled}
         setIsSelected={onClick}
         isDisabled=false
-        boolCustomClass="rounded-lg !bg-blue-500"
-        toggleBorder="border-blue-500"
+        boolCustomClass="rounded-lg !bg-primary"
+        toggleBorder="border-primary"
       />
       <p
         className="!text-base text-grey-700 gap-2 inline-flex whitespace-pre justify-center font-medium text-start">

@@ -115,7 +115,7 @@ let make = (
     filterCheck,
     filterForRow,
   } = entity
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let tableName =
     prefixAddition->Option.getOr(false)
       ? title->(String.replaceRegExp(_, %re("/ /g"), "-"))->String.toLowerCase->Some
@@ -237,7 +237,14 @@ let make = (
     }
     let uri = uri ++ getNewUrl(defaultFilters)
     setTableDataLoading(_ => true)
-    fetchApi(uri, ~bodyStr=JSON.stringify(finalJson), ~headers, ~method_=method, ~xFeatureRoute)
+    fetchApi(
+      uri,
+      ~bodyStr=JSON.stringify(finalJson),
+      ~headers,
+      ~method_=method,
+      ~xFeatureRoute,
+      ~forceCookies,
+    )
     ->then(resp => {
       let status = resp->Fetch.Response.status
       if status >= 300 {

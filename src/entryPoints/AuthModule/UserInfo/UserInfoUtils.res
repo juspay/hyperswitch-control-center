@@ -13,6 +13,7 @@ let defaultValueOfUserInfo = {
   userEntity: #Merchant,
   transactionEntity: #Merchant,
   analyticsEntity: #Merchant,
+  themeId: "",
 }
 
 let entityMapper = entity => {
@@ -49,8 +50,6 @@ let defaultValueOfUserInfoProvider = {
   setUserInfoData: _ => (),
   getUserInfoData: _ => defaultValueOfUserInfo,
   checkUserEntity: _ => false,
-  updateUserInfoRef: _ => (),
-  userInfoFromRef: defaultValueOfUserInfo,
 }
 open LogicUtils
 let itemMapper = dict => {
@@ -69,4 +68,5 @@ let itemMapper = dict => {
   userEntity: dict->getString("entity_type", "")->entityMapper,
   analyticsEntity: dict->getString("entity_type", "")->analyticsEntityMapper,
   transactionEntity: dict->getString("entity_type", "")->transactionEntityMapper,
+  themeId: dict->getString("theme_id", ""),
 }

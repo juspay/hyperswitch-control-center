@@ -41,7 +41,7 @@ module CheckoutForm = {
     let elements = useWidgets()
     let (appearanceElem, setAppearanceElem) = React.useState(() => JSON.Encode.null)
     let (paymentElem, setPaymentElem) = React.useState(() => JSON.Encode.null)
-
+    let {forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let fetchApi = AuthHooks.useApiFetcher()
     React.useEffect(() => {
       let val = {
@@ -62,6 +62,7 @@ module CheckoutForm = {
           ~headers=[("Access-Control-Allow-Origin", "*")]->Dict.fromArray,
           ~method_=Post,
           ~xFeatureRoute=false,
+          ~forceCookies,
         )
         ->then(res => res->Fetch.Response.json)
         ->then(json => {

@@ -51,7 +51,11 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(customerId) => `customers/${customerId}`
-        | None => `customers/list?limit=10000`
+        | None =>
+          switch queryParamerters {
+          | Some(queryParams) => `customers/list?${queryParams}`
+          | None => `customers/list?limit=500`
+          }
         }
       | _ => ""
       }
@@ -718,13 +722,13 @@ let useHandleLogout = () => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   () => {
     try {
       let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
       let _ =
-        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute)
+        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
         ->then(Fetch.Response.json)
         ->then(json => {
           json->resolve
@@ -767,13 +771,16 @@ let responseHandler = async (
   }
 
   let responseStatus = res->Fetch.Response.status
+  let responseHeaders = res->Fetch.Response.headers
 
   if responseStatus >= 500 && responseStatus < 600 {
+    let xRequestId = responseHeaders->Fetch.Headers.get("x-request-id")->Option.getOr("")
     let metaData =
       [
         ("url", url->JSON.Encode.string),
         ("response", json),
         ("status", responseStatus->JSON.Encode.int),
+        ("x-request-id", xRequestId->JSON.Encode.string),
       ]->getJsonFromArrayOfJson
     sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
   }
@@ -884,11 +891,11 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async url => {
     try {
-      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
       await responseHandler(
         ~url,
         ~res,
@@ -930,7 +937,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -949,6 +956,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~headers,
         ~contentType,
         ~xFeatureRoute,
+        ~forceCookies,
       )
       await responseHandler(
         ~url,

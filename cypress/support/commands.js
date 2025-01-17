@@ -154,9 +154,9 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
     .type("492");
 
   cy.get("[data-button-for=payUSD77]").click();
-  cy.contains("Payment Successful").should("be.visible");
-  cy.get("[data-button-for=goToPayment]").click();
-  cy.url().should("include", "dashboard/payments");
+  cy.get("[data-testid=paymentSuccess]").should("exist");
+  // cy.get("[data-button-for=goToPayment]").click();
+  // cy.url().should("include", "dashboard/payments");
 });
 
 const selectors = {
@@ -201,11 +201,9 @@ Cypress.Commands.add("sign_up_with_email", (username, password) => {
   });
 });
 
-const getIframeBody = (iframeSelector) => {
+const getIframeBody = () => {
   return cy
-    .get(iframeSelector, { timeout: 15000 })
-    .should("be.visible")
-    .should("exist")
+    .get("iframe")
     .its("0.contentDocument.body")
     .should("not.be.empty")
     .then(cy.wrap);

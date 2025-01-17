@@ -71,6 +71,7 @@ let useSendEvent = () => {
         ~method_=Post,
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
         ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
+        ~forceCookies=featureFlagDetails.forceCookies,
       )
     } catch {
     | _ => ()
@@ -135,6 +136,7 @@ let usePageView = () => {
           ~method_=Post,
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
+          ~forceCookies=featureFlagDetails.forceCookies,
         )
       }
     } catch {
@@ -174,12 +176,14 @@ let useSetIdentity = () => {
           ~method_=Post,
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
+          ~forceCookies=featureFlagDetails.forceCookies,
         )
         let _ = await fetchApi(
           `${getHostUrl}/mixpanel/engage`,
           ~method_=Post,
           ~bodyStr=`data=${peopleProperties->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
+          ~forceCookies=featureFlagDetails.forceCookies,
         )
       }
     } catch {

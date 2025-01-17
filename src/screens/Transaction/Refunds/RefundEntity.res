@@ -49,7 +49,7 @@ let allColumns = [
 ]
 
 let useGetStatus = order => {
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch order.status->statusVariantMapper {
@@ -65,11 +65,11 @@ let useGetStatus = order => {
   | Processing
   | RequiresCustomerAction
   | RequiresPaymentMethod =>
-    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedCss} ${primaryColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
+    <div className={`${fixedCss} ${primaryColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }
@@ -92,7 +92,7 @@ let getHeading = colType => {
   }
 }
 
-let getCell = (refundData, colType): Table.cell => {
+let getCell = (refundData, colType, merchantId, orgId): Table.cell => {
   switch colType {
   | Amount =>
     CustomCell(
@@ -110,7 +110,7 @@ let getCell = (refundData, colType): Table.cell => {
   | RefundId =>
     CustomCell(
       <CopyLinkTableCell
-        url={`/refunds/${refundData.refund_id}/${refundData.profile_id}`}
+        url={`/refunds/${refundData.refund_id}/${refundData.profile_id}/${merchantId}/${orgId}`}
         displayValue={refundData.refund_id}
         copyValue={Some(refundData.refund_id)}
       />,
@@ -160,18 +160,19 @@ let getRefunds: JSON.t => array<refunds> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let refundEntity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=getRefunds,
-  ~defaultColumns,
-  ~allColumns,
-  ~getHeading,
-  ~getCell,
-  ~dataKey="",
-  ~getShowLink={
-    refundData =>
-      GlobalVars.appendDashboardPath(
-        ~url=`/refunds/${refundData.refund_id}/${refundData.profile_id}`,
-      )
-  },
-)
+let refundEntity = (merchantId, orgId) =>
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=getRefunds,
+    ~defaultColumns,
+    ~allColumns,
+    ~getHeading,
+    ~getCell=(refunds, refundsColType) => getCell(refunds, refundsColType, merchantId, orgId),
+    ~dataKey="",
+    ~getShowLink={
+      refundData =>
+        GlobalVars.appendDashboardPath(
+          ~url=`/refunds/${refundData.refund_id}/${refundData.profile_id}/${merchantId}/${orgId}`,
+        )
+    },
+  )
