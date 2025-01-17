@@ -16,7 +16,7 @@ let proxy = {
     changeOrigin: true,
   },
   "/recon-rest-api": {
-    target: "https://app.hyperswitch.io",
+    target: "https://sandbox.hyperswitch.io",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
@@ -26,7 +26,7 @@ let proxy = {
   //   changeOrigin: true,
   // },
   "/fileUploader": {
-    target: "https://app.hyperswitch.io",
+    target: "https://sandbox.hyperswitch.io",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
