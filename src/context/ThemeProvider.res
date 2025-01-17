@@ -19,8 +19,14 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     colors: {
       primary: "#006DF9",
       secondary: "#303E5F",
-      sidebar: "#242F48",
       background: "#006df9",
+    },
+    sidebar: {
+      primary: "#242F48",
+      secondary: "#303E5F",
+      hoverColor: "#ffffff",
+      primaryTextColor: "#ffffff",
+      secondaryTextColor: "#ffffff",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -116,6 +122,7 @@ let make = (~children) => {
     let settings = dict->getDictfromDict("settings")
     let url = dict->getDictfromDict("urls")
     let colorsConfig = settings->getDictfromDict("colors")
+    let sidebarConfig = settings->getDictfromDict("sidebar")
     let typography = settings->getDictfromDict("typography")
     let borders = settings->getDictfromDict("borders")
     let spacing = settings->getDictfromDict("spacing")
@@ -127,8 +134,23 @@ let make = (~children) => {
         colors: {
           primary: colorsConfig->getString("primary", defaultSettings.colors.primary),
           secondary: colorsConfig->getString("secondary", defaultSettings.colors.secondary),
-          sidebar: colorsConfig->getString("sidebar", defaultSettings.colors.sidebar),
           background: colorsConfig->getString("background", defaultSettings.colors.background),
+        },
+        sidebar: {
+          // This 'colorsConfig' will be replaced with 'sidebarConfig', and the 'sidebar' key will be changed to 'primary' after API Changes.
+          primary: colorsConfig->getString("sidebar", defaultSettings.sidebar.primary),
+          // This 'colorsConfig' will be replaced with 'sidebarConfig' once the API changes are done.
+          secondary: colorsConfig->getString("secondary", defaultSettings.sidebar.secondary),
+          hoverColor: sidebarConfig->getString("hoverColor", defaultSettings.sidebar.hoverColor),
+          // This property is currently required to support current sidebar changes. It will be removed in a future update.
+          primaryTextColor: sidebarConfig->getString(
+            "primaryTextColor",
+            defaultSettings.sidebar.primaryTextColor,
+          ),
+          secondaryTextColor: sidebarConfig->getString(
+            "secondaryTextColor",
+            defaultSettings.sidebar.secondaryTextColor,
+          ),
         },
         typography: {
           fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
@@ -238,7 +260,7 @@ let make = (~children) => {
           "settings": {
             "colors": {
               "primary": dict->getString("primary_color", defaultSettings.colors.primary),
-              "sidebar": dict->getString("sidebar_color", defaultSettings.colors.sidebar),
+              "sidebar": dict->getString("sidebar_color", defaultSettings.sidebar.primary),
             },
             "buttons": {
               "primary": {
