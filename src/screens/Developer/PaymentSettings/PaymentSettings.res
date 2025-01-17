@@ -655,6 +655,25 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   ]
                 />
                 <DesktopRow>
+                  <div className="flex flex-col">
+                    <FieldRenderer
+                      labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                      fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
+                      field={makeFieldInfo(
+                        ~name="always_request_overcapture",
+                        ~label="Payments Overcapture",
+                        ~customInput=InputFields.boolInput(
+                          ~isDisabled=false,
+                          ~boolCustomClass="rounded-lg ",
+                        ),
+                      )}
+                    />
+                    <p className="font-medium text-fs-14 text-black opacity-50 pl-1">
+                      {" Overcapture allows capturing an amount higher than the authorized amount for a card payment."->React.string}
+                    </p>
+                  </div>
+                </DesktopRow>
+                <DesktopRow>
                   <FieldRenderer
                     labelClass="!text-fs-15 !text-grey-700 font-semibold"
                     fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "

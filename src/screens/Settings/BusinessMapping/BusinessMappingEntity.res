@@ -177,6 +177,7 @@ let itemToObjMapper = dict => {
     is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: dict->getOptionBool("is_click_to_pay_enabled"),
+    always_request_overcapture: dict->getOptionBool("always_request_overcapture"),
     authentication_product_ids: Some(
       dict
       ->getDictfromDict("authentication_product_ids")
