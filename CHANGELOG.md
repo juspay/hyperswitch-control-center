@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.17.0
+
+### Features
+
+- Customer table pagination ([#2071](https://github.com/juspay/hyperswitch-control-center/pull/2071)) ([`4c84206`](https://github.com/juspay/hyperswitch-control-center/commit/4c842068bf9820c5ed1d4744163475f891639d1d))
+
+### Bug Fixes
+
+- Success toast in routing ([#2074](https://github.com/juspay/hyperswitch-control-center/pull/2074)) ([`af6bc6b`](https://github.com/juspay/hyperswitch-control-center/commit/af6bc6b0d8f64991677b1d3fad02fe37fd15d21f))
+
+### Refactors
+
+- Connector_type type added ([#2069](https://github.com/juspay/hyperswitch-control-center/pull/2069)) ([`80ba2f5`](https://github.com/juspay/hyperswitch-control-center/commit/80ba2f5bdebcad0171963723ff09267241d82841))
+
+**Full Changelog:** [`2025.01.16.0...2025.01.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.16.0...2025.01.17.0)
+
+- - -
+
 ## 2025.01.16.0
 
 ### Features
