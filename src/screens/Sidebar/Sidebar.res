@@ -553,7 +553,7 @@ let make = (
       style={width: sidebarContainerClassWidth}
     />
     <div
-      className={`absolute z-40 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
+      className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
         className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
