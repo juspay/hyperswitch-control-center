@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.20.1
+
+### Features
+
+- New analytics filters feature flag ([#2084](https://github.com/juspay/hyperswitch-control-center/pull/2084)) ([`b60da23`](https://github.com/juspay/hyperswitch-control-center/commit/b60da231df1ad01e073e9f2d6334e7a0724ab739))
+
+**Full Changelog:** [`2025.01.20.0...2025.01.20.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.20.0...2025.01.20.1)
+
+- - -
+
 ## 2025.01.20.0
 
 ### Features
