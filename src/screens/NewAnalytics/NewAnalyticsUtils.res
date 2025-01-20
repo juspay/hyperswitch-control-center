@@ -509,7 +509,7 @@ let getGranularityOptions = (~startTime, ~endTime) => {
 
 let getDefaultGranularity = (~startTime, ~endTime) => {
   let options = getGranularityOptions(~startTime, ~endTime)
-  options->Array.get(0)->Option.getOr(defaulGranularity)
+  options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
 }
 
 let getGranularityGap = option => {

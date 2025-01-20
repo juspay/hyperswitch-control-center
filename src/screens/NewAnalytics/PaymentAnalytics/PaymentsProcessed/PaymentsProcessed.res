@@ -68,6 +68,7 @@ module PaymentsProcessedHeader = {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let currency = filterValueJson->getString((#currency: filters :> string), "")
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let isSmartRetryEnabled =
       filterValueJson
@@ -125,12 +126,14 @@ module PaymentsProcessedHeader = {
         </RenderIf>
       </div>
       <div className="flex justify-center">
-        <Tabs
-          option={granularity}
-          setOption={setGranularity}
-          options={granularityOptions}
-          showSingleTab=false
-        />
+        <RenderIf condition={featureFlag.granularity}>
+          <Tabs
+            option={granularity}
+            setOption={setGranularity}
+            options={granularityOptions}
+            showSingleTab=false
+          />
+        </RenderIf>
       </div>
       <div className="flex gap-2 justify-end">
         <CustomDropDown

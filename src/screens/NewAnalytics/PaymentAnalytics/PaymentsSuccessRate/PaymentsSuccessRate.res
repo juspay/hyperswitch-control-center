@@ -14,6 +14,8 @@ module PaymentsSuccessRateHeader = {
     }
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
     let isSmartRetryEnabled =
       filterValueJson
       ->getString("is_smart_retry_enabled", "true")
@@ -43,13 +45,14 @@ module PaymentsSuccessRateHeader = {
         </RenderIf>
       </div>
       <div className="flex justify-center w-full">
-        <Tabs
-          option={granularity}
-          setOption={setGranularity}
-          options={granularityOptions}
-          showSingleTab=false
-        />
-        <div />
+        <RenderIf condition={featureFlag.granularity}>
+          <Tabs
+            option={granularity}
+            setOption={setGranularity}
+            options={granularityOptions}
+            showSingleTab=false
+          />
+        </RenderIf>
       </div>
     </div>
   }
