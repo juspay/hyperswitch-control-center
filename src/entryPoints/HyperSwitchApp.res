@@ -212,25 +212,6 @@ let make = () => {
                             />
                           </AccessControl>
                         | list{"users", ..._} => <UserManagementContainer />
-                        | list{"analytics-user-journey"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.userJourneyAnalytics &&
-                            [#Tenant, #Organization, #Merchant]->checkUserEntity}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
-                              <UserJourneyAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-authentication"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.authenticationAnalytics &&
-                            [#Tenant, #Organization, #Merchant]->checkUserEntity}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext
-                              key="AuthenticationAnalytics" index="AuthenticationAnalytics">
-                              <AuthenticationAnalytics />
-                            </FilterContext>
-                          </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
                             // TODO: Remove `MerchantDetailsManage` permission in future
@@ -241,15 +222,6 @@ let make = () => {
                             isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
-                        | list{"developer-system-metrics"} =>
-                          <AccessControl
-                            isEnabled={isInternalUser}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext key="SystemMetrics" index="SystemMetrics">
-                              <SystemMetricsAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-
                         | list{"compliance"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.complianceCertificate authorization=Access>

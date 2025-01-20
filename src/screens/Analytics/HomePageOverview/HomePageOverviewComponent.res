@@ -65,94 +65,6 @@ module ConnectorOverview = {
   }
 }
 
-module SystemMetricsInsights = {
-  open DynamicSingleStat
-  open SystemMetricsAnalyticsUtils
-  open HSAnalyticsUtils
-  open AnalyticsTypes
-  open APIUtils
-  @react.component
-  let make = () => {
-    let getURL = useGetURL()
-    let getStatData = (
-      singleStatData: systemMetricsObjectType,
-      timeSeriesData: array<systemMetricsSingleStateSeries>,
-      deltaTimestampData: DynamicSingleStat.deltaRange,
-      colType,
-      _mode,
-    ) => {
-      switch colType {
-      | Latency | _ => {
-          title: "Payments Confirm Latency",
-          tooltipText: "Average time taken for the entire Payments Confirm API call.",
-          deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-            singleStatData.latency,
-            deltaTimestampData.currentSr,
-          ),
-          value: singleStatData.latency /. 1000.0,
-          delta: {
-            singleStatData.latency
-          },
-          data: constructData("latency", timeSeriesData),
-          statType: "LatencyMs",
-          showDelta: false,
-        }
-      }
-    }
-
-    let defaultColumns: array<DynamicSingleStat.columns<systemMetricsSingleStateMetrics>> = [
-      {
-        sectionName: "",
-        columns: [{colType: Latency}],
-      },
-    ]
-
-    let getStatEntity: ('a, string) => DynamicSingleStat.entityType<'colType, 't, 't2> = (
-      metrics,
-      uri,
-    ) => {
-      urlConfig: [
-        {
-          uri,
-          metrics: metrics->getStringListFromArrayDict,
-        },
-      ],
-      getObjects: itemToObjMapper,
-      getTimeSeriesObject: timeSeriesObjMapper,
-      defaultColumns,
-      getData: getStatData,
-      totalVolumeCol: None,
-      matrixUriMapper: _ => uri,
-    }
-
-    let metrics = ["latency"]->Array.map(key => {
-      [("name", key->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
-    })
-    let analyticsUrl = getURL(
-      ~entityName=ANALYTICS_PAYMENTS,
-      ~methodType=Post,
-      ~id=Some("payments"),
-    )
-
-    let singleStatEntity = getStatEntity(metrics, analyticsUrl)
-    let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
-
-    <DynamicSingleStat
-      entity={singleStatEntity}
-      startTimeFilterKey
-      endTimeFilterKey
-      filterKeys=["api_name", "status_code"]
-      moduleName="SystemMetrics"
-      defaultStartDate={dateDict.start_time}
-      defaultEndDate={dateDict.end_time}
-      showPercentage=false
-      isHomePage=true
-      wrapperClass="flex flex-wrap w-full h-full"
-      statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
-    />
-  }
-}
-
 module OverviewInfo = {
   open APIUtils
   @react.component
@@ -205,9 +117,6 @@ let make = () => {
       <ConnectorOverview />
       <RenderIf condition={userHasAccess(~groupAccess=AnalyticsView) === Access}>
         <PaymentOverview />
-      </RenderIf>
-      <RenderIf condition={userHasAccess(~groupAccess=AnalyticsView) === Access}>
-        <SystemMetricsInsights />
       </RenderIf>
     </div>
     <OverviewInfo />
