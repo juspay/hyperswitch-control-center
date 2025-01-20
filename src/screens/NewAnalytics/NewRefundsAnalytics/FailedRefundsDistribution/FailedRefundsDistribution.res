@@ -144,6 +144,8 @@ let make = (
     yKey: Connector->getStringFromVariant,
   }
 
+  let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -152,10 +154,7 @@ let make = (
         <FailedRefundsDistributionHeader viewType setViewType />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <BarGraph
-              entity={chartEntity} object={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <BarGraph options className="mr-3" />
           | Table => <TableModule data={refundsDistribution} className="mx-7" />
           }}
         </div>

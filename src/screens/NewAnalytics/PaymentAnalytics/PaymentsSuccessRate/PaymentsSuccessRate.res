@@ -195,12 +195,16 @@ let make = (
     mockDelay()->ignore
     None
   }, [isSmartRetryEnabled])
+
   let params = {
     data: paymentsSuccessRateData,
     xKey: Payments_Success_Rate->getKeyForModule(~isSmartRetryEnabled),
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
   }
+
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -213,7 +217,7 @@ let make = (
           setGranularity
         />
         <div className="mb-5">
-          <LineGraph entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3" />
+          <LineGraph options className="mr-3" />
         </div>
       </PageLoaderWrapper>
     </Card>

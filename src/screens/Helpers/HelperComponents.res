@@ -72,11 +72,13 @@ module EllipsisText = {
           <p className="">
             {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
           </p>
-          <span
-            className={`flex text-blue-811 text-sm font-extrabold ${customTextStyle}`}
-            onClick={ev => handleClick(ev)}>
-            {"..."->React.string}
-          </span>
+          <RenderIf condition={displayValue->String.length > endValue}>
+            <span
+              className={`flex text-blue-811 text-sm font-extrabold ${customTextStyle}`}
+              onClick={ev => handleClick(ev)}>
+              {"..."->React.string}
+            </span>
+          </RenderIf>
         </div>
       </RenderIf>
     </div>
