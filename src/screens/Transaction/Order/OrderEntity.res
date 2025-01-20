@@ -543,6 +543,8 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | PMBillingLastName => Table.makeHeaderInfo(~key="payment_method_last_name", ~title="Last Name")
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
+  | OvercaptureStatus =>
+    Table.makeHeaderInfo(~key="overcapture_status", ~title="Overcapture Status")
   }
 }
 
@@ -647,6 +649,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   | PMBillingLastName => Text(order.payment_method_billing_last_name)
   | BillingPhone => Text(`${order.billingPhone}`)
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
+  | OvercaptureStatus => Text(order.overcapture_status)
   }
 }
 
@@ -914,6 +917,7 @@ let itemToObjMapper = dict => {
     merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
     attempt_count: dict->getInt("attempt_count", 0),
     connector_label: dict->getString("connector_label", "NA"),
+    overcapture_status: dict->getString("overcapture_status", ""),
   }
 }
 
