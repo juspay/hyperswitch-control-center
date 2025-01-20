@@ -39,36 +39,36 @@ module OrgTile = {
           ? `bg-white/20 ${primaryTextColor} border-primary`
           : `bg-white/10 ${secondaryTextColor} hover:bg-black/10 `} `}>
       <span className="text-xs font-medium"> {displayText->React.string} </span>
-      {showDetails
-        ? <div
-            className={`absolute left-0 ml-2 top-full ${backgroundColor.sidebarSecondary} rounded-lg shadow-lg p-3 min-w-[250px] z-50`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icon name="building" size=16 className={secondaryTextColor} />
-                <div className="mt-2">
-                  <span className={`font-medium ${secondaryTextColor} text-sm`}>
-                    {orgName->React.string}
-                  </span>
-                </div>
+      <RenderIf condition={showDetails}>
+        <div
+          className={`absolute left-0 ml-2 top-full ${backgroundColor.sidebarSecondary} rounded-lg shadow-lg p-3 min-w-[250px] z-50`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Icon name="building" size=16 className={secondaryTextColor} />
+              <div className="mt-2">
+                <span className={`font-medium ${secondaryTextColor} text-sm`}>
+                  {orgName->React.string}
+                </span>
               </div>
-              {isActive
-                ? <button
-                    onClick={e => {
-                      e->ReactEvent.Mouse.stopPropagation
-                      onEdit(e)
-                    }}
-                    className="cursor-pointer p-1 rounded-sm">
-                    <Icon name="edit" size=12 className={secondaryTextColor} />
-                  </button>
-                : React.null}
             </div>
-            <div
-              className={`flex gap-2 items-center mt-2 text-xs ${secondaryTextColor} opacity-70 mt-1`}>
-              <span> {`ID:`->React.string} </span>
-              <HelperComponents.CopyTextCustomComp displayValue={`${orgID}`} />
-            </div>
+            <RenderIf condition={isActive}>
+              <button
+                onClick={e => {
+                  e->ReactEvent.Mouse.stopPropagation
+                  onEdit(e)
+                }}
+                className="cursor-pointer p-1 rounded-sm">
+                <Icon name="edit" size=12 className={secondaryTextColor} />
+              </button>
+            </RenderIf>
           </div>
-        : React.null}
+          <div
+            className={`flex gap-2 items-center mt-2 text-xs ${secondaryTextColor} opacity-70 mt-1`}>
+            <span> {`ID:`->React.string} </span>
+            <HelperComponents.CopyTextCustomComp displayValue={`${orgID}`} />
+          </div>
+        </div>
+      </RenderIf>
     </div>
   }
 }
