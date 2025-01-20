@@ -41,7 +41,6 @@ let make = () => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
 
-  let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let maintainenceAlert = featureFlagDetails.maintainenceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let reconSidebars = HSReconSidebarValues.useGetReconSideBar()
