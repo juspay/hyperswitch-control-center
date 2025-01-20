@@ -125,7 +125,12 @@ module.exports = {
           hover: withOpacity("--btn-secondary-hover-background-color"),
         },
         sidebar: {
-          DEFAULT: withOpacity("--colors-sidebar"),
+          DEFAULT: withOpacity("--sidebar-primary"),
+          primary: withOpacity("--sidebar-primary"),
+          secondary: withOpacity("--sidebar-secondary"),
+          hoverColor: withOpacity("--sidebar-hover-color"),
+          primaryTextColor: withOpacity("--sidebar-primary-text-color"),
+          secondaryTextColor: withOpacity("--sidebar-secondary-text-color"),
         },
 
         background: {

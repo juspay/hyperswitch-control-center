@@ -262,6 +262,8 @@ function appendStyle(themesConfig) {
   let cssVariables = `:root{
   /* Colors */
   ${generateVariablesForSection(settings.colors, "colors")}
+   /* sidebar */
+  ${generateVariablesForSection(settings.sidebar, "sidebar")}
   /* Typography */
   ${generateVariablesForSection(settings.typography, "base")}
  /* Buttons */
