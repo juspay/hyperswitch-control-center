@@ -187,7 +187,7 @@ let make = () => {
                 link: "/3ds-authenticators",
               },
         ]
-        currentPageTitle={connectorName->ConnectorUtils.getDisplayNameForConnector(
+        currentPageTitle={connectorName->getDisplayNameForConnector(
           ~connectorType=ThreeDsAuthenticator,
         )}
         cursorStyle="cursor-pointer"

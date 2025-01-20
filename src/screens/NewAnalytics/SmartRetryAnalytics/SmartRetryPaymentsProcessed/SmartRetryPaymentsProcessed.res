@@ -66,6 +66,7 @@ module SmartRetryPaymentsProcessedHeader = {
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let currency = filterValueJson->getString((#currency: filters :> string), "")
 
     let primaryValue = getMetaDataValue(
       ~data,
@@ -103,16 +104,14 @@ module SmartRetryPaymentsProcessedHeader = {
     | _ => Volume
     }
 
-    let suffix = metricType == Amount ? "USD" : ""
-
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
-          {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
+          {primaryValue->valueFormatter(metricType, ~currency)->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard
-            value direction tooltipValue={`${secondaryValue->valueFormatter(metricType)} ${suffix}`}
+            value direction tooltipValue={secondaryValue->valueFormatter(metricType, ~currency)}
           />
         </RenderIf>
       </div>
@@ -285,7 +284,10 @@ let make = (
     xKey: selectedMetric.value,
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
+    currency,
   }
+
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
 
   <div>
     <ModuleHeader title={entity.title} />
@@ -303,10 +305,7 @@ let make = (
         />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <LineGraph
-              entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <LineGraph options className="mr-3" />
           | Table => <TableModule data={smartRetryPaymentsProcessedTableData} className="mx-7" />
           }}
         </div>

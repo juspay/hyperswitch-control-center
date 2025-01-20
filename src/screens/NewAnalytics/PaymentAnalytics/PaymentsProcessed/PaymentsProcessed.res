@@ -300,6 +300,9 @@ let make = (
     comparison,
     currency,
   }
+
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -317,10 +320,7 @@ let make = (
         />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <LineGraph
-              entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <LineGraph options className="mr-3" />
           | Table => <TableModule data={paymentsProcessedTableData} className="mx-7" />
           }}
         </div>
