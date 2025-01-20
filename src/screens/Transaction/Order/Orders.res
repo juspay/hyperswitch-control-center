@@ -29,6 +29,17 @@ let make = (~previewOnly=false) => {
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let startTime = filterValueJson->getString("start_time", "")
+
+  let handleExtendDateButtonClick = _ => {
+    let startDateObj = startTime->DayJs.getDayJsForString
+    let prevStartdate = startDateObj.toDate()->Date.toISOString
+    let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
+
+    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
+    updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
+  }
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -110,7 +121,12 @@ let make = (~previewOnly=false) => {
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
   let customUI =
-    <NoDataFound customCssClass="my-6" message="No results found" renderType=ExtendDateUI />
+    <NoDataFound
+      customCssClass="my-6"
+      message="No results found"
+      renderType=ExtendDateUI
+      handleClick=handleExtendDateButtonClick
+    />
 
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters

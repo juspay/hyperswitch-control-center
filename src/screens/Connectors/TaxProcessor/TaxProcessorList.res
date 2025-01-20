@@ -33,7 +33,6 @@ let make = () => {
         connectorList->Array.filter(item =>
           item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === TaxProcessor
         )
-
       ConnectorUtils.sortByDisableField(taxConnectorsList, connectorPayload =>
         connectorPayload.disabled
       )

@@ -7,15 +7,16 @@ module ScreenLoader = {
     let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
     let loader = LottieFiles.useLottieJson("loader-circle.json")
     let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {userInfo: {themeId}} = React.useContext(UserInfoProvider.defaultContext)
     let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
+    let showLoader = devThemeFeature && themeId->LogicUtils.isNonEmptyString
     <div className={`${sectionHeight} w-scrren flex flex-col justify-center items-center`}>
       <RenderIf condition={!branding}>
         <div className="w-20 h-16">
           <ReactSuspenseWrapper>
             <div className="scale-400 pt-px">
               <Lottie
-                animationData={devThemeFeature ? loader : loaderLottieFile} autoplay=true loop=true
+                animationData={showLoader ? loader : loaderLottieFile} autoplay=true loop=true
               />
             </div>
           </ReactSuspenseWrapper>

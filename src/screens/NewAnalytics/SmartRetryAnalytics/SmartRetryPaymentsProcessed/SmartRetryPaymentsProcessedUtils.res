@@ -15,9 +15,10 @@ let getStringFromVariant = value => {
 
 let getVariantValueFromString = value => {
   switch value {
-  | "payment_processed_amount" => Payment_Processed_Amount
+  | "payment_processed_amount" | "payment_processed_amount_in_usd" => Payment_Processed_Amount
   | "payment_processed_count" => Payment_Processed_Count
-  | "total_payment_processed_amount" => Total_Payment_Processed_Amount
+  | "total_payment_processed_amount" | "total_payment_processed_amount_in_usd" =>
+    Total_Payment_Processed_Amount
   | "total_payment_processed_count" => Total_Payment_Processed_Count
   | "time_bucket" | _ => Time_Bucket
   }
@@ -40,6 +41,7 @@ let smartRetryPaymentsProcessedMapper = (
   | Some(val) => Some(val)
   | None => None
   }
+  let currency = params.currency->Option.getOr("")
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
@@ -65,6 +67,7 @@ let smartRetryPaymentsProcessedMapper = (
       ~title="Smart Retry Payments Processed",
       ~metricType,
       ~comparison,
+      ~currency,
     ),
   }
 }
@@ -187,7 +190,7 @@ let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
 
 let modifyQueryData = (data, ~currency) => {
   let dataDict = Dict.make()
-  let isSmartRetryEnabled = Smart_Retry
+  let isSmartRetryEnabled = Default
 
   data->Array.forEach(item => {
     let valueDict = item->getDictFromJsonObject
@@ -231,11 +234,11 @@ let modifyQueryData = (data, ~currency) => {
         )
         // without smart retry
         prevVal->Dict.set(
-          Payment_Processed_Count->getKey(~isSmartRetryEnabled=Smart_Retry),
+          Payment_Processed_Count->getKey(~isSmartRetryEnabled),
           totalPaymentProcessedCountWithoutSmartRetries->JSON.Encode.int,
         )
         prevVal->Dict.set(
-          Payment_Processed_Amount->getKey(~isSmartRetryEnabled=Smart_Retry, ~currency),
+          Payment_Processed_Amount->getKey(~isSmartRetryEnabled, ~currency),
           totalPaymentProcessedAmountWithoutSmartRetries->JSON.Encode.float,
         )
 
@@ -251,7 +254,7 @@ let modifyQueryData = (data, ~currency) => {
 let modifySmartRetryQueryData = (data, ~currency) => {
   let data = data->modifyQueryData(~currency)
 
-  let isSmartRetryEnabled = Smart_Retry
+  let isSmartRetryEnabled = Default
 
   data->Array.map(item => {
     let valueDict = item->getDictFromJsonObject
@@ -290,7 +293,7 @@ let modifySmartRetryQueryData = (data, ~currency) => {
 }
 
 let modifySmartRetryMetaData = (data, ~currency) => {
-  let isSmartRetryEnabled = Smart_Retry
+  let isSmartRetryEnabled = Default
 
   data->Array.map(item => {
     let valueDict = item->getDictFromJsonObject
