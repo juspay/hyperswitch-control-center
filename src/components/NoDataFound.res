@@ -1,4 +1,4 @@
-type renderType = InfoBox | Painting | NotFound | Locked | LoadError
+type renderType = InfoBox | Painting | NotFound | Locked | LoadError | ExtendDateUI
 
 @react.component
 let make = (
@@ -9,6 +9,7 @@ let make = (
   ~customCssClass="my-6",
   ~customBorderClass="",
   ~customMessageCss="",
+  ~handleClick=?,
 ) => {
   let prefix = LogicUtils.useUrlPrefix()
   let isMobileView = MatchMedia.useMobileChecker()
@@ -19,6 +20,7 @@ let make = (
     | Locked => "mt-32 p-16"
     | LoadError => "mt-32 p-16"
     | InfoBox => ""
+    | ExtendDateUI => "mt-16 p-16"
     }
     isMobileView ? "" : marginPaddingClass
   }
@@ -100,6 +102,30 @@ let make = (
               | None => React.null
               }}
             </div>
+          </div>
+        | ExtendDateUI =>
+          <div className=containerClass>
+            <div className="items-center text-2xl text-black font-bold mb-4">
+              {message->React.string}
+            </div>
+            {switch handleClick {
+            | Some(fn) =>
+              <div>
+                <ACLButton
+                  buttonType=Primary onClick=fn text="Expand the search to the previous 90 days"
+                />
+                <div className="flex justify-center">
+                  <p className="mt-6">
+                    {"Or try the following:"->React.string}
+                    <ul className="list-disc">
+                      <li> {"Try a different search parameter"->React.string} </li>
+                      <li> {"Adjust or remove filters and search once more"->React.string} </li>
+                    </ul>
+                  </p>
+                </div>
+              </div>
+            | None => React.null
+            }}
           </div>
         }}
       </div>

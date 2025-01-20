@@ -1,30 +1,19 @@
 @react.component
 let make = () => {
-  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let (
-    userModuleEntity: UserManagementTypes.userModuleTypes,
-    setUserModuleEntity,
-  ) = React.useState(_ => #Default)
-
   let tabList: array<Tabs.tab> = [
     {
       title: "Users",
-      renderContent: () => <ListUsers userModuleEntity />,
+      renderContent: () => <ListUsers />,
     },
     {
       title: "Roles",
-      renderContent: () => <ListRoles userModuleEntity />,
+      renderContent: () => <ListRoles />,
     },
   ]
 
-  <div className="flex flex-col overflow-y-scroll">
+  <div className="flex flex-col">
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title={"Team management"} />
-      <UserManagementHelper.UserOmpView
-        views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
-        userModuleEntity
-        setUserModuleEntity
-      />
     </div>
     <div className="relative">
       <Tabs

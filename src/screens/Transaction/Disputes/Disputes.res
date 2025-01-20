@@ -3,10 +3,11 @@ let make = () => {
   open APIUtils
   open HSwitchRemoteFilter
   open DisputesUtils
+  open LogicUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (disputesData, setDisputesData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
@@ -15,11 +16,21 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+  let {userInfo: {transactionEntity, orgId, merchantId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let startTime = filterValueJson->getString("start_time", "")
+
+  let handleExtendDateButtonClick = _ => {
+    let startDateObj = startTime->DayJs.getDayJsForString
+    let prevStartdate = startDateObj.toDate()->Date.toISOString
+    let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
+
+    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
+    updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
+  }
+
   let getDisputesList = async () => {
-    open LogicUtils
     try {
       setScreenState(_ => Loading)
       if searchText->isNonEmptyString {
@@ -74,7 +85,10 @@ let make = () => {
 
   let customUI =
     <NoDataFound
-      customCssClass={"my-6"} message="There are no disputes as of now" renderType=Painting
+      customCssClass="my-6"
+      message="No results found"
+      renderType=ExtendDateUI
+      handleClick=handleExtendDateButtonClick
     />
 
   let filtersUI =
@@ -96,11 +110,14 @@ let make = () => {
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
       <div className="flex gap-4">
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-          selectedEntity={transactionEntity}
-          onChange={updateTransactionEntity}
-        />
+        <Portal to="DisputesOMPView">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+            entityMapper=UserInfoUtils.transactionEntityMapper
+          />
+        </Portal>
         <RenderIf condition={generateReport && disputesData->Array.length > 0}>
           <GenerateReport entityName={DISPUTE_REPORT} />
         </RenderIf>
@@ -116,7 +133,7 @@ let make = () => {
           title="Disputes"
           hideTitle=true
           actualData=disputesData
-          entity={DisputesEntity.disputesEntity}
+          entity={DisputesEntity.disputesEntity(merchantId, orgId)}
           resultsPerPage=10
           showSerialNumber=true
           totalResults={disputesData->Array.length}

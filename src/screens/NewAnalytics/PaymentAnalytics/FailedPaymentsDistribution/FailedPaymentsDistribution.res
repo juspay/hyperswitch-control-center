@@ -4,6 +4,7 @@ open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open FailedPaymentsDistributionUtils
 open NewPaymentAnalyticsUtils
+
 module TableModule = {
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {
@@ -76,6 +77,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -92,6 +94,7 @@ let make = (
     ->getString("is_smart_retry_enabled", "true")
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getFailedPaymentsDistribution = async () => {
     try {
@@ -102,12 +105,13 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let body = NewAnalyticsUtils.requestBody(
+      let body = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[groupBy.value]->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let response = await updateDetails(url, body, Post)
@@ -115,7 +119,7 @@ let make = (
         response
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->NewAnalyticsUtils.filterQueryData(groupBy.value)
+        ->filterQueryData(groupBy.value)
 
       if responseData->Array.length > 0 {
         setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
@@ -133,12 +137,16 @@ let make = (
       getFailedPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value])
+  }, [startTimeVal, endTimeVal, groupBy.value, currency])
+
   let params = {
     data: failedPaymentsDistribution,
     xKey: Payments_Failure_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
     yKey: groupBy.value,
   }
+
+  let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -147,10 +155,7 @@ let make = (
         <FailedPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <BarGraph
-              entity={chartEntity} object={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <BarGraph options className="mr-3" />
           | Table =>
             <TableModule
               data={failedPaymentsDistribution} className="mx-7" selectedTab={groupBy.value}

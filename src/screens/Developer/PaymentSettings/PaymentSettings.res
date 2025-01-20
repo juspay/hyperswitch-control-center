@@ -260,7 +260,7 @@ module WebHookSection = {
           <form onSubmit={handleSubmit} className="flex flex-col gap-8 h-full w-full py-6 px-4">
             <WebHookAuthenticationHeaders setAllowEdit allowEdit />
             <DesktopRow>
-              <div className="flex justify-start w-full gap-2">
+              <div className="flex justify-end w-full gap-2">
                 <SubmitButton
                   customSumbitButtonStyle="justify-start"
                   text="Update"
@@ -294,7 +294,7 @@ module WebHook = {
     <div className="ml-4 mt-4">
       <FieldRenderer
         field={DeveloperUtils.webhookUrl}
-        labelClass="!text-base !text-grey-700 font-semibold"
+        labelClass="!text-fs-15 !text-grey-700 font-semibold"
         fieldWrapperClass="max-w-xl"
       />
     </div>
@@ -310,7 +310,7 @@ module ReturnUrl = {
         <FieldRenderer
           field={DeveloperUtils.returnUrl}
           errorClass={HSwitchUtils.errorClass}
-          labelClass="!text-base !text-grey-700 font-semibold"
+          labelClass="!text-fs-15 !text-grey-700 font-semibold"
           fieldWrapperClass="max-w-xl"
         />
       </DesktopRow>
@@ -325,8 +325,9 @@ type options = {
 
 module CollectDetails = {
   @react.component
-  let make = (~title, ~options: array<options>) => {
+  let make = (~title, ~subTitle, ~options: array<options>) => {
     open LogicUtils
+    open FormRenderer
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -357,37 +358,43 @@ module CollectDetails = {
       }
       None
     }, [isSelected])
-
-    <div>
-      <div className="flex gap-2 items-center">
-        <BoolInput.BaseComponent
-          isSelected
-          setIsSelected={_ => setIsSelected(val => !val)}
-          isDisabled=false
-          boolCustomClass="rounded-lg"
-        />
-        <p className="!text-base !text-grey-700 font-semibold"> {title->React.string} </p>
-      </div>
-      <RenderIf condition={isSelected}>
-        <div className="mt-4">
-          {options
-          ->Array.mapWithIndex((option, index) =>
-            <div
-              key={index->Int.toString}
-              className="flex gap-2 mb-3 items-center cursor-pointer"
-              onClick={_ => onClick(option.key)}>
-              <RadioIcon
-                isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
-              />
-              <div className=p2RegularTextStyle>
-                {option.name->LogicUtils.snakeToTitle->React.string}
-              </div>
-            </div>
-          )
-          ->React.array}
+    <DesktopRow>
+      <div className="w-full border-t border-gray-200 pt-8">
+        <div className="flex justify-between items-center">
+          <div className="flex-1 ">
+            <p className="font-semibold text-fs-15"> {title->React.string} </p>
+            <p className="font-medium text-fs-14 text-black opacity-50 pt-2">
+              {subTitle->React.string}
+            </p>
+          </div>
+          <BoolInput.BaseComponent
+            isSelected
+            setIsSelected={_ => setIsSelected(val => !val)}
+            isDisabled=false
+            boolCustomClass="rounded-lg"
+          />
         </div>
-      </RenderIf>
-    </div>
+        <RenderIf condition={isSelected}>
+          <div className="mt-4">
+            {options
+            ->Array.mapWithIndex((option, index) =>
+              <div
+                key={index->Int.toString}
+                className="flex gap-2 mb-3 items-center cursor-pointer"
+                onClick={_ => onClick(option.key)}>
+                <RadioIcon
+                  isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
+                />
+                <div className=p2RegularTextStyle>
+                  {option.name->LogicUtils.snakeToTitle->React.string}
+                </div>
+              </div>
+            )
+            ->React.array}
+          </div>
+        </RenderIf>
+      </div>
+    </DesktopRow>
   }
 }
 
@@ -416,8 +423,8 @@ module AutoRetries = {
     <>
       <DesktopRow>
         <FieldRenderer
-          labelClass="!text-base !text-grey-700 font-semibold"
-          fieldWrapperClass="max-w-xl"
+          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          fieldWrapperClass="w-full flex justify-between items-center border-t  border-gray-200 pt-8 "
           field={makeFieldInfo(
             ~name="is_auto_retries_enabled",
             ~label="Auto Retries",
@@ -429,11 +436,71 @@ module AutoRetries = {
         <FieldRenderer
           field={maxAutoRetries}
           errorClass
-          labelClass="!text-base !text-grey-700 font-semibold"
+          labelClass="!text-fs-15 !text-grey-700 font-semibold"
           fieldWrapperClass="max-w-xl mx-4"
         />
       </RenderIf>
     </>
+  }
+}
+
+module ClickToPaySection = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+    open LogicUtils
+
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let connectorListAtom = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
+    let isClickToPayEnabled =
+      formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
+    let dropDownOptions =
+      connectorListAtom
+      ->Array.filter(ele => ele.connector_type === AuthenticationProcessor)
+      ->Array.map((item): SelectBox.dropdownOption => {
+        {
+          label: `${item.connector_label} - ${item.merchant_connector_id}`,
+          value: item.merchant_connector_id,
+        }
+      })
+
+    <RenderIf condition={featureFlagDetails.clickToPay && connectorView}>
+      <DesktopRow>
+        <FieldRenderer
+          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
+          field={makeFieldInfo(
+            ~name="is_click_to_pay_enabled",
+            ~label="Click to Pay",
+            ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+            ~description="Click to Pay is a secure, seamless digital payment solution that lets customers checkout quickly using saved cards without entering details",
+            ~toolTipPosition=Right,
+          )}
+        />
+      </DesktopRow>
+      <RenderIf condition={isClickToPayEnabled}>
+        <DesktopRow>
+          <FormRenderer.FieldRenderer
+            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            field={FormRenderer.makeFieldInfo(
+              ~label="Click to Pay - Connector ID",
+              ~name="authentication_product_ids.click_to_pay",
+              ~placeholder="",
+              ~customInput=InputFields.selectInput(
+                ~options=dropDownOptions,
+                ~buttonText="Select Click to Pay - Connector ID",
+                ~deselectDisable=true,
+              ),
+            )}
+          />
+        </DesktopRow>
+      </RenderIf>
+    </RenderIf>
   }
 }
 
@@ -470,10 +537,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let threedsConnectorList =
     HyperswitchAtom.connectorListAtom
     ->Recoil.useRecoilValueFromAtom
-    ->Array.filter(item =>
-      item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
-        AuthenticationProcessor
-    )
+    ->Array.filter(item => item.connector_type === AuthenticationProcessor)
 
   let isBusinessProfileHasThreeds = threedsConnectorList->Array.some(item => item.profile_id == id)
 
@@ -546,10 +610,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     : "px-2 py-4"} flex flex-col gap-7 overflow-hidden`}>
                 <div className="flex items-center">
                   <InfoViewForWebhooks
-                    heading="Profile ID" subHeading=busiProfieDetails.profile_id isCopy=true
+                    heading="Profile Name" subHeading=busiProfieDetails.profile_name
                   />
                   <InfoViewForWebhooks
-                    heading="Profile Name" subHeading=busiProfieDetails.profile_name
+                    heading="Profile ID" subHeading=busiProfieDetails.profile_id isCopy=true
                   />
                 </div>
                 <div className="flex items-center">
@@ -562,48 +626,50 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     isCopy=true
                   />
                 </div>
-                <DesktopRow>
-                  <CollectDetails
-                    title={"Collect billing details from wallets"}
-                    options=[
-                      {
-                        name: "only if required by connector",
-                        key: "collect_billing_details_from_wallet_connector",
-                      },
-                      {
-                        name: "always",
-                        key: "always_collect_billing_details_from_wallet_connector",
-                      },
-                    ]
-                  />
-                  <CollectDetails
-                    title={"Collect shipping details from wallets"}
-                    options=[
-                      {
-                        name: "only if required by connector",
-                        key: "collect_shipping_details_from_wallet_connector",
-                      },
-                      {
-                        name: "always",
-                        key: "always_collect_shipping_details_from_wallet_connector",
-                      },
-                    ]
-                  />
-                </DesktopRow>
+                <CollectDetails
+                  title={"Collect billing details from wallets"}
+                  subTitle={"Enable automatic collection of billing information when customers connect their wallets"}
+                  options=[
+                    {
+                      name: "only if required by connector",
+                      key: "collect_billing_details_from_wallet_connector",
+                    },
+                    {
+                      name: "always",
+                      key: "always_collect_billing_details_from_wallet_connector",
+                    },
+                  ]
+                />
+                <CollectDetails
+                  title={"Collect shipping details from wallets"}
+                  subTitle={"Enable automatic collection of shipping information when customers connect their wallets"}
+                  options=[
+                    {
+                      name: "only if required by connector",
+                      key: "collect_shipping_details_from_wallet_connector",
+                    },
+                    {
+                      name: "always",
+                      key: "always_collect_shipping_details_from_wallet_connector",
+                    },
+                  ]
+                />
                 <DesktopRow>
                   <FieldRenderer
-                    labelClass="!text-base !text-grey-700 font-semibold"
-                    fieldWrapperClass="max-w-xl"
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
                     field={makeFieldInfo(
                       ~name="is_connector_agnostic_mit_enabled",
                       ~label="Connector Agnostic",
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
-                        ~boolCustomClass="rounded-lg",
+                        ~boolCustomClass="rounded-lg ",
                       ),
                     )}
                   />
                 </DesktopRow>
+                <ClickToPaySection />
+                <AutoRetries setCheckMaxAutoRetry />
                 <RenderIf condition={isBusinessProfileHasThreeds}>
                   <DesktopRow>
                     <FieldRenderer
@@ -611,22 +677,21 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ->Array.map(item => item.connector_name)
                       ->authenticationConnectors}
                       errorClass
-                      labelClass="!text-base !text-grey-700 font-semibold"
+                      labelClass="!text-fs-15 !text-grey-700 font-semibold "
                       fieldWrapperClass="max-w-xl"
                     />
                     <FieldRenderer
                       field={threeDsRequestorUrl}
                       errorClass
-                      labelClass="!text-base !text-grey-700 font-semibold"
+                      labelClass="!text-fs-15 !text-grey-700 font-semibold"
                       fieldWrapperClass="max-w-xl"
                     />
                   </DesktopRow>
                 </RenderIf>
-                <AutoRetries setCheckMaxAutoRetry />
                 <ReturnUrl />
                 <WebHook />
                 <DesktopRow>
-                  <div className="flex justify-start w-full gap-2">
+                  <div className="flex justify-end w-full gap-2">
                     <SubmitButton
                       customSumbitButtonStyle="justify-start"
                       text="Update"
@@ -643,7 +708,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </DesktopRow>
-                // <FormValuesSpy />
+                <FormValuesSpy />
               </form>
             }}
           />

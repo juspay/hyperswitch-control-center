@@ -1,5 +1,5 @@
 @react.component
-let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
+let make = () => {
   open APIUtils
   open ListRolesTableEntity
   let getURL = useGetURL()
@@ -10,8 +10,12 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let (
+    userModuleEntity: UserManagementTypes.userModuleTypes,
+    setUserModuleEntity,
+  ) = React.useState(_ => #Default)
 
-  let getRolesAvailable = async () => {
+  let getRolesAvailable = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
@@ -25,6 +29,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
       let res = await fetchDetails(userDataURL)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
       setRolesAvailableData(_ => rolesData->Array.map(Nullable.make))
+      setUserModuleEntity(_ => userModuleEntity)
       setScreenStateRoles(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenStateRoles(_ => PageLoaderWrapper.Error(""))
@@ -32,13 +37,18 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   }
 
   React.useEffect(() => {
-    getRolesAvailable()->ignore
+    getRolesAvailable(#Default)->ignore
     None
-  }, [userModuleEntity])
+  }, [])
 
   <div className="relative mt-5 flex flex-col gap-6">
     <PageLoaderWrapper screenState={screenStateRoles}>
-      <div className="flex flex-1 justify-end">
+      <div className="flex md:flex-row flex-col flex-1 gap-2 items-center justify-end">
+        <UserManagementHelper.UserOmpView
+          views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
+          selectedEntity=userModuleEntity
+          onChange={getRolesAvailable}
+        />
         <ACLButton
           authorization={userHasAccess(~groupAccess=UsersManage)}
           text={"Create custom roles"}

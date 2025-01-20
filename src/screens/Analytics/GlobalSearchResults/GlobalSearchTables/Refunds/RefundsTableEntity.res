@@ -26,6 +26,7 @@ type refundsObject = {
   sign_flag: int,
   timestamp: string,
   profile_id: string,
+  organization_id: string,
 }
 
 type cols =
@@ -54,6 +55,7 @@ type cols =
   | SignFlag
   | Timestamp
   | ProfileId
+  | OrganizationId
 
 let visibleColumns = [RefundId, PaymentId, Refundstatus, TotalAmount, Currency, Connector]
 
@@ -84,6 +86,7 @@ let colMapper = (col: cols) => {
   | SignFlag => "sign_flag"
   | Timestamp => "timestamp"
   | ProfileId => "profile_id"
+  | OrganizationId => "organization_id"
   }
 }
 
@@ -116,6 +119,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
     sign_flag: dict->getInt(SignFlag->colMapper, 0),
     timestamp: dict->getString(Timestamp->colMapper, "NA"),
     profile_id: dict->getString(ProfileId->colMapper, "NA"),
+    organization_id: dict->getString(OrganizationId->colMapper, "NA"),
   }
 }
 
@@ -161,6 +165,7 @@ let getHeading = colType => {
   | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType)
   | Timestamp => Table.makeHeaderInfo(~key, ~title="Timestamp", ~dataType=TextType)
   | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
+  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
   }
 }
 
@@ -170,7 +175,7 @@ let getCell = (refundsObj, colType): Table.cell => {
   | RefundId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/refunds/${refundsObj.refund_id}/${refundsObj.profile_id}`}
+        url={`/refunds/${refundsObj.refund_id}/${refundsObj.profile_id}/${refundsObj.merchant_id}/${refundsObj.organization_id}`}
         displayValue={refundsObj.refund_id}
         copyValue={Some(refundsObj.refund_id)}
       />,
@@ -221,6 +226,7 @@ let getCell = (refundsObj, colType): Table.cell => {
   | SignFlag => Text(refundsObj.sign_flag->Int.toString)
   | Timestamp => Text(refundsObj.timestamp)
   | ProfileId => Text(refundsObj.profile_id)
+  | OrganizationId => Text(refundsObj.organization_id)
   }
 }
 
@@ -235,6 +241,8 @@ let tableEntity = EntityType.makeEntity(
   ~getHeading,
   ~getShowLink={
     refund =>
-      GlobalVars.appendDashboardPath(~url=`/refunds/${refund.refund_id}/${refund.profile_id}`)
+      GlobalVars.appendDashboardPath(
+        ~url=`/refunds/${refund.refund_id}/${refund.profile_id}/${refund.merchant_id}/${refund.organization_id}`,
+      )
   },
 )

@@ -62,6 +62,8 @@ module ListItem = {
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
     ~customRowClass="",
+    ~labelDescription=Some(""),
+    ~labelDescriptionClass="",
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let labelText = switch labelValue->String.length {
@@ -96,8 +98,6 @@ module ListItem = {
     }
     let backgroundClass = if showToggle {
       ""
-    } else if isSelected && customStyle->LogicUtils.isNonEmptyString {
-      customSelectStyle
     } else if isDropDown && isSelected && !isDisabled {
       `${bgClass} transition ease-[cubic-bezier(0.33, 1, 0.68, 1)]`
     } else {
@@ -166,7 +166,7 @@ module ListItem = {
     }
     let textGap = ""
 
-    let selectedNoBadgeColor = "bg-blue-500"
+    let selectedNoBadgeColor = "bg-primary"
     let optionIconStroke = ""
 
     let optionTextSize = !isDropDown && optionSize === Large ? "text-fs-16" : "text-base"
@@ -186,6 +186,9 @@ module ListItem = {
 
     let customCss =
       listFlexDirection->LogicUtils.isEmptyString ? `flex-row ${paddingClass}` : listFlexDirection
+
+    let searchStyle = searchString->String.length > 0 ? "flex" : ""
+
     RippleEffectBackground.useLinearRippleHook(parentRef, isDropDown)
     let comp =
       <AddDataAttributes
@@ -214,7 +217,7 @@ module ListItem = {
                   : <CheckBoxIcon isSelected isDisabled size=optionSize isSelectedStateMinus />}
               </span>
             } else {
-              <div className=toggleClass>
+              <div className={`${toggleClass} ${customSelectStyle}`}>
                 <RadioIcon isSelected size=optionSize fill isDisabled />
               </div>
             }
@@ -243,7 +246,7 @@ module ListItem = {
                 <Icon className={`align-middle ${optionIconStroke}`} size={12} name=iconName />
               | _ => React.null
               }}
-              <div className="w-full">
+              <div className={`w-full ${searchStyle}`}>
                 {listText
                 ->Array.filter(str => str->LogicUtils.isNonEmptyString)
                 ->Array.mapWithIndex((item, i) => {
@@ -271,9 +274,14 @@ module ListItem = {
                     let selectOptions =
                       <AddDataAttributes
                         attributes=[("data-text", labelText)] key={i->Int.toString}>
-                        <span key={i->Int.toString} className=textClass value=labelText>
-                          {item->React.string}
-                        </span>
+                        {<div className="flex gap-1 items-center">
+                          <span key={i->Int.toString} className=textClass value=labelText>
+                            {item->React.string}
+                          </span>
+                          <p className={`${labelDescriptionClass}`}>
+                            {`${labelDescription->Option.getOr("")}`->React.string}
+                          </p>
+                        </div>}
                       </AddDataAttributes>
 
                     {
@@ -365,6 +373,7 @@ type dropdownOptionWithoutOptional = {
   isDisabled: bool,
   icon: Button.iconType,
   description: option<string>,
+  labelDescription: option<string>,
   iconStroke: string,
   textColor: string,
   optGroup: string,
@@ -373,6 +382,7 @@ type dropdownOptionWithoutOptional = {
 type dropdownOption = {
   label: string,
   value: string,
+  labelDescription?: string,
   optGroup?: string,
   isDisabled?: bool,
   icon?: Button.iconType,
@@ -393,6 +403,7 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     textColor: dropdownOption.textColor->Option.getOr(""),
     optGroup: dropdownOption.optGroup->Option.getOr("-"),
     customRowClass: dropdownOption.customRowClass->Option.getOr(""),
+    labelDescription: dropdownOption.labelDescription,
   }
 }
 
@@ -1105,6 +1116,7 @@ module RenderListItemInBaseRadio = {
     ~selectClass="",
     ~customScrollStyle=?,
     ~shouldDisplaySelectedOnTop,
+    ~labelDescriptionClass="",
   ) => {
     let decodedValue = value->JSON.Decode.string
     switch (decodedValue, shouldDisplaySelectedOnTop) {
@@ -1161,6 +1173,8 @@ module RenderListItemInBaseRadio = {
             customRowClass={option.customRowClass}
             optionClass
             selectClass
+            labelDescription=option.labelDescription
+            labelDescriptionClass
           />
 
         if !descriptionOnHover {
@@ -1201,10 +1215,15 @@ module RenderListItemInBaseRadio = {
         }
       }
     `
-    let (className, styleElement) = switch customScrollStyle {
-    | None => ("", React.null)
-    | Some(style) => (
-        `${style}  sidebar-scrollbar`,
+    let (className, styleElement) = switch (customScrollStyle, isHorizontal) {
+    | (None, false) => ("", React.null)
+    | (Some(style), false) => (
+        `${style} sidebar-scrollbar`,
+        <style> {React.string(sidebarScrollbarCss)} </style>,
+      )
+    | (None, true) => ("flex flex-row", React.null)
+    | (Some(style), true) => (
+        `${style}  sidebar-scrollbar flex flex-row`,
         <style> {React.string(sidebarScrollbarCss)} </style>,
       )
     }
@@ -1293,6 +1312,7 @@ module BaseRadio = {
     ~customScrollStyle=?,
     ~dropdownContainerStyle="",
     ~shouldDisplaySelectedOnTop=false,
+    ~labelDescriptionClass="",
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1483,6 +1503,7 @@ module BaseRadio = {
             selectClass
             ?customScrollStyle
             shouldDisplaySelectedOnTop
+            labelDescriptionClass
           />
         } else {
           {
@@ -1613,6 +1634,7 @@ module BaseDropdown = {
     ~customScrollStyle=?,
     ~dropdownContainerStyle="",
     ~shouldDisplaySelectedOnTop=false,
+    ~labelDescriptionClass="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1883,6 +1905,7 @@ module BaseDropdown = {
         ?customScrollStyle
         dropdownContainerStyle
         shouldDisplaySelectedOnTop
+        labelDescriptionClass
       />
     }
 

@@ -59,6 +59,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -77,6 +78,7 @@ let make = (
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSmartRetryEnabled =
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")
@@ -92,20 +94,22 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = NewAnalyticsUtils.requestBody(
+      let primaryBody = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let secondaryBody = NewAnalyticsUtils.requestBody(
+      let secondaryBody = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
@@ -113,7 +117,7 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->NewAnalyticsUtils.sortQueryDataByDate
+        ->sortQueryDataByDate
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
@@ -124,7 +128,7 @@ let make = (
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
-            NewAnalyticsUtils.fillMissingDataPoints(
+            fillMissingDataPoints(
               ~data,
               ~startDate=compareToStartTime,
               ~endDate=compareToEndTime,
@@ -143,7 +147,7 @@ let make = (
       }
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
-          NewAnalyticsUtils.fillMissingDataPoints(
+          fillMissingDataPoints(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
@@ -177,7 +181,7 @@ let make = (
       getPaymentsSuccessRate()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
 
   let mockDelay = async () => {
     if paymentsSuccessRateData != []->JSON.Encode.array {
@@ -191,12 +195,16 @@ let make = (
     mockDelay()->ignore
     None
   }, [isSmartRetryEnabled])
+
   let params = {
     data: paymentsSuccessRateData,
     xKey: Payments_Success_Rate->getKeyForModule(~isSmartRetryEnabled),
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
   }
+
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -209,7 +217,7 @@ let make = (
           setGranularity
         />
         <div className="mb-5">
-          <LineGraph entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3" />
+          <LineGraph options className="mr-3" />
         </div>
       </PageLoaderWrapper>
     </Card>

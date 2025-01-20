@@ -2,8 +2,8 @@ open NewAnalyticsTypes
 open NewAnalyticsHelper
 open LineGraphTypes
 open SmartRetryPaymentsProcessedUtils
-open SmartRetryPaymentsProcessedTypes
 open NewSmartRetryAnalyticsEntity
+open PaymentsProcessedTypes
 
 module TableModule = {
   open LogicUtils
@@ -66,6 +66,7 @@ module SmartRetryPaymentsProcessedHeader = {
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let currency = filterValueJson->getString((#currency: filters :> string), "")
 
     let primaryValue = getMetaDataValue(
       ~data,
@@ -103,16 +104,14 @@ module SmartRetryPaymentsProcessedHeader = {
     | _ => Volume
     }
 
-    let suffix = metricType == Amount ? "USD" : ""
-
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
-          {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
+          {primaryValue->valueFormatter(metricType, ~currency)->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard
-            value direction tooltipValue={`${secondaryValue->valueFormatter(metricType)} ${suffix}`}
+            value direction tooltipValue={secondaryValue->valueFormatter(metricType, ~currency)}
           />
         </RenderIf>
       </div>
@@ -139,6 +138,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -162,6 +162,7 @@ let make = (
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getSmartRetryPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -172,20 +173,22 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = NewAnalyticsUtils.requestBody(
+      let primaryBody = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let secondaryBody = NewAnalyticsUtils.requestBody(
+      let secondaryBody = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
@@ -193,13 +196,14 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->PaymentsProcessedUtils.modifyQueryData
-        ->modifySmartRetryQueryData
+        ->modifySmartRetryQueryData(~currency)
+        ->sortQueryDataByDate
+
       let primaryMetaData =
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("metaData", [])
-        ->modifySmartRetryMetaData
+        ->modifySmartRetryMetaData(~currency)
       setSmartRetryPaymentsProcessedTableData(_ => primaryData)
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
@@ -209,16 +213,15 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->PaymentsProcessedUtils.modifyQueryData
-            ->modifySmartRetryQueryData
+            ->modifySmartRetryQueryData(~currency)
           let secondaryMetaData =
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("metaData", [])
-            ->modifySmartRetryMetaData
+            ->modifySmartRetryMetaData(~currency)
 
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
-            NewAnalyticsUtils.fillMissingDataPoints(
+            fillMissingDataPoints(
               ~data,
               ~startDate=compareToStartTime,
               ~endDate=compareToEndTime,
@@ -238,7 +241,7 @@ let make = (
 
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
-          NewAnalyticsUtils.fillMissingDataPoints(
+          fillMissingDataPoints(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
@@ -271,14 +274,17 @@ let make = (
       getSmartRetryPaymentsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
 
   let params = {
     data: smartRetryPaymentsProcessedData,
     xKey: selectedMetric.value,
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
+    currency,
   }
+
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
 
   <div>
     <ModuleHeader title={entity.title} />
@@ -296,10 +302,7 @@ let make = (
         />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <LineGraph
-              entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <LineGraph options className="mr-3" />
           | Table => <TableModule data={smartRetryPaymentsProcessedTableData} className="mx-7" />
           }}
         </div>

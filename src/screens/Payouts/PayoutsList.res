@@ -19,6 +19,26 @@ let make = () => {
   let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let startTime = filterValueJson->getString("start_time", "")
+
+  let handleExtendDateButtonClick = _ => {
+    let startDateObj = startTime->DayJs.getDayJsForString
+    let prevStartdate = startDateObj.toDate()->Date.toISOString
+    let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
+
+    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
+    updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
+  }
+
+  let customUI = {
+    <NoDataFound
+      customCssClass="my-6"
+      message="No results found"
+      renderType=ExtendDateUI
+      handleClick=handleExtendDateButtonClick
+    />
+  }
 
   let fetchPayouts = () => {
     switch filters {
@@ -62,15 +82,19 @@ let make = () => {
     <div className="min-h-[50vh]">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-          selectedEntity={transactionEntity}
-          onChange={updateTransactionEntity}
-        />
+        <Portal to="PayoutsOMPView">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+            entityMapper=UserInfoUtils.transactionEntityMapper
+          />
+        </Portal>
       </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
+            title="Payouts"
             apiType=Post
             setFilters
             endTimeFilterKey

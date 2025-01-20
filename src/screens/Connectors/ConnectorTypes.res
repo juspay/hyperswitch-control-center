@@ -28,7 +28,6 @@ type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
   | ADYEN
-  | ADYENPLATFORM
   | CHECKOUT
   | BRAINTREE
   | BANKOFAMERICA
@@ -41,7 +40,7 @@ type processorTypes =
   | AIRWALLEX
   | WORLDPAY
   | CYBERSOURCE
-  | EBANX
+  | ELAVON
   | ACI
   | WORLDLINE
   | FISERV
@@ -77,7 +76,6 @@ type processorTypes =
   | STRIPE_TEST
   | PAYPAL_TEST
   | STAX
-  | WISE
   | GOCARDLESS
   | VOLT
   | PROPHETPAY
@@ -98,7 +96,16 @@ type processorTypes =
   | DEUTSCHEBANK
   | NEXIXPAY
 
-type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
+type payoutProcessorTypes =
+  | ADYEN
+  | ADYENPLATFORM
+  | CYBERSOURCE
+  | EBANX
+  | PAYPAL
+  | STRIPE
+  | WISE
+
+type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD
 
 type frmTypes =
   | Signifyd
@@ -110,6 +117,7 @@ type taxProcessorTypes = TAXJAR
 
 type connectorTypes =
   | Processors(processorTypes)
+  | PayoutProcessor(payoutProcessorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | FRM(frmTypes)
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
@@ -299,8 +307,16 @@ type frm_config = {
   mutable payment_methods: array<frm_payment_method>,
 }
 
+type connectorTypeVariants =
+  | PaymentProcessor
+  | PaymentVas
+  | PayoutProcessor
+  | AuthenticationProcessor
+  | PMAuthProcessor
+  | TaxProcessor
+
 type connectorPayload = {
-  connector_type: string,
+  connector_type: connectorTypeVariants,
   connector_name: string,
   connector_label: string,
   connector_account_details: connectorAuthTypeObj,
@@ -319,15 +335,7 @@ type connectorPayload = {
 type connector =
   | FRMPlayer
   | Processor
-  | PayoutConnector
+  | PayoutProcessor
   | ThreeDsAuthenticator
   | PMAuthenticationProcessor
-  | TaxProcessor
-
-type connectorTypeVariants =
-  | PaymentProcessor
-  | PaymentVas
-  | PayoutProcessor
-  | AuthenticationProcessor
-  | PMAuthProcessor
   | TaxProcessor

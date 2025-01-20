@@ -36,7 +36,7 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 3. Install project dependencies:
 
    ```bash
-   npm install --force
+   npm install
    ```
 
 4. Update the config.toml file

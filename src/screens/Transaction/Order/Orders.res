@@ -8,7 +8,7 @@ let make = (~previewOnly=false) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+  let {userInfo: {transactionEntity, merchantId, orgId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -28,7 +28,18 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let startTime = filterValueJson->getString("start_time", "")
+
+  let handleExtendDateButtonClick = _ => {
+    let startDateObj = startTime->DayJs.getDayJsForString
+    let prevStartdate = startDateObj.toDate()->Date.toISOString
+    let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
+
+    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
+    updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
+  }
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -111,7 +122,10 @@ let make = (~previewOnly=false) => {
 
   let customUI =
     <NoDataFound
-      customCssClass={"my-6"} message="There are no payments as of now" renderType=Painting
+      customCssClass="my-6"
+      message="No results found"
+      renderType=ExtendDateUI
+      handleClick=handleExtendDateButtonClick
     />
 
   let filtersUI = React.useMemo(() => {
@@ -136,12 +150,15 @@ let make = (~previewOnly=false) => {
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div className="flex gap-4">
-          <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-            selectedEntity={transactionEntity}
-            onChange={updateTransactionEntity}
-          />
-          <RenderIf condition={generateReport && orderData->Array.length > 0}>
+          <Portal to="OrdersOMPView">
+            <OMPSwitchHelper.OMPViews
+              views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+              selectedEntity={transactionEntity}
+              onChange={updateTransactionEntity}
+              entityMapper=UserInfoUtils.transactionEntityMapper
+            />
+          </Portal>
+          <RenderIf condition={generateReport && email && orderData->Array.length > 0}>
             <GenerateReport entityName={PAYMENT_REPORT} />
           </RenderIf>
         </div>
@@ -158,7 +175,7 @@ let make = (~previewOnly=false) => {
         <LoadedTableWithCustomColumns
           title="Orders"
           actualData=orderData
-          entity={OrderEntity.orderEntity}
+          entity={OrderEntity.orderEntity(merchantId, orgId)}
           resultsPerPage=20
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}

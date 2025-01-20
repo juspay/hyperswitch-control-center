@@ -5,7 +5,7 @@ module ConnectorOverview = {
   let make = () => {
     open ConnectorUtils
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+    let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
     let connectorsList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
@@ -33,7 +33,7 @@ module ConnectorOverview = {
           ? icons->Array.concat([
               <div
                 key="concat-number"
-                className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 ${backgroundColor}`}>
+                className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 ${primaryColor}`}>
                 {`+${(configuredConnectors->Array.length - 3)->Int.toString}`->React.string}
               </div>,
             ])

@@ -36,7 +36,7 @@ module OrganisationSelection = {
           ~fullLength=true,
           ~customButtonStyle="!rounded-lg",
           ~dropdownCustomWidth="!w-full",
-          ~textStyle="!text-gray-500",
+          ~textStyle="!text-gray-500 truncate",
           ~disableSelect,
         )(
           ~input={
@@ -58,6 +58,7 @@ module MerchantSelection = {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
 
     let disableSelect = switch userEntity {
     | #Merchant | #Profile => true
@@ -68,8 +69,11 @@ module MerchantSelection = {
       try {
         let selectedMerchantValue = event->Identity.formReactEventToString
         if selectedMerchantValue->stringToVariantForAllSelection->Option.isNone {
+          setShowSwitchingMerchant(_ => true)
           let _ = await internalSwitch(~expectedMerchantId=Some(selectedMerchantValue))
+          setShowSwitchingMerchant(_ => false)
         }
+
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -102,7 +106,15 @@ module MerchantSelection = {
           ~placeholder="Select a merchant",
         ),
     )
-    <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+
+    <>
+      <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+      <LoaderModal
+        showModal={showSwitchingMerchant}
+        setShowModal={setShowSwitchingMerchant}
+        text="Switching merchant..."
+      />
+    </>
   }
 }
 
@@ -117,6 +129,23 @@ module ProfileSelection = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
+
+    React.useEffect(() => {
+      switch userEntity {
+      | #Tenant
+      | #Organization
+      | #Merchant =>
+        form.change(
+          "profile_value",
+          (#All_Profiles: UserManagementTypes.allSelectionType :> string)
+          ->String.toLowerCase
+          ->JSON.Encode.string,
+        )
+      | #Profile => ()
+      }
+      None
+    }, [])
 
     let disableSelect = switch userEntity {
     | #Profile => true
@@ -147,8 +176,11 @@ module ProfileSelection = {
         let selectedProfileValue = event->Identity.formReactEventToString
 
         if selectedProfileValue->stringToVariantForAllSelection->Option.isNone {
+          setShowSwitchingProfile(_ => true)
           let _ = await internalSwitch(~expectedProfileId=Some(selectedProfileValue))
+          setShowSwitchingProfile(_ => false)
         }
+
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -182,7 +214,14 @@ module ProfileSelection = {
         ),
     )
 
-    <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+    <>
+      <FormRenderer.FieldRenderer field labelClass="font-semibold" />
+      <LoaderModal
+        showModal={showSwitchingProfile}
+        setShowModal={setShowSwitchingProfile}
+        text="Switching profile..."
+      />
+    </>
   }
 }
 
@@ -191,16 +230,10 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   ~name="email_list",
   ~customInput=(~input, ~placeholder as _) => {
     let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
-    InputFields.textTagInput(
-      ~input,
-      ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
-      ~customButtonStyle="!rounded-full !px-4",
-      ~seperateByComma=true,
-    )
+    <PillInput name="email_list" placeholder={showPlaceHolder ? "Eg: abc.sa@wise.com" : ""} />
   },
   ~isRequired=true,
 )
-
 module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
@@ -228,61 +261,63 @@ module SwitchMerchantForUserAction = {
   }
 }
 
+let generateDropdownOptionsUserOMPViews = (
+  dropdownList: array<UserManagementTypes.usersOmpViewType>,
+  getNameForId,
+) => {
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+    item
+  ): SelectBox.dropdownOption => {
+    switch item.entity {
+    | #Default => {
+        label: `${item.label}`,
+        value: `${(item.entity :> string)}`,
+        labelDescription: `(${(item.entity :> string)})`,
+        description: `${item.label}`,
+      }
+    | _ => {
+        label: `${item.entity->getNameForId}`,
+        value: `${(item.entity :> string)}`,
+        labelDescription: `(${(item.entity :> string)})`,
+        description: `${item.entity->getNameForId}`,
+      }
+    }
+  })
+  options
+}
+
 module UserOmpView = {
   @react.component
   let make = (
-    ~views: array<UserManagementTypes.ompViewType>,
-    ~userModuleEntity: UserManagementTypes.userModuleTypes,
-    ~setUserModuleEntity,
+    ~views: array<UserManagementTypes.usersOmpViewType>,
+    ~selectedEntity: UserManagementTypes.userModuleTypes,
+    ~onChange,
   ) => {
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
-    let cssBasedOnIndex = index => {
-      if views->Array.length == 1 {
-        "rounded-md"
-      } else if index == 0 {
-        "rounded-l-md"
-      } else if index == views->Array.length - 1 {
-        "rounded-r-md"
-      } else {
-        ""
-      }
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "name",
+      onBlur: _ => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToString
+        let selection = switch value {
+        | "Default" => #Default
+        | _ => value->UserInfoUtils.entityMapper
+        }
+        onChange(selection)->ignore
+      },
+      onFocus: _ => (),
+      value: (selectedEntity :> string)->JSON.Encode.string,
+      checked: true,
     }
 
-    let getName = entityType => {
-      let name = getNameForId(entityType)
-      name->String.length > 10
-        ? name
-          ->String.substring(~start=0, ~end=10)
-          ->String.concat("...")
-        : name
+    let options = views->generateDropdownOptionsUserOMPViews(getNameForId)
+
+    let displayName = switch selectedEntity {
+    | #Default => "All"
+    | _ => selectedEntity->getNameForId
     }
 
-    let onChange = entity => {
-      setUserModuleEntity(_ => entity)
-    }
-
-    let labelBasedOnEntity: UserManagementTypes.ompViewType => string = value =>
-      switch value.entity {
-      | #Default => value.label
-      | _ => `${value.label} (${value.entity->getName})`
-      }
-
-    <div className="flex">
-      <div className="flex h-fit">
-        {views
-        ->Array.mapWithIndex((value, index) => {
-          let selectedStyle = userModuleEntity == value.entity ? `bg-blue-200` : ""
-
-          <div
-            key={index->Int.toString}
-            onClick={_ => onChange(value.entity)->ignore}
-            className={`text-xs py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer break-all`}>
-            {`${value->labelBasedOnEntity}`->React.string}
-          </div>
-        })
-        ->React.array}
-      </div>
-    </div>
+    <OMPSwitchHelper.OMPViewsComp input options displayName />
   }
 }

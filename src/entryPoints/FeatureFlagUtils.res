@@ -35,16 +35,23 @@ type featureFlag = {
   newAnalytics: bool,
   newAnalyticsSmartRetries: bool,
   newAnalyticsRefunds: bool,
+  newAnalyticsFilters: bool,
   downTime: bool,
   taxProcessor: bool,
   xFeatureRoute: bool,
   tenantUser: bool,
+  clickToPay: bool,
+  devThemeFeature: bool,
+  devReconv2Product: bool,
+  maintainenceAlert: string,
+  forceCookies: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
   open LogicUtils
   let dict = featureFlags->getDictFromJsonObject->getDictfromDict("features")
-  let typedFeatureFlag: featureFlag = {
+
+  {
     default: dict->getBool("default", true),
     testLiveToggle: dict->getBool("test_live_toggle", false),
     email: dict->getBool("email", false),
@@ -55,6 +62,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     payOut: dict->getBool("payout", false),
     recon: dict->getBool("recon", false),
     testProcessors: dict->getBool("test_processors", false),
+    clickToPay: dict->getBool("dev_click_to_pay", false),
     feedback: dict->getBool("feedback", false),
     generateReport: dict->getBool("generate_report", false),
     mixpanel: dict->getBool("mixpanel", false),
@@ -75,12 +83,16 @@ let featureFlagType = (featureFlags: JSON.t) => {
     newAnalytics: dict->getBool("new_analytics", false),
     newAnalyticsSmartRetries: dict->getBool("new_analytics_smart_retries", false),
     newAnalyticsRefunds: dict->getBool("new_analytics_refunds", false),
+    newAnalyticsFilters: dict->getBool("new_analytics_filters", false),
     downTime: dict->getBool("down_time", false),
     taxProcessor: dict->getBool("tax_processor", false),
     xFeatureRoute: dict->getBool("x_feature_route", false),
     tenantUser: dict->getBool("tenant_user", false),
+    devThemeFeature: dict->getBool("dev_theme_feature", false),
+    devReconv2Product: dict->getBool("dev_recon_v2_product", false),
+    maintainenceAlert: dict->getString("maintainence_alert", ""),
+    forceCookies: dict->getBool("force_cookies", false),
   }
-  typedFeatureFlag
 }
 
 let configMapper = dict => {

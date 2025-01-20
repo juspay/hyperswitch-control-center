@@ -1,20 +1,25 @@
 open ListUserTableEntity
 
 @react.component
-let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
+let make = () => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (usersData, setUsersData) = React.useState(_ => [])
   let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
   let (userOffset, setUserOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (
+    userModuleEntity: UserManagementTypes.userModuleTypes,
+    setUserModuleEntity,
+  ) = React.useState(_ => #Default)
 
-  let getUserData = async () => {
+  let getUserData = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
@@ -29,6 +34,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
       let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
       setUsersData(_ => userData->Array.map(Nullable.make))
       setUsersFilterData(_ => userData->Array.map(Nullable.make))
+      setUserModuleEntity(_ => userModuleEntity)
       setScreenStateUsers(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenStateUsers(_ => PageLoaderWrapper.Error(""))
@@ -36,9 +42,9 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   }
 
   React.useEffect(() => {
-    getUserData()->ignore
+    getUserData(#Default)->ignore
     None
-  }, [userModuleEntity])
+  }, [])
 
   let filterLogicForUsers = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
@@ -57,7 +63,12 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
 
   <PageLoaderWrapper screenState={screenStateUsers}>
     <div className="relative mt-5 w-full flex flex-col gap-12">
-      <div className="absolute right-0 z-10">
+      <div className="flex md:flex-row flex-col gap-2 items-center lg:absolute lg:right-0 lg:z-10">
+        <UserManagementHelper.UserOmpView
+          views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
+          selectedEntity=userModuleEntity
+          onChange={getUserData}
+        />
         <ACLButton
           authorization={userHasAccess(~groupAccess=UsersManage)}
           text={"Invite users"}
@@ -66,7 +77,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
             mixpanelEvent(~eventName="invite_users")
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users/invite-users"))
           }}
-          customButtonStyle="w-fit !rounded-md"
+          customButtonStyle="!w-fit !rounded-md"
         />
       </div>
       <LoadedTable

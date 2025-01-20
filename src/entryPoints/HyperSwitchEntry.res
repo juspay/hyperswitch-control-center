@@ -6,8 +6,7 @@ module HyperSwitchEntryComponent = {
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
-
+    let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
@@ -21,7 +20,10 @@ module HyperSwitchEntryComponent = {
       }
     }
 
-    let configURL = (urlConfig: JSON.t) => {
+    let themesID =
+      url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("theme_id")->Option.getOr("")
+
+    let configEnv = (urlConfig: JSON.t) => {
       open LogicUtils
       open HyperSwitchConfigTypes
       try {
@@ -29,8 +31,6 @@ module HyperSwitchEntryComponent = {
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanel_token", ""),
-          faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
-          logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
           agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
           dssCertificateUrl: dict->getString("dss_certificate_url", "")->getNonEmptyString,
@@ -39,24 +39,28 @@ module HyperSwitchEntryComponent = {
           ->getNonEmptyString,
           agreementVersion: dict->getString("agreement_version", "")->getNonEmptyString,
           reconIframeUrl: dict->getString("recon_iframe_url", "")->getNonEmptyString,
+          urlThemeConfig: {
+            faviconUrl: dict->getString("faviconUrl", "")->getNonEmptyString,
+            logoUrl: dict->getString("logoUrl", "")->getNonEmptyString,
+          },
         }
         DOMUtils.window._env_ = value
-        configureFavIcon(value.faviconUrl)->ignore
+        configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
       } catch {
       | _ => Exn.raiseError("Error on configuring endpoint")
       }
     }
-    // Need to modify based on the usedcase
 
     let fetchConfig = async () => {
       try {
-        let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="default")
-        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}`
+        let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="")
+        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
-        let _ = res->configCustomDomainTheme
-        let _ = res->configURL
+        let devThemeFeature = featureFlags.devThemeFeature
+        let _ = configEnv(res) // to set initial env
+        let _ = await getThemesJson(themesID, res, devThemeFeature)
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -67,7 +71,7 @@ module HyperSwitchEntryComponent = {
 
     React.useEffect(() => {
       let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
-      let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search)
+      let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search) // todo: setting domain in session storage shall be removed later
 
       let _ = fetchConfig()->ignore
       None
