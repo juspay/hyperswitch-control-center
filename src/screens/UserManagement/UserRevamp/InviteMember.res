@@ -114,18 +114,16 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       )
     ) {
       (
-        "We've faced some problem while sending emails or creating users. Please check and try again.",
+        "Error sending emails or creating users. Please check if the user already exists and try again.",
         ToastState.ToastError,
       )
     } else if (
-      decodedResponse->Array.some(ele =>
-        ele->getDictFromJsonObject->getOptionString("error")->Option.isSome
-      )
+      decodedResponse->Array.some(ele => {
+        let error = ele->getDictFromJsonObject->getOptionString("error")
+        error->Option.isSome && error->Option.getExn->String.includes("account already exists")
+      })
     ) {
-      (
-        "We faced difficulties sending some invitations. Please check and try again.",
-        ToastState.ToastWarning,
-      )
+      ("Some users already exist. Please check the details and try again.", ToastState.ToastWarning)
     } else {
       (
         email

@@ -11,7 +11,10 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
 
   let (showModal, setShowFeedbackModal) = React.useState(_ => false)
   // Need to remove connector and merge connector and connectorTypeVariants
-  let (processorType, connectorType) = connectorInfo.connector_type->connectorTypeTuple
+  let (processorType, connectorType) =
+    connectorInfo.connector_type
+    ->connectorTypeTypedValueToStringMapper
+    ->connectorTypeTuple
   let {connector_name: connectorName} = connectorInfo
   let connectorTypeFromName = connectorName->getConnectorNameTypeFromString(~connectorType)
 
@@ -59,7 +62,12 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
     | UnKnownAuthType(_) => ""
     }
     [
-      ("connector_type", connectorInfo.connector_type->JSON.Encode.string),
+      (
+        "connector_type",
+        connectorInfo.connector_type
+        ->connectorTypeTypedValueToStringMapper
+        ->JSON.Encode.string,
+      ),
       (
         "connector_account_details",
         [("auth_type", authType->JSON.Encode.string)]
