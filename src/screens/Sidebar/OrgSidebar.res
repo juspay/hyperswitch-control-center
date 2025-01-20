@@ -12,9 +12,9 @@ module OrgTile = {
   let make = (~orgID: string, ~isActive, ~onSelect, ~onEdit, ~orgName: string, ~index: int) => {
     let (showDetails, setShowDetails) = React.useState(_ => false)
     let (orgList, _) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
-    let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {
+      globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
+    } = React.useContext(ThemeProvider.themeContext)
     let handleMouseEnter = _ => {
       setShowDetails(_ => true)
     }
@@ -37,17 +37,17 @@ module OrgTile = {
       onMouseLeave=handleMouseLeave
       className={`w-8 h-8 border flex items-center justify-center rounded-md shadow-md relative cursor-pointer group ${isActive
           ? `bg-white/20 ${primaryTextColor} border-primary`
-          : `bg-white/10 ${secondaryTextColor} hover:bg-black/10`} `}>
+          : `bg-white/10 ${secondaryTextColor} hover:bg-black/10 `} `}>
       <span className="text-xs font-medium"> {displayText->React.string} </span>
       {showDetails
         ? <div
-            className={`absolute left-0 ml-2 top-full bg-white rounded-lg shadow-lg p-3 min-w-[250px] z-50`}>
+            className={`absolute left-0 ml-2 top-full ${backgroundColor.sidebarSecondary} rounded-lg shadow-lg p-3 min-w-[250px] z-50`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Icon name="building" size=16 className={secondaryTextColor} />
                 <div className="mt-2">
                   <span className={`font-medium ${secondaryTextColor} text-sm`}>
-                    {"Organization Name"->React.string}
+                    {orgName->React.string}
                   </span>
                 </div>
               </div>
@@ -57,13 +57,15 @@ module OrgTile = {
                       e->ReactEvent.Mouse.stopPropagation
                       onEdit(e)
                     }}
-                    className="hover:bg-gray-100 p-1 rounded-full">
+                    className="cursor-pointer p-1 rounded-sm">
                     <Icon name="edit" size=12 className={secondaryTextColor} />
                   </button>
                 : React.null}
             </div>
-            <div className="mt-2">
-              <p className="text-xs text-gray-500 mt-1"> {`ID: ${orgID}`->React.string} </p>
+            <div
+              className={`flex gap-2 items-center mt-2 text-xs ${secondaryTextColor} opacity-70 mt-1`}>
+              <span> {`ID:`->React.string} </span>
+              <HelperComponents.CopyTextCustomComp displayValue={`${orgID}`} />
             </div>
           </div>
         : React.null}
@@ -242,7 +244,6 @@ let make = () => {
 
   let onEditClick = e => {
     setShowEditOrgModal(_ => true)
-    // setShowDetails(_ => false)
     e->ReactEvent.Mouse.stopPropagation
   }
 
