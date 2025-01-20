@@ -1,4 +1,5 @@
 external barGraphOptionsToJson: BarGraphTypes.barGraphOptions => JSON.t = "%identity"
+
 @react.component
 let make = (~options: BarGraphTypes.barGraphOptions, ~className="") => {
   <div className>
