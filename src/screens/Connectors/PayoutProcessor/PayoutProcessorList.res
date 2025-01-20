@@ -15,9 +15,7 @@ let make = () => {
   let getConnectorListAndUpdateState = async () => {
     try {
       let payoutConnectorsList =
-        connectorList->Array.filter(item =>
-          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PayoutProcessor
-        )
+        connectorList->Array.filter(item => item.connector_type === PayoutProcessor)
       payoutConnectorsList->Array.reverse
       ConnectorUtils.sortByDisableField(payoutConnectorsList, connectorPayload =>
         connectorPayload.disabled

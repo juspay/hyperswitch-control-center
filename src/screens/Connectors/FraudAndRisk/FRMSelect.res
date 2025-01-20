@@ -103,16 +103,12 @@ let make = () => {
   let getConnectorList = async _ => {
     try {
       let processorsList =
-        connectorList->Array.filter(item =>
-          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PaymentProcessor
-        )
+        connectorList->Array.filter(item => item.connector_type === PaymentProcessor)
 
       let connectorsCount = processorsList->Array.length
       if connectorsCount > 0 {
         let frmConnectorList =
-          connectorList->Array.filter(item =>
-            item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PaymentVas
-          )
+          connectorList->Array.filter(item => item.connector_type === PaymentVas)
         setConfiguredFRMs(_ => frmConnectorList)
         setFilteredFRMData(_ => frmConnectorList->Array.map(Nullable.make))
         setScreenState(_ => Success)

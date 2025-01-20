@@ -31,10 +31,7 @@ let make = () => {
   let getConnectorList = async _ => {
     try {
       let threeDsConnectorsList =
-        connectorList->Array.filter(item =>
-          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
-            AuthenticationProcessor
-        )
+        connectorList->Array.filter(item => item.connector_type === AuthenticationProcessor)
       ConnectorUtils.sortByDisableField(threeDsConnectorsList, connectorPayload =>
         connectorPayload.disabled
       )

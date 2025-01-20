@@ -30,9 +30,7 @@ let make = () => {
   let getConnectorList = async _ => {
     try {
       let taxConnectorsList =
-        connectorList->Array.filter(item =>
-          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === TaxProcessor
-        )
+        connectorList->Array.filter(item => item.connector_type === TaxProcessor)
       ConnectorUtils.sortByDisableField(taxConnectorsList, connectorPayload =>
         connectorPayload.disabled
       )

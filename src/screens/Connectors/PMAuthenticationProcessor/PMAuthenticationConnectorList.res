@@ -30,9 +30,7 @@ let make = () => {
   let getConnectorList = async _ => {
     try {
       let pmAuthConnectorsList =
-        connectorList->Array.filter(item =>
-          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PMAuthProcessor
-        )
+        connectorList->Array.filter(item => item.connector_type === PMAuthProcessor)
       ConnectorUtils.sortByDisableField(pmAuthConnectorsList, connectorPayload =>
         connectorPayload.disabled
       )
