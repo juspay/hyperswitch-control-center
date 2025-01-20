@@ -80,7 +80,7 @@ let make = () => {
             />}
             offset
             setOffset
-            currrentFetchCount={filteredConnectorData->Array.length}
+            currrentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
             collapseTableRow=false
           />
         </RenderIf>
