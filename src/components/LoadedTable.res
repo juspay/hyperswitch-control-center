@@ -986,7 +986,7 @@ let make = (
             : tableDataBackgroundClass}`}>
         paginationUI
         {
-          let topBottomActions = if bottomActions->Option.isSome{
+          let topBottomActions = if bottomActions->Option.isSome {
             bottomActions
           } else {
             None

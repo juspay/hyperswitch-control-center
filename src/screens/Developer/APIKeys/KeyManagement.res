@@ -183,7 +183,6 @@ module ApiKeyAddBtn = {
     initialValues->Dict.set("expiration", Never->getStringFromRecordType->JSON.Encode.string)
     let isMobileView = MatchMedia.useMobileChecker()
 
-
     <>
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
       <ACLButton
