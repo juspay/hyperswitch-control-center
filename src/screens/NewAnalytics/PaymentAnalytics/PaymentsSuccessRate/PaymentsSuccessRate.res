@@ -8,7 +8,7 @@ module PaymentsSuccessRateHeader = {
   open NewAnalyticsUtils
   open LogicUtils
   @react.component
-  let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
+  let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~granularityOptions) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
@@ -32,8 +32,8 @@ module PaymentsSuccessRateHeader = {
     )
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-    <div className="w-full px-7 py-8 grid grid-cols-2">
-      // will enable it in future
+
+    <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
           {primaryValue->valueFormatter(Rate)->React.string}
@@ -42,12 +42,15 @@ module PaymentsSuccessRateHeader = {
           <StatisticsCard value direction tooltipValue={secondaryValue->valueFormatter(Rate)} />
         </RenderIf>
       </div>
-      <RenderIf condition={false}>
-        <div className="flex justify-center">
-          <Tabs option={granularity} setOption={setGranularity} options={tabs} />
-        </div>
-      </RenderIf>
-      <div />
+      <div className="flex justify-center w-full">
+        <Tabs
+          option={granularity}
+          setOption={setGranularity}
+          options={granularityOptions}
+          showSingleTab=false
+        />
+        <div />
+      </div>
     </div>
   }
 }
@@ -85,7 +88,7 @@ let make = (
     ->getSmartRetryMetricType
 
   open NewAnalyticsUtils
-
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let (granularity, setGranularity) = React.useState(_ =>
     getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
   )
@@ -186,7 +189,15 @@ let make = (
       getPaymentsSuccessRate()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    granularity,
+  ))
 
   let mockDelay = async () => {
     if paymentsSuccessRateData != []->JSON.Encode.array {
@@ -220,6 +231,7 @@ let make = (
           keyValue={Payments_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
+          granularityOptions
         />
         <div className="mb-5">
           <LineGraph options className="mr-3" />

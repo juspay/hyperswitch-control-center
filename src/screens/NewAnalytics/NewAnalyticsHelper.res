@@ -48,8 +48,10 @@ module TabSwitch = {
     | Table => ("bg-white", "text-grey-dark", "table-view")
     }
 
-    <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer">
-      <div className={`rounded-l-lg pl-3 pr-2 pt-2 ${icon1Bg}`} onClick={_ => setViewType(Graph)}>
+    <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer h-fit">
+      <div
+        className={`rounded-l-lg pl-3 pr-2 pt-2 pb-0.5 ${icon1Bg}`}
+        onClick={_ => setViewType(Graph)}>
         <Icon className={icon1Color} name={icon1Name} size=25 />
       </div>
       <div className="h-full border-l border-gray-outline" />
