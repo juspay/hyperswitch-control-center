@@ -1,15 +1,6 @@
 module OrgTile = {
-  type domRect = {
-    left: float,
-    right: float,
-    top: float,
-    bottom: float,
-  }
-
-  @send external getBoundingClientRect: Dom.element => domRect = "getBoundingClientRect"
-
   @react.component
-  let make = (~orgID: string, ~isActive, ~onSelect, ~onEdit, ~orgName: string, ~index: int) => {
+  let make = (~orgID: string, ~isActive, ~orgSwitch, ~onEdit, ~orgName: string, ~index: int) => {
     let (showDetails, setShowDetails) = React.useState(_ => false)
     let (orgList, _) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
     let {
@@ -22,22 +13,27 @@ module OrgTile = {
     let handleMouseLeave = _ => {
       setShowDetails(_ => false)
     }
-    let firstLetter = orgName->String.charAt(0)->String.toUpperCase
-    let sameLetterCount =
-      orgList
-      ->Array.filterWithIndex((org, idx) => {
-        idx < index && org.name->String.charAt(0)->String.toUpperCase == firstLetter
-      })
-      ->Array.length
+    let displayText = {
+      let firstLetter = orgName->String.charAt(0)->String.toUpperCase
 
-    let displayText = `${firstLetter}${(sameLetterCount + 1)->Int.toString}`
+      if orgName == orgID {
+        let count =
+          orgList
+          ->Array.slice(~start=0, ~end=index + 1)
+          ->Array.filter(org => org.name == org.id)
+          ->Array.length
+        `O${count->Int.toString}`
+      } else {
+        firstLetter
+      }
+    }
     <div
-      onClick={_ => onSelect(orgID)->ignore}
+      onClick={_ => orgSwitch(orgID)->ignore}
       onMouseEnter=handleMouseEnter
       onMouseLeave=handleMouseLeave
-      className={`w-8 h-8 border flex items-center justify-center rounded-md shadow-md relative cursor-pointer group ${isActive
-          ? `bg-white/20 ${primaryTextColor} border-primary`
-          : `bg-white/10 ${secondaryTextColor} hover:bg-black/10 `} `}>
+      className={`w-8 h-8 border  flex items-center justify-center rounded-md shadow-md relative cursor-pointer group ${isActive
+          ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
+          : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`} `}>
       <span className="text-xs font-medium"> {displayText->React.string} </span>
       <RenderIf condition={showDetails}>
         <div
@@ -222,9 +218,9 @@ let make = () => {
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
   let showToast = ToastState.useShowToast()
 
-  let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
-    ThemeProvider.themeContext,
-  )
+  let {
+    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
+  } = React.useContext(ThemeProvider.themeContext)
   let getOrgList = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
@@ -261,15 +257,24 @@ let make = () => {
       }
     }
   }
-  <div className={`${backgroundColor.sidebarNormal} p-2`}>
+  <div className={`${backgroundColor.sidebarNormal} p-2 border-r border-secondary`}>
     // the org tiles
-    <div className="flex flex-col gap-4 m-1 mt-4 items-center justify-center ">
+    <div className="flex flex-col gap-4 m-1 mt-4 items-center justify-center shadow-sm ">
       {orgList
+      ->Array.toSorted((org1, org2) => {
+        if org1.id === orgId {
+          -1.
+        } else if org2.id === orgId {
+          1.
+        } else {
+          0.
+        }
+      })
       ->Array.mapWithIndex((org, i) => {
         <OrgTile
           orgID={org.id}
           isActive={org.id === orgId}
-          onSelect=orgSwitch
+          orgSwitch
           onEdit=onEditClick
           orgName={org.name}
           index={i}
@@ -279,9 +284,9 @@ let make = () => {
       <RenderIf condition={tenantUser && isTenantAdmin}>
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
-          className="w-8 h-8 flex items-center justify-center cursor-pointer 
-            rounded-md shadow-sm hover:bg-black/10 transition-colors bg-black/5 ">
-          <Icon name="plus" size=20 className="text-gray-700  " />
+          className={`w-8 h-8 flex items-center justify-center cursor-pointer 
+            rounded-md shadow-sm ${hoverColor} border-${backgroundColor.sidebarSecondary}`}>
+          <Icon name="plus" size=20 className={`${secondaryTextColor}`} />
         </div>
       </RenderIf>
     </div>
