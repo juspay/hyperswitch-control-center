@@ -47,6 +47,7 @@ performance_monitor=false
 new_analytics=false
 new_analytics_smart_retries=false
 new_analytics_refunds=false
+new_analytics_filters=false
 down_time=false
 dev_theme_feature=false
 tax_processor=true

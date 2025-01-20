@@ -1,10 +1,8 @@
 external barGraphOptionsToJson: BarGraphTypes.barGraphOptions => JSON.t = "%identity"
-@react.component
-let make = (~entity, ~object, ~className="") => {
-  open NewAnalyticsTypes
-  let options = entity.getChatOptions(object)->barGraphOptionsToJson
 
+@react.component
+let make = (~options: BarGraphTypes.barGraphOptions, ~className="") => {
   <div className>
-    <Highcharts.Chart options highcharts={Highcharts.highcharts} />
+    <Highcharts.Chart options={options->barGraphOptionsToJson} highcharts={Highcharts.highcharts} />
   </div>
 }
