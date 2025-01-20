@@ -3,6 +3,38 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.20.1
+
+### Features
+
+- New analytics filters feature flag ([#2084](https://github.com/juspay/hyperswitch-control-center/pull/2084)) ([`b60da23`](https://github.com/juspay/hyperswitch-control-center/commit/b60da231df1ad01e073e9f2d6334e7a0724ab739))
+
+**Full Changelog:** [`2025.01.20.0...2025.01.20.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.20.0...2025.01.20.1)
+
+- - -
+
+## 2025.01.20.0
+
+### Features
+
+- Sidebar changes for modularity ([#2063](https://github.com/juspay/hyperswitch-control-center/pull/2063)) ([`5073b70`](https://github.com/juspay/hyperswitch-control-center/commit/5073b70bd0515f5ea0d78411845fd10b0142fee2))
+
+### Bug Fixes
+
+- Invitation error message ([#2076](https://github.com/juspay/hyperswitch-control-center/pull/2076)) ([`08cfdf9`](https://github.com/juspay/hyperswitch-control-center/commit/08cfdf9f5c43e9d6bdf436390e2de18e4fc275a3))
+
+### Refactors
+
+- Moved Graphs folder to components ([#2079](https://github.com/juspay/hyperswitch-control-center/pull/2079)) ([`6dda7ad`](https://github.com/juspay/hyperswitch-control-center/commit/6dda7ad09b17b1c3d2710f9732c485efaa8b3f56))
+
+### Miscellaneous Tasks
+
+- Change Bar graph component ([#2081](https://github.com/juspay/hyperswitch-control-center/pull/2081)) ([`280bb72`](https://github.com/juspay/hyperswitch-control-center/commit/280bb72fc88d2f53c0a90dd8923f877efa25e964))
+
+**Full Changelog:** [`2025.01.17.0...2025.01.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.17.0...2025.01.20.0)
+
+- - -
+
 ## 2025.01.17.0
 
 ### Features

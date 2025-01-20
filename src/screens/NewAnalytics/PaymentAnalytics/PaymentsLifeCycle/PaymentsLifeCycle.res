@@ -65,13 +65,15 @@ let make = (
     yKey: "",
   }
 
+  let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <div className="mr-3 my-10">
-          <SankeyGraph entity={chartEntity} data={chartEntity.getObjects(~params)} />
+        <div className="my-10">
+          <SankeyGraph options={options} className="mr-3" />
         </div>
       </PageLoaderWrapper>
     </Card>
