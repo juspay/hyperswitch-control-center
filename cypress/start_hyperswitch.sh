@@ -1,4 +1,4 @@
-git clone --depth 1 --branch add-mailhog https://github.com/juspay/hyperswitch
+git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
 
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 # Navigate to the cloned directory
