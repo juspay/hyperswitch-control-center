@@ -221,6 +221,8 @@ module TableActionsCell = {
     let (showModal, setShowModal) = React.useState(_ => false)
     let showPopUp = PopUpState.useShowPopUp()
     let deleteDetails = APIUtils.useUpdateMethod()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+
     let deleteKey = async () => {
       try {
         let body = Dict.make()
@@ -271,7 +273,11 @@ module TableActionsCell = {
         showModal setShowModal initialValues={initialValues} getAPIKeyDetails keyId action={Update}
       />
       <div className="invisible cursor-pointer group-hover:visible flex ">
-        <div
+        <ACLDiv
+          authorization={hasAnyGroupAccess(
+            userHasAccess(~groupAccess=MerchantDetailsManage),
+            userHasAccess(~groupAccess=AccountManage),
+          )}
           onClick={_ => {
             setShowModal(_ => true)
           }}>
@@ -280,14 +286,21 @@ module TableActionsCell = {
             size=14
             className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-4 mb-1"
           />
-        </div>
-        <div onClick={_ => openPopUp()}>
+        </ACLDiv>
+        <ACLDiv
+          authorization={hasAnyGroupAccess(
+            userHasAccess(~groupAccess=MerchantDetailsManage),
+            userHasAccess(~groupAccess=AccountManage),
+          )}
+          onClick={_ => {
+            openPopUp()
+          }}>
           <Icon
             name="delete"
             size=14
             className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-3 mb-1"
           />
-        </div>
+        </ACLDiv>
       </div>
     </div>
   }
