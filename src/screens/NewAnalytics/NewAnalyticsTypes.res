@@ -40,6 +40,9 @@ type metrics = [
 ]
 type granularity = [
   | #G_ONEDAY
+  | #G_ONEHOUR
+  | #G_THIRTYMIN
+  | #G_FIFTEENMIN
 ]
 
 type requestBodyConfig = {
@@ -73,14 +76,6 @@ type chartEntity<'t, 'chartOption, 'data> = {
 
 type optionType = {label: string, value: string}
 
-type valueType =
-  | Amount
-  | Rate
-  | Volume
-  | Latency
-  | LatencyMs
-  | No_Type
-
 type metricType =
   | Smart_Retry
   | Default
@@ -88,7 +83,7 @@ type metricType =
 type singleStatConfig = {
   titleText: string,
   description: string,
-  valueType: valueType,
+  valueType: LogicUtilsTypes.valueType,
 }
 
 type filters = [#currency]
