@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -29,18 +29,14 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let response = await fetchConnectorListResponse()
-      let connectorsList =
-        response
-        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
-        ->Array.filter(item => item.connector_type === TaxProcessor)
-
-      ConnectorUtils.sortByDisableField(connectorsList, connectorPayload =>
+      let taxConnectorsList =
+        connectorList->Array.filter(item => item.connector_type === TaxProcessor)
+      ConnectorUtils.sortByDisableField(taxConnectorsList, connectorPayload =>
         connectorPayload.disabled
       )
 
-      setConfiguredConnectors(_ => connectorsList)
-      setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
+      setConfiguredConnectors(_ => taxConnectorsList)
+      setFilteredConnectorData(_ => taxConnectorsList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -61,7 +57,7 @@ let make = () => {
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
-            actualData={configuredConnectors->Array.map(Nullable.make)}
+            actualData={filteredConnectorData}
             totalResults={filteredConnectorData->Array.length}
             resultsPerPage=20
             entity={TaxProcessorTableEntity.taxProcessorEntity(
