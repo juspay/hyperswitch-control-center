@@ -54,6 +54,8 @@ module TableModule = {
 module RefundsProcessedHeader = {
   open NewAnalyticsUtils
   open LogicUtils
+  open LogicUtilsTypes
+
   @react.component
   let make = (
     ~data: JSON.t,
@@ -151,7 +153,6 @@ let make = (
     JSON.Encode.array([])
   )
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
@@ -159,6 +160,10 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
+
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
 
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -270,6 +275,9 @@ let make = (
     comparison,
     currency,
   }
+
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -287,10 +295,7 @@ let make = (
         />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <LineGraph
-              entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <LineGraph options className="mr-3" />
           | Table => <TableModule data={refundsProcessedTableData} className="mx-7" />
           }}
         </div>

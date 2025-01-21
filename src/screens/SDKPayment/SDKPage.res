@@ -96,6 +96,7 @@ let make = () => {
   let paymentConnectorList =
     connectorList->RoutingUtils.filterConnectorList(~retainInList=PaymentConnector)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let {userInfo: {profileId, merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
 
   React.useEffect(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
@@ -133,7 +134,9 @@ let make = () => {
   let onProceed = async (~paymentId) => {
     switch paymentId {
     | Some(val) =>
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/payments/${val}`))
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/payments/${val}/${profileId}/${merchantId}/${orgId}`),
+      )
     | None => ()
     }
   }

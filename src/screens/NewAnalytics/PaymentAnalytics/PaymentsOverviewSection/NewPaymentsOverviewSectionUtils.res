@@ -43,7 +43,7 @@ let parseResponse = (response, key) => {
 
 open NewAnalyticsTypes
 let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
-  open NewAnalyticsFiltersUtils
+  open LogicUtils
   let key = switch id {
   | Total_Dispute => #total_dispute
   | Total_Refund_Processed_Amount =>

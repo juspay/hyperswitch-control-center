@@ -78,19 +78,17 @@ module NewProcessorCards = {
 
 @react.component
 let make = () => {
-  let getURL = APIUtils.useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (
-    configuredFRMs: array<ConnectorTypes.connectorTypes>,
+    configuredFRMs: array<ConnectorTypes.connectorPayload>,
     setConfiguredFRMs,
   ) = React.useState(_ => [])
-  let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
+  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
 
   let customUI =
     <HelperComponents.BluredTableComponent
@@ -102,44 +100,28 @@ let make = () => {
       moduleSubtitle="Connect and configure processors to screen transactions and mitigate fraud"
     />
 
-  React.useEffect(() => {
-    open Promise
-    open LogicUtils
-    fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get))
-    ->thenResolve(json => {
-      let processorsList = json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
+  let getConnectorList = async _ => {
+    try {
+      let processorsList =
+        connectorList->Array.filter(item => item.connector_type === PaymentProcessor)
 
-      let connectorsCount =
-        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer)->Array.length
-
+      let connectorsCount = processorsList->Array.length
       if connectorsCount > 0 {
-        let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector)
-        let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
-        setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
-        setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
-        ConnectorUtils.sortByDisableField(
-          previousData,
-          connectorPayload => connectorPayload.disabled,
-        )
-        let arr: array<ConnectorTypes.connectorTypes> = frmList->Array.map(
-          paymentMethod =>
-            paymentMethod
-            ->getString("connector_name", "")
-            ->ConnectorUtils.getConnectorNameTypeFromString(
-              ~connectorType=ConnectorTypes.FRMPlayer,
-            ),
-        )
-        setConfiguredFRMs(_ => arr)
+        let frmConnectorList =
+          connectorList->Array.filter(item => item.connector_type === PaymentVas)
+        setConfiguredFRMs(_ => frmConnectorList)
+        setFilteredFRMData(_ => frmConnectorList->Array.map(Nullable.make))
         setScreenState(_ => Success)
       } else {
         setScreenState(_ => Custom)
       }
-    })
-    ->catch(_ => {
-      setScreenState(_ => Error("Failed to fetch"))
-      resolve()
-    })
-    ->ignore
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
+
+  React.useEffect(() => {
+    getConnectorList()->ignore
     None
   }, [])
   // TODO: Convert it to remote filter
@@ -171,16 +153,16 @@ let make = () => {
       <RenderIf condition={configuredFRMs->Array.length > 0}>
         <LoadedTable
           title="Connected Processors"
-          actualData=filteredFRMData
+          actualData={filteredFRMData}
           totalResults={filteredFRMData->Array.length}
           filters={<TableSearchFilter
-            data={previouslyConnectedData}
+            data={configuredFRMs->Array.map(Nullable.make)}
             filterLogic
             placeholder="Search Processor or Merchant Connector Id or Connector Label"
             customSearchBarWrapperWidth="w-full lg:w-1/2"
             customInputBoxWidth="w-full"
-            searchVal=searchText
-            setSearchVal=setSearchText
+            searchVal={searchText}
+            setSearchVal={setSearchText}
           />}
           resultsPerPage=20
           offset
@@ -189,11 +171,15 @@ let make = () => {
             "fraud-risk-management",
             ~authorization={userHasAccess(~groupAccess=ConnectorsManage)},
           )}
-          currrentFetchCount={filteredFRMData->Array.length}
+          currrentFetchCount={configuredFRMs->Array.length}
           collapseTableRow=false
         />
       </RenderIf>
-      <NewProcessorCards configuredFRMs />
+      <NewProcessorCards
+        configuredFRMs={configuredFRMs->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
+          ~connectorType=ConnectorTypes.FRMPlayer,
+        )}
+      />
       <RenderIf condition={!isMobileView}>
         <img alt="frm-banner" className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
       </RenderIf>

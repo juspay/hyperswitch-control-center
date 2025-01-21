@@ -57,7 +57,6 @@ let make = (
     JSON.Encode.array([])
   )
 
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
@@ -65,6 +64,10 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
+
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -167,6 +170,8 @@ let make = (
     comparison,
   }
 
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -179,7 +184,7 @@ let make = (
           setGranularity
         />
         <div className="mb-5">
-          <LineGraph entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3" />
+          <LineGraph options className="mr-3" />
         </div>
       </PageLoaderWrapper>
     </Card>
