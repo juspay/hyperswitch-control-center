@@ -51,7 +51,7 @@ let smartRetryPaymentsProcessedMapper = (
     text: "Smart Retry Payments Processed",
   }
 
-  open NewAnalyticsTypes
+  open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
   | Payment_Processed_Amount => Amount
   | _ => Volume
@@ -156,7 +156,6 @@ let defaulGranularity = {
 }
 
 let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
-  open NewAnalyticsFiltersUtils
   let key = switch id {
   | Time_Bucket => #time_bucket
   | Payment_Processed_Count =>

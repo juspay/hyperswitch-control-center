@@ -40,7 +40,7 @@ let getValueFromObj = (data, index, responseKey) => {
 }
 
 let getKey = (id, ~currency="") => {
-  open NewAnalyticsFiltersUtils
+  open LogicUtils
   let key = switch id {
   | Total_Refund_Success_Rate => #total_refund_success_rate
   | Successful_Refund_Count => #successful_refund_count

@@ -81,32 +81,6 @@ let requestBody = (
   ]->JSON.Encode.array
 }
 
-let formatCurrency = currency => {
-  switch currency->NewAnalyticsFiltersUtils.getTypeValue {
-  | #all_currencies => "USD*"
-  | _ => currency->String.toUpperCase
-  }
-}
-
-let valueFormatter = (value, statType: valueType, ~currency="") => {
-  open LogicUtils
-
-  let amountSuffix = currency->formatCurrency
-
-  let percentFormat = value => {
-    `${Float.toFixedWithPrecision(value, ~digits=2)}%`
-  }
-
-  switch statType {
-  | Amount => `${value->indianShortNum} ${amountSuffix}`
-  | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
-  | Volume => value->indianShortNum
-  | Latency => latencyShortNum(~labelValue=value)
-  | LatencyMs => latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
-  | No_Type => value->Float.toString
-  }
-}
-
 let getMonthName = month => {
   switch month {
   | 0 => "Jan"
@@ -182,7 +156,9 @@ let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
   | No_Change => ("#A0A0A0", "")
   }
 
-  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
+  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->LogicUtils.valueFormatter(
+      Rate,
+    )}</span>`
 }
 
 open LogicUtils
