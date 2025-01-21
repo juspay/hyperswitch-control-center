@@ -205,7 +205,7 @@ module StatisticsCard = {
       <div className="-mb-0.5 flex">
         {icon}
         <div className="font-semibold text-sm pt-0.5 pr-0.5">
-          {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
+          {`${value->LogicUtils.valueFormatter(Rate)}`->React.string}
         </div>
       </div>
     </div>

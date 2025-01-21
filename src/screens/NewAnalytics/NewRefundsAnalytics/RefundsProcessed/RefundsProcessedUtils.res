@@ -51,7 +51,7 @@ let refundsProcessedMapper = (
     text: "Refunds Processed",
   }
 
-  open NewAnalyticsTypes
+  open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
   | Refund_Processed_Amount => Amount
   | _ => Volume
@@ -157,7 +157,6 @@ let getKeyForModule = key => {
 }
 
 let getKey = (id, ~currency="") => {
-  open NewAnalyticsFiltersUtils
   let key = switch id {
   | Refund_Processed_Count => #refund_processed_count
 
