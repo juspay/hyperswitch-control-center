@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.21.0
+
+### Features
+
+- Added responsiveness to api keys page ([#2061](https://github.com/juspay/hyperswitch-control-center/pull/2061)) ([`769daa7`](https://github.com/juspay/hyperswitch-control-center/commit/769daa796fc04297b01caf4e65c04d2f22fb965a))
+
+### Bug Fixes
+
+- Fixed multiple connector api calls ([#2060](https://github.com/juspay/hyperswitch-control-center/pull/2060)) ([`a77774a`](https://github.com/juspay/hyperswitch-control-center/commit/a77774a5fbfbda1fc2050a34d43173aa0e1e19e7))
+
+### Refactors
+
+- Changed linegraph and sankeygraph options ([#2089](https://github.com/juspay/hyperswitch-control-center/pull/2089)) ([`4cf2c50`](https://github.com/juspay/hyperswitch-control-center/commit/4cf2c50d5999015d4fb41947e4513f6a413bf14c))
+
+### Miscellaneous Tasks
+
+- Remove unused feature flags and codeblocks ([#1931](https://github.com/juspay/hyperswitch-control-center/pull/1931)) ([`d3d32a6`](https://github.com/juspay/hyperswitch-control-center/commit/d3d32a62684e67da7a5181046521852ba664a2ab))
+
+**Full Changelog:** [`2025.01.20.1...2025.01.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.20.1...2025.01.21.0)
+
+- - -
+
 ## 2025.01.20.1
 
 ### Features
