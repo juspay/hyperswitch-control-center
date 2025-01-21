@@ -276,32 +276,32 @@ module TableActionsCell = {
       <ApiEditModal
         showModal setShowModal initialValues={initialValues} getAPIKeyDetails keyId action={Update}
       />
-      {switch showButtons {
-      | Access =>
-        <div className="invisible cursor-pointer group-hover:visible flex ">
-          <div
-            onClick={_ => {
-              setShowModal(_ => true)
-            }}>
-            <Icon
-              name="edit"
-              size=14
-              className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-4 mb-1"
-            />
-          </div>
-          <div
-            onClick={_ => {
-              openPopUp()
-            }}>
-            <Icon
-              name="delete"
-              size=14
-              className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-3 mb-1"
-            />
-          </div>
-        </div>
-      | NoAccess => React.null
-      }}
+      <div className="invisible cursor-pointer group-hover:visible flex ">
+        <ACLDiv
+          showTooltip={showButtons == Access}
+          authorization={showButtons}
+          onClick={_ => {
+            setShowModal(_ => true)
+          }}>
+          <Icon
+            name="edit"
+            size=14
+            className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-4 mb-1"
+          />
+        </ACLDiv>
+        <ACLDiv
+          authorization={showButtons}
+          showTooltip={showButtons == Access}
+          onClick={_ => {
+            openPopUp()
+          }}>
+          <Icon
+            name="delete"
+            size=14
+            className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-3 mb-1"
+          />
+        </ACLDiv>
+      </div>
     </div>
   }
 }
