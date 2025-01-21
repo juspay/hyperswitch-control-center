@@ -57,7 +57,6 @@ let make = (
     JSON.Encode.array([])
   )
 
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
@@ -65,6 +64,10 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
+
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)

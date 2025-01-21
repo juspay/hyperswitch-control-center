@@ -141,8 +141,6 @@ let dropDownOptions = [
   {label: "By Count", value: Payment_Processed_Count->getStringFromVariant},
 ]
 
-let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
-
 let defaultMetric = {
   label: "By Amount",
   value: Payment_Processed_Amount->getStringFromVariant,
