@@ -8,49 +8,6 @@ let sankyRed = "#F7E0E0"
 let sankyLightBlue = "#91B7EE"
 let sankyLightRed = "#EC6262"
 
-let getBucketSize = granularity => {
-  switch granularity {
-  | "hour_wise" => "hour"
-  | "week_wise" => "week"
-  | "day_wise" | _ => "day"
-  }
-}
-
-let fillMissingDataPoints = (
-  ~data,
-  ~startDate,
-  ~endDate,
-  ~timeKey="time_bucket",
-  ~defaultValue: JSON.t,
-  ~granularity: string,
-) => {
-  open LogicUtils
-  let dataDict = Dict.make()
-  data->Array.forEach(item => {
-    let time = item->getDictFromJsonObject->getString(timeKey, "")
-    dataDict->Dict.set(time, item)
-  })
-  let dataPoints = Dict.make()
-  let startingPoint = startDate->DayJs.getDayJsForString
-  let endingPoint = endDate->DayJs.getDayJsForString
-  let gap = granularity->getBucketSize
-  for x in 0 to endingPoint.diff(startingPoint.toString(), gap) {
-    let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-    let timeVal = startingPoint.add(x, gap).endOf(gap).format("YYYY-MM-DD 00:00:00")
-    switch dataDict->Dict.get(timeVal) {
-    | Some(val) => {
-        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        dataPoints->Dict.set(timeVal, val)
-      }
-    | None => {
-        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
-      }
-    }
-  }
-  dataPoints->Dict.valuesToArray
-}
-
 open NewAnalyticsTypes
 let globalFilter: array<filters> = [#currency]
 let globalExcludeValue = [(#all_currencies: defaultFilters :> string)]
@@ -198,16 +155,31 @@ let isEmptyGraph = (data: JSON.t, key: string) => {
 }
 
 let getCategories = (data: JSON.t, index: int, key: string) => {
-  data
-  ->getArrayFromJson([])
-  ->getValueFromArray(index, []->JSON.Encode.array)
-  ->getArrayFromJson([])
-  ->Array.map(item => {
+  let options =
+    data
+    ->getArrayFromJson([])
+    ->getValueFromArray(index, []->JSON.Encode.array)
+    ->getArrayFromJson([])
+  let isShowTime = options->Array.reduce(false, (flag, item) => {
+    let value = item->getDictFromJsonObject->getString(key, "NA")
+    if value->isNonEmptyString && key == "time_bucket" {
+      let dateObj = value->DayJs.getDayJsForString
+      dateObj.format("HH") != "00" || flag
+    } else {
+      false
+    }
+  })
+
+  options->Array.map(item => {
     let value = item->getDictFromJsonObject->getString(key, "NA")
 
     if value->isNonEmptyString && key == "time_bucket" {
       let dateObj = value->DayJs.getDayJsForString
-      `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+      if isShowTime {
+        `${dateObj.month()->getMonthName} ${dateObj.format("DD")}, ${dateObj.format("HH:mm")}`
+      } else {
+        `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+      }
     } else {
       value
     }
@@ -474,4 +446,95 @@ let generateFilterObject = (~globalFilters, ~localFilters=None) => {
   }
 
   filters->JSON.Encode.object
+}
+
+let getGranularityLabel = option => {
+  switch option {
+  | #G_ONEDAY => "Day-wise"
+  | #G_ONEHOUR => "Hour-wise"
+  | #G_THIRTYMIN => "30min-wise"
+  | #G_FIFTEENMIN => "15min-wise"
+  }
+}
+
+let defaulGranularity = {
+  label: #G_ONEDAY->getGranularityLabel,
+  value: (#G_ONEDAY: granularity :> string),
+}
+
+let getGranularityOptions = (~startTime, ~endTime) => {
+  let startingPoint = startTime->DayJs.getDayJsForString
+  let endingPoint = endTime->DayJs.getDayJsForString
+  let gap = endingPoint.diff(startingPoint.toString(), "hour") // diff between points
+
+  let options = if gap < 1 {
+    [#G_THIRTYMIN, #G_FIFTEENMIN]
+  } else if gap < 24 {
+    [#G_ONEHOUR, #G_THIRTYMIN, #G_FIFTEENMIN]
+  } else if gap < 168 {
+    [#G_ONEDAY, #G_ONEHOUR]
+  } else {
+    [#G_ONEDAY]
+  }
+
+  options->Array.map(option => {
+    label: option->getGranularityLabel,
+    value: (option: granularity :> string),
+  })
+}
+
+let getDefaultGranularity = (~startTime, ~endTime) => {
+  let options = getGranularityOptions(~startTime, ~endTime)
+  options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
+}
+
+let getGranularityGap = option => {
+  switch option {
+  | "G_ONEHOUR" => 60
+  | "G_THIRTYMIN" => 30
+  | "G_FIFTEENMIN" => 15
+  | "G_ONEDAY" | _ => 1440
+  }
+}
+
+let fillMissingDataPoints = (
+  ~data,
+  ~startDate,
+  ~endDate,
+  ~timeKey="time_bucket",
+  ~defaultValue: JSON.t,
+  ~granularity: string,
+) => {
+  let dataDict = Dict.make()
+  data->Array.forEach(item => {
+    let time = item->getDictFromJsonObject->getString(timeKey, "")
+    dataDict->Dict.set(time, item)
+  })
+  let dataPoints = Dict.make()
+  let startingPoint = startDate->DayJs.getDayJsForString
+  let startingPoint = startingPoint.format("YYYY-MM-DD HH:00:00")->DayJs.getDayJsForString
+  let endingPoint = endDate->DayJs.getDayJsForString
+  let gap = "minute"
+  let devider = granularity->getGranularityGap
+  let limit =
+    (endingPoint.diff(startingPoint.toString(), gap)->Int.toFloat /. devider->Int.toFloat)
+    ->Math.floor
+    ->Float.toInt
+
+  for x in 0 to limit {
+    let newDict = defaultValue->getDictFromJsonObject->Dict.copy
+    let timeVal = startingPoint.add(x * devider, gap).format("YYYY-MM-DD HH:mm:ss")
+    switch dataDict->Dict.get(timeVal) {
+    | Some(val) => {
+        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
+        dataPoints->Dict.set(timeVal, val)
+      }
+    | None => {
+        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
+        dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
+      }
+    }
+  }
+
+  dataPoints->Dict.valuesToArray
 }

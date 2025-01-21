@@ -20,7 +20,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   let {categories, data, title, tooltipFormatter, yAxisMaxValue} = lineGraphOptions
 
   let stepInterval = Js.Math.max_int(
-    Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 20.0),
+    Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 13.0),
     1,
   )
 
