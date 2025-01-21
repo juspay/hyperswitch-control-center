@@ -10,7 +10,7 @@ module APIKeysAndLiveEndpoints = {
     open ConnectorTypes
     open TempAPIUtils
 
-    let connectorList = [Processors(FIUU)]
+    let connectorList = [Processors(FIUU), Processors(PAYU)]
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let stepConfig = useStepConfig(
       ~step=currentStep->getSubsectionFromStep,

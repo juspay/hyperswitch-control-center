@@ -48,24 +48,6 @@ let baseFIUUConfig = (merchantId: string) =>
               },
             ],
           },
-          {
-            "mutation_col": "txn_status",
-            "replacement": [
-              {
-                "filters": [],
-                "value": "SUCCESS",
-              },
-            ],
-          },
-          {
-            "mutation_col": "txn_currency",
-            "replacement": [
-              {
-                "filters": [],
-                "value": "MYR",
-              },
-            ],
-          },
         ],
       },
     },
@@ -74,15 +56,20 @@ let baseFIUUConfig = (merchantId: string) =>
         "filters": [
           {
             "condition": "GTE",
-            "field": "Total Payment Amt",
+            "field": "amount",
             "value": "0",
           },
         ],
         "mappings": {
-          "payment_entity_txn_id": "Acknowledge No",
-          "txn_amount": "Total Payment Amt",
-          "txn_date": "Receipt Date",
-          "txn_id": "Policy No",
+          "payment_entity_txn_id": "epg_txn_id",
+          "txn_amount": "effective_amount",
+          "txn_currency": "ord_currency",
+          "txn_date": "order_date_created",
+          "txn_id": "juspay_txn_id",
+          "txn_status": "actual_payment_status",
+          "udf1": "amount",
+          "udf2": "offer_deduction_amount",
+          "udf3": "order_ids",
         },
         "mutations": {
           "computations": [],
@@ -104,15 +91,20 @@ let baseFIUUConfig = (merchantId: string) =>
         "filters": [
           {
             "condition": "LT",
-            "field": "Total Payment Amt",
+            "field": "amount",
             "value": "0",
           },
         ],
         "mappings": {
-          "payment_entity_txn_id": "Acknowledge No",
-          "txn_amount": "Total Payment Amt",
-          "txn_date": "Receipt Date",
-          "txn_id": "Policy No",
+          "payment_entity_txn_id": "epg_txn_id",
+          "txn_amount": "effective_amount",
+          "txn_currency": "ord_currency",
+          "txn_date": "order_date_created",
+          "txn_id": "juspay_txn_id",
+          "txn_status": "actual_payment_status",
+          "udf1": "amount",
+          "udf2": "offer_deduction_amount",
+          "udf3": "order_ids",
         },
         "mutations": {
           "computations": [],
@@ -135,20 +127,19 @@ let baseFIUUConfig = (merchantId: string) =>
     "validation": {
       "check_fields": {
         "date_format_check": {
-          "txn_date": "%m/%d/%y",
+          "txn_date": "%m/%d/%Y",
         },
-        "duplicate_records_check": ["payment_entity_txn_id"],
+        "duplicate_records_check": ["txn_id", "payment_entity_txn_id", "txn_amount", "txn_date"],
         "nan_value_check": ["txn_id", "payment_entity_txn_id", "txn_amount", "txn_date"],
         "numeric_dtype_check": ["txn_amount"],
-        "pkey_check": ["payment_entity_txn_id"],
-        "scientific_value_check": ["payment_entity_txn_id", "txn_amount", "txn_id"],
+        "pkey_check": ["txn_id", "payment_entity_txn_id"],
+        "scientific_value_check": ["txn_id", "payment_entity_txn_id", "txn_amount"],
       },
       "checks": [
         "check_fields",
         "date_format_check",
         "nan_value_check",
         "numeric_dtype_check",
-        "pkey_check",
         "duplicate_records_check",
         "scientific_value_check",
       ],
@@ -160,57 +151,31 @@ let pspConfig = (merchantId: string, pspType: string) =>
     "global_configuration": {
       "mutations": {
         "computations": [],
-        "mutations": [
-          {
-            "mutation_col": "settlement_id",
-            "replacement": [
-              {
-                "filters": [],
-                "value": `${merchantId}-zurich-mys`,
-              },
-            ],
-          },
-          {
-            "mutation_col": "gateway",
-            "replacement": [
-              {
-                "filters": [],
-                "value": pspType,
-              },
-            ],
-          },
-          {
-            "mutation_col": "merchant_id",
-            "replacement": [
-              {
-                "filters": [],
-                "value": merchantId,
-              },
-            ],
-          },
-        ],
+        "mutations": [],
       },
     },
     "local_configuration": [
       {
         "filters": [
           {
-            "condition": "GTE",
-            "field": "Bill Amt",
-            "value": "0",
+            "condition": "EQ",
+            "field": "requestaction",
+            "value": "capture",
           },
-        ]->Identity.genericTypeToJson,
+        ],
         "mappings": {
-          "payment_entity_txn_id": "Order ID",
-          "settlement_amount": "Actual Amt",
-          "settlement_currency": "Currency",
-          "sub_merchant_id": "Merchant / Sub Merchant ID",
-          "txn_amount": "Bill Amt",
-          "txn_currency": "Currency",
-          "txn_date": "Date",
-          "txn_status": "Status",
-          "udf1": "Billing Name",
-        }->Identity.genericTypeToJson,
+          "fee": "mer_service_fee",
+          "payment_entity_txn_id": "payuid",
+          "payment_method": "mode",
+          "payment_method_type": "PG_TYPE",
+          "settlement_amount": "mer_net_amount",
+          "settlement_id": "txnid",
+          "tax": "mer_service_tax",
+          "txn_amount": "amount",
+          "txn_date": "txndate",
+          "udf1": "requestaction",
+          "utr": "mer_utr",
+        },
         "mutations": {
           "computations": [],
           "mutations": [
@@ -223,6 +188,24 @@ let pspConfig = (merchantId: string, pspType: string) =>
                 },
               ],
             },
+            {
+              "mutation_col": "gateway",
+              "replacement": [
+                {
+                  "filters": [],
+                  "value": pspType,
+                },
+              ],
+            },
+            {
+              "mutation_col": "merchant_id",
+              "replacement": [
+                {
+                  "filters": [],
+                  "value": merchantId,
+                },
+              ],
+            },
           ],
         },
         "type": "ORDER",
@@ -230,21 +213,24 @@ let pspConfig = (merchantId: string, pspType: string) =>
       {
         "filters": [
           {
-            "condition": "LT",
-            "field": "Bill Amt",
-            "value": "0",
+            "condition": "EQ",
+            "field": "requestaction",
+            "value": "refund",
           },
-        ]->Identity.genericTypeToJson,
+        ],
         "mappings": {
-          "payment_entity_txn_id": "Order ID",
-          "settlement_amount": "Actual Amt",
-          "sub_merchant_id": "Merchant / Sub Merchant ID",
-          "txn_amount": "Bill Amt",
-          "txn_currency": "Currency",
-          "txn_date": "Date",
-          "txn_status": "Status",
-          "udf1": "Billing Name",
-        }->Identity.genericTypeToJson,
+          "fee": "mer_service_fee",
+          "payment_entity_txn_id": "payuid",
+          "payment_method": "mode",
+          "payment_method_type": "PG_TYPE",
+          "settlement_amount": "mer_net_amount",
+          "settlement_id": "txnid",
+          "tax": "mer_service_tax",
+          "txn_amount": "amount",
+          "txn_date": "txndate",
+          "udf1": "requestaction",
+          "utr": "mer_utr",
+        },
         "mutations": {
           "computations": [],
           "mutations": [
@@ -254,6 +240,24 @@ let pspConfig = (merchantId: string, pspType: string) =>
                 {
                   "filters": [],
                   "value": "REFUND",
+                },
+              ],
+            },
+            {
+              "mutation_col": "gateway",
+              "replacement": [
+                {
+                  "filters": [],
+                  "value": pspType,
+                },
+              ],
+            },
+            {
+              "mutation_col": "merchant_id",
+              "replacement": [
+                {
+                  "filters": [],
+                  "value": merchantId,
                 },
               ],
             },
@@ -275,7 +279,7 @@ let pspConfig = (merchantId: string, pspType: string) =>
           "settlement_amount",
         ],
         "nan_value_check": ["payment_entity_txn_id", "txn_amount", "txn_date", "settlement_amount"],
-        "numeric_dtype_check": ["txn_amount", "settlement_amount"],
+        "numeric_dtype_check": ["txn_amount"],
         "pkey_check": ["payment_entity_txn_id"],
         "scientific_value_check": ["payment_entity_txn_id", "txn_amount"],
       },
@@ -286,7 +290,6 @@ let pspConfig = (merchantId: string, pspType: string) =>
         "numeric_dtype_check",
         "duplicate_records_check",
         "scientific_value_check",
-        "pkey_check",
       ],
     },
   }->Identity.genericTypeToJson

@@ -20,11 +20,11 @@ let proxy = {
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
-  // "/recon-settlement-api": {
-  //   target: "https://app.hyperswitch.io",
-  //   pathRewrite: { "^/api": "" },
-  //   changeOrigin: true,
-  // },
+  "/q": {
+    target: "https://sandbox.hyperswitch.io",
+    pathRewrite: { "^/q": "/api/q" },
+    changeOrigin: true,
+  },
   "/fileUploader": {
     target: "https://sandbox.hyperswitch.io",
     pathRewrite: { "^/api": "" },
