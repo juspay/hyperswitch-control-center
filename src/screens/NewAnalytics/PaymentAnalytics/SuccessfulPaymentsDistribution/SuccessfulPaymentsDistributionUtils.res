@@ -120,7 +120,6 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
-  open NewAnalyticsUtils
   switch colType {
   | Payments_Success_Rate_Distribution =>
     Text(obj.payments_success_rate_distribution->valueFormatter(Rate))
