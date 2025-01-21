@@ -546,6 +546,37 @@ let convertNewLineSaperatedDataToArrayOfJson = text => {
   })
 }
 
+let getTypeValue = value => {
+  switch value {
+  | "all_currencies" => #all_currencies
+  | _ => #none
+  }
+}
+
+let formatCurrency = currency => {
+  switch currency->getTypeValue {
+  | #all_currencies => "USD*"
+  | _ => currency->String.toUpperCase
+  }
+}
+
+let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="") => {
+  let amountSuffix = currency->formatCurrency
+
+  let percentFormat = value => {
+    `${Float.toFixedWithPrecision(value, ~digits=2)}%`
+  }
+
+  switch statType {
+  | Amount => `${value->indianShortNum} ${amountSuffix}`
+  | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
+  | Volume => value->indianShortNum
+  | Latency => latencyShortNum(~labelValue=value)
+  | LatencyMs => latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
+  | No_Type => value->Float.toString
+  }
+}
+
 let getObjectArrayFromJson = json => {
   json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
 }

@@ -1,4 +1,3 @@
-open NewAnalyticsTypes
 open FailureReasonsRefundsTypes
 open LogicUtils
 
@@ -72,7 +71,6 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
-  open NewAnalyticsUtils
   switch colType {
   | Refund_Error_Message => Text(obj.refund_error_message)
   | Refund_Error_Message_Count => Text(obj.refund_error_message_count->Int.toString)
