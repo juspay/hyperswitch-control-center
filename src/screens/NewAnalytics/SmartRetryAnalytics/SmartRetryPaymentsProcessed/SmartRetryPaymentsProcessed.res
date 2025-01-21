@@ -54,6 +54,8 @@ module TableModule = {
 module SmartRetryPaymentsProcessedHeader = {
   open NewAnalyticsUtils
   open LogicUtils
+  open LogicUtilsTypes
+
   @react.component
   let make = (
     ~data: JSON.t,
