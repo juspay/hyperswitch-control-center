@@ -13,15 +13,7 @@ module OrgMerchantSwitchCollapsed = {
 
 @react.component
 let make = (~isSidebarExpanded=false) => {
-  let expandedContent =
-    <div className="border-b border-secondary">
-      <OrgSwitch />
-    </div>
-
-  <>
-    <RenderIf condition={isSidebarExpanded}> expandedContent </RenderIf>
-    <RenderIf condition={!isSidebarExpanded}>
-      <OrgMerchantSwitchCollapsed />
-    </RenderIf>
-  </>
+  <RenderIf condition={!isSidebarExpanded}>
+    <OrgMerchantSwitchCollapsed />
+  </RenderIf>
 }

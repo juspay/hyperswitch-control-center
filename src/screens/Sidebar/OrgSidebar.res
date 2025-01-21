@@ -31,40 +31,37 @@ module OrgTile = {
       onClick={_ => orgSwitch(orgID)->ignore}
       onMouseEnter=handleMouseEnter
       onMouseLeave=handleMouseLeave
-      className={`w-8 h-8 border  flex items-center justify-center rounded-md shadow-md relative cursor-pointer group ${isActive
-          ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
-          : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`} `}>
-      <span className="text-xs font-medium"> {displayText->React.string} </span>
-      <RenderIf condition={showDetails}>
-        <div
-          className={`absolute left-0 ml-2 top-full ${backgroundColor.sidebarSecondary} rounded-lg shadow-lg p-3 min-w-[250px] z-50`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Icon name="building" size=16 className={secondaryTextColor} />
-              <div className="mt-2">
-                <span className={`font-medium ${secondaryTextColor} text-sm`}>
-                  {orgName->React.string}
-                </span>
-              </div>
-            </div>
-            <RenderIf condition={isActive}>
-              <button
-                onClick={e => {
-                  e->ReactEvent.Mouse.stopPropagation
-                  onEdit(e)
-                }}
-                className="cursor-pointer p-1 rounded-sm">
-                <Icon name="edit" size=12 className={secondaryTextColor} />
-              </button>
-            </RenderIf>
-          </div>
+      className="w-10 h-10 flex items-center justify-center relative cursor-pointer group ">
+      <div
+        className={`w-8 h-8 border flex items-center justify-center rounded-md shadow-md ${isActive
+            ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
+            : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
+        <span className="text-xs font-medium"> {displayText->React.string} </span>
+        <RenderIf condition={showDetails}>
           <div
-            className={`flex gap-2 items-center mt-2 text-xs ${secondaryTextColor} opacity-70 mt-1`}>
-            <span> {`ID:`->React.string} </span>
-            <HelperComponents.CopyTextCustomComp displayValue={`${orgID}`} />
+            className={`absolute left-full top-0 ${backgroundColor.sidebarSecondary} rounded-lg shadow-lg p-3 min-w-[250px] z-50 transition-all duration-200 ease-in-out opacity-0 group-hover:opacity-100`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`font-medium ${secondaryTextColor} text-sm`}>
+                {orgName->React.string}
+              </span>
+              <RenderIf condition={isActive}>
+                <button
+                  onClick={e => {
+                    e->ReactEvent.Mouse.stopPropagation
+                    onEdit(e)
+                  }}
+                  className="p-1 rounded-sm hover:bg-white/10">
+                  <Icon name="edit" size=12 className={secondaryTextColor} />
+                </button>
+              </RenderIf>
+            </div>
+            <div className={`flex items-center gap-2 text-xs ${secondaryTextColor} opacity-70`}>
+              <span> {orgID->React.string} </span>
+              <OMPSwitchHelper.OMPCopyTextCustomComp displayValue=" " copyValue=Some({orgID}) />
+            </div>
           </div>
-        </div>
-      </RenderIf>
+        </RenderIf>
+      </div>
     </div>
   }
 }
@@ -259,7 +256,7 @@ let make = () => {
   }
   <div className={`${backgroundColor.sidebarNormal} p-2 border-r border-secondary`}>
     // the org tiles
-    <div className="flex flex-col gap-4 m-1 mt-4 items-center justify-center shadow-sm ">
+    <div className="flex flex-col gap-2 m-1 mt-4 items-center justify-center shadow-sm ">
       {orgList
       ->Array.toSorted((org1, org2) => {
         if org1.id === orgId {
@@ -284,9 +281,9 @@ let make = () => {
       <RenderIf condition={tenantUser && isTenantAdmin}>
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
-          className={`w-8 h-8 flex items-center justify-center cursor-pointer 
-            rounded-md shadow-sm ${hoverColor} border-${backgroundColor.sidebarSecondary}`}>
-          <Icon name="plus" size=20 className={`${secondaryTextColor}`} />
+          className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
+      rounded-md shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
+          <Icon name="plus" size=20 className={secondaryTextColor} />
         </div>
       </RenderIf>
     </div>
