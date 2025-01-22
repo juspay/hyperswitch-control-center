@@ -38,12 +38,13 @@ let make = (
   }
 
   let editButtons =
-    <div className="flex items-center gap-4 pr-4">
-      <button onClick={_ => handleCancel()} className={`cursor-pointer ${customIconStyle}`}>
-        <Icon name="close" size=12 />
+    <div className="flex items-center gap-2 pr-4">
+      <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
+        <Icon name="new-cross" size=16 />
       </button>
-      <button onClick={_ => handleSave()} className={`cursor-pointer ${customIconStyle}`}>
-        <Icon name="check" size=14 />
+      <button
+        onClick={_ => handleSave()} className={`cursor-pointer !stroke-primary ${customIconStyle}`}>
+        <Icon name="new-check" size=16 />
       </button>
     </div>
 
@@ -53,7 +54,7 @@ let make = (
         onClick={_ => setIsEditing(_ => true)}
         className={`cursor-pointer ${customIconStyle}`}
         ariaLabel="Edit">
-        <Icon name="pencil-edit" size=12 />
+        <Icon name="new-pencil" size=14 />
       </button>
       <RenderIf condition={customIconComponent->Option.isSome}>
         {customIconComponent->Option.getOr(React.null)}
