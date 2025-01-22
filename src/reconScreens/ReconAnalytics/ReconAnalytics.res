@@ -2,11 +2,11 @@
 let make = () => {
   open ReconAnalyticsHelper
 
-  let fetchAnalyticsListResponse = AnalyticsData.useFetchAnalyticsList()
+  let fetchAnalyticsListResponse = AnalyticsData.useFetchAnalyticsCardList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (analyticsCardData, setAnalyticsCardData) = React.useState(_ => Dict.make())
 
-  let getReportsList = async _ => {
+  let getAnalyticsCardList = async _ => {
     try {
       let response = await fetchAnalyticsListResponse()
       setAnalyticsCardData(_ => response->Identity.genericTypeToDictOfJson)
@@ -17,7 +17,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getReportsList()->ignore
+    getAnalyticsCardList()->ignore
     None
   }, [])
 
@@ -27,6 +27,7 @@ let make = () => {
     />
     <PageLoaderWrapper screenState>
       <ReconAnalyticsCards analyticsCardData />
+      <ReconAnalyticsBarChart />
     </PageLoaderWrapper>
   </div>
 }

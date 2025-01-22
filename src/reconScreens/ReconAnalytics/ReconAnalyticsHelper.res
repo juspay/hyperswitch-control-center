@@ -104,3 +104,64 @@ module ReconAnalyticsCards = {
     </div>
   }
 }
+
+module ReconAnalyticsBarChart = {
+  @react.component
+  let make = () => {
+    let fetchAnalyticsListResponse = AnalyticsData.useFetchBarGraphData()
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (analyticsCardData, setAnalyticsCardData) = React.useState(_ => Dict.make())
+
+    let getAnalyticsCardList = async _ => {
+      try {
+        let response = await fetchAnalyticsListResponse()
+        setAnalyticsCardData(_ => response->Identity.genericTypeToDictOfJson)
+        setScreenState(_ => Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+      }
+    }
+
+    React.useEffect(() => {
+      getAnalyticsCardList()->ignore
+      None
+    }, [])
+
+    <PageLoaderWrapper screenState>
+      <div className="bg-white border rounded-lg p-6 my-6">
+        <div className="text-lg font-medium text-gray-600">
+          {"Reconciliation Results"->React.string}
+        </div>
+        <BarGraph
+          options={BarGraphUtils.getBarGraphOptions({
+            categories: [
+              switch analyticsCardData->Dict.get("reconciled_at_time") {
+              | Some(timestamp) => timestamp->JSON.stringify->Js.String.slice(~from=1, ~to_=11)
+              | None => "N/A"
+              },
+            ],
+            data: [
+              {
+                showInLegend: false,
+                name: "Recon Success Rate",
+                data: [
+                  switch analyticsCardData->Dict.get("recon_success_rate") {
+                  | Some(successRate) =>
+                    successRate->JSON.stringify->Float.fromString->Option.getOr(0.0)
+                  | None => 0.0
+                  },
+                ],
+                color: "#006DF9CC",
+              },
+            ],
+            title: {text: "Recon Success Rate"},
+            tooltipFormatter: ReconAnalyticsUtils.bargraphTooltipFormatter(
+              ~title="Recon Success Rate",
+              ~metricType=Rate,
+            ),
+          })}
+        />
+      </div>
+    </PageLoaderWrapper>
+  }
+}
