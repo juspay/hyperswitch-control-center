@@ -7,8 +7,7 @@ let make = (
   ~onHoverEdit=false,
   ~leftIcon=?,
   ~onSubmit=?,
-  ~showCustomCopyIcon,
-  ~customCopyValue=?,
+  ~customCopyIconComponent=?,
   ~customInputStyle="",
   ~customIconStyle="",
 ) => {
@@ -49,19 +48,15 @@ let make = (
     </div>
 
   let leftActionButtons =
-    <div className="flex gap-1">
+    <div className="flex gap-2">
       <button
         onClick={_ => setIsEditing(_ => true)}
         className={`cursor-pointer ${customIconStyle}`}
         ariaLabel="Edit">
         <Icon name="pencil-edit" size=12 />
       </button>
-      <RenderIf condition={showCustomCopyIcon}>
-        <HelperComponents.CopyTextCustomComp
-          customTextCss="invisible group-hover:visible p-2 cursor-pointer text-gray-500 hover:text-gray-700"
-          displayValue=" "
-          copyValue=customCopyValue
-        />
+      <RenderIf condition={customCopyIconComponent->Option.isSome}>
+        {customCopyIconComponent->Option.getOr(React.null)}
       </RenderIf>
     </div>
 
