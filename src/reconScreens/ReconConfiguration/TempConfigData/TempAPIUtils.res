@@ -279,6 +279,7 @@ let useStepConfig = (
           let (url, formData) = baseFileUploadAPI(~fileUploadedDict, ~merchantId)
           let (transformBaseFileUrl, transformBaseFileBody) = transformBaseFileAPI(~merchantId)
 
+          let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
           let _ = await updateAPIHook(
             ~bodyFormData=formData,
             ~headers=Dict.make(),
@@ -287,7 +288,6 @@ let useStepConfig = (
             Post,
             ~contentType=AuthHooks.Unknown,
           )
-          let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
         }
       | APIKeysAndLiveEndpoints => {
           let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity)
@@ -313,6 +313,8 @@ let useStepConfig = (
             ~merchantId,
             ~paymentEntity,
           )
+
+          let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
           let _ = await updateAPIHook(
             ~bodyFormData=formData,
             ~headers=Dict.make(),
@@ -321,7 +323,6 @@ let useStepConfig = (
             Post,
             ~contentType=AuthHooks.Unknown,
           )
-          let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
         }
       | TestLivePayment => {
           let (reconUrl, reconBody) = reconConfigAPI(
