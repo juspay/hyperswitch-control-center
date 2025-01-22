@@ -1,13 +1,13 @@
 @react.component
 let make = () => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
+  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -30,21 +30,14 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let response = await fetchConnectorListResponse()
-      let connectorsList =
-        response
-        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
-        ->Array.filter(item =>
-          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
-            AuthenticationProcessor
-        )
-
-      ConnectorUtils.sortByDisableField(connectorsList, connectorPayload =>
+      let threeDsConnectorsList =
+        connectorList->Array.filter(item => item.connector_type === AuthenticationProcessor)
+      ConnectorUtils.sortByDisableField(threeDsConnectorsList, connectorPayload =>
         connectorPayload.disabled
       )
 
-      setConfiguredConnectors(_ => connectorsList)
-      setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
+      setConfiguredConnectors(_ => threeDsConnectorsList)
+      setFilteredConnectorData(_ => threeDsConnectorsList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -55,6 +48,7 @@ let make = () => {
     getConnectorList()->ignore
     None
   }, [])
+
   <div>
     <PageUtils.PageHeading
       title={"3DS Authentication Manager"}
@@ -65,8 +59,8 @@ let make = () => {
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
-            actualData={configuredConnectors->Array.map(Nullable.make)}
-            totalResults={filteredConnectorData->Array.map(Nullable.make)->Array.length}
+            actualData={filteredConnectorData}
+            totalResults={filteredConnectorData->Array.length}
             resultsPerPage=20
             entity={ThreeDsTableEntity.threeDsAuthenticatorEntity(
               `3ds-authenticators`,

@@ -128,7 +128,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let merchSwitch = OMPSwitchHooks.useMerchantSwitch()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let url = RescriptReactRouter.useUrl()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -155,7 +155,7 @@ let make = () => {
   let switchMerch = async value => {
     try {
       setShowSwitchingMerch(_ => true)
-      let _ = await merchSwitch(~expectedMerchantId=value, ~currentMerchantId=merchantId)
+      let _ = await internalSwitch(~expectedMerchantId=Some(value))
       RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingMerch(_ => false)
     } catch {

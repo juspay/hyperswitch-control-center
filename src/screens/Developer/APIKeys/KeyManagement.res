@@ -181,6 +181,7 @@ module ApiKeyAddBtn = {
     let (showModal, setShowModal) = React.useState(_ => false)
     let initialValues = Dict.make()
     initialValues->Dict.set("expiration", Never->getStringFromRecordType->JSON.Encode.string)
+    let isMobileView = MatchMedia.useMobileChecker()
 
     <>
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
@@ -188,7 +189,9 @@ module ApiKeyAddBtn = {
         text="Create New API Key"
         leftIcon={CustomIcon(
           <Icon
-            name="plus" size=12 className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+            name="plus"
+            size=12
+            className="jp-gray-900 fill-opacity-50 mr-2 mb-1 dark:jp-gray-text_darktheme"
           />,
         )}
         // TODO: Remove `MerchantDetailsManage` permission in future
@@ -197,7 +200,8 @@ module ApiKeyAddBtn = {
           userHasAccess(~groupAccess=AccountManage),
         )}
         buttonType=Secondary
-        buttonSize=Small
+        buttonSize={isMobileView ? XSmall : Small}
+        customTextSize={isMobileView ? "text-xs" : ""}
         onClick={_ => {
           mixpanelEvent(~eventName="create_new_api_key")
           setShowModal(_ => true)
@@ -354,7 +358,7 @@ module ApiKeysTable = {
     <PageLoaderWrapper screenState>
       {<div className="relative mt-10 md:mt-0">
         <h2
-          className="font-bold absolute top-0 md:top-10 left-0 text-xl pb-3 text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+          className="font-bold absolute top-2 md:top-6 left-0 text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
           {"API Keys"->React.string}
         </h2>
         <LoadedTable
@@ -368,7 +372,7 @@ module ApiKeysTable = {
           offset
           setOffset
           currrentFetchCount={data->Array.length}
-          tableActions={<div className="mt-5">
+          tableActions={<div className="mt-0 md:mt-5">
             <ApiKeyAddBtn getAPIKeyDetails />
           </div>}
         />

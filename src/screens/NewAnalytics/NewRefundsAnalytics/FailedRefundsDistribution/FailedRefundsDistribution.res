@@ -72,6 +72,7 @@ let make = (
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
 
   let getRefundsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -88,6 +89,7 @@ let make = (
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[Connector->getStringFromVariant]->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let response = await updateDetails(url, body, Post)
@@ -96,14 +98,16 @@ let make = (
         response->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
       if responseTotalNumberData->Array.length > 0 {
-        // TODO: need refactor on filters
         let filters = Dict.make()
         filters->Dict.set("refund_status", ["failure"->JSON.Encode.string]->JSON.Encode.array)
 
         let body = requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
-          ~filter=filters->JSON.Encode.object->Some,
+          ~filter=generateFilterObject(
+            ~globalFilters=filterValueJson,
+            ~localFilters=filters->Some,
+          )->Some,
           ~delta=entity.requestBodyConfig.delta,
           ~metrics=entity.requestBodyConfig.metrics,
           ~groupByNames=[Connector->getStringFromVariant]->Some,
@@ -132,13 +136,15 @@ let make = (
       getRefundsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, [startTimeVal, endTimeVal, currency])
 
   let params = {
     data: refundsDistribution,
     xKey: Refunds_Failure_Rate->getStringFromVariant,
     yKey: Connector->getStringFromVariant,
   }
+
+  let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
 
   <div>
     <ModuleHeader title={entity.title} />
@@ -148,10 +154,7 @@ let make = (
         <FailedRefundsDistributionHeader viewType setViewType />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <BarGraph
-              entity={chartEntity} object={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <BarGraph options className="mr-3" />
           | Table => <TableModule data={refundsDistribution} className="mx-7" />
           }}
         </div>

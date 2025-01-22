@@ -10,7 +10,6 @@ type featureFlag = {
   email: bool,
   isLiveMode: bool,
   auditTrail: bool,
-  systemMetrics: bool,
   sampleData: bool,
   frm: bool,
   payOut: bool,
@@ -20,8 +19,6 @@ type featureFlag = {
   generateReport: bool,
   mixpanel: bool,
   mixpanelToken: string,
-  userJourneyAnalytics: bool,
-  authenticationAnalytics: bool,
   surcharge: bool,
   disputeEvidenceUpload: bool,
   paypalAutomaticFlow: bool,
@@ -31,7 +28,6 @@ type featureFlag = {
   disputeAnalytics: bool,
   configurePmts: bool,
   branding: bool,
-  liveUsersCounter: bool,
   granularity: bool,
   complianceCertificate: bool,
   pmAuthenticationProcessor: bool,
@@ -39,6 +35,7 @@ type featureFlag = {
   newAnalytics: bool,
   newAnalyticsSmartRetries: bool,
   newAnalyticsRefunds: bool,
+  newAnalyticsFilters: bool,
   downTime: bool,
   taxProcessor: bool,
   xFeatureRoute: bool,
@@ -47,6 +44,7 @@ type featureFlag = {
   devThemeFeature: bool,
   devReconv2Product: bool,
   maintainenceAlert: string,
+  forceCookies: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -59,7 +57,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     email: dict->getBool("email", false),
     isLiveMode: dict->getBool("is_live_mode", false),
     auditTrail: dict->getBool("audit_trail", false),
-    systemMetrics: dict->getBool("system_metrics", false),
     sampleData: dict->getBool("sample_data", false),
     frm: dict->getBool("frm", false),
     payOut: dict->getBool("payout", false),
@@ -70,8 +67,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     generateReport: dict->getBool("generate_report", false),
     mixpanel: dict->getBool("mixpanel", false),
     mixpanelToken: dict->getString("mixpanel_token", ""),
-    userJourneyAnalytics: dict->getBool("user_journey_analytics", false),
-    authenticationAnalytics: dict->getBool("authentication_analytics", false),
     surcharge: dict->getBool("surcharge", false),
     disputeEvidenceUpload: dict->getBool("dispute_evidence_upload", false),
     paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
@@ -81,7 +76,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     disputeAnalytics: dict->getBool("dispute_analytics", false),
     configurePmts: dict->getBool("configure_pmts", false),
     branding: dict->getBool("branding", false),
-    liveUsersCounter: dict->getBool("live_users_counter", false),
     granularity: dict->getBool("granularity", false),
     complianceCertificate: dict->getBool("compliance_certificate", false),
     pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
@@ -89,6 +83,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     newAnalytics: dict->getBool("new_analytics", false),
     newAnalyticsSmartRetries: dict->getBool("new_analytics_smart_retries", false),
     newAnalyticsRefunds: dict->getBool("new_analytics_refunds", false),
+    newAnalyticsFilters: dict->getBool("new_analytics_filters", false),
     downTime: dict->getBool("down_time", false),
     taxProcessor: dict->getBool("tax_processor", false),
     xFeatureRoute: dict->getBool("x_feature_route", false),
@@ -96,6 +91,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devThemeFeature: dict->getBool("dev_theme_feature", false),
     devReconv2Product: dict->getBool("dev_recon_v2_product", false),
     maintainenceAlert: dict->getString("maintainence_alert", ""),
+    forceCookies: dict->getBool("force_cookies", false),
   }
 }
 

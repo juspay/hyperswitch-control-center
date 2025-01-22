@@ -4,6 +4,7 @@ open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open FailedPaymentsDistributionUtils
 open NewPaymentAnalyticsUtils
+
 module TableModule = {
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {
@@ -137,11 +138,15 @@ let make = (
     }
     None
   }, [startTimeVal, endTimeVal, groupBy.value, currency])
+
   let params = {
     data: failedPaymentsDistribution,
     xKey: Payments_Failure_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
     yKey: groupBy.value,
   }
+
+  let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -150,10 +155,7 @@ let make = (
         <FailedPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <BarGraph
-              entity={chartEntity} object={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <BarGraph options className="mr-3" />
           | Table =>
             <TableModule
               data={failedPaymentsDistribution} className="mx-7" selectedTab={groupBy.value}

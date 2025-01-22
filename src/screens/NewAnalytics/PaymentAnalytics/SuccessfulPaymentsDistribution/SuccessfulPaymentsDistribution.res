@@ -4,6 +4,7 @@ open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open SuccessfulPaymentsDistributionUtils
 open NewPaymentAnalyticsUtils
+
 module TableModule = {
   open LogicUtils
   @react.component
@@ -142,6 +143,8 @@ let make = (
     yKey: groupBy.value,
   }
 
+  let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -150,10 +153,7 @@ let make = (
         <SuccessfulPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <BarGraph
-              entity={chartEntity} object={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <BarGraph options className="mr-3" />
           | Table =>
             <TableModule data={paymentsDistribution} className="mx-7" selectedTab={groupBy.value} />
           }}

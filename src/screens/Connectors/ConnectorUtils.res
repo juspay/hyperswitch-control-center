@@ -129,6 +129,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(VOLT),
   Processors(ZSL),
   Processors(ZEN),
+  Processors(PAYBOX),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
@@ -1598,12 +1599,12 @@ let getConnectorPaymentMethodDetails = async (
 let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
   items->Array.filter(dict => {
     let connectorType = dict.connector_type
-    let isPayoutProcessor = connectorType == "payout_processor"
-    let isThreeDsAuthenticator = connectorType == "authentication_processor"
-    let isPMAuthenticationProcessor = connectorType == "payment_method_auth"
-    let isTaxProcessor = connectorType == "tax_processor"
+    let isPayoutProcessor = connectorType == PayoutProcessor
+    let isThreeDsAuthenticator = connectorType == AuthenticationProcessor
+    let isPMAuthenticationProcessor = connectorType == PMAuthProcessor
+    let isTaxProcessor = connectorType == TaxProcessor
     let isConnector =
-      connectorType !== "payment_vas" &&
+      connectorType !== PaymentVas &&
       !isPayoutProcessor &&
       !isThreeDsAuthenticator &&
       !isPMAuthenticationProcessor &&
@@ -1773,13 +1774,25 @@ let connectorTypeTuple = connectorType => {
 
 let connectorTypeStringToTypeMapper = connector_type => {
   switch connector_type {
-  | "payment_processor" => PaymentProcessor
   | "payment_vas" => PaymentVas
   | "payout_processor" => PayoutProcessor
   | "authentication_processor" => AuthenticationProcessor
   | "payment_method_auth" => PMAuthProcessor
   | "tax_processor" => TaxProcessor
-  | _ => PaymentProcessor
+  | "payment_processor"
+  | _ =>
+    PaymentProcessor
+  }
+}
+
+let connectorTypeTypedValueToStringMapper = val => {
+  switch val {
+  | PaymentVas => "payment_vas"
+  | PayoutProcessor => "payout_processor"
+  | AuthenticationProcessor => "authentication_processor"
+  | PMAuthProcessor => "payment_method_auth"
+  | TaxProcessor => "tax_processor"
+  | PaymentProcessor => "payment_processor"
   }
 }
 

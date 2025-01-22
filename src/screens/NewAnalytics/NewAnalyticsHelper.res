@@ -48,14 +48,14 @@ module TabSwitch = {
     | Table => ("bg-white", "text-grey-dark", "table-view")
     }
 
-    <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer">
+    <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer h-fit">
       <div
-        className={`rounded-l-lg pl-3 pr-2 pt-2 pb-1 ${icon1Bg}`} onClick={_ => setViewType(Graph)}>
+        className={`rounded-l-lg pl-3 pr-2 pt-2 pb-0.5 ${icon1Bg}`}
+        onClick={_ => setViewType(Graph)}>
         <Icon className={icon1Color} name={icon1Name} size=25 />
       </div>
       <div className="h-full border-l border-gray-outline" />
-      <div
-        className={`rounded-r-lg pl-3 pr-2 pt-2 pb-1 ${icon2Bg}`} onClick={_ => setViewType(Table)}>
+      <div className={`rounded-r-lg pl-3 pr-2 pt-2 ${icon2Bg}`} onClick={_ => setViewType(Table)}>
         <Icon className={icon2Color} name=icon2Name size=25 />
       </div>
     </div>
@@ -65,7 +65,12 @@ module TabSwitch = {
 module Tabs = {
   open NewAnalyticsTypes
   @react.component
-  let make = (~option: optionType, ~setOption: optionType => unit, ~options: array<optionType>) => {
+  let make = (
+    ~option: optionType,
+    ~setOption: optionType => unit,
+    ~options: array<optionType>,
+    ~showSingleTab=true,
+  ) => {
     let getStyle = (value: string, index) => {
       let textStyle =
         value === option.value
@@ -74,24 +79,34 @@ module Tabs = {
 
       let borderStyle = index === 0 ? "" : "border-l"
 
-      let borderRadius =
-        index === 0 ? "rounded-l-lg" : index === options->Array.length - 1 ? "rounded-r-lg" : ""
+      let borderRadius = if options->Array.length == 1 {
+        "rounded-lg"
+      } else if index === 0 {
+        "rounded-l-lg"
+      } else if index === options->Array.length - 1 {
+        "rounded-r-lg"
+      } else {
+        ""
+      }
 
       `${textStyle} ${borderStyle} ${borderRadius}`
     }
 
-    <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer text-sm ">
-      {options
-      ->Array.mapWithIndex((tabValue, index) =>
-        <div
-          key={index->Int.toString}
-          className={`px-3 py-2 ${tabValue.value->getStyle(index)} selection:bg-white`}
-          onClick={_ => setOption(tabValue)}>
-          {tabValue.label->React.string}
-        </div>
-      )
-      ->React.array}
-    </div>
+    <RenderIf condition={showSingleTab || options->Array.length > 1}>
+      <div
+        className="border border-gray-outline flex w-fit rounded-lg cursor-pointer text-sm h-fit">
+        {options
+        ->Array.mapWithIndex((tabValue, index) =>
+          <div
+            key={index->Int.toString}
+            className={`px-3 py-2 ${tabValue.value->getStyle(index)} selection:bg-white`}
+            onClick={_ => setOption(tabValue)}>
+            {tabValue.label->React.string}
+          </div>
+        )
+        ->React.array}
+      </div>
+    </RenderIf>
   }
 }
 
@@ -190,7 +205,7 @@ module StatisticsCard = {
       <div className="-mb-0.5 flex">
         {icon}
         <div className="font-semibold text-sm pt-0.5 pr-0.5">
-          {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
+          {`${value->LogicUtils.valueFormatter(Rate)}`->React.string}
         </div>
       </div>
     </div>

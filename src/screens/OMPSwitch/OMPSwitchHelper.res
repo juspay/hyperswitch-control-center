@@ -47,6 +47,9 @@ module ListBaseComp = {
     ~isDarkBg=false,
     ~showDropdownArrow=true,
   ) => {
+    let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
     let baseCompStyle = isDarkBg
       ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
       : "text-black hover:bg-opacity-80"
@@ -54,14 +57,14 @@ module ListBaseComp = {
     let iconName = isDarkBg ? "arrow-without-tail-new" : "arrow-without-tail"
 
     let arrowDownClass = isDarkBg
-      ? "rotate-0 transition duration-[250ms] opacity-70"
-      : "rotate-180 transition duration-[250ms] opacity-70"
+      ? `rotate-0 transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+      : `rotate-180 transition duration-[250ms] opacity-70 `
 
     let arrowUpClass = isDarkBg
-      ? "-rotate-180 transition duration-[250ms] opacity-70"
-      : "rotate-0 transition duration-[250ms] opacity-70"
+      ? `-rotate-180 transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+      : `rotate-0 transition duration-[250ms] opacity-70 `
 
-    let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
+    let textColor = isDarkBg ? `${secondaryTextColor}` : "text-grey-900"
     let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
     let paddingSubheading = isDarkBg ? "pl-2" : ""
     let paddingHeading = isDarkBg ? "pl-2" : ""
@@ -215,7 +218,7 @@ module OMPViewsComp = {
     let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
     let dropdownContainerStyle = "md:rounded-lg md:border md:w-full md:shadow-md"
 
-    <div className="flex h-fit border border-grey-100 bg-white rounded-lg py-2 hover:bg-opacity-80">
+    <div className="flex h-fit border bg-white rounded-lg py-2 hover:bg-opacity-80">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText=""
