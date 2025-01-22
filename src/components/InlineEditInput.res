@@ -7,7 +7,7 @@ let make = (
   ~onHoverEdit=false,
   ~leftIcon=?,
   ~onSubmit=?,
-  ~customCopyIconComponent=?,
+  ~customIconComponent=?,
   ~customInputStyle="",
   ~customIconStyle="",
 ) => {
@@ -55,8 +55,8 @@ let make = (
         ariaLabel="Edit">
         <Icon name="pencil-edit" size=12 />
       </button>
-      <RenderIf condition={customCopyIconComponent->Option.isSome}>
-        {customCopyIconComponent->Option.getOr(React.null)}
+      <RenderIf condition={customIconComponent->Option.isSome}>
+        {customIconComponent->Option.getOr(React.null)}
       </RenderIf>
     </div>
 
