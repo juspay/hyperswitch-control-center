@@ -1,15 +1,23 @@
 module OrgTile = {
   @react.component
-  let make = (~orgID: string, ~isActive, ~orgSwitch, ~onEdit, ~orgName: string, ~index: int) => {
+  let make = (
+    ~orgID: string,
+    ~isActive,
+    ~orgSwitch,
+    ~onEdit,
+    ~orgName: string,
+    ~index: int,
+    ~isUnderEdit,
+    ~handleUnderEdit,
+  ) => {
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let (showDetails, setShowDetails) = React.useState(_ => false)
+
     let (orgList, _) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let (isEditing, setIsEditing) = React.useState(_ => false)
 
     let displayText = {
       let firstLetter = orgName->String.charAt(0)->String.toUpperCase
@@ -25,29 +33,47 @@ module OrgTile = {
         firstLetter
       }
     }
+    let hoverLable1 = isUnderEdit ? `` : `group/parent`
+    let hoverInput2 = `group-hover/parent:opacity-100`
 
     <div
-      className={`w-8 h-8 border relative  cursor-pointer flex items-center justify-center rounded-md shadow-md ${isActive
+      className={`w-8 h-8 border relative  cursor-pointer flex items-center justify-center rounded-md shadow-md ${hoverLable1} ${isActive
           ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
-          : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}
-      onClick={_ => setShowDetails(prev => !prev)}>
+          : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
       <span className="text-xs font-medium"> {displayText->React.string} </span>
-      <RenderIf condition={showDetails}>
-        <div
-          className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg shadow-lg z-50 p-2 `}>
-          <InlineEditInput
-            labelText={orgName}
-            subText={"organization"}
-            showSubText=true
-            customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
-            onHoverEdit=false
-            customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
-            customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
-              displayValue=" " copyValue=Some({orgID})
-            />}
-          />
-        </div>
-      </RenderIf>
+      {<>
+        {if isUnderEdit && isActive {
+          <div
+            className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg  shadow-lg z-50 p-2 `}>
+            <InlineEditInput
+              labelText={"organization"}
+              customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
+              onHoverEdit=false
+              customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
+              showEdit=isActive
+              handleEdit=handleUnderEdit
+              isEditing={isActive && isUnderEdit}
+            />
+          </div>
+        } else {
+          <div
+            className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg opacity-0 ${hoverInput2} shadow-lg z-50 p-2 `}>
+            <InlineEditInput
+              labelText={"organization"}
+              subText={"organization"}
+              showSubText=true
+              customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
+              onHoverEdit=false
+              customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
+              customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
+                displayValue=" " copyValue=Some({orgID})
+              />}
+              showEdit=isActive
+              handleEdit=handleUnderEdit
+            />
+          </div>
+        }}
+      </>}
     </div>
   }
 }
@@ -263,6 +289,10 @@ let make = () => {
       }
     }
   }
+  let (isUnderEdit, setUnderEdit) = React.useState(_ => false)
+  let handleUnderEdit = () => {
+    setUnderEdit(_ => !isUnderEdit)
+  }
   <div className={`${backgroundColor.sidebarNormal} p-2 border-r border-secondary`}>
     // the org tiles
     <div className="flex flex-col gap-2 m-1 mt-4 items-center justify-center shadow-sm ">
@@ -284,6 +314,8 @@ let make = () => {
           onEdit=onEditClick
           orgName={org.name}
           index={i}
+          handleUnderEdit
+          isUnderEdit
         />
       })
       ->React.array}

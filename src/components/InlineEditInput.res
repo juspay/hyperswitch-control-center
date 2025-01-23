@@ -1,3 +1,36 @@
+module HoverInline = {
+  @react.component
+  let make = (
+    ~customStyle="",
+    ~leftIcon,
+    ~value,
+    ~showSubText,
+    ~subText,
+    ~onHoverEdit,
+    ~leftActionButtons,
+  ) => {
+    <div
+      className={`group relative font-medium inline-flex gap-4 items-center justify-between px-4 py-2 w-full bg-white rounded-md  ${customStyle}`}>
+      <div className="flex gap-2">
+        <RenderIf condition={leftIcon->Option.isSome}>
+          {leftIcon->Option.getOr(React.null)}
+        </RenderIf>
+        <div className="flex flex-col gap-1 ml-1">
+          <p className="text-sm"> {React.string(value)} </p>
+          <RenderIf condition={showSubText}>
+            <span className="text-xs text-gray-500"> {subText->React.string} </span>
+          </RenderIf>
+        </div>
+      </div>
+      {if onHoverEdit {
+        <div className="invisible group-hover:visible"> {leftActionButtons} </div>
+      } else {
+        leftActionButtons
+      }}
+    </div>
+  }
+}
+
 @react.component
 let make = (
   ~labelText="",
@@ -11,10 +44,10 @@ let make = (
   ~customInputStyle="",
   ~customIconStyle="",
   ~showEdit=true,
+  ~handleEdit=?,
   ~isEditing=false,
-  ~setIsEditing=?,
 ) => {
-  // let (isEditing, setIsEditing) = React.useState(_ => false)
+  let (isEditingInLine, setIsEditing) = React.useState(_ => isEditing)
   let (value, setValue) = React.useState(_ => labelText)
   let enterKeyCode = 13
   let escapeKeyCode = 27
@@ -25,12 +58,20 @@ let make = (
     | Some(func) => func(value)
     | None => ()
     }
+    switch handleEdit {
+    | Some(func) => func()
+    | None => ()
+    }
     setIsEditing(_ => false)
   }
 
   let handleCancel = () => {
     setValue(_ => labelText)
-    // setIsEditing(_ => false)
+    setIsEditing(_ => false)
+    switch handleEdit {
+    | Some(func) => func()
+    | None => ()
+    }
   }
 
   let handleKeyDown = e => {
@@ -44,6 +85,13 @@ let make = (
     }
   }
 
+  let handleEditIcon = () => {
+    setIsEditing(_ => true)
+    switch handleEdit {
+    | Some(func) => func()
+    | None => ()
+    }
+  }
   let submitButtons =
     <div className="flex items-center gap-2 pr-4">
       <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
@@ -59,8 +107,8 @@ let make = (
     <div className="flex gap-2">
       <RenderIf condition={showEdit}>
         <button
-          onClick={e => {
-            setIsEditing(_ => isEditing)
+          onClick={_ => {
+            handleEditIcon()
           }}
           className={`cursor-pointer  ${customIconStyle}`}
           ariaLabel="Edit">
@@ -83,7 +131,7 @@ let make = (
     onClick={e => {
       e->ReactEvent.Mouse.stopPropagation
     }}>
-    {if isEditing {
+    {if isEditingInLine {
       <div
         className={`group relative flex items-center bg-white  focus-within:ring-1 focus-within:ring-primary rounded-md text-md ${customStyle}`}>
         <div className="flex-1">
@@ -99,25 +147,7 @@ let make = (
         {submitButtons}
       </div>
     } else {
-      <div
-        className={`group relative font-medium inline-flex gap-4 items-center justify-between px-4 py-2 w-full bg-white rounded-md  ${customStyle}`}>
-        <div className="flex gap-2">
-          <RenderIf condition={leftIcon->Option.isSome}>
-            {leftIcon->Option.getOr(React.null)}
-          </RenderIf>
-          <div className="flex flex-col gap-1 ml-1">
-            <p className="text-sm"> {React.string(value)} </p>
-            <RenderIf condition={showSubText}>
-              <span className="text-xs text-gray-500"> {subText->React.string} </span>
-            </RenderIf>
-          </div>
-        </div>
-        {if onHoverEdit {
-          <div className="invisible group-hover:visible"> {leftActionButtons} </div>
-        } else {
-          leftActionButtons
-        }}
-      </div>
+      <HoverInline customStyle leftIcon value showSubText subText onHoverEdit leftActionButtons />
     }}
   </div>
 }
