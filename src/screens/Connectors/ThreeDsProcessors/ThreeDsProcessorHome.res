@@ -14,6 +14,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let activeBusinessProfile =
     Recoil.useRecoilValueFromAtom(
@@ -128,6 +129,7 @@ let make = () => {
       let response = await updateAPIHook(connectorUrl, body, Post)
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
+      let _ = await fetchConnectorListResponse()
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -187,7 +189,7 @@ let make = () => {
                 link: "/3ds-authenticators",
               },
         ]
-        currentPageTitle={connectorName->ConnectorUtils.getDisplayNameForConnector(
+        currentPageTitle={connectorName->getDisplayNameForConnector(
           ~connectorType=ThreeDsAuthenticator,
         )}
         cursorStyle="cursor-pointer"

@@ -13,9 +13,10 @@ let getStringFromVariant = value => {
 
 let getVariantValueFromString = value => {
   switch value {
-  | "payment_processed_amount" => Payment_Processed_Amount
+  | "payment_processed_amount" | "payment_processed_amount_in_usd" => Payment_Processed_Amount
   | "payment_processed_count" => Payment_Processed_Count
-  | "total_payment_processed_amount" => Total_Payment_Processed_Amount
+  | "total_payment_processed_amount" | "total_payment_processed_amount_in_usd" =>
+    Total_Payment_Processed_Amount
   | "total_payment_processed_count" => Total_Payment_Processed_Count
   | "time_bucket" | _ => Time_Bucket
   }
@@ -48,7 +49,7 @@ let paymentsProcessedMapper = (
     text: "Payments Processed",
   }
 
-  open NewAnalyticsTypes
+  open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
   | Payment_Processed_Amount => Amount
   | _ => Volume
@@ -140,8 +141,6 @@ let dropDownOptions = [
   {label: "By Count", value: Payment_Processed_Count->getStringFromVariant},
 ]
 
-let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
-
 let defaultMetric = {
   label: "By Amount",
   value: Payment_Processed_Amount->getStringFromVariant,
@@ -154,7 +153,6 @@ let defaulGranularity = {
 
 open NewAnalyticsTypes
 let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
-  open NewAnalyticsFiltersUtils
   let key = switch id {
   | Time_Bucket => #time_bucket
   | Payment_Processed_Count =>

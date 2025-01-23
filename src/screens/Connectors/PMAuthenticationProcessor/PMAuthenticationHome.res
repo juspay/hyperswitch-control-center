@@ -63,6 +63,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let activeBusinessProfile =
     Recoil.useRecoilValueFromAtom(
@@ -83,7 +84,7 @@ let make = () => {
     try {
       let connectorID = connectorInfo.merchant_connector_id
       let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
-        connectorInfo.connector_type,
+        connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
@@ -200,6 +201,7 @@ let make = () => {
       let response = await updateAPIHook(connectorUrl, body, Post)
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
+      let _ = await fetchConnectorListResponse()
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")

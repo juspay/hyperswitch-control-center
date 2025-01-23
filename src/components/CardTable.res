@@ -1,9 +1,11 @@
 module TextCard = {
   @react.component
   let make = (~text) => {
-    if String.length(String.trim(text)) > 0 {
+    if text->LogicUtils.isNonEmptyString {
       <p className="break-words font-semibold">
-        {React.string(String.length(String.trim(text)) > 0 ? text : "N/A")}
+        <HelperComponents.EllipsisText
+          endValue=10 displayValue={text->LogicUtils.isNonEmptyString ? text : "N/A"} showCopy=false
+        />
       </p>
     } else {
       React.string("-")

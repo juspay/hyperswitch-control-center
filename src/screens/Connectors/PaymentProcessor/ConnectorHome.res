@@ -259,7 +259,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
                   link: "/connectors",
                 },
           ]
-          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector}
+          currentPageTitle={connector->getDisplayNameForConnector}
           cursorStyle="cursor-pointer"
         />
       </RenderIf>

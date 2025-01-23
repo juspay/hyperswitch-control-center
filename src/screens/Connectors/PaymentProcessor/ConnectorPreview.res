@@ -136,6 +136,7 @@ module ConnectorSummaryGrid = {
     ~updateStepValue=None,
     ~getConnectorDetails=None,
   ) => {
+    open ConnectorUtils
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
@@ -147,11 +148,14 @@ module ConnectorSummaryGrid = {
       )
       ->Option.getOr(defaultBusinessProfile)
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-    let copyValueOfWebhookEndpoint = ConnectorUtils.getWebhooksUrl(
+    let copyValueOfWebhookEndpoint = getWebhooksUrl(
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
     )
-    let (processorType, _) = connectorInfo.connector_type->ConnectorUtils.connectorTypeTuple
+    let (processorType, _) =
+      connectorInfo.connector_type
+      ->connectorTypeTypedValueToStringMapper
+      ->connectorTypeTuple
     let {connector_name: connectorName} = connectorInfo
 
     let connectorDetails = React.useMemo(() => {
@@ -177,9 +181,7 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connectorInfo.merchant_connector_id])
-    let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
-      connectorDetails,
-    )
+    let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
     | _ => true
@@ -230,7 +232,7 @@ module ConnectorSummaryGrid = {
             </RenderIf>
           </div>
           <RenderIf
-            condition={connectorInfo.connector_name->ConnectorUtils.getConnectorNameTypeFromString ==
+            condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
               Processors(FIUU)}>
             <div
               className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
@@ -360,8 +362,8 @@ let make = (
   let disableConnector = async isConnectorDisabled => {
     try {
       let connectorID = connectorInfo.merchant_connector_id
-      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
-        connectorInfo.connector_type,
+      let disableConnectorPayload = getDisableConnectorPayload(
+        connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
