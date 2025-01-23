@@ -133,7 +133,7 @@ let defaultUIConfig: t = {
       primaryDisabled: "bg-button-primary-bg  opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
       primaryNoHover: "bg-button-primary-bg  hover:bg-button-primary-hoverbg focus:outline-none dark:text-opacity-50 text-opacity-50",
       primaryLoading: "bg-button-primary-bg ",
-      primaryOutline: "mix-blend-normal",
+      primaryOutline: "mix-blend-normal border-primary",
       paginationNormal: "border-left-1 opacity-80 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 focus:outline-none",
       paginationLoading: "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10",
       paginationDisabled: "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
@@ -150,7 +150,7 @@ let defaultUIConfig: t = {
     },
     textColor: {
       primaryNormal: "text-button-primary-text",
-      primaryOutline: "text-button-primary-text",
+      primaryOutline: "text-primary",
       primaryDisabled: "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25",
       secondaryNormal: "text-button-secondary-text dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75",
       secondaryNoBorder: "text-jp-gray-900 ",
