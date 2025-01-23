@@ -69,7 +69,7 @@ let make = (
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
+  let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (paymentsSuccessRateData, setPaymentsSuccessRateData) = React.useState(_ =>
     JSON.Encode.array([])
   )
@@ -150,6 +150,7 @@ let make = (
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
               ~granularity=granularity.value,
+              ~isoStringToCustomTimeZone,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -169,6 +170,7 @@ let make = (
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
+            ~isoStringToCustomTimeZone,
           )
         })
 

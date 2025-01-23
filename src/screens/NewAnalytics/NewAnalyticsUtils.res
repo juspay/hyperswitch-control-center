@@ -529,12 +529,44 @@ let fillMissingDataPoints = (
   ~timeKey="time_bucket",
   ~defaultValue: JSON.t,
   ~granularity: string,
+  ~isoStringToCustomTimeZone: option<string => TimeZoneHook.dateTimeString>=?,
 ) => {
   let dataDict = Dict.make()
+
   data->Array.forEach(item => {
-    let time = item->getDictFromJsonObject->getString(timeKey, "")
-    dataDict->Dict.set(time, item)
+    let time = switch isoStringToCustomTimeZone {
+    | Some(timeConvert) => {
+        let value =
+          item
+          ->getDictFromJsonObject
+          ->getObj("time_range", Dict.make())
+
+        let time = value->getString("start_time", "")
+
+        let {year, month, date, hour, minute} = timeConvert(time)
+
+        if granularity == "G_THIRTYMIN" || granularity == "G_FIFTEENMIN" {
+          (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
+            "YYYY-MM-DD HH:mm:ss",
+          )
+        } else {
+          (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
+            "YYYY-MM-DD HH:00:00",
+          )
+        }
+      }
+    | _ =>
+      item
+      ->getDictFromJsonObject
+      ->getString(timeKey, "")
+    }
+
+    let newItem = item->getDictFromJsonObject
+    newItem->Dict.set("time_bucket", time->JSON.Encode.string)
+
+    dataDict->Dict.set(time, newItem->JSON.Encode.object)
   })
+
   let dataPoints = Dict.make()
   let startingPoint = startDate->DayJs.getDayJsForString
   let startingPoint = startingPoint.format("YYYY-MM-DD HH:00:00")->DayJs.getDayJsForString
