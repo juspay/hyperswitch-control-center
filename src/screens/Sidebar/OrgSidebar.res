@@ -9,6 +9,7 @@ module OrgTile = {
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
+    let (isEditing, setIsEditing) = React.useState(_ => false)
 
     let displayText = {
       let firstLetter = orgName->String.charAt(0)->String.toUpperCase
@@ -40,13 +41,36 @@ module OrgTile = {
             showSubText=true
             customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
             onHoverEdit=false
-            customInputStyle={`${backgroundColor.sidebarSecondary} h-4`}
+            customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
             customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
               displayValue=" " copyValue=Some({orgID})
             />}
           />
         </div>
       </RenderIf>
+    </div>
+  }
+}
+
+module EditState = {
+  @react.component
+  let make = (~labelText, ~orgID) => {
+    let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
+    <div
+      className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg shadow-lg z-50 p-2 `}>
+      <InlineEditInput
+        labelText
+        subText={"organization"}
+        showSubText=true
+        customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
+        onHoverEdit=false
+        customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
+        customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
+          displayValue=" " copyValue=Some({orgID})
+        />}
+      />
     </div>
   }
 }

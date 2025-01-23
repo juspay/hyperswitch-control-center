@@ -11,25 +11,26 @@ let make = (
   ~customInputStyle="",
   ~customIconStyle="",
   ~showEdit=true,
+  ~isEditing=false,
+  ~setIsEditing=?,
 ) => {
-  let (isEditing, setIsEditing) = React.useState(_ => false)
+  // let (isEditing, setIsEditing) = React.useState(_ => false)
   let (value, setValue) = React.useState(_ => labelText)
-  let (newValue, setNewValue) = React.useState(_ => labelText)
   let enterKeyCode = 13
   let escapeKeyCode = 27
-  Js.log2("value", newValue)
+
   let handleSave = () => {
-    setValue(_ => newValue)
+    setValue(_ => value)
     switch onSubmit {
-    | Some(func) => func(newValue)
+    | Some(func) => func(value)
     | None => ()
     }
     setIsEditing(_ => false)
   }
 
   let handleCancel = () => {
-    setNewValue(_ => value)
-    setIsEditing(_ => false)
+    setValue(_ => labelText)
+    // setIsEditing(_ => false)
   }
 
   let handleKeyDown = e => {
@@ -59,7 +60,7 @@ let make = (
       <RenderIf condition={showEdit}>
         <button
           onClick={e => {
-            setIsEditing(_ => true)
+            setIsEditing(_ => isEditing)
           }}
           className={`cursor-pointer  ${customIconStyle}`}
           ariaLabel="Edit">
@@ -70,6 +71,12 @@ let make = (
         {customIconComponent->Option.getOr(React.null)}
       </RenderIf>
     </div>
+
+  let handleInputChange = e => {
+    let value = ReactEvent.Form.target(e)["value"]
+    // validations needs to be performed over here
+    setValue(_ => value)
+  }
 
   <div
     className="relative inline-block"
@@ -82,8 +89,8 @@ let make = (
         <div className="flex-1">
           <input
             type_="text"
-            value=newValue
-            onChange={event => setNewValue(ReactEvent.Form.target(event)["value"])}
+            value
+            onChange=handleInputChange
             onKeyDown=handleKeyDown
             autoFocus=true
             className={`w-full px-4 py-2 bg-transparent focus:outline-none text-md ${customInputStyle}`}
