@@ -176,34 +176,34 @@ Cypress.Commands.add("create_connector_UI", () => {
 });
 
 Cypress.Commands.add("process_payment_sdk_UI", () => {
+  cy.clearCookies("login_token");
   cy.get("[data-testid=connectors]").click();
   cy.get("[data-testid=paymentprocessors]").click();
   cy.contains("Payment Processors").should("be.visible");
-  cy.get('[data-testid="home"]').click();
-
-  cy.get("[data-button-for=tryItOut]").scrollIntoView().click();
+  cy.get("[data-testid=home]").click();
+  cy.get("[data-button-for=tryItOut]").click();
   cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
     "exist",
   );
   cy.get("[data-testid=amount]").find("input").clear().type("77");
   cy.get("[data-button-for=showPreview]").click();
-  let webSdkSelector = "#orca-elements-payment-element-payment-element iframe";
-  getIframeBody(webSdkSelector)
+  cy.wait(2000);
+  getIframeBody()
     .find("[data-testid=cardNoInput]", { timeout: 20000 })
     .should("exist")
     .type("4242424242424242");
-  getIframeBody(webSdkSelector)
+  getIframeBody()
     .find("[data-testid=expiryInput]")
     .should("exist")
     .type("0127");
-  getIframeBody(webSdkSelector)
+  getIframeBody()
     .find("[data-testid=cvvInput]")
     .should("exist")
     .scrollIntoView()
     .type("492");
 
   cy.get("[data-button-for=payUSD77]").click();
-  cy.get("[data-testid=paymentSuccess]").should("exist");
+  cy.contains("Payment Successful").should("exist");
   // cy.get("[data-button-for=goToPayment]").click();
   // cy.url().should("include", "dashboard/payments");
 });
