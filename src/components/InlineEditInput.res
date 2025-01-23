@@ -4,12 +4,13 @@ let make = (
   ~showSubText=false,
   ~subText="",
   ~customStyle="",
-  ~onHoverEdit=false,
+  ~onHoverEdit=true,
   ~leftIcon=?,
   ~onSubmit=?,
   ~customIconComponent=?,
   ~customInputStyle="",
   ~customIconStyle="",
+  ~showEdit=true,
 ) => {
   let (isEditing, setIsEditing) = React.useState(_ => false)
   let (value, setValue) = React.useState(_ => labelText)
@@ -44,22 +45,24 @@ let make = (
   let submitButtons =
     <div className="flex items-center gap-2 pr-4">
       <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
-        <Icon name="new-cross" size=16 />
+        <Icon name="nd-cross" size=16 />
       </button>
       <button
         onClick={_ => handleSave()} className={`cursor-pointer text-primary ${customIconStyle}`}>
-        <Icon name="new-check" size=16 />
+        <Icon name="nd-check" size=16 />
       </button>
     </div>
 
   let leftActionButtons =
     <div className="flex gap-2">
-      <button
-        onClick={_ => setIsEditing(_ => true)}
-        className={`cursor-pointer  ${customIconStyle}`}
-        ariaLabel="Edit">
-        <Icon name="new-pencil" size=14 />
-      </button>
+      <RenderIf condition={showEdit}>
+        <button
+          onClick={_ => setIsEditing(_ => true)}
+          className={`cursor-pointer  ${customIconStyle}`}
+          ariaLabel="Edit">
+          <Icon name="nd-pencil" size=14 />
+        </button>
+      </RenderIf>
       <RenderIf condition={customIconComponent->Option.isSome}>
         {customIconComponent->Option.getOr(React.null)}
       </RenderIf>
