@@ -129,6 +129,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(VOLT),
   Processors(ZSL),
   Processors(ZEN),
+  Processors(PAYBOX),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]

@@ -100,7 +100,6 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
-  open NewAnalyticsUtils
   switch colType {
   | Error_Reason => Text(obj.error_reason)
   | Failure_Reason_Count => Text(obj.failure_reason_count->Int.toString)
