@@ -8997,20 +8997,21 @@ License)
     />
   </symbol>
 
-  <symbol id="new-pencil" viewBox="0 0 16 17" fill="none">
+  <!-- New design system icons -->
+  <symbol id="nd-pencil" viewBox="0 0 16 17" fill="none">
     <path
       d="M2.04411 12.7101C2.05031 12.4588 2.05341 12.3331 2.08378 12.2151C2.11072 12.1104 2.15338 12.0105 2.21029 11.9188C2.27447 11.8153 2.36296 11.7264 2.53993 11.5487L11.2417 2.80864C11.5908 2.45805 12.136 2.3993 12.5511 2.66754C13.0691 3.00221 13.5142 3.45298 13.8396 3.97722C14.1088 4.41087 14.021 4.9596 13.6676 5.31451L5.01874 14.0014C4.83516 14.1858 4.74337 14.278 4.63623 14.3438C4.54125 14.4022 4.43769 14.4452 4.32937 14.4712C4.2072 14.5005 4.07739 14.5003 3.81777 14.4999L2 14.497L2.04411 12.7101Z"
       stroke="#525866" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
 
-  <symbol viewBox="0 0 16 16" fill="none" id="new-cross">
+  <symbol id="nd-cross" viewBox="0 0 16 16" fill="none">
     <path d="M4 12L8 8M8 8L12 4M8 8L4 4M8 8L12 12" stroke="#525866" stroke-width="1.33333"
       stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
 
-  <symbol id="new-check" viewBox="0 0 16 16" fill="none">
+  <symbol id="nd-check" viewBox="0 0 16 16" fill="none">
     <path
       d="M3.66669 8.33333L6.67791 11.8165L6.94514 11.3492C8.3779 8.84389 10.3607 6.69653 12.7441 5.06902L13.3334 4.66666"
-      stroke="#525866" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
+      stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
 </svg>

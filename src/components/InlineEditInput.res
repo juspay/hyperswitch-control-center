@@ -14,7 +14,8 @@ let make = (
   let (isEditing, setIsEditing) = React.useState(_ => false)
   let (value, setValue) = React.useState(_ => labelText)
   let (newValue, setNewValue) = React.useState(_ => labelText)
-
+  let enterKeyCode = 13
+  let escapeKeyCode = 27
   let handleSave = () => {
     setValue(_ => newValue)
     switch onSubmit {
@@ -29,11 +30,14 @@ let make = (
     setIsEditing(_ => false)
   }
 
-  let handleKeyDown = event => {
-    switch ReactEvent.Keyboard.key(event) {
-    | "Enter" => handleSave()
-    | "Escape" => handleCancel()
-    | _ => ()
+  let handleKeyDown = e => {
+    let key = e->ReactEvent.Keyboard.key
+    let keyCode = e->ReactEvent.Keyboard.keyCode
+    if key === "Enter" || keyCode === enterKeyCode {
+      handleSave()
+    }
+    if key === "Escape" || keyCode === escapeKeyCode {
+      handleCancel()
     }
   }
 
@@ -43,7 +47,7 @@ let make = (
         <Icon name="new-cross" size=16 />
       </button>
       <button
-        onClick={_ => handleSave()} className={`cursor-pointer !stroke-primary ${customIconStyle}`}>
+        onClick={_ => handleSave()} className={`cursor-pointer text-primary ${customIconStyle}`}>
         <Icon name="new-check" size=16 />
       </button>
     </div>
@@ -52,7 +56,7 @@ let make = (
     <div className="flex gap-2">
       <button
         onClick={_ => setIsEditing(_ => true)}
-        className={`cursor-pointer ${customIconStyle}`}
+        className={`cursor-pointer  ${customIconStyle}`}
         ariaLabel="Edit">
         <Icon name="new-pencil" size=14 />
       </button>
@@ -64,7 +68,7 @@ let make = (
   <div className="relative inline-block">
     {if isEditing {
       <div
-        className={`group flex items-center bg-white focus-within:ring-1 focus-within:ring-primary rounded-md text-md ${customStyle}`}>
+        className={`group flex items-center bg-white  focus-within:ring-1 focus-within:ring-primary rounded-md text-md ${customStyle}`}>
         <div className="flex-1">
           <input
             type_="text"
@@ -79,7 +83,7 @@ let make = (
       </div>
     } else {
       <div
-        className={`group relative font-medium inline-flex items-center justify-between px-4 py-2 w-full bg-white rounded-md hover:bg-gray-100 ${customStyle}`}>
+        className={`group relative font-medium inline-flex gap-4 items-center justify-between px-4 py-2 w-full bg-white rounded-md hover:bg-gray-100 ${customStyle}`}>
         <div className="flex gap-2">
           <RenderIf condition={leftIcon->Option.isSome}>
             {leftIcon->Option.getOr(React.null)}
