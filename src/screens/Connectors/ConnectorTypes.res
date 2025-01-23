@@ -95,6 +95,8 @@ type processorTypes =
   | NOVALNET
   | DEUTSCHEBANK
   | NEXIXPAY
+  | XENDIT
+  | JPMORGAN
 
 type payoutProcessorTypes =
   | ADYEN
