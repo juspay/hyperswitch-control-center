@@ -216,7 +216,7 @@ let make = () => {
                           <AccessControl
                             // TODO: Remove `MerchantDetailsManage` permission in future
                             authorization={hasAnyGroupAccess(
-                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=MerchantDetailsView),
                               userHasAccess(~groupAccess=AccountManage),
                             )}
                             isEnabled={!checkUserEntity([#Profile])}>
