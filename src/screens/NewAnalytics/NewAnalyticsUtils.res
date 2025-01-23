@@ -154,13 +154,8 @@ let isEmptyGraph = (data: JSON.t, key: string) => {
   Math.max(primaryMaxValue, secondaryMaxValue) == 0.0
 }
 
-let getCategories = (data: JSON.t, index: int, key: string) => {
-  let options =
-    data
-    ->getArrayFromJson([])
-    ->getValueFromArray(index, []->JSON.Encode.array)
-    ->getArrayFromJson([])
-  let isShowTime = options->Array.reduce(false, (flag, item) => {
+let checkTimePresent = (options, key) => {
+  options->Array.reduce(false, (flag, item) => {
     let value = item->getDictFromJsonObject->getString(key, "NA")
     if value->isNonEmptyString && key == "time_bucket" {
       let dateObj = value->DayJs.getDayJsForString
@@ -169,16 +164,46 @@ let getCategories = (data: JSON.t, index: int, key: string) => {
       false
     }
   })
+}
+
+let formatTime = time => {
+  let hour =
+    time->String.split(":")->Array.get(0)->Option.getOr("00")->Int.fromString->Option.getOr(0)
+  let mimute =
+    time->String.split(":")->Array.get(1)->Option.getOr("00")->Int.fromString->Option.getOr(0)
+
+  let newHour = Int.mod(hour, 12)
+  let newHour = newHour == 0 ? 12 : newHour
+
+  let period = hour >= 12 ? "pm" : "am"
+
+  if mimute > 0 {
+    `${newHour->Int.toString}:${mimute->Int.toString}${period}`
+  } else {
+    `${newHour->Int.toString}${period}`
+  }
+}
+
+let getCategories = (data: JSON.t, index: int, key: string) => {
+  let options =
+    data
+    ->getArrayFromJson([])
+    ->getValueFromArray(index, []->JSON.Encode.array)
+    ->getArrayFromJson([])
+
+  let isShowTime = options->checkTimePresent(key)
 
   options->Array.map(item => {
     let value = item->getDictFromJsonObject->getString(key, "NA")
 
     if value->isNonEmptyString && key == "time_bucket" {
       let dateObj = value->DayJs.getDayJsForString
+      let date = `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
       if isShowTime {
-        `${dateObj.month()->getMonthName} ${dateObj.format("DD")}, ${dateObj.format("HH:mm")}`
+        let time = dateObj.format("HH:mm")->formatTime
+        `${date}, ${time}`
       } else {
-        `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+        date
       }
     } else {
       value
