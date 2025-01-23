@@ -40,14 +40,12 @@ type chartOption = {
   avg: float,
 }
 
-type analyticsType = PAYMENT | REFUND | USER_JOURNEY | AUTHENTICATION | UNKNOWN
+type analyticsType = PAYMENT | REFUND | UNKNOWN
 
 let getAnalyticsType = moduleName => {
   switch moduleName {
   | "Payments" => PAYMENT
   | "Refunds" => REFUND
-  | "UserJourney" | "UserJourneyBar" | "UserJourneyFunnel" => USER_JOURNEY
-  | "Authentication" | "AuthenticationBar" | "AuthenticationFunnel" => AUTHENTICATION
   | _ => UNKNOWN
   }
 }
@@ -56,27 +54,8 @@ let getModuleName = analyticsType => {
   switch analyticsType {
   | PAYMENT => "Payments"
   | REFUND => "Refunds"
-  | USER_JOURNEY => "UserJourney"
-  | AUTHENTICATION => "Authentication"
   | UNKNOWN => ""
   }
-}
-
-type systemMetricsSingleStateMetrics =
-  | Latency
-  | ApiCount
-
-type systemMetricsObjectType = {
-  latency: float,
-  api_count: int,
-  status_code_count: int,
-}
-
-type systemMetricsSingleStateSeries = {
-  latency: float,
-  api_count: int,
-  status_code_count: int,
-  time_series: string,
 }
 
 type refundColType =
@@ -220,44 +199,6 @@ type paymentTableType = {
   client_version: string,
   refund_status: string,
   weekly_payment_success_rate: string,
-}
-
-type authenticationSingleStat = {
-  three_ds_sdk_count: int,
-  authentication_success_count: int,
-  authentication_attempt_count: int,
-  challenge_flow_count: int,
-  challenge_attempt_count: int,
-  challenge_success_count: int,
-  frictionless_flow_count: int,
-  frictionless_success_count: int,
-}
-
-type authenticationSingleStatSeries = {
-  three_ds_sdk_count: int,
-  authentication_success_count: int,
-  authentication_attempt_count: int,
-  challenge_flow_count: int,
-  challenge_attempt_count: int,
-  challenge_success_count: int,
-  frictionless_flow_count: int,
-  frictionless_success_count: int,
-  time_series: string,
-}
-
-type userJourneysSingleStat = {
-  payment_attempts: int,
-  sdk_rendered_count: int,
-  average_payment_time: float,
-  load_time: float,
-}
-
-type userJourneysSingleStatSeries = {
-  payment_attempts: int,
-  sdk_rendered_count: int,
-  average_payment_time: float,
-  load_time: float,
-  time_series: string,
 }
 
 type nestedEntityType = {

@@ -274,13 +274,13 @@ function appendStyle(themesConfig) {
   ${generateVariablesForSection(settings.spacing, "spacing")}
 
 }`;
-  if (document.getElementById("custom-themes-style")) {
-    style = document.getElementById("custom-themes-style");
+  let style = document.getElementById("custom-themes-style");
+  if (style) {
+    style.textContent = cssVariables;
   } else {
     style = document.createElement("style");
+    style.id = "custom-themes-style";
+    style.textContent = cssVariables;
+    document.head.appendChild(style);
   }
-  let text = document.createTextNode(cssVariables);
-  style.setAttribute("id", "custom-themes-style");
-  style.appendChild(text);
-  document.head.appendChild(style);
 }

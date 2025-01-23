@@ -384,9 +384,6 @@ module TabDetails = {
     ~weeklyTableMetricsCols,
     ~formatData=None,
   ) => {
-    open AnalyticsTypes
-    let analyticsType = moduleName->getAnalyticsType
-
     let id =
       activeTab
       ->Option.getOr(["tab"])
@@ -394,28 +391,10 @@ module TabDetails = {
 
     let isMobileView = MatchMedia.useMobileChecker()
 
-    let wrapperClass = React.useMemo(() =>
-      switch analyticsType {
-      | AUTHENTICATION | USER_JOURNEY =>
-        `h-auto basis-full mt-4 ${isMobileView ? "w-full" : "w-1/2"}`
-      | _ => "bg-white border rounded-lg p-8 mt-3 mb-7"
-      }
-    , [isMobileView])
-
-    let tabTitleMapper = switch analyticsType {
-    | AUTHENTICATION | USER_JOURNEY =>
-      [
-        ("browser_name", "browser"),
-        ("component", "checkout_platform"),
-        ("platform", "customer_device"),
-      ]->Dict.fromArray
-    | _ => Dict.make()
-    }
-
-    let comparitionWidget = switch analyticsType {
-    | AUTHENTICATION | USER_JOURNEY => false
-    | _ => true
-    }
+    let wrapperClass = React.useMemo(
+      () => "bg-white border rounded-lg p-8 mt-3 mb-7",
+      [isMobileView],
+    )
 
     let tab =
       <div className=wrapperClass>
@@ -425,11 +404,11 @@ module TabDetails = {
           chartId=moduleName
           updateUrl
           enableBottomChart=false
-          tabTitleMapper
+          tabTitleMapper={Dict.make()}
           showTableLegend=false
           showMarkers=true
           legendType=HighchartTimeSeriesChart.Points
-          comparitionWidget
+          comparitionWidget=true
         />
         {switch tableEntity {
         | Some(tableEntity) =>
@@ -454,10 +433,7 @@ module TabDetails = {
         }}
       </div>
 
-    switch analyticsType {
-    | AUTHENTICATION | USER_JOURNEY => tab
-    | _ => <FramerMotion.TransitionComponent id={id}> {tab} </FramerMotion.TransitionComponent>
-    }
+    <FramerMotion.TransitionComponent id={id}> {tab} </FramerMotion.TransitionComponent>
   }
 }
 
@@ -490,7 +466,6 @@ let make = (
   ~distributionArray=None,
   ~formatData=None,
 ) => {
-  let analyticsType = moduleName->getAnalyticsType
   let {filterValue, updateExistingKeys, filterValueJson} = React.useContext(
     FilterContext.filterContext,
   )
@@ -498,10 +473,7 @@ let make = (
 
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
-  let chartEntity1 = chartEntity.default // User Journey - SemiDonut (Payment Metrics), Others - Default Chart Entity
-  let pieChartEntity = chartEntity.userPieChart // SemiDonut (User Metrics)
-  let barChartEntity = chartEntity.userBarChart // HorizontalBar (User Metrics)
-  let funnelChartEntity = chartEntity.userFunnelChart // Funnel (All Metrics)
+  let chartEntity1 = chartEntity.default
   let chartEntity1 = switch chartEntity1 {
   | Some(chartEntity) => Some({...chartEntity, allFilterDimension: filteredTabKeys})
   | None => None
@@ -613,48 +585,23 @@ let make = (
     )
   }, [filterValueDict])
 
-  let isMobileView = MatchMedia.useMobileChecker()
-
-  let tabDetailsClass = React.useMemo(() => {
-    isMobileView ? "flex flex-col gap-4 my-4" : "flex flex-row gap-4 my-4"
-  }, [isMobileView])
-
   let topFilterUi = switch filterDataJson {
-  | Some(filterData) => {
-      let filterData = switch analyticsType {
-      | AUTHENTICATION
-      | USER_JOURNEY => {
-          let filteredDims = ["payment_method", "payment_experience", "source"]
-          let queryData =
-            filterData
-            ->getDictFromJsonObject
-            ->getJsonObjectFromDict("queryData")
-            ->getArrayFromJson([])
-            ->Array.filter(dimension => {
-              let dim = dimension->getDictFromJsonObject->getString("dimension", "")
-              filteredDims->Array.includes(dim)->not
-            })
-            ->JSON.Encode.array
-          [("queryData", queryData)]->Dict.fromArray->JSON.Encode.object
-        }
-      | _ => filterData
-      }
-      <div className="flex flex-row">
-        <DynamicFilter
-          initialFilters={initialFilters(filterData)}
-          options=[]
-          popupFilterFields={options(filterData)}
-          initialFixedFilters={initialFixedFilters(filterData)}
-          defaultFilterKeys=defaultFilters
-          tabNames=tabKeys
-          updateUrlWith=updateExistingKeys
-          key="0"
-          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-          showCustomFilter=false
-          refreshFilters=false
-        />
-      </div>
-    }
+  | Some(filterData) =>
+    <div className="flex flex-row">
+      <DynamicFilter
+        initialFilters={initialFilters(filterData)}
+        options=[]
+        popupFilterFields={options(filterData)}
+        initialFixedFilters={initialFixedFilters(filterData)}
+        defaultFilterKeys=defaultFilters
+        tabNames=tabKeys
+        updateUrlWith=updateExistingKeys
+        key="0"
+        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+        showCustomFilter=false
+        refreshFilters=false
+      />
+    </div>
   | None =>
     <div className="flex flex-row">
       <DynamicFilter
@@ -703,163 +650,40 @@ let make = (
             />
           </div>
           <div className="flex flex-row">
-            {switch analyticsType {
-            | AUTHENTICATION | USER_JOURNEY =>
-              <div className="flex flex-col bg-transparent w-full h-max">
-                {switch funnelChartEntity {
-                | Some(funnelChartEntity) =>
-                  <div className={tabDetailsClass}>
-                    <TabDetails
-                      chartEntity={{...funnelChartEntity, moduleName: `${moduleName}Funnel`}}
-                      activeTab={None}
-                      defaultSort
-                      getTable
-                      distributionArray
-                      colMapper
-                      tableEntity
-                      deltaMetrics
-                      deltaArray
-                      tableUpdatedHeading
-                      tableGlobalFilter
-                      moduleName={`${moduleName}Funnel`}
-                      updateUrl={dict => {
-                        let updateUrlWithPrefix = updateUrlWithPrefix("Funnel")
-                        updateUrlWithPrefix(dict)
-                      }}
-                      weeklyTableMetricsCols
-                    />
-                  </div>
-                | None => React.null
+            <div className="flex flex-col h-full overflow-scroll w-full mt-5">
+              <DynamicTabs
+                tabs=filteredTabVales
+                maxSelection=3
+                tabId=moduleName
+                setActiveTab
+                updateUrlDict={dict => {
+                  let updateUrlWithPrefix = updateUrlWithPrefix("")
+                  updateUrlWithPrefix(dict)
                 }}
-                <div className={tabDetailsClass}>
-                  {switch analyticsType {
-                  | USER_JOURNEY =>
-                    <TabDetails
-                      chartEntity={chartEntity}
-                      activeTab={Some(["payment_method"])}
-                      defaultSort
-                      getTable
-                      colMapper
-                      tableEntity
-                      deltaMetrics
-                      distributionArray
-                      deltaArray
-                      tableUpdatedHeading
-                      tableGlobalFilter
-                      moduleName
-                      updateUrl={dict => {
-                        let updateUrlWithPrefix = updateUrlWithPrefix("")
-                        updateUrlWithPrefix(dict)
-                      }}
-                      weeklyTableMetricsCols
-                    />
-                  | _ => React.null
-                  }}
-                  {switch barChartEntity {
-                  | Some(barChartEntity) =>
-                    <TabDetails
-                      chartEntity={{...barChartEntity, moduleName: `${moduleName}Bar`}}
-                      activeTab={Some(["browser_name"])}
-                      defaultSort
-                      getTable
-                      colMapper
-                      tableEntity
-                      distributionArray
-                      deltaMetrics
-                      deltaArray
-                      tableUpdatedHeading
-                      tableGlobalFilter
-                      moduleName={`${moduleName}Bar`}
-                      updateUrl={dict => {
-                        let updateUrlWithPrefix = updateUrlWithPrefix("Bar")
-                        updateUrlWithPrefix(dict)
-                      }}
-                      weeklyTableMetricsCols
-                    />
-                  | None => React.null
-                  }}
-                </div>
-                {switch pieChartEntity {
-                | Some(pieChartEntity) =>
-                  <div className={tabDetailsClass}>
-                    <TabDetails
-                      chartEntity={pieChartEntity}
-                      activeTab={Some(["platform"])}
-                      defaultSort
-                      getTable
-                      colMapper
-                      tableEntity
-                      distributionArray
-                      deltaMetrics
-                      deltaArray
-                      tableUpdatedHeading
-                      tableGlobalFilter
-                      moduleName
-                      updateUrl={dict => {
-                        let updateUrlWithPrefix = updateUrlWithPrefix("")
-                        updateUrlWithPrefix(dict)
-                      }}
-                      weeklyTableMetricsCols
-                    />
-                    <TabDetails
-                      chartEntity={pieChartEntity}
-                      activeTab={Some(["component"])}
-                      defaultSort
-                      getTable
-                      colMapper
-                      distributionArray
-                      tableEntity
-                      deltaMetrics
-                      deltaArray
-                      tableUpdatedHeading
-                      tableGlobalFilter
-                      moduleName
-                      updateUrl={dict => {
-                        let updateUrlWithPrefix = updateUrlWithPrefix("")
-                        updateUrlWithPrefix(dict)
-                      }}
-                      weeklyTableMetricsCols
-                    />
-                  </div>
-                | None => React.null
+                tabContainerClass="analyticsTabs"
+                initalTab=?activeTab
+              />
+              <TabDetails
+                chartEntity
+                activeTab
+                defaultSort
+                distributionArray
+                getTable
+                colMapper
+                tableEntity
+                deltaMetrics
+                deltaArray
+                tableUpdatedHeading
+                tableGlobalFilter
+                moduleName
+                updateUrl={dict => {
+                  let updateUrlWithPrefix = updateUrlWithPrefix("")
+                  updateUrlWithPrefix(dict)
                 }}
-              </div>
-            | _ =>
-              <div className="flex flex-col h-full overflow-scroll w-full mt-5">
-                <DynamicTabs
-                  tabs=filteredTabVales
-                  maxSelection=3
-                  tabId=moduleName
-                  setActiveTab
-                  updateUrlDict={dict => {
-                    let updateUrlWithPrefix = updateUrlWithPrefix("")
-                    updateUrlWithPrefix(dict)
-                  }}
-                  tabContainerClass="analyticsTabs"
-                  initalTab=?activeTab
-                />
-                <TabDetails
-                  chartEntity
-                  activeTab
-                  defaultSort
-                  distributionArray
-                  getTable
-                  colMapper
-                  tableEntity
-                  deltaMetrics
-                  deltaArray
-                  tableUpdatedHeading
-                  tableGlobalFilter
-                  moduleName
-                  updateUrl={dict => {
-                    let updateUrlWithPrefix = updateUrlWithPrefix("")
-                    updateUrlWithPrefix(dict)
-                  }}
-                  weeklyTableMetricsCols
-                  formatData
-                />
-              </div>
-            }}
+                weeklyTableMetricsCols
+                formatData
+              />
+            </div>
           </div>
         </div>
       </div>
