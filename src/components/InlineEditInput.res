@@ -41,7 +41,7 @@ let make = (
     }
   }
 
-  let editButtons =
+  let submitButtons =
     <div className="flex items-center gap-2 pr-4">
       <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
         <Icon name="new-cross" size=16 />
@@ -79,7 +79,7 @@ let make = (
             className={`w-full px-4 py-2 bg-transparent focus:outline-none text-md ${customInputStyle}`}
           />
         </div>
-        {editButtons}
+        {submitButtons}
       </div>
     } else {
       <div
