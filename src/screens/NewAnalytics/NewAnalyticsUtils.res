@@ -545,7 +545,10 @@ let fillMissingDataPoints = (
 
         let {year, month, date, hour, minute} = timeConvert(time)
 
-        if granularity == "G_THIRTYMIN" || granularity == "G_FIFTEENMIN" {
+        if (
+          granularity == (#G_THIRTYMIN: granularity :> string) ||
+            granularity == (#G_FIFTEENMIN: granularity :> string)
+        ) {
           (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
             "YYYY-MM-DD HH:mm:ss",
           )
