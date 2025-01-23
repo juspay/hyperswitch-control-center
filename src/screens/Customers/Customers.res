@@ -11,6 +11,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let total = 50 // TODO: take this value from API response [currenctly set to 5 pages]
+  let limit = 50 // each api calls will retrun 50 results
 
   let getCustomersList = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -18,7 +19,7 @@ let make = () => {
       let customersUrl = getURL(
         ~entityName=CUSTOMERS,
         ~methodType=Get,
-        ~queryParamerters=Some(`offset=${offset->Int.toString}`),
+        ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
       )
 
       let response = await fetchDetails(customersUrl)
