@@ -10,8 +10,8 @@ let make = () => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let total = 50 // TODO: take this value from API response [currenctly set to 5 pages]
-  let limit = 50 // each api calls will retrun 50 results
+  let total = 100 // TODO: take this value from API response [currenctly set to 5 pages]
+  let limit = 20 // each api calls will retrun 50 results
 
   let getCustomersList = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -61,7 +61,7 @@ let make = () => {
       hideTitle=true
       actualData=customersData
       entity={customersEntity}
-      resultsPerPage=10
+      resultsPerPage=20
       showSerialNumber=true
       totalResults=total
       offset
@@ -70,6 +70,7 @@ let make = () => {
       defaultColumns={defaultColumns}
       customColumnMapper={TableAtoms.customersMapDefaultCols}
       showSerialNumberInCustomizeColumns=false
+      showResultsPerPageSelector=false
       sortingBasedOnDisabled=false
       showAutoScroll=true
     />
