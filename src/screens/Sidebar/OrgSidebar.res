@@ -1,18 +1,15 @@
 module OrgTile = {
   @react.component
   let make = (~orgID: string, ~isActive, ~orgSwitch, ~onEdit, ~orgName: string, ~index: int) => {
+    let {
+      globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
+    } = React.useContext(ThemeProvider.themeContext)
     let (showDetails, setShowDetails) = React.useState(_ => false)
     let (orgList, _) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let handleMouseEnter = _ => {
-      setShowDetails(_ => true)
-    }
 
-    let handleMouseLeave = _ => {
-      setShowDetails(_ => false)
-    }
     let displayText = {
       let firstLetter = orgName->String.charAt(0)->String.toUpperCase
 
@@ -27,41 +24,29 @@ module OrgTile = {
         firstLetter
       }
     }
+
     <div
-      onClick={_ => orgSwitch(orgID)->ignore}
-      onMouseEnter=handleMouseEnter
-      onMouseLeave=handleMouseLeave
-      className="w-10 h-10 flex items-center justify-center relative cursor-pointer group ">
-      <div
-        className={`w-8 h-8 border flex items-center justify-center rounded-md shadow-md ${isActive
-            ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
-            : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
-        <span className="text-xs font-medium"> {displayText->React.string} </span>
-        <RenderIf condition={showDetails}>
-          <div
-            className={`absolute left-full top-0 ${backgroundColor.sidebarSecondary} rounded-lg shadow-lg p-3 min-w-[250px] z-50 transition-all duration-200 ease-in-out opacity-0 group-hover:opacity-100`}>
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`font-medium ${secondaryTextColor} text-sm`}>
-                {orgName->React.string}
-              </span>
-              <RenderIf condition={isActive}>
-                <button
-                  onClick={e => {
-                    e->ReactEvent.Mouse.stopPropagation
-                    onEdit(e)
-                  }}
-                  className="p-1 rounded-sm hover:bg-white/10">
-                  <Icon name="edit" size=12 className={secondaryTextColor} />
-                </button>
-              </RenderIf>
-            </div>
-            <div className={`flex items-center gap-2 text-xs ${secondaryTextColor} opacity-70`}>
-              <span> {orgID->React.string} </span>
-              <OMPSwitchHelper.OMPCopyTextCustomComp displayValue=" " copyValue=Some({orgID}) />
-            </div>
-          </div>
-        </RenderIf>
-      </div>
+      className={`w-8 h-8 border relative  cursor-pointer flex items-center justify-center rounded-md shadow-md ${isActive
+          ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
+          : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}
+      onClick={_ => setShowDetails(prev => !prev)}>
+      <span className="text-xs font-medium"> {displayText->React.string} </span>
+      <RenderIf condition={showDetails}>
+        <div
+          className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg shadow-lg z-50 p-2 `}>
+          <InlineEditInput
+            labelText={orgName}
+            subText={"organization"}
+            showSubText=true
+            customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
+            onHoverEdit=false
+            customInputStyle={`${backgroundColor.sidebarSecondary} h-4`}
+            customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
+              displayValue=" " copyValue=Some({orgID})
+            />}
+          />
+        </div>
+      </RenderIf>
     </div>
   }
 }

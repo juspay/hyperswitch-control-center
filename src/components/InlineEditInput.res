@@ -17,6 +17,7 @@ let make = (
   let (newValue, setNewValue) = React.useState(_ => labelText)
   let enterKeyCode = 13
   let escapeKeyCode = 27
+  Js.log2("value", newValue)
   let handleSave = () => {
     setValue(_ => newValue)
     switch onSubmit {
@@ -57,7 +58,9 @@ let make = (
     <div className="flex gap-2">
       <RenderIf condition={showEdit}>
         <button
-          onClick={_ => setIsEditing(_ => true)}
+          onClick={e => {
+            setIsEditing(_ => true)
+          }}
           className={`cursor-pointer  ${customIconStyle}`}
           ariaLabel="Edit">
           <Icon name="nd-pencil" size=14 />
@@ -68,10 +71,14 @@ let make = (
       </RenderIf>
     </div>
 
-  <div className="relative inline-block">
+  <div
+    className="relative inline-block"
+    onClick={e => {
+      e->ReactEvent.Mouse.stopPropagation
+    }}>
     {if isEditing {
       <div
-        className={`group flex items-center bg-white  focus-within:ring-1 focus-within:ring-primary rounded-md text-md ${customStyle}`}>
+        className={`group relative flex items-center bg-white  focus-within:ring-1 focus-within:ring-primary rounded-md text-md ${customStyle}`}>
         <div className="flex-1">
           <input
             type_="text"
@@ -86,7 +93,7 @@ let make = (
       </div>
     } else {
       <div
-        className={`group relative font-medium inline-flex gap-4 items-center justify-between px-4 py-2 w-full bg-white rounded-md hover:bg-gray-100 ${customStyle}`}>
+        className={`group relative font-medium inline-flex gap-4 items-center justify-between px-4 py-2 w-full bg-white rounded-md  ${customStyle}`}>
         <div className="flex gap-2">
           <RenderIf condition={leftIcon->Option.isSome}>
             {leftIcon->Option.getOr(React.null)}
