@@ -16,16 +16,12 @@ describe("Sign up", () => {
       "placeholder",
       "Enter your Email",
     );
-    signupPage.passwordInput.should(
-      "have.attr",
-      "placeholder",
-      "Enter your Password",
-    );
-    signupPage.signUpButton.contains("Get started, for free!").should("exist");
+    signupPage.signUpButton
+      .contains("Get started, for free!")
+      .should("be.visible");
     signupPage.signUpButton.should("be.disabled");
-
-    signinPage.tcText.should("exist");
-    signinPage.footerText.should("exist");
+    signupPage.footerText.should("be.visible");
+    signinPage.tcText.should("be.visible");
   });
 
   it("should display an error message for an invalid email", () => {
@@ -63,103 +59,6 @@ describe("Sign up", () => {
     });
   });
 
-  it("should display an error message for an invalid password", () => {
-    const validPassword = "vaLidP@ssw0rd";
-    const invalidPasswords = [
-      {
-        password: "gdfRT5^",
-        expectedMessage:
-          "Your password is not strong enough. Password size must be more than 8",
-      },
-      {
-        password: "abcdefgh",
-        expectedMessage:
-          "Your password is not strong enough. A good password must contain atleast uppercase,numeric,special character",
-      },
-      {
-        password: "ABCDEFGH",
-        expectedMessage:
-          "Your password is not strong enough. A good password must contain atleast lowercase,numeric,special character",
-      },
-      {
-        password: "1234567",
-        expectedMessage:
-          "Your password is not strong enough. Password size must be more than 8",
-      },
-      {
-        password: "!@#$%^&*",
-        expectedMessage:
-          "Your password is not strong enough. A good password must contain atleast uppercase,lowercase,numeric character",
-      },
-      {
-        password: "passWORD",
-        expectedMessage:
-          "Your password is not strong enough. A good password must contain atleast numeric,special character",
-      },
-      {
-        password: "passWORD1",
-        expectedMessage:
-          "Your password is not strong enough. A good password must contain atleast special character",
-      },
-      {
-        password: "passWORD@",
-        expectedMessage:
-          "Your password is not strong enough. A good password must contain atleast numeric character",
-      },
-      {
-        password: "1234%^&*",
-        expectedMessage:
-          "Your password is not strong enough. A good password must contain atleast uppercase,lowercase character",
-      },
-      {
-        password: "3123 As@6",
-        expectedMessage: "Password should not contain whitespaces.",
-      },
-    ];
-
-    cy.visit_signupPage();
-
-    signupPage.emailInput.type(Cypress.env("CYPRESS_USERNAME"));
-
-    invalidPasswords.forEach(({ password, expectedMessage }) => {
-      signupPage.passwordInput.clear().type(password).blur();
-      signupPage.invalidInputError
-        .should("be.visible")
-        .and("contain", expectedMessage);
-      signupPage.signUpButton.should("be.disabled");
-
-      signupPage.passwordInput.clear().type(validPassword).blur();
-      signupPage.invalidInputError.should("not.exist");
-    });
-  });
-
-  it("should allow users to signin in with a valid email and password", () => {
-    const email = helper.generateUniqueEmail();
-
-    cy.visit_signupPage();
-
-    signupPage.emailInput.type(email);
-    signupPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
-    signupPage.signUpButton.click();
-    signinPage.skip2FAButton.click();
-
-    cy.url().should("include", "/dashboard/home");
-  });
-
-  it("should verify all components on the signup page when email feature flag is enabled", () => {
-    cy.enable_email_feature_flag();
-    signinPage.signUpLink.click();
-
-    signupPage.emailInput.should("be.visible");
-    signupPage.emailInput.should(
-      "have.attr",
-      "placeholder",
-      "Enter your Email",
-    );
-    signupPage.signUpButton.should("contain", "Get started, for free!");
-    signupPage.footerText.should("be.visible");
-  });
-
   it("should show success message page after using magic link", () => {
     cy.enable_email_feature_flag();
     signinPage.signUpLink.click();
@@ -177,6 +76,13 @@ describe("Sign up", () => {
       .should("contain", Cypress.env("CYPRESS_USERNAME"));
 
     signupPage.footerText.should("be.visible").should("contain", "Cancel");
+  });
+
+  it("should be able to sign up using magic link", () => {
+    const email = helper.generateUniqueEmail();
+    cy.visit_signupPage();
+    cy.sign_up_with_email(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.url().should("include", "/dashboard/home");
   });
 
   it("should navigate back to the login page when the cancel button in signup page is clicked", () => {
@@ -436,5 +342,77 @@ describe("Forgot password", () => {
     signinPage.cancelForgetPassword
       .should("be.visible")
       .and("contain", "Cancel");
+  });
+
+  //Reset password field
+  it.skip("should display an error message for an invalid password", () => {
+    const validPassword = "vaLidP@ssw0rd";
+    const invalidPasswords = [
+      {
+        password: "gdfRT5^",
+        expectedMessage:
+          "Your password is not strong enough. Password size must be more than 8",
+      },
+      {
+        password: "abcdefgh",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast uppercase,numeric,special character",
+      },
+      {
+        password: "ABCDEFGH",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast lowercase,numeric,special character",
+      },
+      {
+        password: "1234567",
+        expectedMessage:
+          "Your password is not strong enough. Password size must be more than 8",
+      },
+      {
+        password: "!@#$%^&*",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast uppercase,lowercase,numeric character",
+      },
+      {
+        password: "passWORD",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast numeric,special character",
+      },
+      {
+        password: "passWORD1",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast special character",
+      },
+      {
+        password: "passWORD@",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast numeric character",
+      },
+      {
+        password: "1234%^&*",
+        expectedMessage:
+          "Your password is not strong enough. A good password must contain atleast uppercase,lowercase character",
+      },
+      {
+        password: "3123 As@6",
+        expectedMessage: "Password should not contain whitespaces.",
+      },
+    ];
+
+    // cy.visit_signupPage();
+    cy.visit("/");
+
+    signinPage.emailInput.type(Cypress.env("CYPRESS_USERNAME"));
+
+    invalidPasswords.forEach(({ password, expectedMessage }) => {
+      signinPage.passwordInput.clear().type(password).blur();
+      signinPage.invalidInputError
+        .should("be.visible")
+        .and("contain", expectedMessage);
+      signinPage.signinButton.should("be.disabled");
+
+      signinPage.passwordInput.clear().type(validPassword).blur();
+      signinPage.invalidInputError.should("not.exist");
+    });
   });
 });

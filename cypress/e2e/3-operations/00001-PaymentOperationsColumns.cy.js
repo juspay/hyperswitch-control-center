@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-describe.skip("Payment Operations Page - Columns Customization and Functionalities", () => {
+describe("Payment Operations Page - Columns Customization and Functionalities", () => {
   const TEST_PASSWORD = "Cypress98#";
   const TEST_USERNAME = `cypress_${uuidv4().slice(0, 8)}@example.com`;
   const columnSize = 23;
@@ -33,7 +33,6 @@ describe.skip("Payment Operations Page - Columns Customization and Functionaliti
   it("should process a payment using the SDK", () => {
     cy.process_payment_sdk_UI();
   });
-
   it("Should display all default columns and allow selecting/deselecting columns", () => {
     const columns = {
       expected: [

@@ -25,6 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 import { v4 as uuidv4 } from "uuid";
+import * as helper from "../support/helper";
 import SignInPage from "../support/pages/auth/SignInPage";
 
 const signinPage = new SignInPage();
@@ -71,14 +72,20 @@ Cypress.Commands.add("mock_magic_link_signin_success", (user_email = "") => {
 Cypress.Commands.add("singup_curl", (name = "", pass = "") => {
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
-  // /user/signin
+
   cy.request({
     method: "POST",
-    url: `http://localhost:9000/api/user/signup`,
+    url: `http://localhost:8080/user/signup_with_merchant_id`,
     headers: {
       "Content-Type": "application/json",
+      "api-key": "test_admin",
     },
-    body: { email: username, password: password, country: "IN" },
+    body: {
+      email: username,
+      password: password,
+      company_name: helper.generateDateTimeString(),
+      name: "Cypress_test_user",
+    },
   })
     .then((response) => {
       expect(response.status).to.be.within(200, 299);
