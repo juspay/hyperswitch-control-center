@@ -480,16 +480,6 @@ let apiKeys = userHasResourceAccess => {
   })
 }
 
-let systemMetric = userHasResourceAccess => {
-  SubLevelLink({
-    name: "System Metrics",
-    link: `/developer-system-metrics`,
-    access: userHasResourceAccess(~resourceAccess=Analytics),
-    iconTag: "betaTag",
-    searchOptions: [("View System Metrics", "")],
-  })
-}
-
 let paymentSettings = userHasResourceAccess => {
   SubLevelLink({
     name: "Payment Settings",
@@ -499,18 +489,13 @@ let paymentSettings = userHasResourceAccess => {
   })
 }
 
-let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity, ~roleId) => {
-  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
-  let systemMetric = systemMetric(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
 
-  if isInternalUser {
-    defaultDevelopersOptions->Array.push(systemMetric)
-  }
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
   }
@@ -626,9 +611,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {userEntity, roleId}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {
     frm,
     payOut,
@@ -677,7 +660,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~userEntity,
     ),
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(~userHasResourceAccess, ~checkUserEntity, ~roleId),
+    default->developers(~userHasResourceAccess, ~checkUserEntity),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
