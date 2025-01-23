@@ -1,147 +1,55 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* This function can be used by the frontend to educate wasm about the forex rates data.
-* The input argument is a struct fields base_currency and conversion where later is all the conversions associated with the base_currency
-* to all different currencies present.
-* @param {any} forex
-* @returns {any}
-*/
+ * This function can be used by the frontend to educate wasm about the forex rates data.
+ * The input argument is a struct fields base_currency and conversion where later is all the conversions associated with the base_currency
+ * to all different currencies present.
+ */
 export function setForexData(forex: any): any;
 /**
-* This function can be used to perform currency_conversion on the input amount, from_currency,
-* to_currency which are all expected to be one of currencies we already have in our Currency
-* enum.
-* @param {bigint} amount
-* @param {any} from_currency
-* @param {any} to_currency
-* @returns {any}
-*/
+ * This function can be used to perform currency_conversion on the input amount, from_currency,
+ * to_currency which are all expected to be one of currencies we already have in our Currency
+ * enum.
+ */
 export function convertCurrency(amount: bigint, from_currency: any, to_currency: any): any;
 /**
-* This function can be used by the frontend to provide the WASM with information about
-* all the merchant's connector accounts. The input argument is a vector of all the merchant's
-* connector accounts from the API.
-* @param {any} mcas
-* @returns {any}
-*/
+ * This function can be used by the frontend to provide the WASM with information about
+ * all the merchant's connector accounts. The input argument is a vector of all the merchant's
+ * connector accounts from the API.
+ */
 export function seedKnowledgeGraph(mcas: any): any;
 /**
-* This function allows the frontend to get all the merchant's configured
-* connectors that are valid for a rule based on the conditions specified in
-* the rule
-* @param {any} rule
-* @returns {any}
-*/
+ * This function allows the frontend to get all the merchant's configured
+ * connectors that are valid for a rule based on the conditions specified in
+ * the rule
+ */
 export function getValidConnectorsForRule(rule: any): any;
-/**
-* @param {any} js_program
-* @returns {any}
-*/
 export function analyzeProgram(js_program: any): any;
-/**
-* @param {any} program
-* @param {any} input
-* @returns {any}
-*/
 export function runProgram(program: any, input: any): any;
-/**
-* @returns {any}
-*/
 export function getAllConnectors(): any;
-/**
-* @returns {any}
-*/
 export function getAllKeys(): any;
-/**
-* @param {string} key
-* @returns {string}
-*/
 export function getKeyType(key: string): string;
-/**
-* @returns {any}
-*/
 export function getThreeDsKeys(): any;
-/**
-* @returns {any}
-*/
 export function getSurchargeKeys(): any;
-/**
-* @param {string} val
-* @returns {string}
-*/
 export function parseToString(val: string): string;
-/**
-* @param {string} key
-* @returns {any}
-*/
 export function getVariantValues(key: string): any;
-/**
-* @param {bigint} n1
-* @param {bigint} n2
-* @returns {bigint}
-*/
 export function addTwo(n1: bigint, n2: bigint): bigint;
-/**
-* @returns {any}
-*/
 export function getDescriptionCategory(): any;
-/**
-* @param {string} key
-* @returns {any}
-*/
 export function getConnectorConfig(key: string): any;
-/**
-* @param {string} key
-* @returns {any}
-*/
 export function getPayoutConnectorConfig(key: string): any;
-/**
-* @param {string} key
-* @returns {any}
-*/
 export function getAuthenticationConnectorConfig(key: string): any;
-/**
-* @param {string} key
-* @returns {any}
-*/
 export function getTaxProcessorConfig(key: string): any;
-/**
-* @param {string} key
-* @returns {any}
-*/
 export function getPMAuthenticationProcessorConfig(key: string): any;
-/**
-* @param {any} input
-* @param {any} response
-* @returns {any}
-*/
 export function getRequestPayload(input: any, response: any): any;
-/**
-* @param {any} input
-* @returns {any}
-*/
 export function getResponsePayload(input: any): any;
-/**
-* @returns {any}
-*/
 export function getAllPayoutKeys(): any;
-/**
-* @param {string} key
-* @returns {any}
-*/
 export function getPayoutVariantValues(key: string): any;
-/**
-* @returns {any}
-*/
 export function getPayoutDescriptionCategory(): any;
 /**
-*
-* Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
-* usage for web
-* @param {string} val
-* @returns {string}
-*/
+ *
+ * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
+ * usage for web
+ */
 export function parse(val: string): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -149,7 +57,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly setForexData: (a: number, b: number) => void;
-  readonly convertCurrency: (a: number, b: number, c: number, d: number) => void;
+  readonly convertCurrency: (a: number, b: bigint, c: number, d: number) => void;
   readonly seedKnowledgeGraph: (a: number, b: number) => void;
   readonly getValidConnectorsForRule: (a: number, b: number) => void;
   readonly analyzeProgram: (a: number, b: number) => void;
@@ -160,7 +68,7 @@ export interface InitOutput {
   readonly getThreeDsKeys: (a: number) => void;
   readonly getSurchargeKeys: (a: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
-  readonly addTwo: (a: number, b: number) => number;
+  readonly addTwo: (a: bigint, b: bigint) => bigint;
   readonly getDescriptionCategory: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
@@ -177,9 +85,9 @@ export interface InitOutput {
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;
   readonly __wbindgen_export_1: (a: number, b: number, c: number, d: number) => number;
+  readonly __wbindgen_export_2: (a: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
-  readonly __wbindgen_export_2: (a: number, b: number, c: number) => void;
-  readonly __wbindgen_export_3: (a: number) => void;
+  readonly __wbindgen_export_3: (a: number, b: number, c: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;

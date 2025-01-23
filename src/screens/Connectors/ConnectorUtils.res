@@ -104,6 +104,8 @@ let connectorList: array<connectorTypes> = [
   Processors(NOVALNET),
   Processors(DEUTSCHEBANK),
   Processors(NEXIXPAY),
+  Processors(JPMORGAN),
+  Processors(XENDIT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -386,6 +388,13 @@ let tsysInfo = {
 let noonInfo = {
   description: "A leading fintech company revolutionizing payments with innovative, secure, and convenient solutions for seamless financial transactions.",
 }
+let jpmorganInfo = {
+  description: "JPMorgan Connector is a payment integration module that supports businesses in regions like the United States (US), United Kingdom (UK), European Union (EU), and Canada (CA). It streamlines payment operations by enabling seamless processing of authorizations, captures, and refunds through JPMorgan’s payment gateway. This robust solution helps businesses manage transactions efficiently, ensuring secure and compliant payment processing across these regions.",
+}
+
+let xenditInfo = {
+  description: "Xendit is a financial technology company that provides payment infrastructure across Southeast Asia. Its platform enables businesses to accept payments, disburse funds, manage accounts, and streamline financial operations",
+}
 
 // Dummy Connector Info
 let pretendpayInfo = {
@@ -613,6 +622,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | NOVALNET => "novalnet"
   | DEUTSCHEBANK => "deutschebank"
   | NEXIXPAY => "nexixpay"
+  | JPMORGAN => "jpmorgan"
+  | XENDIT => "xendit"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -740,6 +751,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "novalnet" => Processors(NOVALNET)
     | "deutschebank" => Processors(DEUTSCHEBANK)
     | "nexixpay" => Processors(NEXIXPAY)
+    | "jpmorgan" => Processors(JPMORGAN)
+    | "xendit" => Processors(XENDIT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -849,6 +862,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | NOVALNET => novalnetInfo
   | DEUTSCHEBANK => deutscheBankInfo
   | NEXIXPAY => nexixpayInfo
+  | JPMORGAN => jpmorganInfo
+  | XENDIT => xenditInfo
   }
 }
 
@@ -1698,6 +1713,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | NOVALNET => "Novalnet"
   | DEUTSCHEBANK => "Deutsche Bank"
   | NEXIXPAY => "Nexixpay"
+  | JPMORGAN => "JP Morgan"
+  | XENDIT => "Xendit"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
