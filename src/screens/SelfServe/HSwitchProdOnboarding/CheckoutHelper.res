@@ -6,7 +6,6 @@ let getOption = %raw(`
       theme: "charcoal",
       variables: {
         colorPrimary: "#006DF9",
-        colorBackground: "transparent",
         spacingUnit: "13px",
       },
       rules: {
