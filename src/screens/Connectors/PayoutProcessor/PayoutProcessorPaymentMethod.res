@@ -69,7 +69,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       //
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID)
       let response = await updateAPIHook(connectorUrl, body, Post)
-      fetchConnectorList()->ignore
+      let _ = await fetchConnectorList()
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)

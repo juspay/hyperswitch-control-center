@@ -127,9 +127,9 @@ let make = () => {
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
       let response = await updateAPIHook(connectorUrl, body, Post)
+      let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
-      let _ = await fetchConnectorListResponse()
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
