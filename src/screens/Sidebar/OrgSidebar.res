@@ -4,16 +4,11 @@ module OrgTile = {
     ~orgID: string,
     ~isActive,
     ~orgSwitch,
-    ~onEdit,
     ~orgName: string,
     ~index: int,
     ~currentlyEditingId: option<int>,
     ~handleIdUnderEdit,
   ) => {
-    let {
-      globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
-    } = React.useContext(ThemeProvider.themeContext)
-
     let (orgList, _) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
@@ -35,30 +30,39 @@ module OrgTile = {
     }
     let hoverLable1 = currentlyEditingId->Option.isSome ? `` : `group/parent`
     let hoverInput2 =
-      currentlyEditingId->Option.isSome ? `` : `opacity-0 group-hover/parent:opacity-100`
-
+      currentlyEditingId->Option.isSome ? `` : `invisible group-hover/parent:visible  `
+    let wrapperCss = switch (currentlyEditingId, isActive) {
+    | (Some(_), true) =>
+      `absolute left-full top-0 z-50 ${backgroundColor.sidebarSecondary} p-2 rounded-md`
+    | (None, _) =>
+      `absolute ${backgroundColor.sidebarSecondary} border border-transparent left-full top-0 rounded-md ${hoverInput2} shadow-lg z-50 p-2 hello`
+    | (Some(_), false) => ""
+    }
     <div
-      className={`w-8 h-8 border relative  cursor-pointer flex items-center justify-center rounded-md shadow-md ${hoverLable1} ${isActive
-          ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
-          : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
-      <span className="text-xs font-medium"> {displayText->React.string} </span>
+      onClick={_ => orgSwitch(orgID)->ignore}
+      className={`w-10 h-10 flex items-center justify-center relative cursor-pointer ${hoverLable1} `}>
       <div
-        className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg  ${hoverInput2} shadow-lg z-50 p-2 `}>
-        <InlineEditInput
-          index
-          labelText={orgID}
-          subText={"organization"}
-          showSubText=true
-          customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
-          onHoverEdit=false
-          customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
-          customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
-            displayValue=" " copyValue=Some({orgID})
-          />}
-          showEditIcon=isActive
-          handleEdit=handleIdUnderEdit
-          currentlyEditingId
-        />
+        className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md  ${isActive
+            ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
+            : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
+        <span className="text-xs font-medium"> {displayText->React.string} </span>
+        <div className={wrapperCss}>
+          <InlineEditInput
+            index
+            labelText={orgName}
+            subText={"organization"}
+            customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-64 ${hoverInput2}`}
+            onHoverEdit=false
+            customInputStyle={`${backgroundColor.sidebarSecondary} text-sm ${hoverInput2} `}
+            customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
+              displayValue=" " copyValue=Some({orgID})
+            />}
+            showEditIcon=isActive
+            handleEdit=handleIdUnderEdit
+            currentlyEditingId
+            closeOnOutsideClick=true
+          />
+        </div>
       </div>
     </div>
   }
@@ -75,7 +79,6 @@ module EditState = {
       <InlineEditInput
         labelText
         subText={"organization"}
-        showSubText=true
         customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
         onHoverEdit=false
         customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
@@ -256,11 +259,6 @@ let make = () => {
     None
   }, [])
 
-  let onEditClick = e => {
-    setShowEditOrgModal(_ => true)
-    e->ReactEvent.Mouse.stopPropagation
-  }
-
   let orgSwitch = async value => {
     try {
       setShowSwitchingOrg(_ => true)
@@ -277,12 +275,12 @@ let make = () => {
   }
   let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
   let handleIdUnderEdit = (selectedEditId: option<int>) => {
-    Js.log2(selectedEditId, "LOG LOG")
     setUnderEdit(_ => selectedEditId)
   }
+
   <div className={`${backgroundColor.sidebarNormal} p-2 border-r border-secondary`}>
     // the org tiles
-    <div className="flex flex-col gap-2 m-1 mt-4 items-center justify-center shadow-sm ">
+    <div className="flex flex-col gap-4 m-1 mt-4 items-center justify-center shadow-sm ">
       {orgList
       ->Array.toSorted((org1, org2) => {
         if org1.id === orgId {
@@ -298,7 +296,6 @@ let make = () => {
           orgID={org.id}
           isActive={org.id === orgId}
           orgSwitch
-          onEdit=onEditClick
           orgName={org.name}
           index={i}
           handleIdUnderEdit
