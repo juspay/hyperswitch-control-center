@@ -111,7 +111,7 @@ let make = (
     </div>
 
   let leftActionButtons =
-    <div>
+    <div className="gap-2 flex">
       <RenderIf condition={showEditIcon}>
         <button
           onClick={_ => {
