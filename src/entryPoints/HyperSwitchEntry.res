@@ -35,8 +35,8 @@ module HyperSwitchEntryComponent = {
           } else {
             let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
             let val = {
-              faviconUrl: urlsDict->getString("faviconUrl", "")->getNonEmptyString,
-              logoUrl: urlsDict->getString("logoUrl", "")->getNonEmptyString,
+              faviconUrl: urlsDict->getString("favicon_url", "")->getNonEmptyString,
+              logoUrl: urlsDict->getString("logo_url", "")->getNonEmptyString,
             }
             val
           }
