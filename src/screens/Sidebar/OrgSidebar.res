@@ -28,15 +28,15 @@ module OrgTile = {
         firstLetter
       }
     }
-    let hoverLable1 = currentlyEditingId->Option.isSome ? `` : `group/parent`
-    let hoverInput2 =
-      currentlyEditingId->Option.isSome ? `` : `invisible group-hover/parent:visible  `
-    let wrapperCss = switch (currentlyEditingId, isActive) {
-    | (Some(_), true) =>
-      `absolute left-full top-0 z-50 ${backgroundColor.sidebarSecondary} p-2 rounded-md`
-    | (None, _) =>
-      `absolute ${backgroundColor.sidebarSecondary} border border-transparent left-full top-0 rounded-md ${hoverInput2} shadow-lg z-50 p-2 hello`
-    | (Some(_), false) => ""
+    let isUnderEdit =
+      currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
+    let hoverLable1 = isUnderEdit ? `` : `group/parent`
+    let hoverInput2 = isUnderEdit ? `` : `invisible group-hover/parent:visible  `
+
+    let wrapperCss = switch isUnderEdit {
+    | true => `absolute left-full top-0 z-50 ${backgroundColor.sidebarSecondary} p-2 rounded-md`
+    | false =>
+      `absolute ${backgroundColor.sidebarSecondary} border border-transparent left-full top-0 rounded-md ${hoverInput2} shadow-lg z-50`
     }
     <div
       onClick={_ => orgSwitch(orgID)->ignore}
@@ -52,15 +52,15 @@ module OrgTile = {
             labelText={orgName}
             subText={"organization"}
             customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-64 ${hoverInput2}`}
-            onHoverEdit=false
+            showEditIconOnHover=false
             customInputStyle={`${backgroundColor.sidebarSecondary} text-sm ${hoverInput2} `}
             customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
               displayValue=" " copyValue=Some({orgID})
             />}
             showEditIcon=isActive
             handleEdit=handleIdUnderEdit
-            currentlyEditingId
-            closeOnOutsideClick=true
+            isUnderEdit
+            displayHoverOnEdit={currentlyEditingId->Option.isNone}
           />
         </div>
       </div>
@@ -68,27 +68,6 @@ module OrgTile = {
   }
 }
 
-module EditState = {
-  @react.component
-  let make = (~labelText, ~orgID) => {
-    let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
-    <div
-      className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg shadow-lg z-50 p-2 `}>
-      <InlineEditInput
-        labelText
-        subText={"organization"}
-        customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
-        onHoverEdit=false
-        customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
-        customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
-          displayValue=" " copyValue=Some({orgID})
-        />}
-      />
-    </div>
-  }
-}
 module NewOrgCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~getOrgList) => {
