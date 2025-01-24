@@ -1,14 +1,6 @@
 module HoverInline = {
   @react.component
-  let make = (
-    ~customStyle="",
-    ~leftIcon,
-    ~value,
-    ~showSubText,
-    ~subText,
-    ~onHoverEdit,
-    ~leftActionButtons,
-  ) => {
+  let make = (~customStyle="", ~leftIcon, ~value, ~subText, ~onHoverEdit, ~leftActionButtons) => {
     <div
       className={`group relative font-medium inline-flex gap-4 items-center justify-between px-4 py-2 w-full bg-white rounded-md  ${customStyle}`}>
       <div className="flex gap-2">
@@ -17,7 +9,7 @@ module HoverInline = {
         </RenderIf>
         <div className="flex flex-col gap-1 ml-1">
           <p className="text-sm"> {React.string(value)} </p>
-          <RenderIf condition={showSubText}>
+          <RenderIf condition={subText->LogicUtils.isNonEmptyString}>
             <span className="text-xs text-gray-500"> {subText->React.string} </span>
           </RenderIf>
         </div>
@@ -35,7 +27,6 @@ module HoverInline = {
 let make = (
   ~index=0,
   ~labelText="",
-  ~showSubText=false,
   ~subText="",
   ~customStyle="",
   ~onHoverEdit=true,
@@ -47,6 +38,7 @@ let make = (
   ~showEditIcon=true,
   ~handleEdit: option<option<int> => unit>=?,
   ~currentlyEditingId=None,
+  ~closeOnOutsideClick=true,
 ) => {
   let (isEditingInLine, setIsEditing) = React.useState(_ => currentlyEditingId->Option.isSome)
   let (value, setValue) = React.useState(_ => labelText)
@@ -59,11 +51,18 @@ let make = (
     | None => ()
     }
     switch handleEdit {
-    | Some(func) => func(Some(index))
+    | Some(func) => func(None)
     | None => ()
     }
     setIsEditing(_ => false)
   }
+
+  React.useEffect(() => {
+    if labelText->String.length > 0 {
+      setValue(_ => labelText)
+    }
+    None
+  }, [labelText])
 
   let handleCancel = () => {
     setValue(_ => labelText)
@@ -116,7 +115,9 @@ let make = (
         </button>
       </RenderIf>
       <RenderIf condition={customIconComponent->Option.isSome}>
-        {customIconComponent->Option.getOr(React.null)}
+        <div className="flex items-center justify-center w-4 h-4">
+          {customIconComponent->Option.getOr(React.null)}
+        </div>
       </RenderIf>
     </div>
 
@@ -133,8 +134,8 @@ let make = (
     }}>
     {if isEditingInLine {
       <div
-        className={`group relative flex items-center bg-white  focus-within:ring-1 focus-within:ring-primary rounded-md text-md ${customStyle}`}>
-        <div className="flex-1">
+        className={`group relative flex items-center bg-white focus-within:ring-1 focus-within:ring-primary rounded-md text-md ${customStyle}`}>
+        <div className={`flex-1 `}>
           <input
             type_="text"
             value
@@ -148,7 +149,7 @@ let make = (
       </div>
     } else {
       <RenderIf condition={currentlyEditingId->Option.isNone}>
-        <HoverInline customStyle leftIcon value showSubText subText onHoverEdit leftActionButtons />
+        <HoverInline customStyle leftIcon value subText onHoverEdit leftActionButtons />
       </RenderIf>
     }}
   </div>
