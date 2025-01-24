@@ -30,7 +30,7 @@ module OrgTile = {
     }
     let hoverLable1 = currentlyEditingId->Option.isSome ? `` : `group/parent`
     let hoverInput2 =
-      currentlyEditingId->Option.isSome ? `` : `opacity-0 group-hover/parent:opacity-100`
+      currentlyEditingId->Option.isSome ? `` : `invisible group-hover/parent:visible  `
     let wrapperCss = switch (currentlyEditingId, isActive) {
     | (Some(_), true) =>
       `absolute left-full top-0 z-50 ${backgroundColor.sidebarSecondary} p-2 rounded-md`
@@ -51,9 +51,9 @@ module OrgTile = {
             index
             labelText={orgName}
             subText={"organization"}
-            customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-64 transition-all duration-300 ease-in-out `}
+            customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-64 ${hoverInput2}`}
             onHoverEdit=false
-            customInputStyle={`${backgroundColor.sidebarSecondary} text-sm `}
+            customInputStyle={`${backgroundColor.sidebarSecondary} text-sm ${hoverInput2} `}
             customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
               displayValue=" " copyValue=Some({orgID})
             />}
