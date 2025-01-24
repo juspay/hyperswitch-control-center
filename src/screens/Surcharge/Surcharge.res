@@ -1,13 +1,42 @@
 module ActiveRulePreview = {
   open LogicUtils
+  open APIUtils
   @react.component
-  let make = (~initialRule) => {
+  let make = (~initialRule, ~setInitialRule) => {
     let rule = initialRule->Option.getOr(Dict.make())
-
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let showToast = ToastState.useShowToast()
+    let showPopUp = PopUpState.useShowPopUp()
     let name = rule->getString("name", "")
     let description = rule->getString("description", "")
 
     let ruleInfo = rule->getDictfromDict("algorithm")->SurchargeUtils.ruleInfoTypeMapper
+
+    let deleteCurrentSurchargeRule = async () => {
+      try {
+        let url = getURL(~entityName=SURCHARGE, ~methodType=Delete)
+        let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
+        showToast(
+          ~message="Successfully deleted current active surcharge rule",
+          ~toastType=ToastSuccess,
+        )
+        setInitialRule(_ => None)
+      } catch {
+      | _ =>
+        showToast(~message="Failed to delete current active surcharge rule.", ~toastType=ToastError)
+      }
+    }
+
+    let handleDeletePopup = () =>
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm delete?",
+        description: React.string(
+          "Are you sure you want to delete currently active surcharge rule? Deleting the rule will remove its associated settings and configurations, potentially affecting functionality.",
+        ),
+        handleConfirm: {text: "Confirm", onClick: _ => deleteCurrentSurchargeRule()->ignore},
+      })
 
     <RenderIf condition={initialRule->Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
@@ -16,9 +45,21 @@ module ActiveRulePreview = {
           {"ACTIVE"->React.string}
         </div>
         <div className="flex flex-col gap-2 ">
-          <p className="text-xl font-semibold text-grey-700">
-            {name->capitalizeString->React.string}
-          </p>
+          <div className="flex gap-4 items-center ">
+            <p className="text-xl font-semibold text-grey-700">
+              {name->capitalizeString->React.string}
+            </p>
+            <ToolTip
+              description="Delete existing surcharge rule"
+              toolTipFor={<Icon
+                name="delete"
+                size=20
+                className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
+                onClick={_ => handleDeletePopup()}
+              />}
+              toolTipPosition=ToolTip.Top
+            />
+          </div>
           <p className="text-base font-normal text-grey-700 opacity-50">
             {description->React.string}
           </p>
@@ -276,7 +317,7 @@ let make = () => {
         </div>
       | LANDING =>
         <div className="flex flex-col gap-6">
-          <ActiveRulePreview initialRule />
+          <ActiveRulePreview initialRule setInitialRule />
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">
               {"Configure Surcharge"->React.string}
