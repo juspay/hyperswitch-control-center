@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.24.0
+
+### Features
+
+- Addition of new connectors-Xendit and Jp morgan ([#2112](https://github.com/juspay/hyperswitch-control-center/pull/2112)) ([`324470e`](https://github.com/juspay/hyperswitch-control-center/commit/324470eef97a11fd265b752456b1a05c107bb396))
+- Inline Edit Input Component ([#2111](https://github.com/juspay/hyperswitch-control-center/pull/2111)) ([`7e79163`](https://github.com/juspay/hyperswitch-control-center/commit/7e7916317c43665d1d2fc2d7cb7ff288fe1e8de3))
+
+### Bug Fixes
+
+- Merchant View Only Access to APIKeys ([#2099](https://github.com/juspay/hyperswitch-control-center/pull/2099)) ([`812e9ac`](https://github.com/juspay/hyperswitch-control-center/commit/812e9ac846e8bb11707917c84a2400ceb8bf19d8))
+- Refactoring append themes css logic ([#2113](https://github.com/juspay/hyperswitch-control-center/pull/2113)) ([`345a005`](https://github.com/juspay/hyperswitch-control-center/commit/345a005e63795e3c38a8f332072fff8431491567))
+- Removed System Metrics ([#2117](https://github.com/juspay/hyperswitch-control-center/pull/2117)) ([`b71121d`](https://github.com/juspay/hyperswitch-control-center/commit/b71121d9b2e513977e0766f236701f498f601955))
+
+### Testing
+
+- Cypress clear cookies ([#2119](https://github.com/juspay/hyperswitch-control-center/pull/2119)) ([`9978b2c`](https://github.com/juspay/hyperswitch-control-center/commit/9978b2c43aeaf99d6a1cf7249134585146c2d78b))
+
+### Miscellaneous Tasks
+
+- Customer list limit increased from 10 to 50 ([#2120](https://github.com/juspay/hyperswitch-control-center/pull/2120)) ([`9c0a3ba`](https://github.com/juspay/hyperswitch-control-center/commit/9c0a3ba4b4fb19b1658fb77e5bacd8b7c538de98))
+
+**Full Changelog:** [`2025.01.21.1...2025.01.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.21.1...2025.01.24.0)
+
+- - -
+
 ## 2025.01.21.1
 
 ### Features
