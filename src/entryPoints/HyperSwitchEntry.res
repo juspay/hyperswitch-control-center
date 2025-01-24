@@ -40,8 +40,8 @@ module HyperSwitchEntryComponent = {
           agreementVersion: dict->getString("agreement_version", "")->getNonEmptyString,
           reconIframeUrl: dict->getString("recon_iframe_url", "")->getNonEmptyString,
           urlThemeConfig: {
-            faviconUrl: dict->getString("faviconUrl", "")->getNonEmptyString,
-            logoUrl: dict->getString("logoUrl", "")->getNonEmptyString,
+            faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
+            logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           },
         }
         DOMUtils.window._env_ = value
