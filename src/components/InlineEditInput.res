@@ -7,6 +7,7 @@ module HoverInline = {
     ~subText,
     ~showEditIconOnHover,
     ~leftActionButtons,
+    ~labelTextCustomStyle,
   ) => {
     <div
       className={`group relative font-medium inline-flex gap-4 items-center justify-between px-4 py-2 w-full bg-white rounded-md  ${customStyle}`}>
@@ -15,7 +16,7 @@ module HoverInline = {
           {leftIcon->Option.getOr(React.null)}
         </RenderIf>
         <div className="flex flex-col gap-1 ml-1">
-          <p className="text-sm"> {React.string(value)} </p>
+          <p className={`text-sm ${labelTextCustomStyle} `}> {React.string(value)} </p>
           <RenderIf condition={subText->LogicUtils.isNonEmptyString}>
             <span className="text-xs text-gray-500"> {subText->React.string} </span>
           </RenderIf>
@@ -46,8 +47,11 @@ let make = (
   ~handleEdit: option<int> => unit,
   ~isUnderEdit=false,
   ~displayHoverOnEdit=true,
+  ~validateInput,
+  ~labelTextCustomStyle="",
 ) => {
   let (value, setValue) = React.useState(_ => labelText)
+  let (inputErrors, setInputErrors) = React.useState(_ => Dict.make())
   let enterKeyCode = 13
   let escapeKeyCode = 27
   let handleSave = () => {
@@ -60,7 +64,7 @@ let make = (
   }
 
   React.useEffect(() => {
-    if labelText->String.length > 0 {
+    if labelText->LogicUtils.isNonEmptyString {
       setValue(_ => labelText)
     }
     None
@@ -68,6 +72,7 @@ let make = (
 
   let handleCancel = () => {
     setValue(_ => labelText)
+    setInputErrors(_ => Dict.make())
     handleEdit(None)
   }
 
@@ -75,7 +80,11 @@ let make = (
     let key = e->ReactEvent.Keyboard.key
     let keyCode = e->ReactEvent.Keyboard.keyCode
     if key === "Enter" || keyCode === enterKeyCode {
-      handleSave()
+      if inputErrors->LogicUtils.isEmptyDict {
+        handleSave()
+      } else {
+        handleCancel()
+      }
     }
     if key === "Escape" || keyCode === escapeKeyCode {
       handleCancel()
@@ -122,8 +131,9 @@ let make = (
 
   let handleInputChange = e => {
     let value = ReactEvent.Form.target(e)["value"]
-    // validations needs to be performed over here
     setValue(_ => value)
+    let errors = validateInput(value)
+    setInputErrors(_ => errors)
   }
 
   <div
@@ -132,8 +142,11 @@ let make = (
       e->ReactEvent.Mouse.stopPropagation
     }}>
     {if isUnderEdit {
+      //TODO: validation error message has to be displayed
       <div
-        className={`group relative flex items-center bg-white focus-within:ring-1 focus-within:ring-primary rounded-md text-md ${customStyle}`}>
+        className={`group relative flex items-center bg-white ${inputErrors->LogicUtils.isEmptyDict
+            ? "focus-within:ring-1 focus-within:ring-primary"
+            : "ring-1 ring-red-300"}  rounded-md text-md ${customStyle}`}>
         <div className={`flex-1 `}>
           <input
             type_="text"
@@ -148,7 +161,15 @@ let make = (
       </div>
     } else {
       <RenderIf condition={displayHoverOnEdit}>
-        <HoverInline customStyle leftIcon value subText showEditIconOnHover leftActionButtons />
+        <HoverInline
+          customStyle
+          leftIcon
+          value
+          subText
+          showEditIconOnHover
+          leftActionButtons
+          labelTextCustomStyle
+        />
       </RenderIf>
     }}
   </div>

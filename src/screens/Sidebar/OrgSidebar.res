@@ -14,9 +14,26 @@ module OrgTile = {
       globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
 
+    let validateInput = (organizationName: string) => {
+      let errors = Dict.make()
+      let regexForOrganizationName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+      let errorMessage = if organizationName->LogicUtils.isEmptyString {
+        "Organization name cannot be empty"
+      } else if organizationName->String.length > 64 {
+        "Organization name cannot exceed 64 characters"
+      } else if !RegExp.test(RegExp.fromString(regexForOrganizationName), organizationName) {
+        "Organization name should not contain special characters"
+      } else {
+        ""
+      }
+
+      if errorMessage->LogicUtils.isNonEmptyString {
+        errors->Dict.set("organizationName", errorMessage)
+      }
+      errors
+    }
     let displayText = {
       let firstLetter = orgName->String.charAt(0)->String.toUpperCase
-
       if orgName == orgID {
         let count =
           orgList
@@ -30,30 +47,34 @@ module OrgTile = {
     }
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
-    let hoverLable1 = isUnderEdit ? `` : `group/parent`
-    let hoverInput2 = isUnderEdit ? `` : `invisible group-hover/parent:visible  `
 
-    let wrapperCss = switch isUnderEdit {
-    | true => `absolute left-full top-0 z-50 ${backgroundColor.sidebarSecondary} p-2 rounded-md`
-    | false =>
-      `absolute ${backgroundColor.sidebarSecondary} border border-transparent left-full top-0 rounded-md ${hoverInput2} shadow-lg z-50`
-    }
+    let isEditingAnotherIndex =
+      currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) != index
+
+    // Hover label and visibility class
+    let hoverLabel1 = isUnderEdit ? `` : `group/parent`
+    let hoverInput2 = isUnderEdit ? `` : `invisible group-hover/parent:visible`
+    // Common CSS
+    let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-50 ${backgroundColor.sidebarSecondary}`
+    let currentEditCSS = isUnderEdit ? `p-2 ${baseCSS}` : `${baseCSS} ${hoverInput2} shadow-lg`
+    let nonEditCSS = isEditingAnotherIndex ? `` : `p-2 `
+
     <div
       onClick={_ => orgSwitch(orgID)->ignore}
-      className={`w-10 h-10 flex items-center justify-center relative cursor-pointer ${hoverLable1} `}>
+      className={`w-10 h-10 flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
       <div
         className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md  ${isActive
             ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
             : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
-        <div className={wrapperCss}>
+        <div className={` ${currentEditCSS} ${nonEditCSS} `}>
           <InlineEditInput
             index
             labelText={orgName}
             subText={"organization"}
-            customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-64 ${hoverInput2}`}
+            customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-64  ${hoverInput2}`}
             showEditIconOnHover=false
-            customInputStyle={`${backgroundColor.sidebarSecondary} text-sm ${hoverInput2} `}
+            customInputStyle={`${backgroundColor.sidebarSecondary} text-sm h-4 ${hoverInput2} `}
             customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
               displayValue=" " copyValue=Some({orgID})
             />}
@@ -61,6 +82,8 @@ module OrgTile = {
             handleEdit=handleIdUnderEdit
             isUnderEdit
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
+            validateInput
+            labelTextCustomStyle="truncate max-w-40"
           />
         </div>
       </div>
