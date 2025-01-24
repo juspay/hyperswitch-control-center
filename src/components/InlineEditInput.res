@@ -33,6 +33,7 @@ module HoverInline = {
 
 @react.component
 let make = (
+  ~index=0,
   ~labelText="",
   ~showSubText=false,
   ~subText="",
@@ -43,15 +44,14 @@ let make = (
   ~customIconComponent=?,
   ~customInputStyle="",
   ~customIconStyle="",
-  ~showEdit=true,
-  ~handleEdit=?,
-  ~isEditing=false,
+  ~showEditIcon=true,
+  ~handleEdit: option<option<int> => unit>=?,
+  ~currentlyEditingId=None,
 ) => {
-  let (isEditingInLine, setIsEditing) = React.useState(_ => isEditing)
+  let (isEditingInLine, setIsEditing) = React.useState(_ => currentlyEditingId->Option.isSome)
   let (value, setValue) = React.useState(_ => labelText)
   let enterKeyCode = 13
   let escapeKeyCode = 27
-
   let handleSave = () => {
     setValue(_ => value)
     switch onSubmit {
@@ -59,7 +59,7 @@ let make = (
     | None => ()
     }
     switch handleEdit {
-    | Some(func) => func()
+    | Some(func) => func(Some(index))
     | None => ()
     }
     setIsEditing(_ => false)
@@ -69,7 +69,7 @@ let make = (
     setValue(_ => labelText)
     setIsEditing(_ => false)
     switch handleEdit {
-    | Some(func) => func()
+    | Some(func) => func(None)
     | None => ()
     }
   }
@@ -88,7 +88,7 @@ let make = (
   let handleEditIcon = () => {
     setIsEditing(_ => true)
     switch handleEdit {
-    | Some(func) => func()
+    | Some(func) => func(Some(index))
     | None => ()
     }
   }
@@ -105,7 +105,7 @@ let make = (
 
   let leftActionButtons =
     <div className="flex gap-2">
-      <RenderIf condition={showEdit}>
+      <RenderIf condition={showEditIcon}>
         <button
           onClick={_ => {
             handleEditIcon()
@@ -147,7 +147,9 @@ let make = (
         {submitButtons}
       </div>
     } else {
-      <HoverInline customStyle leftIcon value showSubText subText onHoverEdit leftActionButtons />
+      <RenderIf condition={currentlyEditingId->Option.isNone}>
+        <HoverInline customStyle leftIcon value showSubText subText onHoverEdit leftActionButtons />
+      </RenderIf>
     }}
   </div>
 }

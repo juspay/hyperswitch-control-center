@@ -7,8 +7,8 @@ module OrgTile = {
     ~onEdit,
     ~orgName: string,
     ~index: int,
-    ~isUnderEdit,
-    ~handleUnderEdit,
+    ~currentlyEditingId: option<int>,
+    ~handleIdUnderEdit,
   ) => {
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
@@ -33,47 +33,33 @@ module OrgTile = {
         firstLetter
       }
     }
-    let hoverLable1 = isUnderEdit ? `` : `group/parent`
-    let hoverInput2 = `group-hover/parent:opacity-100`
+    let hoverLable1 = currentlyEditingId->Option.isSome ? `` : `group/parent`
+    let hoverInput2 =
+      currentlyEditingId->Option.isSome ? `` : `opacity-0 group-hover/parent:opacity-100`
 
     <div
       className={`w-8 h-8 border relative  cursor-pointer flex items-center justify-center rounded-md shadow-md ${hoverLable1} ${isActive
           ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
           : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
       <span className="text-xs font-medium"> {displayText->React.string} </span>
-      {<>
-        {if isUnderEdit && isActive {
-          <div
-            className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg  shadow-lg z-50 p-2 `}>
-            <InlineEditInput
-              labelText={"organization"}
-              customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
-              onHoverEdit=false
-              customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
-              showEdit=isActive
-              handleEdit=handleUnderEdit
-              isEditing={isActive && isUnderEdit}
-            />
-          </div>
-        } else {
-          <div
-            className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg opacity-0 ${hoverInput2} shadow-lg z-50 p-2 `}>
-            <InlineEditInput
-              labelText={"organization"}
-              subText={"organization"}
-              showSubText=true
-              customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
-              onHoverEdit=false
-              customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
-              customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
-                displayValue=" " copyValue=Some({orgID})
-              />}
-              showEdit=isActive
-              handleEdit=handleUnderEdit
-            />
-          </div>
-        }}
-      </>}
+      <div
+        className={`absolute ${backgroundColor.sidebarSecondary} border border-transparent left-[3rem] top-0 rounded-lg  ${hoverInput2} shadow-lg z-50 p-2 `}>
+        <InlineEditInput
+          index
+          labelText={orgID}
+          subText={"organization"}
+          showSubText=true
+          customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-[250px]transition-all duration-200 ease-in-out `}
+          onHoverEdit=false
+          customInputStyle={`${backgroundColor.sidebarSecondary} min-w-[250px] h-4`}
+          customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
+            displayValue=" " copyValue=Some({orgID})
+          />}
+          showEditIcon=isActive
+          handleEdit=handleIdUnderEdit
+          currentlyEditingId
+        />
+      </div>
     </div>
   }
 }
@@ -289,9 +275,10 @@ let make = () => {
       }
     }
   }
-  let (isUnderEdit, setUnderEdit) = React.useState(_ => false)
-  let handleUnderEdit = () => {
-    setUnderEdit(_ => !isUnderEdit)
+  let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
+  let handleIdUnderEdit = (selectedEditId: option<int>) => {
+    Js.log2(selectedEditId, "LOG LOG")
+    setUnderEdit(_ => selectedEditId)
   }
   <div className={`${backgroundColor.sidebarNormal} p-2 border-r border-secondary`}>
     // the org tiles
@@ -314,8 +301,8 @@ let make = () => {
           onEdit=onEditClick
           orgName={org.name}
           index={i}
-          handleUnderEdit
-          isUnderEdit
+          handleIdUnderEdit
+          currentlyEditingId
         />
       })
       ->React.array}
