@@ -10,6 +10,7 @@ module OrgTile = {
     ~handleIdUnderEdit,
   ) => {
     let (orgList, _) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
@@ -78,10 +79,10 @@ module OrgTile = {
             customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
               displayValue=" " copyValue=Some({orgID})
             />}
-            showEditIcon=isActive
+            showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
             handleEdit=handleIdUnderEdit
             isUnderEdit
-            displayHoverOnEdit={currentlyEditingId->Option.isNone}
+            displayHoverOnEdit={currentlyEditingId->Option.isNone
             validateInput
             labelTextCustomStyle="truncate max-w-40"
           />
