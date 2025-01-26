@@ -82,7 +82,7 @@ module OrgTile = {
             showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
             handleEdit=handleIdUnderEdit
             isUnderEdit
-            displayHoverOnEdit={currentlyEditingId->Option.isNone
+            displayHoverOnEdit={currentlyEditingId->Option.isNone}
             validateInput
             labelTextCustomStyle="truncate max-w-40"
           />
