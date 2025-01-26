@@ -9,12 +9,42 @@ module OrgTile = {
     ~currentlyEditingId: option<int>,
     ~handleIdUnderEdit,
   ) => {
-    let (orgList, _) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
+    open LogicUtils
+    open APIUtils
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let fetchDetails = useGetMethod()
+    let showToast = ToastState.useShowToast()
+    let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
+    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
+    let getOrgList = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
+        let response = await fetchDetails(url)
+        setOrgList(_ => response->getArrayDataFromJson(OMPSwitchUtils.orgItemToObjMapper))
+      } catch {
+      | _ => {
+          setOrgList(_ => OMPSwitchUtils.ompDefaultValue(orgId, ""))
+          showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
+        }
+      }
+    }
+    let onSubmit = async (newOrgName: string) => {
+      try {
+        let values = {"organization_name": newOrgName}->Identity.genericTypeToJson
+        let url = getURL(~entityName=UPDATE_ORGANIZATION, ~methodType=Put, ~id=Some(orgID))
+        let _ = await updateDetails(url, values, Put)
+        let _ = await getOrgList()
 
+        showToast(~message="Updated organization name!", ~toastType=ToastSuccess)
+      } catch {
+      | _ => showToast(~message="Failed to update organization name!", ~toastType=ToastError)
+      }
+    }
     let validateInput = (organizationName: string) => {
       let errors = Dict.make()
       let regexForOrganizationName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
@@ -85,6 +115,7 @@ module OrgTile = {
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
             validateInput
             labelTextCustomStyle="truncate max-w-40"
+            onSubmit
           />
         </div>
       </div>

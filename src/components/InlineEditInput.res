@@ -57,7 +57,10 @@ let make = (
   let handleSave = () => {
     setValue(_ => value)
     switch onSubmit {
-    | Some(func) => func(value)
+    | Some(func) => {
+        func(value)->ignore
+        handleEdit(None)
+      }
     | None => ()
     }
     handleEdit(None)
