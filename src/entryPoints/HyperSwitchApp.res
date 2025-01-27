@@ -19,7 +19,8 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devThemeFeature, devOrgSidebar} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
     fetchMerchantSpecificConfig,
     useIsFeatureEnabledForMerchant,
@@ -105,7 +106,9 @@ let make = () => {
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
               <RenderIf condition={screenState === Success}>
-                <OrgSidebar />
+                <RenderIf condition={devOrgSidebar}>
+                  <OrgSidebar />
+                </RenderIf>
                 <Sidebar
                   path={url.path}
                   sidebars={hyperSwitchAppSidebars}

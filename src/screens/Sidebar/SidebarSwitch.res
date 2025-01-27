@@ -13,7 +13,16 @@ module OrgMerchantSwitchCollapsed = {
 
 @react.component
 let make = (~isSidebarExpanded=false) => {
-  <RenderIf condition={!isSidebarExpanded}>
-    <OrgMerchantSwitchCollapsed />
-  </RenderIf>
+  let {devOrgSidebar} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let expandedContent =
+    <div className="border-b border-secondary">
+      <OrgSwitch />
+    </div>
+
+  <>
+    <RenderIf condition={isSidebarExpanded && !devOrgSidebar}> expandedContent </RenderIf>
+    <RenderIf condition={!isSidebarExpanded}>
+      <OrgMerchantSwitchCollapsed />
+    </RenderIf>
+  </>
 }
