@@ -71,7 +71,7 @@ module OrgTile = {
           ->Array.slice(~start=0, ~end=index + 1)
           ->Array.filter(org => org.name == org.id)
           ->Array.length
-        `O${count->Int.toString}`
+        `O${(count + 1)->Int.toString}`
       } else {
         firstLetter
       }
@@ -83,12 +83,12 @@ module OrgTile = {
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) != index
 
     // Hover label and visibility class
-    let hoverLabel1 = isUnderEdit ? `` : `group/parent`
-    let hoverInput2 = isUnderEdit ? `` : `invisible group-hover/parent:visible`
+    let hoverLabel1 = !isUnderEdit ? `group/parent` : ``
+    let hoverInput2 = !isUnderEdit ? `invisible group-hover/parent:visible` : ``
     // Common CSS
     let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-50 ${backgroundColor.sidebarSecondary}`
     let currentEditCSS = isUnderEdit ? `p-2 ${baseCSS}` : `${baseCSS} ${hoverInput2} shadow-lg`
-    let nonEditCSS = isEditingAnotherIndex ? `` : `p-2 `
+    let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
 
     <div
       onClick={_ => orgSwitch(orgID)->ignore}
@@ -102,12 +102,12 @@ module OrgTile = {
           <InlineEditInput
             index
             labelText={orgName}
-            subText={"organization"}
-            customStyle={` p-3 ${backgroundColor.sidebarSecondary} min-w-64  ${hoverInput2}`}
+            subText={"Organization"}
+            customStyle={` p-3 ${backgroundColor.sidebarSecondary}  ${hoverInput2}`}
             showEditIconOnHover=false
             customInputStyle={`${backgroundColor.sidebarSecondary} text-sm h-4 ${hoverInput2} `}
-            customIconComponent={<OMPSwitchHelper.OMPCopyTextCustomComp
-              displayValue=" " copyValue=Some({orgID})
+            customIconComponent={<HelperComponents.CopyTextCustomComp
+              customIconColor={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
             />}
             showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
             handleEdit=handleIdUnderEdit
@@ -115,6 +115,8 @@ module OrgTile = {
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
             validateInput
             labelTextCustomStyle="truncate max-w-40"
+            customWidth="min-w-64 "
+            customIconStyle={`${secondaryTextColor}`}
             onSubmit
           />
         </div>
@@ -327,6 +329,7 @@ let make = () => {
       })
       ->Array.mapWithIndex((org, i) => {
         <OrgTile
+          key={Int.toString(i)}
           orgID={org.id}
           isActive={org.id === orgId}
           orgSwitch
