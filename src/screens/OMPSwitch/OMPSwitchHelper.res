@@ -1,41 +1,3 @@
-module OMPCopyTextCustomComp = {
-  @react.component
-  let make = (
-    ~displayValue,
-    ~copyValue=None,
-    ~customTextCss="",
-    ~customParentClass="flex items-center",
-    ~customOnCopyClick=() => (),
-  ) => {
-    let showToast = ToastState.useShowToast()
-    let copyVal = switch copyValue {
-    | Some(val) => val
-    | None => displayValue
-    }
-    let onCopyClick = ev => {
-      ev->ReactEvent.Mouse.stopPropagation
-      Clipboard.writeText(copyVal)
-      customOnCopyClick()
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-    }
-
-    if displayValue->LogicUtils.isNonEmptyString {
-      <div className=customParentClass>
-        <div className=customTextCss> {displayValue->React.string} </div>
-        <img
-          alt="cursor"
-          src={`/assets/copyid.svg`}
-          className="cursor-pointer"
-          onClick={ev => {
-            onCopyClick(ev)
-          }}
-        />
-      </div>
-    } else {
-      "NA"->React.string
-    }
-  }
-}
 module ListBaseComp = {
   @react.component
   let make = (
@@ -100,7 +62,9 @@ module ListBaseComp = {
               description={subHeading}
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
-                <OMPCopyTextCustomComp displayValue=" " copyValue=Some({subHeading}) />
+                <HelperComponents.CopyTextCustomComp
+                  displayValue=" " copyValue=Some({subHeading})
+                />
               </div>}
               toolTipPosition=ToolTip.Right
             />
@@ -347,7 +311,7 @@ let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
         description={item.id}
         customStyle="!whitespace-nowrap"
         toolTipFor={<div className="cursor-pointer">
-          <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+          <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
         </div>}
         toolTipPosition=ToolTip.TopRight
       />,

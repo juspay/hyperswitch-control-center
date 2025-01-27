@@ -6,6 +6,7 @@ module CopyTextCustomComp = {
     ~customTextCss="",
     ~customParentClass="flex items-center",
     ~customOnCopyClick=() => (),
+    ~customIconColor="",
   ) => {
     let showToast = ToastState.useShowToast()
 
@@ -23,13 +24,12 @@ module CopyTextCustomComp = {
     if displayValue->LogicUtils.isNonEmptyString {
       <div className=customParentClass>
         <div className=customTextCss> {displayValue->React.string} </div>
-        <img
-          alt="cursor"
-          src={`/assets/CopyToClipboard.svg`}
-          className="cursor-pointer"
+        <Icon
+          name="nd-copy"
           onClick={ev => {
             onCopyClick(ev)
           }}
+          className={`${customIconColor}`}
         />
       </div>
     } else {

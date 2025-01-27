@@ -8,6 +8,7 @@ module HoverInline: {
     ~showEditIconOnHover: bool,
     ~leftActionButtons: React.element,
     ~labelTextCustomStyle: string,
+    ~customWidth: string,
   ) => React.element
 }
 @react.component
@@ -28,4 +29,5 @@ let make: (
   ~displayHoverOnEdit: bool=?,
   ~validateInput: 'b => RescriptCore.Dict.t<'c>,
   ~labelTextCustomStyle: string=?,
+  ~customWidth: string=?,
 ) => React.element
