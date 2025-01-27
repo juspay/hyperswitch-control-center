@@ -195,6 +195,22 @@ let modifyQueryData = (data, ~currency) => {
     let valueDict = item->getDictFromJsonObject
     let time = valueDict->getString(Time_Bucket->getStringFromVariant, "")
 
+    // with smart retry
+    let key = Payment_Processed_Count->getStringFromVariant
+    let paymentProcessedCount = valueDict->getInt(key, 0)
+
+    // without smart retry
+    let key = Payment_Processed_Count->getKey(~isSmartRetryEnabled)
+    let paymentProcessedCountWithoutSmartRetries = valueDict->getInt(key, 0)
+
+    // with smart retry
+    let key = Payment_Processed_Amount->getKey(~currency)
+    let paymentProcessedAmount = valueDict->getFloat(key, 0.0)
+
+    // without smart retry
+    let key = Payment_Processed_Amount->getKey(~isSmartRetryEnabled, ~currency)
+    let paymentProcessedAmountWithoutSmartRetries = valueDict->getFloat(key, 0.0)
+
     switch dataDict->Dict.get(time) {
     | Some(prevVal) => {
         // with smart retry
@@ -243,7 +259,28 @@ let modifyQueryData = (data, ~currency) => {
 
         dataDict->Dict.set(time, prevVal)
       }
-    | None => dataDict->Dict.set(time, valueDict)
+    | None => {
+        // with smart retry
+        valueDict->Dict.set(
+          Payment_Processed_Count->getStringFromVariant,
+          paymentProcessedCount->JSON.Encode.int,
+        )
+        valueDict->Dict.set(
+          Payment_Processed_Amount->getKey(~currency),
+          paymentProcessedAmount->JSON.Encode.float,
+        )
+        // without smart retry
+        valueDict->Dict.set(
+          Payment_Processed_Count->getKey(~isSmartRetryEnabled),
+          paymentProcessedCountWithoutSmartRetries->JSON.Encode.int,
+        )
+        valueDict->Dict.set(
+          Payment_Processed_Amount->getKey(~isSmartRetryEnabled, ~currency),
+          paymentProcessedAmountWithoutSmartRetries->JSON.Encode.float,
+        )
+
+        dataDict->Dict.set(time, valueDict)
+      }
     }
   })
 

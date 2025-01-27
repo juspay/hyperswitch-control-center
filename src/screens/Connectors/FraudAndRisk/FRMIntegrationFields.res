@@ -270,9 +270,9 @@ let make = (
     try {
       let response = await updateDetails(frmUrl, body, Post)
       let _ = updateMerchantDetails()
+      let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(prev => prev->getNextStep)
-      let _ = await fetchConnectorListResponse()
       showToast(~message=submitText, ~toastType=ToastSuccess)
       setPageState(_ => Success)
     } catch {
