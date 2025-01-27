@@ -86,8 +86,10 @@ module OrgTile = {
     let hoverLabel1 = !isUnderEdit ? `group/parent` : ``
     let hoverInput2 = !isUnderEdit ? `invisible group-hover/parent:visible` : ``
     // Common CSS
-    let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-50 ${backgroundColor.sidebarSecondary}`
-    let currentEditCSS = isUnderEdit ? `p-2 ${baseCSS}` : `${baseCSS} ${hoverInput2} shadow-lg`
+    let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-50 shadow-md ${backgroundColor.sidebarSecondary}`
+    let currentEditCSS = isUnderEdit
+      ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
+      : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
 
     <div
@@ -95,7 +97,7 @@ module OrgTile = {
       className={`w-10 h-10 flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
       <div
         className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md  ${isActive
-            ? `bg-white/20 ${primaryTextColor} border-sidebar-secondaryTextColor`
+            ? `bg-white/20 ${primaryTextColor} border-sidebar-primaryTextColor`
             : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
         <div className={` ${currentEditCSS} ${nonEditCSS} `}>
@@ -105,7 +107,7 @@ module OrgTile = {
             subText={"Organization"}
             customStyle={` p-3 ${backgroundColor.sidebarSecondary}  ${hoverInput2}`}
             showEditIconOnHover=false
-            customInputStyle={`${backgroundColor.sidebarSecondary} text-sm h-4 ${hoverInput2} `}
+            customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2} `}
             customIconComponent={<HelperComponents.CopyTextCustomComp
               customIconColor={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
             />}
@@ -114,7 +116,7 @@ module OrgTile = {
             isUnderEdit
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
             validateInput
-            labelTextCustomStyle="truncate max-w-40"
+            labelTextCustomStyle={`${secondaryTextColor} truncate max-w-40`}
             customWidth="min-w-64 "
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
@@ -314,9 +316,10 @@ let make = () => {
     setUnderEdit(_ => selectedEditId)
   }
 
-  <div className={`${backgroundColor.sidebarNormal} p-2 border-r border-secondary`}>
+  <div
+    className={`${backgroundColor.sidebarNormal} p-2 border-r border-gray-600 border-opacity-40  `}>
     // the org tiles
-    <div className="flex flex-col gap-4 m-1 mt-4 items-center justify-center shadow-sm ">
+    <div className="flex flex-col gap-4 m-1 mt-4 items-center justify-center ">
       {orgList
       ->Array.toSorted((org1, org2) => {
         if org1.id === orgId {

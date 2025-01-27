@@ -157,7 +157,7 @@ let make = (
         <div
           className={`group relative flex items-center bg-white ${inputErrors->LogicUtils.isEmptyDict
               ? "focus-within:ring-1 focus-within:ring-primary"
-              : "ring-1 ring-red-300"}  rounded-md text-md  ${customStyle} `}>
+              : "ring-1 ring-red-300"}  rounded-md text-md !py-2 ${customStyle} `}>
           <div className={`flex-1 `}>
             <input
               type_="text"
