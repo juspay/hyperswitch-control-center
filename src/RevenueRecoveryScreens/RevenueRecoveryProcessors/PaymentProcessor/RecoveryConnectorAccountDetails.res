@@ -3,7 +3,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   open ConnectorUtils
   open APIUtils
   open LogicUtils
-  open ConnectorAccountDetailsHelper
+  open RecoveryConnectorAccountDetailsHelper
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
@@ -238,7 +238,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         </AddDataAttributes>}
         handleShowModal>
         <div className="flex flex-col gap-2 p-2 md:px-10">
-          <ConnectorAccountDetailsHelper.BusinessProfileRender
+          <RecoveryConnectorAccountDetailsHelper.BusinessProfileRender
             isUpdateFlow selectedConnector={connector}
           />
         </div>

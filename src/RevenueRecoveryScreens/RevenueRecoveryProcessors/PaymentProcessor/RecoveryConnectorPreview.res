@@ -192,7 +192,7 @@ module ConnectorSummaryGrid = {
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
           <div
-            className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorTableUtils.connectorStatusStyle}`}>
+            className={`text-black font-semibold text-sm ${connectorInfo.status->RecoveryConnectorTableUtils.connectorStatusStyle}`}>
             {connectorInfo.status->String.toUpperCase->React.string}
           </div>
         </AddDataAttributes>
@@ -225,10 +225,10 @@ module ConnectorSummaryGrid = {
         <div className="flex flex-col gap-6  col-span-3">
           <div className="flex gap-12">
             <div className="flex flex-col gap-6 w-5/6  py-8">
-              <ConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
+              <RecoveryConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
             </div>
             <RenderIf condition={isUpdateFlow}>
-              <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
+              <RecoveryConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
             </RenderIf>
           </div>
           <RenderIf

@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  open ConnectorUtils
+  open RecoveryPaymentProcessorsUtils
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
@@ -20,12 +20,18 @@ let make = () => {
     try {
       // TODO : maintain separate list for multiple types of connectors
       let connectorsList =
-        connectorListFromRecoil->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
+        connectorListFromRecoil->ConnectorUtils.getProcessorsListFromJson(
+          ~removeFromList=ConnectorTypes.FRMPlayer,
+        )
       connectorsList->Array.reverse
-      sortByDisableField(connectorsList, connectorPayload => connectorPayload.disabled)
+      ConnectorUtils.sortByDisableField(connectorsList, connectorPayload =>
+        connectorPayload.disabled
+      )
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
-      setConfiguredConnectors(_ => connectorsList->getConnectorTypeArrayFromListConnectors)
+      setConfiguredConnectors(_ =>
+        connectorsList->ConnectorUtils.getConnectorTypeArrayFromListConnectors
+      )
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -128,7 +134,7 @@ let make = () => {
             resultsPerPage=20
             offset
             setOffset
-            entity={ConnectorTableUtils.connectorEntity(
+            entity={RecoveryConnectorTableUtils.connectorEntity(
               "connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}

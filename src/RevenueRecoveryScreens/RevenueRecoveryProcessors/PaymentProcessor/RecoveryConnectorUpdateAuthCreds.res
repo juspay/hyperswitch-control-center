@@ -3,7 +3,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   open ConnectorUtils
   open APIUtils
   open LogicUtils
-  open ConnectorAccountDetailsHelper
+  open RecoveryConnectorAccountDetailsHelper
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
