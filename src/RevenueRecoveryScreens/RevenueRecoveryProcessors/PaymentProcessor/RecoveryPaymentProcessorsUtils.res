@@ -1,140 +1,24 @@
 open ConnectorTypes
 
-type data = {code?: string, message?: string, type_?: string}
-@scope("JSON") @val
-external parseIntoMyData: string => data = "parse"
-
-let stepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
-
-let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
-
-let getStepName = step => {
-  switch step {
-  | IntegFields => "Credentials"
-  | PaymentMethods => "Payment Methods"
-  | SummaryAndTest => "Summary"
-  | Preview => "Preview"
-  | AutomaticFlow => "AutomaticFlow"
-  }
-}
-
-let payoutConnectorList: array<connectorTypes> = [
-  PayoutProcessor(ADYEN),
-  PayoutProcessor(ADYENPLATFORM),
-  PayoutProcessor(CYBERSOURCE),
-  PayoutProcessor(EBANX),
-  PayoutProcessor(PAYPAL),
-  PayoutProcessor(STRIPE),
-  PayoutProcessor(WISE),
-]
-
-let threedsAuthenticatorList: array<connectorTypes> = [
-  ThreeDsAuthenticator(THREEDSECUREIO),
-  ThreeDsAuthenticator(NETCETERA),
-  ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD),
-]
-
-let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
-
-let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
-
-let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
-
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
-  Processors(PAYPAL),
-  Processors(ACI),
   Processors(ADYEN),
-  Processors(AIRWALLEX),
-  Processors(AUTHORIZEDOTNET),
-  Processors(BANKOFAMERICA),
-  Processors(BAMBORA),
-  Processors(BILLWERK),
-  Processors(BITPAY),
-  Processors(BLUESNAP),
-  Processors(BRAINTREE),
-  Processors(CASHTOCODE),
-  Processors(CHECKOUT),
-  Processors(COINBASE),
-  Processors(CRYPTOPAY),
   Processors(CYBERSOURCE),
-  Processors(DATATRANS),
-  Processors(DLOCAL),
-  Processors(ELAVON),
-  Processors(FISERV),
-  Processors(FISERVIPG),
-  Processors(FORTE),
   Processors(GLOBALPAY),
-  Processors(GLOBEPAY),
-  Processors(GOCARDLESS),
-  Processors(HELCIM),
-  Processors(IATAPAY),
-  Processors(KLARNA),
-  Processors(MIFINITY),
-  Processors(MOLLIE),
-  Processors(MULTISAFEPAY),
-  Processors(NEXINETS),
-  Processors(NMI),
-  Processors(NOON),
-  Processors(NUVEI),
-  Processors(OPENNODE),
-  Processors(PAYME),
-  Processors(PAYU),
-  Processors(POWERTRANZ),
-  Processors(PROPHETPAY),
-  Processors(RAPYD),
-  Processors(SHIFT4),
-  Processors(STAX),
-  Processors(TRUSTPAY),
-  Processors(TSYS),
-  Processors(VOLT),
-  Processors(WORLDLINE),
   Processors(WORLDPAY),
-  Processors(ZEN),
-  Processors(ZSL),
-  Processors(PLACETOPAY),
-  Processors(RAZORPAY),
-  Processors(BAMBORA_APAC),
-  Processors(ITAUBANK),
-  Processors(PLAID),
-  Processors(SQUARE),
-  Processors(PAYBOX),
-  Processors(FIUU),
-  Processors(WELLSFARGO),
-  Processors(NOVALNET),
-  Processors(DEUTSCHEBANK),
-  Processors(NEXIXPAY),
-  Processors(JPMORGAN),
-  Processors(XENDIT),
+  Processors(NOON),
+  Processors(BANKOFAMERICA),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(ADYEN),
-  Processors(AUTHORIZEDOTNET),
-  Processors(PAYPAL),
-  Processors(BANKOFAMERICA),
-  Processors(BLUESNAP),
-  Processors(BAMBORA),
-  Processors(BRAINTREE),
-  Processors(CHECKOUT),
-  Processors(CRYPTOPAY),
-  Processors(CASHTOCODE),
   Processors(CYBERSOURCE),
-  Processors(FIUU),
-  Processors(IATAPAY),
-  Processors(KLARNA),
-  Processors(MIFINITY),
-  Processors(NMI),
-  Processors(PAYME),
-  Processors(TRUSTPAY),
-  Processors(VOLT),
-  Processors(ZSL),
-  Processors(ZEN),
-  Processors(PAYBOX),
+  Processors(GLOBALPAY),
+  Processors(WORLDPAY),
+  Processors(NOON),
+  Processors(BANKOFAMERICA),
 ]
-
-let connectorListWithAutomaticFlow = [PAYPAL]
 
 let getPaymentMethodFromString = paymentMethod => {
   switch paymentMethod->String.toLowerCase {
