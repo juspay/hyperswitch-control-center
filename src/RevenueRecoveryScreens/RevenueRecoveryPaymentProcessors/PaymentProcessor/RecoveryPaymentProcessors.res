@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  open ConnectorUtils
+  open RecoveryPaymentProcessorsUtils
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])

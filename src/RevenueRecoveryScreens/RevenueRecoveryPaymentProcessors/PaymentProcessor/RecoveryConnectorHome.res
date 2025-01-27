@@ -42,7 +42,7 @@ module ConnectorCurrentStepIndicator = {
               </RenderIf>
             </div>
             <div className={stepNameIndicator}>
-              {step->ConnectorUtils.getStepName->React.string}
+              {step->RecoveryPaymentProcessorsUtils.getStepName->React.string}
             </div>
           </div>
         })
@@ -55,7 +55,7 @@ module ConnectorCurrentStepIndicator = {
 @react.component
 let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   open ConnectorTypes
-  open ConnectorUtils
+  open RecoveryPaymentProcessorsUtils
   open APIUtils
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()

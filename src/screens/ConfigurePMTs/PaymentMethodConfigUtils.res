@@ -93,7 +93,7 @@ let encodeConnectorPayload = (typedValue: ConnectorTypes.connectorPayload) => {
     (
       "connector_type",
       JSON.Encode.string(
-        typedValue.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
+        typedValue.connector_type->RecoveryPaymentProcessorsUtils.connectorTypeTypedValueToStringMapper,
       ),
     ),
     ("payment_methods_enabled", paymentMethodEnabled),
