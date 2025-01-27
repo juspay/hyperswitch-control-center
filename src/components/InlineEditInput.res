@@ -44,10 +44,10 @@ let make = (
   ~customInputStyle="",
   ~customIconStyle="",
   ~showEditIcon=true,
-  ~handleEdit: option<int> => unit,
+  ~handleEdit: option<int> => unit=?,
   ~isUnderEdit=false,
   ~displayHoverOnEdit=true,
-  ~validateInput,
+  ~validateInput: string => Dict.t<string>=?,
   ~labelTextCustomStyle="",
 ) => {
   let (value, setValue) = React.useState(_ => labelText)
@@ -55,15 +55,15 @@ let make = (
   let enterKeyCode = 13
   let escapeKeyCode = 27
   let handleSave = () => {
+    Js.log("going save")
     setValue(_ => value)
-    switch onSubmit {
-    | Some(func) => {
+    switch (onSubmit, handleEdit) {
+    | (Some(func), Some(func1)) => {
         func(value)->ignore
-        handleEdit(None)
+        func1(None)
       }
-    | None => ()
+    | (_, _) => ()
     }
-    handleEdit(None)
   }
 
   React.useEffect(() => {
@@ -74,9 +74,14 @@ let make = (
   }, [labelText])
 
   let handleCancel = () => {
+    Js.log("inside cancel")
     setValue(_ => labelText)
     setInputErrors(_ => Dict.make())
-    handleEdit(None)
+    switch handleEdit {
+    | Some(func) => func(None)
+    | None => ()
+    }
+    // handleEdit(None)
   }
 
   let handleKeyDown = e => {
@@ -99,7 +104,10 @@ let make = (
     ~refs={ArrayOfRef([dropdownRef])},
     ~isActive=isUnderEdit,
     ~callback=() => {
-      handleEdit(None)
+      switch handleEdit {
+      | Some(func) => func(None)
+      | None => ()
+      }
     },
   )
   let submitButtons =
@@ -118,7 +126,11 @@ let make = (
       <RenderIf condition={showEditIcon}>
         <button
           onClick={_ => {
-            handleEdit(Some(index))
+            Js.log("onclick")
+            switch handleEdit {
+            | Some(func) => func(Some(index))
+            | None => ()
+            }
           }}
           className={`cursor-pointer  ${customIconStyle}`}
           ariaLabel="Edit">
@@ -135,12 +147,16 @@ let make = (
   let handleInputChange = e => {
     let value = ReactEvent.Form.target(e)["value"]
     setValue(_ => value)
-    let errors = validateInput(value)
+
+    let errors = switch validateInput {
+    | Some(func) => func(value)
+    | _ => Dict.make()
+    }
     setInputErrors(_ => errors)
   }
 
   <div
-    className="relative inline-block"
+    className="relative inline-block w-full"
     onClick={e => {
       e->ReactEvent.Mouse.stopPropagation
     }}>

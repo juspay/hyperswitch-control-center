@@ -44,6 +44,16 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    /* MERCHANT UPDATE */
+    | UPDATE_MERCHANT =>
+      switch methodType {
+      | Put =>
+        switch id {
+        | Some(id) => `merchant/${id}`
+        | None => `merchant`
+        }
+      | _ => ""
+      }
 
     /* CUSTOMERS DETAILS */
     | CUSTOMERS =>

@@ -278,6 +278,62 @@ module OMPViews = {
   }
 }
 
+module MerchantDropdownItem = {
+  @react.component
+  let make = (~merchantName, ~index: int, ~currentId) => {
+    open LogicUtils
+    open APIUtils
+    let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
+    let handleIdUnderEdit = (selectedEditId: option<int>) => {
+      setUnderEdit(_ => selectedEditId)
+    }
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let fetchDetails = useGetMethod()
+    let showToast = ToastState.useShowToast()
+    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let isUnderEdit =
+      currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
+    let (_, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
+    let getMerchantList = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
+        let response = await fetchDetails(url)
+        setMerchantList(_ => response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper))
+      } catch {
+      | _ => {
+          setMerchantList(_ => OMPSwitchUtils.ompDefaultValue(merchantId, ""))
+          showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
+        }
+      }
+    }
+    let onSubmit = async (newMerchantName: string) => {
+      try {
+        let values = {"merchant_name": newMerchantName}->Identity.genericTypeToJson
+        let url = getURL(~entityName=UPDATE_MERCHANT, ~methodType=Put, ~id=Some(merchantId))
+        let _ = await updateDetails(url, values, Put)
+        let _ = await getMerchantList()
+        showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
+      } catch {
+      | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
+      }
+    }
+
+    let isActive = currentId == merchantId
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    <InlineEditInput
+      index
+      labelText=merchantName
+      customStyle="w-full hover:bg-gray-100 mb-2 cursor-pointer"
+      handleEdit=handleIdUnderEdit
+      isUnderEdit
+      showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+      onSubmit
+      customIconComponent={<OMPCopyTextCustomComp displayValue=" " copyValue=Some({merchantId}) />}
+    />
+  }
+}
+
 let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
   SelectBox.dropdownOption,
 > = dropdownList => {
@@ -300,6 +356,32 @@ let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
   options
 }
 
+let generateDropdownOptionsinline: array<OMPSwitchTypes.ompListTypes> => array<
+  SelectBox.dropdownOption,
+> = dropdownList => {
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.mapWithIndex((
+    item,
+    i,
+  ): SelectBox.dropdownOption => {
+    let option: SelectBox.dropdownOption = {
+      label: item.name,
+      value: item.id,
+      customComponent: <MerchantDropdownItem merchantName=item.name index=i currentId=item.id />,
+      icon: Button.CustomRightIcon(
+        <ToolTip
+          description={item.id}
+          customStyle="!whitespace-nowrap"
+          toolTipFor={<div className="cursor-pointer">
+            <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+          </div>}
+          toolTipPosition=ToolTip.TopRight
+        />,
+      ),
+    }
+    option
+  })
+  options
+}
 module EditOrgName = {
   @react.component
   let make = (~showModal, ~setShowModal, ~orgList, ~orgId, ~getOrgList) => {

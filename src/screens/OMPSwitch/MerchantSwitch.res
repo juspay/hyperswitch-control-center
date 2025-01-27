@@ -203,7 +203,7 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options={merchantList->generateDropdownOptions}
+      options={merchantList->generateDropdownOptionsinline}
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false

@@ -378,6 +378,7 @@ type dropdownOptionWithoutOptional = {
   textColor: string,
   optGroup: string,
   customRowClass: string,
+  customComponent?: React.element,
 }
 type dropdownOption = {
   label: string,
@@ -390,6 +391,7 @@ type dropdownOption = {
   iconStroke?: string,
   textColor?: string,
   customRowClass?: string,
+  customComponent?: React.element,
 }
 
 let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOptional => {
@@ -404,6 +406,7 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     optGroup: dropdownOption.optGroup->Option.getOr("-"),
     customRowClass: dropdownOption.customRowClass->Option.getOr(""),
     labelDescription: dropdownOption.labelDescription,
+    customComponent: dropdownOption.customComponent->Option.getOr(React.null),
   }
 }
 
@@ -475,6 +478,7 @@ module BaseSelect = {
     ~onItemSelect=(_, _) => (),
     ~wrapBasis="",
     ~preservedAppliedOptions=[],
+    ~customComponent=None,
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let (searchString, setSearchString) = React.useState(() => "")
@@ -841,7 +845,9 @@ module BaseSelect = {
         } else if filteredOptions->Array.find(item => item.value === "Loading...")->Option.isSome {
           <Loader />
         } else {
-          {
+          switch customComponent {
+          | Some(elem) if elem != React.null => <> elem </>
+          | _ =>
             filteredOptions
             ->Array.mapWithIndex((item, indx) => {
               let valueToConsider = item.value
@@ -1132,6 +1138,7 @@ module RenderListItemInBaseRadio = {
       })
     | (_, _) => ()
     }
+
     let dropdownList =
       newOptions
       ->Array.mapWithIndex((option, i) => {
@@ -1139,10 +1146,11 @@ module RenderListItemInBaseRadio = {
         | Some(str) => option.value === str
         | None => false
         }
-
         let description = descriptionOnHover ? option.description : None
         let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
-        let listItemComponent =
+        let listItemComponent = switch option.customComponent {
+        | Some(elem) => elem
+        | None =>
           <ListItem
             key={Int.toString(i)}
             isDropDown
@@ -1176,6 +1184,7 @@ module RenderListItemInBaseRadio = {
             labelDescription=option.labelDescription
             labelDescriptionClass
           />
+        }
 
         if !descriptionOnHover {
           switch option.description {
@@ -1330,7 +1339,6 @@ module BaseRadio = {
       setExtSearchString(_ => searchString)
       None
     }, [searchString])
-
     OutsideClick.useOutsideClick(
       ~refs={ArrayOfRef([dropdownRef->Option.getOr(React.useRef(Nullable.null))])},
       ~isActive=showDropDown,
@@ -1646,7 +1654,6 @@ module BaseDropdown = {
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
     let dropdownOuterClass = "border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  shadow-generic_shadow dark:shadow-generic_shadow_dark z-40"
-
     let newInputSelect = input->ffInputToSelectInput
     let newInputRadio = input->ffInputToRadioInput
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1701,6 +1708,7 @@ module BaseDropdown = {
     }, [showDropDown])
 
     let onClick = _ => {
+      Js.log("on click inside")
       switch buttonClickFn {
       | Some(fn) => fn(input.name)
       | None => ()
@@ -2121,6 +2129,7 @@ module InfraSelectBox = {
     , [values])
 
     let onItemClick = (itemDataValue, isDisabled) => {
+      Js.log("hello")
       if !isDisabled {
         if allowMultiSelect {
           let data = if Array.includes(saneValue, itemDataValue) {
