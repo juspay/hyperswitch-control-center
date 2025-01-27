@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.27.0
+
+### Bug Fixes
+
+- Connector list not updating properly everytime ([#2124](https://github.com/juspay/hyperswitch-control-center/pull/2124)) ([`d2fc840`](https://github.com/juspay/hyperswitch-control-center/commit/d2fc840093ad6e15fc234c50e2a6bee223f3d002))
+- Theme logo ([#2130](https://github.com/juspay/hyperswitch-control-center/pull/2130)) ([`64d5e21`](https://github.com/juspay/hyperswitch-control-center/commit/64d5e212098316a73d8610bc9e553bde261caf22))
+- Sorted userlist by email ([#2129](https://github.com/juspay/hyperswitch-control-center/pull/2129)) ([`51a1f45`](https://github.com/juspay/hyperswitch-control-center/commit/51a1f45428075d3788b3b9d41bf2a0c6cb96ed2c))
+- Surcharge delete button ([#2127](https://github.com/juspay/hyperswitch-control-center/pull/2127)) ([`5acc3fa`](https://github.com/juspay/hyperswitch-control-center/commit/5acc3fa613e8f04c3300b41e5e2d83448e3cf78e))
+
+### Testing
+
+- Cypress tests restructure ([#1928](https://github.com/juspay/hyperswitch-control-center/pull/1928)) ([`e07f609`](https://github.com/juspay/hyperswitch-control-center/commit/e07f6098a21c054259ef25b8e7b97924812c29d0))
+
+### Miscellaneous Tasks
+
+- Granularity time formatting to user time zone ([#2122](https://github.com/juspay/hyperswitch-control-center/pull/2122)) ([`580c93a`](https://github.com/juspay/hyperswitch-control-center/commit/580c93a4db103658a29974a623823e2c0eb761ed))
+- Insights single point enhancement ([#2132](https://github.com/juspay/hyperswitch-control-center/pull/2132)) ([`0dded6e`](https://github.com/juspay/hyperswitch-control-center/commit/0dded6eb3fe9e3dbc83d0f169178a23a41ac1bbf))
+
+**Full Changelog:** [`2025.01.24.0...2025.01.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.24.0...2025.01.27.0)
+
+- - -
+
 ## 2025.01.24.0
 
 ### Features
