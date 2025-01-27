@@ -43,7 +43,7 @@ let make = () => {
 
   let maintainenceAlert = featureFlagDetails.maintainenceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
-  let reconSidebars = HSReconSidebarValues.useGetReconSideBar()
+  let productSidebars = ProductsSidebarValues.useGetSideBarValues()
   sessionExpired := false
 
   let setUpDashboard = async () => {
@@ -109,7 +109,7 @@ let make = () => {
                   path={url.path}
                   sidebars={hyperSwitchAppSidebars}
                   key={(screenState :> string)}
-                  productSiebars={reconSidebars}
+                  productSiebars=productSidebars
                 />
               </RenderIf>
               <PageLoaderWrapper
@@ -151,7 +151,8 @@ let make = () => {
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
-                        | list{"v2", "recon", ..._} => <HSReconApp />
+                        | list{"v2", "recon", ..._} => <ReconApp />
+                        | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
                         | list{"home", ..._}
                         | list{"recon"}
                         | list{"upload-files"}
