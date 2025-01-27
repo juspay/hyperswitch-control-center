@@ -134,7 +134,7 @@ let make = () => {
                         headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
                         | Some(url) =>
                           <>
-                            <img className="w-40" alt="image" src={`${url}`} />
+                            <img className="w-40 h-16" alt="image" src={`${url}`} />
                             {ompDropdowns}
                           </>
                         | None => ompDropdowns
