@@ -231,11 +231,15 @@ let make = (~children) => {
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
-      let val = {
-        faviconUrl: urlsDict->getString("faviconUrl", "")->getNonEmptyString,
-        logoUrl: urlsDict->getString("logoUrl", "")->getNonEmptyString,
-      }
       let existingEnv = DOMUtils.window._env_
+      let val = {
+        faviconUrl: urlsDict
+        ->getString("faviconUrl", existingEnv.urlThemeConfig.faviconUrl->Option.getOr(""))
+        ->getNonEmptyString,
+        logoUrl: urlsDict
+        ->getString("logoUrl", existingEnv.urlThemeConfig.logoUrl->Option.getOr(""))
+        ->getNonEmptyString,
+      }
 
       let updatedUrlConfig = {
         ...existingEnv,
