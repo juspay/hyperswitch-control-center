@@ -3,7 +3,7 @@ open HomeUtils
 module ConnectorOverview = {
   @react.component
   let make = () => {
-    open RecoveryPaymentProcessorsUtils
+    open ConnectorUtils
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
     let connectorsList =
