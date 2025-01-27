@@ -1,6 +1,6 @@
 @react.component
 let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) => {
-  open RecoveryPaymentProcessorsUtils
+  open ConnectorUtils
   open APIUtils
   open LogicUtils
   open ConnectorAccountDetailsHelper

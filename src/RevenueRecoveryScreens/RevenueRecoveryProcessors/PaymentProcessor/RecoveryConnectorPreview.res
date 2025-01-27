@@ -136,7 +136,7 @@ module ConnectorSummaryGrid = {
     ~updateStepValue=None,
     ~getConnectorDetails=None,
   ) => {
-    open RecoveryPaymentProcessorsUtils
+    open ConnectorUtils
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
@@ -334,7 +334,7 @@ let make = (
   ~getConnectorDetails=None,
 ) => {
   open APIUtils
-  open RecoveryPaymentProcessorsUtils
+  open ConnectorUtils
   let {feedback, paypalAutomaticFlow} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getURL = useGetURL()

@@ -1,6 +1,6 @@
 @react.component
 let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetails) => {
-  open RecoveryPaymentProcessorsUtils
+  open ConnectorUtils
   open APIUtils
   open LogicUtils
   open ConnectorAccountDetailsHelper

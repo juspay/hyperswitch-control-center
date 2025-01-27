@@ -112,7 +112,7 @@ module RenderConnectorInputFields = {
     ~description="",
   ) => {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    open RecoveryPaymentProcessorsUtils
+    open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
 
@@ -254,7 +254,7 @@ module CashToCodeMethods = {
   open ConnectorTypes
   @react.component
   let make = (~connectorAccountFields, ~selectedConnector, ~connector) => {
-    open RecoveryPaymentProcessorsUtils
+    open ConnectorUtils
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
     let (selectedCashToCodeMthd, setCashToCodeMthd) = React.useState(_ => #Classic)
     let tabs = [#Classic, #Evoucher]
@@ -309,7 +309,7 @@ module ConnectorConfigurationFields = {
         <RenderConnectorInputFields
           details={connectorAccountFields}
           name={"connector_account_details"}
-          getPlaceholder={RecoveryPaymentProcessorsUtils.getPlaceHolder}
+          getPlaceholder={ConnectorUtils.getPlaceHolder}
           connector
           selectedConnector
         />
@@ -327,7 +327,7 @@ module ConnectorConfigurationFields = {
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
         name={"connector_webhook_details"}
-        checkRequiredFields={RecoveryPaymentProcessorsUtils.getWebHookRequiredFields}
+        checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
         connector
         selectedConnector
       />
@@ -486,7 +486,7 @@ module ConnectorHeaderWrapper = {
     ~conditionForIntegrationSteps=true,
     ~connectorType=ConnectorTypes.Processor,
   ) => {
-    open RecoveryPaymentProcessorsUtils
+    open ConnectorUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let connectorNameFromType = connector->getConnectorNameTypeFromString
     let setShowModalFunction = switch handleShowModal {
