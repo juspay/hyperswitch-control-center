@@ -24,30 +24,13 @@ let reconAnalytics = {
     searchOptions: [("Recon analytics", "")],
   })
 }
-let reconReports = {
-  SubLevelLink({
-    name: "Reports",
-    link: `v2/recon/reports`,
-    access: Access,
-    searchOptions: [("Recon reports", "")],
-  })
-}
 
-let recon = () => {
-  let links = [reconOnBoarding, reconAnalytics, reconReports]
+let reconSidebars = {
+  let links = [reconOnBoarding, reconAnalytics]
   Section({
     name: "Recon And Settlement",
     icon: "v2/recon",
     showSection: true,
     links,
   })
-}
-let emptyComponent = CustomComponent({
-  component: React.null,
-})
-
-let useGetReconSideBar = () => {
-  let {devReconv2Product} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let sidebar = [devReconv2Product ? recon() : emptyComponent]
-  sidebar
 }
