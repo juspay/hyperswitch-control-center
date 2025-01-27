@@ -5,7 +5,7 @@ let make = () => {
   {
     switch url.path->HSwitchUtils.urlPath {
     | list{"v2", "recovery", "home"} => <RevenueRecoveryHome />
-    | list{"v2", "recovery", "payment-processors"} => <RecoveryConnectorList />
+    | list{"v2", "recovery", "payment-processors"} => <RecoveryConnectorContainer />
     | list{"v2", "recovery", "billing-processors"} => <RevenueRecoveryBillingProcessors />
     | list{"v2", "recovery", "payments"} => <RevenueRecoveryPayments />
     | _ => React.null
