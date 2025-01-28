@@ -10,6 +10,7 @@ module ActiveRulePreview = {
     let showPopUp = PopUpState.useShowPopUp()
     let name = rule->getString("name", "")
     let description = rule->getString("description", "")
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let ruleInfo = rule->getDictfromDict("algorithm")->SurchargeUtils.ruleInfoTypeMapper
 
@@ -49,16 +50,16 @@ module ActiveRulePreview = {
             <p className="text-xl font-semibold text-grey-700">
               {name->capitalizeString->React.string}
             </p>
-            <ToolTip
+            <ACLDiv
               description="Delete existing surcharge rule"
-              toolTipFor={<Icon
+              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+              onClick={_ => handleDeletePopup()}>
+              <Icon
                 name="delete"
                 size=20
                 className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
-                onClick={_ => handleDeletePopup()}
-              />}
-              toolTipPosition=ToolTip.Top
-            />
+              />
+            </ACLDiv>
           </div>
           <p className="text-base font-normal text-grey-700 opacity-50">
             {description->React.string}
