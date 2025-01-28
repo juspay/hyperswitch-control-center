@@ -122,8 +122,15 @@ let make = (~id) => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
+      switch Exn.message(e) {
+      | Some(message) =>
+        if message->String.includes("IR_11") {
+          setScreenState(_ => Success)
+        } else {
+          setScreenState(_ => Error(message))
+        }
+      | None => setScreenState(_ => Error("Failed to Fetch!"))
+      }
     }
   }
 
