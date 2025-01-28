@@ -165,7 +165,7 @@ let defaultUIConfig: t = {
   },
   shadow: {
     shadowColor: {
-      primaryNormal: "shadow-[0px_0px_0px_1px_#0567F0]",
+      primaryNormal: "shadow-primary",
       primaryFocused: "focus:shadow-primary",
     },
   },
