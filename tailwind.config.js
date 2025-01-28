@@ -221,6 +221,10 @@ module.exports = {
           dark: "#F04E42",
           light: "#FEEDEC",
         },
+        nd_gray: {
+          600: "#525866",
+          700: "#2B303B",
+        },
         "yellow-bg": "#F7D59B4D",
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",

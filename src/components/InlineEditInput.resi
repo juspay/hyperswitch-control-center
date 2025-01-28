@@ -24,10 +24,11 @@ let make: (
   ~customInputStyle: string=?,
   ~customIconStyle: string=?,
   ~showEditIcon: bool=?,
-  ~handleEdit: option<int> => unit=?,
+  ~handleEdit: option<int> => unit,
   ~isUnderEdit: bool=?,
   ~displayHoverOnEdit: bool=?,
-  ~validateInput: string => RescriptCore.Dict.t<string>=?,
+  ~validateInput: 'b => RescriptCore.Dict.t<'c>,
   ~labelTextCustomStyle: string=?,
   ~customWidth: string=?,
+  ~handleClick: unit => unit=?,
 ) => React.element

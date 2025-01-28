@@ -196,25 +196,35 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
+  let updatedMerchantList: array<
+    OMPSwitchTypes.ompListTypesCustom,
+  > = merchantList->Array.mapWithIndex((item, i) => {
+    let customComponent =
+      <MerchantDropdownItem
+        key={Int.toString(i)} merchantName=item.name index=i currentId=item.id
+      />
+    let listItem: OMPSwitchTypes.ompListTypesCustom = {
+      id: item.id,
+      name: item.name,
+      customComponent,
+    }
+    listItem
+  })
   <div className="w-fit">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
       input
       deselectDisable=true
-      customButtonStyle="!rounded-md"
-      options={merchantList->generateDropdownOptionsinline}
-      marginTop="mt-14"
+      options={updatedMerchantList->generateDropdownOptionsCustomComponent}
+      marginTop="mt-14 "
       hideMultiSelectButtons=true
       addButton=false
-      customStyle="rounded w-fit"
+      customStyle="!border-none  "
       searchable=false
       baseComponent={<ListBaseComp heading="Merchant" subHeading arrow />}
-      baseComponentCustomStyle="bg-white rounded"
+      baseComponentCustomStyle=" !border-none"
       bottomComponent={<AddNewOMPButton user=#Merchant setShowModal customStyle addItemBtnStyle />}
-      optionClass="text-gray-600 text-fs-14"
-      selectClass="text-gray-600 text-fs-14"
-      customDropdownOuterClass="!border-none w-fit"
       toggleChevronState
       customScrollStyle
       dropdownContainerStyle

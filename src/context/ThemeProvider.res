@@ -22,11 +22,11 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
       background: "#006df9",
     },
     sidebar: {
-      primary: "#242F48",
-      secondary: "#303E5F",
-      hoverColor: "#ffffff",
-      primaryTextColor: "#ffffff",
-      secondaryTextColor: "#ffffff",
+      primary: "#FCFCFD",
+      secondary: "#FFFFFF",
+      hoverColor: "#9a9a9c",
+      primaryTextColor: "#1C6DEA",
+      secondaryTextColor: "#525866",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -138,9 +138,9 @@ let make = (~children) => {
         },
         sidebar: {
           // This 'colorsConfig' will be replaced with 'sidebarConfig', and the 'sidebar' key will be changed to 'primary' after API Changes.
-          primary: colorsConfig->getString("sidebar", defaultSettings.sidebar.primary),
+          primary: sidebarConfig->getString("sidebar", defaultSettings.sidebar.primary),
           // This 'colorsConfig' will be replaced with 'sidebarConfig' once the API changes are done.
-          secondary: colorsConfig->getString("secondary", defaultSettings.sidebar.secondary),
+          secondary: sidebarConfig->getString("secondary", defaultSettings.sidebar.secondary),
           hoverColor: sidebarConfig->getString("hoverColor", defaultSettings.sidebar.hoverColor),
           // This property is currently required to support current sidebar changes. It will be removed in a future update.
           primaryTextColor: sidebarConfig->getString(

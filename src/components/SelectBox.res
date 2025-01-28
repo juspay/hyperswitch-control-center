@@ -1149,8 +1149,8 @@ module RenderListItemInBaseRadio = {
         let description = descriptionOnHover ? option.description : None
         let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
         let listItemComponent = switch option.customComponent {
-        | Some(elem) => elem
-        | None =>
+        | Some(elem) if elem != React.null => elem
+        | _ =>
           <ListItem
             key={Int.toString(i)}
             isDropDown

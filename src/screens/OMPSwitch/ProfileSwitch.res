@@ -187,7 +187,18 @@ let make = () => {
   let toggleChevronState = () => {
     setArrow(prev => !prev)
   }
-
+  let updatedProfileList: array<
+    OMPSwitchTypes.ompListTypesCustom,
+  > = profileList->Array.mapWithIndex((item, i) => {
+    let customComponent =
+      <ProfileDropdownItem key={Int.toString(i)} profileName=item.name index=i currentId=item.id />
+    let listItem: OMPSwitchTypes.ompListTypesCustom = {
+      id: item.id,
+      name: item.name,
+      customComponent,
+    }
+    listItem
+  })
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -195,12 +206,12 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options={profileList->generateDropdownOptions}
+      options={updatedProfileList->generateDropdownOptionsCustomComponent}
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
       searchable=true
-      customStyle="absolute w-fit left-0"
+      customStyle="absolute w-fit left-0 rounded-lg"
       baseComponent={<ListBaseComp
         heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}

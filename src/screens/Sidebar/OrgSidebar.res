@@ -120,10 +120,6 @@ module OrgTile = {
             customWidth="min-w-64 "
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
-            // leftIcon={<img
-            //   src="https://play-lh.googleusercontent.com/wN4vTO9WnIvRTKNl1Du-UopkB7siyBEGyZuVviuM_Dm3_HxEvclTrlc61E5pEN_TFg"
-            //   className="w-10 h-8"
-            // />}
           />
         </div>
       </div>
@@ -306,7 +302,6 @@ let make = () => {
       setShowSwitchingOrg(_ => true)
       let _ = await internalSwitch(~expectedOrgId=Some(value))
       RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
-      showToast(~message="Switched organisation successfully", ~toastType=ToastSuccess)
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {
