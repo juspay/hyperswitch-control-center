@@ -1,15 +1,15 @@
 module HoverInline: {
   @react.component
   let make: (
-    ~customStyle: string=?,
-    ~leftIcon: option<React.element>,
-    ~value: string,
-    ~subText: string,
-    ~showEditIconOnHover: bool,
-    ~leftActionButtons: React.element,
-    ~labelTextCustomStyle: string,
-    ~customWidth: string,
-  ) => React.element
+  ~customStyle: string=?,
+  ~leftIcon: option<React.element>,
+  ~value: string,
+  ~subText: string,
+  ~showEditIconOnHover: bool,
+  ~leftActionButtons: React.element,
+  ~labelTextCustomStyle: string,
+  ~customWidth: string,
+) => React.element
 }
 @react.component
 let make: (
@@ -24,10 +24,10 @@ let make: (
   ~customInputStyle: string=?,
   ~customIconStyle: string=?,
   ~showEditIcon: bool=?,
-  ~handleEdit: option<int> => unit,
+  ~handleEdit: option<int> => unit=?,
   ~isUnderEdit: bool=?,
   ~displayHoverOnEdit: bool=?,
-  ~validateInput: 'b => RescriptCore.Dict.t<'c>,
+  ~validateInput: string => RescriptCore.Dict.t<string>=?,
   ~labelTextCustomStyle: string=?,
   ~customWidth: string=?,
 ) => React.element

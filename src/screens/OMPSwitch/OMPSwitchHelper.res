@@ -251,6 +251,8 @@ module MerchantDropdownItem = {
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
     }
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+    let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
@@ -271,11 +273,29 @@ module MerchantDropdownItem = {
         }
       }
     }
+
+    let switchMerch = async value => {
+      Js.log("Attempting to switch merchant...")
+      try {
+        let _ = await internalSwitch(~expectedMerchantId=Some(value))
+        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
+      } catch {
+      | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+      }
+    }
     let onSubmit = async (newMerchantName: string) => {
       try {
-        let values = {"merchant_name": newMerchantName}->Identity.genericTypeToJson
-        let url = getURL(~entityName=UPDATE_MERCHANT, ~methodType=Put, ~id=Some(merchantId))
-        let _ = await updateDetails(url, values, Put)
+        let body =
+          [
+            ("merchant_id", merchantId->JSON.Encode.string),
+            ("merchant_name", newMerchantName->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson
+        let accountUrl = getURL(
+          ~entityName=MERCHANT_ACCOUNT,
+          ~methodType=Post,
+          ~id=Some(merchantId),
+        )
+        let _ = await updateDetails(accountUrl, body, Post)
         let _ = await getMerchantList()
         showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
       } catch {
@@ -285,16 +305,27 @@ module MerchantDropdownItem = {
 
     let isActive = currentId == merchantId
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    <InlineEditInput
-      index
-      labelText=merchantName
-      customStyle="w-full hover:bg-gray-100 mb-2 cursor-pointer"
-      handleEdit=handleIdUnderEdit
-      isUnderEdit
-      showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
-      onSubmit
-      customIconComponent={<OMPCopyTextCustomComp displayValue=" " copyValue=Some({merchantId}) />}
-    />
+    <div className="flex items-center px-1 rounded-md hover:bg-jp-gray-100">
+      <div className="w-6 flex justify-start">
+        {isActive && !isUnderEdit ? <Icon name="nd-check" className="ml-1" /> : React.null}
+      </div>
+      <div className="flex-grow" onClick={_ => Js.log("Clicked!")}>
+        <InlineEditInput
+          index
+          labelText=merchantName
+          customStyle="w-full mb-2 cursor-pointer !bg-transparent mb-0"
+          handleEdit=handleIdUnderEdit
+          isUnderEdit
+          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          onSubmit
+          labelTextCustomStyle="mr-2"
+          customInputStyle="!py-0"
+          customIconComponent={<HelperComponents.CopyTextCustomComp
+            displayValue=" " copyValue=Some(merchantId)
+          />}
+        />
+      </div>
+    </div>
   }
 }
 
@@ -336,7 +367,7 @@ let generateDropdownOptionsinline: array<OMPSwitchTypes.ompListTypes> => array<
           description={item.id}
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
-            <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+            <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
           </div>}
           toolTipPosition=ToolTip.TopRight
         />,

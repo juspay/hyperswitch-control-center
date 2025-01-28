@@ -120,6 +120,10 @@ module OrgTile = {
             customWidth="min-w-64 "
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
+            // leftIcon={<img
+            //   src="https://play-lh.googleusercontent.com/wN4vTO9WnIvRTKNl1Du-UopkB7siyBEGyZuVviuM_Dm3_HxEvclTrlc61E5pEN_TFg"
+            //   className="w-10 h-8"
+            // />}
           />
         </div>
       </div>
