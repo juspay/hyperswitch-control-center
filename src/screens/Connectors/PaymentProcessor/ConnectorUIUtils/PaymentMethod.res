@@ -291,8 +291,7 @@ module CardRenderer = {
                 <div className="flex items-center gap-2">
                   {switch connector->getConnectorNameTypeFromString {
                   | Processors(KLARNA) =>
-
-                  <RenderIf
+                    <RenderIf
                       condition={!(
                         value.payment_experience->Option.getOr("") === "redirect_to_url" &&
                           initialValues
