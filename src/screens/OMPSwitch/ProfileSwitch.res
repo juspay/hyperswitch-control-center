@@ -211,15 +211,12 @@ let make = () => {
       hideMultiSelectButtons=true
       addButton=false
       searchable=true
-      customStyle="absolute w-fit left-0 rounded-lg"
+      customStyle="w-fit"
       baseComponent={<ListBaseComp
         heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      baseComponentCustomStyle="bg-white"
       bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
-      optionClass="text-gray-600 text-fs-14"
-      selectClass="text-gray-600 text-fs-14"
-      customDropdownOuterClass="!border-none !w-full"
+      customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState
       customScrollStyle

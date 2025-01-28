@@ -220,7 +220,7 @@ let make = () => {
       marginTop="mt-14 "
       hideMultiSelectButtons=true
       addButton=false
-      customStyle="!border-none  "
+      customStyle={`!border-none w-fit `}
       searchable=false
       baseComponent={<ListBaseComp heading="Merchant" subHeading arrow />}
       baseComponentCustomStyle=" !border-none"
