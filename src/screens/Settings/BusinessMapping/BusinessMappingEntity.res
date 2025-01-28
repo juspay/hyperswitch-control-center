@@ -26,6 +26,8 @@ module ProfileActions = {
         "Profile name cannot exceed 64 characters"
       } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
         "Profile name should not contain special characters"
+      } else if profileName === defaultProfileName {
+        "Profile name cannot be same as the current profile name"
       } else {
         ""
       }
