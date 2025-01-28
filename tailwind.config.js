@@ -346,42 +346,65 @@ module.exports = {
     plugin(function ({ addUtilities }) {
       const newUtilities = {
         ".primary-gradient-button": {
-          border: "double 1.5px transparent",
           boxShadow: "0px 0px 0px 1px rgb(var(--borders-border-color))",
           backgroundImage:
             "linear-gradient(180deg, rgb(var(--btn-primary-background-color)) -5%, rgb(var(--borders-border-color)) 107.5%), linear-gradient(180deg, rgba(var(--borders-border-color), 0.7) -6.25%, rgb(var(--btn-primary-background-color)) 100%)",
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",
-          color: "rgb(var(--btn-primary-text-color))",
         },
         ".primary-gradient-button:hover": {
-          border: "double 1.5px transparent",
           boxShadow: "0px 0px 0px 1px rgb(var(--borders-border-color))",
           backgroundImage:
             "linear-gradient(180deg, rgb(var(--btn-primary-hover-background-color)) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%), linear-gradient(180deg, rgba(var(--borders-border-color), 0.7) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%)",
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",
-          color: "rgb(var(--btn-primary-text-color))",
+        },
+        ".primary-gradient-button:active": {
+          boxShadow: "0px 3px 4px 0px rgb(var(--borders-border-color)) inset",
+          backgroundImage:
+            "linear-gradient(180deg, rgba(var(--btn-primary-background-color), 0.5) -5%, rgb(var(--btn-primary-hover-background-color)) 107.5%), linear-gradient(180deg, rgb(var(--btn-primary-background-color)) -6.25%, rgb(var(--btn-primary-background-color)) 100%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
+        ".primary-gradient-button:focus": {
+          boxShadow:
+            "0px 0px 0px 3px rgba(var(--btn-primary-hover-background-color), 0.25)",
+          backgroundImage:
+            "linear-gradient(180deg, rgba(var(--btn-primary-background-color), 0.9) -5%, rgb(var(--btn-primary-hover-background-color)) 107.5%), linear-gradient(180deg, rgba(var(--btn-primary-background-color), 0.75) -6.25%, rgb(var(--btn-primary-background-color)) 100%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
         },
         ".secondary-gradient-border": {
-          border: "double 1.5px transparent",
           boxShadow:
             "0px 0px 0px 1px rgba(var(--btn-secondary-text-color), 0.25)",
           backgroundImage:
             "linear-gradient(180deg, rgb(var(--btn-secondary-background-color)) 0%, rgb(var(--btn-secondary-hover-background-color)) 100%), linear-gradient(180deg, rgb(var(--btn-secondary-hover-background-color)) 0%, rgb(var(--btn-secondary-background-color)) 97.5%)",
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",
-          color: "rgb(var(--btn-secondary-text-color))",
         },
         ".secondary-gradient-border:hover": {
-          border: "double 1.5px transparent",
           boxShadow:
             "0px 0px 0px 1px rgba(var(--btn-secondary-text-color), 0.25)",
           backgroundImage:
             "linear-gradient(180deg, rgb(var(--btn-secondary-hover-background-color)) 0%, rgb(var(--btn-secondary-background-color)) 100%), linear-gradient(180deg, rgb(var(--btn-secondary-background-color)) 0%, rgb(var(--btn-secondary-hover-background-color)) 97.5%)",
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",
-          color: "rgb(var(--btn-secondary-text-color))",
+        },
+        ".secondary-gradient-border:active": {
+          boxShadow:
+            "0px 3px 4px 0px rgba(var(--btn-secondary-background-color), 0.9) inset",
+          backgroundImage:
+            "linear-gradient(180deg, rgba(var(--btn-secondary-background-color), 0.5) 0%, rgb(var(--btn-secondary-hover-background-color)) 100%), linear-gradient(180deg, rgb(var(--btn-secondary-background-color)) 0%, rgba(var(--btn-secondary-hover-background-color), 0.1) 97.5%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
+        ".secondary-gradient-border:focus": {
+          boxShadow:
+            "0px 0px 0px 3px rgba(var(--btn-secondary-text-color), 0.1)",
+          backgroundImage:
+            "linear-gradient(180deg, rgba(var(--btn-secondary-background-color), 0.9) 0%, rgb(var(--btn-secondary-hover-background-color)) 100%), linear-gradient(180deg, rgb(var(--btn-secondary-background-color)) 0%, rgba(var(--btn-secondary-background-color), 0.7) 97.5%);",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
         },
       };
 
