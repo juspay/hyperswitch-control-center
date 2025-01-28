@@ -14,7 +14,7 @@ let make = (
         setDashboardPageState(_ => #HOME)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
       }}
-      customButtonStyle="mt-4 !p-2"
+      customButtonStyle="mt-4"
     />
   </NoDataFound>
 }

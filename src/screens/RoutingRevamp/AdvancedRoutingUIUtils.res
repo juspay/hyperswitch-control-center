@@ -26,7 +26,7 @@ module LogicalOps = {
           onClick={_ => onChange(text)}
           textStyle={active ? `${textColor.primaryNormal}` : ""}
           textWeight={active ? "font-semibold" : "font-medium"}
-          customButtonStyle={active ? "shadow-inner px-0" : "px-0"}
+          customButtonStyle={active ? "shadow-inner" : ""}
           buttonType={active ? SecondaryFilled : Secondary}
         />
       })

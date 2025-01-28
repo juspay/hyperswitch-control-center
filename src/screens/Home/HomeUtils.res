@@ -357,7 +357,6 @@ module LowRecoveryCodeBanner = {
       <Button
         text="Regenerate recovery-codes"
         buttonType={Secondary}
-        customButtonStyle="!p-2"
         onClick={_ =>
           RescriptReactRouter.push(
             GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),

@@ -68,7 +68,7 @@ module ClearFilters = {
     <RenderIf condition={hasExtraFilters || outsidefilter}>
       <Button
         text
-        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border"
+        customButtonStyle="bg-white rounded-lg !h-10 !border"
         showBorder=false
         textStyle
         leftIcon

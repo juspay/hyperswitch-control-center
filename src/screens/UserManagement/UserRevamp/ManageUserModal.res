@@ -120,7 +120,6 @@ module ResendInviteSection = {
       </div>
       <Button
         text="Resend"
-        customButtonStyle="!p-2 "
         buttonType={Secondary}
         leftIcon={FontAwesome("paper-plane-outlined")}
         onClick={_ => resendInvite()->ignore}
@@ -177,7 +176,7 @@ module DeleteUserRole = {
       </div>
       <Button
         text="Delete"
-        customButtonStyle="bg-white !p-2 !text-red-400 "
+        customButtonStyle="bg-white !text-red-400 "
         buttonType={Secondary}
         leftIcon={FontAwesome("delete")}
         onClick={_ => {
@@ -257,7 +256,7 @@ let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   <>
     <Button
-      text="Manage user" customButtonStyle="!p-2 !bg-white " onClick={_ => setShowModal(_ => true)}
+      text="Manage user" customButtonStyle="!bg-white " onClick={_ => setShowModal(_ => true)}
     />
     <RenderIf condition={showModal}>
       <ManageUserModal userInfoValue showModal setShowModal />
