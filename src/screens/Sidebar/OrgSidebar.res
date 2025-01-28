@@ -71,7 +71,7 @@ module OrgTile = {
           ->Array.slice(~start=0, ~end=index + 1)
           ->Array.filter(org => org.name == org.id)
           ->Array.length
-        `O${(count + 1)->Int.toString}`
+        `O${count->Int.toString}`
       } else {
         firstLetter
       }
