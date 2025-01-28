@@ -95,6 +95,8 @@ type processorTypes =
   | NOVALNET
   | DEUTSCHEBANK
   | NEXIXPAY
+  | XENDIT
+  | JPMORGAN
 
 type payoutProcessorTypes =
   | ADYEN
@@ -308,8 +310,16 @@ type frm_config = {
   mutable payment_methods: array<frm_payment_method>,
 }
 
+type connectorTypeVariants =
+  | PaymentProcessor
+  | PaymentVas
+  | PayoutProcessor
+  | AuthenticationProcessor
+  | PMAuthProcessor
+  | TaxProcessor
+
 type connectorPayload = {
-  connector_type: string,
+  connector_type: connectorTypeVariants,
   connector_name: string,
   connector_label: string,
   connector_account_details: connectorAuthTypeObj,
@@ -331,12 +341,4 @@ type connector =
   | PayoutProcessor
   | ThreeDsAuthenticator
   | PMAuthenticationProcessor
-  | TaxProcessor
-
-type connectorTypeVariants =
-  | PaymentProcessor
-  | PaymentVas
-  | PayoutProcessor
-  | AuthenticationProcessor
-  | PMAuthProcessor
   | TaxProcessor

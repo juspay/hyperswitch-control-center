@@ -11,7 +11,7 @@ module CustomInputBox = {
     ~autoFocus=false,
     ~widthClass="w-full",
     ~fontClassName="text-jp-gray-900 text-body text-opacity-75",
-    ~borderClass="h-10 pl-4 border-2 border-jp-gray-700 dark:border-jp-gray-800 border-opacity-25 focus:border-opacity-100 focus:border-blue-500 dark:focus:border-blue-500 rounded-md",
+    ~borderClass="h-10 pl-4 border-2 border-jp-gray-700 dark:border-jp-gray-800 border-opacity-25 focus:border-opacity-100 focus:border-primary dark:focus:border-primary rounded-md",
     ~maxLength=100,
     ~setVal,
   ) => {

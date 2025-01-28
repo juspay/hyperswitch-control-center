@@ -1,6 +1,7 @@
 const { defineConfig } = require("cypress");
 module.exports = defineConfig({
   e2e: {
+    baseUrl: "http://localhost:9000",
     setupNodeEvents(on, config) {
       require("@cypress/code-coverage/task")(on, config);
       // include any other plugin code...
@@ -15,4 +16,6 @@ module.exports = defineConfig({
     CYPRESS_USERNAME: process.env.CYPRESS_USERNAME || "cypress@gmail.com",
     CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD || "Cypress98#",
   },
+  viewportWidth: 1440,
+  viewportHeight: 1005,
 });

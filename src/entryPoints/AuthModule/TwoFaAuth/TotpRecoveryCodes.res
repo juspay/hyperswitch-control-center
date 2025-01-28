@@ -57,8 +57,9 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
           <p className="text-jp-gray-700">
             {"Recovery codes provide a way to access your account if you lose your device and can't receive two-factor authentication codes."->React.string}
           </p>
-          <HSwitchUtils.WarningArea
-            warningText="These codes are the last resort for accessing your account in case you lose your password and second factors. If you cannot find these codes, you will lose access to your account."
+          <HSwitchUtils.AlertBanner
+            bannerText="These codes are the last resort for accessing your account in case you lose your password and second factors. If you cannot find these codes, you will lose access to your account."
+            bannerType=Warning
           />
           <TwoFaElements.ShowRecoveryCodes recoveryCodes />
         </div>

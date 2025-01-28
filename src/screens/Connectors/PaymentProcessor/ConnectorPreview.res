@@ -5,8 +5,10 @@ module InfoField = {
 
     <RenderIf condition={str->LogicUtils.isNonEmptyString}>
       <div>
-        <h2 className="text-lg font-semibold"> {label->React.string} </h2>
-        <h3 className=" break-words"> {str->React.string} </h3>
+        <h2 className="text-medium font-semibold"> {label->React.string} </h2>
+        <h3 className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold">
+          {str->React.string}
+        </h3>
       </div>
     </RenderIf>
   }
@@ -16,17 +18,20 @@ module KeyAndCopyArea = {
   @react.component
   let make = (~copyValue) => {
     let showToast = ToastState.useShowToast()
-    <div className={`flex flex-col md:flex-row gap-2 items-start`}>
-      <p className="text-base text-grey-700 opacity-70 break-all overflow-scroll">
+    <div className="flex flex-col md:flex-row items-center">
+      <p
+        className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold w-89.5-per">
         {copyValue->React.string}
       </p>
       <div
-        className="cursor-pointer w-20 pt-1"
+        className="cursor-pointer"
         onClick={_ => {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
-        <img alt="copy-clipboard" src={`/assets/CopyToClipboard.svg`} />
+        <img
+          alt="copy-clipboard" className="w-1.1-rem h-1.1-rem" src={`/assets/CopyToClipboard.svg`}
+        />
       </div>
     </div>
   }
@@ -131,6 +136,7 @@ module ConnectorSummaryGrid = {
     ~updateStepValue=None,
     ~getConnectorDetails=None,
   ) => {
+    open ConnectorUtils
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
@@ -142,11 +148,14 @@ module ConnectorSummaryGrid = {
       )
       ->Option.getOr(defaultBusinessProfile)
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-    let copyValueOfWebhookEndpoint = ConnectorUtils.getWebhooksUrl(
+    let copyValueOfWebhookEndpoint = getWebhooksUrl(
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
     )
-    let (processorType, _) = connectorInfo.connector_type->ConnectorUtils.connectorTypeTuple
+    let (processorType, _) =
+      connectorInfo.connector_type
+      ->connectorTypeTypedValueToStringMapper
+      ->connectorTypeTuple
     let {connector_name: connectorName} = connectorInfo
 
     let connectorDetails = React.useMemo(() => {
@@ -172,9 +181,7 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connectorInfo.merchant_connector_id])
-    let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
-      connectorDetails,
-    )
+    let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
     | _ => true
@@ -207,17 +214,17 @@ module ConnectorSummaryGrid = {
       </div>
       <div className="grid grid-cols-4 border-b  md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
-        <div className="col-span-3">
+        <div className="col-span-3 font-semibold text-base text-grey-700 opacity-70">
           {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
-      <div className="grid grid-cols-4 border-b  md:px-10 py-8">
+      <div className="grid grid-cols-4 border-b  md:px-10">
         <div className="flex items-start">
-          <h4 className="text-lg font-semibold"> {"Credentials"->React.string} </h4>
+          <h4 className="text-lg font-semibold py-8"> {"Credentials"->React.string} </h4>
         </div>
         <div className="flex flex-col gap-6  col-span-3">
           <div className="flex gap-12">
-            <div className="flex flex-col gap-6 w-1/2">
+            <div className="flex flex-col gap-6 w-5/6  py-8">
               <ConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
             </div>
             <RenderIf condition={isUpdateFlow}>
@@ -225,7 +232,7 @@ module ConnectorSummaryGrid = {
             </RenderIf>
           </div>
           <RenderIf
-            condition={connectorInfo.connector_name->ConnectorUtils.getConnectorNameTypeFromString ==
+            condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
               Processors(FIUU)}>
             <div
               className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
@@ -251,7 +258,7 @@ module ConnectorSummaryGrid = {
           </div>
           <div className="flex flex-col gap-6 col-span-3">
             <div className="flex gap-12">
-              <div className="flex flex-col gap-6 col-span-3 w-1/2">
+              <div className="flex flex-col gap-6 col-span-3 w-5/6">
                 {connectorInfo.payment_methods_enabled
                 ->Array.mapWithIndex((field, index) => {
                   <InfoField
@@ -301,7 +308,7 @@ module ConnectorSummaryGrid = {
                       GlobalVars.appendDashboardPath(~url="/configure-pmts"),
                     )}
                   target="_blank"
-                  className="text-blue-500 underline cursor-pointer">
+                  className="text-primary underline cursor-pointer">
                   {"Configure PMTs at Checkout"->React.string}
                 </a>
               </p>
@@ -353,8 +360,8 @@ let make = (
   let disableConnector = async isConnectorDisabled => {
     try {
       let connectorID = connectorInfo.merchant_connector_id
-      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
-        connectorInfo.connector_type,
+      let disableConnectorPayload = getDisableConnectorPayload(
+        connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))

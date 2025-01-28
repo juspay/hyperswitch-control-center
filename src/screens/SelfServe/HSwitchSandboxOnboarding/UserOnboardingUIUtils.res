@@ -5,11 +5,11 @@ open LogicUtils
 module ProgressBar = {
   @react.component
   let make = (~tabs, ~tabIndex) => {
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+    let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
     let defaultStyle = currentIndex => {
       currentIndex < tabIndex + 1
-        ? `${backgroundColor} h-1.5 w-full`
-        : `${backgroundColor} opacity-10 h-1.5 w-full`
+        ? `${primaryColor} h-1.5 w-full`
+        : `${primaryColor} opacity-10 h-1.5 w-full`
     }
     <div className="flex w-full">
       {tabs
@@ -112,13 +112,10 @@ module DownloadAPIKey = {
   @react.component
   let make = (~currentRoute, ~currentTabName) => {
     <div className="flex flex-col gap-10">
-      <div
-        className="border-2 border-orange-border_orange bg-orange-warning_background_orange p-4 flex items-center gap-2 rounded">
-        <Icon name="badge-warning" />
-        <p className="text-base">
-          {"API key once misplaced cannot be restored. If misplaced, please re-generate a new key from Dashboard > Developers."->React.string}
-        </p>
-      </div>
+      <HSwitchUtils.AlertBanner
+        bannerText="API key once misplaced cannot be restored. If misplaced, please re-generate a new key from Dashboard > Developers."
+        bannerType=Warning
+      />
       <div className="p-10 bg-gray-50 border rounded flex flex-col gap-6">
         <div className="flex flex-col gap-2.5">
           <div className="text-base text-grey-900 font-medium">

@@ -12,7 +12,7 @@ let preRequisiteList = [
 module PayPalCreateNewAccountModal = {
   @react.component
   let make = (~butttonDisplayText, ~actionUrl, ~setScreenState) => {
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+    let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
     let initializePayPalWindow = () => {
       try {
         Window.payPalCreateAccountWindow()
@@ -32,7 +32,7 @@ module PayPalCreateNewAccountModal = {
 
     <AddDataAttributes attributes=[("data-paypal-button", "true")]>
       <a
-        className={`!w-fit rounded-md ${backgroundColor} text-white px-4  h-fit border py-3 flex items-center justify-center gap-2`}
+        className={`!w-fit rounded-md ${primaryColor} text-white px-4  h-fit border py-3 flex items-center justify-center gap-2`}
         href={`${actionUrl}&displayMode=minibrowser`}
         target="PPFrame">
         {butttonDisplayText->React.string}
@@ -70,11 +70,11 @@ module LandingScreen = {
   @react.component
   let make = (~configuartionType, ~setConfigurationType) => {
     let {
-      globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+      globalUIConfig: {primaryColor, font: {textColor}, border: {borderColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let getBlockColor = value =>
       configuartionType === value
-        ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
+        ? `${borderColor.primaryNormal} ${primaryColor} bg-opacity-10 `
         : "border"
 
     <div className="flex flex-col gap-10">

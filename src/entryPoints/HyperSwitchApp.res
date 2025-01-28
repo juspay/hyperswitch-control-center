@@ -18,7 +18,8 @@ let make = () => {
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
-
+  let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
+  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
     fetchMerchantSpecificConfig,
     useIsFeatureEnabledForMerchant,
@@ -26,9 +27,10 @@ let make = () => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {
+    userInfo: {orgId, merchantId, profileId, roleId, themeId},
+    checkUserEntity,
+  } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -39,9 +41,9 @@ let make = () => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
 
-  let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
+  let maintainenceAlert = featureFlagDetails.maintainenceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
-  let reconSidebars = HSReconSidebarValues.useGetReconSideBar()
+  let productSidebars = ProductsSidebarValues.useGetSideBarValues()
   sessionExpired := false
 
   let setUpDashboard = async () => {
@@ -52,6 +54,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
+      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -66,7 +69,7 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [orgId, merchantId, profileId])
+  }, [orgId, merchantId, profileId, themeId])
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {
@@ -106,7 +109,7 @@ let make = () => {
                   path={url.path}
                   sidebars={hyperSwitchAppSidebars}
                   key={(screenState :> string)}
-                  productSiebars={reconSidebars}
+                  productSiebars=productSidebars
                 />
               </RenderIf>
               <PageLoaderWrapper
@@ -138,21 +141,18 @@ let make = () => {
                         }}
                       />
                     </div>
-                    {switch url.path->urlPath {
-                    | list{"home"} =>
-                      <RenderIf condition=isLiveUsersCounterEnabled>
-                        <ActivePaymentsCounter />
-                      </RenderIf>
-                    | _ => React.null
-                    }}
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
+                    <RenderIf condition={maintainenceAlert->LogicUtils.isNonEmptyString}>
+                      <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
+                    </RenderIf>
                     <div
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
-                        | list{"v2", "recon", ..._} => <HSReconApp />
+                        | list{"v2", "recon", ..._} => <ReconApp />
+                        | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
                         | list{"home", ..._}
                         | list{"recon"}
                         | list{"upload-files"}
@@ -203,7 +203,7 @@ let make = () => {
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
                             authorization={userHasAccess(~groupAccess=OperationsView)}
-                            isEnabled={[#Organization, #Merchant]->checkUserEntity}>
+                            isEnabled={[#Tenant, #Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
                               remainingPath
@@ -213,44 +213,16 @@ let make = () => {
                             />
                           </AccessControl>
                         | list{"users", ..._} => <UserManagementContainer />
-                        | list{"analytics-user-journey"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.userJourneyAnalytics &&
-                            [#Organization, #Merchant]->checkUserEntity}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
-                              <UserJourneyAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-authentication"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.authenticationAnalytics &&
-                            [#Organization, #Merchant]->checkUserEntity}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext
-                              key="AuthenticationAnalytics" index="AuthenticationAnalytics">
-                              <AuthenticationAnalytics />
-                            </FilterContext>
-                          </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
                             // TODO: Remove `MerchantDetailsManage` permission in future
                             authorization={hasAnyGroupAccess(
-                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=MerchantDetailsView),
                               userHasAccess(~groupAccess=AccountManage),
                             )}
                             isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
-                        | list{"developer-system-metrics"} =>
-                          <AccessControl
-                            isEnabled={isInternalUser && featureFlagDetails.systemMetrics}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext key="SystemMetrics" index="SystemMetrics">
-                              <SystemMetricsAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-
                         | list{"compliance"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.complianceCertificate authorization=Access>

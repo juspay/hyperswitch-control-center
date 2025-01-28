@@ -8,56 +8,16 @@ let sankyRed = "#F7E0E0"
 let sankyLightBlue = "#91B7EE"
 let sankyLightRed = "#EC6262"
 
-let getBucketSize = granularity => {
-  switch granularity {
-  | "hour_wise" => "hour"
-  | "week_wise" => "week"
-  | "day_wise" | _ => "day"
-  }
-}
-
-let fillMissingDataPoints = (
-  ~data,
-  ~startDate,
-  ~endDate,
-  ~timeKey="time_bucket",
-  ~defaultValue: JSON.t,
-  ~granularity: string,
-) => {
-  open LogicUtils
-  let dataDict = Dict.make()
-  data->Array.forEach(item => {
-    let time = item->getDictFromJsonObject->getString(timeKey, "")
-    dataDict->Dict.set(time, item)
-  })
-  let dataPoints = Dict.make()
-  let startingPoint = startDate->DayJs.getDayJsForString
-  let endingPoint = endDate->DayJs.getDayJsForString
-  let gap = granularity->getBucketSize
-  for x in 0 to endingPoint.diff(startingPoint.toString(), gap) {
-    let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-    let timeVal = startingPoint.add(x, gap).endOf(gap).format("YYYY-MM-DD 00:00:00")
-    switch dataDict->Dict.get(timeVal) {
-    | Some(val) => {
-        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        dataPoints->Dict.set(timeVal, val)
-      }
-    | None => {
-        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
-      }
-    }
-  }
-  dataPoints->Dict.valuesToArray
-}
-
 open NewAnalyticsTypes
+let globalFilter: array<filters> = [#currency]
+let globalExcludeValue = [(#all_currencies: defaultFilters :> string)]
+
 let requestBody = (
   ~startTime: string,
   ~endTime: string,
   ~metrics: array<metrics>,
   ~groupByNames: option<array<string>>=None,
-  ~filter: option<JSON.t>=None,
+  ~filter: option<JSON.t>,
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,
@@ -76,23 +36,6 @@ let requestBody = (
       ~distributionValues,
     )->JSON.Encode.object,
   ]->JSON.Encode.array
-}
-
-let valueFormatter = (value, statType: valueType) => {
-  open LogicUtils
-
-  let percentFormat = value => {
-    `${Float.toFixedWithPrecision(value, ~digits=2)}%`
-  }
-
-  switch statType {
-  | Amount => value->indianShortNum
-  | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
-  | Volume => value->indianShortNum
-  | Latency => latencyShortNum(~labelValue=value)
-  | LatencyMs => latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
-  | No_Type => value->Float.toString
-  }
 }
 
 let getMonthName = month => {
@@ -170,7 +113,9 @@ let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
   | No_Change => ("#A0A0A0", "")
   }
 
-  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
+  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->LogicUtils.valueFormatter(
+      Rate,
+    )}</span>`
 }
 
 open LogicUtils
@@ -209,17 +154,57 @@ let isEmptyGraph = (data: JSON.t, key: string) => {
   Math.max(primaryMaxValue, secondaryMaxValue) == 0.0
 }
 
+let checkTimePresent = (options, key) => {
+  options->Array.reduce(false, (flag, item) => {
+    let value = item->getDictFromJsonObject->getString(key, "NA")
+    if value->isNonEmptyString && key == "time_bucket" {
+      let dateObj = value->DayJs.getDayJsForString
+      dateObj.format("HH") != "00" || flag
+    } else {
+      false
+    }
+  })
+}
+
+let formatTime = time => {
+  let hour =
+    time->String.split(":")->Array.get(0)->Option.getOr("00")->Int.fromString->Option.getOr(0)
+  let mimute =
+    time->String.split(":")->Array.get(1)->Option.getOr("00")->Int.fromString->Option.getOr(0)
+
+  let newHour = Int.mod(hour, 12)
+  let newHour = newHour == 0 ? 12 : newHour
+
+  let period = hour >= 12 ? "pm" : "am"
+
+  if mimute > 0 {
+    `${newHour->Int.toString}:${mimute->Int.toString}${period}`
+  } else {
+    `${newHour->Int.toString}${period}`
+  }
+}
+
 let getCategories = (data: JSON.t, index: int, key: string) => {
-  data
-  ->getArrayFromJson([])
-  ->getValueFromArray(index, []->JSON.Encode.array)
-  ->getArrayFromJson([])
-  ->Array.map(item => {
+  let options =
+    data
+    ->getArrayFromJson([])
+    ->getValueFromArray(index, []->JSON.Encode.array)
+    ->getArrayFromJson([])
+
+  let isShowTime = options->checkTimePresent(key)
+
+  options->Array.map(item => {
     let value = item->getDictFromJsonObject->getString(key, "NA")
 
     if value->isNonEmptyString && key == "time_bucket" {
       let dateObj = value->DayJs.getDayJsForString
-      `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+      let date = `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+      if isShowTime {
+        let time = dateObj.format("HH:mm")->formatTime
+        `${date}, ${time}`
+      } else {
+        date
+      }
     } else {
       value
     }
@@ -359,6 +344,7 @@ let tooltipFormatter = (
   ~title,
   ~metricType,
   ~comparison: option<DateRangeUtils.comparison>=None,
+  ~currency="",
 ) => {
   open LineGraphTypes
 
@@ -371,15 +357,12 @@ let tooltipFormatter = (
       let primartPoint = this.points->getValueFromArray(0, defaultValue)
       let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
 
-      // TODO:Currency need to be picked from filter
-      let suffix = metricType == NewAnalyticsTypes.Amount ? "USD" : ""
-
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType)
+        let valueString = valueFormatter(value, metricType, ~currency)
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
             <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString} ${suffix}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
         </div>`
       }
 
@@ -447,4 +430,171 @@ let tooltipFormatter = (
     </div>`
     }
   )->asTooltipPointFormatter
+}
+
+let generateFilterObject = (~globalFilters, ~localFilters=None) => {
+  let filters = Dict.make()
+
+  let globalFiltersList = globalFilter->Array.map(filter => {
+    (filter: filters :> string)
+  })
+
+  let parseStringValue = string => {
+    string
+    ->JSON.Decode.string
+    ->Option.getOr("")
+    ->String.split(",")
+    ->Array.filter(value => {
+      !(globalExcludeValue->Array.includes(value))
+    })
+    ->Array.map(JSON.Encode.string)
+  }
+
+  globalFilters
+  ->Dict.toArray
+  ->Array.forEach(item => {
+    let (key, value) = item
+    if globalFiltersList->Array.includes(key) && value->parseStringValue->Array.length > 0 {
+      filters->Dict.set(key, value->parseStringValue->JSON.Encode.array)
+    }
+  })
+
+  switch localFilters {
+  | Some(dict) =>
+    dict
+    ->Dict.toArray
+    ->Array.forEach(item => {
+      let (key, value) = item
+      filters->Dict.set(key, value)
+    })
+  | None => ()
+  }
+
+  filters->JSON.Encode.object
+}
+
+let getGranularityLabel = option => {
+  switch option {
+  | #G_ONEDAY => "Day-wise"
+  | #G_ONEHOUR => "Hour-wise"
+  | #G_THIRTYMIN => "30min-wise"
+  | #G_FIFTEENMIN => "15min-wise"
+  }
+}
+
+let defaulGranularity = {
+  label: #G_ONEDAY->getGranularityLabel,
+  value: (#G_ONEDAY: granularity :> string),
+}
+
+let getGranularityOptions = (~startTime, ~endTime) => {
+  let startingPoint = startTime->DayJs.getDayJsForString
+  let endingPoint = endTime->DayJs.getDayJsForString
+  let gap = endingPoint.diff(startingPoint.toString(), "hour") // diff between points
+
+  let options = if gap < 1 {
+    [#G_THIRTYMIN, #G_FIFTEENMIN]
+  } else if gap < 24 {
+    [#G_ONEHOUR, #G_THIRTYMIN, #G_FIFTEENMIN]
+  } else if gap < 168 {
+    [#G_ONEDAY, #G_ONEHOUR]
+  } else {
+    [#G_ONEDAY]
+  }
+
+  options->Array.map(option => {
+    label: option->getGranularityLabel,
+    value: (option: granularity :> string),
+  })
+}
+
+let getDefaultGranularity = (~startTime, ~endTime) => {
+  let options = getGranularityOptions(~startTime, ~endTime)
+  options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
+}
+
+let getGranularityGap = option => {
+  switch option {
+  | "G_ONEHOUR" => 60
+  | "G_THIRTYMIN" => 30
+  | "G_FIFTEENMIN" => 15
+  | "G_ONEDAY" | _ => 1440
+  }
+}
+
+let fillMissingDataPoints = (
+  ~data,
+  ~startDate,
+  ~endDate,
+  ~timeKey="time_bucket",
+  ~defaultValue: JSON.t,
+  ~granularity: string,
+  ~isoStringToCustomTimeZone: option<string => TimeZoneHook.dateTimeString>=?,
+) => {
+  let dataDict = Dict.make()
+
+  data->Array.forEach(item => {
+    let time = switch isoStringToCustomTimeZone {
+    | Some(timeConvert) => {
+        let value =
+          item
+          ->getDictFromJsonObject
+          ->getObj("time_range", Dict.make())
+
+        let time = value->getString("start_time", "")
+
+        let {year, month, date, hour, minute} = timeConvert(time)
+
+        if (
+          granularity == (#G_THIRTYMIN: granularity :> string) ||
+            granularity == (#G_FIFTEENMIN: granularity :> string)
+        ) {
+          (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
+            "YYYY-MM-DD HH:mm:ss",
+          )
+        } else {
+          (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
+            "YYYY-MM-DD HH:00:00",
+          )
+        }
+      }
+    | _ =>
+      item
+      ->getDictFromJsonObject
+      ->getString(timeKey, "")
+    }
+
+    let newItem = item->getDictFromJsonObject
+    newItem->Dict.set("time_bucket", time->JSON.Encode.string)
+
+    dataDict->Dict.set(time, newItem->JSON.Encode.object)
+  })
+
+  let dataPoints = Dict.make()
+  let startingPoint = startDate->DayJs.getDayJsForString
+  let startingPoint = startingPoint.format("YYYY-MM-DD HH:00:00")->DayJs.getDayJsForString
+  let endingPoint = endDate->DayJs.getDayJsForString
+  let gap = "minute"
+  let devider = granularity->getGranularityGap
+  let limit =
+    (endingPoint.diff(startingPoint.toString(), gap)->Int.toFloat /. devider->Int.toFloat)
+    ->Math.floor
+    ->Float.toInt
+
+  for x in 0 to limit {
+    let newDict = defaultValue->getDictFromJsonObject->Dict.copy
+    let timeVal = startingPoint.add(x * devider, gap).format("YYYY-MM-DD HH:mm:ss")
+    switch dataDict->Dict.get(timeVal) {
+    | Some(val) => {
+        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
+        dataPoints->Dict.set(timeVal, val)
+      }
+    | None => {
+        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
+        dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
+      }
+    }
+  }
+
+  dataPoints->Dict.valuesToArray
 }

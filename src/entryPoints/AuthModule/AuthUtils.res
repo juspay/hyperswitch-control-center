@@ -79,7 +79,7 @@ let redirectToLogin = () => {
   open LogicUtils
 
   let authId = getSessionData(~key="auth_id")
-  let domain = getSessionData(~key="domain")
+  let domain = getSessionData(~key="domain") // todo: setting domain in session storage shall be removed later
 
   let urlToRedirect = switch (authId->isNonEmptyString, domain->isNonEmptyString) {
   | (true, true) => `/login?auth_id=${authId}&domain=${domain}`

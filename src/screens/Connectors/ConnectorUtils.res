@@ -104,6 +104,8 @@ let connectorList: array<connectorTypes> = [
   Processors(NOVALNET),
   Processors(DEUTSCHEBANK),
   Processors(NEXIXPAY),
+  Processors(JPMORGAN),
+  Processors(XENDIT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -129,6 +131,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(VOLT),
   Processors(ZSL),
   Processors(ZEN),
+  Processors(PAYBOX),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
@@ -386,6 +389,13 @@ let tsysInfo = {
 let noonInfo = {
   description: "A leading fintech company revolutionizing payments with innovative, secure, and convenient solutions for seamless financial transactions.",
 }
+let jpmorganInfo = {
+  description: "JPMorgan Connector is a payment integration module that supports businesses in regions like the United States (US), United Kingdom (UK), European Union (EU), and Canada (CA). It streamlines payment operations by enabling seamless processing of authorizations, captures, and refunds through JPMorgan’s payment gateway. This robust solution helps businesses manage transactions efficiently, ensuring secure and compliant payment processing across these regions.",
+}
+
+let xenditInfo = {
+  description: "Xendit is a financial technology company that provides payment infrastructure across Southeast Asia. Its platform enables businesses to accept payments, disburse funds, manage accounts, and streamline financial operations",
+}
 
 // Dummy Connector Info
 let pretendpayInfo = {
@@ -613,6 +623,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | NOVALNET => "novalnet"
   | DEUTSCHEBANK => "deutschebank"
   | NEXIXPAY => "nexixpay"
+  | JPMORGAN => "jpmorgan"
+  | XENDIT => "xendit"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -740,6 +752,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "novalnet" => Processors(NOVALNET)
     | "deutschebank" => Processors(DEUTSCHEBANK)
     | "nexixpay" => Processors(NEXIXPAY)
+    | "jpmorgan" => Processors(JPMORGAN)
+    | "xendit" => Processors(XENDIT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -849,6 +863,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | NOVALNET => novalnetInfo
   | DEUTSCHEBANK => deutscheBankInfo
   | NEXIXPAY => nexixpayInfo
+  | JPMORGAN => jpmorganInfo
+  | XENDIT => xenditInfo
   }
 }
 
@@ -1599,12 +1615,12 @@ let getConnectorPaymentMethodDetails = async (
 let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
   items->Array.filter(dict => {
     let connectorType = dict.connector_type
-    let isPayoutProcessor = connectorType == "payout_processor"
-    let isThreeDsAuthenticator = connectorType == "authentication_processor"
-    let isPMAuthenticationProcessor = connectorType == "payment_method_auth"
-    let isTaxProcessor = connectorType == "tax_processor"
+    let isPayoutProcessor = connectorType == PayoutProcessor
+    let isThreeDsAuthenticator = connectorType == AuthenticationProcessor
+    let isPMAuthenticationProcessor = connectorType == PMAuthProcessor
+    let isTaxProcessor = connectorType == TaxProcessor
     let isConnector =
-      connectorType !== "payment_vas" &&
+      connectorType !== PaymentVas &&
       !isPayoutProcessor &&
       !isThreeDsAuthenticator &&
       !isPMAuthenticationProcessor &&
@@ -1698,6 +1714,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | NOVALNET => "Novalnet"
   | DEUTSCHEBANK => "Deutsche Bank"
   | NEXIXPAY => "Nexixpay"
+  | JPMORGAN => "JP Morgan"
+  | XENDIT => "Xendit"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -1774,13 +1792,25 @@ let connectorTypeTuple = connectorType => {
 
 let connectorTypeStringToTypeMapper = connector_type => {
   switch connector_type {
-  | "payment_processor" => PaymentProcessor
   | "payment_vas" => PaymentVas
   | "payout_processor" => PayoutProcessor
   | "authentication_processor" => AuthenticationProcessor
   | "payment_method_auth" => PMAuthProcessor
   | "tax_processor" => TaxProcessor
-  | _ => PaymentProcessor
+  | "payment_processor"
+  | _ =>
+    PaymentProcessor
+  }
+}
+
+let connectorTypeTypedValueToStringMapper = val => {
+  switch val {
+  | PaymentVas => "payment_vas"
+  | PayoutProcessor => "payout_processor"
+  | AuthenticationProcessor => "authentication_processor"
+  | PMAuthProcessor => "payment_method_auth"
+  | TaxProcessor => "tax_processor"
+  | PaymentProcessor => "payment_processor"
   }
 }
 

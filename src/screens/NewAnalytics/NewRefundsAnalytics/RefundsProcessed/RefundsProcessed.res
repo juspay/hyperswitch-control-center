@@ -54,6 +54,8 @@ module TableModule = {
 module RefundsProcessedHeader = {
   open NewAnalyticsUtils
   open LogicUtils
+  open LogicUtilsTypes
+
   @react.component
   let make = (
     ~data: JSON.t,
@@ -66,20 +68,21 @@ module RefundsProcessedHeader = {
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let currency = filterValueJson->getString((#currency: filters :> string), "")
 
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~currency),
     )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~currency),
     )
 
     let (primaryValue, secondaryValue) = if (
-      selectedMetric.value->getMetaDataMapper->isAmountMetric
+      selectedMetric.value->getMetaDataMapper(~currency)->isAmountMetric
     ) {
       (primaryValue /. 100.0, secondaryValue /. 100.0)
     } else {
@@ -105,16 +108,14 @@ module RefundsProcessedHeader = {
     | _ => Volume
     }
 
-    let suffix = metricType == Amount ? "USD" : ""
-
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
-          {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
+          {primaryValue->valueFormatter(metricType, ~currency)->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard
-            value direction tooltipValue={`${secondaryValue->valueFormatter(metricType)} ${suffix}`}
+            value direction tooltipValue={secondaryValue->valueFormatter(metricType, ~currency)}
           />
         </RenderIf>
       </div>
@@ -141,6 +142,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -151,13 +153,17 @@ let make = (
     JSON.Encode.array([])
   )
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
+
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
 
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -168,25 +174,31 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = NewAnalyticsUtils.requestBody(
+      let primaryBody = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let secondaryBody = NewAnalyticsUtils.requestBody(
+      let secondaryBody = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
       let primaryData =
-        primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])->modifyQueryData
+        primaryResponse
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+        ->modifyQueryData(~currency)
+        ->sortQueryDataByDate
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
       setRefundsProcessedTableData(_ => primaryData)
 
@@ -197,11 +209,11 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->modifyQueryData
+            ->modifyQueryData(~currency)
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
-            NewAnalyticsUtils.fillMissingDataPoints(
+            fillMissingDataPoints(
               ~data,
               ~startDate=compareToStartTime,
               ~endDate=compareToEndTime,
@@ -221,7 +233,7 @@ let make = (
 
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
-          NewAnalyticsUtils.fillMissingDataPoints(
+          fillMissingDataPoints(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
@@ -254,14 +266,18 @@ let make = (
       getRefundsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
 
   let params = {
     data: refundsProcessedData,
     xKey: selectedMetric.value->getKeyForModule,
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
+    currency,
   }
+
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -279,10 +295,7 @@ let make = (
         />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <LineGraph
-              entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <LineGraph options className="mr-3" />
           | Table => <TableModule data={refundsProcessedTableData} className="mx-7" />
           }}
         </div>

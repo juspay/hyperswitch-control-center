@@ -6,7 +6,7 @@ open PaymentsProcessedUtils
 open NewPaymentAnalyticsUtils
 module TableModule = {
   open LogicUtils
-
+  open PaymentsProcessedTypes
   @react.component
   let make = (~data, ~className="") => {
     let (offset, setOffset) = React.useState(_ => 0)
@@ -15,7 +15,7 @@ module TableModule = {
       order: Table.INC,
     }
     let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
     let paymentsProcessed =
       data
       ->Array.map(item => {
@@ -23,13 +23,7 @@ module TableModule = {
       })
       ->Array.map(Nullable.make)
 
-    let isSmartRetryEnabled =
-      filterValueJson
-      ->getString("is_smart_retry_enabled", "true")
-      ->getBoolFromString(true)
-      ->getSmartRetryMetricType
-
-    let defaultCols = isSmartRetryEnabled->isSmartRetryEnbldForPmtProcessed
+    let defaultCols = [Payment_Processed_Amount, Payment_Processed_Count]
     let visibleColumns = defaultCols->Array.concat(visibleColumns)
 
     <div className>
@@ -58,9 +52,10 @@ module TableModule = {
 }
 
 module PaymentsProcessedHeader = {
-  open NewAnalyticsTypes
   open NewAnalyticsUtils
   open LogicUtils
+  open LogicUtilsTypes
+
   @react.component
   let make = (
     ~data: JSON.t,
@@ -70,9 +65,13 @@ module PaymentsProcessedHeader = {
     ~setSelectedMetric,
     ~granularity,
     ~setGranularity,
+    ~granularityOptions,
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let currency = filterValueJson->getString((#currency: filters :> string), "")
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
     let isSmartRetryEnabled =
       filterValueJson
       ->getString("is_smart_retry_enabled", "true")
@@ -82,16 +81,16 @@ module PaymentsProcessedHeader = {
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
-      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
+      ~key=selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled),
     )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
+      ~key=selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled),
     )
 
     let (primaryValue, secondaryValue) = if (
-      selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled)->isAmountMetric
+      selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled)->isAmountMetric
     ) {
       (primaryValue /. 100.0, secondaryValue /. 100.0)
     } else {
@@ -117,25 +116,27 @@ module PaymentsProcessedHeader = {
     | _ => Volume
     }
 
-    let suffix = metricType == Amount ? "USD" : ""
-
-    <div className="w-full px-7 py-8 grid grid-cols-1">
+    <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
-          {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
+          {primaryValue->valueFormatter(metricType, ~currency)->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard
-            value direction tooltipValue={`${secondaryValue->valueFormatter(metricType)} ${suffix}`}
+            value direction tooltipValue={secondaryValue->valueFormatter(metricType, ~currency)}
           />
         </RenderIf>
       </div>
-      // will enable it in future
-      <RenderIf condition={false}>
-        <div className="flex justify-center">
-          <Tabs option={granularity} setOption={setGranularity} options={tabs} />
-        </div>
-      </RenderIf>
+      <div className="flex justify-center">
+        <RenderIf condition={featureFlag.granularity}>
+          <Tabs
+            option={granularity}
+            setOption={setGranularity}
+            options={granularityOptions}
+            showSingleTab=false
+          />
+        </RenderIf>
+      </div>
       <div className="flex gap-2 justify-end">
         <CustomDropDown
           buttonText={selectedMetric} options={dropDownOptions} setOption={setSelectedMetric}
@@ -153,8 +154,10 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
+  open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (paymentsProcessedData, setPaymentsProcessedData) = React.useState(_ => JSON.Encode.array([]))
@@ -163,13 +166,26 @@ let make = (
     JSON.Encode.array([])
   )
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
+
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
+
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
+
+  React.useEffect(() => {
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      setGranularity(_ => getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal))
+    }
+    None
+  }, (startTimeVal, endTimeVal))
 
   let isSmartRetryEnabled =
     filterValueJson
@@ -186,20 +202,22 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = NewAnalyticsUtils.requestBody(
+      let primaryBody = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let secondaryBody = NewAnalyticsUtils.requestBody(
+      let secondaryBody = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
@@ -207,8 +225,8 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->modifyQueryData
-        ->NewAnalyticsUtils.sortQueryDataByDate
+        ->modifyQueryData(~isSmartRetryEnabled, ~currency)
+        ->sortQueryDataByDate
 
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
       setPaymentsProcessedTableData(_ => primaryData)
@@ -220,11 +238,11 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->modifyQueryData
+            ->modifyQueryData(~isSmartRetryEnabled, ~currency)
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
-            NewAnalyticsUtils.fillMissingDataPoints(
+            fillMissingDataPoints(
               ~data,
               ~startDate=compareToStartTime,
               ~endDate=compareToEndTime,
@@ -235,6 +253,7 @@ let make = (
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
               ~granularity=granularity.value,
+              ~isoStringToCustomTimeZone,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -244,7 +263,7 @@ let make = (
 
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
-          NewAnalyticsUtils.fillMissingDataPoints(
+          fillMissingDataPoints(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
@@ -255,6 +274,7 @@ let make = (
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
+            ~isoStringToCustomTimeZone,
           )
         })
 
@@ -277,32 +297,32 @@ let make = (
       getPaymentsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    granularity.value,
+    currency,
+    isSmartRetryEnabled,
+  ))
 
-  let mockDelay = async () => {
-    if paymentsProcessedData != []->JSON.Encode.array {
-      setScreenState(_ => Loading)
-      await HyperSwitchUtils.delay(300)
-      setScreenState(_ => Success)
-    }
-  }
-
-  React.useEffect(() => {
-    mockDelay()->ignore
-    None
-  }, [isSmartRetryEnabled])
   let params = {
     data: paymentsProcessedData,
-    xKey: selectedMetric.value->getKeyForModule(~isSmartRetryEnabled),
+    xKey: selectedMetric.value,
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
+    currency,
   }
+
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        // Need to modify
         <PaymentsProcessedHeader
           data=paymentsProcessedMetaData
           viewType
@@ -311,13 +331,11 @@ let make = (
           setSelectedMetric
           granularity
           setGranularity
+          granularityOptions
         />
         <div className="mb-5">
           {switch viewType {
-          | Graph =>
-            <LineGraph
-              entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3"
-            />
+          | Graph => <LineGraph options className="mr-3" />
           | Table => <TableModule data={paymentsProcessedTableData} className="mx-7" />
           }}
         </div>

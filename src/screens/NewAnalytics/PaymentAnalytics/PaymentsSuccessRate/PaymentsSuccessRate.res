@@ -8,12 +8,14 @@ module PaymentsSuccessRateHeader = {
   open NewAnalyticsUtils
   open LogicUtils
   @react.component
-  let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
+  let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~granularityOptions) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
     let isSmartRetryEnabled =
       filterValueJson
       ->getString("is_smart_retry_enabled", "true")
@@ -32,8 +34,8 @@ module PaymentsSuccessRateHeader = {
     )
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-    <div className="w-full px-7 py-8 grid grid-cols-2">
-      // will enable it in future
+
+    <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
           {primaryValue->valueFormatter(Rate)->React.string}
@@ -42,12 +44,16 @@ module PaymentsSuccessRateHeader = {
           <StatisticsCard value direction tooltipValue={secondaryValue->valueFormatter(Rate)} />
         </RenderIf>
       </div>
-      <RenderIf condition={false}>
-        <div className="flex justify-center">
-          <Tabs option={granularity} setOption={setGranularity} options={tabs} />
-        </div>
-      </RenderIf>
-      <div />
+      <div className="flex justify-center w-full">
+        <RenderIf condition={featureFlag.granularity}>
+          <Tabs
+            option={granularity}
+            setOption={setGranularity}
+            options={granularityOptions}
+            showSingleTab=false
+          />
+        </RenderIf>
+      </div>
     </div>
   }
 }
@@ -59,10 +65,11 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
+  let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (paymentsSuccessRateData, setPaymentsSuccessRateData) = React.useState(_ =>
     JSON.Encode.array([])
   )
@@ -70,18 +77,24 @@ let make = (
     JSON.Encode.array([])
   )
 
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSmartRetryEnabled =
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
+
+  open NewAnalyticsUtils
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -92,20 +105,22 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = NewAnalyticsUtils.requestBody(
+      let primaryBody = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let secondaryBody = NewAnalyticsUtils.requestBody(
+      let secondaryBody = requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
@@ -113,7 +128,7 @@ let make = (
         primaryResponse
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->NewAnalyticsUtils.sortQueryDataByDate
+        ->sortQueryDataByDate
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
@@ -124,7 +139,7 @@ let make = (
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
-            NewAnalyticsUtils.fillMissingDataPoints(
+            fillMissingDataPoints(
               ~data,
               ~startDate=compareToStartTime,
               ~endDate=compareToEndTime,
@@ -135,6 +150,7 @@ let make = (
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
               ~granularity=granularity.value,
+              ~isoStringToCustomTimeZone,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -143,7 +159,7 @@ let make = (
       }
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
-          NewAnalyticsUtils.fillMissingDataPoints(
+          fillMissingDataPoints(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
@@ -154,6 +170,7 @@ let make = (
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
+            ~isoStringToCustomTimeZone,
           )
         })
 
@@ -177,7 +194,15 @@ let make = (
       getPaymentsSuccessRate()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    granularity,
+  ))
 
   let mockDelay = async () => {
     if paymentsSuccessRateData != []->JSON.Encode.array {
@@ -191,12 +216,16 @@ let make = (
     mockDelay()->ignore
     None
   }, [isSmartRetryEnabled])
+
   let params = {
     data: paymentsSuccessRateData,
     xKey: Payments_Success_Rate->getKeyForModule(~isSmartRetryEnabled),
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
   }
+
+  let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -207,9 +236,10 @@ let make = (
           keyValue={Payments_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
+          granularityOptions
         />
         <div className="mb-5">
-          <LineGraph entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3" />
+          <LineGraph options className="mr-3" />
         </div>
       </PageLoaderWrapper>
     </Card>

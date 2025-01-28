@@ -1,3 +1,41 @@
+module OMPCopyTextCustomComp = {
+  @react.component
+  let make = (
+    ~displayValue,
+    ~copyValue=None,
+    ~customTextCss="",
+    ~customParentClass="flex items-center",
+    ~customOnCopyClick=() => (),
+  ) => {
+    let showToast = ToastState.useShowToast()
+    let copyVal = switch copyValue {
+    | Some(val) => val
+    | None => displayValue
+    }
+    let onCopyClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(copyVal)
+      customOnCopyClick()
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+    }
+
+    if displayValue->LogicUtils.isNonEmptyString {
+      <div className=customParentClass>
+        <div className=customTextCss> {displayValue->React.string} </div>
+        <img
+          alt="cursor"
+          src={`/assets/copyid.svg`}
+          className="cursor-pointer"
+          onClick={ev => {
+            onCopyClick(ev)
+          }}
+        />
+      </div>
+    } else {
+      "NA"->React.string
+    }
+  }
+}
 module ListBaseComp = {
   @react.component
   let make = (
@@ -7,7 +45,11 @@ module ListBaseComp = {
     ~showEditIcon=false,
     ~onEditClick=_ => (),
     ~isDarkBg=false,
+    ~showDropdownArrow=true,
   ) => {
+    let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
     let baseCompStyle = isDarkBg
       ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
       : "text-black hover:bg-opacity-80"
@@ -15,21 +57,22 @@ module ListBaseComp = {
     let iconName = isDarkBg ? "arrow-without-tail-new" : "arrow-without-tail"
 
     let arrowDownClass = isDarkBg
-      ? "rotate-0 transition duration-[250ms] opacity-70"
-      : "rotate-180 transition duration-[250ms] opacity-70"
+      ? `rotate-0 transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+      : `rotate-180 transition duration-[250ms] opacity-70 `
 
     let arrowUpClass = isDarkBg
-      ? "-rotate-180 transition duration-[250ms] opacity-70"
-      : "rotate-0 transition duration-[250ms] opacity-70"
+      ? `-rotate-180 transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+      : `rotate-0 transition duration-[250ms] opacity-70 `
 
-    let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
+    let textColor = isDarkBg ? `${secondaryTextColor}` : "text-grey-900"
     let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
     let paddingSubheading = isDarkBg ? "pl-2" : ""
     let paddingHeading = isDarkBg ? "pl-2" : ""
 
-    let endValue = isDarkBg ? 23 : 15
+    let endValue = isDarkBg ? 20 : 15
+    let maxLength = isDarkBg ? 20 : 15
 
-    let subHeadingElement = if subHeading->String.length > 15 {
+    let subHeadingElement = if subHeading->String.length > maxLength {
       <HelperComponents.EllipsisText
         displayValue=subHeading
         endValue
@@ -52,12 +95,24 @@ module ListBaseComp = {
             className={`fs-10 ${textColor} ${width} ${paddingSubheading} overflow-scroll text-nowrap`}>
             {subHeadingElement}
           </p>
+          <RenderIf condition={!showDropdownArrow}>
+            <ToolTip
+              description={subHeading}
+              customStyle="!whitespace-nowrap"
+              toolTipFor={<div className="cursor-pointer">
+                <OMPCopyTextCustomComp displayValue=" " copyValue=Some({subHeading}) />
+              </div>}
+              toolTipPosition=ToolTip.Right
+            />
+          </RenderIf>
           <RenderIf condition={showEditIcon}>
             <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
           </RenderIf>
-          <Icon
-            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
-          />
+          <RenderIf condition={showDropdownArrow}>
+            <Icon
+              className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
+            />
+          </RenderIf>
         </div>
       </div>
     </div>
@@ -90,7 +145,8 @@ module AddNewOMPButton = {
       isRelative=false
       contentAlign=Default
       tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}>
+      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}
+      showTooltip={hasOMPCreateAccess == Access}>
       {<>
         <hr className={customHRTagStyle} />
         <div
@@ -117,14 +173,14 @@ module OMPViewBaseComp = {
       {displayName->React.string}
     }
 
-    <div className={`text-sm font-medium cursor-pointer px-4`}>
-      <div className={`flex flex-col items-start`}>
+    <div className="text-sm font-medium cursor-pointer px-4">
+      <div className="flex flex-col items-start">
         <div className="text-left flex items-center gap-1">
           <Icon name="settings-new" size=18 />
-          <p className={`text-jp-gray-900 fs-10 overflow-scroll text-nowrap`}>
+          <p className="text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
             {`View data for:`->React.string}
           </p>
-          <span className="text-blue-500 text-nowrap"> {truncatedDisplayName} </span>
+          <span className="text-primary text-nowrap"> {truncatedDisplayName} </span>
           <Icon
             className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
             name="arrow-without-tail"
@@ -159,10 +215,10 @@ module OMPViewsComp = {
       setArrow(prev => !prev)
     }
 
-    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
-    let dropdownContainerStyle = "rounded-lg border w-full shadow-md"
+    let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
+    let dropdownContainerStyle = "md:rounded-lg md:border md:w-full md:shadow-md"
 
-    <div className="flex h-fit border border-grey-100 bg-white rounded-lg py-2 hover:bg-opacity-80">
+    <div className="flex h-fit border bg-white rounded-lg py-2 hover:bg-opacity-80">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText=""
@@ -171,9 +227,9 @@ module OMPViewsComp = {
         customButtonStyle="!rounded-md"
         options
         marginTop="mt-8"
-        hideMultiSelectButtons=true
+        hideMultiSelectButtons=false
         addButton=false
-        customStyle="rounded w-fit absolute left-0"
+        customStyle="md:rounded"
         searchable=false
         baseComponent={<OMPViewBaseComp displayName arrow />}
         baseComponentCustomStyle="bg-white rounded"
@@ -219,45 +275,6 @@ module OMPViews = {
     let displayName = selectedEntity->getNameForId
 
     <OMPViewsComp input options displayName />
-  }
-}
-
-module OMPCopyTextCustomComp = {
-  @react.component
-  let make = (
-    ~displayValue,
-    ~copyValue=None,
-    ~customTextCss="",
-    ~customParentClass="flex items-center",
-    ~customOnCopyClick=() => (),
-  ) => {
-    let showToast = ToastState.useShowToast()
-    let copyVal = switch copyValue {
-    | Some(val) => val
-    | None => displayValue
-    }
-    let onCopyClick = ev => {
-      ev->ReactEvent.Mouse.stopPropagation
-      Clipboard.writeText(copyVal)
-      customOnCopyClick()
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-    }
-
-    if displayValue->LogicUtils.isNonEmptyString {
-      <div className=customParentClass>
-        <div className=customTextCss> {displayValue->React.string} </div>
-        <img
-          alt="cursor"
-          src={`/assets/copyid.svg`}
-          className="cursor-pointer"
-          onClick={ev => {
-            onCopyClick(ev)
-          }}
-        />
-      </div>
-    } else {
-      "NA"->React.string
-    }
   }
 }
 

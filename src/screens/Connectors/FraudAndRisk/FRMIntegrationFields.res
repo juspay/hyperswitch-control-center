@@ -185,12 +185,13 @@ let make = (
   open APIUtils
   open Promise
   open CommonAuthHooks
+
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let fetchApi = useUpdateMethod()
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Success)
 
@@ -265,19 +266,30 @@ let make = (
   }
 
   let setFRMValues = async body => {
-    fetchApi(frmUrl, body, Post)
-    ->thenResolve(res => {
-      setCurrentStep(prev => prev->getNextStep)
+    open LogicUtils
+    try {
+      let response = await updateDetails(frmUrl, body, Post)
       let _ = updateMerchantDetails()
-      setInitialValues(_ => res)
+      let _ = await fetchConnectorListResponse()
+      setInitialValues(_ => response)
+      setCurrentStep(prev => prev->getNextStep)
       showToast(~message=submitText, ~toastType=ToastSuccess)
       setPageState(_ => Success)
-    })
-    ->catch(_ => {
-      setPageState(_ => Error(""))
-      resolve()
-    })
-    ->ignore
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+
+        if errorCode === "HE_01" {
+          showToast(~message="Connector label already exist!", ~toastType=ToastError)
+          setPageState(_ => Error(""))
+        } else {
+          showToast(~message=errorMessage, ~toastType=ToastError)
+          setPageState(_ => Error(""))
+        }
+      }
+    }
     Nullable.null
   }
 

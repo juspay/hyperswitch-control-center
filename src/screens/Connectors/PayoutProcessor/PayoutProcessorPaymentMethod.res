@@ -69,7 +69,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       //
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID)
       let response = await updateAPIHook(connectorUrl, body, Post)
-      fetchConnectorList()->ignore
+      let _ = await fetchConnectorList()
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
@@ -110,12 +110,10 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         </div>
         <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
           <div className="flex flex-col gap-6 col-span-3">
-            <h1 className="text-orange-950 bg-orange-100 border w-full p-2 rounded-md ">
-              <span className="text-orange-950 font-bold text-fs-14 mx-2">
-                {"NOTE:"->React.string}
-              </span>
-              {"Please verify if the payment methods are turned on at the processor end as well."->React.string}
-            </h1>
+            <HSwitchUtils.AlertBanner
+              bannerText="Please verify if the payment methods are turned on at the processor end as well."
+              bannerType=Warning
+            />
             <PaymentMethod.PaymentMethodsRender
               _showAdvancedConfiguration
               connector

@@ -18,16 +18,6 @@ module TextFieldRow = {
   }
 }
 
-module WarningArea = {
-  @react.component
-  let make = (~warningText) => {
-    <h1 className="text-orange-950 bg-orange-100 border w-full py-2 px-4 rounded-md ">
-      <span className="text-orange-950 font-bold text-fs-14 mr-2"> {"NOTE:"->React.string} </span>
-      {warningText->React.string}
-    </h1>
-  }
-}
-
 module BackgroundImageWrapper = {
   @react.component
   let make = (
@@ -246,5 +236,38 @@ let getConnectorIDFromUrl = (urlList, defaultValue) => {
   switch dashboardBasePath {
   | Some(_) => urlList->Array.get(2)->Option.getOr(defaultValue)
   | _ => urlList->Array.get(1)->Option.getOr(defaultValue)
+  }
+}
+
+module AlertBanner = {
+  @react.component
+  let make = (~bannerText, ~bannerType: HSwitchUtilsTypes.bannerType, ~children=?) => {
+    let bgClass = switch bannerType {
+    | Success => " bg-green-100"
+    | Warning => "bg-orange-100"
+    | Error => "bg-red-100"
+    | Info => "bg-blue-150"
+    }
+
+    let iconName = switch bannerType {
+    | Success => "green-tick-banner"
+    | Warning => "warning-banner"
+    | Error => "cross-banner"
+    | Info => "info-banner"
+    }
+
+    <div
+      className={`${bgClass} flex justify-between border border-none w-full py-4 px-4 rounded-md`}>
+      <div className="flex items-center gap-4">
+        <Icon name=iconName size=20 />
+        {bannerText->React.string}
+      </div>
+      <div>
+        {switch children {
+        | Some(child) => child
+        | None => React.null
+        }}
+      </div>
+    </div>
   }
 }

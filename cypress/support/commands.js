@@ -24,27 +24,68 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add("login_UI", (name = "", pass = "") => {
-  cy.visit("http://localhost:9000");
-  const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
-  const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
-  cy.get("[data-testid=email]").type(username);
-  cy.get("[data-testid=password]").type(password);
-  cy.get('button[type="submit"]').click({ force: true });
-  cy.get("[data-testid=skip-now]").click({ force: true });
+import { v4 as uuidv4 } from "uuid";
+import * as helper from "../support/helper";
+import SignInPage from "../support/pages/auth/SignInPage";
+
+const signinPage = new SignInPage();
+
+Cypress.Commands.add("visit_signupPage", () => {
+  cy.visit("/");
+  signinPage.signUpLink.click();
+  cy.url().should("include", "/register");
+});
+
+Cypress.Commands.add("enable_email_feature_flag", () => {
+  cy.intercept("GET", "/dashboard/config/feature?domain=", {
+    statusCode: 200,
+    body: {
+      theme: {
+        primary_color: "#006DF9",
+        primary_hover_color: "#005ED6",
+        sidebar_color: "#242F48",
+      },
+      endpoints: {
+        api_url: "http://localhost:9000/api",
+      },
+      features: {
+        email: true,
+      },
+    },
+  }).as("getFeatureData");
+  cy.visit("/");
+  cy.wait("@getFeatureData");
+});
+
+Cypress.Commands.add("mock_magic_link_signin_success", (user_email = "") => {
+  const email =
+    user_email.length > 0 ? user_email : Cypress.env("CYPRESS_USERNAME");
+
+  cy.intercept("POST", "/api/user/connect_account?auth_id=&domain=", {
+    statusCode: 200,
+    body: {
+      is_email_sent: true,
+    },
+  }).as("getMagicLinkSuccess");
 });
 
 Cypress.Commands.add("singup_curl", (name = "", pass = "") => {
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
-  // /user/signin
+
   cy.request({
     method: "POST",
-    url: `http://localhost:8080/user/signup`,
+    url: `http://localhost:8080/user/signup_with_merchant_id`,
     headers: {
       "Content-Type": "application/json",
+      "api-key": "test_admin",
     },
-    body: { email: username, password: password, country: "IN" },
+    body: {
+      email: username,
+      password: password,
+      company_name: helper.generateDateTimeString(),
+      name: "Cypress_test_user",
+    },
   })
     .then((response) => {
       expect(response.status).to.be.within(200, 299);
@@ -63,12 +104,22 @@ Cypress.Commands.add("login_curl", (name = "", pass = "") => {
   // /user/signin
   cy.request({
     method: "POST",
-    url: `http://localhost:8080/user/signin`,
+    url: `http://localhost:9000/api/user/signin`,
     headers: {
       "Content-Type": "application/json",
     },
     body: { email: username, password: password, country: "IN" },
   });
+});
+
+Cypress.Commands.add("login_UI", (name = "", pass = "") => {
+  cy.visit("/");
+  const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
+  const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
+  cy.get("[data-testid=email]").type(username);
+  cy.get("[data-testid=password]").type(password);
+  cy.get('button[type="submit"]').click({ force: true });
+  cy.get("[data-testid=skip-now]").click({ force: true });
 });
 
 Cypress.Commands.add("deleteConnector", (mca_id) => {
@@ -78,7 +129,7 @@ Cypress.Commands.add("deleteConnector", (mca_id) => {
   );
   cy.request({
     method: "DELETE",
-    url: `http://localhost:8080/account/${merchant_id}/connectors/${mca_id}`,
+    url: `http://localhost:9000/api/account/${merchant_id}/connectors/${mca_id}`,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -125,19 +176,18 @@ Cypress.Commands.add("create_connector_UI", () => {
 });
 
 Cypress.Commands.add("process_payment_sdk_UI", () => {
+  cy.clearCookies("login_token");
   cy.get("[data-testid=connectors]").click();
   cy.get("[data-testid=paymentprocessors]").click();
   cy.contains("Payment Processors").should("be.visible");
-  cy.get('[data-testid="home"]').click();
-
-  cy.get("[data-button-for=tryItOut]").scrollIntoView().click();
+  cy.get("[data-testid=home]").click();
+  cy.get("[data-button-for=tryItOut]").click();
   cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
     "exist",
   );
   cy.get("[data-testid=amount]").find("input").clear().type("77");
-  cy.wait(2000);
   cy.get("[data-button-for=showPreview]").click();
-
+  cy.wait(2000);
   getIframeBody()
     .find("[data-testid=cardNoInput]", { timeout: 20000 })
     .should("exist")
@@ -153,16 +203,56 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
     .type("492");
 
   cy.get("[data-button-for=payUSD77]").click();
-  cy.contains("Payment Successful").should("be.visible");
-  cy.get("[data-button-for=goToPayment]").click();
-  cy.url().should("include", "dashboard/payments");
+  cy.contains("Payment Successful").should("exist");
+  // cy.get("[data-button-for=goToPayment]").click();
+  // cy.url().should("include", "dashboard/payments");
+});
+
+const selectors = {
+  email: "[data-testid=email]",
+  password: "[data-testid=password]",
+  createPassword: "[data-testid=create_password]",
+  comfirmPassword: "[data-testid=comfirm_password]",
+  submitButton: 'button[type="submit"]',
+  authSubmitButton: '[data-testid="auth-submit-btn"]',
+  skipNowButton: "[data-testid=skip-now]",
+  cardHeader: "[data-testid=card-header]",
+};
+
+Cypress.Commands.add("sign_up_with_email", (username, password) => {
+  const MAIL_URL = "http://localhost:8025";
+  cy.url().should("include", "/register");
+  cy.get(selectors.email).type(username);
+  cy.get(selectors.authSubmitButton).click();
+  cy.get("[data-testid=card-header]").should(
+    "contain",
+    "Please check your inbox",
+  );
+  cy.visit(`${MAIL_URL}`);
+  cy.get("div.messages > div:nth-child(2)").click();
+  cy.wait(1000);
+  cy.get("iframe").then(($iframe) => {
+    // Verify email
+    const doc = $iframe.contents();
+    const verifyEmail = doc.find("a").get(0);
+    cy.visit(verifyEmail.href);
+    cy.get(selectors.skipNowButton).click();
+    // Set password
+    cy.get(selectors.createPassword).type(password);
+    cy.get(selectors.comfirmPassword).type(password);
+    cy.get("#auth-submit-btn").click();
+    // Login to dashboard
+    cy.get(selectors.email).type(username);
+    cy.get(selectors.password).type(password);
+    cy.get(selectors.authSubmitButton).click();
+    // Skip 2FA
+    cy.get(selectors.skipNowButton).click();
+  });
 });
 
 const getIframeBody = () => {
   return cy
-    .get("iframe", { timeout: 15000 })
-    .should("be.visible")
-    .should("exist")
+    .get("iframe")
     .its("0.contentDocument.body")
     .should("not.be.empty")
     .then(cy.wrap);

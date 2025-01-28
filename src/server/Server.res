@@ -58,13 +58,22 @@ let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
-  let domain =
+
+  let domainFromQueryParam =
     arr
     ->Array.get(1)
-    ->Option.getOr("domain=default")
+    ->Option.getOr("domain=")
     ->Js.String2.split("=")
     ->Array.get(1)
-    ->Option.getOr("default")
+    ->Option.getOr("")
+
+  let xTenantId = request.headers->Dict.get("x-tenant-id")
+  let domainFromXTenantId = switch xTenantId->Option.getOr("public") {
+  | "public" => "default"
+  | value => value
+  }
+
+  let domain = domainFromQueryParam == "" ? domainFromXTenantId : domainFromQueryParam
 
   let path =
     arr

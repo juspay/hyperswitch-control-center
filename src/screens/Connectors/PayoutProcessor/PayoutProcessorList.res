@@ -10,27 +10,20 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
 
   let getConnectorListAndUpdateState = async () => {
     try {
-      let response = await fetchConnectorListResponse()
-
-      // TODO : maintain separate list for multiple types of connectors
-      let connectorsList =
-        response
-        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
-        ->Array.filter(item =>
-          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PayoutProcessor
-        )
-      connectorsList->Array.reverse
-      ConnectorUtils.sortByDisableField(connectorsList, connectorPayload =>
+      let payoutConnectorsList =
+        connectorList->Array.filter(item => item.connector_type === PayoutProcessor)
+      payoutConnectorsList->Array.reverse
+      ConnectorUtils.sortByDisableField(payoutConnectorsList, connectorPayload =>
         connectorPayload.disabled
       )
-      setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
-      setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
+      setFilteredConnectorData(_ => payoutConnectorsList->Array.map(Nullable.make))
+      setPreviouslyConnectedData(_ => payoutConnectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>
-        connectorsList->ConnectorUtils.getConnectorTypeArrayFromListConnectors
+        payoutConnectorsList->ConnectorUtils.getConnectorTypeArrayFromListConnectors
       )
       setScreenState(_ => Success)
     } catch {

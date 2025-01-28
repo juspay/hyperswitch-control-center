@@ -121,7 +121,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   | list{"payoutconnectors", "new"} => false
   | _ => true
   }
-
   let getConnectorDetails = async () => {
     try {
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
@@ -174,8 +173,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let disableConnector = async isConnectorDisabled => {
     try {
       let connectorID = connectorInfo.merchant_connector_id
-      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
-        connectorInfo.connector_type,
+      let disableConnectorPayload = getDisableConnectorPayload(
+        connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
@@ -241,8 +240,9 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
-        <HSwitchUtils.WarningArea
-          warningText="This is a test connector and will not be reflected on your payment processor dashboard."
+        <HSwitchUtils.AlertBanner
+          bannerText="This is a test connector and will not be reflected on your payment processor dashboard."
+          bannerType=Warning
         />
       </RenderIf>
       <div

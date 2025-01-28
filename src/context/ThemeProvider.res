@@ -11,15 +11,22 @@ type customUIConfig = {
   theme: theme,
   themeSetter: theme => unit,
   configCustomDomainTheme: JSON.t => unit,
+  getThemesJson: (string, JSON.t, bool) => promise<JSON.t>,
 }
 
 let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
   settings: {
     colors: {
       primary: "#006DF9",
-      secondary: "#F7F7F7",
-      sidebar: "#242F48",
-      background: "#F7F8FB",
+      secondary: "#303E5F",
+      background: "#006df9",
+    },
+    sidebar: {
+      primary: "#242F48",
+      secondary: "#303E5F",
+      hoverColor: "#ffffff",
+      primaryTextColor: "#ffffff",
+      secondaryTextColor: "#ffffff",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -32,12 +39,12 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     buttons: {
       primary: {
         backgroundColor: "#006DF9",
-        textColor: "#006df9",
+        textColor: "#ffffff",
         hoverBackgroundColor: "#005ED6",
       },
       secondary: {
         backgroundColor: "#F7F7F7",
-        textColor: "#202124",
+        textColor: "#333333",
         hoverBackgroundColor: "#EEEEEE",
       },
     },
@@ -61,6 +68,7 @@ let themeContext = {
   theme: Light,
   themeSetter: defaultSetter,
   configCustomDomainTheme: _ => (),
+  getThemesJson: (_, _, _) => JSON.Encode.null->Promise.resolve,
 }
 
 let themeContext = React.createContext(themeContext)
@@ -76,6 +84,7 @@ let useTheme = () => {
 @react.component
 let make = (~children) => {
   let eventTheme = ThemeUtils.useThemeFromEvent()
+  let fetchApi = AuthHooks.useApiFetcher()
   let isCurrentlyDark = MatchMedia.useMatchMedia("(prefers-color-scheme: dark)")
 
   let initialTheme = Light
@@ -113,6 +122,7 @@ let make = (~children) => {
     let settings = dict->getDictfromDict("settings")
     let url = dict->getDictfromDict("urls")
     let colorsConfig = settings->getDictfromDict("colors")
+    let sidebarConfig = settings->getDictfromDict("sidebar")
     let typography = settings->getDictfromDict("typography")
     let borders = settings->getDictfromDict("borders")
     let spacing = settings->getDictfromDict("spacing")
@@ -124,8 +134,23 @@ let make = (~children) => {
         colors: {
           primary: colorsConfig->getString("primary", defaultSettings.colors.primary),
           secondary: colorsConfig->getString("secondary", defaultSettings.colors.secondary),
-          sidebar: colorsConfig->getString("sidebar", defaultSettings.colors.sidebar),
           background: colorsConfig->getString("background", defaultSettings.colors.background),
+        },
+        sidebar: {
+          // This 'colorsConfig' will be replaced with 'sidebarConfig', and the 'sidebar' key will be changed to 'primary' after API Changes.
+          primary: colorsConfig->getString("sidebar", defaultSettings.sidebar.primary),
+          // This 'colorsConfig' will be replaced with 'sidebarConfig' once the API changes are done.
+          secondary: colorsConfig->getString("secondary", defaultSettings.sidebar.secondary),
+          hoverColor: sidebarConfig->getString("hoverColor", defaultSettings.sidebar.hoverColor),
+          // This property is currently required to support current sidebar changes. It will be removed in a future update.
+          primaryTextColor: sidebarConfig->getString(
+            "primaryTextColor",
+            defaultSettings.sidebar.primaryTextColor,
+          ),
+          secondaryTextColor: sidebarConfig->getString(
+            "secondaryTextColor",
+            defaultSettings.sidebar.secondaryTextColor,
+          ),
         },
         typography: {
           fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
@@ -188,15 +213,107 @@ let make = (~children) => {
     Window.appendStyle(value)
   }, [])
 
+  let configureFavIcon = (faviconUrl: option<string>) => {
+    try {
+      open DOMUtils
+      let a = createElement(DOMUtils.document, "link")
+      let _ = setAttribute(a, "href", `${faviconUrl->Option.getOr("/HyperswitchFavicon.png")}`)
+      let _ = setAttribute(a, "rel", "shortcut icon")
+      let _ = setAttribute(a, "type", "image/x-icon")
+      let _ = appendHead(a)
+    } catch {
+    | _ => Exn.raiseError("Error on configuring favicon")
+    }
+  }
+
+  let updateThemeURLs = themesData => {
+    open LogicUtils
+    open HyperSwitchConfigTypes
+    try {
+      let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
+      let existingEnv = DOMUtils.window._env_
+      let val = {
+        faviconUrl: urlsDict
+        ->getString("faviconUrl", existingEnv.urlThemeConfig.faviconUrl->Option.getOr(""))
+        ->getNonEmptyString,
+        logoUrl: urlsDict
+        ->getString("logoUrl", existingEnv.urlThemeConfig.logoUrl->Option.getOr(""))
+        ->getNonEmptyString,
+      }
+
+      let updatedUrlConfig = {
+        ...existingEnv,
+        urlThemeConfig: val,
+      }
+      DOMUtils.window._env_ = updatedUrlConfig
+      configureFavIcon(updatedUrlConfig.urlThemeConfig.faviconUrl)->ignore
+      updatedUrlConfig.urlThemeConfig.faviconUrl
+    } catch {
+    | _ => Exn.raiseError("Error while updating theme URL and favicon")
+    }
+  }
+
+  let getThemesJson = async (themesID, configRes, devThemeFeature) => {
+    open LogicUtils
+    //will remove configRes once feature flag is removed.
+    try {
+      let themeJson = if !devThemeFeature || themesID->isEmptyString {
+        let dict = configRes->getDictFromJsonObject->getDictfromDict("theme")
+        let {settings: defaultSettings, _} = newDefaultConfig
+        let defaultStyle = {
+          "settings": {
+            "colors": {
+              "primary": dict->getString("primary_color", defaultSettings.colors.primary),
+              "sidebar": dict->getString("sidebar_color", defaultSettings.sidebar.primary),
+            },
+            "buttons": {
+              "primary": {
+                "backgroundColor": dict->getString(
+                  "primary_color",
+                  defaultSettings.buttons.primary.backgroundColor,
+                ),
+                "hoverBackgroundColor": dict->getString(
+                  "primary_hover_color",
+                  defaultSettings.buttons.primary.hoverBackgroundColor,
+                ),
+              },
+            },
+          },
+        }
+        defaultStyle->Identity.genericTypeToJson
+      } else {
+        let url = `${GlobalVars.getHostUrl}/themes/${themesID}/theme.json`
+        let themeResponse = await fetchApi(
+          `${url}`,
+          ~method_=Get,
+          ~xFeatureRoute=true,
+          ~forceCookies=false,
+        )
+        let themesData = await themeResponse->(res => res->Fetch.Response.json)
+        themesData
+      }
+      updateThemeURLs(themeJson)->ignore
+      configCustomDomainTheme(themeJson)->ignore
+      themeJson
+    } catch {
+    | _ => {
+        let defaultStyle = {"settings": newDefaultConfig.settings}->Identity.genericTypeToJson
+        updateThemeURLs(defaultStyle)->ignore
+        configCustomDomainTheme(defaultStyle)->ignore
+        defaultStyle
+      }
+    }
+  }
+
   let value = React.useMemo(() => {
     {
       globalUIConfig: UIConfig.defaultUIConfig,
       theme,
       themeSetter: setTheme,
       configCustomDomainTheme,
+      getThemesJson,
     }
   }, (theme, setTheme))
-
   React.useEffect(() => {
     if theme === Dark {
       setTheme(Light)

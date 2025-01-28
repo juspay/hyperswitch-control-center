@@ -896,15 +896,13 @@ let make = (
           <AdvancedSearchModal searchFields url=searchUrl entity />
         </RenderIf>
       }}
-      <DesktopView>
-        {switch tableActions {
-        | Some(actions) =>
-          <LoadedTableContext value={actualData->LoadedTableContext.toInfoData}>
-            <div className=filterBottomPadding> actions </div>
-          </LoadedTableContext>
-        | None => React.null
-        }}
-      </DesktopView>
+      {switch tableActions {
+      | Some(actions) =>
+        <LoadedTableContext value={actualData->LoadedTableContext.toInfoData}>
+          <div className=filterBottomPadding> actions </div>
+        </LoadedTableContext>
+      | None => React.null
+      }}
     </div>
 
   let addDataAttributesClass = if isHighchartLegend {
@@ -988,10 +986,10 @@ let make = (
             : tableDataBackgroundClass}`}>
         paginationUI
         {
-          let topBottomActions = if bottomActions->Option.isSome || !isMobileView {
+          let topBottomActions = if bottomActions->Option.isSome {
             bottomActions
           } else {
-            tableActions
+            None
           }
 
           switch topBottomActions {

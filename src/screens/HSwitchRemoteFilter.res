@@ -41,6 +41,7 @@ let useSetInitialFilters = (
   ~origin,
   (),
 ) => {
+  open NewAnalyticsTypes
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
@@ -67,11 +68,13 @@ let useSetInitialFilters = (
                   (compareToStartTimeKey, compareToStartTime),
                   (compareToEndTimeKey, compareToEndTime),
                   (comparisonKey, (DateRangeUtils.DisableComparison :> string)),
+                  ((#currency: filters :> string), (#all_currencies: defaultFilters :> string)),
                 ]
               }
             | None => [
                 (startTimeFilterKey, defaultDate.start_time),
                 (endTimeFilterKey, defaultDate.end_time),
+                ((#currency: filters :> string), (#all_currencies: defaultFilters :> string)),
               ]
             }
 
