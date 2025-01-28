@@ -14,7 +14,7 @@ module HoverInline = {
       className={`group relative font-medium flex flex-row items-start gap-2 px-2 py-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
       <RenderIf condition={leftIcon->Option.isSome}>
         <div className="flex items-center justify-center ">
-          <div className="rounded-md w-12 h-8 "> {leftIcon->Option.getOr(React.null)} </div>
+          <div className="rounded-md "> {leftIcon->Option.getOr(React.null)} </div>
         </div>
       </RenderIf>
       <div className="flex flex-col w-full gap-1">
