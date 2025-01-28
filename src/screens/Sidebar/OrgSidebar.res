@@ -302,7 +302,6 @@ let make = () => {
       setShowSwitchingOrg(_ => true)
       let _ = await internalSwitch(~expectedOrgId=Some(value))
       RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
-      showToast(~message="Switched organisation successfully", ~toastType=ToastSuccess)
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {

@@ -11,16 +11,16 @@ module HoverInline = {
     ~customWidth,
   ) => {
     <div
-      className={`group relative font-medium flex flex-row items-start gap-2 px-2 py-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
+      className={`group relative font-medium flex flex-row items-center p-2 justify-center gap-x-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
       <RenderIf condition={leftIcon->Option.isSome}>
-        <div className="flex items-center justify-center ">
-          <div className="rounded-md "> {leftIcon->Option.getOr(React.null)} </div>
-        </div>
+        {leftIcon->Option.getOr(React.null)}
       </RenderIf>
       <div className="flex flex-col w-full gap-1">
         <div className="flex justify-between items-center w-full">
           <div className={`text-sm ${labelTextCustomStyle}`}> {React.string(value)} </div>
-          <div className={`${showEditIconOnHover ? "invisible group-hover:visible" : ""}`}>
+          <div
+            className={`${showEditIconOnHover ? "invisible group-hover:visible" : ""}`}
+            onClick={ReactEvent.Mouse.stopPropagation}>
             leftActionButtons
           </div>
         </div>
@@ -51,21 +51,32 @@ let make = (
   ~validateInput,
   ~labelTextCustomStyle="",
   ~customWidth="",
+  ~handleClick=?,
 ) => {
   let (value, setValue) = React.useState(_ => labelText)
   let (inputErrors, setInputErrors) = React.useState(_ => Dict.make())
   let enterKeyCode = 13
   let escapeKeyCode = 27
+
+  let handleCancel = () => {
+    setValue(_ => labelText)
+    setInputErrors(_ => Dict.make())
+    handleEdit(None)
+  }
   let handleSave = () => {
     setValue(_ => value)
-    switch onSubmit {
-    | Some(func) => {
-        func(value)->ignore
-        handleEdit(None)
+    if !{inputErrors->LogicUtils.isEmptyDict} || value == labelText {
+      handleCancel()
+    } else {
+      switch onSubmit {
+      | Some(func) => {
+          func(value)->ignore
+          handleEdit(None)
+        }
+      | None => ()
       }
-    | None => ()
+      handleEdit(None)
     }
-    handleEdit(None)
   }
 
   React.useEffect(() => {
@@ -74,12 +85,6 @@ let make = (
     }
     None
   }, [labelText])
-
-  let handleCancel = () => {
-    setValue(_ => labelText)
-    setInputErrors(_ => Dict.make())
-    handleEdit(None)
-  }
 
   let handleKeyDown = e => {
     let key = e->ReactEvent.Keyboard.key
@@ -105,7 +110,7 @@ let make = (
     },
   )
   let submitButtons =
-    <div className="flex items-center gap-2 pr-4">
+    <div className="flex items-center gap-2 pr-4" onClick={ReactEvent.Mouse.stopPropagation}>
       <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
         <Icon name="nd-cross" size=16 />
       </button>
@@ -142,17 +147,23 @@ let make = (
   }
 
   <div
-    className="relative inline-block"
+    className="relative inline-block w-full"
     onClick={e => {
-      e->ReactEvent.Mouse.stopPropagation
+      Js.log("inside inlineditinput")
+      switch handleClick {
+      | Some(fn) => fn()
+      | None =>
+        ()
+        e->ReactEvent.Mouse.stopPropagation
+      }
     }}>
     {if isUnderEdit {
       //TODO: validation error message has to be displayed
-      <div className={`flex items-center gap-2 p-1 ${customWidth}`}>
+      <div
+        className={`flex items-center  p-1 ${customWidth}`}
+        onClick={ReactEvent.Mouse.stopPropagation}>
         <RenderIf condition={leftIcon->Option.isSome}>
-          <div className="rounded-md overflow-hidden w-12 h-8 ">
-            {leftIcon->Option.getOr(React.null)}
-          </div>
+          {leftIcon->Option.getOr(React.null)}
         </RenderIf>
         <div
           className={`group relative flex items-center bg-white ${inputErrors->LogicUtils.isEmptyDict
@@ -165,7 +176,7 @@ let make = (
               onChange=handleInputChange
               onKeyDown=handleKeyDown
               autoFocus=true
-              className={`w-full px-4 py-2 bg-transparent focus:outline-none text-md ${customInputStyle}`}
+              className={`w-full p-2 bg-transparent focus:outline-none text-md ${customInputStyle}`}
             />
           </div>
           {submitButtons}
