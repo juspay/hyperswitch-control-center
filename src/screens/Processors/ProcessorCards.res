@@ -34,7 +34,7 @@ module CantFindProcessor = {
         )}
         text="Request a Processor"
         buttonType={Secondary}
-        buttonSize={Small}
+        buttonSize={Large}
         textStyle="text-jp-gray-900"
         onClick={_ => setShowModal(_ => true)}
         leftIcon={CustomIcon(
@@ -135,7 +135,7 @@ let make = (
             )}
             text="Connect a Dummy Processor"
             buttonType={Secondary}
-            buttonSize={Small}
+            buttonSize={Large}
             textStyle="text-jp-gray-900"
             onClick={_ => setProcessorModal(_ => true)}
           />

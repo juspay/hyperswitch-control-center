@@ -351,19 +351,7 @@ let make = (
   | _ => "cursor-pointer"
   }
 
-  let paddingClass = customPaddingClass->Option.getOr(
-    switch buttonSize {
-    | XSmall => ""
-    | Small =>
-      switch buttonType {
-      | Pagination => "py-3 px-4 mr-1"
-      | Dropdown => "py-3 px-4"
-      | _ => ""
-      }
-    | Medium => buttonType == Pagination ? "mr-1" : ""
-    | Large => ""
-    },
-  )
+  let paddingClass = customPaddingClass->Option.getOr("")
 
   let customWidthClass = switch buttonSize {
   | Large => "w-147-px"

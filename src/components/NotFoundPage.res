@@ -5,6 +5,7 @@ let make = (~message="Error 404!") => {
     <Button
       text={"Go to Home"}
       buttonType=Primary
+      buttonSize=Small
       onClick={_ => {
         setDashboardPageState(_ => #HOME)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))

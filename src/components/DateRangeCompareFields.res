@@ -635,7 +635,7 @@ module Base = {
                   customButtonStyle="rounded-lg"
                   buttonType=Secondary
                   buttonState=Normal
-                  buttonSize=XSmall
+                  buttonSize=Small
                   onClick={cancelButton}
                 />
                 <Button
@@ -643,7 +643,7 @@ module Base = {
                   customButtonStyle="rounded-lg"
                   buttonType=Primary
                   buttonState={endDate->LogicUtils.isEmptyString ? Disabled : Normal}
-                  buttonSize=XSmall
+                  buttonSize=Small
                   onClick={handleApply}
                 />
               </div>
