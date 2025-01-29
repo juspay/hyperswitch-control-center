@@ -288,8 +288,12 @@ module.exports = {
         unselected_white: "#9197A3",
 
         /* NEW DESIGN COLORS */
-        gray: {
+        nd_gray: {
           200: "#E1E4EA",
+          400: "#99A0AE",
+        },
+        //borders gray
+        nd_br_gray: {
           400: "#E1E1E1",
         },
       },

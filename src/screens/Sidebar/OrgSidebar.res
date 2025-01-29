@@ -103,7 +103,7 @@ module OrgTile = {
             ? `bg-white/20 ${primaryTextColor} border-sidebar-primaryTextColor`
             : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
-        <div className={` ${currentEditCSS} ${nonEditCSS} border border-gray-200 `}>
+        <div className={` ${currentEditCSS} ${nonEditCSS} border border-nd_gray-200 `}>
           <InlineEditInput
             index
             labelText={orgName}
@@ -319,7 +319,7 @@ let make = () => {
   }
 
   <div
-    className={`${backgroundColor.sidebarNormal} p-2 border-r border-gray-400 border-opacity-40  `}>
+    className={`${backgroundColor.sidebarNormal} p-2 border-r border-nd_br_gray-400 border-opacity-40  `}>
     // the org tiles
     <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
       {orgList
