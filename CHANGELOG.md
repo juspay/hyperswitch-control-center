@@ -3,6 +3,41 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.29.2
+
+### Miscellaneous Tasks
+
+- Add analytics authentication ([#2158](https://github.com/juspay/hyperswitch-control-center/pull/2158)) ([`0fb9fba`](https://github.com/juspay/hyperswitch-control-center/commit/0fb9fba493a0bc91ee0685efe8a299e8a2830182))
+
+**Full Changelog:** [`2025.01.29.1...2025.01.29.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.29.1...2025.01.29.2)
+
+- - -
+
+## 2025.01.29.1
+
+### Bug Fixes
+
+- Analytics filters init set function modification ([#2156](https://github.com/juspay/hyperswitch-control-center/pull/2156)) ([`64b97a5`](https://github.com/juspay/hyperswitch-control-center/commit/64b97a5fc1bc4699cda8a1b236633e9f6e60f2bf))
+
+**Full Changelog:** [`2025.01.29.0...2025.01.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.29.0...2025.01.29.1)
+
+- - -
+
+## 2025.01.29.0
+
+### Bug Fixes
+
+- Surcharge and 3DS Delete permission ([#2148](https://github.com/juspay/hyperswitch-control-center/pull/2148)) ([`0baca0c`](https://github.com/juspay/hyperswitch-control-center/commit/0baca0c32c2b0054d76756242d0043ccf8f95cc0))
+- Refactor modal warning icon in Smart and volume based routing ([#2143](https://github.com/juspay/hyperswitch-control-center/pull/2143)) ([`2db22fd`](https://github.com/juspay/hyperswitch-control-center/commit/2db22fd10056826301c67efb34909315ccdc68d8))
+
+### Miscellaneous Tasks
+
+- Added profile name validation ([#2128](https://github.com/juspay/hyperswitch-control-center/pull/2128)) ([`49bb20b`](https://github.com/juspay/hyperswitch-control-center/commit/49bb20bc8b8ad12535c12fccfa9d2f7a66b9fd72))
+
+**Full Changelog:** [`2025.01.28.0...2025.01.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.28.0...2025.01.29.0)
+
+- - -
+
 ## 2025.01.28.0
 
 ### Features
