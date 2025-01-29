@@ -186,7 +186,7 @@ module DateSelectorButton = {
         text={buttonText}
         leftIcon
         rightIcon
-        buttonSize=Small
+        buttonSize={Large}
         isDropdownOpen
         onClick
         iconBorderColor
