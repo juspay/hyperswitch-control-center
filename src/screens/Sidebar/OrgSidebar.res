@@ -91,16 +91,19 @@ module OrgTile = {
       ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
-
+    let ringClass = switch isActive {
+    | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
+    | false => "ring-grey-outline"
+    }
     <div
       onClick={_ => orgSwitch(orgID)->ignore}
-      className={`w-10 h-10 flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
+      className={`w-10 h-10 rounded-lg  flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
       <div
-        className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md  ${isActive
+        className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md ${ringClass} ${isActive
             ? `bg-white/20 ${primaryTextColor} border-sidebar-primaryTextColor`
             : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
-        <div className={` ${currentEditCSS} ${nonEditCSS} `}>
+        <div className={` ${currentEditCSS} ${nonEditCSS} border border-gray-200 `}>
           <InlineEditInput
             index
             labelText={orgName}
@@ -117,7 +120,7 @@ module OrgTile = {
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
             validateInput
             labelTextCustomStyle={`${secondaryTextColor} truncate max-w-40`}
-            customWidth="min-w-64 "
+            customWidth="min-w-72"
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
           />
@@ -316,9 +319,9 @@ let make = () => {
   }
 
   <div
-    className={`${backgroundColor.sidebarNormal} p-2 border-r border-gray-600 border-opacity-40  `}>
+    className={`${backgroundColor.sidebarNormal} p-2 border-r border-gray-400 border-opacity-40  `}>
     // the org tiles
-    <div className="flex flex-col gap-4 m-1 mt-4 items-center justify-center ">
+    <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
       {orgList
       ->Array.toSorted((org1, org2) => {
         if org1.id === orgId {

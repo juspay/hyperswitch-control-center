@@ -149,7 +149,6 @@ let make = (
   <div
     className="relative inline-block w-full"
     onClick={e => {
-      Js.log("inside inlineditinput")
       switch handleClick {
       | Some(fn) => fn()
       | None =>
