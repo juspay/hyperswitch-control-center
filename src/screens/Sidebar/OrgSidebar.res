@@ -108,7 +108,7 @@ module OrgTile = {
             index
             labelText={orgName}
             subText={"Organization"}
-            customStyle={` p-3 ${backgroundColor.sidebarSecondary}  ${hoverInput2}`}
+            customStyle={` p-3 !h-12 ${backgroundColor.sidebarSecondary}  ${hoverInput2}`}
             showEditIconOnHover=false
             customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2} `}
             customIconComponent={<ToolTip
