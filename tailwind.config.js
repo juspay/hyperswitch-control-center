@@ -287,7 +287,7 @@ module.exports = {
         light_green: "#32AA52",
         hyperswitch_green_trans: "#71B44B20",
         hyperswitch_red: "#D7625B",
-        hyperswitch_background: "#F7F8FB",
+        hyperswitch_background: "#FFFFFF",
         pdf_background: "#F5F5F5",
         offset_white: "#FEFEFE",
         light_white: "#FFFFFF0D",

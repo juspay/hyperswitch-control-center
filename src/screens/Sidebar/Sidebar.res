@@ -636,7 +636,7 @@ let make = (
             })
             ->React.array}
           </div>
-          <div className={`border-t border-gray-600 border-opacity-20 mt-5`}>
+          <div className={`border-gray-600 border-opacity-20 mt-5`}>
             {productSiebars
             ->Array.mapWithIndex((tabInfo, index) => {
               switch tabInfo {
