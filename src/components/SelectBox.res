@@ -1708,7 +1708,6 @@ module BaseDropdown = {
     }, [showDropDown])
 
     let onClick = _ => {
-      Js.log("on click inside")
       switch buttonClickFn {
       | Some(fn) => fn(input.name)
       | None => ()
@@ -2129,7 +2128,6 @@ module InfraSelectBox = {
     , [values])
 
     let onItemClick = (itemDataValue, isDisabled) => {
-      Js.log("hello")
       if !isDisabled {
         if allowMultiSelect {
           let data = if Array.includes(saneValue, itemDataValue) {
