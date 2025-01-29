@@ -553,7 +553,7 @@ let make = (
       style={width: sidebarContainerClassWidth}
     />
     <div
-      className={`absolute z-40 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
+      className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
         className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
@@ -573,7 +573,7 @@ let make = (
           <SidebarSwitch isSidebarExpanded />
         </RenderIf>
         <div
-          className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
+          className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
           style={height: `calc(100vh - ${verticalOffset})`}>
           <style> {React.string(sidebarScrollbarCss)} </style>
           <div>
@@ -623,7 +623,7 @@ let make = (
             })
             ->React.array}
           </div>
-          <div className={`border-t border-secondary mt-5`}>
+          <div className={`border-t border-gray-600 border-opacity-20 mt-5`}>
             {productSiebars
             ->Array.mapWithIndex((tabInfo, index) => {
               switch tabInfo {
