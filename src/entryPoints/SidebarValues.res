@@ -291,16 +291,27 @@ let refundAnalytics = SubLevelLink({
   access: Access,
   searchOptions: [("View analytics", "")],
 })
+let authenticationAnalytics = SubLevelLink({
+  name: "Authentication",
+  link: `/analytics-authentication`,
+  access: Access,
+  iconTag: "betaTag",
+  searchOptions: [("View analytics", "")],
+})
 
 let analytics = (
   isAnalyticsEnabled,
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
+  ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
+  Js.log(authenticationAnalyticsFlag)
   let links = [paymentAnalytcis, refundAnalytics]
-
+  if authenticationAnalyticsFlag {
+    links->Array.push(authenticationAnalytics)
+  }
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
   }
@@ -627,6 +638,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     pmAuthenticationProcessor,
     taxProcessor,
     newAnalytics,
+    authenticationAnalytics,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -651,6 +663,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       disputeAnalytics,
       performanceMonitorFlag,
       isNewAnalyticsEnable,
+      ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
     ),
     default->workflow(

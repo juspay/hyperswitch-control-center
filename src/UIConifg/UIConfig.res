@@ -183,7 +183,7 @@ let defaultUIConfig: t = {
       sidebarSecondary: "bg-sidebar-secondary md:bg-sidebar-secondary ",
     },
     primaryTextColor: "text-sidebar-primaryTextColor",
-    secondaryTextColor: "text-sidebar-secondaryTextColor/80",
-    hoverColor: "hover:bg-sidebar-hoverColor/10",
+    secondaryTextColor: "text-sidebar-secondaryTextColor",
+    hoverColor: "hover:bg-sidebar-hoverColor/20",
   },
 }

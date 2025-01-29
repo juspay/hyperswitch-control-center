@@ -25,7 +25,7 @@ module HoverInline = {
           </div>
         </div>
         <RenderIf condition={subText->LogicUtils.isNonEmptyString}>
-          <div className="text-xs text-gray-500"> {React.string(subText)} </div>
+          <div className="text-xs text-nd_gray-400"> {React.string(subText)} </div>
         </RenderIf>
       </div>
     </div>
@@ -149,7 +149,6 @@ let make = (
   <div
     className="relative inline-block w-full"
     onClick={e => {
-      Js.log("inside inlineditinput")
       switch handleClick {
       | Some(fn) => fn()
       | None =>
