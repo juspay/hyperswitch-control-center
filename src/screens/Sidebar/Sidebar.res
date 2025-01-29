@@ -319,7 +319,7 @@ module NestedSectionItem = {
               <Icon size={getIconSize("small")} name=section.icon className=iconColor />
             }}
             <RenderIf condition={isSideBarExpanded}>
-              <div className={`font-semibold text-sm ${expandedTextColor} whitespace-nowrap`}>
+              <div className={`text-sm ${expandedTextColor} whitespace-nowrap`}>
                 {React.string(section.name)}
               </div>
             </RenderIf>
@@ -432,7 +432,9 @@ module SidebarNestedSection = {
     } else {
       `cursor-pointer`
     }
-    let expandedTextColor = isAnySubItemSelected ? `${primaryTextColor}` : `${secondaryTextColor}`
+    let expandedTextColor = isAnySubItemSelected
+      ? `${primaryTextColor} font-semibold`
+      : `${secondaryTextColor} font-medium`
     let areAllSubLevelsHidden = section.links->Array.reduce(true, (acc, subLevelItem) => {
       acc &&
       switch subLevelItem {
