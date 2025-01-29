@@ -19,7 +19,7 @@ module.exports = {
   content: ["./src/**/*.js"],
   theme: {
     fontFamily: {
-      "inter-style": '"Inter"',
+      "inter-style": '"InterDisplay"',
     },
     extend: {
       screens: {
