@@ -3,6 +3,35 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.29.0
+
+### Bug Fixes
+
+- Surcharge and 3DS Delete permission ([#2148](https://github.com/juspay/hyperswitch-control-center/pull/2148)) ([`0baca0c`](https://github.com/juspay/hyperswitch-control-center/commit/0baca0c32c2b0054d76756242d0043ccf8f95cc0))
+- Refactor modal warning icon in Smart and volume based routing ([#2143](https://github.com/juspay/hyperswitch-control-center/pull/2143)) ([`2db22fd`](https://github.com/juspay/hyperswitch-control-center/commit/2db22fd10056826301c67efb34909315ccdc68d8))
+
+### Miscellaneous Tasks
+
+- Added profile name validation ([#2128](https://github.com/juspay/hyperswitch-control-center/pull/2128)) ([`49bb20b`](https://github.com/juspay/hyperswitch-control-center/commit/49bb20bc8b8ad12535c12fccfa9d2f7a66b9fd72))
+
+**Full Changelog:** [`2025.01.28.0...2025.01.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.28.0...2025.01.29.0)
+
+- - -
+
+## 2025.01.28.0
+
+### Features
+
+- Recovery product feature flag and folder structure ([#2141](https://github.com/juspay/hyperswitch-control-center/pull/2141)) ([`746f8b2`](https://github.com/juspay/hyperswitch-control-center/commit/746f8b286bb2a77b521ccc7bebb80eeccb253d2c))
+
+### Bug Fixes
+
+- Sdk checkout overlapping divs ([#2126](https://github.com/juspay/hyperswitch-control-center/pull/2126)) ([`bd240e5`](https://github.com/juspay/hyperswitch-control-center/commit/bd240e5ce65dfb2ebbebef91b271044be494e7ad))
+
+**Full Changelog:** [`2025.01.27.0...2025.01.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.27.0...2025.01.28.0)
+
+- - -
+
 ## 2025.01.27.0
 
 ### Bug Fixes
