@@ -170,7 +170,7 @@ module KeyAndCopyArea = {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
-        <Icon name="copy" customIconColor="rgb(156 163 175)" />
+        <Icon name="nd-copy" customIconColor="rgb(156 163 175)" />
         <p className="text-grey-700 opacity-50"> {"Copy"->React.string} </p>
       </div>
     </div>

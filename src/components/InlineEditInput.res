@@ -100,7 +100,8 @@ let make = (
       handleCancel()
     }
   }
-
+  let isDisabled = !{inputErrors->LogicUtils.isEmptyDict}
+  let isDisabledCss = {isDisabled ? "!cursor-not-allowed" : "cursor-pointer"}
   let dropdownRef = React.useRef(Nullable.null)
   OutsideClick.useOutsideClick(
     ~refs={ArrayOfRef([dropdownRef])},
@@ -115,7 +116,9 @@ let make = (
         <Icon name="nd-cross" size=16 />
       </button>
       <button
-        onClick={_ => handleSave()} className={`cursor-pointer !text-primary ${customIconStyle}`}>
+        onClick={_ => handleSave()}
+        className={`cursor-pointer !text-primary ${customIconStyle} ${isDisabledCss}`}
+        disabled={isDisabled}>
         <Icon name="nd-check" size=16 />
       </button>
     </div>

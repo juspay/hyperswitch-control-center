@@ -483,24 +483,29 @@ module ProfileDropdownItem = {
   }
 }
 
-let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
-  SelectBox.dropdownOption,
-> = dropdownList => {
+let generateDropdownOptions: (
+  array<OMPSwitchTypes.ompListTypes>,
+  ~customIconColor: string,
+) => array<SelectBox.dropdownOption> = (dropdownList, ~customIconColor) => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
     item
   ): SelectBox.dropdownOption => {
-    label: item.name,
-    value: item.id,
-    icon: Button.CustomRightIcon(
-      <ToolTip
-        description={item.id}
-        customStyle="!whitespace-nowrap"
-        toolTipFor={<div className="cursor-pointer">
-          <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
-        </div>}
-        toolTipPosition=ToolTip.TopRight
-      />,
-    ),
+    {
+      label: item.name,
+      value: item.id,
+      icon: Button.CustomRightIcon(
+        <ToolTip
+          description={item.id}
+          customStyle="!whitespace-nowrap"
+          toolTipFor={<div className="cursor-pointer">
+            <HelperComponents.CopyTextCustomComp
+              displayValue=" " copyValue=Some({item.id}) customIconColor
+            />
+          </div>}
+          toolTipPosition=ToolTip.TopRight
+        />,
+      ),
+    }
   })
   options
 }
