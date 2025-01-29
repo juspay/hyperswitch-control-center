@@ -100,7 +100,7 @@ let make = (
         | None => React.null
         }}
       </div>
-      <div className="flex justify-end sm:justify-center tablePagination select-none">
+      <div className="flex justify-end sm:justify-center tablePagination p-1 select-none">
         {if isNewPaginator {
           <NewPagination totalResults currentPage resultsPerPage paginate btnCount />
         } else {

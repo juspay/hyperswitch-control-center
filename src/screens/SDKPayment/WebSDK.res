@@ -222,6 +222,7 @@ module CheckoutForm = {
               loadingText="Please wait..."
               buttonState=btnState
               buttonType={Primary}
+              buttonSize={Large}
               customButtonStyle={`mt-2 w-full rounded-md ${primaryColor}`}
               onClick={_ => {
                 setBtnState(_ => Button.Loading)
