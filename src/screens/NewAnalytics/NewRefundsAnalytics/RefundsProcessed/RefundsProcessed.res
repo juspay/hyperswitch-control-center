@@ -65,10 +65,12 @@ module RefundsProcessedHeader = {
     ~setSelectedMetric,
     ~granularity,
     ~setGranularity,
+    ~granularityOptions,
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let currency = filterValueJson->getString((#currency: filters :> string), "")
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let primaryValue = getMetaDataValue(
       ~data,
@@ -108,7 +110,7 @@ module RefundsProcessedHeader = {
     | _ => Volume
     }
 
-    <div className="w-full px-7 py-8 grid grid-cols-1">
+    <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
           {primaryValue->valueFormatter(metricType, ~currency)->React.string}
@@ -119,12 +121,16 @@ module RefundsProcessedHeader = {
           />
         </RenderIf>
       </div>
-      // will enable it in future
-      <RenderIf condition={false}>
-        <div className="flex justify-center">
-          <Tabs option={granularity} setOption={setGranularity} options={tabs} />
-        </div>
-      </RenderIf>
+      <div className="flex justify-center">
+        <RenderIf condition={featureFlag.granularity}>
+          <Tabs
+            option={granularity}
+            setOption={setGranularity}
+            options={granularityOptions}
+            showSingleTab=false
+          />
+        </RenderIf>
+      </div>
       <div className="flex gap-2 justify-end">
         <CustomDropDown
           buttonText={selectedMetric} options={dropDownOptions} setOption={setSelectedMetric}
@@ -161,6 +167,7 @@ let make = (
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
 
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let (granularity, setGranularity) = React.useState(_ =>
     getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
   )
@@ -266,7 +273,15 @@ let make = (
       getRefundsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    granularity,
+  ))
 
   let params = {
     data: refundsProcessedData,
@@ -292,6 +307,7 @@ let make = (
           setSelectedMetric
           granularity
           setGranularity
+          granularityOptions
         />
         <div className="mb-5">
           {switch viewType {

@@ -1,109 +1,199 @@
+module HoverInline = {
+  @react.component
+  let make = (
+    ~customStyle="",
+    ~leftIcon,
+    ~value,
+    ~subText,
+    ~showEditIconOnHover,
+    ~leftActionButtons,
+    ~labelTextCustomStyle,
+    ~customWidth,
+  ) => {
+    <div
+      className={`group relative font-medium flex flex-row items-center p-2 justify-center gap-x-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
+      <RenderIf condition={leftIcon->Option.isSome}>
+        {leftIcon->Option.getOr(React.null)}
+      </RenderIf>
+      <div className="flex flex-col w-full gap-1">
+        <div className="flex justify-between items-center w-full">
+          <div className={`text-sm ${labelTextCustomStyle}`}> {React.string(value)} </div>
+          <div
+            className={`${showEditIconOnHover ? "invisible group-hover:visible" : ""}`}
+            onClick={ReactEvent.Mouse.stopPropagation}>
+            leftActionButtons
+          </div>
+        </div>
+        <RenderIf condition={subText->LogicUtils.isNonEmptyString}>
+          <div className="text-xs text-nd_gray-400"> {React.string(subText)} </div>
+        </RenderIf>
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = (
+  ~index=0,
   ~labelText="",
-  ~showSubText=false,
   ~subText="",
   ~customStyle="",
-  ~onHoverEdit=true,
+  ~showEditIconOnHover=true,
   ~leftIcon=?,
   ~onSubmit=?,
   ~customIconComponent=?,
   ~customInputStyle="",
   ~customIconStyle="",
-  ~showEdit=true,
+  ~showEditIcon=true,
+  ~handleEdit: option<int> => unit,
+  ~isUnderEdit=false,
+  ~displayHoverOnEdit=true,
+  ~validateInput,
+  ~labelTextCustomStyle="",
+  ~customWidth="",
+  ~handleClick=?,
 ) => {
-  let (isEditing, setIsEditing) = React.useState(_ => false)
   let (value, setValue) = React.useState(_ => labelText)
-  let (newValue, setNewValue) = React.useState(_ => labelText)
+  let (inputErrors, setInputErrors) = React.useState(_ => Dict.make())
   let enterKeyCode = 13
   let escapeKeyCode = 27
-  let handleSave = () => {
-    setValue(_ => newValue)
-    switch onSubmit {
-    | Some(func) => func(newValue)
-    | None => ()
-    }
-    setIsEditing(_ => false)
-  }
 
   let handleCancel = () => {
-    setNewValue(_ => value)
-    setIsEditing(_ => false)
+    setValue(_ => labelText)
+    setInputErrors(_ => Dict.make())
+    handleEdit(None)
   }
+  let handleSave = () => {
+    setValue(_ => value)
+    if !{inputErrors->LogicUtils.isEmptyDict} || value == labelText {
+      handleCancel()
+    } else {
+      switch onSubmit {
+      | Some(func) => {
+          func(value)->ignore
+          handleEdit(None)
+        }
+      | None => ()
+      }
+      handleEdit(None)
+    }
+  }
+
+  React.useEffect(() => {
+    if labelText->LogicUtils.isNonEmptyString {
+      setValue(_ => labelText)
+    }
+    None
+  }, [labelText])
 
   let handleKeyDown = e => {
     let key = e->ReactEvent.Keyboard.key
     let keyCode = e->ReactEvent.Keyboard.keyCode
     if key === "Enter" || keyCode === enterKeyCode {
-      handleSave()
+      if inputErrors->LogicUtils.isEmptyDict {
+        handleSave()
+      } else {
+        handleCancel()
+      }
     }
     if key === "Escape" || keyCode === escapeKeyCode {
       handleCancel()
     }
   }
 
+  let dropdownRef = React.useRef(Nullable.null)
+  OutsideClick.useOutsideClick(
+    ~refs={ArrayOfRef([dropdownRef])},
+    ~isActive=isUnderEdit,
+    ~callback=() => {
+      handleEdit(None)
+    },
+  )
   let submitButtons =
-    <div className="flex items-center gap-2 pr-4">
+    <div className="flex items-center gap-2 pr-4" onClick={ReactEvent.Mouse.stopPropagation}>
       <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
         <Icon name="nd-cross" size=16 />
       </button>
       <button
-        onClick={_ => handleSave()} className={`cursor-pointer text-primary ${customIconStyle}`}>
+        onClick={_ => handleSave()} className={`cursor-pointer !text-primary ${customIconStyle}`}>
         <Icon name="nd-check" size=16 />
       </button>
     </div>
 
   let leftActionButtons =
-    <div className="flex gap-2">
-      <RenderIf condition={showEdit}>
+    <div className="gap-2 flex">
+      <RenderIf condition={showEditIcon}>
         <button
-          onClick={_ => setIsEditing(_ => true)}
+          onClick={_ => {
+            handleEdit(Some(index))
+          }}
           className={`cursor-pointer  ${customIconStyle}`}
           ariaLabel="Edit">
           <Icon name="nd-pencil" size=14 />
         </button>
       </RenderIf>
       <RenderIf condition={customIconComponent->Option.isSome}>
-        {customIconComponent->Option.getOr(React.null)}
+        <div className="flex items-center justify-center w-4 h-4">
+          {customIconComponent->Option.getOr(React.null)}
+        </div>
       </RenderIf>
     </div>
 
-  <div className="relative inline-block">
-    {if isEditing {
+  let handleInputChange = e => {
+    let value = ReactEvent.Form.target(e)["value"]
+    setValue(_ => value)
+    let errors = validateInput(value)
+    setInputErrors(_ => errors)
+  }
+
+  <div
+    className="relative inline-block w-full"
+    onClick={e => {
+      switch handleClick {
+      | Some(fn) => fn()
+      | None =>
+        ()
+        e->ReactEvent.Mouse.stopPropagation
+      }
+    }}>
+    {if isUnderEdit {
+      //TODO: validation error message has to be displayed
       <div
-        className={`group flex items-center bg-white  focus-within:ring-1 focus-within:ring-primary rounded-md text-md ${customStyle}`}>
-        <div className="flex-1">
-          <input
-            type_="text"
-            value=newValue
-            onChange={event => setNewValue(ReactEvent.Form.target(event)["value"])}
-            onKeyDown=handleKeyDown
-            autoFocus=true
-            className={`w-full px-4 py-2 bg-transparent focus:outline-none text-md ${customInputStyle}`}
-          />
+        className={`flex items-center  p-1 ${customWidth}`}
+        onClick={ReactEvent.Mouse.stopPropagation}>
+        <RenderIf condition={leftIcon->Option.isSome}>
+          {leftIcon->Option.getOr(React.null)}
+        </RenderIf>
+        <div
+          className={`group relative flex items-center bg-white ${inputErrors->LogicUtils.isEmptyDict
+              ? "focus-within:ring-1 focus-within:ring-primary"
+              : "ring-1 ring-red-300"}  rounded-md text-md !py-2 ${customStyle} `}>
+          <div className={`flex-1 `}>
+            <input
+              type_="text"
+              value
+              onChange=handleInputChange
+              onKeyDown=handleKeyDown
+              autoFocus=true
+              className={`w-full p-2 bg-transparent focus:outline-none text-md ${customInputStyle}`}
+            />
+          </div>
+          {submitButtons}
         </div>
-        {submitButtons}
       </div>
     } else {
-      <div
-        className={`group relative font-medium inline-flex gap-4 items-center justify-between px-4 py-2 w-full bg-white rounded-md hover:bg-gray-100 ${customStyle}`}>
-        <div className="flex gap-2">
-          <RenderIf condition={leftIcon->Option.isSome}>
-            {leftIcon->Option.getOr(React.null)}
-          </RenderIf>
-          <div className="flex flex-col gap-1 ml-1">
-            <p className="text-sm"> {React.string(value)} </p>
-            <RenderIf condition={showSubText}>
-              <span className="text-xs text-gray-500"> {subText->React.string} </span>
-            </RenderIf>
-          </div>
-        </div>
-        {if onHoverEdit {
-          <div className="invisible group-hover:visible"> {leftActionButtons} </div>
-        } else {
+      <RenderIf condition={displayHoverOnEdit}>
+        <HoverInline
+          customStyle
+          leftIcon
+          value
+          subText
+          showEditIconOnHover
           leftActionButtons
-        }}
-      </div>
+          labelTextCustomStyle
+          customWidth
+        />
+      </RenderIf>
     }}
   </div>
 }

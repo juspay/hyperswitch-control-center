@@ -7,18 +7,19 @@ module PaymentsSuccessRateHeader = {
   open NewAnalyticsUtils
   open LogicUtils
   @react.component
-  let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
+  let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~granularityOptions) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue)
     let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue)
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-    <div className="w-full px-7 py-8 grid grid-cols-2">
+    <div className="w-full px-7 py-8 grid grid-cols-3">
       // will enable it in future
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
@@ -28,11 +29,16 @@ module PaymentsSuccessRateHeader = {
           <StatisticsCard value direction tooltipValue={secondaryValue->valueFormatter(Rate)} />
         </RenderIf>
       </div>
-      <RenderIf condition={false}>
-        <div className="flex justify-center">
-          <Tabs option={granularity} setOption={setGranularity} options={tabs} />
-        </div>
-      </RenderIf>
+      <div className="flex justify-center">
+        <RenderIf condition={featureFlag.granularity}>
+          <Tabs
+            option={granularity}
+            setOption={setGranularity}
+            options={granularityOptions}
+            showSingleTab=false
+          />
+        </RenderIf>
+      </div>
       <div />
     </div>
   }
@@ -65,6 +71,7 @@ let make = (
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
 
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let (granularity, setGranularity) = React.useState(_ =>
     getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
   )
@@ -161,7 +168,15 @@ let make = (
       getPaymentsSuccessRate()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    granularity,
+  ))
 
   let params = {
     data: paymentsSuccessRateData,
@@ -182,6 +197,7 @@ let make = (
           keyValue={Total_Refund_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
+          granularityOptions
         />
         <div className="mb-5">
           <LineGraph options className="mr-3" />
