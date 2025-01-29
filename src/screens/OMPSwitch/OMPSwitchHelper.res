@@ -258,6 +258,7 @@ module MerchantDropdownItem = {
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
@@ -294,10 +295,15 @@ module MerchantDropdownItem = {
 
     let switchMerch = async value => {
       try {
+        setShowSwitchingMerch(_ => true)
         let _ = await internalSwitch(~expectedMerchantId=Some(value))
         RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
+        setShowSwitchingMerch(_ => false)
       } catch {
-      | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+      | _ => {
+          showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+          setShowSwitchingMerch(_ => false)
+        }
       }
     }
     let handleMerchantSwitch = id => {
@@ -327,34 +333,41 @@ module MerchantDropdownItem = {
     let isActive = currentId == merchantId
 
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    <div
-      className={`rounded-lg mb-1 ${isUnderEdit
-          ? `hover:bg-transparent`
-          : `hover:bg-jp-gray-100`}`}>
-      <InlineEditInput
-        index
-        labelText=merchantName
-        customStyle="w-full cursor-pointer !bg-transparent mb-0"
-        handleEdit=handleIdUnderEdit
-        isUnderEdit
-        showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
-        onSubmit
-        labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
-        validateInput
-        customInputStyle="!py-0 text-nd_gray-600"
-        customIconComponent={<HelperComponents.CopyTextCustomComp
-          displayValue=" " copyValue=Some(merchantId) customIconColor="text-nd_gray-600"
-        />}
-        customIconStyle={isActive ? "text-nd_gray-600" : ""}
-        handleClick={_ => handleMerchantSwitch(currentId)}
-        customWidth="min-w-48"
-        leftIcon={isActive && !isUnderEdit
-          ? <Icon name="nd-check" />
-          : isUnderEdit
-          ? <Icon name="nd-check" className="hidden" />
-          : <Icon name="nd-check" className="invisible" />}
+    <>
+      <div
+        className={`rounded-lg mb-1 ${isUnderEdit
+            ? `hover:bg-transparent`
+            : `hover:bg-jp-gray-100`}`}>
+        <InlineEditInput
+          index
+          labelText=merchantName
+          customStyle="w-full cursor-pointer !bg-transparent mb-0"
+          handleEdit=handleIdUnderEdit
+          isUnderEdit
+          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          onSubmit
+          labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
+          validateInput
+          customInputStyle="!py-0 text-nd_gray-600"
+          customIconComponent={<HelperComponents.CopyTextCustomComp
+            displayValue=" " copyValue=Some(merchantId) customIconColor="text-nd_gray-600"
+          />}
+          customIconStyle={isActive ? "text-nd_gray-600" : ""}
+          handleClick={_ => handleMerchantSwitch(currentId)}
+          customWidth="min-w-48"
+          leftIcon={isActive && !isUnderEdit
+            ? <Icon name="nd-check" />
+            : isUnderEdit
+            ? <Icon name="nd-check" className="hidden" />
+            : <Icon name="nd-check" className="invisible" />}
+        />
+      </div>
+      <LoaderModal
+        showModal={showSwitchingMerch}
+        setShowModal={setShowSwitchingMerch}
+        text="Switching merchant..."
       />
-    </div>
+    </>
   }
 }
 
@@ -374,6 +387,7 @@ module ProfileDropdownItem = {
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
@@ -409,10 +423,15 @@ module ProfileDropdownItem = {
 
     let profileSwitch = async value => {
       try {
+        setShowSwitchingProfile(_ => true)
         let _ = await internalSwitch(~expectedProfileId=Some(value))
         RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
+        setShowSwitchingProfile(_ => false)
       } catch {
-      | _ => showToast(~message="Failed to switch profile", ~toastType=ToastError)
+      | _ => {
+          showToast(~message="Failed to switch profile", ~toastType=ToastError)
+          setShowSwitchingProfile(_ => false)
+        }
       }
     }
     let handleProfileSwitch = id => {
@@ -434,30 +453,37 @@ module ProfileDropdownItem = {
     let isActive = currentId == profileId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    <div
-      className={`rounded-lg mb-1 ${isUnderEdit
-          ? `hover:bg-transparent`
-          : `hover:bg-jp-gray-100`}`}>
-      <InlineEditInput
-        index
-        labelText=profileName
-        customStyle="w-full cursor-pointer !bg-transparent mb-0"
-        handleEdit=handleIdUnderEdit
-        isUnderEdit
-        showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
-        onSubmit
-        labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
-        validateInput
-        customInputStyle="!py-0 text-nd_gray-600"
-        customIconComponent={<HelperComponents.CopyTextCustomComp
-          displayValue=" " copyValue=Some(profileId) customIconColor="text-nd_gray-600"
-        />}
-        customIconStyle={isActive ? "text-nd_gray-600" : ""}
-        handleClick={_ => handleProfileSwitch(currentId)}
-        customWidth="min-w-48"
-        leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
+    <>
+      <div
+        className={`rounded-lg mb-1 ${isUnderEdit
+            ? `hover:bg-transparent`
+            : `hover:bg-jp-gray-100`}`}>
+        <InlineEditInput
+          index
+          labelText=profileName
+          customStyle="w-full cursor-pointer !bg-transparent mb-0"
+          handleEdit=handleIdUnderEdit
+          isUnderEdit
+          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          onSubmit
+          labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
+          validateInput
+          customInputStyle="!py-0 text-nd_gray-600"
+          customIconComponent={<HelperComponents.CopyTextCustomComp
+            displayValue=" " copyValue=Some(profileId) customIconColor="text-nd_gray-600"
+          />}
+          customIconStyle={isActive ? "text-nd_gray-600" : ""}
+          handleClick={_ => handleProfileSwitch(currentId)}
+          customWidth="min-w-48"
+          leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
+        />
+      </div>
+      <LoaderModal
+        showModal={showSwitchingProfile}
+        setShowModal={setShowSwitchingProfile}
+        text="Switching profile..."
       />
-    </div>
+    </>
   }
 }
 
