@@ -331,7 +331,7 @@ module MerchantDropdownItem = {
     }
 
     let isActive = currentId == merchantId
-
+    let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
       <div
@@ -355,11 +355,7 @@ module MerchantDropdownItem = {
           customIconStyle={isActive ? "text-nd_gray-600" : ""}
           handleClick={_ => handleMerchantSwitch(currentId)}
           customWidth="min-w-48"
-          leftIcon={isActive && !isUnderEdit
-            ? <Icon name="nd-check" />
-            : isUnderEdit
-            ? <Icon name="nd-check" className="hidden" />
-            : <Icon name="nd-check" className="invisible" />}
+          leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
         />
       </div>
       <LoaderModal
