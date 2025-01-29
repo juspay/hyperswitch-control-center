@@ -1,57 +1,3 @@
-module ConnectorCurrentStepIndicator = {
-  @react.component
-  let make = (~currentStep: ConnectorTypes.steps, ~stepsArr) => {
-    let cols = stepsArr->Array.length->Int.toString
-    let currIndex = stepsArr->Array.findIndex(item => item === currentStep)
-    <div className=" w-full md:w-2/3">
-      <div className={`grid grid-cols-${cols} relative gap-2`}>
-        {stepsArr
-        ->Array.mapWithIndex((step, i) => {
-          let isStepCompleted = i <= currIndex
-          let isPreviousStepCompleted = i < currIndex
-          let isCurrentStep = i == currIndex
-
-          let stepNumberIndicator = if isPreviousStepCompleted {
-            "border-black bg-white"
-          } else if isCurrentStep {
-            "bg-black"
-          } else {
-            "border-gray-300 bg-white"
-          }
-
-          let stepNameIndicator = isStepCompleted
-            ? "text-black break-all"
-            : "text-jp-gray-700 break-all"
-
-          let textColor = isCurrentStep ? "text-white" : "text-grey-700"
-
-          let stepLineIndicator = isPreviousStepCompleted ? "bg-gray-700" : "bg-gray-200"
-
-          <div key={i->Int.toString} className="flex flex-col gap-2 font-semibold ">
-            <div className="flex items-center w-full">
-              <div
-                className={`h-8 w-8 flex items-center justify-center border rounded-full ${stepNumberIndicator}`}>
-                {if isPreviousStepCompleted {
-                  <Icon name="check-black" size=20 />
-                } else {
-                  <p className=textColor> {(i + 1)->Int.toString->React.string} </p>
-                }}
-              </div>
-              <RenderIf condition={i !== stepsArr->Array.length - 1}>
-                <div className={`h-0.5 ${stepLineIndicator} ml-2 flex-1`} />
-              </RenderIf>
-            </div>
-            <div className={stepNameIndicator}>
-              {step->ConnectorUtils.getStepName->React.string}
-            </div>
-          </div>
-        })
-        ->React.array}
-      </div>
-    </div>
-  }
-}
-
 @react.component
 let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   open ConnectorTypes
@@ -66,7 +12,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let profileIdFromUrl =
     UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
-  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
+  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "", ~someIndex=4)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
@@ -81,6 +27,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let getConnectorDetails = async () => {
     try {
+      // TODO: need to converted into V2
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
@@ -111,6 +58,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       }
 
       let paypalBody = generatePayPalBody(~connectorId={connectorID}, ~profileId=Some(profileId))
+      // TODO: need to converted into v2
       let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post)
       let responseValue = await updateDetails(url, paypalBody, Post)
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
@@ -230,7 +178,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr />
+        <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>

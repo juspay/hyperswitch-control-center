@@ -3,7 +3,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   open ConnectorUtils
   open APIUtils
   open LogicUtils
-  open RecoveryConnectorAccountDetailsHelper
+  open ConnectorAccountDetailsHelper
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
@@ -90,6 +90,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
     connectorInfo.metadata,
   ))
 
+  // TODO: need to convert into v2
   let onSubmit = async (values, _) => {
     try {
       let url = getURL(

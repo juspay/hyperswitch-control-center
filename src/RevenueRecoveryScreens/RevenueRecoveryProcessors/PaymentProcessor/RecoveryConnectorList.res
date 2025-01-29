@@ -135,8 +135,8 @@ let make = () => {
             resultsPerPage=20
             offset
             setOffset
-            entity={RecoveryConnectorTableUtils.connectorEntity(
-              "connectors",
+            entity={ConnectorTableUtils.connectorEntity(
+              "v2/recovery/payment-processors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             currrentFetchCount={filteredConnectorData->Array.length}

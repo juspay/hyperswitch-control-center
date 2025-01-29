@@ -49,6 +49,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
 
   let mixpanelEventName = isUpdateFlow ? "processor_step2_onUpdate" : "processor_step2"
 
+  // TODO: need to convert to v2
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     mixpanelEvent(~eventName=mixpanelEventName)
     try {

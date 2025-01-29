@@ -1,42 +1,3 @@
-module InfoField = {
-  @react.component
-  let make = (~render, ~label) => {
-    let str = render->Option.getOr("")
-
-    <RenderIf condition={str->LogicUtils.isNonEmptyString}>
-      <div>
-        <h2 className="text-medium font-semibold"> {label->React.string} </h2>
-        <h3 className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold">
-          {str->React.string}
-        </h3>
-      </div>
-    </RenderIf>
-  }
-}
-
-module KeyAndCopyArea = {
-  @react.component
-  let make = (~copyValue) => {
-    let showToast = ToastState.useShowToast()
-    <div className="flex flex-col md:flex-row items-center">
-      <p
-        className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold w-89.5-per">
-        {copyValue->React.string}
-      </p>
-      <div
-        className="cursor-pointer"
-        onClick={_ => {
-          Clipboard.writeText(copyValue)
-          showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-        }}>
-        <img
-          alt="copy-clipboard" className="w-1.1-rem h-1.1-rem" src={`/assets/CopyToClipboard.svg`}
-        />
-      </div>
-    </div>
-  }
-}
-
 module DeleteConnectorMenu = {
   @react.component
   let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
@@ -46,6 +7,7 @@ module DeleteConnectorMenu = {
     let deleteConnector = async () => {
       try {
         let connectorID = connectorInfo.merchant_connector_id
+        // TODO: need refactor
         let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
         RescriptReactRouter.push(
@@ -73,254 +35,6 @@ module DeleteConnectorMenu = {
         <Button text="Delete" onClick={_ => openConfirmationPopUp()} />
       </div>
     </AddDataAttributes>
-  }
-}
-
-module MenuOption = {
-  open HeadlessUI
-  @react.component
-  let make = (
-    ~updateStepValue=ConnectorTypes.IntegFields,
-    ~disableConnector,
-    ~isConnectorDisabled,
-    ~pageName="connector",
-  ) => {
-    let showPopUp = PopUpState.useShowPopUp()
-    let openConfirmationPopUp = _ => {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Confirm Action ? ",
-        description: `You are about to ${isConnectorDisabled
-            ? "Enable"
-            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
-        handleConfirm: {
-          text: "Confirm",
-          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
-        },
-        handleCancel: {text: "Cancel"},
-      })
-    }
-
-    let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
-
-    <Popover \"as"="div" className="relative inline-block text-left">
-      {_popoverProps => <>
-        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
-        <Popover.Panel className="absolute z-20 right-5 top-4">
-          {panelProps => {
-            <div
-              id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
-              {<>
-                <Navbar.MenuOption
-                  text={connectorStatusAvailableToSwitch}
-                  onClick={_ => {
-                    panelProps["close"]()
-                    openConfirmationPopUp()
-                  }}
-                />
-              </>}
-            </div>
-          }}
-        </Popover.Panel>
-      </>}
-    </Popover>
-  }
-}
-
-module ConnectorSummaryGrid = {
-  open CommonAuthHooks
-  @react.component
-  let make = (
-    ~connectorInfo: ConnectorTypes.connectorPayload,
-    ~connector,
-    ~setCurrentStep,
-    ~updateStepValue=None,
-    ~getConnectorDetails=None,
-  ) => {
-    open ConnectorUtils
-    let url = RescriptReactRouter.useUrl()
-    let mixpanelEvent = MixpanelHook.useSendEvent()
-    let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
-    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-    let currentProfileName =
-      businessProfiles
-      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
-        ele.profile_id === connectorInfo.profile_id
-      )
-      ->Option.getOr(defaultBusinessProfile)
-    let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-    let copyValueOfWebhookEndpoint = getWebhooksUrl(
-      ~connectorName={connectorInfo.merchant_connector_id},
-      ~merchantId,
-    )
-    let (processorType, _) =
-      connectorInfo.connector_type
-      ->connectorTypeTypedValueToStringMapper
-      ->connectorTypeTuple
-    let {connector_name: connectorName} = connectorInfo
-
-    let connectorDetails = React.useMemo(() => {
-      try {
-        if connectorName->LogicUtils.isNonEmptyString {
-          let dict = switch processorType {
-          | PaymentProcessor => Window.getConnectorConfig(connectorName)
-          | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
-          | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
-          | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
-          | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
-          | PaymentVas => JSON.Encode.null
-          }
-          dict
-        } else {
-          JSON.Encode.null
-        }
-      } catch {
-      | Exn.Error(e) => {
-          Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-          let _ = Exn.message(e)->Option.getOr("Something went wrong")
-          JSON.Encode.null
-        }
-      }
-    }, [connectorInfo.merchant_connector_id])
-    let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
-    let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
-    | list{_, "new"} => false
-    | _ => true
-    }
-
-    <>
-      <div className="grid grid-cols-4 border-b md:px-10 py-8">
-        <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
-        <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
-          <div
-            className={`text-black font-semibold text-sm ${connectorInfo.status->RecoveryConnectorTableUtils.connectorStatusStyle}`}>
-            {connectorInfo.status->String.toUpperCase->React.string}
-          </div>
-        </AddDataAttributes>
-      </div>
-      <div className="grid grid-cols-4 border-b md:px-10 py-8">
-        <div className="flex items-start">
-          <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
-          <ToolTip
-            height=""
-            description="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
-            toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
-            toolTipPosition=Top
-            tooltipWidthClass="w-fit"
-          />
-        </div>
-        <div className="col-span-3">
-          <KeyAndCopyArea copyValue={copyValueOfWebhookEndpoint} />
-        </div>
-      </div>
-      <div className="grid grid-cols-4 border-b  md:px-10 py-8">
-        <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
-        <div className="col-span-3 font-semibold text-base text-grey-700 opacity-70">
-          {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
-        </div>
-      </div>
-      <div className="grid grid-cols-4 border-b  md:px-10">
-        <div className="flex items-start">
-          <h4 className="text-lg font-semibold py-8"> {"Credentials"->React.string} </h4>
-        </div>
-        <div className="flex flex-col gap-6  col-span-3">
-          <div className="flex gap-12">
-            <div className="flex flex-col gap-6 w-5/6  py-8">
-              <RecoveryConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
-            </div>
-            <RenderIf condition={isUpdateFlow}>
-              <RecoveryConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
-            </RenderIf>
-          </div>
-          <RenderIf
-            condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
-              Processors(FIUU)}>
-            <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
-              <Icon name="info-vacent" size=18 />
-              <div>
-                <p className="mb-3">
-                  {"To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."->React.string}
-                </p>
-                <p>
-                  {"Please review your webhook settings and confirm that the Source Verification Key is properly configured to avoid any integration issues."->React.string}
-                </p>
-              </div>
-            </div>
-          </RenderIf>
-        </div>
-        <div />
-      </div>
-      {switch updateStepValue {
-      | Some(state) =>
-        <div className="grid grid-cols-4 border-b md:px-10 py-8">
-          <div className="flex items-start">
-            <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
-          </div>
-          <div className="flex flex-col gap-6 col-span-3">
-            <div className="flex gap-12">
-              <div className="flex flex-col gap-6 col-span-3 w-5/6">
-                {connectorInfo.payment_methods_enabled
-                ->Array.mapWithIndex((field, index) => {
-                  <InfoField
-                    key={index->Int.toString}
-                    label={field.payment_method->LogicUtils.snakeToTitle}
-                    render={Some(
-                      field.payment_method_types
-                      ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
-                      ->Array.reduce([], (acc, curr) => {
-                        if !(acc->Array.includes(curr)) {
-                          acc->Array.push(curr)
-                        }
-                        acc
-                      })
-                      ->Array.joinWith(", "),
-                    )}
-                  />
-                })
-                ->React.array}
-              </div>
-              <RenderIf condition={isUpdateFlow}>
-                <div
-                  className="cursor-pointer"
-                  onClick={_ => {
-                    mixpanelEvent(~eventName=`processor_update_payment_methods_${connector}`)
-
-                    setCurrentStep(_ => state)
-                  }}>
-                  <ToolTip
-                    height=""
-                    description={`Update the ${connector} payment methods`}
-                    toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
-                    toolTipPosition=Top
-                    tooltipWidthClass="w-fit"
-                  />
-                </div>
-              </RenderIf>
-            </div>
-            <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
-              <Icon name="info-vacent" size=18 />
-              <p>
-                {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
-                <a
-                  onClick={_ =>
-                    RescriptReactRouter.push(
-                      GlobalVars.appendDashboardPath(~url="/configure-pmts"),
-                    )}
-                  target="_blank"
-                  className="text-primary underline cursor-pointer">
-                  {"Configure PMTs at Checkout"->React.string}
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-
-      | None => React.null
-      }}
-    </>
   }
 }
 
@@ -413,7 +127,7 @@ let make = (
               <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>
-                  <MenuOptionForPayPal
+                  <RecoveryMenuOptionForPayPal
                     setCurrentStep
                     disableConnector
                     isConnectorDisabled
@@ -423,7 +137,7 @@ let make = (
                     isUpdateFlow
                     setInitialValues
                   />
-                | (_, _) => <MenuOption disableConnector isConnectorDisabled />
+                | (_, _) => <ConnectorPreview.MenuOption disableConnector isConnectorDisabled />
                 }}
               </RenderIf>
             </div>
@@ -445,7 +159,7 @@ let make = (
           }}
         </div>
       </div>
-      <ConnectorSummaryGrid
+      <ConnectorPreview.ConnectorSummaryGrid
         connectorInfo
         connector
         setCurrentStep

@@ -1,155 +1,3 @@
-let h3Leading2TextClass = `${HSwitchUtils.getTextClass((H3, Leading_2))} text-grey-700`
-let p1RegularTextClass = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
-
-let p1MediumTextClass = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
-let p2RedularTextClass = `${HSwitchUtils.getTextClass((P2, Regular))} text-grey-700 opacity-50`
-
-let preRequisiteList = [
-  "You need to grant all the permissions to create and receive payments",
-  "Confirm your email id once PayPal sends you the mail",
-]
-
-module PayPalCreateNewAccountModal = {
-  @react.component
-  let make = (~butttonDisplayText, ~actionUrl, ~setScreenState) => {
-    let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
-    let initializePayPalWindow = () => {
-      try {
-        Window.payPalCreateAccountWindow()
-      } catch {
-      | Exn.Error(e) =>
-        switch Exn.message(e) {
-        | Some(message) => setScreenState(_ => PageLoaderWrapper.Error(message))
-        | None => setScreenState(_ => PageLoaderWrapper.Error("Failed to load paypal window!"))
-        }
-      }
-    }
-
-    React.useEffect(() => {
-      initializePayPalWindow()
-      None
-    }, [])
-
-    <AddDataAttributes attributes=[("data-paypal-button", "true")]>
-      <a
-        className={`!w-fit rounded-md ${primaryColor} text-white px-4  h-fit border py-3 flex items-center justify-center gap-2`}
-        href={`${actionUrl}&displayMode=minibrowser`}
-        target="PPFrame">
-        {butttonDisplayText->React.string}
-        <Icon name="thin-right-arrow" size=20 />
-      </a>
-    </AddDataAttributes>
-  }
-}
-module ManualSetupScreen = {
-  @react.component
-  let make = (
-    ~connector,
-    ~connectorAccountFields,
-    ~selectedConnector,
-    ~connectorMetaDataFields,
-    ~connectorWebHookDetails,
-    ~connectorLabelDetailField,
-    ~connectorAdditionalMerchantData,
-  ) => {
-    <div className="flex flex-col gap-8">
-      <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-        connector={connector->ConnectorUtils.getConnectorNameTypeFromString}
-        connectorAccountFields
-        selectedConnector
-        connectorMetaDataFields
-        connectorWebHookDetails
-        connectorLabelDetailField
-        connectorAdditionalMerchantData
-      />
-    </div>
-  }
-}
-
-module LandingScreen = {
-  @react.component
-  let make = (~configuartionType, ~setConfigurationType) => {
-    let {
-      globalUIConfig: {primaryColor, font: {textColor}, border: {borderColor}},
-    } = React.useContext(ThemeProvider.themeContext)
-    let getBlockColor = value =>
-      configuartionType === value
-        ? `${borderColor.primaryNormal} ${primaryColor} bg-opacity-10 `
-        : "border"
-
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-4">
-        <p className=h3Leading2TextClass>
-          {"Do you have a PayPal business account?"->React.string}
-        </p>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
-          {PayPalFlowUtils.listChoices
-          ->Array.mapWithIndex((items, index) => {
-            <div
-              key={index->Int.toString}
-              className={`p-6 flex flex-col gap-4 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md`}
-              onClick={_ => setConfigurationType(_ => items.variantType)}>
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2 items-center ">
-                  <p className=p1MediumTextClass> {items.displayText->React.string} </p>
-                </div>
-                <Icon
-                  name={configuartionType === items.variantType ? "selected" : "nonselected"}
-                  size=20
-                  className={`cursor-pointer !${textColor.primaryNormal}`}
-                />
-              </div>
-              <div className="flex gap-2 items-center ">
-                <p className=p1RegularTextClass> {items.choiceDescription->React.string} </p>
-              </div>
-            </div>
-          })
-          ->React.array}
-        </div>
-      </div>
-    </div>
-  }
-}
-module ErrorPage = {
-  @react.component
-  let make = (~setupAccountStatus, ~actionUrl, ~getPayPalStatus, ~setScreenState) => {
-    let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
-
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-6 p-8 bg-jp-gray-light_gray_bg">
-        <Icon name="error-icon" size=24 />
-        <div className="flex flex-col gap-2">
-          <RenderIf condition={errorPageDetails.headerText->LogicUtils.isNonEmptyString}>
-            <p className={`${p1RegularTextClass} !opacity-100`}>
-              {errorPageDetails.headerText->React.string}
-            </p>
-          </RenderIf>
-          <RenderIf condition={errorPageDetails.subText->LogicUtils.isNonEmptyString}>
-            <p className=p1RegularTextClass> {errorPageDetails.subText->React.string} </p>
-          </RenderIf>
-        </div>
-        <div className="flex gap-4 items-center">
-          <PayPalCreateNewAccountModal
-            actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
-          />
-          <Button
-            text="Refresh status"
-            buttonType={Secondary}
-            buttonSize=Small
-            onClick={_ => getPayPalStatus()->ignore}
-          />
-        </div>
-        <RenderIf condition={errorPageDetails.buttonText->Option.isSome}>
-          <PayPalCreateNewAccountModal
-            butttonDisplayText={errorPageDetails.buttonText->Option.getOr("")}
-            actionUrl
-            setScreenState
-          />
-        </RenderIf>
-      </div>
-    </div>
-  }
-}
 module RedirectionToPayPalFlow = {
   @react.component
   let make = (~getPayPalStatus, ~profileId) => {
@@ -159,7 +7,7 @@ module RedirectionToPayPalFlow = {
     let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
     let path = url.path->List.toArray->Array.joinWith("/")
-    let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
+    let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "", ~someIndex=4)
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
@@ -193,23 +41,23 @@ module RedirectionToPayPalFlow = {
       {switch setupAccountStatus {
       | Redirecting_to_paypal =>
         <div className="flex flex-col gap-6">
-          <p className=h3Leading2TextClass>
+          <p className=ConnectPayPal.h3Leading2TextClass>
             {"Sign in / Sign up to auto-configure your credentials & webhooks"->React.string}
           </p>
           <div className="flex flex-col gap-2">
-            <p className={`${p1RegularTextClass} !opacity-100`}>
+            <p className={`${ConnectPayPal.p1RegularTextClass} !opacity-100`}>
               {"Things to keep in mind while signing up"->React.string}
             </p>
-            {preRequisiteList
+            {ConnectPayPal.preRequisiteList
             ->Array.mapWithIndex((item, index) =>
-              <p className=p1RegularTextClass>
+              <p className=ConnectPayPal.p1RegularTextClass>
                 {`${(index + 1)->Int.toString}. ${item}`->React.string}
               </p>
             )
             ->React.array}
           </div>
           <div className="flex gap-4 items-center">
-            <PayPalCreateNewAccountModal
+            <ConnectPayPal.PayPalCreateNewAccountModal
               actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
             />
             <Button
@@ -220,7 +68,7 @@ module RedirectionToPayPalFlow = {
             />
           </div>
         </div>
-      | _ => <ErrorPage setupAccountStatus actionUrl getPayPalStatus setScreenState />
+      | _ => <ConnectPayPal.ErrorPage setupAccountStatus actionUrl getPayPalStatus setScreenState />
       }}
     </PageLoaderWrapper>
   }
@@ -239,14 +87,14 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
-  let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
+  let updateConnectorAccountDetails = RecoveryPayPalFlowUtils.useDeleteConnectorAccountDetails()
+  let deleteTrackingDetails = RecoveryPayPalFlowUtils.useDeleteTrackingDetails()
 
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
     HyperswitchAtom.paypalAccountStatusAtom,
   )
   let connectorValue = isUpdateFlow
-    ? HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
+    ? HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "", ~someIndex=4)
     : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getOr("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
@@ -480,7 +328,7 @@ let make = (
                   <ConnectorAccountDetailsHelper.BusinessProfileRender
                     isUpdateFlow selectedConnector={connector}
                   />
-                  <LandingScreen configuartionType setConfigurationType />
+                  <ConnectPayPal.LandingScreen configuartionType setConfigurationType />
                 </div>
               | Redirecting_to_paypal
               | Account_not_found
@@ -501,7 +349,7 @@ let make = (
       </Form>
       <div className="bg-jp-gray-light_gray_bg flex py-4 px-10 gap-2">
         <img alt="paypal" src="/assets/PayPalFullLogo.svg" />
-        <p className=p2RedularTextClass>
+        <p className=ConnectPayPal.p2RedularTextClass>
           {"| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}
         </p>
       </div>

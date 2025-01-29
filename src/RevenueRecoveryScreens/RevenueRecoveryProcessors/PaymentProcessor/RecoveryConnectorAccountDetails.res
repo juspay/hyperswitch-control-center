@@ -3,13 +3,13 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   open ConnectorUtils
   open APIUtils
   open LogicUtils
-  open RecoveryConnectorAccountDetailsHelper
+  open ConnectorAccountDetailsHelper
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
+  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "", ~someIndex=4)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -149,6 +149,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     }
   }
 
+  // TODO: need the refactoring
   let onSubmitVerify = async values => {
     try {
       let body =
@@ -238,9 +239,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         </AddDataAttributes>}
         handleShowModal>
         <div className="flex flex-col gap-2 p-2 md:px-10">
-          <RecoveryConnectorAccountDetailsHelper.BusinessProfileRender
-            isUpdateFlow selectedConnector={connector}
-          />
+          <BusinessProfileRender isUpdateFlow selectedConnector={connector} />
         </div>
         <div className={`flex flex-col gap-2 p-2 md:px-10`}>
           <div className="grid grid-cols-2 flex-1">

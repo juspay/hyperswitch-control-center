@@ -14,8 +14,8 @@ let make = (
 
   let showPopUp = PopUpState.useShowPopUp()
   let showToast = ToastState.useShowToast()
-  let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
-  let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
+  let deleteTrackingDetails = RecoveryPayPalFlowUtils.useDeleteTrackingDetails()
+  let updateConnectorAccountDetails = RecoveryPayPalFlowUtils.useDeleteConnectorAccountDetails()
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
   let connectorInfo = connectorInfoDict->ConnectorListMapper.getProcessorPayloadType
 

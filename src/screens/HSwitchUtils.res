@@ -231,11 +231,11 @@ let urlPath = urlPathList => {
   }
 }
 
-let getConnectorIDFromUrl = (urlList, defaultValue) => {
+let getConnectorIDFromUrl = (urlList, defaultValue, ~someIndex=2) => {
   open GlobalVars
   switch dashboardBasePath {
-  | Some(_) => urlList->Array.get(2)->Option.getOr(defaultValue)
-  | _ => urlList->Array.get(1)->Option.getOr(defaultValue)
+  | Some(_) => urlList->Array.get(someIndex)->Option.getOr(defaultValue)
+  | _ => urlList->Array.get(someIndex - 1)->Option.getOr(defaultValue)
   }
 }
 
