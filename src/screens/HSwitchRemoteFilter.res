@@ -37,6 +37,7 @@ let useSetInitialFilters = (
   ~compareToEndTimeKey="",
   ~enableCompareTo=None,
   ~comparisonKey="",
+  ~isInsightsPage=false,
   ~range=7,
   ~origin,
   (),
@@ -68,15 +69,20 @@ let useSetInitialFilters = (
                   (compareToStartTimeKey, compareToStartTime),
                   (compareToEndTimeKey, compareToEndTime),
                   (comparisonKey, (DateRangeUtils.DisableComparison :> string)),
-                  ((#currency: filters :> string), (#all_currencies: defaultFilters :> string)),
                 ]
               }
             | None => [
                 (startTimeFilterKey, defaultDate.start_time),
                 (endTimeFilterKey, defaultDate.end_time),
-                ((#currency: filters :> string), (#all_currencies: defaultFilters :> string)),
               ]
             }
+
+      if isInsightsPage {
+        timeRange->Array.push((
+          (#currency: filters :> string),
+          (#all_currencies: defaultFilters :> string),
+        ))
+      }
 
       timeRange->Array.forEach(item => {
         let (key, defaultValue) = item

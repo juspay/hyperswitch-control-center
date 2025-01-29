@@ -58,6 +58,7 @@ let make = () => {
     ~compareToStartTimeKey,
     ~compareToEndTimeKey,
     ~origin="analytics",
+    ~isInsightsPage=true,
     ~enableCompareTo=Some(true),
     ~range=6,
     ~comparisonKey,
