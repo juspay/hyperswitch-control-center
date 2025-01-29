@@ -311,7 +311,9 @@ let make = (
       setConnectorId(_ => connectorId)
       setScreenState(_ => Success)
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url=`/connectors/${connectorId}?name=paypal`),
+        GlobalVars.appendDashboardPath(
+          ~url=`v2/recovery/payment-processors/${connectorId}?name=paypal`,
+        ),
       )
     } catch {
     | Exn.Error(e) =>
