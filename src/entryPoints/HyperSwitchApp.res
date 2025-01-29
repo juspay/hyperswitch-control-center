@@ -199,7 +199,8 @@ let make = () => {
                         | list{"analytics-payments"}
                         | list{"performance-monitor"}
                         | list{"analytics-refunds"}
-                        | list{"analytics-disputes"} =>
+                        | list{"analytics-disputes"}
+                        | list{"analytics-authentication"} =>
                           <AnalyticsContainer />
                         | list{"new-analytics-payment"}
                         | list{"new-analytics-refund"}
