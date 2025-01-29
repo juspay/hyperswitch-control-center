@@ -13,6 +13,7 @@ module ActiveRulePreview = {
     let ruleInfo = initialRule->Option.getOr(Dict.make())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let ruleInfo =
       ruleInfo
@@ -51,16 +52,16 @@ module ActiveRulePreview = {
           <p className="text-xl font-semibold text-grey-700">
             {name->capitalizeString->React.string}
           </p>
-          <ToolTip
-            description="Delete existing 3ds rule"
-            toolTipFor={<Icon
+          <ACLDiv
+            authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+            onClick={_ => handleDeletePopup()}
+            description="Delete existing 3ds rule">
+            <Icon
               name="delete"
               size=20
               className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
-              onClick={_ => handleDeletePopup()}
-            />}
-            toolTipPosition=ToolTip.Top
-          />
+            />
+          </ACLDiv>
         </div>
         <p className="text-base font-normal text-grey-700 opacity-50">
           {description->React.string}
