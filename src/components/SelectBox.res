@@ -378,7 +378,7 @@ type dropdownOptionWithoutOptional = {
   textColor: string,
   optGroup: string,
   customRowClass: string,
-  customComponent?: React.element,
+  customComponent: option<React.element>,
 }
 type dropdownOption = {
   label: string,
@@ -406,7 +406,7 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     optGroup: dropdownOption.optGroup->Option.getOr("-"),
     customRowClass: dropdownOption.customRowClass->Option.getOr(""),
     labelDescription: dropdownOption.labelDescription,
-    customComponent: dropdownOption.customComponent->Option.getOr(React.null),
+    customComponent: dropdownOption.customComponent,
   }
 }
 
@@ -846,7 +846,7 @@ module BaseSelect = {
           <Loader />
         } else {
           switch customComponent {
-          | Some(elem) if elem != React.null => <> elem </>
+          | Some(elem) => elem
           | _ =>
             filteredOptions
             ->Array.mapWithIndex((item, indx) => {
@@ -1149,7 +1149,7 @@ module RenderListItemInBaseRadio = {
         let description = descriptionOnHover ? option.description : None
         let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
         let listItemComponent = switch option.customComponent {
-        | Some(elem) if elem != React.null => elem
+        | Some(elem) => elem
         | _ =>
           <ListItem
             key={Int.toString(i)}

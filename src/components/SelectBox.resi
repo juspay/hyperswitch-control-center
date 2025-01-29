@@ -63,7 +63,7 @@ type dropdownOptionWithoutOptional = {
   textColor: string,
   optGroup: string,
   customRowClass: string,
-  customComponent?: React.element,
+  customComponent: option<React.element>,
 }
 type dropdownOption = {
   label: string,
