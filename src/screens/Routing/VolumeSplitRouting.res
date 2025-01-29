@@ -147,8 +147,9 @@ module VolumeRoutingView = {
                       onSubmit handleActivateConfiguration
                     />}
                     headingText="Activate Current Configuration?"
-                    subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."
-                    leftIcon="hswitch-warning"
+                    subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
+                    leftIcon="warning-modal"
+                    iconSize=35
                   />
                 </>
               : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}

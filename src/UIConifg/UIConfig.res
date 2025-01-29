@@ -130,7 +130,7 @@ let defaultUIConfig: t = {
     },
     backgroundColor: {
       primaryNormal: "border-1.5 border-double border-transparent text-button-primary-text primary-gradient-button",
-      primaryDisabled: "bg-button-primary-bg  opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
+      primaryDisabled: "bg-button-primary-bg primary-gradient-button opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 dark:border-jp-gray-disabled_border dark:border-opacity-50",
       primaryNoHover: "bg-button-primary-bg  hover:bg-button-primary-hoverbg focus:outline-none dark:text-opacity-50 text-opacity-50",
       primaryLoading: "bg-button-primary-bg ",
       primaryOutline: "mix-blend-normal border-primary",

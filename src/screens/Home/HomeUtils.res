@@ -197,7 +197,7 @@ module CheckoutCard = {
             userHasAccess(~groupAccess=ConnectorsManage),
           ])}
           buttonType={Secondary}
-          buttonSize={Small}
+          buttonSize={Medium}
           onClick={handleOnClick}
         />
       </CardFooter>
@@ -235,7 +235,7 @@ module ControlCenter = {
             <Button
               text="+  Connect"
               buttonType={Secondary}
-              buttonSize={Small}
+              buttonSize={Medium}
               onClick={_ => {
                 RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
               }}
@@ -255,7 +255,7 @@ module ControlCenter = {
               <Button
                 text="Go to API keys"
                 buttonType={Secondary}
-                buttonSize={Small}
+                buttonSize={Medium}
                 onClick={_ => {
                   RescriptReactRouter.push(
                     GlobalVars.appendDashboardPath(~url="/developer-api-keys"),
@@ -290,7 +290,7 @@ module DevResources = {
             <Button
               text="Visit"
               buttonType={Secondary}
-              buttonSize={Small}
+              buttonSize={Medium}
               onClick={_ => {
                 mixpanelEvent(~eventName=`dev_docs`)
                 "https://hyperswitch.io/docs"->Window._open
@@ -308,7 +308,7 @@ module DevResources = {
             <Button
               text="Explore"
               buttonType={Secondary}
-              buttonSize={Small}
+              buttonSize={Medium}
               onClick={_ => {
                 "https://hyperswitch.io/blog"->Window._open
               }}

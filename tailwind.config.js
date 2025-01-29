@@ -374,6 +374,11 @@ module.exports = {
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",
         },
+        ".primary-gradient-button:disabled": {
+          boxShadow: "0px 0px 0px 1px rgb(var(--borders-border-color))",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
         ".secondary-gradient-border": {
           boxShadow:
             "0px 0px 0px 1px rgba(var(--btn-secondary-text-color), 0.25)",

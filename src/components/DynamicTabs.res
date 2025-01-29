@@ -512,8 +512,6 @@ let make = (
     None
   }, [collapsibleTabs])
 
-  let addBtnStyle = `text-black cursor-pointer border-2 border-black-900 !px-4 !rounded-lg `
-
   let addBtnTextStyle = "text-md text-black !px-0 mx-0"
   let headerTextClass = None
   <div className={isMobileView ? `sticky top-0 z-15 ${bgClass}` : ""}>
@@ -585,9 +583,9 @@ let make = (
                 description=toolTipDescription
                 toolTipFor={<Button
                   text="+"
-                  buttonType={NonFilled}
+                  buttonType={Secondary}
                   buttonSize=Small
-                  customButtonStyle=addBtnStyle
+                  customButtonStyle="!w-10"
                   textStyle=addBtnTextStyle
                   onClick={_ => setShowModal(_ => true)}
                 />}
