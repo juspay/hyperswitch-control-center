@@ -111,8 +111,15 @@ module OrgTile = {
             customStyle={` p-3 ${backgroundColor.sidebarSecondary}  ${hoverInput2}`}
             showEditIconOnHover=false
             customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2} `}
-            customIconComponent={<HelperComponents.CopyTextCustomComp
-              customIconColor={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
+            customIconComponent={<ToolTip
+              description={orgID}
+              customStyle="!whitespace-nowrap"
+              toolTipFor={<div className="cursor-pointer">
+                <HelperComponents.CopyTextCustomComp
+                  customIconColor={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
+                />
+              </div>}
+              toolTipPosition=ToolTip.Right
             />}
             showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
             handleEdit=handleIdUnderEdit

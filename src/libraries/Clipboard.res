@@ -69,7 +69,7 @@ module Copy = {
           | Some(element) => element
           | None =>
             <div className={`${iconClass} flex items-center cursor-pointer`}>
-              <Icon name="copy" size=iconSize />
+              <Icon name="nd-copy" size=iconSize />
             </div>
           }}
           toolTipPosition
