@@ -46,6 +46,7 @@ type featureFlag = {
   devRecoveryV2Product: bool,
   maintainenceAlert: string,
   forceCookies: bool,
+  authenticationAnalytics: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -94,6 +95,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devRecoveryV2Product: dict->getBool("dev_recovery_v2_product", false),
     maintainenceAlert: dict->getString("maintainence_alert", ""),
     forceCookies: dict->getBool("force_cookies", false),
+    authenticationAnalytics: dict->getBool("authentication_analytics", false),
   }
 }
 
