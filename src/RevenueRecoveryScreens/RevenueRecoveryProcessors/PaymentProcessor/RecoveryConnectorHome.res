@@ -73,7 +73,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let fetchDetails = useGetMethod()
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
-  | list{"connectors", "new"} => false
+  | list{"v2", "recovery", "payment-processors", "new"} => false
   | _ => true
   }
 
@@ -201,7 +201,9 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(~url="v2/recovery/payment-processors"),
+        )
         setScreenState(_ => PageLoaderWrapper.Success)
       }}
       isButton=true
@@ -215,12 +217,12 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
             connectorID === "new"
               ? {
                   title: "Processor",
-                  link: "/connectors",
+                  link: "v2/recovery/payment-processors",
                   warning: `You have not yet completed configuring your ${connector->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
                 }
               : {
                   title: "Processor",
-                  link: "/connectors",
+                  link: "v2/recovery/payment-processors",
                 },
           ]
           currentPageTitle={connector->getDisplayNameForConnector}
@@ -243,20 +245,22 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         | AutomaticFlow =>
           switch connectorTypeFromName {
           | Processors(PAYPAL) =>
-            <ConnectPayPal
+            <RecoveryConnectPayPal
               connector isUpdateFlow setInitialValues initialValues setCurrentStep getPayPalStatus
             />
           | _ => React.null
           }
         | IntegFields =>
-          <ConnectorAccountDetails setCurrentStep setInitialValues initialValues isUpdateFlow />
+          <RecoveryConnectorAccountDetails
+            setCurrentStep setInitialValues initialValues isUpdateFlow
+          />
         | PaymentMethods =>
-          <ConnectorPaymentMethod
+          <RecoveryConnectorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
         | SummaryAndTest
         | Preview =>
-          <ConnectorPreview
+          <RecoveryConnectorPreview
             connectorInfo={initialValues}
             currentStep
             setCurrentStep

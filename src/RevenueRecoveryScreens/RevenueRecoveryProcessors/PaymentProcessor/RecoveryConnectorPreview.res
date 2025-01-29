@@ -48,7 +48,9 @@ module DeleteConnectorMenu = {
         let connectorID = connectorInfo.merchant_connector_id
         let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(~url="v2/recovery/payment-processors"),
+        )
       } catch {
       | _ => ()
       }
@@ -433,7 +435,9 @@ let make = (
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }
-                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
+                RescriptReactRouter.push(
+                  GlobalVars.appendDashboardPath(~url="v2/recovery/payment-processors"),
+                )
               }}
               text="Done"
               buttonType={Primary}
