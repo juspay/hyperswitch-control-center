@@ -51,6 +51,9 @@ module.exports = {
         "30-vh": "30vh",
         "40-vh": "40vh",
         "75-vh": "75vh",
+        "32-px": "32px",
+        "36-px": "36px",
+        "40-px": "40px",
         "923-px": "923px",
         onBordingSupplier: "calc(100vh - 300px)",
       },
@@ -69,6 +72,9 @@ module.exports = {
         "30-rem": "30rem",
         "10.25-rem": "10.25rem",
         "89.5-per": "89.5%",
+        "137-px": "137px",
+        "145-px": "145px",
+        "147-px": "147px",
 
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",
@@ -289,6 +295,7 @@ module.exports = {
       },
       borderRadius: {
         DEFAULT: "var(--borders-default-radius)",
+        "10-px": "10px",
       },
       spacing: {
         DEFAULT: "var(--spacing-padding)",
@@ -331,6 +338,73 @@ module.exports = {
         ".red .red\\:bg-red": {
           "--tw-bg-opacity": "1",
           "background-color": "rgb(255 0 0 / var(--tw-bg-opacity))",
+        },
+      };
+
+      addUtilities(newUtilities, ["responsive", "hover"]);
+    }),
+    plugin(function ({ addUtilities }) {
+      const newUtilities = {
+        ".primary-gradient-button": {
+          boxShadow: "0px 0px 0px 1px rgb(var(--borders-border-color))",
+          backgroundImage:
+            "linear-gradient(180deg, rgb(var(--btn-primary-background-color)) -5%, rgb(var(--borders-border-color)) 107.5%), linear-gradient(180deg, rgba(var(--borders-border-color), 0.7) -6.25%, rgb(var(--btn-primary-background-color)) 100%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
+        ".primary-gradient-button:hover": {
+          boxShadow: "0px 0px 0px 1px rgb(var(--borders-border-color))",
+          backgroundImage:
+            "linear-gradient(180deg, rgb(var(--btn-primary-hover-background-color)) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%), linear-gradient(180deg, rgba(var(--borders-border-color), 0.7) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
+        ".primary-gradient-button:active": {
+          boxShadow: "0px 3px 4px 0px rgb(var(--borders-border-color)) inset",
+          backgroundImage:
+            "linear-gradient(180deg, rgba(var(--btn-primary-background-color), 0.5) -5%, rgb(var(--btn-primary-hover-background-color)) 107.5%), linear-gradient(180deg, rgb(var(--btn-primary-background-color)) -6.25%, rgb(var(--btn-primary-background-color)) 100%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
+        ".primary-gradient-button:focus": {
+          boxShadow:
+            "0px 0px 0px 3px rgba(var(--btn-primary-hover-background-color), 0.25)",
+          backgroundImage:
+            "linear-gradient(180deg, rgba(var(--btn-primary-background-color), 0.9) -5%, rgb(var(--btn-primary-hover-background-color)) 107.5%), linear-gradient(180deg, rgba(var(--btn-primary-background-color), 0.75) -6.25%, rgb(var(--btn-primary-background-color)) 100%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
+        ".secondary-gradient-border": {
+          boxShadow:
+            "0px 0px 0px 1px rgba(var(--btn-secondary-text-color), 0.25)",
+          backgroundImage:
+            "linear-gradient(180deg, rgb(var(--btn-secondary-background-color)) 0%, rgb(var(--btn-secondary-hover-background-color)) 100%), linear-gradient(180deg, rgb(var(--btn-secondary-hover-background-color)) 0%, rgb(var(--btn-secondary-background-color)) 97.5%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
+        ".secondary-gradient-border:hover": {
+          boxShadow:
+            "0px 0px 0px 1px rgba(var(--btn-secondary-text-color), 0.25)",
+          backgroundImage:
+            "linear-gradient(180deg, rgb(var(--btn-secondary-hover-background-color)) 0%, rgb(var(--btn-secondary-background-color)) 100%), linear-gradient(180deg, rgb(var(--btn-secondary-background-color)) 0%, rgb(var(--btn-secondary-hover-background-color)) 97.5%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
+        ".secondary-gradient-border:active": {
+          boxShadow:
+            "0px 3px 4px 0px rgba(var(--btn-secondary-background-color), 0.9) inset",
+          backgroundImage:
+            "linear-gradient(180deg, rgba(var(--btn-secondary-background-color), 0.5) 0%, rgb(var(--btn-secondary-hover-background-color)) 100%), linear-gradient(180deg, rgb(var(--btn-secondary-background-color)) 0%, rgba(var(--btn-secondary-hover-background-color), 0.1) 97.5%)",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
+        },
+        ".secondary-gradient-border:focus": {
+          boxShadow:
+            "0px 0px 0px 3px rgba(var(--btn-secondary-text-color), 0.1)",
+          backgroundImage:
+            "linear-gradient(180deg, rgba(var(--btn-secondary-background-color), 0.9) 0%, rgb(var(--btn-secondary-hover-background-color)) 100%), linear-gradient(180deg, rgb(var(--btn-secondary-background-color)) 0%, rgba(var(--btn-secondary-background-color), 0.7) 97.5%);",
+          backgroundOrigin: "border-box",
+          backgroundClip: "content-box, border-box",
         },
       };
 

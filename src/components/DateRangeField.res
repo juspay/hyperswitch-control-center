@@ -772,7 +772,7 @@ module Base = {
                   customButtonStyle="rounded-lg"
                   buttonType=Secondary
                   buttonState=Normal
-                  buttonSize=XSmall
+                  buttonSize=Small
                   onClick={cancelButton}
                 />
                 <Button
@@ -780,7 +780,7 @@ module Base = {
                   customButtonStyle="rounded-lg"
                   buttonType=Primary
                   buttonState={endDate->LogicUtils.isEmptyString ? Disabled : Normal}
-                  buttonSize=XSmall
+                  buttonSize=Small
                   onClick={handleApply}
                 />
               </div>
@@ -805,7 +805,7 @@ module Base = {
                 text={isMobileView && textHideInMobileView ? "" : buttonText}
                 leftIcon={CustomIcon(<Icon name="calendar-filter" size=22 />)}
                 rightIcon={CustomIcon(iconElement)}
-                buttonSize=XSmall
+                buttonSize=Small
                 isDropdownOpen=isDropdownExpandedActual
                 onClick={_ => handleDropdownClick()}
                 iconBorderColor={customborderCSS}
