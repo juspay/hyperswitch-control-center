@@ -1,7 +1,11 @@
 [default.theme]
 primary_color="#006DF9"
 primary_hover_color="#005ED6"
-sidebar_color="#242F48"
+sidebar_primary="#242F48"     # To support current dashboard theme and to be removed later
+sidebar_secondary= "#303E5F"  # To support current dashboard theme and to be removed later
+sidebar_hover_color= "#FFFFFF"  # To support current dashboard theme and to be removed later
+sidebar_primary_textColor="#FFFFFF" # To support current dashboard theme and to be removed later
+sidebar_secondary_text_color= "#FFFFFF" # To support current dashboard theme and to be removed later
 [default.endpoints]
 api_url="http://localhost:8000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
@@ -34,6 +38,7 @@ threeds_authenticator=false
 global_search=false
 global_search_filters=false
 dispute_analytics=false
+authentication_analytics=false
 configure_pmts=false
 branding=false
 granularity=false
@@ -52,6 +57,7 @@ x_feature_route=false
 tenant_user=false
 dev_click_to_pay=false
 dev_recon_v2_product=false
+dev_org_sidebar=false
 dev_recovery_v2_product=false
 maintainence_alert=""
 [default.merchant_config]

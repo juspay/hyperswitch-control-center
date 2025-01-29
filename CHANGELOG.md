@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.29.2
+
+### Miscellaneous Tasks
+
+- Add analytics authentication ([#2158](https://github.com/juspay/hyperswitch-control-center/pull/2158)) ([`0fb9fba`](https://github.com/juspay/hyperswitch-control-center/commit/0fb9fba493a0bc91ee0685efe8a299e8a2830182))
+
+**Full Changelog:** [`2025.01.29.1...2025.01.29.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.29.1...2025.01.29.2)
+
+- - -
+
+## 2025.01.29.1
+
+### Bug Fixes
+
+- Analytics filters init set function modification ([#2156](https://github.com/juspay/hyperswitch-control-center/pull/2156)) ([`64b97a5`](https://github.com/juspay/hyperswitch-control-center/commit/64b97a5fc1bc4699cda8a1b236633e9f6e60f2bf))
+
+**Full Changelog:** [`2025.01.29.0...2025.01.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.29.0...2025.01.29.1)
+
+- - -
+
 ## 2025.01.29.0
 
 ### Bug Fixes

@@ -4,8 +4,11 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
-  let {performanceMonitor, disputeAnalytics} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {performanceMonitor, disputeAnalytics, authenticationAnalytics} =
+    featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(analyticsEntity :> string)}>
     {switch url.path->urlPath {
     | list{"analytics-payments"} =>
@@ -25,6 +28,14 @@ let make = () => {
         isEnabled={disputeAnalytics} authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
           <DisputeAnalytics />
+        </FilterContext>
+      </AccessControl>
+    | list{"analytics-authentication"} =>
+      <AccessControl
+        isEnabled={authenticationAnalytics && [#Tenant, #Organization, #Merchant]->checkUserEntity}
+        authorization={userHasAccess(~groupAccess=AnalyticsView)}>
+        <FilterContext key="AuthenticationAnalytics" index="AuthenticationAnalytics">
+          <AuthenticationAnalytics />
         </FilterContext>
       </AccessControl>
     | list{"performance-monitor"} =>
