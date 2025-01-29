@@ -43,8 +43,8 @@ module SidebarOption = {
       ThemeProvider.themeContext,
     )
     let textBoldStyles = isSelected
-      ? `${primaryTextColor} font-bold`
-      : `${secondaryTextColor} font-semibold `
+      ? `${primaryTextColor} font-semibold`
+      : `${secondaryTextColor} font-medium  `
     let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor} ${addOpacity} `
 
     if isSidebarExpanded {
@@ -100,9 +100,9 @@ module SidebarItem = {
     }
 
     let textColor = if isSelected {
-      `text-sm font-bold ${primaryTextColor}`
+      `text-sm font-semibold ${primaryTextColor}`
     } else {
-      `text-sm font-semibold ${secondaryTextColor} ${addOpacity}`
+      `text-sm font-medium  ${secondaryTextColor} ${addOpacity}`
     }
     let isMobileView = MatchMedia.useMobileChecker()
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
@@ -200,7 +200,7 @@ module NestedSidebarItem = {
     let selectedClass = if isSelected {
       "font-semibold mx-1"
     } else {
-      `font-semibold mx-1 rounded-sm hover:transition hover:duration-300`
+      `font-medium mx-1 rounded-sm hover:transition hover:duration-300`
     }
 
     let textColor = if isSelected {
@@ -620,7 +620,7 @@ let make = (
               | Heading(headingOptions) =>
                 <div
                   key={Int.toString(index)}
-                  className={`text-xs font-semibold leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isSidebarExpanded
+                  className={`text-xs font-medium leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isSidebarExpanded
                       ? "mx-2"
                       : "mx-1"} mt-5 mb-3`}>
                   {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
