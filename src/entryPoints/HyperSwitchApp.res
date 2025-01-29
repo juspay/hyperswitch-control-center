@@ -46,7 +46,11 @@ let make = () => {
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetSideBarValues()
   sessionExpired := false
-
+  let applyTheme = async () => {
+    if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
+      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+    }
+  }
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
@@ -55,7 +59,6 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -71,6 +74,11 @@ let make = () => {
     setUpDashboard()->ignore
     None
   }, [orgId, merchantId, profileId, themeId])
+
+  React.useEffect(() => {
+    applyTheme()->ignore
+    None
+  }, (themeId, devThemeFeature))
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {
@@ -191,7 +199,8 @@ let make = () => {
                         | list{"analytics-payments"}
                         | list{"performance-monitor"}
                         | list{"analytics-refunds"}
-                        | list{"analytics-disputes"} =>
+                        | list{"analytics-disputes"}
+                        | list{"analytics-authentication"} =>
                           <AnalyticsContainer />
                         | list{"new-analytics-payment"}
                         | list{"new-analytics-refund"}
