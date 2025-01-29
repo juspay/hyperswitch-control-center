@@ -48,6 +48,18 @@ module.exports = (appName = "hyperswitch", publicPath = "auto") => {
           enforce: "post",
           exclude: /node_modules|\.spec\.js$/,
         },
+        {
+          test: /\.(woff|woff2|eot|ttf|otf)$/, // Fonts
+          use: [
+            {
+              loader: "file-loader",
+              options: {
+                name: "fonts/[name].[ext]",
+                outputPath: "assets/fonts/",
+              },
+            },
+          ],
+        },
       ],
     },
     plugins: [

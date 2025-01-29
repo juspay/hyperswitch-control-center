@@ -19,7 +19,7 @@ module.exports = {
   content: ["./src/**/*.js"],
   theme: {
     fontFamily: {
-      "inter-style": '"Inter"',
+      "inter-style": '"InterDisplay"',
     },
     extend: {
       screens: {
@@ -292,6 +292,16 @@ module.exports = {
         offset_white: "#FEFEFE",
         light_white: "#FFFFFF0D",
         unselected_white: "#9197A3",
+
+        /* NEW DESIGN COLORS */
+        nd_gray: {
+          200: "#E1E4EA",
+          400: "#99A0AE",
+        },
+        //borders gray
+        nd_br_gray: {
+          400: "#E1E1E1",
+        },
       },
       borderRadius: {
         DEFAULT: "var(--borders-default-radius)",
