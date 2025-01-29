@@ -805,7 +805,7 @@ module Base = {
                 text={isMobileView && textHideInMobileView ? "" : buttonText}
                 leftIcon={CustomIcon(<Icon name="calendar-filter" size=22 />)}
                 rightIcon={CustomIcon(iconElement)}
-                buttonSize=Small
+                buttonSize=Large
                 isDropdownOpen=isDropdownExpandedActual
                 onClick={_ => handleDropdownClick()}
                 iconBorderColor={customborderCSS}
