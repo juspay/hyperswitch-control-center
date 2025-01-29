@@ -47,13 +47,14 @@ new_analytics_filters=false
 down_time=false
 dev_theme_feature=false
 tax_processor=true
-force_cookies=false
+force_cookies=true
 x_feature_route=false
 tenant_user=false
 dev_click_to_pay=false
 dev_recon_v2_product=false
 dev_recovery_v2_product=false
 maintainence_alert=""
+authentication_analytics=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
