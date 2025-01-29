@@ -120,7 +120,7 @@ module OrgTile = {
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
             validateInput
             labelTextCustomStyle={`${secondaryTextColor} truncate max-w-40`}
-            customWidth="min-w-72"
+            customWidth="min-w-64"
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
           />
