@@ -1,11 +1,11 @@
 [default.theme]
 primary_color="#006DF9"
 primary_hover_color="#005ED6"
-sidebar_primary="#242F48"
-sidebar_secondary= "#303E5F"
-sidebar_hover_color= "#FFFFFF"
-sidebar_primary_textColor="#FFFFFF"
-sidebar_secondary_text_color= "#FFFFFF"
+sidebar_primary="#242F48"     # To support current dashboard theme and to be removed later
+sidebar_secondary= "#303E5F"  # To support current dashboard theme and to be removed later
+sidebar_hover_color= "#FFFFFF"  # To support current dashboard theme and to be removed later
+sidebar_primary_textColor="#FFFFFF" # To support current dashboard theme and to be removed later
+sidebar_secondary_text_color= "#FFFFFF" # To support current dashboard theme and to be removed later
 [default.endpoints]
 api_url="http://localhost:9000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
