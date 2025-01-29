@@ -217,7 +217,7 @@ let make = () => {
       input
       deselectDisable=true
       options={updatedMerchantList->generateDropdownOptionsCustomComponent}
-      marginTop="mt-14 "
+      marginTop="mt-13 "
       hideMultiSelectButtons=true
       addButton=false
       customStyle={`!border-none w-fit `}
