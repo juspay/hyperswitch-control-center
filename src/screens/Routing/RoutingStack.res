@@ -99,7 +99,7 @@ let make = (~previewOnly=false) => {
           <ActiveRouting routingType />
         </RenderIf>
         <div className="mt-6">
-          <div className="font-bold text-black my-2 text-lg">
+          <div className="font-bold text-black opacity-75 my-2 text-lg">
             {"Smart Routing Configurations"->React.string}
           </div>
           <ActiveRouting.LevelWiseRoutingSection

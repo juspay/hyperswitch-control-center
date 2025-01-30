@@ -83,13 +83,14 @@ module ActiveSection = {
     let profileId = activeRouting->getDictFromJsonObject->getString("profile_id", "")
     let {profile_name} = BusinessProfileHook.useGetBusinessProflile(profileId)
     <>
-      <div className="font-bold text-black mt-2 text-lg">
+      <div className="font-bold text-black opacity-75 my-2 text-lg">
         {"Current Active Configurations"->React.string}
       </div>
-      <div className="relative flex flex-col flex-wrap bg-white border rounded w-full px-6 pt-3 ">
-        <div className="flex flex-row justify-between">
-          <div className="flex flex-col my-2">
-            <div className="flex align-center">
+      <div
+        className="relative flex flex-row justify-between  bg-white border rounded w-full px-6 py-4  ">
+        <div className="flex flex-row items-center">
+          <div className="flex flex-col">
+            <div className="flex flex-col justify-center">
               <p className="text-jp-gray-900 font-semibold">
                 {`${routingName}${getContent(activeRoutingType).heading}`->React.string}
               </p>
@@ -109,33 +110,45 @@ module ActiveSection = {
               </div>
             </RenderIf>
           </div>
-          <div className="gap-5 pt-2 w-1/4">
-            <ACLButton
-              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-              text="Manage"
-              buttonType=Secondary
-              customButtonStyle="w-2/3"
-              buttonSize={Small}
-              onClick={_ => {
-                switch activeRoutingType {
-                | DEFAULTFALLBACK =>
-                  RescriptReactRouter.push(
-                    GlobalVars.appendDashboardPath(
-                      ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
-                    ),
-                  )
-                | _ =>
-                  RescriptReactRouter.push(
-                    GlobalVars.appendDashboardPath(
-                      ~url=`/${onRedirectBaseUrl}/${routingTypeName(
-                          activeRoutingType,
-                        )}?id=${activeRoutingId}&isActive=true`,
-                    ),
-                  )
-                }
-              }}
-            />
+          <div className="flex ml-2">
+            <RenderIf condition={activeRoutingType == DEFAULTFALLBACK}>
+              <TableUtils.LabelCell
+                labelColor=LabelGreen
+                text="DEFAULT ACTIVE"
+                labelMargin=""
+                highlightText=""
+                fontStyle="font-ibm-plex"
+                showIcon=true
+              />
+            </RenderIf>
           </div>
+        </div>
+        <div className={`  ${profileId->isNonEmptyString ? "" : ""} w-1/4`}>
+          <ACLButton
+            authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+            text="Manage"
+            buttonType=Secondary
+            customButtonStyle="w-2/3"
+            buttonSize={Small}
+            onClick={_ => {
+              switch activeRoutingType {
+              | DEFAULTFALLBACK =>
+                RescriptReactRouter.push(
+                  GlobalVars.appendDashboardPath(
+                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
+                  ),
+                )
+              | _ =>
+                RescriptReactRouter.push(
+                  GlobalVars.appendDashboardPath(
+                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(
+                        activeRoutingType,
+                      )}?id=${activeRoutingId}&isActive=true`,
+                  ),
+                )
+              }
+            }}
+          />
         </div>
       </div>
     </>
@@ -152,9 +165,8 @@ module LevelWiseRoutingSection = {
           <div
             key={index->Int.toString}
             className="flex flex-1 flex-col  bg-white border rounded px-5 pb-3 gap-8">
-            <div className="flex flex-1 flex-col gap-7">
-              <div className="flex w-full items-center flex-wrap justify-between " />
-              <div className="flex flex-1 flex-col gap-3">
+            <div className="flex flex-1 flex-col gap-7 py-6">
+              <div className="flex flex-1 flex-col gap-3 ">
                 <p className="text-base font-semibold text-lightgray_background">
                   {getContent(value).heading->React.string}
                 </p>
