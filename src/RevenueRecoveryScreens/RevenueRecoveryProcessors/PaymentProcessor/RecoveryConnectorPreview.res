@@ -60,8 +60,7 @@ let make = (
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
+
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let connectorCount =
@@ -98,74 +97,59 @@ let make = (
 
   let mixpanelEventName = isUpdateFlow ? "processor_step3_onUpdate" : "processor_step3"
 
-  <PageLoaderWrapper screenState>
-    <div>
-      <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
-        <div className="flex gap-2 items-center">
-          <GatewayIcon
-            gateway={connectorInfo.connector_name->String.toUpperCase} className="w-14 h-14"
-          />
-          <h2 className="text-xl font-semibold">
-            {connectorInfo.connector_name->getDisplayNameForConnector->React.string}
-          </h2>
-        </div>
-        <div className="self-center">
-          {switch (
-            currentStep,
-            connector->getConnectorNameTypeFromString,
-            connectorInfo.status,
-            paypalAutomaticFlow,
-          ) {
-          | (Preview, Processors(PAYPAL), "inactive", true) =>
-            <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
-          | (Preview, _, _, _) =>
-            <div className="flex gap-6 items-center">
-              <div
-                className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
-                {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
-              </div>
-              <RenderIf condition={showMenuOption}>
-                {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
-                | (Processors(PAYPAL), true) =>
-                  <RecoveryMenuOptionForPayPal
-                    setCurrentStep
-                    disableConnector
-                    isConnectorDisabled
-                    updateStepValue={ConnectorTypes.PaymentMethods}
-                    connectorInfoDict
-                    setScreenState
-                    isUpdateFlow
-                    setInitialValues
-                  />
-                | (_, _) => <ConnectorPreview.MenuOption disableConnector isConnectorDisabled />
-                }}
-              </RenderIf>
-            </div>
-
-          | _ =>
-            <Button
-              onClick={_ => {
-                mixpanelEvent(~eventName=mixpanelEventName)
-                if isFeedbackModalToBeOpen {
-                  setShowFeedbackModal(_ => true)
-                }
-                RescriptReactRouter.push(
-                  GlobalVars.appendDashboardPath(~url="v2/recovery/payment-processors"),
-                )
-              }}
-              text="Done"
-              buttonType={Primary}
-            />
-          }}
-        </div>
+  <div>
+    <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
+      <div className="flex gap-2 items-center">
+        <GatewayIcon
+          gateway={connectorInfo.connector_name->String.toUpperCase} className="w-14 h-14"
+        />
+        <h2 className="text-xl font-semibold">
+          {connectorInfo.connector_name->getDisplayNameForConnector->React.string}
+        </h2>
       </div>
-      <ConnectorPreview.ConnectorSummaryGrid
-        connectorInfo
-        connector
-        setCurrentStep
-        updateStepValue={Some(ConnectorTypes.PaymentMethods)}
-        getConnectorDetails
-      />
+      <div className="self-center">
+        {switch (
+          currentStep,
+          connector->getConnectorNameTypeFromString,
+          connectorInfo.status,
+          paypalAutomaticFlow,
+        ) {
+        | (Preview, Processors(PAYPAL), "inactive", true) =>
+          <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
+        | (Preview, _, _, _) =>
+          <div className="flex gap-6 items-center">
+            <div
+              className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
+              {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
+            </div>
+            <RenderIf condition={showMenuOption}>
+              <ConnectorPreview.MenuOption disableConnector isConnectorDisabled />
+            </RenderIf>
+          </div>
+
+        | _ =>
+          <Button
+            onClick={_ => {
+              mixpanelEvent(~eventName=mixpanelEventName)
+              if isFeedbackModalToBeOpen {
+                setShowFeedbackModal(_ => true)
+              }
+              RescriptReactRouter.push(
+                GlobalVars.appendDashboardPath(~url="v2/recovery/payment-processors"),
+              )
+            }}
+            text="Done"
+            buttonType={Primary}
+          />
+        }}
+      </div>
     </div>
-  </PageLoaderWrapper>
+    <ConnectorPreview.ConnectorSummaryGrid
+      connectorInfo
+      connector
+      setCurrentStep
+      updateStepValue={Some(ConnectorTypes.PaymentMethods)}
+      getConnectorDetails
+    />
+  </div>
 }

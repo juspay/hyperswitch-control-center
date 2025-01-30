@@ -5,13 +5,11 @@ let make = (
   ~showAllConnectors=true,
   ~urlPrefix: string,
   ~connectorType=ConnectorTypes.Processor,
-  ~setProcessorModal=_ => (),
   ~showTestProcessor=false,
 ) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let unConfiguredConnectors =
     connectorsAvailableForIntegration->Array.filter(total =>
@@ -38,7 +36,7 @@ let make = (
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     ~heading: string,
-    ~showRequestConnectorBtn,
+    ~showRequestConnectorBtn as _,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
     (),
@@ -68,28 +66,6 @@ let make = (
             />
           </AddDataAttributes>
         </RenderIf>
-        <RenderIf
-          condition={!featureFlagDetails.isLiveMode &&
-          configuredConnectors->Array.length > 0 &&
-          showDummyConnectorButton &&
-          urlPrefix == "v2/recovery/payment-processors/new"}>
-          <ACLButton
-            authorization={userHasAccess(~groupAccess=ConnectorsManage)}
-            leftIcon={CustomIcon(
-              <Icon
-                name="plus"
-                size=16
-                className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-              />,
-            )}
-            text="Connect a Dummy Processor"
-            buttonType={Transparent}
-            buttonSize={Small}
-            textStyle="text-jp-gray-900"
-            onClick={_ => setProcessorModal(_ => true)}
-          />
-        </RenderIf>
-        <ProcessorCards.CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div
@@ -160,15 +136,6 @@ let make = (
           (),
         )}
       </div>
-      // TODO: need a v2 route
-      // <RenderIf condition={showModal}>
-      //   <HSwitchFeedBackModal
-      //     modalHeading="Request a processor"
-      //     setShowModal
-      //     showModal
-      //     modalType={RequestConnectorModal}
-      //   />
-      // </RenderIf>
     </RenderIf>
     <RenderIf condition={showTestProcessor}>
       {showTestProcessor

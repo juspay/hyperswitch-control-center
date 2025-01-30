@@ -190,14 +190,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {
-        | AutomaticFlow =>
-          switch connectorTypeFromName {
-          | Processors(PAYPAL) =>
-            <RecoveryConnectPayPal
-              connector isUpdateFlow setInitialValues initialValues setCurrentStep getPayPalStatus
-            />
-          | _ => React.null
-          }
         | IntegFields =>
           <RecoveryConnectorAccountDetails
             setCurrentStep setInitialValues initialValues isUpdateFlow
@@ -207,7 +199,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
         | SummaryAndTest
-        | Preview =>
+        | Preview
+        | AutomaticFlow =>
           <RecoveryConnectorPreview
             connectorInfo={initialValues}
             currentStep
