@@ -123,7 +123,7 @@ module ActiveSection = {
             </RenderIf>
           </div>
         </div>
-        <div className={`  ${profileId->isNonEmptyString ? "" : ""} w-1/4`}>
+        <div className="w-1/4">
           <ACLButton
             authorization={userHasAccess(~groupAccess=WorkflowsManage)}
             text="Manage"
@@ -164,7 +164,7 @@ module LevelWiseRoutingSection = {
         ->Array.mapWithIndex((value, index) =>
           <div
             key={index->Int.toString}
-            className="flex flex-1 flex-col  bg-white border rounded px-5 pb-3 gap-8">
+            className="flex flex-1 flex-col bg-white border rounded px-5 pb-3 gap-8">
             <div className="flex flex-1 flex-col gap-7 py-6">
               <div className="flex flex-1 flex-col gap-3 ">
                 <p className="text-base font-semibold text-lightgray_background">
