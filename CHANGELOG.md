@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.30.1
+
+### Features
+
+- Klarna-checkout added for klarna updated wasm ([#2151](https://github.com/juspay/hyperswitch-control-center/pull/2151)) ([`6ed8259`](https://github.com/juspay/hyperswitch-control-center/commit/6ed8259db0a210e87c3a05f27b526980c1fb2026))
+- New UI button ([#2147](https://github.com/juspay/hyperswitch-control-center/pull/2147)) ([`52a7125`](https://github.com/juspay/hyperswitch-control-center/commit/52a7125d6d3da5a5f9acf2fe16a07734049e7808))
+- Product sidebar changes ([#2170](https://github.com/juspay/hyperswitch-control-center/pull/2170)) ([`c13ac06`](https://github.com/juspay/hyperswitch-control-center/commit/c13ac066f2c8131856e1dae87f391565293533b5))
+
+### Bug Fixes
+
+- Filter Select Box changes ([#2172](https://github.com/juspay/hyperswitch-control-center/pull/2172)) ([`70ddbf1`](https://github.com/juspay/hyperswitch-control-center/commit/70ddbf108bd9546d49698d9cbf67133528579cc2))
+
+### Miscellaneous Tasks
+
+- Text comp ui update ([#2166](https://github.com/juspay/hyperswitch-control-center/pull/2166)) ([`5a895dc`](https://github.com/juspay/hyperswitch-control-center/commit/5a895dc9fa65b3f7ad4f6327e627fb680c980a02))
+- Dashboard White Theme Changes ( Including OMP ) ([#2153](https://github.com/juspay/hyperswitch-control-center/pull/2153)) ([`509126a`](https://github.com/juspay/hyperswitch-control-center/commit/509126ae8a225517ec0dd7431d5a8a4e8f114e81))
+
+**Full Changelog:** [`2025.01.30.0...2025.01.30.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.30.0...2025.01.30.1)
+
+- - -
+
 ## 2025.01.30.0
 
 ### Features
