@@ -131,6 +131,7 @@ module.exports = {
           hoverColor: withOpacity("--sidebar-hover-color"),
           primaryTextColor: withOpacity("--sidebar-primary-text-color"),
           secondaryTextColor: withOpacity("--sidebar-secondary-text-color"),
+          borderColor: withOpacity("--sidebar-border-color"),
         },
 
         background: {
@@ -296,6 +297,7 @@ module.exports = {
         },
         //borders gray
         nd_br_gray: {
+          200: "#E1E4EA",
           400: "#E1E1E1",
         },
       },

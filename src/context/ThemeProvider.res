@@ -27,6 +27,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
       hoverColor: "#cacdd0",
       primaryTextColor: "#1C6DEA",
       secondaryTextColor: "#525866",
+      borderColor: "#E1E4EA",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -151,6 +152,7 @@ let make = (~children) => {
             "secondaryTextColor",
             defaultSettings.sidebar.secondaryTextColor,
           ),
+          borderColor: sidebarConfig->getString("borderColor", defaultSettings.sidebar.borderColor),
         },
         typography: {
           fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
@@ -278,6 +280,10 @@ let make = (~children) => {
               ),
               "secondaryTextColor": dict->getString(
                 "sidebar_secondary_text_color",
+                defaultSettings.sidebar.secondaryTextColor,
+              ),
+              "borderColor": dict->getString(
+                "sidebar_border_color",
                 defaultSettings.sidebar.secondaryTextColor,
               ),
             },

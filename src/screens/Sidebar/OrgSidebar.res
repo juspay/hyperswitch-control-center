@@ -19,7 +19,9 @@ module OrgTile = {
     let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
-      globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
+      globalUIConfig: {
+        sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
+      },
     } = React.useContext(ThemeProvider.themeContext)
     let getOrgList = async () => {
       try {
@@ -103,7 +105,8 @@ module OrgTile = {
             ? `bg-white/20 ${primaryTextColor} border-sidebar-primaryTextColor`
             : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
-        <div className={` ${currentEditCSS} ${nonEditCSS} border border-nd_gray-200 `}>
+        <div
+          className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40 `}>
           <InlineEditInput
             index
             labelText={orgName}
@@ -288,7 +291,7 @@ let make = () => {
   let showToast = ToastState.useShowToast()
 
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
+    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let getOrgList = async () => {
     try {
@@ -325,8 +328,7 @@ let make = () => {
     setUnderEdit(_ => selectedEditId)
   }
 
-  <div
-    className={`${backgroundColor.sidebarNormal} p-2 border-r border-nd_br_gray-400 border-opacity-40  `}>
+  <div className={`${backgroundColor.sidebarNormal} p-2 border-r ${borderColor}   `}>
     // the org tiles
     <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
       {orgList
