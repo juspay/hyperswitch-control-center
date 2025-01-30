@@ -504,7 +504,7 @@ let make = (
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-  let {setCurrentProduct} = React.useContext(GlobalProvider.defaultContext)
+  let {setCurrentProductValue} = React.useContext(GlobalProvider.defaultContext)
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -568,7 +568,7 @@ let make = (
 
   let onItemClickCustom = (valueSelected: SidebarTypes.optionType) => {
     open SidebarUtils
-    setCurrentProduct(_ => getVariantFromString(valueSelected.name))
+    setCurrentProductValue(getVariantFromString(valueSelected.name))
   }
 
   <div

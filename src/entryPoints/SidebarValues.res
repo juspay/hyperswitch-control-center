@@ -688,10 +688,8 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   sidebar
 }
 
-let useGetSidebarValuesForCurrentActive = (
-  ~currentActiveProduct: ProviderTypes.productTypes,
-  ~isReconEnabled,
-) => {
+let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
+  let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {isLiveMode} = featureFlagDetails
@@ -703,7 +701,7 @@ let useGetSidebarValuesForCurrentActive = (
       component: <ProductHeaderComponent />,
     }),
   ]
-  let sidebarValuesForProduct = switch currentActiveProduct {
+  let sidebarValuesForProduct = switch currentProduct {
   | Orchestrator => hsSidebars
   | Recon => [ReconSidebarValues.reconSidebars]
   | Recovery => [RevenueRecoverySidebarValues.recoverySidebars]

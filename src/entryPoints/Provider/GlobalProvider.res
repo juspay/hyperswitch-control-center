@@ -16,7 +16,8 @@ let defaultValue = {
   isProdIntentCompleted: None,
   setIsProdIntentCompleted: _ => (),
   currentProduct: Orchestrator,
-  setCurrentProduct: _ => (),
+  setCurrentProductValue: _ => (),
+  setDefaultProductToSessionStorage: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -27,6 +28,7 @@ module Provider = {
 
 @react.component
 let make = (~children) => {
+  open SessionStorage
   let (showFeedbackModal, setShowFeedbackModal) = React.useState(_ => false)
   let (showProdIntentForm, setShowProdIntentForm) = React.useState(_ => false)
   let (dashboardPageState, setDashboardPageState) = React.useState(_ => #DEFAULT)
@@ -36,6 +38,22 @@ let make = (~children) => {
   let (integrationDetails, setIntegrationDetails) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->ProviderHelper.getIntegrationDetails
   )
+
+  let setCurrentProductValue = product => {
+    setCurrentProduct(_ => product)
+    sessionStorage.setItem("product", product->SidebarUtils.getStringFromVariant)
+  }
+
+  let setDefaultProductToSessionStorage = () => {
+    open SidebarUtils
+    let currentSessionData = sessionStorage.getItem("product")->Nullable.toOption
+    let data = switch currentSessionData {
+    | Some(sessionData) => sessionData->getVariantFromString
+    | None => Orchestrator
+    }
+
+    setCurrentProductValue(data)
+  }
 
   <Provider
     value={
@@ -52,7 +70,8 @@ let make = (~children) => {
       isProdIntentCompleted,
       setIsProdIntentCompleted,
       currentProduct,
-      setCurrentProduct,
+      setCurrentProductValue,
+      setDefaultProductToSessionStorage,
     }>
     children
   </Provider>
