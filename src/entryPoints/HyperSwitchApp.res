@@ -54,7 +54,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -64,12 +64,27 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
   }
+
+  let setUpTheme = async () => {
+    try {
+      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+    } catch {
+    | _ => ()
+    }
+  }
   let path = url.path->List.toArray->Array.joinWith("/")
 
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [orgId, merchantId, profileId, themeId])
+  }, [orgId, merchantId, profileId])
+
+  React.useEffect(() => {
+    if devThemeFeature && themeId->LogicUtils.isNonEmptyString {
+      setUpTheme()->ignore
+    }
+    None
+  }, (themeId, devThemeFeature))
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {
