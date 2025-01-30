@@ -125,14 +125,14 @@ let make = () => {
               <RenderIf condition={devOrgSidebar}>
                 <OrgSidebar />
               </RenderIf>
-              <RenderIf condition={screenState === Success}>
-                <Sidebar
-                  path={url.path}
-                  sidebars={hyperSwitchAppSidebars}
-                  key={(screenState :> string)}
-                  productSiebars=productSidebars
-                />
-              </RenderIf>
+              // <RenderIf condition={screenState === Success}>
+              //   <Sidebar
+              //     path={url.path}
+              //     sidebars={hyperSwitchAppSidebars}
+              //     key={(screenState :> string)}
+              //     productSiebars=productSidebars
+              //   />
+              // </RenderIf>
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div

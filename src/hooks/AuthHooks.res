@@ -30,6 +30,9 @@ let getHeaders = (
     | Some(str) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
+        // TODO: Need to be removed later
+        headers->Dict.set("secret-key", str)
+        headers->Dict.set("client-id", "DASHBOARD")
       }
     | None => ()
     }
