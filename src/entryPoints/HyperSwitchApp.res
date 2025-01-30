@@ -50,8 +50,12 @@ let make = () => {
   sessionExpired := false
 
   let applyTheme = async () => {
-    if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
-      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+    try {
+      if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
+        let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+      }
+    } catch {
+    | _ => ()
     }
   }
 

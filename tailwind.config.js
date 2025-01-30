@@ -137,6 +137,7 @@ module.exports = {
           hoverColor: withOpacity("--sidebar-hover-color"),
           primaryTextColor: withOpacity("--sidebar-primary-text-color"),
           secondaryTextColor: withOpacity("--sidebar-secondary-text-color"),
+          borderColor: withOpacity("--sidebar-border-color"),
         },
 
         background: {
@@ -287,7 +288,7 @@ module.exports = {
         light_green: "#32AA52",
         hyperswitch_green_trans: "#71B44B20",
         hyperswitch_red: "#D7625B",
-        hyperswitch_background: "#F7F8FB",
+        hyperswitch_background: "#FFFFFF",
         pdf_background: "#F5F5F5",
         offset_white: "#FEFEFE",
         light_white: "#FFFFFF0D",
@@ -297,9 +298,12 @@ module.exports = {
         nd_gray: {
           200: "#E1E4EA",
           400: "#99A0AE",
+          600: "#525866",
+          700: "#2B303B",
         },
         //borders gray
         nd_br_gray: {
+          200: "#E1E4EA",
           400: "#E1E1E1",
         },
       },
@@ -356,21 +360,23 @@ module.exports = {
     plugin(function ({ addUtilities }) {
       const newUtilities = {
         ".primary-gradient-button": {
-          boxShadow: "0px 0px 0px 1px rgb(var(--borders-border-color))",
+          boxShadow: "0px 0px 0px 1px rgb(var(--btn-primary-background-color))",
           backgroundImage:
-            "linear-gradient(180deg, rgb(var(--btn-primary-background-color)) -5%, rgb(var(--borders-border-color)) 107.5%), linear-gradient(180deg, rgba(var(--borders-border-color), 0.7) -6.25%, rgb(var(--btn-primary-background-color)) 100%)",
+            "linear-gradient(180deg, rgb(var(--btn-primary-background-color)) -5%, rgb(var(--colors-primary)) 107.5%), linear-gradient(180deg, rgba(var(--colors-primary), 0.7) -6.25%, rgb(var(--btn-primary-background-color)) 100%)",
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",
         },
         ".primary-gradient-button:hover": {
-          boxShadow: "0px 0px 0px 1px rgb(var(--borders-border-color))",
+          boxShadow:
+            "0px 0px 0px 1px rgb(var(--btn-primary-hover-background-color))",
           backgroundImage:
-            "linear-gradient(180deg, rgb(var(--btn-primary-hover-background-color)) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%), linear-gradient(180deg, rgba(var(--borders-border-color), 0.7) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%)",
+            "linear-gradient(180deg, rgb(var(--btn-primary-hover-background-color)) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%), linear-gradient(180deg, rgba(var(--colors-primary), 0.7) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%)",
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",
         },
         ".primary-gradient-button:active": {
-          boxShadow: "0px 3px 4px 0px rgb(var(--borders-border-color)) inset",
+          boxShadow:
+            "0px 3px 4px 0px rgb(var(--btn-primary-hover-background-color)) inset",
           backgroundImage:
             "linear-gradient(180deg, rgba(var(--btn-primary-background-color), 0.5) -5%, rgb(var(--btn-primary-hover-background-color)) 107.5%), linear-gradient(180deg, rgb(var(--btn-primary-background-color)) -6.25%, rgb(var(--btn-primary-background-color)) 100%)",
           backgroundOrigin: "border-box",
@@ -385,7 +391,8 @@ module.exports = {
           backgroundClip: "content-box, border-box",
         },
         ".primary-gradient-button:disabled": {
-          boxShadow: "0px 0px 0px 1px rgb(var(--borders-border-color))",
+          boxShadow:
+            "0px 0px 0px 1px rgb(var(--btn-primary-hover-background-color))",
           backgroundOrigin: "border-box",
           backgroundClip: "content-box, border-box",
         },

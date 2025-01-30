@@ -494,7 +494,7 @@ let make = (
 ) => {
   open CommonAuthHooks
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
+    globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
@@ -534,7 +534,6 @@ let make = (
 
   let expansionClass = !isSidebarExpanded ? "-translate-x-full" : ""
 
-  let sidebarClass = "shadow-md"
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
 
   let sidebarContainerClassWidth = isMobileView ? "0px" : "275px"
@@ -575,14 +574,14 @@ let make = (
     className={`${backgroundColor.sidebarNormal} flex group border-r border-jp-gray-200 relative `}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
-      className={`flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
+      className={`flex h-full flex-col transition-all duration-100 relative inset-0`}
       style={width: sidebarContainerClassWidth}
     />
     <div
       className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
-        className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
+        className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
         style={width: sidebarWidth}>
         <RenderIf condition={isMobileView}>
           <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
