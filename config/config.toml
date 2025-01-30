@@ -61,7 +61,7 @@ x_feature_route=false
 tenant_user=false
 dev_click_to_pay=false
 dev_recon_v2_product=false
-dev_org_sidebar=true
+dev_org_sidebar=false
 dev_recovery_v2_product=false
 maintainence_alert=""
 [default.merchant_config]
