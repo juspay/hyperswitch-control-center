@@ -40,7 +40,7 @@ type chartOption = {
   avg: float,
 }
 
-type analyticsType = PAYMENT | REFUND | UNKNOWN
+type analyticsType = PAYMENT | REFUND | AUTHENTICATION | UNKNOWN
 
 let getAnalyticsType = moduleName => {
   switch moduleName {
@@ -54,6 +54,7 @@ let getModuleName = analyticsType => {
   switch analyticsType {
   | PAYMENT => "Payments"
   | REFUND => "Refunds"
+  | AUTHENTICATION => "Authentication"
   | UNKNOWN => ""
   }
 }
@@ -206,4 +207,27 @@ type nestedEntityType = {
   userPieChart?: DynamicChart.entity,
   userBarChart?: DynamicChart.entity,
   userFunnelChart?: DynamicChart.entity,
+}
+
+type authenticationSingleStat = {
+  three_ds_sdk_count: int,
+  authentication_success_count: int,
+  authentication_attempt_count: int,
+  challenge_flow_count: int,
+  challenge_attempt_count: int,
+  challenge_success_count: int,
+  frictionless_flow_count: int,
+  frictionless_success_count: int,
+}
+
+type authenticationSingleStatSeries = {
+  three_ds_sdk_count: int,
+  authentication_success_count: int,
+  authentication_attempt_count: int,
+  challenge_flow_count: int,
+  challenge_attempt_count: int,
+  challenge_success_count: int,
+  frictionless_flow_count: int,
+  frictionless_success_count: int,
+  time_series: string,
 }
