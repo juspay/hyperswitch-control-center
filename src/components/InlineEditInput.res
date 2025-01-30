@@ -100,7 +100,8 @@ let make = (
       handleCancel()
     }
   }
-
+  let isDisabled = !{inputErrors->LogicUtils.isEmptyDict}
+  let isDisabledCss = {isDisabled ? "!cursor-not-allowed" : "cursor-pointer"}
   let dropdownRef = React.useRef(Nullable.null)
   OutsideClick.useOutsideClick(
     ~refs={ArrayOfRef([dropdownRef])},
@@ -115,7 +116,9 @@ let make = (
         <Icon name="nd-cross" size=16 />
       </button>
       <button
-        onClick={_ => handleSave()} className={`cursor-pointer !text-primary ${customIconStyle}`}>
+        onClick={_ => handleSave()}
+        className={`cursor-pointer !text-blue-500 ${customIconStyle} ${isDisabledCss}`}
+        disabled={isDisabled}>
         <Icon name="nd-check" size=16 />
       </button>
     </div>
@@ -166,7 +169,7 @@ let make = (
         </RenderIf>
         <div
           className={`group relative flex items-center bg-white ${inputErrors->LogicUtils.isEmptyDict
-              ? "focus-within:ring-1 focus-within:ring-primary"
+              ? "focus-within:ring-1 focus-within:ring-blue-400"
               : "ring-1 ring-red-300"}  rounded-md text-md !py-2 ${customStyle} `}>
           <div className={`flex-1 `}>
             <input

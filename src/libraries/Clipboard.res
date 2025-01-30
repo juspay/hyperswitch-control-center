@@ -52,7 +52,7 @@ module Copy = {
       writeText([data]->Array.joinWithUnsafe("\n"))
     }
 
-    let iconClass = GlobalVars.isHyperSwitchDashboard ? "text-gray-300" : "text-jp-gray-900"
+    let iconClass = GlobalVars.isHyperSwitchDashboard ? "text-gray-600" : "text-jp-gray-900"
 
     <div
       className={`flex justify-end ${outerPadding}`}
@@ -69,7 +69,7 @@ module Copy = {
           | Some(element) => element
           | None =>
             <div className={`${iconClass} flex items-center cursor-pointer`}>
-              <Icon name="copy" size=iconSize />
+              <Icon name="nd-copy" size=iconSize />
             </div>
           }}
           toolTipPosition

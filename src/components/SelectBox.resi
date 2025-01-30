@@ -63,6 +63,7 @@ type dropdownOptionWithoutOptional = {
   textColor: string,
   optGroup: string,
   customRowClass: string,
+  customComponent: option<React.element>,
 }
 type dropdownOption = {
   label: string,
@@ -75,6 +76,7 @@ type dropdownOption = {
   iconStroke?: string,
   textColor?: string,
   customRowClass?: string,
+  customComponent?: React.element,
 }
 let makeNonOptional: dropdownOption => dropdownOptionWithoutOptional
 let useTransformed: array<dropdownOption> => array<dropdownOptionWithoutOptional>
@@ -135,6 +137,7 @@ module BaseSelect: {
     ~onItemSelect: (JsxEventU.Mouse.t, string) => unit=?,
     ~wrapBasis: string=?,
     ~preservedAppliedOptions: array<string>=?,
+    ~customComponent: option<React.element>=?,
   ) => React.element
 }
 module BaseSelectButton: {

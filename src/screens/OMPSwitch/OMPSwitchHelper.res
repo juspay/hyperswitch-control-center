@@ -111,9 +111,9 @@ module AddNewOMPButton = {
       {<>
         <hr className={customHRTagStyle} />
         <div
-          className={`group flex  items-center gap-2 font-medium px-2 py-2 text-sm ${customStyle}`}>
-          <Icon name="plus-circle" size=15 />
-          {`Add new ${(user :> string)->String.toLowerCase}`->React.string}
+          className={`group flex  items-center gap-2 font-medium  px-3.5 py-3 text-sm ${customStyle}`}>
+          <Icon name="nd-plus" size=15 />
+          {`Create new`->React.string}
         </div>
       </>}
     </ACLDiv>
@@ -240,28 +240,299 @@ module OMPViews = {
   }
 }
 
-let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
+module MerchantDropdownItem = {
+  @react.component
+  let make = (~merchantName, ~index: int, ~currentId) => {
+    open LogicUtils
+    open APIUtils
+    let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
+    let handleIdUnderEdit = (selectedEditId: option<int>) => {
+      setUnderEdit(_ => selectedEditId)
+    }
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+    let url = RescriptReactRouter.useUrl()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let fetchDetails = useGetMethod()
+    let showToast = ToastState.useShowToast()
+    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
+    let isUnderEdit =
+      currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
+    let (_, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
+    let getMerchantList = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
+        let response = await fetchDetails(url)
+        setMerchantList(_ => response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper))
+      } catch {
+      | _ => {
+          setMerchantList(_ => OMPSwitchUtils.ompDefaultValue(merchantId, ""))
+          showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
+        }
+      }
+    }
+    let validateInput = (merchantName: string) => {
+      let errors = Dict.make()
+      let regexForMerchantName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+
+      let errorMessage = if merchantName->isEmptyString {
+        "Merchant name cannot be empty"
+      } else if merchantName->String.length > 64 {
+        "Merchant name cannot exceed 64 characters"
+      } else if !RegExp.test(RegExp.fromString(regexForMerchantName), merchantName) {
+        "Merchant name should not contain special characters"
+      } else {
+        ""
+      }
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "merchant_name", errorMessage->JSON.Encode.string)
+      }
+      errors
+    }
+
+    let switchMerch = async value => {
+      try {
+        setShowSwitchingMerch(_ => true)
+        let _ = await internalSwitch(~expectedMerchantId=Some(value))
+        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
+        setShowSwitchingMerch(_ => false)
+      } catch {
+      | _ => {
+          showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+          setShowSwitchingMerch(_ => false)
+        }
+      }
+    }
+    let handleMerchantSwitch = id => {
+      switchMerch(id)->ignore
+    }
+
+    let onSubmit = async (newMerchantName: string) => {
+      try {
+        let body =
+          [
+            ("merchant_id", merchantId->JSON.Encode.string),
+            ("merchant_name", newMerchantName->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson
+        let accountUrl = getURL(
+          ~entityName=MERCHANT_ACCOUNT,
+          ~methodType=Post,
+          ~id=Some(merchantId),
+        )
+        let _ = await updateDetails(accountUrl, body, Post)
+        let _ = await getMerchantList()
+        showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
+      } catch {
+      | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
+      }
+    }
+
+    let isActive = currentId == merchantId
+    let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    <>
+      <div
+        className={`rounded-lg mb-1 ${isUnderEdit
+            ? `hover:bg-transparent`
+            : `hover:bg-jp-gray-100`}`}>
+        <InlineEditInput
+          index
+          labelText=merchantName
+          customStyle="w-full cursor-pointer !bg-transparent mb-0"
+          handleEdit=handleIdUnderEdit
+          isUnderEdit
+          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          onSubmit
+          labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
+          validateInput
+          customInputStyle="!py-0 text-nd_gray-600"
+          customIconComponent={<HelperComponents.CopyTextCustomComp
+            displayValue=" " copyValue=Some(merchantId) customIconColor="text-nd_gray-600"
+          />}
+          customIconStyle={isActive ? "text-nd_gray-600" : ""}
+          handleClick={_ => handleMerchantSwitch(currentId)}
+          customWidth="min-w-48"
+          leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
+        />
+      </div>
+      <LoaderModal
+        showModal={showSwitchingMerch}
+        setShowModal={setShowSwitchingMerch}
+        text="Switching merchant..."
+      />
+    </>
+  }
+}
+
+module ProfileDropdownItem = {
+  @react.component
+  let make = (~profileName, ~index: int, ~currentId) => {
+    open LogicUtils
+    open APIUtils
+    let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
+    let handleIdUnderEdit = (selectedEditId: option<int>) => {
+      setUnderEdit(_ => selectedEditId)
+    }
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+    let url = RescriptReactRouter.useUrl()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let fetchDetails = useGetMethod()
+    let showToast = ToastState.useShowToast()
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
+    let isUnderEdit =
+      currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
+    let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+    let getProfileList = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
+        let response = await fetchDetails(url)
+        setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+      } catch {
+      | _ => {
+          setProfileList(_ => OMPSwitchUtils.ompDefaultValue(profileId, ""))
+          showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+        }
+      }
+    }
+    let validateInput = (profileName: string) => {
+      let errors = Dict.make()
+      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+      let errorMessage = if profileName->isEmptyString {
+        "Profile name cannot be empty"
+      } else if profileName->String.length > 64 {
+        "Profile name cannot exceed 64 characters"
+      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
+        "Profile name should not contain special characters"
+      } else {
+        ""
+      }
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "profile_name", errorMessage->JSON.Encode.string)
+      }
+      errors
+    }
+
+    let profileSwitch = async value => {
+      try {
+        setShowSwitchingProfile(_ => true)
+        let _ = await internalSwitch(~expectedProfileId=Some(value))
+        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
+        setShowSwitchingProfile(_ => false)
+      } catch {
+      | _ => {
+          showToast(~message="Failed to switch profile", ~toastType=ToastError)
+          setShowSwitchingProfile(_ => false)
+        }
+      }
+    }
+    let handleProfileSwitch = id => {
+      profileSwitch(id)->ignore
+    }
+
+    let onSubmit = async (newProfileName: string) => {
+      try {
+        let body = [("profile_name", newProfileName->JSON.Encode.string)]->getJsonFromArrayOfJson
+        let accountUrl = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
+        let _ = await updateDetails(accountUrl, body, Post)
+        let _ = await getProfileList()
+        showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
+      } catch {
+      | _ => showToast(~message="Failed to update Profile name!", ~toastType=ToastError)
+      }
+    }
+
+    let isActive = currentId == profileId
+    let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    <>
+      <div
+        className={`rounded-lg mb-1 ${isUnderEdit
+            ? `hover:bg-transparent`
+            : `hover:bg-jp-gray-100`}`}>
+        <InlineEditInput
+          index
+          labelText=profileName
+          customStyle="w-full cursor-pointer !bg-transparent mb-0"
+          handleEdit=handleIdUnderEdit
+          isUnderEdit
+          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          onSubmit
+          labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
+          validateInput
+          customInputStyle="!py-0 text-nd_gray-600"
+          customIconComponent={<HelperComponents.CopyTextCustomComp
+            displayValue=" " copyValue=Some(profileId) customIconColor="text-nd_gray-600"
+          />}
+          customIconStyle={isActive ? "text-nd_gray-600" : ""}
+          handleClick={_ => handleProfileSwitch(currentId)}
+          customWidth="min-w-48"
+          leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
+        />
+      </div>
+      <LoaderModal
+        showModal={showSwitchingProfile}
+        setShowModal={setShowSwitchingProfile}
+        text="Switching profile..."
+      />
+    </>
+  }
+}
+
+let generateDropdownOptions: (
+  array<OMPSwitchTypes.ompListTypes>,
+  ~customIconColor: string,
+) => array<SelectBox.dropdownOption> = (dropdownList, ~customIconColor) => {
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+    item
+  ): SelectBox.dropdownOption => {
+    {
+      label: item.name,
+      value: item.id,
+      icon: Button.CustomRightIcon(
+        <ToolTip
+          description={item.id}
+          customStyle="!whitespace-nowrap"
+          toolTipFor={<div className="cursor-pointer">
+            <HelperComponents.CopyTextCustomComp
+              displayValue=" " copyValue=Some({item.id}) customIconColor
+            />
+          </div>}
+          toolTipPosition=ToolTip.TopRight
+        />,
+      ),
+    }
+  })
+  options
+}
+
+let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCustom> => array<
   SelectBox.dropdownOption,
 > = dropdownList => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
     item
   ): SelectBox.dropdownOption => {
-    label: item.name,
-    value: item.id,
-    icon: Button.CustomRightIcon(
-      <ToolTip
-        description={item.id}
-        customStyle="!whitespace-nowrap"
-        toolTipFor={<div className="cursor-pointer">
-          <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
-        </div>}
-        toolTipPosition=ToolTip.TopRight
-      />,
-    ),
+    let option: SelectBox.dropdownOption = {
+      label: item.name,
+      value: item.id,
+      customComponent: item.customComponent,
+      icon: Button.CustomRightIcon(
+        <ToolTip
+          description={item.id}
+          customStyle="!whitespace-nowrap"
+          toolTipFor={<div className="cursor-pointer">
+            <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+          </div>}
+          toolTipPosition=ToolTip.TopRight
+        />,
+      ),
+    }
+    option
   })
   options
 }
-
 module EditOrgName = {
   @react.component
   let make = (~showModal, ~setShowModal, ~orgList, ~orgId, ~getOrgList) => {
