@@ -148,7 +148,7 @@ let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled
   isOperationsEnabled
     ? Section({
         name: "Operations",
-        icon: "hswitch-operations",
+        icon: "nd-operations",
         showSection: true,
         links,
       })
@@ -337,7 +337,7 @@ let analytics = (
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
-        icon: "analytics",
+        icon: "nd-analytics",
         showSection: userHasResourceAccess(~resourceAccess=Analytics) === CommonAuthTypes.Access,
         links,
       })
@@ -416,7 +416,7 @@ let workflow = (
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
-        icon: "3ds",
+        icon: "nd-workflow",
         showSection: true,
         links: defaultWorkFlow,
       })
@@ -486,7 +486,7 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
 
   Section({
     name: "Settings",
-    icon: "hswitch-settings",
+    icon: "nd-settings",
     showSection: true,
     links: settingsLinkArray,
   })
@@ -524,7 +524,7 @@ let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity)
   isDevelopersEnabled
     ? Section({
         name: "Developers",
-        icon: "developer",
+        icon: "nd-developers",
         showSection: true,
         links: defaultDevelopersOptions,
       })
