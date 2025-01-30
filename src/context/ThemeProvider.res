@@ -284,7 +284,7 @@ let make = (~children) => {
               ),
               "borderColor": dict->getString(
                 "sidebar_border_color",
-                defaultSettings.sidebar.secondaryTextColor,
+                defaultSettings.sidebar.borderColor,
               ),
             },
             "buttons": {

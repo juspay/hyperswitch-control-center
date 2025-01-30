@@ -1,12 +1,15 @@
 [default.theme]
-primary_color="#2167AE"
-primary_hover_color="#5495cf"
-sidebar_primary="#27356B"     # To support current dashboard theme and to be removed later
-sidebar_secondary= "#243163"  # To support current dashboard theme and to be removed later
-sidebar_hover_color= "#ededed"  # To support current dashboard theme and to be removed later
-sidebar_primary_textColor="#FFFFFF" # To support current dashboard theme and to be removed later
-sidebar_secondary_text_color= "#cfcfd1" # To support current dashboard theme and to be removed later
-sidebar_border_color= "#5a6696"
+## Primary theme colors
+# primary_color = ""
+# primary_hover_color = ""
+## Sidebar theme (Temporary, to be removed later)
+# sidebar_primary = ""     
+# sidebar_secondary = ""  
+# sidebar_hover_color = ""  
+## Sidebar text and border colors (Temporary, to be removed later)
+# sidebar_primary_text_color = ""
+# sidebar_secondary_text_color = ""
+# sidebar_border_color = ""
 [default.endpoints]
 api_url="http://localhost:9000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
@@ -58,7 +61,7 @@ x_feature_route=false
 tenant_user=false
 dev_click_to_pay=false
 dev_recon_v2_product=false
-dev_org_sidebar=false
+dev_org_sidebar=true
 dev_recovery_v2_product=false
 maintainence_alert=""
 [default.merchant_config]

@@ -328,7 +328,7 @@ let make = () => {
     setUnderEdit(_ => selectedEditId)
   }
 
-  <div className={`${backgroundColor.sidebarNormal} p-2 border-r ${borderColor}   `}>
+  <div className={`${backgroundColor.sidebarNormal} p-2 border-r ${borderColor}`}>
     // the org tiles
     <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
       {orgList
