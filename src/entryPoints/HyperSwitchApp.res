@@ -13,6 +13,8 @@ let make = () => {
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
+    currentProduct,
+    setDefaultProductToSessionStorage,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
@@ -43,9 +45,10 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let maintainenceAlert = featureFlagDetails.maintainenceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
-  let productSidebars = ProductsSidebarValues.useGetSideBarValues()
+  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
+  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~currentProduct)
   sessionExpired := false
+
   let applyTheme = async () => {
     try {
       if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
@@ -55,6 +58,7 @@ let make = () => {
     | _ => ()
     }
   }
+
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
@@ -63,6 +67,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
+      setDefaultProductToSessionStorage()
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
