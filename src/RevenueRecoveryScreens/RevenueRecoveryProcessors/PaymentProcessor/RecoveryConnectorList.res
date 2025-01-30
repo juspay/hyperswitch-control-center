@@ -64,11 +64,7 @@ let make = () => {
 
   <div>
     <PageLoaderWrapper screenState>
-      <PageUtils.PageHeading
-        title="Payment Processors"
-        customHeadingStyle="mb-10"
-        subTitle="Connect a test processor and get started with testing your payments"
-      />
+      <PageUtils.PageHeading title="Payment Processors" customHeadingStyle="mb-10" subTitle="" />
       <div className="flex flex-col gap-14">
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
