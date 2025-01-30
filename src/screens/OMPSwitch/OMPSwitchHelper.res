@@ -137,9 +137,10 @@ module OMPViewBaseComp = {
       {displayName->React.string}
     }
 
-    <div className="text-sm font-medium cursor-pointer px-4">
+    <div
+      className="flex items-center text-sm font-medium cursor-pointer secondary-gradient-border rounded-lg h-40-px">
       <div className="flex flex-col items-start">
-        <div className="text-left flex items-center gap-1">
+        <div className="text-left flex items-center gap-1 p-2">
           <Icon name="settings-new" size=18 />
           <p className="text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
             {`View data for:`->React.string}
@@ -180,9 +181,9 @@ module OMPViewsComp = {
     }
 
     let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
-    let dropdownContainerStyle = "md:rounded-lg md:border md:w-full md:shadow-md"
+    let dropdownContainerStyle = "rounded-lg border md:w-full md:shadow-md"
 
-    <div className="flex h-fit border bg-white rounded-lg py-2 hover:bg-opacity-80">
+    <div className="flex h-fit rounded-lg hover:bg-opacity-80">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText=""

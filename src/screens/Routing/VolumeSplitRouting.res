@@ -168,7 +168,7 @@ module VolumeRoutingView = {
                   setFormState(_ => AdvancedRoutingTypes.EditConfig)
                   setPageState(_ => Create)
                 }}
-                customButtonStyle="w-1/5 rounded-sm"
+                customButtonStyle="w-1/5"
               />
               <RenderIf condition={!isActive}>
                 <Button
@@ -177,7 +177,6 @@ module VolumeRoutingView = {
                   onClick={_ => {
                     handleActivateConfiguration(routingId)->ignore
                   }}
-                  customButtonStyle="w-1/5 rounded-sm"
                   buttonState={Normal}
                 />
               </RenderIf>
@@ -188,7 +187,6 @@ module VolumeRoutingView = {
                   onClick={_ => {
                     handleDeactivateConfiguration()->ignore
                   }}
-                  customButtonStyle="w-1/5 rounded-sm"
                   buttonState=Normal
                 />
               </RenderIf>

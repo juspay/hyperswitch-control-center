@@ -96,7 +96,8 @@ let make = (
           className="flex fixed items-center justify-center" style={top: "100px", right: "100px"}>
           <Button
             text="Load Previous"
-            customButtonStyle="rounded-full "
+            buttonType=Secondary
+            buttonSize=Medium
             rightIcon={FontAwesome("arrow-up")}
             onClick={_ => {
               switch setNotificationCount {
@@ -111,7 +112,8 @@ let make = (
         <div className="sticky bottom-20 flex items-center justify-center">
           <Button
             text="Load More"
-            customButtonStyle="rounded-full bg-stone-800/50"
+            buttonType=Primary
+            buttonSize=Medium
             rightIcon={FontAwesome("arrow-down")}
             onClick={_ => {
               switch setNotificationCount {

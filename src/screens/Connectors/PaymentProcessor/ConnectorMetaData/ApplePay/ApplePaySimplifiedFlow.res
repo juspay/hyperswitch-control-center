@@ -96,7 +96,6 @@ let make = (
         text={"Download File"}
         buttonType={Primary}
         buttonSize={Small}
-        customButtonStyle="!px-2 rounded-lg"
         onClick={_ => downloadApplePayCert()}
         buttonState={Normal}
       />

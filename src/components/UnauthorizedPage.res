@@ -9,11 +9,12 @@ let make = (
     <Button
       text={"Go to Home"}
       buttonType=Primary
+      buttonSize=Small
       onClick={_ => {
         setDashboardPageState(_ => #HOME)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
       }}
-      customButtonStyle="mt-4 !p-2"
+      customButtonStyle="mt-4"
     />
   </NoDataFound>
 }
