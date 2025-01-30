@@ -20,12 +20,13 @@ let useGetSideBarValues = () => {
 }
 
 let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) => {
+  open ProductUtils
   let {devReconv2Product, devRecoveryV2Product} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
     Link({
-      name: "Orchestrator",
+      name: Orchestrator->getStringFromVariant,
       icon: "home",
       link: "/home",
       access: Access,
@@ -35,7 +36,7 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
   if devReconv2Product {
     sideBarValues->Array.push(
       Link({
-        name: "Recon",
+        name: Recon->getStringFromVariant,
         icon: "recon-home",
         link: "/v2/recon/onboarding",
         access: Access,
@@ -46,7 +47,7 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
   if devRecoveryV2Product {
     sideBarValues->Array.push(
       Link({
-        name: "Recovery",
+        name: Recovery->getStringFromVariant,
         icon: "recovery-home",
         link: "/v2/recovery",
         access: Access,
@@ -58,12 +59,8 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
 
   sideBarValues->Array.filter(topLevelItem =>
     switch topLevelItem {
-    | Heading(headingType) => headingType.name != productName
-    | RemoteLink(optionType)
-    | Link(optionType) =>
-      optionType.name != productName
-    | LinkWithTag(optionTypeWithTag) => optionTypeWithTag.name != productName
-    | Section(sectionType) => sectionType.name != productName
+    | Link(optionType) => optionType.name != productName
+
     | _ => true
     }
   )
