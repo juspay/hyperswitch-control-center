@@ -7,18 +7,26 @@ let make = () => {
 
   <Form>
     <div className="flex flex-col gap-10">
-      <div className="bg-white rounded-lg border border-grey-outline h-923-px flex flex-col">
-        <ReconConfigurationHelper.Heading title="Reconciliation Setup" />
-        <div className="flex justify-center items-center h-full">
+      <div className="rounded-lg h-774-px flex flex-col">
+        <div className="flex h-full">
           <div className="flex-[3] border-r h-full">
             <div className="flex flex-col">
-              <ReconConfigurationHelper.ProgressBar currentStep={currentStep} />
-              <div className="h-[1px] bg-gray-200 w-full" />
+              <div className="flex items-center gap-x-3 px-6">
+                <Icon
+                  name="nd-arrow-left"
+                  className="text-gray-500 cursor-pointer"
+                  onClick={_ => setCurrentStep(_ => ConnectOrderData(SelectSource))}
+                  customHeight="20"
+                />
+                <h1 className="text-medium font-semibold text-gray-600">
+                  {"Setup Reconciliation"->React.string}
+                </h1>
+              </div>
               <ReconConfigurationHelper.ReconConfigurationCurrentStepIndicator currentStep />
             </div>
           </div>
-          <div className="flex-[7] h-full bg-gray-50 flex flex-col justify-between">
-            <div className="flex-1">
+          <div className="flex-[7] h-full p-12">
+            <div className="w-500-px">
               {switch currentStep->ReconConfigurationUtils.getSectionFromStep {
               | ConnectOrderData =>
                 <ConnectOrderData currentStep={currentStep} setCurrentStep={setCurrentStep} />

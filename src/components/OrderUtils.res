@@ -109,7 +109,7 @@ module Heading = {
 }
 
 module Details = {
-  // open PreviewDetails
+  // open PManualMapping
   @react.component
   let make = (
     ~heading,

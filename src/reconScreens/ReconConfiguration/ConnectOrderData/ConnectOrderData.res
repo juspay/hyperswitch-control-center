@@ -2,16 +2,7 @@
 let make = (~currentStep, ~setCurrentStep) => {
   open ReconConfigurationUtils
 
-  let currentStepCount = currentStep->getSectionFromStep->getSectionCount
-
-  <div className="flex flex-col h-full">
-    <div className="flex flex-col gap-10 p-2 md:p-6">
-      <ReconConfigurationHelper.SubHeading
-        currentStepCount
-        title="Connect Order Data"
-        subTitle="Enable automatic fetching of your order data to ensure seamless transaction matching and reconciliation"
-      />
-    </div>
+  <div className="flex flex-col h-full gap-y-10">
     {switch currentStep->getSubsectionFromStep {
     | SelectSource =>
       <ConnectOrderDataHelper.SelectSource

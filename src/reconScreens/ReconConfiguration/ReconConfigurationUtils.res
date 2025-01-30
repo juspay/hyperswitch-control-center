@@ -13,9 +13,9 @@ let subSectionsArr: array<subSections> = [
 
 let getSectionName = (section: sections): string =>
   switch section {
-  | ConnectOrderData => "Connect Order Data"
-  | ConnectProcessorData => "Connect Processor Data"
-  | ManualMapping => "Manual Mapping"
+  | ConnectOrderData => "Order Data Related"
+  | ConnectProcessorData => "Connect Processors"
+  | ManualMapping => "Review Details"
   }
 
 let getSectionCount = (section: sections): int =>
@@ -28,12 +28,19 @@ let getSectionFromStep = (step: steps): sections =>
   | ManualMapping(_) => ManualMapping
   }
 
+let getIconName = (step: sections): string =>
+  switch step {
+  | ConnectOrderData => "nd-inbox"
+  | ConnectProcessorData => "nd-plugin"
+  | ManualMapping => "nd-flag"
+  }
+
 let getSubsectionName = (subSection: subSections): string =>
   switch subSection {
-  | SelectSource => "Select Source"
-  | SetupAPIConnection => "Setup Your API Connection"
-  | APIKeysAndLiveEndpoints => "Replace API keys & Live Endpoints"
-  | WebHooks => "Setup Webhook on your end"
+  | SelectSource => "Select Order Management"
+  | SetupAPIConnection => "Secure API connection"
+  | APIKeysAndLiveEndpoints => "Select a processor"
+  | WebHooks => "Set up webhook"
   | TestLivePayment => "Test a live Payment"
   | SetupCompleted => "Setup Completed"
   }

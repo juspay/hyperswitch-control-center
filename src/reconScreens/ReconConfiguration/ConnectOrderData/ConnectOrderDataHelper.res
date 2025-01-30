@@ -13,24 +13,29 @@ module SelectSource = {
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
     let onSubmit = async () => {
-      try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let _ = await stepConfig()
-        setCurrentStep(prev => getNextStep(prev))
-      } catch {
-      | Exn.Error(e) =>
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
-      }
+      // try {
+      //   setScreenState(_ => PageLoaderWrapper.Loading)
+      //   let _ = await stepConfig()
+      //   setCurrentStep(prev => getNextStep(prev))
+      // } catch {
+      // | Exn.Error(e) =>
+      //   let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+      //   setScreenState(_ => PageLoaderWrapper.Error(err))
+      // }
+      setCurrentStep(prev => getNextStep(prev))
     }
 
     <PageLoaderWrapper screenState={screenState}>
-      <div className="flex flex-col h-full">
-        <div className="flex flex-col gap-3 flex-grow p-2 md:p-7">
-          <p className="text-medium text-grey-800 font-semibold mb-5">
-            {"Select your order data source"->React.string}
+      <ReconConfigurationHelper.SubHeading
+        title="Define Order Source"
+        subTitle="Enable automatic fetching of your order data to ensure seamless transaction matching and reconciliation"
+      />
+      <div className="flex flex-col h-full gap-y-10">
+        <div className="flex flex-col gap-y-4">
+          <p className="text-base text-gray-700 font-semibold">
+            {"Where do you want to fetch your data from?"->React.string}
           </p>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-y-4">
             {orderDataStepsArr
             ->Array.map(step => {
               let stepName = step->getSelectedStepName
@@ -41,22 +46,28 @@ module SelectSource = {
                 stepName={stepName}
                 description={description}
                 isSelected={isSelected}
-                iconName={step->getIconName}
+                iconName={step->ConnectOrderDataUtils.getIconName}
                 onClick={_ => setSelectedStep(_ => step)}
               />
             })
             ->React.array}
           </div>
         </div>
-        <div className="flex justify-end items-center border-t">
+        <div className="flex justify-end items-center">
           <ReconConfigurationHelper.Footer
-            currentStep={currentStep} buttonName="Continue" onSubmit={_ => onSubmit()->ignore}
+            currentStep={currentStep} onSubmit={_ => onSubmit()->ignore}
           />
         </div>
       </div>
     </PageLoaderWrapper>
   }
 }
+
+type state = {fileContent: option<string>}
+
+type action =
+  | SetFileContent(string)
+  | SetError(string)
 
 module SetupAPIConnection = {
   @react.component
@@ -70,10 +81,42 @@ module SetupAPIConnection = {
     let showToast = ToastState.useShowToast()
     let stepConfig = useStepConfig(~step=currentStep->getSubsectionFromStep, ~fileUploadedDict)
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
     let toast = (message, toastType) => {
       showToast(~message, ~toastType)
     }
+
+    React.useEffect0(() => {
+      let fetchData = async () => {
+        try {
+          let response = await Fetch.fetch("/basefile.csv")
+          let blob = await Fetch.Response.blob(response)
+
+          let fileDict =
+            [
+              ("uploadedFile", blob->Identity.genericTypeToJson),
+              ("fileName", `${merchantId}_20250124.csv`->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson
+
+          setFileUploadedDict(prev => {
+            let arr = prev->Dict.toArray
+            let newDict = [(uploadEvidenceType, fileDict)]->Array.concat(arr)->Dict.fromArray
+            newDict
+          })
+        } catch {
+        | error => {
+            Js.Console.error2("Error reading CSV file:", error)
+            toast("Error loading file", ToastError)
+          }
+        }
+      }
+
+      fetchData()->ignore
+      None
+    })
+
+    Js.log2("fileUploadedDict", fileUploadedDict)
 
     let onSubmit = async () => {
       if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
@@ -91,96 +134,49 @@ module SetupAPIConnection = {
       }
     }
 
-    let handleBrowseChange = (event, uploadEvidenceType) => {
-      let target = ReactEvent.Form.target(event)
-      let fileDict =
-        [
-          ("uploadedFile", target["files"]["0"]->Identity.genericTypeToJson),
-          ("fileName", target["files"]["0"]["name"]->JSON.Encode.string),
-        ]->getJsonFromArrayOfJson
-
-      setFileUploadedDict(prev => {
-        let arr = prev->Dict.toArray
-        let newDict = [(uploadEvidenceType, fileDict)]->Array.concat(arr)->Dict.fromArray
-        newDict
-      })
-    }
     <PageLoaderWrapper screenState={screenState}>
-      <div className="flex flex-col h-full">
-        <div className="flex flex-col gap-4 flex-grow p-2 md:p-7">
-          <p className="text-medium text-grey-800 font-semibold mb-5">
-            {"Setup Your API Connection"->React.string}
-          </p>
-          <div className="flex items-center">
-            {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
-              <label>
-                <p className="cursor-pointer text-gray-500">
-                  <div className="flex gap-2 border border-gray-500 rounded-lg p-2 items-center">
-                    <Icon name="plus" size=14 />
-                    <p> {"Upload base file"->React.string} </p>
-                  </div>
-                  <input
-                    type_="file"
-                    accept=".csv"
-                    onChange={ev => ev->handleBrowseChange(uploadEvidenceType)}
-                    required=true
-                    hidden=true
-                  />
-                </p>
-              </label>
-            } else {
-              let fileName =
-                fileUploadedDict->getDictfromDict(uploadEvidenceType)->getString("fileName", "")
-              let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=10)
-
-              <div className="flex gap-4 items-center ">
-                <p className={`${p1RegularText} text-grey-700`}>
-                  {truncatedFileName->React.string}
-                </p>
-                <Icon
-                  name="cross-skeleton"
-                  className="cursor-pointer"
-                  size=12
-                  onClick={_ => {
-                    setFileUploadedDict(prev => {
-                      let prevCopy = prev->Dict.copy
-                      prevCopy->Dict.delete(uploadEvidenceType)
-                      prevCopy
-                    })
-                  }}
-                />
-              </div>
-            }}
-          </div>
-          <div className="flex gap-6">
-            <FormRenderer.FieldRenderer
-              field={FormRenderer.makeFieldInfo(
-                ~label="Endpoint URL",
-                ~name="endPointURL",
-                ~placeholder="https://",
-                ~isRequired=true,
-                ~customInput=InputFields.textInput(~customWidth="w-18-rem"),
-              )}
-            />
-            <FormRenderer.FieldRenderer
-              field={FormRenderer.makeFieldInfo(
-                ~label="Auth Key",
-                ~name="authKey",
-                ~placeholder="***********",
-                ~isRequired=true,
-                ~customInput=InputFields.textInput(~customWidth="w-18-rem"),
-              )}
-            />
-          </div>
-          <h1 className="text-sm font-medium text-blue-500 mt-2 px-1.5">
-            {"Learn where to find these values ->"->React.string}
-          </h1>
+      <ReconConfigurationHelper.SubHeading
+        title="Setup API" subTitle="Connect your API to fetch order data from your source"
+      />
+      <div className="flex flex-col h-full gap-y-3">
+        <div className="flex flex-col gap-y-2">
+          {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isSome {
+            <div className="flex gap-4 items-center">
+              <p className={`${p1RegularText} text-grey-700`}>
+                {"File loaded successfully"->React.string}
+              </p>
+            </div>
+          } else {
+            <div className="flex gap-4 items-center">
+              <p className={`${p1RegularText} text-grey-700`}>
+                {"Loading file..."->React.string}
+              </p>
+            </div>
+          }}
         </div>
-        <div className="flex justify-end items-center border-t">
-          <ReconConfigurationHelper.Footer
-            currentStep={currentStep} buttonName="Validate" onSubmit={_ => onSubmit()->ignore}
-          />
-        </div>
+        <FormRenderer.FieldRenderer
+          field={FormRenderer.makeFieldInfo(
+            ~label="Endpoint URL",
+            ~name="endPointURL",
+            ~placeholder="https://",
+            ~isRequired=true,
+            ~customInput=InputFields.textInput(~customWidth="w-full"),
+          )}
+        />
+        <FormRenderer.FieldRenderer
+          field={FormRenderer.makeFieldInfo(
+            ~label="Auth Key",
+            ~name="authKey",
+            ~placeholder="***********",
+            ~isRequired=true,
+            ~customInput=InputFields.textInput(~customWidth="w-full"),
+          )}
+        />
+      </div>
+      <div className="flex justify-end items-center">
+        <ReconConfigurationHelper.Footer
+          currentStep={currentStep} onSubmit={_ => onSubmit()->ignore}
+        />
       </div>
     </PageLoaderWrapper>
   }

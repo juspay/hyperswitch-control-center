@@ -10,7 +10,7 @@ module APIKeysAndLiveEndpoints = {
     open ConnectorTypes
     open TempAPIUtils
 
-    let connectorList = [Processors(FIUU), Processors(PAYU)]
+    let connectorList = [Processors(FIUU), Processors(PAYU), Processors(STRIPE)]
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let stepConfig = useStepConfig(
       ~step=currentStep->getSubsectionFromStep,
@@ -24,26 +24,31 @@ module APIKeysAndLiveEndpoints = {
     }
 
     let onSubmit = async () => {
-      if selectedProcessor === "" {
-        toast("Please select a processor", ToastError)
-      } else {
-        try {
-          setScreenState(_ => PageLoaderWrapper.Loading)
-          let _ = await stepConfig()
-          setCurrentStep(prev => getNextStep(prev))
-        } catch {
-        | Exn.Error(e) =>
-          let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-          setScreenState(_ => PageLoaderWrapper.Error(err))
-        }
-      }
+      // if selectedProcessor === "" {
+      //   toast("Please select a processor", ToastError)
+      // } else {
+      //   try {
+      //     setScreenState(_ => PageLoaderWrapper.Loading)
+      //     let _ = await stepConfig()
+      //     setCurrentStep(prev => getNextStep(prev))
+      //   } catch {
+      //   | Exn.Error(e) =>
+      //     let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+      //     setScreenState(_ => PageLoaderWrapper.Error(err))
+      //   }
+      // }
+      setCurrentStep(prev => getNextStep(prev))
     }
 
     <PageLoaderWrapper screenState={screenState}>
-      <div className="flex flex-col h-full">
-        <div className="flex flex-col gap-4 flex-grow p-2 md:p-7">
-          <p className="text-medium text-grey-800 font-semibold mb-5">
-            {"Setup Your API Keys & Live Endpoints"->React.string}
+      <ReconConfigurationHelper.SubHeading
+        title="Where do you process your payments?"
+        subTitle="Choose one processor for now. You can connect more processors later"
+      />
+      <div className="flex flex-col h-full gap-y-10">
+        <div className="flex flex-col gap-y-4">
+          <p className="text-base text-gray-700 font-semibold">
+            {"Select a processor"->React.string}
           </p>
           <div className={`grid gap-x-5 gap-y-6 md:grid-cols-2 grid-cols-1`}>
             {connectorList
@@ -78,7 +83,7 @@ module APIKeysAndLiveEndpoints = {
         </div>
         <div className="flex justify-end items-center border-t">
           <ReconConfigurationHelper.Footer
-            currentStep={currentStep} buttonName="Continue" onSubmit={_ => onSubmit()->ignore}
+            currentStep={currentStep} onSubmit={_ => onSubmit()->ignore}
           />
         </div>
       </div>
@@ -123,26 +128,31 @@ module WebHooks = {
     }
 
     let onSubmit = async () => {
-      if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
-        toast("Please upload a file", ToastError)
-      } else {
-        try {
-          setScreenState(_ => PageLoaderWrapper.Loading)
-          let _ = await stepConfig()
-          setCurrentStep(prev => getNextStep(prev))
-        } catch {
-        | Exn.Error(e) =>
-          let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-          setScreenState(_ => PageLoaderWrapper.Error(err))
-        }
-      }
+      // if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
+      //   toast("Please upload a file", ToastError)
+      // } else {
+      //   try {
+      //     setScreenState(_ => PageLoaderWrapper.Loading)
+      //     let _ = await stepConfig()
+      //     setCurrentStep(prev => getNextStep(prev))
+      //   } catch {
+      //   | Exn.Error(e) =>
+      //     let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+      //     setScreenState(_ => PageLoaderWrapper.Error(err))
+      //   }
+      // }
+      setCurrentStep(prev => getNextStep(prev))
     }
 
     <PageLoaderWrapper screenState={screenState}>
-      <div className="flex flex-col h-full">
-        <div className="flex flex-col gap-4 flex-grow p-2 md:p-7">
-          <p className="text-medium text-grey-800 font-semibold mb-5">
-            {"Setup Webhook"->React.string}
+      <ReconConfigurationHelper.SubHeading
+        title="Set up webhook endpoint"
+        subTitle="Configure Hyperswitch endpoint in your processor’s dashboard under webhook settings for us to receive events from the processor"
+      />
+      <div className="flex flex-col h-full gap-y-10">
+        <div className="flex flex-col gap-y-4">
+          <p className="text-base text-gray-700 font-semibold">
+            {"Copy webhook endpoint"->React.string}
           </p>
           <div className="flex items-center">
             {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
@@ -188,7 +198,7 @@ module WebHooks = {
         </div>
         <div className="flex justify-end items-center border-t">
           <ReconConfigurationHelper.Footer
-            currentStep={currentStep} buttonName="Continue" onSubmit={_ => onSubmit()->ignore}
+            currentStep={currentStep} onSubmit={_ => onSubmit()->ignore}
           />
         </div>
       </div>
