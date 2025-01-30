@@ -3,6 +3,33 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.01.30.0
+
+### Features
+
+- Org Sidebar ([#2087](https://github.com/juspay/hyperswitch-control-center/pull/2087)) ([`e42777d`](https://github.com/juspay/hyperswitch-control-center/commit/e42777d725fca85ceafa6da7b03e9185194fddbe))
+- Global font change to InterDisplay ([#2149](https://github.com/juspay/hyperswitch-control-center/pull/2149)) ([`f12ef18`](https://github.com/juspay/hyperswitch-control-center/commit/f12ef187279bdfad8ae20d1a0d128deb49b16200))
+- Granularity options for refunds tab analytics ([#2107](https://github.com/juspay/hyperswitch-control-center/pull/2107)) ([`e177e9a`](https://github.com/juspay/hyperswitch-control-center/commit/e177e9a3cbda717c6207f56c25b8d1e8091b46f5))
+- Granularity options for smart retry tab analytics ([#2106](https://github.com/juspay/hyperswitch-control-center/pull/2106)) ([`5d55571`](https://github.com/juspay/hyperswitch-control-center/commit/5d55571967688f96ab6d04ff8c92ccecf4de8729))
+
+### Miscellaneous Tasks
+
+- Redacted customers details page view ([#2145](https://github.com/juspay/hyperswitch-control-center/pull/2145)) ([`1fbf666`](https://github.com/juspay/hyperswitch-control-center/commit/1fbf666491ebda1b60ac2c7af51c4589f7b3a886))
+
+**Full Changelog:** [`2025.01.29.2...2025.01.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.29.2...2025.01.30.0)
+
+- - -
+
+## 2025.01.29.2
+
+### Miscellaneous Tasks
+
+- Add analytics authentication ([#2158](https://github.com/juspay/hyperswitch-control-center/pull/2158)) ([`0fb9fba`](https://github.com/juspay/hyperswitch-control-center/commit/0fb9fba493a0bc91ee0685efe8a299e8a2830182))
+
+**Full Changelog:** [`2025.01.29.1...2025.01.29.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.29.1...2025.01.29.2)
+
+- - -
+
 ## 2025.01.29.1
 
 ### Bug Fixes

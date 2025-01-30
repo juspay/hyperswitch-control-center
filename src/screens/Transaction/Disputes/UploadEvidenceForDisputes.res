@@ -181,7 +181,6 @@ module UploadDisputeEvidenceModal = {
           buttonType={Primary}
           text="Attach Evidence"
           buttonSize={Small}
-          customButtonStyle="!py-3 !px-2.5"
           buttonState={fileUploadedDict->Dict.keysToArray->Array.length > 0 ? Normal : Disabled}
           onClick={_ => onAttachEvidence()->ignore}
         />
@@ -324,7 +323,6 @@ module DisputesInfoBarComponent = {
                     buttonType={Secondary}
                     text="Attach More"
                     buttonSize={Small}
-                    customButtonStyle="!bg-white"
                     leftIcon={FontAwesome("paper-clip")}
                     onClick={_ => setUploadEvidenceModal(_ => true)}
                   />
@@ -412,7 +410,6 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
         buttonType={Secondary}
         text="Accept Dispute"
         buttonSize={Small}
-        customButtonStyle="!py-3 !px-2.5"
         onClick={_ => handlePopupOpen()}
       />
     </RenderIf>
@@ -420,7 +417,6 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
       buttonType={Primary}
       text="Counter Dispute"
       buttonSize={Small}
-      customButtonStyle="!py-3 !px-2.5"
       onClick={_ => setUploadEvidenceModal(_ => true)}
     />
   </div>

@@ -13,13 +13,16 @@ let make = () => {
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
+    currentProduct,
+    setDefaultProductToSessionStorage,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devThemeFeature, devOrgSidebar} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
     fetchMerchantSpecificConfig,
     useIsFeatureEnabledForMerchant,
@@ -42,9 +45,15 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let maintainenceAlert = featureFlagDetails.maintainenceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
-  let productSidebars = ProductsSidebarValues.useGetSideBarValues()
+  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
+  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~currentProduct)
   sessionExpired := false
+
+  let applyTheme = async () => {
+    if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
+      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+    }
+  }
 
   let setUpDashboard = async () => {
     try {
@@ -54,7 +63,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+      setDefaultProductToSessionStorage()
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -70,6 +79,11 @@ let make = () => {
     setUpDashboard()->ignore
     None
   }, [orgId, merchantId, profileId, themeId])
+
+  React.useEffect(() => {
+    applyTheme()->ignore
+    None
+  }, (themeId, devThemeFeature))
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {
@@ -104,6 +118,9 @@ let make = () => {
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
+              <RenderIf condition={devOrgSidebar}>
+                <OrgSidebar />
+              </RenderIf>
               <RenderIf condition={screenState === Success}>
                 <Sidebar
                   path={url.path}

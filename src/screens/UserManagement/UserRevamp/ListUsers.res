@@ -78,11 +78,11 @@ let make = () => {
           authorization={userHasAccess(~groupAccess=UsersManage)}
           text={"Invite users"}
           buttonType=Primary
+          buttonSize={Medium}
           onClick={_ => {
             mixpanelEvent(~eventName="invite_users")
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users/invite-users"))
           }}
-          customButtonStyle="!w-fit !rounded-md"
         />
       </div>
       <LoadedTable

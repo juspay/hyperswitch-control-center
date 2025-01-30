@@ -24,7 +24,7 @@ let make = () => {
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
-  let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
+  let hswitchTabs = SidebarValues.useGetHsSidebarValues(~isReconEnabled)
   let loader = LottieFiles.useLottieJson("loader-circle.json")
   let {globalSearch, globalSearchFilters} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom

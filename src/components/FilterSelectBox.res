@@ -2162,7 +2162,7 @@ let make = (
   let newInputSelect = input->ffInputToSelectInput
   let newInputRadio = input->ffInputToRadioInput
 
-  let customButtonStyle = "bg-white rounded-lg !px-4 !py-2 !h-10"
+  let customButtonStyle = "!h-10"
 
   if isDropDown {
     <BaseDropdown

@@ -1,41 +1,3 @@
-module OMPCopyTextCustomComp = {
-  @react.component
-  let make = (
-    ~displayValue,
-    ~copyValue=None,
-    ~customTextCss="",
-    ~customParentClass="flex items-center",
-    ~customOnCopyClick=() => (),
-  ) => {
-    let showToast = ToastState.useShowToast()
-    let copyVal = switch copyValue {
-    | Some(val) => val
-    | None => displayValue
-    }
-    let onCopyClick = ev => {
-      ev->ReactEvent.Mouse.stopPropagation
-      Clipboard.writeText(copyVal)
-      customOnCopyClick()
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-    }
-
-    if displayValue->LogicUtils.isNonEmptyString {
-      <div className=customParentClass>
-        <div className=customTextCss> {displayValue->React.string} </div>
-        <img
-          alt="cursor"
-          src={`/assets/copyid.svg`}
-          className="cursor-pointer"
-          onClick={ev => {
-            onCopyClick(ev)
-          }}
-        />
-      </div>
-    } else {
-      "NA"->React.string
-    }
-  }
-}
 module ListBaseComp = {
   @react.component
   let make = (
@@ -74,10 +36,7 @@ module ListBaseComp = {
 
     let subHeadingElement = if subHeading->String.length > maxLength {
       <HelperComponents.EllipsisText
-        displayValue=subHeading
-        endValue
-        showCopy=false
-        customTextStyle={`${textColor} font-extrabold`}
+        displayValue=subHeading endValue showCopy=false customTextStyle={textColor}
       />
     } else {
       {subHeading->React.string}
@@ -100,7 +59,9 @@ module ListBaseComp = {
               description={subHeading}
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
-                <OMPCopyTextCustomComp displayValue=" " copyValue=Some({subHeading}) />
+                <HelperComponents.CopyTextCustomComp
+                  displayValue=" " copyValue=Some({subHeading})
+                />
               </div>}
               toolTipPosition=ToolTip.Right
             />
@@ -173,9 +134,10 @@ module OMPViewBaseComp = {
       {displayName->React.string}
     }
 
-    <div className="text-sm font-medium cursor-pointer px-4">
+    <div
+      className="flex items-center text-sm font-medium cursor-pointer secondary-gradient-border rounded-lg h-40-px">
       <div className="flex flex-col items-start">
-        <div className="text-left flex items-center gap-1">
+        <div className="text-left flex items-center gap-1 p-2">
           <Icon name="settings-new" size=18 />
           <p className="text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
             {`View data for:`->React.string}
@@ -216,9 +178,9 @@ module OMPViewsComp = {
     }
 
     let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
-    let dropdownContainerStyle = "md:rounded-lg md:border md:w-full md:shadow-md"
+    let dropdownContainerStyle = "rounded-lg border md:w-full md:shadow-md"
 
-    <div className="flex h-fit border bg-white rounded-lg py-2 hover:bg-opacity-80">
+    <div className="flex h-fit rounded-lg hover:bg-opacity-80">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText=""
@@ -291,7 +253,7 @@ let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
         description={item.id}
         customStyle="!whitespace-nowrap"
         toolTipFor={<div className="cursor-pointer">
-          <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+          <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
         </div>}
         toolTipPosition=ToolTip.TopRight
       />,
