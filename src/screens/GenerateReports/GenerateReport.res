@@ -13,7 +13,7 @@ let make = (~entityName) => {
     <ACLButton
       text="Generate Reports"
       buttonType={Primary}
-      buttonSize={XSmall}
+      buttonSize=Small
       onClick={_ => {
         setReportModal(_ => true)
         mixpanelEvent(~eventName="generate_reports")

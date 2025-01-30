@@ -39,6 +39,7 @@ let selectInput = (
   ~showBtnTextToolTip=false,
   ~dropdownClassName="",
   ~descriptionOnHover=false,
+  ~buttonSize=Button.Large,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
@@ -72,6 +73,7 @@ let selectInput = (
     showBtnTextToolTip
     dropdownClassName
     descriptionOnHover
+    buttonSize
   />
 }
 

@@ -116,6 +116,12 @@ module CardRenderer = {
         } else {
           paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
         }
+      | (Klarna, PayLater, Processors(KLARNA)) =>
+        if standardProviders->Array.some(obj => checkPaymentMethodTypeAndExperience(obj, method)) {
+          paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
+        } else {
+          paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
+        }
       | (_, Card, _) =>
         if cardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
@@ -167,7 +173,10 @@ module CardRenderer = {
         standardProviders->Array.some(obj =>
           checkPaymentMethodTypeAndExperience(obj, selectedMethod)
         )
-
+      | (PayLater, Processors(KLARNA)) =>
+        standardProviders->Array.some(obj =>
+          checkPaymentMethodTypeAndExperience(obj, selectedMethod)
+        )
       | _ =>
         standardProviders->Array.some(obj => checkPaymentMethodType(obj, selectedMethod)) ||
           cardProviders->Array.some(obj => checkPaymentMethodType(obj, selectedMethod))
@@ -216,13 +225,34 @@ module CardRenderer = {
                   ("data-testid", paymentMethod->String.concat("_")->String.concat("select_all")),
                 ]>
                 <div className="flex gap-2 items-center">
-                  <BoolInput.BaseComponent
-                    isSelected={selectedAll}
-                    setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
-                    isDisabled=false
-                    boolCustomClass="rounded-lg"
-                  />
-                  <p className=p2RegularTextStyle> {"Select all"->React.string} </p>
+                  {switch connector->getConnectorNameTypeFromString {
+                  | Processors(KLARNA) =>
+                    <RenderIf
+                      condition={initialValues
+                      ->getDictFromJsonObject
+                      ->getDictfromDict("metadata")
+                      ->getString("klarna_region", "") === "Europe"}>
+                      <div className="flex gap-2 items-center">
+                        <BoolInput.BaseComponent
+                          isSelected={selectedAll}
+                          setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
+                          isDisabled={false}
+                          boolCustomClass="rounded-lg"
+                        />
+                        <p className={p2RegularTextStyle}> {"Select all"->React.string} </p>
+                      </div>
+                    </RenderIf>
+                  | _ =>
+                    <div className="flex gap-2 items-center">
+                      <BoolInput.BaseComponent
+                        isSelected={selectedAll}
+                        setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
+                        isDisabled={false}
+                        boolCustomClass="rounded-lg"
+                      />
+                      <p className={p2RegularTextStyle}> {"Select all"->React.string} </p>
+                    </div>
+                  }}
                 </div>
               </AddDataAttributes>
             </RenderIf>
@@ -258,9 +288,26 @@ module CardRenderer = {
                   ),
                 ]>
                 <div className="flex items-center gap-2">
-                  <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
-                    <CheckBoxIcon isSelected={isSelected(value)} />
-                  </div>
+                  {switch connector->getConnectorNameTypeFromString {
+                  | Processors(KLARNA) =>
+                    <RenderIf
+                      condition={!(
+                        value.payment_experience->Option.getOr("") === "redirect_to_url" &&
+                          initialValues
+                          ->getDictFromJsonObject
+                          ->getDictfromDict("metadata")
+                          ->getString("klarna_region", "") !== "Europe"
+                      )}>
+                      <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
+                        <CheckBoxIcon isSelected={isSelected(value)} />
+                      </div>
+                    </RenderIf>
+
+                  | _ =>
+                    <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
+                      <CheckBoxIcon isSelected={isSelected(value)} />
+                    </div>
+                  }}
                   {switch (
                     value.payment_method_type->getPaymentMethodTypeFromString,
                     paymentMethod->getPaymentMethodFromString,
@@ -274,6 +321,24 @@ module CardRenderer = {
                         ? "PayPal Redirect"->React.string
                         : "PayPal SDK"->React.string}
                     </p>
+                  | (Klarna, PayLater, Processors(KLARNA)) =>
+                    <RenderIf
+                      condition={!(
+                        value.payment_experience->Option.getOr("") === "redirect_to_url" &&
+                          initialValues
+                          ->getDictFromJsonObject
+                          ->getDictfromDict("metadata")
+                          ->getString("klarna_region", "") !== "Europe"
+                      )}>
+                      <p
+                        className={`${p2RegularTextStyle} cursor-pointer`}
+                        onClick={_ => removeOrAddMethods(value)}>
+                        {value.payment_experience->Option.getOr("") === "redirect_to_url"
+                          ? "Klarna Checkout"->React.string
+                          : "Klarna SDK"->React.string}
+                      </p>
+                    </RenderIf>
+
                   | (OpenBankingPIS, _, _) =>
                     <p
                       className={`${p2RegularTextStyle} cursor-pointer`}

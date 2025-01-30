@@ -189,9 +189,7 @@ module ApiKeyAddBtn = {
         text="Create New API Key"
         leftIcon={CustomIcon(
           <Icon
-            name="plus"
-            size=12
-            className="jp-gray-900 fill-opacity-50 mr-2 mb-1 dark:jp-gray-text_darktheme"
+            name="plus" size=12 className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
           />,
         )}
         // TODO: Remove `MerchantDetailsManage` permission in future
