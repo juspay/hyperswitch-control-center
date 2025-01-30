@@ -256,7 +256,10 @@ let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   <>
     <Button
-      text="Manage user" buttonType=Secondary buttonSize=Medium onClick={_ => setShowModal(_ => true)}
+      text="Manage user"
+      buttonType=Secondary
+      buttonSize=Medium
+      onClick={_ => setShowModal(_ => true)}
     />
     <RenderIf condition={showModal}>
       <ManageUserModal userInfoValue showModal setShowModal />
