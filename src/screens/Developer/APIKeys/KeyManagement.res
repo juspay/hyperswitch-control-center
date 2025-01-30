@@ -191,7 +191,7 @@ module ApiKeyAddBtn = {
           <Icon
             name="plus"
             size=12
-            className="jp-gray-900 fill-opacity-50 mr-2 mb-1 dark:jp-gray-text_darktheme"
+            className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
           />,
         )}
         // TODO: Remove `MerchantDetailsManage` permission in future

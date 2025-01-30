@@ -188,13 +188,11 @@ module IndicationArrow = {
       }
     }
 
-    let customButtonStyle = "text-black cursor-pointer border-2 border-black-900 !px-2 py-1.5 !rounded-lg"
     <RenderIf condition={isMobileView}>
       <div className>
         <Button
           buttonType=Secondary
           buttonState={isVisible ? Normal : Disabled}
-          customButtonStyle
           leftIcon={FontAwesome(iconName)}
           onClick
           flattenBottom=true

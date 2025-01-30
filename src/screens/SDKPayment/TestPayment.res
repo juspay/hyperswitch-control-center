@@ -27,7 +27,7 @@ module BasicAccountSetupSuccessfulPage = {
           text=buttonText
           buttonSize={Large}
           buttonType={Primary}
-          customButtonStyle="!rounded-md w-full"
+          customButtonStyle="w-full"
           onClick={_ => buttonOnClick()}
           buttonState
         />

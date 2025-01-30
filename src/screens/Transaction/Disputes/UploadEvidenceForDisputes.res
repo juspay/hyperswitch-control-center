@@ -323,7 +323,6 @@ module DisputesInfoBarComponent = {
                     buttonType={Secondary}
                     text="Attach More"
                     buttonSize={Small}
-                    customButtonStyle="!bg-white"
                     leftIcon={FontAwesome("paper-clip")}
                     onClick={_ => setUploadEvidenceModal(_ => true)}
                   />
