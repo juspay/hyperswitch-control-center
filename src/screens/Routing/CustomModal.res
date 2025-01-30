@@ -13,7 +13,7 @@ module RoutingCustomModal = {
     <Modal
       showModal
       setShowModal
-      modalClass="w-full md:w-4/12 mx-auto my-40 border-t-8 border-t-orange-960 rounded-xl">
+      modalClass="w-full md:w-4/12 mx-auto my-auto border-t-8 border-t-orange-960 rounded-xl">
       <div className="relative flex items-start px-4 pb-10 pt-8 gap-4">
         <Icon name=leftIcon size=iconSize className="w-8" onClick={_ => setShowModal(_ => false)} />
         <div className="flex flex-col gap-5">

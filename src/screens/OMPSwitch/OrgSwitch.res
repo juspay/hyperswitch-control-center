@@ -284,7 +284,7 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options={orgList->generateDropdownOptions(~customIconColor="text-grey-200")}
+      options={orgList->generateDropdownOptions(~customIconCss="text-grey-200")}
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false

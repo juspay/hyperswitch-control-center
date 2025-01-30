@@ -167,10 +167,9 @@ module CopyLinkTableCell = {
               </span>
             </div>
           </RenderIf>
-          <img
-            alt="CopyToClipboard"
-            src={`/assets/CopyToClipboard.svg`}
-            className="cursor-pointer opacity-70 hover:opacity-100 py-1"
+          <Icon
+            name="nd-copy"
+            className="cursor-pointer  opacity-70 hover:opacity-100 py-1"
             onClick={ev => {
               onCopyClick(ev)
             }}

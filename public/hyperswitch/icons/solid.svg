@@ -9171,4 +9171,13 @@ License)
       stroke-linejoin="round"
     />
   </symbol>
+
+<symbol id="nd-arrow-right" width="11" height="8" viewBox="0 0 11 8" fill="none">
+<path d="M7.21687 0.75C8.35621 1.5926 9.37951 2.57692 10.2615 3.67808C10.3372 3.77254 10.375 3.88627 10.375 4M7.21687 7.25C8.35621 6.4074 9.37951 5.42308 10.2615 4.32192C10.3372 4.22746 10.375 4.11373 10.375 4M10.375 4L0.625 4" stroke="currentColor" stroke-width="1.08333" stroke-linecap="round" stroke-linejoin="round"/>
+</symbol>
+
+<symbol id="nd-plus" width="16" height="17" viewBox="0 0 16 17" fill="none">
+<path d="M7.99992 13.1667V8.5M7.99992 8.5V3.83333M7.99992 8.5L3.33325 8.5M7.99992 8.5L12.6666 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</symbol>
+
 </svg>

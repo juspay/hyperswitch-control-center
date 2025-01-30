@@ -116,8 +116,8 @@ module SampleEmail = {
             {isTextVisible ? truncatedText->React.string : truncatedTextElement}
           </span>
         </div>
-        <img
-          src={`/assets/CopyToClipboard.svg`}
+        <Icon
+          name="nd-copy"
           className="cursor-pointer h-fit w-fit"
           onClick={_ => {
             Clipboard.writeText(emailContent)
