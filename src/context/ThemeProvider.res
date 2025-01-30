@@ -275,7 +275,7 @@ let make = (~children) => {
                 defaultSettings.sidebar.hoverColor,
               ),
               "primaryTextColor": dict->getString(
-                "sidebar_primary_textColor",
+                "sidebar_primary_text_color",
                 defaultSettings.sidebar.primaryTextColor,
               ),
               "secondaryTextColor": dict->getString(
