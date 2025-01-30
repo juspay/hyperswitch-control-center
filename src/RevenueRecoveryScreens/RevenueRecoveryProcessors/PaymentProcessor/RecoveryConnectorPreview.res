@@ -46,13 +46,11 @@ let make = (
   ~isUpdateFlow,
   ~showMenuOption=true,
   ~setInitialValues,
-  ~getPayPalStatus,
   ~getConnectorDetails=None,
 ) => {
   open APIUtils
   open ConnectorUtils
-  let {feedback, paypalAutomaticFlow} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {feedback} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -108,15 +106,8 @@ let make = (
         </h2>
       </div>
       <div className="self-center">
-        {switch (
-          currentStep,
-          connector->getConnectorNameTypeFromString,
-          connectorInfo.status,
-          paypalAutomaticFlow,
-        ) {
-        | (Preview, Processors(PAYPAL), "inactive", true) =>
-          <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
-        | (Preview, _, _, _) =>
+        {switch (currentStep, connector->getConnectorNameTypeFromString, connectorInfo.status) {
+        | (Preview, _, _) =>
           <div className="flex gap-6 items-center">
             <div
               className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
