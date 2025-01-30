@@ -53,7 +53,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
 
   {
     if !isMobileView {
-      <ButtonGroup>
+      <ButtonGroup wrapperClass="flex flex-row gap-x-1.5">
         <Button
           leftIcon
           buttonType
@@ -62,7 +62,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           } else {
             Disabled
           }}
-          customButtonStyle="!h-10"
+          customButtonStyle="!h-10 !w-12 secondary-gradient-border !border-0"
           onClick={_ => paginate(Math.Int.max(1, currentPage - 1))}
         />
         {pageNumbers
@@ -75,7 +75,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
             text={number->Int.toString}
             onClick={_ => paginate(number)}
             buttonType
-            customButtonStyle="!h-10 border-left-1 border-right-1"
+            customButtonStyle="!h-10 !w-12 secondary-gradient-border !border-0"
             buttonState={if isSelected {
               NoHover
             } else {
@@ -88,7 +88,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           rightIcon
           buttonType
           onClick={_ => paginate(currentPage + 1)}
-          customButtonStyle="!h-10"
+          customButtonStyle="!h-10 !w-12 secondary-gradient-border !border-0"
           buttonState={if currentPage < Array.length(pageNumbers) {
             Normal
           } else {

@@ -143,6 +143,7 @@ type paymentMethodTypes =
   | ApplePay
   | SamsungPay
   | PayPal
+  | Klarna
   | BankDebit
   | OpenBankingPIS
   | Paze
