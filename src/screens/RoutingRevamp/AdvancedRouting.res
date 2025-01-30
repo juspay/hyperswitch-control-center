@@ -784,7 +784,7 @@ let make = (
                             onClick={_ => {
                               handleActivateConfiguration(routingRuleId)->ignore
                             }}
-                            customButtonStyle="w-1/5 rounded-sm"
+                            customButtonStyle="w-1/5"
                             buttonState=Normal
                           />
                         </RenderIf>
@@ -795,7 +795,7 @@ let make = (
                             onClick={_ => {
                               handleDeactivateConfiguration()->ignore
                             }}
-                            customButtonStyle="w-1/5 rounded-sm"
+                            customButtonStyle="w-1/5"
                             buttonState=Normal
                           />
                         </RenderIf>

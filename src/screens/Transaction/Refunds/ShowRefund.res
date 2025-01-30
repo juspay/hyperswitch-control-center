@@ -174,7 +174,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                 name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
               />,
             )}
-            customButtonStyle="!w-fit !px-4"
             buttonType={Primary}
             onClick={_ => syncData()}
           />

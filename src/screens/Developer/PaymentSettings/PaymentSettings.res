@@ -167,7 +167,7 @@ module WebHookAuthenticationHeaders = {
             customBackColor="bg-transparent"
             rightIcon={FontAwesome("edit")}
             customIconSize={18}
-            buttonSize={XSmall}
+            buttonSize=Small
             onClick={_ => setShowModal(_ => true)}
           />
         </RenderIf>
