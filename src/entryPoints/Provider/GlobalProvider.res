@@ -15,6 +15,8 @@ let defaultValue = {
   setPermissionInfo: _ => (),
   isProdIntentCompleted: None,
   setIsProdIntentCompleted: _ => (),
+  currentProduct: Orchestrator,
+  setCurrentProduct: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -30,7 +32,7 @@ let make = (~children) => {
   let (dashboardPageState, setDashboardPageState) = React.useState(_ => #DEFAULT)
   let (permissionInfo, setPermissionInfo) = React.useState(_ => [])
   let (isProdIntentCompleted, setIsProdIntentCompleted) = React.useState(_ => None)
-
+  let (currentProduct, setCurrentProduct) = React.useState(_ => Orchestrator)
   let (integrationDetails, setIntegrationDetails) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->ProviderHelper.getIntegrationDetails
   )
@@ -49,6 +51,8 @@ let make = (~children) => {
       setPermissionInfo,
       isProdIntentCompleted,
       setIsProdIntentCompleted,
+      currentProduct,
+      setCurrentProduct,
     }>
     children
   </Provider>

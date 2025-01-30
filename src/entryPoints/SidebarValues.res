@@ -21,7 +21,7 @@ module GetProductionAccess = {
     switch isProdIntentCompleted {
     | Some(_) =>
       <div
-        className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 m-2 ml-2 mb-3 !mx-4 whitespace-nowrap rounded`}
+        className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 whitespace-nowrap rounded`}
         onClick={_ => {
           isProdIntent
             ? ()
@@ -45,6 +45,16 @@ module GetProductionAccess = {
   }
 }
 
+module ProductHeaderComponent = {
+  @react.component
+  let make = () => {
+    let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
+
+    <div className={`text-sm font-semibold px-3 pt-6 pb-2 text-nd_gray-400`}>
+      {React.string(currentProduct->SidebarUtils.getStringFromVariant->String.toUpperCase)}
+    </div>
+  }
+}
 let emptyComponent = CustomComponent({
   component: React.null,
 })
@@ -67,7 +77,7 @@ let home = isHomeEnabled =>
   isHomeEnabled
     ? Link({
         name: "Home",
-        icon: "hswitch-home",
+        icon: "nd-home",
         link: "/home",
         access: Access,
       })
@@ -250,7 +260,7 @@ let connectors = (
   isConnectorsEnabled
     ? Section({
         name: "Connectors",
-        icon: "connectors",
+        icon: "nd-connectors",
         showSection: true,
         links: connectorLinkArray,
       })
@@ -618,9 +628,8 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
   }
 }
 
-let useGetSidebarValues = (~isReconEnabled: bool) => {
+let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {
@@ -647,7 +656,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let isNewAnalyticsEnable =
     newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
-    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess),
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(
@@ -678,4 +686,27 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   ]
 
   sidebar
+}
+
+let useGetSidebarValuesForCurrentActive = (
+  ~currentActiveProduct: ProviderTypes.productTypes,
+  ~isReconEnabled,
+) => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {isLiveMode} = featureFlagDetails
+
+  let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
+  let defaultSidebar = [
+    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess),
+    CustomComponent({
+      component: <ProductHeaderComponent />,
+    }),
+  ]
+  let sidebarValuesForProduct = switch currentActiveProduct {
+  | Orchestrator => hsSidebars
+  | Recon => [ReconSidebarValues.reconSidebars]
+  | Recovery => [RevenueRecoverySidebarValues.recoverySidebars]
+  }
+  defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

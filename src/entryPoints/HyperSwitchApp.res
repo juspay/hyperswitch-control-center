@@ -13,6 +13,7 @@ let make = () => {
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
+    currentProduct,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
@@ -43,8 +44,11 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let maintainenceAlert = featureFlagDetails.maintainenceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
-  let productSidebars = ProductsSidebarValues.useGetSideBarValues()
+  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(
+    ~currentActiveProduct=currentProduct,
+    ~isReconEnabled,
+  )
+  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~currentProduct)
   sessionExpired := false
   let applyTheme = async () => {
     if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
