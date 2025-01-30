@@ -44,7 +44,7 @@ let make = (
   let rounded_top_border = "rounded-t-xl"
 
   let btnWidthClass = isMobileView ? "w-full" : ""
-  let customButtonStyle = `px-2 py-0 h-9 rounded-md ${btnWidthClass}`
+  let customButtonStyle = `${btnWidthClass}`
   let textStyle = "font-medium text-fs-13"
   let showModal = showPopUp ? "flex" : "hidden"
   let popupMargin = isMobileView ? "pt-4 pl-4" : "pr-4 pl-8 pt-6"

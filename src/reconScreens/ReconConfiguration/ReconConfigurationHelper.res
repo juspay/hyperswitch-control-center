@@ -203,7 +203,7 @@ module Footer = {
           // />
           <Button
             text={buttonName}
-            customButtonStyle="rounded w-90-px"
+            customButtonStyle="w-90-px"
             buttonType={Primary}
             onClick={onSubmit}
           />

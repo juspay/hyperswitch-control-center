@@ -19,7 +19,6 @@ let make = () => {
       buttonType=Primary
       buttonSize=Large
       buttonState=Normal
-      customButtonStyle="rounded-md"
     />
     <img alt="reconLanding" className="w-full" src="/assets/reconLanding.svg" />
   </div>

@@ -88,7 +88,6 @@ module InviteForMultipleInvitation = {
             <Button
               text="Accept Invites"
               buttonType={Primary}
-              customButtonStyle="!w-fit"
               onClick={_ => {
                 acceptInvite(acceptedInvites)->ignore
               }}

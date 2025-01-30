@@ -71,10 +71,10 @@ module SidebarSubOption = {
           ? "transition duration-[250ms] animate-textTransitionSideBar"
           : "transition duration-[1000ms] animate-textTransitionSideBarOff"} ${isSideBarExpanded
           ? "mx-2"
-          : "mx-1"} border-l-2 border-light_grey`}>
+          : "mx-1"} border-light_grey `}>
       <div className="w-6" />
       <div
-        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 rounded-sm flex items-center ${hoverColor} whitespace-nowrap my-0.5 `}>
+        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 flex items-center ${hoverColor} whitespace-nowrap my-0.5 rounded-md`}>
         {React.string(name)}
         {children}
       </div>
@@ -84,7 +84,13 @@ module SidebarSubOption = {
 
 module SidebarItem = {
   @react.component
-  let make = (~tabInfo, ~isSelected, ~isSidebarExpanded, ~setOpenItem=_ => ()) => {
+  let make = (
+    ~tabInfo,
+    ~isSelected,
+    ~isSidebarExpanded,
+    ~setOpenItem=_ => (),
+    ~onItemClickCustom=_ => (),
+  ) => {
     let {devOrgSidebar} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let addOpacity = !devOrgSidebar ? "opacity-70" : ""
     let sidebarItemRef = React.useRef(Nullable.null)
@@ -117,6 +123,7 @@ module SidebarItem = {
         let onSidebarItemClick = _ => {
           isMobileView ? setIsSidebarExpanded(_ => false) : ()
           setOpenItem(prev => {prev == name ? "" : name})
+          onItemClickCustom()
         }
 
         <RenderIf condition={access !== NoAccess}>
@@ -233,7 +240,7 @@ module NestedSidebarItem = {
                 <div
                   ref={nestedSidebarItemRef->ReactDOM.Ref.domRef}
                   onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
-                  className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg ${paddingClass} ${selectedClass}`}>
+                  className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg ${paddingClass} ${selectedClass} `}>
                   <SidebarSubOption name isSectionExpanded isSelected isSideBarExpanded>
                     <RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
                       <div className=linkTagPadding>
@@ -308,7 +315,7 @@ module NestedSectionItem = {
               ? ""
               : sectionExpandedAnimation} border-l-2 ${isAnySubItemSelected
               ? "border-white"
-              : "border-transparent"} ${hoverColor}`}
+              : "border-transparent"} ${hoverColor} `}
           onClick=toggleSectionExpansion>
           <div className="flex-row items-center select-none min-w-max flex  gap-5">
             {if isSideBarExpanded {
@@ -497,6 +504,7 @@ let make = (
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+  let {setCurrentProductValue} = React.useContext(GlobalProvider.defaultContext)
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -558,6 +566,11 @@ let make = (
 }
   `
 
+  let onItemClickCustom = (valueSelected: SidebarTypes.optionType) => {
+    open ProductUtils
+    setCurrentProductValue(getVariantFromString(valueSelected.name))
+  }
+
   <div
     className={`${backgroundColor.sidebarNormal} flex group border-r border-jp-gray-200 relative `}>
     <div
@@ -589,7 +602,7 @@ let make = (
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
           style={height: `calc(100vh - ${verticalOffset})`}>
           <style> {React.string(sidebarScrollbarCss)} </style>
-          <div>
+          <div className="p-2.5">
             {sidebars
             ->Array.mapWithIndex((tabInfo, index) => {
               switch tabInfo {
@@ -636,28 +649,44 @@ let make = (
             })
             ->React.array}
           </div>
-          <div className={`border-t border-gray-600 border-opacity-20 mt-5`}>
-            {productSiebars
-            ->Array.mapWithIndex((tabInfo, index) => {
-              switch tabInfo {
-              | Section(section) =>
-                <RenderIf condition={section.showSection} key={Int.toString(index)}>
-                  <SidebarNestedSection
-                    key={Int.toString(index)}
-                    section
-                    linkSelectionCheck
-                    firstPart
-                    isSideBarExpanded={isSidebarExpanded}
-                    openItem
-                    setOpenItem
-                    isSectionAutoCollapseEnabled=true
-                  />
-                </RenderIf>
-              | _ => React.null
-              }
-            })
-            ->React.array}
-          </div>
+          <RenderIf condition={productSiebars->Array.length > 0}>
+            <div className={"p-2.5"}>
+              <div className={`text-sm font-semibold px-3 pt-6 pb-2 text-nd_gray-400`}>
+                {React.string("Other modular services"->String.toUpperCase)}
+              </div>
+              {productSiebars
+              ->Array.mapWithIndex((tabInfo, index) => {
+                switch tabInfo {
+                | Section(section) =>
+                  <RenderIf condition={section.showSection} key={Int.toString(index)}>
+                    <SidebarNestedSection
+                      key={Int.toString(index)}
+                      section
+                      linkSelectionCheck
+                      firstPart
+                      isSideBarExpanded={isSidebarExpanded}
+                      openItem
+                      setOpenItem
+                      isSectionAutoCollapseEnabled=true
+                    />
+                  </RenderIf>
+                | Link(record) => {
+                    let isSelected = linkSelectionCheck(firstPart, record.link)
+                    <SidebarItem
+                      key={Int.toString(index)}
+                      tabInfo
+                      isSelected
+                      isSidebarExpanded
+                      setOpenItem
+                      onItemClickCustom={_ => onItemClickCustom(record)}
+                    />
+                  }
+                | _ => React.null
+                }
+              })
+              ->React.array}
+            </div>
+          </RenderIf>
         </div>
         <div className={`flex items-center justify-between mb-5 mt-2 mx-2 mr-2 ${hoverColor}`}>
           <RenderIf condition={isSidebarExpanded}>

@@ -769,18 +769,16 @@ module Base = {
                 className="flex flex-row flex-wrap gap-3 bg-white dark:bg-jp-gray-lightgray_background px-3 mt-3 mb-1 align-center justify-end ">
                 <Button
                   text="Cancel"
-                  customButtonStyle="rounded-lg"
                   buttonType=Secondary
                   buttonState=Normal
-                  buttonSize=XSmall
+                  buttonSize=Small
                   onClick={cancelButton}
                 />
                 <Button
                   text="Apply"
-                  customButtonStyle="rounded-lg"
                   buttonType=Primary
                   buttonState={endDate->LogicUtils.isEmptyString ? Disabled : Normal}
-                  buttonSize=XSmall
+                  buttonSize=Small
                   onClick={handleApply}
                 />
               </div>
@@ -805,7 +803,7 @@ module Base = {
                 text={isMobileView && textHideInMobileView ? "" : buttonText}
                 leftIcon={CustomIcon(<Icon name="calendar-filter" size=22 />)}
                 rightIcon={CustomIcon(iconElement)}
-                buttonSize=XSmall
+                buttonSize=Large
                 isDropdownOpen=isDropdownExpandedActual
                 onClick={_ => handleDropdownClick()}
                 iconBorderColor={customborderCSS}

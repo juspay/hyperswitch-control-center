@@ -25,9 +25,9 @@ module BasicAccountSetupSuccessfulPage = {
       <RenderIf condition={isButtonVisible}>
         <Button
           text=buttonText
-          buttonSize={Small}
+          buttonSize={Large}
           buttonType={Primary}
-          customButtonStyle="!rounded-md"
+          customButtonStyle="w-full"
           onClick={_ => buttonOnClick()}
           buttonState
         />
