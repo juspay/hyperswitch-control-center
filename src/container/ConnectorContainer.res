@@ -126,7 +126,7 @@ let make = () => {
         <EntityScaffold
           entityName="Routing"
           remainingPath
-          renderList={() => <RoutingStack remainingPath />}
+          renderList={() => <RoutingStack />}
           renderShow={(routingType, _) => <RoutingConfigure routingType />}
         />
       </AccessControl>

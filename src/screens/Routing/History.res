@@ -1,13 +1,13 @@
 open HistoryEntity
 module HistoryTable = {
   @react.component
-  let make = (~records, ~activeRoutingIds: array<string>) => {
+  let make = (~records, ~activeRoutingIds: array<string>, ~customTitle) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let (offset, setOffset) = React.useState(_ => 0)
 
     <LoadedTable
-      title="History"
-      hideTitle=true
+      title={customTitle}
+      hideTitle=false
       actualData=records
       entity={historyEntity(
         activeRoutingIds,
@@ -47,6 +47,6 @@ module BreadCrumbWrapper = {
 }
 
 @react.component
-let make = (~records, ~activeRoutingIds: array<string>) => {
-  <HistoryTable records activeRoutingIds />
+let make = (~records, ~activeRoutingIds: array<string>, ~customTitle) => {
+  <HistoryTable records activeRoutingIds customTitle />
 }

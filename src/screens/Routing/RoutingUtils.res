@@ -91,20 +91,20 @@ let getModalObj = (routingType, text) => {
 let getContent = routetype =>
   switch routetype {
   | DEFAULTFALLBACK => {
-      heading: "Default fallback ",
-      subHeading: "Fallback is a priority order of all the configured processors which is used to route traffic standalone or when other routing rules are not applicable. You can reorder the list with simple drag and drop",
+      heading: "Default Fallback ",
+      subHeading: "Automatically routes payments using a prioritized list of processors when no rules apply",
     }
   | PRIORITY => {
       heading: "Rank Based Configuration",
-      subHeading: "Fallback is activated when the above routing conditions happen to be false.",
+      subHeading: "Fallback is activated when the above routing conditions happen to be false",
     }
   | VOLUME_SPLIT => {
       heading: "Volume Based Configuration",
-      subHeading: "Route traffic across various processors by volume distribution",
+      subHeading: "Distribute transactions across multiple processors based on volume allocation",
     }
   | ADVANCED => {
       heading: "Rule Based Configuration",
-      subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
+      subHeading: "Configure routing rules based on payment conditions and processor preferences",
     }
   | _ => {
       heading: "",

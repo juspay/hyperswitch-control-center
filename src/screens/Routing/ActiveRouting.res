@@ -81,84 +81,79 @@ module ActiveSection = {
     }
 
     let profileId = activeRouting->getDictFromJsonObject->getString("profile_id", "")
-
-    <div
-      className="relative flex flex-col flex-wrap bg-white border rounded w-full px-6 py-10 gap-12">
-      <div>
-        <div
-          className="absolute top-0 left-0 bg-green-700 text-white py-2 px-4 rounded-br font-semibold">
-          {"ACTIVE"->React.string}
-        </div>
-        <div className="flex flex-col my-6 pt-4 gap-2">
-          <div className=" flex gap-4  align-center">
-            <p className="text-lightgray_background font-semibold text-base">
-              {`${routingName}${getContent(activeRoutingType).heading}`->React.string}
-            </p>
-            <Icon name="primary-tag" size=25 className="w-20" />
-          </div>
-          <RenderIf condition={profileId->isNonEmptyString}>
-            <div className="flex gap-2">
-              <HelperComponents.BusinessProfileComponent
-                profile_id={profileId} className="text-lightgray_background  opacity-50 text-sm"
-              />
-              <p className="text-lightgray_background  opacity-50 text-sm">
-                {`: ${profileId}`->React.string}
+    let {profile_name} = BusinessProfileHook.useGetBusinessProflile(profileId)
+    <>
+      <div className="font-bold text-black mt-2 text-lg">
+        {"Current Active Configurations"->React.string}
+      </div>
+      <div className="relative flex flex-col flex-wrap bg-white border rounded w-full px-6 pt-3 ">
+        <div className="flex flex-row justify-between">
+          <div className="flex flex-col my-2">
+            <div className="flex align-center">
+              <p className="text-jp-gray-900 font-semibold">
+                {`${routingName}${getContent(activeRoutingType).heading}`->React.string}
               </p>
             </div>
-          </RenderIf>
-        </div>
-        <div className="text-lightgray_background font-medium text-base opacity-50 text-fs-14 ">
-          {`${getContent(activeRoutingType).heading} : ${getContent(
-              activeRoutingType,
-            ).subHeading}`->React.string}
-        </div>
-        <div className="flex gap-5 pt-6 w-1/4">
-          <ACLButton
-            authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-            text="Manage"
-            buttonType=Secondary
-            customButtonStyle="w-2/3"
-            buttonSize={Small}
-            onClick={_ => {
-              switch activeRoutingType {
-              | DEFAULTFALLBACK =>
-                RescriptReactRouter.push(
-                  GlobalVars.appendDashboardPath(
-                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
-                  ),
-                )
-              | _ =>
-                RescriptReactRouter.push(
-                  GlobalVars.appendDashboardPath(
-                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(
-                        activeRoutingType,
-                      )}?id=${activeRoutingId}&isActive=true`,
-                  ),
-                )
-              }
-            }}
-          />
+            <RenderIf condition={profileId->isNonEmptyString}>
+              <div className="flex gap-2 mt-2 ">
+                <div className="font-semibold text-sm text-jp-gray-800">
+                  {"Profile:"->React.string}
+                </div>
+                <div className="flex flex-row text-lightgray_background opacity-50 text-sm">
+                  <HelperComponents.CopyTextCustomComp
+                    displayValue={profile_name}
+                    customTextCss="font-semibold text-jp-gray-800 "
+                    customParentClass="flex items-center gap-2"
+                  />
+                </div>
+              </div>
+            </RenderIf>
+          </div>
+          <div className="gap-5 pt-2 w-1/4">
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+              text="Manage"
+              buttonType=Secondary
+              customButtonStyle="w-2/3"
+              buttonSize={Small}
+              onClick={_ => {
+                switch activeRoutingType {
+                | DEFAULTFALLBACK =>
+                  RescriptReactRouter.push(
+                    GlobalVars.appendDashboardPath(
+                      ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
+                    ),
+                  )
+                | _ =>
+                  RescriptReactRouter.push(
+                    GlobalVars.appendDashboardPath(
+                      ~url=`/${onRedirectBaseUrl}/${routingTypeName(
+                          activeRoutingType,
+                        )}?id=${activeRoutingId}&isActive=true`,
+                    ),
+                  )
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   }
 }
 
 module LevelWiseRoutingSection = {
   @react.component
   let make = (~types: array<routingType>, ~onRedirectBaseUrl) => {
-    <div className="flex flex-col flex-wrap  rounded w-full py-6 gap-5">
+    <div className="flex flex-col flex-wrap  rounded w-full  gap-5">
       <div className="flex flex-wrap justify-evenly gap-9 items-stretch">
         {types
         ->Array.mapWithIndex((value, index) =>
           <div
             key={index->Int.toString}
-            className="flex flex-1 flex-col  bg-white border rounded px-5 py-5 gap-8">
+            className="flex flex-1 flex-col  bg-white border rounded px-5 pb-3 gap-8">
             <div className="flex flex-1 flex-col gap-7">
-              <div className="flex w-full items-center flex-wrap justify-between ">
-                <TopLeftIcons routeType=value />
-                <TopRightIcons routeType=value />
-              </div>
+              <div className="flex w-full items-center flex-wrap justify-between " />
               <div className="flex flex-1 flex-col gap-3">
                 <p className="text-base font-semibold text-lightgray_background">
                   {getContent(value).heading->React.string}
@@ -179,7 +174,7 @@ module LevelWiseRoutingSection = {
 
 @react.component
 let make = (~routingType: array<JSON.t>) => {
-  <div className="mt-4 flex flex-col gap-6">
+  <div className="mt-4 flex flex-col gap-2">
     {routingType
     ->Array.mapWithIndex((ele, i) => {
       let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")

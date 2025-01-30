@@ -1,6 +1,6 @@
 open APIUtils
 @react.component
-let make = (~remainingPath, ~previewOnly=false) => {
+let make = (~previewOnly=false) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
@@ -10,36 +10,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])
   let (routingType, setRoutingType) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (tabIndex, setTabIndex) = React.useState(_ => 0)
-
-  let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
 
   let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
-
-  let tabs: array<Tabs.tab> = React.useMemo(() => {
-    open Tabs
-    [
-      {
-        title: "Manage rules",
-        renderContent: () => {
-          records->Array.length > 0
-            ? <History records activeRoutingIds />
-            : <DefaultLandingPage
-                height="90%"
-                title="No Routing Rule Configured!"
-                customStyle="py-16"
-                overriddingStylesTitle="text-3xl font-semibold"
-              />
-        },
-      },
-      {
-        title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType />,
-      },
-    ]
-  }, [routingType])
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -114,38 +88,37 @@ let make = (~remainingPath, ~previewOnly=false) => {
     None
   }, (pathVar, url.search))
 
-  let getTabName = index => index == 0 ? "active" : "history"
-
   <PageLoaderWrapper screenState>
     <div className={`${widthClass} ${marginClass} gap-2.5`}>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col ">
         <PageUtils.PageHeading
-          title="Smart routing configuration"
-          subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
+          title="Smart Routing"
+          subTitle="Smart Routing optimizes payment traffic across processors to boost success rates and reduce costs, offering flexible and reliable control"
         />
-        <ActiveRouting.LevelWiseRoutingSection
-          types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="routing"
-        />
+        <RenderIf condition={!previewOnly}>
+          <ActiveRouting routingType />
+        </RenderIf>
+        <div className="mt-6">
+          <div className="font-bold text-black my-2 text-lg">
+            {"Smart Routing Configurations"->React.string}
+          </div>
+          <ActiveRouting.LevelWiseRoutingSection
+            types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="routing"
+          />
+        </div>
       </div>
       <RenderIf condition={!previewOnly}>
-        <div className="flex flex-col gap-12">
-          <EntityScaffold
-            entityName="HyperSwitch Priority Logic"
-            remainingPath
-            renderList={() =>
-              <Tabs
-                initialIndex={tabIndex >= 0 ? tabIndex : 0}
-                tabs
-                showBorder=false
-                includeMargin=false
-                lightThemeColor="black"
-                defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-                onTitleClick={indx => {
-                  setTabIndex(_ => indx)
-                  setCurrentTabName(_ => getTabName(indx))
-                }}
-              />}
-          />
+        <div className="flex flex-col gap-3 mt-4">
+          {if records->Array.length > 0 {
+            <History records activeRoutingIds customTitle={"Manage Configurations"} />
+          } else {
+            <DefaultLandingPage
+              height="90%"
+              title="No Routing Rule Configured!"
+              customStyle="py-16"
+              overriddingStylesTitle="text-3xl font-semibold"
+            />
+          }}
         </div>
       </RenderIf>
     </div>
