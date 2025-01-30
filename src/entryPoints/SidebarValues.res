@@ -51,7 +51,7 @@ module ProductHeaderComponent = {
     let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
 
     <div className={`text-sm font-semibold px-3 pt-6 pb-2 text-nd_gray-400`}>
-      {React.string(currentProduct->SidebarUtils.getStringFromVariant->String.toUpperCase)}
+      {React.string(currentProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
     </div>
   }
 }

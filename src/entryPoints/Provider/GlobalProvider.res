@@ -29,6 +29,7 @@ module Provider = {
 @react.component
 let make = (~children) => {
   open SessionStorage
+  open ProductTypes
   let (showFeedbackModal, setShowFeedbackModal) = React.useState(_ => false)
   let (showProdIntentForm, setShowProdIntentForm) = React.useState(_ => false)
   let (dashboardPageState, setDashboardPageState) = React.useState(_ => #DEFAULT)
@@ -41,11 +42,11 @@ let make = (~children) => {
 
   let setCurrentProductValue = product => {
     setCurrentProduct(_ => product)
-    sessionStorage.setItem("product", product->SidebarUtils.getStringFromVariant)
+    sessionStorage.setItem("product", product->ProductUtils.getStringFromVariant)
   }
 
   let setDefaultProductToSessionStorage = () => {
-    open SidebarUtils
+    open ProductUtils
     let currentSessionData = sessionStorage.getItem("product")->Nullable.toOption
     let data = switch currentSessionData {
     | Some(sessionData) => sessionData->getVariantFromString

@@ -1,4 +1,4 @@
-open ProviderTypes
+open ProductTypes
 let getVariantFromString = product =>
   switch product {
   | "Recon" => Recon

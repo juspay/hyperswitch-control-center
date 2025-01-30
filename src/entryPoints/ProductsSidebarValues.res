@@ -19,7 +19,7 @@ let useGetSideBarValues = () => {
   sideBarValues
 }
 
-let useGetProductSideBarValues = (~currentProduct: ProviderTypes.productTypes) => {
+let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) => {
   let {devReconv2Product, devRecoveryV2Product} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -54,7 +54,7 @@ let useGetProductSideBarValues = (~currentProduct: ProviderTypes.productTypes) =
     )
   }
 
-  let productName = currentProduct->SidebarUtils.getStringFromVariant
+  let productName = currentProduct->ProductUtils.getStringFromVariant
 
   sideBarValues->Array.filter(topLevelItem =>
     switch topLevelItem {

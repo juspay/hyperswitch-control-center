@@ -15,7 +15,7 @@ type integrationDetailsType = {
   integration_checklist: integration,
   account_activation: integration,
 }
-type productTypes = Orchestrator | Recon | Recovery
+
 type contextType = {
   showFeedbackModal: bool,
   setShowFeedbackModal: (bool => bool) => unit,
@@ -31,8 +31,8 @@ type contextType = {
   ) => unit,
   isProdIntentCompleted: option<bool>,
   setIsProdIntentCompleted: (option<bool> => option<bool>) => unit,
-  currentProduct: productTypes,
-  setCurrentProductValue: productTypes => unit,
+  currentProduct: ProductTypes.productTypes,
+  setCurrentProductValue: ProductTypes.productTypes => unit,
   setDefaultProductToSessionStorage: unit => unit,
 }
 

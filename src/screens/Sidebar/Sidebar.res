@@ -567,7 +567,7 @@ let make = (
   `
 
   let onItemClickCustom = (valueSelected: SidebarTypes.optionType) => {
-    open SidebarUtils
+    open ProductUtils
     setCurrentProductValue(getVariantFromString(valueSelected.name))
   }
 
