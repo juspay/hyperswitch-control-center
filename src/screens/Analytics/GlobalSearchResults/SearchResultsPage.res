@@ -90,7 +90,7 @@ let make = () => {
   let globalSearchResult = HyperswitchAtom.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
-  let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
+  let hswitchTabs = SidebarValues.useGetHsSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()

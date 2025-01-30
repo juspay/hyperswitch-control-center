@@ -42,12 +42,16 @@ module EllipsisText = {
   @react.component
   let make = (
     ~displayValue,
+    ~copyValue=None,
     ~endValue=17,
     ~showCopy=true,
     ~customTextStyle="",
+    ~customEllipsisStyle="text-sm font-extrabold cursor-pointer",
     ~expandText=true,
+    ~customOnCopyClick=_ => (),
   ) => {
     open LogicUtils
+    let showToast = ToastState.useShowToast()
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
 
     let handleClick = ev => {
@@ -57,29 +61,36 @@ module EllipsisText = {
       }
     }
 
-    let text = if showCopy {
-      <CopyTextCustomComp displayValue customTextCss="text-nowrap" />
-    } else {
-      <div> {displayValue->React.string} </div>
+    let copyVal = switch copyValue {
+    | Some(val) => val
+    | None => displayValue
     }
 
-    <div>
+    let onCopyClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(copyVal)
+      customOnCopyClick()
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+    }
+
+    <div className="flex text-nowrap">
       <RenderIf condition={isTextVisible}>
-        <div> {text} </div>
+        <div className={customTextStyle}> {displayValue->React.string} </div>
       </RenderIf>
       <RenderIf condition={!isTextVisible && displayValue->isNonEmptyString}>
-        <div className="flex text-nowrap gap-1">
-          <p className="">
+        <div className="flex gap-1">
+          <p className={customTextStyle}>
             {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
           </p>
           <RenderIf condition={displayValue->String.length > endValue}>
-            <span
-              className={`flex text-blue-811 text-sm font-extrabold ${customTextStyle}`}
-              onClick={ev => handleClick(ev)}>
+            <span className={customEllipsisStyle} onClick={ev => handleClick(ev)}>
               {"..."->React.string}
             </span>
           </RenderIf>
         </div>
+      </RenderIf>
+      <RenderIf condition={showCopy}>
+        <Icon name="nd-copy" className="cursor-pointer" onClick={ev => onCopyClick(ev)} />
       </RenderIf>
     </div>
   }
@@ -170,7 +181,7 @@ module KeyAndCopyArea = {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
-        <Icon name="copy" customIconColor="rgb(156 163 175)" />
+        <Icon name="nd-copy" customIconColor="rgb(156 163 175)" />
         <p className="text-grey-700 opacity-50"> {"Copy"->React.string} </p>
       </div>
     </div>

@@ -86,6 +86,7 @@ module SidebarConfig = {
     primaryTextColor: string,
     secondaryTextColor: string,
     hoverColor: string,
+    borderColor: string,
   }
 }
 
@@ -185,5 +186,6 @@ let defaultUIConfig: t = {
     primaryTextColor: "text-sidebar-primaryTextColor",
     secondaryTextColor: "text-sidebar-secondaryTextColor",
     hoverColor: "hover:bg-sidebar-hoverColor/20",
+    borderColor: "border-sidebar-borderColor",
   },
 }
