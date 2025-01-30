@@ -83,5 +83,6 @@ let config: UIConfig.t = {
     primaryTextColor: "text-sidebar-primaryTextColor",
     secondaryTextColor: "text-sidebar-secondaryTextColor",
     hoverColor: "hover:bg-sidebar-hoverColor",
+    borderColor: "border border-sidebar-borderColor",
   },
 }
