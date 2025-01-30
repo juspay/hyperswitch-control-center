@@ -10,7 +10,7 @@ let getSelectedStepName = step => {
 
 let getSelectedStepDescription = step => {
   switch step {
-  | Hyperswitch =>  "Hyperswitch order data integration"
+  | Hyperswitch => "Hyperswitch order data integration"
   | OrderManagementSystem => "In-house order management system"
   | Dummy => "Dummy work flow"
   }

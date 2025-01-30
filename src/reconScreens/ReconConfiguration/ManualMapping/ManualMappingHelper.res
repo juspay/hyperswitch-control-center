@@ -37,8 +37,7 @@ module TestLivePayment = {
         </div>
         <div className="flex justify-end items-center border-t">
           <ReconConfigurationHelper.Footer
-            currentStep={currentStep}
-            onSubmit={_ => setCurrentStep(prev => prev->getNextStep)}
+            currentStep={currentStep} onSubmit={_ => setCurrentStep(prev => prev->getNextStep)}
           />
         </div>
       </div>
@@ -59,8 +58,7 @@ module SetupCompleted = {
       </div>
       <div className="flex justify-end items-center border-t">
         <ReconConfigurationHelper.Footer
-          currentStep={currentStep}
-          onSubmit={_ => setCurrentStep(prev => prev->getNextStep)}
+          currentStep={currentStep} onSubmit={_ => setCurrentStep(prev => prev->getNextStep)}
         />
       </div>
     </div>
