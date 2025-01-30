@@ -36,10 +36,7 @@ module ListBaseComp = {
 
     let subHeadingElement = if subHeading->String.length > maxLength {
       <HelperComponents.EllipsisText
-        displayValue=subHeading
-        endValue
-        showCopy=false
-        customTextStyle={`${textColor} font-extrabold`}
+        displayValue=subHeading endValue showCopy=false customTextStyle={textColor}
       />
     } else {
       {subHeading->React.string}
