@@ -16,7 +16,7 @@ module OrgTile = {
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let (_, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
+    let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
@@ -68,11 +68,9 @@ module OrgTile = {
     let displayText = {
       let firstLetter = orgName->String.charAt(0)->String.toUpperCase
       if orgName == orgID {
-        let lastTwoChars =
-          orgID
-          ->String.slice(~start=orgID->String.length - 2, ~end=orgID->String.length)
-          ->String.toUpperCase
-        lastTwoChars
+        orgID
+        ->String.slice(~start=orgID->String.length - 2, ~end=orgID->String.length)
+        ->String.toUpperCase
       } else {
         firstLetter
       }
