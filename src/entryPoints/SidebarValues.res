@@ -52,7 +52,7 @@ module ProductHeaderComponent = {
   let make = () => {
     let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
 
-    <div className={`text-sm font-semibold px-3 pt-6 pb-2 text-nd_gray-400`}>
+    <div className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
       {React.string(currentProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
     </div>
   }
@@ -707,6 +707,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | Orchestrator => hsSidebars
   | Recon => [ReconSidebarValues.reconSidebars]
   | Recovery => [RevenueRecoverySidebarValues.recoverySidebars]
+  | Vault => VaultSidebarValues.vaultSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }
