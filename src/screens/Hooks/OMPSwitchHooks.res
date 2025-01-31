@@ -45,6 +45,7 @@ let useOrgSwitch = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {getUserInfo} = useUserInfo()
+  let showToast = ToastState.useShowToast()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   async (~expectedOrgId, ~currentOrgId, ~defaultValue) => {
@@ -56,6 +57,10 @@ let useOrgSwitch = () => {
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
+        showToast(
+          ~message=`Your organization has been switched successfully.`,
+          ~toastType=ToastSuccess,
+        )
         userInfoRes
       } else {
         defaultValue

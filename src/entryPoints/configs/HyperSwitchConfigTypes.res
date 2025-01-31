@@ -56,6 +56,7 @@ type sidebarConfig = {
   hoverColor: string,
   primaryTextColor: string,
   secondaryTextColor: string,
+  borderColor: string,
 }
 
 type themeSettings = {

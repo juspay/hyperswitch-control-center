@@ -19,7 +19,9 @@ module OrgTile = {
     let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
-      globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
+      globalUIConfig: {
+        sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
+      },
     } = React.useContext(ThemeProvider.themeContext)
     let getOrgList = async () => {
       try {
@@ -103,16 +105,24 @@ module OrgTile = {
             ? `bg-white/20 ${primaryTextColor} border-sidebar-primaryTextColor`
             : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
-        <div className={` ${currentEditCSS} ${nonEditCSS} border border-nd_gray-200 `}>
+        <div
+          className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40 `}>
           <InlineEditInput
             index
             labelText={orgName}
             subText={"Organization"}
-            customStyle={` p-3 ${backgroundColor.sidebarSecondary}  ${hoverInput2}`}
+            customStyle={` p-3 !h-12 ${backgroundColor.sidebarSecondary}  ${hoverInput2}`}
             showEditIconOnHover=false
             customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2} `}
-            customIconComponent={<HelperComponents.CopyTextCustomComp
-              customIconColor={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
+            customIconComponent={<ToolTip
+              description={orgID}
+              customStyle="!whitespace-nowrap"
+              toolTipFor={<div className="cursor-pointer">
+                <HelperComponents.CopyTextCustomComp
+                  customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
+                />
+              </div>}
+              toolTipPosition=ToolTip.Right
             />}
             showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
             handleEdit=handleIdUnderEdit
@@ -281,7 +291,7 @@ let make = () => {
   let showToast = ToastState.useShowToast()
 
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
+    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let getOrgList = async () => {
     try {
@@ -318,8 +328,7 @@ let make = () => {
     setUnderEdit(_ => selectedEditId)
   }
 
-  <div
-    className={`${backgroundColor.sidebarNormal} p-2 border-r border-nd_br_gray-400 border-opacity-40  `}>
+  <div className={`${backgroundColor.sidebarNormal} p-2 border-r ${borderColor}`}>
     // the org tiles
     <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
       {orgList
@@ -349,7 +358,7 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
+      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
           <Icon name="plus" size=20 className={secondaryTextColor} />
         </div>
       </RenderIf>
