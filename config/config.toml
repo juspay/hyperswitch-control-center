@@ -62,6 +62,7 @@ dev_org_sidebar=false
 dev_recovery_v2_product=false
 dev_vault_v2_product=false
 maintainence_alert=""
+dev_clone_payment_methods=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]

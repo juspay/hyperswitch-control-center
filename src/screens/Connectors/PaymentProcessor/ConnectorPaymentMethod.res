@@ -16,6 +16,9 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+  let (clonedConnectorData, setClonedConnectorData) = Recoil.useRecoilState(
+    HyperswitchAtom.clonedConnectorData,
+  )
 
   let updateDetails = value => {
     setPaymentMethods(_ => value->Array.copy)
@@ -73,6 +76,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
+      setClonedConnectorData(_ => HyperswitchAtom.defaultConnectorData)
       showToast(
         ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
         ~toastType=ToastSuccess,
@@ -93,6 +97,19 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     }
     Nullable.null
   }
+
+  React.useEffect(() => {
+    if clonedConnectorData.paymentMethods->Array.length > 0 {
+      let paymentMethodCloned =
+        clonedConnectorData.paymentMethods->Identity.genericTypeToJson->getPaymentMethodEnabled
+
+      let metaDataCloned = clonedConnectorData.metaData
+
+      setMetaData(_ => metaDataCloned)
+      setPaymentMethods(_ => paymentMethodCloned)
+    }
+    None
+  }, [clonedConnectorData])
 
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues={initialValues}>

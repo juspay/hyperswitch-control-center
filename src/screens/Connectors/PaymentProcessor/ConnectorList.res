@@ -131,6 +131,7 @@ let make = () => {
             entity={ConnectorTableUtils.connectorEntity(
               "connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
+              ~isCloningEnabled=featureFlagDetails.devClonePaymentMethods,
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
