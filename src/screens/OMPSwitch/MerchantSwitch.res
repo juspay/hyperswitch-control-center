@@ -138,7 +138,9 @@ let make = () => {
   )
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
-
+  let {
+    globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, borderColor}},
+  } = React.useContext(ThemeProvider.themeContext)
   let getMerchantList = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
@@ -178,10 +180,9 @@ let make = () => {
     checked: true,
   }
 
-  let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
-  let addItemBtnStyle = "border border-t-0 w-full"
-  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
-  let dropdownContainerStyle = "rounded-md border border-1 w-[14rem] max-w-[20rem]"
+  let addItemBtnStyle = `w-full ${borderColor} border-t-0`
+  let customScrollStyle = `max-h-72 overflow-scroll px-1 pt-1 ${borderColor}`
+  let dropdownContainerStyle = `rounded-md border border-1 w-[14rem] ${borderColor} max-w-[20rem]`
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
@@ -217,14 +218,20 @@ let make = () => {
       input
       deselectDisable=true
       options={updatedMerchantList->generateDropdownOptionsCustomComponent}
-      marginTop="mt-14 "
+      marginTop={`mt-8 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true
       addButton=false
-      customStyle={`!border-none w-fit `}
+      customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
       searchable=false
-      baseComponent={<ListBaseComp heading="Merchant" subHeading arrow />}
-      baseComponentCustomStyle=" !border-none"
-      bottomComponent={<AddNewOMPButton user=#Merchant setShowModal customStyle addItemBtnStyle />}
+      baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
+      baseComponentCustomStyle={`!border-none`}
+      bottomComponent={<AddNewOMPButton
+        user=#Merchant
+        setShowModal
+        customStyle={`${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`}
+        addItemBtnStyle
+        customHRTagStyle={`${borderColor}`}
+      />}
       toggleChevronState
       customScrollStyle
       dropdownContainerStyle

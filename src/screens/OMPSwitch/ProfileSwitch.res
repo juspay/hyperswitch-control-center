@@ -207,13 +207,13 @@ let make = () => {
       deselectDisable=true
       customButtonStyle="!rounded-md"
       options={updatedProfileList->generateDropdownOptionsCustomComponent}
-      marginTop="mt-14"
+      marginTop="mt-10"
       hideMultiSelectButtons=true
       addButton=false
       searchable=true
       customStyle="w-fit"
       baseComponent={<ListBaseComp
-        heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
+        user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
       bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
       customDropdownOuterClass="!border-none "

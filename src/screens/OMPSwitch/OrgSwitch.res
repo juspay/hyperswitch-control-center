@@ -292,6 +292,7 @@ let make = () => {
       customSelectStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded`}
       searchable=false
       baseComponent={<ListBaseComp
+        user=#Organization
         heading="Org"
         subHeading={currentOMPName(orgList, orgId)}
         arrow
@@ -321,6 +322,7 @@ let make = () => {
 
   let orgBaseComp =
     <ListBaseComp
+      user=#Organization
       heading="Org"
       subHeading=orgId
       arrow

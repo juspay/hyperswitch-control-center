@@ -88,7 +88,7 @@ module OrgTile = {
     let hoverLabel1 = !isUnderEdit ? `group/parent` : ``
     let hoverInput2 = !isUnderEdit ? `invisible group-hover/parent:visible` : ``
     // Common CSS
-    let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-50 shadow-md ${backgroundColor.sidebarSecondary}`
+    let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-30 shadow-md ${backgroundColor.sidebarSecondary}`
     let currentEditCSS = isUnderEdit
       ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
@@ -328,7 +328,7 @@ let make = () => {
     setUnderEdit(_ => selectedEditId)
   }
 
-  <div className={`${backgroundColor.sidebarNormal} p-2 border-r ${borderColor}`}>
+  <div className={`${backgroundColor.sidebarNormal} p-2 border-r w-16 ${borderColor}`}>
     // the org tiles
     <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
       {orgList
