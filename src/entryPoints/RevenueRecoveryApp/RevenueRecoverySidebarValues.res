@@ -3,7 +3,7 @@ open SidebarTypes
 let revenueRecoveryHome = {
   SubLevelLink({
     name: "Home",
-    link: `v2/recovery/home`,
+    link: `/v2/recovery/home`,
     access: Access,
     searchOptions: [("Recovery home", "")],
   })
@@ -12,7 +12,7 @@ let revenueRecoveryHome = {
 let revenueRecoveryPaymentProcessors = {
   SubLevelLink({
     name: "Payment Processors",
-    link: `v2/recovery/payment-processors`,
+    link: `/v2/recovery/payment-processors`,
     access: Access,
     searchOptions: [("Payment Processors", "")],
   })
@@ -21,7 +21,7 @@ let revenueRecoveryPaymentProcessors = {
 let revenueRecoveryBillingProcessors = {
   SubLevelLink({
     name: "Billing Processors",
-    link: `v2/recovery/billing-processors`,
+    link: `/v2/recovery/billing-processors`,
     access: Access,
     searchOptions: [("Billing Processors", "")],
   })
@@ -30,7 +30,7 @@ let revenueRecoveryBillingProcessors = {
 let revenueRecoveryPayments = {
   SubLevelLink({
     name: "Payments",
-    link: `v2/recovery/payments`,
+    link: `/v2/recovery/payments`,
     access: Access,
     searchOptions: [("Payments", "")],
   })
@@ -46,7 +46,7 @@ let recoverySidebars = {
 
   Section({
     name: "Recovery",
-    icon: "v2/recovery",
+    icon: "/v2/recovery",
     showSection: true,
     links,
   })
