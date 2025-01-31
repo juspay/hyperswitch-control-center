@@ -124,7 +124,7 @@ let make = () => {
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                  <div className="w-full max-w-fixedPageWidth px-10 py-3">
+                  <div className="w-full max-w-fixedPageWidth px-12 pt-3">
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
@@ -160,7 +160,7 @@ let make = () => {
                       <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
                     </RenderIf>
                     <div
-                      className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
+                      className="p-6 md:px-12 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
                         /* RECON PRODUCT */
