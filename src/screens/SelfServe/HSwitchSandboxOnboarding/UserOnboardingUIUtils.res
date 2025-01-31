@@ -176,7 +176,7 @@ module HeaderComponentView = {
             Clipboard.writeText(value)
             showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
           }}>
-          <img alt="copy-to-clipboard" src={`/assets/CopyToClipboard.svg`} />
+          <Icon name="nd-copy" className="cursor-pointer" />
           <p> {"Copy"->React.string} </p>
         </div>
       </div>
@@ -283,7 +283,6 @@ module BackendFrontendPlatformLangDropDown = {
             options
             hideMultiSelectButtons=true
             deselectDisable=true
-            customButtonStyle="!rounded-md"
             defaultLeftIcon=CustomIcon(<Icon name="show-filters" size=14 />)
             baseComponent={<Button
               text={(platform :> string)}
@@ -293,7 +292,7 @@ module BackendFrontendPlatformLangDropDown = {
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
-              customButtonStyle="!bg-white !border !rounded-md"
+              customButtonStyle="!bg-white !border"
             />}
           />
         </RenderIf>
@@ -306,7 +305,6 @@ module BackendFrontendPlatformLangDropDown = {
             options={frontendLangauge->Array.map((lang): SelectBox.dropdownOption => {
               {value: (lang :> string), label: (lang :> string)}
             })}
-            customButtonStyle="!rounded-md"
             hideMultiSelectButtons=true
             autoApply=false
             customStyle="!rounded-md"
@@ -318,7 +316,7 @@ module BackendFrontendPlatformLangDropDown = {
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
-              customButtonStyle="!bg-white !border !rounded-md"
+              buttonType=Secondary
             />}
           />
           <SelectBox.BaseDropdown
@@ -326,7 +324,6 @@ module BackendFrontendPlatformLangDropDown = {
             buttonText="Select Backend"
             input={backendLangInput}
             deselectDisable=true
-            customButtonStyle="!rounded-md"
             options={backendLangauge->Array.map((lang): SelectBox.dropdownOption => {
               {value: (lang :> string), label: (lang :> string)}
             })}
@@ -339,7 +336,7 @@ module BackendFrontendPlatformLangDropDown = {
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
-              customButtonStyle="!bg-white !border !rounded-md"
+              buttonType=Secondary
             />}
           />
         </RenderIf>

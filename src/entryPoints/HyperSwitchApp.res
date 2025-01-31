@@ -13,13 +13,16 @@ let make = () => {
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
+    currentProduct,
+    setDefaultProductToSessionStorage,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devThemeFeature, devOrgSidebar} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let retainCloneModal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.retainCloneModalAtom)
   let (showModal, setShowModal) = React.useState(_ => false)
 
@@ -45,9 +48,19 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let maintainenceAlert = featureFlagDetails.maintainenceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
-  let reconSidebars = HSReconSidebarValues.useGetReconSideBar()
+  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
+  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~currentProduct)
   sessionExpired := false
+
+  let applyTheme = async () => {
+    try {
+      if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
+        let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+      }
+    } catch {
+    | _ => ()
+    }
+  }
 
   React.useEffect(() => {
     if retainCloneModal {
@@ -68,7 +81,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+      setDefaultProductToSessionStorage()
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -87,6 +100,11 @@ let make = () => {
     setUpDashboard()->ignore
     None
   }, [orgId, merchantId, profileId, themeId])
+
+  React.useEffect(() => {
+    applyTheme()->ignore
+    None
+  }, (themeId, devThemeFeature))
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {
@@ -127,12 +145,15 @@ let make = () => {
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
+              <RenderIf condition={devOrgSidebar}>
+                <OrgSidebar />
+              </RenderIf>
               <RenderIf condition={screenState === Success}>
                 <Sidebar
                   path={url.path}
                   sidebars={hyperSwitchAppSidebars}
                   key={(screenState :> string)}
-                  productSiebars={reconSidebars}
+                  productSiebars=productSidebars
                 />
               </RenderIf>
               <PageLoaderWrapper
@@ -174,7 +195,8 @@ let make = () => {
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
-                        | list{"v2", "recon", ..._} => <HSReconApp />
+                        | list{"v2", "recon", ..._} => <ReconApp />
+                        | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
                         | list{"home", ..._}
                         | list{"recon"}
                         | list{"upload-files"}
@@ -209,7 +231,8 @@ let make = () => {
                         | list{"analytics-payments"}
                         | list{"performance-monitor"}
                         | list{"analytics-refunds"}
-                        | list{"analytics-disputes"} =>
+                        | list{"analytics-disputes"}
+                        | list{"analytics-authentication"} =>
                           <AnalyticsContainer />
                         | list{"new-analytics-payment"}
                         | list{"new-analytics-refund"}

@@ -119,7 +119,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   <PageLoaderWrapper screenState>
     <div className={`${widthClass} ${marginClass} gap-2.5`}>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 items-center justify-center">
         <PageUtils.PageHeading
           title="Payout routing configuration"
           subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"

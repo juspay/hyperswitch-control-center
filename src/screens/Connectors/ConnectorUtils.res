@@ -140,7 +140,7 @@ let getPaymentMethodFromString = paymentMethod => {
   switch paymentMethod->String.toLowerCase {
   | "card" => Card
   | "debit" | "credit" => Card
-  | "paylater" => PayLater
+  | "pay_later" => PayLater
   | "wallet" => Wallet
   | "bank_redirect" => BankRedirect
   | "bank_transfer" => BankTransfer
@@ -157,6 +157,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "google_pay" => GooglePay
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
+  | "klarna" => Klarna
   | "open_banking_pis" => OpenBankingPIS
   | "samsung_pay" => SamsungPay
   | "paze" => Paze

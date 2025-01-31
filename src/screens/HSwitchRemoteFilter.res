@@ -37,10 +37,12 @@ let useSetInitialFilters = (
   ~compareToEndTimeKey="",
   ~enableCompareTo=None,
   ~comparisonKey="",
+  ~isInsightsPage=false,
   ~range=7,
   ~origin,
   (),
 ) => {
+  open NewAnalyticsTypes
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
@@ -74,6 +76,13 @@ let useSetInitialFilters = (
                 (endTimeFilterKey, defaultDate.end_time),
               ]
             }
+
+      if isInsightsPage {
+        timeRange->Array.push((
+          (#currency: filters :> string),
+          (#all_currencies: defaultFilters :> string),
+        ))
+      }
 
       timeRange->Array.forEach(item => {
         let (key, defaultValue) = item

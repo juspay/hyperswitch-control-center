@@ -1,4 +1,5 @@
 type ompListTypes = {id: string, name: string}
+type ompListTypesCustom = {...ompListTypes, customComponent: React.element}
 
 type opmView = {
   lable: string,

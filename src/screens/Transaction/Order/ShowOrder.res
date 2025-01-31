@@ -514,14 +514,12 @@ module FraudRiskBannerDetails = {
           <Button
             text="Refund"
             buttonType={Secondary}
-            customButtonStyle="!p-2"
             customTextSize="text-sm"
             onClick={_ => openPopUp(~decision=#REJECT)}
           />
           <Button
             text="Mark as true"
             buttonType={Primary}
-            customButtonStyle="!p-2"
             customTextSize="text-sm"
             onClick={_ => openPopUp(~decision=#APPROVE)}
           />
@@ -692,7 +690,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                 name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
               />,
             )}
-            customButtonStyle="!w-fit !px-4"
+            customButtonStyle="!w-fit"
             buttonType={Primary}
             onClick={_ => refreshStatus()->ignore}
           />

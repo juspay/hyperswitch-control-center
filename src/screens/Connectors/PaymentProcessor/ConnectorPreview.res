@@ -29,9 +29,7 @@ module KeyAndCopyArea = {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
-        <img
-          alt="copy-clipboard" className="w-1.1-rem h-1.1-rem" src={`/assets/CopyToClipboard.svg`}
-        />
+        <Icon name="nd-copy" className="cursor-pointer" />
       </div>
     </div>
   }

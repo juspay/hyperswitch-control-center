@@ -43,8 +43,11 @@ type featureFlag = {
   clickToPay: bool,
   devThemeFeature: bool,
   devReconv2Product: bool,
+  devRecoveryV2Product: bool,
   maintainenceAlert: string,
   forceCookies: bool,
+  authenticationAnalytics: bool,
+  devOrgSidebar: bool,
   devClonePaymentMethods: bool,
 }
 
@@ -91,8 +94,11 @@ let featureFlagType = (featureFlags: JSON.t) => {
     tenantUser: dict->getBool("tenant_user", false),
     devThemeFeature: dict->getBool("dev_theme_feature", false),
     devReconv2Product: dict->getBool("dev_recon_v2_product", false),
+    devRecoveryV2Product: dict->getBool("dev_recovery_v2_product", false),
     maintainenceAlert: dict->getString("maintainence_alert", ""),
     forceCookies: dict->getBool("force_cookies", false),
+    authenticationAnalytics: dict->getBool("authentication_analytics", false),
+    devOrgSidebar: dict->getBool("dev_org_sidebar", false),
     devClonePaymentMethods: dict->getBool("dev_clone_payment_methods", false),
   }
 }

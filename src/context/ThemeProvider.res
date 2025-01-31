@@ -22,11 +22,12 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
       background: "#006df9",
     },
     sidebar: {
-      primary: "#242F48",
-      secondary: "#303E5F",
-      hoverColor: "#ffffff",
-      primaryTextColor: "#ffffff",
-      secondaryTextColor: "#ffffff",
+      primary: "#FCFCFD",
+      secondary: "#FFFFFF",
+      hoverColor: "#cacdd0",
+      primaryTextColor: "#1C6DEA",
+      secondaryTextColor: "#525866",
+      borderColor: "#E1E4EA",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -38,19 +39,19 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     },
     buttons: {
       primary: {
-        backgroundColor: "#006DF9",
+        backgroundColor: "#0561E2",
         textColor: "#ffffff",
-        hoverBackgroundColor: "#005ED6",
+        hoverBackgroundColor: "#247DF9",
       },
       secondary: {
-        backgroundColor: "#F7F7F7",
-        textColor: "#333333",
-        hoverBackgroundColor: "#EEEEEE",
+        backgroundColor: "#F3F3F3",
+        textColor: "#525866",
+        hoverBackgroundColor: "#FCFCFD",
       },
     },
     borders: {
       defaultRadius: "4px",
-      borderColor: "#006DF9",
+      borderColor: "#1272F9",
     },
     spacing: {
       padding: "16px",
@@ -140,7 +141,7 @@ let make = (~children) => {
           // This 'colorsConfig' will be replaced with 'sidebarConfig', and the 'sidebar' key will be changed to 'primary' after API Changes.
           primary: colorsConfig->getString("sidebar", defaultSettings.sidebar.primary),
           // This 'colorsConfig' will be replaced with 'sidebarConfig' once the API changes are done.
-          secondary: colorsConfig->getString("secondary", defaultSettings.sidebar.secondary),
+          secondary: sidebarConfig->getString("secondary", defaultSettings.sidebar.secondary),
           hoverColor: sidebarConfig->getString("hoverColor", defaultSettings.sidebar.hoverColor),
           // This property is currently required to support current sidebar changes. It will be removed in a future update.
           primaryTextColor: sidebarConfig->getString(
@@ -151,6 +152,7 @@ let make = (~children) => {
             "secondaryTextColor",
             defaultSettings.sidebar.secondaryTextColor,
           ),
+          borderColor: sidebarConfig->getString("borderColor", defaultSettings.sidebar.borderColor),
         },
         typography: {
           fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
@@ -231,11 +233,15 @@ let make = (~children) => {
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
-      let val = {
-        faviconUrl: urlsDict->getString("faviconUrl", "")->getNonEmptyString,
-        logoUrl: urlsDict->getString("logoUrl", "")->getNonEmptyString,
-      }
       let existingEnv = DOMUtils.window._env_
+      let val = {
+        faviconUrl: urlsDict
+        ->getString("faviconUrl", existingEnv.urlThemeConfig.faviconUrl->Option.getOr(""))
+        ->getNonEmptyString,
+        logoUrl: urlsDict
+        ->getString("logoUrl", existingEnv.urlThemeConfig.logoUrl->Option.getOr(""))
+        ->getNonEmptyString,
+      }
 
       let updatedUrlConfig = {
         ...existingEnv,
@@ -260,7 +266,26 @@ let make = (~children) => {
           "settings": {
             "colors": {
               "primary": dict->getString("primary_color", defaultSettings.colors.primary),
-              "sidebar": dict->getString("sidebar_color", defaultSettings.sidebar.primary),
+              "sidebar": dict->getString("sidebar_primary", defaultSettings.sidebar.primary),
+            },
+            "sidebar": {
+              "secondary": dict->getString("sidebar_secondary", defaultSettings.sidebar.secondary),
+              "hoverColor": dict->getString(
+                "sidebar_hover_color",
+                defaultSettings.sidebar.hoverColor,
+              ),
+              "primaryTextColor": dict->getString(
+                "sidebar_primary_text_color",
+                defaultSettings.sidebar.primaryTextColor,
+              ),
+              "secondaryTextColor": dict->getString(
+                "sidebar_secondary_text_color",
+                defaultSettings.sidebar.secondaryTextColor,
+              ),
+              "borderColor": dict->getString(
+                "sidebar_border_color",
+                defaultSettings.sidebar.borderColor,
+              ),
             },
             "buttons": {
               "primary": {

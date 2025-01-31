@@ -24,7 +24,7 @@ describe("connector", () => {
   };
 
   before(() => {
-    cy.visit("http://localhost:9000/dashboard/login");
+    cy.visit("/dashboard/login");
     cy.url().should("include", "/login");
     cy.get("[data-testid=card-header]").should(
       "contain",
@@ -47,7 +47,7 @@ describe("connector", () => {
 
   beforeEach(function () {
     if (this.currentTest.title !== "Create a dummy connector") {
-      cy.visit("http://localhost:9000/dashboard/login");
+      cy.visit("/dashboard/login");
       cy.url().should("include", "/login");
       cy.get("[data-testid=card-header]").should(
         "contain",
@@ -98,6 +98,7 @@ describe("connector", () => {
       .should("be.visible");
   });
   it("Use the SDK to process a payment", () => {
+    cy.clearCookies("login_token");
     cy.get("[data-testid=connectors]").click();
     cy.get("[data-testid=paymentprocessors]").click();
     cy.contains("Payment Processors").should("be.visible");
@@ -119,12 +120,9 @@ describe("connector", () => {
       .find("[data-testid=expiryInput]")
       .should("exist")
       .type("0127");
-    getIframeBody()
-      .find("[data-testid=cvvInput]")
-      .should("exist")
-      .type("492", { force: true });
+    getIframeBody().find("[data-testid=cvvInput]").should("exist").type("492");
     cy.get("[data-button-for=payEUR77]").should("exist").click();
-    cy.get("[data-testid=paymentSuccess]").should("exist");
+    cy.contains("Payment Successful").should("exist");
   });
   it("Verify Time Range Filters after Payment in Payment Operations Page", () => {
     cy.get("[data-testid=operations]").click();

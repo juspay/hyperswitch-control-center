@@ -184,14 +184,13 @@ module Footer = {
       | (true, false) =>
         <Button
           text="Continue"
-          customButtonStyle="rounded"
           buttonType={Primary}
           onClick={_ => setCurrentStep(prev => getNextStep(prev))}
         />
       | (false, true) =>
         <Button
           text="Back"
-          customButtonStyle="rounded w-90-px"
+          customButtonStyle="w-90-px"
           buttonType={Secondary}
           onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
         />
@@ -200,13 +199,13 @@ module Footer = {
         <div className="flex gap-4">
           <Button
             text="Back"
-            customButtonStyle="rounded w-90-px"
+            customButtonStyle="w-90-px"
             buttonType={Secondary}
             onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
           />
           <Button
             text={buttonName}
-            customButtonStyle="rounded w-90-px"
+            customButtonStyle="w-90-px"
             buttonType={Primary}
             onClick={_ => setCurrentStep(prev => getNextStep(prev))}
           />

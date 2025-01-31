@@ -197,6 +197,18 @@ let make = (
 
   let heading = showHeading ? "Profile" : ""
 
+  let updatedProfileList: array<
+    OMPSwitchTypes.ompListTypesCustom,
+  > = profileList->Array.mapWithIndex((item, i) => {
+    let customComponent =
+      <ProfileDropdownItem key={Int.toString(i)} profileName=item.name index=i currentId=item.id />
+    let listItem: OMPSwitchTypes.ompListTypesCustom = {
+      id: item.id,
+      name: item.name,
+      customComponent,
+    }
+    listItem
+  })
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -204,20 +216,17 @@ let make = (
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options={profileList->generateDropdownOptions}
+      options={updatedProfileList->generateDropdownOptionsCustomComponent}
       marginTop={customMargin->isNonEmptyString ? customMargin : "mt-14"}
       hideMultiSelectButtons=true
       addButton=false
       searchable=true
-      customStyle="absolute w-fit left-0"
+      customStyle="w-fit"
       baseComponent={<ListBaseComp
         heading subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      baseComponentCustomStyle="bg-white"
       bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
-      optionClass="text-gray-600 text-fs-14"
-      selectClass="text-gray-600 text-fs-14"
-      customDropdownOuterClass="!border-none !w-full"
+      customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState
       customScrollStyle

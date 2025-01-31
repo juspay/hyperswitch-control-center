@@ -865,7 +865,7 @@ module BaseSelect = {
         buttonType=Primary
         text="Apply"
         flattenTop=false
-        customButtonStyle="w-full items-center sticky bottom-0"
+        customButtonStyle="w-full items-center sticky bottom-0 !rounded-none"
         buttonState={applyBtnDisabled ? Disabled : Normal}
         onClick
       />

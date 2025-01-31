@@ -803,7 +803,7 @@ module Base = {
               text={isMobileView && textHideInMobileView ? "" : buttonText}
               leftIcon={FontAwesome(calendarIcon)}
               rightIcon={CustomIcon(iconElement)}
-              buttonSize=XSmall
+              buttonSize=Small
               isDropdownOpen=isDropdownExpandedActual
               onClick={_ => handleDropdownClick()}
               iconBorderColor={customborderCSS}
