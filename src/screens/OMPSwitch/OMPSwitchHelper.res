@@ -16,11 +16,11 @@ module ListBaseComp = {
 
     let arrowClassName = isDarkBg
       ? `${arrow
-            ? "rotate-0"
-            : "-rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
-      : `${arrow
             ? "rotate-180"
-            : "rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+            : "-rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+      : `${arrow
+            ? "rotate-0"
+            : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
     let subHeadingElem = if subHeading->String.length > 20 {
       <HelperComponents.EllipsisText
