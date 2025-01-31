@@ -650,7 +650,8 @@ let make = (
           </div>
           <RenderIf condition={productSiebars->Array.length > 0}>
             <div className={"p-2.5"}>
-              <div className={`text-sm font-semibold px-3 pt-6 pb-2 text-nd_gray-400`}>
+              <div
+                className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
                 {React.string("Other modular services"->String.toUpperCase)}
               </div>
               {productSiebars
