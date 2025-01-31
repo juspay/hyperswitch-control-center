@@ -68,12 +68,11 @@ module OrgTile = {
     let displayText = {
       let firstLetter = orgName->String.charAt(0)->String.toUpperCase
       if orgName == orgID {
-        let count =
-          orgList
-          ->Array.slice(~start=0, ~end=index + 1)
-          ->Array.filter(org => org.name == org.id)
-          ->Array.length
-        `O${count->Int.toString}`
+        let lastTwoChars =
+          (len => orgID->String.slice(~start=len - 2, ~end=len))(
+            orgID->String.length,
+          )->String.toUpperCase
+        lastTwoChars
       } else {
         firstLetter
       }
@@ -328,7 +327,7 @@ let make = () => {
     setUnderEdit(_ => selectedEditId)
   }
 
-  <div className={`${backgroundColor.sidebarNormal} p-2 border-r ${borderColor}`}>
+  <div className={`${backgroundColor.sidebarNormal} relative inset-0 p-2 border-r ${borderColor}`}>
     // the org tiles
     <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
       {orgList

@@ -319,7 +319,6 @@ let analytics = (
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
-  Js.log(authenticationAnalyticsFlag)
   let links = [paymentAnalytcis, refundAnalytics]
   if authenticationAnalyticsFlag {
     links->Array.push(authenticationAnalytics)
