@@ -128,7 +128,7 @@ let make = (
 
   <AddDataAttributes attributes=[("data-component", `popUpConfirm ${confirmType}`)]>
     <div
-      className={`${showModal} ${overlayStyle} fixed cursor-default h-screen w-screen z-100 inset-0 overflow-auto`}
+      className={`${showModal} ${overlayStyle} fixed cursor-default h-screen w-screen z-50 inset-0 overflow-auto`}
       onClick=handleOverlayClick>
       // <Reveal showReveal=showPopUp revealFrom=Reveal.Top>
       <div

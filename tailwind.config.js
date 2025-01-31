@@ -57,6 +57,9 @@ module.exports = {
         "923-px": "923px",
         onBordingSupplier: "calc(100vh - 300px)",
       },
+      padding: {
+        "10-px": "10px",
+      },
       maxHeight: {
         "25-rem": "25rem",
       },

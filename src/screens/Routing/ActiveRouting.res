@@ -35,6 +35,7 @@ module ActionButtons = {
       <ACLButton
         text={"Setup"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+        customButtonStyle="mx-auto"
         buttonType=Primary
         buttonSize=Small
         onClick={_ => {
