@@ -124,7 +124,7 @@ let make = () => {
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                  <div className="w-full max-w-fixedPageWidth px-9">
+                  <div className="w-full max-w-fixedPageWidth px-10 py-3">
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
