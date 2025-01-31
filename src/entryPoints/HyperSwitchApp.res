@@ -169,7 +169,7 @@ let make = () => {
                       <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
                     </RenderIf>
                     <div
-                      className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
+                      className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
                         /* RECON PRODUCT */
