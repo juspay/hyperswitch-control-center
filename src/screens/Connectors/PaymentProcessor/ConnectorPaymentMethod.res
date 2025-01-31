@@ -16,10 +16,9 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let (paymentMethodsClone, setPaymentMethodsClone) = Recoil.useRecoilState(
-    HyperswitchAtom.paymentMethodsClonedAtom,
+  let (clonedConnectorData, setClonedConnectorData) = Recoil.useRecoilState(
+    HyperswitchAtom.clonedConnectorData,
   )
-  let (metaDataClone, setMetaDataClone) = Recoil.useRecoilState(HyperswitchAtom.metaDataClonedAtom)
 
   let updateDetails = value => {
     setPaymentMethods(_ => value->Array.copy)
@@ -77,8 +76,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
-      setMetaDataClone(_ => JSON.Encode.null)
-      setPaymentMethodsClone(_ => [])
+      setClonedConnectorData(_ => HyperswitchAtom.defaultConnectorData)
       showToast(
         ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
         ~toastType=ToastSuccess,
@@ -101,18 +99,17 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   }
 
   React.useEffect(() => {
-    if paymentMethodsClone->Array.length > 0 {
-      let clonedData =
-        paymentMethodsClone
-        ->Identity.genericTypeToJson
-        ->JSON.stringify
-        ->safeParse
-        ->getPaymentMethodEnabled
-      setMetaData(_ => metaDataClone)
-      setPaymentMethods(_ => clonedData)
+    if clonedConnectorData.paymentMethods->Array.length > 0 {
+      let paymentMethodCloned =
+        clonedConnectorData.paymentMethods->Identity.genericTypeToJson->getPaymentMethodEnabled
+
+      let metaDataCloned = clonedConnectorData.metaData
+
+      setMetaData(_ => metaDataCloned)
+      setPaymentMethods(_ => paymentMethodCloned)
     }
     None
-  }, [paymentMethodsClone])
+  }, [clonedConnectorData])
 
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues={initialValues}>

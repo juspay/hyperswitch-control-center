@@ -2,6 +2,14 @@ type accessMapping = {
   groups: Map.t<UserManagementTypes.groupAccessType, CommonAuthTypes.authorization>,
   resources: Map.t<UserManagementTypes.resourceAccessType, CommonAuthTypes.authorization>,
 }
+type clonedConnectorData = {
+  paymentMethods: array<ConnectorTypes.paymentMethodEnabled>,
+  metaData: JSON.t,
+}
+let defaultConnectorData = {
+  paymentMethods: [],
+  metaData: JSON.Encode.null,
+}
 let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
@@ -77,13 +85,9 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   [],
 )
 
-let paymentMethodsClonedAtom: Recoil.recoilAtom<
-  array<ConnectorTypes.paymentMethodEnabled>,
-> = Recoil.atom("paymentMethodsClonedAtom", [])
-
-let metaDataClonedAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom(
-  "metaDataClonedAtom",
-  JSON.Encode.null,
+let clonedConnectorData: Recoil.recoilAtom<clonedConnectorData> = Recoil.atom(
+  "clonedConnectorData",
+  defaultConnectorData,
 )
 
 let retainCloneModalAtom: Recoil.recoilAtom<bool> = Recoil.atom("retainCloneModalAtom", false)

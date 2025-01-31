@@ -88,8 +88,7 @@ let make = (~connectorID, ~connectorName) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let setPaymentMethodsClone = Recoil.useSetRecoilState(HyperswitchAtom.paymentMethodsClonedAtom)
-  let setMetaDataClone = Recoil.useSetRecoilState(HyperswitchAtom.metaDataClonedAtom)
+  let setClonedConnectorData = Recoil.useSetRecoilState(HyperswitchAtom.clonedConnectorData)
   let setRetainCloneModal = Recoil.useSetRecoilState(HyperswitchAtom.retainCloneModalAtom)
   let setCloneConnector = Recoil.useSetRecoilState(HyperswitchAtom.cloneConnectorAtom)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -113,8 +112,12 @@ let make = (~connectorID, ~connectorName) => {
           ->JSON.stringify
           ->LogicUtils.safeParse
           ->getPaymentMethodEnabled
-        setPaymentMethodsClone(_ => paymentMethodsClone)
-        setMetaDataClone(_ => metaData)
+
+        let clonedData: HyperswitchAtom.clonedConnectorData = {
+          paymentMethods: paymentMethodsClone,
+          metaData,
+        }
+        setClonedConnectorData((_): HyperswitchAtom.clonedConnectorData => clonedData)
         setShowModal(_ => true)
         setRetainCloneModal(_ => true)
       }
