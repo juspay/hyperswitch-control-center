@@ -347,7 +347,7 @@ let analytics = (
 }
 let routing = userHasResourceAccess => {
   SubLevelLink({
-    name: "Routing",
+    name: "Smart Routing",
     link: `/routing`,
     access: userHasResourceAccess(~resourceAccess=Routing),
     searchOptions: [
