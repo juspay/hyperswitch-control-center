@@ -61,6 +61,7 @@ let make = () => {
               displayValue={merchantInfo.publishable_key}
               customTextCss="break-all text-sm truncate md:whitespace-normal font-semibold text-jp-gray-800 text-opacity-75"
               customParentClass="flex items-center gap-5"
+              customIconCss="text-jp-gray-700"
             />
           </div>
           <RenderIf condition={paymentResponsHashKey->String.length !== 0}>
@@ -72,6 +73,7 @@ let make = () => {
                 displayValue={paymentResponsHashKey}
                 customTextCss="break-all truncate md:whitespace-normal text-sm font-semibold text-jp-gray-800 text-opacity-75"
                 customParentClass="flex items-center gap-5"
+                customIconCss="text-jp-gray-700"
               />
             </div>
           </RenderIf>

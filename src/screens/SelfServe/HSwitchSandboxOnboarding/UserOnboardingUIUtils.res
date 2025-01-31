@@ -176,7 +176,7 @@ module HeaderComponentView = {
             Clipboard.writeText(value)
             showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
           }}>
-          <img alt="copy-to-clipboard" src={`/assets/CopyToClipboard.svg`} />
+          <Icon name="nd-copy" className="cursor-pointer" />
           <p> {"Copy"->React.string} </p>
         </div>
       </div>

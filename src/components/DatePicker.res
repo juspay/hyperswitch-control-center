@@ -245,7 +245,7 @@ let make = (
           calendarElement
         </BottomModal>
       } else {
-        <div className={`absolute flex w-max z-10  ${fullLengthWidthClass} ${styleClass}`}>
+        <div className={`absolute flex w-max z-10 bg-white ${fullLengthWidthClass} ${styleClass}`}>
           calendarElement
         </div>
       }}

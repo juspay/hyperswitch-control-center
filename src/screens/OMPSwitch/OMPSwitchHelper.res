@@ -348,7 +348,7 @@ module MerchantDropdownItem = {
           validateInput
           customInputStyle="!py-0 text-nd_gray-600"
           customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(merchantId) customIconColor="text-nd_gray-600"
+            displayValue=" " copyValue=Some(merchantId) customIconCss="text-nd_gray-600"
           />}
           customIconStyle={isActive ? "text-nd_gray-600" : ""}
           handleClick={_ => handleMerchantSwitch(currentId)}
@@ -464,7 +464,7 @@ module ProfileDropdownItem = {
           validateInput
           customInputStyle="!py-0 text-nd_gray-600"
           customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(profileId) customIconColor="text-nd_gray-600"
+            displayValue=" " copyValue=Some(profileId) customIconCss="text-nd_gray-600"
           />}
           customIconStyle={isActive ? "text-nd_gray-600" : ""}
           handleClick={_ => handleProfileSwitch(currentId)}
@@ -483,8 +483,8 @@ module ProfileDropdownItem = {
 
 let generateDropdownOptions: (
   array<OMPSwitchTypes.ompListTypes>,
-  ~customIconColor: string,
-) => array<SelectBox.dropdownOption> = (dropdownList, ~customIconColor) => {
+  ~customIconCss: string,
+) => array<SelectBox.dropdownOption> = (dropdownList, ~customIconCss) => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
     item
   ): SelectBox.dropdownOption => {
@@ -497,7 +497,7 @@ let generateDropdownOptions: (
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp
-              displayValue=" " copyValue=Some({item.id}) customIconColor
+              displayValue=" " copyValue=Some({item.id}) customIconCss
             />
           </div>}
           toolTipPosition=ToolTip.TopRight
