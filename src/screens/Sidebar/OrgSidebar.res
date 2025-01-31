@@ -119,7 +119,7 @@ module OrgTile = {
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
-                  customIconColor={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
+                  customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
                 />
               </div>}
               toolTipPosition=ToolTip.Right
@@ -358,7 +358,7 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
+      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
           <Icon name="plus" size=20 className={secondaryTextColor} />
         </div>
       </RenderIf>
