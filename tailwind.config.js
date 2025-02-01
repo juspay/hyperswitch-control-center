@@ -72,6 +72,7 @@ module.exports = {
         150: "9.375rem",
         "1.1-rem": "1.125rem",
         "18-rem": "18rem",
+        "22-rem": "22rem",
         "77-rem": "77rem",
         "30-rem": "30rem",
         "10.25-rem": "10.25rem",
@@ -90,6 +91,7 @@ module.exports = {
         860: "860px",
         600: "600px",
         700: "700px",
+        800: "800px",
       },
       lineHeight: {
         60: "60px",
@@ -110,6 +112,7 @@ module.exports = {
         homePageBoxShadow: "0px 2px 16px 2px rgba(51, 51, 51, 0.16)",
         focusBoxShadow:
           "0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 0px 0px 4px rgba(232, 243, 255, 1)",
+        cardShadow: "0px 2px 2px 0px rgba(0, 0, 0, 0.04)",
       },
       fontSize: {
         base: "var(--base-font-size)",
@@ -310,6 +313,9 @@ module.exports = {
         nd_br_gray: {
           200: "#E1E4EA",
           400: "#E1E1E1",
+        },
+        nd_green: {
+          200: "#52B87A",
         },
       },
       borderRadius: {
