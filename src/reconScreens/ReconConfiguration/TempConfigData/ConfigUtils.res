@@ -33,7 +33,7 @@ let reportConfig =
   ->Identity.genericTypeToJson
   ->JSON.stringify
 
-let baseFIUUConfig = (merchantId: string) =>
+let baseHyperSwitchConfig = merchantId =>
   {
     "global_configuration": {
       "mutations": {
@@ -55,9 +55,98 @@ let baseFIUUConfig = (merchantId: string) =>
       {
         "filters": [
           {
-            "condition": "GTE",
-            "field": "amount",
-            "value": "0",
+            "condition": "EQ",
+            "field": "status",
+            "value": "charged",
+          },
+        ],
+        "mappings": {
+          "payment_entity_txn_id": "connector_transaction_id",
+          "txn_amount": "amount",
+          "txn_currency": "currency",
+          "txn_date": "created_at",
+          "txn_id": "transaction_id",
+          "txn_status": "status",
+          "txn_type": "transaction_type",
+        },
+        "mutations": {
+          "computations": [],
+          "mutations": [],
+        },
+        "type": "ORDER",
+      },
+      {
+        "filters": [
+          {
+            "condition": "EQ",
+            "field": "status",
+            "value": "success",
+          },
+        ],
+        "mappings": {
+          "payment_entity_txn_id": "connector_transaction_id",
+          "txn_amount": "amount",
+          "txn_currency": "currency",
+          "txn_date": "created_at",
+          "txn_id": "transaction_id",
+          "txn_status": "status",
+          "txn_type": "transaction_type",
+        },
+        "mutations": {
+          "computations": [],
+          "mutations": [],
+        },
+        "type": "REFUND",
+      },
+    ],
+    "preprocessing": false,
+    "validation": {
+      "check_fields": {
+        "date_format_check": {
+          "txn_date": "%Y-%m-%d %H:%M:%S",
+        },
+        "duplicate_records_check": ["txn_id", "payment_entity_txn_id"],
+        "nan_value_check": ["txn_id", "payment_entity_txn_id", "txn_amount", "txn_date"],
+        "numeric_dtype_check": ["txn_amount"],
+        "pkey_check": ["txn_id", "payment_entity_txn_id"],
+        "scientific_value_check": ["txn_id", "payment_entity_txn_id", "txn_amount"],
+      },
+      "checks": [
+        "check_fields",
+        "nan_value_check",
+        "date_format_check",
+        "numeric_dtype_check",
+        "duplicate_records_check",
+        "scientific_value_check",
+      ],
+    },
+  }->Identity.genericTypeToJson
+
+let payuBaseConfig = (merchantId: string) =>
+  {
+    "global_configuration": {
+      "mutations": {
+        "computations": [],
+        "mutations": [
+          {
+            "mutation_col": "merchant_id",
+            "replacement": [
+              {
+                "filters": [],
+                "value": merchantId,
+              },
+            ],
+          },
+        ],
+      },
+    },
+    "local_configuration": [
+      {
+        "filters": [
+          {
+            "condition": "EQ",
+            "field": "actual_payment_status",
+            "value": "CHARGED",
           },
         ],
         "mappings": {
@@ -87,41 +176,6 @@ let baseFIUUConfig = (merchantId: string) =>
         },
         "type": "ORDER",
       },
-      {
-        "filters": [
-          {
-            "condition": "LT",
-            "field": "amount",
-            "value": "0",
-          },
-        ],
-        "mappings": {
-          "payment_entity_txn_id": "epg_txn_id",
-          "txn_amount": "effective_amount",
-          "txn_currency": "ord_currency",
-          "txn_date": "order_date_created",
-          "txn_id": "juspay_txn_id",
-          "txn_status": "actual_payment_status",
-          "udf1": "amount",
-          "udf2": "offer_deduction_amount",
-          "udf3": "order_ids",
-        },
-        "mutations": {
-          "computations": [],
-          "mutations": [
-            {
-              "mutation_col": "txn_type",
-              "replacement": [
-                {
-                  "filters": [],
-                  "value": "REFUND",
-                },
-              ],
-            },
-          ],
-        },
-        "type": "REFUND",
-      },
     ],
     "preprocessing": false,
     "validation": {
@@ -146,7 +200,147 @@ let baseFIUUConfig = (merchantId: string) =>
     },
   }->Identity.genericTypeToJson
 
-let pspConfig = (merchantId: string, pspType: string) =>
+let stripeAutomatedConfig = (merchantId: string, pspType: string) =>
+  {
+    "global_configuration": {
+      "mutations": {
+        "computations": [],
+        "mutations": [
+          {
+            "mutation_col": "settlement_id",
+            "replacement": [
+              {
+                "filters": [],
+                "value": `${merchantId}-stripe`,
+              },
+            ],
+          },
+          {
+            "mutation_col": "gateway",
+            "replacement": [
+              {
+                "filters": [],
+                "value": pspType,
+              },
+            ],
+          },
+          {
+            "mutation_col": "merchant_id",
+            "replacement": [
+              {
+                "filters": [],
+                "value": merchantId,
+              },
+            ],
+          },
+        ],
+      },
+    },
+    "local_configuration": [
+      {
+        "filters": [
+          {
+            "condition": "EQ",
+            "field": "reporting_category",
+            "value": "charge",
+          },
+        ],
+        "mappings": {
+          "fee": "fee",
+          "payment_entity_txn_id": "payment_intent_id",
+          "settlement_amount": "net",
+          "settlement_currency": "currency",
+          "txn_amount": "customer_facing_amount",
+          "txn_currency": "customer_facing_currency",
+          "txn_date": "created_utc",
+          "txn_status": "reporting_category",
+        },
+        "mutations": {
+          "computations": [],
+          "mutations": [
+            {
+              "mutation_col": "txn_type",
+              "replacement": [
+                {
+                  "filters": [],
+                  "value": "ORDER",
+                },
+              ],
+            },
+          ],
+        },
+        "type": "ORDER",
+      },
+      {
+        "filters": [
+          {
+            "condition": "EQ",
+            "field": "reporting_category",
+            "value": "refund",
+          },
+        ],
+        "mappings": {
+          "fee": "fee",
+          "payment_entity_txn_id": "source_id",
+          "settlement_amount": "net",
+          "settlement_currency": "currency",
+          "txn_amount": "customer_facing_amount",
+          "txn_currency": "customer_facing_currency",
+          "txn_date": "created_utc",
+          "txn_status": "reporting_category",
+        },
+        "mutations": {
+          "computations": [
+            {
+              "calculations": [
+                {
+                  "expr": "A - B * A",
+                  "mutation_col": "txn_amount",
+                },
+              ],
+              "variables": {
+                "A": "txn_amount",
+                "B": 2,
+              },
+            },
+          ],
+          "mutations": [
+            {
+              "mutation_col": "txn_type",
+              "replacement": [
+                {
+                  "filters": [],
+                  "value": "REFUND",
+                },
+              ],
+            },
+          ],
+        },
+        "type": "REFUND",
+      },
+    ],
+    "preprocessing": false,
+    "validation": {
+      "check_fields": {
+        "date_format_check": {
+          "txn_date": "%Y-%m-%d %H:%M:%S",
+        },
+        "duplicate_records_check": ["payment_entity_txn_id"],
+        "nan_value_check": ["payment_entity_txn_id", "txn_date", "txn_amount"],
+        "pkey_check": ["payment_entity_txn_id"],
+        "scientific_value_check": ["payment_entity_txn_id", "txn_amount"],
+      },
+      "checks": [
+        "date_format_check",
+        "nan_value_check",
+        "duplicate_records_check",
+        "scientific_value_check",
+        "pkey_check",
+      ],
+    },
+  }->Identity.genericTypeToJson
+
+let payuPSPConfig = (merchantId: string, pspType: string) =>
   {
     "global_configuration": {
       "mutations": {

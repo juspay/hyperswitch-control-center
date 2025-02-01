@@ -15,6 +15,7 @@ let make = () => {
     setDashboardPageState,
     currentProduct,
     setDefaultProductToSessionStorage,
+    showSideBar,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
@@ -125,14 +126,14 @@ let make = () => {
               <RenderIf condition={devOrgSidebar}>
                 <OrgSidebar />
               </RenderIf>
-              // <RenderIf condition={screenState === Success}>
-              //   <Sidebar
-              //     path={url.path}
-              //     sidebars={hyperSwitchAppSidebars}
-              //     key={(screenState :> string)}
-              //     productSiebars=productSidebars
-              //   />
-              // </RenderIf>
+              <RenderIf condition={screenState === Success && showSideBar}>
+                <Sidebar
+                  path={url.path}
+                  sidebars={hyperSwitchAppSidebars}
+                  key={(screenState :> string)}
+                  productSiebars=productSidebars
+                />
+              </RenderIf>
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div

@@ -22,7 +22,16 @@ let reportConfigAPI = (
   (url, body)
 }
 
-let baseConfigAPI = (~userName: string, ~merchantId: string) => {
+let baseConfigAPI = (
+  ~userName: string,
+  ~merchantId: string,
+  ~selectedOrderSource: ConnectOrderDataTypes.orderDataSteps,
+) => {
+  let config = switch selectedOrderSource {
+  | Hyperswitch => ConfigUtils.baseHyperSwitchConfig(merchantId)
+  | OrderManagementSystem => ConfigUtils.payuBaseConfig(merchantId)
+  | Dummy => ConfigUtils.payuBaseConfig(merchantId)
+  }
   let url = `http://localhost:8000/recon-settlement-api/recon/settlements/v1/create/configuration`
   let body = {
     "username": userName,
@@ -32,17 +41,64 @@ let baseConfigAPI = (~userName: string, ~merchantId: string) => {
     "payment_sub_entity": "NULL",
     "settlement_entity": "NULL",
     "config_type": "BASE",
-    "config": ConfigUtils.baseFIUUConfig(merchantId),
+    "config": config,
   }->Identity.genericTypeToJson
 
   (url, body)
 }
 
-let pspConfigAPI = (~merchantId: string, ~paymentEntity: option<string>) => {
+let queryJobAPI = (~merchantId: string, ~startTime: option<string>, ~endTime: option<string>) => {
+  switch (startTime, endTime) {
+  | (Some(startTime), Some(endTime)) => {
+      let url = `http://localhost:8000/recon-settlement-api-integ/base_file_query`
+      let body = {
+        "merchant_id": merchantId,
+        "query_merchant_id": "",
+        "end_date": endTime,
+        "start_date": startTime,
+      }->Identity.genericTypeToJson
+      (url, body)
+    }
+  | _ => Exn.raiseError("Please provide startTime and endTime")
+  }
+}
+
+let stripeAutomaticAPI = (
+  ~merchantId: string,
+  ~intervalStart: option<float>,
+  ~intervalEnd: option<float>,
+  ~apiKey: option<string>,
+) => {
+  switch (intervalStart, intervalEnd, apiKey) {
+  | (Some(intervalStart), Some(intervalEnd), Some(apiKey)) => {
+      let url = `http://localhost:8000/recon-settlement-api-integ/psp/file/stripe`
+      let body = {
+        "report_type": "balance_change_from_activity.itemized.1",
+        "interval_start": intervalStart,
+        "interval_end": intervalEnd,
+        "api_key": apiKey,
+        "merchant_id": merchantId,
+      }->Identity.genericTypeToJson
+      (url, body)
+    }
+  | _ => Exn.raiseError("Please provide intervalStart, intervalEnd and apiKey")
+  }
+}
+
+let pspConfigAPI = (
+  ~merchantId: string,
+  ~paymentEntity: option<string>,
+  ~selectedOrderSource: ConnectOrderDataTypes.orderDataSteps,
+) => {
   let url = `http://localhost:8000/recon-settlement-api/recon/settlements/v1/create/configuration`
   switch paymentEntity {
   | None => Exn.raiseError("Please provide paymentEntity")
   | Some(paymentEntity) => {
+      let config = switch selectedOrderSource {
+      | Hyperswitch => ConfigUtils.stripeAutomatedConfig(merchantId, paymentEntity)
+      | OrderManagementSystem => ConfigUtils.payuPSPConfig(merchantId, paymentEntity)
+      | Dummy => ConfigUtils.payuPSPConfig(merchantId, paymentEntity)
+      }
       let body = {
         "username": "",
         "merchant_id": merchantId,
@@ -51,7 +107,7 @@ let pspConfigAPI = (~merchantId: string, ~paymentEntity: option<string>) => {
         "payment_sub_entity": "NULL",
         "settlement_entity": "NULL",
         "config_type": "PSP",
-        "config": ConfigUtils.pspConfig(merchantId, paymentEntity),
+        "config": config,
       }->Identity.genericTypeToJson
       (url, body)
     }
@@ -220,11 +276,7 @@ let runReconAPI = (
   (url, body)
 }
 
-let useStepConfig = (
-  ~step: ReconConfigurationTypes.subSections,
-  ~fileUploadedDict: option<Dict.t<Core__JSON.t>>=?,
-  ~paymentEntity: option<string>=?,
-) => {
+let useStepConfig = () => {
   open APIUtils
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let getAPIHook = useGetMethod(~showErrorToast=false)
@@ -251,7 +303,17 @@ let useStepConfig = (
     }
   }
 
-  async _ => {
+  async (
+    ~step: ReconConfigurationTypes.subSections,
+    ~fileUploadedDict: option<Dict.t<Core__JSON.t>>=?,
+    ~paymentEntity: option<string>=?,
+    ~startTime: option<string>=?,
+    ~endTime: option<string>=?,
+    ~intervalStart: option<float>=?,
+    ~intervalEnd: option<float>=?,
+    ~apiKey: option<string>=?,
+    ~selectedOrderSource: ConnectOrderDataTypes.orderDataSteps,
+  ) => {
     try {
       switch step {
       | SelectSource => {
@@ -263,7 +325,7 @@ let useStepConfig = (
           )
           let _ = await updateAPIHook(reportUrl, reportBody, Post)
           // Below API should return the configUUID to approve the base config
-          let (baseUrl, baseBody) = baseConfigAPI(~merchantId, ~userName="")
+          let (baseUrl, baseBody) = baseConfigAPI(~merchantId, ~userName="", ~selectedOrderSource)
           let _ = await updateAPIHook(baseUrl, baseBody, Post)
 
           let listAPI = getConfigUUIDAPI(~merchantId)
@@ -275,79 +337,166 @@ let useStepConfig = (
           )
           let _ = await updateAPIHook(approveBaseConfigUrl, approveBaseConfigBody, Put)
         }
-      | SetupAPIConnection => {
-          let (url, formData) = baseFileUploadAPI(~fileUploadedDict, ~merchantId)
-          let (transformBaseFileUrl, transformBaseFileBody) = transformBaseFileAPI(~merchantId)
-
-          let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
-          let _ = await updateAPIHook(
-            ~bodyFormData=formData,
-            ~headers=Dict.make(),
-            url,
-            Dict.make()->JSON.Encode.object,
-            Post,
-            ~contentType=AuthHooks.Unknown,
-          )
+      | SetupAPIConnection =>
+        switch selectedOrderSource {
+        | Hyperswitch => {
+            let (transformBaseFileUrl, transformBaseFileBody) = transformBaseFileAPI(~merchantId)
+            let (queryJobUrl, queryJobBody) = queryJobAPI(~merchantId, ~startTime, ~endTime)
+            let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
+            let _ = await updateAPIHook(queryJobUrl, queryJobBody, Post)
+          }
+        | OrderManagementSystem => Js.log("OrderManagementSystem")
+        | Dummy => {
+            let (transformBaseFileUrl, transformBaseFileBody) = transformBaseFileAPI(~merchantId)
+            let (url, formData) = baseFileUploadAPI(~fileUploadedDict, ~merchantId)
+            let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
+            let _ = await updateAPIHook(
+              ~bodyFormData=formData,
+              ~headers=Dict.make(),
+              url,
+              Dict.make()->JSON.Encode.object,
+              Post,
+              ~contentType=AuthHooks.Unknown,
+            )
+          }
         }
-      | APIKeysAndLiveEndpoints => {
-          let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity)
-          let _ = await updateAPIHook(pspUrl, pspBody, Post)
+      | APIKeysAndLiveEndpoints =>
+        switch selectedOrderSource {
+        | Hyperswitch => {
+            let (reconUrl, reconBody) = reconConfigAPI(
+              ~base=merchantId,
+              ~connectionId="JP_RECON",
+              ~source="SFTP",
+              ~pspType=paymentEntity,
+            )
+            let _ = await updateAPIHook(reconUrl, reconBody, Post)
+            let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity, ~selectedOrderSource)
+            let _ = await updateAPIHook(pspUrl, pspBody, Post)
 
-          let listAPI = getConfigUUIDAPI(~merchantId)
-          let res = await getAPIHook(listAPI)
-          let configUUID = getUUID(res, "config_uuid")
-          let (approvePSPConfigUrl, approvePSPConfigBody) = approvePSPConfigAPI(
-            ~merchantId,
-            ~configUUID,
-          )
+            let listAPI = getConfigUUIDAPI(~merchantId)
+            let res = await getAPIHook(listAPI)
+            let configUUID = getUUID(res, "config_uuid")
+            let (approvePSPConfigUrl, approvePSPConfigBody) = approvePSPConfigAPI(
+              ~merchantId,
+              ~configUUID,
+            )
 
-          let _ = await updateAPIHook(approvePSPConfigUrl, approvePSPConfigBody, Put)
+            let _ = await updateAPIHook(approvePSPConfigUrl, approvePSPConfigBody, Put)
+            let (transformPSPFileUrl, transformPSPFileBody) = transformPSPFileAPI(
+              ~merchantId,
+              ~paymentEntity,
+            )
+            let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
+          }
+        | OrderManagementSystem => {
+            let (reconUrl, reconBody) = reconConfigAPI(
+              ~base=merchantId,
+              ~connectionId="JP_RECON",
+              ~source="SFTP",
+              ~pspType=paymentEntity,
+            )
+            let _ = await updateAPIHook(reconUrl, reconBody, Post)
+          }
+        | Dummy => {
+            let (reconUrl, reconBody) = reconConfigAPI(
+              ~base=merchantId,
+              ~connectionId="JP_RECON",
+              ~source="SFTP",
+              ~pspType=paymentEntity,
+            )
+            let _ = await updateAPIHook(reconUrl, reconBody, Post)
+
+            let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity, ~selectedOrderSource)
+            let _ = await updateAPIHook(pspUrl, pspBody, Post)
+
+            let listAPI = getConfigUUIDAPI(~merchantId)
+            let res = await getAPIHook(listAPI)
+            let configUUID = getUUID(res, "config_uuid")
+            let (approvePSPConfigUrl, approvePSPConfigBody) = approvePSPConfigAPI(
+              ~merchantId,
+              ~configUUID,
+            )
+
+            let _ = await updateAPIHook(approvePSPConfigUrl, approvePSPConfigBody, Put)
+
+            let (transformPSPFileUrl, transformPSPFileBody) = transformPSPFileAPI(
+              ~merchantId,
+              ~paymentEntity,
+            )
+            let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
+          }
         }
-      | WebHooks => {
-          let (url, formData) = pspFileUploadAPI(
-            ~fileUploadedDict,
-            ~merchantId,
-            ~pspType=paymentEntity,
-          )
-          let (transformPSPFileUrl, transformPSPFileBody) = transformPSPFileAPI(
-            ~merchantId,
-            ~paymentEntity,
-          )
-
-          let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
-          let _ = await updateAPIHook(
-            ~bodyFormData=formData,
-            ~headers=Dict.make(),
-            url,
-            Dict.make()->JSON.Encode.object,
-            Post,
-            ~contentType=AuthHooks.Unknown,
-          )
+      | WebHooks =>
+        switch selectedOrderSource {
+        | Hyperswitch => {
+            let (stripeUrl, stripeBody) = stripeAutomaticAPI(
+              ~merchantId,
+              ~intervalStart,
+              ~intervalEnd,
+              ~apiKey,
+            )
+            let _ = await updateAPIHook(stripeUrl, stripeBody, Post)
+          }
+        | OrderManagementSystem => {
+            let (url, formData) = pspFileUploadAPI(
+              ~fileUploadedDict,
+              ~merchantId,
+              ~pspType=paymentEntity,
+            )
+            let _ = await updateAPIHook(
+              ~bodyFormData=formData,
+              ~headers=Dict.make(),
+              url,
+              Dict.make()->JSON.Encode.object,
+              Post,
+              ~contentType=AuthHooks.Unknown,
+            )
+          }
+        | Dummy => {
+            let (url, formData) = pspFileUploadAPI(
+              ~fileUploadedDict,
+              ~merchantId,
+              ~pspType=paymentEntity,
+            )
+            let _ = await updateAPIHook(
+              ~bodyFormData=formData,
+              ~headers=Dict.make(),
+              url,
+              Dict.make()->JSON.Encode.object,
+              Post,
+              ~contentType=AuthHooks.Unknown,
+            )
+          }
         }
-      | TestLivePayment => {
-          let (reconUrl, reconBody) = reconConfigAPI(
-            ~base=merchantId,
-            ~connectionId="JP_RECON",
-            ~source="SFTP",
-            ~pspType=paymentEntity,
-          )
-          let _ = await updateAPIHook(reconUrl, reconBody, Post)
+      | TestLivePayment =>
+        switch selectedOrderSource {
+        | Hyperswitch => Js.log("Hyperswitch")
+        | OrderManagementSystem => Js.log("OMS")
+        | Dummy => {
+            let (reconUrl, reconBody) = reconConfigAPI(
+              ~base=merchantId,
+              ~connectionId="JP_RECON",
+              ~source="SFTP",
+              ~pspType=paymentEntity,
+            )
+            let _ = await updateAPIHook(reconUrl, reconBody, Post)
 
-          let baseFileList = getFileUUIDAPI(~merchantId, ~fileType="BASE")
-          let baseFileRes = await getAPIHook(baseFileList)
-          let pspFileList = getFileUUIDAPI(~merchantId, ~fileType="PSP")
-          let pspFileRes = await getAPIHook(pspFileList)
+            let baseFileList = getFileUUIDAPI(~merchantId, ~fileType="BASE")
+            let baseFileRes = await getAPIHook(baseFileList)
+            let pspFileList = getFileUUIDAPI(~merchantId, ~fileType="PSP")
+            let pspFileRes = await getAPIHook(pspFileList)
 
-          let baseFileUUID = getUUID(baseFileRes, "file_uuid")
-          let pspFileUUID = getUUID(pspFileRes, "file_uuid")
+            let baseFileUUID = getUUID(baseFileRes, "file_uuid")
+            let pspFileUUID = getUUID(pspFileRes, "file_uuid")
 
-          let (runReconUrl, runReconBody) = runReconAPI(
-            ~merchantId,
-            ~pspType=paymentEntity,
-            ~baseFileUUID,
-            ~pspFileUUID,
-          )
-          let _ = await updateAPIHook(runReconUrl, runReconBody, Post)
+            let (runReconUrl, runReconBody) = runReconAPI(
+              ~merchantId,
+              ~pspType=paymentEntity,
+              ~baseFileUUID,
+              ~pspFileUUID,
+            )
+            let _ = await updateAPIHook(runReconUrl, runReconBody, Post)
+          }
         }
       | _ => Exn.raiseError("Something went wrong")
       }

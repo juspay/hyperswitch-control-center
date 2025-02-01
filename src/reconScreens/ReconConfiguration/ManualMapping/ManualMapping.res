@@ -1,23 +1,38 @@
 @react.component
-let make = (~currentStep, ~setCurrentStep, ~selectedProcessor) => {
+let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSource) => {
   open ReconConfigurationUtils
+  open ConnectOrderDataTypes
 
   <div className="flex flex-col h-full">
-    <div className="flex flex-col gap-10 p-2 md:p-6">
-      <ReconConfigurationHelper.SubHeading
-        title="Manual Mapping"
-        subTitle="Map the fields from your order data to the processor data to ensure accurate reconciliation"
-      />
-    </div>
+    {switch selectedOrderSource {
+    | Hyperswitch =>
+      <div className="flex flex-col gap-10">
+        <ReconConfigurationHelper.SubHeading
+          title="Recon Successful" subTitle="You have successfully connected to Hyperswitch"
+        />
+      </div>
+    | Dummy =>
+      <div className="flex flex-col gap-10">
+        <ReconConfigurationHelper.SubHeading
+          title="Run Recon" subTitle="Run Recon to view the reports"
+        />
+      </div>
+    | OrderManagementSystem =>
+      <div className="flex flex-col gap-10">
+        <ReconConfigurationHelper.SubHeading
+          title="Run Recon" subTitle="Run Recon to view the reports"
+        />
+      </div>
+    }}
     {switch currentStep->getSubsectionFromStep {
     | TestLivePayment =>
       <ManualMappingHelper.TestLivePayment
-        currentStep={currentStep} setCurrentStep={setCurrentStep} selectedProcessor
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+        selectedProcessor
+        selectedOrderSource
       />
-    | SetupCompleted =>
-      <ManualMappingHelper.SetupCompleted
-        currentStep={currentStep} setCurrentStep={setCurrentStep}
-      />
+    | SetupCompleted => <ManualMappingHelper.SetupCompleted />
     | _ => <div />
     }}
   </div>

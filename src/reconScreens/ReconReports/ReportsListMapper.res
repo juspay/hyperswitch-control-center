@@ -19,9 +19,11 @@ let getReportPayloadType = dict => {
 }
 
 let getArrayOfReportsListPayloadType = json => {
-  json
-  ->getArrayFromJson([])
-  ->Array.map(connectorJson => {
+  json->Array.map(connectorJson => {
     connectorJson->getDictFromJsonObject->getReportPayloadType
   })
+}
+
+let getHeadersForCSV = () => {
+  "Gateway,Merchant Id,Payment Entity Txn Id,Recon Id,Recon Status,Recon Sub Status,Reconciled At,Settlement Amount,Settlement Id,Txn Amount,Txn Currency,Txn Type"
 }

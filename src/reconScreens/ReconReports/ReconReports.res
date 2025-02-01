@@ -3,12 +3,28 @@ let make = () => {
   open LogicUtils
   let (offset, setOffset) = React.useState(_ => 0)
   let fetchReportListResponse = ReportsData.useFetchReportsList()
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredReports, setConfiguredReports) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredReportsData, setFilteredReports) = React.useState(_ => [])
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
+  let (startDate, setStartDate) = React.useState(_ => ConfigUtils.getTodayDate())
+  let (endDate, setEndDate) = React.useState(_ => ConfigUtils.getTomorrowDate())
+  let showToast = ToastState.useShowToast()
+
+  let toast = (message, toastType) => {
+    showToast(~message, ~toastType)
+  }
+
+  let (initialValues, _) = React.useState(_ =>
+    JSON.Encode.object(
+      Dict.fromArray([
+        ("startDate", JSON.Encode.string(ConfigUtils.getTodayDate())),
+        ("endDate", JSON.Encode.string(ConfigUtils.getTomorrowDate())),
+      ]),
+    )
+  )
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
@@ -30,8 +46,12 @@ let make = () => {
 
   let getReportsList = async _ => {
     try {
-      let response = await fetchReportListResponse()
-      let data = response->getDictFromJsonObject->Dict.get("data")->Option.getOr(Js.Json.array([]))
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let response = await fetchReportListResponse(
+        ~startDate=`${startDate}T00:00:00`,
+        ~endDate=`${endDate}T23:59:59`,
+      )
+      let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
       let reportsList = data->ReportsListMapper.getArrayOfReportsListPayloadType
       setConfiguredReports(_ => reportsList)
       setFilteredReports(_ => reportsList->Array.map(Nullable.make))
@@ -42,18 +62,137 @@ let make = () => {
     }
   }
 
+  let onSubmit = (values, _) => {
+    let metadata = values->LogicUtils.getDictFromJsonObject
+    let startDate = metadata->LogicUtils.getString("startDate", "")
+    let endDate = metadata->LogicUtils.getString("endDate", "")
+
+    setStartDate(_ => startDate)
+    setEndDate(_ => endDate)
+    open Promise
+    Nullable.null->resolve
+  }
+
   React.useEffect(() => {
     getReportsList()->ignore
-    None
-  }, [])
 
-  <div>
-    <PageUtils.PageHeading
-      title={"Reconciliation Reports"} subTitle={"View all the reconciliation reports here"}
-    />
+    let intervalId = if configuredReports->Array.length == 0 {
+      let id = Js.Global.setInterval(() => {
+        getReportsList()->ignore
+      }, 5000)
+      Some(id)
+    } else {
+      None
+    }
+
+    Some(
+      () => {
+        switch intervalId {
+        | Some(id) => Js.Global.clearInterval(id)
+        | None => ()
+        }
+      },
+    )
+  }, [configuredReports->Array.length->Int.toString, startDate, endDate])
+
+  let convertArrayToCSV = arr => {
+    let headers = ReportsListMapper.getHeadersForCSV()
+    let csv =
+      arr
+      ->Array.map(row => row->Array.joinWith(","))
+      ->Array.joinWith("\n")
+    headers ++ "\n" ++ csv
+  }
+
+  let downloadReport = async () => {
+    try {
+      let arr = configuredReports->Array.map((obj: ReportsTypes.reportPayload) => {
+        let row = [
+          obj.gateway,
+          obj.merchant_id,
+          obj.payment_entity_txn_id,
+          obj.recon_id,
+          obj.recon_status,
+          obj.recon_sub_status,
+          obj.reconciled_at,
+          obj.settlement_amount->Float.toString,
+          obj.settlement_id,
+          obj.txn_amount->Float.toString,
+          obj.txn_currency,
+          obj.txn_type,
+        ]
+        row
+      })
+      let csvContent = arr->convertArrayToCSV
+      DownloadUtils.download(
+        ~fileName=`reconciliation_report_${startDate}_${endDate}.csv`,
+        ~content=csvContent,
+        ~fileType="text/csv",
+      )
+
+      toast("Report downloaded successfully", ToastSuccess)
+    } catch {
+    | _ => toast("Failed to download report", ToastError)
+    }
+  }
+
+  <div className="flex flex-col space-y-2 justify-center relative">
+    <div className="relative">
+      <PageUtils.PageHeading
+        title={"Reconciliation Reports"}
+        customTitleStyle="!text-lg !font-semibold"
+        subTitle={"View all the reconciliation reports here"}
+        customSubTitleStyle="text-base font-medium"
+      />
+      <div className="flex flex-row gap-6 absolute bottom-0 right-0">
+        <Form initialValues onSubmit>
+          <div className="flex flex-row gap-6">
+            <FormRenderer.FieldRenderer
+              field={FormRenderer.makeMultiInputFieldInfo(
+                ~label="",
+                ~comboCustomInput=InputFields.dateRangeField(
+                  ~startKey="startDate",
+                  ~endKey="endDate",
+                  ~format="YYYY-MM-DD",
+                  ~showTime=false,
+                  ~disablePastDates={false},
+                  ~disableFutureDates={true},
+                  ~predefinedDays=[Today, Yesterday, ThisMonth, LastMonth, LastSixMonths],
+                  ~numMonths=2,
+                  ~dateRangeLimit=400,
+                  ~disableApply=true,
+                  ~isTooltipVisible=false,
+                  ~customButtonStyle="!w-1/2",
+                ),
+                ~inputFields=[],
+              )}
+            />
+            <FormRenderer.SubmitButton
+              text="Apply" customSumbitButtonStyle="w-full mt-4" buttonType={Primary}
+            />
+          </div>
+        </Form>
+      </div>
+    </div>
+    <RenderIf condition={screenState == Success && configuredReports->Array.length == 0}>
+      <div className="my-4">
+        <NoDataFound message={"No data available"} renderType={Painting} />
+      </div>
+    </RenderIf>
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-10">
-        <RenderIf condition={configuredReports->Array.length > 0}>
+      <RenderIf condition={configuredReports->Array.length > 0}>
+        <div className="flex flex-col relative">
+          <div className="flex justify-end absolute right-0 top-10 cursor-pointer">
+            <Button
+              text="Download Reports"
+              buttonType={Primary}
+              rightIcon={Button.CustomIcon(<Icon name="download" size=14 />)}
+              onClick={_ => {
+                downloadReport()->ignore
+              }}
+              buttonSize={Medium}
+            />
+          </div>
           <LoadedTable
             title="Search Reports"
             actualData=filteredReportsData
@@ -77,8 +216,8 @@ let make = () => {
             currrentFetchCount={configuredReports->Array.length}
             collapseTableRow=false
           />
-        </RenderIf>
-      </div>
+        </div>
+      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }

@@ -710,8 +710,8 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   ]
   let sidebarValuesForProduct = switch currentProduct {
   | Orchestrator => hsSidebars
-  | Recon => [ReconSidebarValues.reconSidebars]
-  | Recovery => [RevenueRecoverySidebarValues.recoverySidebars]
+  | Recon => ReconSidebarValues.reconSidebars
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)

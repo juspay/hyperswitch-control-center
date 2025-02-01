@@ -147,24 +147,3 @@ module StepCard = {
     </div>
   }
 }
-
-module Footer = {
-  @react.component
-  let make = (~currentStep, ~onSubmit) => {
-    open ReconConfigurationUtils
-    let isLastStep = currentStep->isLastStep
-
-    <div className="flex justify-center items-center w-full">
-      {switch isLastStep {
-      | false =>
-        <Button
-          text="Next" customButtonStyle="rounded w-full" buttonType={Primary} onClick={onSubmit}
-        />
-      | true =>
-        <Button
-          text="Finish" customButtonStyle="rounded w-full" buttonType={Primary} onClick={onSubmit}
-        />
-      }}
-    </div>
-  }
-}

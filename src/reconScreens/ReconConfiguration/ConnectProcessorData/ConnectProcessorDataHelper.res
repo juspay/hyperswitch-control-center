@@ -4,18 +4,29 @@ let p1RegularText = getTextClass((P1, Regular))
 
 module APIKeysAndLiveEndpoints = {
   @react.component
-  let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~setSelectedProcessor) => {
+  let make = (
+    ~currentStep,
+    ~setCurrentStep,
+    ~selectedProcessor,
+    ~setSelectedProcessor,
+    ~selectedOrderSource,
+  ) => {
     open ReconConfigurationUtils
     open ConnectorUtils
     open ConnectorTypes
     open TempAPIUtils
+    open ConnectOrderDataTypes
 
-    let connectorList = [Processors(FIUU), Processors(PAYU), Processors(STRIPE)]
+    let connectorList = []
+
+    switch selectedOrderSource {
+    | Hyperswitch => connectorList->Array.push(Processors(STRIPE))
+    | OrderManagementSystem => connectorList->Array.push(Processors(PAYU))
+    | Dummy => connectorList->Array.push(Processors(PAYU))
+    }
+
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    let stepConfig = useStepConfig(
-      ~step=currentStep->getSubsectionFromStep,
-      ~paymentEntity=selectedProcessor->String.toUpperCase,
-    )
+    let stepConfig = useStepConfig()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let showToast = ToastState.useShowToast()
 
@@ -24,20 +35,23 @@ module APIKeysAndLiveEndpoints = {
     }
 
     let onSubmit = async () => {
-      // if selectedProcessor === "" {
-      //   toast("Please select a processor", ToastError)
-      // } else {
-      //   try {
-      //     setScreenState(_ => PageLoaderWrapper.Loading)
-      //     let _ = await stepConfig()
-      //     setCurrentStep(prev => getNextStep(prev))
-      //   } catch {
-      //   | Exn.Error(e) =>
-      //     let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      //     setScreenState(_ => PageLoaderWrapper.Error(err))
-      //   }
-      // }
-      setCurrentStep(prev => getNextStep(prev))
+      if selectedProcessor === "" {
+        toast("Please select a processor", ToastError)
+      } else {
+        try {
+          setScreenState(_ => PageLoaderWrapper.Loading)
+          let _ = await stepConfig(
+            ~step=currentStep->getSubsectionFromStep,
+            ~paymentEntity=selectedProcessor->String.toUpperCase,
+            ~selectedOrderSource,
+          )
+          setCurrentStep(prev => getNextStep(prev))
+        } catch {
+        | Exn.Error(e) =>
+          let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
+      }
     }
 
     <PageLoaderWrapper screenState={screenState}>
@@ -82,8 +96,11 @@ module APIKeysAndLiveEndpoints = {
           </div>
         </div>
         <div className="flex justify-end items-center border-t">
-          <ReconConfigurationHelper.Footer
-            currentStep={currentStep} onSubmit={_ => onSubmit()->ignore}
+          <Button
+            text="Next"
+            customButtonStyle="rounded w-full"
+            buttonType={Primary}
+            onClick={_ => onSubmit()->ignore}
           />
         </div>
       </div>
@@ -93,19 +110,17 @@ module APIKeysAndLiveEndpoints = {
 
 module WebHooks = {
   @react.component
-  let make = (~currentStep, ~setCurrentStep, ~selectedProcessor) => {
+  let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSource) => {
     open ReconConfigurationUtils
     open LogicUtils
     open TempAPIUtils
+    open ConnectOrderDataTypes
+    open DateTimeUtils
 
     let (fileUploadedDict, setFileUploadedDict) = React.useState(_ => Dict.make())
     let uploadEvidenceType = "PSPfile"->String.toLowerCase->titleToSnake
     let showToast = ToastState.useShowToast()
-    let stepConfig = useStepConfig(
-      ~step=currentStep->getSubsectionFromStep,
-      ~fileUploadedDict,
-      ~paymentEntity=selectedProcessor->String.toUpperCase,
-    )
+    let stepConfig = useStepConfig()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
     let toast = (message, toastType) => {
@@ -127,21 +142,130 @@ module WebHooks = {
       })
     }
 
-    let onSubmit = async () => {
-      // if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
-      //   toast("Please upload a file", ToastError)
-      // } else {
-      //   try {
-      //     setScreenState(_ => PageLoaderWrapper.Loading)
-      //     let _ = await stepConfig()
-      //     setCurrentStep(prev => getNextStep(prev))
-      //   } catch {
-      //   | Exn.Error(e) =>
-      //     let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      //     setScreenState(_ => PageLoaderWrapper.Error(err))
-      //   }
-      // }
-      setCurrentStep(prev => getNextStep(prev))
+    let loadPSPFile = async () => {
+      if selectedOrderSource === Dummy {
+        let response = await Fetch.fetch("/pspfile.csv")
+        let blob = await Fetch.Response.text(response)
+        let fileContentBlob = blob->Webapi.Blob.stringToBlobPart
+        let target = Webapi.File.makeWithOptions(
+          [fileContentBlob],
+          `${selectedProcessor->String.toUpperCase}_20250124.csv`,
+          Webapi__File.makeFilePropertyBag(~_type="text/csv", ()),
+        )
+        let fileDict =
+          [
+            ("uploadedFile", target->Identity.genericTypeToJson),
+            (
+              "fileName",
+              `${selectedProcessor->String.toUpperCase}_20250124.csv`->JSON.Encode.string,
+            ),
+          ]->getJsonFromArrayOfJson
+
+        setFileUploadedDict(prev => {
+          let arr = prev->Dict.toArray
+          let newDict = [(uploadEvidenceType, fileDict)]->Array.concat(arr)->Dict.fromArray
+          newDict
+        })
+      }
+    }
+
+    React.useEffect0(() => {
+      loadPSPFile()->ignore
+      None
+    })
+
+    let onSubmitDummy = async () => {
+      if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
+        toast("Please upload a file", ToastError)
+      } else {
+        try {
+          setScreenState(_ => PageLoaderWrapper.Loading)
+          let _ = await stepConfig(
+            ~step=currentStep->getSubsectionFromStep,
+            ~selectedOrderSource,
+            ~fileUploadedDict,
+            ~paymentEntity=selectedProcessor->String.toUpperCase,
+          )
+          setCurrentStep(prev => getNextStep(prev))
+        } catch {
+        | Exn.Error(e) =>
+          let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
+      }
+    }
+
+    let (initialValues, _) = React.useState(_ =>
+      JSON.Encode.object(Dict.fromArray([("api-key", JSON.Encode.string(""))]))
+    )
+
+    // let copyToClipboard = (ev, value: string) => {
+    //   ev->ReactEvent.Mouse.stopPropagation
+    //   Clipboard.writeText(value)
+    //   showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+    // }
+
+    // let getAPIKey = () => {
+    //   switch Js.Json.decodeObject(initialValues) {
+    //   | Some(obj) =>
+    //     switch Js.Dict.get(obj, "api-key") {
+    //     | Some(value) =>
+    //       switch Js.Json.decodeString(value) {
+    //       | Some(apiKey) => apiKey
+    //       | None => ""
+    //       }
+    //     | None => ""
+    //     }
+    //   | None => ""
+    //   }
+    // }
+
+    let callApiConnectionAPi = async (body: Js.Json.t) => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        switch Js.Json.decodeObject(body) {
+        | Some(obj) => {
+            let extractString = jsonValue =>
+              switch jsonValue->Js.Json.decodeString {
+              | Some(str) => str
+              | None => ""
+              }
+            let intervalStart =
+              Js.Dict.get(obj, "startKey")
+              ->Option.map(extractString)
+              ->Option.getExn
+              ->toUnixTimestamp /. 1000.0
+            let intervalEnd =
+              Js.Dict.get(obj, "endKey")
+              ->Option.map(extractString)
+              ->Option.getExn
+              ->toUnixTimestamp /. 1000.0
+            let apiKey =
+              Js.Dict.get(obj, "api-key")
+              ->Option.map(extractString)
+              ->Option.getExn
+            let _ = await stepConfig(
+              ~step=currentStep->getSubsectionFromStep,
+              ~selectedOrderSource,
+              ~intervalStart,
+              ~intervalEnd,
+              ~apiKey,
+            )
+            setCurrentStep(prev => getNextStep(prev))
+          }
+        | None => setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
+        }
+      } catch {
+      | Exn.Error(e) =>
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
+      }
+      Nullable.null
+    }
+
+    let onSubmit = (values, _) => {
+      let metadata = values->Identity.genericTypeToJson
+      callApiConnectionAPi(metadata)
     }
 
     <PageLoaderWrapper screenState={screenState}>
@@ -149,57 +273,114 @@ module WebHooks = {
         title="Set up webhook endpoint"
         subTitle="Configure Hyperswitch endpoint in your processor’s dashboard under webhook settings for us to receive events from the processor"
       />
-      <div className="flex flex-col h-full gap-y-10">
+      <div className="flex flex-col h-full gap-y-3">
         <div className="flex flex-col gap-y-4">
           <p className="text-base text-gray-700 font-semibold">
             {"Copy webhook endpoint"->React.string}
           </p>
-          <div className="flex items-center">
-            {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
-              <label>
-                <p className="cursor-pointer text-gray-500">
-                  <div className="flex gap-2 border border-gray-500 rounded-lg p-2 items-center">
-                    <Icon name="plus" size=14 />
-                    <p> {"Upload PSP file"->React.string} </p>
-                  </div>
-                  <input
-                    type_="file"
-                    accept=".csv"
-                    onChange={ev => ev->handleBrowseChange(uploadEvidenceType)}
-                    required=true
-                    hidden=true
-                  />
-                </p>
-              </label>
-            } else {
-              let fileName =
-                fileUploadedDict->getDictfromDict(uploadEvidenceType)->getString("fileName", "")
-              let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=10)
-
-              <div className="flex gap-4 items-center ">
-                <p className={`${p1RegularText} text-grey-700`}>
-                  {truncatedFileName->React.string}
-                </p>
-                <Icon
-                  name="cross-skeleton"
-                  className="cursor-pointer"
-                  size=12
-                  onClick={_ => {
-                    setFileUploadedDict(prev => {
-                      let prevCopy = prev->Dict.copy
-                      prevCopy->Dict.delete(uploadEvidenceType)
-                      prevCopy
-                    })
-                  }}
+          {switch selectedOrderSource {
+          | Hyperswitch =>
+            <Form initialValues onSubmit>
+              <div className="flex flex-row items-center w-full gap-x-4">
+                <FormRenderer.FieldRenderer
+                  labelClass="font-semibold !text-black"
+                  field={FormRenderer.makeFieldInfo(~label="", ~name="api-key", ~customInput=(
+                    ~input,
+                    ~placeholder as _,
+                  ) =>
+                    InputFields.textInput(~customStyle="w-[500px] rounded-xl", ~isDisabled=true)(
+                      ~input,
+                      ~placeholder="",
+                    )
+                  )}
                 />
               </div>
-            }}
-          </div>
-        </div>
-        <div className="flex justify-end items-center border-t">
-          <ReconConfigurationHelper.Footer
-            currentStep={currentStep} onSubmit={_ => onSubmit()->ignore}
-          />
+              <FormRenderer.FieldRenderer
+                field={FormRenderer.makeMultiInputFieldInfo(
+                  ~label="Date Range",
+                  ~comboCustomInput=InputFields.dateRangeField(
+                    ~startKey="startKey",
+                    ~endKey="endKey",
+                    ~format="YYYY-MM-DDTHH:mm:ss",
+                    ~showTime=false,
+                    ~disablePastDates={false},
+                    ~disableFutureDates={true},
+                    ~predefinedDays=[ThisMonth, LastMonth],
+                    ~numMonths=2,
+                    ~dateRangeLimit=400,
+                    ~disableApply=false,
+                    ~isTooltipVisible=false,
+                  ),
+                  ~inputFields=[],
+                  ~isRequired=true,
+                )}
+              />
+              <FormRenderer.SubmitButton
+                text="Next" customSumbitButtonStyle="w-full mt-10" buttonType={Primary}
+              />
+            </Form>
+          | OrderManagementSystem =>
+            <div className="flex flex-col gap-y-4">
+              <p className={`${p1RegularText} text-grey-700`}>
+                {"Connect your Order Management System to fetch order data from your source"->React.string}
+              </p>
+              <Button
+                text="Next"
+                customButtonStyle="w-full"
+                buttonType={Primary}
+                onClick={_ => setCurrentStep(prev => getNextStep(prev))}
+              />
+            </div>
+          | Dummy =>
+            <div className="flex flex-col gap-y-4">
+              {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
+                <label>
+                  <p className="cursor-pointer text-gray-500">
+                    <div className="flex gap-2 border border-gray-500 rounded-lg p-2 items-center">
+                      <Icon name="plus" size=14 />
+                      <p> {"Upload Base file"->React.string} </p>
+                    </div>
+                    <input
+                      type_="file"
+                      accept=".csv"
+                      disabled=true
+                      onChange={ev => ev->handleBrowseChange(uploadEvidenceType)}
+                      required=true
+                      hidden=true
+                    />
+                  </p>
+                </label>
+              } else {
+                let fileName =
+                  fileUploadedDict->getDictfromDict(uploadEvidenceType)->getString("fileName", "")
+                let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=10)
+
+                <div className="flex gap-4 items-center ">
+                  <p className={`${p1RegularText} text-grey-700`}>
+                    {truncatedFileName->React.string}
+                  </p>
+                  <Icon
+                    name="cross-skeleton"
+                    className="cursor-not-allowed"
+                    size=12
+                    onClick={_ => {
+                      setFileUploadedDict(prev => {
+                        let prevCopy = prev->Dict.copy
+                        prevCopy->Dict.delete(uploadEvidenceType)
+                        prevCopy
+                      })
+                    }}
+                  />
+                </div>
+              }}
+              <Button
+                text="Next"
+                customButtonStyle="rounded w-full"
+                buttonType={Primary}
+                onClick={_ => onSubmitDummy()->ignore}
+              />
+            </div>
+          }}
         </div>
       </div>
     </PageLoaderWrapper>

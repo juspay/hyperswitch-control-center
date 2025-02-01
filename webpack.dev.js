@@ -30,6 +30,11 @@ let proxy = {
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
+  "/recon-settlement-api-integ": {
+    target: "https://integ-api.hyperswitch.io",
+    pathRewrite: { "^/recon-settlement-api-integ": "recon-settlement-api" },
+    changeOrigin: true,
+  },
   "/recon-settlement-api": {
     target: "https://sandbox.hyperswitch.io",
     pathRewrite: { "^/api": "" },
