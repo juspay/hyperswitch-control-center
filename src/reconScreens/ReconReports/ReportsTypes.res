@@ -12,10 +12,3 @@ type reportPayload = {
   txn_currency: string,
   txn_type: string,
 }
-
-type startAndEndTime = {
-  startTime: JSON.t,
-  endTime: JSON.t,
-}
-
-type timeRange = {timeRange: startAndEndTime}

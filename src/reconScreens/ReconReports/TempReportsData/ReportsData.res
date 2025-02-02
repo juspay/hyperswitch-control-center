@@ -2,8 +2,8 @@ let getReconReports = (~merchantId, ~startDate, ~endDate) => {
   let url = `http://localhost:8000/recon-settlement-api/recon/settlements/v1/dashboard/reports/recon`
   let body = {
     "merchant_id": merchantId,
-    "start_date": startDate,
-    "end_date": endDate,
+    "start_date": `${startDate}T00:00:00`,
+    "end_date": `${endDate}T23:59:59`,
     "offset": 0,
     "limit": 100,
   }->Identity.genericTypeToJson

@@ -8,7 +8,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredReportsData, setFilteredReports) = React.useState(_ => [])
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
+  let (previousReportsData, setPreviousReports) = React.useState(_ => [])
   let (startDate, setStartDate) = React.useState(_ => ConfigUtils.getTodayDate())
   let (endDate, setEndDate) = React.useState(_ => ConfigUtils.getTomorrowDate())
   let showToast = ToastState.useShowToast()
@@ -33,6 +33,7 @@ let make = () => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.payment_entity_txn_id, searchText) ||
+          isContainingStringLowercase(obj.gateway, searchText) ||
           isContainingStringLowercase(obj.txn_type, searchText) ||
           isContainingStringLowercase(obj.recon_status, searchText)
         | None => false
@@ -47,15 +48,12 @@ let make = () => {
   let getReportsList = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = await fetchReportListResponse(
-        ~startDate=`${startDate}T00:00:00`,
-        ~endDate=`${endDate}T23:59:59`,
-      )
+      let response = await fetchReportListResponse(~startDate, ~endDate)
       let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
       let reportsList = data->ReportsListMapper.getArrayOfReportsListPayloadType
       setConfiguredReports(_ => reportsList)
       setFilteredReports(_ => reportsList->Array.map(Nullable.make))
-      setPreviouslyConnectedData(_ => reportsList->Array.map(Nullable.make))
+      setPreviousReports(_ => reportsList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -75,25 +73,8 @@ let make = () => {
 
   React.useEffect(() => {
     getReportsList()->ignore
-
-    let intervalId = if configuredReports->Array.length == 0 {
-      let id = Js.Global.setInterval(() => {
-        getReportsList()->ignore
-      }, 5000)
-      Some(id)
-    } else {
-      None
-    }
-
-    Some(
-      () => {
-        switch intervalId {
-        | Some(id) => Js.Global.clearInterval(id)
-        | None => ()
-        }
-      },
-    )
-  }, [configuredReports->Array.length->Int.toString, startDate, endDate])
+    None
+  }, [startDate, endDate])
 
   let convertArrayToCSV = arr => {
     let headers = ReportsListMapper.getHeadersForCSV()
@@ -158,7 +139,6 @@ let make = () => {
                   ~disablePastDates={false},
                   ~disableFutureDates={true},
                   ~predefinedDays=[Today, Yesterday, ThisMonth, LastMonth, LastSixMonths],
-                  ~numMonths=2,
                   ~dateRangeLimit=400,
                   ~disableApply=true,
                   ~isTooltipVisible=false,
@@ -203,9 +183,9 @@ let make = () => {
               ~authorization=userHasAccess(~groupAccess=UsersManage),
             )}
             filters={<TableSearchFilter
-              data={previouslyConnectedData}
+              data={previousReportsData}
               filterLogic
-              placeholder="Search Payment Entity Txn Id, Txn Type, Recon Status"
+              placeholder="Search Gateway, Payment Entity Txn Id, Txn Type, Recon Status"
               customSearchBarWrapperWidth="w-full lg:w-1/2"
               customInputBoxWidth="w-full"
               searchVal={searchText}

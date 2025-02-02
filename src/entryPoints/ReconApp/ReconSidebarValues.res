@@ -26,6 +26,15 @@ let reconReports = {
   })
 }
 
+let reconHistory = {
+  Link({
+    name: "History",
+    link: `/v2/recon/run-recon`,
+    access: Access,
+    icon: "history",
+  })
+}
+
 let reconAnalytics = {
   Link({
     name: "Analytics",
@@ -36,6 +45,6 @@ let reconAnalytics = {
 }
 
 let reconSidebars = {
-  let sidebar = [reconOnBoarding, reconReports, reconAnalytics]
+  let sidebar = [reconOnBoarding, reconReports, reconAnalytics, reconHistory]
   sidebar
 }

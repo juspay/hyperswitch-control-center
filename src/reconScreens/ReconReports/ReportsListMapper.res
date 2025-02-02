@@ -19,8 +19,8 @@ let getReportPayloadType = dict => {
 }
 
 let getArrayOfReportsListPayloadType = json => {
-  json->Array.map(connectorJson => {
-    connectorJson->getDictFromJsonObject->getReportPayloadType
+  json->Array.map(reportJson => {
+    reportJson->getDictFromJsonObject->getReportPayloadType
   })
 }
 

@@ -20,10 +20,7 @@ let make = () => {
   let getAnalyticsCardList = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = await fetchAnalyticsListResponse(
-        ~start=`${startDate}T00:00:00Z`,
-        ~end=`${endDate}T23:59:59Z`,
-      )
+      let response = await fetchAnalyticsListResponse(~start=startDate, ~end=endDate)
       setAnalyticsCardData(_ => response->LogicUtils.getDictFromJsonObject)
       setScreenState(_ => Success)
     } catch {
@@ -69,7 +66,6 @@ let make = () => {
                   ~disablePastDates={false},
                   ~disableFutureDates={true},
                   ~predefinedDays=[Today, Yesterday, ThisMonth, LastMonth, LastSixMonths],
-                  ~numMonths=2,
                   ~dateRangeLimit=400,
                   ~disableApply=true,
                   ~isTooltipVisible=false,
@@ -87,7 +83,7 @@ let make = () => {
     </div>
     <PageLoaderWrapper screenState>
       <ReconAnalyticsCards analyticsCardData />
-      <ReconAnalyticsBarChart />
+      <ReconAnalyticsBarChart startDate endDate />
     </PageLoaderWrapper>
   </div>
 }

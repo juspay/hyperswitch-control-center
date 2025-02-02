@@ -32,15 +32,6 @@ module TestLivePayment = {
     <PageLoaderWrapper screenState={screenState}>
       <div className="flex flex-col h-full">
         {switch selectedOrderSource {
-        | Dummy =>
-          <div className="flex justify-end items-center mt-10">
-            <Button
-              text="Next"
-              customButtonStyle="rounded w-full"
-              buttonType={Primary}
-              onClick={_ => onDummySubmit()->ignore}
-            />
-          </div>
         | Hyperswitch =>
           <div className="flex justify-end items-center mt-10">
             <Button
@@ -53,10 +44,19 @@ module TestLivePayment = {
         | OrderManagementSystem =>
           <div className="flex justify-end items-center mt-10">
             <Button
-              text="Go to Reports"
+              text="Proceed"
               customButtonStyle="rounded w-full"
               buttonType={Primary}
-              onClick={_ => onSubmit()->ignore}
+              onClick={_ => onDummySubmit()->ignore}
+            />
+          </div>
+        | Dummy =>
+          <div className="flex justify-end items-center mt-10">
+            <Button
+              text="Proceed"
+              customButtonStyle="rounded w-full"
+              buttonType={Primary}
+              onClick={_ => onDummySubmit()->ignore}
             />
           </div>
         }}

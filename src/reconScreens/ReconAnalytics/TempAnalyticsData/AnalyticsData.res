@@ -23,8 +23,8 @@ let getAnalyticsCardList = (~start: string, ~end: string) => {
     ],
     "domain": "reconsettlement",
     "interval": {
-      "start": start,
-      "end": end,
+      "start": `${start}T00:00:00Z`,
+      "end": `${end}T23:59:59Z`,
     },
   }->Identity.genericTypeToJson
   (url, body)
@@ -48,7 +48,7 @@ let useFetchAnalyticsCardList = () => {
   }
 }
 
-let getBarGraphData = () => {
+let getBarGraphData = (~start, ~end) => {
   let url = `http://localhost:8000/q/internal/query?api-type=Top-Chart-timeseries&metrics=recon_success_rate`
   let body = {
     "metric": "recon_success_rate",
@@ -64,8 +64,8 @@ let getBarGraphData = () => {
     ],
     "domain": "reconsettlement",
     "interval": {
-      "start": "2025-01-31T18:30:00Z",
-      "end": "2025-02-01T07:59:59Z",
+      "start": `${start}T00:00:00Z`,
+      "end": `${end}T23:59:59Z`,
     },
   }->Identity.genericTypeToJson
   (url, body)
@@ -74,10 +74,10 @@ let getBarGraphData = () => {
 let useFetchBarGraphData = () => {
   open APIUtils
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let (url, body) = getBarGraphData()
 
-  async _ => {
+  async (~start, ~end) => {
     try {
+      let (url, body) = getBarGraphData(~start, ~end)
       let res = await updateAPIHook(url, body, Post)
       res
     } catch {

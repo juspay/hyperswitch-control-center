@@ -76,6 +76,7 @@ module SetupAPIConnection = {
     open ConnectOrderDataTypes
     open LogicUtils
     open TempAPIUtils
+    open DateTimeUtils
 
     let (fileUploadedDict, setFileUploadedDict) = React.useState(_ => Dict.make())
     let uploadEvidenceType = "Basefile"->String.toLowerCase->titleToSnake
@@ -86,6 +87,14 @@ module SetupAPIConnection = {
 
     let toast = (message, toastType) => {
       showToast(~message, ~toastType)
+    }
+
+    let date = Js.Date.fromFloat(Date.getTime(Date.make()))->Date.toISOString
+
+    let getDate = () => {
+      date->String.slice(~start=0, ~end=4) ++
+      date->String.slice(~start=5, ~end=7) ++
+      date->String.slice(~start=8, ~end=10)
     }
 
     let callApiConnectionAPi = async (body: Js.Json.t) => {
@@ -120,9 +129,6 @@ module SetupAPIConnection = {
     let onSubmit = (values, _) => {
       let metadata = values->Identity.genericTypeToJson
       callApiConnectionAPi(metadata)
-      // setCurrentStep(prev => getNextStep(prev))
-      // open Promise
-      // Nullable.null->resolve
     }
 
     let loadBaseFile = async () => {
@@ -131,13 +137,17 @@ module SetupAPIConnection = {
       let fileContentBlob = blob->Webapi.Blob.stringToBlobPart
       let target = Webapi.File.makeWithOptions(
         [fileContentBlob],
-        `${merchantId}_20250124.csv`,
+        `${merchantId}_${(date->toUnixTimestamp /. 1000.0)->Float.toString}_${getDate()}.csv`,
         Webapi__File.makeFilePropertyBag(~_type="text/csv", ()),
       )
       let fileDict =
         [
           ("uploadedFile", target->Identity.genericTypeToJson),
-          ("fileName", `${merchantId}_20250124.csv`->JSON.Encode.string),
+          (
+            "fileName",
+            `${merchantId}_${(date->toUnixTimestamp /. 1000.0)
+                ->Float.toString}_${getDate()}.csv`->JSON.Encode.string,
+          ),
         ]->getJsonFromArrayOfJson
 
       setFileUploadedDict(prev => {
@@ -179,7 +189,11 @@ module SetupAPIConnection = {
       let fileDict =
         [
           ("uploadedFile", target["files"]["0"]->Identity.genericTypeToJson),
-          ("fileName", target["files"]["0"]["name"]->JSON.Encode.string),
+          (
+            "fileName",
+            `${merchantId}_${(date->toUnixTimestamp /. 1000.0)
+                ->Float.toString}_${getDate()}.csv`->JSON.Encode.string,
+          ),
         ]->getJsonFromArrayOfJson
 
       setFileUploadedDict(prev => {
@@ -223,29 +237,16 @@ module SetupAPIConnection = {
             </Form>
           | OrderManagementSystem =>
             <div className="flex flex-col gap-y-4">
-              <p className={`${p1RegularText} text-grey-700`}>
-                {"Connect your Order Management System to fetch order data from your source"->React.string}
-              </p>
-              <Button
-                text="Next"
-                customButtonStyle="w-full"
-                buttonType={Primary}
-                onClick={_ => setCurrentStep(prev => getNextStep(prev))}
-              />
-            </div>
-          | Dummy =>
-            <div className="flex flex-col gap-y-4">
               {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
                 <label>
                   <p className="cursor-pointer text-gray-500">
                     <div className="flex gap-2 border border-gray-500 rounded-lg p-2 items-center">
                       <Icon name="plus" size=14 />
-                      <p> {"Upload PSP file"->React.string} </p>
+                      <p> {"Upload Base file"->React.string} </p>
                     </div>
                     <input
                       type_="file"
                       accept=".csv"
-                      disabled=true
                       onChange={ev => ev->handleBrowseChange(uploadEvidenceType)}
                       required=true
                       hidden=true
@@ -263,7 +264,7 @@ module SetupAPIConnection = {
                   </p>
                   <Icon
                     name="cross-skeleton"
-                    className="cursor-not-allowed"
+                    className="cursor-pointer"
                     size=12
                     onClick={_ => {
                       setFileUploadedDict(prev => {
@@ -272,6 +273,46 @@ module SetupAPIConnection = {
                         prevCopy
                       })
                     }}
+                  />
+                </div>
+              }}
+              <Button
+                text="Next"
+                customButtonStyle="w-full"
+                buttonType={Primary}
+                onClick={_ => onSubmitDummy()->ignore}
+              />
+            </div>
+          | Dummy =>
+            <div className="flex flex-col gap-y-4">
+              {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
+                <label>
+                  <p className="cursor-pointer text-gray-500">
+                    <div className="flex gap-2 border border-gray-500 rounded-lg p-2 items-center">
+                      <Icon name="plus" size=14 />
+                      <p> {"Upload Base file"->React.string} </p>
+                    </div>
+                    <input
+                      type_="file"
+                      accept=".csv"
+                      disabled=true
+                      onChange={_ => ()}
+                      required=true
+                      hidden=true
+                    />
+                  </p>
+                </label>
+              } else {
+                let fileName =
+                  fileUploadedDict->getDictfromDict(uploadEvidenceType)->getString("fileName", "")
+                let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=10)
+
+                <div className="flex gap-4 items-center ">
+                  <p className={`${p1RegularText} text-grey-700`}>
+                    {truncatedFileName->React.string}
+                  </p>
+                  <Icon
+                    name="cross-skeleton" className="cursor-not-allowed" size=12 onClick={_ => ()}
                   />
                 </div>
               }}

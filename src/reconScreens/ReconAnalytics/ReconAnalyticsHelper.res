@@ -89,14 +89,14 @@ module ReconAnalyticsCards = {
 
 module ReconAnalyticsBarChart = {
   @react.component
-  let make = () => {
+  let make = (~startDate, ~endDate) => {
     let fetchAnalyticsListResponse = AnalyticsData.useFetchBarGraphData()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (analyticsCardData, setAnalyticsCardData) = React.useState(_ => Dict.make())
 
     let getAnalyticsCardList = async _ => {
       try {
-        let response = await fetchAnalyticsListResponse()
+        let response = await fetchAnalyticsListResponse(~start=startDate, ~end=endDate)
         setAnalyticsCardData(_ => response->LogicUtils.getDictFromJsonObject)
         setScreenState(_ => Success)
       } catch {

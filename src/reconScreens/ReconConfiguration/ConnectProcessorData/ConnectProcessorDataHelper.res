@@ -71,26 +71,50 @@ module APIKeysAndLiveEndpoints = {
               let processorInfo = processor->getConnectorInfo
               let size = "w-14 h-14 rounded-sm"
 
-              <ACLDiv
-                authorization={userHasAccess(~groupAccess=ConnectorsManage)}
-                onClick={_ => setSelectedProcessor(_ => processorName)}
-                key={i->string_of_int}
-                className={`${selectedProcessor === processorName
-                    ? "border-blue-500"
-                    : ""} border p-6 gap-4 bg-white rounded flex flex-col justify-between cursor-pointer`}
-                dataAttrStr=processorName>
-                <div className="flex flex-col gap-3 items-start">
-                  <GatewayIcon gateway={processorName->String.toUpperCase} className=size />
-                  <p className={`${p1MediumTextStyle} break-all`}>
-                    {processorName
-                    ->getDisplayNameForConnector(~connectorType=Processor)
-                    ->React.string}
-                  </p>
-                </div>
-                <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
-                  {processorInfo.description->React.string}
-                </p>
-              </ACLDiv>
+              {
+                switch selectedOrderSource {
+                | Dummy =>
+                  <ACLDiv
+                    authorization={userHasAccess(~groupAccess=ConnectorsManage)}
+                    onClick={_ => setSelectedProcessor(_ => processorName)}
+                    key={i->string_of_int}
+                    className={`${selectedProcessor === processorName
+                        ? "border-blue-500"
+                        : ""} border p-6 gap-4 bg-white rounded flex flex-col justify-between cursor-pointer`}
+                    dataAttrStr=processorName>
+                    <div className="flex flex-col gap-3 items-start">
+                      <Icon name="lightbulb" className=size />
+                      <p className={`${p1MediumTextStyle} break-all`}>
+                        {"Dummy Processor"->React.string}
+                      </p>
+                    </div>
+                    <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
+                      {"Dummy Processor is used for testing purposes"->React.string}
+                    </p>
+                  </ACLDiv>
+                | _ =>
+                  <ACLDiv
+                    authorization={userHasAccess(~groupAccess=ConnectorsManage)}
+                    onClick={_ => setSelectedProcessor(_ => processorName)}
+                    key={i->string_of_int}
+                    className={`${selectedProcessor === processorName
+                        ? "border-blue-500"
+                        : ""} border p-6 gap-4 bg-white rounded flex flex-col justify-between cursor-pointer`}
+                    dataAttrStr=processorName>
+                    <div className="flex flex-col gap-3 items-start">
+                      <GatewayIcon gateway={processorName->String.toUpperCase} className=size />
+                      <p className={`${p1MediumTextStyle} break-all`}>
+                        {processorName
+                        ->getDisplayNameForConnector(~connectorType=Processor)
+                        ->React.string}
+                      </p>
+                    </div>
+                    <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
+                      {processorInfo.description->React.string}
+                    </p>
+                  </ACLDiv>
+                }
+              }
             })
             ->React.array}
           </div>
@@ -123,6 +147,14 @@ module WebHooks = {
     let stepConfig = useStepConfig()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
+    let date = Js.Date.fromFloat(Date.getTime(Date.make()))->Date.toISOString
+
+    let getDate = () => {
+      date->String.slice(~start=0, ~end=4) ++
+      date->String.slice(~start=5, ~end=7) ++
+      date->String.slice(~start=8, ~end=10)
+    }
+
     let toast = (message, toastType) => {
       showToast(~message, ~toastType)
     }
@@ -132,7 +164,11 @@ module WebHooks = {
       let fileDict =
         [
           ("uploadedFile", target["files"]["0"]->Identity.genericTypeToJson),
-          ("fileName", target["files"]["0"]["name"]->JSON.Encode.string),
+          (
+            "fileName",
+            `${selectedProcessor->String.toUpperCase}_${(date->toUnixTimestamp /. 1000.0)
+                ->Float.toString}_${getDate()}.csv`->JSON.Encode.string,
+          ),
         ]->getJsonFromArrayOfJson
 
       setFileUploadedDict(prev => {
@@ -149,7 +185,8 @@ module WebHooks = {
         let fileContentBlob = blob->Webapi.Blob.stringToBlobPart
         let target = Webapi.File.makeWithOptions(
           [fileContentBlob],
-          `${selectedProcessor->String.toUpperCase}_20250124.csv`,
+          `${selectedProcessor->String.toUpperCase}_${(date->toUnixTimestamp /. 1000.0)
+              ->Float.toString}_${getDate()}.csv`,
           Webapi__File.makeFilePropertyBag(~_type="text/csv", ()),
         )
         let fileDict =
@@ -157,7 +194,8 @@ module WebHooks = {
             ("uploadedFile", target->Identity.genericTypeToJson),
             (
               "fileName",
-              `${selectedProcessor->String.toUpperCase}_20250124.csv`->JSON.Encode.string,
+              `${selectedProcessor->String.toUpperCase}_${(date->toUnixTimestamp /. 1000.0)
+                  ->Float.toString}_${getDate()}.csv`->JSON.Encode.string,
             ),
           ]->getJsonFromArrayOfJson
 
@@ -305,7 +343,7 @@ module WebHooks = {
                     ~showTime=false,
                     ~disablePastDates={false},
                     ~disableFutureDates={true},
-                    ~predefinedDays=[ThisMonth, LastMonth],
+                    ~predefinedDays=[Today, Yesterday, ThisMonth, LastMonth, LastSixMonths],
                     ~numMonths=2,
                     ~dateRangeLimit=400,
                     ~disableApply=false,
@@ -321,14 +359,49 @@ module WebHooks = {
             </Form>
           | OrderManagementSystem =>
             <div className="flex flex-col gap-y-4">
-              <p className={`${p1RegularText} text-grey-700`}>
-                {"Connect your Order Management System to fetch order data from your source"->React.string}
-              </p>
+              {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
+                <label>
+                  <p className="cursor-pointer text-gray-500">
+                    <div className="flex gap-2 border border-gray-500 rounded-lg p-2 items-center">
+                      <Icon name="plus" size=14 />
+                      <p> {"Upload PSP file"->React.string} </p>
+                    </div>
+                    <input
+                      type_="file"
+                      accept=".csv"
+                      onChange={ev => handleBrowseChange(ev, uploadEvidenceType)}
+                      required=true
+                      hidden=true
+                    />
+                  </p>
+                </label>
+              } else {
+                let fileName =
+                  fileUploadedDict->getDictfromDict(uploadEvidenceType)->getString("fileName", "")
+                let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=15)
+                <div className="flex gap-4 items-center ">
+                  <p className={`${p1RegularText} text-grey-700`}>
+                    {truncatedFileName->React.string}
+                  </p>
+                  <Icon
+                    name="cross-skeleton"
+                    className="cursor-pointer"
+                    size=12
+                    onClick={_ => {
+                      setFileUploadedDict(prev => {
+                        let prevCopy = prev->Dict.copy
+                        prevCopy->Dict.delete(uploadEvidenceType)
+                        prevCopy
+                      })
+                    }}
+                  />
+                </div>
+              }}
               <Button
                 text="Next"
                 customButtonStyle="w-full"
                 buttonType={Primary}
-                onClick={_ => setCurrentStep(prev => getNextStep(prev))}
+                onClick={_ => onSubmitDummy()->ignore}
               />
             </div>
           | Dummy =>
@@ -338,13 +411,13 @@ module WebHooks = {
                   <p className="cursor-pointer text-gray-500">
                     <div className="flex gap-2 border border-gray-500 rounded-lg p-2 items-center">
                       <Icon name="plus" size=14 />
-                      <p> {"Upload Base file"->React.string} </p>
+                      <p> {"Upload PSP file"->React.string} </p>
                     </div>
                     <input
                       type_="file"
                       accept=".csv"
                       disabled=true
-                      onChange={ev => ev->handleBrowseChange(uploadEvidenceType)}
+                      onChange={_ => ()}
                       required=true
                       hidden=true
                     />
@@ -353,23 +426,14 @@ module WebHooks = {
               } else {
                 let fileName =
                   fileUploadedDict->getDictfromDict(uploadEvidenceType)->getString("fileName", "")
-                let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=10)
+                let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=15)
 
                 <div className="flex gap-4 items-center ">
                   <p className={`${p1RegularText} text-grey-700`}>
                     {truncatedFileName->React.string}
                   </p>
                   <Icon
-                    name="cross-skeleton"
-                    className="cursor-not-allowed"
-                    size=12
-                    onClick={_ => {
-                      setFileUploadedDict(prev => {
-                        let prevCopy = prev->Dict.copy
-                        prevCopy->Dict.delete(uploadEvidenceType)
-                        prevCopy
-                      })
-                    }}
+                    name="cross-skeleton" className="cursor-not-allowed" size=12 onClick={_ => ()}
                   />
                 </div>
               }}

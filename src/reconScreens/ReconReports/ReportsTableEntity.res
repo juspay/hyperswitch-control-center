@@ -86,18 +86,18 @@ let getCell = (report: reportPayload, colType): Table.cell => {
   }
 }
 
-let getPreviouslyConnectedList: JSON.t => array<reportPayload> = json => {
+let getReportsList: JSON.t => array<reportPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, ReportsListMapper.getReportPayloadType)
 }
 
 let reportsEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=getReportsList,
     ~defaultColumns,
     ~getHeading,
     ~getCell,
-    ~dataKey="",
+    ~dataKey="reports",
     ~getShowLink={
       connec =>
         GroupAccessUtils.linkForGetShowLinkViaAccess(

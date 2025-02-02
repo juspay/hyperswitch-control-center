@@ -345,7 +345,19 @@ let useStepConfig = () => {
             let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
             let _ = await updateAPIHook(queryJobUrl, queryJobBody, Post)
           }
-        | OrderManagementSystem => Js.log("OrderManagementSystem")
+        | OrderManagementSystem => {
+            let (transformBaseFileUrl, transformBaseFileBody) = transformBaseFileAPI(~merchantId)
+            let (url, formData) = baseFileUploadAPI(~fileUploadedDict, ~merchantId)
+            let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
+            let _ = await updateAPIHook(
+              ~bodyFormData=formData,
+              ~headers=Dict.make(),
+              url,
+              Dict.make()->JSON.Encode.object,
+              Post,
+              ~contentType=AuthHooks.Unknown,
+            )
+          }
         | Dummy => {
             let (transformBaseFileUrl, transformBaseFileBody) = transformBaseFileAPI(~merchantId)
             let (url, formData) = baseFileUploadAPI(~fileUploadedDict, ~merchantId)
@@ -389,23 +401,6 @@ let useStepConfig = () => {
             let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
           }
         | OrderManagementSystem => {
-            let (reconUrl, reconBody) = reconConfigAPI(
-              ~base=merchantId,
-              ~connectionId="JP_RECON",
-              ~source="SFTP",
-              ~pspType=paymentEntity,
-            )
-            let _ = await updateAPIHook(reconUrl, reconBody, Post)
-          }
-        | Dummy => {
-            let (reconUrl, reconBody) = reconConfigAPI(
-              ~base=merchantId,
-              ~connectionId="JP_RECON",
-              ~source="SFTP",
-              ~pspType=paymentEntity,
-            )
-            let _ = await updateAPIHook(reconUrl, reconBody, Post)
-
             let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity, ~selectedOrderSource)
             let _ = await updateAPIHook(pspUrl, pspBody, Post)
 
@@ -418,12 +413,20 @@ let useStepConfig = () => {
             )
 
             let _ = await updateAPIHook(approvePSPConfigUrl, approvePSPConfigBody, Put)
+          }
+        | Dummy => {
+            let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity, ~selectedOrderSource)
+            let _ = await updateAPIHook(pspUrl, pspBody, Post)
 
-            let (transformPSPFileUrl, transformPSPFileBody) = transformPSPFileAPI(
+            let listAPI = getConfigUUIDAPI(~merchantId)
+            let res = await getAPIHook(listAPI)
+            let configUUID = getUUID(res, "config_uuid")
+            let (approvePSPConfigUrl, approvePSPConfigBody) = approvePSPConfigAPI(
               ~merchantId,
-              ~paymentEntity,
+              ~configUUID,
             )
-            let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
+
+            let _ = await updateAPIHook(approvePSPConfigUrl, approvePSPConfigBody, Put)
           }
         }
       | WebHooks =>
@@ -438,6 +441,11 @@ let useStepConfig = () => {
             let _ = await updateAPIHook(stripeUrl, stripeBody, Post)
           }
         | OrderManagementSystem => {
+            let (transformPSPFileUrl, transformPSPFileBody) = transformPSPFileAPI(
+              ~merchantId,
+              ~paymentEntity,
+            )
+            let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
             let (url, formData) = pspFileUploadAPI(
               ~fileUploadedDict,
               ~merchantId,
@@ -453,6 +461,11 @@ let useStepConfig = () => {
             )
           }
         | Dummy => {
+            let (transformPSPFileUrl, transformPSPFileBody) = transformPSPFileAPI(
+              ~merchantId,
+              ~paymentEntity,
+            )
+            let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
             let (url, formData) = pspFileUploadAPI(
               ~fileUploadedDict,
               ~merchantId,
@@ -471,7 +484,31 @@ let useStepConfig = () => {
       | TestLivePayment =>
         switch selectedOrderSource {
         | Hyperswitch => Js.log("Hyperswitch")
-        | OrderManagementSystem => Js.log("OMS")
+        | OrderManagementSystem => {
+            let (reconUrl, reconBody) = reconConfigAPI(
+              ~base=merchantId,
+              ~connectionId="JP_RECON",
+              ~source="SFTP",
+              ~pspType=paymentEntity,
+            )
+            let _ = await updateAPIHook(reconUrl, reconBody, Post)
+
+            let baseFileList = getFileUUIDAPI(~merchantId, ~fileType="BASE")
+            let baseFileRes = await getAPIHook(baseFileList)
+            let pspFileList = getFileUUIDAPI(~merchantId, ~fileType="PSP")
+            let pspFileRes = await getAPIHook(pspFileList)
+
+            let baseFileUUID = getUUID(baseFileRes, "file_uuid")
+            let pspFileUUID = getUUID(pspFileRes, "file_uuid")
+
+            let (runReconUrl, runReconBody) = runReconAPI(
+              ~merchantId,
+              ~pspType=paymentEntity,
+              ~baseFileUUID,
+              ~pspFileUUID,
+            )
+            let _ = await updateAPIHook(runReconUrl, runReconBody, Post)
+          }
         | Dummy => {
             let (reconUrl, reconBody) = reconConfigAPI(
               ~base=merchantId,
