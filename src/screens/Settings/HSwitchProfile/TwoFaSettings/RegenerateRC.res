@@ -215,7 +215,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
           </div>
           <div className="flex gap-4 justify-end">
             <Button
-              leftIcon={CustomIcon(<img alt="image" src={`/assets/CopyToClipboard.svg`} />)}
+              leftIcon={CustomIcon(<Icon name="nd-copy" className="cursor-pointer" />)}
               text={"Copy"}
               buttonType={Secondary}
               buttonSize={Small}

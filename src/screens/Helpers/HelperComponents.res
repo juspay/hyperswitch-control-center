@@ -6,7 +6,7 @@ module CopyTextCustomComp = {
     ~customTextCss="",
     ~customParentClass="flex items-center",
     ~customOnCopyClick=() => (),
-    ~customIconColor="",
+    ~customIconCss="text-jp-gray-700 w-4 h-4",
   ) => {
     let showToast = ToastState.useShowToast()
 
@@ -29,7 +29,7 @@ module CopyTextCustomComp = {
           onClick={ev => {
             onCopyClick(ev)
           }}
-          className={`${customIconColor}`}
+          className={`${customIconCss}`}
         />
       </div>
     } else {

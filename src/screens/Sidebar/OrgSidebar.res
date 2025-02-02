@@ -16,7 +16,7 @@ module OrgTile = {
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
+    let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
@@ -68,12 +68,9 @@ module OrgTile = {
     let displayText = {
       let firstLetter = orgName->String.charAt(0)->String.toUpperCase
       if orgName == orgID {
-        let count =
-          orgList
-          ->Array.slice(~start=0, ~end=index + 1)
-          ->Array.filter(org => org.name == org.id)
-          ->Array.length
-        `O${count->Int.toString}`
+        orgID
+        ->String.slice(~start=orgID->String.length - 2, ~end=orgID->String.length)
+        ->String.toUpperCase
       } else {
         firstLetter
       }
@@ -119,7 +116,7 @@ module OrgTile = {
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
-                  customIconColor={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
+                  customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
                 />
               </div>}
               toolTipPosition=ToolTip.Right
@@ -358,7 +355,7 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
+      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
           <Icon name="plus" size=20 className={secondaryTextColor} />
         </div>
       </RenderIf>

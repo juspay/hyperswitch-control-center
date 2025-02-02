@@ -169,11 +169,19 @@ let make = () => {
                       <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
                     </RenderIf>
                     <div
-                      className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
+                      className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
+                        /* RECON PRODUCT */
                         | list{"v2", "recon", ..._} => <ReconApp />
+
+                        /* RECOVERY PRODUCT */
                         | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
+
+                        /* VAULT PRODUCT */
+                        | list{"v2", "vault", ..._} => <VaultApp />
+
+                        /* ORCHESTRATOR PRODUCT */
                         | list{"home", ..._}
                         | list{"recon"}
                         | list{"upload-files"}
