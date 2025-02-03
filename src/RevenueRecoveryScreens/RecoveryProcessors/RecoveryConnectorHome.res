@@ -15,7 +15,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let fetchDetails = useGetMethod()
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
-  | list{"v2", "recovery", "payment-processors", "new"} => false
+  | list{"v2", "recovery", "connectors", "new"} => false
   | _ => true
   }
 
@@ -78,12 +78,12 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
             connectorID === "new"
               ? {
                   title: "Processor",
-                  link: "v2/recovery/payment-processors",
+                  link: "v2/recovery/connectors",
                   warning: `You have not yet completed configuring your ${connector->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
                 }
               : {
                   title: "Processor",
-                  link: "v2/recovery/payment-processors",
+                  link: "v2/recovery/connectors",
                 },
           ]
           currentPageTitle={connector->getDisplayNameForConnector}

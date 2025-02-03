@@ -10,9 +10,7 @@ module DeleteConnectorMenu = {
         // TODO: need refactor
         let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
-        RescriptReactRouter.push(
-          GlobalVars.appendDashboardPath(~url="v2/recovery/payment-processors"),
-        )
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recovery/connectors"))
       } catch {
       | _ => ()
       }
@@ -126,7 +124,7 @@ let make = (
                 setShowFeedbackModal(_ => true)
               }
               RescriptReactRouter.push(
-                GlobalVars.appendDashboardPath(~url="v2/recovery/payment-processors"),
+                GlobalVars.appendDashboardPath(~url="v2/recovery/connectors"),
               )
             }}
             text="Done"

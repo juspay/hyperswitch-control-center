@@ -84,7 +84,7 @@ let make = () => {
             offset
             setOffset
             entity={ConnectorTableUtils.connectorEntity(
-              "v2/recovery/payment-processors",
+              "v2/recovery/connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
@@ -94,7 +94,7 @@ let make = () => {
         <RecoveryProcessorCards
           configuredConnectors
           connectorsAvailableForIntegration
-          urlPrefix="v2/recovery/payment-processors/new"
+          urlPrefix="v2/recovery/connectors/new"
         />
       </div>
     </PageLoaderWrapper>
