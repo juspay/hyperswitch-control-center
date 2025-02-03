@@ -38,10 +38,10 @@ let getIconName = (step: sections): string =>
 let getSubsectionName = (subSection: subSections): string =>
   switch subSection {
   | SelectSource => "Select Order Management"
-  | SetupAPIConnection => "Secure API connection"
+  | SetupAPIConnection => "Select Base File"
   | APIKeysAndLiveEndpoints => "Select a processor"
-  | WebHooks => "Set up webhook"
-  | TestLivePayment => "Test a live Payment"
+  | WebHooks => "Select PSP File"
+  | TestLivePayment => "Review"
   | SetupCompleted => "Setup Completed"
   }
 

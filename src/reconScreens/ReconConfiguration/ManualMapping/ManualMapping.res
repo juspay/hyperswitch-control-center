@@ -8,7 +8,8 @@ let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSou
     | Hyperswitch =>
       <div className="flex flex-col gap-10">
         <ReconConfigurationHelper.SubHeading
-          title="Recon Successful" subTitle="You have successfully connected to Hyperswitch"
+          title="Recon Setup is complete"
+          subTitle="You have successfully connected to Hyperswitch and PSP"
         />
       </div>
     | Dummy =>

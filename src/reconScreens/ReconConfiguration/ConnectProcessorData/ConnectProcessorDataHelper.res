@@ -291,12 +291,12 @@ module WebHooks = {
             )
             setCurrentStep(prev => getNextStep(prev))
           }
-        | None => setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
+        | None => setScreenState(_ => PageLoaderWrapper.Success) // Handle this case
         }
       } catch {
       | Exn.Error(e) =>
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!") // Handle this case
+        setScreenState(_ => PageLoaderWrapper.Success)
       }
       Nullable.null
     }
@@ -308,14 +308,12 @@ module WebHooks = {
 
     <PageLoaderWrapper screenState={screenState}>
       <ReconConfigurationHelper.SubHeading
-        title="Set up webhook endpoint"
-        subTitle="Configure Hyperswitch endpoint in your processor’s dashboard under webhook settings for us to receive events from the processor"
+        title="Set up PSP API connection"
+        subTitle="Configure your PSP API connection to fetch transactions"
       />
       <div className="flex flex-col h-full gap-y-3">
         <div className="flex flex-col gap-y-4">
-          <p className="text-base text-gray-700 font-semibold">
-            {"Copy webhook endpoint"->React.string}
-          </p>
+          <p className="text-base text-gray-700 font-semibold"> {"PSP Data"->React.string} </p>
           {switch selectedOrderSource {
           | Hyperswitch =>
             <Form initialValues onSubmit>

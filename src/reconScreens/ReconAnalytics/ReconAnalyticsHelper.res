@@ -119,7 +119,7 @@ module ReconAnalyticsBarChart = {
             categories: [
               analyticsCardData
               ->LogicUtils.getString("reconciled_at_time", "")
-              ->Js.String.slice(~from=1, ~to_=11),
+              ->Js.String.slice(~from=0, ~to_=10),
             ],
             data: [
               {

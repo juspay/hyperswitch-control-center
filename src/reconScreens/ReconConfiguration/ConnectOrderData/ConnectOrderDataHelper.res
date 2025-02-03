@@ -205,7 +205,8 @@ module SetupAPIConnection = {
 
     <PageLoaderWrapper screenState={screenState}>
       <ReconConfigurationHelper.SubHeading
-        title="Setup API" subTitle="Connect your API to fetch order data from your source"
+        title="Select Base File"
+        subTitle="Select the base file to fetch the order data or upload file"
       />
       <div className="flex flex-col h-full gap-y-3">
         <div className="flex flex-col gap-y-4">
