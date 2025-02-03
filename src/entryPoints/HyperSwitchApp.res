@@ -172,6 +172,9 @@ let make = () => {
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
+                        /* DEFAULT HOME to be renamed later */
+                        | list{"default", "home"} => <DefaultHome />
+
                         /* RECON PRODUCT */
                         | list{"v2", "recon", ..._} => <ReconApp />
 

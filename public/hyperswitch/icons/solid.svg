@@ -9240,4 +9240,10 @@ License)
       stroke-linejoin="round"
     />
   </symbol>
+  <symbol id="nd-angle-right" viewBox="0 0 20 20" fill="none">
+    <path
+      d="M7.5 15C9.31733 13.6858 10.947 12.1476 12.3476 10.4251C12.5508 10.1753 12.5508 9.82473 12.3476 9.5749C10.947 7.85245 9.31733 6.31417 7.5 5"
+      stroke="#525866" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </symbol>
+
 </svg>
