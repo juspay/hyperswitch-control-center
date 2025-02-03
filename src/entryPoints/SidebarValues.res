@@ -36,7 +36,7 @@ module GetProductionAccess = {
           {productionAccessString->React.string}
         </div>
         <RenderIf condition={!isProdIntent}>
-          <Icon name="nd-arrow-right" size=20 className="pt-1" />
+          <Icon name="nd-arrow-right" size=22 className="pt-2" />
         </RenderIf>
       </div>
     | None =>
