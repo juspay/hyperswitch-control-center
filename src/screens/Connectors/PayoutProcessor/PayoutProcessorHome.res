@@ -257,6 +257,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <PayoutProcessorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
+        | Webhooks => React.null
         | SummaryAndTest
         | Preview =>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper

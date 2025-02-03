@@ -1,60 +1,101 @@
-module DeleteConnectorMenu = {
+module ConnectorSummaryGrid = {
+  open CommonAuthHooks
+  open ConnectorPreview
+  open RecoveryConnectorPreviewHelper
   @react.component
-  let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
-    open APIUtils
-    let getURL = useGetURL()
-    let updateDetails = useUpdateMethod()
-    let deleteConnector = async () => {
+  let make = (
+    ~connectorInfo: ConnectorTypes.connectorPayload,
+    ~updateStepValue=None,
+    ~getConnectorDetails=None,
+  ) => {
+    open ConnectorUtils
+
+    let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
+    let currentProfileName =
+      businessProfiles
+      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
+        ele.profile_id === connectorInfo.profile_id
+      )
+      ->Option.getOr(defaultBusinessProfile)
+    let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let copyValueOfWebhookEndpoint = getWebhooksUrl(
+      ~connectorName={connectorInfo.merchant_connector_id},
+      ~merchantId,
+    )
+    let (processorType, _) =
+      connectorInfo.connector_type
+      ->connectorTypeTypedValueToStringMapper
+      ->connectorTypeTuple
+    let {connector_name: connectorName} = connectorInfo
+
+    let connectorDetails = React.useMemo(() => {
       try {
-        let connectorID = connectorInfo.merchant_connector_id
-        // TODO: need refactor
-        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
-        let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recovery/connectors"))
+        if connectorName->LogicUtils.isNonEmptyString {
+          let dict = switch processorType {
+          | PaymentProcessor => Window.getConnectorConfig(connectorName)
+          | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
+          | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
+          | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
+          | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
+          | PaymentVas => JSON.Encode.null
+          }
+          dict
+        } else {
+          JSON.Encode.null
+        }
       } catch {
-      | _ => ()
+      | Exn.Error(e) => {
+          Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
+          let _ = Exn.message(e)->Option.getOr("Something went wrong")
+          JSON.Encode.null
+        }
       }
-    }
-    let showPopUp = PopUpState.useShowPopUp()
-    let openConfirmationPopUp = _ => {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Confirm Action ? ",
-        description: `You are about to Delete this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
-        handleConfirm: {
-          text: "Confirm",
-          onClick: _ => deleteConnector()->ignore,
-        },
-        handleCancel: {text: "Cancel"},
-      })
-    }
-    <AddDataAttributes attributes=[("data-testid", "delete-button"->String.toLowerCase)]>
+    }, [connectorInfo.merchant_connector_id])
+    let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
+
+    <div className="flex flex-col gap-7 ml-2 mt-5 mb-12">
+      <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
+        <PreviewRow
+          title="Integration status" subTitle={connectorInfo.status->String.toUpperCase}
+        />
+      </AddDataAttributes>
       <div>
-        <Button text="Delete" onClick={_ => openConfirmationPopUp()} />
+        <PreviewRow title="Webhook Endpoint" subTitle={""} />
+        <KeyAndCopyArea copyValue={copyValueOfWebhookEndpoint} />
       </div>
-    </AddDataAttributes>
+      <PreviewRow
+        title="Profile"
+        subTitle={`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`}
+      />
+      <RenderIf
+        condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
+          Processors(FIUU)}>
+        <div
+          className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+          <Icon name="info-vacent" size=18 />
+          <div>
+            <p className="mb-3">
+              {"To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."->React.string}
+            </p>
+            <p>
+              {"Please review your webhook settings and confirm that the Source Verification Key is properly configured to avoid any integration issues."->React.string}
+            </p>
+          </div>
+        </div>
+      </RenderIf>
+      <RecoveryConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
+    </div>
   }
 }
 
 @react.component
-let make = (
-  ~connectorInfo,
-  ~currentStep: ConnectorTypes.steps,
-  ~setCurrentStep,
-  ~isUpdateFlow,
-  ~showMenuOption=true,
-  ~setInitialValues,
-  ~getConnectorDetails=None,
-) => {
-  open APIUtils
+let make = (~connectorInfo, ~isUpdateFlow, ~showMenuOption=true, ~getConnectorDetails=None) => {
   open ConnectorUtils
   let {feedback} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+
   let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
 
   let connectorInfo =
@@ -67,78 +108,29 @@ let make = (
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
 
-  let isConnectorDisabled = connectorInfo.disabled
-  let disableConnector = async isConnectorDisabled => {
-    try {
-      let connectorID = connectorInfo.merchant_connector_id
-      let disableConnectorPayload = getDisableConnectorPayload(
-        connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
-      )
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
-      fetchConnectorListResponse()->ignore
-      setInitialValues(_ => res)
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
-    } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
-    }
-  }
-
-  let connectorStatusStyle = connectorStatus =>
-    switch connectorStatus {
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
-    | _ => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
-    }
-
   let mixpanelEventName = isUpdateFlow ? "processor_step3_onUpdate" : "processor_step3"
 
   <div>
-    <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
-      <div className="flex gap-2 items-center">
-        <GatewayIcon
-          gateway={connectorInfo.connector_name->String.toUpperCase} className="w-14 h-14"
-        />
-        <h2 className="text-xl font-semibold">
-          {connectorInfo.connector_name->getDisplayNameForConnector->React.string}
-        </h2>
-      </div>
-      <div className="self-center">
-        {switch (currentStep, connector->getConnectorNameTypeFromString, connectorInfo.status) {
-        | (Preview, _, _) =>
-          <div className="flex gap-6 items-center">
-            <div
-              className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
-              {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
-            </div>
-            <RenderIf condition={showMenuOption}>
-              <ConnectorPreview.MenuOption disableConnector isConnectorDisabled />
-            </RenderIf>
-          </div>
-
-        | _ =>
-          <Button
-            onClick={_ => {
-              mixpanelEvent(~eventName=mixpanelEventName)
-              if isFeedbackModalToBeOpen {
-                setShowFeedbackModal(_ => true)
-              }
-              RescriptReactRouter.push(
-                GlobalVars.appendDashboardPath(~url="v2/recovery/connectors"),
-              )
-            }}
-            text="Done"
-            buttonType={Primary}
-          />
-        }}
-      </div>
+    <div className="flex justify-between p-2">
+      <RecoveryConfigurationHelper.SubHeading
+        title="Review and Connect"
+        subTitle="Review your configured processor details, enabled payment methods and associated settings."
+      />
     </div>
-    <ConnectorPreview.ConnectorSummaryGrid
-      connectorInfo
-      connector
-      setCurrentStep
-      updateStepValue={Some(ConnectorTypes.PaymentMethods)}
-      getConnectorDetails
+    <ConnectorSummaryGrid
+      connectorInfo updateStepValue={Some(ConnectorTypes.PaymentMethods)} getConnectorDetails
+    />
+    <Button
+      customButtonStyle="rounded w-full"
+      buttonType={Primary}
+      onClick={_ => {
+        mixpanelEvent(~eventName=mixpanelEventName)
+        if isFeedbackModalToBeOpen {
+          setShowFeedbackModal(_ => true)
+        }
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recovery/connectors"))
+      }}
+      text="Done"
     />
   </div>
 }

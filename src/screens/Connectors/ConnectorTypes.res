@@ -1,4 +1,5 @@
-type steps = IntegFields | PaymentMethods | SummaryAndTest | Preview | AutomaticFlow
+type steps = IntegFields | PaymentMethods | SummaryAndTest | Preview | AutomaticFlow | Webhooks
+
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,

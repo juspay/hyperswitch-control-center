@@ -15,6 +15,7 @@ let getStepName = step => {
   | SummaryAndTest => "Summary"
   | Preview => "Preview"
   | AutomaticFlow => "AutomaticFlow"
+  | Webhooks => "Webhooks"
   }
 }
 

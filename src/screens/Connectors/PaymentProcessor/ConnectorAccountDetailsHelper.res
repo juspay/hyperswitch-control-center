@@ -352,7 +352,7 @@ module BusinessProfileRender = {
 
     <>
       <FormRenderer.FieldRenderer
-        labelClass="font-semibold !text-black"
+        labelClass="font-semibold !text-black !w-full"
         field={FormRenderer.makeFieldInfo(
           ~label="Profile",
           ~isRequired=true,
@@ -360,8 +360,7 @@ module BusinessProfileRender = {
           ~customInput=(~input, ~placeholder as _) =>
             InputFields.selectInput(
               ~deselectDisable=true,
-              ~disableSelect={isUpdateFlow || businessProfiles->HomeUtils.isDefaultBusinessProfile},
-              ~customStyle="max-h-48",
+              ~customStyle="max-h-48 !w-full",
               ~options={
                 businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
               },

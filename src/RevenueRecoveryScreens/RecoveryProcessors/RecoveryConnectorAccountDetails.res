@@ -117,7 +117,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         ~isLiveMode={featureFlagDetails.isLiveMode},
       )
       setScreenState(_ => Loading)
-      setCurrentStep(_ => PaymentMethods)
+      setCurrentStep(_ => Webhooks)
       setScreenState(_ => Success)
       setInitialValues(_ => body)
     } catch {
@@ -198,25 +198,15 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     )
   }
 
-  let buttonText = switch verifyDone {
-  | NoAttempt =>
-    if !isUpdateFlow {
-      "Connect and Proceed"
-    } else {
-      "Proceed"
-    }
-  | Failure => "Try Again"
-  | _ => "Loading..."
-  }
-
   let (suggestedAction, suggestedActionExists) = getSuggestedAction(~verifyErrorMessage, ~connector)
-  let handleShowModal = () => {
-    setShowModal(_ => true)
-  }
 
   let mixpanelEventName = isUpdateFlow ? "processor_step1_onUpdate" : "processor_step1"
 
   <PageLoaderWrapper screenState>
+    <RecoveryConfigurationHelper.SubHeading
+      title="Authenticate your processor"
+      subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
+    />
     <Form
       initialValues={updatedInitialVal}
       onSubmit={(values, _) => {
@@ -232,31 +222,26 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
       }}
       validate={validateMandatoryField}
       formClass="flex flex-col ">
-      <ConnectorHeaderWrapper
-        connector
-        headerButton={<AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
-          <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
-        </AddDataAttributes>}
-        handleShowModal>
-        <div className="flex flex-col gap-2 p-2 md:px-10">
-          <BusinessProfileRender isUpdateFlow selectedConnector={connector} />
-        </div>
-        <div className={`flex flex-col gap-2 p-2 md:px-10`}>
-          <div className="grid grid-cols-2 flex-1">
-            <ConnectorConfigurationFields
-              connector={connectorTypeFromName}
-              connectorAccountFields
-              selectedConnector
-              connectorMetaDataFields
-              connectorWebHookDetails
-              connectorLabelDetailField
-              connectorAdditionalMerchantData
-            />
-          </div>
-          <IntegrationHelp.Render connector setShowModal showModal />
-        </div>
-        <FormValuesSpy />
-      </ConnectorHeaderWrapper>
+      <BusinessProfileRender isUpdateFlow selectedConnector={connector} />
+      <ConnectorConfigurationFields
+        connector={connectorTypeFromName}
+        connectorAccountFields
+        selectedConnector
+        connectorMetaDataFields
+        connectorWebHookDetails
+        connectorLabelDetailField
+        connectorAdditionalMerchantData
+      />
+      <IntegrationHelp.Render connector setShowModal showModal />
+      <div className="w-full mx-1 mt-7">
+        <FormRenderer.SubmitButton
+          text="Next"
+          buttonType={Primary}
+          customSumbitButtonStyle="!w-full"
+          tooltipForWidthClass="w-full"
+        />
+      </div>
+      <FormValuesSpy />
       <VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal

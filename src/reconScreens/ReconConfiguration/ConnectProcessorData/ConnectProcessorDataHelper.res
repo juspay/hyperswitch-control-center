@@ -295,7 +295,7 @@ module WebHooks = {
         }
       } catch {
       | Exn.Error(e) =>
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!") // Handle this case
+        let _err = Exn.message(e)->Option.getOr("Failed to Fetch!") // Handle this case
         setScreenState(_ => PageLoaderWrapper.Success)
       }
       Nullable.null
