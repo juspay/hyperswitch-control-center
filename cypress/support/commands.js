@@ -28,7 +28,44 @@ import { v4 as uuidv4 } from "uuid";
 import * as helper from "../support/helper";
 import SignInPage from "../support/pages/auth/SignInPage";
 
+import { rolePermissions, accessLevels } from "../support/permissions";
+
 const signinPage = new SignInPage();
+
+// Custom command to check permissions and access levels
+Cypress.Commands.add(
+  "checkPermissionForTest",
+  (section, requiredRole, requiredAccessLevel, requiredPermission) => {
+    const userRole = Cypress.env("role") || "admin"; // Role passed via environment
+    const userAccessLevel = Cypress.env("accessLevel") || "org"; // Access level passed via environment
+
+    // Validate role and access level are set correctly
+    if (!rolePermissions[userRole]) {
+      throw new Error(
+        `Role "${userRole}" is not defined in the permissions mapping.`,
+      );
+    }
+
+    if (!accessLevels.includes(userAccessLevel)) {
+      throw new Error(`Access level "${userAccessLevel}" is not valid.`);
+    }
+
+    // Check if user has permission for the given section
+    const userPermission = rolePermissions[userRole][section];
+
+    // Verify if the user's permission matches the required permission
+    const isPermissionCorrect = userPermission === requiredPermission;
+    const isAccessLevelSufficient =
+      accessLevels.indexOf(userAccessLevel) >=
+      accessLevels.indexOf(requiredAccessLevel);
+
+    if (!isPermissionCorrect || !isAccessLevelSufficient) {
+      return false; // If permission or access level doesn't match, skip the test
+    }
+
+    return true; // If all conditions match, run the test
+  },
+);
 
 Cypress.Commands.add("visit_signupPage", () => {
   cy.visit("/");
@@ -180,7 +217,7 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
   cy.get("[data-testid=connectors]").click();
   cy.get("[data-testid=paymentprocessors]").click();
   cy.contains("Payment Processors").should("be.visible");
-  cy.get("[data-testid=home]").click();
+  cy.get("[data-testid=home]").eq(1).click();
   cy.get("[data-button-for=tryItOut]").click();
   cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
     "exist",

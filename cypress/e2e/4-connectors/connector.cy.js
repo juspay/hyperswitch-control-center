@@ -102,7 +102,7 @@ describe("connector", () => {
     cy.get("[data-testid=connectors]").click();
     cy.get("[data-testid=paymentprocessors]").click();
     cy.contains("Payment Processors").should("be.visible");
-    cy.get("[data-testid=home]").click();
+    cy.get("[data-testid=home]").eq(1).click();
     cy.get("[data-button-for=tryItOut]").click();
     cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
       "exist",
