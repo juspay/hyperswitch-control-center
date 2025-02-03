@@ -54,6 +54,7 @@ module.exports = {
         "32-px": "32px",
         "36-px": "36px",
         "40-px": "40px",
+        "774-px": "774px",
         "923-px": "923px",
         onBordingSupplier: "calc(100vh - 300px)",
       },
@@ -79,6 +80,7 @@ module.exports = {
         "137-px": "137px",
         "145-px": "145px",
         "147-px": "147px",
+        "500-px": "500px",
 
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",

@@ -1,24 +1,23 @@
 @react.component
 let make = () => {
-  open PageUtils
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
-  <div className="flex flex-col w-full gap-6 items-center justify-center">
-    <PageHeading
-      customHeadingStyle="gap-3 flex flex-col items-center"
-      title="Effortless, Realtime Payment Reconciliation"
-      customTitleStyle="text-fs-48 leading-60 text-center font-bold"
-      customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
-      subTitle="Effortlessly Track, Match, and Reconcile Transactions with Ease. Gain Real-Time Accuracy and Unmatched Confidence in Financial Operations"
-    />
+  let onClick = () => {
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/configuration"))
+    setShowSideBar(prev => !prev)
+  }
+  <div className="flex flex-col w-full gap-6 items-center py-14 px-10">
+    <img alt="reconLanding" className="w-[453px] h-[348px]" src="/Recon/landing.svg" />
+    <p className="border border-green-400 px-2 py-1 rounded-lg text-sm text-green-500">
+      {"Recon"->React.string}
+    </p>
     <Button
       text="Get Started"
-      onClick={_ => {
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/configuration"))
-      }}
+      rightIcon={CustomIcon(<Icon name="nd-arrow-right" size=10 />)}
+      onClick={_ => onClick()}
       buttonType=Primary
       buttonSize=Large
       buttonState=Normal
     />
-    <img alt="reconLanding" className="sm:w-10/12 w-full" src="/assets/reconLanding.svg" />
   </div>
 }

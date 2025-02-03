@@ -1,43 +1,9 @@
-module Heading = {
-  @react.component
-  let make = (
-    ~title,
-    ~customTitleStyle="text-xl font-semibold text-grey-800",
-    ~customHeadingStyle="",
-  ) => {
-    <div>
-      <div className={`p-2 md:p-6 ${customHeadingStyle}`}>
-        <div className={`${customTitleStyle}`}> {title->React.string} </div>
-      </div>
-      <div className="border-b border-grey-outline" />
-    </div>
-  }
-}
-
 module SubHeading = {
   @react.component
-  let make = (~currentStepCount, ~title, ~subTitle) => {
-    <div className="flex flex-col gap-1">
-      <p className="text-base text-gray-500">
-        {`STEP ${currentStepCount->Int.toString} / 3`->React.string}
-      </p>
-      <p className="text-lg font-semibold text-grey-800"> {title->React.string} </p>
-      <p className="text-sm text-gray-500"> {subTitle->React.string} </p>
-    </div>
-  }
-}
-
-module ProgressBar = {
-  @react.component
-  let make = (~currentStep) => {
-    open ReconConfigurationUtils
-    let percentage = currentStep->getPercentage
-
-    <div className="p-2 md:p-6">
-      <p> {`${percentage->Int.toString}% Completed`->React.string} </p>
-      <div className="w-full bg-blue-150 rounded h-2 mt-3">
-        <div className="bg-blue-500 h-2 rounded" style={{width: `${percentage->Int.toString}%`}} />
-      </div>
+  let make = (~title, ~subTitle) => {
+    <div className="flex flex-col gap-y-1">
+      <p className="text-xl font-semibold text-gray-700 leading-9"> {title->React.string} </p>
+      <p className="text-base text-gray-400 font-medium"> {subTitle->React.string} </p>
     </div>
   }
 }
@@ -51,92 +17,102 @@ module ReconConfigurationCurrentStepIndicator = {
       sectionsArr->Array.findIndex(item =>
         item === currentStep->ReconConfigurationUtils.getSectionFromStep
       )
+
     <div className="w-full p-2 md:p-6">
-      <div className={`grid grid-rows-${rows} relative gap-y-4`}>
+      <div className={`grid grid-rows-${rows} relative gap-y-3.5`}>
         {sectionsArr
         ->Array.mapWithIndex((step, i) => {
           let isStepCompleted = i < currIndex
           let isCurrentStep = i == currIndex
           let subSectionsArr = step->ReconConfigurationUtils.getSubSections
 
-          let stepNumberIndicator = if isCurrentStep {
-            "bg-blue-500"
-          } else {
-            "border-blue-500 bg-white border"
-          }
-
           let stepNameIndicator = if isCurrentStep {
-            "text-blue-500 break-all font-semibold text-base"
+            "text-gray-700 break-all font-semibold"
           } else {
-            "text-gray-500 break-all font-semibold text-base"
+            "text-gray-400 break-all font-medium"
           }
 
-          let textColor = isCurrentStep ? "text-white" : "text-blue-500"
+          let iconColor = if isCurrentStep {
+            "text-gray-700"
+          } else {
+            "text-gray-400"
+          }
 
-          <div key={i->Int.toString} className="font-semibold flex flex-col gap-y-5">
-            <div className="flex gap-x-3 items-center w-full">
-              <div
-                className={`h-6 w-6 flex items-center justify-center rounded ${stepNumberIndicator}`}>
-                {if isStepCompleted {
-                  <p className={`text-base ${textColor}`}>
-                    {(i + 1)->Int.toString->React.string}
-                  </p>
-                } else {
-                  <p className={`text-base ${textColor}`}>
-                    {(i + 1)->Int.toString->React.string}
-                  </p>
-                }}
-              </div>
+          let sectionLineHeight = isCurrentStep ? "h-5" : "h-6"
+
+          <div key={i->Int.toString} className="font-semibold flex flex-col gap-y-2.5">
+            <div className="flex gap-x-3 items-center w-full relative z-10">
+              {if isStepCompleted {
+                <div className="flex items-center justify-center rounded-full p-2 w-8 h-8 border">
+                  <Icon className={`${iconColor}`} name="nd-check" />
+                </div>
+              } else {
+                <div className="flex items-center justify-center rounded-full p-2 w-8 h-8 border">
+                  <Icon className={`${iconColor} pl-1 pt-1`} name={step->getIconName} />
+                </div>
+              }}
+              {if i == sectionsArr->Array.length - 1 {
+                React.null
+              } else {
+                <div
+                  className={`absolute top-8 ${sectionLineHeight} left-4 border-l border-gray-150 z-0`}
+                />
+              }}
               <div className={stepNameIndicator}>
                 {step->ReconConfigurationUtils.getSectionName->React.string}
               </div>
-              <div className="ml-auto">
-                {if isStepCompleted || isCurrentStep {
-                  <div />
-                } else {
-                  <Icon name="lock-outlined" customIconColor="gray" customHeight="20" />
-                }}
-              </div>
             </div>
-            <div className="flex flex-col gap-y-1">
-              {subSectionsArr
-              ->Array.mapWithIndex((subSection, j) => {
-                let subStepIndex =
-                  subSectionsArr->Array.findIndex(
-                    item => item === currentStep->ReconConfigurationUtils.getSubsectionFromStep,
-                  )
+            <div className="flex flex-col gap-y-2.5">
+              {isCurrentStep
+                ? {
+                    subSectionsArr
+                    ->Array.mapWithIndex((subSection, j) => {
+                      let subStepIndex =
+                        subSectionsArr->Array.findIndex(
+                          item =>
+                            item === currentStep->ReconConfigurationUtils.getSubsectionFromStep,
+                        )
 
-                let isSubStepCompleted = isStepCompleted || j < subStepIndex
-                let isCurrentSubStep = j == subStepIndex && isCurrentStep
+                      let isSubStepCompleted = isStepCompleted || j < subStepIndex
+                      let isCurrentSubStep = j == subStepIndex && isCurrentStep
+                      let subSectionLineHeight = isCurrentSubStep ? "h-7" : "h-6"
 
-                let subStepNameIndicator = if isCurrentSubStep {
-                  "text-gray-700 break-all font-medium text-sm"
-                } else {
-                  "text-gray-500 break-all text-sm font-medium"
-                }
+                      let subStepNameIndicator = if isCurrentSubStep {
+                        "text-blue-500 break-all font-semibold text-base pl-5"
+                      } else {
+                        "text-gray-400 break-all text-base font-medium pl-5"
+                      }
 
-                let subStepBackground = if isCurrentSubStep {
-                  "bg-gray-100 p-2.5 rounded"
-                } else {
-                  "bg-white p-2.5 rounded"
-                }
-
-                <div
-                  key={j->Int.toString}
-                  className={`flex gap-x-3 items-center ${subStepBackground}`}>
-                  <div className={`h-4 w-4 flex items-center justify-center ml-6 rounded`}>
-                    {if isSubStepCompleted {
-                      <Icon name="green-check" customIconColor="green" customHeight="14" />
-                    } else {
-                      <div className="h-3 w-3 rounded-full border-1.5 border-gray-700" />
-                    }}
-                  </div>
-                  <div className={subStepNameIndicator}>
-                    {subSection->ReconConfigurationUtils.getSubsectionName->React.string}
-                  </div>
-                </div>
-              })
-              ->React.array}
+                      <div
+                        key={j->Int.toString}
+                        className="flex gap-x-3 items-center p-2 rounded relative z-10">
+                        <div className="h-4 w-4 flex items-center justify-center rounded">
+                          {if isSubStepCompleted {
+                            <Icon name="nd-small-check" customHeight="12" />
+                          } else if isCurrentSubStep {
+                            <Icon name="nd-radio" className="text-blue-500" customHeight="8" />
+                          } else {
+                            <Icon name="nd-radio" className="text-gray-500" customHeight="8" />
+                          }}
+                        </div>
+                        <div className={subStepNameIndicator}>
+                          {subSection->ReconConfigurationUtils.getSubsectionName->React.string}
+                        </div>
+                        {if (
+                          i == sectionsArr->Array.length - 1 &&
+                            j == subSectionsArr->Array.length - 1
+                        ) {
+                          <div />
+                        } else {
+                          <div
+                            className={`absolute top-7 left-4 ${subSectionLineHeight} border-l border-gray-150 z-0`}
+                          />
+                        }}
+                      </div>
+                    })
+                    ->React.array
+                  }
+                : React.null}
             </div>
           </div>
         })
@@ -150,66 +126,23 @@ module StepCard = {
   @react.component
   let make = (~stepName, ~description, ~isSelected, ~onClick, ~iconName) => {
     let ringClass = switch isSelected {
-    | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
-    | false => "ring-grey-outline"
+    | true => "border-blue-500"
+    | false => "ring-gray-200"
     }
     <div
       key={stepName}
-      className={`flex items-center gap-x-2.5 border ${ringClass} rounded-lg p-4 transition-shadow cursor-pointer justify-between`}
+      className={`flex items-center gap-x-2.5 border ${ringClass} rounded-xl p-3 transition-shadow cursor-pointer justify-between`}
       onClick={onClick}>
       <div className="flex items-center gap-x-2.5">
         <img alt={iconName} src={`/Recon/${iconName}.svg`} className="w-8 h-8" />
         <div className="flex flex-col gap-1">
-          <h3 className="text-medium font-medium text-grey-900"> {stepName->React.string} </h3>
-          <p className="text-sm text-gray-500"> {description->React.string} </p>
+          <h3 className="text-medium font-semibold text-gray-600"> {stepName->React.string} </h3>
+          <p className="text-sm font-medium text-gray-400"> {description->React.string} </p>
         </div>
       </div>
       {switch isSelected {
-      | true => <Icon name="blue-circle" customHeight="20" />
+      | true => <Icon name="nd-circle-dot" customHeight="20" />
       | false => <div />
-      }}
-    </div>
-  }
-}
-
-module Footer = {
-  @react.component
-  let make = (~currentStep, ~setCurrentStep, ~buttonName) => {
-    open ReconConfigurationUtils
-    let isFirstStep = currentStep->isFirstStep
-    let isLastStep = currentStep->isLastStep
-
-    <div className="flex justify-end items-center p-4 bg-white w-full rounded-br-lg">
-      {switch (isFirstStep, isLastStep) {
-      | (true, false) =>
-        <Button
-          text="Continue"
-          buttonType={Primary}
-          onClick={_ => setCurrentStep(prev => getNextStep(prev))}
-        />
-      | (false, true) =>
-        <Button
-          text="Back"
-          customButtonStyle="w-90-px"
-          buttonType={Secondary}
-          onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
-        />
-      | (true, true) => <div />
-      | (false, false) =>
-        <div className="flex gap-4">
-          <Button
-            text="Back"
-            customButtonStyle="w-90-px"
-            buttonType={Secondary}
-            onClick={_ => setCurrentStep(prev => getPreviousStep(prev))}
-          />
-          <Button
-            text={buttonName}
-            customButtonStyle="w-90-px"
-            buttonType={Primary}
-            onClick={_ => setCurrentStep(prev => getNextStep(prev))}
-          />
-        </div>
       }}
     </div>
   }

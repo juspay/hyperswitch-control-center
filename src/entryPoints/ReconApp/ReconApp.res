@@ -8,6 +8,8 @@ let make = () => {
     | list{"v2", "recon", "configuration"} => <ReconConfigurationContainer />
     | list{"v2", "recon", "home"} => <ReconHomeContainer />
     | list{"v2", "recon", "analytics"} => <ReconAnalyticsContainer />
+    | list{"v2", "recon", "reports"} => <ReconReportsContainer />
+    | list{"v2", "recon", "run-recon"} => <ReconHistoryContainer />
     | _ => React.null
     }
   }

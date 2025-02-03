@@ -13,9 +13,9 @@ let subSectionsArr: array<subSections> = [
 
 let getSectionName = (section: sections): string =>
   switch section {
-  | ConnectOrderData => "Connect Order Data"
-  | ConnectProcessorData => "Connect Processor Data"
-  | ManualMapping => "Manual Mapping"
+  | ConnectOrderData => "Order Data Related"
+  | ConnectProcessorData => "Connect Processors"
+  | ManualMapping => "Review Details"
   }
 
 let getSectionCount = (section: sections): int =>
@@ -28,13 +28,20 @@ let getSectionFromStep = (step: steps): sections =>
   | ManualMapping(_) => ManualMapping
   }
 
+let getIconName = (step: sections): string =>
+  switch step {
+  | ConnectOrderData => "nd-inbox"
+  | ConnectProcessorData => "nd-plugin"
+  | ManualMapping => "nd-flag"
+  }
+
 let getSubsectionName = (subSection: subSections): string =>
   switch subSection {
-  | SelectSource => "Select Source"
-  | SetupAPIConnection => "Setup Your API Connection"
-  | APIKeysAndLiveEndpoints => "Replace API keys & Live Endpoints"
-  | WebHooks => "Setup Webhook on your end"
-  | TestLivePayment => "Test a live Payment"
+  | SelectSource => "Select Order Management"
+  | SetupAPIConnection => "Select Base File"
+  | APIKeysAndLiveEndpoints => "Select a processor"
+  | WebHooks => "Select PSP File"
+  | TestLivePayment => "Review"
   | SetupCompleted => "Setup Completed"
   }
 
@@ -62,7 +69,7 @@ let getNextStep = (currentStep: steps): steps => {
   | ConnectProcessorData(APIKeysAndLiveEndpoints) => ConnectProcessorData(WebHooks)
   | ConnectProcessorData(WebHooks) => ManualMapping(TestLivePayment)
   | ManualMapping(TestLivePayment) => ManualMapping(SetupCompleted)
-  | ManualMapping(SetupCompleted) => ManualMapping(SetupCompleted)
+  | ManualMapping(SetupCompleted) => ConnectOrderData(SelectSource)
   }
 }
 

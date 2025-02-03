@@ -400,10 +400,10 @@ let make = (
   let strokeColor = ""
 
   let iconPadding = switch buttonSize {
-  | XSmall
-  | Small => "pl-1"
-  | Medium
-  | Large => ""
+  | XSmall => "px-1"
+  | Small => "px-2"
+  | Medium => "pr-3"
+  | Large => "px-3"
   }
 
   let iconMargin = customIconMargin->Option.getOr(

@@ -1,36 +1,50 @@
 open SidebarTypes
 
 let reconOnBoarding = {
-  SubLevelLink({
+  Link({
     name: "Profile Setup",
     link: `/v2/recon/onboarding`,
     access: Access,
-    searchOptions: [("Recon onboarding", "")],
+    icon: "user-circle",
   })
 }
 let reconHome = {
-  SubLevelLink({
+  Link({
     name: "Home",
     link: `/v2/recon/home`,
     access: Access,
-    searchOptions: [("Recon home", "")],
+    icon: "nd-home",
   })
 }
+
+let reconReports = {
+  Link({
+    name: "Reports",
+    link: `/v2/recon/reports`,
+    access: Access,
+    icon: "nd-reports",
+  })
+}
+
+let reconHistory = {
+  Link({
+    name: "History",
+    link: `/v2/recon/run-recon`,
+    access: Access,
+    icon: "history",
+  })
+}
+
 let reconAnalytics = {
-  SubLevelLink({
+  Link({
     name: "Analytics",
     link: `/v2/recon/analytics`,
     access: Access,
-    searchOptions: [("Recon analytics", "")],
+    icon: "nd-analytics",
   })
 }
 
 let reconSidebars = {
-  let links = [reconOnBoarding, reconAnalytics]
-  Section({
-    name: "Recon And Settlement",
-    icon: "/v2/recon",
-    showSection: true,
-    links,
-  })
+  let sidebar = [reconOnBoarding, reconReports, reconAnalytics, reconHistory]
+  sidebar
 }
