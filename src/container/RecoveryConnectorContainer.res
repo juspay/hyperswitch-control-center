@@ -31,10 +31,10 @@ let make = () => {
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
-    | list{"v2", "recovery", "payment-processors", ...remainingPath} =>
+    | list{"v2", "recovery", "connectors", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold
-          entityName="payment-processors"
+          entityName="connectors"
           remainingPath
           renderList={() => <RecoveryConnectorList />}
           renderNewForm={() => <RecoveryConnectorHome />}
