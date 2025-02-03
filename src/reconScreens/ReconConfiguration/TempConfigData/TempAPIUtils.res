@@ -271,7 +271,7 @@ let runReconAPI = (
     "system_b_name": pspType,
     "system_b_uuid": [pspFileUUID],
     "recon_started_by": "",
-    "processing_date": "2025-02-01", // This is a dummy date
+    "processing_date": date,
   }->Identity.genericTypeToJson
   (url, body)
 }

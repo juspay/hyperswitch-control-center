@@ -291,12 +291,12 @@ module WebHooks = {
             )
             setCurrentStep(prev => getNextStep(prev))
           }
-        | None => setScreenState(_ => PageLoaderWrapper.Success) // Handle this case
+        | None => setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
         }
       } catch {
       | Exn.Error(e) =>
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!") // Handle this case
-        setScreenState(_ => PageLoaderWrapper.Success)
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
       }
       Nullable.null
     }
