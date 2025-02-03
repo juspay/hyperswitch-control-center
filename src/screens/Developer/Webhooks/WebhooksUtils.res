@@ -1,6 +1,16 @@
 open WebhooksTypes
 open LogicUtils
 
+let tabkeys: array<tabs> = [Request, Response]
+
+let getTabKeyName = selected => {
+  switch selected {
+  | "Request" => Request
+  | "Response" => Response
+  | _ => Request
+  }
+}
+
 let itemToObjectMapper: dict<JSON.t> => webhookObject = dict => {
   eventId: dict->getString("event_id", ""),
   eventClass: dict->getString("event_class", ""),
@@ -11,6 +21,18 @@ let itemToObjectMapper: dict<JSON.t> => webhookObject = dict => {
   isDeliverySuccessful: dict->getBool("is_delivery_successful", false),
   initialAttemptId: dict->getString("initial_attempt_id", ""),
   created: dict->getString("created", ""),
+}
+
+let requestMapper = json => {
+  body: json->getDictFromJsonObject->getString("body", ""),
+  headers: json->getDictFromJsonObject->getJsonObjectFromDict("headers"),
+}
+
+let responseMapper = json => {
+  body: json->getDictFromJsonObject->getString("body", ""),
+  headers: json->getDictFromJsonObject->getJsonObjectFromDict("headers"),
+  errorMessage: json->getDictFromJsonObject->getString("error_message", "")->getNonEmptyString,
+  statusCode: json->getDictFromJsonObject->getInt("status_code", 0),
 }
 
 let itemToObjectMapperAttempts: dict<JSON.t> => attemptType = dict => {
@@ -24,8 +46,8 @@ let itemToObjectMapperAttempts: dict<JSON.t> => attemptType = dict => {
   initialAttemptId: dict->getString("initial_attempt_id", ""),
   created: dict->getString("created", ""),
   deliveryAttempt: dict->getString("delivery_attempt", ""),
-  request: dict->getJsonObjectFromDict("request"),
-  response: dict->getJsonObjectFromDict("response"),
+  request: dict->getJsonObjectFromDict("request")->requestMapper,
+  response: dict->getJsonObjectFromDict("response")->responseMapper,
 }
 
 let itemToObjectMapperAttemptsTable: dict<JSON.t> => attemptTable = dict => {
@@ -72,3 +94,84 @@ let initialFixedFilter = () => [
     }: EntityType.initialFilters<'t>
   ),
 ]
+
+let setData = (
+  ~offset,
+  ~setOffset,
+  ~total,
+  ~data,
+  ~setTotalCount,
+  ~setWebhooksData,
+  ~setScreenState,
+) => {
+  let arr = Array.make(~length=offset, Dict.make())
+  if total <= offset {
+    setOffset(_ => 0)
+  }
+
+  if total > 0 {
+    let webhookData =
+      arr
+      ->Array.concat(data)
+      ->Array.map(itemToObjectMapper)
+
+    let list = webhookData
+    setTotalCount(_ => total)
+    setWebhooksData(_ => list)
+    setScreenState(_ => PageLoaderWrapper.Success)
+  } else {
+    setScreenState(_ => PageLoaderWrapper.Custom)
+  }
+}
+
+let fetchWebhooks = async (
+  ~getURL: APIUtilsTypes.getUrlTypes,
+  ~fetchDetails,
+  ~filterValueJson,
+  ~offset,
+  ~setOffset,
+  ~searchText,
+  ~setScreenState,
+  ~setWebhooksData,
+  ~setTotalCount,
+) => {
+  setScreenState(_ => PageLoaderWrapper.Loading)
+  try {
+    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+    let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
+    let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
+
+    let queryParamerters = `limit=50&offset=${offset->Int.toString}&created_after=${start_time}&created_before=${end_time}`
+
+    let queryParam = searchText->isEmptyString ? queryParamerters : `&object_id=${searchText}`
+
+    let url = getURL(
+      ~entityName=WEBHOOK_EVENTS,
+      ~methodType=Get,
+      ~queryParamerters=Some(queryParam),
+    )
+    let response = await fetchDetails(url)
+    switch JSON.Classify.classify(response) {
+    | Array(arr) =>
+      if arr != [] {
+        let data = response->getArrayDataFromJson(itemToObjectMapper)
+        let total = data->Array.length
+        setData(
+          ~offset,
+          ~setOffset,
+          ~total,
+          ~data=response->getObjectArrayFromJson,
+          ~setTotalCount,
+          ~setWebhooksData,
+          ~setScreenState,
+        )
+        setScreenState(_ => Success)
+      } else {
+        setScreenState(_ => Custom)
+      }
+    | _ => setScreenState(_ => Custom)
+    }
+  } catch {
+  | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+  }
+}

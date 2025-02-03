@@ -1,3 +1,5 @@
+type tabs = Request | Response
+
 type webhookObject = {
   eventId: string,
   merchantId: string,
@@ -12,6 +14,18 @@ type webhookObject = {
 
 type webhook = array<webhookObject>
 
+type request = {
+  body: string,
+  headers: JSON.t,
+}
+
+type response = {
+  body: string,
+  errorMessage: option<string>,
+  headers: JSON.t,
+  statusCode: int,
+}
+
 type attemptType = {
   eventId: string,
   merchantId: string,
@@ -22,8 +36,8 @@ type attemptType = {
   isDeliverySuccessful: bool,
   initialAttemptId: string,
   created: string,
-  request: JSON.t,
-  response: JSON.t,
+  request: request,
+  response: response,
   deliveryAttempt: string,
 }
 

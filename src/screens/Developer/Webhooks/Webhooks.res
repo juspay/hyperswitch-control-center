@@ -1,46 +1,38 @@
 @react.component
 let make = () => {
   open APIUtils
-  open LogicUtils
   open WebhooksUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let (data, setData) = React.useState(_ => [])
+  let (webhooksData, setWebhooksData) = React.useState(_ => [])
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Webhooks")->Option.getOr(defaultValue)
+  let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {updateExistingKeys, filterValueJson} = FilterContext.filterContext->React.useContext
+  let {updateExistingKeys, filterValueJson, reset, filterValue} =
+    FilterContext.filterContext->React.useContext
   let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
+  let (searchText, setSearchText) = React.useState(_ => "")
 
   let webhookURL = switch businessProfileValues->Array.get(0) {
   | Some(val) => val.webhook_details.webhook_url->Option.getOr("")
   | None => ""
   }
 
-  let fetchWebhooks = async () => {
-    try {
-      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
-      let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
-      let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
-
-      let queryParamerters = `limit=50&offset=${offset->Int.toString}&created_after=${start_time}&created_before=${end_time}`
-
-      setScreenState(_ => Loading)
-      let url = getURL(
-        ~entityName=WEBHOOK_EVENTS,
-        ~methodType=Get,
-        ~queryParamerters=Some(queryParamerters),
-      )
-      let response = await fetchDetails(url)
-      setData(_ => response->getArrayDataFromJson(WebhooksUtils.itemToObjectMapper))
-      setScreenState(_ => Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+  React.useEffect(() => {
+    if filterValueJson->Dict.keysToArray->Array.length === 0 {
+      setOffset(_ => 0)
     }
-  }
+    None
+  }, [])
+
+  React.useEffect(() => {
+    setOffset(_ => 0)
+    None
+  }, [filterValue])
 
   let initialDisplayFilters =
     []->Array.filter((item: EntityType.initialFilters<'t>) => item.localFilter->Option.isSome)
@@ -58,16 +50,22 @@ let make = () => {
   )
 
   React.useEffect(() => {
-    fetchWebhooks()->ignore
-    None
-  }, [])
-
-  React.useEffect(() => {
+    fetchWebhooks(
+      ~getURL,
+      ~fetchDetails,
+      ~filterValueJson,
+      ~offset,
+      ~setOffset,
+      ~searchText,
+      ~setScreenState,
+      ~setWebhooksData,
+      ~setTotalCount,
+    )->ignore
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       setInitialFilters()
     }
     None
-  }, [filterValueJson])
+  }, (filterValueJson, offset, searchText))
 
   let filtersUI = React.useMemo(() => {
     <Filter
@@ -84,17 +82,41 @@ let make = () => {
       submitInputOnEnter=true
       defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
       updateUrlWith={updateExistingKeys}
+      customLeftView={<HSwitchRemoteFilter.SearchBarFilter
+        placeholder="Search for object ID" setSearchVal=setSearchText searchVal=searchText
+      />}
+      clearFilters={() => reset()}
     />
   }, [])
 
+  let refreshPage = () => {
+    reset()
+    Window.Location.reload()
+  }
+
+  let isWebhookUrlConfigured = webhookURL !== ""
+
+  let message = isWebhookUrlConfigured
+    ? "No data found, try searching with different filters or try refreshing using the button below"
+    : "Webhook UI is not configured please do it from payment settings"
+
+  let customUI =
+    <NoDataFound message renderType=Painting>
+      <RenderIf condition={isWebhookUrlConfigured}>
+        <div className="m-2">
+          <Button text="Refresh" buttonType=Primary onClick={_ => refreshPage()} />
+        </div>
+      </RenderIf>
+    </NoDataFound>
+
   <>
     <PageUtils.PageHeading title="Webhooks" subTitle="" />
-    <PageLoaderWrapper screenState>
-      {filtersUI}
+    {filtersUI}
+    <PageLoaderWrapper screenState customUI>
       <LoadedTable
         title=" "
-        actualData={data->Array.map(Nullable.make)}
-        totalResults={data->Array.length}
+        actualData={webhooksData->Array.map(Nullable.make)}
+        totalResults={totalCount}
         resultsPerPage=20
         entity={WebhooksTableEntity.webhooksEntity(
           `webhooks`,
@@ -103,12 +125,9 @@ let make = () => {
         hideTitle=true
         offset
         setOffset
-        currrentFetchCount={data->Array.map(Nullable.make)->Array.length}
+        currrentFetchCount={webhooksData->Array.map(Nullable.make)->Array.length}
         collapseTableRow=false
         showSerialNumber=true
-        noDataMsg={webhookURL === ""
-          ? "Webhook UI is not configured please do it from payment settings"
-          : "No data found"}
       />
     </PageLoaderWrapper>
   </>

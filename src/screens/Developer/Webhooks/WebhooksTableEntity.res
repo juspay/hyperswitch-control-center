@@ -14,12 +14,10 @@ type colType =
 let defaultColumns = [
   EventId,
   ObjectId,
+  ProfileId,
   EventClass,
   EventType,
-  MerchantId,
-  ProfileId,
   IsDeliverySuccessful,
-  InitialAttemptId,
   Created,
 ]
 
