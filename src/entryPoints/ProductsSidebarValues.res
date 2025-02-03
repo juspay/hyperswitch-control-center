@@ -21,13 +21,13 @@ let useGetSideBarValues = () => {
 
 let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) => {
   open ProductUtils
-  let {devReconv2Product, devRecoveryV2Product} =
+  let {devReconv2Product, devRecoveryV2Product, devVaultV2Product} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
     Link({
       name: Orchestrator->getStringFromVariant,
-      icon: "home",
+      icon: "orchestrator-home",
       link: "/home",
       access: Access,
     }),
@@ -54,13 +54,22 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
       }),
     )
   }
+  if devVaultV2Product {
+    sideBarValues->Array.push(
+      Link({
+        name: Vault->getStringFromVariant,
+        icon: "vault-home",
+        link: "/v2/vault/configuration",
+        access: Access,
+      }),
+    )
+  }
 
   let productName = currentProduct->ProductUtils.getStringFromVariant
 
   sideBarValues->Array.filter(topLevelItem =>
     switch topLevelItem {
     | Link(optionType) => optionType.name != productName
-
     | _ => true
     }
   )

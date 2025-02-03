@@ -3,6 +3,48 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.03.0
+
+### Features
+
+- Vaulting setup ([#2177](https://github.com/juspay/hyperswitch-control-center/pull/2177)) ([`f216107`](https://github.com/juspay/hyperswitch-control-center/commit/f216107c61bed6265fd2a18e9fbe0e28a761db31))
+
+### Bug Fixes
+
+- Dashboard redesign ui issues ([#2176](https://github.com/juspay/hyperswitch-control-center/pull/2176)) ([`12042b8`](https://github.com/juspay/hyperswitch-control-center/commit/12042b898b2bf313004619d3902ada71b059a785))
+- Org name update ([#2180](https://github.com/juspay/hyperswitch-control-center/pull/2180)) ([`5c26b10`](https://github.com/juspay/hyperswitch-control-center/commit/5c26b1075932a7f59496a0b83a3b48152eae03ce))
+- Org indexes logic fix ([#2184](https://github.com/juspay/hyperswitch-control-center/pull/2184)) ([`4e330dc`](https://github.com/juspay/hyperswitch-control-center/commit/4e330dc917ee125420bbc90b07d4b86c03a63604))
+
+### Miscellaneous Tasks
+
+- Config colors changes ([#2174](https://github.com/juspay/hyperswitch-control-center/pull/2174)) ([`50d6de8`](https://github.com/juspay/hyperswitch-control-center/commit/50d6de88903b904cc8b2769e0459b5a781c6df28))
+- Vaulting landing page ([#2182](https://github.com/juspay/hyperswitch-control-center/pull/2182)) ([`e6f9332`](https://github.com/juspay/hyperswitch-control-center/commit/e6f933231117adad95e804e70efe0e7f20b1760e))
+
+**Full Changelog:** [`2025.01.30.1...2025.02.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.30.1...2025.02.03.0)
+
+- - -
+
+## 2025.01.30.1
+
+### Features
+
+- Klarna-checkout added for klarna updated wasm ([#2151](https://github.com/juspay/hyperswitch-control-center/pull/2151)) ([`6ed8259`](https://github.com/juspay/hyperswitch-control-center/commit/6ed8259db0a210e87c3a05f27b526980c1fb2026))
+- New UI button ([#2147](https://github.com/juspay/hyperswitch-control-center/pull/2147)) ([`52a7125`](https://github.com/juspay/hyperswitch-control-center/commit/52a7125d6d3da5a5f9acf2fe16a07734049e7808))
+- Product sidebar changes ([#2170](https://github.com/juspay/hyperswitch-control-center/pull/2170)) ([`c13ac06`](https://github.com/juspay/hyperswitch-control-center/commit/c13ac066f2c8131856e1dae87f391565293533b5))
+
+### Bug Fixes
+
+- Filter Select Box changes ([#2172](https://github.com/juspay/hyperswitch-control-center/pull/2172)) ([`70ddbf1`](https://github.com/juspay/hyperswitch-control-center/commit/70ddbf108bd9546d49698d9cbf67133528579cc2))
+
+### Miscellaneous Tasks
+
+- Text comp ui update ([#2166](https://github.com/juspay/hyperswitch-control-center/pull/2166)) ([`5a895dc`](https://github.com/juspay/hyperswitch-control-center/commit/5a895dc9fa65b3f7ad4f6327e627fb680c980a02))
+- Dashboard White Theme Changes ( Including OMP ) ([#2153](https://github.com/juspay/hyperswitch-control-center/pull/2153)) ([`509126a`](https://github.com/juspay/hyperswitch-control-center/commit/509126ae8a225517ec0dd7431d5a8a4e8f114e81))
+
+**Full Changelog:** [`2025.01.30.0...2025.01.30.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.01.30.0...2025.01.30.1)
+
+- - -
+
 ## 2025.01.30.0
 
 ### Features

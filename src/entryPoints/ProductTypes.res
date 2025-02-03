@@ -1,1 +1,1 @@
-type productTypes = Orchestrator | Recon | Recovery
+type productTypes = Orchestrator | Recon | Recovery | Vault

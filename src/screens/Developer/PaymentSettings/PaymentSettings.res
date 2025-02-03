@@ -13,9 +13,8 @@ module InfoViewForWebhooks = {
       <div className="flex gap-2 break-all w-full items-start">
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
         <RenderIf condition={isCopy}>
-          <img
-            alt="copy-clipboard"
-            src={`/assets/CopyToClipboard.svg`}
+          <Icon
+            name="nd-copy"
             className="cursor-pointer"
             onClick={ev => {
               onCopyClick(ev)

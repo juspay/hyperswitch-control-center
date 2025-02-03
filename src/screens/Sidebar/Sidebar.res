@@ -494,7 +494,7 @@ let make = (
 ) => {
   open CommonAuthHooks
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
+    globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
@@ -523,10 +523,38 @@ let make = (
   }
   let profileMaxWidth = "145px"
 
+  let level3 = tail => {
+    switch List.tail(tail) {
+    | Some(tail2) =>
+      switch List.head(tail2) {
+      | Some(value2) => `/${value2}`
+      | None => "/"
+      }
+    | None => "/"
+    }
+  }
+
+  let level2 = tail => {
+    switch List.tail(tail) {
+    | Some(tail2) =>
+      switch List.head(tail2) {
+      | Some(value2) => `/${value2}` ++ level3(tail2)
+      | None => "/"
+      }
+    | None => "/"
+    }
+  }
+
   let firstPart = switch List.tail(path) {
   | Some(tail) =>
     switch List.head(tail) {
-    | Some(x) => `/${x}`
+    | Some(x) =>
+      /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
+      if x === "v2" {
+        `/${x}` ++ level2(tail)
+      } else {
+        `/${x}`
+      }
     | None => "/"
     }
   | None => "/"
@@ -534,7 +562,6 @@ let make = (
 
   let expansionClass = !isSidebarExpanded ? "-translate-x-full" : ""
 
-  let sidebarClass = "shadow-md"
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
 
   let sidebarContainerClassWidth = isMobileView ? "0px" : "275px"
@@ -575,14 +602,14 @@ let make = (
     className={`${backgroundColor.sidebarNormal} flex group border-r border-jp-gray-200 relative `}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
-      className={`flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
+      className={`flex h-full flex-col transition-all duration-100 relative inset-0`}
       style={width: sidebarContainerClassWidth}
     />
     <div
       className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
-        className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
+        className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
         style={width: sidebarWidth}>
         <RenderIf condition={isMobileView}>
           <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
@@ -651,7 +678,8 @@ let make = (
           </div>
           <RenderIf condition={productSiebars->Array.length > 0}>
             <div className={"p-2.5"}>
-              <div className={`text-sm font-semibold px-3 pt-6 pb-2 text-nd_gray-400`}>
+              <div
+                className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
                 {React.string("Other modular services"->String.toUpperCase)}
               </div>
               {productSiebars
