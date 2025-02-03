@@ -3,7 +3,9 @@ module PreviewRow = {
   let make = (~title, ~subTitle="") => {
     <div>
       <p className="text-base text-gray-400 font-medium mb-2"> {title->React.string} </p>
-      <p className="font-semibold text-gray-700"> {subTitle->React.string} </p>
+      <p className="font-semibold text-gray-700 overflow-scroll whitespace-nowrap">
+        {subTitle->React.string}
+      </p>
     </div>
   }
 }
