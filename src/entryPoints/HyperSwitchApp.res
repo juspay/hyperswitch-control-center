@@ -112,7 +112,6 @@ let make = () => {
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
               <RenderIf condition={screenState === Success}>
-                <OrgSidebar />
                 <Sidebar
                   path={url.path}
                   sidebars={hyperSwitchAppSidebars}

@@ -85,7 +85,7 @@ module OrgTile = {
     let hoverLabel1 = !isUnderEdit ? `group/parent` : ``
     let hoverInput2 = !isUnderEdit ? `invisible group-hover/parent:visible` : ``
     // Common CSS
-    let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-30 shadow-md ${backgroundColor.sidebarSecondary}`
+    let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-50 shadow-md ${backgroundColor.sidebarSecondary}`
     let currentEditCSS = isUnderEdit
       ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
       : `${baseCSS} ${hoverInput2} shadow-lg `

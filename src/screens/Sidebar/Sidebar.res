@@ -553,7 +553,7 @@ let make = (
 
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
 
-  let sidebarContainerClassWidth = isMobileView ? "0px" : "275px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : "335px"
 
   let transformClass = "transform md:translate-x-0 transition"
 
@@ -595,6 +595,7 @@ let make = (
     />
     <div
       className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
+      <OrgSidebar />
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
         className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
