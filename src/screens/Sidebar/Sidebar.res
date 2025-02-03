@@ -704,7 +704,7 @@ let make = (
             </div>
           </RenderIf>
         </div>
-        <div className={`flex items-center justify-between mb-5 mt-2 mx-2 mr-2 ${hoverColor}`}>
+        <div className={`flex items-center justify-between p-3 ${hoverColor}`}>
           <RenderIf condition={isSidebarExpanded}>
             <Popover className="relative inline-block text-left">
               {popoverProps => <>

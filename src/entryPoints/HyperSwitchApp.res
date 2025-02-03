@@ -111,8 +111,8 @@ let make = () => {
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
-              <OrgSidebar />
               <RenderIf condition={screenState === Success}>
+                <OrgSidebar />
                 <Sidebar
                   path={url.path}
                   sidebars={hyperSwitchAppSidebars}
