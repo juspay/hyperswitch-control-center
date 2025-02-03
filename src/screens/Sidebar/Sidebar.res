@@ -512,10 +512,38 @@ let make = (
   }
   let profileMaxWidth = "145px"
 
+  let level3 = tail => {
+    switch List.tail(tail) {
+    | Some(tail2) =>
+      switch List.head(tail2) {
+      | Some(value2) => `/${value2}`
+      | None => "/"
+      }
+    | None => "/"
+    }
+  }
+
+  let level2 = tail => {
+    switch List.tail(tail) {
+    | Some(tail2) =>
+      switch List.head(tail2) {
+      | Some(value2) => `/${value2}` ++ level3(tail2)
+      | None => "/"
+      }
+    | None => "/"
+    }
+  }
+
   let firstPart = switch List.tail(path) {
   | Some(tail) =>
     switch List.head(tail) {
-    | Some(x) => `/${x}`
+    | Some(x) =>
+      /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
+      if x === "v2" {
+        `/${x}` ++ level2(tail)
+      } else {
+        `/${x}`
+      }
     | None => "/"
     }
   | None => "/"

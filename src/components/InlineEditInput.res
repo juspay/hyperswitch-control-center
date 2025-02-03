@@ -108,10 +108,13 @@ let make = (
     ~isActive=isUnderEdit,
     ~callback=() => {
       handleEdit(None)
+      handleCancel()
     },
   )
   let submitButtons =
-    <div className="flex items-center gap-2 pr-4" onClick={ReactEvent.Mouse.stopPropagation}>
+    <div
+      className="flex items-center gap-2 pr-4 cursor-pointer"
+      onClick={ReactEvent.Mouse.stopPropagation}>
       <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
         <Icon name="nd-cross" size=16 />
       </button>
@@ -124,13 +127,13 @@ let make = (
     </div>
 
   let leftActionButtons =
-    <div className="gap-2 flex">
+    <div className="gap-2 flex cursor-pointer">
       <RenderIf condition={showEditIcon}>
         <button
           onClick={_ => {
             handleEdit(Some(index))
           }}
-          className={`cursor-pointer  ${customIconStyle}`}
+          className={`${customIconStyle}`}
           ariaLabel="Edit">
           <Icon name="nd-pencil" size=14 />
         </button>

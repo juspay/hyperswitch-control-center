@@ -23,7 +23,7 @@ module GetProductionAccess = {
     switch isProdIntentCompleted {
     | Some(_) =>
       <div
-        className={`flex items-center gap-2 border mb-4 ${borderColor} bg-white text-nd_gray-700  ${cursorStyles} px-3 py-10-px whitespace-nowrap rounded-lg justify-between`}
+        className={`flex items-center gap-2 border ${borderColor} bg-white text-nd_gray-700  ${cursorStyles} px-3 py-10-px mb-4 whitespace-nowrap rounded-lg justify-between`}
         onClick={_ => {
           isProdIntent
             ? ()
@@ -52,7 +52,7 @@ module ProductHeaderComponent = {
   let make = () => {
     let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
 
-    <div className={`text-xs font-semibold px-3 pt-2 pb-2 text-nd_gray-400 tracking-widest`}>
+    <div className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest`}>
       {React.string(currentProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
     </div>
   }
@@ -319,7 +319,6 @@ let analytics = (
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
-  Js.log(authenticationAnalyticsFlag)
   let links = [paymentAnalytcis, refundAnalytics]
   if authenticationAnalyticsFlag {
     links->Array.push(authenticationAnalytics)
@@ -699,6 +698,12 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let defaultSidebar = [
     productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess),
+    Link({
+      name: "Home",
+      icon: "home",
+      link: "/home",
+      access: Access,
+    }),
     CustomComponent({
       component: <ProductHeaderComponent />,
     }),
