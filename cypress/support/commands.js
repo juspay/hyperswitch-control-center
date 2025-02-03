@@ -28,44 +28,82 @@ import { v4 as uuidv4 } from "uuid";
 import * as helper from "../support/helper";
 import SignInPage from "../support/pages/auth/SignInPage";
 
-import { rolePermissions, accessLevels } from "../support/permissions";
+import {
+  hasPermission,
+  hasAccessLevelPermission,
+} from "../support/permissions";
 
 const signinPage = new SignInPage();
 
-// Custom command to check permissions and access levels
-Cypress.Commands.add(
-  "checkPermissionForTest",
-  (section, requiredRole, requiredAccessLevel, requiredPermission) => {
-    const userRole = Cypress.env("role") || "admin"; // Role passed via environment
-    const userAccessLevel = Cypress.env("accessLevel") || "org"; // Access level passed via environment
+// Custom command to check permissions and decide whether to skip or run the test
+Cypress.Commands.add("checkPermissionsFromTestName", (testName) => {
+  const userRole = Cypress.env("role") || "admin"; // Role passed via environment (default 'admin')
+  const userAccessLevel = Cypress.env("accessLevel") || "org"; // Access level passed via environment (default 'org')
 
-    // Validate role and access level are set correctly
-    if (!rolePermissions[userRole]) {
-      throw new Error(
-        `Role "${userRole}" is not defined in the permissions mapping.`,
-      );
-    }
+  // Extract tags from the test name using a regex
+  const regex = /@([a-zA-Z0-9_-]+)/g;
+  const tags = [...testName.matchAll(regex)].map((match) => match[1]);
 
-    if (!accessLevels.includes(userAccessLevel)) {
-      throw new Error(`Access level "${userAccessLevel}" is not valid.`);
-    }
+  // Parse the tags
+  const sectionTag = tags.find((tag) =>
+    ["analytics", "workflow", "operations"].includes(tag),
+  ); // Assuming section names are one of these
+  const accessLevelTag = tags.find((tag) =>
+    ["org", "merchant", "profile"].includes(tag),
+  );
+  const permissionTag = tags.find((tag) => ["read", "write"].includes(tag));
 
-    // Check if user has permission for the given section
-    const userPermission = rolePermissions[userRole][section];
+  // Default values if no tags are found in the name
+  const requiredSection = sectionTag || "analytics"; // Default to 'analytics'
+  const requiredAccessLevel = accessLevelTag || "org"; // Default to 'org'
+  const requiredPermission = permissionTag || "read"; // Default to 'read'
 
-    // Verify if the user's permission matches the required permission
-    const isPermissionCorrect = userPermission === requiredPermission;
-    const isAccessLevelSufficient =
-      accessLevels.indexOf(userAccessLevel) >=
-      accessLevels.indexOf(requiredAccessLevel);
+  // If the test case mentions 'profile', allow all access levels
+  if (tags.includes("profile")) {
+    Cypress.log({
+      name: "Test Skipped",
+      message: `Test has 'profile' tag, allowing all access levels for ${requiredSection}`,
+    });
+    // Allow any access level, but we still need to check permissions and roles
+  } else if (userAccessLevel !== requiredAccessLevel) {
+    // Skip the test if access level doesn't match
+    Cypress.log({
+      name: "Test Skipped",
+      message: `Skipping ${requiredSection} test due to incorrect access level`,
+    });
+    Cypress._.skip(); // Skip the test
+    return;
+  }
 
-    if (!isPermissionCorrect || !isAccessLevelSufficient) {
-      return false; // If permission or access level doesn't match, skip the test
-    }
+  // Validate if user has access level permission to the section
+  const canAccess = hasAccessLevelPermission(
+    userAccessLevel,
+    userRole,
+    requiredSection,
+  );
+  if (!canAccess) {
+    Cypress.log({
+      name: "Test Skipped",
+      message: `Skipping ${requiredSection} test due to insufficient access level`,
+    });
+    Cypress._.skip(); // Skip the test
+    return;
+  }
 
-    return true; // If all conditions match, run the test
-  },
-);
+  // Validate if user has the correct permission (read/write)
+  const hasCorrectPermission = hasPermission(
+    userRole,
+    requiredSection,
+    requiredPermission,
+  );
+  if (!hasCorrectPermission) {
+    Cypress.log({
+      name: "Test Skipped",
+      message: `Skipping ${requiredSection} test due to insufficient permissions (${requiredPermission})`,
+    });
+    Cypress._.skip(); // Skip the test
+  }
+});
 
 Cypress.Commands.add("visit_signupPage", () => {
   cy.visit("/");

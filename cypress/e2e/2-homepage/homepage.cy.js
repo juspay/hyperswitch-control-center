@@ -31,42 +31,37 @@ describe("Sign up", () => {
   //     cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
   //   });
 
-  it("@users @org @write", () => {
-    cy.checkPermissionForTest(
-      "users",
-      Cypress.env("role"),
-      Cypress.env("accessLevel"),
-      "write",
-    ).then((shouldRun) => {
-      if (shouldRun) {
-        const email = helper.generateUniqueEmail();
-        cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
-        cy.visit("/");
-
-        signinPage.emailInput.type(email);
-        signinPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
-        signinPage.signinButton.click();
-        signinPage.skip2FAButton.click();
-
-        cy.url().should("include", "/dashboard/home");
-
-        cy.get("[class='flex flex-col items-start']").children().eq(2).click();
-        cy.get("[aria-label='Edit']").children().eq(1).click({ force: true });
-
-        cy.get(
-          '[class="w-full p-2 bg-transparent focus:outline-none text-md !py-0 text-nd_gray-600"]',
-        )
-          .clear()
-          .type("new_profile_name");
-
-        cy.get('[data-icon="nd-check"]').eq(1).click();
-      } else {
-        cy.log("Skipping test due to insufficient permissions or access level");
-      }
-    });
+  // check if the permissions and access level allow the test to run
+  beforeEach(function () {
+    const testName = Cypress.currentTest.title;
+    cy.checkPermissionsFromTestName(testName);
   });
 
-  it.skip("@workflow @org @read", () => {
+  it("@analytics @profile @write", () => {
+    const email = helper.generateUniqueEmail();
+    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.visit("/");
+
+    signinPage.emailInput.type(email);
+    signinPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
+    signinPage.signinButton.click();
+    signinPage.skip2FAButton.click();
+
+    cy.url().should("include", "/dashboard/home");
+
+    cy.get("[class='flex flex-col items-start']").children().eq(2).click();
+    cy.get("[aria-label='Edit']").children().eq(1).click({ force: true });
+
+    cy.get(
+      '[class="w-full p-2 bg-transparent focus:outline-none text-md !py-0 text-nd_gray-600"]',
+    )
+      .clear()
+      .type("new_profile_name");
+
+    cy.get('[data-icon="nd-check"]').eq(1).click();
+  });
+
+  it.skip("@analytics @org @read", () => {
     cy.checkPermissionForTest(
       "workflow",
       Cypress.env("role"),
