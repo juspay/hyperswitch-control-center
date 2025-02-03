@@ -9,7 +9,6 @@ module SubHeading = {
 }
 
 module RecoveryConfigurationCurrentStepIndicator = {
-  open RecoveryConfigurationUtils
   @react.component
   let make = (~currentStep: ConnectorTypes.steps, ~stepsArr) => {
     let cols = stepsArr->Array.length->Int.toString
@@ -44,7 +43,7 @@ module RecoveryConfigurationCurrentStepIndicator = {
                   <Icon className={`${iconColor} pl-1 pt-1`} name={"nd-inbox"} />
                 </div>
               }}
-              {if i == sectionsArr->Array.length - 1 {
+              {if i == stepsArr->Array.length - 1 {
                 React.null
               } else {
                 <div
