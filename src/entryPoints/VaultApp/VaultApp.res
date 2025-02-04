@@ -13,6 +13,7 @@ let make = () => {
         access=Access
         renderList={() => <VaultConfiguration />}
         renderNewForm={() => <VaultOnboarding />}
+        renderShow={(_, _) => <ConnectorSummary />}
       />
     | list{"v2", "vault", "customers-tokens"} => <VaultCustomersAndTokens />
     | _ => React.null

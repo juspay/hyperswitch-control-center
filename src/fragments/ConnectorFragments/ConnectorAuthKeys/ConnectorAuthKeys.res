@@ -4,8 +4,14 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   open ConnectorAuthKeyUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  Js.log2("connectorconnectorconnectorconnector", connector)
 
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
+
+  let selectedConnector = React.useMemo(() => {
+    connectorTypeFromName->ConnectorUtils.getConnectorInfo
+  }, [connector])
+
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
@@ -21,11 +27,8 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
         Dict.make()->JSON.Encode.object
       }
     }
-  }, [connector])
-  let selectedConnector = React.useMemo(() => {
-    connectorTypeFromName->ConnectorUtils.getConnectorInfo
-  }, [connector])
-  Js.log2("connector", connectorDetails)
+  }, [selectedConnector])
+
   let (
     bodyType,
     connectorAccountFields,

@@ -28,10 +28,12 @@ let make = () => {
     | _ => Exn.raiseError("Something went wrong")
     }
   }
+
   React.useEffect(() => {
     getConnectorDetails()->ignore
     None
   }, [])
+
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     Js.log(values)
     Nullable.null
