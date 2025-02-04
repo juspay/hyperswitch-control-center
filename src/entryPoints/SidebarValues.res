@@ -703,7 +703,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
       Link({
         name: "Home",
         icon: "home",
-        link: "/home",
+        link: "/v2/home",
         access: Access,
       }),
       CustomComponent({

@@ -1,20 +1,20 @@
-type productDetailCards = {
-  product: ProductTypes.productTypes,
-  heading: string,
-  description: string,
-  imgSrc: string,
-  route: string,
-}
-type defaultActionCards = {
-  heading: string,
-  description: string,
-  imgSrc: string,
-}
+open DefaultHomeTypes
 module DefaultActionItem = {
   @react.component
-  let make = (~heading, ~description, ~img) => {
+  let make = (~heading, ~description, ~img, ~action) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     <div
-      className="border rounded-xl p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer w-334-px justify-between py-4">
+      className="border rounded-xl p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer w-334-px justify-between py-4"
+      onClick={_ => {
+        switch action {
+        | InternalRoute(route) =>
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=route))
+        | ExternalLink({url, trackingEvent}) => {
+            mixpanelEvent(~eventName=trackingEvent)
+            url->Window._open
+          }
+        }
+      }}>
       <div className="flex items-center gap-2">
         <img alt={heading} src={img} />
         <div className="flex flex-col gap-1">
@@ -28,7 +28,8 @@ module DefaultActionItem = {
 }
 module DefaultHomeCard = {
   @react.component
-  let make = (~heading, ~description, ~img, ~route) => {
+  let make = (~heading, ~description, ~img, ~action) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     <div
       className="w-499-px p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
       <img className="w-full h-195-px object-cover rounded-xl" src={img} />
@@ -46,29 +47,42 @@ module DefaultHomeCard = {
         buttonSize={Medium}
         customButtonStyle="w-full"
         onClick={_ => {
-          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url={route}))
+          switch action {
+          | InternalRoute(route) =>
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=route))
+          | ExternalLink({url, trackingEvent}) => {
+              mixpanelEvent(~eventName=trackingEvent)
+              url->Window._open
+            }
+          }
         }}
       />
     </div>
   }
 }
 
-let defaultHomeActionArray: array<defaultActionCards> = {
+let defaultHomeActionArray = {
   [
     {
       heading: "Set up API Keys",
       description: "One Liner about this task",
       imgSrc: "/assets/VaultServerImage.svg",
+      action: InternalRoute("developer-api-keys"),
     },
     {
       heading: "Invite your team",
       description: "One Liner about this task",
       imgSrc: "/assets/DefaultHomeTeam.svg",
+      action: InternalRoute("users"),
     },
     {
       heading: "Developer Docs",
       description: "One Liner about this task",
       imgSrc: "/assets/VaultSdkImage.svg",
+      action: ExternalLink({
+        url: "https://hyperswitch.io/docs",
+        trackingEvent: "dev_docs",
+      }),
     },
   ]
 }
@@ -79,28 +93,28 @@ let defaultHomeCardsArray = {
       heading: "Vault",
       description: "A modular solution designed to unify various abstractions, seamlessly connecting with payment processors, payout processors, fraud management, tax automation, identity solutions, and reporting systems.",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      route: "v2/vault/configuration",
+      action: InternalRoute("v2/vault/configuration"),
     },
     {
       product: Recon,
       heading: "Recon",
       description: "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
       imgSrc: "/assets/DefaultHomeReconCard.svg",
-      route: "v2/recon/onboarding",
+      action: InternalRoute("v2/recon/onboarding"),
     },
     {
       product: Orchestrator,
       heading: "Orchestrator",
       description: "Unified the divers abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      route: "dashboard/home",
+      action: InternalRoute("dashboard/home"),
     },
     {
       product: Recovery,
       heading: "Recovery",
       description: "A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.",
       imgSrc: "/assets/DefaultHomeRecoveryCard.svg",
-      route: "v2/recovery",
+      action: InternalRoute("v2/recovery"),
     },
   ]
 }
