@@ -1,6 +1,6 @@
 @react.component
 let make = (~setCurrentStep, ~showMenuOption=true, ~getConnectorDetails=None) => {
-  // open ConnectorUtils
+  //open ConnectorUtils
 
   // let connectorInfo =
   //   connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType

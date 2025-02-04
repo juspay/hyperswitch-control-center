@@ -1,3 +1,5 @@
+type flowTypes = ConnectPaymentProcessor | ConnectBillingProcessor
+
 let getIconName = (step): string => {
   // switch step {
   // | ConnectOrderData => "nd-inbox"
