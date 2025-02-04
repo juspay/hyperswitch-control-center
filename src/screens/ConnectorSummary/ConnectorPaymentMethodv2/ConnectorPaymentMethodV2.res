@@ -145,6 +145,14 @@ let make = (~initialValues, ~setInitialValues) => {
           bannerText="Please verify if the payment methods are turned on at the processor end as well."
           bannerType=Warning
         />
+        <div className="flex">
+          <FormRenderer.SubmitButton text="Submit" />
+          <Button
+            text="Continue"
+            buttonType={Secondary}
+            // onClick={_ => setCurrentStep(prev => getNextStep(prev))}
+          />
+        </div>
         {keys
         ->Array.mapWithIndex((pm, i) => {
           let provider = pmts->getArrayFromDict(pm, [])

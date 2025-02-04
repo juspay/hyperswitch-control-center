@@ -33,13 +33,14 @@ let make = () => {
     None
   }, [])
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    Js.log(values)
     Nullable.null
   }
 
   <>
     <PageLoaderWrapper screenState>
       <Form onSubmit initialValues>
-        <ConnectorPaymentMethodV2 initialValues setInitialValues />
+        <PaymentProcessorSummary initialValues setInitialValues />
         <FormValuesSpy />
       </Form>
     </PageLoaderWrapper>
