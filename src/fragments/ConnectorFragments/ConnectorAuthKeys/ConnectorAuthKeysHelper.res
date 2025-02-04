@@ -44,34 +44,6 @@ let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
   )
 }
 
-let inputField = (
-  ~name,
-  ~field,
-  ~label,
-  ~connector,
-  ~getPlaceholder,
-  ~checkRequiredFields,
-  ~disabled,
-  ~description,
-  ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
-  (),
-) =>
-  FormRenderer.makeFieldInfo(
-    ~label,
-    ~name,
-    ~description,
-    ~toolTipPosition,
-    ~customInput=InputFields.textInput(~isDisabled=disabled),
-    ~placeholder=switch getPlaceholder {
-    | Some(fun) => fun(label)
-    | None => `Enter ${label->LogicUtils.snakeToTitle}`
-    },
-    ~isRequired=switch checkRequiredFields {
-    | Some(fun) => fun(connector, field)
-    | None => true
-    },
-  )
-
 module ErrorValidation = {
   @react.component
   let make = (~fieldName, ~validate) => {
@@ -134,16 +106,20 @@ module RenderConnectorInputFields = {
                   ~fieldName2="metadata.paypal_sdk.client_id",
                 )
               | _ =>
-                inputField(
-                  ~name=formName,
-                  ~field,
+                FormRenderer.makeFieldInfo(
                   ~label,
-                  ~connector,
-                  ~checkRequiredFields,
-                  ~getPlaceholder,
-                  ~disabled,
+                  ~name,
                   ~description,
-                  (),
+                  ~toolTipPosition=Right,
+                  ~customInput=InputFields.textInput(~isDisabled=disabled),
+                  ~placeholder=switch getPlaceholder {
+                  | Some(fun) => fun(label)
+                  | None => `Enter ${label->LogicUtils.snakeToTitle}`
+                  },
+                  ~isRequired=switch checkRequiredFields {
+                  | Some(fun) => fun(connector, field)
+                  | None => true
+                  },
                 )
               }}
             />
@@ -299,8 +275,12 @@ module ConnectorConfigurationFields = {
     ~isUpdateFlow=false,
     ~connectorLabelDetailField,
     ~connectorAdditionalMerchantData,
+    ~showVertically=true,
   ) => {
-    <div className="flex flex-col">
+    <div
+      className={`grid ${showVertically
+          ? "grid-cols-1"
+          : "grid-cols-2"} max-w-3xl gap-x-6 gap-y-2`}>
       {switch connector {
       | Processors(CASHTOCODE) =>
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
@@ -314,23 +294,24 @@ module ConnectorConfigurationFields = {
           selectedConnector
         />
       }}
-      <RenderConnectorInputFields
-        details={connectorLabelDetailField}
-        name={"connector_label"}
-        connector
-        selectedConnector
-        isLabelNested=false
-        description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
-      />
-      <ConnectorMetaData connectorMetaDataFields />
-      <ConnectorAdditionalMerchantData connector connectorAdditionalMerchantData />
-      <RenderConnectorInputFields
-        details={connectorWebHookDetails}
-        name={"connector_webhook_details"}
-        checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
-        connector
-        selectedConnector
-      />
+      // <RenderConnectorInputFields
+      //   details={connectorLabelDetailField}
+      //   name={"connector_label"}
+      //   connector
+      //   selectedConnector
+      //   isLabelNested=false
+      //   description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
+      // />
+
+      // <ConnectorMetaData connectorMetaDataFields />
+      // <ConnectorAdditionalMerchantData connector connectorAdditionalMerchantData />
+      // <RenderConnectorInputFields
+      //   details={connectorWebHookDetails}
+      //   name={"connector_webhook_details"}
+      //   checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
+      //   connector
+      //   selectedConnector
+      // />
     </div>
   }
 }

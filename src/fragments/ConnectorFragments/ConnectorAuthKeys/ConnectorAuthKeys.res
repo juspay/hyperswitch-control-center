@@ -1,5 +1,5 @@
 @react.component
-let make = (~initialValues, ~setInitialValues) => {
+let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   open LogicUtils
   open ConnectorAuthKeyUtils
   open ConnectorAuthKeysHelper
@@ -45,23 +45,14 @@ let make = (~initialValues, ~setInitialValues) => {
     None
   }, [])
 
-  <div>
-    <div className="flex">
-      <FormRenderer.SubmitButton text="Submit" />
-      <Button
-        text="Continue"
-        buttonType={Secondary}
-        // onClick={_ => setCurrentStep(prev => getNextStep(prev))}
-      />
-    </div>
-    <ConnectorConfigurationFields
-      connector={connectorTypeFromName}
-      connectorAccountFields
-      selectedConnector
-      connectorMetaDataFields
-      connectorWebHookDetails
-      connectorLabelDetailField
-      connectorAdditionalMerchantData
-    />
-  </div>
+  <ConnectorConfigurationFields
+    connector={connectorTypeFromName}
+    connectorAccountFields
+    selectedConnector
+    connectorMetaDataFields
+    connectorWebHookDetails
+    connectorLabelDetailField
+    connectorAdditionalMerchantData
+    showVertically
+  />
 }
