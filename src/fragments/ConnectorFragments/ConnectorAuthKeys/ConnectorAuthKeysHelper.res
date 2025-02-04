@@ -84,7 +84,7 @@ module RenderConnectorInputFields = {
     ~description="",
   ) => {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    open ConnectorUtils
+    // open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
 
@@ -125,7 +125,7 @@ module RenderConnectorInputFields = {
             />
             <ErrorValidation
               fieldName=formName
-              validate={validate(
+              validate={ConnectorAuthKeyUtils.validate(
                 ~selectedConnector,
                 ~dict=details,
                 ~fieldName=formName,
