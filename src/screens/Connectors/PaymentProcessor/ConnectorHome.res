@@ -256,6 +256,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           />
         | SummaryAndTest
         | Preview =>
+          // <ConnectorSummary />
           <ConnectorPreview
             connectorInfo={initialValues}
             currentStep
