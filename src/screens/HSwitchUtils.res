@@ -234,7 +234,8 @@ let urlPath = urlPathList => {
 let getConnectorIDFromUrl = (urlList, defaultValue) => {
   open GlobalVars
   switch dashboardBasePath {
-  | Some(_) => if urlList->Array.includes("v2") {
+  | Some(_) =>
+    if urlList->Array.includes("v2") {
       urlList->Array.get(4)->Option.getOr(defaultValue)
     } else {
       urlList->Array.get(2)->Option.getOr(defaultValue)

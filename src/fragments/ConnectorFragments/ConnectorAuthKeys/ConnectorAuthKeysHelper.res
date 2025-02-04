@@ -105,7 +105,8 @@ module RenderConnectorInputFields = {
                   ~fieldName1="connector_account_details.key1",
                   ~fieldName2="metadata.paypal_sdk.client_id",
                 )
-              | _ => FormRenderer.makeFieldInfo(
+              | _ =>
+                FormRenderer.makeFieldInfo(
                   ~label,
                   ~name=formName,
                   ~description,
