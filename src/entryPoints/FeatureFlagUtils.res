@@ -49,6 +49,7 @@ type featureFlag = {
   forceCookies: bool,
   authenticationAnalytics: bool,
   devOrgSidebar: bool,
+  devModularityV2: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -100,6 +101,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     forceCookies: dict->getBool("force_cookies", false),
     authenticationAnalytics: dict->getBool("authentication_analytics", false),
     devOrgSidebar: dict->getBool("dev_org_sidebar", false),
+    devModularityV2: dict->getBool("dev_modularity_v2", false),
   }
 }
 
