@@ -19,7 +19,7 @@ let make = () => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     // TODO: Refactor for generic case
     initialValuesToDict->Dict.set("connector_name", `${connector}`->JSON.Encode.string)
-    initialValuesToDict->Dict.set("connector_label", `${connector}_cffX`->JSON.Encode.string)
+    initialValuesToDict->Dict.set("connector_label", `${connector}_hj`->JSON.Encode.string)
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
     initialValuesToDict->JSON.Encode.object
@@ -31,7 +31,9 @@ let make = () => {
       let response = await updateAPIHook(connectorUrl, values, Post)
       let connectorId = response->getDictFromJsonObject->getString("merchant_connector_id", "")
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding/${connectorId}?name=stripe`),
+        GlobalVars.appendDashboardPath(
+          ~url=`/v2/vault/onboarding/${connectorId}?name=${connector}`,
+        ),
       )
     } catch {
     | _ => ()
