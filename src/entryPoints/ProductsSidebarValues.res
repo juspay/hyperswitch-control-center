@@ -59,7 +59,7 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
       Link({
         name: Vault->getStringFromVariant,
         icon: "vault-home",
-        link: "/v2/vault/configuration",
+        link: "/v2/vault/home",
         access: Access,
       }),
     )

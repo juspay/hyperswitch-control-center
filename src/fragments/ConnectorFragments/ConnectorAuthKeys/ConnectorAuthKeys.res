@@ -4,6 +4,7 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   open ConnectorAuthKeyUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
   let connectorDetails = React.useMemo(() => {
     try {
@@ -24,6 +25,7 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
   }, [connector])
+  Js.log2("connector", connectorDetails)
   let (
     bodyType,
     connectorAccountFields,
@@ -33,6 +35,7 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
   ) = getConnectorFields(connectorDetails)
+
   React.useEffect(() => {
     let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
     let acc =
@@ -43,7 +46,7 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
     let _ = updatedValues->Dict.set("connector_account_details", acc)
     setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
     None
-  }, [])
+  }, [connector])
 
   <ConnectorConfigurationFields
     connector={connectorTypeFromName}

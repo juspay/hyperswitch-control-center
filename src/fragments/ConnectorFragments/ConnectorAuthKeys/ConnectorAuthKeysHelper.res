@@ -105,22 +105,24 @@ module RenderConnectorInputFields = {
                   ~fieldName1="connector_account_details.key1",
                   ~fieldName2="metadata.paypal_sdk.client_id",
                 )
-              | _ =>
-                FormRenderer.makeFieldInfo(
-                  ~label,
-                  ~name,
-                  ~description,
-                  ~toolTipPosition=Right,
-                  ~customInput=InputFields.textInput(~isDisabled=disabled),
-                  ~placeholder=switch getPlaceholder {
-                  | Some(fun) => fun(label)
-                  | None => `Enter ${label->LogicUtils.snakeToTitle}`
-                  },
-                  ~isRequired=switch checkRequiredFields {
-                  | Some(fun) => fun(connector, field)
-                  | None => true
-                  },
-                )
+              | _ => {
+                  Js.log2(name, "NAME")
+                  FormRenderer.makeFieldInfo(
+                    ~label,
+                    ~name,
+                    ~description,
+                    ~toolTipPosition=Right,
+                    ~customInput=InputFields.textInput(~isDisabled=disabled),
+                    ~placeholder=switch getPlaceholder {
+                    | Some(fun) => fun(label)
+                    | None => `Enter ${label->LogicUtils.snakeToTitle}`
+                    },
+                    ~isRequired=switch checkRequiredFields {
+                    | Some(fun) => fun(connector, field)
+                    | None => true
+                    },
+                  )
+                }
               }}
             />
             <ErrorValidation
