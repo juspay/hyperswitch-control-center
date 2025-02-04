@@ -1,12 +1,10 @@
 @react.component
 let make = (~setCurrentStep) => {
   <div>
-    <div className="flex justify-between p-2">
-      <RecoveryConfigurationHelper.SubHeading
-        title="Configure Recovery Plan"
-        subTitle="Choose one processor for now. You can connect more processors later"
-      />
-    </div>
+    <RecoveryConfigurationHelper.SubHeading
+      title="Configure Recovery Plan"
+      subTitle="Choose one processor for now. You can connect more processors later"
+    />
     <div className="flex justify-end items-center">
       <Button
         text="Next"

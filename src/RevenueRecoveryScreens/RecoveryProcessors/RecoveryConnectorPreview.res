@@ -111,12 +111,10 @@ let make = (~connectorInfo, ~isUpdateFlow, ~showMenuOption=true, ~getConnectorDe
   let mixpanelEventName = isUpdateFlow ? "processor_step3_onUpdate" : "processor_step3"
 
   <div>
-    <div className="flex justify-between p-2">
-      <RecoveryConfigurationHelper.SubHeading
-        title="Review and Connect"
-        subTitle="Review your configured processor details, enabled payment methods and associated settings."
-      />
-    </div>
+    <RecoveryConfigurationHelper.SubHeading
+      title="Review and Connect"
+      subTitle="Review your configured processor details, enabled payment methods and associated settings."
+    />
     <ConnectorSummaryGrid
       connectorInfo updateStepValue={Some(ConnectorTypes.PaymentMethods)} getConnectorDetails
     />

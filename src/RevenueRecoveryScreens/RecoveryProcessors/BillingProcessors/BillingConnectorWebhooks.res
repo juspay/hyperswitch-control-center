@@ -14,12 +14,10 @@ let make = (~setCurrentStep, ~showMenuOption=true, ~getConnectorDetails=None) =>
   // )
 
   <div>
-    <div className="flex justify-between p-2">
-      <RecoveryConfigurationHelper.SubHeading
-        title="Setup Webhook"
-        subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
-      />
-    </div>
+    <RecoveryConfigurationHelper.SubHeading
+      title="Setup Webhook"
+      subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
+    />
     // <div className="mt-5 mb-7 mx-2">
     //   <ConnectorPreview.KeyAndCopyArea copyValue={copyValueOfWebhookEndpoint} />
     // </div>
