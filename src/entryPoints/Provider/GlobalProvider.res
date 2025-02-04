@@ -18,6 +18,8 @@ let defaultValue = {
   currentProduct: Orchestrator,
   setCurrentProductValue: _ => (),
   setDefaultProductToSessionStorage: _ => (),
+  showSideBar: true,
+  setShowSideBar: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -36,6 +38,7 @@ let make = (~children) => {
   let (permissionInfo, setPermissionInfo) = React.useState(_ => [])
   let (isProdIntentCompleted, setIsProdIntentCompleted) = React.useState(_ => None)
   let (currentProduct, setCurrentProduct) = React.useState(_ => Orchestrator)
+  let (showSideBar, setShowSideBar) = React.useState(_ => true)
   let (integrationDetails, setIntegrationDetails) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->ProviderHelper.getIntegrationDetails
   )
@@ -73,6 +76,8 @@ let make = (~children) => {
       currentProduct,
       setCurrentProductValue,
       setDefaultProductToSessionStorage,
+      showSideBar,
+      setShowSideBar,
     }>
     children
   </Provider>
