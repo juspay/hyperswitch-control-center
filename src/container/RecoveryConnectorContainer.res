@@ -41,6 +41,16 @@ let make = () => {
           renderShow={(_, _) => <RecoveryConnectorHome />}
         />
       </AccessControl>
+    | list{"v2", "recovery", "billing-connectors", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <EntityScaffold
+          entityName="billing-connectors"
+          remainingPath
+          renderList={() => <BillingConnectorHome />}
+          renderNewForm={() => <BillingConnectorHome />}
+          renderShow={(_, _) => <BillingConnectorHome />}
+        />
+      </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
