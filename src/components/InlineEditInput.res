@@ -11,7 +11,7 @@ module HoverInline = {
     ~customWidth,
   ) => {
     <div
-      className={`group relative font-medium flex flex-row items-center p-2 justify-center gap-x-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
+      className={`group/inlineHover relative font-medium flex flex-row items-center p-2 justify-center gap-x-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
       <RenderIf condition={leftIcon->Option.isSome}>
         {leftIcon->Option.getOr(React.null)}
       </RenderIf>
@@ -19,7 +19,7 @@ module HoverInline = {
         <div className="flex justify-between items-center w-full">
           <div className={`text-sm ${labelTextCustomStyle}`}> {React.string(value)} </div>
           <div
-            className={`${showEditIconOnHover ? "invisible group-hover:visible" : ""}`}
+            className={`${showEditIconOnHover ? "invisible group-hover/inlineHover:visible" : ""}`}
             onClick={ReactEvent.Mouse.stopPropagation}>
             leftActionButtons
           </div>

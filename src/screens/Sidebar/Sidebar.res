@@ -37,15 +37,13 @@ module MenuOption = {
 module SidebarOption = {
   @react.component
   let make = (~isSidebarExpanded, ~name, ~icon, ~isSelected) => {
-    let {devOrgSidebar} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let addOpacity = !devOrgSidebar ? "opacity-70" : ""
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
     let textBoldStyles = isSelected
       ? `${primaryTextColor} font-semibold`
       : `${secondaryTextColor} font-medium  `
-    let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor} ${addOpacity} `
+    let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor}  `
 
     if isSidebarExpanded {
       <div className="flex items-center gap-5">
@@ -91,8 +89,6 @@ module SidebarItem = {
     ~setOpenItem=_ => (),
     ~onItemClickCustom=_ => (),
   ) => {
-    let {devOrgSidebar} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let addOpacity = !devOrgSidebar ? "opacity-70" : ""
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(String.substringToEnd(link, ~start=0))
@@ -108,7 +104,7 @@ module SidebarItem = {
     let textColor = if isSelected {
       `text-sm font-semibold ${primaryTextColor}`
     } else {
-      `text-sm font-medium  ${secondaryTextColor} ${addOpacity}`
+      `text-sm font-medium  ${secondaryTextColor} `
     }
     let isMobileView = MatchMedia.useMobileChecker()
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
@@ -199,8 +195,7 @@ module NestedSidebarItem = {
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let {devOrgSidebar} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let addOpacity = !devOrgSidebar ? "opacity-70" : ""
+
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
 
@@ -213,7 +208,7 @@ module NestedSidebarItem = {
     let textColor = if isSelected {
       `text-md font-small ${primaryTextColor}`
     } else {
-      `text-md font-small ${secondaryTextColor} ${addOpacity} `
+      `text-md font-small ${secondaryTextColor}  `
     }
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let paddingClass = if isSideBarExpanded {
@@ -279,12 +274,8 @@ module NestedSectionItem = {
     let {
       globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let {devOrgSidebar} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let addOpacity = !devOrgSidebar ? "opacity-70" : ""
 
-    let iconColor = isAnySubItemSelected
-      ? `${primaryTextColor}`
-      : `${secondaryTextColor} ${addOpacity} `
+    let iconColor = isAnySubItemSelected ? `${primaryTextColor}` : `${secondaryTextColor}  `
 
     let iconOuterClass = if !isSideBarExpanded {
       `${isAnySubItemSelected ? "" : ""} rounded-sm p-4 rounded-lg`
@@ -335,8 +326,8 @@ module NestedSectionItem = {
             <Icon
               name={"Nested_arrow_down"}
               className={isSectionExpanded
-                ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor} ${addOpacity} `
-                : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor} ${addOpacity} `}
+                ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor}  `
+                : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor}  `}
               size=16
             />
           </RenderIf>
@@ -374,8 +365,6 @@ module SidebarNestedSection = {
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let {devOrgSidebar} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let addOpacity = !devOrgSidebar ? "opacity-70" : ""
 
     let isSubLevelItemSelected = tabInfo => {
       switch tabInfo {
@@ -425,12 +414,12 @@ module SidebarNestedSection = {
         if isAnySubItemSelected {
           `${primaryTextColor}`
         } else {
-          `${secondaryTextColor} ${addOpacity} `
+          `${secondaryTextColor}  `
         }
       } else if isAnySubItemSelected {
         `${primaryTextColor}`
       } else {
-        `${secondaryTextColor} ${addOpacity} `
+        `${secondaryTextColor}  `
       }
     }
 
@@ -564,7 +553,7 @@ let make = (
 
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
 
-  let sidebarContainerClassWidth = isMobileView ? "0px" : "275px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : "335px"
 
   let transformClass = "transform md:translate-x-0 transition"
 
@@ -598,8 +587,7 @@ let make = (
     setCurrentProductValue(getVariantFromString(valueSelected.name))
   }
 
-  <div
-    className={`${backgroundColor.sidebarNormal} flex group border-r border-jp-gray-200 relative `}>
+  <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
       className={`flex h-full flex-col transition-all duration-100 relative inset-0`}
@@ -607,6 +595,7 @@ let make = (
     />
     <div
       className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
+      <OrgSidebar />
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
         className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
@@ -716,7 +705,7 @@ let make = (
             </div>
           </RenderIf>
         </div>
-        <div className={`flex items-center justify-between mb-5 mt-2 mx-2 mr-2 ${hoverColor}`}>
+        <div className={`flex items-center justify-between p-3 ${hoverColor}`}>
           <RenderIf condition={isSidebarExpanded}>
             <Popover className="relative inline-block text-left">
               {popoverProps => <>
