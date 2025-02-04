@@ -41,7 +41,6 @@ let extractModulePath = (url: RescriptReactRouter.url) => {
   } else {
     currentPathList->Array.slice(~start=0, ~end=1)->Array.joinWith("/")->appendTrailingSlash
   }
-  Js.log2("modulePath", modulePath)
   modulePath
 }
 
