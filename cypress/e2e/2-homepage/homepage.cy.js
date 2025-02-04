@@ -34,12 +34,17 @@ describe("Sign up", () => {
   // check if the permissions and access level allow the test to run
   beforeEach(function () {
     const testName = Cypress.currentTest.title;
-    cy.checkPermissionsFromTestName(testName);
+
+    cy.checkPermissionsFromTestName(testName).then((shouldSkip) => {
+      if (shouldSkip) {
+        this.skip(); // Skip the test if the result is true
+      }
+    });
   });
 
-  it("@analytics @profile @write", () => {
+  it("@account @merchant @write", () => {
     const email = helper.generateUniqueEmail();
-    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
     cy.visit("/");
 
     signinPage.emailInput.type(email);
@@ -49,8 +54,8 @@ describe("Sign up", () => {
 
     cy.url().should("include", "/dashboard/home");
 
-    cy.get("[class='flex flex-col items-start']").children().eq(2).click();
-    cy.get("[aria-label='Edit']").children().eq(1).click({ force: true });
+    cy.get("[class='flex flex-col items-start']").children().eq(4).click();
+    cy.get("[aria-label='Edit']").click({ force: true });
 
     cy.get(
       '[class="w-full p-2 bg-transparent focus:outline-none text-md !py-0 text-nd_gray-600"]',

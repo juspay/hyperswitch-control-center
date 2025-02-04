@@ -46,33 +46,63 @@ Cypress.Commands.add("checkPermissionsFromTestName", (testName) => {
 
   // Parse the tags
   const sectionTag = tags.find((tag) =>
-    ["analytics", "workflow", "operations"].includes(tag),
-  ); // Assuming section names are one of these
+    [
+      "operations",
+      "connectors",
+      "analytics",
+      "workflows",
+      "reconOps",
+      "reconReports",
+      "users",
+      "account",
+    ].includes(tag),
+  );
+  // Assuming section names are one of these
   const accessLevelTag = tags.find((tag) =>
     ["org", "merchant", "profile"].includes(tag),
   );
   const permissionTag = tags.find((tag) => ["read", "write"].includes(tag));
 
   // Default values if no tags are found in the name
-  const requiredSection = sectionTag || "analytics"; // Default to 'analytics'
+  const requiredSection = sectionTag || "users"; // Default to 'analytics'
   const requiredAccessLevel = accessLevelTag || "org"; // Default to 'org'
-  const requiredPermission = permissionTag || "read"; // Default to 'read'
+  const requiredPermission = permissionTag || "write"; // Default to 'read'
 
-  // If the test case mentions 'profile', allow all access levels
-  if (tags.includes("profile")) {
-    Cypress.log({
-      name: "Test Skipped",
-      message: `Test has 'profile' tag, allowing all access levels for ${requiredSection}`,
-    });
-    // Allow any access level, but we still need to check permissions and roles
-  } else if (userAccessLevel !== requiredAccessLevel) {
-    // Skip the test if access level doesn't match
-    Cypress.log({
-      name: "Test Skipped",
-      message: `Skipping ${requiredSection} test due to incorrect access level`,
-    });
-    Cypress._.skip(); // Skip the test
-    return;
+  // Check access level and run the test based on the user’s access level
+  if (userAccessLevel === "profile") {
+    // If the user is at 'profile' access level, run tests with the 'profile' tag only
+    if (!tags.includes("profile")) {
+      Cypress.log({
+        name: "Test skipped",
+        message: `Skipping test for ${requiredSection}: User access level is 'profile' and this test is not tagged with 'profile'`,
+      });
+      //Cypress._.skip(); // Skip the test
+      return true;
+    }
+  } else if (userAccessLevel === "merchant") {
+    // If the user is at 'merchant' access level, run tests with 'merchant' or 'profile' tag
+    if (!tags.includes("merchant") && !tags.includes("profile")) {
+      Cypress.log({
+        name: "Test skipped",
+        message: `Skipping test for ${requiredSection}: User access level is 'merchant' and this test is not tagged with 'merchant' or 'profile'`,
+      });
+      Cypress._.skip(); // Skip the test
+      return;
+    }
+  } else if (userAccessLevel === "org") {
+    // If the user is at 'org' access level, run tests with 'org', 'merchant', or 'profile' tag
+    if (
+      !tags.includes("org") &&
+      !tags.includes("merchant") &&
+      !tags.includes("profile")
+    ) {
+      Cypress.log({
+        name: "Test skipped",
+        message: `Skipping test for ${requiredSection}: User access level is 'org' and this test is not tagged with 'org', 'merchant', or 'profile'`,
+      });
+      Cypress._.skip(); // Skip the test
+      return;
+    }
   }
 
   // Validate if user has access level permission to the section
