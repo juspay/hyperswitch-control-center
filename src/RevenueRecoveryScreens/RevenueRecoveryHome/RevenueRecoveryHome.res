@@ -9,6 +9,6 @@ let make = () => {
   })
 
   <div className="flex flex-row">
-    <VerticalStepIndicator title="Setup Recovery" sections currentStep />
+    <VerticalStepIndicator title="Setup Recovery" sections currentStep url="/v2/recovery/home" />
   </div>
 }

@@ -1,11 +1,11 @@
 open VerticalStepIndicatorTypes
 @react.component
-let make = (~title: string, ~sections: array<section>, ~currentStep: step) => {
+let make = (~title: string, ~sections: array<section>, ~currentStep: step, ~url: string) => {
   let rows = sections->Array.length->Int.toString
   let currIndex = sections->findSectionIndex(currentStep.sectionId)
 
   let backClick = () => {
-    ()
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
   }
 
   <div className="flex flex-col gap-y-6 border-r h-774-px w-334-px">
