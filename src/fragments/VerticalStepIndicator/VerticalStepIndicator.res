@@ -1,12 +1,10 @@
 open VerticalStepIndicatorTypes
 @react.component
-let make = (~title: string, ~sections: array<section>, ~currentStep: step, ~url: string) => {
+let make = (~title: string, ~sections: array<section>, ~currentStep: step, ~backClick) => {
+  open VerticalStepIndicatorUtils
+
   let rows = sections->Array.length->Int.toString
   let currIndex = sections->findSectionIndex(currentStep.sectionId)
-
-  let backClick = () => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
-  }
 
   <div className="flex flex-col gap-y-6 border-r h-774-px w-334-px">
     <div className="flex items-center gap-x-3 px-6">
@@ -50,18 +48,16 @@ let make = (~title: string, ~sections: array<section>, ~currentStep: step, ~url:
                   <Icon className={`${iconColor} pl-1 pt-1`} name={section.icon} />
                 </div>
               }}
-              {if sectionIndex == sections->Array.length - 1 {
-                React.null
-              } else {
+              <RenderIf condition={sectionIndex != sections->Array.length - 1}>
                 <div
                   className={`absolute top-8 ${sectionLineHeight} left-4 border-l border-gray-150 z-0`}
                 />
-              }}
+              </RenderIf>
               <div className={stepNameIndicator}> {section.name->React.string} </div>
             </div>
             <div className="flex flex-col gap-y-2.5">
-              {if isCurrentStep {
-                switch section.subSections {
+              <RenderIf condition={isCurrentStep}>
+                {switch section.subSections {
                 | Some(subSections) =>
                   subSections
                   ->Array.mapWithIndex((subSection, subSectionIndex) => {
@@ -94,16 +90,13 @@ let make = (~title: string, ~sections: array<section>, ~currentStep: step, ~url:
                           <div className={subStepNameIndicator}>
                             {subSection.name->React.string}
                           </div>
-                          {if (
-                            sectionIndex == sections->Array.length - 1 &&
-                              subSectionIndex == subSections->Array.length - 1
-                          ) {
-                            <div />
-                          } else {
+                          <RenderIf
+                            condition={sectionIndex != sections->Array.length - 1 ||
+                              subSectionIndex != subSections->Array.length - 1}>
                             <div
                               className={`absolute top-7 left-4 ${subSectionLineHeight} border-l border-gray-150 z-0`}
                             />
-                          }}
+                          </RenderIf>
                         </div>
                       }
                     | None => React.null
@@ -111,10 +104,8 @@ let make = (~title: string, ~sections: array<section>, ~currentStep: step, ~url:
                   })
                   ->React.array
                 | None => React.null
-                }
-              } else {
-                React.null
-              }}
+                }}
+              </RenderIf>
             </div>
           </div>
         })

@@ -1,7 +1,14 @@
 open VerticalStepIndicatorTypes
 
+let default: section = {
+  id: "",
+  name: "",
+  icon: "",
+  subSections: None,
+}
+
 let getSectionById = (sections: array<section>, sectionId) =>
-  sections->Array.find(section => section.id === sectionId)
+  sections->Array.find(section => section.id === sectionId)->Option.getOr(default)
 
 let getSubSectionById = (subSections, subSectionId) =>
   subSections->Array.find(subSection => subSection.id === subSectionId)
@@ -12,19 +19,11 @@ let getFirstSubSection = subSections => subSections->Array.get(0)
 let getLastSubSection = subSections => subSections->Array.get(subSections->Array.length - 1)
 
 let findNextStep = (sections: array<section>, currentStep: step): option<step> => {
-  let currentSection = sections->getSectionById(currentStep.sectionId)->Option.getExn
+  let currentSection = sections->getSectionById(currentStep.sectionId)
   let currentSectionIndex =
     sections->Array.findIndex(section => section.id === currentStep.sectionId)
 
   switch (currentSection.subSections, currentStep.subSectionId) {
-  | (None, _) =>
-    sections
-    ->Array.get(currentSectionIndex + 1)
-    ->Option.map(nextSection => {
-      let firstSubSection = nextSection.subSections->Option.flatMap(getFirstSubSection)
-      createStep(nextSection.id, firstSubSection->Option.map(sub => sub.id))
-    })
-
   | (Some(subSections), Some(subSectionId)) => {
       let currentSubIndex = subSections->Array.findIndex(sub => sub.id === subSectionId)
 
@@ -41,24 +40,23 @@ let findNextStep = (sections: array<section>, currentStep: step): option<step> =
         })
       }
     }
+  | (None, _) =>
+    sections
+    ->Array.get(currentSectionIndex + 1)
+    ->Option.map(nextSection => {
+      let firstSubSection = nextSection.subSections->Option.flatMap(getFirstSubSection)
+      createStep(nextSection.id, firstSubSection->Option.map(sub => sub.id))
+    })
   | (_, None) => None
   }
 }
 
 let findPreviousStep = (sections: array<section>, currentStep: step): option<step> => {
-  let currentSection = sections->getSectionById(currentStep.sectionId)->Option.getExn
+  let currentSection = sections->getSectionById(currentStep.sectionId)
   let currentSectionIndex =
     sections->Array.findIndex(section => section.id === currentStep.sectionId)
 
   switch (currentSection.subSections, currentStep.subSectionId) {
-  | (None, _) =>
-    sections
-    ->Array.get(currentSectionIndex - 1)
-    ->Option.map(prevSection => {
-      let lastSubSection = prevSection.subSections->Option.flatMap(getLastSubSection)
-      createStep(prevSection.id, lastSubSection->Option.map(sub => sub.id))
-    })
-
   | (Some(subSections), Some(subSectionId)) => {
       let currentSubIndex = subSections->Array.findIndex(sub => sub.id === subSectionId)
 
@@ -75,6 +73,14 @@ let findPreviousStep = (sections: array<section>, currentStep: step): option<ste
         })
       }
     }
+  | (None, _) =>
+    sections
+    ->Array.get(currentSectionIndex - 1)
+    ->Option.map(prevSection => {
+      let lastSubSection = prevSection.subSections->Option.flatMap(getLastSubSection)
+      createStep(prevSection.id, lastSubSection->Option.map(sub => sub.id))
+    })
+
   | (_, None) => None
   }
 }
@@ -107,4 +113,29 @@ let isLastStep = (sections: array<section>, step: step): bool => {
     )
   )
   ->Option.getOr(false)
+}
+
+let getSectionFromStep = (sections: array<section>, step: step): option<section> => {
+  sections->Array.find(section => getSectionById(sections, step.sectionId) === section)
+}
+
+let getSubSectionFromStep = (sections: array<section>, step: step): option<subSection> => {
+  sections
+  ->Array.find(section => section.id === step.sectionId)
+  ->Option.flatMap(section => {
+    section.subSections->Option.flatMap(subSections => {
+      switch step.subSectionId {
+      | Some(subSectionId) => subSections->Array.find(subSection => subSection.id === subSectionId)
+      | None => None
+      }
+    })
+  })
+}
+
+let findSectionIndex = (sections: array<section>, sectionId: string): int => {
+  sections->Array.findIndex(section => section.id === sectionId)
+}
+
+let findSubSectionIndex = (subSections: array<subSection>, subSectionId: string): int => {
+  subSections->Array.findIndex(subSection => subSection.id === subSectionId)
 }
