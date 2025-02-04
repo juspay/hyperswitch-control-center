@@ -693,21 +693,25 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {isLiveMode} = featureFlagDetails
+  let {isLiveMode, devModularityV2} = featureFlagDetails
 
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let defaultSidebar = [
-    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess),
-    Link({
-      name: "Home",
-      icon: "home",
-      link: "/home",
-      access: Access,
-    }),
-    CustomComponent({
-      component: <ProductHeaderComponent />,
-    }),
-  ]
+  let defaultSidebar = [productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess)]
+
+  if devModularityV2 {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "home",
+        link: "/v2/home",
+        access: Access,
+      }),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  }
+
   let sidebarValuesForProduct = switch currentProduct {
   | Orchestrator => hsSidebars
   | Recon => [ReconSidebarValues.reconSidebars]
