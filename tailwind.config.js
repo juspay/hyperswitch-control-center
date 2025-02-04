@@ -215,6 +215,7 @@ module.exports = {
         },
         orange: {
           100: "#FFFBE6",
+          500: "#E07E41",
           600: "#FDD4B6",
           950: "#D88B54",
           960: "#E89519",
@@ -302,7 +303,10 @@ module.exports = {
 
         /* NEW DESIGN COLORS */
         nd_gray: {
+          100: "FBFBFB",
           200: "#E1E4EA",
+          300: "#CACFD8",
+          500: "#606B85",
           400: "#99A0AE",
           600: "#525866",
           700: "#2B303B",
