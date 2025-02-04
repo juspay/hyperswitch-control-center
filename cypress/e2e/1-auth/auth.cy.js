@@ -137,7 +137,7 @@ describe("Sign in", () => {
 
   it("should successfully login in with valid credentials", () => {
     const email = helper.generateUniqueEmail();
-    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
     cy.visit("/");
 
     signinPage.emailInput.type(email);
@@ -161,7 +161,7 @@ describe("Sign in", () => {
   it("should login successfully with email containing spaces", () => {
     const email = helper.generateUniqueEmail();
     cy.visit("/");
-    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
 
     signinPage.signin(` ${email} `, Cypress.env("CYPRESS_PASSWORD"));
 
@@ -210,7 +210,7 @@ describe("Sign in", () => {
 
   it("should verify components displayed in 2FA setup page", () => {
     const email = helper.generateUniqueEmail();
-    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
     cy.visit("/");
     signinPage.emailInput.type(email);
     signinPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
@@ -259,7 +259,7 @@ describe("Sign in", () => {
 
   it("should display error message with invalid TOTP in 2FA page", () => {
     const email = helper.generateUniqueEmail();
-    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
     const otp = "123456";
 
     cy.visit("/");
@@ -287,7 +287,7 @@ describe("Sign in", () => {
 
   it("should navigate to homepage when 2FA is skipped", () => {
     const email = helper.generateUniqueEmail();
-    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
 
     cy.visit("/");
     signinPage.emailInput.type(email);
@@ -306,7 +306,7 @@ describe("Sign in", () => {
 
   it("should navigate to signin page when 'Click here to log out.' is clickeed in 2FA page", () => {
     const email = helper.generateUniqueEmail();
-    cy.singup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
 
     cy.visit("/");
     signinPage.emailInput.type(email);
