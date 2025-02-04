@@ -69,7 +69,7 @@ Cypress.Commands.add("mock_magic_link_signin_success", (user_email = "") => {
   }).as("getMagicLinkSuccess");
 });
 
-Cypress.Commands.add("singup_curl", (name = "", pass = "") => {
+Cypress.Commands.add("signup_curl", (name = "", pass = "") => {
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
 
@@ -180,7 +180,7 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
   cy.get("[data-testid=connectors]").click();
   cy.get("[data-testid=paymentprocessors]").click();
   cy.contains("Payment Processors").should("be.visible");
-  cy.get("[data-testid=home]").click();
+  cy.get("[data-testid=home]").first().click();
   cy.get("[data-button-for=tryItOut]").click();
   cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
     "exist",
