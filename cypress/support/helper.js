@@ -1,7 +1,7 @@
 module.exports = { generateUniqueEmail, generateDateTimeString };
 
 function generateUniqueEmail() {
-  const email = `cypress+${Math.floor(new Date().getTime() / 1000)}@gmail.com`;
+  const email = `cypress+org_admin_${Math.floor(new Date().getTime() / 1000)}@test.com`;
   return email;
 }
 
