@@ -56,7 +56,7 @@ let make = (~setSelectedAuthId) => {
         text="Continue with Password"
         buttonType={Primary}
         buttonSize={Large}
-        customButtonStyle="w-full"
+        customButtonStyle="!w-full"
         onClick={_ => handleTerminateSSO(method.id)->ignore}
       />
     | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
@@ -64,7 +64,7 @@ let make = (~setSelectedAuthId) => {
         text={`Login with ${(authMethodName :> string)}`}
         buttonType={PrimaryOutline}
         buttonSize={Large}
-        customButtonStyle="w-full"
+        customButtonStyle="!w-full"
         onClick={_ => handleTerminateSSO(method.id)->ignore}
       />
     | (_, _) => React.null
