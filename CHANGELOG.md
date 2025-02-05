@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.05.1
+
+### Bug Fixes
+
+- Search text being sent in payload even when search field is cleared ([#2194](https://github.com/juspay/hyperswitch-control-center/pull/2194)) ([`fcc23df`](https://github.com/juspay/hyperswitch-control-center/commit/fcc23dff3d29aad9a788b64cc5a48f4da4e0a71a))
+- Button issues fix in payment settings and auth select ([#2204](https://github.com/juspay/hyperswitch-control-center/pull/2204)) ([`06cda2c`](https://github.com/juspay/hyperswitch-control-center/commit/06cda2c5dad551d18b7e51f9efe590eb693a5168))
+
+### Miscellaneous Tasks
+
+- Payment method UI changes wrt to new design ([#2209](https://github.com/juspay/hyperswitch-control-center/pull/2209)) ([`b1312e7`](https://github.com/juspay/hyperswitch-control-center/commit/b1312e7cb8767fe592651699d8600fc6b30cd57c))
+
+**Full Changelog:** [`2025.02.05.0...2025.02.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.05.0...2025.02.05.1)
+
+- - -
+
 ## 2025.02.05.0
 
 ### Features
