@@ -92,3 +92,12 @@ let getSelectedPM = (~pmEnabled: array<ConnectorTypes.paymentMethodEnabledType>,
     pm == methods.payment_method
   })
 }
+
+let pmIcon = pm =>
+  switch pm->getPaymentMethodFromString {
+  | Card => "card"
+  | PayLater => "pay_later"
+  | Wallet => "nd-wallet"
+  | BankRedirect | BankDebit | BankTransfer => "nd-bank"
+  | _ => ""
+  }
