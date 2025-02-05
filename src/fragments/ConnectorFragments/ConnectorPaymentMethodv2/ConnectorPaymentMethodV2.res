@@ -138,15 +138,6 @@ let make = (~initialValues, ~setInitialValues) => {
     }
   }
 
-  let pmIcon = pm =>
-    switch pm->getPaymentMethodFromString {
-    | Card => "card"
-    | PayLater => "pay_later"
-    | Wallet => "nd-wallet"
-    | BankRedirect | BankDebit | BankTransfer => "nd-bank"
-    | _ => ""
-    }
-
   <div className="flex flex-col gap-6 col-span-3">
     // <HSwitchUtils.AlertBanner
     //   bannerText="Please verify if the payment methods are turned on at the processor end as well."
