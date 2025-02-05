@@ -261,10 +261,9 @@ module WebHookSection = {
             <DesktopRow>
               <div className="flex justify-end w-full gap-2">
                 <SubmitButton
-                  customSumbitButtonStyle="justify-start"
                   text="Update"
                   buttonType=Button.Primary
-                  buttonSize=Button.Small
+                  buttonSize=Button.Medium
                   disabledParamter={!allowEdit}
                 />
                 <Button
@@ -692,10 +691,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 <DesktopRow>
                   <div className="flex justify-end w-full gap-2">
                     <SubmitButton
-                      customSumbitButtonStyle="justify-start"
-                      text="Update"
-                      buttonType=Button.Primary
-                      buttonSize=Button.Small
+                      text="Update" buttonType=Button.Primary buttonSize=Button.Medium
                     />
                     <Button
                       buttonType=Button.Secondary
