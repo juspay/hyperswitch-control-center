@@ -35,7 +35,6 @@ let make = () => {
   }, [])
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    Js.log(values)
     Nullable.null
   }
 

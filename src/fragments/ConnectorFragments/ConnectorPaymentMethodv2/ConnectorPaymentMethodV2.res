@@ -70,9 +70,16 @@ let make = (~initialValues, ~setInitialValues) => {
 
   let isAllPMChecked = (~pm) => {
     let provider = pmts->getArrayFromDict(pm, [])
-    let methods = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
-    let selectedMethod = getSelectedPM(~pmEnabled=methods.payment_methods_enabled, ~pm)
-    selectedMethod->Array.length == provider->Array.length
+    switch pm->getPaymentMethodTypeFromString {
+    | Credit | Debit =>
+      getSelectedPM(~pmEnabled=connData.payment_methods_enabled, ~pm)->Array.length ==
+        provider->Array.length
+    | _ =>
+      switch getSelectedPM(~pmEnabled=connData.payment_methods_enabled, ~pm)->Array.get(0) {
+      | Some(val) => val.payment_method_types->Array.length == provider->Array.length
+      | None => false
+      }
+    }
   }
 
   let removeAllPM = (~pm) => {
