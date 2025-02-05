@@ -1,23 +1,28 @@
 @react.component
-let make = (~currentStep, ~setCurrentStep, ~selectedOrderSource, ~setSelectedOrderSource) => {
+let make = (
+  ~currentStep: VerticalStepIndicatorTypes.step,
+  ~setCurrentStep,
+  ~selectedOrderSource,
+  ~setSelectedOrderSource,
+) => {
   open ReconConfigurationUtils
 
   <div className="flex flex-col h-full gap-y-10">
-    {switch currentStep->getSubsectionFromStep {
-    | SelectSource =>
+    {switch currentStep.subSectionId->getVariantFromSubsectionString {
+    | #selectSource =>
       <ConnectOrderDataHelper.SelectSource
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
         selectedOrderSource={selectedOrderSource}
         setSelectedOrderSource={setSelectedOrderSource}
       />
-    | SetupAPIConnection =>
+    | #setupAPIConnection =>
       <ConnectOrderDataHelper.SetupAPIConnection
         selectedOrderSource={selectedOrderSource}
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
       />
-    | _ => <div />
+    | _ => React.null
     }}
   </div>
 }

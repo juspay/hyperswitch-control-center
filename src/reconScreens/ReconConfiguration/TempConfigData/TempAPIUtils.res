@@ -304,7 +304,7 @@ let useStepConfig = () => {
   }
 
   async (
-    ~step: ReconConfigurationTypes.subSections,
+    ~step: ReconConfigurationTypes.reconConfigurationSubsections,
     ~fileUploadedDict: option<Dict.t<Core__JSON.t>>=?,
     ~paymentEntity: option<string>=?,
     ~startTime: option<string>=?,
@@ -316,7 +316,8 @@ let useStepConfig = () => {
   ) => {
     try {
       switch step {
-      | SelectSource => {
+      | #selectSource => {
+          Js.log("Select Source")
           let (reportUrl, reportBody) = reportConfigAPI(
             ~configName="Hyperswitch",
             ~base=merchantId,
@@ -337,15 +338,18 @@ let useStepConfig = () => {
           )
           let _ = await updateAPIHook(approveBaseConfigUrl, approveBaseConfigBody, Put)
         }
-      | SetupAPIConnection =>
+      | #setupAPIConnection =>
+        Js.log("Setup API Connection")
         switch selectedOrderSource {
         | Hyperswitch => {
+            Js.log("Hyperswitch")
             let (transformBaseFileUrl, transformBaseFileBody) = transformBaseFileAPI(~merchantId)
             let (queryJobUrl, queryJobBody) = queryJobAPI(~merchantId, ~startTime, ~endTime)
             let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
             let _ = await updateAPIHook(queryJobUrl, queryJobBody, Post)
           }
         | OrderManagementSystem => {
+            Js.log("OrderManagementSystem")
             let (transformBaseFileUrl, transformBaseFileBody) = transformBaseFileAPI(~merchantId)
             let (url, formData) = baseFileUploadAPI(~fileUploadedDict, ~merchantId)
             let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
@@ -359,6 +363,7 @@ let useStepConfig = () => {
             )
           }
         | Dummy => {
+            Js.log("Dummy")
             let (transformBaseFileUrl, transformBaseFileBody) = transformBaseFileAPI(~merchantId)
             let (url, formData) = baseFileUploadAPI(~fileUploadedDict, ~merchantId)
             let _ = await updateAPIHook(transformBaseFileUrl, transformBaseFileBody, Post)
@@ -372,9 +377,11 @@ let useStepConfig = () => {
             )
           }
         }
-      | APIKeysAndLiveEndpoints =>
+      | #apiKeysAndLiveEndpoints =>
+        Js.log("API Keys and Live Endpoints")
         switch selectedOrderSource {
         | Hyperswitch => {
+            Js.log("Hyperswitch")
             let (reconUrl, reconBody) = reconConfigAPI(
               ~base=merchantId,
               ~connectionId="JP_RECON",
@@ -401,6 +408,7 @@ let useStepConfig = () => {
             let _ = await updateAPIHook(transformPSPFileUrl, transformPSPFileBody, Post)
           }
         | OrderManagementSystem => {
+            Js.log("OrderManagementSystem")
             let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity, ~selectedOrderSource)
             let _ = await updateAPIHook(pspUrl, pspBody, Post)
 
@@ -415,6 +423,7 @@ let useStepConfig = () => {
             let _ = await updateAPIHook(approvePSPConfigUrl, approvePSPConfigBody, Put)
           }
         | Dummy => {
+            Js.log("Dummy")
             let (pspUrl, pspBody) = pspConfigAPI(~merchantId, ~paymentEntity, ~selectedOrderSource)
             let _ = await updateAPIHook(pspUrl, pspBody, Post)
 
@@ -429,9 +438,11 @@ let useStepConfig = () => {
             let _ = await updateAPIHook(approvePSPConfigUrl, approvePSPConfigBody, Put)
           }
         }
-      | WebHooks =>
+      | #webHooks =>
+        Js.log("Web Hooks")
         switch selectedOrderSource {
         | Hyperswitch => {
+            Js.log("Hyperswitch")
             let (stripeUrl, stripeBody) = stripeAutomaticAPI(
               ~merchantId,
               ~intervalStart,
@@ -441,6 +452,7 @@ let useStepConfig = () => {
             let _ = await updateAPIHook(stripeUrl, stripeBody, Post)
           }
         | OrderManagementSystem => {
+            Js.log("OrderManagementSystem")
             let (transformPSPFileUrl, transformPSPFileBody) = transformPSPFileAPI(
               ~merchantId,
               ~paymentEntity,
@@ -461,6 +473,7 @@ let useStepConfig = () => {
             )
           }
         | Dummy => {
+            Js.log("Dummy")
             let (transformPSPFileUrl, transformPSPFileBody) = transformPSPFileAPI(
               ~merchantId,
               ~paymentEntity,
@@ -481,10 +494,12 @@ let useStepConfig = () => {
             )
           }
         }
-      | TestLivePayment =>
+      | #testLivePayment =>
+        Js.log("Test Live Payment")
         switch selectedOrderSource {
         | Hyperswitch => Js.log("Hyperswitch")
         | OrderManagementSystem => {
+            Js.log("OrderManagementSystem")
             let (reconUrl, reconBody) = reconConfigAPI(
               ~base=merchantId,
               ~connectionId="JP_RECON",
@@ -510,6 +525,7 @@ let useStepConfig = () => {
             let _ = await updateAPIHook(runReconUrl, runReconBody, Post)
           }
         | Dummy => {
+            Js.log("Dummy")
             let (reconUrl, reconBody) = reconConfigAPI(
               ~base=merchantId,
               ~connectionId="JP_RECON",

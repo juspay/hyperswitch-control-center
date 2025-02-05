@@ -2,8 +2,14 @@
 let make = () => {
   open ReconConfigurationTypes
   open ConnectOrderDataTypes
+  open VerticalStepIndicatorTypes
+  open ReconConfigurationUtils
 
-  let (currentStep, setCurrentStep) = React.useState(_ => ConnectOrderData(SelectSource))
+  let (currentStep, setCurrentStep) = React.useState(_ => {
+    sectionId: (#connectOrderData: reconConfigurationSections :> string),
+    subSectionId: Some((#selectSource: reconConfigurationSubsections :> string)),
+  })
+
   let (selectedOrderSource, setSelectedOrderSource) = React.useState(_ => Hyperswitch)
   let (selectedProcessor, setSelectedProcessor) = React.useState(() => "")
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
@@ -16,33 +22,18 @@ let make = () => {
   <div className="flex flex-col gap-10">
     <div className="rounded-lg h-774-px flex flex-col">
       <div className="flex h-full">
-        <div className="flex-[3] border-r h-full">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-x-3 px-6">
-              <Icon
-                name="nd-arrow-left"
-                className="text-gray-500 cursor-pointer"
-                onClick={_ => backClick()}
-                customHeight="20"
-              />
-              <h1 className="text-medium font-semibold text-gray-600">
-                {"Setup Reconciliation"->React.string}
-              </h1>
-            </div>
-            <ReconConfigurationHelper.ReconConfigurationCurrentStepIndicator currentStep />
-          </div>
-        </div>
+        <VerticalStepIndicator title="Setup Reconciliation" currentStep sections backClick />
         <div className="flex-[7] h-full p-12">
           <div className="w-500-px">
-            {switch currentStep->ReconConfigurationUtils.getSectionFromStep {
-            | ConnectOrderData =>
+            {switch currentStep.sectionId->getVariantFromSectionString {
+            | #connectOrderData =>
               <ConnectOrderData
                 currentStep={currentStep}
                 setCurrentStep={setCurrentStep}
                 selectedOrderSource
                 setSelectedOrderSource
               />
-            | ConnectProcessorData =>
+            | #connectProcessorData =>
               <ConnectProcessorData
                 currentStep={currentStep}
                 setCurrentStep={setCurrentStep}
@@ -50,7 +41,7 @@ let make = () => {
                 setSelectedProcessor
                 selectedOrderSource
               />
-            | ManualMapping =>
+            | #reviewDetails =>
               <ManualMapping
                 currentStep={currentStep}
                 setCurrentStep={setCurrentStep}

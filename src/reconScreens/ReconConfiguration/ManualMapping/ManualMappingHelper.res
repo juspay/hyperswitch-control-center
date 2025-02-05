@@ -1,22 +1,37 @@
+open VerticalStepIndicatorTypes
+open VerticalStepIndicatorUtils
+
 module TestLivePayment = {
   @react.component
-  let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSource) => {
+  let make = (~currentStep: step, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSource) => {
     open ReconConfigurationUtils
     open TempAPIUtils
+    open ConnectOrderDataTypes
 
     let stepConfig = useStepConfig()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
+    let getNextStep = (currentStep: step): option<step> => {
+      findNextStep(sections, currentStep)
+    }
+
+    let onNextClick = () => {
+      switch getNextStep(currentStep) {
+      | Some(nextStep) => setCurrentStep(_ => nextStep)
+      | None => ()
+      }
+    }
+
     let onDummySubmit = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let _ = await stepConfig(
-          ~step=currentStep->getSubsectionFromStep,
+          ~step=currentStep.subSectionId->getVariantFromSubsectionString,
           ~selectedOrderSource,
           ~paymentEntity=selectedProcessor->String.toUpperCase,
         )
-        setCurrentStep(prev => getNextStep(prev))
+        onNextClick()
       } catch {
       | Exn.Error(e) =>
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")

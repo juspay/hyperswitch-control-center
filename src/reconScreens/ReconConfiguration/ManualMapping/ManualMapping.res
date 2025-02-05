@@ -2,6 +2,7 @@
 let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSource) => {
   open ReconConfigurationUtils
   open ConnectOrderDataTypes
+  open VerticalStepIndicatorTypes
 
   <div className="flex flex-col h-full">
     {switch selectedOrderSource {
@@ -25,16 +26,16 @@ let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSou
         />
       </div>
     }}
-    {switch currentStep->getSubsectionFromStep {
-    | TestLivePayment =>
+    {switch currentStep.subSectionId->getVariantFromSubsectionString {
+    | #testLivePayment =>
       <ManualMappingHelper.TestLivePayment
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
         selectedProcessor
         selectedOrderSource
       />
-    | SetupCompleted => <ManualMappingHelper.SetupCompleted />
-    | _ => <div />
+    | #setupCompleted => <ManualMappingHelper.SetupCompleted />
+    | _ => React.null
     }}
   </div>
 }

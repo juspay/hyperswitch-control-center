@@ -1,20 +1,43 @@
 open HSwitchUtils
 let p1RegularText = getTextClass((P1, Regular))
 
+open VerticalStepIndicatorTypes
+open VerticalStepIndicatorUtils
+
 module SelectSource = {
   @react.component
-  let make = (~currentStep, ~setCurrentStep, ~selectedOrderSource, ~setSelectedOrderSource) => {
+  let make = (
+    ~currentStep: step,
+    ~setCurrentStep,
+    ~selectedOrderSource,
+    ~setSelectedOrderSource,
+  ) => {
     open ConnectOrderDataUtils
-    open ReconConfigurationUtils
     open TempAPIUtils
+    open ReconConfigurationUtils
+
     let stepConfig = useStepConfig()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+
+    let getNextStep = (currentStep: step): option<step> => {
+      findNextStep(sections, currentStep)
+    }
+
+    let onNextClick = () => {
+      switch getNextStep(currentStep) {
+      | Some(nextStep) => setCurrentStep(_ => nextStep)
+      | None => ()
+      }
+    }
 
     let onSubmit = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let _ = await stepConfig(~step=currentStep->getSubsectionFromStep, ~selectedOrderSource)
-        setCurrentStep(prev => getNextStep(prev))
+        let _ = await stepConfig(
+          ~step=currentStep.subSectionId->getVariantFromSubsectionString,
+          ~selectedOrderSource,
+        )
+        onNextClick()
       } catch {
       | Exn.Error(e) =>
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -63,15 +86,9 @@ module SelectSource = {
   }
 }
 
-type state = {fileContent: option<string>}
-
-type action =
-  | SetFileContent(string)
-  | SetError(string)
-
 module SetupAPIConnection = {
   @react.component
-  let make = (~currentStep, ~setCurrentStep, ~selectedOrderSource) => {
+  let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource) => {
     open ReconConfigurationUtils
     open ConnectOrderDataTypes
     open LogicUtils
@@ -97,6 +114,17 @@ module SetupAPIConnection = {
       date->String.slice(~start=8, ~end=10)
     }
 
+    let getNextStep = (currentStep: step): option<step> => {
+      findNextStep(sections, currentStep)
+    }
+
+    let onNextClick = () => {
+      switch getNextStep(currentStep) {
+      | Some(nextStep) => setCurrentStep(_ => nextStep)
+      | None => ()
+      }
+    }
+
     let callApiConnectionAPi = async (body: Js.Json.t) => {
       try {
         switch Js.Json.decodeObject(body) {
@@ -109,12 +137,12 @@ module SetupAPIConnection = {
             let startTime = Js.Dict.get(obj, "startTime")->Option.map(extractString)->Option.getExn
             let endTime = Js.Dict.get(obj, "endTime")->Option.map(extractString)->Option.getExn
             let _ = await stepConfig(
-              ~step=currentStep->getSubsectionFromStep,
+              ~step=currentStep.subSectionId->getVariantFromSubsectionString,
               ~selectedOrderSource,
               ~startTime,
               ~endTime,
             )
-            setCurrentStep(prev => getNextStep(prev))
+            onNextClick()
           }
         | None => toast("Please select a date range", ToastError)
         }
@@ -171,11 +199,11 @@ module SetupAPIConnection = {
         try {
           setScreenState(_ => PageLoaderWrapper.Loading)
           let _ = await stepConfig(
-            ~step=currentStep->getSubsectionFromStep,
+            ~step=currentStep.subSectionId->getVariantFromSubsectionString,
             ~fileUploadedDict,
             ~selectedOrderSource,
           )
-          setCurrentStep(prev => getNextStep(prev))
+          onNextClick()
         } catch {
         | Exn.Error(e) =>
           let err = Exn.message(e)->Option.getOr("Failed to Fetch!")

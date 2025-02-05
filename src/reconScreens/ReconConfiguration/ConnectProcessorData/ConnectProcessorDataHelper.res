@@ -2,10 +2,13 @@ open HSwitchUtils
 let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 let p1RegularText = getTextClass((P1, Regular))
 
+open VerticalStepIndicatorTypes
+open VerticalStepIndicatorUtils
+
 module APIKeysAndLiveEndpoints = {
   @react.component
   let make = (
-    ~currentStep,
+    ~currentStep: step,
     ~setCurrentStep,
     ~selectedProcessor,
     ~setSelectedProcessor,
@@ -34,6 +37,17 @@ module APIKeysAndLiveEndpoints = {
       showToast(~message, ~toastType)
     }
 
+    let getNextStep = (currentStep: step): option<step> => {
+      findNextStep(sections, currentStep)
+    }
+
+    let onNextClick = () => {
+      switch getNextStep(currentStep) {
+      | Some(nextStep) => setCurrentStep(_ => nextStep)
+      | None => ()
+      }
+    }
+
     let onSubmit = async () => {
       if selectedProcessor === "" {
         toast("Please select a processor", ToastError)
@@ -41,11 +55,11 @@ module APIKeysAndLiveEndpoints = {
         try {
           setScreenState(_ => PageLoaderWrapper.Loading)
           let _ = await stepConfig(
-            ~step=currentStep->getSubsectionFromStep,
+            ~step=currentStep.subSectionId->getVariantFromSubsectionString,
             ~paymentEntity=selectedProcessor->String.toUpperCase,
             ~selectedOrderSource,
           )
-          setCurrentStep(prev => getNextStep(prev))
+          onNextClick()
         } catch {
         | Exn.Error(e) =>
           let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -134,7 +148,7 @@ module APIKeysAndLiveEndpoints = {
 
 module WebHooks = {
   @react.component
-  let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSource) => {
+  let make = (~currentStep: step, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSource) => {
     open ReconConfigurationUtils
     open LogicUtils
     open TempAPIUtils
@@ -157,6 +171,17 @@ module WebHooks = {
 
     let toast = (message, toastType) => {
       showToast(~message, ~toastType)
+    }
+
+    let getNextStep = (currentStep: step): option<step> => {
+      findNextStep(sections, currentStep)
+    }
+
+    let onNextClick = () => {
+      switch getNextStep(currentStep) {
+      | Some(nextStep) => setCurrentStep(_ => nextStep)
+      | None => ()
+      }
     }
 
     let handleBrowseChange = (event, uploadEvidenceType) => {
@@ -219,12 +244,12 @@ module WebHooks = {
         try {
           setScreenState(_ => PageLoaderWrapper.Loading)
           let _ = await stepConfig(
-            ~step=currentStep->getSubsectionFromStep,
+            ~step=currentStep.subSectionId->getVariantFromSubsectionString,
             ~selectedOrderSource,
             ~fileUploadedDict,
             ~paymentEntity=selectedProcessor->String.toUpperCase,
           )
-          setCurrentStep(prev => getNextStep(prev))
+          onNextClick()
         } catch {
         | Exn.Error(e) =>
           let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -236,27 +261,6 @@ module WebHooks = {
     let (initialValues, _) = React.useState(_ =>
       JSON.Encode.object(Dict.fromArray([("api-key", JSON.Encode.string(""))]))
     )
-
-    // let copyToClipboard = (ev, value: string) => {
-    //   ev->ReactEvent.Mouse.stopPropagation
-    //   Clipboard.writeText(value)
-    //   showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-    // }
-
-    // let getAPIKey = () => {
-    //   switch Js.Json.decodeObject(initialValues) {
-    //   | Some(obj) =>
-    //     switch Js.Dict.get(obj, "api-key") {
-    //     | Some(value) =>
-    //       switch Js.Json.decodeString(value) {
-    //       | Some(apiKey) => apiKey
-    //       | None => ""
-    //       }
-    //     | None => ""
-    //     }
-    //   | None => ""
-    //   }
-    // }
 
     let callApiConnectionAPi = async (body: Js.Json.t) => {
       try {
@@ -283,13 +287,13 @@ module WebHooks = {
               ->Option.map(extractString)
               ->Option.getExn
             let _ = await stepConfig(
-              ~step=currentStep->getSubsectionFromStep,
+              ~step=currentStep.subSectionId->getVariantFromSubsectionString,
               ~selectedOrderSource,
               ~intervalStart,
               ~intervalEnd,
               ~apiKey,
             )
-            setCurrentStep(prev => getNextStep(prev))
+            onNextClick()
           }
         | None => setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
         }
