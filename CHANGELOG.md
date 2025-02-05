@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.05.0
+
+### Features
+
+- Added Onboarding Vertical Step Indicator ([#2195](https://github.com/juspay/hyperswitch-control-center/pull/2195)) ([`5ae18b2`](https://github.com/juspay/hyperswitch-control-center/commit/5ae18b2c861de457e91c3d9b3838331ee8348036))
+
+### Bug Fixes
+
+- User is logged when org and merchant switch occurs in product landing page ([#2192](https://github.com/juspay/hyperswitch-control-center/pull/2192)) ([`cb9d437`](https://github.com/juspay/hyperswitch-control-center/commit/cb9d4371690103308a79b341ef1166992e6607c0))
+
+### Testing
+
+- Fix failing cypress test cases ([#2189](https://github.com/juspay/hyperswitch-control-center/pull/2189)) ([`9fba059`](https://github.com/juspay/hyperswitch-control-center/commit/9fba059e9ce783eb783e72fbb143ebb01dacb9c1))
+
+### Miscellaneous Tasks
+
+- Navbar Redesign and OMP Movement ([#2181](https://github.com/juspay/hyperswitch-control-center/pull/2181)) ([`7979ef9`](https://github.com/juspay/hyperswitch-control-center/commit/7979ef9386bf3817e64926bdd34b31cbb4ad6ac3))
+- Modularity Default Home page ([#2187](https://github.com/juspay/hyperswitch-control-center/pull/2187)) ([`123a5ff`](https://github.com/juspay/hyperswitch-control-center/commit/123a5ff1a35102679c96e657feadbc918ae20e7a))
+- Connector summary page ([#2199](https://github.com/juspay/hyperswitch-control-center/pull/2199)) ([`c7916e4`](https://github.com/juspay/hyperswitch-control-center/commit/c7916e4e9902908e7bf1b2615d73325cb413a3c5))
+- Vault connector integration ([#2203](https://github.com/juspay/hyperswitch-control-center/pull/2203)) ([`9a8510e`](https://github.com/juspay/hyperswitch-control-center/commit/9a8510e4ca3f26dcce128c0e2db302376de6048c))
+
+**Full Changelog:** [`2025.02.03.0...2025.02.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.03.0...2025.02.05.0)
+
+- - -
+
 ## 2025.02.03.0
 
 ### Features

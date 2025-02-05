@@ -108,7 +108,7 @@ module RenderConnectorInputFields = {
               | _ =>
                 FormRenderer.makeFieldInfo(
                   ~label,
-                  ~name,
+                  ~name=formName,
                   ~description,
                   ~toolTipPosition=Right,
                   ~customInput=InputFields.textInput(~isDisabled=disabled),
