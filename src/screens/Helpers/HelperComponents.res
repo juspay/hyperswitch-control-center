@@ -90,7 +90,9 @@ module EllipsisText = {
         </div>
       </RenderIf>
       <RenderIf condition={showCopy}>
-        <Icon name="nd-copy" className="cursor-pointer" onClick={ev => onCopyClick(ev)} />
+        <Icon
+          name="nd-copy" className="cursor-pointer opacity-70" onClick={ev => onCopyClick(ev)}
+        />
       </RenderIf>
     </div>
   }

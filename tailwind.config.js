@@ -98,6 +98,7 @@ module.exports = {
         800: "800px",
       },
       lineHeight: {
+        18: "18px",
         20: "20px",
         21: "21px",
         24: "24px",
@@ -314,7 +315,9 @@ module.exports = {
 
         /* NEW DESIGN COLORS */
         nd_gray: {
+          50: "#F5F7FA",
           100: "FBFBFB",
+          150: "#F2F4F8",
           200: "#E1E4EA",
           300: "#CACFD8",
           500: "#606B85",
@@ -324,6 +327,7 @@ module.exports = {
         },
         //borders gray
         nd_br_gray: {
+          150: "#ECEFF3",
           200: "#E1E4EA",
           400: "#E1E1E1",
           500: "#E1E3EA",

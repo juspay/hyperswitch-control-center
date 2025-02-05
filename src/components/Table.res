@@ -129,11 +129,11 @@ module TableRow = {
       })
       ->Option.isSome
     let bgColor = coloredRow ? selectedRowColor : "bg-white dark:bg-jp-gray-lightgray_background"
-    let fontSize = "text-fs-13"
-    let fontWeight = ""
-    let textColor = "text-jp-gray-900  dark:text-jp-gray-text_darktheme dark:text-opacity-75"
+    let fontSize = "text-fs-14"
+    let fontWeight = "font-medium"
+    let textColor = "text-nd_gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
     let hoverClass = onRowClickPresent
-      ? "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
+      ? "hover:bg-nd_gray-50 dark:hover:bg-jp-gray-table_hover_dark"
       : ""
     let tableBodyText = if isHighchartLegend {
       `group rounded-md ${cursorClass} text-fs-10 font-medium dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text pb-4 whitespace-nowrap text-ellipsis overflow-x-hidden`
@@ -169,7 +169,7 @@ module TableRow = {
 
           let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
           let highlightClass = highlightCell ? "hover:font-bold" : ""
-          let borderColor = "border-jp-gray-light_table_border_color dark:border-jp-gray-960"
+          let borderColor = "border-nd_br_gray-150 dark:border-jp-gray-960"
           let borderTop = showBorderTop ? "border-t" : "border-t-0"
           let borderClass = if removeHorizontalLines && removeVerticalLines {
             ""
@@ -362,7 +362,7 @@ module TableHeadingCell = {
     let headerBgColor =
       headerCustomBgColor->Option.isSome
         ? headerCustomBgColor->Option.getOr("")
-        : "bg-offset_white dark:bg-jp-gray-darkgray_background"
+        : " bg-nd_gray-50 dark:bg-jp-gray-darkgray_background"
     let paddingClass = "px-4 py-3"
     let roundedClass = if isFirstCol {
       "rounded-tl"
@@ -372,14 +372,14 @@ module TableHeadingCell = {
       ""
     }
 
-    let headerTextClass = "text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
-    let fontWeight = "font-bold"
-    let fontSize = "text-fs-13"
+    let headerTextClass = "text-nd_gray-400 leading-18 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
+    let fontWeight = "font-medium"
+    let fontSize = "text-fs-13 "
     let lastColProp = isLastCol && fixLastCol ? "sticky right-0 !px-0 !py-0 z-20" : ""
     let borderlastCol =
       isLastCol && fixLastCol ? "border-l px-4 py-3 h-full justify-center !flex-col" : ""
     let tableHeaderClass = if isHighchartLegend {
-      `tableHeader ${lastColProp} p-0 pb-2 justify-between items-center dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text text-opacity-75 dark:text-opacity-75 whitespace-pre select-none ${isLastCol
+      `tableHeader ${lastColProp} p-3 justify-between items-center dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text text-opacity-75 dark:text-opacity-75 whitespace-pre select-none ${isLastCol
           ? lastHeadingClass
           : ""}`
     } else {
@@ -822,15 +822,13 @@ let make = (
 
   let frozenTableWidthClass = isMobileView ? "w-48" : "w-auto"
 
-  let parentBoderColor = "border border-jp-gray-940 border-opacity-100 dark:border-jp-gray-960"
+  let parentBoderColor = "border border-red-500 rounded-lg  dark:border-jp-gray-960"
 
-  let boderColor = !showborderColor
-    ? ""
-    : "border border-jp-gray-940 border-opacity-50 dark:border-jp-gray-960"
+  let boderColor = !showborderColor ? "" : " dark:border-jp-gray-960"
 
   let frozenTable = {
     <table
-      className={`table-auto ${frozenTableWidthClass} ${parentBoderColor} rounded-lg ${tableBorderClass} ${stickCol}`}>
+      className={`table-auto ${frozenTableWidthClass} ${parentBoderColor} ${tableBorderClass} ${stickCol}`}>
       <RenderIf condition=showHeading>
         {renderTableHeadingRow(frozenHeading, true, false, lastHeadingClass)}
       </RenderIf>
@@ -888,12 +886,12 @@ let make = (
       : isMinHeightRequired
       ? ""
       : "overflow-scroll"
-  let parentBorderRadius = !isHighchartLegend ? "rounded-lg" : ""
+  let parentBorderRadius = !isHighchartLegend ? "border border-nd_br_gray-150 rounded-lg" : ""
   let tableScrollbarCss = `
   @supports (-webkit-appearance: none) {
     .table-scrollbar {
       scrollbar-width: auto;
-      scrollbar-color: #8a8c8f; 
+      scrollbar-color: #99a0ae; 
     }
 
     .table-scrollbar::-webkit-scrollbar {
@@ -903,7 +901,7 @@ let make = (
     }
 
     .table-scrollbar::-webkit-scrollbar-thumb {
-      background-color: #8a8c8f; 
+      background-color: #99a0ae; 
       border-radius: 3px;
     }
 
@@ -931,7 +929,7 @@ let make = (
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
     <style> {React.string(tableScrollbarCss)} </style>
     <div
-      className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} `}>
+      className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} `}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {

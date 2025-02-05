@@ -169,13 +169,13 @@ module CopyLinkTableCell = {
           </RenderIf>
           <Icon
             name="nd-copy"
-            className="cursor-pointer  opacity-70 hover:opacity-100 py-1"
+            className="cursor-pointer opacity-80 h-7 py-1"
             onClick={ev => {
               onCopyClick(ev)
             }}
           />
           <a
-            className="opacity-70 hover:opacity-100 py-1"
+            className="opacity-80 py-1"
             href={GlobalVars.appendDashboardPath(~url)}
             onClick={ev => ev->ReactEvent.Mouse.stopPropagation}
             target="_blank">
