@@ -143,7 +143,7 @@ let make = (~previewOnly=false) => {
       />}
       entityName=ORDER_FILTERS
     />
-  }, [])
+  }, [searchText])
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>

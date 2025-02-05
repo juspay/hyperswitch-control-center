@@ -1,9 +1,9 @@
 open SidebarTypes
 
-let vaultConfiguration = {
+let vaultHome = {
   Link({
     name: "Configuration",
-    link: `/v2/vault/configuration`,
+    link: `/v2/vault/home`,
     icon: "home",
     access: Access,
     searchOptions: [("Vault home", ""), ("Vault configuration", "")],
@@ -21,5 +21,5 @@ let vaultCustomersAndTokens = {
 }
 
 let vaultSidebars = {
-  [vaultConfiguration, vaultCustomersAndTokens]
+  [vaultHome, vaultCustomersAndTokens]
 }

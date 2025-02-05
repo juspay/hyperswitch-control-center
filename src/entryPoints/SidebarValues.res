@@ -23,7 +23,7 @@ module GetProductionAccess = {
     switch isProdIntentCompleted {
     | Some(_) =>
       <div
-        className={`flex items-center gap-2 border ${borderColor}  ${cursorStyles} px-3 py-10-px mb-4 whitespace-nowrap rounded-lg justify-between`}
+        className={`flex items-center gap-2 border ${borderColor} bg-white text-nd_gray-700  ${cursorStyles} px-3 py-10-px mb-4 whitespace-nowrap rounded-lg justify-between`}
         onClick={_ => {
           isProdIntent
             ? ()
@@ -32,11 +32,11 @@ module GetProductionAccess = {
                 mixpanelEvent(~eventName="get_production_access")
               }
         }}>
-        <div className={`text-nd_gray-700 ${textStyles} !font-semibold`}>
+        <div className={`text-nd_gray-600 ${textStyles} !font-semibold`}>
           {productionAccessString->React.string}
         </div>
         <RenderIf condition={!isProdIntent}>
-          <Icon name="nd-arrow-right" size=20 className="pt-1" />
+          <Icon name="nd-arrow-right" size=22 className="pt-2" />
         </RenderIf>
       </div>
     | None =>
@@ -52,7 +52,7 @@ module ProductHeaderComponent = {
   let make = () => {
     let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
 
-    <div className={`text-xs font-semibold p-3 text-nd_gray-400 tracking-widest`}>
+    <div className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest`}>
       {React.string(currentProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
     </div>
   }
@@ -693,21 +693,25 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {isLiveMode} = featureFlagDetails
+  let {isLiveMode, devModularityV2} = featureFlagDetails
 
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let defaultSidebar = [
-    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess),
-    Link({
-      name: "Home",
-      icon: "home",
-      link: "/home",
-      access: Access,
-    }),
-    CustomComponent({
-      component: <ProductHeaderComponent />,
-    }),
-  ]
+  let defaultSidebar = [productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess)]
+
+  if devModularityV2 {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "home",
+        link: "/v2/home",
+        access: Access,
+      }),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  }
+
   let sidebarValuesForProduct = switch currentProduct {
   | Orchestrator => hsSidebars
   | Recon => ReconSidebarValues.reconSidebars
