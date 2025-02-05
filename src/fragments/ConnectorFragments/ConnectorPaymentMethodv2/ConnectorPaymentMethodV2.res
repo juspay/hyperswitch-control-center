@@ -148,17 +148,6 @@ let make = (~initialValues, ~setInitialValues) => {
     }
 
   <div className="flex flex-col gap-6 col-span-3">
-    <div className="flex justify-between border-b pb-4 px-2 items-end">
-      <p className="text-md font-semibold"> {"PMTs"->React.string} </p>
-      <div className="flex gap-4">
-        <FormRenderer.SubmitButton text="Submit" />
-        <Button
-          text="Continue"
-          buttonType={Secondary}
-          // onClick={_ => setCurrentStep(prev => getNextStep(prev))}
-        />
-      </div>
-    </div>
     // <HSwitchUtils.AlertBanner
     //   bannerText="Please verify if the payment methods are turned on at the processor end as well."
     //   bannerType=Warning
