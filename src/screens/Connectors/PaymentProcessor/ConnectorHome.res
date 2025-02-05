@@ -257,6 +257,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         | Webhooks => React.null
         | SummaryAndTest
         | Preview =>
+          // <ConnectorSummary />
           <ConnectorPreview
             connectorInfo={initialValues}
             currentStep
