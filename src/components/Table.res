@@ -12,7 +12,7 @@ module TableFilterRow = {
   ) => {
     let colsLen = item->Array.length
     let borderColor = "border-jp-gray-light_table_border_color dark:border-jp-gray-960"
-    let paddingClass = "px-4 py-3"
+    let paddingClass = "px-6 py-3"
     let hoverClass = "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
     <tr
       className={`filterColumns group rounded-md h-10 bg-white dark:bg-jp-gray-lightgray_background ${hoverClass} transition duration-300 ease-in-out text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${customFilterRowStyle}`}>
@@ -185,13 +185,13 @@ module TableRow = {
           let lastColProp =
             isLast && fixLastCol ? "border-l h-full !py-0 flex flex-col justify-center" : ""
           let tableRowBorderClass = if isHighchartLegend {
-            `align-top ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
+            `align-center ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
           } else if isLast {
-            `align-top ${lastColClass} ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
+            `align-center ${lastColClass} ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
           } else {
-            `align-top ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
+            `align-center ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
           }
-          let paddingClass = `px-4 ${paddingClass}`
+          let paddingClass = `px-6 ${paddingClass}`
           let tableRowPaddingClass = if isHighchartLegend {
             `box-border py-1 ${lastColProp} ${alignCellContent}`
           } else {
@@ -363,7 +363,7 @@ module TableHeadingCell = {
       headerCustomBgColor->Option.isSome
         ? headerCustomBgColor->Option.getOr("")
         : " bg-nd_gray-50 dark:bg-jp-gray-darkgray_background"
-    let paddingClass = "px-4 py-3"
+    let paddingClass = "px-6 py-3"
     let roundedClass = if isFirstCol {
       "rounded-tl"
     } else if isLastCol {
