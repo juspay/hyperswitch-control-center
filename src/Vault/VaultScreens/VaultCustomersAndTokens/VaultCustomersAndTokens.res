@@ -55,7 +55,8 @@ let make = () => {
     getCustomersList()->ignore
     None
   }, [offset])
-  <div>
+
+  <PageLoaderWrapper screenState>
     <PageHeading
       title="Customers & Tokens" subTitle="List of customers and their vaulted payment tokens"
     />
@@ -77,5 +78,5 @@ let make = () => {
       sortingBasedOnDisabled=false
       showAutoScroll=true
     />
-  </div>
+  </PageLoaderWrapper>
 }

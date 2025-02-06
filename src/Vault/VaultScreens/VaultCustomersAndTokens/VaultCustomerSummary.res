@@ -106,10 +106,110 @@ module CustomerInfo = {
   let make = (~dict) => {
     let customerData = itemToObjMapper(dict)
     <>
-      <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div className={`font-bold text-fs-24 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Customers Summary"->React.string}
       </div>
       <Details data=customerData getHeading getCell detailsFields=allColumns widthClass="" />
+    </>
+  }
+}
+
+module VaultedPaymentMethodsTable = {
+  @react.component
+  let make = () => {
+    open APIUtils
+    open LogicUtils
+    let _getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+    let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+    let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
+    let pageDetail = pageDetailDict->Dict.get("vaultedPaymentMethods")->Option.getOr(defaultValue)
+    let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+    let (tableDataTyped, setTableDataTyped) = React.useState(_ => [])
+    let (showModal, setShowModal) = React.useState(_ => false)
+    let (paymentId, setPaymentId) = React.useState(_ => "")
+
+    let data = {
+      "merchant": "mca_123456",
+      "customer_id": "cust_12345",
+      "payment_method_id": "pay_JfNiPryk5hUkm6J2cy8a",
+      "payment_method": "card",
+      "payment_method_type": "card",
+      "card": "credit",
+      "recurring_enabled": false,
+      "metadata": null,
+      "created": "",
+      "bank_transfer": "no_three_ds",
+      "last_used_at": "",
+    }->Identity.genericTypeToJson
+
+    let tableData = Array.make(~length=10, data)
+
+    React.useEffect(() => {
+      let tableDataTyped =
+        tableData
+        ->Identity.genericTypeToJson
+        ->getArrayDataFromJson(VaultPaymentMethodsEntity.itemToObjMapper)
+      setTableDataTyped(_ => tableDataTyped)
+      None
+    }, [])
+
+    let fetchPaymentMethods = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let url = ""
+        let _response = await fetchDetails(url)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+      }
+    }
+
+    React.useEffect(() => {
+      fetchPaymentMethods()->ignore
+      None
+    }, [])
+
+    <>
+      <PageLoaderWrapper screenState>
+        <LoadedTable
+          title=" "
+          hideTitle=true
+          resultsPerPage=7
+          entity={VaultPaymentMethodsEntity.vaultPaymentMethodsEntity}
+          showSerialNumber=true
+          actualData={tableDataTyped->Array.map(Nullable.make)}
+          totalResults={tableData->Array.length}
+          offset
+          setOffset
+          onEntityClick={val => {
+            setPaymentId(_ => val.payment_method_id)
+            setShowModal(_ => true)
+          }}
+          currrentFetchCount={tableData->Array.length}
+        />
+        <Modal
+          showModal
+          setShowModal
+          closeOnOutsideClick=true
+          modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+          childClass="">
+          <VaultPaymentMethodDetailsSidebar paymentId setShowModal />
+        </Modal>
+      </PageLoaderWrapper>
+    </>
+  }
+}
+
+module VaultedPaymentMethods = {
+  @react.component
+  let make = () => {
+    <>
+      <div className={`font-bold text-fs-24 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+        {"Vaulted Payment Methods"->React.string}
+      </div>
+      <VaultedPaymentMethodsTable />
     </>
   }
 }
@@ -145,9 +245,8 @@ let make = (~id) => {
       <div className="mb-4 flex justify-between">
         <div className="flex items-center">
           <div>
-            <PageUtils.PageHeading title="Customers" />
             <BreadCrumbNavigation
-              path=[{title: "Customers", link: "/customers"}]
+              path=[{title: "Customers", link: "/v2/vault/customers-tokens"}]
               currentPageTitle=id
               cursorStyle="cursor-pointer"
             />
@@ -156,6 +255,7 @@ let make = (~id) => {
         </div>
       </div>
       <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
+      <VaultedPaymentMethods />
     </div>
   </PageLoaderWrapper>
 }
