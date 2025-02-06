@@ -6,45 +6,41 @@ const signinPage = new SignInPage();
 const signupPage = new SignUpPage();
 
 describe("Sign up", () => {
-  // beforeEach(function () {
-
-  //     const role = "admin";
-  //     const access = "merchant";
-
-  //     const email = helper.generateUniqueEmail();
-  //     cy.visit("/");
-  //     cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
-  //     signinPage.signin(email, Cypress.env("CYPRESS_PASSWORD"));
-
-  //     cy.get('[data-testid="settings"]').click();
-  //     cy.get('[data-testid="users"]').click();
-  //     cy.get('[data-button-for="inviteUsers"]').click();
-  //     cy.get('[name="email_list"]').clear().type("merchant@test.in")
-  //     cy.get('[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]').click();
-  //     cy.get('[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]').click();
-  //     cy.get('[id="headlessui-menu-item-:r8:"]').click();
-  //     cy.get('[data-button-for="sendInvite"]').click();
-  //     cy.wait(2000);
-
-  //     cy.visit("/");
-
-  //     cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
-  //   });
+  let email = "";
 
   // check if the permissions and access level allow the test to run
   beforeEach(function () {
-    const testName = Cypress.currentTest.title;
+    if (!Cypress.env("RBAC")) {
+      email = helper.generateUniqueEmail();
+      cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+    } else {
+      const testName = Cypress.currentTest.title;
+      const tags = testName.match(/@([a-zA-Z0-9_-]+)/g) || []; // Extract all tags from the test name
 
-    cy.checkPermissionsFromTestName(testName).then((shouldSkip) => {
-      if (shouldSkip) {
-        this.skip(); // Skip the test if the result is true
+      // Check if the test case name contains any of the tags in ["org", "merchant", "profile"]
+      const containsAccessLevelTag = tags.some((tag) =>
+        ["@org", "@merchant", "@profile"].includes(tag),
+      );
+
+      if (containsAccessLevelTag) {
+        cy.checkPermissionsFromTestName("@account " + testName).then(
+          (shouldSkip) => {
+            if (shouldSkip) {
+              this.skip(); // Skip if test is skippable
+            }
+
+            // Create user with role passed from env            // TODO: create a function to pass role and access level to create the user
+            email = helper.generateUniqueEmail();
+            cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+          },
+        );
+      } else {
+        this.skip(); // Skip if no access level tag
       }
-    });
+    }
   });
 
-  it("@account @merchant @write", () => {
-    const email = helper.generateUniqueEmail();
-    cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+  it("@profile", () => {
     cy.visit("/");
 
     signinPage.emailInput.type(email);
@@ -66,19 +62,7 @@ describe("Sign up", () => {
     cy.get('[data-icon="nd-check"]').eq(1).click();
   });
 
-  it.skip("@analytics @org @read", () => {
-    cy.checkPermissionForTest(
-      "workflow",
-      Cypress.env("role"),
-      Cypress.env("accessLevel"),
-      "read",
-    ).then((shouldRun) => {
-      if (shouldRun) {
-        // Test code for viewing workflow data
-        cy.get('[data-testid="workflow-data"]').should("be.visible");
-      } else {
-        cy.log("Skipping test due to insufficient permissions or access level");
-      }
-    });
+  it("test case", () => {
+    cy.visit("/");
   });
 });
