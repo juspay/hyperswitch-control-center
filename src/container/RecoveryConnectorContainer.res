@@ -7,7 +7,7 @@ let make = () => {
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-  let setUpConnectoreContainer = async () => {
+  let setUpConnectorContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       if (
@@ -25,7 +25,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    setUpConnectoreContainer()->ignore
+    setUpConnectorContainer()->ignore
     None
   }, [])
 
