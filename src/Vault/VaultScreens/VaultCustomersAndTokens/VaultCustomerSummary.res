@@ -87,8 +87,8 @@ module Details = {
                 value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
-                overiddingHeadingStyles="text-black text-sm font-medium"
-                textColor="!font-normal !text-jp-gray-700"
+                overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
+                textColor="!text-nd_gray-600 font-medium leading-6"
               />
             </div>
           </RenderIf>
@@ -106,7 +106,8 @@ module CustomerInfo = {
   let make = (~dict) => {
     let customerData = itemToObjMapper(dict)
     <>
-      <div className={`font-bold text-fs-24 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div
+        className={`font-bold leading-8 text-nd_gray-700 text-fs-24 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Customers Summary"->React.string}
       </div>
       <Details data=customerData getHeading getCell detailsFields=allColumns widthClass="" />
@@ -178,7 +179,6 @@ module VaultedPaymentMethodsTable = {
           hideTitle=true
           resultsPerPage=7
           entity={VaultPaymentMethodsEntity.vaultPaymentMethodsEntity}
-          showSerialNumber=true
           actualData={tableDataTyped->Array.map(Nullable.make)}
           totalResults={tableData->Array.length}
           offset
@@ -206,7 +206,8 @@ module VaultedPaymentMethods = {
   @react.component
   let make = () => {
     <>
-      <div className={`font-bold text-fs-24 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div
+        className={`font-semibold text-nd_gray-600 text-fs-24 leading-6 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Vaulted Payment Methods"->React.string}
       </div>
       <VaultedPaymentMethodsTable />

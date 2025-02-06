@@ -28,7 +28,14 @@ let getCell = (pspTokens: VaultPaymentMethodDetailsTypes.psp_tokens, colType): T
   | Connector => Text(pspTokens.connector)
   | MCAId => Text(pspTokens.mca_id)
   | TokenType => Text(pspTokens.tokentype)
-  | Status => Text(pspTokens.status)
+  | Status =>
+    Label({
+      title: pspTokens.status->String.toUpperCase,
+      color: switch pspTokens.status->VaultPaymentMethodUtils.statusToVariantMapper {
+      | Enabled => LabelGreen
+      | Disabled => LabelRed
+      },
+    })
   | Created => Text(pspTokens.created)
   }
 }

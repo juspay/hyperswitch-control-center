@@ -22,7 +22,14 @@ let getCell = (networkTokens, colType): Table.cell => {
   switch colType {
   | TokenId => Text(networkTokens.token)
   | Network => Text(networkTokens.enabled ? "true" : "false")
-  | Status => Text(networkTokens.status)
+  | Status =>
+    Label({
+      title: networkTokens.status->String.toUpperCase,
+      color: switch networkTokens.status->VaultPaymentMethodUtils.statusToVariantMapper {
+      | Enabled => LabelGreen
+      | Disabled => LabelRed
+      },
+    })
   | Created => Text(networkTokens.created)
   }
 }

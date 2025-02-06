@@ -88,7 +88,7 @@ module Details = {
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
                 overiddingHeadingStyles="text-gray-400 text-sm font-medium"
-                textColor="!font-normal !text-nd_gray-600"
+                textColor="!font-medium !text-nd_gray-600"
               />
             </div>
           </RenderIf>
@@ -105,7 +105,8 @@ module PaymentMethodDetails = {
     open VaultPaymentMethodDetailsEntity
 
     <>
-      <div className="font-bold text-fs-20 dark:text-white dark:text-opacity-75 mt-4 mb-4">
+      <div
+        className="font-semibold text-nd_gray-700 leading-6 text-fs-20 dark:text-white dark:text-opacity-75 mt-6 mb-4">
         {"Payment Method Details"->React.string}
       </div>
       <Details data getHeading getCell detailsFields=allColumns widthClass="" />
@@ -120,7 +121,7 @@ module PSPTokens = {
 
     <>
       <div
-        className="font-bold text-fs-20 text-nd_gray-700 dark:text-white dark:text-opacity-75 mt-4 mb-4">
+        className="font-semibold text-fs-20 text-nd_gray-700 leading-6 dark:text-white dark:text-opacity-75 mt-8 mb-4">
         {"PSP Tokens"->React.string}
       </div>
       <LoadedTable
@@ -145,7 +146,7 @@ module NetworkTokens = {
 
     <>
       <div
-        className="font-bold text-fs-20 text-nd_gray-700 dark:text-white dark:text-opacity-75 mt-4 mb-4">
+        className="font-semibold text-nd_gray-700 leading-6 text-fs-20 dark:text-white dark:text-opacity-75 mt-8 mb-4">
         {"Network Tokens"->React.string}
       </div>
       <LoadedTable
@@ -224,16 +225,17 @@ let make = (~paymentId, ~setShowModal) => {
 
   <PageLoaderWrapper screenState>
     <div className="bg-white height-screen">
-      <div className="py-5 px-6 flex justify-between align-top ">
-        <CardUtils.CardHeader
-          heading={paymentId} subHeading="" customSubHeadingStyle="w-full !max-w-none pr-10"
-        />
+      <div className="pt-8 pb-6 px-8 flex justify-between align-top ">
+        <div
+          className={`font-semibold text-nd_gray-600 text-fs-24 leading-6 dark:text-white dark:text-opacity-75`}>
+          {paymentId->React.string}
+        </div>
         <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
           <Icon name="nd-cross" className="cursor-pointer" size=30 />
         </div>
       </div>
       <hr />
-      <div className="p-6">
+      <div className="px-8 pb-20">
         <PaymentMethodDetails data={paymentsData} />
         <NetworkTokens data={networkTokenData} />
         <PSPTokens data={pspTokensData} />
