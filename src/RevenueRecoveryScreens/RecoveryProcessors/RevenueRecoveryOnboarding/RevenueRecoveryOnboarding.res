@@ -58,28 +58,48 @@ let make = () => {
       }}
     />
     <div className="flex flex-row gap-x-4">
-      {switch currentStep {
-      | {sectionId: "payment-processor"} =>
-        <Form onSubmit initialValues>
-          <ConnectorAuthKeys
-            initialValues={updatedInitialVal} setInitialValues showVertically=true
-          />
-          <FormValuesSpy />
-          <FormRenderer.SubmitButton text="Submit" buttonSize={Small} />
-        </Form>
-      | {sectionId: "success"} =>
-        <div>
-          <p> {"Success"->React.string} </p>
-          <p> {"Your processor has been successfully authenticated."->React.string} </p>
-          <Button text="Next" buttonType=Primary onClick={_ => onSucessClick()->ignore} />
-        </div>
-      | _ => React.null
-      }}
+      <Form onSubmit initialValues>
+        {switch currentStep {
+        | {sectionId: "connectProcessor", subSectionId: Some("selectProcessor")} =>
+          <div>
+            <ConnectorAuthKeys
+              initialValues={updatedInitialVal} setInitialValues showVertically=true
+            />
+            <FormValuesSpy />
+            <FormRenderer.SubmitButton text="Submit" buttonSize={Small} />
+          </div>
+        | {sectionId: "connectProcessor", subSectionId: Some("activePaymentMethods")}
+        | {sectionId: "connectProcessor", subSectionId: Some("setupWebhookProcessor")} =>
+          <div>
+            <Button
+              text="Previous" onClick={_ => onPreviousClick(currentStep, setNextStep)->ignore}
+            />
+            <Button
+              text="Next"
+              buttonType=Primary
+              onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            />
+            {"payment"->React.string}
+          </div>
+        | {sectionId: "addAPlatform", subSectionId: Some("selectAPlatform")}
+        | {sectionId: "addAPlatform", subSectionId: Some("configureRetries")}
+        | {sectionId: "addAPlatform", subSectionId: Some("connectProcessor")}
+        | {sectionId: "addAPlatform", subSectionId: Some("setupWebhookPlatform")} =>
+          <div>
+            <Button
+              text="Previous" onClick={_ => onPreviousClick(currentStep, setNextStep)->ignore}
+            />
+            <Button
+              text="Next"
+              buttonType=Primary
+              onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            />
+            {"billing"->React.string}
+          </div>
+        | {sectionId: "reviewDetails"} => "Review"->React.string
+        | _ => React.null
+        }}
+      </Form>
     </div>
   </div>
 }
-
-/*
-<Button text="Previous" onClick={_ => onPreviousClick()->ignore} />
-<Button text="Next" buttonType=Primary onClick={_ => onNextClick()->ignore} />
- */
