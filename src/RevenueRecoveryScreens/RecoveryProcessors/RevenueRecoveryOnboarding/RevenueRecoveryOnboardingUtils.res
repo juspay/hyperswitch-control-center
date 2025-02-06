@@ -33,3 +33,35 @@ let sections = [
     subSections: None,
   },
 ]
+
+let defaultStep = {
+  sectionId: (#connectProcessor: revenueRecoverySections :> string),
+  subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
+}
+
+open VerticalStepIndicatorUtils
+let getNextStep = (currentStep: step): option<step> => {
+  findNextStep(sections, currentStep)
+}
+
+let getPreviousStep = (currentStep: step): option<step> => {
+  findPreviousStep(sections, currentStep)
+}
+
+let onNextClick = (currentStep, setNextStep) => {
+  switch getNextStep(currentStep) {
+  | Some(nextStep) => setNextStep(_ => nextStep)
+  | None => ()
+  }
+}
+
+let onPreviousClick = (currentStep, setNextStep) => {
+  switch getPreviousStep(currentStep) {
+  | Some(previousStep) => setNextStep(_ => previousStep)
+  | None => ()
+  }
+}
+
+let backClick = () => {
+  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
+}
