@@ -657,6 +657,7 @@ let make = (
   ~tableHeadingTextClass="",
   ~nonFrozenTableParentClass="",
   ~showAutoScroll=false,
+  ~showVerticalScroll=false,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -911,6 +912,7 @@ let make = (
   }
     `
   let autoscrollcss = showAutoScroll ? "table-scrollbar" : ""
+  let verticalScroll = !showVerticalScroll ? "overflow-y-hidden" : ""
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderRadius,
@@ -929,7 +931,7 @@ let make = (
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
     <style> {React.string(tableScrollbarCss)} </style>
     <div
-      className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} overflow-y-hidden `}>
+      className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} ${verticalScroll} `}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {
