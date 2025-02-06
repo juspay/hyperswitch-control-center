@@ -929,7 +929,7 @@ let make = (
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
     <style> {React.string(tableScrollbarCss)} </style>
     <div
-      className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} `}>
+      className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} overflow-y-hidden `}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {
