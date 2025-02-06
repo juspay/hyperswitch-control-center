@@ -42,12 +42,21 @@ let make = () => {
   let onSucessClick = () => {
     setShowSideBar(_ => true)
     RescriptReactRouter.replace(
-      GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding/${connectorId}?name=${connector}`),
+      GlobalVars.appendDashboardPath(
+        ~url=`/v2/recovery/onboarding/${connectorId}?name=${connector}`,
+      ),
     )
   }
 
   <div className="flex flex-row">
-    <VerticalStepIndicator title="Setup Recovery" sections currentStep backClick />
+    <VerticalStepIndicator
+      title="Setup Recovery"
+      sections
+      currentStep
+      backClick={() => {
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
+      }}
+    />
     <div className="flex flex-row gap-x-4">
       {switch currentStep {
       | {sectionId: "payment-processor"} =>

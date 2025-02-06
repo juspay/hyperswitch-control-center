@@ -1,35 +1,81 @@
 open VerticalStepIndicatorTypes
 open RevenueRecoveryOnboardingTypes
 
+let getMainStepName = step => {
+  switch step {
+  | #connectProcessor => "Connect Processor"
+  | #addAPlatform => "Add a Platform"
+  | #reviewDetails => "Review Details"
+  }
+}
+
+let getStepName = step => {
+  switch step {
+  | #selectProcessor => "Select a Processor"
+  | #activePaymentMethods => "Active Payment Methods"
+  | #setupWebhookProcessor => "Setup Webhook"
+  | #selectAPlatform => "Select a Platform"
+  | #configureRetries => "Configure Retries"
+  | #connectProcessor => "Connect Processor"
+  | #setupWebhookPlatform => "Setup Webhook"
+  }
+}
+
+let getIcon = step => {
+  switch step {
+  | #connectProcessor => "nd-inbox"
+  | #addAPlatform => "nd-plugin"
+  | #reviewDetails => "nd-flag"
+  }
+}
+
 let sections = [
   {
     id: (#connectProcessor: revenueRecoverySections :> string),
-    name: "Connect Processor",
-    icon: "nd-inbox",
+    name: #connectProcessor->getMainStepName,
+    icon: #connectProcessor->getIcon,
     subSections: Some([
-      {id: (#selectProcessor: revenueRecoverySubsections :> string), name: "Select a Processor"},
+      {
+        id: (#selectProcessor: revenueRecoverySubsections :> string),
+        name: #selectProcessor->getStepName,
+      },
       {
         id: (#activePaymentMethods: revenueRecoverySubsections :> string),
-        name: "Active Payment Methods",
+        name: #activePaymentMethods->getStepName,
       },
-      {id: (#setupWebhookProcessor: revenueRecoverySubsections :> string), name: "Setup Webhook"},
+      {
+        id: (#setupWebhookProcessor: revenueRecoverySubsections :> string),
+        name: #setupWebhookProcessor->getStepName,
+      },
     ]),
   },
   {
     id: (#addAPlatform: revenueRecoverySections :> string),
-    name: "Add a Platform",
-    icon: "nd-plugin",
+    name: #addAPlatform->getMainStepName,
+    icon: #addAPlatform->getIcon,
     subSections: Some([
-      {id: (#selectAPlatform: revenueRecoverySubsections :> string), name: "Select a Platform"},
-      {id: (#configureRetries: revenueRecoverySubsections :> string), name: "Configure Retries"},
-      {id: (#connectProcessor: revenueRecoverySubsections :> string), name: "Connect Processor"},
-      {id: (#setupWebhookPlatform: revenueRecoverySubsections :> string), name: "Setup Webhook"},
+      {
+        id: (#selectAPlatform: revenueRecoverySubsections :> string),
+        name: #selectAPlatform->getStepName,
+      },
+      {
+        id: (#configureRetries: revenueRecoverySubsections :> string),
+        name: #configureRetries->getStepName,
+      },
+      {
+        id: (#connectProcessor: revenueRecoverySubsections :> string),
+        name: #connectProcessor->getStepName,
+      },
+      {
+        id: (#setupWebhookPlatform: revenueRecoverySubsections :> string),
+        name: #setupWebhookPlatform->getStepName,
+      },
     ]),
   },
   {
     id: (#reviewDetails: revenueRecoverySections :> string),
-    name: "Review Details",
-    icon: "nd-flag",
+    name: #reviewDetails->getMainStepName,
+    icon: #reviewDetails->getIcon,
     subSections: None,
   },
 ]
@@ -60,8 +106,4 @@ let onPreviousClick = (currentStep, setNextStep) => {
   | Some(previousStep) => setNextStep(_ => previousStep)
   | None => ()
   }
-}
-
-let backClick = () => {
-  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
 }
