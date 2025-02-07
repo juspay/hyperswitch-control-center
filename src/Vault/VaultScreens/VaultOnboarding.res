@@ -33,6 +33,7 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let {profileId} = getUserInfoData()
   let (connectorId, setConnectorId) = React.useState(() => "")
   let (currentStep, setNextStep) = React.useState(() => {
@@ -110,6 +111,7 @@ let make = () => {
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post)
       setInitialValues(_ => response)
@@ -117,6 +119,7 @@ let make = () => {
       setConnectorId(_ => connectorId)
       fetchConnectorListResponse()->ignore
       onNextClick()
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -127,6 +130,7 @@ let make = () => {
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
         }
+        setScreenState(_ => PageLoaderWrapper.Error(`Failed to connect processor ${errorMessage}`))
       }
     }
     Nullable.null
@@ -158,39 +162,41 @@ let make = () => {
             subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
             customSubTitleStyle="font-500 font-normal text-gray-800"
           />
-          <Form onSubmit initialValues>
-            <div className="mb-[24px] ">
-              <ConnectorAuthKeys
-                initialValues={updatedInitialVal} setInitialValues showVertically=true
-              />
-              <div className="mt-[12px]">
-                <FormRenderer.FieldRenderer
-                  labelClass="font-semibold"
-                  field={FormRenderer.makeFieldInfo(
-                    ~label,
-                    ~name="connector_label",
-                    ~placeholder="Enter Connector Label name",
-                    ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-                    ~isRequired=true,
-                  )}
+          <PageLoaderWrapper screenState>
+            <Form onSubmit initialValues>
+              <div className="mb-[24px] ">
+                <ConnectorAuthKeys
+                  initialValues={updatedInitialVal} setInitialValues showVertically=true
                 />
-                <ConnectorAuthKeysHelper.ErrorValidation
-                  fieldName="connector_label"
-                  validate={ConnectorAuthKeyUtils.validate(
-                    ~selectedConnector,
-                    ~dict=connectorLabelDetailField,
-                    ~fieldName="connector_label",
-                    ~isLiveMode={featureFlagDetails.isLiveMode},
-                  )}
-                />
+                <div className="mt-[12px]">
+                  <FormRenderer.FieldRenderer
+                    labelClass="font-semibold"
+                    field={FormRenderer.makeFieldInfo(
+                      ~label,
+                      ~name="connector_label",
+                      ~placeholder="Enter Connector Label name",
+                      ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+                      ~isRequired=true,
+                    )}
+                  />
+                  <ConnectorAuthKeysHelper.ErrorValidation
+                    fieldName="connector_label"
+                    validate={ConnectorAuthKeyUtils.validate(
+                      ~selectedConnector,
+                      ~dict=connectorLabelDetailField,
+                      ~fieldName="connector_label",
+                      ~isLiveMode={featureFlagDetails.isLiveMode},
+                    )}
+                  />
+                </div>
+                <ConnectorMetadataV2 />
               </div>
-              <ConnectorMetadataV2 />
-            </div>
-            <FormValuesSpy />
-            <FormRenderer.SubmitButton
-              text="Next" buttonSize={Small} customSumbitButtonStyle="w-full mt-8"
-            />
-          </Form>
+              <FormValuesSpy />
+              <FormRenderer.SubmitButton
+                text="Next" buttonSize={Small} customSumbitButtonStyle="w-full mt-8"
+              />
+            </Form>
+          </PageLoaderWrapper>
         </div>
       </>
     | {sectionId: "setup-webhook"} =>
