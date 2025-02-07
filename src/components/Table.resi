@@ -307,4 +307,5 @@ let make: (
   ~nonFrozenTableParentClass: string=?,
   ~showAutoScroll: bool=?,
   ~showVerticalScroll: bool=?,
+  ~showPagination: bool=?,
 ) => React.element

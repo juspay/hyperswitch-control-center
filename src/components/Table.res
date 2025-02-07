@@ -12,7 +12,7 @@ module TableFilterRow = {
   ) => {
     let colsLen = item->Array.length
     let borderColor = "border-jp-gray-light_table_border_color dark:border-jp-gray-960"
-    let paddingClass = "px-6 py-3"
+    let paddingClass = "px-8 py-3"
     let hoverClass = "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
     <tr
       className={`filterColumns group rounded-md h-10 bg-white dark:bg-jp-gray-lightgray_background ${hoverClass} transition duration-300 ease-in-out text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${customFilterRowStyle}`}>
@@ -191,7 +191,7 @@ module TableRow = {
           } else {
             `align-center ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
           }
-          let paddingClass = `px-6 ${paddingClass}`
+          let paddingClass = `px-8 ${paddingClass}`
           let tableRowPaddingClass = if isHighchartLegend {
             `box-border py-1 ${lastColProp} ${alignCellContent}`
           } else {
@@ -363,7 +363,7 @@ module TableHeadingCell = {
       headerCustomBgColor->Option.isSome
         ? headerCustomBgColor->Option.getOr("")
         : " bg-nd_gray-50 dark:bg-jp-gray-darkgray_background"
-    let paddingClass = "px-6 py-3"
+    let paddingClass = "px-8 py-3"
     let roundedClass = if isFirstCol {
       "rounded-tl"
     } else if isLastCol {
@@ -658,6 +658,7 @@ let make = (
   ~nonFrozenTableParentClass="",
   ~showAutoScroll=false,
   ~showVerticalScroll=false,
+  ~showPagination=true,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -823,7 +824,7 @@ let make = (
 
   let frozenTableWidthClass = isMobileView ? "w-48" : "w-auto"
 
-  let parentBoderColor = "border border-red-500 rounded-lg  dark:border-jp-gray-960"
+  let parentBoderColor = "border rounded-lg  dark:border-jp-gray-960"
 
   let boderColor = !showborderColor ? "" : " dark:border-jp-gray-960"
 
@@ -887,7 +888,10 @@ let make = (
       : isMinHeightRequired
       ? ""
       : "overflow-scroll"
-  let parentBorderRadius = !isHighchartLegend ? "border border-nd_br_gray-150 rounded-lg" : ""
+  let roundedBorders = showPagination ? "rounded-t-lg" : "rounded-lg"
+  let parentBorderRadius = !isHighchartLegend
+    ? `border border-nd_br_gray-150 ${roundedBorders}`
+    : ""
   let tableScrollbarCss = `
   @supports (-webkit-appearance: none) {
     .table-scrollbar {

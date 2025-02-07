@@ -315,6 +315,7 @@ module.exports = {
 
         /* NEW DESIGN COLORS */
         nd_gray: {
+          25: "#FCFCFD",
           50: "#F5F7FA",
           100: "FBFBFB",
           150: "#ECEFF3",
