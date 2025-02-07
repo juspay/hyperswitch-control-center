@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.07.0
+
+### Features
+
+- Recovery module page routes and side bar changes ([#2211](https://github.com/juspay/hyperswitch-control-center/pull/2211)) ([`7cd9f41`](https://github.com/juspay/hyperswitch-control-center/commit/7cd9f41e3221b7bf2213423b13040f3e6a30a490))
+
+**Full Changelog:** [`2025.02.05.1...2025.02.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.05.1...2025.02.07.0)
+
+- - -
+
 ## 2025.02.05.1
 
 ### Bug Fixes
