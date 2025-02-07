@@ -142,7 +142,7 @@ let currencyField = (
 module InfoField = {
   @react.component
   let make = (~label, ~str) => {
-    <div className="flex flex-col justify-center gap-2">
+    <div className="flex flex-col justify-center gap-0.5-rem ">
       <h2 className="flex-[1] text-gray-400 "> {label->React.string} </h2>
       <h3 className="flex-[3]  overflow-scroll whitespace-nowrap"> {str->React.string} </h3>
     </div>
@@ -152,16 +152,19 @@ module CredsInfoField = {
   @react.component
   let make = (~authKeys, ~connectorAccountFields) => {
     open LogicUtils
+
     let dict = authKeys->Identity.genericTypeToDictOfJson
-    dict
-    ->Dict.keysToArray
-    ->Array.filter(ele => ele !== "auth_type")
-    ->Array.map(field => {
-      let value = dict->getString(field, "")
-      let label = connectorAccountFields->getString(field, "")
-      <InfoField label str=value />
-    })
-    ->React.array
+    <div className=" flex flex-col gap-4">
+      {dict
+      ->Dict.keysToArray
+      ->Array.filter(ele => ele !== "auth_type")
+      ->Array.map(field => {
+        let value = dict->getString(field, "")
+        let label = connectorAccountFields->getString(field, "")
+        <InfoField label str=value />
+      })
+      ->React.array}
+    </div>
   }
 }
 module CashtoCodeCredsInfo = {

@@ -283,7 +283,7 @@ module ConnectorConfigurationFields = {
     <div
       className={`grid ${showVertically
           ? "grid-cols-1"
-          : "grid-cols-2"} max-w-3xl gap-x-6 gap-y-2`}>
+          : "grid-cols-2"} max-w-3xl gap-x-6 gap-y-3 `}>
       {switch connector {
       | Processors(CASHTOCODE) =>
         <CashToCodeMethods connectorAccountFields connector selectedConnector />

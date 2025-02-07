@@ -48,18 +48,19 @@ let make = (~connectorInfo, ~copyValueOfWebhookEndpoint) => {
   let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
 
   <>
-    <div className="flex flex-col">
+    <div className="flex flex-col px-10 gap-8">
       <div className="flex flex-col ">
         <PageUtils.PageHeading
           title="Review and Connect"
           subTitle="Review your configured processor details, enabled payment methods and associated settings."
+          customSubTitleStyle="font-500 font-normal text-gray-800"
         />
-        <div className="px-[16px] py-[16px] mb-[32px]  ">
-          <div className="flex flex-col gap-2 ">
-            <h4 className="text-gray-400"> {"Profile"->React.string} </h4>
+        <div className=" flex flex-col py-4 gap-4">
+          <div className="flex flex-col gap-0.5-rem ">
+            <h4 className="text-gray-400 "> {"Profile"->React.string} </h4>
             {connectorInfodict.profile_id->React.string}
           </div>
-          <div className="flex flex-col my-6 ">
+          <div className="flex flex-col ">
             <ConnectorHelperV2.PreviewCreds
               connectorInfo=connectorInfodict connectorAccountFields
             />

@@ -5,6 +5,7 @@ let make = () => {
   open VerticalStepIndicatorTypes
   open VerticalStepIndicatorUtils
   open CommonAuthHooks
+  open ConnectorUtils
 
   let sections = [
     {
@@ -55,6 +56,12 @@ let make = () => {
     ~connectorName={connectorInfo.merchant_connector_id},
     ~merchantId,
   )
+  let getDisplayValueOfWebHookUrl = (~connectorName) => {
+    `${Window.env.apiBaseUrl}.../${connectorName}`
+  }
+  let displayValueofWebHookUrl = getDisplayValueOfWebHookUrl(
+    ~connectorName={connectorInfo.merchant_connector_id},
+  )
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
   let selectedConnector = React.useMemo(() => {
@@ -63,6 +70,7 @@ let make = () => {
   let labelFieldDict = ConnectorAuthKeyUtils.connectorLabelDetailField
   let label = labelFieldDict->getString("connector_label", "")
 
+  let connectorName = connectorInfo.connector_name->getDisplayNameForConnector
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
@@ -134,56 +142,68 @@ let make = () => {
   }
 
   <div className="flex flex-row gap-x-6">
-    <VerticalStepIndicator title="Configure Vault" sections currentStep backClick />
+    <VerticalStepIndicator
+      title={`Setup ${connectorName} `}
+      sections
+      currentStep
+      backClick
+      customProcessorIcon={`${connectorInfo.connector_name}`}
+    />
     {switch currentStep {
     | {sectionId: "authenticate-processor"} =>
       <>
-        <div className=" flex flex-col w-1/2 px-10">
+        <div className=" flex flex-col w-1/2 px-10 ">
           <PageUtils.PageHeading
             title="Authenticate Processor"
             subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
+            customSubTitleStyle="font-500 font-normal text-gray-800"
           />
           <Form onSubmit initialValues>
-            <ConnectorAuthKeys
-              initialValues={updatedInitialVal} setInitialValues showVertically=true
-            />
-            <FormRenderer.FieldRenderer
-              labelClass="font-semibold"
-              field={FormRenderer.makeFieldInfo(
-                ~label,
-                ~name="connector_label",
-                ~placeholder="Enter Connector Label name",
-                ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-                ~isRequired=true,
-              )}
-            />
-            <ConnectorAuthKeysHelper.ErrorValidation
-              fieldName="connector_label"
-              validate={ConnectorAuthKeyUtils.validate(
-                ~selectedConnector,
-                ~dict=connectorLabelDetailField,
-                ~fieldName="connector_label",
-                ~isLiveMode={featureFlagDetails.isLiveMode},
-              )}
-            />
-            <ConnectorMetadataV2 />
+            <div className="mb-[24px] ">
+              <ConnectorAuthKeys
+                initialValues={updatedInitialVal} setInitialValues showVertically=true
+              />
+              <div className="mt-[12px]">
+                <FormRenderer.FieldRenderer
+                  labelClass="font-semibold"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label,
+                    ~name="connector_label",
+                    ~placeholder="Enter Connector Label name",
+                    ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+                    ~isRequired=true,
+                  )}
+                />
+                <ConnectorAuthKeysHelper.ErrorValidation
+                  fieldName="connector_label"
+                  validate={ConnectorAuthKeyUtils.validate(
+                    ~selectedConnector,
+                    ~dict=connectorLabelDetailField,
+                    ~fieldName="connector_label",
+                    ~isLiveMode={featureFlagDetails.isLiveMode},
+                  )}
+                />
+              </div>
+              <ConnectorMetadataV2 />
+            </div>
             <FormValuesSpy />
             <FormRenderer.SubmitButton
-              text="Submit" buttonSize={Small} customSumbitButtonStyle="w-full mt-8"
+              text="Next" buttonSize={Small} customSumbitButtonStyle="w-full mt-8"
             />
           </Form>
         </div>
       </>
     | {sectionId: "setup-webhook"} =>
-      <div className="flex flex-col w-1/2">
+      <div className="flex flex-col w-1/2 px-10">
         <PageUtils.PageHeading
           title="Setup Webhook"
           subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
+          customSubTitleStyle="font-500 font-normal text-gray-800"
         />
         <div className="flex flex-row items-center justify-between ">
           <div
             className="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-gray-400">
-            {copyValueOfWebhookEndpoint->React.string}
+            {displayValueofWebHookUrl->React.string}
           </div>
           <Button
             leftIcon={CustomIcon(<Icon name="nd-copy" />)}

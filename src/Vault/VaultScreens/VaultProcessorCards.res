@@ -25,7 +25,7 @@ module CantFindProcessor = {
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
     <RenderIf condition={showRequestConnectorBtn}>
       <div
-        className="flex flex-row  items-center  gap-2 text-blue-500"
+        className="flex flex-row  items-center  gap-2 text-blue-500 cursor-pointer"
         onClick={_ => setShowModal(_ => true)}>
         <ToolTip />
         {"Request a processor"->React.string}
@@ -45,6 +45,8 @@ let make = (
   ~showTestProcessor=false,
 ) => {
   open ConnectorUtils
+  // open FramerMotion.Motion
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -58,6 +60,11 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
   let searchRef = React.useRef(Nullable.null)
+
+  let leftIcon =
+    <div id="leftIcon" className="self-center py-3 pl-5 pr-4">
+      <Icon size=18 name="search" />
+    </div>
 
   let handleClick = connectorName => {
     mixpanelEvent(~eventName=`connect_processor_${connectorName}`)
@@ -92,18 +99,22 @@ let make = (
           {heading->React.string}
         </h2>
       </AddDataAttributes>
-      <div className="flex w-full justify-between gap-4 mt-[15px] mb-[16px]">
+      <div className="flex w-full justify-between gap-4 mt-4 mb-4">
         <RenderIf condition={showSearch}>
           <AddDataAttributes attributes=[("data-testid", "search-processor")]>
-            <input
-              ref={searchRef->ReactDOM.Ref.domRef}
-              type_="text"
-              value=searchedConnector
-              onChange=handleSearch
-              placeholder="Search a processor"
-              className={`rounded-xl px-4 py-2 focus:outline-none w-1/3 border `}
-              id="search-processor"
-            />
+            <div
+              className="flex flex-row  border border-gray-300 rounded-2xl py-2 focus:outline-none w-1/3 font-500 ">
+              {leftIcon}
+              <input
+                ref={searchRef->ReactDOM.Ref.domRef}
+                type_="text"
+                value=searchedConnector
+                onChange=handleSearch
+                placeholder="Search a processor"
+                className={`outline-none`}
+                id="search-processor"
+              />
+            </div>
           </AddDataAttributes>
         </RenderIf>
         <RenderIf
@@ -143,7 +154,7 @@ let make = (
               authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               onClick={_ => handleClick(connectorName)}
               key={i->string_of_int}
-              className="border p-6 gap-4 bg-white rounded-lg flex flex-col  justify-between h-[200px] hover:bg-gray-50 hover:cursor-pointer"
+              className="border p-6 gap-4 bg-white rounded-lg flex flex-col  justify-between h-12.5-rem hover:bg-gray-50 hover:cursor-pointer"
               dataAttrStr=connectorName>
               <div className="flex flex-row gap-3 items-center">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
