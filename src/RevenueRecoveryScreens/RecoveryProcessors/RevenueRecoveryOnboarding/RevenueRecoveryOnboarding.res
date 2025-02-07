@@ -1,9 +1,9 @@
 @react.component
 let make = () => {
-  open RevenueRecoveryHomeUtils
+  open RevenueRecoveryOnboardingUtils
   open VerticalStepIndicatorTypes
   open VerticalStepIndicatorUtils
-  open RevenueRecoveryHomeTypes
+  open RevenueRecoveryOnboardingTypes
 
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: (#connectProcessor: revenueRecoverySections :> string),
