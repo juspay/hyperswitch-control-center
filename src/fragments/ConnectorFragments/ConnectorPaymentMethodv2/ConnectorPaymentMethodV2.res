@@ -138,88 +138,92 @@ let make = (~initialValues, ~setInitialValues) => {
     }
   }
 
-  <>
-    <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
-      <div className="flex flex-col gap-6 col-span-3">
-        <HSwitchUtils.AlertBanner
-          bannerText="Please verify if the payment methods are turned on at the processor end as well."
-          bannerType=Warning
-        />
-        <div className="flex">
-          <FormRenderer.SubmitButton text="Submit" />
-          <Button
-            text="Continue"
-            buttonType={Secondary}
-            // onClick={_ => setCurrentStep(prev => getNextStep(prev))}
-          />
-        </div>
-        {keys
-        ->Array.mapWithIndex((pm, i) => {
-          let provider = pmts->getArrayFromDict(pm, [])
-          switch pm->getPaymentMethodTypeFromString {
-          | Credit | Debit =>
-            <div key={i->Int.toString}>
-              <p> {pm->React.string} </p>
+  <div className="flex flex-col gap-6 col-span-3">
+    // <HSwitchUtils.AlertBanner
+    //   bannerText="Please verify if the payment methods are turned on at the processor end as well."
+    //   bannerType=Warning
+    // />
+    <div className="max-w-3xl flex flex-col gap-8">
+      {keys
+      ->Array.mapWithIndex((pm, i) => {
+        let provider = pmts->getArrayFromDict(pm, [])
+        switch pm->getPaymentMethodTypeFromString {
+        | Credit | Debit =>
+          <div
+            key={i->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
+            <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
+              <div className="flex gap-2.5 items-center">
+                <div className="p-2 bg-white border rounded-md">
+                  <Icon name={pm->pmIcon} />
+                </div>
+                <p className="font-semibold"> {pm->LogicUtils.capitalizeString->React.string} </p>
+              </div>
               <div className="flex gap-2 items-center">
+                <p className="font-normal"> {"Select All"->React.string} </p>
                 <BoolInput.BaseComponent
                   isSelected={isAllPMChecked(~pm)}
                   setIsSelected={_ => selectAllPM(~pm)}
                   isDisabled={false}
                   boolCustomClass="rounded-lg"
                 />
-                <p> {"Select all"->React.string} </p>
-              </div>
-              <div className="flex flex-col gap-4 border rounded-md p-6">
-                {provider
-                ->Array.mapWithIndex((pmt, index) => {
-                  let lable = pmt->getDictFromJsonObject->getString("payment_method_type", "")
-                  <div
-                    key={index->Int.toString}
-                    onClick={_ => onClick(~pm, ~pmt=lable)}
-                    className={`grid  "grid-cols-4"} gap-4`}>
-                    <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable)} />
-                    <p className={` cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
-                  </div>
-                })
-                ->React.array}
               </div>
             </div>
-          | _ =>
-            <div key={i->Int.toString}>
-              <div className={`grid  "grid-cols-4"} gap-4`}>
-                <p> {pm->React.string} </p>
-                <div className="flex gap-2 items-center">
-                  <BoolInput.BaseComponent
-                    isSelected={isAllPMChecked(~pm)}
-                    setIsSelected={_ => selectAllPM(~pm)}
-                    isDisabled={false}
-                    boolCustomClass="rounded-lg"
-                  />
-                  <p> {"Select all"->React.string} </p>
+            <div className="flex gap-8 p-6 flex-wrap">
+              {provider
+              ->Array.mapWithIndex((pmt, index) => {
+                let lable = pmt->getDictFromJsonObject->getString("payment_method_type", "")
+                <div
+                  key={index->Int.toString}
+                  onClick={_ => onClick(~pm, ~pmt=lable)}
+                  className={"flex items-center gap-1.5"}>
+                  <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable)} />
+                  <p className={`cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
                 </div>
-                <div className="flex flex-col gap-4 border rounded-md p-6">
-                  {provider
-                  ->Array.mapWithIndex((pmt, index) => {
-                    let lable =
-                      pmt
-                      ->getDictFromJsonObject
-                      ->getString("payment_method_type", "")
-                    <div
-                      key={index->Int.toString}
-                      onClick={_ => onClick(~pm, ~pmt=lable)}
-                      className={`grid  "grid-cols-4"} gap-4`}>
-                      <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable)} />
-                      <p className={` cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
-                    </div>
-                  })
-                  ->React.array}
+              })
+              ->React.array}
+            </div>
+          </div>
+        | _ =>
+          <div
+            key={i->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
+            <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
+              <div className="flex gap-2.5 items-center">
+                <div className="p-2 bg-white border rounded-md">
+                  <Icon name={pm->pmIcon} />
                 </div>
+                <p className="font-semibold"> {pm->LogicUtils.snakeToTitle->React.string} </p>
+              </div>
+              <div className="flex gap-2 items-center">
+                <p className="font-normal"> {"Select all"->React.string} </p>
+                <BoolInput.BaseComponent
+                  isSelected={isAllPMChecked(~pm)}
+                  setIsSelected={_ => selectAllPM(~pm)}
+                  isDisabled={false}
+                  boolCustomClass="rounded-lg"
+                />
               </div>
             </div>
-          }
-        })
-        ->React.array}
-      </div>
+            <div className="flex gap-8  p-6 flex-wrap">
+              {provider
+              ->Array.mapWithIndex((pmt, index) => {
+                let lable =
+                  pmt
+                  ->getDictFromJsonObject
+                  ->getString("payment_method_type", "")
+                <div
+                  key={index->Int.toString}
+                  onClick={_ => onClick(~pm, ~pmt=lable)}
+                  className={`flex items-center gap-1.5`}>
+                  <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable)} />
+                  <p className={` cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
+                </div>
+              })
+              ->React.array}
+            </div>
+          </div>
+        }
+      })
+      ->React.array}
     </div>
-  </>
+  </div>
 }

@@ -317,7 +317,7 @@ module.exports = {
         nd_gray: {
           50: "#F5F7FA",
           100: "FBFBFB",
-          150: "#F2F4F8",
+          150: "#ECEFF3",
           200: "#E1E4EA",
           300: "#CACFD8",
           500: "#606B85",
