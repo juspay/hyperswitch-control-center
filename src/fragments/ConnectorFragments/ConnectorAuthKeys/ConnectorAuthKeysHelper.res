@@ -111,7 +111,10 @@ module RenderConnectorInputFields = {
                   ~name=formName,
                   ~description,
                   ~toolTipPosition=Right,
-                  ~customInput=InputFields.textInput(~isDisabled=disabled),
+                  ~customInput=InputFields.textInput(
+                    ~isDisabled=disabled,
+                    ~customStyle="border rounded-xl",
+                  ),
                   ~placeholder=switch getPlaceholder {
                   | Some(fun) => fun(label)
                   | None => `Enter ${label->LogicUtils.snakeToTitle}`

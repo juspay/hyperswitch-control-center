@@ -1,41 +1,67 @@
 @react.component
 let make = () => {
   open APIUtils
-  open PageLoaderWrapper
   open LogicUtils
   open VerticalStepIndicatorTypes
   open VerticalStepIndicatorUtils
+  open CommonAuthHooks
 
   let sections = [
     {
-      id: "payment-processor",
-      name: "Payment Processor",
-      icon: "nd-inbox",
+      id: "authenticate-processor",
+      name: "Authenticate your processor",
+      icon: "nd-shield",
       subSections: None,
     },
     {
-      id: "success",
-      name: "Success",
-      icon: "nd-plugin",
+      id: "setup-webhook",
+      name: "Setup Webhook",
+      icon: "nd-webhook",
+      subSections: None,
+    },
+    {
+      id: "review-and-connect",
+      name: "Review and Connect",
+      icon: "nd-flag",
       subSections: None,
     },
   ]
 
   let getURL = useGetURL()
-  let url = RescriptReactRouter.useUrl()
-  let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-  let (screenState, setScreenState) = React.useState(_ => Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let {profileId} = getUserInfoData()
   let (connectorId, setConnectorId) = React.useState(() => "")
   let (currentStep, setNextStep) = React.useState(() => {
-    sectionId: "payment-processor",
+    sectionId: "authenticate-processor",
     subSectionId: None,
   })
+  let connectorLabelDetailField = Dict.fromArray([
+    ("connector_label", "Connector label"->JSON.Encode.string),
+  ])
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let showToast = ToastState.useShowToast()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let getWebhooksUrl = (~connectorName, ~merchantId) => {
+    `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+  }
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let connectorInfo = initialValues
+  let connectorInfo =
+    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let copyValueOfWebhookEndpoint = getWebhooksUrl(
+    ~connectorName={connectorInfo.merchant_connector_id},
+    ~merchantId,
+  )
+  let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
+  let selectedConnector = React.useMemo(() => {
+    connectorTypeFromName->ConnectorUtils.getConnectorInfo
+  }, [connector])
+  let labelFieldDict = ConnectorAuthKeyUtils.connectorLabelDetailField
+  let label = labelFieldDict->getString("connector_label", "")
 
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
@@ -59,6 +85,7 @@ let make = () => {
     initialValuesToDict->Dict.set("connector_label", `${connector}_dakjfhsod`->JSON.Encode.string)
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
+
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
@@ -68,54 +95,115 @@ let make = () => {
     | None => ()
     }
   }
+  let handleWebHookCopy = copyValue => {
+    Clipboard.writeText(copyValue)
+    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+  }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post)
+      setInitialValues(_ => response)
       let connectorId = response->getDictFromJsonObject->getString("merchant_connector_id", "")
       setConnectorId(_ => connectorId)
+      fetchConnectorListResponse()->ignore
       onNextClick()
     } catch {
-    | _ => ()
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+        if errorCode === "HE_01" {
+          showToast(~message="Connector label already exist!", ~toastType=ToastError)
+        } else {
+          showToast(~message=errorMessage, ~toastType=ToastError)
+        }
+      }
     }
     Nullable.null
   }
 
   let onSucessClick = () => {
-    setShowSideBar(_ => true)
-    RescriptReactRouter.replace(
-      GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding/${connectorId}?name=${connector}`),
-    )
+    onNextClick()
   }
 
   let backClick = () => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/vault/onboarding"))
+    setShowSideBar(_ => true)
   }
 
   <div className="flex flex-row gap-x-6">
     <VerticalStepIndicator title="Configure Vault" sections currentStep backClick />
-    <div>
-      <p>
-        {"Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."->React.string}
-      </p>
-      {switch currentStep {
-      | {sectionId: "payment-processor"} =>
-        <Form onSubmit initialValues>
-          <ConnectorAuthKeys
-            initialValues={updatedInitialVal} setInitialValues showVertically=true
+    {switch currentStep {
+    | {sectionId: "authenticate-processor"} =>
+      <>
+        <div className=" flex flex-col w-1/2 px-10">
+          <PageUtils.PageHeading
+            title="Authenticate Processor"
+            subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
           />
-          <FormValuesSpy />
-          <FormRenderer.SubmitButton text="Submit" buttonSize={Small} />
-        </Form>
-      | {sectionId: "success"} =>
-        <div>
-          <p> {"Success"->React.string} </p>
-          <p> {"Your processor has been successfully authenticated."->React.string} </p>
-          <Button text="Next" buttonType=Primary onClick={_ => onSucessClick()->ignore} />
+          <Form onSubmit initialValues>
+            <ConnectorAuthKeys
+              initialValues={updatedInitialVal} setInitialValues showVertically=true
+            />
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold"
+              field={FormRenderer.makeFieldInfo(
+                ~label,
+                ~name="connector_label",
+                ~placeholder="Enter Connector Label name",
+                ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+                ~isRequired=true,
+              )}
+            />
+            <ConnectorAuthKeysHelper.ErrorValidation
+              fieldName="connector_label"
+              validate={ConnectorAuthKeyUtils.validate(
+                ~selectedConnector,
+                ~dict=connectorLabelDetailField,
+                ~fieldName="connector_label",
+                ~isLiveMode={featureFlagDetails.isLiveMode},
+              )}
+            />
+            <ConnectorMetadataV2 />
+            <FormValuesSpy />
+            <FormRenderer.SubmitButton
+              text="Submit" buttonSize={Small} customSumbitButtonStyle="w-full mt-8"
+            />
+          </Form>
         </div>
-      | _ => React.null
-      }}
-    </div>
+      </>
+    | {sectionId: "setup-webhook"} =>
+      <div className="flex flex-col w-1/2">
+        <PageUtils.PageHeading
+          title="Setup Webhook"
+          subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
+        />
+        <div className="flex flex-row items-center justify-between ">
+          <div
+            className="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-gray-400">
+            {copyValueOfWebhookEndpoint->React.string}
+          </div>
+          <Button
+            leftIcon={CustomIcon(<Icon name="nd-copy" />)}
+            text="Copy"
+            customButtonStyle=" ml-4 w-[2px]"
+            onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}
+          />
+        </div>
+        <Button
+          text="Next"
+          buttonType=Primary
+          onClick={_ => onSucessClick()->ignore}
+          customButtonStyle="w-full mt-8"
+        />
+      </div>
+    | {sectionId: "review-and-connect"} =>
+      <>
+        <VaultProceesorReview connectorInfo=initialValues copyValueOfWebhookEndpoint />
+      </>
+    | _ => React.null
+    }}
   </div>
 }

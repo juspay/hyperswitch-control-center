@@ -11,6 +11,7 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
   }, [connector])
+  
 
   let connectorDetails = React.useMemo(() => {
     try {
@@ -51,14 +52,36 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
     None
   }, [connector])
 
-  <ConnectorConfigurationFields
-    connector={connectorTypeFromName}
-    connectorAccountFields
-    selectedConnector
-    connectorMetaDataFields
-    connectorWebHookDetails
-    connectorLabelDetailField
-    connectorAdditionalMerchantData
-    showVertically
-  />
+  <>
+    <ConnectorConfigurationFields
+      connector={connectorTypeFromName}
+      connectorAccountFields
+      selectedConnector
+      connectorMetaDataFields
+      connectorWebHookDetails
+      connectorLabelDetailField
+      connectorAdditionalMerchantData
+      showVertically
+    />
+
+    // <RenderConnectorInputFields
+    //   details={connectorLabelDetailField}
+    //   name={"connector_label"}
+    //   connector
+    //   selectedConnector
+    //   isLabelNested=false
+    //   description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
+    // />
+    // <ConnectorMetaData connectorMetaDataFields />
+    // <ConnectorAdditionalMerchantData
+    //   connector={connectorTypeFromName} connectorAdditionalMerchantData
+    // />
+    // <RenderConnectorInputFields
+    //   details={connectorWebHookDetails}
+    //   name={"connector_webhook_details"}
+    //   checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
+    //   connector={connectorTypeFromName}
+    //   selectedConnector
+    // />
+  </>
 }

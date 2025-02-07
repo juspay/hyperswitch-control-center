@@ -25,7 +25,7 @@ let make = () => {
         entityName="VaultConnector"
         remainingPath
         access=Access
-        renderList={() => <VaultConfiguration />}
+        renderList={() => <VaultConfiguration remainingPath />}
         renderNewForm={() => <VaultOnboarding />}
         renderShow={(_, _) => <ConnectorSummary />}
       />
