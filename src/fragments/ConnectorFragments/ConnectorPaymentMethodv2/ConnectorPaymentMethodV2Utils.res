@@ -1,6 +1,6 @@
 open ConnectorUtils
 open ConnectorTypes
-let getPaymentMethodTypeDict = (~pm, ~pmt) => {
+let getPaymentMethodTypeDict = (~pm, ~pmt, ~pe=None) => {
   let (cardNetworks, modifedPaymentMethodType) = switch pm->getPaymentMethodTypeFromString {
   | Credit => {
       let cardNetworks = [pmt->JSON.Encode.string]->JSON.Encode.array
@@ -25,24 +25,41 @@ let getPaymentMethodTypeDict = (~pm, ~pmt) => {
       ("minimum_amount", 0->JSON.Encode.int),
       ("maximum_amount", 68607706->JSON.Encode.int),
       ("recurring_enabled", true->JSON.Encode.bool),
+      ("payment_experience", pe->Option.getOr("")->JSON.Encode.string),
     ]->Dict.fromArray
   newPaymentMenthodType
 }
 
-let isPMTSelectedUtils = (~selctPM: array<ConnectorTypes.paymentMethodEnabledType>, ~pm, ~pmt) => {
+let isPMTSelectedUtils = (
+  ~selctPM: array<ConnectorTypes.paymentMethodEnabledType>,
+  ~pm,
+  ~pmt,
+  ~connector: ConnectorTypes.connectorTypes,
+  ~pme: option<string>,
+) => {
   selctPM
   ->Array.filter(val => {
     let t = val.payment_method_types->Array.filter(types => {
-      if (
-        pm->getPaymentMethodTypeFromString == Credit || pm->getPaymentMethodTypeFromString == Debit
-      ) {
-        types.card_networks->Array.some(
-          networks => {
-            networks->String.toLowerCase === pmt->String.toLowerCase
-          },
-        )
-      } else {
-        types.payment_method_type == pmt
+      switch pme {
+      | Some(experience) =>
+        switch (pmt->getPaymentMethodTypeFromString, pm->getPaymentMethodFromString, connector) {
+        | (Klarna, PayLater, Processors(KLARNA)) =>
+          types.payment_experience->Option.getOr("") == experience
+        | _ => false
+        }
+      | None =>
+        if (
+          pm->getPaymentMethodTypeFromString == Credit ||
+            pm->getPaymentMethodTypeFromString == Debit
+        ) {
+          types.card_networks->Array.some(
+            networks => {
+              networks->String.toLowerCase === pmt->String.toLowerCase
+            },
+          )
+        } else {
+          types.payment_method_type == pmt
+        }
       }
     })
     t->Array.length > 0
@@ -101,3 +118,11 @@ let pmIcon = pm =>
   | BankRedirect | BankDebit | BankTransfer => "nd-bank"
   | _ => ""
   }
+
+let enableSelectAll = (~pm: ConnectorTypes.paymentMethod) => {
+  if pm !== Wallet || pm !== BankDebit {
+    true
+  } else {
+    false
+  }
+}

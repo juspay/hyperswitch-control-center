@@ -19,9 +19,26 @@ let make = (~initialValues, ~setInitialValues) => {
   }, [connector])
 
   let connData = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
-  let isPMSelected = (~pm, ~pmt) => {
+
+  let isPMESelect = (~pme, ~pm, ~pmt) => {
     let selctPM = getSelectedPM(~pmEnabled=connData.payment_methods_enabled, ~pm)
-    isPMTSelectedUtils(~selctPM, ~pm, ~pmt)
+    isPMTSelectedUtils(
+      ~selctPM,
+      ~pm,
+      ~pmt,
+      ~connector=connector->getConnectorNameTypeFromString,
+      ~pme,
+    )
+  }
+  let isPMSelected = (~pm, ~pmt, ~pme) => {
+    let selctPM = getSelectedPM(~pmEnabled=connData.payment_methods_enabled, ~pm)
+    isPMTSelectedUtils(
+      ~selctPM,
+      ~pm,
+      ~pmt,
+      ~connector=connector->getConnectorNameTypeFromString,
+      ~pme,
+    )
   }
   let removePM = (~pm, ~pmt) => {
     connData.payment_methods_enabled = removePMTUtil(
@@ -38,9 +55,38 @@ let make = (~initialValues, ~setInitialValues) => {
     setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
   }
 
-  let addPM = (~pm, ~pmt) => {
-    let newPaymentMenthodType = getPaymentMethodTypeDict(~pm, ~pmt)
+  let checkPaymentMethodTypeAndExperience = (
+    obj: ConnectorTypes.paymentMethodConfigType,
+    pme: option<string>,
+    pm: string,
+  ) => {
+    obj.payment_method_type == pm && obj.payment_experience == pme
+  }
+  // let df = pmts->JSON.Encode.object->ConnectorUtils.getPaymentMethodMapper
+  // Js.log(pmts)
+
+  let addPM = (~pm, ~pmt, ~pme=None) => {
+    Js.log(pme)
+    let newPaymentMenthodType = getPaymentMethodTypeDict(~pm, ~pmt, ~pe=pme)
     let data = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+    let dc =
+      pmts
+      ->getArrayFromDict("pay_later", [])
+      ->JSON.Encode.array
+      ->ConnectorUtils.getPaymentMethodMapper
+
+    let provider = dc->Array.some(obj => checkPaymentMethodTypeAndExperience(obj, pme, pm))
+    Js.log2(provider, pme)
+
+    // standardProviders->Array.some(obj => checkPaymentMethodTypeAndExperience(obj, method))
+    // switch (
+    //   pmt->getPaymentMethodTypeFromString,
+    //   pm->getPaymentMethodFromString,
+    //   connector->getConnectorNameTypeFromString,
+    // ) {
+    // | (Klarna, PayLater, Processors(KLARNA)) => Js.log("")
+    // }
+
     if getSelectedPM(~pmEnabled=connData.payment_methods_enabled, ~pm)->Array.length > 0 {
       let _ = data.payment_methods_enabled->Array.forEach(methods => {
         if methods.payment_method->String.toLowerCase === pm->String.toLowerCase {
@@ -108,7 +154,7 @@ let make = (~initialValues, ~setInitialValues) => {
         let label = pmt->getDictFromJsonObject->getString("payment_method_type", "")
         let newPaymentMenthodType = getPaymentMethodTypeDict(~pm, ~pmt=label)
         let data = dict->ConnectorListMapper.getProcessorPayloadType
-        if !isPMSelected(~pm, ~pmt=label) {
+        if !isPMSelected(~pm, ~pmt=label, ~pme=None) {
           let newPaymentMethod =
             [
               ("payment_method", pm->JSON.Encode.string),
@@ -137,11 +183,11 @@ let make = (~initialValues, ~setInitialValues) => {
     }
   }
 
-  let onClick = (~pm, ~pmt) => {
-    if isPMSelected(~pm, ~pmt) {
+  let onClick = (~pm, ~pmt, ~pme=None) => {
+    if isPMSelected(~pm, ~pmt, ~pme) {
       removePM(~pm, ~pmt)
     } else {
-      addPM(~pm, ~pmt)
+      addPM(~pm, ~pmt, ~pme)
     }
   }
 
@@ -166,26 +212,40 @@ let make = (~initialValues, ~setInitialValues) => {
                 <p className="font-semibold"> {pm->LogicUtils.capitalizeString->React.string} </p>
               </div>
               <div className="flex gap-2 items-center">
-                <p className="font-normal"> {"Select All"->React.string} </p>
-                <BoolInput.BaseComponent
-                  isSelected={isAllPMChecked(~pm)}
-                  setIsSelected={_ => selectAllPM(~pm)}
-                  isDisabled={false}
-                  boolCustomClass="rounded-lg"
-                />
+                <AddDataAttributes
+                  attributes=[("data-testid", pm->String.concat("_")->String.concat("select_all"))]>
+                  <p className="font-normal"> {"Select All"->React.string} </p>
+                  <BoolInput.BaseComponent
+                    isSelected={isAllPMChecked(~pm)}
+                    setIsSelected={_ => selectAllPM(~pm)}
+                    isDisabled={false}
+                    boolCustomClass="rounded-lg"
+                  />
+                </AddDataAttributes>
               </div>
             </div>
             <div className="flex gap-8 p-6 flex-wrap">
               {provider
               ->Array.mapWithIndex((pmt, index) => {
                 let lable = pmt->getDictFromJsonObject->getString("payment_method_type", "")
-                <div
-                  key={index->Int.toString}
-                  onClick={_ => onClick(~pm, ~pmt=lable)}
-                  className={"flex items-center gap-1.5"}>
-                  <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable)} />
-                  <p className={`cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
-                </div>
+                <AddDataAttributes
+                  attributes=[
+                    (
+                      "data-testid",
+                      `${pm
+                        ->String.concat("_")
+                        ->String.concat(lable)
+                        ->String.toLowerCase}`,
+                    ),
+                  ]>
+                  <div
+                    key={index->Int.toString}
+                    onClick={_ => onClick(~pm, ~pmt=lable)}
+                    className={"flex items-center gap-1.5"}>
+                    <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable, ~pme=None)} />
+                    <p className={`cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
+                  </div>
+                </AddDataAttributes>
               })
               ->React.array}
             </div>
@@ -200,16 +260,34 @@ let make = (~initialValues, ~setInitialValues) => {
                 </div>
                 <p className="font-semibold"> {pm->LogicUtils.snakeToTitle->React.string} </p>
               </div>
-              <div className="flex gap-2 items-center">
-                <p className="font-normal"> {"Select all"->React.string} </p>
-                <BoolInput.BaseComponent
-                  isSelected={isAllPMChecked(~pm)}
-                  setIsSelected={_ => selectAllPM(~pm)}
-                  isDisabled={false}
-                  boolCustomClass="rounded-lg"
-                />
-              </div>
+              <RenderIf condition={enableSelectAll(~pm=pm->getPaymentMethodFromString)}>
+                <AddDataAttributes
+                  attributes=[("data-testid", pm->String.concat("_")->String.concat("select_all"))]>
+                  <div className="flex gap-2 items-center">
+                    <p className="font-normal"> {"Select all"->React.string} </p>
+                    <BoolInput.BaseComponent
+                      isSelected={isAllPMChecked(~pm)}
+                      setIsSelected={_ => selectAllPM(~pm)}
+                      isDisabled={false}
+                      boolCustomClass="rounded-lg"
+                    />
+                  </div>
+                </AddDataAttributes>
+              </RenderIf>
             </div>
+            <RenderIf
+              condition={pm->getPaymentMethodFromString === Wallet &&
+                {
+                  switch connector->getConnectorNameTypeFromString {
+                  | Processors(ZEN) => true
+                  | _ => false
+                  }
+                }}>
+              <div className="border rounded p-2 bg-jp-gray-100 flex gap-4">
+                <Icon name="outage_icon" size=15 />
+                {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
+              </div>
+            </RenderIf>
             <div className="flex gap-8  p-6 flex-wrap">
               {provider
               ->Array.mapWithIndex((pmt, index) => {
@@ -217,13 +295,92 @@ let make = (~initialValues, ~setInitialValues) => {
                   pmt
                   ->getDictFromJsonObject
                   ->getString("payment_method_type", "")
-                <div
-                  key={index->Int.toString}
-                  onClick={_ => onClick(~pm, ~pmt=lable)}
-                  className={`flex items-center gap-1.5`}>
-                  <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable)} />
-                  <p className={` cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
-                </div>
+                <AddDataAttributes
+                  attributes=[
+                    (
+                      "data-testid",
+                      `${pm
+                        ->String.concat("_")
+                        ->String.concat(lable)
+                        ->String.toLowerCase}`,
+                    ),
+                  ]>
+                  <div
+                    key={index->Int.toString}
+                    onClick={_ =>
+                      onClick(
+                        ~pm,
+                        ~pmt=lable,
+                        ~pme=pmt
+                        ->getDictFromJsonObject
+                        ->getOptionString("payment_experience"),
+                      )}
+                    className={`flex items-center gap-1.5`}>
+                    {switch connector->getConnectorNameTypeFromString {
+                    | Processors(KLARNA) =>
+                      <RenderIf
+                        condition={!(
+                          pmt
+                          ->getDictFromJsonObject
+                          ->getString("payment_experience", "") === "redirect_to_url" &&
+                            connData.metadata
+                            ->getDictFromJsonObject
+                            ->getString("klarna_region", "") !== "Europe"
+                        )}>
+                        <CheckBoxIcon
+                          isSelected={isPMSelected(
+                            ~pm,
+                            ~pmt=lable,
+                            ~pme=pmt
+                            ->getDictFromJsonObject
+                            ->getOptionString("payment_experience"),
+                          )}
+                        />
+                      </RenderIf>
+                    | _ => <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable, ~pme=None)} />
+                    }}
+                    {switch (
+                      lable->getPaymentMethodTypeFromString,
+                      pm->getPaymentMethodFromString,
+                      connector->getConnectorNameTypeFromString,
+                    ) {
+                    | (PayPal, Wallet, Processors(PAYPAL)) =>
+                      <p className={` cursor-pointer`}>
+                        {pmt
+                        ->getDictFromJsonObject
+                        ->getString("payment_experience", "") === "redirect_to_url"
+                          ? "PayPal Redirect"->React.string
+                          : "PayPal SDK"->React.string}
+                      </p>
+                    | (Klarna, PayLater, Processors(KLARNA)) =>
+                      <RenderIf
+                        condition={!(
+                          pmt
+                          ->getDictFromJsonObject
+                          ->getString("payment_experience", "") === "redirect_to_url" &&
+                            connData.metadata
+                            ->getDictFromJsonObject
+                            ->getString("klarna_region", "") !== "Europe"
+                        )}>
+                        <p className={` cursor-pointer`}>
+                          {pmt
+                          ->getDictFromJsonObject
+                          ->getString("payment_experience", "") === "redirect_to_url"
+                            ? "Klarna Checkout"->React.string
+                            : "Klarna SDK"->React.string}
+                        </p>
+                      </RenderIf>
+
+                    | (OpenBankingPIS, _, _) =>
+                      <p className={` cursor-pointer`}> {"Open Banking PIS"->React.string} </p>
+
+                    | _ =>
+                      <p className={` cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
+                    }}
+
+                    // <p className={` cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
+                  </div>
+                </AddDataAttributes>
               })
               ->React.array}
             </div>

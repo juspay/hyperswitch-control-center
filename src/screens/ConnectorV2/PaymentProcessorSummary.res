@@ -28,7 +28,8 @@ let make = (~initialValues, ~setInitialValues) => {
           />
         </div>
       </div>
-      <ConnectorPaymentMethodV2 initialValues setInitialValues />
+      // <ConnectorPaymentMethodV2 initialValues setInitialValues />
+      <ConnectorPaymentMethodV3 initialValues setInitialValues />
     </div>
   </div>
 }
