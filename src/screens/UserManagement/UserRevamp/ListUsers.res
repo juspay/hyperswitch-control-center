@@ -106,10 +106,8 @@ let make = () => {
         currrentFetchCount={usersFilterData->Array.length}
         collapseTableRow=false
         tableheadingClass="h-12"
-        customBorderClass="border"
         tableHeadingTextClass="!font-normal"
-        tableBorderClass="!border-none"
-        nonFrozenTableParentClass="!rounded-xl"
+        nonFrozenTableParentClass="!rounded-lg"
         showSerialNumber=false
         loadedTableParentClass="flex flex-col"
       />
