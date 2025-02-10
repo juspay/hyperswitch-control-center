@@ -229,7 +229,7 @@ module ControlCenter = {
           <CardFooter customFooterStyle="mt-5">
             <img
               alt="connector-list"
-              className="inline-block absolute lg:right-5 lg:bottom-5 bottom-0 right-0 lg:block lg:w-40 md:w-24 w-36"
+              className="inline-block absolute lg:right-5 lg:bottom-2 bottom-0 right-0 lg:block lg:w-40 md:w-24 w-36"
               src="/assets/connectorsList.svg"
             />
             <Button
