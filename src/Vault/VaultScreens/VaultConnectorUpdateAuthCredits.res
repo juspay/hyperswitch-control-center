@@ -41,6 +41,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
       }
     }
   }, [connectorInfo.merchant_connector_id])
+
   let (
     _,
     connectorAccountFields,
@@ -107,102 +108,19 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->getConnectorInfo
   }, [connectorName])
-  <>
-    <Form initialValues validate={validateMandatoryField}>
-      <div className="flex flex-col">
-        <div className="flex flex-row gap-6">
-          <div className="w-1/3">
-            <FormRenderer.FieldRenderer
-              labelClass="font-semibold"
-              field={FormRenderer.makeFieldInfo(
-                ~label,
-                ~name="connector_label",
-                ~placeholder="Enter Connector Label name",
-                ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-                ~isRequired=true,
-              )}
-            />
-            <ConnectorAuthKeysHelper.ErrorValidation
-              fieldName="connector_label"
-              validate={ConnectorAuthKeyUtils.validate(
-                ~selectedConnector,
-                ~dict=connectorLabelDetailField,
-                ~fieldName="connector_label",
-                ~isLiveMode={featureFlagDetails.isLiveMode},
-              )}
-            />
-          </div>
-          <div className="w-1/3">
-            <FormRenderer.FieldRenderer
-              labelClass="font-semibold"
-              field={FormRenderer.makeFieldInfo(
-                ~label,
-                ~name="connector_label",
-                ~placeholder="Enter Connector Label name",
-                ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-                ~isRequired=true,
-              )}
-            />
-            <ConnectorAuthKeysHelper.ErrorValidation
-              fieldName="connector_label"
-              validate={ConnectorAuthKeyUtils.validate(
-                ~selectedConnector,
-                ~dict=connectorLabelDetailField,
-                ~fieldName="connector_label",
-                ~isLiveMode={featureFlagDetails.isLiveMode},
-              )}
-            />
-          </div>
-          <div className="w-1/3">
-            <FormRenderer.FieldRenderer
-              labelClass="font-semibold"
-              field={FormRenderer.makeFieldInfo(
-                ~label,
-                ~name="connector_label",
-                ~placeholder="Enter Connector Label name",
-                ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-                ~isRequired=true,
-              )}
-            />
-            <ConnectorAuthKeysHelper.ErrorValidation
-              fieldName="connector_label"
-              validate={ConnectorAuthKeyUtils.validate(
-                ~selectedConnector,
-                ~dict=connectorLabelDetailField,
-                ~fieldName="connector_label",
-                ~isLiveMode={featureFlagDetails.isLiveMode},
-              )}
-            />
-          </div>
-          <div className="w-1/3">
-            <FormRenderer.FieldRenderer
-              labelClass="font-semibold"
-              field={FormRenderer.makeFieldInfo(
-                ~label,
-                ~name="connector_label",
-                ~placeholder="Enter Connector Label name",
-                ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-                ~isRequired=true,
-              )}
-            />
-            <ConnectorAuthKeysHelper.ErrorValidation
-              fieldName="connector_label"
-              validate={ConnectorAuthKeyUtils.validate(
-                ~selectedConnector,
-                ~dict=connectorLabelDetailField,
-                ~fieldName="connector_label",
-                ~isLiveMode={featureFlagDetails.isLiveMode},
-              )}
-            />
-          </div>
-          <div className="w-1/3">
-            <ConnectorMetadataV2 />
-          </div>
-        </div>
-        <div className="w-1/3 ">
-          <ConnectorWebhookDetails />
-        </div>
-      </div>
-    </Form>
-  </>
+  <Form initialValues validate={validateMandatoryField} formClass="flex gap-10 flex-wrap max-w-3xl">
+    <FormRenderer.FieldRenderer
+      labelClass="font-semibold"
+      field={FormRenderer.makeFieldInfo(
+        ~label,
+        ~name="connector_label",
+        ~placeholder="Enter Connector Label name",
+        ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+        ~isRequired=true,
+      )}
+      fieldWrapperClass="w-full"
+    />
+    <ConnectorMetadataV2 />
+    <ConnectorWebhookDetails />
+  </Form>
 }

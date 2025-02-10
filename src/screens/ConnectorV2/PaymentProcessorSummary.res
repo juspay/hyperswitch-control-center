@@ -96,31 +96,25 @@ let make = (~initialValues, ~setInitialValues) => {
         </p>
       </div>
     </div>
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-row gap-6 ">
-        <div className="flex flex-col gap-2 ">
-          <h4 className="text-gray-400"> {"Webhook Url"->React.string} </h4>
-          <div className="flex flex-row">
-            {displayValueofWebHookUrl->React.string}
-            <div className="ml-2" onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}>
-              <Icon name="nd-copy" />
-            </div>
-          </div>
-        </div>
-        <div className=" flex flex-col  gap-4">
-          <div className="flex flex-col gap-0.5-rem ">
-            <h4 className="text-gray-400 "> {"Profile"->React.string} </h4>
-            {connectorInfodict.profile_id->React.string}
+    <div className="flex gap-10 max-w-3xl flex-wrap">
+      <div className="flex flex-col gap-2 ">
+        <h4 className="text-gray-400"> {"Webhook Url"->React.string} </h4>
+        <div className="flex flex-row">
+          {displayValueofWebHookUrl->React.string}
+          <div className="ml-2" onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}>
+            <Icon name="nd-copy" />
           </div>
         </div>
       </div>
-      <div>
-        <div className="flex flex-col gap-0.5-rem ">
-          <h4 className="text-gray-400 "> {"Integration status"->React.string} </h4>
-          <div className="flex flex-row gap-2 items-center ">
-            <div className={`w-3 h-3  rounded-full ${integrationStatusCSS}`} />
-            {connectorInfodict.status->capitalizeString->React.string}
-          </div>
+      <div className="flex flex-col gap-0.5-rem ">
+        <h4 className="text-gray-400 "> {"Profile"->React.string} </h4>
+        {connectorInfodict.profile_id->React.string}
+      </div>
+      <div className="flex flex-col gap-0.5-rem ">
+        <h4 className="text-gray-400 "> {"Integration status"->React.string} </h4>
+        <div className="flex flex-row gap-2 items-center ">
+          <div className={`w-3 h-3  rounded-full ${integrationStatusCSS}`} />
+          {connectorInfodict.status->capitalizeString->React.string}
         </div>
       </div>
     </div>
