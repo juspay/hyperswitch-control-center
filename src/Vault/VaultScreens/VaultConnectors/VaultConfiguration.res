@@ -55,13 +55,12 @@ let make = () => {
         tabs
         showBorder=true
         includeMargin=false
-        lightThemeColor="blue-500"
         defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body border "
         onTitleClick={indx => {
           setTabIndex(_ => indx)
           setCurrentTabName(_ => getTabName(indx))
         }}
-        selectTabBottomBorderColor="bg-blue-600"
+        selectTabBottomBorderColor="bg-primary"
       />
     </PageLoaderWrapper>
   </>
