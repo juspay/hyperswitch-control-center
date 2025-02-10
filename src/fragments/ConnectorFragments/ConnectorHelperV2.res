@@ -150,11 +150,11 @@ module InfoField = {
 }
 module CredsInfoField = {
   @react.component
-  let make = (~authKeys, ~connectorAccountFields) => {
+  let make = (~authKeys, ~connectorAccountFields, ~customStyle) => {
     open LogicUtils
 
     let dict = authKeys->Identity.genericTypeToDictOfJson
-    <div className=" flex flex-col gap-4">
+    <div className={`flex ${customStyle} gap-4`}>
       {dict
       ->Dict.keysToArray
       ->Array.filter(ele => ele !== "auth_type")
@@ -195,14 +195,26 @@ module CashtoCodeCredsInfo = {
 }
 module PreviewCreds = {
   @react.component
-  let make = (~connectorAccountFields, ~connectorInfo: ConnectorTypes.connectorPayload) => {
+  let make = (
+    ~connectorAccountFields,
+    ~connectorInfo: ConnectorTypes.connectorPayload,
+    ~customStyle=?,
+  ) => {
+    let customStyle = {
+      switch customStyle {
+      | Some(val) => val
+      | _ => "flex-col"
+      }
+    }
     switch connectorInfo.connector_account_details {
-    | HeaderKey(authKeys) => <CredsInfoField authKeys connectorAccountFields />
-    | BodyKey(bodyKey) => <CredsInfoField authKeys=bodyKey connectorAccountFields />
-    | SignatureKey(signatureKey) => <CredsInfoField authKeys=signatureKey connectorAccountFields />
-    | MultiAuthKey(multiAuthKey) => <CredsInfoField authKeys=multiAuthKey connectorAccountFields />
+    | HeaderKey(authKeys) => <CredsInfoField authKeys connectorAccountFields customStyle />
+    | BodyKey(bodyKey) => <CredsInfoField authKeys=bodyKey connectorAccountFields customStyle />
+    | SignatureKey(signatureKey) =>
+      <CredsInfoField authKeys=signatureKey connectorAccountFields customStyle />
+    | MultiAuthKey(multiAuthKey) =>
+      <CredsInfoField authKeys=multiAuthKey connectorAccountFields customStyle />
     | CertificateAuth(certificateAuth) =>
-      <CredsInfoField authKeys=certificateAuth connectorAccountFields />
+      <CredsInfoField authKeys=certificateAuth connectorAccountFields customStyle />
     | CurrencyAuthKey(currencyAuthKey) => <CashtoCodeCredsInfo authKeys=currencyAuthKey />
     | UnKnownAuthType(_) => React.null
     }
@@ -228,6 +240,23 @@ let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonConnectorType
     | (Toggle, _) => toggleInput(~field={connectorMetaDataFields}, ~formName)
     | (MultiSelect, _) => multiSelectInput(~field={connectorMetaDataFields}, ~formName)
     | _ => textInput(~field={connectorMetaDataFields}, ~formName)
+    }
+  }
+}
+let connectorWebhookDetailsValueInput = (
+  ~connectorWebHookDetails: CommonConnectorTypes.inputField,
+) => {
+  let {\"type", name} = connectorWebHookDetails
+
+  let formName = connectorMetaDataNameMapper(name)
+
+  {
+    switch (\"type", name) {
+    | (Text, _) => textInput(~field={connectorWebHookDetails}, ~formName, ~customStyle="rounded-xl")
+    | (Select, _) => selectInput(~field={connectorWebHookDetails}, ~formName)
+    | (Toggle, _) => toggleInput(~field={connectorWebHookDetails}, ~formName)
+    | (MultiSelect, _) => multiSelectInput(~field={connectorWebHookDetails}, ~formName)
+    | _ => textInput(~field={connectorWebHookDetails}, ~formName)
     }
   }
 }

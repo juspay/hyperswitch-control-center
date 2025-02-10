@@ -29,7 +29,8 @@ let make = () => {
   React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
     None
-  }, [])
+  }, [connectorListFromRecoil])
+
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
