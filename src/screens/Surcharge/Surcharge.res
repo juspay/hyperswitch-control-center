@@ -2,7 +2,7 @@ module ActiveRulePreview = {
   open LogicUtils
   open APIUtils
   @react.component
-  let make = (~initialRule, ~setInitialRule) => {
+  let make = (~initialRule, ~setInitialRule, ~setPageView, ~setShowWarning) => {
     let rule = initialRule->Option.getOr(Dict.make())
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -23,6 +23,7 @@ module ActiveRulePreview = {
           ~toastType=ToastSuccess,
         )
         setInitialRule(_ => None)
+        setShowWarning(_ => false)
       } catch {
       | _ =>
         showToast(~message="Failed to delete current active surcharge rule.", ~toastType=ToastError)
@@ -38,6 +39,10 @@ module ActiveRulePreview = {
         ),
         handleConfirm: {text: "Confirm", onClick: _ => deleteCurrentSurchargeRule()->ignore},
       })
+
+    let handleEditPopup = () => {
+      setPageView(_ => ThreeDSUtils.NEW)
+    }
 
     <RenderIf condition={initialRule->Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
@@ -56,6 +61,16 @@ module ActiveRulePreview = {
               onClick={_ => handleDeletePopup()}>
               <Icon
                 name="delete"
+                size=20
+                className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
+              />
+            </ACLDiv>
+            <ACLDiv
+              description="Edit existing surcharge rule"
+              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+              onClick={_ => handleEditPopup()}>
+              <Icon
+                name="edit"
                 size=20
                 className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
               />
@@ -140,7 +155,7 @@ let make = () => {
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (wasm, setWasm) = React.useState(_ => None)
-  let (initialValues, _setInitialValues) = React.useState(_ =>
+  let (initialValues, setInitialValues) = React.useState(_ =>
     buildInitialSurchargeValue->Identity.genericTypeToJson
   )
   let (initialRule, setInitialRule) = React.useState(() => None)
@@ -180,6 +195,7 @@ let make = () => {
         ]->Dict.fromArray
 
       setInitialRule(_ => Some(intitialValue))
+      setInitialValues(_ => responseDict->mapResponseToFormValues->Identity.genericTypeToJson)
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -318,22 +334,24 @@ let make = () => {
         </div>
       | LANDING =>
         <div className="flex flex-col gap-6">
-          <ActiveRulePreview initialRule setInitialRule />
-          <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
-            <p className="text-base font-semibold text-grey-700">
-              {"Configure Surcharge"->React.string}
-            </p>
-            <p className="text-base font-normal text-grey-700 opacity-50">
-              {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce a surcharge on your payments"->React.string}
-            </p>
-            <ACLButton
-              text="Create New"
-              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-              buttonType=Primary
-              customButtonStyle="!w-1/6 "
-              onClick={_ => handleCreateNew()}
-            />
-          </div>
+          <ActiveRulePreview initialRule setInitialRule setPageView setShowWarning />
+          <RenderIf condition={initialRule->Option.isNone}>
+            <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
+              <p className="text-base font-semibold text-grey-700">
+                {"Configure Surcharge"->React.string}
+              </p>
+              <p className="text-base font-normal text-grey-700 opacity-50">
+                {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce a surcharge on your payments"->React.string}
+              </p>
+              <ACLButton
+                text="Create New"
+                authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+                buttonType=Primary
+                customButtonStyle="!w-1/6 "
+                onClick={_ => handleCreateNew()}
+              />
+            </div>
+          </RenderIf>
         </div>
       }}
     </div>

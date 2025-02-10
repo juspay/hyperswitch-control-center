@@ -79,6 +79,12 @@ type advancedRouting = {
   algorithm: algorithm,
 }
 
+type advancedRoutingType = {
+  name: string,
+  description: string,
+  algorithm: algorithmData,
+}
+
 type modalValue = {conType: string, conText: React.element}
 
 type statementSendType = {condition: array<statement>}

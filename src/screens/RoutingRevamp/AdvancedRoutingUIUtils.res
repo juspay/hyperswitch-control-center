@@ -55,7 +55,12 @@ module OperatorInp = {
         operator.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ => (),
-      value: operator.value,
+      value: operator.value
+      ->JSON.Decode.string
+      ->Option.getOr("")
+      ->operatorMapper
+      ->operatorTypeToStringMapper
+      ->JSON.Encode.string,
       checked: true,
     }
     React.useEffect(() => {
@@ -154,6 +159,7 @@ module ValueInp = {
         options={variantValues->SelectBox.makeOptions}
         hideMultiSelectButtons=true
         showSelectionAsChips={false}
+        maxHeight="max-h-full sm:max-h-64"
       />
     | IS | IS_NOT => {
         let val = valueField.value->LogicUtils.getStringFromJson("")
