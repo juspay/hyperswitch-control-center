@@ -47,43 +47,19 @@ let make = (~initialValues, ~setInitialValues) => {
       }
     }
   }, [connectorInfodict.merchant_connector_id])
+
   let integrationStatusCSS = {
     switch connectorInfodict.status {
-    | active => "bg-green-950"
+    | "active" => "bg-green-950"
     | _ => " "
     }
   }
   let showToast = ToastState.useShowToast()
   let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
-  let connectorDetails = React.useMemo(() => {
-    try {
-      if connectorName->LogicUtils.isNonEmptyString {
-        let dict = switch processorType {
-        | PaymentProcessor => Window.getConnectorConfig(connectorName)
-        | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
-        | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
-        | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
-        | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
-        | PaymentVas => JSON.Encode.null
-        }
-        dict
-      } else {
-        JSON.Encode.null
-      }
-    } catch {
-    | Exn.Error(e) => {
-        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        let _ = Exn.message(e)->Option.getOr("Something went wrong")
-        JSON.Encode.null
-      }
-    }
-  }, [connectorInfodict.merchant_connector_id])
   let handleWebHookCopy = copyValue => {
     Clipboard.writeText(copyValue)
     showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
   }
-
-  // let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
 
   <div className="flex flex-col gap-10 p-6">
     <div>
@@ -123,12 +99,7 @@ let make = (~initialValues, ~setInitialValues) => {
         <p className="text-md font-semibold"> {"Credentials"->React.string} </p>
         <div className="flex gap-4">
           <FormRenderer.SubmitButton text="Submit" buttonSize={Small} />
-          <Button
-            text="Continue"
-            buttonType={Secondary}
-            buttonSize={Small}
-            // onClick={_ => setCurrentStep(prev => getNextStep(prev))}
-          />
+          <Button text="Continue" buttonType={Secondary} buttonSize={Small} />
         </div>
       </div>
       <VaultConnectorUpdateAuthCredits connectorInfo=connectorInfodict />
