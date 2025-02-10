@@ -15,14 +15,14 @@ let make = () => {
     setDashboardPageState,
     currentProduct,
     setDefaultProductToSessionStorage,
+    showSideBar,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-  let {devThemeFeature, devOrgSidebar} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
     fetchMerchantSpecificConfig,
     useIsFeatureEnabledForMerchant,
@@ -36,9 +36,7 @@ let make = () => {
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
-  let modeStyles = featureFlagDetails.isLiveMode
-    ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
-    : "bg-orange-600/80 border-orange-500 text-grey-700"
+  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green_trans n" : "bg-orange-500 "
 
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
@@ -50,8 +48,12 @@ let make = () => {
   sessionExpired := false
 
   let applyTheme = async () => {
-    if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
-      let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+    try {
+      if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
+        let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+      }
+    } catch {
+    | _ => ()
     }
   }
 
@@ -99,14 +101,6 @@ let make = () => {
     None
   }, [userGroupACL])
 
-  let ompDropdowns =
-    <div className="flex items-center gap-4 mx-4">
-      <RenderIf condition={!isInternalUser}>
-        <MerchantSwitch />
-        <p className="text-gray-400 text-fs-14"> {"/"->React.string} </p>
-      </RenderIf>
-      <ProfileSwitch />
-    </div>
   <>
     <div>
       {switch dashboardPageState {
@@ -118,10 +112,7 @@ let make = () => {
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
-              <RenderIf condition={devOrgSidebar}>
-                <OrgSidebar />
-              </RenderIf>
-              <RenderIf condition={screenState === Success}>
+              <RenderIf condition={screenState === Success && showSideBar}>
                 <Sidebar
                   path={url.path}
                   sidebars={hyperSwitchAppSidebars}
@@ -133,31 +124,35 @@ let make = () => {
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                  <div className="border-b shadow hyperswitch_box_shadow ">
-                    <div className="w-full max-w-fixedPageWidth px-9">
-                      <Navbar
-                        headerActions={<div className="relative flex space-around gap-4 my-2 ">
-                          <div className="flex gap-4">
-                            <GlobalSearchBar />
-                            <RenderIf condition={isInternalUser}>
-                              <SwitchMerchantForInternal />
-                            </RenderIf>
-                            <div
-                              className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
-                              {modeText->React.string}
-                            </div>
+                  <div className="w-full max-w-fixedPageWidth px-12 pt-3">
+                    <Navbar
+                      headerActions={<div className="relative flex space-around gap-4 my-2 ">
+                        <div className="flex gap-4 items-center">
+                          <GlobalSearchBar />
+                          <RenderIf condition={isInternalUser}>
+                            <SwitchMerchantForInternal />
+                          </RenderIf>
+                        </div>
+                      </div>}
+                      headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
+                      | Some(url) =>
+                        <div className="flex gap-4 items-center">
+                          <img className="w-40 h-16" alt="image" src={`${url}`} />
+                          <ProfileSwitch />
+                          <div className={`w-2 h-2 rounded-full ${modebg} `} />
+                          <span className="font-semibold"> {modeText->React.string} </span>
+                        </div>
+                      | None =>
+                        <div className="flex gap-4 items-center ">
+                          <ProfileSwitch />
+                          <div
+                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap  justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300 cursor-pointer`}>
+                            <div className={`w-2 h-2 rounded-full ${modebg} `} />
+                            <span className="font-semibold"> {modeText->React.string} </span>
                           </div>
-                        </div>}
-                        headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
-                        | Some(url) =>
-                          <>
-                            <img className="w-40" alt="image" src={`${url}`} />
-                            {ompDropdowns}
-                          </>
-                        | None => ompDropdowns
-                        }}
-                      />
-                    </div>
+                        </div>
+                      }}
+                    />
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
@@ -165,11 +160,22 @@ let make = () => {
                       <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
                     </RenderIf>
                     <div
-                      className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
+                      className="p-6 md:px-12 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
+                        /* DEFAULT HOME */
+                        | list{"v2", "home"} => <DefaultHome />
+
+                        /* RECON PRODUCT */
                         | list{"v2", "recon", ..._} => <ReconApp />
+
+                        /* RECOVERY PRODUCT */
                         | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
+
+                        /* VAULT PRODUCT */
+                        | list{"v2", "vault", ..._} => <VaultApp />
+
+                        /* ORCHESTRATOR PRODUCT */
                         | list{"home", ..._}
                         | list{"recon"}
                         | list{"upload-files"}

@@ -44,10 +44,11 @@ type featureFlag = {
   devThemeFeature: bool,
   devReconv2Product: bool,
   devRecoveryV2Product: bool,
+  devVaultV2Product: bool,
   maintainenceAlert: string,
   forceCookies: bool,
   authenticationAnalytics: bool,
-  devOrgSidebar: bool,
+  devModularityV2: bool,
   webhookDetails: bool,
 }
 
@@ -95,10 +96,11 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devThemeFeature: dict->getBool("dev_theme_feature", false),
     devReconv2Product: dict->getBool("dev_recon_v2_product", false),
     devRecoveryV2Product: dict->getBool("dev_recovery_v2_product", false),
+    devVaultV2Product: dict->getBool("dev_vault_v2_product", false),
     maintainenceAlert: dict->getString("maintainence_alert", ""),
     forceCookies: dict->getBool("force_cookies", false),
     authenticationAnalytics: dict->getBool("authentication_analytics", false),
-    devOrgSidebar: dict->getBool("dev_org_sidebar", false),
+    devModularityV2: dict->getBool("dev_modularity_v2", false),
     webhookDetails: dict->getBool("webhook_details", false),
   }
 }

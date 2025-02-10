@@ -35,7 +35,8 @@ module ActionButtons = {
       <ACLButton
         text={"Setup"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-        buttonType=Primary
+        customButtonStyle="mx-auto w-full"
+        buttonType={Secondary}
         buttonSize=Small
         onClick={_ => {
           RescriptReactRouter.push(
@@ -50,7 +51,8 @@ module ActionButtons = {
       <ACLButton
         text={"Manage"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-        buttonType=Primary
+        buttonType={Secondary}
+        customButtonStyle="mx-auto w-full"
         buttonSize=Small
         onClick={_ => {
           RescriptReactRouter.push(

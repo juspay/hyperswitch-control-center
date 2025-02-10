@@ -269,7 +269,7 @@ module Wrapper = {
             className={`flex flex-row gap-2 items-center justify-around p-2 ${copyBtnHover
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
-            <Icon name="copy" className="text-jp-gray-700" size=12 />
+            <Icon name="nd-copy" className="text-jp-gray-700" size=12 />
             <RenderIf condition={copyBtnHover}>
               <div className="text-sm "> {React.string("Copy Rule")} </div>
             </RenderIf>

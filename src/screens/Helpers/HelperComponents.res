@@ -4,9 +4,9 @@ module CopyTextCustomComp = {
     ~displayValue,
     ~copyValue=None,
     ~customTextCss="",
-    ~customParentClass="flex items-center",
+    ~customParentClass="flex items-center justify-between",
     ~customOnCopyClick=() => (),
-    ~customIconColor="",
+    ~customIconCss="h-7 opacity-70",
   ) => {
     let showToast = ToastState.useShowToast()
 
@@ -29,7 +29,7 @@ module CopyTextCustomComp = {
           onClick={ev => {
             onCopyClick(ev)
           }}
-          className={`${customIconColor}`}
+          className={`${customIconCss}`}
         />
       </div>
     } else {
@@ -90,7 +90,9 @@ module EllipsisText = {
         </div>
       </RenderIf>
       <RenderIf condition={showCopy}>
-        <Icon name="nd-copy" className="cursor-pointer" onClick={ev => onCopyClick(ev)} />
+        <Icon
+          name="nd-copy" className="cursor-pointer opacity-70" onClick={ev => onCopyClick(ev)}
+        />
       </RenderIf>
     </div>
   }
@@ -181,7 +183,7 @@ module KeyAndCopyArea = {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
-        <Icon name="copy" customIconColor="rgb(156 163 175)" />
+        <Icon name="nd-copy" customIconColor="rgb(156 163 175)" />
         <p className="text-grey-700 opacity-50"> {"Copy"->React.string} </p>
       </div>
     </div>

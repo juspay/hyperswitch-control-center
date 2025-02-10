@@ -11,8 +11,10 @@ module GetProductionAccess = {
     let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
       GlobalProvider.defaultContext,
     )
+    let {globalUIConfig: {sidebarColor: {borderColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
     let isProdIntent = isProdIntentCompleted->Option.getOr(false)
-    let backgroundColor = isProdIntent ? "bg-light_green" : "bg-light_blue"
     let cursorStyles = isProdIntent ? "cursor-default" : "cursor-pointer"
     let productionAccessString = isProdIntent
       ? "Production Access Requested"
@@ -21,7 +23,7 @@ module GetProductionAccess = {
     switch isProdIntentCompleted {
     | Some(_) =>
       <div
-        className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 whitespace-nowrap rounded`}
+        className={`flex items-center gap-2 border ${borderColor} bg-white text-nd_gray-700  ${cursorStyles} px-3 py-10-px mb-4 whitespace-nowrap rounded-lg justify-between`}
         onClick={_ => {
           isProdIntent
             ? ()
@@ -30,11 +32,11 @@ module GetProductionAccess = {
                 mixpanelEvent(~eventName="get_production_access")
               }
         }}>
-        <div className={`text-white ${textStyles} !font-semibold`}>
+        <div className={`text-nd_gray-600 ${textStyles} !font-semibold`}>
           {productionAccessString->React.string}
         </div>
         <RenderIf condition={!isProdIntent}>
-          <Icon name="thin-right-arrow" customIconColor="text-white" size=20 />
+          <Icon name="nd-arrow-right" size=22 className="pt-2" />
         </RenderIf>
       </div>
     | None =>
@@ -50,7 +52,7 @@ module ProductHeaderComponent = {
   let make = () => {
     let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
 
-    <div className={`text-sm font-semibold px-3 pt-6 pb-2 text-nd_gray-400`}>
+    <div className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest`}>
       {React.string(currentProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
     </div>
   }
@@ -317,7 +319,6 @@ let analytics = (
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
-  Js.log(authenticationAnalyticsFlag)
   let links = [paymentAnalytcis, refundAnalytics]
   if authenticationAnalyticsFlag {
     links->Array.push(authenticationAnalytics)
@@ -715,19 +716,30 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {isLiveMode} = featureFlagDetails
+  let {isLiveMode, devModularityV2} = featureFlagDetails
 
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let defaultSidebar = [
-    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess),
-    CustomComponent({
-      component: <ProductHeaderComponent />,
-    }),
-  ]
+  let defaultSidebar = [productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess)]
+
+  if devModularityV2 {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "home",
+        link: "/v2/home",
+        access: Access,
+      }),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  }
+
   let sidebarValuesForProduct = switch currentProduct {
   | Orchestrator => hsSidebars
   | Recon => [ReconSidebarValues.reconSidebars]
-  | Recovery => [RevenueRecoverySidebarValues.recoverySidebars]
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
+  | Vault => VaultSidebarValues.vaultSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

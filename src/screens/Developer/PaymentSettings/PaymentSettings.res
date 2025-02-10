@@ -13,9 +13,8 @@ module InfoViewForWebhooks = {
       <div className="flex gap-2 break-all w-full items-start">
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
         <RenderIf condition={isCopy}>
-          <img
-            alt="copy-clipboard"
-            src={`/assets/CopyToClipboard.svg`}
+          <Icon
+            name="nd-copy"
             className="cursor-pointer"
             onClick={ev => {
               onCopyClick(ev)
@@ -262,10 +261,9 @@ module WebHookSection = {
             <DesktopRow>
               <div className="flex justify-end w-full gap-2">
                 <SubmitButton
-                  customSumbitButtonStyle="justify-start"
                   text="Update"
                   buttonType=Button.Primary
-                  buttonSize=Button.Small
+                  buttonSize=Button.Medium
                   disabledParamter={!allowEdit}
                 />
                 <Button
@@ -693,10 +691,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 <DesktopRow>
                   <div className="flex justify-end w-full gap-2">
                     <SubmitButton
-                      customSumbitButtonStyle="justify-start"
-                      text="Update"
-                      buttonType=Button.Primary
-                      buttonSize=Button.Small
+                      text="Update" buttonType=Button.Primary buttonSize=Button.Medium
                     />
                     <Button
                       buttonType=Button.Secondary

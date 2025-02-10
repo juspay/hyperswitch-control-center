@@ -865,7 +865,7 @@ module BaseSelect = {
         buttonType=Primary
         text="Apply"
         flattenTop=false
-        customButtonStyle="w-full items-center sticky bottom-0"
+        customButtonStyle="w-full items-center sticky bottom-0 !rounded-none"
         buttonState={applyBtnDisabled ? Disabled : Normal}
         onClick
       />
@@ -2162,7 +2162,7 @@ let make = (
   let newInputSelect = input->ffInputToSelectInput
   let newInputRadio = input->ffInputToRadioInput
 
-  let customButtonStyle = "!h-10"
+  let customButtonStyle = "bg-white rounded-lg !px-4 !py-2 !h-10"
 
   if isDropDown {
     <BaseDropdown

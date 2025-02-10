@@ -123,10 +123,10 @@ module CopyLinkTableCell = {
     ~displayValue: string,
     ~url,
     ~copyValue,
-    ~customParentClass="flex items-center gap-2",
+    ~customParentClass="flex items-center justify-between gap-2",
     ~customOnCopyClick=() => (),
-    ~customTextCss="",
-    ~endValue=30,
+    ~customTextCss="w-52 truncate whitespace-nowrap",
+    ~endValue=25,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let showToast = ToastState.useShowToast()
@@ -156,7 +156,7 @@ module CopyLinkTableCell = {
             condition={!isTextVisible &&
             displayValue->isNonEmptyString &&
             displayValue->String.length > endValue}>
-            <div className="flex text-nowrap gap-1">
+            <div className="flex text-nowrap gap-1 ">
               <p className="">
                 {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
               </p>
@@ -167,16 +167,15 @@ module CopyLinkTableCell = {
               </span>
             </div>
           </RenderIf>
-          <img
-            alt="CopyToClipboard"
-            src={`/assets/CopyToClipboard.svg`}
-            className="cursor-pointer opacity-70 hover:opacity-100 py-1"
+          <Icon
+            name="nd-copy"
+            className="cursor-pointer opacity-70 h-7 py-1"
             onClick={ev => {
               onCopyClick(ev)
             }}
           />
           <a
-            className="opacity-70 hover:opacity-100 py-1"
+            className="opacity-70 py-1"
             href={GlobalVars.appendDashboardPath(~url)}
             onClick={ev => ev->ReactEvent.Mouse.stopPropagation}
             target="_blank">

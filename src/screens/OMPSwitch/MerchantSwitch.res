@@ -138,7 +138,9 @@ let make = () => {
   )
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
-
+  let {
+    globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, borderColor}},
+  } = React.useContext(ThemeProvider.themeContext)
   let getMerchantList = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
@@ -178,10 +180,9 @@ let make = () => {
     checked: true,
   }
 
-  let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
-  let addItemBtnStyle = "border border-t-0 w-full"
-  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
-  let dropdownContainerStyle = "rounded-md border border-1 w-[14rem] max-w-[20rem]"
+  let addItemBtnStyle = `w-full ${borderColor} border-t-0`
+  let customScrollStyle = `max-h-72 overflow-scroll px-1 pt-1 ${borderColor}`
+  let dropdownContainerStyle = `rounded-md border border-1 w-[14rem] ${borderColor} max-w-[20rem]`
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
@@ -196,25 +197,41 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
+  let updatedMerchantList: array<
+    OMPSwitchTypes.ompListTypesCustom,
+  > = merchantList->Array.mapWithIndex((item, i) => {
+    let customComponent =
+      <MerchantDropdownItem
+        key={Int.toString(i)} merchantName=item.name index=i currentId=item.id
+      />
+    let listItem: OMPSwitchTypes.ompListTypesCustom = {
+      id: item.id,
+      name: item.name,
+      customComponent,
+    }
+    listItem
+  })
   <div className="w-fit">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
       input
       deselectDisable=true
-      customButtonStyle="!rounded-md"
-      options={merchantList->generateDropdownOptions}
-      marginTop="mt-14"
+      options={updatedMerchantList->generateDropdownOptionsCustomComponent}
+      marginTop={`mt-8 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true
       addButton=false
-      customStyle="rounded w-fit"
+      customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
       searchable=false
-      baseComponent={<ListBaseComp heading="Merchant" subHeading arrow />}
-      baseComponentCustomStyle="bg-white rounded"
-      bottomComponent={<AddNewOMPButton user=#Merchant setShowModal customStyle addItemBtnStyle />}
-      optionClass="text-gray-600 text-fs-14"
-      selectClass="text-gray-600 text-fs-14"
-      customDropdownOuterClass="!border-none w-fit"
+      baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
+      baseComponentCustomStyle={`!border-none`}
+      bottomComponent={<AddNewOMPButton
+        user=#Merchant
+        setShowModal
+        customStyle={`${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`}
+        addItemBtnStyle
+        customHRTagStyle={`${borderColor}`}
+      />}
       toggleChevronState
       customScrollStyle
       dropdownContainerStyle
