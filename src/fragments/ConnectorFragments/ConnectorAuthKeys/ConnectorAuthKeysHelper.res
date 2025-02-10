@@ -297,6 +297,14 @@ module ConnectorConfigurationFields = {
           selectedConnector
         />
       }}
+      <RenderConnectorInputFields
+        details={connectorWebHookDetails}
+        name={"connector_webhook_details"}
+        checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
+        connector
+        selectedConnector
+      />
+
       // <RenderConnectorInputFields
       //   details={connectorLabelDetailField}
       //   name={"connector_label"}

@@ -70,28 +70,23 @@ let make = () => {
   }, [connector])
   let labelFieldDict = ConnectorAuthKeyUtils.connectorLabelDetailField
   let label = labelFieldDict->getString("connector_label", "")
+  let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
   let connectorName = connectorInfo.connector_name->getDisplayNameForConnector
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
-
-  let getPreviousStep = (currentStep: step): option<step> => {
-    findPreviousStep(sections, currentStep)
-  }
-
-  let onPreviousClick = () => {
-    switch getPreviousStep(currentStep) {
-    | Some(previousStep) => setNextStep(_ => previousStep)
-    | None => ()
-    }
-  }
+  let activeBusinessProfile =
+    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     // TODO: Refactor for generic case
     initialValuesToDict->Dict.set("connector_name", `${connector}`->JSON.Encode.string)
-    initialValuesToDict->Dict.set("connector_label", `${connector}_dakjfhsod`->JSON.Encode.string)
+    initialValuesToDict->Dict.set(
+      "connector_label",
+      `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+    )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
 
@@ -144,6 +139,50 @@ let make = () => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/vault/onboarding"))
     setShowSideBar(_ => true)
   }
+  let connectorDetails = React.useMemo(() => {
+    try {
+      if connector->isNonEmptyString {
+        let dict = Window.getConnectorConfig(connector)
+
+        dict
+      } else {
+        Dict.make()->JSON.Encode.object
+      }
+    } catch {
+    | Exn.Error(e) => {
+        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
+        Dict.make()->JSON.Encode.object
+      }
+    }
+  }, [selectedConnector])
+  let (
+    bodyType,
+    connectorAccountFields,
+    connectorMetaDataFields,
+    isVerifyConnector,
+    connectorWebHookDetails,
+    connectorLabelDetailField,
+    connectorAdditionalMerchantData,
+  ) = getConnectorFields(connectorDetails)
+
+  let validateMandatoryField = values => {
+    let errors = Dict.make()
+    let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
+    let profileId = valuesFlattenJson->getString("profile_id", "")
+    if profileId->String.length === 0 {
+      Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
+    }
+
+    validateConnectorRequiredFields(
+      connectorTypeFromName,
+      valuesFlattenJson,
+      connectorAccountFields,
+      connectorMetaDataFields,
+      connectorWebHookDetails,
+      connectorLabelDetailField,
+      errors->JSON.Encode.object,
+    )
+  }
 
   <div className="flex flex-row gap-x-6">
     <VerticalStepIndicator
@@ -156,14 +195,14 @@ let make = () => {
     {switch currentStep {
     | {sectionId: "authenticate-processor"} =>
       <>
-        <div className=" flex flex-col w-1/2 px-10 ">
+        <div className="flex flex-col w-1/2 px-10 ">
           <PageUtils.PageHeading
             title="Authenticate Processor"
             subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
             customSubTitleStyle="font-500 font-normal text-gray-800"
           />
           <PageLoaderWrapper screenState>
-            <Form onSubmit initialValues>
+            <Form onSubmit initialValues validate=validateMandatoryField>
               <div className="mb-[24px] ">
                 <ConnectorAuthKeys
                   initialValues={updatedInitialVal} setInitialValues showVertically=true
