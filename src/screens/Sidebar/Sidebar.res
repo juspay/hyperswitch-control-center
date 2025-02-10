@@ -513,9 +513,9 @@ let make = (
     | true =>
       switch isMobileView {
       | true => "100%"
-      | false => "250px"
+      | false => "275px"
       }
-    | false => "250px"
+    | false => "275px"
     }
   }
   let profileMaxWidth = "130px"
@@ -561,7 +561,7 @@ let make = (
 
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
 
-  let sidebarContainerClassWidth = isMobileView ? "0px" : "300px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : "325px"
 
   let transformClass = "transform md:translate-x-0 transition"
 
