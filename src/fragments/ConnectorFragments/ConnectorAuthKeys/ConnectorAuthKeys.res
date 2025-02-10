@@ -11,7 +11,6 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
   }, [connector])
-  
 
   let connectorDetails = React.useMemo(() => {
     try {
