@@ -2,7 +2,7 @@ open HeadlessUI
 open SidebarTypes
 
 let defaultLinkSelectionCheck = (firstPart, tabLink) => {
-  firstPart === tabLink
+  firstPart->LogicUtils.removeTrailingSlash === tabLink->LogicUtils.removeTrailingSlash
 }
 
 let getIconSize = buttonType => {
@@ -36,7 +36,7 @@ module MenuOption = {
 
 module SidebarOption = {
   @react.component
-  let make = (~isSidebarExpanded, ~name, ~icon, ~isSelected) => {
+  let make = (~isSidebarExpanded, ~name, ~icon, ~isSelected, ~selectedIcon=icon) => {
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
@@ -44,14 +44,14 @@ module SidebarOption = {
       ? `${primaryTextColor} font-semibold`
       : `${secondaryTextColor} font-medium  `
     let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor}  `
-
+    let iconName = isSelected ? selectedIcon : icon
     if isSidebarExpanded {
       <div className="flex items-center gap-5">
-        <Icon size={getIconSize("small")} name=icon className=iconColor />
+        <Icon size=18 name=iconName className=iconColor />
         <div className={`text-sm ${textBoldStyles} whitespace-nowrap`}> {React.string(name)} </div>
       </div>
     } else {
-      <Icon size={getIconSize("small")} name=icon className=iconColor />
+      <Icon size=18 name=iconName className=iconColor />
     }
   }
 }
@@ -72,7 +72,7 @@ module SidebarSubOption = {
           : "mx-1"} border-light_grey `}>
       <div className="w-6" />
       <div
-        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 flex items-center ${hoverColor} whitespace-nowrap my-0.5 rounded-md`}>
+        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 flex items-center ${hoverColor} whitespace-nowrap my-0.5 rounded-lg`}>
         {React.string(name)}
         {children}
       </div>
@@ -96,9 +96,9 @@ module SidebarItem = {
       globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let selectedClass = if isSelected {
-      `border-l-2 border-white ${hoverColor}`
+      ` ${hoverColor}`
     } else {
-      `border-l-2  border-transparent hover:transition hover:duration-300 `
+      ` hover:transition hover:duration-300 `
     }
 
     let textColor = if isSelected {
@@ -113,7 +113,7 @@ module SidebarItem = {
 
     let tabLinklement = switch tabInfo {
     | Link(tabOption) => {
-        let {name, icon, link, access} = tabOption
+        let {name, icon, link, access, ?selectedIcon} = tabOption
         let redirectionLink = `${link}${getSearchParamByLink(link)}`
 
         let onSidebarItemClick = _ => {
@@ -121,7 +121,6 @@ module SidebarItem = {
           setOpenItem(prev => {prev == name ? "" : name})
           onItemClickCustom()
         }
-
         <RenderIf condition={access !== NoAccess}>
           <Link to_={GlobalVars.appendDashboardPath(~url=redirectionLink)}>
             <AddDataAttributes
@@ -131,10 +130,14 @@ module SidebarItem = {
               <div
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
                 onClick={onSidebarItemClick}
-                className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer ${selectedClass} p-3 ${isSidebarExpanded
+                className={`${textColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer ${selectedClass} p-3 ${isSidebarExpanded
                     ? ""
                     : "mx-1"} ${hoverColor} my-0.5 `}>
-                <SidebarOption name icon isSidebarExpanded isSelected />
+                {switch selectedIcon {
+                | Some(selectedIcon) =>
+                  <SidebarOption name icon isSidebarExpanded isSelected selectedIcon />
+                | None => <SidebarOption name icon isSidebarExpanded isSelected />
+                }}
               </div>
             </AddDataAttributes>
           </Link>
@@ -142,7 +145,7 @@ module SidebarItem = {
       }
 
     | RemoteLink(tabOption) => {
-        let {name, icon, link, access, ?remoteIcon} = tabOption
+        let {name, icon, link, access, ?remoteIcon, ?selectedIcon} = tabOption
         let (remoteUi, link) = if remoteIcon->Option.getOr(false) {
           (<Icon name="external-link-alt" size=14 className="ml-3" />, link)
         } else {
@@ -153,7 +156,11 @@ module SidebarItem = {
             href={link}
             target="_blank"
             className={`${textColor} flex flex-row items-center cursor-pointer ${selectedClass} p-3`}>
-            <SidebarOption name icon isSidebarExpanded isSelected />
+            {switch selectedIcon {
+            | Some(selectedIcon) =>
+              <SidebarOption name icon isSidebarExpanded isSelected selectedIcon />
+            | None => <SidebarOption name icon isSidebarExpanded isSelected />
+            }}
             remoteUi
           </a>
         </RenderIf>
@@ -202,7 +209,7 @@ module NestedSidebarItem = {
     let selectedClass = if isSelected {
       "font-semibold mx-1"
     } else {
-      `font-medium mx-1 rounded-sm hover:transition hover:duration-300`
+      `font-medium mx-1 rounded-lg hover:transition hover:duration-300`
     }
 
     let textColor = if isSelected {
@@ -278,7 +285,7 @@ module NestedSectionItem = {
     let iconColor = isAnySubItemSelected ? `${primaryTextColor}` : `${secondaryTextColor}  `
 
     let iconOuterClass = if !isSideBarExpanded {
-      `${isAnySubItemSelected ? "" : ""} rounded-sm p-4 rounded-lg`
+      `${isAnySubItemSelected ? "" : ""} rounded-lg p-4 rounded-lg`
     } else {
       ""
     }
@@ -291,7 +298,10 @@ module NestedSectionItem = {
 
     let sidebarNestedSectionRef = React.useRef(Nullable.null)
 
-    let sectionExpandedAnimation = `rounded-sm transition duration-[250ms] ease-in-out`
+    let sectionExpandedAnimation = `rounded-lg transition duration-[250ms] ease-in-out`
+    let iconName = isAnySubItemSelected
+      ? section.selectedIcon->Option.getOr(section.icon)
+      : section.icon
 
     <AddDataAttributes
       attributes=[
@@ -302,19 +312,17 @@ module NestedSectionItem = {
           ref={sidebarNestedSectionRef->ReactDOM.Ref.domRef}
           className={`${isSideBarExpanded
               ? ""
-              : "mx-1"} text-sm ${textColor} ${bgColor} relative overflow-hidden flex flex-row items-center justify-between p-3 ${cursor} ${isSectionExpanded
+              : "mx-1"} text-sm ${textColor} ${bgColor} relative overflow-hidden flex flex-row items-center justify-between p-3 rounded-lg ${cursor} ${isSectionExpanded
               ? ""
-              : sectionExpandedAnimation} border-l-2 ${isAnySubItemSelected
-              ? "border-white"
-              : "border-transparent"} ${hoverColor} `}
+              : sectionExpandedAnimation} ${hoverColor} `}
           onClick=toggleSectionExpansion>
           <div className="flex-row items-center select-none min-w-max flex  gap-5">
             {if isSideBarExpanded {
               <div className=iconOuterClass>
-                <Icon size={getIconSize("medium")} name={section.icon} className=iconColor />
+                <Icon size=18 name=iconName className=iconColor />
               </div>
             } else {
-              <Icon size={getIconSize("small")} name=section.icon className=iconColor />
+              <Icon size=18 name=iconName className=iconColor />
             }}
             <RenderIf condition={isSideBarExpanded}>
               <div className={`text-sm ${expandedTextColor} whitespace-nowrap`}>
@@ -505,12 +513,12 @@ let make = (
     | true =>
       switch isMobileView {
       | true => "100%"
-      | false => "275px"
+      | false => "250px"
       }
-    | false => "275px"
+    | false => "250px"
     }
   }
-  let profileMaxWidth = "145px"
+  let profileMaxWidth = "130px"
 
   let level3 = tail => {
     switch List.tail(tail) {
@@ -553,7 +561,7 @@ let make = (
 
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
 
-  let sidebarContainerClassWidth = isMobileView ? "0px" : "335px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : "300px"
 
   let transformClass = "transform md:translate-x-0 transition"
 
@@ -651,7 +659,7 @@ let make = (
               | Heading(headingOptions) =>
                 <div
                   key={Int.toString(index)}
-                  className={`text-xs font-medium leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isSidebarExpanded
+                  className={`text-xs font-medium leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-lg border-transparent px-3 ${isSidebarExpanded
                       ? "mx-2"
                       : "mx-1"} mt-5 mb-3`}>
                   {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
@@ -705,42 +713,43 @@ let make = (
             </div>
           </RenderIf>
         </div>
-        <div className={`flex items-center justify-between p-3 ${hoverColor}`}>
+        <div
+          className={`flex items-center justify-between p-3 border-t ${borderColor} ${hoverColor}`}>
           <RenderIf condition={isSidebarExpanded}>
             <Popover className="relative inline-block text-left">
               {popoverProps => <>
                 <Popover.Button
                   className={
                     let openClasses = if popoverProps["open"] {
-                      `group pl-3 border py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                      `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
                     } else {
-                      `text-opacity-90 group pl-3 border py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                      `text-opacity-90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
                     }
                     `${openClasses} border-none`
                   }>
                   {_ => <>
-                    <div className="flex items-center">
-                      <div
-                        className="inline-block text-offset_white bg-profile-sidebar-blue text-center w-10 h-10 leading-10 rounded-full mr-4">
-                        {email->String.charAt(0)->String.toUpperCase->React.string}
+                    <div className="flex items-center justify-between gap-x-3  ">
+                      <div className="bg-nd_gray-600 rounded-full p-1">
+                        <Icon name="nd-user" size=16 />
                       </div>
                       <ToolTip
                         description=email
                         toolTipFor={<RenderIf condition={isSidebarExpanded}>
                           <div
-                            className={`w-[${profileMaxWidth}] text-sm font-medium ${secondaryTextColor} dark:text-gray-600 text-ellipsis overflow-hidden`}>
+                            className={`w-[${profileMaxWidth}] text-sm font-medium text-left ${secondaryTextColor} dark:text-gray-600 text-ellipsis overflow-hidden`}>
                             {email->React.string}
                           </div>
                         </RenderIf>}
                         toolTipPosition=ToolTip.Top
                         tooltipWidthClass="!w-fit !z-50"
                       />
-                    </div>
-                    <div
-                      className={`flex flex-row border-transparent dark:border-transparent rounded-2xl p-2 border-2`}>
-                      <Icon
-                        name="dropdown-menu" className={`cursor-pointer ${secondaryTextColor}`}
-                      />
+                      <div className={`flex flex-row`}>
+                        <Icon
+                          name="nd-dropdown-menu"
+                          size=18
+                          className={`cursor-pointer ${secondaryTextColor}`}
+                        />
+                      </div>
                     </div>
                   </>}
                 </Popover.Button>
@@ -752,7 +761,7 @@ let make = (
                   leave={"transition ease-in duration-150"}
                   leaveFrom="opacity-100 translate-y-0"
                   leaveTo="opacity-0 translate-y-1">
-                  <Popover.Panel className={`absolute !z-30 bottom-[100%] right-2`}>
+                  <Popover.Panel className={`absolute !z-30 bottom-[100%] left-1 `}>
                     {panelProps => {
                       <div
                         id="neglectTopbarTheme"
