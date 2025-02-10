@@ -18,7 +18,6 @@ module BaseTableComponent = {
     ~activeTab as _,
   ) => {
     open DynamicTableUtils
-
     let (offset, setOffset) = React.useState(_ => 0)
     let (_, setCounter) = React.useState(_ => 1)
     let refetch = React.useCallback(_ => {
@@ -386,7 +385,6 @@ module TabDetails = {
   ) => {
     open AnalyticsTypes
     let analyticsType = moduleName->getAnalyticsType
-
     let id =
       activeTab
       ->Option.getOr(["tab"])
@@ -396,14 +394,13 @@ module TabDetails = {
 
     let wrapperClass = React.useMemo(() =>
       switch analyticsType {
-      | AUTHENTICATION | USER_JOURNEY =>
-        `h-auto basis-full mt-4 ${isMobileView ? "w-full" : "w-1/2"}`
+      | AUTHENTICATION => `h-auto basis-full mt-4 ${isMobileView ? "w-full" : "w-1/2"}`
       | _ => "bg-white border rounded-lg p-8 mt-3 mb-7"
       }
     , [isMobileView])
 
     let tabTitleMapper = switch analyticsType {
-    | AUTHENTICATION | USER_JOURNEY =>
+    | AUTHENTICATION =>
       [
         ("browser_name", "browser"),
         ("component", "checkout_platform"),
@@ -413,7 +410,7 @@ module TabDetails = {
     }
 
     let comparitionWidget = switch analyticsType {
-    | AUTHENTICATION | USER_JOURNEY => false
+    | AUTHENTICATION => false
     | _ => true
     }
 
@@ -425,10 +422,10 @@ module TabDetails = {
           chartId=moduleName
           updateUrl
           enableBottomChart=false
-          tabTitleMapper
           showTableLegend=false
           showMarkers=true
           legendType=HighchartTimeSeriesChart.Points
+          tabTitleMapper
           comparitionWidget
         />
         {switch tableEntity {
@@ -453,9 +450,8 @@ module TabDetails = {
         | None => React.null
         }}
       </div>
-
     switch analyticsType {
-    | AUTHENTICATION | USER_JOURNEY => tab
+    | AUTHENTICATION => tab
     | _ => <FramerMotion.TransitionComponent id={id}> {tab} </FramerMotion.TransitionComponent>
     }
   }
@@ -612,18 +608,15 @@ let make = (
       ->Array.filter(item => item->LogicUtils.isNonEmptyString),
     )
   }, [filterValueDict])
-
   let isMobileView = MatchMedia.useMobileChecker()
 
   let tabDetailsClass = React.useMemo(() => {
     isMobileView ? "flex flex-col gap-4 my-4" : "flex flex-row gap-4 my-4"
   }, [isMobileView])
-
   let topFilterUi = switch filterDataJson {
   | Some(filterData) => {
       let filterData = switch analyticsType {
-      | AUTHENTICATION
-      | USER_JOURNEY => {
+      | AUTHENTICATION => {
           let filteredDims = ["payment_method", "payment_experience", "source"]
           let queryData =
             filterData
@@ -704,7 +697,7 @@ let make = (
           </div>
           <div className="flex flex-row">
             {switch analyticsType {
-            | AUTHENTICATION | USER_JOURNEY =>
+            | AUTHENTICATION =>
               <div className="flex flex-col bg-transparent w-full h-max">
                 {switch funnelChartEntity {
                 | Some(funnelChartEntity) =>
@@ -732,29 +725,6 @@ let make = (
                 | None => React.null
                 }}
                 <div className={tabDetailsClass}>
-                  {switch analyticsType {
-                  | USER_JOURNEY =>
-                    <TabDetails
-                      chartEntity={chartEntity}
-                      activeTab={Some(["payment_method"])}
-                      defaultSort
-                      getTable
-                      colMapper
-                      tableEntity
-                      deltaMetrics
-                      distributionArray
-                      deltaArray
-                      tableUpdatedHeading
-                      tableGlobalFilter
-                      moduleName
-                      updateUrl={dict => {
-                        let updateUrlWithPrefix = updateUrlWithPrefix("")
-                        updateUrlWithPrefix(dict)
-                      }}
-                      weeklyTableMetricsCols
-                    />
-                  | _ => React.null
-                  }}
                   {switch barChartEntity {
                   | Some(barChartEntity) =>
                     <TabDetails

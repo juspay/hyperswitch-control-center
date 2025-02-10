@@ -49,7 +49,7 @@ let paymentsProcessedMapper = (
     text: "Payments Processed",
   }
 
-  open NewAnalyticsTypes
+  open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
   | Payment_Processed_Amount => Amount
   | _ => Volume
@@ -141,8 +141,6 @@ let dropDownOptions = [
   {label: "By Count", value: Payment_Processed_Count->getStringFromVariant},
 ]
 
-let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
-
 let defaultMetric = {
   label: "By Amount",
   value: Payment_Processed_Amount->getStringFromVariant,
@@ -155,7 +153,6 @@ let defaulGranularity = {
 
 open NewAnalyticsTypes
 let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
-  open NewAnalyticsFiltersUtils
   let key = switch id {
   | Time_Bucket => #time_bucket
   | Payment_Processed_Count =>
@@ -203,18 +200,17 @@ let modifyQueryData = (data, ~isSmartRetryEnabled, ~currency) => {
     let valueDict = item->getDictFromJsonObject
     let time = valueDict->getString(Time_Bucket->getStringFromVariant, "")
 
+    let paymentProcessedCount =
+      valueDict->getInt(Payment_Processed_Count->getKey(~isSmartRetryEnabled), 0)
+
+    let paymentProcessedAmount =
+      valueDict->getFloat(Payment_Processed_Amount->getKey(~currency, ~isSmartRetryEnabled), 0.0)
+
     switch dataDict->Dict.get(time) {
     | Some(prevVal) => {
-        let paymentProcessedCount =
-          valueDict->getInt(Payment_Processed_Count->getKey(~isSmartRetryEnabled), 0)
         let key = Payment_Processed_Count->getStringFromVariant
         let prevProcessedCount = prevVal->getInt(key, 0)
 
-        let paymentProcessedAmount =
-          valueDict->getFloat(
-            Payment_Processed_Amount->getKey(~currency, ~isSmartRetryEnabled),
-            0.0,
-          )
         let key = Payment_Processed_Amount->getStringFromVariant
         let prevProcessedAmount = prevVal->getFloat(key, 0.0)
 
@@ -232,7 +228,18 @@ let modifyQueryData = (data, ~isSmartRetryEnabled, ~currency) => {
 
         dataDict->Dict.set(time, prevVal)
       }
-    | None => dataDict->Dict.set(time, valueDict)
+    | None => {
+        valueDict->Dict.set(
+          Payment_Processed_Count->getStringFromVariant,
+          paymentProcessedCount->JSON.Encode.int,
+        )
+        valueDict->Dict.set(
+          Payment_Processed_Amount->getStringFromVariant,
+          paymentProcessedAmount->JSON.Encode.float,
+        )
+
+        dataDict->Dict.set(time, valueDict)
+      }
     }
   })
 

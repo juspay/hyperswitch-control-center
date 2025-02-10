@@ -33,8 +33,8 @@ module CantFindProcessor = {
           userHasAccess(~groupAccess=AccountManage),
         )}
         text="Request a Processor"
-        buttonType={Transparent}
-        buttonSize={Small}
+        buttonType={Secondary}
+        buttonSize={Large}
         textStyle="text-jp-gray-900"
         onClick={_ => setShowModal(_ => true)}
         leftIcon={CustomIcon(
@@ -134,8 +134,8 @@ let make = (
               />,
             )}
             text="Connect a Dummy Processor"
-            buttonType={Transparent}
-            buttonSize={Small}
+            buttonType={Secondary}
+            buttonSize={Large}
             textStyle="text-jp-gray-900"
             onClick={_ => setProcessorModal(_ => true)}
           />
@@ -172,7 +172,7 @@ let make = (
                 authorization={userHasAccess(~groupAccess=ConnectorsManage)}
                 text="Connect"
                 onClick={_ => handleClick(connectorName)}
-                buttonType={Transparent}
+                buttonType={Secondary}
                 buttonSize={Small}
                 textStyle="text-jp-gray-900"
                 leftIcon={CustomIcon(

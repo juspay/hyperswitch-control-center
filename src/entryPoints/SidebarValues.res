@@ -11,8 +11,10 @@ module GetProductionAccess = {
     let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
       GlobalProvider.defaultContext,
     )
+    let {globalUIConfig: {sidebarColor: {borderColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
     let isProdIntent = isProdIntentCompleted->Option.getOr(false)
-    let backgroundColor = isProdIntent ? "bg-light_green" : "bg-light_blue"
     let cursorStyles = isProdIntent ? "cursor-default" : "cursor-pointer"
     let productionAccessString = isProdIntent
       ? "Production Access Requested"
@@ -21,7 +23,7 @@ module GetProductionAccess = {
     switch isProdIntentCompleted {
     | Some(_) =>
       <div
-        className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 m-2 ml-2 mb-3 !mx-4 whitespace-nowrap rounded`}
+        className={`flex items-center gap-2 border ${borderColor} bg-white text-nd_gray-700  ${cursorStyles} px-3 py-10-px mb-4 whitespace-nowrap rounded-lg justify-between`}
         onClick={_ => {
           isProdIntent
             ? ()
@@ -30,11 +32,11 @@ module GetProductionAccess = {
                 mixpanelEvent(~eventName="get_production_access")
               }
         }}>
-        <div className={`text-white ${textStyles} !font-semibold`}>
+        <div className={`text-nd_gray-600 ${textStyles} !font-semibold`}>
           {productionAccessString->React.string}
         </div>
         <RenderIf condition={!isProdIntent}>
-          <Icon name="thin-right-arrow" customIconColor="text-white" size=20 />
+          <Icon name="nd-arrow-right" size=22 className="pt-2" />
         </RenderIf>
       </div>
     | None =>
@@ -45,6 +47,16 @@ module GetProductionAccess = {
   }
 }
 
+module ProductHeaderComponent = {
+  @react.component
+  let make = () => {
+    let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
+
+    <div className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest`}>
+      {React.string(currentProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
+    </div>
+  }
+}
 let emptyComponent = CustomComponent({
   component: React.null,
 })
@@ -67,7 +79,7 @@ let home = isHomeEnabled =>
   isHomeEnabled
     ? Link({
         name: "Home",
-        icon: "hswitch-home",
+        icon: "nd-home",
         link: "/home",
         access: Access,
       })
@@ -138,7 +150,7 @@ let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled
   isOperationsEnabled
     ? Section({
         name: "Operations",
-        icon: "hswitch-operations",
+        icon: "nd-operations",
         showSection: true,
         links,
       })
@@ -250,7 +262,7 @@ let connectors = (
   isConnectorsEnabled
     ? Section({
         name: "Connectors",
-        icon: "connectors",
+        icon: "nd-connectors",
         showSection: true,
         links: connectorLinkArray,
       })
@@ -291,16 +303,26 @@ let refundAnalytics = SubLevelLink({
   access: Access,
   searchOptions: [("View analytics", "")],
 })
+let authenticationAnalytics = SubLevelLink({
+  name: "Authentication",
+  link: `/analytics-authentication`,
+  access: Access,
+  iconTag: "betaTag",
+  searchOptions: [("View analytics", "")],
+})
 
 let analytics = (
   isAnalyticsEnabled,
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
+  ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
   let links = [paymentAnalytcis, refundAnalytics]
-
+  if authenticationAnalyticsFlag {
+    links->Array.push(authenticationAnalytics)
+  }
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
   }
@@ -316,7 +338,7 @@ let analytics = (
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
-        icon: "analytics",
+        icon: "nd-analytics",
         showSection: userHasResourceAccess(~resourceAccess=Analytics) === CommonAuthTypes.Access,
         links,
       })
@@ -395,7 +417,7 @@ let workflow = (
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
-        icon: "3ds",
+        icon: "nd-workflow",
         showSection: true,
         links: defaultWorkFlow,
       })
@@ -465,7 +487,7 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
 
   Section({
     name: "Settings",
-    icon: "hswitch-settings",
+    icon: "nd-settings",
     showSection: true,
     links: settingsLinkArray,
   })
@@ -480,16 +502,6 @@ let apiKeys = userHasResourceAccess => {
   })
 }
 
-let systemMetric = userHasResourceAccess => {
-  SubLevelLink({
-    name: "System Metrics",
-    link: `/developer-system-metrics`,
-    access: userHasResourceAccess(~resourceAccess=Analytics),
-    iconTag: "betaTag",
-    searchOptions: [("View System Metrics", "")],
-  })
-}
-
 let paymentSettings = userHasResourceAccess => {
   SubLevelLink({
     name: "Payment Settings",
@@ -499,18 +511,13 @@ let paymentSettings = userHasResourceAccess => {
   })
 }
 
-let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity, ~roleId) => {
-  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
-  let systemMetric = systemMetric(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
 
-  if isInternalUser {
-    defaultDevelopersOptions->Array.push(systemMetric)
-  }
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
   }
@@ -518,7 +525,7 @@ let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity,
   isDevelopersEnabled
     ? Section({
         name: "Developers",
-        icon: "developer",
+        icon: "nd-developers",
         showSection: true,
         links: defaultDevelopersOptions,
       })
@@ -622,13 +629,10 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
   }
 }
 
-let useGetSidebarValues = (~isReconEnabled: bool) => {
+let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {userEntity, roleId}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {
     frm,
     payOut,
@@ -644,6 +648,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     pmAuthenticationProcessor,
     taxProcessor,
     newAnalytics,
+    authenticationAnalytics,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -652,7 +657,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let isNewAnalyticsEnable =
     newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
-    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess),
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(
@@ -668,6 +672,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       disputeAnalytics,
       performanceMonitorFlag,
       isNewAnalyticsEnable,
+      ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
     ),
     default->workflow(
@@ -677,9 +682,41 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~userEntity,
     ),
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(~userHasResourceAccess, ~checkUserEntity, ~roleId),
+    default->developers(~userHasResourceAccess, ~checkUserEntity),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
   sidebar
+}
+
+let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
+  let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {isLiveMode, devModularityV2} = featureFlagDetails
+
+  let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
+  let defaultSidebar = [productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess)]
+
+  if devModularityV2 {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "home",
+        link: "/v2/home",
+        access: Access,
+      }),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  }
+
+  let sidebarValuesForProduct = switch currentProduct {
+  | Orchestrator => hsSidebars
+  | Recon => [ReconSidebarValues.reconSidebars]
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
+  | Vault => VaultSidebarValues.vaultSidebars
+  }
+  defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

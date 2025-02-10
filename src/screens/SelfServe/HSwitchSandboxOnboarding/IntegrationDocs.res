@@ -93,7 +93,6 @@ module RequestPage = {
         buttonType={Primary}
         onClick={_ => handleButtonClick()}
         buttonState={isSubmitButtonEnabled ? Normal : Disabled}
-        customButtonStyle="!rounded-md"
       />
     </div>
   }

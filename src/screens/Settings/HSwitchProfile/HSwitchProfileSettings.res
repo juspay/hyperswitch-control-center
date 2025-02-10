@@ -175,7 +175,7 @@ module TwoFactorAuthenticationDetails = {
           </p>
           <Button
             text="Edit"
-            buttonSize={XSmall}
+            buttonSize=Small
             onClick={_ => {
               RescriptReactRouter.push(
                 GlobalVars.appendDashboardPath(
@@ -195,7 +195,7 @@ module TwoFactorAuthenticationDetails = {
           </p>
           <Button
             text="Edit"
-            buttonSize={XSmall}
+            buttonSize=Small
             onClick={_ => {
               RescriptReactRouter.push(
                 GlobalVars.appendDashboardPath(

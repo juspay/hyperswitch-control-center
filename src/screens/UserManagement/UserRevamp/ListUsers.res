@@ -19,6 +19,10 @@ let make = () => {
     setUserModuleEntity,
   ) = React.useState(_ => #Default)
 
+  let sortByEmail = (email1, email2) => {
+    compareLogic(email2, email1)
+  }
+
   let getUserData = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {
@@ -32,6 +36,7 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
+      userData->Array.sort(sortByEmail)
       setUsersData(_ => userData->Array.map(Nullable.make))
       setUsersFilterData(_ => userData->Array.map(Nullable.make))
       setUserModuleEntity(_ => userModuleEntity)
@@ -73,11 +78,11 @@ let make = () => {
           authorization={userHasAccess(~groupAccess=UsersManage)}
           text={"Invite users"}
           buttonType=Primary
+          buttonSize={Medium}
           onClick={_ => {
             mixpanelEvent(~eventName="invite_users")
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users/invite-users"))
           }}
-          customButtonStyle="!w-fit !rounded-md"
         />
       </div>
       <LoadedTable
@@ -101,12 +106,10 @@ let make = () => {
         currrentFetchCount={usersFilterData->Array.length}
         collapseTableRow=false
         tableheadingClass="h-12"
-        customBorderClass="border !rounded-xl"
         tableHeadingTextClass="!font-normal"
-        tableBorderClass="!border-none"
-        nonFrozenTableParentClass="!rounded-xl"
+        nonFrozenTableParentClass="!rounded-lg"
         showSerialNumber=false
-        loadedTableParentClass="flex flex-col gap-4"
+        loadedTableParentClass="flex flex-col"
       />
     </div>
   </PageLoaderWrapper>

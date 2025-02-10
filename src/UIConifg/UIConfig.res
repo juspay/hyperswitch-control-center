@@ -86,6 +86,7 @@ module SidebarConfig = {
     primaryTextColor: string,
     secondaryTextColor: string,
     hoverColor: string,
+    borderColor: string,
   }
 }
 
@@ -129,17 +130,17 @@ let defaultUIConfig: t = {
       borderSecondaryBorderStyleClass: "border-border_gray border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100",
     },
     backgroundColor: {
-      primaryNormal: "bg-button-primary-bg  hover:bg-button-primary-hoverbg focus:outline-none",
-      primaryDisabled: "bg-button-primary-bg  opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
+      primaryNormal: "border-1.5 border-double border-transparent text-button-primary-text primary-gradient-button",
+      primaryDisabled: "bg-button-primary-bg primary-gradient-button opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 dark:border-jp-gray-disabled_border dark:border-opacity-50",
       primaryNoHover: "bg-button-primary-bg  hover:bg-button-primary-hoverbg focus:outline-none dark:text-opacity-50 text-opacity-50",
       primaryLoading: "bg-button-primary-bg ",
-      primaryOutline: "mix-blend-normal",
-      paginationNormal: "border-left-1 opacity-80 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 focus:outline-none",
+      primaryOutline: "mix-blend-normal border-primary",
+      paginationNormal: "font-medium border-transparent text-nd_gray-500  focus:outline-none text-nd_gray-500",
       paginationLoading: "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10",
-      paginationDisabled: "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
-      paginationNoHover: "bg-white border-left-1 border-right-1 font-normal text-jp-gray-900 text-opacity-75 hover:text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75",
+      paginationDisabled: "border-left-1 border-right-1 font-normal border-left-1  dark:bg-jp-gray-950 dark:bg-opacity-50  dark:border-jp-gray-disabled_border dark:border-opacity-50",
+      paginationNoHover: "font-medium text-primary text-opacity-1 hover:text-opacity-70 bg-primary bg-opacity-10 border-transparent font-medium  dark:text-jp-gray-text_darktheme dark:text-opacity-75",
       dropdownDisabled: "bg-gray-200 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
-      secondaryNormal: "bg-button-secondary-bg hover:bg-button-secondary-hoverbg dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none",
+      secondaryNormal: "border-1.5 border-double border-transparent text-button-secondary-text secondary-gradient-border",
       secondaryNoBorder: "hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-40 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme dark:text-opacity-50 dark:hover:bg-jp-gray-950 focus:outline-none",
       secondaryLoading: "bg-button-secondary-bg  dark:bg-jp-gray-darkgray_background",
       secondaryNoHover: "bg-button-secondary-bg text-opacity-50 hover:bg-button-secondary-hoverbg dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme focus:outline-none dark:text-opacity-50 ",
@@ -150,7 +151,7 @@ let defaultUIConfig: t = {
     },
     textColor: {
       primaryNormal: "text-button-primary-text",
-      primaryOutline: "text-button-primary-text",
+      primaryOutline: "text-primary",
       primaryDisabled: "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25",
       secondaryNormal: "text-button-secondary-text dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75",
       secondaryNoBorder: "text-jp-gray-900 ",
@@ -183,7 +184,8 @@ let defaultUIConfig: t = {
       sidebarSecondary: "bg-sidebar-secondary md:bg-sidebar-secondary ",
     },
     primaryTextColor: "text-sidebar-primaryTextColor",
-    secondaryTextColor: "text-sidebar-secondaryTextColor/80",
-    hoverColor: "hover:bg-sidebar-hoverColor/10",
+    secondaryTextColor: "text-sidebar-secondaryTextColor",
+    hoverColor: "hover:bg-sidebar-hoverColor/20",
+    borderColor: "border-sidebar-borderColor",
   },
 }

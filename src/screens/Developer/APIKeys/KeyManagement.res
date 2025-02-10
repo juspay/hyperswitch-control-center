@@ -189,9 +189,7 @@ module ApiKeyAddBtn = {
         text="Create New API Key"
         leftIcon={CustomIcon(
           <Icon
-            name="plus"
-            size=12
-            className="jp-gray-900 fill-opacity-50 mr-2 mb-1 dark:jp-gray-text_darktheme"
+            name="plus" size=12 className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
           />,
         )}
         // TODO: Remove `MerchantDetailsManage` permission in future
@@ -221,6 +219,12 @@ module TableActionsCell = {
     let (showModal, setShowModal) = React.useState(_ => false)
     let showPopUp = PopUpState.useShowPopUp()
     let deleteDetails = APIUtils.useUpdateMethod()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+    let showButtons = hasAnyGroupAccess(
+      userHasAccess(~groupAccess=MerchantDetailsManage),
+      userHasAccess(~groupAccess=AccountManage),
+    )
+
     let deleteKey = async () => {
       try {
         let body = Dict.make()
@@ -271,7 +275,9 @@ module TableActionsCell = {
         showModal setShowModal initialValues={initialValues} getAPIKeyDetails keyId action={Update}
       />
       <div className="invisible cursor-pointer group-hover:visible flex ">
-        <div
+        <ACLDiv
+          showTooltip={showButtons == Access}
+          authorization={showButtons}
           onClick={_ => {
             setShowModal(_ => true)
           }}>
@@ -280,14 +286,19 @@ module TableActionsCell = {
             size=14
             className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-4 mb-1"
           />
-        </div>
-        <div onClick={_ => openPopUp()}>
+        </ACLDiv>
+        <ACLDiv
+          authorization={showButtons}
+          showTooltip={showButtons == Access}
+          onClick={_ => {
+            openPopUp()
+          }}>
           <Icon
             name="delete"
             size=14
             className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-3 mb-1"
           />
-        </div>
+        </ACLDiv>
       </div>
     </div>
   }

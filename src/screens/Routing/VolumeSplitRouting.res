@@ -147,8 +147,9 @@ module VolumeRoutingView = {
                       onSubmit handleActivateConfiguration
                     />}
                     headingText="Activate Current Configuration?"
-                    subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."
-                    leftIcon="hswitch-warning"
+                    subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
+                    leftIcon="warning-modal"
+                    iconSize=35
                   />
                 </>
               : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
@@ -167,7 +168,7 @@ module VolumeRoutingView = {
                   setFormState(_ => AdvancedRoutingTypes.EditConfig)
                   setPageState(_ => Create)
                 }}
-                customButtonStyle="w-1/5 rounded-sm"
+                customButtonStyle="w-1/5"
               />
               <RenderIf condition={!isActive}>
                 <Button
@@ -176,7 +177,6 @@ module VolumeRoutingView = {
                   onClick={_ => {
                     handleActivateConfiguration(routingId)->ignore
                   }}
-                  customButtonStyle="w-1/5 rounded-sm"
                   buttonState={Normal}
                 />
               </RenderIf>
@@ -187,7 +187,6 @@ module VolumeRoutingView = {
                   onClick={_ => {
                     handleDeactivateConfiguration()->ignore
                   }}
-                  customButtonStyle="w-1/5 rounded-sm"
                   buttonState=Normal
                 />
               </RenderIf>

@@ -15,6 +15,11 @@ let defaultValue = {
   setPermissionInfo: _ => (),
   isProdIntentCompleted: None,
   setIsProdIntentCompleted: _ => (),
+  currentProduct: Orchestrator,
+  setCurrentProductValue: _ => (),
+  setDefaultProductToSessionStorage: _ => (),
+  showSideBar: true,
+  setShowSideBar: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -25,15 +30,34 @@ module Provider = {
 
 @react.component
 let make = (~children) => {
+  open SessionStorage
+  open ProductTypes
   let (showFeedbackModal, setShowFeedbackModal) = React.useState(_ => false)
   let (showProdIntentForm, setShowProdIntentForm) = React.useState(_ => false)
   let (dashboardPageState, setDashboardPageState) = React.useState(_ => #DEFAULT)
   let (permissionInfo, setPermissionInfo) = React.useState(_ => [])
   let (isProdIntentCompleted, setIsProdIntentCompleted) = React.useState(_ => None)
-
+  let (currentProduct, setCurrentProduct) = React.useState(_ => Orchestrator)
+  let (showSideBar, setShowSideBar) = React.useState(_ => true)
   let (integrationDetails, setIntegrationDetails) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->ProviderHelper.getIntegrationDetails
   )
+
+  let setCurrentProductValue = product => {
+    setCurrentProduct(_ => product)
+    sessionStorage.setItem("product", product->ProductUtils.getStringFromVariant)
+  }
+
+  let setDefaultProductToSessionStorage = () => {
+    open ProductUtils
+    let currentSessionData = sessionStorage.getItem("product")->Nullable.toOption
+    let data = switch currentSessionData {
+    | Some(sessionData) => sessionData->getVariantFromString
+    | None => Orchestrator
+    }
+
+    setCurrentProductValue(data)
+  }
 
   <Provider
     value={
@@ -49,6 +73,11 @@ let make = (~children) => {
       setPermissionInfo,
       isProdIntentCompleted,
       setIsProdIntentCompleted,
+      currentProduct,
+      setCurrentProductValue,
+      setDefaultProductToSessionStorage,
+      showSideBar,
+      setShowSideBar,
     }>
     children
   </Provider>

@@ -164,7 +164,6 @@ let make = () => {
               buttonType=Primary
               buttonSize={Small}
               buttonState={checkUserEntity([#Profile]) ? Disabled : Normal}
-              customButtonStyle="rounded-sm"
             />
           | Edit =>
             <div className="!flex !items-start gap-4">
@@ -173,15 +172,9 @@ let make = () => {
                 onClick={_ => setFormState(_ => Preview)}
                 buttonType={Secondary}
                 buttonSize={Small}
-                customButtonStyle="rounded-sm"
               />
               <div className="!flex !items-start">
-                <FormRenderer.SubmitButton
-                  text=buttonText
-                  buttonType=Primary
-                  buttonSize={Small}
-                  customSumbitButtonStyle="rounded-sm"
-                />
+                <FormRenderer.SubmitButton text=buttonText buttonType=Primary buttonSize={Small} />
               </div>
             </div>
           }}

@@ -51,7 +51,7 @@ let refundsProcessedMapper = (
     text: "Refunds Processed",
   }
 
-  open NewAnalyticsTypes
+  open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
   | Refund_Processed_Amount => Amount
   | _ => Volume
@@ -157,7 +157,6 @@ let getKeyForModule = key => {
 }
 
 let getKey = (id, ~currency="") => {
-  open NewAnalyticsFiltersUtils
   let key = switch id {
   | Refund_Processed_Count => #refund_processed_count
 
@@ -192,15 +191,19 @@ let modifyQueryData = (data, ~currency) => {
     let valueDict = item->getDictFromJsonObject
     let time = valueDict->getString(Time_Bucket->getStringFromVariant, "")
 
+    let key = Refund_Processed_Count->getStringFromVariant
+    let refundProcessedCount = valueDict->getInt(key, 0)
+
+    let key = Refund_Processed_Amount->getKey(~currency)
+    let refundProcessedAmount = valueDict->getFloat(key, 0.0)
+
     switch dataDict->Dict.get(time) {
     | Some(prevVal) => {
         let key = Refund_Processed_Count->getStringFromVariant
-        let refundProcessedCount = valueDict->getInt(key, 0)
         let prevProcessedCount = prevVal->getInt(key, 0)
-        let key = Refund_Processed_Amount->getKey(~currency)
-        let refundProcessedAmount = valueDict->getFloat(key, 0.0)
-        let prevProcessedAmount =
-          prevVal->getFloat(Refund_Processed_Amount->getStringFromVariant, 0.0)
+
+        let key = Refund_Processed_Amount->getStringFromVariant
+        let prevProcessedAmount = prevVal->getFloat(key, 0.0)
 
         let totalRefundProcessedCount = refundProcessedCount + prevProcessedCount
         let totalRefundProcessedAmount = refundProcessedAmount +. prevProcessedAmount
@@ -216,7 +219,18 @@ let modifyQueryData = (data, ~currency) => {
 
         dataDict->Dict.set(time, prevVal)
       }
-    | None => dataDict->Dict.set(time, valueDict)
+    | None => {
+        valueDict->Dict.set(
+          Refund_Processed_Count->getStringFromVariant,
+          refundProcessedCount->JSON.Encode.int,
+        )
+        valueDict->Dict.set(
+          Refund_Processed_Amount->getStringFromVariant,
+          refundProcessedAmount->JSON.Encode.float,
+        )
+
+        dataDict->Dict.set(time, valueDict)
+      }
     }
   })
 

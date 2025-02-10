@@ -44,7 +44,7 @@ let make = (
   let rounded_top_border = "rounded-t-xl"
 
   let btnWidthClass = isMobileView ? "w-full" : ""
-  let customButtonStyle = `px-2 py-0 h-9 rounded-md ${btnWidthClass}`
+  let customButtonStyle = `${btnWidthClass}`
   let textStyle = "font-medium text-fs-13"
   let showModal = showPopUp ? "flex" : "hidden"
   let popupMargin = isMobileView ? "pt-4 pl-4" : "pr-4 pl-8 pt-6"
@@ -128,7 +128,7 @@ let make = (
 
   <AddDataAttributes attributes=[("data-component", `popUpConfirm ${confirmType}`)]>
     <div
-      className={`${showModal} ${overlayStyle} fixed cursor-default h-screen w-screen z-100 inset-0 overflow-auto`}
+      className={`${showModal} ${overlayStyle} fixed cursor-default h-screen w-screen z-50 inset-0 overflow-auto`}
       onClick=handleOverlayClick>
       // <Reveal showReveal=showPopUp revealFrom=Reveal.Top>
       <div

@@ -54,6 +54,8 @@ module TableModule = {
 module PaymentsProcessedHeader = {
   open NewAnalyticsUtils
   open LogicUtils
+  open LogicUtilsTypes
+
   @react.component
   let make = (
     ~data: JSON.t,
@@ -63,10 +65,12 @@ module PaymentsProcessedHeader = {
     ~setSelectedMetric,
     ~granularity,
     ~setGranularity,
+    ~granularityOptions,
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let currency = filterValueJson->getString((#currency: filters :> string), "")
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let isSmartRetryEnabled =
       filterValueJson
@@ -112,7 +116,7 @@ module PaymentsProcessedHeader = {
     | _ => Volume
     }
 
-    <div className="w-full px-7 py-8 grid grid-cols-1">
+    <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
           {primaryValue->valueFormatter(metricType, ~currency)->React.string}
@@ -123,12 +127,16 @@ module PaymentsProcessedHeader = {
           />
         </RenderIf>
       </div>
-      // will enable it in future
-      <RenderIf condition={false}>
-        <div className="flex justify-center">
-          <Tabs option={granularity} setOption={setGranularity} options={tabs} />
-        </div>
-      </RenderIf>
+      <div className="flex justify-center">
+        <RenderIf condition={featureFlag.granularity}>
+          <Tabs
+            option={granularity}
+            setOption={setGranularity}
+            options={granularityOptions}
+            showSingleTab=false
+          />
+        </RenderIf>
+      </div>
       <div className="flex gap-2 justify-end">
         <CustomDropDown
           buttonText={selectedMetric} options={dropDownOptions} setOption={setSelectedMetric}
@@ -149,6 +157,7 @@ let make = (
   open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (paymentsProcessedData, setPaymentsProcessedData) = React.useState(_ => JSON.Encode.array([]))
@@ -157,7 +166,7 @@ let make = (
     JSON.Encode.array([])
   )
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
+
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
@@ -165,6 +174,18 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
+
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let (granularity, setGranularity) = React.useState(_ =>
+    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  )
+
+  React.useEffect(() => {
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      setGranularity(_ => getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal))
+    }
+    None
+  }, (startTimeVal, endTimeVal))
 
   let isSmartRetryEnabled =
     filterValueJson
@@ -232,6 +253,7 @@ let make = (
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
               ~granularity=granularity.value,
+              ~isoStringToCustomTimeZone,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -252,6 +274,7 @@ let make = (
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
+            ~isoStringToCustomTimeZone,
           )
         })
 
@@ -280,6 +303,7 @@ let make = (
     compareToStartTime,
     compareToEndTime,
     comparison,
+    granularity.value,
     currency,
     isSmartRetryEnabled,
   ))
@@ -299,7 +323,6 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        // Need to modify
         <PaymentsProcessedHeader
           data=paymentsProcessedMetaData
           viewType
@@ -308,6 +331,7 @@ let make = (
           setSelectedMetric
           granularity
           setGranularity
+          granularityOptions
         />
         <div className="mb-5">
           {switch viewType {

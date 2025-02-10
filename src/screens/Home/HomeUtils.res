@@ -197,7 +197,7 @@ module CheckoutCard = {
             userHasAccess(~groupAccess=ConnectorsManage),
           ])}
           buttonType={Secondary}
-          buttonSize={Small}
+          buttonSize={Medium}
           onClick={handleOnClick}
         />
       </CardFooter>
@@ -229,13 +229,13 @@ module ControlCenter = {
           <CardFooter customFooterStyle="mt-5">
             <img
               alt="connector-list"
-              className="inline-block absolute lg:right-5 lg:bottom-5 bottom-0 right-0 lg:block lg:w-40 md:w-24 w-36"
+              className="inline-block absolute lg:right-5 lg:bottom-2 bottom-0 right-0 lg:block lg:w-40 md:w-24 w-36"
               src="/assets/connectorsList.svg"
             />
             <Button
               text="+  Connect"
               buttonType={Secondary}
-              buttonSize={Small}
+              buttonSize={Medium}
               onClick={_ => {
                 RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
               }}
@@ -255,7 +255,7 @@ module ControlCenter = {
               <Button
                 text="Go to API keys"
                 buttonType={Secondary}
-                buttonSize={Small}
+                buttonSize={Medium}
                 onClick={_ => {
                   RescriptReactRouter.push(
                     GlobalVars.appendDashboardPath(~url="/developer-api-keys"),
@@ -290,7 +290,7 @@ module DevResources = {
             <Button
               text="Visit"
               buttonType={Secondary}
-              buttonSize={Small}
+              buttonSize={Medium}
               onClick={_ => {
                 mixpanelEvent(~eventName=`dev_docs`)
                 "https://hyperswitch.io/docs"->Window._open
@@ -308,7 +308,7 @@ module DevResources = {
             <Button
               text="Explore"
               buttonType={Secondary}
-              buttonSize={Small}
+              buttonSize={Medium}
               onClick={_ => {
                 "https://hyperswitch.io/blog"->Window._open
               }}
@@ -357,7 +357,6 @@ module LowRecoveryCodeBanner = {
       <Button
         text="Regenerate recovery-codes"
         buttonType={Secondary}
-        customButtonStyle="!p-2"
         onClick={_ =>
           RescriptReactRouter.push(
             GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),

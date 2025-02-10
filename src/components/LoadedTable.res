@@ -20,7 +20,7 @@ let checkBoxPropDefaultVal: checkBoxProps = {
 
 let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom("sortAtom", Dict.make())
 
-let backgroundClass = "bg-gray-50 dark:bg-jp-gray-darkgray_background"
+let backgroundClass = "dark:bg-jp-gray-darkgray_background"
 
 let useSortedObj = (title: string, defaultSort) => {
   let (dict, setDict) = Recoil.useRecoilState(sortAtom)
@@ -830,6 +830,7 @@ let make = (
                 tableHeadingTextClass
                 nonFrozenTableParentClass
                 showAutoScroll
+                showPagination
               />
             switch tableLocalFilter {
             | true =>

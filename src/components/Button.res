@@ -89,13 +89,13 @@ let useGetBgColor = (
   | Pagination =>
     switch buttonState {
     | Focused
-    | Normal => "border-left-1 opacity-80 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 focus:outline-none"
+    | Normal => "font-medium border-transparent text-nd_gray-500  focus:outline-none"
 
     | Loading => "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10"
 
-    | Disabled => "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
+    | Disabled => "border-left-1 border-right-1 font-normal border-left-1 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
 
-    | NoHover => "bg-white border-left-1 border-right-1 font-normal text-jp-gray-900 text-opacity-75 hover:text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
+    | NoHover => "bg-primary bg-opacity-10 border-transparent font-medium  dark:text-jp-gray-text_darktheme dark:text-opacity-75"
     }
   | Dropdown => {
       let hoverCss = isPhoneDropdown ? "" : "hover:bg-jp-2-light-gray-100"
@@ -225,6 +225,12 @@ let useGetTextColor = (
     }
 
   | DarkPurple => "text-white"
+  | Pagination =>
+    switch buttonState {
+    | Disabled => "font-medium text-nd_gray-300"
+    | NoHover => "font-medium text-primary text-opacity-1 hover:text-opacity-70"
+    | _ => "text-nd_gray-500"
+    }
 
   | _ =>
     switch buttonState {
@@ -343,7 +349,7 @@ let make = (
     }
   }
 
-  let heightClass = customHeightClass->Option.getOr("h-fit")
+  let heightClass = customHeightClass->Option.getOr("")
 
   let cursorType = switch buttonState {
   | Loading => "cursor-wait"
@@ -351,26 +357,28 @@ let make = (
   | _ => "cursor-pointer"
   }
 
-  let paddingClass = customPaddingClass->Option.getOr(
-    switch buttonSize {
-    | XSmall => "p-2"
-    | Small =>
-      switch buttonType {
-      | Pagination => "py-3 px-4 mr-1"
-      | Dropdown => "py-3 px-4"
-      | _ => "py-3 px-4"
-      }
-    | Medium => buttonType == Pagination ? "py-3 px-4 mr-1" : "py-3 px-4"
-    | Large => "py-3 px-4"
-    },
-  )
+  let paddingClass = customPaddingClass->Option.getOr("")
+
+  let customWidthClass = switch buttonSize {
+  | Large => "w-147-px"
+  | Medium => "w-145-px"
+  | Small => "w-137-px"
+  | _ => ""
+  }
+
+  let customHeightClass = switch buttonSize {
+  | Large => "h-40-px"
+  | Medium => "h-36-px"
+  | Small => "h-32-px"
+  | _ => ""
+  }
 
   let textPaddingClass = customTextPaddingClass->Option.getOr(
     switch buttonSize {
     | XSmall => "px-1"
     | Small => "px-1"
     | Medium => "px-1"
-    | Large => "px-1"
+    | Large => "py-3"
     },
   )
 
@@ -409,7 +417,7 @@ let make = (
     | XSmall
     | Small => "ml-1"
     | Medium
-    | Large => "mx-1"
+    | Large => "ml-3"
     },
   )
 
@@ -417,7 +425,7 @@ let make = (
   | XSmall
   | Small => "mt-0.5 px-1"
   | Medium
-  | Large => "mx-1 mt-0.5"
+  | Large => "mx-3 mt-0.5"
   }
 
   let badgeSpacing = switch buttonSize {
@@ -449,7 +457,12 @@ let make = (
     ~isPhoneDropdown,
   )
 
-  let defaultRoundedClass = "rounded"
+  let defaultRoundedClass = switch buttonSize {
+  | Large => "rounded-xl"
+  | Small => "rounded-lg"
+  | Medium => "rounded-10-px"
+  | XSmall => "rounded-md"
+  }
 
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
   let roundedClass = {
@@ -462,7 +475,7 @@ let make = (
     } else if isLast {
       "rounded-r-md"
     } else if buttonType == Pagination {
-      "rounded-md"
+      "rounded-lg"
     } else {
       ""
     }
@@ -489,7 +502,7 @@ let make = (
       | Disabled => ""
       | _ =>
         if showBorder {
-          `${borderWidth}`
+          `${borderWidth} border-1.5 `
         } else {
           ""
         }
@@ -618,7 +631,7 @@ let make = (
           e->ReactEvent.Keyboard.preventDefault
         }
       }}
-      className={`flex group ${customButtonStyle} ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}   ${cursorType} ${paddingClass} ${lengthStyle}   ${customTextOverFlowClass} ${textColor}`}
+      className={`flex group ${customButtonStyle} ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}   ${cursorType} ${paddingClass} ${lengthStyle}   ${customTextOverFlowClass} ${textColor} ${customWidthClass} ${customHeightClass}`}
       onClick=handleClick>
       {if buttonState == Loading {
         <span className={iconPadding}>
@@ -651,7 +664,7 @@ let make = (
           let btnContent =
             <AddDataAttributes attributes=[("data-button-text", textStr)]>
               <div
-                className={`${textPaddingClass} ${textSize} ${textWeight} ${ellipsisClass} whitespace-pre ${textStyle}`}>
+                className={`${textPaddingClass} px-3 ${textSize} ${textWeight} ${ellipsisClass} whitespace-pre ${textStyle}`}>
                 {buttonState == Loading ? React.string(loadingText) : React.string(textStr)}
               </div>
             </AddDataAttributes>

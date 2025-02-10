@@ -15,7 +15,9 @@ module BasicAccountSetupSuccessfulPage = {
     <div className={`flex flex-col gap-4 p-9 h-full ${customWidth} justify-between rounded shadow`}>
       <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
         <Icon name=iconName size=120 />
-        <p className=headerTextStyle> {statusText->React.string} </p>
+        <AddDataAttributes attributes=[("data-testid", "paymentSuccess")]>
+          <p className=headerTextStyle> {statusText->React.string} </p>
+        </AddDataAttributes>
         <RenderIf condition={statusText == "Payment Failed"}>
           <p className="text-center"> {errorMessage->React.string} </p>
         </RenderIf>
@@ -23,9 +25,9 @@ module BasicAccountSetupSuccessfulPage = {
       <RenderIf condition={isButtonVisible}>
         <Button
           text=buttonText
-          buttonSize={Small}
+          buttonSize={Large}
           buttonType={Primary}
-          customButtonStyle="!rounded-md"
+          customButtonStyle="w-full"
           onClick={_ => buttonOnClick()}
           buttonState
         />

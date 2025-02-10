@@ -25,9 +25,6 @@ module TopRightIcons = {
 module ActionButtons = {
   @react.component
   let make = (~routeType: routingType, ~onRedirectBaseUrl) => {
-    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
@@ -38,9 +35,9 @@ module ActionButtons = {
       <ACLButton
         text={"Setup"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-        buttonType=Secondary
-        buttonSize={Small}
-        customButtonStyle={` !${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
+        customButtonStyle="mx-auto w-full"
+        buttonType={Secondary}
+        buttonSize=Small
         onClick={_ => {
           RescriptReactRouter.push(
             GlobalVars.appendDashboardPath(
@@ -54,9 +51,9 @@ module ActionButtons = {
       <ACLButton
         text={"Manage"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-        buttonType=Secondary
-        customButtonStyle={`!${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
-        buttonSize={Small}
+        buttonType={Secondary}
+        customButtonStyle="mx-auto w-full"
+        buttonSize=Small
         onClick={_ => {
           RescriptReactRouter.push(
             GlobalVars.appendDashboardPath(

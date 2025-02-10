@@ -139,7 +139,7 @@ module GenerateSampleDataButton = {
         <ACLButton
           authorization={userHasAccess(~groupAccess=OperationsManage)}
           buttonType={Secondary}
-          buttonSize={XSmall}
+          buttonSize=Small
           text="Generate Sample Data"
           customButtonStyle="!rounded-l-md !rounded-none"
           onClick={_ => generateSampleData()->ignore}

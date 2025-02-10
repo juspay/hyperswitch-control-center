@@ -41,9 +41,9 @@ module SidebarOption = {
       ThemeProvider.themeContext,
     )
     let textBoldStyles = isSelected
-      ? `${primaryTextColor} font-bold`
-      : `${secondaryTextColor} font-semibold `
-    let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor} opacity-70`
+      ? `${primaryTextColor} font-semibold`
+      : `${secondaryTextColor} font-medium  `
+    let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor}  `
 
     if isSidebarExpanded {
       <div className="flex items-center gap-5">
@@ -69,10 +69,10 @@ module SidebarSubOption = {
           ? "transition duration-[250ms] animate-textTransitionSideBar"
           : "transition duration-[1000ms] animate-textTransitionSideBarOff"} ${isSideBarExpanded
           ? "mx-2"
-          : "mx-1"} border-l-2 border-light_grey`}>
+          : "mx-1"} border-light_grey `}>
       <div className="w-6" />
       <div
-        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 rounded-sm flex items-center ${hoverColor} whitespace-nowrap my-0.5 `}>
+        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 flex items-center ${hoverColor} whitespace-nowrap my-0.5 rounded-md`}>
         {React.string(name)}
         {children}
       </div>
@@ -82,7 +82,13 @@ module SidebarSubOption = {
 
 module SidebarItem = {
   @react.component
-  let make = (~tabInfo, ~isSelected, ~isSidebarExpanded, ~setOpenItem=_ => ()) => {
+  let make = (
+    ~tabInfo,
+    ~isSelected,
+    ~isSidebarExpanded,
+    ~setOpenItem=_ => (),
+    ~onItemClickCustom=_ => (),
+  ) => {
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(String.substringToEnd(link, ~start=0))
@@ -96,9 +102,9 @@ module SidebarItem = {
     }
 
     let textColor = if isSelected {
-      `text-sm font-bold ${primaryTextColor}`
+      `text-sm font-semibold ${primaryTextColor}`
     } else {
-      `text-sm font-semibold ${secondaryTextColor} opacity-70`
+      `text-sm font-medium  ${secondaryTextColor} `
     }
     let isMobileView = MatchMedia.useMobileChecker()
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
@@ -113,6 +119,7 @@ module SidebarItem = {
         let onSidebarItemClick = _ => {
           isMobileView ? setIsSidebarExpanded(_ => false) : ()
           setOpenItem(prev => {prev == name ? "" : name})
+          onItemClickCustom()
         }
 
         <RenderIf condition={access !== NoAccess}>
@@ -195,13 +202,13 @@ module NestedSidebarItem = {
     let selectedClass = if isSelected {
       "font-semibold mx-1"
     } else {
-      `font-semibold mx-1 rounded-sm hover:transition hover:duration-300`
+      `font-medium mx-1 rounded-sm hover:transition hover:duration-300`
     }
 
     let textColor = if isSelected {
       `text-md font-small ${primaryTextColor}`
     } else {
-      `text-md font-small ${secondaryTextColor} opacity-70`
+      `text-md font-small ${secondaryTextColor}  `
     }
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let paddingClass = if isSideBarExpanded {
@@ -228,7 +235,7 @@ module NestedSidebarItem = {
                 <div
                   ref={nestedSidebarItemRef->ReactDOM.Ref.domRef}
                   onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
-                  className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg ${paddingClass} ${selectedClass}`}>
+                  className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg ${paddingClass} ${selectedClass} `}>
                   <SidebarSubOption name isSectionExpanded isSelected isSideBarExpanded>
                     <RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
                       <div className=linkTagPadding>
@@ -267,9 +274,8 @@ module NestedSectionItem = {
     let {
       globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let iconColor = isAnySubItemSelected
-      ? `${primaryTextColor}`
-      : `${secondaryTextColor} opacity-70`
+
+    let iconColor = isAnySubItemSelected ? `${primaryTextColor}` : `${secondaryTextColor}  `
 
     let iconOuterClass = if !isSideBarExpanded {
       `${isAnySubItemSelected ? "" : ""} rounded-sm p-4 rounded-lg`
@@ -300,7 +306,7 @@ module NestedSectionItem = {
               ? ""
               : sectionExpandedAnimation} border-l-2 ${isAnySubItemSelected
               ? "border-white"
-              : "border-transparent"} ${hoverColor}`}
+              : "border-transparent"} ${hoverColor} `}
           onClick=toggleSectionExpansion>
           <div className="flex-row items-center select-none min-w-max flex  gap-5">
             {if isSideBarExpanded {
@@ -311,7 +317,7 @@ module NestedSectionItem = {
               <Icon size={getIconSize("small")} name=section.icon className=iconColor />
             }}
             <RenderIf condition={isSideBarExpanded}>
-              <div className={`font-semibold text-sm ${expandedTextColor} whitespace-nowrap`}>
+              <div className={`text-sm ${expandedTextColor} whitespace-nowrap`}>
                 {React.string(section.name)}
               </div>
             </RenderIf>
@@ -320,8 +326,8 @@ module NestedSectionItem = {
             <Icon
               name={"Nested_arrow_down"}
               className={isSectionExpanded
-                ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`
-                : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`}
+                ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor}  `
+                : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor}  `}
               size=16
             />
           </RenderIf>
@@ -359,6 +365,7 @@ module SidebarNestedSection = {
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
+
     let isSubLevelItemSelected = tabInfo => {
       switch tabInfo {
       | SubLevelLink(item) => linkSelectionCheck(firstPart, item.link)
@@ -407,12 +414,12 @@ module SidebarNestedSection = {
         if isAnySubItemSelected {
           `${primaryTextColor}`
         } else {
-          `${secondaryTextColor} opacity-70`
+          `${secondaryTextColor}  `
         }
       } else if isAnySubItemSelected {
         `${primaryTextColor}`
       } else {
-        `${secondaryTextColor} opacity-70`
+        `${secondaryTextColor}  `
       }
     }
 
@@ -421,7 +428,9 @@ module SidebarNestedSection = {
     } else {
       `cursor-pointer`
     }
-    let expandedTextColor = isAnySubItemSelected ? `${primaryTextColor}` : `${secondaryTextColor}`
+    let expandedTextColor = isAnySubItemSelected
+      ? `${primaryTextColor} font-semibold`
+      : `${secondaryTextColor} font-medium`
     let areAllSubLevelsHidden = section.links->Array.reduce(true, (acc, subLevelItem) => {
       acc &&
       switch subLevelItem {
@@ -474,7 +483,7 @@ let make = (
 ) => {
   open CommonAuthHooks
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
+    globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
@@ -484,6 +493,7 @@ let make = (
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+  let {setCurrentProductValue} = React.useContext(GlobalProvider.defaultContext)
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -502,10 +512,38 @@ let make = (
   }
   let profileMaxWidth = "145px"
 
+  let level3 = tail => {
+    switch List.tail(tail) {
+    | Some(tail2) =>
+      switch List.head(tail2) {
+      | Some(value2) => `/${value2}`
+      | None => "/"
+      }
+    | None => "/"
+    }
+  }
+
+  let level2 = tail => {
+    switch List.tail(tail) {
+    | Some(tail2) =>
+      switch List.head(tail2) {
+      | Some(value2) => `/${value2}` ++ level3(tail2)
+      | None => "/"
+      }
+    | None => "/"
+    }
+  }
+
   let firstPart = switch List.tail(path) {
   | Some(tail) =>
     switch List.head(tail) {
-    | Some(x) => `/${x}`
+    | Some(x) =>
+      /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
+      if x === "v2" {
+        `/${x}` ++ level2(tail)
+      } else {
+        `/${x}`
+      }
     | None => "/"
     }
   | None => "/"
@@ -513,10 +551,9 @@ let make = (
 
   let expansionClass = !isSidebarExpanded ? "-translate-x-full" : ""
 
-  let sidebarClass = "shadow-md"
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
 
-  let sidebarContainerClassWidth = isMobileView ? "0px" : "275px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : "335px"
 
   let transformClass = "transform md:translate-x-0 transition"
 
@@ -545,18 +582,23 @@ let make = (
 }
   `
 
-  <div
-    className={`${backgroundColor.sidebarNormal} flex group border-r border-jp-gray-500 relative`}>
+  let onItemClickCustom = (valueSelected: SidebarTypes.optionType) => {
+    open ProductUtils
+    setCurrentProductValue(getVariantFromString(valueSelected.name))
+  }
+
+  <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
-      className={`flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
+      className={`flex h-full flex-col transition-all duration-100 relative inset-0`}
       style={width: sidebarContainerClassWidth}
     />
     <div
-      className={`absolute z-40 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
+      className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
+      <OrgSidebar />
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
-        className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
+        className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
         style={width: sidebarWidth}>
         <RenderIf condition={isMobileView}>
           <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
@@ -573,10 +615,10 @@ let make = (
           <SidebarSwitch isSidebarExpanded />
         </RenderIf>
         <div
-          className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
+          className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
           style={height: `calc(100vh - ${verticalOffset})`}>
           <style> {React.string(sidebarScrollbarCss)} </style>
-          <div>
+          <div className="p-2.5">
             {sidebars
             ->Array.mapWithIndex((tabInfo, index) => {
               switch tabInfo {
@@ -609,7 +651,7 @@ let make = (
               | Heading(headingOptions) =>
                 <div
                   key={Int.toString(index)}
-                  className={`text-xs font-semibold leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isSidebarExpanded
+                  className={`text-xs font-medium leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isSidebarExpanded
                       ? "mx-2"
                       : "mx-1"} mt-5 mb-3`}>
                   {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
@@ -623,30 +665,47 @@ let make = (
             })
             ->React.array}
           </div>
-          <div className={`border-t border-secondary mt-5`}>
-            {productSiebars
-            ->Array.mapWithIndex((tabInfo, index) => {
-              switch tabInfo {
-              | Section(section) =>
-                <RenderIf condition={section.showSection} key={Int.toString(index)}>
-                  <SidebarNestedSection
-                    key={Int.toString(index)}
-                    section
-                    linkSelectionCheck
-                    firstPart
-                    isSideBarExpanded={isSidebarExpanded}
-                    openItem
-                    setOpenItem
-                    isSectionAutoCollapseEnabled=true
-                  />
-                </RenderIf>
-              | _ => React.null
-              }
-            })
-            ->React.array}
-          </div>
+          <RenderIf condition={productSiebars->Array.length > 0}>
+            <div className={"p-2.5"}>
+              <div
+                className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
+                {React.string("Other modular services"->String.toUpperCase)}
+              </div>
+              {productSiebars
+              ->Array.mapWithIndex((tabInfo, index) => {
+                switch tabInfo {
+                | Section(section) =>
+                  <RenderIf condition={section.showSection} key={Int.toString(index)}>
+                    <SidebarNestedSection
+                      key={Int.toString(index)}
+                      section
+                      linkSelectionCheck
+                      firstPart
+                      isSideBarExpanded={isSidebarExpanded}
+                      openItem
+                      setOpenItem
+                      isSectionAutoCollapseEnabled=true
+                    />
+                  </RenderIf>
+                | Link(record) => {
+                    let isSelected = linkSelectionCheck(firstPart, record.link)
+                    <SidebarItem
+                      key={Int.toString(index)}
+                      tabInfo
+                      isSelected
+                      isSidebarExpanded
+                      setOpenItem
+                      onItemClickCustom={_ => onItemClickCustom(record)}
+                    />
+                  }
+                | _ => React.null
+                }
+              })
+              ->React.array}
+            </div>
+          </RenderIf>
         </div>
-        <div className={`flex items-center justify-between mb-5 mt-2 mx-2 mr-2 ${hoverColor}`}>
+        <div className={`flex items-center justify-between p-3 ${hoverColor}`}>
           <RenderIf condition={isSidebarExpanded}>
             <Popover className="relative inline-block text-left">
               {popoverProps => <>

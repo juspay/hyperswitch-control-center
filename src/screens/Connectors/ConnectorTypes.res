@@ -95,6 +95,8 @@ type processorTypes =
   | NOVALNET
   | DEUTSCHEBANK
   | NEXIXPAY
+  | XENDIT
+  | JPMORGAN
 
 type payoutProcessorTypes =
   | ADYEN
@@ -141,6 +143,7 @@ type paymentMethodTypes =
   | ApplePay
   | SamsungPay
   | PayPal
+  | Klarna
   | BankDebit
   | OpenBankingPIS
   | Paze
@@ -285,7 +288,7 @@ type connectorAccountDetails = {
 
 type paymentMethodEnabledType = {
   payment_method: string,
-  payment_method_types: array<paymentMethodConfigType>,
+  mutable payment_method_types: array<paymentMethodConfigType>,
 }
 
 type payment_methods_enabled = array<paymentMethodEnabledType>
@@ -322,7 +325,7 @@ type connectorPayload = {
   connector_account_details: connectorAuthTypeObj,
   test_mode: bool,
   disabled: bool,
-  payment_methods_enabled: payment_methods_enabled,
+  mutable payment_methods_enabled: payment_methods_enabled,
   profile_id: string,
   metadata: JSON.t,
   merchant_connector_id: string,
