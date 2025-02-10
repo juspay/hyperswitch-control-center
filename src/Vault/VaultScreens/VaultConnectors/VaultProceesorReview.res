@@ -1,5 +1,5 @@
 @react.component
-let make = (~connectorInfo, ~copyValueOfWebhookEndpoint) => {
+let make = (~connectorInfo) => {
   open ConnectorUtils
 
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
@@ -10,7 +10,7 @@ let make = (~connectorInfo, ~copyValueOfWebhookEndpoint) => {
     ->connectorTypeTypedValueToStringMapper
     ->connectorTypeTuple
   let {connector_name: connectorName} = connectorInfodict
-  let showToast = ToastState.useShowToast()
+
   let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
@@ -34,11 +34,6 @@ let make = (~connectorInfo, ~copyValueOfWebhookEndpoint) => {
       }
     }
   }, [connectorInfodict.merchant_connector_id])
-
-  let handleWebHookCopy = copyValue => {
-    Clipboard.writeText(copyValue)
-    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-  }
 
   let handleClick = () => {
     setShowSideBar(_ => true)
@@ -65,15 +60,6 @@ let make = (~connectorInfo, ~copyValueOfWebhookEndpoint) => {
               connectorInfo=connectorInfodict connectorAccountFields
             />
           </div>
-          // <div className="flex flex-col gap-2 ">
-          //   <h4 className="text-gray-400"> {"Webhook Url"->React.string} </h4>
-          //   <div className="flex flex-row">
-          //     {copyValueOfWebhookEndpoint->React.string}
-          //     <div className="ml-2" onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}>
-          //       <Icon name="nd-copy" />
-          //     </div>
-          //   </div>
-          // </div>
           <ConnectorWebhookPreview
             merchantId=connectorInfodict.merchant_connector_id connectorName
           />

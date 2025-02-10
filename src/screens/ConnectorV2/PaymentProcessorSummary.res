@@ -1,7 +1,6 @@
 @react.component
 let make = (~initialValues, ~setInitialValues) => {
   open ConnectorUtils
-  open CommonAuthHooks
   open LogicUtils
 
   let connectorInfo = initialValues
@@ -12,14 +11,6 @@ let make = (~initialValues, ~setInitialValues) => {
     connectorInfodict.connector_type
     ->connectorTypeTypedValueToStringMapper
     ->connectorTypeTuple
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-
-  let copyValueOfWebhookEndpoint = getWebhooksUrl(
-    ~connectorName={connectorInfodict.merchant_connector_id},
-    ~merchantId,
-  )
-
-  let displayValueofWebHookUrl = `${Window.env.apiBaseUrl}.../${connectorName}`
 
   let connectorDetails = React.useMemo(() => {
     try {
@@ -51,12 +42,8 @@ let make = (~initialValues, ~setInitialValues) => {
     | _ => " "
     }
   }
-  let showToast = ToastState.useShowToast()
+
   let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
-  let handleWebHookCopy = copyValue => {
-    Clipboard.writeText(copyValue)
-    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-  }
 
   <div className="flex flex-col gap-10 p-6">
     <div>

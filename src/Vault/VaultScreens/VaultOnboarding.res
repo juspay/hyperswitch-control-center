@@ -34,46 +34,23 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let {profileId, merchantId} = getUserInfoData()
-  let (connectorId, setConnectorId) = React.useState(() => "")
-
+  let {profileId} = getUserInfoData()
+  let (_, setConnectorId) = React.useState(() => "")
+  let showToast = ToastState.useShowToast()
+  let connectorInfo = initialValues
+  let connectorInfoDict =
+    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: "authenticate-processor",
     subSectionId: None,
   })
-
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-
-  let getWebhooksUrl = (~connectorName, ~merchantId) => {
-    `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
-  }
-
-  let connectorInfo = initialValues
-
-  let connectorInfo =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
-
-  let copyValueOfWebhookEndpoint = getWebhooksUrl(
-    ~connectorName={connectorInfo.merchant_connector_id},
-    ~merchantId,
-  )
-  let getDisplayValueOfWebHookUrl = (~connectorName) => {
-    `${Window.env.apiBaseUrl}.../${connectorName}`
-  }
-  let displayValueofWebHookUrl = getDisplayValueOfWebHookUrl(
-    ~connectorName={connectorInfo.merchant_connector_id},
-  )
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
   }, [connector])
-  let labelFieldDict = ConnectorAuthKeyUtils.connectorLabelDetailField
-  let label = labelFieldDict->getString("connector_label", "")
-
-  let connectorName = connectorInfo.connector_name->getDisplayNameForConnector
+  let connectorName = connectorInfoDict.connector_name->getDisplayNameForConnector
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
@@ -187,7 +164,7 @@ let make = () => {
       sections
       currentStep
       backClick
-      customProcessorIcon={`${connectorInfo.connector_name}`}
+      customProcessorIcon={`${connectorInfoDict.connector_name}`}
     />
     {switch currentStep {
     | {sectionId: "authenticate-processor"} =>
@@ -204,16 +181,6 @@ let make = () => {
                 <ConnectorAuthKeys
                   initialValues={updatedInitialVal} setInitialValues showVertically=true
                 />
-                // <FormRenderer.FieldRenderer
-                //   labelClass="font-semibold"
-                //   field={FormRenderer.makeFieldInfo(
-                //     ~label,
-                //     ~name="connector_label",
-                //     ~placeholder="Enter Connector Label name",
-                //     ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-                //     ~isRequired=true,
-                //   )}
-                // />
                 <ConnectorLabelV2 />
                 <ConnectorMetadataV2 />
                 <ConnectorWebhookDetails />
@@ -236,20 +203,8 @@ let make = () => {
           subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
           customSubTitleStyle="font-500 font-normal text-gray-800"
         />
-        // <div className="flex flex-row items-center justify-between">
-        //   <div
-        //     className="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-gray-400">
-        //     {displayValueofWebHookUrl->React.string}
-        //   </div>
-        //   <Button
-        //     leftIcon={CustomIcon(<Icon name="nd-copy" />)}
-        //     text="Copy"
-        //     customButtonStyle=" ml-4 w-[2px]"
-        //     onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}
-        //   />
-        // </div>
         <ConnectorWebhookPreview
-          merchantId=connectorInfo.merchant_connector_id
+          merchantId=connectorInfoDict.merchant_connector_id
           connectorName
           textCss="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-gray-400"
           containerClass="flex flex-row items-center justify-between"
@@ -263,8 +218,7 @@ let make = () => {
           customButtonStyle="w-full mt-8"
         />
       </div>
-    | {sectionId: "review-and-connect"} =>
-      <VaultProceesorReview connectorInfo=initialValues copyValueOfWebhookEndpoint />
+    | {sectionId: "review-and-connect"} => <VaultProceesorReview connectorInfo=initialValues />
     | _ => React.null
     }}
   </div>
