@@ -154,8 +154,8 @@ let fetchWebhooks = async (
     switch JSON.Classify.classify(response) {
     | Array(arr) =>
       if arr != [] {
-        let data = response->getArrayDataFromJson(itemToObjectMapper)
-        let totalCount = 100 // data->Array.length
+        let _data = response->getArrayDataFromJson(itemToObjectMapper)
+        let totalCount = 100 //data->Array.length
         setData(
           ~offset,
           ~setOffset,

@@ -37,27 +37,13 @@ let getHeading = colType => {
 }
 
 let getCell = (webhook: webhookObject, colType): Table.cell => {
-  let webhookEventType = webhook.eventType->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | EventId => DisplayCopyCell(webhook.eventId)
   | EventClass => Text(webhook.eventClass)
   | EventType =>
     Label({
       title: webhook.eventType->String.toUpperCase,
-      color: switch webhookEventType {
-      | Succeeded
-      | PartiallyCaptured =>
-        LabelGreen
-      | Failed
-      | Cancelled =>
-        LabelRed
-      | Processing
-      | RequiresCustomerAction
-      | RequiresConfirmation
-      | RequiresPaymentMethod =>
-        LabelLightBlue
-      | _ => LabelLightBlue
-      },
+      color: LabelLightBlue,
     })
   | MerchantId => Text(webhook.merchantId)
   | ProfileId => Text(webhook.profileId)

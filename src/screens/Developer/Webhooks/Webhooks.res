@@ -30,7 +30,9 @@ let make = () => {
   }, [])
 
   React.useEffect(() => {
-    setOffset(_ => 0)
+    if filterValueJson->Dict.keysToArray->Array.length != 0 {
+      setOffset(_ => 0)
+    }
     None
   }, [filterValue])
 

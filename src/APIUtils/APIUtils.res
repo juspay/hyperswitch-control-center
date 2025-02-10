@@ -470,7 +470,6 @@ let useGetURL = () => {
       | Some(param) => `events/${merchantId}?${param}`
       | None => `events/${merchantId}`
       }
-
     | WEBHOOK_EVENTS_DETAILS =>
       switch queryParamerters {
       | Some(param) => `events/${merchantId}/${param}`

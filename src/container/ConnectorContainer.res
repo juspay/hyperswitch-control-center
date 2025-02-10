@@ -150,13 +150,13 @@ let make = () => {
       />
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.webhookDetails} authorization=Access>
-        <FilterContext key="webhookd" index="webhooks">
+        <FilterContext key="webhooks" index="webhooks">
           <EntityScaffold
             entityName="Webhooks"
             remainingPath
             access=Access
             renderList={() => <Webhooks />}
-            renderShow={(id, _) => <WebhooksHome id />}
+            renderShow={(id, _) => <WebhooksDetails id />}
           />
         </FilterContext>
       </AccessControl>

@@ -1,27 +1,26 @@
 module TabDetails = {
   @react.component
-  let make = (~activeTab, ~selectedEvent: WebhooksTypes.attemptType) => {
+  let make = (~activeTab: WebhooksTypes.tabs, ~selectedEvent: WebhooksTypes.attemptType) => {
     open LogicUtils
 
-    let currTab = activeTab->Option.getOr([])->Array.get(0)->Option.getOr("")
     let keyTextClass = HSwitchUtils.getTextClass((P1, Medium))
     let valTextClass = HSwitchUtils.getTextClass((P1, Regular))
 
     let requestBody = selectedEvent.request.body
     let responseBody = selectedEvent.response.body
-    let headers = selectedEvent.request.headers
+    let requestHeaders = selectedEvent.request.headers
     let responseHeaders = selectedEvent.response.headers
     let statusCode = selectedEvent.response.statusCode
-    let errorMessage = selectedEvent.response.errorMessage //Some("webhoook signature invalid")
+    let errorMessage = selectedEvent.response.errorMessage
 
     let showErrorMsg = switch errorMessage {
     | Some(_) => true
     | None => false
     }
 
-    let keyValUI = arr => {
+    let headerKeyValUI = header => {
       let item = index => {
-        let val = arr->Array.get(index)->Option.getOr("")
+        let val = header->Array.get(index)->Option.getOr("")
         if val->String.length > 30 {
           <HelperComponents.EllipsisText displayValue=val endValue=20 expandText=false />
         } else {
@@ -38,15 +37,15 @@ module TabDetails = {
     }
 
     let headersValues = headers => {
-      let arr = headers->JSON.Decode.array->Option.getOr([])
+      let headersArray = headers->JSON.Decode.array->Option.getOr([])
 
-      let data = arr->Array.map(ob => {
-        ob
+      let headerDataItem = headersArray->Array.map(header => {
+        header
         ->getStrArryFromJson
-        ->keyValUI
+        ->headerKeyValUI
       })
 
-      <div className=""> {data->React.array} </div>
+      <div> {headerDataItem->React.array} </div>
     }
 
     let labelColor: TableUtils.labelColor = switch statusCode {
@@ -59,13 +58,13 @@ module TabDetails = {
     | _ => LabelLightGreen
     }
 
-    <div className="h-[44rem] !max-h-[72rem] overflow-scroll">
-      {switch currTab {
-      | "Request" =>
+    <div className="h-[44rem] !max-h-[72rem] overflow-scroll mt-4">
+      {switch activeTab {
+      | Request =>
         <div className="flex flex-col w-[98%] pl-3">
           <div className=""> {"Headers"->React.string} </div>
           <div className="m-3 p-3 border border-grey-300 rounded-md max-w-[90%]">
-            {headersValues(headers)}
+            {headersValues(requestHeaders)}
           </div>
           <div className="flex justify-between">
             <div className=" mt-2"> {"Body"->React.string} </div>
@@ -80,11 +79,10 @@ module TabDetails = {
             <div> {"No Request"->React.string} </div>
           </RenderIf>
         </div>
-      | "Response" =>
+      | Response =>
         <div className="pl-4">
           <div className="flex items-center gap-2 mb-2">
             <div className=""> {"Status Code: "->React.string} </div>
-            // <div className=""> {statusCode->React.int} </div> // color pills
             <TableUtils.LabelCell labelColor text={statusCode->Int.toString} />
           </div>
           <div className=""> {"Headers"->React.string} </div>
@@ -122,7 +120,6 @@ module TabDetails = {
             <div> {"No Response"->React.string} </div>
           </RenderIf>
         </div>
-      | _ => <div> {"0"->React.string} </div>
       }}
     </div>
   }
@@ -226,7 +223,7 @@ let make = (~id) => {
       actualData={attemptTableArr->Array.map(Nullable.make)}
       totalResults={attemptTableArr->Array.length}
       resultsPerPage=20
-      entity={WebhooksHomeTableEntity.webhooksDetailsEntity()}
+      entity={WebhooksDetailsTableEntity.webhooksDetailsEntity()}
       onEntityClick={val => handleClickItem(val)}
       offset
       setOffset
@@ -235,25 +232,28 @@ let make = (~id) => {
       showSerialNumber=true
     />
 
-  let (activeTab, setActiveTab) = React.useState(_ => ["Request"])
-
-  let setActiveTab = React.useMemo(() => {
-    (str: string) => {
-      setActiveTab(_ => str->String.split(","))
-    }
-  }, [setActiveTab])
+  let tabList: array<Tabs.tab> = [
+    {
+      title: "Request",
+      renderContent: () => <TabDetails activeTab=Request selectedEvent />,
+    },
+    {
+      title: "Response",
+      renderContent: () => <TabDetails activeTab=Response selectedEvent />,
+    },
+  ]
 
   let details =
     <div className="flex flex-col">
-      <DynamicTabs
-        tabs=[
-          {title: "Request", value: "Request", isRemovable: false},
-          {title: "Response", value: "Response", isRemovable: false},
-        ]
-        setActiveTab={setActiveTab}
-        showAddMoreTabs=false
+      <Tabs
+        tabs=tabList
+        showBorder=false
+        includeMargin=false
+        lightThemeColor="black"
+        defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+        textStyle="text-blue-600"
+        selectTabBottomBorderColor="bg-blue-600"
       />
-      <TabDetails activeTab=Some(activeTab) selectedEvent />
     </div>
 
   <div className="flex flex-col gap-4">
