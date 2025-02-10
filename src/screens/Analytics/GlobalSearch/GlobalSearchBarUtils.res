@@ -165,7 +165,7 @@ let getElements = (hits, section) => {
     hits->Array.map(item => {
       let value = item->JSON.Decode.object->Option.getOr(Dict.make())
       let refId = value->getString("refund_id", "")
-      let amount = value->getAmount("total_amount", "currency")
+      let amount = value->getAmount("refund_amount", "currency")
       let status = value->getString("refund_status", "")
       let profileId = value->getString("profile_id", "")
       let orgId = value->getString("organization_id", "")
@@ -476,7 +476,13 @@ let generateFilter = (queryArray: array<string>) => {
   ->Dict.toArray
   ->Array.map(item => {
     let (key, value) = item
-    let newValue = value->Array.map(JSON.Encode.string)
+    let newValue = if key == Amount->getcategoryFromVariant {
+      value->Array.map(item => {
+        item->Float.fromString->Option.getOr(0.0)->JSON.Encode.float
+      })
+    } else {
+      value->Array.map(JSON.Encode.string)
+    }
     (key, newValue->JSON.Encode.array)
   })
   ->Dict.fromArray
