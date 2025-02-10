@@ -160,10 +160,13 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
-  let (granularity, setGranularity) = React.useState(_ =>
-    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let defaulGranularity = getDefaultGranularity(
+    ~startTime=startTimeVal,
+    ~endTime=endTimeVal,
+    ~granularity=featureFlag.granularity,
   )
+  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
 
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -224,6 +227,7 @@ let make = (
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
               ~granularity=granularity.value,
+              ~granularityEnabled=featureFlag.granularity,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -244,6 +248,7 @@ let make = (
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
+            ~granularityEnabled=featureFlag.granularity,
           )
         })
 

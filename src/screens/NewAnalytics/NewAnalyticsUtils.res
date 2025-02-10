@@ -508,9 +508,13 @@ let getGranularityOptions = (~startTime, ~endTime) => {
   })
 }
 
-let getDefaultGranularity = (~startTime, ~endTime) => {
+let getDefaultGranularity = (~startTime, ~endTime, ~granularity) => {
   let options = getGranularityOptions(~startTime, ~endTime)
-  options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
+  if granularity {
+    options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
+  } else {
+    defaulGranularity
+  }
 }
 
 let getGranularityGap = option => {
@@ -530,12 +534,13 @@ let fillMissingDataPoints = (
   ~defaultValue: JSON.t,
   ~granularity: string,
   ~isoStringToCustomTimeZone: option<string => TimeZoneHook.dateTimeString>=?,
+  ~granularityEnabled,
 ) => {
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
-    let time = switch isoStringToCustomTimeZone {
-    | Some(timeConvert) => {
+    let time = switch (isoStringToCustomTimeZone, granularityEnabled) {
+    | (Some(timeConvert), true) => {
         let value =
           item
           ->getDictFromJsonObject
