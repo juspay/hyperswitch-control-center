@@ -830,6 +830,7 @@ let make = (
                 tableHeadingTextClass
                 nonFrozenTableParentClass
                 showAutoScroll
+                showPagination
               />
             switch tableLocalFilter {
             | true =>

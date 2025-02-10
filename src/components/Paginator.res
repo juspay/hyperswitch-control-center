@@ -65,29 +65,38 @@ let make = (
     setOffset(_ => newOffset)
   }, (setOffset, resultsPerPage, currrentFetchCount, url.search, totalResults))
 
-  let marginClass = "mt-4 md:mr-0"
+  let marginClass = "md:mr-0"
 
   if totalResults >= resultsPerPage {
-    <div className={`flex ${flexDirection} justify-between ${marginClass} ${paginationClass} `}>
-      <div className={`flex flex-row w-full ${justify}`}>
+    <div
+      className={`flex ${flexDirection} bg-nd_gray-25 border border-t-0 rounded-b-lg border-nd_br_gray-300 px-6 py-2 justify-between ${marginClass} ${paginationClass} `}>
+      <div className={`flex flex-row w-full ${justify} text-sm`}>
         <RenderIf condition={!isMobileView && showResultsPerPageSelector}>
           <div
-            className="flex self-center text-center text-gray-400 dark:text-gray-500 font-medium">
-            {React.string(
-              `Showing ${start->Int.toString} to ${toNum->Int.toString} of ${totalResults->Int.toString} entries`,
-            )}
+            className="flex self-center gap-2 items-center text-center text-nd_gray-500 dark:text-gray-500 font-medium whitespace-pre">
+            <span>
+              {React.string("Showing  ")}
+              <span className="text-nd_gray-700"> {React.string(toNum->Int.toString)} </span>
+            </span>
             <SelectBox.BaseDropdown
               options=selectInputOption
-              fixedDropDownDirection={TopRight}
+              fixedDropDownDirection={TopLeft}
               buttonText=""
               searchable=false
+              marginTop="mb-8"
               allowMultiSelect=false
               input=selectInput
               hideMultiSelectButtons=true
               deselectDisable=true
               buttonType=Button.Primary
-              baseComponent={<Icon className="pl-2" size=20 name="chevron-down" />}
+              baseComponent={<Icon size=20 name="nd-chevron-down" />}
             />
+            <span>
+              {React.string("  of")}
+              <span className="text-nd_gray-700">
+                {React.string(`   ${totalResults->Int.toString}`)}
+              </span>
+            </span>
           </div>
         </RenderIf>
         {switch downloadCsv {
