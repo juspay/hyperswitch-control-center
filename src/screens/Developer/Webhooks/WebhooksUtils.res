@@ -155,11 +155,11 @@ let fetchWebhooks = async (
     | Array(arr) =>
       if arr != [] {
         let data = response->getArrayDataFromJson(itemToObjectMapper)
-        let total = data->Array.length
+        let totalCount = 100 // data->Array.length
         setData(
           ~offset,
           ~setOffset,
-          ~total,
+          ~total=totalCount,
           ~data=response->getObjectArrayFromJson,
           ~setTotalCount,
           ~setWebhooksData,
