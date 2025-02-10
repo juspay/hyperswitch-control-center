@@ -103,7 +103,7 @@ let make = (
         <RenderIf condition={showSearch}>
           <AddDataAttributes attributes=[("data-testid", "search-processor")]>
             <div
-              className="flex flex-row  border border-gray-300 rounded-2xl py-2 focus:outline-none w-1/3 font-500 ">
+              className="flex flex-row  border border-gray-300 rounded-2xl  focus:outline-none w-1/3 font-500 ">
               {leftIcon}
               <input
                 ref={searchRef->ReactDOM.Ref.domRef}

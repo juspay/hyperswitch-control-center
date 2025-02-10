@@ -55,7 +55,7 @@ let make = (~connectorInfo, ~copyValueOfWebhookEndpoint) => {
           subTitle="Review your configured processor details, enabled payment methods and associated settings."
           customSubTitleStyle="font-500 font-normal text-gray-800"
         />
-        <div className=" flex flex-col py-4 gap-4">
+        <div className=" flex flex-col py-4 gap-6">
           <div className="flex flex-col gap-0.5-rem ">
             <h4 className="text-gray-400 "> {"Profile"->React.string} </h4>
             {connectorInfodict.profile_id->React.string}

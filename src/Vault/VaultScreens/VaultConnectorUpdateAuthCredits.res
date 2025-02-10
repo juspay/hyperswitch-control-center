@@ -133,6 +133,69 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
             />
           </div>
           <div className="w-1/3">
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold"
+              field={FormRenderer.makeFieldInfo(
+                ~label,
+                ~name="connector_label",
+                ~placeholder="Enter Connector Label name",
+                ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+                ~isRequired=true,
+              )}
+            />
+            <ConnectorAuthKeysHelper.ErrorValidation
+              fieldName="connector_label"
+              validate={ConnectorAuthKeyUtils.validate(
+                ~selectedConnector,
+                ~dict=connectorLabelDetailField,
+                ~fieldName="connector_label",
+                ~isLiveMode={featureFlagDetails.isLiveMode},
+              )}
+            />
+          </div>
+          <div className="w-1/3">
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold"
+              field={FormRenderer.makeFieldInfo(
+                ~label,
+                ~name="connector_label",
+                ~placeholder="Enter Connector Label name",
+                ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+                ~isRequired=true,
+              )}
+            />
+            <ConnectorAuthKeysHelper.ErrorValidation
+              fieldName="connector_label"
+              validate={ConnectorAuthKeyUtils.validate(
+                ~selectedConnector,
+                ~dict=connectorLabelDetailField,
+                ~fieldName="connector_label",
+                ~isLiveMode={featureFlagDetails.isLiveMode},
+              )}
+            />
+          </div>
+          <div className="w-1/3">
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold"
+              field={FormRenderer.makeFieldInfo(
+                ~label,
+                ~name="connector_label",
+                ~placeholder="Enter Connector Label name",
+                ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+                ~isRequired=true,
+              )}
+            />
+            <ConnectorAuthKeysHelper.ErrorValidation
+              fieldName="connector_label"
+              validate={ConnectorAuthKeyUtils.validate(
+                ~selectedConnector,
+                ~dict=connectorLabelDetailField,
+                ~fieldName="connector_label",
+                ~isLiveMode={featureFlagDetails.isLiveMode},
+              )}
+            />
+          </div>
+          <div className="w-1/3">
             <ConnectorMetadataV2 />
           </div>
         </div>

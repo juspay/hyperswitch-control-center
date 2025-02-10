@@ -204,31 +204,20 @@ let make = () => {
           />
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
-              <div className="mb-[24px] ">
+              <div className="flex flex-col mb-[24px] gap-3 ">
                 <ConnectorAuthKeys
                   initialValues={updatedInitialVal} setInitialValues showVertically=true
                 />
-                <div className="mt-[12px]">
-                  <FormRenderer.FieldRenderer
-                    labelClass="font-semibold"
-                    field={FormRenderer.makeFieldInfo(
-                      ~label,
-                      ~name="connector_label",
-                      ~placeholder="Enter Connector Label name",
-                      ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-                      ~isRequired=true,
-                    )}
-                  />
-                  <ConnectorAuthKeysHelper.ErrorValidation
-                    fieldName="connector_label"
-                    validate={ConnectorAuthKeyUtils.validate(
-                      ~selectedConnector,
-                      ~dict=connectorLabelDetailField,
-                      ~fieldName="connector_label",
-                      ~isLiveMode={featureFlagDetails.isLiveMode},
-                    )}
-                  />
-                </div>
+                <FormRenderer.FieldRenderer
+                  labelClass="font-semibold"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label,
+                    ~name="connector_label",
+                    ~placeholder="Enter Connector Label name",
+                    ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+                    ~isRequired=true,
+                  )}
+                />
                 <ConnectorMetadataV2 />
                 <ConnectorWebhookDetails />
                 <FormRenderer.SubmitButton
@@ -270,9 +259,7 @@ let make = () => {
         />
       </div>
     | {sectionId: "review-and-connect"} =>
-      <>
-        <VaultProceesorReview connectorInfo=initialValues copyValueOfWebhookEndpoint />
-      </>
+      <VaultProceesorReview connectorInfo=initialValues copyValueOfWebhookEndpoint />
     | _ => React.null
     }}
   </div>
