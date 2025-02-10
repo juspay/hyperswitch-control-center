@@ -273,11 +273,7 @@ module ConnectorConfigurationFields = {
     ~connectorAccountFields,
     ~connector: connectorTypes,
     ~selectedConnector: integrationFields,
-    ~connectorMetaDataFields,
-    ~connectorWebHookDetails,
     ~isUpdateFlow=false,
-    ~connectorLabelDetailField,
-    ~connectorAdditionalMerchantData,
     ~showVertically=true,
   ) => {
     <div
@@ -297,32 +293,6 @@ module ConnectorConfigurationFields = {
           selectedConnector
         />
       }}
-      <RenderConnectorInputFields
-        details={connectorWebHookDetails}
-        name={"connector_webhook_details"}
-        checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
-        connector
-        selectedConnector
-      />
-
-      // <RenderConnectorInputFields
-      //   details={connectorLabelDetailField}
-      //   name={"connector_label"}
-      //   connector
-      //   selectedConnector
-      //   isLabelNested=false
-      //   description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
-      // />
-
-      // <ConnectorMetaData connectorMetaDataFields />
-      // <ConnectorAdditionalMerchantData connector connectorAdditionalMerchantData />
-      // <RenderConnectorInputFields
-      //   details={connectorWebHookDetails}
-      //   name={"connector_webhook_details"}
-      //   checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
-      //   connector
-      //   selectedConnector
-      // />
     </div>
   }
 }

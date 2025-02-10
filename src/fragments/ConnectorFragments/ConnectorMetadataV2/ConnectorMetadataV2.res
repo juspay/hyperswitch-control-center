@@ -52,15 +52,7 @@ let make = () => {
     }
   }, [selectedConnector])
 
-  let (
-    bodyType,
-    connectorAccountFields,
-    connectorMetaDataFields,
-    isVerifyConnector,
-    connectorWebHookDetails,
-    connectorLabelDetailField,
-    connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  let (_, _, connectorMetaDataFields, _, _, _, _) = getConnectorFields(connectorDetails)
 
   let keys =
     connectorMetaDataFields

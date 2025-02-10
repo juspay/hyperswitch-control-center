@@ -1,10 +1,9 @@
 @react.component
-let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
+let make = (~showVertically=true) => {
   open LogicUtils
   open ConnectorAuthKeyUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  Js.log2("connectorconnectorconnectorconnector", connector)
 
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
 
@@ -29,21 +28,13 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
     }
   }, [selectedConnector])
 
-  let (bodyType, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
+  let (_, _, _, _, connectorWebHookDetails, _, _) = getConnectorFields(connectorDetails)
 
-  React.useEffect(() => {
-    let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
-    let acc =
-      [("auth_type", bodyType->JSON.Encode.string)]
-      ->Dict.fromArray
-      ->JSON.Encode.object
-
-    let _ = updatedValues->Dict.set("connector_account_details", acc)
-    setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
-    None
-  }, [connector])
-
-  <ConnectorConfigurationFields
-    connector={connectorTypeFromName} connectorAccountFields selectedConnector showVertically
+  <RenderConnectorInputFields
+    details={connectorWebHookDetails}
+    name={"connector_webhook_details"}
+    checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
+    connector={connectorTypeFromName}
+    selectedConnector
   />
 }

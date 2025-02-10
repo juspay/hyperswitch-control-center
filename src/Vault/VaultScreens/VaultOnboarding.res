@@ -230,6 +230,7 @@ let make = () => {
                   />
                 </div>
                 <ConnectorMetadataV2 />
+                <ConnectorWebhookDetails />
                 <FormRenderer.SubmitButton
                   text="Next"
                   buttonSize={Small}
