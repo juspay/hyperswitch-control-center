@@ -4,7 +4,6 @@ let make = () => {
   open LogicUtils
   open VerticalStepIndicatorTypes
   open VerticalStepIndicatorUtils
-  open CommonAuthHooks
   open ConnectorUtils
 
   let sections = [
@@ -29,30 +28,33 @@ let make = () => {
   ]
 
   let getURL = useGetURL()
+  let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let {profileId} = getUserInfoData()
+  let {profileId, merchantId} = getUserInfoData()
   let (connectorId, setConnectorId) = React.useState(() => "")
+
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: "authenticate-processor",
     subSectionId: None,
   })
-  let connectorLabelDetailField = Dict.fromArray([
-    ("connector_label", "Connector label"->JSON.Encode.string),
-  ])
+
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+
   let getWebhooksUrl = (~connectorName, ~merchantId) => {
     `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
   }
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+
   let connectorInfo = initialValues
+
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+
   let copyValueOfWebhookEndpoint = getWebhooksUrl(
     ~connectorName={connectorInfo.merchant_connector_id},
     ~merchantId,
@@ -70,14 +72,12 @@ let make = () => {
   }, [connector])
   let labelFieldDict = ConnectorAuthKeyUtils.connectorLabelDetailField
   let label = labelFieldDict->getString("connector_label", "")
-  let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
   let connectorName = connectorInfo.connector_name->getDisplayNameForConnector
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
-  let activeBusinessProfile =
-    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
+  let activeBusinessProfile = getNameForId(#Profile)
 
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
@@ -85,7 +85,7 @@ let make = () => {
     initialValuesToDict->Dict.set("connector_name", `${connector}`->JSON.Encode.string)
     initialValuesToDict->Dict.set(
       "connector_label",
-      `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+      `${connector}_${activeBusinessProfile}`->JSON.Encode.string,
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
@@ -99,6 +99,7 @@ let make = () => {
     | None => ()
     }
   }
+
   let handleWebHookCopy = copyValue => {
     Clipboard.writeText(copyValue)
     showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
@@ -229,11 +230,14 @@ let make = () => {
                   />
                 </div>
                 <ConnectorMetadataV2 />
+                <FormRenderer.SubmitButton
+                  text="Next"
+                  buttonSize={Small}
+                  customSumbitButtonStyle="!w-full mt-8"
+                  tooltipForWidthClass="w-full"
+                />
               </div>
               <FormValuesSpy />
-              <FormRenderer.SubmitButton
-                text="Next" buttonSize={Small} customSumbitButtonStyle="w-full mt-8"
-              />
             </Form>
           </PageLoaderWrapper>
         </div>

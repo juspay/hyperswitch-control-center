@@ -92,7 +92,7 @@ module.exports = {
         standardPageWidth: "67.5rem",
       },
       gap: {
-        "0.5-rem": "0.5rem"
+        "0.5-rem": "0.5rem",
       },
       maxWidth: {
         fixedPageWidth: "82.75rem",
