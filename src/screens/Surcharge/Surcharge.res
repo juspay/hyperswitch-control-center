@@ -303,6 +303,7 @@ let make = () => {
     } else {
       redirectToNewRule()
     }
+    setInitialValues(_ => buildInitialSurchargeValue->Identity.genericTypeToJson)
   }
 
   <PageLoaderWrapper screenState>
