@@ -46,14 +46,14 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
 
   let nonEmpty = s => s >= startIndex && s <= endIndex
 
-  let leftIcon: Button.iconType = Euler("LeftPagination")
+  let leftIcon: Button.iconType = CustomIcon(<Icon name="angle-left" />)
 
-  let rightIcon: Button.iconType = Euler("RightPagination")
+  let rightIcon: Button.iconType = CustomIcon(<Icon name="angle-right" />)
   let buttonType: Button.buttonType = Pagination
 
   {
     if !isMobileView {
-      <ButtonGroup wrapperClass="flex flex-row gap-x-1.5">
+      <ButtonGroup wrapperClass="flex flex-row gap-x-2 items-center">
         <Button
           leftIcon
           buttonType
@@ -62,7 +62,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           } else {
             Disabled
           }}
-          customButtonStyle="!h-10 !w-12 secondary-gradient-border !border-0"
+          customButtonStyle="!w-6 !h-7 py-2 px-3.5 border-0 m-1 !min-w-0 !rounded-lg"
           onClick={_ => paginate(Math.Int.max(1, currentPage - 1))}
         />
         {pageNumbers
@@ -75,7 +75,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
             text={number->Int.toString}
             onClick={_ => paginate(number)}
             buttonType
-            customButtonStyle="!h-10 !w-12 secondary-gradient-border !border-0"
+            customButtonStyle="!w-6 fs-12 !h-8 py-2 px-3.5 m-1 !min-w-0 "
             buttonState={if isSelected {
               NoHover
             } else {
@@ -88,7 +88,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           rightIcon
           buttonType
           onClick={_ => paginate(currentPage + 1)}
-          customButtonStyle="!h-10 !w-12 secondary-gradient-border !border-0"
+          customButtonStyle="!w-6 !h-7 py-2 px-3.5 border-0 m-1 !min-w-0 !rounded-lg"
           buttonState={if currentPage < Array.length(pageNumbers) {
             Normal
           } else {

@@ -4,9 +4,9 @@ module CopyTextCustomComp = {
     ~displayValue,
     ~copyValue=None,
     ~customTextCss="",
-    ~customParentClass="flex items-center",
+    ~customParentClass="flex items-center justify-between",
     ~customOnCopyClick=() => (),
-    ~customIconCss="text-jp-gray-700 w-4 h-4",
+    ~customIconCss="h-7 opacity-70",
   ) => {
     let showToast = ToastState.useShowToast()
 
@@ -90,7 +90,9 @@ module EllipsisText = {
         </div>
       </RenderIf>
       <RenderIf condition={showCopy}>
-        <Icon name="nd-copy" className="cursor-pointer" onClick={ev => onCopyClick(ev)} />
+        <Icon
+          name="nd-copy" className="cursor-pointer opacity-70" onClick={ev => onCopyClick(ev)}
+        />
       </RenderIf>
     </div>
   }
