@@ -518,7 +518,7 @@ let make = (
     | false => "275px"
     }
   }
-  let profileMaxWidth = "130px"
+  let profileMaxWidth = "150px"
 
   let level3 = tail => {
     switch List.tail(tail) {
