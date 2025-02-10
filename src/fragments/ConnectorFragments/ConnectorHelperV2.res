@@ -141,8 +141,8 @@ let currencyField = (
 
 module InfoField = {
   @react.component
-  let make = (~label, ~str) => {
-    <div className="flex flex-col justify-center gap-0.5-rem ">
+  let make = (~label, ~str, ~customElementStyle="") => {
+    <div className={`flex flex-col justify-center gap-0.5-rem ${customElementStyle} `}>
       <h2 className="flex-[1] text-gray-400 "> {label->React.string} </h2>
       <h3 className="flex-[3]  overflow-scroll whitespace-nowrap"> {str->React.string} </h3>
     </div>
@@ -150,18 +150,28 @@ module InfoField = {
 }
 module CredsInfoField = {
   @react.component
-  let make = (~authKeys, ~connectorAccountFields, ~customStyle) => {
+  let make = (
+    ~authKeys,
+    ~connectorAccountFields,
+    ~customContainerStyle=?,
+    ~customElementStyle="",
+  ) => {
     open LogicUtils
-
+    let customContainerCss = {
+      switch customContainerStyle {
+      | Some(val) => val
+      | None => "flex flex-col gap-4"
+      }
+    }
     let dict = authKeys->Identity.genericTypeToDictOfJson
-    <div className={`flex ${customStyle} gap-4`}>
+    <div className=customContainerCss>
       {dict
       ->Dict.keysToArray
       ->Array.filter(ele => ele !== "auth_type")
       ->Array.map(field => {
         let value = dict->getString(field, "")
         let label = connectorAccountFields->getString(field, "")
-        <InfoField label str=value />
+        <InfoField label str=value customElementStyle />
       })
       ->React.array}
     </div>
@@ -198,23 +208,28 @@ module PreviewCreds = {
   let make = (
     ~connectorAccountFields,
     ~connectorInfo: ConnectorTypes.connectorPayload,
-    ~customStyle=?,
+    ~customContainerStyle=?,
+    ~customElementStyle=?,
   ) => {
-    let customStyle = {
-      switch customStyle {
-      | Some(val) => val
-      | _ => "flex-col"
-      }
-    }
     switch connectorInfo.connector_account_details {
-    | HeaderKey(authKeys) => <CredsInfoField authKeys connectorAccountFields customStyle />
-    | BodyKey(bodyKey) => <CredsInfoField authKeys=bodyKey connectorAccountFields customStyle />
+    | HeaderKey(authKeys) =>
+      <CredsInfoField authKeys connectorAccountFields ?customContainerStyle ?customElementStyle />
+    | BodyKey(bodyKey) =>
+      <CredsInfoField
+        authKeys=bodyKey connectorAccountFields ?customContainerStyle ?customElementStyle
+      />
     | SignatureKey(signatureKey) =>
-      <CredsInfoField authKeys=signatureKey connectorAccountFields customStyle />
+      <CredsInfoField
+        authKeys=signatureKey connectorAccountFields ?customContainerStyle ?customElementStyle
+      />
     | MultiAuthKey(multiAuthKey) =>
-      <CredsInfoField authKeys=multiAuthKey connectorAccountFields customStyle />
+      <CredsInfoField
+        authKeys=multiAuthKey connectorAccountFields ?customContainerStyle ?customElementStyle
+      />
     | CertificateAuth(certificateAuth) =>
-      <CredsInfoField authKeys=certificateAuth connectorAccountFields customStyle />
+      <CredsInfoField
+        authKeys=certificateAuth connectorAccountFields ?customContainerStyle ?customElementStyle
+      />
     | CurrencyAuthKey(currencyAuthKey) => <CashtoCodeCredsInfo authKeys=currencyAuthKey />
     | UnKnownAuthType(_) => React.null
     }

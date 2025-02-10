@@ -100,11 +100,6 @@ let make = () => {
     }
   }
 
-  let handleWebHookCopy = copyValue => {
-    Clipboard.writeText(copyValue)
-    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-  }
-
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -156,14 +151,15 @@ let make = () => {
       }
     }
   }, [selectedConnector])
+
   let (
-    bodyType,
+    _,
     connectorAccountFields,
     connectorMetaDataFields,
-    isVerifyConnector,
+    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
-    connectorAdditionalMerchantData,
+    _,
   ) = getConnectorFields(connectorDetails)
 
   let validateMandatoryField = values => {
@@ -208,16 +204,17 @@ let make = () => {
                 <ConnectorAuthKeys
                   initialValues={updatedInitialVal} setInitialValues showVertically=true
                 />
-                <FormRenderer.FieldRenderer
-                  labelClass="font-semibold"
-                  field={FormRenderer.makeFieldInfo(
-                    ~label,
-                    ~name="connector_label",
-                    ~placeholder="Enter Connector Label name",
-                    ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-                    ~isRequired=true,
-                  )}
-                />
+                // <FormRenderer.FieldRenderer
+                //   labelClass="font-semibold"
+                //   field={FormRenderer.makeFieldInfo(
+                //     ~label,
+                //     ~name="connector_label",
+                //     ~placeholder="Enter Connector Label name",
+                //     ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+                //     ~isRequired=true,
+                //   )}
+                // />
+                <ConnectorLabelV2 />
                 <ConnectorMetadataV2 />
                 <ConnectorWebhookDetails />
                 <FormRenderer.SubmitButton
@@ -239,18 +236,26 @@ let make = () => {
           subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
           customSubTitleStyle="font-500 font-normal text-gray-800"
         />
-        <div className="flex flex-row items-center justify-between ">
-          <div
-            className="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-gray-400">
-            {displayValueofWebHookUrl->React.string}
-          </div>
-          <Button
-            leftIcon={CustomIcon(<Icon name="nd-copy" />)}
-            text="Copy"
-            customButtonStyle=" ml-4 w-[2px]"
-            onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}
-          />
-        </div>
+        // <div className="flex flex-row items-center justify-between">
+        //   <div
+        //     className="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-gray-400">
+        //     {displayValueofWebHookUrl->React.string}
+        //   </div>
+        //   <Button
+        //     leftIcon={CustomIcon(<Icon name="nd-copy" />)}
+        //     text="Copy"
+        //     customButtonStyle=" ml-4 w-[2px]"
+        //     onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}
+        //   />
+        // </div>
+        <ConnectorWebhookPreview
+          merchantId=connectorInfo.merchant_connector_id
+          connectorName
+          textCss="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-gray-400"
+          containerClass="flex flex-row items-center justify-between"
+          hideLabel=true
+          showFullCopy=true
+        />
         <Button
           text="Next"
           buttonType=Primary

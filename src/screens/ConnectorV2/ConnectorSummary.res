@@ -39,12 +39,10 @@ let make = () => {
     Nullable.null
   }
 
-  <>
-    <PageLoaderWrapper screenState>
-      <Form onSubmit initialValues>
-        <PaymentProcessorSummary initialValues setInitialValues />
-        <FormValuesSpy />
-      </Form>
-    </PageLoaderWrapper>
-  </>
+  <PageLoaderWrapper screenState>
+    <Form onSubmit initialValues>
+      <PaymentProcessorSummary initialValues setInitialValues />
+      <FormValuesSpy />
+    </Form>
+  </PageLoaderWrapper>
 }

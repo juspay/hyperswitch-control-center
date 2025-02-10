@@ -13,17 +13,14 @@ let make = (~initialValues, ~setInitialValues) => {
     ->connectorTypeTypedValueToStringMapper
     ->connectorTypeTuple
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+
   let copyValueOfWebhookEndpoint = getWebhooksUrl(
     ~connectorName={connectorInfodict.merchant_connector_id},
     ~merchantId,
   )
-  // let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
-  let getDisplayValueOfWebHookUrl = (~connectorName) => {
-    `${Window.env.apiBaseUrl}.../${connectorName}`
-  }
-  let displayValueofWebHookUrl = getDisplayValueOfWebHookUrl(
-    ~connectorName={connectorInfodict.merchant_connector_id},
-  )
+
+  let displayValueofWebHookUrl = `${Window.env.apiBaseUrl}.../${connectorName}`
+
   let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
@@ -73,15 +70,16 @@ let make = (~initialValues, ~setInitialValues) => {
       </div>
     </div>
     <div className="flex gap-10 max-w-3xl flex-wrap">
-      <div className="flex flex-col gap-2 ">
-        <h4 className="text-gray-400"> {"Webhook Url"->React.string} </h4>
-        <div className="flex flex-row">
-          {displayValueofWebHookUrl->React.string}
-          <div className="ml-2" onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}>
-            <Icon name="nd-copy" />
-          </div>
-        </div>
-      </div>
+      // <div className="flex flex-col gap-2 ">
+      //   <h4 className="text-gray-400"> {"Webhook Url"->React.string} </h4>
+      //   <div className="flex flex-row">
+      //     {displayValueofWebHookUrl->React.string}
+      //     <div className="ml-2" onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}>
+      //       <Icon name="nd-copy" />
+      //     </div>
+      //   </div>
+      // </div>
+      <ConnectorWebhookPreview merchantId=connectorInfodict.merchant_connector_id connectorName />
       <div className="flex flex-col gap-0.5-rem ">
         <h4 className="text-gray-400 "> {"Profile"->React.string} </h4>
         {connectorInfodict.profile_id->React.string}
@@ -94,34 +92,53 @@ let make = (~initialValues, ~setInitialValues) => {
         </div>
       </div>
     </div>
-    <div>
+    <div className="flex flex-col gap-4">
       <div className="flex justify-between border-b pb-4 px-2 items-end">
         <p className="text-md font-semibold"> {"Credentials"->React.string} </p>
         <div className="flex gap-4">
-          <FormRenderer.SubmitButton text="Submit" buttonSize={Small} />
-          <Button text="Continue" buttonType={Secondary} buttonSize={Small} />
+          <Button
+            text="Continue" buttonType={Secondary} buttonSize={Small} customButtonStyle="w-fit"
+          />
+          <FormRenderer.SubmitButton
+            text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+          />
         </div>
       </div>
-      <VaultConnectorUpdateAuthCredits connectorInfo=connectorInfodict />
+      <Form initialValues formClass="grid grid-cols-2 gap-10 flex-wrap max-w-3xl">
+        <ConnectorLabelV2 />
+        <ConnectorMetadataV2 />
+        <ConnectorWebhookDetails />
+      </Form>
     </div>
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-4">
       <div className="flex justify-between border-b pb-4 px-2 items-end">
         <p className="text-md font-semibold"> {"Authentication keys"->React.string} </p>
         <div className="flex gap-4">
-          <FormRenderer.SubmitButton text="Submit" buttonSize={Small} />
-          <Button text="Continue" buttonType={Secondary} buttonSize={Small} />
+          <Button
+            text="Continue" buttonType={Secondary} buttonSize={Small} customButtonStyle="w-fit"
+          />
+          <FormRenderer.SubmitButton
+            text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+          />
         </div>
       </div>
       <ConnectorHelperV2.PreviewCreds
-        connectorInfo=connectorInfodict connectorAccountFields customStyle="flex-row px-2"
+        connectorInfo=connectorInfodict
+        connectorAccountFields
+        customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl"
+        customElementStyle="px-2"
       />
     </div>
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-4">
       <div className="flex justify-between border-b pb-4 px-2 items-end">
         <p className="text-md font-semibold"> {"PMTs"->React.string} </p>
         <div className="flex gap-4">
-          <FormRenderer.SubmitButton text="Submit" />
-          <Button text="Continue" buttonType={Secondary} />
+          <Button
+            text="Continue" buttonType={Secondary} buttonSize={Small} customButtonStyle="w-fit"
+          />
+          <FormRenderer.SubmitButton
+            text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+          />
         </div>
       </div>
       <ConnectorPaymentMethodV2 initialValues setInitialValues />

@@ -65,15 +65,18 @@ let make = (~connectorInfo, ~copyValueOfWebhookEndpoint) => {
               connectorInfo=connectorInfodict connectorAccountFields
             />
           </div>
-          <div className="flex flex-col gap-2 ">
-            <h4 className="text-gray-400"> {"Webhook Url"->React.string} </h4>
-            <div className="flex flex-row">
-              {copyValueOfWebhookEndpoint->React.string}
-              <div className="ml-2" onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}>
-                <Icon name="nd-copy" />
-              </div>
-            </div>
-          </div>
+          // <div className="flex flex-col gap-2 ">
+          //   <h4 className="text-gray-400"> {"Webhook Url"->React.string} </h4>
+          //   <div className="flex flex-row">
+          //     {copyValueOfWebhookEndpoint->React.string}
+          //     <div className="ml-2" onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}>
+          //       <Icon name="nd-copy" />
+          //     </div>
+          //   </div>
+          // </div>
+          <ConnectorWebhookPreview
+            merchantId=connectorInfodict.merchant_connector_id connectorName
+          />
         </div>
       </div>
       <ACLButton
