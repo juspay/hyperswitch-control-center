@@ -34,7 +34,9 @@ let make = () => {
       <Button
         text="Get Started"
         onClick={_ => {
-          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery"))
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(~url="/v2/recovery/connectors/new?name=adyen"),
+          )
         }}
         buttonType=Primary
         buttonSize=Large

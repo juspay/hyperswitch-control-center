@@ -39,6 +39,16 @@ let make = () => {
     Nullable.null
   }
 
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+
+    (
+      () => {
+        setShowSideBar(_ => true)
+      }
+    )->Some
+  }, [])
+
   let onSucessClick = () => {
     setShowSideBar(_ => true)
     RescriptReactRouter.replace(
@@ -57,7 +67,7 @@ let make = () => {
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
       }}
     />
-    <div className="flex flex-row gap-x-4">
+    <div className="flex flex-row gap-x-4 ml-14 mt-16">
       <Form onSubmit initialValues>
         {switch currentStep {
         | {sectionId: "connectProcessor", subSectionId: Some("selectProcessor")} =>
@@ -65,8 +75,11 @@ let make = () => {
             <ConnectorAuthKeys
               initialValues={updatedInitialVal} setInitialValues showVertically=true
             />
-            <FormValuesSpy />
-            <FormRenderer.SubmitButton text="Submit" buttonSize={Small} />
+            <Button
+              text="Next"
+              buttonType=Primary
+              onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            />
           </div>
         | {sectionId: "connectProcessor", subSectionId: Some("activePaymentMethods")}
         | {sectionId: "connectProcessor", subSectionId: Some("setupWebhookProcessor")} =>
@@ -81,7 +94,17 @@ let make = () => {
             />
             {"payment"->React.string}
           </div>
-        | {sectionId: "addAPlatform", subSectionId: Some("selectAPlatform")}
+        | {sectionId: "addAPlatform", subSectionId: Some("selectAPlatform")} =>
+          <div>
+            <BillingConnectorAuthKeys
+              initialValues={updatedInitialVal} setInitialValues showVertically=true
+            />
+            <Button
+              text="Next"
+              buttonType=Primary
+              onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            />
+          </div>
         | {sectionId: "addAPlatform", subSectionId: Some("configureRetries")}
         | {sectionId: "addAPlatform", subSectionId: Some("connectProcessor")}
         | {sectionId: "addAPlatform", subSectionId: Some("setupWebhookPlatform")} =>
@@ -99,6 +122,7 @@ let make = () => {
         | {sectionId: "reviewDetails"} => "Review"->React.string
         | _ => React.null
         }}
+        <FormValuesSpy />
       </Form>
     </div>
   </div>
