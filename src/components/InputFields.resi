@@ -291,6 +291,9 @@ let multiLineTextInput: (
   ~leftIcon: React.element=?,
   ~maxLength: int=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
+
+let fileInput: unit => (~input: ReactFinalForm.fieldRenderPropsInput) => React.element
+
 let iconFieldWithMessageDes: (
   (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element,
   ~description: string=?,

@@ -84,8 +84,8 @@ module.exports = {
         "147-px": "147px",
         "334-px": "334px",
         "499-px": "499px",
+        "500-px": "500px",
         "1034-px": "1034px",
-
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",
         standardPageWidth: "67.5rem",

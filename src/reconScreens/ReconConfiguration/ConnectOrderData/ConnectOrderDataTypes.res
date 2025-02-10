@@ -1,1 +1,1 @@
-type orderDataSteps = Hyperswitch | OrderManagementSystem | BigQuery
+type orderDataSteps = Hyperswitch | OrderManagementSystem | Dummy

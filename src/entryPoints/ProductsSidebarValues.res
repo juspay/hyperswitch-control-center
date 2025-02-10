@@ -13,7 +13,7 @@ let useGetSideBarValues = () => {
   }
 
   if devRecoveryV2Product {
-    sideBarValues->Array.pushMany(RevenueRecoverySidebarValues.recoverySidebars)
+    sideBarValues->Array.push(RevenueRecoverySidebarValues.recoverySidebars)
   }
 
   sideBarValues

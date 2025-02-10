@@ -714,7 +714,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
 
   let sidebarValuesForProduct = switch currentProduct {
   | Orchestrator => hsSidebars
-  | Recon => [ReconSidebarValues.reconSidebars]
+  | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   }
