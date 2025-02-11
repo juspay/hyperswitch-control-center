@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   open PageUtils
-
+  open VaultHomeUtils
   <div className="flex flex-1 flex-col w-full gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
     <div className="flex flex-col gap-8 items-center">
@@ -27,32 +27,13 @@ let make = () => {
       />
     </div>
     <div className="flex gap-4 max-w-800">
-      <div
-        className="border rounded-lg p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer">
-        <img alt="vaultServerImage" src="/assets/VaultServerImage.svg" />
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-semibold">
-            {"Learn how to vault from your server"->React.string}
-          </p>
-          <p className="text-xs text-nd_gray-400 font-normal">
-            {"If you're PCI compliant, you can vault cards directly to Hyperswitch's Vault service from your server."->React.string}
-          </p>
-        </div>
-        <Icon name="angle-right" size=16 className="group-hover:scale-125" />
-      </div>
-      <div
-        className="border rounded-lg p-3 flex items-center gap-4 shadow-cardShadow cursor-pointer group">
-        <img alt="vaultSdkImage" src="/assets/VaultSdkImage.svg" />
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-semibold">
-            {"Learn using Hyperswitch vault SDK"->React.string}
-          </p>
-          <p className="text-xs text-nd_gray-400 font-normal">
-            {"If you're not PCI compliant, securely store cards using our Vault SDK with Hyperswitch's Vault service."->React.string}
-          </p>
-        </div>
-        <Icon name="angle-right" size=16 className="group-hover:scale-125" />
-      </div>
+      {vaultActionArray
+      ->Array.map(item =>
+        <VaultActionItem
+          heading=item.heading description=item.description img=item.imgSrc action=item.action
+        />
+      )
+      ->React.array}
     </div>
   </div>
 }

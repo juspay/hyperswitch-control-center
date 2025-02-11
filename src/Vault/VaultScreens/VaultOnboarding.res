@@ -5,27 +5,7 @@ let make = () => {
   open VerticalStepIndicatorTypes
   open VerticalStepIndicatorUtils
   open ConnectorUtils
-
-  let sections = [
-    {
-      id: "authenticate-processor",
-      name: "Authenticate your processor",
-      icon: "nd-shield",
-      subSections: None,
-    },
-    {
-      id: "setup-webhook",
-      name: "Setup Webhook",
-      icon: "nd-webhook",
-      subSections: None,
-    },
-    {
-      id: "review-and-connect",
-      name: "Review and Connect",
-      icon: "nd-flag",
-      subSections: None,
-    },
-  ]
+  open VaultHomeUtils
 
   let getURL = useGetURL()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
@@ -37,9 +17,9 @@ let make = () => {
   let {profileId} = getUserInfoData()
   let (_, setConnectorId) = React.useState(() => "")
   let showToast = ToastState.useShowToast()
-  let connectorInfo = initialValues
   let connectorInfoDict =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  Js.log2("connectorInfoDict", connectorInfoDict)
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: "authenticate-processor",
     subSectionId: None,
@@ -93,19 +73,13 @@ let make = () => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-        if errorCode === "HE_01" {
-          showToast(~message="Connector label already exist!", ~toastType=ToastError)
-        } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
-        }
+        errorCode === "HE_01"
+          ? showToast(~message="Connector label already exist!", ~toastType=ToastError)
+          : showToast(~message=errorMessage, ~toastType=ToastError)
         setScreenState(_ => PageLoaderWrapper.Error(`Failed to connect processor ${errorMessage}`))
       }
     }
     Nullable.null
-  }
-
-  let onSucessClick = () => {
-    onNextClick()
   }
 
   let backClick = () => {
@@ -116,7 +90,6 @@ let make = () => {
     try {
       if connector->isNonEmptyString {
         let dict = Window.getConnectorConfig(connector)
-
         dict
       } else {
         Dict.make()->JSON.Encode.object
@@ -201,12 +174,12 @@ let make = () => {
         <PageUtils.PageHeading
           title="Setup Webhook"
           subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
-          customSubTitleStyle="font-500 font-normal text-gray-800"
+          customSubTitleStyle="font-medium text-gray-800"
         />
         <ConnectorWebhookPreview
           merchantId=connectorInfoDict.merchant_connector_id
           connectorName
-          textCss="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-gray-400"
+          textCss="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6 text-gray-400 text-sm"
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true
           showFullCopy=true
@@ -214,7 +187,7 @@ let make = () => {
         <Button
           text="Next"
           buttonType=Primary
-          onClick={_ => onSucessClick()->ignore}
+          onClick={_ => onNextClick()->ignore}
           customButtonStyle="w-full mt-8"
         />
       </div>
