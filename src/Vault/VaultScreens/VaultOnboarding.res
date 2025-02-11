@@ -73,7 +73,6 @@ let make = () => {
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "HE_01" {
-          Js.log("here")
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setNextStep(_ => {
             sectionId: "authenticate-processor",

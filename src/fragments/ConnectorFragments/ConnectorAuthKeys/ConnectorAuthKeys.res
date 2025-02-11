@@ -4,7 +4,6 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   open ConnectorFragmentUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  Js.log2("connectorconnectorconnectorconnector", connector)
 
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
 

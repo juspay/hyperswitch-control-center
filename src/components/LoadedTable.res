@@ -923,6 +923,7 @@ let make = (
           <div className="w-full">
             <RenderIf condition={!hideTitle}>
               <NewThemeHeading
+                headingColor="text-nd_gray-600"
                 heading=title
                 headingSize=titleSize
                 outerMargin=""
