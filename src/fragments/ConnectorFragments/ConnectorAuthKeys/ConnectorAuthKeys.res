@@ -1,7 +1,7 @@
 @react.component
 let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   open LogicUtils
-  open ConnectorAuthKeyUtils
+  open ConnectorFragmentUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   Js.log2("connectorconnectorconnectorconnector", connector)

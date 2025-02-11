@@ -7,6 +7,7 @@ let make = () => {
   open ConnectorUtils
   open CommonAuthHooks
   open VaultHomeUtils
+  open PageLoaderWrapper
 
   let getURL = useGetURL()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
@@ -14,22 +15,20 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (screenState, setScreenState) = React.useState(_ => Success)
   let {profileId} = getUserInfoData()
-  let (_, setConnectorId) = React.useState(() => "")
   let showToast = ToastState.useShowToast()
   let connectorInfoDict =
     initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
-  Js.log2("connectorInfoDict", connectorInfoDict)
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: "authenticate-processor",
     subSectionId: None,
   })
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
+  let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let selectedConnector = React.useMemo(() => {
-    connectorTypeFromName->ConnectorUtils.getConnectorInfo
+    connectorTypeFromName->getConnectorInfo
   }, [connector])
   let connectorName = connectorInfoDict.connector_name->getDisplayNameForConnector
   let getNextStep = (currentStep: step): option<step> => {
@@ -61,24 +60,30 @@ let make = () => {
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
+      setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post)
       setInitialValues(_ => response)
-      let connectorId = response->getDictFromJsonObject->getString("merchant_connector_id", "")
-      setConnectorId(_ => connectorId)
       fetchConnectorListResponse()->ignore
+      setScreenState(_ => Success)
       onNextClick()
-      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-        errorCode === "HE_01"
-          ? showToast(~message="Connector label already exist!", ~toastType=ToastError)
-          : showToast(~message=errorMessage, ~toastType=ToastError)
-        setScreenState(_ => PageLoaderWrapper.Error(`Failed to connect processor ${errorMessage}`))
+        if errorCode === "HE_01" {
+          Js.log("here")
+          showToast(~message="Connector label already exist!", ~toastType=ToastError)
+          setNextStep(_ => {
+            sectionId: "authenticate-processor",
+            subSectionId: None,
+          })
+          setScreenState(_ => Success)
+        } else {
+          showToast(~message=errorMessage, ~toastType=ToastError)
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
       }
     }
     Nullable.null
@@ -180,7 +185,7 @@ let make = () => {
         <ConnectorWebhookPreview
           merchantId
           connectorName=connectorInfoDict.merchant_connector_id
-          textCss="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
+          textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true
           showFullCopy=true

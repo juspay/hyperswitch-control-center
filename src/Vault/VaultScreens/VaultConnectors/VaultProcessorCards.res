@@ -39,7 +39,6 @@ let make = (
   ~connectorsAvailableForIntegration: array<ConnectorTypes.connectorTypes>,
   ~configuredConnectors: array<ConnectorTypes.connectorTypes>,
   ~showAllConnectors=true,
-  ~urlPrefix: string,
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
   ~showTestProcessor=false,
@@ -119,8 +118,7 @@ let make = (
         <RenderIf
           condition={!featureFlagDetails.isLiveMode &&
           configuredConnectors->Array.length > 0 &&
-          showDummyConnectorButton &&
-          urlPrefix == "connectors/new"}>
+          showDummyConnectorButton}>
           <ACLButton
             authorization={userHasAccess(~groupAccess=ConnectorsManage)}
             leftIcon={CustomIcon(
@@ -152,7 +150,7 @@ let make = (
             <ACLDiv
               authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               onClick={_ => handleClick(connectorName)}
-              key={i->string_of_int}
+              key={i->Int.toString}
               className="border p-6 gap-4 bg-white rounded-lg flex flex-col  justify-between h-12.5-rem hover:bg-gray-50 hover:cursor-pointer"
               dataAttrStr=connectorName>
               <div className="flex flex-row gap-3 items-center">
@@ -161,7 +159,7 @@ let make = (
                   {connectorName->getDisplayNameForConnector(~connectorType)->React.string}
                 </p>
               </div>
-              <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
+              <p className="overflow-hidden text-nd_gray-400 flex-1 line-clamp-3">
                 {connectorInfo.description->React.string}
               </p>
             </ACLDiv>

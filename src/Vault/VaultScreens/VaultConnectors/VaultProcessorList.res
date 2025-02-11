@@ -23,7 +23,7 @@ let make = () => {
       setConfiguredConnectors(_ => connectorsList->getConnectorTypeArrayFromListConnectors)
       setScreenState(_ => Success)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
   React.useEffect(() => {
@@ -83,9 +83,7 @@ let make = () => {
           collapseTableRow=false
         />
       </RenderIf>
-      <VaultProcessorCards
-        configuredConnectors connectorsAvailableForIntegration urlPrefix="connectors/new"
-      />
+      <VaultProcessorCards configuredConnectors connectorsAvailableForIntegration />
     </div>
   </PageLoaderWrapper>
 }

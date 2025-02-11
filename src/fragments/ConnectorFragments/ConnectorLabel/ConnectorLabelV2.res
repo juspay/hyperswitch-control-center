@@ -1,7 +1,7 @@
 @react.component
 let make = (~labelTextStyleClass="", ~labelClass="font-semibold") => {
   open LogicUtils
-  let labelFieldDict = ConnectorAuthKeyUtils.connectorLabelDetailField
+  let labelFieldDict = ConnectorFragmentUtils.connectorLabelDetailField
   let label = labelFieldDict->getString("connector_label", "")
   <FormRenderer.FieldRenderer
     labelClass

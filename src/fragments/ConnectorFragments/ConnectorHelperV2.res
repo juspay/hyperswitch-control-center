@@ -236,16 +236,10 @@ module PreviewCreds = {
   }
 }
 
-let connectorMetaDataNameMapper = name => {
-  switch name {
-  | _ => `metadata.${name}`
-  }
-}
-
 let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonConnectorTypes.inputField) => {
   let {\"type", name} = connectorMetaDataFields
 
-  let formName = connectorMetaDataNameMapper(name)
+  let formName = `metadata.${name}`
 
   {
     switch (\"type", name) {
@@ -255,23 +249,6 @@ let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonConnectorType
     | (Toggle, _) => toggleInput(~field={connectorMetaDataFields}, ~formName)
     | (MultiSelect, _) => multiSelectInput(~field={connectorMetaDataFields}, ~formName)
     | _ => textInput(~field={connectorMetaDataFields}, ~formName)
-    }
-  }
-}
-let connectorWebhookDetailsValueInput = (
-  ~connectorWebHookDetails: CommonConnectorTypes.inputField,
-) => {
-  let {\"type", name} = connectorWebHookDetails
-
-  let formName = connectorMetaDataNameMapper(name)
-
-  {
-    switch (\"type", name) {
-    | (Text, _) => textInput(~field={connectorWebHookDetails}, ~formName, ~customStyle="rounded-xl")
-    | (Select, _) => selectInput(~field={connectorWebHookDetails}, ~formName)
-    | (Toggle, _) => toggleInput(~field={connectorWebHookDetails}, ~formName)
-    | (MultiSelect, _) => multiSelectInput(~field={connectorWebHookDetails}, ~formName)
-    | _ => textInput(~field={connectorWebHookDetails}, ~formName)
     }
   }
 }

@@ -2,7 +2,7 @@
 let make = (~labelTextStyleClass="", ~labelClass="font-semibold !text-hyperswitch_black") => {
   open LogicUtils
   open ConnectorMetaDataUtils
-  open ConnectorAuthKeyUtils
+  open ConnectorFragmentUtils
 
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
@@ -11,30 +11,6 @@ let make = (~labelTextStyleClass="", ~labelClass="font-semibold !text-hyperswitc
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
   }, [connector])
 
-  let getConnectorFields = connectorDetails => {
-    let connectorAccountDict =
-      connectorDetails->getDictFromJsonObject->getDictfromDict("connector_auth")
-    let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
-    let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
-    let connectorMetaDataFields =
-      connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
-    let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
-    let connectorWebHookDetails =
-      connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
-    let connectorAdditionalMerchantData =
-      connectorDetails
-      ->getDictFromJsonObject
-      ->getDictfromDict("additional_merchant_data")
-    (
-      bodyType,
-      connectorAccountFields,
-      connectorMetaDataFields,
-      isVerifyConnector,
-      connectorWebHookDetails,
-      connectorLabelDetailField,
-      connectorAdditionalMerchantData,
-    )
-  }
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {

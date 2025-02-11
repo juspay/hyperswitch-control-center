@@ -10,7 +10,7 @@ let make = (
 ) => {
   let showToast = ToastState.useShowToast()
   let copyValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
-  let displayValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}...${merchantId}/${connectorName}`
+  let displayValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}...${connectorName}`
   let handleWebHookCopy = copyValue => {
     Clipboard.writeText(copyValue)
     showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
@@ -21,13 +21,15 @@ let make = (
 
   <div className="flex flex-col gap-2">
     <RenderIf condition={!hideLabel}>
-      <h4 className="text-gray-400"> {"Webhook Url"->React.string} </h4>
+      <h4 className="text-nd_gray-400 "> {"Webhook Url"->React.string} </h4>
     </RenderIf>
     <div className=containerClass>
       <p className=textCss> {valueOfWebhookEndPoint->React.string} </p>
-      <div className="ml-2" onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}>
+      <div className="ml-2">
         <RenderIf condition={!showFullCopy}>
-          <Icon name="nd-copy" />
+          <div onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}>
+            <Icon name="nd-copy" />
+          </div>
         </RenderIf>
         <RenderIf condition={showFullCopy}>
           <Button

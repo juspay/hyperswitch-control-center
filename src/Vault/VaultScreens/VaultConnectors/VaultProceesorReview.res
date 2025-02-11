@@ -1,6 +1,5 @@
 @react.component
 let make = (~connectorInfo) => {
-  open ConnectorUtils
   open CommonAuthHooks
 
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
@@ -8,8 +7,8 @@ let make = (~connectorInfo) => {
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let (processorType, _) =
     connectorInfodict.connector_type
-    ->connectorTypeTypedValueToStringMapper
-    ->connectorTypeTuple
+    ->ConnectorUtils.connectorTypeTypedValueToStringMapper
+    ->ConnectorUtils.connectorTypeTuple
   let {connector_name: connectorName} = connectorInfodict
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
@@ -42,7 +41,9 @@ let make = (~connectorInfo) => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding/`))
   }
 
-  let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
+  let (_, connectorAccountFields, _, _, _, _, _) = ConnectorFragmentUtils.getConnectorFields(
+    connectorDetails,
+  )
 
   <div className="flex flex-col px-10 gap-8">
     <div className="flex flex-col ">
@@ -53,7 +54,7 @@ let make = (~connectorInfo) => {
       />
       <div className=" flex flex-col py-4 gap-6">
         <div className="flex flex-col gap-0.5-rem ">
-          <h4 className="text-gray-400 "> {"Profile"->React.string} </h4>
+          <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
           {connectorInfodict.profile_id->React.string}
         </div>
         <div className="flex flex-col ">

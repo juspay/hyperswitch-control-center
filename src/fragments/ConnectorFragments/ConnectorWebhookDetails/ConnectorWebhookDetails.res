@@ -1,7 +1,11 @@
 @react.component
-let make = (~showVertically=true, ~labelTextStyleClass="", ~labelClass="") => {
+let make = (
+  ~showVertically=true,
+  ~labelTextStyleClass="",
+  ~labelClass="font-semibold !text-hyperswitch_black",
+) => {
   open LogicUtils
-  open ConnectorAuthKeyUtils
+  open ConnectorFragmentUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
 
