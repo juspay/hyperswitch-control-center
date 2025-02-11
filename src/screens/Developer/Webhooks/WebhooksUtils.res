@@ -3,14 +3,6 @@ open LogicUtils
 
 let tabkeys: array<tabs> = [Request, Response]
 
-let getTabKeyName = selected => {
-  switch selected {
-  | "Request" => Request
-  | "Response" => Response
-  | _ => Request
-  }
-}
-
 let itemToObjectMapper: dict<JSON.t> => webhookObject = dict => {
   eventId: dict->getString("event_id", ""),
   eventClass: dict->getString("event_class", ""),

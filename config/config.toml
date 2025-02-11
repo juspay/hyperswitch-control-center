@@ -62,7 +62,7 @@ dev_recovery_v2_product=false
 dev_vault_v2_product=false
 dev_modularity_v2=false
 maintainence_alert=""
-webhook_details=true
+webhook_details=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
