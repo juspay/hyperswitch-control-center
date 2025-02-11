@@ -43,6 +43,7 @@ let itemProviderMapper = dict => {
 }
 
 let getPaymentMethodDictV2 = (dict, pm, connector) => {
+  Js.log(dict)
   let paymentMethodType = dict->getString("payment_method_type", "")
   let (
     cardNetworks,
@@ -69,6 +70,7 @@ let getPaymentMethodDictV2 = (dict, pm, connector) => {
   let maximumAmount = dict->getInt("maximum_amount", 68607706)
   let recurringEnabled = dict->getBool("recurring_enabled", true)
   let paymentExperience = dict->getOptionString("payment_experience")
+  // Js.log(paymentExperience)
   let pme = getPaymentExperience(connector, pm, modifedPaymentMethodType, paymentExperience)
   let newPaymentMenthodDict =
     [
@@ -79,13 +81,14 @@ let getPaymentMethodDictV2 = (dict, pm, connector) => {
       ("recurring_enabled", recurringEnabled->JSON.Encode.bool),
     ]->Dict.fromArray
   newPaymentMenthodDict->setOptionString("payment_experience", pme)
+  // Js.log(newPaymentMenthodDict)
   newPaymentMenthodDict->itemProviderMapper
 }
 
 let getPaymentMethodMapper = (arr, connector, pm) => {
   arr->Array.map(val => {
     let dict = val->getDictFromJsonObject
-
+    // Js.log(dict)
     getPaymentMethodDictV2(dict, pm, connector)
   })
 }

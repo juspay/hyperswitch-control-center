@@ -13,40 +13,49 @@ module Heading = {
 
 module PaymentMethodTypes = {
   @react.component
-  let make = (~index, ~label, ~pmtData, ~pmIndex, ~pmtIndex, ~pm) => {
+  let make = (~index, ~label, ~pmtData, ~pmIndex, ~pmtIndex, ~pm, ~showCheckbox=true) => {
     open FormRenderer
-    <AddDataAttributes key={index->Int.toString} attributes=[("data-testid", `${label}`)]>
-      <div key={index->Int.toString} className={"flex items-center gap-1.5"}>
-        <FieldRenderer
-          field={PMTSelection.valueInput(~pmtData, ~pmIndex, ~pmtIndex=pmtIndex->Int.toString, ~pm)}
-        />
-        {label->React.string}
-      </div>
-    </AddDataAttributes>
+    <RenderIf condition={showCheckbox}>
+      <AddDataAttributes key={index->Int.toString} attributes=[("data-testid", `${label}`)]>
+        <div key={index->Int.toString} className={"flex items-center gap-1.5"}>
+          <FieldRenderer
+            field={PMTSelection.valueInput(
+              ~pmtData,
+              ~pmIndex,
+              ~pmtIndex=pmtIndex->Int.toString,
+              ~pm,
+            )}
+          />
+          {label->React.string}
+        </div>
+      </AddDataAttributes>
+    </RenderIf>
   }
 }
 
 module HeadingSection = {
   @react.component
-  let make = (~index, ~pm, ~availablePM, ~pmIndex, ~pmt) => {
+  let make = (~index, ~pm, ~availablePM, ~pmIndex, ~pmt, ~showSelectAll=true) => {
     open FormRenderer
     <div className="border border-nd_gray-150 rounded-xl overflow-hidden">
       <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
         <Heading heading=pmt />
-        <div className="flex gap-2 items-center">
-          <AddDataAttributes
-            key={index->Int.toString}
-            attributes=[("data-testid", pm->String.concat("_")->String.concat("select_all"))]>
-            <FieldRenderer
-              field={PMSelectAll.selectAllValueInput(
-                ~availablePM,
-                ~pmIndex=pmIndex->Int.toString,
-                ~pm,
-                ~pmt,
-              )}
-            />
-          </AddDataAttributes>
-        </div>
+        <RenderIf condition={showSelectAll}>
+          <div className="flex gap-2 items-center">
+            <AddDataAttributes
+              key={index->Int.toString}
+              attributes=[("data-testid", pm->String.concat("_")->String.concat("select_all"))]>
+              <FieldRenderer
+                field={PMSelectAll.selectAllValueInput(
+                  ~availablePM,
+                  ~pmIndex=pmIndex->Int.toString,
+                  ~pm,
+                  ~pmt,
+                )}
+              />
+            </AddDataAttributes>
+          </div>
+        </RenderIf>
       </div>
     </div>
   }

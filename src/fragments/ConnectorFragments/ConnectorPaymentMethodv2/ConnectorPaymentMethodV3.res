@@ -31,9 +31,13 @@ let make = (~initialValues) => {
         v
       }
       let paymentMethodType = pmts->getArrayFromDict(v, [])
+      Js.log(paymentMethodType)
       let up = paymentMethodType->Array.map(
         val => {
           let paymemtMethodType = val->getDictFromJsonObject->getString("payment_method_type", "")
+          let paymemtMethodExperience =
+            val->getDictFromJsonObject->getString("payment_experience", "")
+
           let wasmDict = val->getDictFromJsonObject
           let exisitngData = switch initalValue.payment_methods_enabled->Array.find(
             ele => {
@@ -54,6 +58,16 @@ let make = (~initialValues) => {
                   ) {
                     true
                   } else if (
+                    connector->ConnectorUtils.getConnectorNameTypeFromString ==
+                      Processors(KLARNA) &&
+                      available.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString ==
+                        Klarna
+                  ) {
+                    switch available.payment_experience {
+                    | Some(str) => str == paymemtMethodExperience
+                    | None => false
+                    }
+                  } else if (
                     available.payment_method_type == paymemtMethodType &&
                     available.payment_method_type != "credit" &&
                     available.payment_method_type != "debit"
@@ -65,7 +79,9 @@ let make = (~initialValues) => {
                 },
               )
 
-              t->Array.get(0)->Option.getOr(wasmDict->getPaymentMethodDictV2(v, connector))
+              let data =
+                t->Array.get(0)->Option.getOr(wasmDict->getPaymentMethodDictV2(v, connector))
+              data
             }
           | None => wasmDict->getPaymentMethodDictV2(v, connector)
           }

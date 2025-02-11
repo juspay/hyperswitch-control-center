@@ -13,8 +13,37 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
     ->getArrayFromDict(pm, [])
     ->getPaymentMethodMapper(connector, pm)
 
+  let showSelectAll = if (
+    pm->ConnectorUtils.getPaymentMethodFromString == Wallet &&
+      pm->ConnectorUtils.getPaymentMethodFromString == BankDebit
+  ) {
+    false
+  } else if (
+    connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(KLARNA) &&
+      connData.metadata
+      ->getDictFromJsonObject
+      ->getString("klarna_region", "") !== "Europe"
+  ) {
+    false
+  } else {
+    true
+  }
+
   <div key={index->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
-    <HeadingSection index pm availablePM pmIndex pmt=pm />
+    <HeadingSection index pm availablePM pmIndex pmt=pm showSelectAll />
+    <RenderIf
+      condition={pm->ConnectorUtils.getPaymentMethodFromString === Wallet &&
+        {
+          switch connector->ConnectorUtils.getConnectorNameTypeFromString {
+          | Processors(ZEN) => true
+          | _ => false
+          }
+        }}>
+      <div className="border rounded p-2 bg-jp-gray-100 flex gap-4">
+        <Icon name="outage_icon" size=15 />
+        {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
+      </div>
+    </RenderIf>
     <div className="flex gap-8 p-6 flex-wrap">
       {availablePM
       ->Array.mapWithIndex((pmtData, i) => {
@@ -29,9 +58,40 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
           }
         | None => 0
         }
-        <PaymentMethodTypes
-          index=i label={pmtData.payment_method_type} pmtData pmIndex pmtIndex pm
-        />
+
+        let label = switch (
+          pmtData.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString,
+          pm->ConnectorUtils.getPaymentMethodFromString,
+          connector->ConnectorUtils.getConnectorNameTypeFromString,
+        ) {
+        | (PayPal, Wallet, Processors(PAYPAL)) =>
+          pmtData.payment_experience->Option.getOr("") == "redirect_to_url"
+            ? "PayPal Redirect"
+            : "PayPal SDK"
+        | (Klarna, PayLater, Processors(KLARNA)) =>
+          pmtData.payment_experience->Option.getOr("") == "redirect_to_url"
+            ? "Klarna Checkout"
+            : "Klarna SDK"
+        | (OpenBankingPIS, _, _) => "Open Banking PIS"
+        | _ => pmtData.payment_method_type
+        }
+
+        let showCheckbox = switch (
+          pmtData.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString,
+          pm->ConnectorUtils.getPaymentMethodFromString,
+          connector->ConnectorUtils.getConnectorNameTypeFromString,
+        ) {
+        | (Klarna, PayLater, Processors(KLARNA)) =>
+          !(
+            pmtData.payment_experience->Option.getOr("") == "redirect_to_url" &&
+              connData.metadata
+              ->getDictFromJsonObject
+              ->getString("klarna_region", "") !== "Europe"
+          )
+
+        | _ => true
+        }
+        <PaymentMethodTypes index=i label pmtData pmIndex pmtIndex pm showCheckbox />
       })
       ->React.array}
     </div>
