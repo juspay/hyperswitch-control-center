@@ -1,6 +1,7 @@
 @react.component
 let make = (~previewOnly=false) => {
   open LogicUtils
+  open RevenueRecoveryOrderUtils
 
   let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -21,7 +22,7 @@ let make = (~previewOnly=false) => {
     updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
     updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
   }
-  //Need to integrate api 
+  //Need to integrate api
   let res = {
     "size": 1,
     "data": [
@@ -84,8 +85,8 @@ let make = (~previewOnly=false) => {
       },
     ],
   }->Identity.genericTypeToJson
-  let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-  let total = res->getDictFromJsonObject->getInt("size", 0)
+  let data = getArrayDictFromRes(res)
+  let total = getSizeofRes(res)
 
   let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
@@ -99,7 +100,7 @@ let make = (~previewOnly=false) => {
 
   let list = orderData->Array.map(Nullable.make)
 
-  let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
+  let customTitleStyle = "py-0 !pt-0"
   React.useEffect(() => {
     setScreenState(_ => PageLoaderWrapper.Success)
     setTotalCount(_ => total)
@@ -116,35 +117,34 @@ let make = (~previewOnly=false) => {
   let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
   }, [previewOnly])
-  <>
-    <ErrorBoundary>
-      <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-        <div className="flex justify-between items-center">
-          <PageUtils.PageHeading title="Revenue Recovery Payments" subTitle="" customTitleStyle />
-        </div>
-        <PageLoaderWrapper screenState customUI>
-          <LoadedTableWithCustomColumns
-            title="Recovery"
-            actualData=list
-            entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId)}
-            resultsPerPage=20
-            showSerialNumber=true
-            totalResults={previewOnly ? orderData->Array.length : totalCount}
-            offset
-            setOffset
-            currrentFetchCount={orderData->Array.length}
-            customColumnMapper=TableAtoms.revenueRecoveryMapDefaultCols
-            defaultColumns={RevenueRecoveryEntity.defaultColumns}
-            showSerialNumberInCustomizeColumns=false
-            sortingBasedOnDisabled=false
-            hideTitle=true
-            previewOnly
-            remoteSortEnabled=true
-            showAutoScroll=true
-            hideCustomisableColumnButton=true
-          />
-        </PageLoaderWrapper>
+
+  <ErrorBoundary>
+    <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
+      <div className="flex justify-between items-center">
+        <PageUtils.PageHeading title="Revenue Recovery Payments" subTitle="" customTitleStyle />
       </div>
-    </ErrorBoundary>
-  </>
+      <PageLoaderWrapper screenState customUI>
+        <LoadedTableWithCustomColumns
+          title="Recovery"
+          actualData=list
+          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId)}
+          resultsPerPage=20
+          showSerialNumber=true
+          totalResults={previewOnly ? orderData->Array.length : totalCount}
+          offset
+          setOffset
+          currrentFetchCount={orderData->Array.length}
+          customColumnMapper=TableAtoms.revenueRecoveryMapDefaultCols
+          defaultColumns={RevenueRecoveryEntity.defaultColumns}
+          showSerialNumberInCustomizeColumns=false
+          sortingBasedOnDisabled=false
+          hideTitle=true
+          previewOnly
+          remoteSortEnabled=true
+          showAutoScroll=true
+          hideCustomisableColumnButton=true
+        />
+      </PageLoaderWrapper>
+    </div>
+  </ErrorBoundary>
 }
