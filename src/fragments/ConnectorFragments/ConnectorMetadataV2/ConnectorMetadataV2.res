@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~labelTextStyleClass="", ~labelClass="font-semibold !text-hyperswitch_black") => {
   open LogicUtils
   open ConnectorMetaDataUtils
   open ConnectorAuthKeyUtils
@@ -70,8 +70,9 @@ let make = () => {
 
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-hyperswitch_black"
+          labelClass
           field={ConnectorHelperV2.connectorMetaDataValueInput(~connectorMetaDataFields={fields})}
+          labelTextStyleClass
         />
       </div>
     })

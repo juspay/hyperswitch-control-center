@@ -5,6 +5,7 @@ let make = () => {
   open VerticalStepIndicatorTypes
   open VerticalStepIndicatorUtils
   open ConnectorUtils
+  open CommonAuthHooks
   open VaultHomeUtils
 
   let getURL = useGetURL()
@@ -34,6 +35,7 @@ let make = () => {
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let activeBusinessProfile = getNameForId(#Profile)
 
   let updatedInitialVal = React.useMemo(() => {
@@ -141,45 +143,44 @@ let make = () => {
     />
     {switch currentStep {
     | {sectionId: "authenticate-processor"} =>
-      <>
-        <div className="flex flex-col w-1/2 px-10 ">
-          <PageUtils.PageHeading
-            title="Authenticate Processor"
-            subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
-            customSubTitleStyle="font-500 font-normal text-gray-800"
-          />
-          <PageLoaderWrapper screenState>
-            <Form onSubmit initialValues validate=validateMandatoryField>
-              <div className="flex flex-col mb-[24px] gap-3 ">
-                <ConnectorAuthKeys
-                  initialValues={updatedInitialVal} setInitialValues showVertically=true
-                />
-                <ConnectorLabelV2 />
-                <ConnectorMetadataV2 />
-                <ConnectorWebhookDetails />
-                <FormRenderer.SubmitButton
-                  text="Next"
-                  buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
-                  tooltipForWidthClass="w-full"
-                />
-              </div>
-              <FormValuesSpy />
-            </Form>
-          </PageLoaderWrapper>
-        </div>
-      </>
+      <div className="flex flex-col w-1/2 px-10 ">
+        <PageUtils.PageHeading
+          title="Authenticate Processor"
+          subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
+          customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+        />
+        <PageLoaderWrapper screenState>
+          <Form onSubmit initialValues validate=validateMandatoryField>
+            <div className="flex flex-col mb-5 gap-3 ">
+              <ConnectorAuthKeys
+                initialValues={updatedInitialVal} setInitialValues showVertically=true
+              />
+              <ConnectorLabelV2 />
+              <ConnectorMetadataV2 />
+              <ConnectorWebhookDetails />
+              <FormRenderer.SubmitButton
+                text="Next"
+                buttonSize={Small}
+                customSumbitButtonStyle="!w-full mt-8"
+                tooltipForWidthClass="w-full"
+              />
+            </div>
+            <FormValuesSpy />
+          </Form>
+        </PageLoaderWrapper>
+      </div>
+
     | {sectionId: "setup-webhook"} =>
       <div className="flex flex-col w-1/2 px-10">
         <PageUtils.PageHeading
           title="Setup Webhook"
           subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
-          customSubTitleStyle="font-medium text-gray-800"
+          customSubTitleStyle="font-medium text-nd_gray-700"
         />
         <ConnectorWebhookPreview
-          merchantId=connectorInfoDict.merchant_connector_id
-          connectorName
-          textCss="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6 text-gray-400 text-sm"
+          merchantId
+          connectorName=connectorInfoDict.merchant_connector_id
+          textCss="border border-gray-400 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true
           showFullCopy=true

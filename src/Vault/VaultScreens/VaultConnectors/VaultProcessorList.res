@@ -75,7 +75,7 @@ let make = () => {
           resultsPerPage=20
           offset
           setOffset
-          entity={ConnectorTableUtils.connectorEntity(
+          entity={VaultConnectorEntity.connectorEntity(
             "v2/vault/onboarding",
             ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
           )}

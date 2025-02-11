@@ -82,6 +82,8 @@ module RenderConnectorInputFields = {
     ~isLabelNested=true,
     ~disabled=false,
     ~description="",
+    ~labelTextStyleClass="",
+    ~labelClass="font-semibold !text-hyperswitch_black",
   ) => {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     // open ConnectorUtils
@@ -97,7 +99,8 @@ module RenderConnectorInputFields = {
         <AddDataAttributes attributes=[("data-testid", label->titleToSnake->String.toLowerCase)]>
           <div key={label}>
             <FormRenderer.FieldRenderer
-              labelClass="font-semibold !text-hyperswitch_black"
+              labelClass
+              labelTextStyleClass
               field={switch (connector, field) {
               | (Processors(PAYPAL), "key1") =>
                 multiValueInput(

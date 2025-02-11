@@ -45,23 +45,21 @@ let make = () => {
       },
     ]
   }, [])
-  <>
-    <PageLoaderWrapper screenState={screenState}>
-      <PageUtils.PageHeading
-        title="Vaults" subTitle="Ability to store and retrieve sensitive data in an isolated manner"
-      />
-      <Tabs
-        initialIndex={tabIndex >= 0 ? tabIndex : 0}
-        tabs
-        showBorder=true
-        includeMargin=false
-        defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body border "
-        onTitleClick={indx => {
-          setTabIndex(_ => indx)
-          setCurrentTabName(_ => getTabName(indx))
-        }}
-        selectTabBottomBorderColor="bg-primary"
-      />
-    </PageLoaderWrapper>
-  </>
+  <PageLoaderWrapper screenState={screenState}>
+    <PageUtils.PageHeading
+      title="Vaults" subTitle="Ability to store and retrieve sensitive data in an isolated manner"
+    />
+    <Tabs
+      initialIndex={tabIndex >= 0 ? tabIndex : 0}
+      tabs
+      showBorder=true
+      includeMargin=false
+      defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body border "
+      onTitleClick={indx => {
+        setTabIndex(_ => indx)
+        setCurrentTabName(_ => getTabName(indx))
+      }}
+      selectTabBottomBorderColor="bg-primary"
+    />
+  </PageLoaderWrapper>
 }

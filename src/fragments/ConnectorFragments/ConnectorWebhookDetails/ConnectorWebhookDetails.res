@@ -1,5 +1,5 @@
 @react.component
-let make = (~showVertically=true) => {
+let make = (~showVertically=true, ~labelTextStyleClass="", ~labelClass="") => {
   open LogicUtils
   open ConnectorAuthKeyUtils
   open ConnectorAuthKeysHelper
@@ -36,5 +36,7 @@ let make = (~showVertically=true) => {
     checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
     connector={connectorTypeFromName}
     selectedConnector
+    labelTextStyleClass
+    labelClass
   />
 }
