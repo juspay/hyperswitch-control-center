@@ -5,6 +5,7 @@ type optionType = {
   access: CommonAuthTypes.authorization,
   searchOptions?: array<(string, string)>,
   remoteIcon?: bool,
+  selectedIcon?: string,
 }
 type optionTypeWithTag = {
   name: string,
@@ -34,6 +35,7 @@ type sectionType = {
   icon: string,
   links: array<subLevelItem>,
   showSection: bool,
+  selectedIcon?: string,
 }
 
 type headingType = {

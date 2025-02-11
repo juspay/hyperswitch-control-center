@@ -56,6 +56,7 @@ module.exports = {
         "40-px": "40px",
         "68-px": "68px",
         "195-px": "195px",
+        "774-px": "774px",
         "923-px": "923px",
         onBordingSupplier: "calc(100vh - 300px)",
       },
@@ -97,6 +98,7 @@ module.exports = {
         800: "800px",
       },
       lineHeight: {
+        18: "18px",
         20: "20px",
         21: "21px",
         24: "24px",
@@ -313,7 +315,10 @@ module.exports = {
 
         /* NEW DESIGN COLORS */
         nd_gray: {
+          25: "#FCFCFD",
+          50: "#F5F7FA",
           100: "FBFBFB",
+          150: "#ECEFF3",
           200: "#E1E4EA",
           300: "#CACFD8",
           500: "#606B85",
@@ -323,6 +328,7 @@ module.exports = {
         },
         //borders gray
         nd_br_gray: {
+          150: "#ECEFF3",
           200: "#E1E4EA",
           400: "#E1E1E1",
           500: "#E1E3EA",
