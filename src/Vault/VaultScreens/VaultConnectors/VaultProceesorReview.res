@@ -48,11 +48,11 @@ let make = (~connectorInfo) => {
         <PageUtils.PageHeading
           title="Review and Connect"
           subTitle="Review your configured processor details, enabled payment methods and associated settings."
-          customSubTitleStyle="font-500 font-normal text-gray-800"
+          customSubTitleStyle="font-medium text-gray-800"
         />
         <div className=" flex flex-col py-4 gap-6">
           <div className="flex flex-col gap-0.5-rem ">
-            <h4 className="text-gray-400 "> {"Profile"->React.string} </h4>
+            <h4 className="text-gray-400"> {"Profile"->React.string} </h4>
             {connectorInfodict.profile_id->React.string}
           </div>
           <div className="flex flex-col ">
