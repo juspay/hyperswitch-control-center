@@ -56,8 +56,7 @@ module OperatorInp = {
       },
       onFocus: _ => (),
       value: operator.value
-      ->JSON.Decode.string
-      ->Option.getOr("")
+      ->LogicUtils.getStringFromJson("")
       ->operatorMapper
       ->operatorTypeToStringMapper
       ->JSON.Encode.string,
