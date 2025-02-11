@@ -15,13 +15,11 @@ let make = (
   | Some(val) => val
   | None => ""
   }
-  let currentStepCss = "text-gray-700 break-all"
-
   <div className="flex flex-col gap-y-6 border-r h-774-px w-334-px">
     <div className="flex items-center gap-x-3 px-6">
       <Icon
         name="nd-arrow-left"
-        className="text-gray-500 cursor-pointer"
+        className="text-nd_gray-600 cursor-pointer"
         onClick={_ => backClick()}
         customHeight="20"
       />
@@ -36,9 +34,9 @@ let make = (
           let isCurrentStep = sectionIndex == currIndex
 
           let stepNameIndicator = if isCurrentStep {
-            `${currentStepCss} font-semibold`
+            `text-nd_gray-700 break-all font-semibold`
           } else {
-            `${currentStepCss} font-medium`
+            ` text-nd_gray-400 font-medium`
           }
 
           let iconColor = if isCurrentStep {

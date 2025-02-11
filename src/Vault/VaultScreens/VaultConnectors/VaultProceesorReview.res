@@ -50,7 +50,7 @@ let make = (~connectorInfo) => {
       <PageUtils.PageHeading
         title="Review and Connect"
         subTitle="Review your configured processor details, enabled payment methods and associated settings."
-        customSubTitleStyle="font-500 font-normal text-gray-800"
+        customSubTitleStyle="font-500 font-normal text-nd_gray-400"
       />
       <div className=" flex flex-col py-4 gap-6">
         <div className="flex flex-col gap-0.5-rem ">

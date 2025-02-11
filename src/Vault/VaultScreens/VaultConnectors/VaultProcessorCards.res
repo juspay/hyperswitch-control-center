@@ -25,7 +25,7 @@ module CantFindProcessor = {
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
     <RenderIf condition={showRequestConnectorBtn}>
       <div
-        className="flex flex-row  items-center  gap-2 text-blue-500 cursor-pointer"
+        className="flex flex-row items-center gap-2 text-primary cursor-pointer"
         onClick={_ => setShowModal(_ => true)}>
         <ToolTip />
         {"Request a processor"->React.string}

@@ -2,7 +2,7 @@
 let make = () => {
   open PageUtils
   open VaultHomeUtils
-  <div className="flex flex-1 flex-col w-full gap-14 items-center justify-center w-full h-screen">
+  <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
     <div className="flex flex-col gap-8 items-center">
       <div
@@ -12,7 +12,7 @@ let make = () => {
       <PageHeading
         customHeadingStyle="gap-3 flex flex-col items-center"
         title="Securely store your users's sensitive data"
-        customTitleStyle="text-2xl text-center font-bold text-gray-500 font-500"
+        customTitleStyle="text-2xl text-center font-bold text-nd_gray-700 font-500"
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
         subTitle="Learn how to vault cards from your Server if you're PCI compliant and Learn how to vault cards using Hyperswitch's Checkout if you're non-PCI compliant"
       />

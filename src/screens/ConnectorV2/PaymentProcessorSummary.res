@@ -60,11 +60,11 @@ let make = (~initialValues, ~setInitialValues) => {
       <div className="flex gap-10 max-w-3xl flex-wrap px-2">
         <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.merchant_connector_id />
         <div className="flex flex-col gap-0.5-rem ">
-          <h4 className="text-gray-400 "> {"Profile"->React.string} </h4>
+          <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
           {connectorInfodict.profile_id->React.string}
         </div>
         <div className="flex flex-col gap-0.5-rem ">
-          <h4 className="text-gray-400 "> {"Integration status"->React.string} </h4>
+          <h4 className="text-nd_gray-400 "> {"Integration status"->React.string} </h4>
           <div className="flex flex-row gap-2 items-center ">
             <div className={`w-3 h-3  rounded-full ${integrationStatusCSS}`} />
             {connectorInfodict.status->capitalizeString->React.string}
