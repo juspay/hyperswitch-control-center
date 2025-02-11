@@ -230,6 +230,7 @@ let make = (~id) => {
       currrentFetchCount={attemptTableArr->Array.map(Nullable.make)->Array.length}
       collapseTableRow=false
       showSerialNumber=true
+      highlightSelectedRow=true
     />
 
   let tabList: array<Tabs.tab> = [

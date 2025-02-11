@@ -82,6 +82,9 @@ module TableRow = {
     ~fixLastCol=false,
     ~alignCellContent="",
     ~customCellColor="",
+    ~highlightSelectedRow=false,
+    ~selectedIndex,
+    ~setSelectedIndex,
   ) => {
     open Window
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
@@ -90,7 +93,10 @@ module TableRow = {
     let onClick = React.useCallback(_ => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
-      | (Some(fn), false) => fn(actualIndex)
+      | (Some(fn), false) => {
+          setSelectedIndex(_ => actualIndex)
+          fn(actualIndex)
+        }
       | _ => ()
       }
     }, (onRowClick, actualIndex))
@@ -128,7 +134,11 @@ module TableRow = {
         }
       })
       ->Option.isSome
-    let bgColor = coloredRow ? selectedRowColor : "bg-white dark:bg-jp-gray-lightgray_background"
+    let bgColor = coloredRow
+      ? selectedRowColor
+      : highlightSelectedRow && selectedIndex == actualIndex
+      ? "bg-nd_gray-150"
+      : "bg-white dark:bg-jp-gray-lightgray_background"
     let fontSize = "text-fs-14"
     let fontWeight = "font-medium"
     let textColor = "text-nd_gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
@@ -659,11 +669,13 @@ let make = (
   ~showAutoScroll=false,
   ~showVerticalScroll=false,
   ~showPagination=true,
+  ~highlightSelectedRow=false,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
   let actualData: option<array<Nullable.t<'t>>> = actualData
   let numberOfCols = heading->Array.length
+  let (selectedIndex, setSelectedIndex) = React.useState(_ => -1)
   open Webapi
   let totalTableWidth =
     Dom.document
@@ -739,6 +751,9 @@ let make = (
         fixLastCol
         ?alignCellContent
         ?customCellColor
+        selectedIndex
+        setSelectedIndex
+        highlightSelectedRow
       />
     })
     ->React.array
