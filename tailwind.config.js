@@ -101,7 +101,6 @@ module.exports = {
         700: "700px",
         800: "800px",
       },
-
       lineHeight: {
         18: "18px",
         20: "20px",
