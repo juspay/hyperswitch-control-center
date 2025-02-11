@@ -3,10 +3,8 @@ let make = (~initialValues, ~setInitialValues) => {
   open ConnectorUtils
   open LogicUtils
   open CommonAuthHooks
-
-  let connectorInfo = initialValues
   let connectorInfodict =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let {connector_name: connectorName} = connectorInfodict
   let (processorType, _) =
     connectorInfodict.connector_type

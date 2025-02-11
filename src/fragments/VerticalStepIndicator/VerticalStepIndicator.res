@@ -15,6 +15,7 @@ let make = (
   | Some(val) => val
   | None => ""
   }
+  let currentStepCss = "text-gray-700 break-all"
 
   <div className="flex flex-col gap-y-6 border-r h-774-px w-334-px">
     <div className="flex items-center gap-x-3 px-6">
@@ -24,7 +25,7 @@ let make = (
         onClick={_ => backClick()}
         customHeight="20"
       />
-      <GatewayIcon gateway={customProcessorIcon->String.toUpperCase} className="" />
+      <GatewayIcon gateway={customProcessorIcon->String.toUpperCase} />
       <h1 className="text-medium font-semibold text-gray-600"> {title->React.string} </h1>
     </div>
     <div className="w-full p-2 md:p-6">
@@ -35,9 +36,9 @@ let make = (
           let isCurrentStep = sectionIndex == currIndex
 
           let stepNameIndicator = if isCurrentStep {
-            "text-gray-700 break-all font-semibold"
+            `${currentStepCss} font-semibold`
           } else {
-            "text-gray-400 break-all font-medium"
+            `${currentStepCss} font-medium`
           }
 
           let iconColor = if isCurrentStep {
