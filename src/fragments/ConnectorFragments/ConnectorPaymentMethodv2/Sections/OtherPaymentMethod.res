@@ -19,9 +19,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
     false
   } else if (
     connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(KLARNA) &&
-      connData.metadata
-      ->getDictFromJsonObject
-      ->getString("klarna_region", "") !== "Europe"
+      connData->checkKlaranRegion
   ) {
     false
   } else {
@@ -83,10 +81,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
         | (Klarna, PayLater, Processors(KLARNA)) =>
           !(
             pmtData.payment_experience->Option.getOr("") == "redirect_to_url" &&
-              connData.metadata
-              ->getDictFromJsonObject
-              ->getString("klarna_region", "")
-              ->String.toLowerCase !== "europe"
+              connData->checkKlaranRegion
           )
 
         | _ => true

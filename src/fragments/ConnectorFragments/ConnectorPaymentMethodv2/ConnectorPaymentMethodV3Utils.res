@@ -166,3 +166,12 @@ let getPMTIndex = (~connData, ~pmIndex, ~cardNetworks, ~pmt) => {
     0
   }
 }
+
+let checkKlaranRegion = connData =>
+  switch connData.metadata
+  ->getDictFromJsonObject
+  ->getString("klarna_region", "")
+  ->String.toLowerCase {
+  | "europe" => true
+  | _ => false
+  }
