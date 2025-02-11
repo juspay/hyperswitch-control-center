@@ -45,7 +45,6 @@ let make = (
   ~showTestProcessor=false,
 ) => {
   open ConnectorUtils
-  // open FramerMotion.Motion
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()

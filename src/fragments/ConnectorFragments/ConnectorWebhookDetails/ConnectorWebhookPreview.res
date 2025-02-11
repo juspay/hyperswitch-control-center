@@ -33,7 +33,7 @@ let make = (
           <Button
             leftIcon={CustomIcon(<Icon name="nd-copy" />)}
             text="Copy"
-            customButtonStyle=" ml-4 w-[2px]"
+            customButtonStyle="ml-4 w-5"
             onClick={_ => handleWebHookCopy(copyValueOfWebhookEndpoint)}
           />
         </RenderIf>
