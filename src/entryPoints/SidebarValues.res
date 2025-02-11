@@ -82,6 +82,7 @@ let home = isHomeEnabled =>
         icon: "nd-home",
         link: "/home",
         access: Access,
+        selectedIcon: "nd-fill-home",
       })
     : emptyComponent
 
@@ -153,6 +154,7 @@ let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled
         icon: "nd-operations",
         showSection: true,
         links,
+        selectedIcon: "nd-operations-fill",
       })
     : emptyComponent
 }
@@ -265,6 +267,7 @@ let connectors = (
         icon: "nd-connectors",
         showSection: true,
         links: connectorLinkArray,
+        selectedIcon: "nd-connectors-fill",
       })
     : emptyComponent
 }
@@ -420,6 +423,7 @@ let workflow = (
         icon: "nd-workflow",
         showSection: true,
         links: defaultWorkFlow,
+        selectedIcon: "nd-workflow-fill",
       })
     : emptyComponent
 }
@@ -490,6 +494,7 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
     icon: "nd-settings",
     showSection: true,
     links: settingsLinkArray,
+    selectedIcon: "nd-settings-fill",
   })
 }
 
@@ -725,9 +730,10 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
     defaultSidebar->Array.pushMany([
       Link({
         name: "Home",
-        icon: "home",
+        icon: "nd-home",
         link: "/v2/home",
         access: Access,
+        selectedIcon: "nd-fill-home",
       }),
       CustomComponent({
         component: <ProductHeaderComponent />,

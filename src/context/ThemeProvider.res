@@ -24,10 +24,10 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     sidebar: {
       primary: "#FCFCFD",
       secondary: "#FFFFFF",
-      hoverColor: "#cacdd0",
+      hoverColor: "#D9DDE5",
       primaryTextColor: "#1C6DEA",
       secondaryTextColor: "#525866",
-      borderColor: "#E1E4EA",
+      borderColor: "#ECEFF3",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
