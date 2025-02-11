@@ -546,7 +546,6 @@ let make = (
 
   let validate = (values: JSON.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
-    let convertedObject = values->AdvancedRoutingUtils.getRoutingTypesFromJson
 
     let errors = Dict.make()
 
@@ -594,8 +593,7 @@ let make = (
       }
     }
 
-    let rulesArray = convertedObject.algorithm.data.rules
-
+    let rulesArray = values->getRulesFromJsonObject
     if rulesArray->Array.length === 0 {
       errors->Dict.set(`Rules`, "Minimum 1 rule needed"->JSON.Encode.string)
     } else {
@@ -751,11 +749,26 @@ let make = (
     })
   }, (profile, connectors->Array.length))
 
+  let handleOnSubmit = async (initialValues, isSaveRule) => {
+    try {
+      let _ = await onSubmit(initialValues, isSaveRule)
+    } catch {
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+      showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError)
+      setShowModal(_ => false)
+      setScreenState(_ => PageLoaderWrapper.Error(err))
+    }
+    Nullable.null
+  }
+
   <div className="my-6">
     <PageLoaderWrapper screenState>
       {connectors->Array.length > 0
         ? <Form
-            initialValues={initialValues} validate onSubmit={(values, _) => onSubmit(values, true)}>
+            initialValues={initialValues}
+            validate
+            onSubmit={(values, _) => handleOnSubmit(values, true)}>
             <div className="w-full flex flex-row  justify-between">
               <div className="w-full">
                 <BasicDetailsForm
