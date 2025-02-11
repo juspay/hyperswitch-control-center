@@ -1,12 +1,44 @@
 open ConnectorTypes
 open LogicUtils
+let getPaymentMethodFromString = paymentMethod => {
+  switch paymentMethod->String.toLowerCase {
+  | "card" => Card
+  | "debit" | "credit" => Card
+  | "pay_later" => PayLater
+  | "wallet" => Wallet
+  | "bank_redirect" => BankRedirect
+  | "bank_transfer" => BankTransfer
+  | "crypto" => Crypto
+  | "bank_debit" => BankDebit
+  | _ => UnknownPaymentMethod(paymentMethod)
+  }
+}
+
+let getPaymentMethodTypeFromString = paymentMethodType => {
+  switch paymentMethodType->String.toLowerCase {
+  | "credit" => Credit
+  | "debit" => Debit
+  | "google_pay" => GooglePay
+  | "apple_pay" => ApplePay
+  | "paypal" => PayPal
+  | "klarna" => Klarna
+  | "open_banking_pis" => OpenBankingPIS
+  | "samsung_pay" => SamsungPay
+  | "paze" => Paze
+  | "alipay" => AliPay
+  | "wechatpay" => WeChatPay
+  | "directcarrierbilling" => DirectCarrierBilling
+  | _ => UnknownPaymentMethodType(paymentMethodType)
+  }
+}
+
 let getPaymentExperience = (connector, pm, pmt, pme) => {
-  switch pm->ConnectorUtils.getPaymentMethodFromString {
+  switch pm->getPaymentMethodFromString {
   | BankRedirect => None
   | _ =>
     switch (
       ConnectorUtils.getConnectorNameTypeFromString(connector),
-      pmt->ConnectorUtils.getPaymentMethodTypeFromString,
+      pmt->getPaymentMethodTypeFromString,
     ) {
     | (Processors(PAYPAL), PayPal) | (Processors(KLARNA), Klarna) => pme
     | (Processors(ZEN), GooglePay) | (Processors(ZEN), ApplePay) => Some("redirect_to_url")
@@ -26,13 +58,21 @@ let getPaymentExperience = (connector, pm, pmt, pme) => {
   }
 }
 
+let acceptedValues = dict => {
+  let values = {
+    type_: dict->getString("type", "enable_only"),
+    list: dict->getStrArray("list"),
+  }
+  values.list->Array.length > 0 ? Some(values) : None
+}
+
 let itemProviderMapper = dict => {
   {
     payment_method_type: dict->getString("payment_method_type", ""),
-    accepted_countries: dict->getDictfromDict("accepted_countries")->ConnectorUtils.acceptedValues,
+    accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
     accepted_currencies: dict
     ->getDictfromDict("accepted_currencies")
-    ->ConnectorUtils.acceptedValues,
+    ->acceptedValues,
     minimum_amount: dict->getOptionInt("minimum_amount"),
     maximum_amount: dict->getOptionInt("maximum_amount"),
     recurring_enabled: dict->getOptionBool("recurring_enabled"),
@@ -43,12 +83,8 @@ let itemProviderMapper = dict => {
 }
 
 let getPaymentMethodDictV2 = (dict, pm, connector) => {
-  Js.log(dict)
   let paymentMethodType = dict->getString("payment_method_type", "")
-  let (
-    cardNetworks,
-    modifedPaymentMethodType,
-  ) = switch pm->ConnectorUtils.getPaymentMethodTypeFromString {
+  let (cardNetworks, modifedPaymentMethodType) = switch pm->getPaymentMethodTypeFromString {
   | Credit => {
       let cardNetworks = [paymentMethodType->JSON.Encode.string]
       let pmt = pm
@@ -94,7 +130,7 @@ let getPaymentMethodMapper = (arr, connector, pm) => {
 }
 
 let pmIcon = pm =>
-  switch pm->ConnectorUtils.getPaymentMethodFromString {
+  switch pm->getPaymentMethodFromString {
   | Card => "card"
   | PayLater => "pay_later"
   | Wallet => "nd-wallet"
@@ -110,8 +146,8 @@ let getPMTIndex = (~connData, ~pmIndex, ~cardNetworks, ~pmt) => {
     | Some(k) => {
         let isPMTEnabled = k.payment_method_types->Array.findIndex(val => {
           if (
-            val.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString == Credit ||
-              val.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString == Debit
+            val.payment_method_type->getPaymentMethodTypeFromString == Credit ||
+              val.payment_method_type->getPaymentMethodTypeFromString == Debit
           ) {
             val.card_networks->Array.some(networks => {
               cardNetworks->Array.includes(networks)

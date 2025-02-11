@@ -14,8 +14,10 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
     paymentMethodValues
     ->getArrayFromDict("card", [])
     ->getPaymentMethodMapper(connector, pm)
-  let credit = data->Array.filter(ele => ele.payment_method_type == "credit")
-  let debit = data->Array.filter(ele => ele.payment_method_type == "debit")
+  let credit =
+    data->Array.filter(ele => ele.payment_method_type->getPaymentMethodTypeFromString == Credit)
+  let debit =
+    data->Array.filter(ele => ele.payment_method_type->getPaymentMethodTypeFromString == Debit)
   let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)
   <div key={index->Int.toString}>
     <HeadingSection index pm availablePM=credit pmIndex pmt="credit" />
@@ -25,7 +27,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
         let pmtIndex = switch paymentMethodTypeValues {
         | Some(k) => {
             let isPMTEnabled = k.payment_method_types->Array.findIndex(val => {
-              if val.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString == Credit {
+              if val.payment_method_type->getPaymentMethodTypeFromString == Credit {
                 val.card_networks->Array.some(
                   networks => {
                     pmtData.card_networks->Array.includes(networks)
@@ -52,7 +54,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
         let pmtIndex = switch paymentMethodTypeValues {
         | Some(k) => {
             let isPMTEnabled = k.payment_method_types->Array.findIndex(val => {
-              if val.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString == Debit {
+              if val.payment_method_type->getPaymentMethodTypeFromString == Debit {
                 val.card_networks->Array.some(
                   networks => {
                     pmtData.card_networks->Array.includes(networks)

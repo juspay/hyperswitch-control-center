@@ -22,16 +22,15 @@ let make = (~initialValues) => {
       ->Dict.keysToArray
       ->Array.filter(val => !Array.includes(ConnectorUtils.configKeysToIgnore, val))
 
-    keys->Array.forEach(v => {
-      let pm = if v == "credit" {
+    keys->Array.forEach(key => {
+      let pm = if key->getPaymentMethodTypeFromString == Credit {
         "card"
-      } else if v == "debit" {
+      } else if key->getPaymentMethodTypeFromString == Debit {
         "card"
       } else {
-        v
+        key
       }
-      let paymentMethodType = pmts->getArrayFromDict(v, [])
-      Js.log(paymentMethodType)
+      let paymentMethodType = pmts->getArrayFromDict(key, [])
       let up = paymentMethodType->Array.map(
         val => {
           let paymemtMethodType = val->getDictFromJsonObject->getString("payment_method_type", "")
@@ -47,21 +46,22 @@ let make = (~initialValues) => {
           | Some(data) => {
               let t = data.payment_method_types->Array.filter(
                 available => {
+                  // explicit check for card
                   if (
-                    available.payment_method_type == v &&
+                    available.payment_method_type == key &&
                       available.card_networks->Array.get(0)->Option.getOr("") == paymemtMethodType
                   ) {
                     true
                   } else if (
-                    available.payment_method_type == v &&
+                    available.payment_method_type == key &&
                       available.card_networks->Array.get(0)->Option.getOr("") == paymemtMethodType
                   ) {
                     true
-                  } else if (
+                  } // explicit check for klarna
+                  else if (
                     connector->ConnectorUtils.getConnectorNameTypeFromString ==
                       Processors(KLARNA) &&
-                      available.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString ==
-                        Klarna
+                      available.payment_method_type->getPaymentMethodTypeFromString == Klarna
                   ) {
                     switch available.payment_experience {
                     | Some(str) => str == paymemtMethodExperience
@@ -69,8 +69,8 @@ let make = (~initialValues) => {
                     }
                   } else if (
                     available.payment_method_type == paymemtMethodType &&
-                    available.payment_method_type != "credit" &&
-                    available.payment_method_type != "debit"
+                    available.payment_method_type->getPaymentMethodTypeFromString != Credit &&
+                    available.payment_method_type->getPaymentMethodTypeFromString != Debit
                   ) {
                     true
                   } else {
@@ -80,10 +80,10 @@ let make = (~initialValues) => {
               )
 
               let data =
-                t->Array.get(0)->Option.getOr(wasmDict->getPaymentMethodDictV2(v, connector))
+                t->Array.get(0)->Option.getOr(wasmDict->getPaymentMethodDictV2(key, connector))
               data
             }
-          | None => wasmDict->getPaymentMethodDictV2(v, connector)
+          | None => wasmDict->getPaymentMethodDictV2(key, connector)
           }
 
           exisitngData
@@ -115,8 +115,8 @@ let make = (~initialValues) => {
                 ? connData.payment_methods_enabled->Array.length
                 : 0
             : isPMEnabled
-        switch pmValue {
-        | "card" => <Card index pm=pmValue pmIndex paymentMethodValues connector />
+        switch pmValue->getPaymentMethodFromString {
+        | Card => <Card index pm=pmValue pmIndex paymentMethodValues connector />
         | _ => <OtherPaymentMethod index pm=pmValue pmIndex paymentMethodValues connector />
         }
       })

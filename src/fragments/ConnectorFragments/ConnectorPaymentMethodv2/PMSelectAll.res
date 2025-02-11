@@ -7,6 +7,7 @@ module PMSelectAll = {
     ~pmt,
   ) => {
     open LogicUtils
+    open ConnectorPaymentMethodV3Utils
     let pmEnabledInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let pmEnabledValue =
       pmEnabledInp.value->getArrayDataFromJson(ConnectorListMapper.getPaymentMethodsEnabled)
@@ -14,11 +15,13 @@ module PMSelectAll = {
 
     let (isSelectedAll, setIsSelectedAll) = React.useState(() => false)
     let removeAllPM = () => {
-      if pm == "card" && pmt == "credit" {
+      if pm->getPaymentMethodFromString == Card && pmt->getPaymentMethodTypeFromString == Credit {
         let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
         let d = switch pmtData {
         | Some(data) =>
-          data.payment_method_types->Array.filter(ele => ele.payment_method_type != "credit")
+          data.payment_method_types->Array.filter(ele =>
+            ele.payment_method_type->getPaymentMethodTypeFromString != Credit
+          )
 
         | None => []
         }
@@ -30,11 +33,15 @@ module PMSelectAll = {
           ->Dict.fromArray
           ->Identity.anyTypeToReactEvent
         pmArrayInp.onChange(updatedData)
-      } else if pm == "card" && pmt == "debit" {
+      } else if (
+        pm->getPaymentMethodFromString == Card && pmt->getPaymentMethodTypeFromString == Debit
+      ) {
         let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
         let d = switch pmtData {
         | Some(data) =>
-          data.payment_method_types->Array.filter(ele => ele.payment_method_type != "debit")
+          data.payment_method_types->Array.filter(ele =>
+            ele.payment_method_type->getPaymentMethodTypeFromString != Debit
+          )
 
         | None => []
         }
@@ -55,20 +62,24 @@ module PMSelectAll = {
     }
     let selectAllPM = () => {
       let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
-      let updateData = if pm == "card" && pmt == "credit" {
+      let updateData = if (
+        pm->getPaymentMethodFromString == Card && pmt->getPaymentMethodTypeFromString == Credit
+      ) {
         let filterData = switch pmtData {
         | Some(data) =>
           data.payment_method_types
-          ->Array.filter(ele => ele.payment_method_type != "credit")
+          ->Array.filter(ele => ele.payment_method_type->getPaymentMethodTypeFromString != Credit)
           ->Array.concat(availablePM)
         | None => []
         }
         filterData
-      } else if pm == "card" && pmt == "debit" {
+      } else if (
+        pm->getPaymentMethodFromString == Card && pmt->getPaymentMethodTypeFromString == Debit
+      ) {
         let filterData = switch pmtData {
         | Some(data) =>
           data.payment_method_types
-          ->Array.filter(ele => ele.payment_method_type != "credit")
+          ->Array.filter(ele => ele.payment_method_type->getPaymentMethodTypeFromString != Debit)
           ->Array.concat(availablePM)
         | None => []
         }
@@ -99,20 +110,21 @@ module PMSelectAll = {
       let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
       let isPMEnabled = switch pmtData {
       | Some(data) =>
-        if pm == "card" && pmt == "credit" {
+        if pm->getPaymentMethodFromString == Card && pmt->getPaymentMethodTypeFromString == Credit {
           data.payment_method_types
-          ->Array.filter(ele => ele.payment_method_type == "credit")
+          ->Array.filter(ele => ele.payment_method_type->getPaymentMethodTypeFromString == Credit)
           ->Array.length == availablePM->Array.length
-        } else if pm == "card" && pmt == "debit" {
+        } else if (
+          pm->getPaymentMethodFromString == Card && pmt->getPaymentMethodTypeFromString == Debit
+        ) {
           data.payment_method_types
-          ->Array.filter(ele => ele.payment_method_type == "debit")
+          ->Array.filter(ele => ele.payment_method_type->getPaymentMethodTypeFromString == Debit)
           ->Array.length == availablePM->Array.length
         } else {
           data.payment_method_types->Array.length == availablePM->Array.length
         }
       | None => false
       }
-      // Js.log("LOG")
       setIsSelectedAll(_ => isPMEnabled)
       None
     }, [])

@@ -14,8 +14,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
     ->getPaymentMethodMapper(connector, pm)
 
   let showSelectAll = if (
-    pm->ConnectorUtils.getPaymentMethodFromString == Wallet &&
-      pm->ConnectorUtils.getPaymentMethodFromString == BankDebit
+    pm->getPaymentMethodFromString == Wallet && pm->getPaymentMethodFromString == BankDebit
   ) {
     false
   } else if (
@@ -32,7 +31,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
   <div key={index->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
     <HeadingSection index pm availablePM pmIndex pmt=pm showSelectAll />
     <RenderIf
-      condition={pm->ConnectorUtils.getPaymentMethodFromString === Wallet &&
+      condition={pm->getPaymentMethodFromString === Wallet &&
         {
           switch connector->ConnectorUtils.getConnectorNameTypeFromString {
           | Processors(ZEN) => true
@@ -60,8 +59,8 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
         }
 
         let label = switch (
-          pmtData.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString,
-          pm->ConnectorUtils.getPaymentMethodFromString,
+          pmtData.payment_method_type->getPaymentMethodTypeFromString,
+          pm->getPaymentMethodFromString,
           connector->ConnectorUtils.getConnectorNameTypeFromString,
         ) {
         | (PayPal, Wallet, Processors(PAYPAL)) =>
@@ -77,8 +76,8 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
         }
 
         let showCheckbox = switch (
-          pmtData.payment_method_type->ConnectorUtils.getPaymentMethodTypeFromString,
-          pm->ConnectorUtils.getPaymentMethodFromString,
+          pmtData.payment_method_type->getPaymentMethodTypeFromString,
+          pm->getPaymentMethodFromString,
           connector->ConnectorUtils.getConnectorNameTypeFromString,
         ) {
         | (Klarna, PayLater, Processors(KLARNA)) =>
@@ -86,7 +85,8 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
             pmtData.payment_experience->Option.getOr("") == "redirect_to_url" &&
               connData.metadata
               ->getDictFromJsonObject
-              ->getString("klarna_region", "") !== "Europe"
+              ->getString("klarna_region", "")
+              ->String.toLowerCase !== "europe"
           )
 
         | _ => true

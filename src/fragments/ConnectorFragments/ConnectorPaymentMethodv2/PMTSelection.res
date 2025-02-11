@@ -6,7 +6,7 @@ module PMT = {
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
   ) => {
     open LogicUtils
-
+    open ConnectorPaymentMethodV3Utils
     let pmInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
     let pmtArrayInp = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
@@ -25,13 +25,15 @@ module PMT = {
       } else {
         setIsSelected(_ => false)
       }
-      Js.log(pmInp.value)
       None
     }, [isPMTEnabled])
 
     let removeMethods = () => {
       let updatedPmtArray = pmtArrayValue->Array.filter(ele =>
-        if pmtData.payment_method_type == "credit" || pmtData.payment_method_type == "debit" {
+        if (
+          pmtData.payment_method_type->getPaymentMethodTypeFromString == Credit ||
+            pmtData.payment_method_type->getPaymentMethodTypeFromString == Debit
+        ) {
           ele.payment_method_type != pmtData.payment_method_type ||
             ele.card_networks->Array.get(0)->Option.getOr("") !=
               pmtData.card_networks->Array.get(0)->Option.getOr("")
