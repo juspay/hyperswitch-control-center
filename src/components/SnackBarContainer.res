@@ -37,7 +37,7 @@ module Snackbar = {
     }, [hideSnackbar])
 
     <div
-      className={`p-3 pr-4 m-2 mr-3 shadow-lg z-50 pointer-events-auto bg-jp-2-light-gray-1800 max-w-md rounded ${borderCss} ${borderColor}`}>
+      className={`p-3 pr-4 m-2 mr-3 shadow-lg z-50 pointer-events-auto bg-jp-2-light-gray-1800 max-w-md rounded-sm ${borderCss} ${borderColor}`}>
       <div className="flex flex-row gap-2">
         {leftIcon}
         <div className="flex flex-col gap-4">

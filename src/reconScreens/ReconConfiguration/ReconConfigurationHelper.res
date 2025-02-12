@@ -35,7 +35,7 @@ module ProgressBar = {
 
     <div className="p-2 md:p-6">
       <p> {`${percentage->Int.toString}% Completed`->React.string} </p>
-      <div className="w-full bg-blue-150 rounded h-2 mt-3">
+      <div className="w-full bg-blue-150 rounded-smh-2 mt-3">
         <div className="bg-blue-500 h-2 rounded" style={{width: `${percentage->Int.toString}%`}} />
       </div>
     </div>
@@ -76,7 +76,7 @@ module ReconConfigurationCurrentStepIndicator = {
           <div key={i->Int.toString} className="font-semibold flex flex-col gap-y-5">
             <div className="flex gap-x-3 items-center w-full">
               <div
-                className={`h-6 w-6 flex items-center justify-center rounded ${stepNumberIndicator}`}>
+                className={`h-6 w-6 flex items-center justify-center rounded-sm ${stepNumberIndicator}`}>
                 {if isStepCompleted {
                   <p className={`text-base ${textColor}`}>
                     {(i + 1)->Int.toString->React.string}

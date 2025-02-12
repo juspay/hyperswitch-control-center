@@ -22,7 +22,7 @@ module FilterRow = {
     ~cellWidth,
   ) => {
     <div
-      className={`flex flex-row group h-full border-t dark:border-jp-gray-960 ${cellWidth} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 transition duration-300 ease-in-out text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75`}>
+      className={`flex flex-row group h-full border-t dark:border-jp-gray-960 ${cellWidth} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100/10 transition duration-300 ease-in-out text-fs-13 text-jp-gray-900/75 dark:text-jp-gray-text_darktheme/75`}>
       {
         let paddingClass = "py-3 px-3"
 
@@ -125,7 +125,7 @@ module NewCell = {
       className={`h-full ${customcellColouredCell} border-t border-jp-gray-light_table_border_color dark:border-jp-gray-960 dark:bg-jp-gray-lightgray_background transition duration-300 ease-in-out `}
       style>
       <div
-        className={`flex flex-row group rounded-md ${cursorClass}  text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75 overflow-hidden break-words`}
+        className={`flex flex-row group rounded-md ${cursorClass}  text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme/75 overflow-hidden break-words`}
         onClick
         onMouseEnter
         onMouseLeave>
@@ -357,7 +357,7 @@ module ReactWindowTableComponent = {
 
             <div
               key={Int.toString(i)}
-              className={` ${cellWidth} ${borderClass} justify-between items-center  bg-white dark:bg-jp-gray-darkgray_background text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 whitespace-pre select-none ${roundedClass} ${tableheadingClass}`}>
+              className={` ${cellWidth} ${borderClass} justify-between items-center  bg-white dark:bg-jp-gray-darkgray_background text-jp-gray-900/75 dark:text-jp-gray-text_darktheme/75 whitespace-pre select-none ${roundedClass} ${tableheadingClass}`}>
               <div
                 className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-900`}>
                 <div className="">
@@ -470,7 +470,7 @@ module ReactWindowTableComponent = {
       className={` overflow-x-scroll ${scrollBarClass}`}
       style={minHeight: {filterPresent ? "30rem" : ""}}>
       <div
-        className={`w-max	${widthClass} h-full border border-jp-gray-940 border-opacity-50 dark:border-jp-gray-960 rounded-lg ${tableBorderClass}`}
+        className={`w-max	${widthClass} h-full border border-jp-gray-940/50 dark:border-jp-gray-960 rounded-lg ${tableBorderClass}`}
         colSpan=0>
         <div className="bg-white dark:bg-jp-gray-lightgray_background">
           {headingReact}

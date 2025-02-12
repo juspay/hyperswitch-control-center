@@ -78,7 +78,7 @@ let make = (
 
   let dummyRow = Array.make(~length=count, 1)
   <div
-    className={`flex flex-1 flex-row justify-center overflow-auto bg-jp-gray-100 bg-opacity-20 rounded-md border select-none ${calendarContaierStyle}`}>
+    className={`flex flex-1 flex-row justify-center overflow-auto bg-jp-gray-100/20 rounded-md border select-none ${calendarContaierStyle}`}>
     {dummyRow
     ->Array.mapWithIndex((_item, i) => {
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
@@ -102,7 +102,7 @@ let make = (
         Float.toString(tempYear),
       )
 
-      let iconClass = "inline-block text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25 cursor-pointer"
+      let iconClass = "inline-block text-jp-gray-600 dark:text-jp-gray-text_darktheme/25 cursor-pointer"
 
       <div key={Int.toString(i)}>
         <div className="flex flex-row justify-between items-center p-3">
@@ -121,7 +121,7 @@ let make = (
             : React.null}
           <AddDataAttributes attributes=[("data-calendar-date", monthAndYear)]>
             <div
-              className="font-medium text-sm md:text-base text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
+              className="font-medium text-sm md:text-base text-jp-gray-900 dark:text-jp-gray-text_darktheme/75">
               {React.string(monthAndYear)}
             </div>
           </AddDataAttributes>

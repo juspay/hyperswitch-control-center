@@ -12,7 +12,8 @@ module BasicAccountSetupSuccessfulPage = {
     ~isButtonVisible=true,
   ) => {
     let headerTextStyle = "text-xl font-semibold text-grey-700"
-    <div className={`flex flex-col gap-4 p-9 h-full ${customWidth} justify-between rounded shadow`}>
+    <div
+      className={`flex flex-col gap-4 p-9 h-full ${customWidth} justify-between rounded-smshadow`}>
       <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
         <Icon name=iconName size=120 />
         <AddDataAttributes attributes=[("data-testid", "paymentSuccess")]>

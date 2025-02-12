@@ -721,9 +721,9 @@ let make = (
                 <Popover.Button
                   className={
                     let openClasses = if popoverProps["open"] {
-                      `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                      `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-jp-gray-900/100 focus:outline-hidden`
                     } else {
-                      `text-opacity-90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                      `text-jp-gray-900/90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-jp-gray-900/100 focus:outline-hidden`
                     }
                     `${openClasses} border-none`
                   }>
@@ -765,7 +765,7 @@ let make = (
                     {panelProps => {
                       <div
                         id="neglectTopbarTheme"
-                        className={`relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-60 ${backgroundColor.sidebarSecondary}`}>
+                        className={`relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black/5 w-60 ${backgroundColor.sidebarSecondary}`}>
                         <MenuOption
                           onClick={_ => {
                             panelProps["close"]()

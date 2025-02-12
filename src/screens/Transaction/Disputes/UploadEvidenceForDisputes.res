@@ -208,9 +208,7 @@ module DisputesInfoBarComponent = {
     open DisputesUtils
     open PageLoaderWrapper
     let getURL = useGetURL()
-    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let fetchDetails = useGetMethod()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -254,7 +252,7 @@ module DisputesInfoBarComponent = {
 
     <PageLoaderWrapper screenState>
       <div
-        className={`${borderColor.primaryNormal} w-full rounded-md  border-opacity-40 bg-blue-info_blue_background p-6 flex gap-6`}>
+        className="w-full rounded-md border-jp-gray-940/75 bg-blue-info_blue_background p-6 flex gap-6">
         <div className="flex gap-3 items-start justify-start">
           <Icon name="note-icon" size=22 />
           {switch disputeStatus {
@@ -343,7 +341,7 @@ module DisputesInfoBarComponent = {
                   let fileName = jsonObject->getDictFromJsonObject->getString("fileName", "")
 
                   <div
-                    className={`p-2 border rounded-md bg-white w-fit flex gap-6 items-center border-grey-200 border-opacity-50`}>
+                    className={`p-2 border rounded-md bg-white w-fit flex gap-6 items-center border-grey-200/50`}>
                     <div className="flex gap-2 items-center">
                       <Icon name="pdf-icon" size=20 />
                       <p className={`${p2RegularText} text-grey-700`}> {fileName->React.string} </p>

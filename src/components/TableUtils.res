@@ -213,7 +213,7 @@ module BaseComponentMethod = {
     }, [showDropDown])
 
     <div
-      className={`flex px-1 pt-1 pb-0.5 items-center rounded-sm ${showDropDown
+      className={`flex px-1 pt-1 pb-0.5 items-center rounded-xs ${showDropDown
           ? "bg-jp-2-light-primary-100 !text-jp-2-light-primary-600"
           : ""}`}>
       <Icon name="bars-filter" size=12 parentClass="cursor-pointer" />
@@ -230,24 +230,22 @@ module LabelCell = {
     ~fontStyle="font-ibm-plex",
     ~showIcon=true,
   ) => {
-    let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
     let isMobileView = MatchMedia.useMobileChecker()
-    let bgOpacity = isMobileView ? "bg-opacity-12 dark:!bg-opacity-12" : ""
     let borderColor = switch labelColor {
-    | LabelGreen => `bg-green-950 ${bgOpacity} dark:bg-opacity-50`
-    | LabelRed => `bg-red-960 ${bgOpacity} dark:bg-opacity-50`
-    | LabelBlue => `${primaryColor} dark:bg-opacity-50`
+    | LabelGreen => `bg-green-950 dark:bg-green-950/50`
+    | LabelRed => `bg-red-960 dark:bg-red-960/50`
+    | LabelBlue => `bg-primary/50`
     | LabelGray => "bg-blue-table_gray"
-    | LabelOrange => `bg-orange-950 ${bgOpacity} dark:bg-opacity-50`
+    | LabelOrange => `bg-orange-950 dark:bg-orange-950/50`
     | LabelYellow => "bg-yellow-600"
     | LabelDarkGreen => "bg-green-700"
     | LabelDarkRed => "bg-red-400"
-    | LabelBrown => "bg-brown-600 bg-opacity-50"
-    | LabelLightBlue => `${primaryColor} bg-opacity-50`
+    | LabelBrown => "bg-brown-600/50"
+    | LabelLightBlue => "bg-primary/50"
     | LabelWhite => "bg-white border border-jp-gray-300"
     | LabelViolet => "bg-violet-500"
-    | LabelLightGreen => "bg-green-700  dark:bg-opacity-50"
-    | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
+    | LabelLightGreen => "bg-green-700  dark:bg-green-700/50"
+    | LabelLightRed => "bg-red-400 dark:bg-red-400/50"
     }
 
     let textColor = switch labelColor {
@@ -269,7 +267,7 @@ module LabelCell = {
 
     <div className="flex">
       <div className="flex-initial ">
-        <div className={`rounded ${borderColor}`}>
+        <div className={`rounded-sm ${borderColor}`}>
           <div
             className={`${labelMargin} ${fontStyle} ${textColor} text-fs-10 font-bold px-2 py-0.5`}>
             <AddDataAttributes attributes=[("data-label", text)]>
@@ -292,20 +290,20 @@ module NewLabelCell = {
     ~fontStyle="font-ibm-plex",
   ) => {
     let _borderColor = switch labelColor {
-    | LabelGreen => "bg-green-950 dark:bg-opacity-50"
-    | LabelRed => "bg-red-960 dark:bg-opacity-50"
-    | LabelBlue => "bg-primary dark:bg-opacity-50"
+    | LabelGreen => "bg-green-950 dark:bg-green-950/50"
+    | LabelRed => "bg-red-960 dark:bg-red-960/50"
+    | LabelBlue => "bg-primary dark:bg-primary/50"
     | LabelGray => "bg-blue-table_gray"
-    | LabelOrange => "bg-orange-950 dark:bg-opacity-50"
+    | LabelOrange => "bg-orange-950 dark:bg-orange-950/50"
     | LabelYellow => "bg-blue-table_yellow"
     | LabelDarkGreen => "bg-green-700"
     | LabelDarkRed => "bg-red-400"
-    | LabelBrown => "bg-brown-600 bg-opacity-50"
-    | LabelLightBlue => "bg-primary bg-opacity-50"
+    | LabelBrown => "bg-brown-600/50"
+    | LabelLightBlue => "bg-primary/50"
     | LabelWhite => "bg-white border border-jp-gray-300"
     | LabelViolet => "bg-violet-500"
-    | LabelLightGreen => "bg-green-700 dark:bg-opacity-50"
-    | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
+    | LabelLightGreen => "bg-green-700 dark:bg-green-700/50"
+    | LabelLightRed => "bg-red-400 dark:bg-red-400/50"
     }
     let bgColor = switch labelColor {
     | LabelGreen => "bg-[#ECFDF3]"
@@ -455,7 +453,7 @@ module LinkCell = {
 
     <div className="flex flex-row items-center" onMouseOver={mouseOver} onMouseOut={mouseOut}>
       <div
-        className={`whitespace-pre text-sm font-fira-code dark:text-opacity-75 text-right p-1 ${textColor.primaryNormal} text-ellipsis overflow-hidden`}>
+        className={`whitespace-pre text-sm font-fira-code dark:text-jp-gray-text_darktheme/75 text-right p-1 ${textColor.primaryNormal} text-ellipsis overflow-hidden`}>
         <a href=data target="_blank" onClick=preventEvent> {React.string(trimData)} </a>
       </div>
       <div className=visibility>
@@ -502,7 +500,7 @@ module DateCell = {
 
     let wrapperClass = isCard
       ? fontType
-      : `dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${textAlignClass} ${fontStyle}`
+      : `dark:text-jp-gray-text_darktheme/75 ${textAlignClass} ${fontStyle}`
 
     <AddDataAttributes attributes=[("data-date", timestamp->getFormattedDate)]>
       <div className={`${wrapperClass} whitespace-nowrap`}>

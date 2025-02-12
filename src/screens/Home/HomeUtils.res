@@ -6,7 +6,7 @@ let headingStyle = `${getTextClass((P2, Medium))} text-grey-700 uppercase opacit
 let paragraphTextVariant = `${getTextClass((P2, Medium))} text-grey-700 opacity-50`
 let subtextStyle = `${getTextClass((P1, Regular))} text-grey-700 opacity-50`
 let cardHeaderText = getTextClass((H3, Leading_2))
-let hoverStyle = "cursor-pointer group-hover:shadow hover:shadow-homePageBoxShadow group"
+let hoverStyle = "cursor-pointer group-hover:shadow-sm hover:shadow-homePageBoxShadow group"
 let boxCssHover = (~ishoverStyleRequired) =>
   `flex flex-col  bg-white border rounded-md pt-10 pl-10 gap-2 h-12.5-rem ${ishoverStyleRequired
       ? hoverStyle

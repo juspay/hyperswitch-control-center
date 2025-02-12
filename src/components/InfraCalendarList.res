@@ -66,8 +66,8 @@ module YearItem = {
 
     <li
       className={`p-2 ${year === tempYear->Float.toInt
-          ? "bg-blue-600 text-white"
-          : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"} cursor-pointer bg-opacity-100`}
+          ? "bg-blue-600/100 text-white"
+          : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"} cursor-pointer`}
       value={year->Int.toString}
       ref={yearRef->ReactDOM.Ref.domRef}
       onClick={e => {

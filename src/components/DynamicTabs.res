@@ -57,7 +57,7 @@ module TabInfo = {
     let selectionClasses = if isSelected {
       "font-semibold text-black"
     } else {
-      "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
+      "text-jp-gray-700 dark:text-jp-gray-tabset_gray/75  hover:text-jp-gray-800 dark:hover:text-jp-gray-tabset_gray/100 font-medium"
     }
     let handleClick = React.useCallback(_ => {
       handleSelectedTab(

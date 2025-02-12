@@ -87,7 +87,7 @@ module PredefinedOption = {
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
         <div>
           <div
-            className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm font-medium text-grey-900`}
+            className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100/75 dark:hover:bg-jp-gray-850/100  cursor-pointer text-sm font-medium text-grey-900`}
             onClick={_ev => handleClick()}>
             {React.string(dateRangeDropdownVal)}
           </div>
@@ -650,7 +650,7 @@ module Base = {
         </AddDataAttributes>
       </div>
     }
-    let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`
+    let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black/5 focus:outline-hidden mt-2 right-0`
     <div ref={dateRangeRef->ReactDOM.Ref.domRef} className="daterangSelection relative">
       <DateSelectorButton
         startDateVal

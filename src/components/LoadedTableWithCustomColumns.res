@@ -97,7 +97,7 @@ let make = (
           buttonType=SecondaryFilled
           buttonSize=Small
           onClick={_ => setShowColumnSelector(_ => true)}
-          customButtonStyle="!rounded !bg-white !h-10 !text-black !w-10"
+          customButtonStyle="!rounded-sm !bg-white !h-10 !text-black !w-10"
         />
       </Portal>
     </RenderIf>

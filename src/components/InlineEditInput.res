@@ -181,7 +181,7 @@ let make = (
               onChange=handleInputChange
               onKeyDown=handleKeyDown
               autoFocus=true
-              className={`w-full p-2 bg-transparent focus:outline-none text-md ${customInputStyle}`}
+              className={`w-full p-2 bg-transparent focus:outline-hidden text-md ${customInputStyle}`}
             />
           </div>
           {submitButtons}

@@ -668,8 +668,8 @@ let make = (
   let componentHeight = componentRef->getBoundingRectInfo(val => val.height)
 
   let tooltipBgClass = newDesign
-    ? "bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 text-jp-gray-800"
-    : "dark:bg-jp-gray-tooltip_bg_dark bg-jp-gray-tooltip_bg_light dark:text-jp-gray-lightgray_background dark:text-opacity-75 text-jp-gray-text_darktheme text-opacity-75"
+    ? "bg-white rounded-lg shadow-lg ring-1 ring-black/5 text-jp-gray-800"
+    : "dark:bg-jp-gray-tooltip_bg_dark bg-jp-gray-tooltip_bg_light dark:text-jp-gray-lightgray_background/75 text-jp-gray-text_darktheme/75"
 
   let bgColor = bgColor->LogicUtils.isEmptyString ? tooltipBgClass : bgColor
 

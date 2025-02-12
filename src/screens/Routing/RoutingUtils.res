@@ -189,7 +189,7 @@ module SaveAndActivateButton = {
       onClick={_ => {
         handleSaveAndActivate()->ignore
       }}
-      customButtonStyle="w-1/5 rounded-sm"
+      customButtonStyle="w-1/5 rounded-sm "
     />
   }
 }

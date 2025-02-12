@@ -39,7 +39,7 @@ module BaseTableComponent = {
       }
     }, (tableEntity, newDefaultCols, newAllCols))
 
-    let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 rounded-md border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30 mt-7"
+    let tableBorderClass = "border-collapse border border-jp-gray-940/30 border-solid border-2 rounded-md dark:border-jp-gray-dark_table_border_color/30 mt-7"
 
     <div className="flex flex-1 flex-col m-5">
       <RefetchContextProvider value=refetch>
@@ -48,7 +48,7 @@ module BaseTableComponent = {
         } else {
           <div className="relative">
             <div
-              className="absolute font-bold text-xl bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75">
+              className="absolute font-bold text-xl bg-white w-full text-black/75 dark:bg-jp-gray-950 dark:text-white/75">
               {React.string("Payments Summary")}
             </div>
             <LoadedTable

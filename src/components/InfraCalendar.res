@@ -96,11 +96,11 @@ module TableRow = {
 
             let classN =
               obj->isEmptyString || hSelf.highlightSelf
-                ? `h-12 w-12 font-fira-code text-center dark:text-jp-gray-text_darktheme text-opacity-75 ${dayClass} p-0 pb-1`
-                : `cursor-pointer h-12 w-12 text-center font-fira-code font-medium dark:text-jp-gray-text_darktheme text-opacity-75 dark:hover:bg-opacity-100 ${dayClass} p-0 pb-1`
+                ? `h-12 w-12 font-fira-code text-center dark:text-jp-gray-text_darktheme text-jp-gray-900/75 ${dayClass} p-0 pb-1`
+                : `cursor-pointer h-12 w-12 text-center font-fira-code font-medium dark:text-jp-gray-text_darktheme text-jp-gray-900/75 dark:hover:text-jp-gray-text_darktheme/100 ${dayClass} p-0 pb-1`
             let c2 =
               obj->isNonEmptyString && hSelf.highlightSelf
-                ? "h-full w-full cursor-pointer flex border flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-opacity-100 rounded-full"
+                ? "h-full w-full cursor-pointer flex border flex-1 justify-center items-center bg-primary/100 dark: bg-primary/100 rounded-full"
                 : "h-full w-full"
 
             let shouldHighlight = (startDate, endDate, obj, month, year) => {
@@ -121,16 +121,16 @@ module TableRow = {
                 if endDate->isNonEmptyString {
                   let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate && z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
                     : z == parsedStartDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-l-full "
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme rounded-l-full "
                     : z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-r-full "
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme rounded-r-full "
                     : z > parsedStartDate && z < parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary text-white dark:hover:text-jp-gray-text_darktheme dark:bg-opacity-100"
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme"
                     : "h-full w-full"
                 } else if z == parsedStartDate {
-                  "h-full w-full flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary text-white dark:hover:text-jp-gray-text_darktheme dark:bg-opacity-100 rounded-full"
+                  "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
                 } else {
                   "h-full w-full"
                 }
@@ -261,7 +261,7 @@ let make = (
           ->Array.mapWithIndex((item, i) => {
             <th key={Int.toString(i)} className="p-0">
               <div
-                className="flex flex-1 justify-center py-2 font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
+                className="flex flex-1 justify-center py-2 font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme/50">
                 {React.string(item)}
               </div>
             </th>

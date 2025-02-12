@@ -181,10 +181,8 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
             <div key className="flex flex-row">
               <div
                 className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
-                 hover:text-opacity-100 dark:hover:text-jp-gray-text_darktheme
-               dark:hover:text-opacity-75 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
-               from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme
-               dark:text-opacity-50 focus:outline-none px-1 ">
+                dark:hover:text-jp-gray-text_darktheme/75 text-jp-gray-900/50 hover:text-jp-gray-900/100 bg-gradient-to-b
+               from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme/50 focus:outline-hidden px-1 ">
                 <NewThemeUtils.Badge number={i + 1} />
                 <div>
                   {React.string(
@@ -209,7 +207,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                 <RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
                   {<>
                     <input
-                      className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
+                      className="w-10 text-right outline-hidden bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
                       name=key
                       onChange={ev => {
                         let val = ReactEvent.Form.target(ev)["value"]

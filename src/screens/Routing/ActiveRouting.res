@@ -85,7 +85,7 @@ module ActiveSection = {
     let profileId = activeRouting->getDictFromJsonObject->getString("profile_id", "")
 
     <div
-      className="relative flex flex-col flex-wrap bg-white border rounded w-full px-6 py-10 gap-12">
+      className="relative flex flex-col flex-wrap bg-white border rounded-smw-full px-6 py-10 gap-12">
       <div>
         <div
           className="absolute top-0 left-0 bg-green-700 text-white py-2 px-4 rounded-br font-semibold">
@@ -149,13 +149,13 @@ module ActiveSection = {
 module LevelWiseRoutingSection = {
   @react.component
   let make = (~types: array<routingType>, ~onRedirectBaseUrl) => {
-    <div className="flex flex-col flex-wrap  rounded w-full py-6 gap-5">
+    <div className="flex flex-col flex-wrap  rounded-smw-full py-6 gap-5">
       <div className="flex flex-wrap justify-evenly gap-9 items-stretch">
         {types
         ->Array.mapWithIndex((value, index) =>
           <div
             key={index->Int.toString}
-            className="flex flex-1 flex-col  bg-white border rounded px-5 py-5 gap-8">
+            className="flex flex-1 flex-col  bg-white border rounded-smpx-5 py-5 gap-8">
             <div className="flex flex-1 flex-col gap-7">
               <div className="flex w-full items-center flex-wrap justify-between ">
                 <TopLeftIcons routeType=value />

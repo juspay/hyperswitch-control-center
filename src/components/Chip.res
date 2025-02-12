@@ -8,7 +8,7 @@ let make = (~values=[], ~showButton=false, ~onButtonClick=_ => (), ~converterFn=
           onButtonClick(value)
         }
         <div
-          className="px-4 py-2 m-2 mr-0.5 rounded-full border border-gray-300 bg-gradient-to-b from-jp-gray-200 to-jp-gray-300 dark:from-jp-gray-950 dark:to-jp-gray-950 text-gray-500  hover:shadow dark:text-jp-gray-text_darktheme dark:text-opacity-50  flex align-center w-max cursor-pointer  transition duration-300 ease">
+          className="px-4 py-2 m-2 mr-0.5 rounded-full border border-gray-300 bg-gradient-to-b from-jp-gray-200 to-jp-gray-300 dark:from-jp-gray-950 dark:to-jp-gray-950 text-gray-500  hover:shadow-sm dark:text-jp-gray-text_darktheme/50  flex align-center w-max cursor-pointer  transition duration-300 ease">
           {React.string(value->converterFn)}
           <RenderIf condition={showButton}>
             <div className="float-right cursor-pointer mt-0.5 ml-0.5 opacity-50">

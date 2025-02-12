@@ -33,8 +33,7 @@ module ListBaseComp = {
     <>
       {switch user {
       | #Merchant =>
-        <div
-          className={`text-sm font-medium cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
+        <div className={`text-sm cursor-pointer font-semibold ${secondaryTextColor}`}>
           <div className="text-left flex gap-2">
             <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap`}>
               subHeadingElem
@@ -47,7 +46,7 @@ module ListBaseComp = {
 
       | #Profile =>
         <div
-          className="flex flex-row items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg shadow-sm border-nd_gray-100 shadow-sm">
+          className="flex flex-row items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-200 shadow-xs">
           <div>
             <p className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500">
               subHeadingElem
@@ -162,7 +161,7 @@ module OMPViewsComp = {
     let customScrollStyle = "md:max-h-72 md:overflow-scroll md:px-1 md:pt-1"
     let dropdownContainerStyle = "rounded-lg border md:w-full md:shadow-md"
 
-    <div className="flex h-fit rounded-lg hover:bg-opacity-80">
+    <div className="flex h-fit rounded-lg hover:bg-white/80">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText=""

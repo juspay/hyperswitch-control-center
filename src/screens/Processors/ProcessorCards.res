@@ -100,8 +100,7 @@ let make = (
     <>
       <AddDataAttributes
         attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
-        <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+        <h2 className="font-bold text-xl text-black/75 dark:text-white/75">
           {heading->React.string}
         </h2>
       </AddDataAttributes>
@@ -114,7 +113,7 @@ let make = (
               value=searchedConnector
               onChange=handleSearch
               placeholder="Search a processor"
-              className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+              className={`rounded-md px-4 py-2 focus:outline-hidden w-1/3 border`}
               id="search-processor"
             />
           </AddDataAttributes>
@@ -151,13 +150,13 @@ let make = (
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString
             let connectorInfo = connector->getConnectorInfo
-            let size = "w-14 h-14 rounded-sm"
+            let size = "w-14 h-14 rounded-sm "
 
             <ACLDiv
               authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               onClick={_ => ()}
               key={i->string_of_int}
-              className="border p-6 gap-4 bg-white rounded flex flex-col justify-between"
+              className="border p-6 gap-4 bg-white rounded-smflex flex-col justify-between"
               dataAttrStr=connectorName>
               <div className="flex flex-col gap-3 items-start">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />

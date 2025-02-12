@@ -64,7 +64,7 @@ module Details = {
     )
 
     <OrderUtils.Section
-      customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-6 flex flex-col gap-6`}>
+      customCssClass={`border border-jp-gray-940/75 dark:border-jp-gray-960 ${bgColor} rounded-md p-6 flex flex-col gap-6`}>
       <div className="flex items-center justify-between">
         <div className="flex gap-2 items-center">
           <p className="flex font-bold text-3xl gap-2">
@@ -156,7 +156,7 @@ module DisputesInfo = {
     )
 
     <>
-      <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div className={`font-bold text-fs-16 dark:text-white/75 mt-4 mb-4`}>
         {"Summary"->React.string}
       </div>
       <Details data=disputesData getHeading getCell detailsFields=allColumns setDisputeData />

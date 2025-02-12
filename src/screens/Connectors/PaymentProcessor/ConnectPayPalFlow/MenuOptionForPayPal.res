@@ -101,7 +101,7 @@ let make = (
         {panelProps => {
           <div
             id="neglectTopbarTheme"
-            className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-max">
+            className="relative flex flex-col bg-white py-3 overflow-hidden rounded-smring-1 ring-black/5 w-max">
             {<>
               <RenderIf condition={authType->ConnectorUtils.mapAuthType === #SignatureKey}>
                 <Navbar.MenuOption

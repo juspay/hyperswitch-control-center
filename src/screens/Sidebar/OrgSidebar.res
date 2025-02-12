@@ -19,9 +19,7 @@ module OrgTile = {
     let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
-      globalUIConfig: {
-        sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
-      },
+      globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let getOrgList = async () => {
       try {
@@ -87,7 +85,7 @@ module OrgTile = {
     // Common CSS
     let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-50 shadow-md ${backgroundColor.sidebarSecondary}`
     let currentEditCSS = isUnderEdit
-      ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
+      ? `p-2 ${baseCSS} border-grey-400/40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
     let ringClass = switch isActive {
@@ -102,8 +100,7 @@ module OrgTile = {
             ? `bg-white/20 ${primaryTextColor} border-sidebar-primaryTextColor`
             : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
-        <div
-          className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40 `}>
+        <div className={` ${currentEditCSS} ${nonEditCSS} border border-sidebar-borderColor/40 `}>
           <InlineEditInput
             index
             labelText={orgName}
@@ -355,7 +352,7 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
+      rounded-md border shadow-xs ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
           <Icon name="plus" size=20 className={secondaryTextColor} />
         </div>
       </RenderIf>

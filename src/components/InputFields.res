@@ -626,7 +626,7 @@ let iconFieldWithMessageDes = (mainInputField, ~description="") => (
       | "" => React.null
       | _ =>
         <div
-          className="pt-2 pb-2 text-sm text-bold text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ">
+          className="pt-2 pb-2 text-sm text-bold text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/50 ">
           {React.string(description)}
         </div>
       }}

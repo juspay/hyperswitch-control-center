@@ -82,7 +82,7 @@ let make = () => {
       <RenderIf condition={currentStep !== Preview}>
         <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />
       </RenderIf>
-      <div className="bg-white rounded border h-3/4 p-2 md:p-6 overflow-scroll">
+      <div className="bg-white rounded-smborder h-3/4 p-2 md:p-6 overflow-scroll">
         {switch currentStep {
         | IntegFields =>
           <FRMIntegrationFields

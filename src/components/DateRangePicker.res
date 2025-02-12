@@ -90,7 +90,7 @@ module PredefinedOption = {
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
         <div>
           <div
-            className={`${optionBG} px-4 py-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm text-gray-500 dark:text-gray-400`}
+            className={`${optionBG} px-4 py-2 hover:bg-jp-gray-100/75 dark:hover:bg-jp-gray-850/100  cursor-pointer text-sm text-gray-500 dark:text-gray-400`}
             onClick=handleClick>
             {React.string(dateRangeDropdownVal)}
           </div>
@@ -701,7 +701,7 @@ module Base = {
               })
               ->React.array}
               <div
-                className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3 px-4 py-2  hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer text-sm text-gray-500 dark:text-gray-400 ${customeRangeBg}}`}
+                className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3 px-4 py-2  hover:bg-jp-gray-100/75 dark:hover:bg-jp-gray-850/100 cursor-pointer text-sm text-gray-500 dark:text-gray-400 ${customeRangeBg}}`}
                 onClick={_ => {
                   setCalendarVisibility(_ => true)
                   setIsCustomSelected(_ => true)
@@ -822,7 +822,7 @@ module Base = {
           } else {
             <div
               ref={dropdownRef->ReactDOM.Ref.domRef}
-              className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 bg-white dark:bg-jp-gray-lightgray_background rounded border-jp-gray-500 dark:border-jp-gray-960 shadow-md dark:shadow-sm dark:shadow-gray-700 max-h-min max-w-min overflow-auto`}>
+              className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 bg-white dark:bg-jp-gray-lightgray_background rounded-smborder-jp-gray-500 dark:border-jp-gray-960 shadow-md dark:shadow-xs dark:shadow-gray-700 max-h-min max-w-min overflow-auto`}>
               calendarElement
             </div>
           }

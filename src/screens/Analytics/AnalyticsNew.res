@@ -10,7 +10,7 @@ module MetricsState = {
     ~formaPayload: option<DynamicSingleStat.singleStatBodyEntity => string>=?,
   ) => {
     <div>
-      <h2 className="font-bold text-xl text-black text-opacity-80"> {heading->React.string} </h2>
+      <h2 className="font-bold text-xl text-black/80"> {heading->React.string} </h2>
       <DynamicSingleStat
         entity=singleStatEntity
         startTimeFilterKey
@@ -477,7 +477,7 @@ module OverallSummary = {
     }, [updateExistingKeys])
 
     <div>
-      <h2 className="font-bold text-xl text-black text-opacity-80"> {heading->React.string} </h2>
+      <h2 className="font-bold text-xl text-black/80"> {heading->React.string} </h2>
       <DynamicTabs
         tabs=filteredTabVales
         maxSelection=3

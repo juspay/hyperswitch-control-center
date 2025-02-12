@@ -267,7 +267,7 @@ module CardRenderer = {
             | _ => false
             }
           }}>
-        <div className="border rounded p-2 bg-jp-gray-100 flex gap-4">
+        <div className="border rounded-smp-2 bg-jp-gray-100 flex gap-4">
           <Icon name="outage_icon" size=15 />
           {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
         </div>

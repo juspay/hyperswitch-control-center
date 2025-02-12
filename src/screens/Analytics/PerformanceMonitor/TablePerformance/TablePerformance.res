@@ -1,4 +1,4 @@
-let tableBorderClass = "border-collapse border border-jp-gray-940 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
+let tableBorderClass = "border-collapse border border-jp-gray-940/30 dark:border-jp-gray-dark_table_border_color/30"
 
 @react.component
 let make = (

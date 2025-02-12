@@ -369,7 +369,7 @@ module ApiKeysTable = {
     <PageLoaderWrapper screenState>
       {<div className="relative mt-10 md:mt-0">
         <h2
-          className="font-bold absolute top-2 md:top-6 left-0 text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+          className="font-bold absolute top-2 md:top-6 left-0 text-xl text-black/75 dark:text-white/75">
           {"API Keys"->React.string}
         </h2>
         <LoadedTable

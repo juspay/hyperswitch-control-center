@@ -69,13 +69,11 @@ module ManualSetupScreen = {
 module LandingScreen = {
   @react.component
   let make = (~configuartionType, ~setConfigurationType) => {
-    let {
-      globalUIConfig: {primaryColor, font: {textColor}, border: {borderColor}},
-    } = React.useContext(ThemeProvider.themeContext)
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
     let getBlockColor = value =>
-      configuartionType === value
-        ? `${borderColor.primaryNormal} ${primaryColor} bg-opacity-10 `
-        : "border"
+      configuartionType === value ? `${borderColor.primaryNormal} bg-primary/10` : "border"
 
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-4">

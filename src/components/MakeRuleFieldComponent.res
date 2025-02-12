@@ -24,13 +24,13 @@ module TextView = {
   @react.component
   let make = (
     ~str,
-    ~fontColor="text-jp-gray-800 dark:text-jp-gray-600",
+    ~fontColor="text-jp-gray-800/75 dark:text-jp-gray-600/75",
     ~fontWeight="font-medium",
   ) => {
     str->LogicUtils.isNonEmptyString
       ? <AddDataAttributes attributes=[("data-plc-text", str)]>
           <div
-            className={`text-opacity-75 dark:text-opacity-75 hover:text-opacity-100 dark:hover:text-opacity-100 mx-1 ${fontColor} ${fontWeight} `}>
+            className={`hover:text-jp-gray-800/100 dark:hover:text-jp-gray-600/100 mx-1 ${fontColor} ${fontWeight} `}>
             {React.string(str)}
           </div>
         </AddDataAttributes>
