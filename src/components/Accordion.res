@@ -30,8 +30,7 @@ module SectionAccordion = {
           <RenderIf condition={!hideHeaderWeb}>
             <h3 className={`text-base ${headingClass}`}> {title->React.string} </h3>
           </RenderIf>
-          <p
-            className="text-gray-900/50 dark:text-jp-gray-text_darktheme/50">
+          <p className="text-gray-900/50 dark:text-jp-gray-text_darktheme/50">
             {subtext->React.string}
           </p>
           <AddDataAttributes attributes=[("data-section", title)]> children </AddDataAttributes>

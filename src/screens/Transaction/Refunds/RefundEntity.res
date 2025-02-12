@@ -53,24 +53,15 @@ let useGetStatus = order => {
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch order.status->statusVariantMapper {
   | Succeeded =>
-    <div className={`${fixedCss} bg-hyperswitch_green`}>
-      {orderStatusLabel->React.string}
-    </div>
+    <div className={`${fixedCss} bg-hyperswitch_green`}> {orderStatusLabel->React.string} </div>
   | Failed
   | Cancelled =>
-    <div className={`${fixedCss} bg-red-960`}>
-      {orderStatusLabel->React.string}
-    </div>
+    <div className={`${fixedCss} bg-red-960`}> {orderStatusLabel->React.string} </div>
   | Processing
   | RequiresCustomerAction
   | RequiresPaymentMethod =>
-    <div className={`${fixedCss} bg-primary/50`}>
-      {orderStatusLabel->React.string}
-    </div>
-  | _ =>
-    <div className={`${fixedCss} bg-primary/50`}>
-      {orderStatusLabel->React.string}
-    </div>
+    <div className={`${fixedCss} bg-primary/50`}> {orderStatusLabel->React.string} </div>
+  | _ => <div className={`${fixedCss} bg-primary/50`}> {orderStatusLabel->React.string} </div>
   }
 }
 

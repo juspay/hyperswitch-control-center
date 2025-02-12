@@ -438,20 +438,13 @@ let useGetStatus = order => {
     </div>
   | Failed
   | Cancelled =>
-    <div className={`${fixedStatusCss} bg-red-960`}>
-      {orderStatusLabel->React.string}
-    </div>
+    <div className={`${fixedStatusCss} bg-red-960`}> {orderStatusLabel->React.string} </div>
   | Processing
   | RequiresCustomerAction
   | RequiresConfirmation
   | RequiresPaymentMethod =>
-    <div className={`${fixedStatusCss} bg-primary/50`}>
-      {orderStatusLabel->React.string}
-    </div>
-  | _ =>
-    <div className={`${fixedStatusCss} bg-primary/50`}>
-      {orderStatusLabel->React.string}
-    </div>
+    <div className={`${fixedStatusCss} bg-primary/50`}> {orderStatusLabel->React.string} </div>
+  | _ => <div className={`${fixedStatusCss} bg-primary/50`}> {orderStatusLabel->React.string} </div>
   }
 }
 

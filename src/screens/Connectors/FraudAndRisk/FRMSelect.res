@@ -23,8 +23,7 @@ module NewProcessorCards = {
 
     let descriptedFRMs = (frmList: array<ConnectorTypes.connectorTypes>, heading) => {
       <>
-        <h2
-          className="font-bold text-xl text-black/75 dark:text-white/75">
+        <h2 className="font-bold text-xl text-black/75 dark:text-white/75">
           {heading->React.string}
         </h2>
         <div className="grid gap-4 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 mb-5">

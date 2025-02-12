@@ -30,8 +30,7 @@ let make = () => {
 
   <PageLoaderWrapper screenState sectionHeight="h-40-vh">
     <div className="mt-10">
-      <h2
-        className="font-bold text-xl pb-3 text-black/75 dark:text-white/75">
+      <h2 className="font-bold text-xl pb-3 text-black/75 dark:text-white/75">
         {"Publishable Key and Payment Response Hash Key"->React.string}
       </h2>
       <div

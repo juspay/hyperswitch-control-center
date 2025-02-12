@@ -440,8 +440,7 @@ module VerifyConnectorModal = {
               alt="warning"
             />
             <div className="text-jp-gray-900">
-              <div
-                className="font-semibold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme/75">
+              <div className="font-semibold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme/75">
                 {"Are you sure you want to proceed?"->React.string}
               </div>
               <div
