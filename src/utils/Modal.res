@@ -177,7 +177,7 @@ module ModalOverlay = {
           </div>
         : <div
             onClick={handleOverlayClick}
-            className={`${mobileClass} ${displayClass} ${overlayBgStyle} fixed h-screen w-screen ${zIndexClass} ${modalPosition} ${paddingClass} flex ${alignModal} inset-0 overflow-auto ${backgroundDropStyles}`}>
+            className={`${mobileClass} ${displayClass} ${overlayBgStyle} fixed h-screen w-[calc(100vw+7rem)] -left-14 ${zIndexClass} ${modalPosition} ${paddingClass} flex ${alignModal} inset-0 overflow-auto ${backgroundDropStyles}`}>
             children
           </div>}
     </AddDataAttributes>
