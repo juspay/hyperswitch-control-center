@@ -1,85 +1,67 @@
 module ListBaseComp = {
   @react.component
   let make = (
-    ~heading,
+    ~heading="",
     ~subHeading,
     ~arrow,
     ~showEditIcon=false,
     ~onEditClick=_ => (),
     ~isDarkBg=false,
     ~showDropdownArrow=true,
+    ~user: UserInfoTypes.entity,
   ) => {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let baseCompStyle = isDarkBg
-      ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
-      : "text-black hover:bg-opacity-80"
 
-    let iconName = isDarkBg ? "arrow-without-tail-new" : "arrow-without-tail"
+    let arrowClassName = isDarkBg
+      ? `${arrow
+            ? "rotate-180"
+            : "-rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+      : `${arrow
+            ? "rotate-0"
+            : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
-    let arrowDownClass = isDarkBg
-      ? `rotate-0 transition duration-[250ms] opacity-70 ${secondaryTextColor}`
-      : `rotate-180 transition duration-[250ms] opacity-70 `
-
-    let arrowUpClass = isDarkBg
-      ? `-rotate-180 transition duration-[250ms] opacity-70 ${secondaryTextColor}`
-      : `rotate-0 transition duration-[250ms] opacity-70 `
-
-    let textColor = isDarkBg ? `${secondaryTextColor}` : "text-grey-900"
-    let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
-    let paddingSubheading = isDarkBg ? "pl-2" : ""
-    let paddingHeading = isDarkBg ? "pl-2" : ""
-
-    let endValue = isDarkBg ? 20 : 15
-    let maxLength = isDarkBg ? 20 : 15
-
-    let subHeadingElement = if subHeading->String.length > maxLength {
+    let subHeadingElem = if subHeading->String.length > 20 {
       <HelperComponents.EllipsisText
-        displayValue=subHeading endValue showCopy=false customTextStyle={textColor}
+        displayValue=subHeading endValue=20 showCopy=false customTextStyle={`${secondaryTextColor}`}
       />
     } else {
       {subHeading->React.string}
     }
 
-    <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
-      <div className={`flex flex-col items-start`}>
-        <RenderIf condition={heading->LogicUtils.isNonEmptyString}>
-          <p className={`text-xs text-left text-gray-400 ${paddingHeading}`}>
-            {heading->React.string}
-          </p>
-        </RenderIf>
-        <div className="text-left flex gap-2">
-          <p
-            className={`fs-10 ${textColor} ${width} ${paddingSubheading} overflow-scroll text-nowrap`}>
-            {subHeadingElement}
-          </p>
-          <RenderIf condition={!showDropdownArrow}>
-            <ToolTip
-              description={subHeading}
-              customStyle="!whitespace-nowrap"
-              toolTipFor={<div className="cursor-pointer">
-                <HelperComponents.CopyTextCustomComp
-                  displayValue=" " copyValue=Some({subHeading})
-                />
-              </div>}
-              toolTipPosition=ToolTip.Right
-            />
-          </RenderIf>
-          <RenderIf condition={showEditIcon}>
-            <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
-          </RenderIf>
-          <RenderIf condition={showDropdownArrow}>
-            <Icon
-              className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
-            />
-          </RenderIf>
+    <>
+      {switch user {
+      | #Merchant =>
+        <div
+          className={`text-sm font-medium cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
+          <div className="text-left flex gap-2">
+            <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap`}>
+              subHeadingElem
+            </p>
+            {showDropdownArrow
+              ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+              : React.null}
+          </div>
         </div>
-      </div>
-    </div>
+
+      | #Profile =>
+        <div
+          className="flex flex-row items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg shadow-sm border-nd_gray-100 shadow-sm">
+          <div>
+            <p className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500">
+              subHeadingElem
+            </p>
+          </div>
+          {showDropdownArrow
+            ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+            : React.null}
+        </div>
+      | _ => React.null
+      }}
+    </>
   }
 }
-
 module AddNewOMPButton = {
   @react.component
   let make = (
@@ -111,7 +93,7 @@ module AddNewOMPButton = {
       {<>
         <hr className={customHRTagStyle} />
         <div
-          className={`group flex  items-center gap-2 font-medium  px-3.5 py-3 text-sm ${customStyle}`}>
+          className={` flex  items-center gap-2 font-medium  px-3.5 py-3 text-sm ${customStyle}`}>
           <Icon name="nd-plus" size=15 />
           {`Create new`->React.string}
         </div>
@@ -249,6 +231,9 @@ module MerchantDropdownItem = {
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
     }
+    let {
+      globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
+    } = React.useContext(ThemeProvider.themeContext)
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
@@ -332,28 +317,34 @@ module MerchantDropdownItem = {
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
-      <div
-        className={`rounded-lg mb-1 ${isUnderEdit
-            ? `hover:bg-transparent`
-            : `hover:bg-jp-gray-100`}`}>
+      <div className={`rounded-lg mb-1`}>
         <InlineEditInput
           index
           labelText=merchantName
-          customStyle="w-full cursor-pointer !bg-transparent mb-0"
+          customStyle={`w-full cursor-pointer mb-0 ${backgroundColor.sidebarSecondary} ${hoverColor} `}
           handleEdit=handleIdUnderEdit
           isUnderEdit
           showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
           onSubmit
-          labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
+          labelTextCustomStyle={` truncate max-w-28 ${isActive
+              ? `${secondaryTextColor}`
+              : `${secondaryTextColor}`}`}
           validateInput
-          customInputStyle="!py-0 text-nd_gray-600"
-          customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(merchantId) customIconCss="text-nd_gray-600"
+          customInputStyle={`!py-0 ${secondaryTextColor}`}
+          customIconComponent={<ToolTip
+            description={currentId}
+            customStyle="!whitespace-nowrap"
+            toolTipFor={<div className="cursor-pointer">
+              <HelperComponents.CopyTextCustomComp
+                customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({currentId})
+              />
+            </div>}
+            toolTipPosition=ToolTip.Right
           />}
-          customIconStyle={isActive ? "text-nd_gray-600" : ""}
+          customIconStyle={isActive ? `${secondaryTextColor}` : ""}
           handleClick={_ => handleMerchantSwitch(currentId)}
-          customWidth="min-w-48"
-          leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
+          customWidth="min-w-56"
+          leftIcon={<Icon name="nd-check" className={`${leftIconCss} ${secondaryTextColor}`} />}
         />
       </div>
       <LoaderModal
@@ -463,8 +454,15 @@ module ProfileDropdownItem = {
           labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
           validateInput
           customInputStyle="!py-0 text-nd_gray-600"
-          customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(profileId) customIconCss="text-nd_gray-600"
+          customIconComponent={<ToolTip
+            description={currentId}
+            customStyle="!whitespace-nowrap"
+            toolTipFor={<div className="cursor-pointer">
+              <HelperComponents.CopyTextCustomComp
+                displayValue=" " copyValue=Some(currentId) customIconCss="text-nd_gray-600"
+              />
+            </div>}
+            toolTipPosition=ToolTip.Right
           />}
           customIconStyle={isActive ? "text-nd_gray-600" : ""}
           handleClick={_ => handleProfileSwitch(currentId)}

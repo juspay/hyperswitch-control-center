@@ -13,7 +13,7 @@ let useGetSideBarValues = () => {
   }
 
   if devRecoveryV2Product {
-    sideBarValues->Array.push(RevenueRecoverySidebarValues.recoverySidebars)
+    sideBarValues->Array.pushMany(RevenueRecoverySidebarValues.recoverySidebars)
   }
 
   sideBarValues
@@ -59,7 +59,7 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
       Link({
         name: Vault->getStringFromVariant,
         icon: "vault-home",
-        link: "/v2/vault/configuration",
+        link: "/v2/vault/home",
         access: Access,
       }),
     )

@@ -134,6 +134,7 @@ let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(
 
 @react.component
 let make = (
+  ~hideCustomisableColumnButton=false,
   ~visibleColumns=?,
   ~defaultSort=?,
   ~title,
@@ -830,6 +831,7 @@ let make = (
                 tableHeadingTextClass
                 nonFrozenTableParentClass
                 showAutoScroll
+                showPagination
               />
             switch tableLocalFilter {
             | true =>
@@ -969,7 +971,7 @@ let make = (
           <RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
             {tableActionElements}
           </RenderIf>
-          customizeColumsButtons
+          <RenderIf condition={!hideCustomisableColumnButton}> customizeColumsButtons </RenderIf>
         </div>
       </div>
       {if dataLoading {
