@@ -41,7 +41,7 @@ let make = () => {
       },
       {
         title: "Network Tokenisation",
-        renderContent: () => <div />,
+        renderContent: () => <VaultNetworkTokenisation />,
       },
     ]
   }, [])
