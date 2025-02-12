@@ -879,6 +879,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                       StatementDescriptorSuffix,
                       PaymentExperience,
                       MerchantOrderReferenceId,
+                      OvercaptureStatus,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}
