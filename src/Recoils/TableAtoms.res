@@ -11,3 +11,8 @@ let disputesMapDefaultCols = Recoil.atom("disputesMapDefaultCols", DisputesEntit
 let apiDefaultCols = Recoil.atom("hyperSwitchApiDefaultCols", DeveloperUtils.defaultColumns)
 
 let customersMapDefaultCols = Recoil.atom("customersMapDefaultCols", CustomersEntity.defaultColumns)
+
+let revenueRecoveryMapDefaultCols = Recoil.atom(
+  "revenueRecoveryMapDefaultCols",
+  RevenueRecoveryEntity.defaultColumns,
+)
