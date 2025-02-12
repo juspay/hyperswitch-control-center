@@ -39,14 +39,14 @@ let sections = [
         id: (#selectProcessor: revenueRecoverySubsections :> string),
         name: #selectProcessor->getStepName,
       },
-      {
-        id: (#activePaymentMethods: revenueRecoverySubsections :> string),
-        name: #activePaymentMethods->getStepName,
-      },
-      {
-        id: (#setupWebhookProcessor: revenueRecoverySubsections :> string),
-        name: #setupWebhookProcessor->getStepName,
-      },
+      // {
+      //   id: (#activePaymentMethods: revenueRecoverySubsections :> string),
+      //   name: #activePaymentMethods->getStepName,
+      // },
+      // {
+      //   id: (#setupWebhookProcessor: revenueRecoverySubsections :> string),
+      //   name: #setupWebhookProcessor->getStepName,
+      // },
     ]),
   },
   {
@@ -58,18 +58,18 @@ let sections = [
         id: (#selectAPlatform: revenueRecoverySubsections :> string),
         name: #selectAPlatform->getStepName,
       },
-      {
-        id: (#configureRetries: revenueRecoverySubsections :> string),
-        name: #configureRetries->getStepName,
-      },
-      {
-        id: (#connectProcessor: revenueRecoverySubsections :> string),
-        name: #connectProcessor->getStepName,
-      },
-      {
-        id: (#setupWebhookPlatform: revenueRecoverySubsections :> string),
-        name: #setupWebhookPlatform->getStepName,
-      },
+      // {
+      //   id: (#configureRetries: revenueRecoverySubsections :> string),
+      //   name: #configureRetries->getStepName,
+      // },
+      // {
+      //   id: (#connectProcessor: revenueRecoverySubsections :> string),
+      //   name: #connectProcessor->getStepName,
+      // },
+      // {
+      //   id: (#setupWebhookPlatform: revenueRecoverySubsections :> string),
+      //   name: #setupWebhookPlatform->getStepName,
+      // },
     ]),
   },
   {
@@ -81,8 +81,8 @@ let sections = [
 ]
 
 let defaultStep = {
-  sectionId: (#addAPlatform: revenueRecoverySections :> string),
-  subSectionId: Some((#selectAPlatform: revenueRecoverySubsections :> string)),
+  sectionId: (#connectProcessor: revenueRecoverySections :> string),
+  subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
 }
 
 open VerticalStepIndicatorUtils

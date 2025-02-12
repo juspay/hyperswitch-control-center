@@ -47,10 +47,6 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   }, [connector])
 
   <div>
-    <BillingProcessorsUtils.SubHeading
-      title="Choose your Billing Platform"
-      subTitle="Choose one processor for now. You can connect more processors later"
-    />
     <ConnectorConfigurationFields
       connector={connectorTypeFromName}
       connectorAccountFields
