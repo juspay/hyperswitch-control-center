@@ -229,7 +229,7 @@ let useGetTextColor = (
     switch buttonState {
     | Disabled => "font-medium text-nd_gray-300"
     | NoHover => "font-medium text-primary/1 hover:text-primary/70"
-    | _ => "text-nd_gray-500"
+    | _ => "text-nd_gray-500 hover:bg-nd_gray-150"
     }
 
   | _ =>

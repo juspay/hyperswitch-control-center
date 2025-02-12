@@ -249,7 +249,7 @@ module FilterResultsComponent = {
       if activeFilter->isNonEmptyString {
         let categoryType = category.categoryType->getcategoryFromVariant
         if searchText->getEndChar == filterSeparator {
-          `${categoryType}:` == `${filterKey}:`
+          `${categoryType}${filterSeparator}` == `${filterKey}${filterSeparator}`
         } else {
           categoryType->String.includes(filterKey)
         }
@@ -401,7 +401,7 @@ module FilterResultsComponent = {
                 ->Array.map(category => {
                   let itemValue = `${category.categoryType
                     ->getcategoryFromVariant
-                    ->String.toLocaleLowerCase} : `
+                    ->String.toLocaleLowerCase} ${filterSeparator} `
                   <FilterOption
                     onClick={_ => category->onFilterClicked}
                     value=itemValue
@@ -698,7 +698,7 @@ module ModalSearchBox = {
       if activeFilter->isNonEmptyString {
         let categoryType = category.categoryType->getcategoryFromVariant
         if searchText->getEndChar == filterSeparator {
-          `${categoryType}:` == `${filterKey}:`
+          `${categoryType}${filterSeparator}` == `${filterKey}${filterSeparator}`
         } else {
           categoryType->String.includes(filterKey)
         }

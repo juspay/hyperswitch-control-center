@@ -19,7 +19,6 @@ let make = () => {
   {
     switch url.path->HSwitchUtils.urlPath {
     | list{"v2", "vault", "home"} => <VaultHome />
-    // | list{"v2", "vault", "configuration"} => <VaultConfiguration />
     | list{"v2", "vault", "onboarding", ...remainingPath} =>
       <EntityScaffold
         entityName="VaultConnector"
