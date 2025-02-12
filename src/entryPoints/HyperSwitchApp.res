@@ -112,6 +112,7 @@ let make = () => {
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
+              <OrgSidebar />
               <RenderIf condition={screenState === Success && showSideBar}>
                 <Sidebar
                   path={url.path}
@@ -146,7 +147,7 @@ let make = () => {
                         <div className="flex gap-4 items-center ">
                           <ProfileSwitch />
                           <div
-                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap  justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300 cursor-pointer`}>
+                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
                             <div className={`w-2 h-2 rounded-full ${modebg} `} />
                             <span className="font-semibold"> {modeText->React.string} </span>
                           </div>
