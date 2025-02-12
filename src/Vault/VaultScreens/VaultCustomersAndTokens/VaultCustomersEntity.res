@@ -1,4 +1,4 @@
-open CustomersType
+open VaultCustomersType
 
 let defaultColumns = [
   CustomerId,
@@ -30,8 +30,10 @@ let getCell = (customersData, colType): Table.cell => {
   switch colType {
   | CustomerId =>
     CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        displayValue={customersData.customer_id} copyValue={Some(customersData.customer_id)}
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/customers/${customersData.customer_id}`}
+        displayValue={customersData.customer_id}
+        copyValue={Some(customersData.customer_id)}
       />,
       "",
     )
@@ -44,6 +46,8 @@ let getCell = (customersData, colType): Table.cell => {
   | CreatedAt => Date(customersData.created_at)
   }
 }
+
+let vaultCustomersMapDefaultCols = Recoil.atom("vaultCustomersMapDefaultCols", defaultColumns)
 
 let itemToObjMapper = dict => {
   open LogicUtils
@@ -74,6 +78,7 @@ let customersEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    customerData => GlobalVars.appendDashboardPath(~url=`/customers/${customerData.customer_id}`)
+    customerData =>
+      GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.customer_id}`)
   },
 )
