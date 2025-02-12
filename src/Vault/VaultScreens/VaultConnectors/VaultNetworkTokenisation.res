@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  let (toggleState, setToggleState) = React.useState(_ => false)
+  let (toggleState, setToggleState) = React.useState(_ => true)
 
   <div className="mt-10 flex flex-col gap-2">
     <div className="flex flex-row  justify-between items-center">
@@ -16,6 +16,7 @@ let make = () => {
         toggleWidth="36px"
         innerCircleHeight="16px"
         transformValue="18px"
+        isDisabled=true
       />
     </div>
     <div className="font-medium text-nd_gray-400">
