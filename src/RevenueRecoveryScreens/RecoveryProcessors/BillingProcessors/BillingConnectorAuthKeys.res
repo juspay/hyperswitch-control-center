@@ -46,16 +46,21 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
     None
   }, [connector])
 
-  <div>
-    <ConnectorConfigurationFields
-      connector={connectorTypeFromName}
-      connectorAccountFields
-      selectedConnector
-      connectorMetaDataFields
-      connectorWebHookDetails
-      connectorLabelDetailField
-      connectorAdditionalMerchantData
-      showVertically
-    />
-  </div>
+  open RevenueRecoveryOnboardingUtils
+  <PageWrapper
+    title="Choose your Billing Platform"
+    subTitle="Choose one processor for now. You can connect more processors later">
+    <div className="-m-1 mt-5 mb-10">
+      <ConnectorConfigurationFields
+        connector={connectorTypeFromName}
+        connectorAccountFields
+        selectedConnector
+        connectorMetaDataFields
+        connectorWebHookDetails
+        connectorLabelDetailField
+        connectorAdditionalMerchantData
+        showVertically
+      />
+    </div>
+  </PageWrapper>
 }

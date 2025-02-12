@@ -27,7 +27,7 @@ let make = () => {
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
       }}
     />
-    <div className="flex flex-row gap-x-4 ml-14 mt-16">
+    <div className="flex flex-row ml-14 mt-16">
       <RevenueRecoveryOnboardingPayments
         currentStep setConnectorId onNextClick setNextStep profileId onPreviousClick
       />

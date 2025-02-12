@@ -33,7 +33,7 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
-    isVerifyConnector,
+    _isVerifyConnector,
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,

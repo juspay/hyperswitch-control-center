@@ -107,3 +107,15 @@ let onPreviousClick = (currentStep, setNextStep) => {
   | None => ()
   }
 }
+
+module PageWrapper = {
+  @react.component
+  let make = (~title, ~subTitle, ~children) => {
+    <div>
+      <PageUtils.PageHeading
+        title subTitle customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+      />
+      {children}
+    </div>
+  }
+}

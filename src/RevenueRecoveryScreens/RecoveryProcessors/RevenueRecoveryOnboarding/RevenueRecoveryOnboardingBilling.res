@@ -52,6 +52,7 @@ let make = (
             text="Next"
             buttonType=Primary
             onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            customButtonStyle="w-full"
           />
         </div>
       | {sectionId: "addAPlatform", subSectionId: Some("configureRetries")}
