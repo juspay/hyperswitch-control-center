@@ -4,6 +4,7 @@ module PMT = {
     ~pmtData: ConnectorTypes.paymentMethodConfigType,
     ~pm,
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
+    ~connector,
   ) => {
     open LogicUtils
     open ConnectorPaymentMethodV3Utils
@@ -17,16 +18,7 @@ module PMT = {
     let pmtArrayValue = pmtArrayInp.value->ConnectorUtils.getPaymentMethodMapper
     let pmEnabledValue =
       pmEnabledInp.value->getArrayDataFromJson(ConnectorListMapper.getPaymentMethodsEnabled)
-    let isPMTEnabled = pmtInp.value->getDictFromJsonObject->Dict.keysToArray->Array.length > 0
-    let (isSelected, setIsSelected) = React.useState(() => isPMTEnabled)
-    React.useEffect(() => {
-      if isPMTEnabled {
-        setIsSelected(_ => true)
-      } else {
-        setIsSelected(_ => false)
-      }
-      None
-    }, [isPMTEnabled])
+    let pmtInpValue = pmtInp.value->getDictFromJsonObject->itemProviderMapper
 
     let removeMethods = () => {
       let updatedPmtArray = pmtArrayValue->Array.filter(ele =>
@@ -57,27 +49,31 @@ module PMT = {
     let update = isSelected => {
       if !isSelected {
         removeMethods()
-      } else {
+      } else if !isMetaDataRequired(pmtData.payment_method_type, connector) {
         pmInp.onChange(pm->Identity.anyTypeToReactEvent)
         pmtInp.onChange(pmtData->Identity.anyTypeToReactEvent)
       }
-      setIsSelected(_ => isSelected)
     }
 
-    <CheckBoxIcon isSelected={isSelected} setIsSelected={isSelected => update(isSelected)} />
+    <CheckBoxIcon
+      isSelected={pmtInpValue.payment_method_type == pmtData.payment_method_type}
+      setIsSelected={isSelected => update(isSelected)}
+    />
   }
 }
 
-let renderValueInp = (~pmtData, ~pm) => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
-  <PMT pmtData pm fieldsArray />
+let renderValueInp = (~pmtData, ~pm, ~connector) => (
+  fieldsArray: array<ReactFinalForm.fieldRenderProps>,
+) => {
+  <PMT pmtData pm fieldsArray connector />
 }
 
-let valueInput = (~pmtData, ~pmIndex, ~pmtIndex, ~pm) => {
+let valueInput = (~pmtData, ~pmIndex, ~pmtIndex, ~pm, ~connector) => {
   open FormRenderer
 
   makeMultiInputFieldInfoOld(
     ~label=``,
-    ~comboCustomInput=renderValueInp(~pmtData, ~pm),
+    ~comboCustomInput=renderValueInp(~pmtData, ~pm, ~connector),
     ~inputFields=[
       makeInputFieldInfo(~name=`payment_methods_enabled[${pmIndex->Int.toString}].payment_method`),
       makeInputFieldInfo(

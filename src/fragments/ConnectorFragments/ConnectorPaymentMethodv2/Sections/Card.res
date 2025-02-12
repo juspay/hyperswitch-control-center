@@ -1,5 +1,5 @@
 @react.component
-let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
+let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditState) => {
   open LogicUtils
   open SectionHelper
   open ConnectorPaymentMethodV3Utils
@@ -20,7 +20,9 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
     data->Array.filter(ele => ele.payment_method_type->getPaymentMethodTypeFromString == Debit)
   let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)
   <div key={index->Int.toString}>
-    <HeadingSection index pm availablePM=credit pmIndex pmt="credit" />
+    <HeadingSection
+      index pm availablePM=credit pmIndex pmt="credit" showSelectAll={!isInEditState}
+    />
     <div className="flex gap-8 p-6 flex-wrap">
       {credit
       ->Array.mapWithIndex((pmtData, i) => {
@@ -42,12 +44,19 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
         | None => 0
         }
         <PaymentMethodTypes
-          index=i label={pmtData.card_networks->Array.joinWith(",")} pmtData pmIndex pmtIndex pm
+          pm
+          pmtData
+          pmIndex
+          pmtIndex
+          connector
+          isInEditState
+          index=i
+          label={pmtData.card_networks->Array.joinWith(",")}
         />
       })
       ->React.array}
     </div>
-    <HeadingSection index pm availablePM=debit pmIndex pmt="debit" />
+    <HeadingSection index pm availablePM=debit pmIndex pmt="debit" showSelectAll={!isInEditState} />
     <div className="flex gap-8 p-6 flex-wrap">
       {debit
       ->Array.mapWithIndex((pmtData, i) => {
@@ -69,7 +78,14 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
         | None => 0
         }
         <PaymentMethodTypes
-          index=i label={pmtData.card_networks->Array.joinWith(",")} pmtData pmIndex pmtIndex pm
+          pm
+          pmtData
+          pmIndex
+          pmtIndex
+          connector
+          isInEditState
+          index=i
+          label={pmtData.card_networks->Array.joinWith(",")}
         />
       })
       ->React.array}

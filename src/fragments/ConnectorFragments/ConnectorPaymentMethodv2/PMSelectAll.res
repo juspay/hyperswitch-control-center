@@ -70,7 +70,7 @@ module PMSelectAll = {
           data.payment_method_types
           ->Array.filter(ele => ele.payment_method_type->getPaymentMethodTypeFromString != Credit)
           ->Array.concat(availablePM)
-        | None => []
+        | None => availablePM
         }
         filterData
       } else if (
@@ -81,7 +81,7 @@ module PMSelectAll = {
           data.payment_method_types
           ->Array.filter(ele => ele.payment_method_type->getPaymentMethodTypeFromString != Debit)
           ->Array.concat(availablePM)
-        | None => []
+        | None => availablePM
         }
         filterData
       } else {

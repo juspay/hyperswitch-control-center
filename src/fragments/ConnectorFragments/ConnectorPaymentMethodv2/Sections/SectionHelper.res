@@ -6,7 +6,7 @@ module Heading = {
       <div className="p-2 bg-white border rounded-md">
         <Icon name={heading->pmIcon} />
       </div>
-      <p className="font-semibold"> {heading->LogicUtils.capitalizeString->React.string} </p>
+      <p className="font-semibold"> {heading->LogicUtils.snakeToTitle->React.string} </p>
     </div>
   }
 }
@@ -20,8 +20,10 @@ module PaymentMethodTypes = {
     ~pmIndex,
     ~pmtIndex,
     ~pm,
+    ~connector,
     ~showCheckbox=true,
     ~onClick=None,
+    ~isInEditState=false,
   ) => {
     let handleClick = () => {
       switch onClick {
@@ -32,19 +34,21 @@ module PaymentMethodTypes = {
     open FormRenderer
     <RenderIf condition={showCheckbox}>
       <AddDataAttributes key={index->Int.toString} attributes=[("data-testid", `${label}`)]>
-        <div
-          key={index->Int.toString}
-          className={"flex items-center gap-1.5"}
-          onClick={_ => handleClick()}>
-          <FieldRenderer
-            field={PMTSelection.valueInput(
-              ~pmtData,
-              ~pmIndex,
-              ~pmtIndex=pmtIndex->Int.toString,
-              ~pm,
-            )}
-          />
-          {label->React.string}
+        <div key={index->Int.toString} className={"flex gap-1.5 items-center"}>
+          <RenderIf condition={!isInEditState}>
+            <div onClick={_ => handleClick()}>
+              <FieldRenderer
+                field={PMTSelection.valueInput(
+                  ~pmtData,
+                  ~pmIndex,
+                  ~pmtIndex=pmtIndex->Int.toString,
+                  ~pm,
+                  ~connector,
+                )}
+              />
+            </div>
+          </RenderIf>
+          <p className="mt-4"> {label->React.string} </p>
         </div>
       </AddDataAttributes>
     </RenderIf>

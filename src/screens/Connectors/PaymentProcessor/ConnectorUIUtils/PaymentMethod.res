@@ -206,7 +206,6 @@ module CardRenderer = {
     | Wallet => selectedWallet.payment_method_type->snakeToTitle
     | _ => ""
     }
-    Js.log(provider)
 
     let modalHeading = `Additional Details to enable ${title}`
 

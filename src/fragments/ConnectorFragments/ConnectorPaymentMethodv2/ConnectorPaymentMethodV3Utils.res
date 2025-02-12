@@ -175,3 +175,16 @@ let checkKlaranRegion = connData =>
   | "europe" => true
   | _ => false
   }
+
+let pmtWithMetaData = [GooglePay, ApplePay, SamsungPay, Paze]
+
+let isMetaDataRequired = (pmt, connector) => {
+  pmtWithMetaData->Array.includes(pmt->getPaymentMethodTypeFromString) &&
+    {
+      switch connector->ConnectorUtils.getConnectorNameTypeFromString {
+      | Processors(TRUSTPAY)
+      | Processors(STRIPE_TEST) => false
+      | _ => true
+      }
+    }
+}

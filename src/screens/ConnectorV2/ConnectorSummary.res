@@ -37,7 +37,6 @@ let make = () => {
     // let connectorId = response->getDictFromJsonObject->getString("merchant_connector_id", "")
     Nullable.null
   }
-
   <>
     <PageLoaderWrapper screenState>
       <Form onSubmit initialValues>

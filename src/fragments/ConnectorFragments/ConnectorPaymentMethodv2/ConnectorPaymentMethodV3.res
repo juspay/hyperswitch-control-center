@@ -1,5 +1,11 @@
+/*
+PM - PaymentMethod
+PMT - PaymentMethodType
+PMIndex - PaymentMethod Index
+PMTIndex - PaymentMethodType Index
+ */
 @react.component
-let make = (~initialValues) => {
+let make = (~initialValues, ~isInEditState) => {
   open LogicUtils
   open ConnectorPaymentMethodV3Utils
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
@@ -116,8 +122,11 @@ let make = (~initialValues) => {
                 : 0
             : isPMEnabled
         switch pmValue->getPaymentMethodFromString {
-        | Card => <Card index pm=pmValue pmIndex paymentMethodValues connector />
-        | _ => <OtherPaymentMethod index pm=pmValue pmIndex paymentMethodValues connector />
+        | Card => <Card index pm=pmValue pmIndex paymentMethodValues connector isInEditState />
+        | _ =>
+          <OtherPaymentMethod
+            index pm=pmValue pmIndex paymentMethodValues connector isInEditState
+          />
         }
       })
       ->React.array}
