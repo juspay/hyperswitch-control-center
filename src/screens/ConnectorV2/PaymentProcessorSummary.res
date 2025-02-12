@@ -104,14 +104,10 @@ let make = (~initialValues, ~setInitialValues) => {
             />
           </div>
         </div>
-        <Form initialValues formClass="grid grid-cols-2 gap-10 flex-wrap max-w-3xl">
-          <ConnectorLabelV2 labelClass="font-normal" labelTextStyleClass="text-nd_gray-400" />
-          <ConnectorMetadataV2 labelTextStyleClass="text-nd_gray-400" labelClass="font-normal" />
-          <ConnectorWebhookDetails
-            labelTextStyleClass="text-nd_gray-400" labelClass="font-normal"
-          />
-          <ConnectorPaymentMethodV3 initialValues isInEditState=true />
-        </Form>
+        <ConnectorLabelV2 labelClass="font-normal" labelTextStyleClass="text-nd_gray-400" />
+        <ConnectorMetadataV2 labelTextStyleClass="text-nd_gray-400" labelClass="font-normal" />
+        <ConnectorWebhookDetails labelTextStyleClass="text-nd_gray-400" labelClass="font-normal" />
+        <ConnectorPaymentMethodV3 initialValues isInEditState=false />
       </div>
     </div>
   </div>
