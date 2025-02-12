@@ -39,7 +39,7 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues>
-      <PaymentProcessorSummary initialValues setInitialValues />
+      <PaymentProcessorSummary initialValues />
       <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>

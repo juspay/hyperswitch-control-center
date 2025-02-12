@@ -136,15 +136,16 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
+  let vaultTitleElement =
+    <>
+      <GatewayIcon gateway={`${connectorInfoDict.connector_name}`->String.toUpperCase} />
+      <h1 className="text-medium font-semibold text-gray-600">
+        {`Setup ${connectorName}`->React.string}
+      </h1>
+    </>
 
   <div className="flex flex-row gap-x-6">
-    <VerticalStepIndicator
-      title={`Setup ${connectorName} `}
-      sections
-      currentStep
-      backClick
-      customProcessorIcon={`${connectorInfoDict.connector_name}`}
-    />
+    <VerticalStepIndicator titleElement=vaultTitleElement sections currentStep backClick />
     {switch currentStep {
     | {sectionId: "authenticate-processor"} =>
       <div className="flex flex-col w-1/2 px-10 ">

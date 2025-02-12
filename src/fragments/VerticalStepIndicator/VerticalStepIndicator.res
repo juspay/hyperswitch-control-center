@@ -1,20 +1,15 @@
 open VerticalStepIndicatorTypes
 @react.component
 let make = (
-  ~title: string,
+  ~titleElement: React.element,
   ~sections: array<section>,
   ~currentStep: step,
   ~backClick,
-  ~customProcessorIcon=?,
 ) => {
   open VerticalStepIndicatorUtils
 
   let rows = sections->Array.length->Int.toString
   let currIndex = sections->findSectionIndex(currentStep.sectionId)
-  let customProcessorIcon = switch customProcessorIcon {
-  | Some(val) => val
-  | None => ""
-  }
   <div className="flex flex-col gap-y-6 border-r h-774-px w-334-px">
     <div className="flex items-center gap-x-3 px-6">
       <Icon
@@ -23,8 +18,7 @@ let make = (
         onClick={_ => backClick()}
         customHeight="20"
       />
-      <GatewayIcon gateway={customProcessorIcon->String.toUpperCase} />
-      <h1 className="text-medium font-semibold text-gray-600"> {title->React.string} </h1>
+      {titleElement}
     </div>
     <div className="w-full p-2 md:p-6">
       <div className={`grid grid-rows-${rows} relative gap-y-3.5`}>

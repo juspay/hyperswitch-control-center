@@ -7,7 +7,7 @@ let make = (
   open LogicUtils
   open ConnectorFragmentUtils
   open ConnectorAuthKeysHelper
-  let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
 
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
 

@@ -1,5 +1,5 @@
 @react.component
-let make = (~initialValues, ~setInitialValues) => {
+let make = (~initialValues) => {
   open ConnectorUtils
   open LogicUtils
   open CommonAuthHooks
@@ -111,20 +111,6 @@ let make = (~initialValues, ~setInitialValues) => {
             labelTextStyleClass="text-nd_gray-400" labelClass="font-normal"
           />
         </Form>
-      </div>
-      <div className="flex flex-col gap-10">
-        <div className="flex justify-between border-b pb-4 px-2 items-end">
-          <p className="text-lg font-semibold text-nd_gray-600"> {"PMTs"->React.string} </p>
-          <div className="flex gap-4">
-            <Button
-              text="Cancel" buttonType={Secondary} buttonSize={Small} customButtonStyle="w-fit"
-            />
-            <FormRenderer.SubmitButton
-              text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
-            />
-          </div>
-        </div>
-        <ConnectorPaymentMethodV2 initialValues setInitialValues />
       </div>
     </div>
   </div>
