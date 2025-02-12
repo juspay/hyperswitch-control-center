@@ -82,9 +82,9 @@ module ListItem = {
             }
           }
 
-    let bgClass = "md:bg-jp-gray-100 md:dark:bg-jp-gray-text_darktheme md:dark:bg-opacity-3 dark:hover:text-white dark:text-white"
+    let bgClass = "md:bg-jp-gray-100 md:dark:bg-jp-gray-text_darktheme/3 dark:hover:text-white dark:text-white"
 
-    let hoverClass = "hover:bg-jp-gray-100 dark:hover:bg-jp-gray-text_darktheme dark:hover:bg-opacity-10 dark:hover:text-white dark:text-white"
+    let hoverClass = "hover:bg-jp-gray-100 dark:hover:bg-jp-gray-text_darktheme/10 dark:hover:text-white dark:text-white"
 
     let customMarginStyle = if isMobileView {
       "py-2 gap-2"
@@ -109,11 +109,11 @@ module ListItem = {
       ""
     }
     let selectedClass = if isSelected {
-      "text-opacity-100 dark:text-opacity-100"
+      "text-black/100 dark:text-white/100"
     } else if isDisabled {
-      "text-opacity-50 dark:text-opacity-50"
+      "text-black/50 dark:text-white/50"
     } else {
-      "text-opacity-75 dark:text-opacity-75"
+      "text-black/75 dark:text-white/75"
     }
     let leftElementClass = if leftVacennt {
       "px-4 "
@@ -560,10 +560,10 @@ module BaseSelect = {
 
     let borderClass = if !hideBorder {
       if isDropDown {
-        `bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 
+        `bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 
             rounded-lg rounded-b-none animate-textTransition transition duration-400`
       } else if showToggle {
-        "bg-white border rounded rounded-b-none dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960"
+        "bg-white border rounded-smrounded-b-none dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960"
       } else {
         ""
       }
@@ -734,7 +734,7 @@ module BaseSelect = {
           <div>
             <div className={`grid grid-cols-2 items-center ${marginClass}`}>
               <div
-                className="ml-5 font-bold text-fs-16 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
+                className="ml-5 font-bold text-fs-16 text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/50">
                 {React.string(heading)}
               </div>
               {if showSelectAll {
@@ -958,7 +958,7 @@ module BaseSelectButton = {
           : "animate-textTransitionOff transition duration-400"}`}>
       {if searchable {
         <div
-          className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 `}>
+          className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 `}>
           <div className="pb-2">
             <SearchInput
               inputText=searchString
@@ -1315,7 +1315,7 @@ module BaseRadio = {
 
     let searchInputUI =
       <div
-        className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 `}>
+        className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 `}>
         <div>
           <SearchInput
             inputText=searchString
@@ -1563,7 +1563,7 @@ module BaseDropdown = {
     )
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
-    let dropdownOuterClass = "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+    let dropdownOuterClass = "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black/5 focus:outline-hidden"
 
     let newInputSelect = input->ffInputToSelectInput
     let newInputRadio = input->ffInputToRadioInput
@@ -1834,7 +1834,7 @@ module BaseDropdown = {
       />
 
     let textStyle = if isSelectTextDark && selectButtonText !== buttonText {
-      Some("text-black dark:text-white")
+      Some("text-black/50 dark:text-white/50")
     } else {
       textStyle
     }
@@ -1847,9 +1847,7 @@ module BaseDropdown = {
 
     <div className={`flex relative  flex-row  flex-wrap`}>
       <div className={`flex relative ${flexWrapper} ${fullLength ? "w-full" : ""}`}>
-        <div
-          ref={selectBoxRef->ReactDOM.Ref.domRef}
-          className={`text-opacity-50 ${fullLength ? "w-full" : ""}`}>
+        <div ref={selectBoxRef->ReactDOM.Ref.domRef} className={`${fullLength ? "w-full" : ""}`}>
           {switch baseComponent {
           | Some(comp) => <span onClick> {comp} </span>
           | None =>
@@ -1882,7 +1880,7 @@ module BaseDropdown = {
                       onClick
                       className={`${textStyle->Option.getOr(
                           "",
-                        )} flex justify-center items-center whitespace-pre leading-5  text-sm  font-medium hover:bg-opacity-80  cursor-pointer mr-2 pr-1`}>
+                        )} flex justify-center items-center whitespace-pre leading-5  text-sm  font-medium hover:opacity-80  cursor-pointer mr-2 pr-1`}>
                       <div className="text-ellipsis overflow-hidden w-full max-w-sm h-fit">
                         {selectButtonText->React.string}
                       </div>

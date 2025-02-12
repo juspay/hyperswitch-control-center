@@ -16,7 +16,7 @@ module RefundInfo = {
       ~children=?,
     ) => {
       <Section
-        customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
+        customCssClass={`border border-jp-gray-940/75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
         <div className="flex items-center">
           <div className="font-bold text-4xl m-3">
             {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
@@ -58,7 +58,7 @@ module RefundInfo = {
     let refundData = itemToObjMapper(orderDict)
     let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
     <>
-      <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div className={`font-bold text-fs-16 dark:text-white/75 mt-4 mb-4`}>
         {"Summary"->React.string}
       </div>
       <Details

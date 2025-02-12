@@ -15,7 +15,7 @@ module TableFilterRow = {
     let paddingClass = "px-8 py-3"
     let hoverClass = "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
     <tr
-      className={`filterColumns group rounded-md h-10 bg-white dark:bg-jp-gray-lightgray_background ${hoverClass} transition duration-300 ease-in-out text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${customFilterRowStyle}`}>
+      className={`filterColumns group rounded-md h-10 bg-white dark:bg-jp-gray-lightgray_background ${hoverClass} transition duration-300 ease-in-out text-fs-13 text-jp-gray-900/75 dark:text-jp-gray-text_darktheme/75 ${customFilterRowStyle}`}>
       {if showCheckbox {
         <td />
       } else {
@@ -131,7 +131,7 @@ module TableRow = {
     let bgColor = coloredRow ? selectedRowColor : "bg-white dark:bg-jp-gray-lightgray_background"
     let fontSize = "text-fs-14"
     let fontWeight = "font-medium"
-    let textColor = "text-nd_gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
+    let textColor = "text-nd_gray-600 dark:text-jp-gray-text_darktheme/75"
     let hoverClass = onRowClickPresent
       ? "hover:bg-nd_gray-50 dark:hover:bg-jp-gray-table_hover_dark"
       : ""
@@ -372,14 +372,14 @@ module TableHeadingCell = {
       ""
     }
 
-    let headerTextClass = "text-nd_gray-400 leading-18 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
+    let headerTextClass = "text-nd_gray-400 leading-18 dark:text-jp-gray-text_darktheme/75"
     let fontWeight = "font-medium"
     let fontSize = "text-fs-13 "
     let lastColProp = isLastCol && fixLastCol ? "sticky right-0 !px-0 !py-0 z-20" : ""
     let borderlastCol =
       isLastCol && fixLastCol ? "border-l px-4 py-3 h-full justify-center !flex-col" : ""
     let tableHeaderClass = if isHighchartLegend {
-      `tableHeader ${lastColProp} p-3 justify-between items-center dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text text-opacity-75 dark:text-opacity-75 whitespace-pre select-none ${isLastCol
+      `tableHeader ${lastColProp} p-3 justify-between items-center dark:text-jp-gray-dark_chart_legend_text/75 text-jp-gray-light_chart_legend_text/75 whitespace-pre select-none ${isLastCol
           ? lastHeadingClass
           : ""}`
     } else {
@@ -391,7 +391,7 @@ module TableHeadingCell = {
           : ""}`
     }
     let tableHeadingTextClass = if isHighchartLegend {
-      "text-fs-11 dark:text-blue-300 text-jp-gray-900 text-opacity-80 dark:text-opacity-100 font-medium not-italic whitespace-nowrap text-ellipsis overflow-x-hidden "
+      "text-fs-11 dark:text-blue-300/100 text-jp-gray-900/80 font-medium not-italic whitespace-nowrap text-ellipsis overflow-x-hidden "
     } else {
       `${fontWeight} ${fontSize} ${tableHeadingTextClass}`
     }

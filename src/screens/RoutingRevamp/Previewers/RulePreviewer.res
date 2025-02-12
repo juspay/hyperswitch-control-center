@@ -35,7 +35,7 @@ module GatewayView = {
         }
         <div
           key={Int.toString(index)}
-          className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1`}>
+          className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-hidden px-2 gap-1`}>
           {connectorStr->React.string}
           <RenderIf condition={percent->Option.isSome}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
@@ -54,7 +54,7 @@ module ThreedsTypeView = {
   let make = (~threeDsType) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <div
-      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1`}>
+      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-hidden px-2 gap-1`}>
       {threeDsType->LogicUtils.capitalizeString->React.string}
     </div>
   }
@@ -65,7 +65,7 @@ module SurchargeCompressedView = {
   let make = (~surchargeType, ~surchargeTypeValue, ~surchargePercentage) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <div
-      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium  ${textColor.primaryNormal} hover: ${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1`}>
+      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium  ${textColor.primaryNormal} hover: ${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-hidden px-2 gap-1`}>
       {`${surchargeType} -> ${surchargeTypeValue->Float.toString} | Tax on Surcharge -> ${surchargePercentage
         ->Option.getOr(0.0)
         ->Float.toString}`

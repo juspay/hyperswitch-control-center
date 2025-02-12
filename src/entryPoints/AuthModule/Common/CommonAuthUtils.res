@@ -153,7 +153,7 @@ module ToggleLiveTestMode = {
       | LoginWithPassword
       | LoginWithEmail
       | LiveMode => {
-          let borderStyle = "border-b-1 border-grey-600 border-opacity-50"
+          let borderStyle = "border-b-1 border-grey-600/50"
           let selectedtStyle = "border-b-2 inline-block relative -bottom-px py-2"
           let testModeStyles = mode === TestButtonMode ? selectedtStyle : ""
           let liveModeStyles = mode === LiveButtonMode ? selectedtStyle : ""

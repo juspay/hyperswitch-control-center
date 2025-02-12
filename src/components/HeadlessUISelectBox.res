@@ -52,7 +52,7 @@ let make = (
               {if showBottomUp {
                 <BottomModal headerText="Select Action" onCloseClick=closeClick>
                   <Menu.Items
-                    className={`w-full p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
+                    className={`w-full p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden`}>
                     {_ =>
                       options
                       ->Array.mapWithIndex((option, index) => {
@@ -136,7 +136,7 @@ let make = (
                 </BottomModal>
               } else {
                 <Menu.Items
-                  className={`absolute z-10 ${dropdownPositionClass} mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${dropDownClass}`}>
+                  className={`absolute z-10 ${dropdownPositionClass} mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden ${dropDownClass}`}>
                   {_ =>
                     options
                     ->Array.mapWithIndex((option, index) => {

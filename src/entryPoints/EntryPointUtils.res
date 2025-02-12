@@ -1,4 +1,4 @@
-%%raw(`require("tailwindcss/tailwind.css")`)
+%%raw("import './../../public/hyperswitch/app.css'")
 module ContextWrapper = {
   @react.component
   let make = (~children) => {

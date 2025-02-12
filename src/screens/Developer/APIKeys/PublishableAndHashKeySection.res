@@ -31,7 +31,7 @@ let make = () => {
   <PageLoaderWrapper screenState sectionHeight="h-40-vh">
     <div className="mt-10">
       <h2
-        className="font-bold text-xl pb-3 text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+        className="font-bold text-xl pb-3 text-black/75 dark:text-white/75">
         {"Publishable Key and Payment Response Hash Key"->React.string}
       </h2>
       <div
@@ -59,7 +59,7 @@ let make = () => {
             </div>
             <HelperComponents.CopyTextCustomComp
               displayValue={merchantInfo.publishable_key}
-              customTextCss="break-all text-sm truncate md:whitespace-normal font-semibold text-jp-gray-800 text-opacity-75"
+              customTextCss="break-all text-sm truncate md:whitespace-normal font-semibold text-jp-gray-800/75"
               customParentClass="flex items-center gap-5"
               customIconCss="text-jp-gray-700"
             />
@@ -71,7 +71,7 @@ let make = () => {
               </div>
               <HelperComponents.CopyTextCustomComp
                 displayValue={paymentResponsHashKey}
-                customTextCss="break-all truncate md:whitespace-normal text-sm font-semibold text-jp-gray-800 text-opacity-75"
+                customTextCss="break-all truncate md:whitespace-normal text-sm font-semibold text-jp-gray-800/75"
                 customParentClass="flex items-center gap-5"
                 customIconCss="text-jp-gray-700"
               />

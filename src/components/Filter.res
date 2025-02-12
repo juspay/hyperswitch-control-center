@@ -305,7 +305,7 @@ let make = (
       {_ =>
         <div>
           <Menu.Button
-            className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
+            className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-white/80 bg-white border">
             {_ => {
               <>
                 <Icon className={"mr-2"} name="plus" size=15 />
@@ -322,7 +322,7 @@ let make = (
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95">
             <Menu.Items
-              className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+              className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden">
               {_ => {
                 <>
                   <div className="px-1 py-1">

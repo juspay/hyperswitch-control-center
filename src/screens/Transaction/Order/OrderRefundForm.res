@@ -120,7 +120,7 @@ let make = (
     <Form onSubmit validate initialValues=initiateValueJson>
       <div className="flex flex-col w-full max-w-4xl mx-auto p-6">
         <div
-          className="border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75 pb-4 mb-6">
+          className="border-b border-jp-gray-940/75 dark:border-jp-gray-960/75 pb-4 mb-6">
           <div className="flex flex-row justify-between items-center ">
             <CardUtils.CardHeader
               heading="Initiate Refund" subHeading="" customSubHeadingStyle=""

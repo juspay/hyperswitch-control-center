@@ -14,7 +14,7 @@ module CustomerInfo = {
       ~children=?,
     ) => {
       <OrderUtils.Section
-        customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
+        customCssClass={`border border-jp-gray-940/75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
         <FormRenderer.DesktopRow>
           <div
             className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
@@ -47,7 +47,7 @@ module CustomerInfo = {
   let make = (~dict) => {
     let customerData = itemToObjMapper(dict)
     <>
-      <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div className={`font-bold text-fs-16 dark:text-white/75 mt-4 mb-4`}>
         {"Summary"->React.string}
       </div>
       <Details data=customerData getHeading getCell detailsFields=allColumns />

@@ -33,7 +33,7 @@ module TotpScanQR = {
         <div
           className={`flex flex-col gap-2 col-span-1 items-center justify-center  ${totpUrl->String.length > 0
               ? "blur-none"
-              : "blur-sm"}`}>
+              : "blur-xs"}`}>
           <p className=p3Regular> {"Scan the QR Code into your app"->React.string} </p>
           {if isQrVisible {
             <ReactQRCode value=totpUrl size=150 />

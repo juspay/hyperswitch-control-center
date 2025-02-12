@@ -138,8 +138,8 @@ let make = (
   }
 
   let borderClass = isInValid
-    ? "border-red-500 focus:border-red-500  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
-    : `border-jp-gray-lightmode_steelgray ${borderColor.primaryFocused} dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:${borderColor.primaryFocused} focus:shadow-text_input_shadow ${shadowColor.primaryFocused}`
+    ? "border-red-500/75 focus:border-red-500/100  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
+    : `border-jp-gray-lightmode_steelgray/75 ${borderColor.primaryFocused} dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:${borderColor.primaryFocused} focus:shadow-text_input_shadow ${shadowColor.primaryFocused}`
 
   let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-normal")
   let rightPaddingClass = if description->LogicUtils.isNonEmptyString || isInValid {
@@ -155,8 +155,8 @@ let make = (
   | None => "pl-2"
   }
   let verticalPadding = ""
-  let placeholderClass = "placeholder-opacity-50"
-  let textAndBgClass = `${customDarkBackground} text-jp-gray-900 text-opacity-75 focus:text-opacity-100 dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25 dark:focus:text-opacity-100`
+  let placeholderClass = "placeholder-jp-gray-900/50"
+  let textAndBgClass = `${customDarkBackground} text-jp-gray-900/75 focus:text-jp-gray-900/100 dark:text-jp-gray-text_darktheme/75 dark:placeholder-jp-gray-text_darktheme/25 dark:focus:text-jp-gray-text_darktheme/100`
 
   let width = widthMatchwithPlaceholderLength->Option.isSome ? "" : customWidth
   let textPaddingClass =
@@ -164,12 +164,12 @@ let make = (
       ? `${rightPaddingClass} ${leftPaddingClass} ${verticalPadding}`
       : customPaddingClass
   let hoverCss = if onHoverCss->LogicUtils.isEmptyString {
-    "hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-20 hover:border-opacity-20 dark:hover:bg-jp-gray-970"
+    "hover:bg-jp-gray-lightmode_steelgray/20/20 dark:hover:bg-jp-gray-970"
   } else {
     onHoverCss
   }
-  let className = `${width} border border-opacity-75 ${textPaddingClass} ${textAndBgClass} placeholder-jp-gray-900 placeholder-opacity-25 focus:outline-none
-      focus:border-opacity-100 ${hoverCss} ${roundingClass} ${cursorClass} ${dashboardClass} ${inputStyle} ${borderClass} ${customStyle} ${placeholderClass} ${isDisabled
+  let className = `${width} border ${textPaddingClass} ${textAndBgClass} placeholder-jp-gray-900/25 focus:outline-hidden
+   ${hoverCss} ${roundingClass} ${cursorClass} ${dashboardClass} ${inputStyle} ${borderClass} ${customStyle} ${placeholderClass} ${isDisabled
       ? onDisabledStyle
       : onActiveStyle}`
   let value = switch input.value->JSON.Classify.classify {

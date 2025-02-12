@@ -84,7 +84,7 @@ module TileComponent = {
     }
 
     <div
-      className="flex flex-col bg-white pt-6 pl-6 pr-8 pb-8 justify-between gap-10 border border-jp-gray-border_gray rounded ">
+      className="flex flex-col bg-white pt-6 pl-6 pr-8 pb-8 justify-between gap-10 border border-jp-gray-border_gray rounded-sm ">
       <div>
         <div className="flex justify-between">
           <p className="text-fs-16 font-semibold m-2"> {heading->React.string} </p>

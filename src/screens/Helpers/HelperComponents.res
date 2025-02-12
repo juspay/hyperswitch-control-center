@@ -130,7 +130,7 @@ module BluredTableComponent = {
         <PageUtils.PageHeading title=moduleName subTitle />
         <div> {headerRightButton} </div>
       </div>
-      <div className="blur bg-white p-8">
+      <div className="blur-sm bg-white p-8">
         {dummyTableValue
         ->Array.mapWithIndex((value, index) => {
           <div className="flex gap-8 my-10 justify-between" key={index->Int.toString}>

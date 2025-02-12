@@ -21,7 +21,7 @@ module ShowOrderDetails = {
     ~paymentStatus,
     ~openRefundModal,
     ~paymentId,
-    ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
+    ~border="border border-jp-gray-940/75 dark:border-jp-gray-960",
     ~sectionTitle=?,
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()

@@ -441,15 +441,15 @@ module VerifyConnectorModal = {
             />
             <div className="text-jp-gray-900">
               <div
-                className="font-semibold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
+                className="font-semibold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme/75">
                 {"Are you sure you want to proceed?"->React.string}
               </div>
               <div
-                className="whitespace-pre-line break-all flex flex-col gap-1  p-2 ml-4 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 font-medium leading-7 opacity-50">
+                className="whitespace-pre-line break-all flex flex-col gap-1  p-2 ml-4 text-base dark:text-jp-gray-text_darktheme/50 font-medium leading-7 opacity-50">
                 {`Received the following error from ${connector->LogicUtils.snakeToTitle}:`->React.string}
               </div>
               <div
-                className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 bg-red-100 rounded-md font-semibold">
+                className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-jp-gray-text_darktheme/50 bg-red-100 rounded-md font-semibold">
                 {`${verifyErrorMessage->Option.getOr("")}`->React.string}
               </div>
               <RenderIf condition={suggestedActionExists}> {suggestedAction} </RenderIf>

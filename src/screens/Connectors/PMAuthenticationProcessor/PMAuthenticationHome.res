@@ -27,7 +27,7 @@ module MenuOption = {
           {panelProps => {
             <div
               id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded-smring-1 ring-black/5 w-40">
               {<>
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
@@ -237,8 +237,8 @@ let make = () => {
 
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
-    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
+    | true => "border bg-red-600/40 border-red-400 text-red-500"
+    | false => "border bg-green-600/40 border-green-700 text-green-700"
     }
 
   let summaryPageButton = switch currentStep {

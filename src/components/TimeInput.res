@@ -14,7 +14,7 @@ module OptionVals = {
       value={value->Int.toString}
       onChange
       disabled=isDisabled
-      className={`dark:bg-jp-gray-lightgray_background font-medium border border-gray-400 rounded-md self-start ${cursorClass} outline-none`}>
+      className={`dark:bg-jp-gray-lightgray_background font-medium border border-gray-400 rounded-md self-start ${cursorClass} outline-hidden`}>
       {Array.make(~length=upto, 0)
       ->Array.mapWithIndex((_, i) => {
         <option key={Int.toString(i)} value={Int.toString(i)}> {i->padNum->React.string} </option>

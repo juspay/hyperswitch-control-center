@@ -1,4 +1,4 @@
-let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
+let tableBorderClass = "border-2 border-solid  border-jp-gray-940/30 border-collapse dark:border-jp-gray-dark_table_border_color/30"
 module Card = {
   @react.component
   let make = (~children) => {
@@ -125,7 +125,7 @@ module CustomDropDown = {
       {_ =>
         <div>
           <Menu.Button
-            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border">
+            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-white/80 bg-white border">
             {_ => {
               <>
                 {buttonText.label->React.string}
@@ -148,7 +148,7 @@ module CustomDropDown = {
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95">
             {<Menu.Items
-              className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
+              className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden`}>
               {props => {
                 setArrow(_ => props["open"])
 

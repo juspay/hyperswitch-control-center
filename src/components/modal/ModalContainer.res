@@ -32,7 +32,7 @@ module Modal = {
       ev->convertToWebapiEvent->Webapi.Dom.Event.stopPropagation
     }, [])
     <div
-      className="absolute inset-0 overflow-scroll bg-gray-500 bg-opacity-50 flex flex-col items-center"
+      className="absolute inset-0 overflow-scroll bg-gray-500/50 flex flex-col items-center"
       onClick=handleOutsideClick>
       <div className="w-full md:w-4/5 lg:w-3/5 md:my-40 shadow-lg" onClick=stopPropagation>
         <ModalHeading title=modalProps.title hideModal />

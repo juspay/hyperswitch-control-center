@@ -54,7 +54,7 @@ module TabInfo = {
     let roundedClass = "rounded-t-md"
 
     let defaultClasses = if isDisabled && disabledTab->Array.includes(title) {
-      `cursor-not-allowed ${fontClass} w-max flex flex-auto flex-row items-center justify-center ${roundedClass} ${tabTextPadding} ${backgroundStyle} ${tabDisabledStyle} ${defaultBorderClass} font-semibold dark:text-jp-gray-text_darktheme dark:text-opacity-50 text-opacity-50 hover:text-opacity-50 dark:hover:text-opacity-50`
+      `cursor-not-allowed ${fontClass} w-max flex flex-auto flex-row items-center justify-center ${roundedClass} ${tabTextPadding} ${backgroundStyle} ${tabDisabledStyle} ${defaultBorderClass} font-semibold dark:text-jp-gray-text_darktheme/50 text-jp-gray-900/50 hover:text-jp-gray-900/50 dark:hover:text-jp-gray-text_darktheme/50`
     } else {
       `${fontClass} w-max flex flex-auto flex-row items-center justify-center ${tabTextPadding} ${roundedClass} ${defaultBorderClass}  font-semibold text-body`
     }
@@ -62,7 +62,7 @@ module TabInfo = {
     let selectionClasses = if isSelected {
       `font-semibold text-${lightThemeColor} dark:text-${darkThemeColor} ${textStyle} ${borderSelectionStyle} `
     } else {
-      `text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75 text-opacity-50 hover:text-opacity-75 dark:hover:text-opacity-100  ${borderDefaultStyle}`
+      `text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/75 hover:text-jp-gray-900/75 dark:hover:text-jp-gray-text_darktheme/100  ${borderDefaultStyle}`
     }
     let handleClick = React.useCallback2(_ => {
       if isDisabled && disabledTab->Array.includes(title) {

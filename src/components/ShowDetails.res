@@ -41,7 +41,7 @@ module MerchantDetails = {
     <div className="flex flex-col border border-jp-gray-500 mt-4  dark:border-jp-gray-960">
       <div className="flex flex-col justify-between">
         <div
-          className="flex flex-row justify-between p-4 font-bold border-4 border-jp-gray-500  from-gray-100 bg-gradient-to-b from-jp-gray-200 to-jp-gray-300 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75 whitespace-pre">
+          className="flex flex-row justify-between p-4 font-bold border-4 border-jp-gray-500  from-gray-100 bg-gradient-to-b from-jp-gray-200 to-jp-gray-300 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-800 dark:text-jp-gray-text_darktheme/75 whitespace-pre">
           <div className="justify-items-center  font-bold text-2xl">
             {React.string("Merchant Details")}
           </div>

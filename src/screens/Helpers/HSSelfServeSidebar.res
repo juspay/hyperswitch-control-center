@@ -30,7 +30,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
     (completedSteps->Array.length->Int.toFloat /.
     sidebarOptions->Array.length->Int.toFloat *. 100.0)->Float.toInt
 
-  <div className="w-[288px] xl:w-[364px] h-screen bg-white shadow-sm shrink-0">
+  <div className="w-[288px] xl:w-[364px] h-screen bg-white shadow-xs shrink-0">
     <div className="p-6 flex flex-col gap-3">
       <div className="text-xl font-semibold"> {heading->React.string} </div>
       <div
@@ -75,7 +75,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
         onClick>
         <div key={i->Int.toString} className={`flex items-center ${textColor} font-medium gap-5`}>
           <span
-            className={`${indexBackground} ${indexColor} rounded-sm w-1.1-rem h-1.1-rem flex justify-center items-center text-sm`}>
+            className={`${indexBackground} ${indexColor} rounded-xsw-1.1-rem h-1.1-rem flex justify-center items-center text-sm`}>
             {(i + 1)->Int.toString->React.string}
           </span>
           <div className="flex-1">

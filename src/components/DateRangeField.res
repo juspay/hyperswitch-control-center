@@ -90,7 +90,7 @@ module PredefinedOption = {
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
         <div>
           <div
-            className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm font-medium text-grey-900`}
+            className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100/75 dark:hover:bg-jp-gray-850/100  cursor-pointer text-sm font-medium text-grey-900`}
             onClick=handleClick>
             {React.string(dateRangeDropdownVal)}
           </div>
@@ -726,7 +726,7 @@ module Base = {
               ->React.array}
               <AddDataAttributes attributes=[("data-daterange-dropdown-value", "Custom Range")]>
                 <div
-                  className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
+                  className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3 hover:bg-jp-gray-100/75 dark:hover:bg-jp-gray-850/100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
                   onClick={_ => {
                     setCalendarVisibility(_ => true)
                     setIsCustomSelected(_ => true)
@@ -834,7 +834,7 @@ module Base = {
               leaveTo="transform opacity-0 scale-95">
               <div
                 ref={dropdownRef->ReactDOM.Ref.domRef}
-                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`}>
+                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black/5 focus:outline-hidden mt-2 right-0`}>
                 calendarElement
               </div>
             </Transition>

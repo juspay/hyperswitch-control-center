@@ -1,6 +1,6 @@
 let containerBorderRadius = "rounded-xl"
 
-let overlayStyle = "bg-grey-700 bg-opacity-70 backdrop-blur-sm"
+let overlayStyle = "bg-grey-700/70 backdrop-blur-sm"
 
 let headerStyle = "text-2xl font-semibold"
 

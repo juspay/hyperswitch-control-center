@@ -2,7 +2,7 @@ open HeadlessUI
 
 type dropDownState = Loading | Success | NoData
 
-let commonDropdownCss = "absolute md:max-h-36 md:min-h-fit overflow-scroll z-30 w-full bg-white rounded-sm shadow-lg  focus:outline-none my-1 border border-jp-gray-lightmode_steelgray border-opacity-75  ring-1 ring-black ring-opacity-5"
+let commonDropdownCss = "absolute md:max-h-36 md:min-h-fit overflow-scroll z-30 w-full bg-white rounded-xsshadow-lg  focus:outline-hidden my-1 border border-jp-gray-lightmode_steelgray/75  ring-1 ring-black/5"
 
 module DropDownItems = {
   @react.component
@@ -113,7 +113,7 @@ let make = (
               </RenderIf>
             </div>
             <div
-              className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"
+              className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-white/80 bg-white border w-full"
               onClick={_ => arrow ? () : onClickDropDownApi()->ignore}>
               <span
                 className="px-1 text-fs-13 text-sm font-medium leading-5  whitespace-pre !text-gray-500">

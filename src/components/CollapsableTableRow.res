@@ -16,7 +16,7 @@ let make = (
   heading->Array.forEach((item: TableUtils.header) => {
     headingArray->Array.push(item.title)->ignore
   })
-  let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75"
+  let textColor = "text-jp-gray-900/75 dark:text-jp-gray-text_darktheme/75"
   let fontStyle = "font-fira-code"
   let fontSize = "text-sm"
   let borderRadius = "rounded-md"
@@ -24,7 +24,7 @@ let make = (
   <>
     <DesktopView>
       <tr
-        className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 ${textColor} ${fontStyle} transition duration-300 ease-in-out ${fontSize}`}>
+        className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100/10 ${textColor} ${fontStyle} transition duration-300 ease-in-out ${fontSize}`}>
         {item
         ->Array.mapWithIndex((obj: Table.cell, cellIndex) => {
           let showBorderTop = switch obj {

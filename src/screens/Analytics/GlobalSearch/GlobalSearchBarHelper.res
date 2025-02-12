@@ -26,7 +26,7 @@ module RenderedComponent = {
 module SearchBox = {
   @react.component
   let make = (~openModalOnClickHandler) => {
-    let iconBoxCss = "w-5 h-5 border border-gray-200 bg-white flex rounded-sm items-center justify-center cursor-pointer "
+    let iconBoxCss = "w-5 h-5 border border-gray-200 bg-white flex rounded-xsitems-center justify-center cursor-pointer "
     let cmdIcon = Window.Navigator.platform->String.includes("Mac") ? "⌘" : "^"
     let shortcutIcons = {
       <>
@@ -42,7 +42,7 @@ module SearchBox = {
       <Icon size=14 name="search" className="mx-2" onClick={openModalOnClickHandler} />
     } else {
       <div
-        className={`flex w-80 gap-2 items-center text-grey-800 text-opacity-40 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text shadow-sm bg-nd_gray-100`}
+        className={`flex w-80 gap-2 items-center text-grey-800/40 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text shadow-xs bg-nd_gray-100`}
         onClick={openModalOnClickHandler}>
         <div className="flex gap-2 ">
           <Icon size=14 name="search" />
@@ -441,7 +441,7 @@ module SearchResultsComponent = {
     ~prefix,
     ~filtersEnabled,
   ) => {
-    <div className={"w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm "}>
+    <div className={"w-full overflow-auto text-base max-h-[60vh] focus:outline-hidden sm:text-sm "}>
       <RenderIf condition={filtersEnabled}>
         <FilterResultsComponent
           categorySuggestions
@@ -719,7 +719,10 @@ module ModalSearchBox = {
       errors->JSON.Encode.object
     }
 
-    let textColor = errorMessage->isNonEmptyString ? "text-red-900" : "text-jp-gray-900"
+    let textColor =
+      errorMessage->isNonEmptyString
+        ? "text-red-900/75 focus:text-red-900/100"
+        : "text-jp-gray-900/75 focus:text-jp-gray-900/100"
 
     <Form
       key="global-search"
@@ -741,7 +744,7 @@ module ModalSearchBox = {
                       autoComplete="off"
                       autoFocus=true
                       placeholder="Search"
-                      className={`w-full pr-2 pl-2 ${textColor} text-opacity-75 focus:text-opacity-100  placeholder-jp-gray-900  focus:outline-none rounded  h-10 text-lg font-normal  placeholder-opacity-50 `}
+                      className={`w-full pr-2 pl-2 ${textColor} placeholder-jp-gray-900/50  focus:outline-hidden rounded-sm  h-10 text-lg font-normal`}
                       name={input.name}
                       label="No"
                       value=localSearchText

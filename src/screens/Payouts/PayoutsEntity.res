@@ -240,27 +240,26 @@ let allColumns = [
 ]
 
 let useGetStatus = order => {
-  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch order.status->statusVariantMapper {
   | Succeeded =>
-    <div className={`${fixedCss} bg-hyperswitch_green dark:bg-opacity-50`}>
+    <div className={`${fixedCss} bg-hyperswitch_green`}>
       {orderStatusLabel->React.string}
     </div>
   | Failed
   | Cancelled =>
-    <div className={`${fixedCss} bg-red-960 dark:bg-opacity-50`}>
+    <div className={`${fixedCss} bg-red-960`}>
       {orderStatusLabel->React.string}
     </div>
   | Processing
   | RequiresCustomerAction
   | RequiresPaymentMethod =>
-    <div className={`${fixedCss} ${primaryColor} bg-opacity-50`}>
+    <div className={`${fixedCss} bg-primary/50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedCss} ${primaryColor} bg-opacity-50`}>
+    <div className={`${fixedCss} bg-primary/50`}>
       {orderStatusLabel->React.string}
     </div>
   }

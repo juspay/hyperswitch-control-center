@@ -170,15 +170,15 @@ module TableRow = {
             let textColor =
               today == renderingDate
                 ? `${textColor.primaryNormal}`
-                : "text-jp-gray-900 text-opacity-75 dark:text-opacity-75"
+                : "text-jp-gray-900/75 dark:text-jp-gray-900/75"
             let classN = if obj->isEmptyString || hSelf.highlightSelf {
               `h-9 p-0 w-9 font-semibold font-fira-code text-center ${textColor}  dark:text-jp-gray-text_darktheme  ${dayClass}`
             } else {
-              `h-9 p-0 w-9 font-semibold text-center font-fira-code ${textColor}  dark:text-jp-gray-text_darktheme hover:text-opacity-100 dark:hover:text-opacity-100 hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-75 hover:rounded-lg dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 ${dayClass} `
+              `h-9 p-0 w-9 font-semibold text-center font-fira-code ${textColor}  dark:text-jp-gray-text_darktheme hover:text-jp-gray-900/100 dark:hover:text-jp-gray-900/100 hover:bg-jp-gray-lightmode_steelgray/75 hover:rounded-lg dark:hover:bg-jp-gray-850/100 ${dayClass} `
             }
             let c2 =
               obj->isNonEmptyString && hSelf.highlightSelf
-                ? "h-full w-full flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary dark:bg-opacity-100 text-white rounded-full"
+                ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white rounded-full"
                 : "h-full w-full"
 
             let shouldHighlight = (startDate, endDate, obj, month, year) => {
@@ -189,14 +189,14 @@ module TableRow = {
                 if endDate->isNonEmptyString {
                   let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate
-                    ? `h-full w-full flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary dark:bg-opacity-100 text-white rounded-l-lg `
+                    ? `h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white rounded-l-lg `
                     : z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary dark:bg-opacity-100 text-white rounded-r-lg "
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white rounded-r-lg "
                     : z > parsedStartDate && z < parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-100  dark:bg-gray-700 dark:bg-opacity-100 text-gray-600 dark:text-gray-400"
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-100  dark:bg-gray-700/100 text-gray-600 dark:text-gray-400"
                     : "h-full w-full"
                 } else if z == parsedStartDate {
-                  `h-full w-full flex flex-1 justify-center items-center bg-primary bg-opacity-100 dark:bg-primary dark:bg-opacity-100 text-white rounded-lg ${changeHighlightCellStyle}`
+                  `h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white rounded-lg ${changeHighlightCellStyle}`
                 } else if (
                   hoverdDate->isNonEmptyString &&
                   endDate->isEmptyString &&
@@ -208,7 +208,7 @@ module TableRow = {
                     (endDate->isEmptyString && !isInLimit)
                   )
                 ) {
-                  "h-full w-full flex flex-1 justify-center items-center bg-blue-100 dark:bg-gray-700 dark:bg-opacity-100"
+                  "h-full w-full flex flex-1 justify-center items-center bg-blue-100 dark:bg-gray-700/100"
                 } else {
                   "h-full w-full"
                 }
@@ -392,7 +392,7 @@ let make = (
             ->Array.mapWithIndex((item, i) => {
               <th key={Int.toString(i)}>
                 <div
-                  className="flex flex-1 justify-center py-1 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
+                  className="flex flex-1 justify-center py-1 text-jp-gray-700 dark:text-jp-gray-text_darktheme/50">
                   {React.string(isMobileView ? item->String.charAt(0) : item)}
                 </div>
               </th>

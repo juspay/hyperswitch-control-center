@@ -3,7 +3,7 @@ const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
-const tailwindcss = require("tailwindcss");
+const tailwindcss = require("@tailwindcss/postcss");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 module.exports = (appName = "hyperswitch", publicPath = "auto") => {
@@ -29,7 +29,7 @@ module.exports = (appName = "hyperswitch", publicPath = "auto") => {
               loader: "postcss-loader",
               options: {
                 postcssOptions: {
-                  plugins: [[tailwindcss("./tailwind.config.js")]],
+                  plugins: [tailwindcss()],
                 },
               },
             },

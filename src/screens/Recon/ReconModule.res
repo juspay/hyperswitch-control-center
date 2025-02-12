@@ -103,7 +103,7 @@ let make = (~urlList) => {
           </div>
         } else {
           <div
-            className={`bg-white dark:bg-jp-gray-lightgray_background border-2 rounded dark:border-jp-gray-850 grid grid-cols-1 md:gap-5 p-2 md:p-8 h-2/3 items-center`}>
+            className={`bg-white dark:bg-jp-gray-lightgray_background border-2 rounded-smdark:border-jp-gray-850 grid grid-cols-1 md:gap-5 p-2 md:p-8 h-2/3 items-center`}>
             <div className={`flex flex-col items-center w-4/6 md:w-2/6 justify-self-center gap-1`}>
               <div
                 className={`text-center text-semibold text-s text-grey-700 opacity-60 dark:text-white`}>
@@ -112,7 +112,7 @@ let make = (~urlList) => {
               <Button
                 text="Refresh recon tab"
                 buttonType={Primary}
-                customButtonStyle="w-2/3 rounded-sm !bg-jp-blue-button_blue border border-jp-blue-border_blue mt-4"
+                customButtonStyle="w-2/3 rounded-xs !bg-jp-blue-button_blue border border-jp-blue-border_blue mt-4"
                 buttonSize={Small}
                 buttonState={Normal}
                 onClick={_v => {

@@ -42,7 +42,7 @@ module ModalHeading = {
   ) => {
     let isHyperSwitchDashboard = GlobalVars.isHyperSwitchDashboard
     let borderClass = showBorderBottom
-      ? "border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75"
+      ? "border-b border-jp-gray-940/75 dark:border-jp-gray-960/75"
       : ""
 
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")
@@ -131,7 +131,7 @@ module ModalContent = {
     <div
       id="neglectTopbarTheme"
       onClick=handleContainerClick
-      className={`border border-jp-gray-500 dark:border-jp-gray-900 ${bgClass} shadow rounded-lg dark:text-opacity-75 dark:bg-jp-gray-darkgray_background ${modalClass} ${customHeight}`}>
+      className={`border border-jp-gray-500 dark:border-jp-gray-900/75 ${bgClass} shadow-sm rounded-lg dark:bg-jp-gray-darkgray_background ${modalClass} ${customHeight}`}>
       children
     </div>
   }
@@ -156,7 +156,7 @@ module ModalOverlay = {
     let mobileClass = isMobileView ? "flex flex-col " : ""
     let displayClass = showModal ? "block" : "hidden"
     let overlayBgStyle = GlobalVars.isHyperSwitchDashboard
-      ? isBackdropBlurReq ? `bg-grey-700 bg-opacity-50` : ""
+      ? isBackdropBlurReq ? `bg-grey-700/50` : ""
       : overlayBG
     let backgroundDropStyles = isBackdropBlurReq ? "backdrop-blur-sm" : ""
 
@@ -213,7 +213,7 @@ let make = (
   ~modalHeadingDescriptionElement=React.null,
   ~onCloseClickCustomFun=_ => (),
   ~modalFooter=React.null,
-  ~overlayBG="bg-jp-gray-950 dark:bg-white-600 dark:bg-opacity-80 bg-opacity-70",
+  ~overlayBG="bg-jp-gray-950/70 dark:bg-white-600/80",
   ~showModalHeadingIconName="",
   ~customHeight=?,
   ~modalHeadingClass="",

@@ -2,7 +2,7 @@ module APIKeysAndLiveEndpoints = {
   @react.component
   let make = (~currentStep, ~setCurrentStep) => {
     <div className="flex flex-col h-full">
-      <div className="flex flex-col gap-4 flex-grow p-2 md:p-7">
+      <div className="flex flex-col gap-4 grow p-2 md:p-7">
         <p className="text-medium text-grey-800 font-semibold mb-5">
           {"Setup Your API Keys & Live Endpoints"->React.string}
         </p>
@@ -20,7 +20,7 @@ module WebHooks = {
   @react.component
   let make = (~currentStep, ~setCurrentStep) => {
     <div className="flex flex-col h-full">
-      <div className="flex flex-col gap-4 flex-grow p-2 md:p-7">
+      <div className="flex flex-col gap-4 grow p-2 md:p-7">
         <p className="text-medium text-grey-800 font-semibold mb-5">
           {"Setup Webhook"->React.string}
         </p>

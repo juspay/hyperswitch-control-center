@@ -37,7 +37,7 @@ module BaseComponent = {
     let selectedClass = `${boolCustomClass} ${toggleEnableColor}`
     let borderSelectedClass = `${toggleBorder}`
     let defaultInputClass = `${boolCustomClass} ${toggleColor}`
-    let defaultBorder = "border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960"
+    let defaultBorder = "border border-jp-gray-940/75 dark:border-jp-gray-960"
     let backgroundClass = if isSelected {
       selectedClass
     } else {
@@ -67,9 +67,9 @@ module BaseComponent = {
     let circleColor = if isSelected {
       "bg-white"
     } else if isDisabled {
-      "bg-jp-gray-900 bg-opacity-50 dark:bg-jp-gray-900 dark:bg-opacity-40"
+      "bg-jp-gray-900/50 dark:bg-jp-gray-900/40"
     } else {
-      "bg-jp-gray-900 bg-opacity-50 dark:bg-white dark:bg-opacity-100"
+      "bg-jp-gray-900/50 dark:bg-white/100"
     }
 
     let innerShadow = ""

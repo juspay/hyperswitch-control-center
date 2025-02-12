@@ -403,7 +403,7 @@ module RuleFieldBase = {
               onClick
               onMouseEnter={_ => setHover(_ => true)}
               onMouseLeave={_ => setHover(_ => false)}
-              className="flex items-center cursor-pointer rounded-full  border border-jp-gray-500 dark:border-jp-gray-960 bg-red-400 hover:shadow focus:outline-none p-2">
+              className="flex items-center cursor-pointer rounded-full  border border-jp-gray-500 dark:border-jp-gray-960 bg-red-400 hover:shadow-sm focus:outline-hidden p-2">
               <Icon size=10 className="text-gray-50 font-semibold" name="close" />
             </div>
           </RenderIf>
@@ -459,13 +459,13 @@ module MakeRuleField = {
       {if isExpanded {
         <div
           onClick={onPlusClick}
-          className={`focus:outline-none p-2 ml-8 mt-2 md:mt-0 flex items-center bg-white dark:bg-jp-gray-darkgray_background 
+          className={`focus:outline-hidden p-2 ml-8 mt-2 md:mt-0 flex items-center bg-white dark:bg-jp-gray-darkgray_background 
            rounded-full border border-jp-gray-500 dark:border-jp-gray-960 
            text-jp-gray-900 dark:text-jp-gray-text_darktheme   
           ${plusBtnEnabled
-              ? "cursor-pointer text-opacity-75 dark:text-opacity-50 
-                hover:text-opacity-100 dark:hover:text-opacity-75 hover:shadow"
-              : "cursor-not-allowed text-opacity-50 dark:text-opacity-50"}`}>
+              ? "cursor-pointer text-jp-gray-900/75 dark:text-jp-gray-text_darktheme/50 
+                hover:text-jp-gray-900/100 dark:hover:text-jp-gray-text_darktheme/75 hover:shadow"
+              : "cursor-not-allowed text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/50"}`}>
           <Icon size=14 name="plus" />
         </div>
       } else {

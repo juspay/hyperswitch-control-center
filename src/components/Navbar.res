@@ -73,7 +73,7 @@ let make = (
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
-          <div className="flex-shrink-0 flex items-center" />
+          <div className="shrink-0 flex items-center" />
         </div>
         {switch midUiActions {
         | Some(actions) => actions
@@ -108,7 +108,7 @@ let make = (
             onClick={_ => {
               setIsSidebarExpanded(prev => !prev)
             }}
-            className={`h-full px-1.5 flex items-center focus:outline-none cursor-pointer transform transition duration-500 ease-in-out md:hidden`}>
+            className={`h-full px-1.5 flex items-center focus:outline-hidden cursor-pointer transform transition duration-500 ease-in-out md:hidden`}>
             <Icon className="align-middle" name="bars" />
           </div>
         </div>

@@ -288,7 +288,7 @@ let make = () => {
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
-      customStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded !w-full`}
+      customStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded-sm !w-full`}
       customSelectStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded`}
       searchable=false
       baseComponent={<ListBaseComp
@@ -300,7 +300,7 @@ let make = () => {
         onEditClick
         isDarkBg=true
       />}
-      baseComponentCustomStyle={`border-blue-820 rounded ${backgroundColor.sidebarSecondary} rounded text-white`}
+      baseComponentCustomStyle={`border-blue-820 rounded-sm ${backgroundColor.sidebarSecondary} rounded-smtext-white`}
       bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
         <OMPSwitchHelper.AddNewOMPButton
           user=#Organization

@@ -136,12 +136,12 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
               onBlur={_ => saveItem(item)}
               onInput=handleEditChange
               onKeyDown={ev => handleEditKeydown(item, ev)}
-              className="rounded-md p-1 flex-grow"
+              className="rounded-md p-1 grow"
             />
           </RenderIf>
           <RenderIf condition={editingItem != Some(item)}>
             <div
-              className="cursor-pointer px-2 py-1 flex-grow"
+              className="cursor-pointer px-2 py-1 grow"
               onClick={event => toggleEditingItem(item, event)}>
               {React.string(item)}
             </div>
@@ -160,7 +160,7 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
           placeholder
           onChange=handleInputChange
           onKeyDown=handleKeyDown
-          className="outline-none p-2 flex-grow"
+          className="outline-hidden p-2 grow"
           name
         />
         <RenderIf condition={suggestion->Option.isSome}>

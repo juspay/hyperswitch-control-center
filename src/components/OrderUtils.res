@@ -49,7 +49,7 @@ module DisplayKeyValueParams = {
       <AddDataAttributes attributes=[("data-label", heading.title)]>
         <div className={`flex ${isHorizontal ? "flex-row gap-3" : "flex-col gap-1"} py-4`}>
           <div
-            className="flex flex-row text-fs-11 leading-3 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 items-center">
+            className="flex flex-row text-fs-11 leading-3 text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/50 items-center">
             <div className={`${overiddingHeadingStyles}`}>
               {React.string(showTitle ? heading.title : "")}
             </div>
@@ -84,7 +84,7 @@ module Heading = {
   let make = (~topic: topic, ~children=?, ~borderClass="border-b", ~headingCss="") => {
     let widthClass = headingCss->LogicUtils.isEmptyString ? "" : "w-full"
     <div
-      className={`${borderClass} border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 flex justify justify-between dark:bg-jp-gray-lightgray_background ${headingCss}`}>
+      className={`${borderClass} border-jp-gray-940/75 dark:border-jp-gray-960 flex justify justify-between dark:bg-jp-gray-lightgray_background ${headingCss}`}>
       <div className={`p-2 m-2 flex flex-row justify-start ${widthClass}`}>
         {switch topic {
         | String(string) =>
@@ -135,7 +135,7 @@ module Details = {
     if !cardView {
       <Section
         customCssClass={`${borderRequired
-            ? "border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960"
+            ? "border border-jp-gray-940/75 dark:border-jp-gray-960"
             : ""} ${bgColor} rounded-md `}>
         <RenderIf condition=isHeadingRequired>
           <Heading topic=heading headingCss> {headRightElement} </Heading>
@@ -167,7 +167,7 @@ module Details = {
               | Some(field) =>
                 <div className="flex flex-col py-4">
                   <div
-                    className="text-fs-11 leading-3 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
+                    className="text-fs-11 leading-3 text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/50">
                     {React.string("Chargeback Amount")}
                   </div>
                   <div

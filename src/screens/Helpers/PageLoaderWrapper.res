@@ -14,7 +14,7 @@ module ScreenLoader = {
       <RenderIf condition={!branding}>
         <div className="w-20 h-16">
           <ReactSuspenseWrapper>
-            <div className="scale-400 pt-px">
+            <div className="scale-[4] pt-px">
               <Lottie
                 animationData={showLoader ? loader : loaderLottieFile} autoplay=true loop=true
               />
