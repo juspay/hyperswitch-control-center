@@ -1,5 +1,5 @@
 open VerticalStepIndicatorTypes
-open RevenueRecoveryHomeTypes
+open RevenueRecoveryOnboardingTypes
 
 let sections = [
   {

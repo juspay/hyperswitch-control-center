@@ -13,7 +13,7 @@ module TermsAndCondition = {
         {" & "->React.string}
         <a
           className="underline cursor-pointer"
-          href="https://hyperswitch.io/privacyPolicy"
+          href="https://hyperswitch.io/privacy-policy"
           target="__blank">
           {"Privacy Policy"->React.string}
         </a>

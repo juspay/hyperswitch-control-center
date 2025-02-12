@@ -5,8 +5,6 @@ let make = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let profileIdFromUrl =
-    UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => Loading)
