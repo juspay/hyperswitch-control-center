@@ -517,6 +517,11 @@ let deutscheBankInfo = {
 let taxJarInfo = {
   description: "TaxJar is reimagining how businesses manage sales tax compliance. Its cloud-based platform automates the entire sales tax life cycle across all sales channels — from calculations and nexus tracking to reporting and filing.",
 }
+
+let chargebeeInfo = {
+  description: "Chargebee is a subscription management and billing platform that integrates with multiple payment gateways, allowing businesses to accept payments across various geographies and currencies.",
+}
+
 let nexixpayInfo = {
   description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
 }
@@ -666,6 +671,12 @@ let getTaxProcessorNameString = (taxProcessor: taxProcessorTypes) => {
   }
 }
 
+let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) => {
+  switch billingProcessor {
+  | CHARGEBEE => "chargebee"
+  }
+}
+
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
@@ -676,6 +687,7 @@ let getConnectorNameString = (connector: connectorTypes) => {
   | PMAuthenticationProcessor(pmAuthenticationConnector) =>
     pmAuthenticationConnector->getPMAuthenticationConnectorNameString
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorNameString
+  | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorNameString
   | UnknownConnector(str) => str
   }
 }
@@ -788,6 +800,11 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | TaxProcessor =>
     switch connector {
     | "taxjar" => TaxProcessor(TAXJAR)
+    | _ => UnknownConnector("Not known")
+    }
+  | BillingProcessor =>
+    switch connector {
+    | "chargebee" => BillingProcessor(CHARGEBEE)
     | _ => UnknownConnector("Not known")
     }
   }
@@ -906,6 +923,12 @@ let getTaxProcessorInfo = (taxProcessor: ConnectorTypes.taxProcessorTypes) => {
   }
 }
 
+let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessorTypes) => {
+  switch billingProcessor {
+  | CHARGEBEE => chargebeeInfo
+  }
+}
+
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
@@ -915,6 +938,7 @@ let getConnectorInfo = connector => {
   | PMAuthenticationProcessor(pmAuthenticationConnector) =>
     pmAuthenticationConnector->getOpenBankingProcessorInfo
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorInfo
+  | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -1029,6 +1053,7 @@ let getConnectorType = (connector: ConnectorTypes.connectorTypes) => {
   | PMAuthenticationProcessor(_) => "payment_method_auth"
   | TaxProcessor(_) => "tax_processor"
   | FRM(_) => "payment_vas"
+  | BillingProcessor(_) => "billing_processor"
   | UnknownConnector(str) => str
   }
 }
@@ -1633,6 +1658,7 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
     | ThreeDsAuthenticator => isThreeDsAuthenticator
     | PMAuthenticationProcessor => isPMAuthenticationProcessor
     | TaxProcessor => isTaxProcessor
+    | BillingProcessor => connectorType == BillingProcessor
     }
   })
 }
@@ -1754,6 +1780,12 @@ let getDisplayNameForTaxProcessor = taxProcessor => {
   }
 }
 
+let getDisplayNameForBillingProcessor = billingProcessor => {
+  switch billingProcessor {
+  | CHARGEBEE => "Chargebee"
+  }
+}
+
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
@@ -1765,6 +1797,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   | PMAuthenticationProcessor(pmAuthenticationConnector) =>
     pmAuthenticationConnector->getDisplayNameForOpenBankingProcessor
   | TaxProcessor(taxProcessor) => taxProcessor->getDisplayNameForTaxProcessor
+  | BillingProcessor(billingProcessor) => billingProcessor->getDisplayNameForBillingProcessor
   | UnknownConnector(str) => str
   }
 }
@@ -1786,6 +1819,7 @@ let connectorTypeTuple = connectorType => {
   | "authentication_processor" => (AuthenticationProcessor, ThreeDsAuthenticator)
   | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
   | "tax_processor" => (TaxProcessor, TaxProcessor)
+  | "billing_processor" => (BillingProcessor, BillingProcessor)
   | _ => (PaymentProcessor, Processor)
   }
 }
@@ -1797,6 +1831,7 @@ let connectorTypeStringToTypeMapper = connector_type => {
   | "authentication_processor" => AuthenticationProcessor
   | "payment_method_auth" => PMAuthProcessor
   | "tax_processor" => TaxProcessor
+  | "billing_processor" => BillingProcessor
   | "payment_processor"
   | _ =>
     PaymentProcessor
@@ -1811,6 +1846,7 @@ let connectorTypeTypedValueToStringMapper = val => {
   | PMAuthProcessor => "payment_method_auth"
   | TaxProcessor => "tax_processor"
   | PaymentProcessor => "payment_processor"
+  | BillingProcessor => "billing_processor"
   }
 }
 

@@ -117,6 +117,8 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
+type billingProcessorTypes = CHARGEBEE
+
 type connectorTypes =
   | Processors(processorTypes)
   | PayoutProcessor(payoutProcessorTypes)
@@ -124,6 +126,7 @@ type connectorTypes =
   | FRM(frmTypes)
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
   | TaxProcessor(taxProcessorTypes)
+  | BillingProcessor(billingProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -317,6 +320,7 @@ type connectorTypeVariants =
   | AuthenticationProcessor
   | PMAuthProcessor
   | TaxProcessor
+  | BillingProcessor
 
 type connectorPayload = {
   connector_type: connectorTypeVariants,
@@ -342,3 +346,4 @@ type connector =
   | ThreeDsAuthenticator
   | PMAuthenticationProcessor
   | TaxProcessor
+  | BillingProcessor
