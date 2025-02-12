@@ -97,6 +97,7 @@ type processorTypes =
   | NEXIXPAY
   | XENDIT
   | JPMORGAN
+  | INESPAY
 
 type payoutProcessorTypes =
   | ADYEN
