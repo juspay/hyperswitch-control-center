@@ -33,8 +33,7 @@ module ListBaseComp = {
     <>
       {switch user {
       | #Merchant =>
-        <div
-          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-white/80`}>
+        <div className={`text-sm cursor-pointer font-semibold ${secondaryTextColor}`}>
           <div className="text-left flex gap-2">
             <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap`}>
               subHeadingElem
