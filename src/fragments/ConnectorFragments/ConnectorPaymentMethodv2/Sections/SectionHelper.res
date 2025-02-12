@@ -13,11 +13,29 @@ module Heading = {
 
 module PaymentMethodTypes = {
   @react.component
-  let make = (~index, ~label, ~pmtData, ~pmIndex, ~pmtIndex, ~pm, ~showCheckbox=true) => {
+  let make = (
+    ~index,
+    ~label,
+    ~pmtData,
+    ~pmIndex,
+    ~pmtIndex,
+    ~pm,
+    ~showCheckbox=true,
+    ~onClick=None,
+  ) => {
+    let handleClick = () => {
+      switch onClick {
+      | Some(onClick) => onClick()
+      | None => ()
+      }
+    }
     open FormRenderer
     <RenderIf condition={showCheckbox}>
       <AddDataAttributes key={index->Int.toString} attributes=[("data-testid", `${label}`)]>
-        <div key={index->Int.toString} className={"flex items-center gap-1.5"}>
+        <div
+          key={index->Int.toString}
+          className={"flex items-center gap-1.5"}
+          onClick={_ => handleClick()}>
           <FieldRenderer
             field={PMTSelection.valueInput(
               ~pmtData,

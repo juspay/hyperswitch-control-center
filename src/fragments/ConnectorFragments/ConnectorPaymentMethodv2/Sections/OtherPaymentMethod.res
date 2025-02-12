@@ -2,10 +2,12 @@
 let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
   open LogicUtils
   open SectionHelper
+  open AdditionalDetailsSidebar
   open ConnectorPaymentMethodV3Utils
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let connData =
     formState.values->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let availablePM =
@@ -26,6 +28,16 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
     true
   }
 
+  let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
+  let (_, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (_, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
+
+  let t: array<ConnectorTypes.paymentMethodEnabled> = [
+    {
+      payment_method: "",
+      payment_method_type: "",
+    },
+  ]
   <div key={index->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
     <HeadingSection index pm availablePM pmIndex pmt=pm showSelectAll />
     <RenderIf
@@ -86,7 +98,47 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector) => {
 
         | _ => true
         }
-        <PaymentMethodTypes index=i label pmtData pmIndex pmtIndex pm showCheckbox />
+        let onClick = () => {
+          setShowWalletConfigurationModal(_ => true)
+        }
+        let title = switch pm->getPaymentMethodFromString {
+        | BankDebit => pm->snakeToTitle
+        | Wallet => pmtData.payment_method_type->snakeToTitle
+        | _ => ""
+        }
+
+        let modalHeading = `Additional Details to enable ${title}`
+
+        <>
+          <PaymentMethodTypes
+            index=i label pmtData pmIndex pmtIndex pm showCheckbox onClick={Some(() => onClick())}
+          />
+          <RenderIf
+            condition={pmtData.payment_method_type->getPaymentMethodTypeFromString === GooglePay}>
+            <Modal
+              modalHeading
+              headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
+              headBgClass="sticky top-0 z-30 bg-white"
+              showModal={showWalletConfigurationModal}
+              setShowModal={setShowWalletConfigurationModal}
+              // onCloseClickCustomFun={removeSelectedWallet}
+              paddingClass=""
+              revealFrom=Reveal.Right
+              modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+              childClass={""}>
+              <AdditionalDetailsSidebarComp
+                method={pmtData}
+                setMetaData
+                setShowWalletConfigurationModal
+                updateDetails={_val => ()}
+                paymentMethodsEnabled=t
+                paymentMethod={pm}
+                onCloseClickCustomFun={() => ()}
+                setInitialValues
+              />
+            </Modal>
+          </RenderIf>
+        </>
       })
       ->React.array}
     </div>
