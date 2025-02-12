@@ -1,5 +1,5 @@
 @react.component
-let make = (~initialValues) => {
+let make = (~initialValues, ~setInitialValues) => {
   open ConnectorUtils
   open LogicUtils
   open CommonAuthHooks
@@ -104,13 +104,10 @@ let make = (~initialValues) => {
             />
           </div>
         </div>
-        <Form initialValues formClass="grid grid-cols-2 gap-10 flex-wrap max-w-3xl">
-          <ConnectorLabelV2 labelClass="font-normal" labelTextStyleClass="text-nd_gray-400" />
-          <ConnectorMetadataV2 labelTextStyleClass="text-nd_gray-400" labelClass="font-normal" />
-          <ConnectorWebhookDetails
-            labelTextStyleClass="text-nd_gray-400" labelClass="font-normal"
-          />
-        </Form>
+        <ConnectorLabelV2 labelClass="font-normal" labelTextStyleClass="text-nd_gray-400" />
+        <ConnectorMetadataV2 labelTextStyleClass="text-nd_gray-400" labelClass="font-normal" />
+        <ConnectorWebhookDetails labelTextStyleClass="text-nd_gray-400" labelClass="font-normal" />
+        <ConnectorPaymentMethodV3 initialValues isInEditState=false />
       </div>
     </div>
   </div>

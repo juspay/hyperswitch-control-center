@@ -161,6 +161,9 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "open_banking_pis" => OpenBankingPIS
   | "samsung_pay" => SamsungPay
   | "paze" => Paze
+  | "alipay" => AliPay
+  | "wechatpay" => WeChatPay
+  | "directcarrierbilling" => DirectCarrierBilling
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
