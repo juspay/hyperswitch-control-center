@@ -20,7 +20,7 @@ let make = () => {
 
   <div className="flex flex-row">
     <VerticalStepIndicator
-      title="Setup Recovery"
+      titleElement={"Setup Recovery"->React.string}
       sections
       currentStep
       backClick={() => {
