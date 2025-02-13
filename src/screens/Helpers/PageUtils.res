@@ -8,7 +8,7 @@ module PageHeading = {
     ~customHeadingStyle="py-2",
     ~isTag=false,
     ~tagText="",
-    ~customTagStyle="bg-extra-light-grey border-light-grey",
+    ~customTagStyle="bg-gray-100 border-gray-200",
     ~leftIcon=None,
   ) => {
     let headerTextStyle = HSwitchUtils.getTextClass((H1, Optional))
@@ -21,7 +21,7 @@ module PageHeading = {
         <div className={`${headerTextStyle} ${customTitleStyle}`}> {title->React.string} </div>
         <RenderIf condition=isTag>
           <div
-            className={`text-sm text-grey-700 font-semibold border  rounded-full px-2 py-1 ${customTagStyle}`}>
+            className={`text-sm text-gray-700 font-semibold border  rounded-full px-2 py-1 ${customTagStyle}`}>
             {tagText->React.string}
           </div>
         </RenderIf>

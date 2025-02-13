@@ -51,7 +51,7 @@ module EvidenceUploadForm = {
         let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=10)
 
         <div className="flex gap-4 items-center ">
-          <p className={`${p1RegularText} text-grey-700`}> {truncatedFileName->React.string} </p>
+          <p className={`${p1RegularText} text-gray-700`}> {truncatedFileName->React.string} </p>
           <Icon
             name="cross-skeleton"
             className="cursor-pointer"
@@ -141,7 +141,7 @@ module UploadDisputeEvidenceModal = {
 
     <Modal
       modalHeading="Attach supporting evidence"
-      headingClass="!bg-transparent dark:!bg-jp-gray-lightgray_background"
+      headingClass="!bg-transparent dark:!bg-gray-900"
       showModal={uploadEvidenceModal}
       setShowModal={setUploadEvidenceModal}
       borderBottom=true
@@ -150,13 +150,13 @@ module UploadDisputeEvidenceModal = {
       modalHeadingClass="!text-lg"
       showModalHeadingIconName="attach-file-icon"
       modalHeaderIconSize=24
-      modalClass="w-full max-w-xl mx-auto my-8 dark:!bg-jp-gray-lightgray_background pb-3">
+      modalClass="w-full max-w-xl mx-auto my-8 dark:!bg-gray-900 pb-3">
       <div className="flex flex-col p-6 gap-8">
         <div className="flex flex-col gap-2">
           <p className=p1RegularText>
             {"Upload evidence that is most relevant to this dispute"->React.string}
           </p>
-          <p className={`${p2RegularText} text-grey-800 opacity-50`}>
+          <p className={`${p2RegularText} text-gray-800 opacity-50`}>
             {"The evidence can be ANY ONE or MORE of the following:"->React.string}
           </p>
         </div>
@@ -175,7 +175,7 @@ module UploadDisputeEvidenceModal = {
           ->React.array}
         </div>
       </div>
-      <div className="h-px w-full bg-grey-900 opacity-20" />
+      <div className="h-px w-full bg-gray-900 opacity-20" />
       <div className="flex flex-1 justify-end gap-4 pt-5 pb-3 px-6">
         <Button
           buttonType={Primary}
@@ -252,7 +252,7 @@ module DisputesInfoBarComponent = {
 
     <PageLoaderWrapper screenState>
       <div
-        className="w-full rounded-md border-jp-gray-940/75 bg-blue-info_blue_background p-6 flex gap-6">
+        className="w-full rounded-md border-gray-200/75 bg-blue-info_blue_background p-6 flex gap-6">
         <div className="flex gap-3 items-start justify-start">
           <Icon name="note-icon" size=22 />
           {switch disputeStatus {
@@ -300,9 +300,9 @@ module DisputesInfoBarComponent = {
                       | _ => `${fileName->getFileTypeFromFileName}-icon`
                       }
                       <div
-                        className={`p-2 border rounded-md bg-white w-fit flex gap-2 items-center border-grey-200`}>
+                        className={`p-2 border rounded-md bg-white w-fit flex gap-2 items-center border-gray-200`}>
                         <Icon name=iconName size=16 />
-                        <p className={`${p3RegularText} text-grey-700 `}>
+                        <p className={`${p3RegularText} text-gray-700 `}>
                           {fileName->React.string}
                         </p>
                       </div>
@@ -341,10 +341,10 @@ module DisputesInfoBarComponent = {
                   let fileName = jsonObject->getDictFromJsonObject->getString("fileName", "")
 
                   <div
-                    className={`p-2 border rounded-md bg-white w-fit flex gap-6 items-center border-grey-200/50`}>
+                    className={`p-2 border rounded-md bg-white w-fit flex gap-6 items-center border-gray-200/50`}>
                     <div className="flex gap-2 items-center">
                       <Icon name="pdf-icon" size=20 />
-                      <p className={`${p2RegularText} text-grey-700`}> {fileName->React.string} </p>
+                      <p className={`${p2RegularText} text-gray-700`}> {fileName->React.string} </p>
                     </div>
                     <Icon name="cross-skeleton" size=12 />
                   </div>

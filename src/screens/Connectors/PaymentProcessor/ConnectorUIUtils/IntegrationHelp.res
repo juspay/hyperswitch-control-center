@@ -170,7 +170,7 @@ module Render = {
       setShowModal
       paddingClass=""
       revealFrom=Reveal.Right
-      modalClass="w-1/3 !h-full overflow-scroll rounded-none text-jp-gray-900">
+      modalClass="w-1/3 !h-full overflow-scroll rounded-none text-gray-800">
       integrationSteps
     </Modal>
   }

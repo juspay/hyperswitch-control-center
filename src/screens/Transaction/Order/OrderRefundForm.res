@@ -119,7 +119,7 @@ let make = (
   <div>
     <Form onSubmit validate initialValues=initiateValueJson>
       <div className="flex flex-col w-full max-w-4xl mx-auto p-6">
-        <div className="border-b border-jp-gray-940/75 dark:border-jp-gray-960/75 pb-4 mb-6">
+        <div className="border-b border-gray-200/75 dark:border-gray-800/75 pb-4 mb-6">
           <div className="flex flex-row justify-between items-center ">
             <CardUtils.CardHeader
               heading="Initiate Refund" subHeading="" customSubHeadingStyle=""
@@ -133,7 +133,7 @@ let make = (
           </div>
           <div className="flex text-fs-13 ">
             <Icon size={14} name="exclamation-circle" className="text-red-600 mr-2 mt-1" />
-            <span className="font-medium text-jp-gray-700 mt-2">
+            <span className="font-medium text-gray-500 mt-2">
               {React.string(
                 "Note: Refunds cannot be canceled once placed. Please verify before proceeding.",
               )}

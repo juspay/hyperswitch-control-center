@@ -30,6 +30,7 @@
   --breakpoint-desktop: 93.75rem;
   --breakpoint-laptop: 67.5rem;
 
+  /* DOM CSS */
   --color-primary: rgb(var(--colors-primary));
   --color-primary-DEFAULT: rgb(var(--colors-primary));
   --color-primary-custom: "#006DF9";
@@ -60,6 +61,35 @@
 
   --color-outline: rgb(var(--borders-border-color));
 
+  /* COLOR PALETTE  */
+
+  /* Neutral color set  */
+
+  --color-grey-0: #fefefe;
+  --color-gray-25:#FCFCFD;
+  --color-gray-50:#F5F7FA;
+  --color-gray-100:#F2F4F8;
+  --color-gray-150:#ECEFF3;
+  --color-gray-200:#E1E4EA;
+  --color-gray-300:#CACFD8;
+  --color-gray-400:#99A0AE;
+  --color-gray-500:#717784;
+  --color-gray-600:#525866;
+  --color-gray-700:#2B303B;
+  --color-gray-800:#222530;
+  --color-gray-900:#181B25;
+  --color-gray-950:#0E121B;
+  --color-gray-1000:#050506;
+
+  /* extra shades of grey */
+
+  --color-jp-gray-lightmode_steelgray: #ccd2e2;
+  --color-jp-gray-light_table_border_color: #cdd4eb;
+  --color-jp-gray-border_gray: #e8e8e8;
+
+
+
+
   --color-blue-100: #f1f2f4;
   --color-blue-150: #e6f7ff;
   --color-blue-200: #daecff;
@@ -78,19 +108,8 @@
   --color-blue-background_blue: #eaeef9;
   --color-blue-info_blue_background: #f6f8fa;
 
-  --color-grey-0: #fefefe;
-  --color-grey-100: #666666;
-  --color-grey-200: #b9babc;
-  --color-grey-300: #cccccc;
-  --color-grey-400: #d1d5db;
-  --color-grey-700: #151a1f;
-  --color-grey-800: #383838;
-  --color-grey-900: #333333;
-  --color-grey-dark: #1e1e1e;
-  --color-grey-light: #f6f6f6;
-  --color-grey-medium: #a0a0a0;
-  --color-grey-outline: #e5e5e5;
-  --color-grey-text: #474d59;
+
+
 
   --color-green-50: #eff4ef;
   --color-green-100: #f6ffed;
@@ -131,50 +150,7 @@
   --color-popover-background-hover: #2e3b58;
   --color-status-text-orange: #e9aa0a;
   --color-status-blue: #0585dd;
-  --color-border-light-grey: #e6e6e6;
   --color-light-blue-bg: #f8faff;
-  --color-light-grey: #dfdfdf;
-  --color-extra-light-grey: #f0f2f4;
-  --color-jp-gray-50: #fafbfd;
-  --color-jp-gray-100: #f7f8fa;
-  --color-jp-gray-200: #f1f5fa;
-  --color-jp-gray-250: #fdfeff;
-  --color-jp-gray-300: #e7eaf1;
-  --color-jp-gray-400: #d1d4d8;
-  --color-jp-gray-500: #d8dde9;
-  --color-jp-gray-600: #cccfd4;
-  --color-jp-gray-700: #666666;
-  --color-jp-gray-800: #67707d;
-  --color-jp-gray-850: #31333a;
-  --color-jp-gray-900: #333333;
-  --color-jp-gray-950: #202124;
-  --color-jp-gray-960: #2c2d2f;
-  --color-jp-gray-970: #1b1b1d;
-  --color-jp-gray-930: #989aa5;
-  --color-jp-gray-940: #ccd2e2;
-  --color-jp-gray-980: #acadb8;
-  --color-jp-gray-dark_table_border_color: #2e2f39;
-  --color-jp-gray-tabset_gray: #f6f8f9;
-  --color-jp-gray-disabled_border: #262626;
-  --color-jp-gray-table_hover: #f9fbff;
-  --color-jp-gray-darkgray_background: #151a1f;
-  --color-jp-gray-lightgray_background: #151a1f;
-  --color-jp-gray-text_darktheme: #f6f8f9;
-  --color-jp-gray-lightmode_steelgray: #ccd2e2;
-  --color-jp-gray-tooltip_bg_dark: #f7f7fa;
-  --color-jp-gray-tooltip_bg_light: #23211d;
-  --color-jp-gray-dark_disable_border_color: #8d8f9a;
-  --color-jp-gray-light_table_border_color: #cdd4eb;
-  --color-jp-gray-no_data_border: #6e727a;
-  --color-jp-gray-border_gray: #354052;
-  --color-jp-gray-sankey_labels: #7e828f;
-  --color-jp-gray-dark_black: #0e0e0e;
-  --color-jp-gray-banner_black: #333333;
-  --color-jp-gray-light_gray_bg: #fafafa;
-  --color-jp-gray-button_gray: #f7f7f7;
-  --color-jp-gray-border_gray: #e8e8e8;
-  --color-jp-gray-secondary_hover: #eeeeee;
-  --color-jp-gray-test_credentials_bg: #d9d9d959;
 
   --color-hyperswitch_dark_bg: #212e46;
   --color-light-blue: #006df966;
@@ -188,22 +164,6 @@
   --color-offset_white: #fefefe;
   --color-light_white: #ffffff0d;
   --color-unselected_white: #9197a3;
-
-  --color-nd_gray-25: #fcfcfd;
-  --color-nd_gray-50: #f5f7fa;
-  --color-nd_gray-100: #fbfbfb;
-  --color-nd_gray-150: #eceff3;
-  --color-nd_gray-200: #e1e4ea;
-  --color-nd_gray-300: #cacfd8;
-  --color-nd_gray-500: #606b85;
-  --color-nd_gray-400: #99a0ae;
-  --color-nd_gray-600: #525866;
-  --color-nd_gray-700: #2b303b;
-
-  --color-nd-br-gray-150: #eceff3;
-  --color-nd-br-gray-200: #e1e4ea;
-  --color-nd-br-gray-400: #e1e1e1;
-  --color-nd-br-gray-500: #e1e3ea;
 
   --color-nd_green-200: #52b87a;
 

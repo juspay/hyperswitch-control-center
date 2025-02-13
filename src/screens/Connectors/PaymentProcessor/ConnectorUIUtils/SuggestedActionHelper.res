@@ -2,7 +2,7 @@ module SuggestedAction = {
   @react.component
   let make = () => {
     <div
-      className="whitespace-pre-line break-all flex flex-col gap-1 p-2 ml-4 text-base dark:text-jp-gray-text_darktheme/50 font-medium leading-7 opacity-50 mt-4">
+      className="whitespace-pre-line break-all flex flex-col gap-1 p-2 ml-4 text-base dark:text-gray-50/50 font-medium leading-7 opacity-50 mt-4">
       {`Suggested Action:`->React.string}
     </div>
   }

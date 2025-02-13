@@ -76,7 +76,7 @@ let make = (
   }
 
   let tableClass = ""
-  let borderClass = "border border-jp-gray-500 dark:border-jp-gray-960 rounded"
+  let borderClass = "border border-gray-250 dark:border-gray-800 rounded"
 
   <div
     className={`overflow ${scrollBarClass} ${tableClass}`} //replaced "overflow-auto" -> to be tested with master
@@ -98,10 +98,10 @@ let make = (
                   ""
                 }
                 let roundedClass = oldThemeRoundedClass
-                let borderClass = isLastCol ? "" : "border-jp-gray-500 dark:border-jp-gray-960"
+                let borderClass = isLastCol ? "" : "border-gray-250 dark:border-gray-800"
                 let borderClass = borderClass
-                let bgColor = "bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950"
-                let headerTextClass = "text-jp-gray-800 dark:text-jp-gray-text_darktheme/75"
+                let bgColor = "bg-gradient-to-b from-gray-25 to-gray-100 dark:from-gray-900 dark:to-gray-900"
+                let headerTextClass = "text-gray-500 dark:text-gray-50/75"
                 let fontWeight = "font-bold"
                 let fontSize = "text-sm"
                 let paddingClass = "px-4 py-3"

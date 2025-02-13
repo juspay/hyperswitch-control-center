@@ -25,7 +25,7 @@ module NewThemeHeading = {
     | XSmall => "text-fs-14"
     }
 
-    let headingColor = headingColor->LogicUtils.isEmptyString ? "text-jp-gray-900" : headingColor
+    let headingColor = headingColor->LogicUtils.isEmptyString ? "text-gray-800" : headingColor
     let descriptionColor =
       descriptionColor->LogicUtils.isEmptyString ? "text-jp-2-light-gray-1000" : descriptionColor
 

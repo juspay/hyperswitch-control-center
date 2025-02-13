@@ -1,4 +1,4 @@
-let bgClass = "bg-white hover:bg-jp-gray-100"
+let bgClass = "bg-white hover:bg-gray-50"
 
 module MenuOption = {
   @react.component

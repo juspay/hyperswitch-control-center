@@ -59,9 +59,9 @@ module PredefinedOption = {
   ) => {
     open DateRangeUtils
     let optionBG = if predefinedOptionSelected === Some(value) {
-      "bg-blue-100 dark:bg-jp-gray-850 py-2"
+      "bg-blue-100 dark:bg-gray-800 py-2"
     } else {
-      "bg-transparent md:bg-white md:dark:bg-jp-gray-lightgray_background py-2"
+      "bg-transparent md:bg-white md:dark:bg-gray-900 py-2"
     }
 
     let (stDate, enDate, stTime, enTime) = DateRangeUtils.getPredefinedStartAndEndDate(
@@ -90,7 +90,7 @@ module PredefinedOption = {
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
         <div>
           <div
-            className={`${optionBG} px-4 py-2 hover:bg-jp-gray-100/75 dark:hover:bg-jp-gray-850/100  cursor-pointer text-sm text-gray-500 dark:text-gray-400`}
+            className={`${optionBG} px-4 py-2 hover:bg-gray-50/75 dark:hover:bg-gray-800/100  cursor-pointer text-sm text-gray-500 dark:text-gray-400`}
             onClick=handleClick>
             {React.string(dateRangeDropdownVal)}
           </div>
@@ -639,8 +639,8 @@ module Base = {
     }
 
     let customeRangeBg = switch predefinedOptionSelected {
-    | Some(_) => "bg-white dark:bg-jp-gray-lightgray_background"
-    | None => "bg-jp-gray-100 dark:bg-jp-gray-850"
+    | Some(_) => "bg-white dark:bg-gray-900"
+    | None => "bg-gray-50 dark:bg-gray-800"
     }
 
     let removeApplyFilter = ev => {
@@ -701,7 +701,7 @@ module Base = {
               })
               ->React.array}
               <div
-                className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3 px-4 py-2  hover:bg-jp-gray-100/75 dark:hover:bg-jp-gray-850/100 cursor-pointer text-sm text-gray-500 dark:text-gray-400 ${customeRangeBg}}`}
+                className={`text-center md:text-start min-w-max bg-white dark:bg-gray-900 w-1/3 px-4 py-2  hover:bg-gray-50/75 dark:hover:bg-gray-800/100 cursor-pointer text-sm text-gray-500 dark:text-gray-400 ${customeRangeBg}}`}
                 onClick={_ => {
                   setCalendarVisibility(_ => true)
                   setIsCustomSelected(_ => true)
@@ -741,7 +741,7 @@ module Base = {
             } else {
               <div
                 id="neglectTopbarTheme"
-                className="flex flex-row flex-wrap gap-4 bg-white dark:bg-jp-gray-lightgray_background p-3 align-center justify-end ">
+                className="flex flex-row flex-wrap gap-4 bg-white dark:bg-gray-900 p-3 align-center justify-end ">
                 <div
                   className="text-gray-700 font-fira-code dark:text-gray-400 flex-wrap font-medium self-center text-sm">
                   {if (
@@ -822,7 +822,7 @@ module Base = {
           } else {
             <div
               ref={dropdownRef->ReactDOM.Ref.domRef}
-              className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 bg-white dark:bg-jp-gray-lightgray_background rounded-sm border-jp-gray-500 dark:border-jp-gray-960 shadow-md dark:shadow-xs dark:shadow-gray-700 max-h-min max-w-min overflow-auto`}>
+              className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 bg-white dark:bg-gray-900 rounded-sm border-gray-250 dark:border-gray-800 shadow-md dark:shadow-xs dark:shadow-gray-700 max-h-min max-w-min overflow-auto`}>
               calendarElement
             </div>
           }

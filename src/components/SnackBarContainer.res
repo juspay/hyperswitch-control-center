@@ -52,7 +52,7 @@ module Snackbar = {
           {snackbarProps.actionElement}
         </div>
         <div>
-          <button className=" hover:text-jp-gray-900 pl-5" onClick={handleClick}>
+          <button className=" hover:text-gray-800 pl-5" onClick={handleClick}>
             <Icon size=16 name="close-snackbar" />
           </button>
         </div>

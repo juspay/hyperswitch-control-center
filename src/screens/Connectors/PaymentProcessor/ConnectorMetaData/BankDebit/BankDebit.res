@@ -157,7 +157,7 @@ let make = (
         label: `Select the open banking verification provider to verify the bank accounts`,
         options: pmAuthConnectorOptions,
       })}
-      labelTextStyleClass="pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme/50 ml-1 font-semibold"
+      labelTextStyleClass="pt-2 pb-2 text-fs-13 text-gray-800 dark:text-gray-50/50 ml-1 font-semibold"
     />
     <div className={`flex gap-2 justify-end mt-4`}>
       <Button text="Cancel" buttonType={Secondary} onClick={_ => closeModal()} />

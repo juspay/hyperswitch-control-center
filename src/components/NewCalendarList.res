@@ -192,8 +192,7 @@ let make = (
             input=inputFromDate
             placeholder="From"
           />
-          <div
-            className="font-normal text-base text-jp-gray-800 dark:text-jp-gray-text_darktheme/75 px-4">
+          <div className="font-normal text-base text-gray-500 dark:text-gray-50/75 px-4">
             {React.string("-")}
           </div>
           <TextInput

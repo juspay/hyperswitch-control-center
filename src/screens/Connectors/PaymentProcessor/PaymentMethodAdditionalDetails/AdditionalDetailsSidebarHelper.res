@@ -10,7 +10,7 @@ module Heading = {
               {"Apple Pay"->React.string}
             </div>
             <div
-              className={`flex items-center gap-1 text-sm text-grey-700 font-semibold border  rounded-full px-2 py-1 bg-orange-600/80 border-orange-500`}>
+              className={`flex items-center gap-1 text-sm text-gray-700 font-semibold border  rounded-full px-2 py-1 bg-orange-600/80 border-orange-500`}>
               <div>
                 <Icon name={"ellipse-black"} size=4 />
               </div>

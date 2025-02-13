@@ -14,7 +14,7 @@ module TableCell = {
   let make = (~onClick, ~elemIndex, ~isLast, ~fields, ~onChange, ~keyValue) => {
     <tr
       key={Int.toString(elemIndex)}
-      className=" h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background transition duration-300 ease-in-out text-sm text-jp-gray-800 dark:text-jp-gray-text_darktheme/75">
+      className=" h-full rounded-md bg-white dark:bg-gray-900 transition duration-300 ease-in-out text-sm text-gray-500 dark:text-gray-50/75">
       {fields
       ->Array.mapWithIndex((itm, i) => {
         let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -49,7 +49,7 @@ module TableHeading = {
   let make = (~heading) => {
     <th>
       <div
-        className={`flex flex-row justify-between px-4 py-3 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-800 dark:text-jp-gray-text_darktheme/75 whitespace-pre `}>
+        className={`flex flex-row justify-between px-4 py-3 bg-gradient-to-b from-gray-25 to-gray-100 dark:from-gray-900  dark:to-gray-900 text-gray-500 dark:text-gray-50/75 whitespace-pre `}>
         <div className="font-bold text-sm"> {heading->React.string} </div>
       </div>
     </th>
@@ -63,7 +63,7 @@ module TableStructure = {
       <table className="table-auto w-full h-full" colSpan=0>
         <thead>
           <tr
-            className="h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100/10 transition duration-300 ease-in-out text-sm text-jp-gray-800 dark:text-jp-gray-text_darktheme/75">
+            className="h-full rounded-md bg-white dark:bg-gray-900 hover:bg-gray-25 dark:hover:bg-gray-50/10 transition duration-300 ease-in-out text-sm text-gray-500 dark:text-gray-50/75">
             {headings
             ->Array.mapWithIndex((heading, i) => {
               <TableHeading heading key={Int.toString(i)} />

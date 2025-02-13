@@ -200,12 +200,12 @@ module ErrorUI = {
   let make = (~text) => {
     <div className="flex p-5">
       <img className="w-12 h-12 my-auto border-gray-100" src={`/icons/error.svg`} alt="warning" />
-      <div className="text-jp-gray-900">
-        <div className="font-bold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme/75">
+      <div className="text-gray-800">
+        <div className="font-bold ml-4 text-xl px-2 dark:text-gray-50/75">
           {React.string(`API ${text} Failed`)}
         </div>
         <div
-          className="whitespace-pre-line flex flex-col gap-1 p-2 ml-4 text-fs-13 dark:text-jp-gray-text_darktheme/50">
+          className="whitespace-pre-line flex flex-col gap-1 p-2 ml-4 text-fs-13 dark:text-gray-50/50">
           {`Unable to ${text} a API key. Please try again later.`->React.string}
         </div>
       </div>
@@ -219,15 +219,15 @@ module SuccessUI = {
     <div>
       <div className="flex p-5">
         <Icon className="align-middle fill-blue-600 self-center" size=40 name="info-circle" />
-        <div className="text-jp-gray-900 ml-4">
-          <div className="font-bold text-xl px-2 dark:text-jp-gray-text_darktheme/75">
+        <div className="text-gray-800 ml-4">
+          <div className="font-bold text-xl px-2 dark:text-gray-50/75">
             {React.string("Download the API Key")}
           </div>
           <div className="bg-gray-100 p-3 m-2">
             <HelperComponents.CopyTextCustomComp
               displayValue={apiKey}
               copyValue={Some(apiKey)}
-              customTextCss="break-all text-sm font-semibold text-jp-gray-800/75"
+              customTextCss="break-all text-sm font-semibold text-gray-500/75"
               customParentClass="flex items-center gap-5"
             />
           </div>

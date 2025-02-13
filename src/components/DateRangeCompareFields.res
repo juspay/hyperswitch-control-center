@@ -56,9 +56,9 @@ module PredefinedOption = {
   ) => {
     open DateRangeUtils
     let optionBG = if predefinedOptionSelected === Some(value) {
-      "bg-blue-100 dark:bg-jp-gray-850 py-2"
+      "bg-blue-100 dark:bg-gray-800 py-2"
     } else {
-      "bg-transparent md:bg-white md:dark:bg-jp-gray-lightgray_background py-2"
+      "bg-transparent md:bg-white md:dark:bg-gray-900 py-2"
     }
 
     let (stDate, enDate, stTime, enTime) = getPredefinedStartAndEndDate(
@@ -87,7 +87,7 @@ module PredefinedOption = {
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
         <div>
           <div
-            className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100/75 dark:hover:bg-jp-gray-850/100  cursor-pointer text-sm font-medium text-grey-900`}
+            className={`${optionBG} mx-2 rounded-md p-2 hover:bg-gray-50/75 dark:hover:bg-gray-800/100  cursor-pointer text-sm font-medium text-gray-900`}
             onClick={_ev => handleClick()}>
             {React.string(dateRangeDropdownVal)}
           </div>
@@ -629,7 +629,7 @@ module Base = {
             } else {
               <div
                 id="neglectTopbarTheme"
-                className="flex flex-row flex-wrap gap-3 bg-white dark:bg-jp-gray-lightgray_background px-3 mt-3 mb-1 align-center justify-end ">
+                className="flex flex-row flex-wrap gap-3 bg-white dark:bg-gray-900 px-3 mt-3 mb-1 align-center justify-end ">
                 <Button
                   text="Cancel"
                   buttonType=Secondary
@@ -650,7 +650,7 @@ module Base = {
         </AddDataAttributes>
       </div>
     }
-    let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black/5 focus:outline-hidden mt-2 right-0`
+    let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg ring-1 ring-black/5 focus:outline-hidden mt-2 right-0`
     <div ref={dateRangeRef->ReactDOM.Ref.domRef} className="daterangSelection relative">
       <DateSelectorButton
         startDateVal

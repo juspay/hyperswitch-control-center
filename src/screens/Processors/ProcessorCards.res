@@ -9,7 +9,7 @@ module RequestConnector = {
         <div className="mb-8 mt-4 max-w-full h-auto">
           <img alt="notfound" src={`${LogicUtils.useUrlPrefix()}/notfound.svg`} />
         </div>
-        <p className="jp-grey-700 opacity-50">
+        <p className="gray-500 opacity-50">
           {"Uh-oh! Looks like we couldn't find the processor you were searching for."->React.string}
         </p>
         <Button
@@ -35,14 +35,10 @@ module CantFindProcessor = {
         text="Request a Processor"
         buttonType={Secondary}
         buttonSize={Large}
-        textStyle="text-jp-gray-900"
+        textStyle="text-gray-800"
         onClick={_ => setShowModal(_ => true)}
         leftIcon={CustomIcon(
-          <Icon
-            name="new-window"
-            size=16
-            className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-          />,
+          <Icon name="new-window" size=16 className="text-gray-800 fill-opacity-50 dark:gray-50" />,
         )}
       />
     </RenderIf>
@@ -126,16 +122,12 @@ let make = (
           <ACLButton
             authorization={userHasAccess(~groupAccess=ConnectorsManage)}
             leftIcon={CustomIcon(
-              <Icon
-                name="plus"
-                size=16
-                className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-              />,
+              <Icon name="plus" size=16 className="text-gray-800 fill-opacity-50 dark:gray-50" />,
             )}
             text="Connect a Dummy Processor"
             buttonType={Secondary}
             buttonSize={Large}
-            textStyle="text-jp-gray-900"
+            textStyle="text-gray-800"
             onClick={_ => setProcessorModal(_ => true)}
           />
         </RenderIf>
@@ -173,12 +165,10 @@ let make = (
                 onClick={_ => handleClick(connectorName)}
                 buttonType={Secondary}
                 buttonSize={Small}
-                textStyle="text-jp-gray-900"
+                textStyle="text-gray-800"
                 leftIcon={CustomIcon(
                   <Icon
-                    name="plus"
-                    size=16
-                    className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+                    name="plus" size=16 className="text-gray-800 fill-opacity-50 dark:gray-50"
                   />,
                 )}
               />

@@ -10,13 +10,13 @@ module CustomInputBox = {
     ~inputMode="text",
     ~autoFocus=false,
     ~widthClass="w-full",
-    ~fontClassName="text-jp-gray-900/75 text-body",
-    ~borderClass="h-10 pl-4 border-2 border-jp-gray-700 dark:border-jp-gray-800/25 focus:border-primary/100 dark:focus:border-primary rounded-md",
+    ~fontClassName="text-gray-800/75 text-body",
+    ~borderClass="h-10 pl-4 border-2 border-gray-500 dark:border-gray-500/25 focus:border-primary/100 dark:focus:border-primary rounded-md",
     ~maxLength=100,
     ~setVal,
   ) => {
     let cursorClass = if isDisabled {
-      "cursor-not-allowed bg-jp-gray-400 dark:bg-jp-gray-950"
+      "cursor-not-allowed bg-gray-200 dark:bg-gray-900"
     } else {
       "bg-transparent"
     }
@@ -26,9 +26,9 @@ module CustomInputBox = {
       placeholder
     }
     let className = `${widthClass} ${cursorClass}
-        placeholder-jp-gray-900/50 dark:placeholder-jp-gray-700/50
+        placeholder-gray-800/50 dark:placeholder-gray-500/50
          ${borderClass}
-        focus:text-jp-gray-900/100 focus:outline-hidden dark:text-jp-gray-text_darktheme/75 dark:focus:text-jp-gray-text_darktheme/100  ${fontClassName}`
+        focus:text-gray-800/100 focus:outline-hidden dark:text-gray-50/75 dark:focus:text-gray-50/100  ${fontClassName}`
     let value = switch input.value->JSON.Decode.string {
     | Some(str) => str
     | _ => ""
@@ -217,7 +217,7 @@ let make = (
           input=inputFromDate
           fontClassName=textBoxClass
           placeholder="09:00 AM"
-          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700/75 focus:border-primary/100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
+          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-gray-500/75 focus:border-primary/100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
           setVal=setFromTimeDropdown
         />
       </div>
@@ -229,7 +229,7 @@ let make = (
           input=inputtoDate
           fontClassName=textBoxClass
           placeholder="11:00 PM"
-          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700/75 focus:border-primary/100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
+          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-gray-500/75 focus:border-primary/100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
           setVal=setToTimeDropdown
         />
       </div>

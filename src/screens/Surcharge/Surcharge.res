@@ -52,7 +52,7 @@ module ActiveRulePreview = {
         </div>
         <div className="flex flex-col gap-2 ">
           <div className="flex gap-4 items-center ">
-            <p className="text-xl font-semibold text-grey-700">
+            <p className="text-xl font-semibold text-gray-700">
               {name->capitalizeString->React.string}
             </p>
             <ACLDiv
@@ -62,7 +62,7 @@ module ActiveRulePreview = {
               <Icon
                 name="delete"
                 size=20
-                className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
+                className="text-gray-500 hover:text-gray-800 dark:hover:text-white cursor-pointer"
               />
             </ACLDiv>
             <ACLDiv
@@ -72,11 +72,11 @@ module ActiveRulePreview = {
               <Icon
                 name="edit"
                 size=20
-                className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
+                className="text-gray-500 hover:text-gray-800 dark:hover:text-white cursor-pointer"
               />
             </ACLDiv>
           </div>
-          <p className="text-base font-normal text-grey-700 opacity-50">
+          <p className="text-base font-normal text-gray-700 opacity-50">
             {description->React.string}
           </p>
         </div>
@@ -338,10 +338,10 @@ let make = () => {
           <ActiveRulePreview initialRule setInitialRule setPageView setShowWarning />
           <RenderIf condition={initialRule->Option.isNone}>
             <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
-              <p className="text-base font-semibold text-grey-700">
+              <p className="text-base font-semibold text-gray-700">
                 {"Configure Surcharge"->React.string}
               </p>
-              <p className="text-base font-normal text-grey-700 opacity-50">
+              <p className="text-base font-normal text-gray-700 opacity-50">
                 {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce a surcharge on your payments"->React.string}
               </p>
               <ACLButton

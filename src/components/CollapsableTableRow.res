@@ -16,7 +16,7 @@ let make = (
   heading->Array.forEach((item: TableUtils.header) => {
     headingArray->Array.push(item.title)->ignore
   })
-  let textColor = "text-jp-gray-900/75 dark:text-jp-gray-text_darktheme/75"
+  let textColor = "text-gray-800/75 dark:text-gray-50/75"
   let fontStyle = "font-fira-code"
   let fontSize = "text-sm"
   let borderRadius = "rounded-md"
@@ -24,7 +24,7 @@ let make = (
   <>
     <DesktopView>
       <tr
-        className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100/10 ${textColor} ${fontStyle} transition duration-300 ease-in-out ${fontSize}`}>
+        className={`group h-full ${borderRadius} bg-white dark:bg-gray-900 hover:bg-gray-25 dark:hover:bg-gray-50/10 ${textColor} ${fontStyle} transition duration-300 ease-in-out ${fontSize}`}>
         {item
         ->Array.mapWithIndex((obj: Table.cell, cellIndex) => {
           let showBorderTop = switch obj {
@@ -39,7 +39,7 @@ let make = (
 
           let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
           let borderTop = showBorderTop ? "border-t" : "border-t-0"
-          let borderClass = `${borderTop} border-jp-gray-500 dark:border-jp-gray-960`
+          let borderClass = `${borderTop} border-gray-250 dark:border-gray-800`
           let hCell = highlightCell ? "hover:font-bold" : ""
           let cursorI = cellIndex == 0 ? "cursor-pointer" : ""
           let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
@@ -69,22 +69,20 @@ let make = (
       </tr>
       <RenderIf condition=isCurrentRowExpanded>
         <AddDataAttributes attributes=[("data-table-row-expanded", (rowIndex + 1)->Int.toString)]>
-          <tr className="dark:border-jp-gray-dark_disable_border_color">
+          <tr className="dark:border-gray-400">
             <td colSpan=12 className=""> {getRowDetails(rowIndex)} </td>
           </tr>
         </AddDataAttributes>
       </RenderIf>
     </DesktopView>
     <MobileView>
-      <div className="px-3 py-4 bg-white dark:bg-jp-gray-lightgray_background">
+      <div className="px-3 py-4 bg-white dark:bg-gray-900">
         {item
         ->Array.mapWithIndex((obj, index) => {
           let heading = headingArray->Array.get(index)->Option.getOr("")
           <RenderIf condition={index !== 0} key={index->Int.toString}>
             <div className="flex mb-5 justify-between">
-              <div className="text-jp-gray-900 opacity-50 font-medium">
-                {React.string(heading)}
-              </div>
+              <div className="text-gray-800 opacity-50 font-medium"> {React.string(heading)} </div>
               <div className="font-semibold">
                 <Table.TableCell cell=obj />
               </div>

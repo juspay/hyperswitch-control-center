@@ -259,7 +259,7 @@ let make = (
             | _ => React.null
             }}
             <div
-              className="flex flex-row text-sm text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/40 font-medium"
+              className="flex flex-row text-sm text-gray-800/50 dark:text-gray-50/40 font-medium"
               onClick={_ =>
                 if customDownload {
                   fileOnClick(indx, fileName)
@@ -272,7 +272,7 @@ let make = (
           {if !isDisabled {
             <Icon
               onClick={_ => clearData(indx)}
-              className="cursor-pointer text-jp-gray-900/50"
+              className="cursor-pointer text-gray-800/50"
               size=14
               name="times"
             />

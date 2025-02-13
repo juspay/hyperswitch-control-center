@@ -96,8 +96,8 @@ module TableRow = {
 
             let classN =
               obj->isEmptyString || hSelf.highlightSelf
-                ? `h-12 w-12 font-fira-code text-center dark:text-jp-gray-text_darktheme text-jp-gray-900/75 ${dayClass} p-0 pb-1`
-                : `cursor-pointer h-12 w-12 text-center font-fira-code font-medium dark:text-jp-gray-text_darktheme text-jp-gray-900/75 dark:hover:text-jp-gray-text_darktheme/100 ${dayClass} p-0 pb-1`
+                ? `h-12 w-12 font-fira-code text-center dark:text-gray-50 text-gray-800/75 ${dayClass} p-0 pb-1`
+                : `cursor-pointer h-12 w-12 text-center font-fira-code font-medium dark:text-gray-50 text-gray-800/75 dark:hover:text-gray-50/100 ${dayClass} p-0 pb-1`
             let c2 =
               obj->isNonEmptyString && hSelf.highlightSelf
                 ? "h-full w-full cursor-pointer flex border flex-1 justify-center items-center bg-primary/100 dark: bg-primary/100 rounded-full"
@@ -121,16 +121,16 @@ module TableRow = {
                 if endDate->isNonEmptyString {
                   let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate && z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-gray-50 rounded-full"
                     : z == parsedStartDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme rounded-l-full "
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-gray-50 rounded-l-full "
                     : z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme rounded-r-full "
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-gray-50 rounded-r-full "
                     : z > parsedStartDate && z < parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme"
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-gray-50"
                     : "h-full w-full"
                 } else if z == parsedStartDate {
-                  "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
+                  "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white dark:hover:text-gray-50 rounded-full"
                 } else {
                   "h-full w-full"
                 }
@@ -151,12 +151,12 @@ module TableRow = {
             <td key={Int.toString(cellIndex)} className=classN onClick>
               <span
                 className={`${startDate->isEmptyString ? c2 : c3} ${obj->isNonEmptyString
-                    ? "dark:hover:border-jp-gray-400 dark:text-jp-gray-text_darktheme dark:hover:text-white"
+                    ? "dark:hover:border-gray-200 dark:text-gray-50 dark:hover:text-white"
                     : ""}`}>
                 <span
                   className={obj->isEmptyString
                     ? ""
-                    : "border border-transparent hover:text-jp-gray-950 hover:border-jp-gray-950 p-3 hover:bg-white dark:hover:bg-jp-gray-950 dark:hover:text-white rounded-full"}>
+                    : "border border-transparent hover:text-gray-900 hover:border-gray-900 p-3 hover:bg-white dark:hover:bg-gray-900 dark:hover:text-white rounded-full"}>
                   {cellRenderer(
                     obj->isEmptyString
                       ? None
@@ -261,7 +261,7 @@ let make = (
           ->Array.mapWithIndex((item, i) => {
             <th key={Int.toString(i)} className="p-0">
               <div
-                className="flex flex-1 justify-center py-2 font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme/50">
+                className="flex flex-1 justify-center py-2 font-medium text-gray-500 dark:text-gray-50/50">
                 {React.string(item)}
               </div>
             </th>

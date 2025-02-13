@@ -1,4 +1,4 @@
-let tableBorderClass = "border-collapse border border-jp-gray-940/30 border-solid border-2 dark:border-jp-gray-dark_table_border_color/30"
+let tableBorderClass = "border-collapse border border-gray-200/30 border-solid border-2 dark:border-gray-800/30"
 
 let useGetData = () => {
   open LogicUtils

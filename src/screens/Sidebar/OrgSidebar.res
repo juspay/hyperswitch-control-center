@@ -85,12 +85,12 @@ module OrgTile = {
     // Common CSS
     let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-50 shadow-md ${backgroundColor.sidebarSecondary}`
     let currentEditCSS = isUnderEdit
-      ? `p-2 ${baseCSS} border-grey-400/40`
+      ? `p-2 ${baseCSS} border-gray-400/40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
     let ringClass = switch isActive {
     | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
-    | false => "ring-grey-outline"
+    | false => "ring-gray-150"
     }
     <div
       onClick={_ => orgSwitch(orgID)->ignore}
@@ -260,7 +260,7 @@ module NewOrgCreationModal = {
       setShowModal
       childClass="p-0"
       borderBottom=true
-      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-gray-900">
       modalBody
     </Modal>
   }

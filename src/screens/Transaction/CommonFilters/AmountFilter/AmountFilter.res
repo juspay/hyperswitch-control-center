@@ -66,7 +66,7 @@ module CustomAmountBetweenField = {
           )
         )}
       />
-      <p className="mt-3 text-xs text-jp-gray-700"> {"and"->React.string} </p>
+      <p className="mt-3 text-xs text-gray-500"> {"and"->React.string} </p>
       <FormRenderer.FieldRenderer labelClass="font-semibold !text-black" field=endAmountField />
     </div>
   }
@@ -189,7 +189,7 @@ let make = (~options) => {
     />
     {<RenderIf condition={selectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
       <div
-        className="border border-jp-gray-940/50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0">
+        className="border border-gray-200/50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0">
         {renderFields()}
         <Button
           buttonType=Primary

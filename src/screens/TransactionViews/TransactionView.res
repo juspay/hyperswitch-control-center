@@ -3,8 +3,8 @@ module TransactionViewCard = {
   let make = (~view, ~count="", ~onViewClick, ~isActiveView) => {
     open TransactionViewUtils
 
-    let textClass = isActiveView ? "text-primary" : "font-semibold text-jp-gray-700"
-    let countTextClass = isActiveView ? "text-primary" : "font-semibold text-jp-gray-900"
+    let textClass = isActiveView ? "text-primary" : "font-semibold text-gray-500"
+    let countTextClass = isActiveView ? "text-primary" : "font-semibold text-gray-800"
     let borderClass = isActiveView ? "border-primary" : ""
 
     <div

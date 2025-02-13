@@ -25,7 +25,7 @@ module HoverInline = {
           </div>
         </div>
         <RenderIf condition={subText->LogicUtils.isNonEmptyString}>
-          <div className="text-xs text-nd_gray-400"> {React.string(subText)} </div>
+          <div className="text-xs text-gray-400"> {React.string(subText)} </div>
         </RenderIf>
       </div>
     </div>

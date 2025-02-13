@@ -6,7 +6,7 @@ module InfoField = {
     <RenderIf condition={str->LogicUtils.isNonEmptyString}>
       <div>
         <h2 className="text-medium font-semibold"> {label->React.string} </h2>
-        <h3 className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold">
+        <h3 className="text-base text-gray-700 opacity-70 break-all overflow-scroll font-semibold">
           {str->React.string}
         </h3>
       </div>
@@ -20,7 +20,7 @@ module KeyAndCopyArea = {
     let showToast = ToastState.useShowToast()
     <div className="flex flex-col md:flex-row items-center">
       <p
-        className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold w-89.5-per">
+        className="text-base text-gray-700 opacity-70 break-all overflow-scroll font-semibold w-89.5-per">
         {copyValue->React.string}
       </p>
       <div
@@ -212,7 +212,7 @@ module ConnectorSummaryGrid = {
       </div>
       <div className="grid grid-cols-4 border-b  md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
-        <div className="col-span-3 font-semibold text-base text-grey-700 opacity-70">
+        <div className="col-span-3 font-semibold text-base text-gray-700 opacity-70">
           {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>

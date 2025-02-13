@@ -257,7 +257,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     <RenderIf
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
-        className="flex flex-col gap-4 border-l-2 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll  w-3/5">
+        className="flex flex-col gap-4 border-l-2 border-border-gray-200 show-scrollbar scroll-smooth overflow-scroll  w-3/5">
         <div className="sticky top-0 bg-white z-10">
           <DynamicTabs
             tabs=tabValues
@@ -276,7 +276,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open OrderUtils
   <PageLoaderWrapper
     screenState
-    customLoader={<p className=" text-center text-sm text-jp-gray-900">
+    customLoader={<p className=" text-center text-sm text-gray-800">
       {"Crunching the latest data…"->React.string}
     </p>}
     customUI={<NoDataFound
@@ -294,7 +294,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       </RenderIf>
       <RenderIf condition={!(id->HSwitchOrderUtils.isTestData || data->Array.length === 0)}>
         <Section
-          customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
+          customCssClass={`bg-white dark:bg-gray-900 rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
           {timeLine}
           {codeBlock}
         </Section>

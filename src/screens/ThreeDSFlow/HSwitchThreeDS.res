@@ -49,7 +49,7 @@ module ActiveRulePreview = {
       </div>
       <div className="flex flex-col gap-2 ">
         <div className="flex gap-4 items-center ">
-          <p className="text-xl font-semibold text-grey-700">
+          <p className="text-xl font-semibold text-gray-700">
             {name->capitalizeString->React.string}
           </p>
           <ACLDiv
@@ -59,11 +59,11 @@ module ActiveRulePreview = {
             <Icon
               name="delete"
               size=20
-              className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
+              className="text-gray-500 hover:text-gray-800 dark:hover:text-white cursor-pointer"
             />
           </ACLDiv>
         </div>
-        <p className="text-base font-normal text-grey-700 opacity-50">
+        <p className="text-base font-normal text-gray-700 opacity-50">
           {description->React.string}
         </p>
       </div>
@@ -312,21 +312,21 @@ let make = () => {
             <BasicDetailsForm isThreeDs=true />
             <div>
               <div
-                className={`flex flex-wrap items-center justify-between p-4 py-8 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
+                className={`flex flex-wrap items-center justify-between p-4 py-8 bg-white dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-800`}>
                 <div>
                   <div className="font-bold"> {React.string("Rule Based Configuration")} </div>
                   <div className="flex flex-col gap-4">
-                    <span className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
+                    <span className="w-full text-gray-500 dark:text-gray-500 text-justify">
                       {"Rule-Based Configuration allows for detailed smart routing logic based on multiple dimensions of a payment. You can create any number of conditions using various dimensions and logical operators."->React.string}
                     </span>
-                    <span className="flex flex-col text-jp-gray-700">
+                    <span className="flex flex-col text-gray-500">
                       {"For example:"->React.string}
                       <p className="flex gap-2 items-center">
-                        <div className="p-1 h-fit rounded-full bg-jp-gray-700 ml-2" />
+                        <div className="p-1 h-fit rounded-full bg-gray-500 ml-2" />
                         {"If amount is > 100 and currency is USD, enforce 3DS authentication ."->React.string}
                       </p>
                     </span>
-                    <span className="text-jp-gray-700 text-sm">
+                    <span className="text-gray-500 text-sm">
                       <i>
                         {"Ensure to enter the payment amount in the smallest currency unit (e.g., cents for USD, yen for JPY). 
             For instance, pass 100 to charge $1.00 (USD) and ¥100 (JPY) since ¥ is a zero-decimal currency."->React.string}
@@ -359,10 +359,10 @@ let make = () => {
             <ActiveRulePreview initialRule setInitialRule />
           </RenderIf>
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
-            <p className="text-base font-semibold text-grey-700">
+            <p className="text-base font-semibold text-gray-700">
               {"Configure 3DS Rule"->React.string}
             </p>
-            <p className="text-base font-normal text-grey-700 opacity-50">
+            <p className="text-base font-normal text-gray-700 opacity-50">
               {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions"->React.string}
             </p>
             <ACLButton

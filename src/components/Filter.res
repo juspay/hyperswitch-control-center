@@ -322,7 +322,7 @@ let make = (
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95">
             <Menu.Items
-              className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden">
+              className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-gray-900 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden">
               {_ => {
                 <>
                   <div className="px-1 py-1">

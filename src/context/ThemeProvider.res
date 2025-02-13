@@ -345,7 +345,7 @@ let make = (~children) => {
   <Parent value>
     <div className=themeClassName>
       <div
-        className="bg-jp-gray-100 dark:bg-jp-gray-darkgray_background text-gray-700 dark:text-gray-200 red:bg-red">
+        className="bg-gray-50 dark:bg-jp-gray-darkgray_background text-gray-700 dark:text-gray-200 red:bg-red">
         children
       </div>
     </div>

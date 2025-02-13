@@ -34,11 +34,11 @@ let make = () => {
         {"Publishable Key and Payment Response Hash Key"->React.string}
       </h2>
       <div
-        className="px-2 py-4 border border-jp-gray-500 dark:border-jp-gray-960 bg-white dark:bg-jp-gray-lightgray_background rounded-md">
+        className="px-2 py-4 border border-gray-250 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-md">
         <FormRenderer.DesktopRow>
           <div className="flex flex-col gap-1 md:gap-4 mb-4 md:mb-0">
             <div className="flex">
-              <div className="break-all text-md text-base text-grey-700 font-semibold">
+              <div className="break-all text-md text-base text-gray-700 font-semibold">
                 {"Publishable Key"->React.string}
               </div>
               <div className="ml-1 mt-0.5 h-5 w-5">
@@ -58,21 +58,21 @@ let make = () => {
             </div>
             <HelperComponents.CopyTextCustomComp
               displayValue={merchantInfo.publishable_key}
-              customTextCss="break-all text-sm truncate md:whitespace-normal font-semibold text-jp-gray-800/75"
+              customTextCss="break-all text-sm truncate md:whitespace-normal font-semibold text-gray-500/75"
               customParentClass="flex items-center gap-5"
-              customIconCss="text-jp-gray-700"
+              customIconCss="text-gray-500"
             />
           </div>
           <RenderIf condition={paymentResponsHashKey->String.length !== 0}>
             <div className="flex flex-col gap-2 md:gap-4">
-              <div className="break-all text-md text-base text-grey-700 font-semibold">
+              <div className="break-all text-md text-base text-gray-700 font-semibold">
                 {"Payment Response Hash Key"->React.string}
               </div>
               <HelperComponents.CopyTextCustomComp
                 displayValue={paymentResponsHashKey}
-                customTextCss="break-all truncate md:whitespace-normal text-sm font-semibold text-jp-gray-800/75"
+                customTextCss="break-all truncate md:whitespace-normal text-sm font-semibold text-gray-500/75"
                 customParentClass="flex items-center gap-5"
-                customIconCss="text-jp-gray-700"
+                customIconCss="text-gray-500"
               />
             </div>
           </RenderIf>

@@ -106,11 +106,11 @@ module SimpleRoutingView = {
     }
     <>
       <div
-        className="flex flex-col gap-4 p-6 my-6 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
+        className="flex flex-col gap-4 p-6 my-6 bg-white dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-800">
         <div className="flex flex-col lg:flex-row ">
           <div>
             <div className="font-bold mb-1"> {React.string("Simple Configuration")} </div>
-            <div className="text-jp-gray-800 dark:text-jp-gray-700 text-sm flex flex-col">
+            <div className="text-gray-500 dark:text-gray-500 text-sm flex flex-col">
               <p>
                 {React.string(
                   "Simple Routing is helpful when you wish to define a simple pecking order of priority among the configured connectors. You may add the gateway and do a simple drag and drop.",
@@ -145,9 +145,9 @@ module SimpleRoutingView = {
         {switch pageState {
         | Create => {
             let keyExtractor = (index, gateway, isDragging) => {
-              let style = isDragging ? "border rounded-md bg-jp-gray-100 dark:bg-jp-gray-950" : ""
+              let style = isDragging ? "border rounded-md bg-gray-50 dark:bg-gray-900" : ""
               <div
-                className={`h-14 px-3 flex flex-row items-center justify-between text-jp-gray-900 dark:text-jp-gray-600 border-jp-gray-500 dark:border-jp-gray-960
+                className={`h-14 px-3 flex flex-row items-center justify-between text-gray-800 dark:text-gray-300 border-gray-250 dark:border-gray-800
             ${index !== 0 ? "border-t" : ""} ${style}`}>
                 <div className="flex flex-row items-center gap-4 ml-2">
                   <Icon name="grip-vertical" size=14 className={"cursor-pointer"} />
@@ -159,7 +159,7 @@ module SimpleRoutingView = {
                 </div>
               </div>
             }
-            <div className="flex border border-jp-gray-500 dark:border-jp-gray-960 rounded-md ">
+            <div className="flex border border-gray-250 dark:border-gray-800 rounded-md ">
               <DragDropComponent
                 listItems=gateways
                 setListItems={v => setGateways(_ => v)}

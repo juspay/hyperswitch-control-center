@@ -81,8 +81,8 @@ let infraSelectInput = (
   ~options: array<SelectBox.dropdownOption>,
   ~deselectDisable=false,
   ~borderRadius="rounded-full",
-  ~selectedClass="border-jp-gray-900 dark:border-jp-gray-300 text-jp-gray-900 dark:text-jp-gray-300 font-semibold",
-  ~nonSelectedClass="border-jp-gray-600 dark:border-jp-gray-800 text-jp-gray-850 dark:text-jp-gray-400",
+  ~selectedClass="border-gray-800 dark:border-gray-150 text-gray-800 dark:text-gray-150 font-semibold",
+  ~nonSelectedClass="border-gray-300 dark:border-gray-500 text-gray-800 dark:text-gray-200",
   ~showTickMark=true,
   ~allowMultiSelect=true,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
@@ -625,8 +625,7 @@ let iconFieldWithMessageDes = (mainInputField, ~description="") => (
       {switch description {
       | "" => React.null
       | _ =>
-        <div
-          className="pt-2 pb-2 text-sm text-bold text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/50 ">
+        <div className="pt-2 pb-2 text-sm text-bold text-gray-800/50 dark:text-gray-50/50 ">
           {React.string(description)}
         </div>
       }}
@@ -652,7 +651,7 @@ let checkboxInput = (
   ~searchable=?,
   ~searchInputPlaceHolder=?,
   ~dropdownCustomWidth=?,
-  ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+  ~customSearchStyle="bg-gray-50 dark:bg-gray-900 p-2",
   ~customLabelStyle=?,
   ~customMarginStyle="mx-3 py-2 gap-2",
   ~customStyle="",

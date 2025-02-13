@@ -170,7 +170,7 @@ let make = (~showModal, ~setShowModal) => {
     setShowModal
     showCloseIcon=false
     modalHeadingDescription=userEmail
-    modalClass="!w-1/3 !min-w-1/3 !bg-white m-auto dark:!bg-jp-gray-lightgray_background">
+    modalClass="!w-1/3 !min-w-1/3 !bg-white m-auto dark:!bg-gray-900">
     <Form
       key="merchant_name-validation"
       initialValues={Dict.make()->JSON.Encode.object}

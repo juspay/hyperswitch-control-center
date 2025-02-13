@@ -298,7 +298,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
     }}
     <div className={`bg-white h-40-rem w-200 rounded-2xl flex flex-col border`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
-        <p className={`${h2TextStyle} text-grey-900`}> {"Enable new 2FA"->React.string} </p>
+        <p className={`${h2TextStyle} text-gray-900`}> {"Enable new 2FA"->React.string} </p>
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
         {switch totpSecret {

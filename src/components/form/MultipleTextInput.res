@@ -134,9 +134,9 @@ let make = (
   }
 
   let className = `flex flex-wrap items-center  ${customStyleClass} bg-transparent
-                  text-jp-gray-900/75 dark:text-jp-gray-text_darktheme/75 text-sm font-semibold 
-                  placeholder-jp-gray-900/25 dark:placeholder-jp-gray-text_darktheme/25
-                  border rounded-sm border-jp-gray-lightmode_steelgray/75 hover:border-jp-gray-600 dark:border-jp-gray-960 dark:hover:border-jp-gray-900`
+                  text-gray-800/75 dark:text-gray-50/75 text-sm font-semibold 
+                  placeholder-gray-800/25 dark:placeholder-gray-50/25
+                  border rounded-sm border-jp-gray-lightmode_steelgray/75 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-800`
   <div className>
     {currentTags
     ->Array.map(tag => {
@@ -154,7 +154,7 @@ let make = (
       ?autoComplete
       onKeyUp=handleKeyDown
       isDisabled=disabled
-      customStyle="dark:bg-jp-gray-970 border-none"
+      customStyle="dark:bg-gray-950 border-none"
     />
   </div>
 }

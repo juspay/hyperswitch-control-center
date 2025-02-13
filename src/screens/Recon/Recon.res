@@ -71,10 +71,10 @@ let make = () => {
         />
         {if isReconEnabled {
           <div
-            className={`bg-white dark:bg-jp-gray-lightgray_background border-2 rounded-sm dark:border-jp-gray-850 grid grid-cols-1 md:gap-5 p-2 md:p-8 h-2/3 items-center`}>
+            className={`bg-white dark:bg-gray-900 border-2 rounded-sm dark:border-gray-800 grid grid-cols-1 md:gap-5 p-2 md:p-8 h-2/3 items-center`}>
             <div className={`flex flex-col items-center w-4/6 md:w-2/6 justify-self-center gap-1`}>
               <div
-                className={`text-center text-semibold text-s text-grey-700 opacity-60 dark:text-white`}>
+                className={`text-center text-semibold text-s text-gray-700 opacity-60 dark:text-white`}>
                 {"You will be redirected to the recon dashboard in a moment. (Enable pop-ups in your browser for auto-redirection.)"->React.string}
               </div>
               <Button
@@ -91,10 +91,10 @@ let make = () => {
           </div>
         } else {
           <div
-            className={`flex flex-col gap-5 bg-white dark:bg-jp-gray-lightgray_background border-2 rounded-sm dark:border-jp-gray-850 md:gap-5 p-2 md:p-8 h-2/3 items-center justify-center`}>
+            className={`flex flex-col gap-5 bg-white dark:bg-gray-900 border-2 rounded-sm dark:border-gray-800 md:gap-5 p-2 md:p-8 h-2/3 items-center justify-center`}>
             {if merchentDetails.recon_status === Requested {
               <div
-                className={`text-center text-semibold text-s text-grey-700 opacity-60 dark:text-white`}>
+                className={`text-center text-semibold text-s text-gray-700 opacity-60 dark:text-white`}>
                 {"Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps."->React.string}
               </div>
             } else {
@@ -103,7 +103,7 @@ let make = () => {
                   {"Drop us an email!"->React.string}
                 </div>
                 <div
-                  className={`text-center text-semibold text-s text-grey-700 opacity-60 dark:text-white`}>
+                  className={`text-center text-semibold text-s text-gray-700 opacity-60 dark:text-white`}>
                   {"Once submitted, you should hear a response in 48 hours, often sooner."->React.string}
                 </div>
                 <Button
@@ -118,7 +118,7 @@ let make = () => {
                   }}
                 />
                 <div className={`flex text-center`}>
-                  <div className={`text-s text-grey-700 opacity-60  dark:text-white`}>
+                  <div className={`text-s text-gray-700 opacity-60  dark:text-white`}>
                     {"or contact us on"->React.string}
                   </div>
                   <div className={`m-1`}>

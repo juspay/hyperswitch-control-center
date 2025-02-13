@@ -16,13 +16,13 @@ module TotpScanQR = {
             </p>
             <div className="flex flex-col gap-4 ml-2">
               <p className={`${p2Regular} opacity-60 flex gap-2 items-center`}>
-                <div className="text-white rounded-full bg-grey-900 opacity-50 px-2 py-0.5">
+                <div className="text-white rounded-full bg-gray-900 opacity-50 px-2 py-0.5">
                   {"1"->React.string}
                 </div>
                 {"Scan the QR code shown on the screen with your authenticator application"->React.string}
               </p>
               <p className={`${p2Regular} opacity-60 flex gap-2 items-center`}>
-                <div className="text-white rounded-full bg-grey-900 opacity-50 px-2 py-0.5">
+                <div className="text-white rounded-full bg-gray-900 opacity-50 px-2 py-0.5">
                   {"2"->React.string}
                 </div>
                 {"Enter the OTP code displayed on the authenticator app in below text field or textbox"->React.string}
@@ -47,7 +47,7 @@ module TotpScanQR = {
           }}
         </div>
       </div>
-      <div className="h-px w-11/12 bg-grey-200 opacity-50" />
+      <div className="h-px w-11/12 bg-gray-200 opacity-50" />
     </>
   }
 }
@@ -68,13 +68,13 @@ module ShowRecoveryCodes = {
   @react.component
   let make = (~recoveryCodes) => {
     <div
-      className="border border-gray-200 rounded-md bg-jp-gray-100 py-6 px-12 flex gap-8 justify-evenly">
+      className="border border-gray-200 rounded-md bg-gray-50 py-6 px-12 flex gap-8 justify-evenly">
       <div className="grid grid-cols-2 gap-4">
         {recoveryCodes
         ->Array.map(recoveryCode =>
           <div className="flex items-center  gap-2">
-            <div className="p-1 rounded-full bg-jp-gray-600" />
-            <p className="text-jp-gray-700 text-xl"> {recoveryCode->React.string} </p>
+            <div className="p-1 rounded-full bg-gray-300" />
+            <p className="text-gray-500 text-xl"> {recoveryCode->React.string} </p>
           </div>
         )
         ->React.array}

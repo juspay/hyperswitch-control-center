@@ -39,7 +39,7 @@ let getCell = (item: switchMerchantListResponse, colType): Table.cell => {
   | RoleName =>
     CustomCell(
       <div className="flex flex-row gap-2">
-        <Icon name="user" className="text-jp-gray-700" size=12 />
+        <Icon name="user" className="text-gray-500" size=12 />
         <span> {item.role_name->LogicUtils.snakeToTitle->React.string} </span>
       </div>,
       "",

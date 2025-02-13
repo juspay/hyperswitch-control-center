@@ -149,7 +149,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       childClass="p-1"
       borderBottom=true
       revealFrom=Reveal.Right
-      modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900">
+      modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-gray-800">
       <Form initialValues validate={validateMandatoryField} onSubmit>
         <ConnectorConfigurationFields
           connector={connectorTypeFromName}

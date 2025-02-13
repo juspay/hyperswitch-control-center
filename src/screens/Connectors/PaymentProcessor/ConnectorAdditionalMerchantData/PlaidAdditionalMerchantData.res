@@ -25,8 +25,7 @@ module PlaidAdditionMerchantDataSelect = {
     }
     <>
       <div>
-        <h2
-          className="font-semibold pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme/50 ml-1">
+        <h2 className="font-semibold pt-2 pb-2 text-fs-13 text-gray-800 dark:text-gray-50/50 ml-1">
           {label->React.string}
           <span className="text-red-950"> {"*"->React.string} </span>
         </h2>

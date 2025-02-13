@@ -2,14 +2,14 @@ module Heading = {
   @react.component
   let make = (
     ~title,
-    ~customTitleStyle="text-xl font-semibold text-grey-800",
+    ~customTitleStyle="text-xl font-semibold text-gray-800",
     ~customHeadingStyle="",
   ) => {
     <div>
       <div className={`p-2 md:p-6 ${customHeadingStyle}`}>
         <div className={`${customTitleStyle}`}> {title->React.string} </div>
       </div>
-      <div className="border-b border-grey-outline" />
+      <div className="border-b border-gray-150" />
     </div>
   }
 }
@@ -21,7 +21,7 @@ module SubHeading = {
       <p className="text-base text-gray-500">
         {`STEP ${currentStepCount->Int.toString} / 3`->React.string}
       </p>
-      <p className="text-lg font-semibold text-grey-800"> {title->React.string} </p>
+      <p className="text-lg font-semibold text-gray-800"> {title->React.string} </p>
       <p className="text-sm text-gray-500"> {subTitle->React.string} </p>
     </div>
   }
@@ -151,7 +151,7 @@ module StepCard = {
   let make = (~stepName, ~description, ~isSelected, ~onClick, ~iconName) => {
     let ringClass = switch isSelected {
     | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
-    | false => "ring-grey-outline"
+    | false => "ring-gray-150"
     }
     <div
       key={stepName}
@@ -160,7 +160,7 @@ module StepCard = {
       <div className="flex items-center gap-x-2.5">
         <img alt={iconName} src={`/Recon/${iconName}.svg`} className="w-8 h-8" />
         <div className="flex flex-col gap-1">
-          <h3 className="text-medium font-medium text-grey-900"> {stepName->React.string} </h3>
+          <h3 className="text-medium font-medium text-gray-900"> {stepName->React.string} </h3>
           <p className="text-sm text-gray-500"> {description->React.string} </p>
         </div>
       </div>

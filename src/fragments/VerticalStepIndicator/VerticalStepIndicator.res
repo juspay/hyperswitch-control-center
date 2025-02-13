@@ -14,7 +14,7 @@ let make = (
     <div className="flex items-center gap-x-3 px-6">
       <Icon
         name="nd-arrow-left"
-        className="text-nd_gray-600 cursor-pointer"
+        className="text-gray-600 cursor-pointer"
         onClick={_ => backClick()}
         customHeight="20"
       />
@@ -28,9 +28,9 @@ let make = (
           let isCurrentStep = sectionIndex == currIndex
 
           let stepNameIndicator = if isCurrentStep {
-            `text-nd_gray-700 break-all font-semibold`
+            `text-gray-700 break-all font-semibold`
           } else {
-            ` text-nd_gray-400 font-medium`
+            ` text-gray-400 font-medium`
           }
 
           let iconColor = if isCurrentStep {

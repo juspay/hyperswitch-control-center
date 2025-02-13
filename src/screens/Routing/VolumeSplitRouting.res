@@ -105,11 +105,11 @@ module VolumeRoutingView = {
 
     <>
       <div
-        className="flex flex-col gap-4 p-6 my-2 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
+        className="flex flex-col gap-4 p-6 my-2 bg-white dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-800">
         <div className="flex flex-col lg:flex-row  ">
           <div>
             <div className="font-bold mb-1"> {React.string("Volume Based Configuration")} </div>
-            <div className="text-jp-gray-800 dark:text-jp-gray-700 text-sm">
+            <div className="text-gray-500 dark:text-gray-500 text-sm">
               {"Volume Based Configuration is helpful when you want a specific traffic distribution for each of the configured connectors. For eg: Stripe (70%), Adyen (20%), Checkout (10%)."->React.string}
             </div>
           </div>
@@ -157,7 +157,7 @@ module VolumeRoutingView = {
         | Preview =>
           <div className="flex flex-col w-full gap-3">
             <div
-              className="flex flex-col gap-4 p-6 my-2 bg-white rounded-md border border-jp-gray-600 ">
+              className="flex flex-col gap-4 p-6 my-2 bg-white rounded-md border border-gray-300 ">
               <GatewayView gateways={gateways->getGatewayTypes} connectorList />
             </div>
             <div className="flex flex-col md:flex-row gap-4">

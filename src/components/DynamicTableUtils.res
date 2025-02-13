@@ -194,7 +194,7 @@ module TableHeading = {
             </div>
           | _ =>
             <AddDataAttributes attributes=[("data-table-heading-desc", desc)]>
-              <div className="text-base text-jp-gray-700 dark:text-jp-gray-800">
+              <div className="text-base text-gray-500 dark:text-gray-500">
                 {React.string(desc)}
               </div>
             </AddDataAttributes>
@@ -261,7 +261,7 @@ module TableDataLoadingIndicator = {
   let make = (~showWithData=true) => {
     let padding = showWithData ? "py-8 rounded-b" : "py-56 rounded"
     <div
-      className={`flex flex-col ${padding} justify-center space-x-2 items-center bg-white shadow-md dark:bg-jp-gray-lightgray_background dark:shadow-md`}>
+      className={`flex flex-col ${padding} justify-center space-x-2 items-center bg-white shadow-md dark:bg-gray-900 dark:shadow-md`}>
       <div className="animate-spin mb-4">
         <Icon name="spinner" />
       </div>

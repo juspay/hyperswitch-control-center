@@ -118,7 +118,7 @@ module DownloadAPIKey = {
       />
       <div className="p-10 bg-gray-50 border rounded-sm flex flex-col gap-6">
         <div className="flex flex-col gap-2.5">
-          <div className="text-base text-grey-900 font-medium">
+          <div className="text-base text-gray-900 font-medium">
             {"Test API Key"->React.string}
           </div>
           <p className="text-sm text-grey-50">
@@ -152,9 +152,7 @@ module TabsContentWrapper = {
         </p>
       </div>
       {customUi}
-      <div className="border bg-jp-gray-light_gray_bg h-full rounded-md p-6 overflow-scroll">
-        {children}
-      </div>
+      <div className="border bg-gray-25 h-full rounded-md p-6 overflow-scroll"> {children} </div>
     </div>
   }
 }
@@ -357,8 +355,8 @@ module LanguageTag = {
   }
 }
 
-let headerTextCss = "font-semibold text-grey-700 text-xl"
-let subTextCss = "font-normal text-grey-700 opacity-50 text-base"
+let headerTextCss = "font-semibold text-gray-700 text-xl"
+let subTextCss = "font-normal text-gray-700 opacity-50 text-base"
 module LandingPageTileForIntegrateDocs = {
   @react.component
   let make = (
@@ -467,7 +465,7 @@ module LandingPageTileForGithub = {
       Window._open(url)
     }
     <div
-      className={`p-5 border rounded-md flex flex-col gap-4 justify-between bg-white cursor-pointer hover:bg-jp-gray-light_gray_bg`}
+      className={`p-5 border rounded-md flex flex-col gap-4 justify-between bg-white cursor-pointer hover:bg-gray-25`}
       onClick={_ => redirect()}>
       <div>
         <div className="flex items-center justify-between">
@@ -575,7 +573,7 @@ module CreatePayment = {
             headerText="Installation"
             langauge=backEndLang
           />
-          <div className="w-full h-px bg-jp-gray-700" />
+          <div className="w-full h-px bg-gray-500" />
         </RenderIf>
         <ShowCodeEditor
           value={backEndLang->getCreateAPayment}
@@ -676,19 +674,19 @@ let getTabsForIntegration = (
                   headerText="Installation"
                   langauge=frontEndLang
                 />
-                <div className="w-full h-px bg-jp-gray-700" />
+                <div className="w-full h-px bg-gray-500" />
               </RenderIf>
               <RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getImports} theme headerText="Imports" langauge=frontEndLang
                 />
-                <div className="w-full h-px bg-jp-gray-700" />
+                <div className="w-full h-px bg-gray-500" />
               </RenderIf>
               <RenderIf condition={frontEndLang->getLoad->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getLoad} theme headerText="Load" langauge=frontEndLang
                 />
-                <div className="w-full h-px bg-jp-gray-700" />
+                <div className="w-full h-px bg-gray-500" />
               </RenderIf>
               <RenderIf condition={frontEndLang->getInitialize->isNonEmptyString}>
                 <ShowCodeEditor
@@ -697,7 +695,7 @@ let getTabsForIntegration = (
                   headerText="Initialize"
                   langauge=frontEndLang
                 />
-                <div className="w-full h-px bg-jp-gray-700" />
+                <div className="w-full h-px bg-gray-500" />
               </RenderIf>
               <RenderIf
                 condition={frontEndLang->getCheckoutFormForDisplayCheckoutPage->isNonEmptyString}>
@@ -724,7 +722,7 @@ let getTabsForIntegration = (
                   customHeight="20vh"
                   langauge=frontEndLang
                 />
-                <div className="w-full h-px bg-jp-gray-700" />
+                <div className="w-full h-px bg-gray-500" />
               </RenderIf>
               <RenderIf condition={frontEndLang->getDisplayConformation->isNonEmptyString}>
                 <ShowCodeEditor

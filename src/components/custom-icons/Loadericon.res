@@ -6,7 +6,7 @@ let make = (~iconColor=?, ~size=16) => {
   | Some(color) => color
   | None =>
     switch theme {
-    | Light => "text-jp-gray-900"
+    | Light => "text-gray-800"
     | Dark => "text-white"
     }
   }

@@ -6,16 +6,16 @@ let make = (~onCloseClick, ~children, ~headerText) => {
 
   <div
     onClick
-    className={`flex flex-col border border-jp-gray-500 dark:border-jp-gray-960  bg-jp-gray-950/70 dark:bg-white-600/80 fixed h-screen w-screen z-40 pt-12 justify-end inset-0  backdrop-blur-xs overscroll-contain`}>
+    className={`flex flex-col border border-gray-250 dark:border-gray-800  bg-gray-900/70 dark:bg-white-600/80 fixed h-screen w-screen z-40 pt-12 justify-end inset-0  backdrop-blur-xs overscroll-contain`}>
     <div
-      className={`!pl-4 desktop:bg-gray-200 z-10 sticky w-full top-0 m-0 md:!pl-6 p-4 border border-jp-gray-500 dark:border-jp-gray-900 bg-jp-gray-100 shadow-sm dark:bg-jp-gray-darkgray_background h-fit`}>
+      className={`!pl-4 desktop:bg-gray-200 z-10 sticky w-full top-0 m-0 md:!pl-6 p-4 border border-gray-250 dark:border-gray-800 bg-gray-50 shadow-sm dark:bg-jp-gray-darkgray_background h-fit`}>
       <div className={`text-lg font-bold flex flex-row justify-between  -mr-2`}>
         {React.string(headerText)}
         <ModalCloseIcon onClick={onCloseClick} />
       </div>
     </div>
     <div
-      className={`border border-jp-gray-500 dark:border-jp-gray-900  shadow-sm dark:bg-jp-gray-darkgray_background overflow-scroll`}>
+      className={`border border-gray-250 dark:border-gray-800  shadow-sm dark:bg-jp-gray-darkgray_background overflow-scroll`}>
       {children}
     </div>
   </div>

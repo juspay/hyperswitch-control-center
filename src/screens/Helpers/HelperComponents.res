@@ -137,7 +137,7 @@ module BluredTableComponent = {
             {value
             ->Dict.keysToArray
             ->Array.mapWithIndex((tableVal, ind) =>
-              <div className="flex justify-center text-grey-700 opacity-50" key={ind->Int.toString}>
+              <div className="flex justify-center text-gray-700 opacity-50" key={ind->Int.toString}>
                 {value->LogicUtils.getString(tableVal, "")->React.string}
               </div>
             )
@@ -148,7 +148,7 @@ module BluredTableComponent = {
       </div>
       <div
         className="absolute top-0 right-0 left-0 bottom-0 h-fit w-1/5 m-auto flex flex-col gap-6 items-center">
-        <p className="text-center text-grey-700 font-medium opacity-50">
+        <p className="text-center text-gray-700 font-medium opacity-50">
           {infoText->React.string}
         </p>
         <RenderIf condition={showRedirectCTA}>
@@ -174,7 +174,7 @@ module KeyAndCopyArea = {
     let showToast = ToastState.useShowToast()
 
     <div className={`flex gap-4 border rounded-md py-2 px-4 items-center bg-white ${shadowClass}`}>
-      <p className="text-base text-grey-700 opacity-70 col-span-2 truncate">
+      <p className="text-base text-gray-700 opacity-70 col-span-2 truncate">
         {copyValue->React.string}
       </p>
       <div
@@ -184,7 +184,7 @@ module KeyAndCopyArea = {
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
         <Icon name="nd-copy" customIconColor="rgb(156 163 175)" />
-        <p className="text-grey-700 opacity-50"> {"Copy"->React.string} </p>
+        <p className="text-gray-700 opacity-50"> {"Copy"->React.string} </p>
       </div>
     </div>
   }

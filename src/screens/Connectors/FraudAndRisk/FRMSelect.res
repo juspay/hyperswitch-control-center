@@ -52,9 +52,7 @@ module NewProcessorCards = {
                 onClick={_ => handleClick(frmName)}
                 leftIcon={CustomIcon(
                   <Icon
-                    name="plus"
-                    size=16
-                    className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+                    name="plus" size=16 className="text-gray-800 fill-opacity-50 dark:gray-50"
                   />,
                 )}
               />

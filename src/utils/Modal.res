@@ -41,9 +41,7 @@ module ModalHeading = {
     ~modalHeaderIconSize,
   ) => {
     let isHyperSwitchDashboard = GlobalVars.isHyperSwitchDashboard
-    let borderClass = showBorderBottom
-      ? "border-b border-jp-gray-940/75 dark:border-jp-gray-960/75"
-      : ""
+    let borderClass = showBorderBottom ? "border-b border-gray-200/75 dark:border-gray-800/75" : ""
 
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")
 
@@ -61,10 +59,10 @@ module ModalHeading = {
     <div
       className={`!p-4 ${headBgClass->LogicUtils.isNonEmptyString
           ? headBgClass
-          : "bg-jp-gray-200 dark:bg-jp-gray-darkgray_background"} rounded-t-lg z-10  w-full  m-0 md:!pl-6  ${headingClass} ${borderClass} `}>
+          : "bg-gray-100 dark:bg-jp-gray-darkgray_background"} rounded-t-lg z-10  w-full  m-0 md:!pl-6  ${headingClass} ${borderClass} `}>
       {switch leftHeadingIcon {
       | Some(icon) =>
-        <div className="fill-current flex-col justify-between h-0 bg-jp-gray-100">
+        <div className="fill-current flex-col justify-between h-0 bg-gray-50">
           <div className="fill-current"> icon </div>
         </div>
       | None => React.null
@@ -131,7 +129,7 @@ module ModalContent = {
     <div
       id="neglectTopbarTheme"
       onClick=handleContainerClick
-      className={`border border-jp-gray-500 dark:border-jp-gray-900/75 ${bgClass} shadow-sm rounded-lg dark:bg-jp-gray-darkgray_background ${modalClass} ${customHeight}`}>
+      className={`border border-gray-250 dark:border-gray-800/75 ${bgClass} shadow-sm rounded-lg dark:bg-jp-gray-darkgray_background ${modalClass} ${customHeight}`}>
       children
     </div>
   }
@@ -156,7 +154,7 @@ module ModalOverlay = {
     let mobileClass = isMobileView ? "flex flex-col " : ""
     let displayClass = showModal ? "block" : "hidden"
     let overlayBgStyle = GlobalVars.isHyperSwitchDashboard
-      ? isBackdropBlurReq ? `bg-grey-700/50` : ""
+      ? isBackdropBlurReq ? `bg-gray-700/50` : ""
       : overlayBG
     let backgroundDropStyles = isBackdropBlurReq ? "backdrop-blur-sm" : ""
 
@@ -191,7 +189,7 @@ let make = (
   ~children,
   ~modalHeading=?,
   ~customModalHeading=?,
-  ~bgClass="bg-white dark:bg-jp-gray-lightgray_background",
+  ~bgClass="bg-white dark:bg-gray-900",
   ~modalClass="md:mt-20 overflow-auto",
   ~childClass="p-2 m-2",
   ~headingClass="p-2",
@@ -213,7 +211,7 @@ let make = (
   ~modalHeadingDescriptionElement=React.null,
   ~onCloseClickCustomFun=_ => (),
   ~modalFooter=React.null,
-  ~overlayBG="bg-jp-gray-950/70 dark:bg-white-600/80",
+  ~overlayBG="bg-gray-900/70 dark:bg-white-600/80",
   ~showModalHeadingIconName="",
   ~customHeight=?,
   ~modalHeadingClass="",

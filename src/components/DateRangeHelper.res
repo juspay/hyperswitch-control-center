@@ -24,7 +24,7 @@ module CompareOption = {
 
     <div
       onClick={_ => onClick(value)}
-      className={`text-center md:text-start min-w-max bg-white w-full   hover:bg-jp-gray-100/75 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 `}>
+      className={`text-center md:text-start min-w-max bg-white w-full   hover:bg-gray-50/75 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-gray-900 `}>
       {switch value {
       | No_Comparison => "No Comparison"->React.string
       | Previous_Period =>

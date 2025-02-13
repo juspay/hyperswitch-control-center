@@ -143,7 +143,7 @@ module InfoField = {
   @react.component
   let make = (~label, ~str, ~customElementStyle="") => {
     <div className={`flex flex-col justify-center gap-0.5-rem ${customElementStyle} `}>
-      <h2 className="flex-[1] text-nd_gray-400 "> {label->React.string} </h2>
+      <h2 className="flex-[1] text-gray-400 "> {label->React.string} </h2>
       <h3 className="flex-[3]  overflow-scroll whitespace-nowrap"> {str->React.string} </h3>
     </div>
   }

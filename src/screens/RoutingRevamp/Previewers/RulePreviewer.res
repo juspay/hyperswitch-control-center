@@ -35,10 +35,10 @@ module GatewayView = {
         }
         <div
           key={Int.toString(index)}
-          className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-hidden px-2 gap-1`}>
+          className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-gray-250 dark:border-gray-800 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-gray-25 to-gray-100 dark:from-gray-900 dark:to-gray-900 focus:outline-hidden px-2 gap-1`}>
           {connectorStr->React.string}
           <RenderIf condition={percent->Option.isSome}>
-            <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
+            <span className="text-gray-500 dark:text-gray-300 ml-1">
               {(percent->Option.getOr(0)->Int.toString ++ "%")->React.string}
             </span>
           </RenderIf>
@@ -54,7 +54,7 @@ module ThreedsTypeView = {
   let make = (~threeDsType) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <div
-      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-hidden px-2 gap-1`}>
+      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-gray-250 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-gray-25 to-gray-100  focus:outline-hidden px-2 gap-1`}>
       {threeDsType->LogicUtils.capitalizeString->React.string}
     </div>
   }
@@ -65,7 +65,7 @@ module SurchargeCompressedView = {
   let make = (~surchargeType, ~surchargeTypeValue, ~surchargePercentage) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <div
-      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium  ${textColor.primaryNormal} hover: ${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-hidden px-2 gap-1`}>
+      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-gray-250 font-medium  ${textColor.primaryNormal} hover: ${textColor.primaryNormal} bg-gradient-to-b from-gray-25 to-gray-100  focus:outline-hidden px-2 gap-1`}>
       {`${surchargeType} -> ${surchargeTypeValue->Float.toString} | Tax on Surcharge -> ${surchargePercentage
         ->Option.getOr(0.0)
         ->Float.toString}`
@@ -79,11 +79,10 @@ module SurchargeCompressedView = {
 let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) => {
   open LogicUtils
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  <div
-    className=" bg-white border  flex flex-col divide-y  divide-jp-gray-600  border-jp-gray-600 ">
+  <div className=" bg-white border  flex flex-col divide-y  divide-gray-300  border-gray-300 ">
     <AddDataAttributes attributes=[("data-component", "rulePreviewer")]>
       <div>
-        <div className="flex flex-col divide-y  divide-jp-gray-600  border-t  border-b">
+        <div className="flex flex-col divide-y  divide-gray-300  border-t  border-b">
           {ruleInfo.rules
           ->Array.mapWithIndex((rule, index) => {
             let statementsArr = rule.statements
@@ -103,7 +102,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
             <div key={Int.toString(index)} className="flex flex-col items-center w-full px-4 pb-6">
               <div
                 style={marginTop: "-1.2rem"}
-                className="text-jp-gray-700 dark:text-jp-gray-700 text-base font-semibold p-1 px-3 bg-jp-gray-50 dark:bg-jp-gray-950 rounded-full border border-jp-gray-600 dark:border-jp-gray-850">
+                className="text-gray-500 dark:text-gray-500 text-base font-semibold p-1 px-3 bg-gray-25 dark:bg-gray-900 rounded-full border border-gray-300 dark:border-gray-800">
                 {headingText->React.string}
               </div>
               <div className={`w-full flex flex-wrap items-center ${marginStyle}`}>
@@ -159,7 +158,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                   ->React.array}
                 </div>
                 <RenderIf condition={rule.statements->Array.length > 0}>
-                  <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
+                  <Icon size=14 name="arrow-right" className="mx-4 text-gray-500" />
                 </RenderIf>
                 <RenderIf condition={isFrom3ds}>
                   <ThreedsTypeView threeDsType />

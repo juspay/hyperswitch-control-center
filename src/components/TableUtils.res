@@ -242,15 +242,15 @@ module LabelCell = {
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600/50"
     | LabelLightBlue => "bg-primary/50"
-    | LabelWhite => "bg-white border border-jp-gray-300"
+    | LabelWhite => "bg-white border border-gray-150"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700  dark:bg-green-700/50"
     | LabelLightRed => "bg-red-400 dark:bg-red-400/50"
     }
 
     let textColor = switch labelColor {
-    | LabelGray => "text-jp-gray-900"
-    | LabelWhite => "text-jp-gray-700"
+    | LabelGray => "text-gray-800"
+    | LabelWhite => "text-gray-500"
     | _ => "text-white"
     }
 
@@ -300,7 +300,7 @@ module NewLabelCell = {
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600/50"
     | LabelLightBlue => "bg-primary/50"
-    | LabelWhite => "bg-white border border-jp-gray-300"
+    | LabelWhite => "bg-white border border-gray-150"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700 dark:bg-green-700/50"
     | LabelLightRed => "bg-red-400 dark:bg-red-400/50"
@@ -351,7 +351,7 @@ module ColoredTextCell = {
     | LabelDarkRed => "text-red-700"
     | LabelBrown => "text-yellow-800"
     | LabelLightBlue => "text-sky-300"
-    | LabelWhite => "text-jp-gray-500"
+    | LabelWhite => "text-gray-250"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700"
     | LabelLightRed => "bg-red-400"
@@ -409,9 +409,7 @@ module MoneyCell = {
     ~customMoneyStyle="",
   ) => {
     let textAlignClass = textAlign->getTextAlignmentClass
-    let boldClass = fontBold
-      ? `text-fs-20 font-bold text-jp-gray-900`
-      : `text-fs-13 text-jp-gray-dark_disable_border_color`
+    let boldClass = fontBold ? `text-fs-20 font-bold text-gray-800` : `text-fs-13 text-gray-400`
 
     let wrapperClass = isCard
       ? `font-semibold font-fira-code`
@@ -453,7 +451,7 @@ module LinkCell = {
 
     <div className="flex flex-row items-center" onMouseOver={mouseOver} onMouseOut={mouseOut}>
       <div
-        className={`whitespace-pre text-sm font-fira-code dark:text-jp-gray-text_darktheme/75 text-right p-1 ${textColor.primaryNormal} text-ellipsis overflow-hidden`}>
+        className={`whitespace-pre text-sm font-fira-code dark:text-gray-50/75 text-right p-1 ${textColor.primaryNormal} text-ellipsis overflow-hidden`}>
         <a href=data target="_blank" onClick=preventEvent> {React.string(trimData)} </a>
       </div>
       <div className=visibility>
@@ -498,9 +496,7 @@ module DateCell = {
     let selectedTimeZoneAlias = selectedTimeZoneData.title
     let textAlignClass = textAlign->getTextAlignmentClass
 
-    let wrapperClass = isCard
-      ? fontType
-      : `dark:text-jp-gray-text_darktheme/75 ${textAlignClass} ${fontStyle}`
+    let wrapperClass = isCard ? fontType : `dark:text-gray-50/75 ${textAlignClass} ${fontStyle}`
 
     <AddDataAttributes attributes=[("data-date", timestamp->getFormattedDate)]>
       <div className={`${wrapperClass} whitespace-nowrap`}>

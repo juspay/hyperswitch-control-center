@@ -30,7 +30,7 @@ module SearchBox = {
     let cmdIcon = Window.Navigator.platform->String.includes("Mac") ? "⌘" : "^"
     let shortcutIcons = {
       <>
-        <div className="flex flex-row text-nd_gray-400 gap-1">
+        <div className="flex flex-row text-gray-400 gap-1">
           <div className={`${iconBoxCss} `}> {cmdIcon->React.string} </div>
           <div className={`${iconBoxCss} text-xs`}> {"K"->React.string} </div>
         </div>
@@ -42,7 +42,7 @@ module SearchBox = {
       <Icon size=14 name="search" className="mx-2" onClick={openModalOnClickHandler} />
     } else {
       <div
-        className={`flex w-80 gap-2 items-center text-grey-800/40 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text shadow-xs bg-nd_gray-100`}
+        className={`flex w-80 gap-2 items-center text-gray-800/40 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text shadow-xs bg-gray-100`}
         onClick={openModalOnClickHandler}>
         <div className="flex gap-2 ">
           <Icon size=14 name="search" />
@@ -335,7 +335,7 @@ module FilterResultsComponent = {
         initial={{opacity: 0.5}}
         animate={{opacity: 0.5}}
         layoutId="categories-section"
-        className="px-2 pt-2 border-t dark:border-jp-gray-960">
+        className="px-2 pt-2 border-t dark:border-gray-800">
         <Div layoutId="categories-title" className="font-bold px-2">
           {sectionHeader->String.toUpperCase->React.string}
         </Div>
@@ -722,7 +722,7 @@ module ModalSearchBox = {
     let textColor =
       errorMessage->isNonEmptyString
         ? "text-red-900/75 focus:text-red-900/100"
-        : "text-jp-gray-900/75 focus:text-jp-gray-900/100"
+        : "text-gray-800/75 focus:text-gray-800/100"
 
     <Form
       key="global-search"
@@ -744,7 +744,7 @@ module ModalSearchBox = {
                       autoComplete="off"
                       autoFocus=true
                       placeholder="Search"
-                      className={`w-full pr-2 pl-2 ${textColor} placeholder-jp-gray-900/50 focus:outline-hidden rounded-sm h-10 text-lg font-normal`}
+                      className={`w-full pr-2 pl-2 ${textColor} placeholder-gray-800/50 focus:outline-hidden rounded-sm h-10 text-lg font-normal`}
                       name={input.name}
                       label="No"
                       value=localSearchText

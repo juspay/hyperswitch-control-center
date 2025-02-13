@@ -21,7 +21,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
           <img alt="logo-with-text" src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
         </div>
         <div className="p-6 flex flex-col gap-2">
-          <p className={`${textHeadingClass} text-grey-900`}>
+          <p className={`${textHeadingClass} text-gray-900`}>
             {"Hey there, welcome to Hyperswitch!"->React.string}
           </p>
           <p className=textSubHeadingClass>
@@ -74,7 +74,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
           />
         </div>
       </div>
-      <div className="text-grey-200 flex gap-2">
+      <div className="text-gray-200 flex gap-2">
         {"Log in with a different account?"->React.string}
         <p
           className="underline cursor-pointer underline-offset-2 hover:text-blue-700"

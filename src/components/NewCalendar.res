@@ -153,8 +153,8 @@ module TableRow = {
                 today == renderingDate && startDate != today && endDate != today
               let textColor = isTodayHighlight
                 ? "bg-jp-2-light-primary-100 rounded-full"
-                : "text-jp-gray-900/75"
-              let classN = `h-10 w-10 p-0  text-center ${textColor}  dark:text-jp-gray-text_darktheme/75  ${dayClass}`
+                : "text-gray-800/75"
+              let classN = `h-10 w-10 p-0  text-center ${textColor}  dark:text-gray-50/75  ${dayClass}`
 
               let selectedcellClass = `h-10 w-10 flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary text-white rounded-full `
               let c2 =
@@ -535,7 +535,7 @@ let make = (
           ->Array.mapWithIndex((item, i) => {
             <div className="w-10" key={Int.toString(i)}>
               <div
-                className="flex flex-1 justify-center pb-2.5 pt-0.5 text-jp-gray-700 dark:text-jp-gray-text_darktheme/50">
+                className="flex flex-1 justify-center pb-2.5 pt-0.5 text-gray-500 dark:text-gray-50/50">
                 {React.string(isMobileView ? item->String.charAt(0) : item)}
               </div>
             </div>

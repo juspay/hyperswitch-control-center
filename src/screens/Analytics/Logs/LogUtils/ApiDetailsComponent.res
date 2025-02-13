@@ -188,7 +188,7 @@ let make = (
   <div className="flex items-start gap-4">
     <div className="flex flex-col items-center h-full my-4 relative">
       <RenderIf condition={showLogType}>
-        <Icon name=iconName size=12 className="text-jp-gray-900" />
+        <Icon name=iconName size=12 className="text-gray-800" />
         <div
           className={`h-full border-${stepperBorderColor} border-dashed rounded-sm divide-x-2 border-2 my-1`}
         />
@@ -204,7 +204,7 @@ let make = (
     <div className="flex flex-col gap-3 w-full">
       <RenderIf condition={showLogType}>
         <span
-          className={`text-base font-bold break-all flex gap-1 leading-none my-4 text-jp-gray-900`}>
+          className={`text-base font-bold break-all flex gap-1 leading-none my-4 text-gray-800`}>
           {`${logType->getTagName}`->React.string}
         </span>
       </RenderIf>

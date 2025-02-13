@@ -6,7 +6,7 @@ module Links = {
       <img alt="vaultServerImage" src=icon />
       <div className="flex flex-col gap-1">
         <p className="text-sm font-semibold"> {title->React.string} </p>
-        <p className="text-xs text-nd_gray-400 font-normal"> {subTitle->React.string} </p>
+        <p className="text-xs text-gray-400 font-normal"> {subTitle->React.string} </p>
       </div>
       <Icon name="angle-right" size=16 className="group-hover:scale-125" />
     </div>

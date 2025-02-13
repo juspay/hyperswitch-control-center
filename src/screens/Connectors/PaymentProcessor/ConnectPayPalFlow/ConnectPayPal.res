@@ -1,8 +1,8 @@
-let h3Leading2TextClass = `${HSwitchUtils.getTextClass((H3, Leading_2))} text-grey-700`
-let p1RegularTextClass = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
+let h3Leading2TextClass = `${HSwitchUtils.getTextClass((H3, Leading_2))} text-gray-700`
+let p1RegularTextClass = `${HSwitchUtils.getTextClass((P1, Regular))} text-gray-700 opacity-50`
 
-let p1MediumTextClass = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
-let p2RedularTextClass = `${HSwitchUtils.getTextClass((P2, Regular))} text-grey-700 opacity-50`
+let p1MediumTextClass = `${HSwitchUtils.getTextClass((P1, Medium))} text-gray-700`
+let p2RedularTextClass = `${HSwitchUtils.getTextClass((P2, Regular))} text-gray-700 opacity-50`
 
 let preRequisiteList = [
   "You need to grant all the permissions to create and receive payments",
@@ -114,7 +114,7 @@ module ErrorPage = {
     let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
 
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-6 p-8 bg-jp-gray-light_gray_bg">
+      <div className="flex flex-col gap-6 p-8 bg-gray-25">
         <Icon name="error-icon" size=24 />
         <div className="flex flex-col gap-2">
           <RenderIf condition={errorPageDetails.headerText->LogicUtils.isNonEmptyString}>
@@ -495,7 +495,7 @@ let make = (
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
         </div>
       </Form>
-      <div className="bg-jp-gray-light_gray_bg flex py-4 px-10 gap-2">
+      <div className="bg-gray-25 flex py-4 px-10 gap-2">
         <img alt="paypal" src="/assets/PayPalFullLogo.svg" />
         <p className=p2RedularTextClass>
           {"| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}

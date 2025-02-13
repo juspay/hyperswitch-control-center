@@ -11,7 +11,7 @@ module BasicAccountSetupSuccessfulPage = {
     ~buttonState=Button.Normal,
     ~isButtonVisible=true,
   ) => {
-    let headerTextStyle = "text-xl font-semibold text-grey-700"
+    let headerTextStyle = "text-xl font-semibold text-gray-700"
     <div
       className={`flex flex-col gap-4 p-9 h-full ${customWidth} justify-between rounded-sm shadow`}>
       <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>

@@ -6,7 +6,7 @@ let make = () => {
 
   <Form>
     <div className="flex flex-col gap-10">
-      <div className="bg-white rounded-lg border border-grey-outline h-923-px flex flex-col">
+      <div className="bg-white rounded-lg border border-gray-150 h-923-px flex flex-col">
         <ReconConfigurationHelper.Heading title="Reconciliation Setup" />
         <div className="flex justify-center items-center h-full">
           <div className="flex-[3] border-r h-full">

@@ -166,7 +166,7 @@ module ApiEditModal = {
       modalHeading={modalheader}
       setShowModal
       closeOnOutsideClick=true
-      modalClass="w-full max-w-2xl m-auto !bg-white dark:!bg-jp-gray-lightgray_background">
+      modalClass="w-full max-w-2xl m-auto !bg-white dark:!bg-gray-900">
       modalBody
     </Modal>
   }
@@ -188,9 +188,7 @@ module ApiKeyAddBtn = {
       <ACLButton
         text="Create New API Key"
         leftIcon={CustomIcon(
-          <Icon
-            name="plus" size=12 className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-          />,
+          <Icon name="plus" size=12 className="gray-800 fill-opacity-50 dark:gray-50" />,
         )}
         // TODO: Remove `MerchantDetailsManage` permission in future
         authorization={hasAnyGroupAccess(
@@ -284,7 +282,7 @@ module TableActionsCell = {
           <Icon
             name="edit"
             size=14
-            className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-4 mb-1"
+            className="text-gray-500 hover:text-gray-800 dark:hover:text-white mr-4 mb-1"
           />
         </ACLDiv>
         <ACLDiv
@@ -296,7 +294,7 @@ module TableActionsCell = {
           <Icon
             name="delete"
             size=14
-            className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white mr-3 mb-1"
+            className="text-gray-500 hover:text-gray-800 dark:hover:text-white mr-3 mb-1"
           />
         </ACLDiv>
       </div>

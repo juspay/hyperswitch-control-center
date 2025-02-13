@@ -170,11 +170,11 @@ module TableRow = {
             let textColor =
               today == renderingDate
                 ? `${textColor.primaryNormal}`
-                : "text-jp-gray-900/75 dark:text-jp-gray-900/75"
+                : "text-gray-800/75 dark:text-gray-800/75"
             let classN = if obj->isEmptyString || hSelf.highlightSelf {
-              `h-9 p-0 w-9 font-semibold font-fira-code text-center ${textColor}  dark:text-jp-gray-text_darktheme  ${dayClass}`
+              `h-9 p-0 w-9 font-semibold font-fira-code text-center ${textColor}  dark:text-gray-50  ${dayClass}`
             } else {
-              `h-9 p-0 w-9 font-semibold text-center font-fira-code ${textColor}  dark:text-jp-gray-text_darktheme hover:text-jp-gray-900/100 dark:hover:text-jp-gray-900/100 hover:bg-jp-gray-lightmode_steelgray/75 hover:rounded-lg dark:hover:bg-jp-gray-850/100 ${dayClass} `
+              `h-9 p-0 w-9 font-semibold text-center font-fira-code ${textColor}  dark:text-gray-50 hover:text-gray-800/100 dark:hover:text-gray-800/100 hover:bg-jp-gray-lightmode_steelgray/75 hover:rounded-lg dark:hover:bg-gray-800/100 ${dayClass} `
             }
             let c2 =
               obj->isNonEmptyString && hSelf.highlightSelf
@@ -391,8 +391,7 @@ let make = (
             {heading
             ->Array.mapWithIndex((item, i) => {
               <th key={Int.toString(i)}>
-                <div
-                  className="flex flex-1 justify-center py-1 text-jp-gray-700 dark:text-jp-gray-text_darktheme/50">
+                <div className="flex flex-1 justify-center py-1 text-gray-500 dark:text-gray-50/50">
                   {React.string(isMobileView ? item->String.charAt(0) : item)}
                 </div>
               </th>

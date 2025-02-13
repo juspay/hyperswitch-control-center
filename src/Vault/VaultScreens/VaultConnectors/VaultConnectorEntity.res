@@ -44,7 +44,7 @@ let getHeading = colType => {
 let connectorStatusStyle = connectorStatus =>
   switch connectorStatus->String.toLowerCase {
   | "active" => "text-green-700"
-  | _ => "text-grey-800 opacity-50"
+  | _ => "text-gray-800 opacity-50"
   }
 let getConnectorObjectFromListViaId = (
   connectorList: array<ConnectorTypes.connectorPayload>,

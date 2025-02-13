@@ -67,7 +67,7 @@ module YearItem = {
     <li
       className={`p-2 ${year === tempYear->Float.toInt
           ? "bg-blue-600/100 text-white"
-          : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"} cursor-pointer`}
+          : "dark:hover:bg-gray-800 hover:bg-gray-50"} cursor-pointer`}
       value={year->Int.toString}
       ref={yearRef->ReactDOM.Ref.domRef}
       onClick={e => {
@@ -121,7 +121,7 @@ module MonthItem = {
       ref={monthRef->ReactDOM.Ref.domRef}
       className={`p-2 px-4 ${index === tempMonth->Float.toInt
           ? "bg-blue-600 text-white"
-          : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"}  cursor-pointer`}>
+          : "dark:hover:bg-gray-800 hover:bg-gray-50"}  cursor-pointer`}>
       {mon->getMonthInStr->String.replaceRegExp(%re("/,/g"), "")->React.string}
     </li>
   }
@@ -145,7 +145,7 @@ let make = (
   ~setCurrDate,
 ) => {
   <span
-    className="flex flex-1 flex-row overflow-auto border-t border-b dark:border-jp-gray-900 select-none">
+    className="flex flex-1 flex-row overflow-auto border-t border-b dark:border-gray-800 select-none">
     {
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
       let tempDate = Js.Date.setMonth(
@@ -157,7 +157,7 @@ let make = (
 
       <span>
         {monthYearListVisibility
-          ? <div className="flex text-jp-gray-600 justify-between w-80">
+          ? <div className="flex text-gray-300 justify-between w-80">
               <ul className="w-1/2 h-80 overflow-scroll">
                 {months
                 ->Array.mapWithIndex((mon, i) =>

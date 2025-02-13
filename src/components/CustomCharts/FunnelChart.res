@@ -56,7 +56,7 @@ let make = (
     </div>
     {switch description {
     | Some(description) =>
-      <div className="font-medium text-sm text-jp-gray-800 dark:text-dark_theme my-2">
+      <div className="font-medium text-sm text-gray-500 dark:text-dark_theme my-2">
         {description->React.string}
       </div>
     | None => React.null
@@ -66,7 +66,7 @@ let make = (
         <div className="flex gap-6 justify-end">
           <div className={`flex flex-col ${widthClass}`} />
           <div
-            className={`flex flex-row items-start ml-6 ${widthClass} font-medium text-sm text-jp-gray-800 dark:text-dark_theme cursor-pointer`}>
+            className={`flex flex-row items-start ml-6 ${widthClass} font-medium text-sm text-gray-500 dark:text-dark_theme cursor-pointer`}>
             <div
               className={selectedMetric === Volume ? "font-bold" : ""}
               onClick={_ => setSelectedMetric(_ => Volume)}>
@@ -177,7 +177,7 @@ let make = (
                     className={`transition ease-in-out duration-300 font-medium text-base ${hoverIndex ===
                         i->Float.fromInt
                         ? `${textColor.primaryNormal} scale-110`
-                        : "text-jp-gray-800 dark:text-dark_theme"}`}>
+                        : "text-gray-500 dark:text-dark_theme"}`}>
                     {metric.metric_label->React.string}
                   </div>
                 </div>

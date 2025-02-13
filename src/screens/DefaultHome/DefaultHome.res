@@ -14,7 +14,7 @@ let make = () => {
       />
       /* TODO: TO BE ADDED LATER ONCE SERVICE AND MERCHANT COUNT IS THERE */
       // <div className="font-sm">
-      //   <span className="text-nd_gray-400 leading-21 font-medium whitespace-pre">
+      //   <span className="text-gray-400 leading-21 font-medium whitespace-pre">
       //     <span> {count->Int.toString->React.string} </span>
       //     {" Services Connected   |   "->React.string}
       //     <span> {merchantCount->Int.toString->React.string} </span>

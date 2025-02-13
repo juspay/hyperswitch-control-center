@@ -103,7 +103,7 @@ module ShowMore = {
       []
     }
 
-    let tableBorderClass = "border-collapse border border-jp-gray-940/30 border-solid border-2 dark:border-jp-gray-dark_table_border_color/30"
+    let tableBorderClass = "border-collapse border border-gray-200/30 border-solid border-2 dark:border-gray-800/30"
 
     <>
       <div
@@ -181,14 +181,14 @@ let make = (
   } else {
     <div className={`mt-4`} style={width: fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%"}>
       <div
-        className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-2 md:mr-4`}>
+        className={`h-full flex flex-col border ${borderRounded} dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden singlestatBox p-2 md:mr-4`}>
         <div className="p-4 flex flex-col justify-start h-full gap-2">
           <RenderIf condition={singleStatLoading && loaderType === SideLoader}>
             <div className="animate-spin self-end absolute">
               <Icon name="spinner" size=16 />
             </div>
           </RenderIf>
-          <div className={"flex gap-2 items-center text-jp-gray-700 font-bold self-start"}>
+          <div className={"flex gap-2 items-center text-gray-500 font-bold self-start"}>
             <div className="font-semibold text-base text-black dark:text-white">
               {title->React.string}
             </div>

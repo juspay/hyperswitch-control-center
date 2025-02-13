@@ -176,7 +176,7 @@ let getLabelForStatus = value => {
   switch value {
   | "InvitationSent" => (UserManagementTypes.InviteSent, "text-orange-950 bg-orange-950/20")
   | "Active" => (UserManagementTypes.Active, "text-green-700 bg-green-700/20")
-  | _ => (UserManagementTypes.None, "text-grey-700 opacity-50")
+  | _ => (UserManagementTypes.None, "text-gray-700 opacity-50")
   }
 }
 

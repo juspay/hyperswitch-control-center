@@ -12,7 +12,7 @@ let make = (
   ~searchRef=?,
   ~shouldSubmitForm=true,
   ~placeholderCss="bg-transparent text-fs-14",
-  ~bgColor="bg-white border-jp-gray-600/75 focus-within:border-primary",
+  ~bgColor="bg-white border-gray-300/75 focus-within:border-primary",
   ~iconName="new_search_icon",
   ~onKeyDown=_ => {()},
   ~showSearchIcon=true,
@@ -55,9 +55,9 @@ let make = (
   let enterCross = useLottieJson(enterSearchCross)
   <div
     className={`${widthClass} ${borderClass} ${heightClass} ${bgColor} flex flex-row items-center justify-between
-    dark:bg-jp-gray-lightgray_background
+    dark:bg-gray-900
     dark:focus-within:border-primary hover:border-primary/100 
-    dark:border-jp-gray-850/50 dark:hover:border-jp-gray-850/100`}>
+    dark:border-gray-800/50 dark:hover:border-gray-800/100`}>
     <input
       ref={searchRef->ReactDOM.Ref.domRef}
       type_="text"

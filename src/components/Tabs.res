@@ -49,12 +49,12 @@ module TabInfo = {
     let tabTextPadding = "px-6"
     let backgroundStyle = backgroundStyle
 
-    let tabDisabledStyle = "from-white to-white dark:from-jp-gray-950 dark:to-jp-gray-950 border-b-0 border-jp-gray-500 dark:border-jp-gray-960"
+    let tabDisabledStyle = "from-white to-white dark:from-gray-900 dark:to-gray-900 border-b-0 border-gray-250 dark:border-gray-800"
 
     let roundedClass = "rounded-t-md"
 
     let defaultClasses = if isDisabled && disabledTab->Array.includes(title) {
-      `cursor-not-allowed ${fontClass} w-max flex flex-auto flex-row items-center justify-center ${roundedClass} ${tabTextPadding} ${backgroundStyle} ${tabDisabledStyle} ${defaultBorderClass} font-semibold dark:text-jp-gray-text_darktheme/50 text-jp-gray-900/50 hover:text-jp-gray-900/50 dark:hover:text-jp-gray-text_darktheme/50`
+      `cursor-not-allowed ${fontClass} w-max flex flex-auto flex-row items-center justify-center ${roundedClass} ${tabTextPadding} ${backgroundStyle} ${tabDisabledStyle} ${defaultBorderClass} font-semibold dark:text-gray-50/50 text-gray-800/50 hover:text-gray-800/50 dark:hover:text-gray-50/50`
     } else {
       `${fontClass} w-max flex flex-auto flex-row items-center justify-center ${tabTextPadding} ${roundedClass} ${defaultBorderClass}  font-semibold text-body`
     }
@@ -62,7 +62,7 @@ module TabInfo = {
     let selectionClasses = if isSelected {
       `font-semibold text-${lightThemeColor} dark:text-${darkThemeColor} ${textStyle} ${borderSelectionStyle} `
     } else {
-      `text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/75 hover:text-jp-gray-900/75 dark:hover:text-jp-gray-text_darktheme/100  ${borderDefaultStyle}`
+      `text-gray-800/50 dark:text-gray-50/75 hover:text-gray-800/75 dark:hover:text-gray-50/100  ${borderDefaultStyle}`
     }
     let handleClick = React.useCallback2(_ => {
       if isDisabled && disabledTab->Array.includes(title) {
@@ -151,7 +151,7 @@ let make = (
   ~tabBottomShadow="shadow-md",
   ~lightThemeColor="primary",
   ~darkThemeColor="primary",
-  ~defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 rounded-t-md bg-gradient-to-b from-white to-white hover:from-jp-gray-250 hover:to-jp-gray-200 hover:bg-jp-gray-100 dark:from-jp-gray-950 dark:to-jp-gray-950 border border-b-0 border-jp-gray-500 dark:border-jp-gray-960 font-semibold text-body",
+  ~defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 rounded-t-md bg-gradient-to-b from-white to-white hover:from-gray-25 hover:to-gray-100 hover:bg-gray-50 dark:from-gray-900 dark:to-gray-900 border border-b-0 border-gray-250 dark:border-gray-800 font-semibold text-body",
   ~showBorder=true,
   ~renderedTabClassName="",
   ~bottomMargin="pb-8",
@@ -213,7 +213,7 @@ let make = (
   }
   let topMargin = "mt-5"
   let stickyHeader = showStickyHeader
-    ? `top-0 height-50 sticky bg-white border-b dark:bg-black border-jp-gray-500 dark:border-jp-gray-960`
+    ? `top-0 height-50 sticky bg-white border-b dark:bg-black border-gray-250 dark:border-gray-800`
     : ""
   <ErrorBoundary>
     <div className={`flex flex-col ${contentHeight}`}>

@@ -18,7 +18,7 @@ module Add3DSCondition = {
     if isExpanded {
       <div className="flex flex-row ml-2">
         <RenderIf condition={!isFirst}>
-          <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+          <div className="w-8 h-10 border-gray-500 ml-10 border-dashed border-b border-l " />
         </RenderIf>
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
           <div className="flex flex-wrap gap-4 -mt-2">
@@ -82,7 +82,7 @@ module AddSurchargeCondition = {
       if isExpanded {
         <div className="flex flex-row ml-2">
           <RenderIf condition={!isFirst}>
-            <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+            <div className="w-8 h-10 border-gray-500 ml-10 border-dashed border-b border-l " />
           </RenderIf>
           <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
             <div className="flex flex-wrap gap-4">
@@ -241,8 +241,8 @@ module Wrapper = {
             onMouseLeave={_ => setDragBtnHover(_ => false)}
             className={`flex flex-row gap-2 items-center justify-around p-2 ${dragBtnHover
                 ? "py-1"
-                : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
-            <Icon name="grip-vertical" className="text-jp-gray-700" size=14 />
+                : ""} bg-gray-100 dark:bg-gray-950 rounded-full border border-gray-300 cursor-pointer`}>
+            <Icon name="grip-vertical" className="text-gray-500" size=14 />
             <RenderIf condition={dragBtnHover}>
               <div className="text-sm "> {React.string("Drag Rule")} </div>
             </RenderIf>
@@ -254,8 +254,8 @@ module Wrapper = {
           onMouseLeave={_ => setAddBtnHover(_ => false)}
           className={`flex flex-row gap-2 items-center justify-around p-2 ${addBtnHover
               ? "py-1"
-              : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
-          <Icon name="plus" className="text-jp-gray-700" size=12 />
+              : ""} bg-gray-100 dark:bg-gray-950 rounded-full border border-gray-300 cursor-pointer`}>
+          <Icon name="plus" className="text-gray-500" size=12 />
           <RenderIf condition={addBtnHover}>
             <div className="text-sm "> {React.string("Add New Rule")} </div>
           </RenderIf>
@@ -268,8 +268,8 @@ module Wrapper = {
             onMouseLeave={_ => setCopyBtnHover(_ => false)}
             className={`flex flex-row gap-2 items-center justify-around p-2 ${copyBtnHover
                 ? "py-1"
-                : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
-            <Icon name="nd-copy" className="text-jp-gray-700" size=12 />
+                : ""} bg-gray-100 dark:bg-gray-950 rounded-full border border-gray-300 cursor-pointer`}>
+            <Icon name="nd-copy" className="text-gray-500" size=12 />
             <RenderIf condition={copyBtnHover}>
               <div className="text-sm "> {React.string("Copy Rule")} </div>
             </RenderIf>
@@ -283,8 +283,8 @@ module Wrapper = {
             onMouseLeave={_ => setDeleteBtnHover(_ => false)}
             className={`flex flex-row gap-2 items-center justify-around p-2 ${deleteBtnHover
                 ? "py-1"
-                : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
-            <Icon name="trash" className="text-jp-gray-700" size=12 />
+                : ""} bg-gray-100 dark:bg-gray-950 rounded-full border border-gray-300 cursor-pointer`}>
+            <Icon name="trash" className="text-gray-500" size=12 />
             <RenderIf condition={deleteBtnHover}>
               <div className="text-sm "> {React.string("Delete Rule")} </div>
             </RenderIf>
@@ -299,7 +299,7 @@ module Wrapper = {
         </RenderIf>
         <div
           onClick={handleClickExpand}
-          className={`cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-jp-gray-970 rounded-full border ${borderColor.primaryNormal} dark:${borderColor.primaryNormal}`}>
+          className={`cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-gray-950 rounded-full border ${borderColor.primaryNormal} dark:${borderColor.primaryNormal}`}>
           <div className="font-semibold pl-2 text-sm md:text-base"> {React.string(heading)} </div>
           <Icon name={isExpanded ? "angle-up" : "angle-down"} size={isMobileView ? 14 : 16} />
         </div>
@@ -309,7 +309,7 @@ module Wrapper = {
         style={marginTop: "-17px"}
         className={`flex 
         ${flex} 
-            p-4 py-6 bg-gray-50 dark:bg-jp-gray-lightgray_background rounded-md border 
+            p-4 py-6 bg-gray-50 dark:bg-gray-900 rounded-md border 
             ${border} 
             ${borderColor.primaryNormal}`}>
         <RenderIf condition={!isFirst}>
@@ -368,22 +368,22 @@ module RuleBasedUI = {
 
     <div className="flex flex-col my-5">
       <div
-        className={`flex flex-wrap items-center justify-between p-4 py-8 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850 
+        className={`flex flex-wrap items-center justify-between p-4 py-8 bg-white dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-800 
         `}>
         <div>
           <div className="font-bold"> {React.string("Rule Based Configuration")} </div>
           <div className="flex flex-col gap-4">
-            <span className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
+            <span className="w-full text-gray-500 dark:text-gray-500 text-justify">
               {"Rule-Based Configuration allows for detailed smart routing logic based on multiple dimensions of a payment. You can create any number of conditions using various dimensions and logical operators."->React.string}
             </span>
-            <span className="flex flex-col text-jp-gray-700">
+            <span className="flex flex-col text-gray-500">
               {"For example:"->React.string}
               <p className="flex gap-2 items-center">
-                <div className="p-1 h-fit rounded-full bg-jp-gray-700 ml-2" />
+                <div className="p-1 h-fit rounded-full bg-gray-500 ml-2" />
                 {"If card_type = credit && amount > 100, route 60% to Stripe and 40% to Adyen."->React.string}
               </p>
             </span>
-            <span className="text-jp-gray-700 text-sm">
+            <span className="text-gray-500 text-sm">
               <i>
                 {"Ensure to enter the payment amount in the smallest currency unit (e.g., cents for USD, yen for JPY). 
             For instance, pass 100 to charge $1.00 (USD) and ¥100 (JPY) since ¥ is a zero-decimal currency."->React.string}
@@ -437,7 +437,7 @@ module RuleBasedUI = {
       | _ => React.null
       }}
       <div className="bg-white rounded-md flex gap-2 p-4 border-2">
-        <p className="text-jp-gray-700 dark:text-jp-gray-700">
+        <p className="text-gray-500 dark:text-gray-500">
           {"In case the above rule fails, the routing will follow fallback routing. You can configure it"->React.string}
         </p>
         <p

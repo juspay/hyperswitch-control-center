@@ -154,8 +154,7 @@ module WebHookAuthenticationHeaders = {
     }, [])
     <div className="flex-1">
       <div className="flex flex-row items-center gap-4 ">
-        <p
-          className={`text-xl dark:text-jp-gray-text_darktheme/50 text-grey-700 font-semibold ml-1`}>
+        <p className={`text-xl dark:text-gray-50/50 text-gray-700 font-semibold ml-1`}>
           {"Custom Headers"->React.string}
         </p>
         <RenderIf
@@ -292,7 +291,7 @@ module WebHook = {
     <div className="ml-4 mt-4">
       <FieldRenderer
         field={DeveloperUtils.webhookUrl}
-        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        labelClass="!text-fs-15 !text-gray-700 font-semibold"
         fieldWrapperClass="max-w-xl"
       />
     </div>
@@ -308,7 +307,7 @@ module ReturnUrl = {
         <FieldRenderer
           field={DeveloperUtils.returnUrl}
           errorClass={HSwitchUtils.errorClass}
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          labelClass="!text-fs-15 !text-gray-700 font-semibold"
           fieldWrapperClass="max-w-xl"
         />
       </DesktopRow>
@@ -340,7 +339,7 @@ module CollectDetails = {
       })
     }
 
-    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700 opacity-50`
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-gray-700 opacity-50`
 
     React.useEffect(() => {
       if isSelected {
@@ -421,7 +420,7 @@ module AutoRetries = {
     <>
       <DesktopRow>
         <FieldRenderer
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          labelClass="!text-fs-15 !text-gray-700 font-semibold"
           fieldWrapperClass="w-full flex justify-between items-center border-t  border-gray-200 pt-8 "
           field={makeFieldInfo(
             ~name="is_auto_retries_enabled",
@@ -434,7 +433,7 @@ module AutoRetries = {
         <FieldRenderer
           field={maxAutoRetries}
           errorClass
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          labelClass="!text-fs-15 !text-gray-700 font-semibold"
           fieldWrapperClass="max-w-xl mx-4"
         />
       </RenderIf>
@@ -470,7 +469,7 @@ module ClickToPaySection = {
     <RenderIf condition={featureFlagDetails.clickToPay && connectorView}>
       <DesktopRow>
         <FieldRenderer
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          labelClass="!text-fs-15 !text-gray-700 font-semibold"
           fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
           field={makeFieldInfo(
             ~name="is_click_to_pay_enabled",
@@ -484,7 +483,7 @@ module ClickToPaySection = {
       <RenderIf condition={isClickToPayEnabled}>
         <DesktopRow>
           <FormRenderer.FieldRenderer
-            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            labelClass="!text-fs-15 !text-gray-700 font-semibold"
             field={FormRenderer.makeFieldInfo(
               ~label="Click to Pay - Connector ID",
               ~name="authentication_product_ids.click_to_pay",
@@ -521,7 +520,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let (busiProfieDetails, setBusiProfie) = React.useState(_ => businessProfileDetails)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (checkMaxAutoRetry, setCheckMaxAutoRetry) = React.useState(_ => true)
-  let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
+  let bgClass = webhookOnly ? "" : "bg-white dark:bg-gray-900"
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
 
   React.useEffect(() => {
@@ -587,7 +586,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <div
           className={`w-full ${showFormOnly
               ? ""
-              : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
+              : "border border-gray-250 rounded-md dark:border-gray-800"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
             initialValues={busiProfieDetails->parseBussinessProfileJson->JSON.Encode.object}
@@ -654,7 +653,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 />
                 <DesktopRow>
                   <FieldRenderer
-                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    labelClass="!text-fs-15 !text-gray-700 font-semibold"
                     fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
                     field={makeFieldInfo(
                       ~name="is_connector_agnostic_mit_enabled",
@@ -675,13 +674,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ->Array.map(item => item.connector_name)
                       ->authenticationConnectors}
                       errorClass
-                      labelClass="!text-fs-15 !text-grey-700 font-semibold "
+                      labelClass="!text-fs-15 !text-gray-700 font-semibold "
                       fieldWrapperClass="max-w-xl"
                     />
                     <FieldRenderer
                       field={threeDsRequestorUrl}
                       errorClass
-                      labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                      labelClass="!text-fs-15 !text-gray-700 font-semibold"
                       fieldWrapperClass="max-w-xl"
                     />
                   </DesktopRow>
@@ -709,8 +708,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
           />
         </div>
         <div className={` py-4 md:py-10 h-full flex flex-col `}>
-          <div
-            className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
+          <div className={`border border-gray-250 rounded-md dark:border-gray-800"} ${bgClass}`}>
             <WebHookSection busiProfieDetails setBusiProfie setScreenState profileId />
           </div>
         </div>

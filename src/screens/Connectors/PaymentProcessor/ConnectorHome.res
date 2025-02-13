@@ -21,9 +21,9 @@ module ConnectorCurrentStepIndicator = {
 
           let stepNameIndicator = isStepCompleted
             ? "text-black break-all"
-            : "text-jp-gray-700 break-all"
+            : "text-gray-500 break-all"
 
-          let textColor = isCurrentStep ? "text-white" : "text-grey-700"
+          let textColor = isCurrentStep ? "text-white" : "text-gray-700"
 
           let stepLineIndicator = isPreviousStepCompleted ? "bg-gray-700" : "bg-gray-200"
 
@@ -198,7 +198,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       customStyle={`py-16 !m-0 `}
       overriddingStylesTitle="text-2xl font-semibold"
       buttonText="Go back to processor"
-      overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
+      overriddingStylesSubtitle="!text-sm text-gray-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))

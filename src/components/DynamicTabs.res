@@ -57,7 +57,7 @@ module TabInfo = {
     let selectionClasses = if isSelected {
       "font-semibold text-black"
     } else {
-      "text-jp-gray-700 dark:text-jp-gray-tabset_gray/75  hover:text-jp-gray-800 dark:hover:text-jp-gray-tabset_gray/100 font-medium"
+      "text-gray-500 dark:text-gray-50/75  hover:text-gray-500 dark:hover:text-gray-50/100 font-medium"
     }
     let handleClick = React.useCallback(_ => {
       handleSelectedTab(
@@ -224,7 +224,7 @@ let make = (
   ~showAddMoreTabs=true,
 ) => {
   open LogicUtils
-  let eulerBgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
+  let eulerBgClass = "bg-gray-50 dark:bg-jp-gray-darkgray_background"
   let bgClass = eulerBgClass
   // this tabs will always loaded independent of user preference
   let isMobileView = MatchMedia.useMobileChecker()

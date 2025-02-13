@@ -26,12 +26,12 @@ module GatewayView = {
       ->Array.mapWithIndex((ruleGateway, index) => {
         <div
           key={Int.toString(index)}
-          className={`my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
-                            ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
-                            dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-hidden px-2 gap-1`}>
+          className={`my-2 h-6 md:h-8 flex items-center rounded-md  border border-gray-250 dark:border-gray-800 font-medium
+                            ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-gray-25 to-gray-100
+                            dark:from-gray-900 dark:to-gray-900 focus:outline-hidden px-2 gap-1`}>
           {React.string(ruleGateway.connector.merchant_connector_id->getGatewayName)}
           <RenderIf condition={ruleGateway.split !== 0}>
-            <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
+            <span className="text-gray-500 dark:text-gray-300 ml-1">
               {React.string(ruleGateway.split->Int.toString ++ "%")}
             </span>
           </RenderIf>
@@ -151,7 +151,7 @@ let make = (
   if isExpanded {
     <div className="flex flex-row ml-2">
       <RenderIf condition={!isFirst}>
-        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+        <div className="w-8 h-10 border-gray-500 ml-10 border-dashed border-b border-l " />
       </RenderIf>
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
@@ -178,9 +178,9 @@ let make = (
             {
               <div className="flex flex-row" key>
                 <div
-                  className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
-               text-jp-gray-900/50  hover:text-jp-gray-900/100 dark:text-jp-gray-text_darktheme/50 dark:hover:text-jp-gray-text_darktheme/75 bg-gradient-to-b
-               from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-hidden px-1 ">
+                  className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-gray-250 dark:border-gray-800
+               text-gray-800/50  hover:text-gray-800/100 dark:text-gray-50/50 dark:hover:text-gray-50/75 bg-gradient-to-b
+               from-gray-25 to-gray-100 dark:from-gray-900 dark:to-gray-900 focus:outline-hidden px-1 ">
                   <NewThemeUtils.Badge number={i + 1} />
                   <div>
                     {gateWayName(
@@ -199,7 +199,7 @@ let make = (
                   <RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
                     {<>
                       <input
-                        className="w-10 text-right outline-hidden bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
+                        className="w-10 text-right outline-hidden bg-white dark:bg-gray-950 px-1 border border-gray-150 dark:border-gray-800 rounded-md"
                         name=key
                         onChange={ev => {
                           let val = ReactEvent.Form.target(ev)["value"]

@@ -2,9 +2,9 @@ open CardUtils
 open PageUtils
 open HSwitchUtils
 
-let headingStyle = `${getTextClass((P2, Medium))} text-grey-700 uppercase opacity-50 px-2`
-let paragraphTextVariant = `${getTextClass((P2, Medium))} text-grey-700 opacity-50`
-let subtextStyle = `${getTextClass((P1, Regular))} text-grey-700 opacity-50`
+let headingStyle = `${getTextClass((P2, Medium))} text-gray-700 uppercase opacity-50 px-2`
+let paragraphTextVariant = `${getTextClass((P2, Medium))} text-gray-700 opacity-50`
+let subtextStyle = `${getTextClass((P1, Regular))} text-gray-700 opacity-50`
 let cardHeaderText = getTextClass((H3, Leading_2))
 let hoverStyle = "cursor-pointer group-hover:shadow-sm hover:shadow-homePageBoxShadow group"
 let boxCssHover = (~ishoverStyleRequired) =>
@@ -13,7 +13,7 @@ let boxCssHover = (~ishoverStyleRequired) =>
       : ""}`
 let boxCss = "flex flex-col bg-white border rounded-md gap-4 p-7"
 let imageTransitionCss = "opacity-50 group-hover:opacity-100 transition ease-in-out duration-300"
-let cardHeaderTextStyle = `${cardHeaderText} text-grey-700`
+let cardHeaderTextStyle = `${cardHeaderText} text-gray-700`
 
 type resourcesTypes = {
   icon: string,

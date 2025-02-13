@@ -149,9 +149,8 @@ let make = (~initialValues, ~setInitialValues) => {
         let provider = pmts->getArrayFromDict(pm, [])
         switch pm->getPaymentMethodTypeFromString {
         | Credit | Debit =>
-          <div
-            key={i->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
-            <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
+          <div key={i->Int.toString} className="border border-gray-150 rounded-xl overflow-hidden">
+            <div className="flex justify-between bg-gray-50 p-4 border-b">
               <div className="flex gap-2.5 items-center">
                 <div className="p-2 bg-white border rounded-md">
                   <Icon name={pm->pmIcon} />
@@ -184,9 +183,8 @@ let make = (~initialValues, ~setInitialValues) => {
             </div>
           </div>
         | _ =>
-          <div
-            key={i->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
-            <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
+          <div key={i->Int.toString} className="border border-gray-150 rounded-xl overflow-hidden">
+            <div className="flex justify-between bg-gray-50 p-4 border-b">
               <div className="flex gap-2.5 items-center">
                 <div className="p-2 bg-white border rounded-md">
                   <Icon name={pm->pmIcon} />

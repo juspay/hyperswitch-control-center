@@ -675,8 +675,7 @@ let make = (
           </div>
           <RenderIf condition={productSiebars->Array.length > 0}>
             <div className={"p-2.5"}>
-              <div
-                className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
+              <div className={`text-xs font-semibold px-3 pt-6 pb-2 text-gray-400 tracking-widest`}>
                 {React.string("Other modular services"->String.toUpperCase)}
               </div>
               {productSiebars
@@ -721,15 +720,15 @@ let make = (
                 <Popover.Button
                   className={
                     let openClasses = if popoverProps["open"] {
-                      `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-jp-gray-900/100 focus:outline-hidden`
+                      `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-gray-800/100 focus:outline-hidden`
                     } else {
-                      `text-jp-gray-900/90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-jp-gray-900/100 focus:outline-hidden`
+                      `text-gray-800/90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-gray-800/100 focus:outline-hidden`
                     }
                     `${openClasses} border-none`
                   }>
                   {_ => <>
                     <div className="flex items-center justify-between gap-x-3  ">
-                      <div className="bg-nd_gray-600 rounded-full p-1">
+                      <div className="bg-gray-600 rounded-full p-1">
                         <Icon name="nd-user" size=16 />
                       </div>
                       <ToolTip

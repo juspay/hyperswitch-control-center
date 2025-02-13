@@ -189,7 +189,7 @@ module CardRenderer = {
       | _ => true
       }
     }
-    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-gray-700 opacity-50`
 
     let removeSelectedWallet = () => {
       form.change("metadata", meteDataInitialValues->Identity.genericTypeToJson)
@@ -267,7 +267,7 @@ module CardRenderer = {
             | _ => false
             }
           }}>
-        <div className="border rounded-sm p-2 bg-jp-gray-100 flex gap-4">
+        <div className="border rounded-sm p-2 bg-gray-50 flex gap-4">
           <Icon name="outage_icon" size=15 />
           {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
         </div>
@@ -374,7 +374,7 @@ module CardRenderer = {
             onCloseClickCustomFun={removeSelectedWallet}
             paddingClass=""
             revealFrom=Reveal.Right
-            modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+            modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-gray-800"
             childClass={""}>
             <AdditionalDetailsSidebarComp
               method={selectedWallet}

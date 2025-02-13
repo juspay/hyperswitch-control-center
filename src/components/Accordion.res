@@ -13,7 +13,7 @@ module SectionAccordion = {
     ~title="",
     ~subtext="",
     ~children,
-    ~headerBg="md:bg-jp-gray-100 dark:bg-transparent",
+    ~headerBg="md:bg-gray-50 dark:bg-transparent",
     ~headingClass="",
     ~mobileRenderType: mobileRenderType=Accordion,
     ~hideHeaderWeb=false,
@@ -22,29 +22,27 @@ module SectionAccordion = {
     let isMobileView = MatchMedia.useMobileChecker()
 
     let (isExpanded, setIsExpanded) = React.useState(_ => !isMobileView)
-    let titleClass = "md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900/75 dark:text-white/75"
+    let titleClass = "md:font-bold font-semibold md:text-fs-16 text-fs-13 text-gray-800/75 dark:text-white/75"
 
     <AddDataAttributes attributes=[("data-section", title)]>
-      <div className={`border md:border-0 dark:border-jp-gray-950 ${headerBg}`}>
+      <div className={`border md:border-0 dark:border-gray-900 ${headerBg}`}>
         <DesktopView>
           <RenderIf condition={!hideHeaderWeb}>
             <h3 className={`text-base ${headingClass}`}> {title->React.string} </h3>
           </RenderIf>
-          <p className="text-gray-900/50 dark:text-jp-gray-text_darktheme/50">
-            {subtext->React.string}
-          </p>
+          <p className="text-gray-900/50 dark:text-gray-50/50"> {subtext->React.string} </p>
           <AddDataAttributes attributes=[("data-section", title)]> children </AddDataAttributes>
         </DesktopView>
         <MobileView>
           <div
-            className={`${titleClass} bg-white dark:bg-jp-gray-lightgray_background px-4 py-3 flex justify-start  text-jp-gray-900/75 `}
+            className={`${titleClass} bg-white dark:bg-gray-900 px-4 py-3 flex justify-start  text-gray-800/75 `}
             onClick={_ => {
               setIsExpanded(prev => !prev)
               setShow(_ => title)
             }}>
             <div className="py-1 !text-lg"> {title->React.string} </div>
             <div
-              className="cursor-pointer flex  justify-center align-center text-jp-gray-900/50 text-right dark:text-jp-gray-text_darktheme/50 ml-auto">
+              className="cursor-pointer flex  justify-center align-center text-gray-800/50 text-right dark:text-gray-50/50 ml-auto">
               <Icon name={isExpanded ? "angle-down" : "angle-right"} size=15 />
             </div>
           </div>
@@ -62,7 +60,7 @@ module SectionAccordion = {
             <div
               className={`${!isExpanded
                   ? "hidden"
-                  : ""} border-t-2 dark:border-jp-gray-950 md:border-0`}>
+                  : ""} border-t-2 dark:border-gray-900 md:border-0`}>
               {children}
             </div>
           }}
@@ -91,7 +89,7 @@ module AccordionInfo = {
     }
 
     let contentClasses = if isExpanded {
-      `flex-wrap bg-white dark:bg-jp-gray-lightgray_background text-lg ${contentExpandCss}`
+      `flex-wrap bg-white dark:bg-gray-900 text-lg ${contentExpandCss}`
     } else {
       "hidden"
     }
@@ -103,10 +101,10 @@ module AccordionInfo = {
     }
 
     <div
-      className={`overflow-hidden border bg-white  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 ${accordianTopContainerCss}`}>
+      className={`overflow-hidden border bg-white  border-gray-250 dark:border-gray-800 dark:bg-gray-900 ${accordianTopContainerCss}`}>
       <div
         onClick={handleClick}
-        className={`flex cursor-pointer items-center font-ibm-plex  bg-white hover:bg-jp-gray-100 dark:bg-jp-gray-950  dark:border-jp-gray-960 ${titleStyle} ${accordianBottomContainerCss}`}>
+        className={`flex cursor-pointer items-center font-ibm-plex  bg-white hover:bg-gray-50 dark:bg-gray-900  dark:border-gray-800 ${titleStyle} ${accordianBottomContainerCss}`}>
         {if arrowPosition == Left {
           <svg
             width="7"
@@ -149,7 +147,7 @@ module AccordionInfo = {
         }}
       </div>
       <div
-        className={`flex flex-col dark:border-jp-gray-960 border-t dark:hover:bg-jp-gray-900/25 ${contentClasses}`}>
+        className={`flex flex-col dark:border-gray-800 border-t dark:hover:bg-gray-800/25 ${contentClasses}`}>
         {accordion.renderContent()}
       </div>
     </div>
@@ -166,7 +164,7 @@ let make = (
   ~arrowPosition=Left,
   ~initialExpandedArray=[],
   ~gapClass="",
-  ~titleStyle="font-bold text-lg text-jp-gray-700 dark:text-jp-gray-text_darktheme/50 hover:text-jp-gray-800 dark:hover:text-jp-gray-text_darktheme/100",
+  ~titleStyle="font-bold text-lg text-gray-500 dark:text-gray-50/50 hover:text-gray-500 dark:hover:text-gray-50/100",
 ) => {
   <div className={`w-full ${gapClass}`}>
     {accordion

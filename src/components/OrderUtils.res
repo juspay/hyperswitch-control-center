@@ -2,7 +2,7 @@ module Section = {
   @react.component
   let make = (
     ~children,
-    ~customCssClass="border border-jp-gray-500 dark:border-jp-gray-960 bg-white dark:bg-jp-gray-950 rounded-md p-0 m-3",
+    ~customCssClass="border border-gray-250 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-md p-0 m-3",
   ) => {
     <div className=customCssClass> children </div>
   }
@@ -41,7 +41,7 @@ module DisplayKeyValueParams = {
     }
 
     let textColor =
-      textColor->LogicUtils.isEmptyString ? "text-jp-gray-900 dark:text-white" : textColor
+      textColor->LogicUtils.isEmptyString ? "text-gray-800 dark:text-white" : textColor
 
     let description = heading.description->Option.getOr("")
 
@@ -49,7 +49,7 @@ module DisplayKeyValueParams = {
       <AddDataAttributes attributes=[("data-label", heading.title)]>
         <div className={`flex ${isHorizontal ? "flex-row gap-3" : "flex-col gap-1"} py-4`}>
           <div
-            className="flex flex-row text-fs-11 leading-3 text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/50 items-center">
+            className="flex flex-row text-fs-11 leading-3 text-gray-800/50 dark:text-gray-50/50 items-center">
             <div className={`${overiddingHeadingStyles}`}>
               {React.string(showTitle ? heading.title : "")}
             </div>
@@ -84,7 +84,7 @@ module Heading = {
   let make = (~topic: topic, ~children=?, ~borderClass="border-b", ~headingCss="") => {
     let widthClass = headingCss->LogicUtils.isEmptyString ? "" : "w-full"
     <div
-      className={`${borderClass} border-jp-gray-940/75 dark:border-jp-gray-960 flex justify justify-between dark:bg-jp-gray-lightgray_background ${headingCss}`}>
+      className={`${borderClass} border-gray-200/75 dark:border-gray-800 flex justify justify-between dark:bg-gray-900 ${headingCss}`}>
       <div className={`p-2 m-2 flex flex-row justify-start ${widthClass}`}>
         {switch topic {
         | String(string) =>
@@ -121,7 +121,7 @@ module Details = {
     ~justifyClassName="justify-start",
     ~widthClass="w-3/12",
     ~chargeBackField=None,
-    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+    ~bgColor="bg-white dark:bg-gray-900",
     ~children=?,
     ~headRightElement=React.null,
     ~borderRequired=true,
@@ -135,7 +135,7 @@ module Details = {
     if !cardView {
       <Section
         customCssClass={`${borderRequired
-            ? "border border-jp-gray-940/75 dark:border-jp-gray-960"
+            ? "border border-gray-200/75 dark:border-gray-800"
             : ""} ${bgColor} rounded-md `}>
         <RenderIf condition=isHeadingRequired>
           <Heading topic=heading headingCss> {headRightElement} </Heading>
@@ -143,7 +143,7 @@ module Details = {
         <RenderIf condition=showDetails>
           <FormRenderer.DesktopRow>
             <div
-              className={`${flexClass} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+              className={`${flexClass} ${justifyClassName} dark:bg-gray-900 dark:border-gray-500`}>
               {detailsFields
               ->Array.mapWithIndex((colType, i) => {
                 if !(excludeColKeys->Array.includes(colType)) {
@@ -166,12 +166,11 @@ module Details = {
               {switch chargeBackField {
               | Some(field) =>
                 <div className="flex flex-col py-4">
-                  <div
-                    className="text-fs-11 leading-3 text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/50">
+                  <div className="text-fs-11 leading-3 text-gray-800/50 dark:text-gray-50/50">
                     {React.string("Chargeback Amount")}
                   </div>
                   <div
-                    className="text-fs-13 font-semibold text-left dark:text-white text-jp-gray-900 break-all">
+                    className="text-fs-13 font-semibold text-left dark:text-white text-gray-800 break-all">
                     <Table.TableCell
                       cell=field
                       textAlign=Table.Left
@@ -194,12 +193,11 @@ module Details = {
         }}
       </Section>
     } else {
-      <div
-        className="flex flex-col w-full pt-4 gap-4 bg-white rounded-md dark:bg-jp-gray-lightgray_background">
+      <div className="flex flex-col w-full pt-4 gap-4 bg-white rounded-md dark:bg-gray-900">
         {detailsFields
         ->Array.map(item => {
           <div className="flex justify-between">
-            <div className="text-jp-gray-900 dark:text-white opacity-50 font-medium">
+            <div className="text-gray-800 dark:text-white opacity-50 font-medium">
               {getHeading(item).title->React.string}
             </div>
             <div className="font-semibold break-all">

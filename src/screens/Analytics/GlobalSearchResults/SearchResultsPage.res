@@ -57,7 +57,7 @@ module SearchResultsComponent = {
   let make = (~searchResults, ~searchText) => {
     searchResults
     ->Array.mapWithIndex((section: resultType, i) => {
-      let borderClass = searchResults->Array.length > 0 ? "" : "border-b dark:border-jp-gray-960"
+      let borderClass = searchResults->Array.length > 0 ? "" : "border-b dark:border-gray-800"
       <div className={`py-5 ${borderClass}`} key={i->Int.toString}>
         <div className="flex justify-between">
           <div className="text-lightgray_background font-bold  text-lg pb-2">

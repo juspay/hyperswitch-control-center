@@ -11,7 +11,7 @@ type chipType = Number | Lowercase | Uppercase | SpecialChar | MinEightChars
 module PasswordChip = {
   @react.component
   let make = (~passwordChecks: passwordCheck, ~chipType: chipType, ~customTextStyle="") => {
-    let initalClassName = " bg-gray-50 dark:bg-jp-gray-960/75 border-gray-300 inline-block text-xs p-2 border-0.5 dark:border-0 border-gray-300 rounded-2xl"
+    let initalClassName = " bg-gray-50 dark:bg-gray-800/75 border-gray-300 inline-block text-xs p-2 border-0.5 dark:border-0 border-gray-300 rounded-2xl"
     let passedClassName = "flex items-center bg-green-50 dark:bg-green-700/25 border-gray-300 inline-block text-xs p-2 border-0.5 border-green-700 rounded-2xl gap-1"
 
     let (isCheckPassed, checkName) = switch chipType {

@@ -357,7 +357,7 @@ module GranularitySelectBox = {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95">
               {<Menu.Items
-                className="absolute right-0 z-50 w-36 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden">
+                className="absolute right-0 z-50 w-36 mt-2 origin-top-right bg-white dark:bg-gray-900 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden">
                 {_ => {
                   <>
                     <div className="px-1 py-1 ">
@@ -817,7 +817,7 @@ let make = (
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>
               <div
-                className="border rounded-sm bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
+                className="border rounded-sm bg-white border-gray-250 dark:border-gray-800 dark:bg-gray-900 dynamicChart">
                 {if chartLoading {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {

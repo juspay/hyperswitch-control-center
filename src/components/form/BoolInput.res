@@ -23,7 +23,7 @@ module BaseComponent = {
     let toggleEnableColor = "bg-green-950  border dark:bg-green-950"
 
     let toggleBorder = `border ${toggleBorder}`
-    let toggleColor = "bg-gradient-to-t from-jp-gray-200 to-jp-gray-250 dark:from-jp-gray-darkgray_background dark:to-jp-gray-darkgray_background"
+    let toggleColor = "bg-gradient-to-t from-gray-100 to-gray-25 dark:from-jp-gray-darkgray_background dark:to-jp-gray-darkgray_background"
 
     let boolCustomClass = if boolCustomClass->LogicUtils.isEmptyString {
       if isMobileView {
@@ -37,7 +37,7 @@ module BaseComponent = {
     let selectedClass = `${boolCustomClass} ${toggleEnableColor}`
     let borderSelectedClass = `${toggleBorder}`
     let defaultInputClass = `${boolCustomClass} ${toggleColor}`
-    let defaultBorder = "border border-jp-gray-940/75 dark:border-jp-gray-960"
+    let defaultBorder = "border border-gray-200/75 dark:border-gray-800"
     let backgroundClass = if isSelected {
       selectedClass
     } else {
@@ -67,9 +67,9 @@ module BaseComponent = {
     let circleColor = if isSelected {
       "bg-white"
     } else if isDisabled {
-      "bg-jp-gray-900/50 dark:bg-jp-gray-900/40"
+      "bg-gray-800/50 dark:bg-gray-800/40"
     } else {
-      "bg-jp-gray-900/50 dark:bg-white/100"
+      "bg-gray-800/50 dark:bg-white/100"
     }
 
     let innerShadow = ""

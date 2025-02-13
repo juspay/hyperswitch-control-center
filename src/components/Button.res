@@ -64,38 +64,38 @@ let useGetBgColor = (
   | SecondaryFilled =>
     switch buttonState {
     | Focused
-    | Normal => "bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 hover:shadow-sm dark:text-jp-gray-text_darktheme/50 focus:outline-hidden"
-    | Loading => "bg-jp-gray-200 dark:bg-jp-gray-800/10"
-    | Disabled => "bg-jp-gray-300 dark:bg-jp-gray-950/50 border dark:border-jp-gray-disabled_border/50"
-    | NoHover => "bg-gradient-to-b overflow-x-scroll from-jp-gray-200 to-jp-gray-300 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme/50 focus:outline-hidden"
+    | Normal => "bg-gradient-to-b from-gray-25 to-gray-100 dark:from-gray-900 dark:to-gray-900 hover:shadow-sm dark:text-gray-50/50 focus:outline-hidden"
+    | Loading => "bg-gray-100 dark:bg-gray-500/10"
+    | Disabled => "bg-gray-150 dark:bg-gray-900/50 border dark:border-gray-950/50"
+    | NoHover => "bg-gradient-to-b overflow-x-scroll from-gray-100 to-gray-150 dark:from-gray-900 dark:to-gray-900 dark:text-gray-50/50 focus:outline-hidden"
     }
 
   | NonFilled =>
     switch buttonState {
     | Focused
-    | Normal => "hover:bg-jp-gray-lightmode_steelgray/40 dark:hover:bg-jp-gray-950/100 dark:text-jp-gray-text_darktheme/50 focus:outline-hidden"
-    | Loading => "bg-jp-gray-200 dark:bg-jp-gray-800/10"
-    | Disabled => "bg-jp-gray-300 dark:bg-jp-gray-950/50 border dark:border-jp-gray-disabled_border/50"
-    | NoHover => "hover:bg-jp-gray-600/40 dark:hover:bg-jp-gray-950/100 dark:text-jp-gray-text_darktheme/50 focus:outline-hidden"
+    | Normal => "hover:bg-jp-gray-lightmode_steelgray/40 dark:hover:bg-gray-900/100 dark:text-gray-50/50 focus:outline-hidden"
+    | Loading => "bg-gray-100 dark:bg-gray-500/10"
+    | Disabled => "bg-gray-150 dark:bg-gray-900/50 border dark:border-gray-950/50"
+    | NoHover => "hover:bg-gray-300/40 dark:hover:bg-gray-900/100 dark:text-gray-50/50 focus:outline-hidden"
     }
   | FilterAdd =>
     switch buttonState {
     | Focused
-    | Normal => "hover:bg-jp-gray-lightmode_steelgray/40 dark:hover:bg-jp-gray-950/100 text-primary dark:text-primary/100 focus:outline-hidden"
-    | Loading => "bg-jp-gray-200 dark:bg-jp-gray-800/10"
-    | Disabled => "bg-jp-gray-300 dark:bg-jp-gray-950/50 border dark:border-jp-gray-disabled_border/50"
-    | NoHover => "hover:bg-jp-gray-600/40 dark:hover:bg-jp-gray-950/100 dark:text-primary/100 text-primary/50  focus:outline-hidden"
+    | Normal => "hover:bg-jp-gray-lightmode_steelgray/40 dark:hover:bg-gray-900/100 text-primary dark:text-primary/100 focus:outline-hidden"
+    | Loading => "bg-gray-100 dark:bg-gray-500/10"
+    | Disabled => "bg-gray-150 dark:bg-gray-900/50 border dark:border-gray-950/50"
+    | NoHover => "hover:bg-gray-300/40 dark:hover:bg-gray-900/100 dark:text-primary/100 text-primary/50  focus:outline-hidden"
     }
   | Pagination =>
     switch buttonState {
     | Focused
-    | Normal => "font-medium border-transparent text-nd_gray-500  focus:outline-hidden"
+    | Normal => "font-medium border-transparent text-gray-500  focus:outline-hidden"
 
-    | Loading => "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-200 dark:bg-jp-gray-800/10"
+    | Loading => "border-left-1 border-right-1 font-normal border-left-1 bg-gray-100 dark:bg-gray-500/10"
 
-    | Disabled => "border-left-1 border-right-1 font-normal border-left-1 dark:bg-jp-gray-950/50 border dark:border-jp-gray-disabled_border/50"
+    | Disabled => "border-left-1 border-right-1 font-normal border-left-1 dark:bg-gray-900/50 border dark:border-gray-950/50"
 
-    | NoHover => "bg-primary/10 border-transparent font-medium  dark:text-jp-gray-text_darktheme/75"
+    | NoHover => "bg-primary/10 border-transparent font-medium  dark:text-gray-50/75"
     }
   | Dropdown => {
       let hoverCss = isPhoneDropdown ? "" : "hover:bg-jp-2-light-gray-100"
@@ -112,7 +112,7 @@ let useGetBgColor = (
       }
 
       switch buttonState {
-      | Disabled => "bg-gray-200 dark:bg-jp-gray-950/50 border dark:border-jp-gray-disabled_border/50"
+      | Disabled => "bg-gray-200 dark:bg-gray-900/50 border dark:border-gray-950/50"
       | _ => `${color} ${hoverCss} focus:outline-hidden dark:active:shadow-none`
       }
     }
@@ -123,22 +123,20 @@ let useGetBgColor = (
     | Normal =>
       showBorder ? buttonConfig.secondaryNormal : buttonConfig.secondaryNoBorder
     | Loading => showBorder ? buttonConfig.secondaryLoading : buttonConfig.secondaryNoBorder
-    | Disabled => showBorder ? "bg-jp-gray-300 dark:bg-gray-800/10" : "px-4"
+    | Disabled => showBorder ? "bg-gray-150 dark:bg-gray-800/10" : "px-4"
     | NoHover => buttonConfig.secondaryNoHover
     }
   | Pill =>
     switch buttonState {
     | Focused
-    | Normal => "bg-white text-jp-gray-900/50 hover:shadow-sm hover:text-jp-gray-900/75 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme/50 focus:outline-hidden"
+    | Normal => "bg-white text-gray-800/50 hover:shadow-sm hover:text-gray-800/75 dark:bg-jp-gray-darkgray_background dark:text-gray-50/50 focus:outline-hidden"
     | Loading =>
       showBorder
         ? "bg-white dark:bg-jp-gray-darkgray_background"
-        : "bg-jp-gray-600/40 dark:bg-jp-gray-950/100"
+        : "bg-gray-300/40 dark:bg-gray-900/100"
     | Disabled =>
-      showBorder
-        ? "bg-jp-gray-300 dark:bg-jp-gray-950/50 border dark:border-jp-gray-disabled_border/50"
-        : "px-4"
-    | NoHover => "bg-white text-jp-gray-900/50 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme/50 focus:outline-hidden"
+      showBorder ? "bg-gray-150 dark:bg-gray-900/50 border dark:border-gray-950/50" : "px-4"
+    | NoHover => "bg-white text-gray-800/50 dark:bg-jp-gray-darkgray_background dark:text-gray-50/50 focus:outline-hidden"
     }
 
   | Delete =>
@@ -146,7 +144,7 @@ let useGetBgColor = (
     | Focused
     | Normal => "bg-red-960   hover:from-red-960 hover:to-red-950 focus:outline-hidden"
     | Loading => "bg-red-960"
-    | Disabled => "bg-jp-gray-300 dark:bg-jp-gray-950/50 border dark:border-jp-gray-disabled_border/50"
+    | Disabled => "bg-gray-150 dark:bg-gray-900/50 border dark:border-gray-950/50"
     | NoHover => "bg-gradient-to-t from-red-960 to-red-800  hover:from-red-960 hover:to-red-960 focus:outline-hidden"
     }
 
@@ -219,27 +217,27 @@ let useGetTextColor = (
     }
   | SecondaryFilled =>
     switch buttonState {
-    | Disabled => "text-jp-gray-600 dark:text-jp-gray-text_darktheme/25"
-    | Loading => "text-jp-gray-800 hover:text-black dark:text-jp-gray-text_darktheme/75"
-    | _ => "text-jp-gray-800 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme/75"
+    | Disabled => "text-gray-300 dark:text-gray-50/25"
+    | Loading => "text-gray-500 hover:text-black dark:text-gray-50/75"
+    | _ => "text-gray-500 hover:text-black dark:text-gray-50 dark:hover:text-gray-50/75"
     }
 
   | DarkPurple => "text-white"
   | Pagination =>
     switch buttonState {
-    | Disabled => "font-medium text-nd_gray-300"
+    | Disabled => "font-medium text-gray-300"
     | NoHover => "font-medium text-primary/1 hover:text-primary/70"
-    | _ => "text-nd_gray-500 hover:bg-nd_gray-150"
+    | _ => "text-gray-500 hover:bg-gray-150"
     }
 
   | _ =>
     switch buttonState {
-    | Disabled => "text-jp-gray-600 dark:text-jp-gray-text_darktheme/25"
+    | Disabled => "text-gray-300 dark:text-gray-50/25"
     | Loading =>
       showBorder
-        ? "text-jp-gray-900/50 hover:text-jp-gray-900/100 dark:text-jp-gray-text_darktheme/75"
-        : "text-jp-gray-900/50 hover:text-jp-gray-900/100 dark:text-jp-gray-text_darktheme/75"
-    | _ => "text-jp-gray-900/50 hover:text-jp-gray-900/100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme/75"
+        ? "text-gray-800/50 hover:text-gray-800/100 dark:text-gray-50/75"
+        : "text-gray-800/50 hover:text-gray-800/100 dark:text-gray-50/75"
+    | _ => "text-gray-800/50 hover:text-gray-800/100 dark:text-gray-50 dark:hover:text-gray-50/75"
     }
   }
 }
@@ -343,8 +341,8 @@ let make = (
   | Disabled => "text-white"
   | _ =>
     switch badge.color {
-    | BadgeGray => "text-jp-gray-900"
-    | BadgeYellow => "text-jp-gray-900"
+    | BadgeGray => "text-gray-800"
+    | BadgeYellow => "text-gray-800"
     | _ => "text-white"
     }
   }
@@ -514,7 +512,7 @@ let make = (
         ? switch buttonState {
           | Disabled => ""
           | Loading => `${borderWidth} border-border_gray`
-          | _ => `${borderWidth} border-border_gray dark:border-jp-gray-960/100`
+          | _ => `${borderWidth} border-border_gray dark:border-gray-800/100`
           }
         : switch buttonState {
           | Disabled => ""
@@ -525,8 +523,8 @@ let make = (
     | SecondaryFilled =>
       switch buttonState {
       | Disabled => ""
-      | Loading => `${borderWidth} border-jp-gray-600/75 dark:border-jp-gray-960/100 `
-      | _ => `${borderWidth} border-jp-gray-500 dark:border-jp-gray-960`
+      | Loading => `${borderWidth} border-gray-300/75 dark:border-gray-800/100 `
+      | _ => `${borderWidth} border-gray-250 dark:border-gray-800`
       }
 
     | Pill =>
@@ -534,8 +532,8 @@ let make = (
         ? {
             switch buttonState {
             | Disabled => ""
-            | Loading => `${borderWidth} border-jp-gray-600/75 dark:border-jp-gray-960/100`
-            | _ => `${borderWidth} border-jp-gray-500 dark:border-jp-gray-960`
+            | Loading => `${borderWidth} border-gray-300/75 dark:border-gray-800/100`
+            | _ => `${borderWidth} border-gray-250 dark:border-gray-800`
             }
           }
         : {
@@ -552,14 +550,14 @@ let make = (
     | Delete =>
       switch buttonState {
       | Disabled => ""
-      | Loading => `${borderWidth} border-jp-gray-600/75 dark:border-jp-gray-960/100 `
-      | _ => `${borderWidth} border-jp-gray-500 dark:border-jp-gray-960`
+      | Loading => `${borderWidth} border-gray-300/75 dark:border-gray-800/100 `
+      | _ => `${borderWidth} border-gray-250 dark:border-gray-800`
       }
     | _ =>
       switch buttonState {
       | Disabled => ""
-      | Loading => `${borderWidth} border-jp-gray-600/75 dark:border-jp-gray-960/100 `
-      | _ => `${borderWidth} border-jp-gray-500 dark:border-jp-gray-960`
+      | Loading => `${borderWidth} border-gray-300/75 dark:border-gray-800/100 `
+      | _ => `${borderWidth} border-gray-250 dark:border-gray-800`
       }
     }
   }

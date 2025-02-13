@@ -63,7 +63,7 @@ module RangeSliderLocalFilter = {
     <div className="flex relative flex-row flex-wrap">
       <div className="flex relative flex-row flex-wrap w-full">
         <div
-          className="flex relative h-10 flex-row min-w-min items-center bg-white text-jp-gray-900/75 hover:shadow-sm hover:text-jp-gray-900/75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme/50 focus:outline-hidden rounded-md border border-jp-gray-950/20 dark:border-jp-gray-960/100 dark:hover:text-jp-gray-text_darktheme/75 cursor-pointer px-2 justify-between overflow-hidden w-full"
+          className="flex relative h-10 flex-row min-w-min items-center bg-white text-gray-800/75 hover:shadow-sm hover:text-gray-800/75 dark:bg-jp-gray-darkgray_background dark:hover:bg-gray-900 dark:text-gray-50/50 focus:outline-hidden rounded-md border border-gray-900/20 dark:border-gray-800/100 dark:hover:text-gray-50/75 cursor-pointer px-2 justify-between overflow-hidden w-full"
           type_="button"
           onClick={_ => setShowDropDown(prev => !prev)}>
           {rightIcon}
@@ -71,7 +71,7 @@ module RangeSliderLocalFilter = {
         <RenderIf condition={min !== max && showDropDown}>
           <div
             ref={dropdownRef->ReactDOM.Ref.domRef}
-            className=" top-3.5 px-4 pt-4 pb-2 bg-white dark:bg-jp-gray-lightgray_background mt-8 absolute border border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
+            className=" top-3.5 px-4 pt-4 pb-2 bg-white dark:bg-gray-900 mt-8 absolute border border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
             <div className="flex">
               <RangeSlider min max maxSlide minSlide />
             </div>
@@ -153,7 +153,7 @@ module FilterDropDown = {
       />
     } else {
       <div
-        className="flex relative h-10 flex-row min-w-min items-center bg-white text-jp-gray-900/75 hover:shadow-sm hover:text-jp-gray-900/75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme/50 focus:outline-hidden rounded-md border border-jp-gray-950/20 dark:border-jp-gray-960/100 dark:hover:text-jp-gray-text_darktheme/75 cursor-pointer px-2 justify-between overflow-hidden w-full"
+        className="flex relative h-10 flex-row min-w-min items-center bg-white text-gray-800/75 hover:shadow-sm hover:text-gray-800/75 dark:bg-jp-gray-darkgray_background dark:hover:bg-gray-900 dark:text-gray-50/50 focus:outline-hidden rounded-md border border-gray-900/20 dark:border-gray-800/100 dark:hover:text-gray-50/75 cursor-pointer px-2 justify-between overflow-hidden w-full"
         type_="button">
         <div className="max-w-[250px] md:max-w-xs">
           <div className="px-2 text-fs-13 font-medium truncate whitespace-pre ">
@@ -218,7 +218,7 @@ module TextFilterCell = {
     <div className="flex">
       <TextInput
         input=localInput
-        customStyle="flex justify-center h-10 flex flex-row items-center text-jp-gray-900/50 hover:text-jp-gray-900/100 dark:hover:text-jp-gray-text_darktheme/75 rounded-md border-jp-gray-500 dark:border-jp-gray-960 to-jp-gray-200 dark:from-jp-gray-lightgray_background dark:to-jp-gray-lightgray_background hover:shadow-sm dark:text-jp-gray-text_darktheme/50 px-2 w-full justify-between "
+        customStyle="flex justify-center h-10 flex flex-row items-center text-gray-800/50 hover:text-gray-800/100 dark:hover:text-gray-50/75 rounded-md border-gray-250 dark:border-gray-800 to-gray-100 dark:from-gray-900 dark:to-gray-900 hover:shadow-sm dark:text-gray-50/50 px-2 w-full justify-between "
         placeholder="All"
         isDisabled=false
         inputMode="text"

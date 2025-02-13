@@ -60,7 +60,7 @@ module DefaultDocsPage = {
         sectionSubText="Start by cloning a project or Integrating from scratch"
         subSectionArray=integrateHyperswitch
       />
-      <div className="border-1 bg-grey-700 opacity-50 w-full" />
+      <div className="border-1 bg-gray-700 opacity-50 w-full" />
       <UserOnboardingUIUtils.Section
         sectionHeaderText="Other Integration" sectionSubText="" subSectionArray=buildHyperswitch
       />

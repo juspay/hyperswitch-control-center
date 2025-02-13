@@ -15,13 +15,13 @@ module ShowOrderDetails = {
     ~detailsFields,
     ~justifyClassName="justify-start",
     ~widthClass="md:w-1/2 w-full",
-    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+    ~bgColor="bg-white dark:bg-gray-900",
     ~isButtonEnabled=false,
     ~isNonRefundConnector,
     ~paymentStatus,
     ~openRefundModal,
     ~paymentId,
-    ~border="border border-jp-gray-940/75 dark:border-jp-gray-960",
+    ~border="border border-gray-200/75 dark:border-gray-800",
     ~sectionTitle=?,
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -65,8 +65,7 @@ module ShowOrderDetails = {
         </div>
       </RenderIf>
       <FormRenderer.DesktopRow>
-        <div
-          className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+        <div className={`flex flex-wrap ${justifyClassName} dark:bg-gray-900 dark:border-gray-500`}>
           {detailsFields
           ->Array.mapWithIndex((colType, i) => {
             <div className=widthClass key={i->Int.toString}>
@@ -76,7 +75,7 @@ module ShowOrderDetails = {
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
                 overiddingHeadingStyles="text-black text-sm font-medium"
-                textColor="!font-normal !text-jp-gray-700"
+                textColor="!font-normal !text-gray-500"
               />
             </div>
           })
@@ -323,7 +322,7 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>
+      <p className="font-bold text-fs-16 text-gray-800"> {"Payment Attempts"->React.string} </p>
       <CustomExpandableTable
         title="Attempts"
         heading
@@ -487,10 +486,8 @@ module FraudRiskBannerDetails = {
       })
     }
 
-    <div
-      className="w-full bg-white dark:bg-jp-gray-lightgray_background rounded-md px-4 pb-5 h-full">
-      <div
-        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+    <div className="w-full bg-white dark:bg-gray-900 rounded-md px-4 pb-5 h-full">
+      <div className={`flex flex-wrap dark:bg-gray-900 dark:border-gray-500`}>
         {frmColumns
         ->Array.mapWithIndex((colType, i) => {
           <div className="w-1/3" key={i->Int.toString}>
@@ -500,7 +497,7 @@ module FraudRiskBannerDetails = {
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
               overiddingHeadingStyles="text-black text-sm font-medium"
-              textColor="!font-normal !text-jp-gray-700"
+              textColor="!font-normal !text-gray-500"
             />
           </div>
         })
@@ -533,10 +530,8 @@ module AuthenticationDetails = {
   open OrderEntity
   @react.component
   let make = (~order: order) => {
-    <div
-      className="w-full bg-white dark:bg-jp-gray-lightgray_background rounded-md px-4 pb-5 h-full">
-      <div
-        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+    <div className="w-full bg-white dark:bg-gray-900 rounded-md px-4 pb-5 h-full">
+      <div className={`flex flex-wrap dark:bg-gray-900 dark:border-gray-500`}>
         {authenticationColumns
         ->Array.mapWithIndex((colType, i) => {
           <div className="w-1/3" key={i->Int.toString}>
@@ -546,7 +541,7 @@ module AuthenticationDetails = {
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
               overiddingHeadingStyles="text-black text-sm font-medium"
-              textColor="!font-normal !text-jp-gray-700"
+              textColor="!font-normal !text-gray-500"
             />
           </div>
         })
@@ -686,9 +681,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             authorization={userHasAccess(~groupAccess=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
-              <Icon
-                name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-              />,
+              <Icon name="sync" className="gray-800 fill-opacity-50 dark:gray-50" />,
             )}
             customButtonStyle="!w-fit"
             buttonType={Primary}
@@ -786,7 +779,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                     paymentId={orderData.payment_id}
                     border=""
                   />
-                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <div className="border-b-2 border-border-gray-200 mx-5" />
                   <ShowOrderDetails
                     sectionTitle="Billing"
                     data=orderData
@@ -800,7 +793,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                     paymentId={orderData.payment_id}
                     border=""
                   />
-                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <div className="border-b-2 border-border-gray-200 mx-5" />
                   <ShowOrderDetails
                     sectionTitle="Shipping"
                     data=orderData
@@ -814,7 +807,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                     paymentId={orderData.payment_id}
                     border=""
                   />
-                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <div className="border-b-2 border-border-gray-200 mx-5" />
                   <ShowOrderDetails
                     sectionTitle="Payment Method"
                     data=orderData
@@ -834,7 +827,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                     paymentId={orderData.payment_id}
                     border=""
                   />
-                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <div className="border-b-2 border-border-gray-200 mx-5" />
                   <ShowOrderDetails
                     sectionTitle="Fraud & risk management (FRM)"
                     data=orderData

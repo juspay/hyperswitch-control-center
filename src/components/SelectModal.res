@@ -80,7 +80,7 @@ let make = (
       setShowModal
       closeOnOutsideClick
       revealFrom
-      modalClass="w-full h-screen md:w-96 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
+      modalClass="w-full h-screen md:w-96 float-right overflow-hidden !bg-white dark:!bg-gray-900"
       headingClass={`${headerClass} py-6 px-2.5 h-24 border-b border-solid flex flex-col justify-center !bg-white dark:!bg-black border-slate-300`}
       headerTextClass
       childClass="p-0 m-0">
@@ -102,7 +102,7 @@ let make = (
           searchable=true
           searchInputPlaceHolder={`Search in ${options->Array.length->Int.toString} options`}
           customStyle="px-2 py-1"
-          customSearchStyle="bg-white dark:bg-jp-gray-lightgray_background"
+          customSearchStyle="bg-white dark:bg-gray-900"
           disableSelect
           isModalView
           sortingBasedOnDisabled

@@ -37,7 +37,7 @@ let make = (
       {switch title {
       | Some(val) =>
         <DesktopView>
-          <div className="font-bold text-fs-16 text-jp-gray-900/75 mb-4 mt-4 dark:text-white/75">
+          <div className="font-bold text-fs-16 text-gray-800/75 mb-4 mt-4 dark:text-white/75">
             {React.string(val)}
           </div>
         </DesktopView>
@@ -45,7 +45,7 @@ let make = (
       | None => React.null
       }}
       <div
-        className={`border ${customBorderClass} bg-white p-3 pl-5 rounded-sm font-semibold text-jp-gray-900/50 dark:bg-jp-gray-lightgray_background dark:text-jp-gray-text_darktheme/50 dark:border-jp-gray-no_data_border`}>
+        className={`border ${customBorderClass} bg-white p-3 pl-5 rounded-sm font-semibold text-gray-800/50 dark:bg-gray-900 dark:text-gray-50/50 dark:border-gray-500`}>
         {switch renderType {
         | InfoBox =>
           <div className="flex flex-row items-center">

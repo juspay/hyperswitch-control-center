@@ -82,9 +82,9 @@ module ListItem = {
             }
           }
 
-    let bgClass = "md:bg-jp-gray-100 md:dark:bg-jp-gray-text_darktheme/3 dark:hover:text-white dark:text-white"
+    let bgClass = "md:bg-gray-50 md:dark:bg-gray-50/3 dark:hover:text-white dark:text-white"
 
-    let hoverClass = "hover:bg-jp-gray-100 dark:hover:bg-jp-gray-text_darktheme/10 dark:hover:text-white dark:text-white"
+    let hoverClass = "hover:bg-gray-50 dark:hover:bg-gray-50/10 dark:hover:text-white dark:text-white"
 
     let customMarginStyle = if isMobileView {
       "py-2 gap-2"
@@ -442,7 +442,7 @@ module BaseSelect = {
     ~allSelectType=Icon,
     ~isMobileView=false,
     ~isModalView=false,
-    ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+    ~customSearchStyle="bg-gray-50 dark:bg-gray-900 p-2",
     ~hasApplyButton=false,
     ~setShowDropDown=?,
     ~dropdownCustomWidth="w-full md:max-w-md min-w-[10rem]",
@@ -560,10 +560,10 @@ module BaseSelect = {
 
     let borderClass = if !hideBorder {
       if isDropDown {
-        `bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 
+        `bg-white border dark:bg-gray-900 border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 
             rounded-lg rounded-b-none animate-textTransition transition duration-400`
       } else if showToggle {
-        "bg-white border rounded-sm rounded-b-none dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960"
+        "bg-white border rounded-sm rounded-b-none dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray/75 dark:border-gray-800"
       } else {
         ""
       }
@@ -733,8 +733,7 @@ module BaseSelect = {
         {if showToggle {
           <div>
             <div className={`grid grid-cols-2 items-center ${marginClass}`}>
-              <div
-                className="ml-5 font-bold text-fs-16 text-jp-gray-900/50 dark:text-jp-gray-text_darktheme/50">
+              <div className="ml-5 font-bold text-fs-16 text-gray-800/50 dark:text-gray-50/50">
                 {React.string(heading)}
               </div>
               {if showSelectAll {
@@ -775,7 +774,7 @@ module BaseSelect = {
             </div>
             {if !hideBorder {
               <div
-                className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-jp-gray-960  "
+                className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-gray-800  "
                 style={height: "1px"}
               />
             } else {
@@ -953,12 +952,12 @@ module BaseSelectButton = {
     let overflowClass = !isDropDown ? "" : "overflow-auto"
 
     <div
-      className={`bg-white dark:bg-jp-gray-lightgray_background ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
+      className={`bg-white dark:bg-gray-900 ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {if searchable {
         <div
-          className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 `}>
+          className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 `}>
           <div className="pb-2">
             <SearchInput
               inputText=searchString
@@ -1168,7 +1167,7 @@ module BaseRadio = {
     ~customStyle="",
     ~searchable=?,
     ~isMobileView=false,
-    ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+    ~customSearchStyle="bg-gray-50 dark:bg-gray-900 p-2",
     ~descriptionOnHover=false,
     ~addDynamicValue=false,
     ~dropdownCustomWidth="w-80",
@@ -1315,7 +1314,7 @@ module BaseRadio = {
 
     let searchInputUI =
       <div
-        className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 `}>
+        className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 `}>
         <div>
           <SearchInput
             inputText=searchString
@@ -1329,7 +1328,7 @@ module BaseRadio = {
         </div>
       </div>
     <div
-      className={`${dropDownbgClass} ${roundedClass} dark:bg-jp-gray-lightgray_background ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
+      className={`${dropDownbgClass} ${roundedClass} dark:bg-gray-900 ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
@@ -1414,8 +1413,8 @@ module InfraSelectBox = {
     ~deselectDisable=false,
     ~allowMultiSelect=true,
     ~borderRadius="rounded-full",
-    ~selectedClass="border-jp-gray-600 dark:border-jp-gray-800 text-jp-gray-850 dark:text-jp-gray-400",
-    ~nonSelectedClass="border-jp-gray-900 dark:border-jp-gray-300 text-jp-gray-900 dark:text-jp-gray-300 font-semibold",
+    ~selectedClass="border-gray-300 dark:border-gray-500 text-gray-800 dark:text-gray-200",
+    ~nonSelectedClass="border-gray-800 dark:border-gray-150 text-gray-800 dark:text-gray-150 font-semibold",
     ~showTickMark=true,
   ) => {
     let transformedOptions = useTransformed(options)
@@ -1460,7 +1459,7 @@ module InfraSelectBox = {
           className={`px-4 py-1 border ${borderRadius} flex flex-row gap-2 items-center cursor-pointer ${selectedClass}`}>
           {if isSelected && showTickMark {
             <Icon
-              className="align-middle font-thin text-jp-gray-900 dark:text-jp-gray-300"
+              className="align-middle font-thin text-gray-800 dark:text-gray-150"
               size=12
               name="check"
             />
@@ -1512,7 +1511,7 @@ module BaseDropdown = {
     ~addButton=false,
     ~marginTop="mt-12", //to position dropdown below the button,
     ~customStyle="",
-    ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+    ~customSearchStyle="bg-gray-50 dark:bg-gray-900 p-2",
     ~showSelectionAsChips=true,
     ~showToolTip=false,
     ~showNameAsToolTip=false,
@@ -1563,7 +1562,7 @@ module BaseDropdown = {
     )
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
-    let dropdownOuterClass = "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black/5 focus:outline-hidden"
+    let dropdownOuterClass = "bg-white dark:bg-gray-900 rounded-lg shadow-lg ring-1 ring-black/5 focus:outline-hidden"
 
     let newInputSelect = input->ffInputToSelectInput
     let newInputRadio = input->ffInputToRadioInput
@@ -1937,7 +1936,7 @@ module BaseDropdown = {
                   dropDirection == BottomMiddle ||
                   dropDirection == BottomRight
                     ? "origin-top"
-                    : "origin-bottom"} ${dropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950 ${fullLength
+                    : "origin-bottom"} ${dropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-gray-900 ${fullLength
                     ? "w-full"
                     : ""}`}
                 ref={dropdownRef->ReactDOM.Ref.domRef}>
@@ -1957,7 +1956,7 @@ module BaseDropdown = {
               dropDirection == BottomMiddle ||
               dropDirection == BottomRight
                 ? "origin-top"
-                : "origin-bottom"} ${dropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950`}
+                : "origin-bottom"} ${dropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-gray-900`}
             ref={dropdownRef->ReactDOM.Ref.domRef}>
             optionsElement
           </div>
@@ -2017,7 +2016,7 @@ module ChipFilterSelectBox = {
   ) => {
     let transformedOptions = useTransformed(options)
 
-    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
+    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-gray-500 inline-block text-s px-2 py-1 rounded-2xl"
     let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
@@ -2103,7 +2102,7 @@ let make = (
   ~optionRigthElement=?,
   ~hideBorder=false,
   ~allSelectType=Icon,
-  ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+  ~customSearchStyle="bg-gray-50 dark:bg-gray-900 p-2",
   ~searchInputPlaceHolder=?,
   ~showSearchIcon=true,
   ~customLabelStyle=?,

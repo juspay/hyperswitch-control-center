@@ -22,16 +22,16 @@ module FilterRow = {
     ~cellWidth,
   ) => {
     <div
-      className={`flex flex-row group h-full border-t dark:border-jp-gray-960 ${cellWidth} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100/10 transition duration-300 ease-in-out text-fs-13 text-jp-gray-900/75 dark:text-jp-gray-text_darktheme/75`}>
+      className={`flex flex-row group h-full border-t dark:border-gray-800 ${cellWidth} bg-white dark:bg-gray-900 hover:bg-gray-25 dark:hover:bg-gray-50/10 transition duration-300 ease-in-out text-fs-13 text-gray-800/75 dark:text-gray-50/75`}>
       {
         let paddingClass = "py-3 px-3"
 
         let borderClass = if isLast {
-          ` border-jp-gray-light_table_border_color dark:border-jp-gray-960`
+          ` border-jp-gray-light_table_border_color dark:border-gray-800`
         } else if removeVerticalLines {
-          ` border-jp-gray-light_table_border_color dark:border-jp-gray-960`
+          ` border-jp-gray-light_table_border_color dark:border-gray-800`
         } else {
-          ` border-r border-jp-gray-light_table_border_color dark:border-jp-gray-960`
+          ` border-r border-jp-gray-light_table_border_color dark:border-gray-800`
         }
 
         {
@@ -119,13 +119,13 @@ module NewCell = {
     let customcellColouredCell =
       customcellColouredCellCheck && customCellColor->LogicUtils.isNonEmptyString
         ? customCellColor
-        : "bg-white hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-850"
+        : "bg-white hover:bg-gray-25 dark:hover:bg-gray-800"
 
     <div
-      className={`h-full ${customcellColouredCell} border-t border-jp-gray-light_table_border_color dark:border-jp-gray-960 dark:bg-jp-gray-lightgray_background transition duration-300 ease-in-out `}
+      className={`h-full ${customcellColouredCell} border-t border-jp-gray-light_table_border_color dark:border-gray-800 dark:bg-gray-900 transition duration-300 ease-in-out `}
       style>
       <div
-        className={`flex flex-row group rounded-md ${cursorClass}  text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme/75 overflow-hidden break-words`}
+        className={`flex flex-row group rounded-md ${cursorClass}  text-fs-13 text-gray-800 dark:text-gray-50/75 overflow-hidden break-words`}
         onClick
         onMouseEnter
         onMouseLeave>
@@ -157,9 +157,9 @@ module NewCell = {
           let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
 
           let borderClass = if isLast || removeVerticalLines {
-            `border-jp-gray-light_table_border_color dark:border-jp-gray-960`
+            `border-jp-gray-light_table_border_color dark:border-gray-800`
           } else {
-            `border-r border-jp-gray-light_table_border_color dark:border-jp-gray-960`
+            `border-r border-jp-gray-light_table_border_color dark:border-gray-800`
           }
           let cursorI = cellIndex == 0 ? "cursor-pointer" : ""
 
@@ -202,7 +202,7 @@ module NewCell = {
         ->React.array}
       </div>
       {if isCurrentRowExpanded {
-        <div className="dark:border-jp-gray-dark_disable_border_color ml-10"> {expandedRow()} </div>
+        <div className="dark:border-gray-400 ml-10"> {expandedRow()} </div>
       } else {
         React.null
       }}
@@ -331,9 +331,9 @@ module ReactWindowTableComponent = {
             let borderClass = if isLastCol {
               ""
             } else if removeVerticalLines {
-              "border-jp-gray-500 dark:border-jp-gray-960"
+              "border-gray-250 dark:border-gray-800"
             } else {
-              "border-r border-jp-gray-500 dark:border-jp-gray-960"
+              "border-r border-gray-250 dark:border-gray-800"
             }
             let (isAllSelected, isSelectedStateMinus, checkboxDimension) = (
               selectAllCheckBox->Option.isSome,
@@ -357,9 +357,9 @@ module ReactWindowTableComponent = {
 
             <div
               key={Int.toString(i)}
-              className={` ${cellWidth} ${borderClass} justify-between items-center  bg-white dark:bg-jp-gray-darkgray_background text-jp-gray-900/75 dark:text-jp-gray-text_darktheme/75 whitespace-pre select-none ${roundedClass} ${tableheadingClass}`}>
+              className={` ${cellWidth} ${borderClass} justify-between items-center  bg-white dark:bg-jp-gray-darkgray_background text-gray-800/75 dark:text-gray-50/75 whitespace-pre select-none ${roundedClass} ${tableheadingClass}`}>
               <div
-                className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-900`}>
+                className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-gray-25 to-gray-100 dark:from-gray-900  dark:to-gray-900 text-gray-800`}>
                 <div className="">
                   <div className="flex flex-row">
                     <div className="font-bold text-fs-13"> {React.string(item.title)} </div>
@@ -470,9 +470,9 @@ module ReactWindowTableComponent = {
       className={` overflow-x-scroll ${scrollBarClass}`}
       style={minHeight: {filterPresent ? "30rem" : ""}}>
       <div
-        className={`w-max	${widthClass} h-full border border-jp-gray-940/50 dark:border-jp-gray-960 rounded-lg ${tableBorderClass}`}
+        className={`w-max	${widthClass} h-full border border-gray-200/50 dark:border-gray-800 rounded-lg ${tableBorderClass}`}
         colSpan=0>
-        <div className="bg-white dark:bg-jp-gray-lightgray_background">
+        <div className="bg-white dark:bg-gray-900">
           {headingReact}
           <ReactWindow.VariableSizeList
             ref={el => {

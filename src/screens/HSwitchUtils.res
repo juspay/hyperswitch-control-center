@@ -7,7 +7,7 @@ module TextFieldRow = {
   let make = (~label, ~children, ~isRequired=true, ~labelWidth="w-72") => {
     <div className="flex mt-5">
       <div
-        className={`mt-2 ${labelWidth} text-gray-900/50 dark:text-jp-gray-text_darktheme/50 font-semibold text-fs-14`}>
+        className={`mt-2 ${labelWidth} text-gray-900/50 dark:text-gray-50/50 font-semibold text-fs-14`}>
         {label->React.string}
         <RenderIf condition={isRequired}>
           <span className="text-red-500"> {"*"->React.string} </span>

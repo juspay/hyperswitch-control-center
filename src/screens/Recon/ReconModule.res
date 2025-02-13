@@ -103,10 +103,10 @@ let make = (~urlList) => {
           </div>
         } else {
           <div
-            className={`bg-white dark:bg-jp-gray-lightgray_background border-2 rounded-sm dark:border-jp-gray-850 grid grid-cols-1 md:gap-5 p-2 md:p-8 h-2/3 items-center`}>
+            className={`bg-white dark:bg-gray-900 border-2 rounded-sm dark:border-gray-800 grid grid-cols-1 md:gap-5 p-2 md:p-8 h-2/3 items-center`}>
             <div className={`flex flex-col items-center w-4/6 md:w-2/6 justify-self-center gap-1`}>
               <div
-                className={`text-center text-semibold text-s text-grey-700 opacity-60 dark:text-white`}>
+                className={`text-center text-semibold text-s text-gray-700 opacity-60 dark:text-white`}>
                 {"If you encounter any errors, please refresh the page to resolve the issue."->React.string}
               </div>
               <Button

@@ -28,7 +28,7 @@ module Verify2FAModalComponent = {
         <>
           <TwoFaElements.TotpInput otp setOtp />
           <RenderIf condition={!showOnlyTotp}>
-            <p className={`${p2Regular} text-jp-gray-700`}>
+            <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
                 className="cursor-pointer underline underline-offset-2 text-blue-600"
@@ -43,7 +43,7 @@ module Verify2FAModalComponent = {
         <>
           <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
           <RenderIf condition={!showOnlyRc}>
-            <p className={`${p2Regular} text-jp-gray-700`}>
+            <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
                 className="cursor-pointer underline underline-offset-2 text-blue-600"

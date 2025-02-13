@@ -106,7 +106,7 @@ let make = (
           let arrow = props["open"]
           <div className="w-full flex flex-col">
             <div
-              className="flex justify-start pt-2 pb-2 text-fs-13 text-jp-gray-900 ml-1 font-semibold">
+              className="flex justify-start pt-2 pb-2 text-fs-13 text-gray-800 ml-1 font-semibold">
               {"Role"->React.string}
               <RenderIf condition=isRequired>
                 <span className="text-red-950"> {React.string("*")} </span>

@@ -45,7 +45,7 @@ module ToastHeading = {
 
     let toastTextClass = "text-lg"
     <div
-      className={`${toastColorClasses}  border ${toastClass} ${toastTextClass} text-jp-gray-text_darktheme flex flex-row justify-between`}>
+      className={`${toastColorClasses}  border ${toastClass} ${toastTextClass} text-gray-50 flex flex-row justify-between`}>
       <Icon className="align-middle self-center" name=toastIconName />
       <AddDataAttributes attributes=[("data-toast", toastProps.message)]>
         <div className="inline-flex items-center ">

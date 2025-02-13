@@ -10,14 +10,14 @@ module CustomerInfo = {
       ~detailsFields,
       ~justifyClassName="justify-start",
       ~widthClass="w-1/4",
-      ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+      ~bgColor="bg-white dark:bg-gray-900",
       ~children=?,
     ) => {
       <OrderUtils.Section
-        customCssClass={`border border-jp-gray-940/75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
+        customCssClass={`border border-gray-200/75 dark:border-gray-800 ${bgColor} rounded-md p-5`}>
         <FormRenderer.DesktopRow>
           <div
-            className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+            className={`flex flex-wrap ${justifyClassName} dark:bg-gray-900 dark:border-gray-500`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               <RenderIf
@@ -29,7 +29,7 @@ module CustomerInfo = {
                     customMoneyStyle="!font-normal !text-sm"
                     labelMargin="!py-0 mt-2"
                     overiddingHeadingStyles="text-black text-sm font-medium"
-                    textColor="!font-normal !text-jp-gray-700"
+                    textColor="!font-normal !text-gray-500"
                   />
                 </div>
               </RenderIf>

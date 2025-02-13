@@ -21,9 +21,9 @@ module ConnectorCurrentStepIndicator = {
 
           let stepNameIndicator = isStepCompleted
             ? "text-black break-all"
-            : "text-jp-gray-700 break-all"
+            : "text-gray-500 break-all"
 
-          let textColor = isCurrentStep ? "text-white" : "text-grey-700"
+          let textColor = isCurrentStep ? "text-white" : "text-gray-700"
 
           let stepLineIndicator = isPreviousStepCompleted ? "bg-gray-700" : "bg-gray-200"
 

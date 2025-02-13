@@ -12,11 +12,11 @@ module RefundInfo = {
       ~detailsFields,
       ~justifyClassName="justify-start",
       ~widthClass="w-1/4",
-      ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+      ~bgColor="bg-white dark:bg-gray-900",
       ~children=?,
     ) => {
       <Section
-        customCssClass={`border border-jp-gray-940/75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
+        customCssClass={`border border-gray-200/75 dark:border-gray-800 ${bgColor} rounded-md p-5`}>
         <div className="flex items-center">
           <div className="font-bold text-4xl m-3">
             {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
@@ -25,7 +25,7 @@ module RefundInfo = {
         </div>
         <FormRenderer.DesktopRow>
           <div
-            className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+            className={`flex flex-wrap ${justifyClassName} dark:bg-gray-900 dark:border-gray-500`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               if !(excludeColKeys->Array.includes(colType)) {
@@ -36,7 +36,7 @@ module RefundInfo = {
                     customMoneyStyle="!font-normal !text-sm"
                     labelMargin="!py-0 mt-2"
                     overiddingHeadingStyles="text-black text-sm font-medium"
-                    textColor="!font-normal !text-jp-gray-700"
+                    textColor="!font-normal !text-gray-500"
                   />
                 </div>
               } else {
@@ -170,9 +170,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             authorization={userHasAccess(~groupAccess=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
-              <Icon
-                name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-              />,
+              <Icon name="sync" className="gray-800 fill-opacity-50 dark:gray-50" />,
             )}
             buttonType={Primary}
             onClick={_ => syncData()}
