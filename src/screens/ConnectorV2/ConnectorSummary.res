@@ -28,9 +28,8 @@ let make = () => {
   }, [])
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    Js.log(values)
     let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
-    let response = await updateAPIHook(connectorUrl, values, Post)
+    let _response = await updateAPIHook(connectorUrl, values, Post)
 
     // let connectorId = response->getDictFromJsonObject->getString("merchant_connector_id", "")
     Nullable.null
