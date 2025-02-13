@@ -7,9 +7,6 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  // Need to be removed
-  let (_, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
-  let (_, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let temp: array<ConnectorTypes.paymentMethodEnabled> = [
     {
       payment_method: "",
@@ -178,13 +175,13 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
           <RenderIf condition={showWalletConfigurationModal}>
             <AdditionalDetailsSidebarComp
               method={selectedWallet}
-              setMetaData
+              setMetaData={_ => ()}
               setShowWalletConfigurationModal
               updateDetails={_val => updateDetails(_val)}
               paymentMethodsEnabled=temp
               paymentMethod={pm}
               onCloseClickCustomFun={resetValues}
-              setInitialValues
+              setInitialValues={_ => ()}
             />
           </RenderIf>
         </Modal>
