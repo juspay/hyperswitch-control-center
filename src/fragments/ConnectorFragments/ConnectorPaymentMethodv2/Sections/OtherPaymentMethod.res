@@ -39,7 +39,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
     ->getPaymentMethodMapper(connector, pm)
 
   let showSelectAll = if (
-    (pm->getPaymentMethodFromString == Wallet && pm->getPaymentMethodFromString == BankDebit) ||
+    (pm->getPMFromString == Wallet && pm->getPMFromString == BankDebit) ||
     connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(KLARNA) &&
       connData->checkKlaranRegion ||
     isInEditState
@@ -49,7 +49,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
     true
   }
 
-  let title = switch pm->getPaymentMethodFromString {
+  let title = switch pm->getPMFromString {
   | BankDebit => pm->snakeToTitle
   | Wallet => selectedWallet.payment_method_type->snakeToTitle
   | _ => ""
@@ -87,7 +87,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
   <div key={index->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
     <HeadingSection index pm availablePM pmIndex pmt=pm showSelectAll />
     <RenderIf
-      condition={pm->getPaymentMethodFromString === Wallet &&
+      condition={pm->getPMFromString === Wallet &&
         {
           switch connector->ConnectorUtils.getConnectorNameTypeFromString {
           | Processors(ZEN) => true
@@ -115,8 +115,8 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
         }
 
         let label = switch (
-          pmtData.payment_method_type->getPaymentMethodTypeFromString,
-          pm->getPaymentMethodFromString,
+          pmtData.payment_method_type->getPMTFromString,
+          pm->getPMFromString,
           connector->ConnectorUtils.getConnectorNameTypeFromString,
         ) {
         | (PayPal, Wallet, Processors(PAYPAL)) =>
@@ -132,8 +132,8 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
         }
 
         let showCheckbox = switch (
-          pmtData.payment_method_type->getPaymentMethodTypeFromString,
-          pm->getPaymentMethodFromString,
+          pmtData.payment_method_type->getPMTFromString,
+          pm->getPMFromString,
           connector->ConnectorUtils.getConnectorNameTypeFromString,
         ) {
         | (Klarna, PayLater, Processors(KLARNA)) =>
@@ -161,7 +161,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
       ->React.array}
       <RenderIf
         condition={pmtWithMetaData->Array.includes(
-          selectedWallet.payment_method_type->getPaymentMethodTypeFromString,
+          selectedWallet.payment_method_type->getPMTFromString,
         )}>
         <Modal
           modalHeading

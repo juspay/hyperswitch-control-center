@@ -1,6 +1,6 @@
 open ConnectorTypes
 open LogicUtils
-let getPaymentMethodFromString = paymentMethod => {
+let getPMFromString = paymentMethod => {
   switch paymentMethod->String.toLowerCase {
   | "card" => Card
   | "debit" | "credit" => Card
@@ -14,7 +14,7 @@ let getPaymentMethodFromString = paymentMethod => {
   }
 }
 
-let getPaymentMethodTypeFromString = paymentMethodType => {
+let getPMTFromString = paymentMethodType => {
   switch paymentMethodType->String.toLowerCase {
   | "credit" => Credit
   | "debit" => Debit
@@ -33,13 +33,10 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
 }
 
 let getPaymentExperience = (connector, pm, pmt, pme) => {
-  switch pm->getPaymentMethodFromString {
+  switch pm->getPMFromString {
   | BankRedirect => None
   | _ =>
-    switch (
-      ConnectorUtils.getConnectorNameTypeFromString(connector),
-      pmt->getPaymentMethodTypeFromString,
-    ) {
+    switch (ConnectorUtils.getConnectorNameTypeFromString(connector), pmt->getPMTFromString) {
     | (Processors(PAYPAL), PayPal) | (Processors(KLARNA), Klarna) => pme
     | (Processors(ZEN), GooglePay) | (Processors(ZEN), ApplePay) => Some("redirect_to_url")
     | (Processors(BRAINTREE), PayPal) => Some("invoke_sdk_client")
@@ -84,7 +81,7 @@ let itemProviderMapper = dict => {
 
 let getPaymentMethodDictV2 = (dict, pm, connector) => {
   let paymentMethodType = dict->getString("payment_method_type", "")
-  let (cardNetworks, modifedPaymentMethodType) = switch pm->getPaymentMethodTypeFromString {
+  let (cardNetworks, modifedPaymentMethodType) = switch pm->getPMTFromString {
   | Credit => {
       let cardNetworks = [paymentMethodType->JSON.Encode.string]
       let pmt = pm
@@ -127,7 +124,7 @@ let getPaymentMethodMapper = (arr, connector, pm) => {
 }
 
 let pmIcon = pm =>
-  switch pm->getPaymentMethodFromString {
+  switch pm->getPMFromString {
   | Card => "card"
   | PayLater => "pay_later"
   | Wallet => "nd-wallet"
@@ -143,8 +140,8 @@ let getPMTIndex = (~connData, ~pmIndex, ~cardNetworks, ~pmt) => {
     | Some(k) => {
         let isPMTEnabled = k.payment_method_types->Array.findIndex(val => {
           if (
-            val.payment_method_type->getPaymentMethodTypeFromString == Credit ||
-              val.payment_method_type->getPaymentMethodTypeFromString == Debit
+            val.payment_method_type->getPMTFromString == Credit ||
+              val.payment_method_type->getPMTFromString == Debit
           ) {
             val.card_networks->Array.some(networks => {
               cardNetworks->Array.includes(networks)
@@ -176,7 +173,7 @@ let checkKlaranRegion = connData =>
 let pmtWithMetaData = [GooglePay, ApplePay, SamsungPay, Paze]
 
 let isMetaDataRequired = (pmt, connector) => {
-  pmtWithMetaData->Array.includes(pmt->getPaymentMethodTypeFromString) &&
+  pmtWithMetaData->Array.includes(pmt->getPMTFromString) &&
     {
       switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(TRUSTPAY)

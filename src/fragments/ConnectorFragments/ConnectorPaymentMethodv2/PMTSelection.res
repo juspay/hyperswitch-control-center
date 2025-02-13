@@ -23,8 +23,8 @@ module PMT = {
     let removeMethods = () => {
       let updatedPmtArray = pmtArrayValue->Array.filter(ele =>
         if (
-          pmtData.payment_method_type->getPaymentMethodTypeFromString == Credit ||
-            pmtData.payment_method_type->getPaymentMethodTypeFromString == Debit
+          pmtData.payment_method_type->getPMTFromString == Credit ||
+            pmtData.payment_method_type->getPMTFromString == Debit
         ) {
           ele.payment_method_type != pmtData.payment_method_type ||
             ele.card_networks->Array.get(0)->Option.getOr("") !=

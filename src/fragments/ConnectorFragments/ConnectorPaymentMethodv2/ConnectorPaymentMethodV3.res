@@ -29,9 +29,7 @@ let make = (~initialValues, ~isInEditState) => {
       ->Array.filter(val => !Array.includes(ConnectorUtils.configKeysToIgnore, val))
 
     keys->Array.forEach(key => {
-      let pm = if key->getPaymentMethodTypeFromString == Credit {
-        "card"
-      } else if key->getPaymentMethodTypeFromString == Debit {
+      let pm = if key->getPMTFromString == Credit || key->getPMTFromString == Debit {
         "card"
       } else {
         key
@@ -62,7 +60,7 @@ let make = (~initialValues, ~isInEditState) => {
                   else if (
                     connector->ConnectorUtils.getConnectorNameTypeFromString ==
                       Processors(KLARNA) &&
-                      available.payment_method_type->getPaymentMethodTypeFromString == Klarna
+                      available.payment_method_type->getPMTFromString == Klarna
                   ) {
                     switch available.payment_experience {
                     | Some(str) => str == paymemtMethodExperience
@@ -70,8 +68,8 @@ let make = (~initialValues, ~isInEditState) => {
                     }
                   } else if (
                     available.payment_method_type == paymemtMethodType &&
-                    available.payment_method_type->getPaymentMethodTypeFromString != Credit &&
-                    available.payment_method_type->getPaymentMethodTypeFromString != Debit
+                    available.payment_method_type->getPMTFromString != Credit &&
+                    available.payment_method_type->getPMTFromString != Debit
                   ) {
                     true
                   } else {
@@ -116,7 +114,7 @@ let make = (~initialValues, ~isInEditState) => {
                 ? connData.payment_methods_enabled->Array.length
                 : 0
             : isPMEnabled
-        switch pmValue->getPaymentMethodFromString {
+        switch pmValue->getPMFromString {
         | Card => <Card index pm=pmValue pmIndex paymentMethodValues connector isInEditState />
         | _ =>
           <OtherPaymentMethod
