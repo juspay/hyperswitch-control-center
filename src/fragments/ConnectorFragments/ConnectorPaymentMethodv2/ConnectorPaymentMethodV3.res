@@ -58,11 +58,6 @@ let make = (~initialValues, ~isInEditState) => {
                       available.card_networks->Array.get(0)->Option.getOr("") == paymemtMethodType
                   ) {
                     true
-                  } else if (
-                    available.payment_method_type == key &&
-                      available.card_networks->Array.get(0)->Option.getOr("") == paymemtMethodType
-                  ) {
-                    true
                   } // explicit check for klarna
                   else if (
                     connector->ConnectorUtils.getConnectorNameTypeFromString ==
