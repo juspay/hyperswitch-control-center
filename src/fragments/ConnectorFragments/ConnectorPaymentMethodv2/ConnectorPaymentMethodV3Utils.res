@@ -132,35 +132,6 @@ let pmIcon = pm =>
   | _ => ""
   }
 
-let getPMTIndex = (~connData, ~pmIndex, ~cardNetworks, ~pmt) => {
-  if connData.payment_methods_enabled->Array.length > 0 {
-    let pmEnabled = connData.payment_methods_enabled->Array.get(pmIndex)
-
-    let index = switch pmEnabled {
-    | Some(pmEnbl) => {
-        let isPMTEnabled = pmEnbl.payment_method_types->Array.findIndex(val => {
-          if (
-            val.payment_method_type->getPMTFromString == Credit ||
-              val.payment_method_type->getPMTFromString == Debit
-          ) {
-            val.card_networks->Array.some(networks => {
-              cardNetworks->Array.includes(networks)
-            })
-          } else {
-            val.payment_method_type == pmt
-          }
-        })
-
-        isPMTEnabled == -1 ? pmEnbl.payment_method_types->Array.length : isPMTEnabled
-      }
-    | None => 0
-    }
-    index == -1 ? 0 : index
-  } else {
-    0
-  }
-}
-
 let checkKlaranRegion = connData =>
   switch connData.metadata
   ->getDictFromJsonObject
