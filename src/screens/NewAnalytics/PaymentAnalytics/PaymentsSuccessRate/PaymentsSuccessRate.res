@@ -91,10 +91,14 @@ let make = (
     ->getSmartRetryMetricType
 
   open NewAnalyticsUtils
-  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
-  let (granularity, setGranularity) = React.useState(_ =>
-    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let defaulGranularity = getDefaultGranularity(
+    ~startTime=startTimeVal,
+    ~endTime=endTimeVal,
+    ~granularity=featureFlag.granularity,
   )
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -151,6 +155,7 @@ let make = (
               }->Identity.genericTypeToJson,
               ~granularity=granularity.value,
               ~isoStringToCustomTimeZone,
+              ~granularityEnabled=featureFlag.granularity,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -171,6 +176,7 @@ let make = (
             }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
             ~isoStringToCustomTimeZone,
+            ~granularityEnabled=featureFlag.granularity,
           )
         })
 

@@ -1,20 +1,24 @@
 open VerticalStepIndicatorTypes
 @react.component
-let make = (~title: string, ~sections: array<section>, ~currentStep: step, ~backClick) => {
+let make = (
+  ~titleElement: React.element,
+  ~sections: array<section>,
+  ~currentStep: step,
+  ~backClick,
+) => {
   open VerticalStepIndicatorUtils
 
   let rows = sections->Array.length->Int.toString
   let currIndex = sections->findSectionIndex(currentStep.sectionId)
-
   <div className="flex flex-col gap-y-6 border-r h-774-px w-334-px">
     <div className="flex items-center gap-x-3 px-6">
       <Icon
         name="nd-arrow-left"
-        className="text-gray-500 cursor-pointer"
+        className="text-nd_gray-600 cursor-pointer"
         onClick={_ => backClick()}
         customHeight="20"
       />
-      <h1 className="text-medium font-semibold text-gray-600"> {title->React.string} </h1>
+      {titleElement}
     </div>
     <div className="w-full p-2 md:p-6">
       <div className={`grid grid-rows-${rows} relative gap-y-3.5`}>
@@ -24,9 +28,9 @@ let make = (~title: string, ~sections: array<section>, ~currentStep: step, ~back
           let isCurrentStep = sectionIndex == currIndex
 
           let stepNameIndicator = if isCurrentStep {
-            "text-gray-700 break-all font-semibold"
+            `text-nd_gray-700 break-all font-semibold`
           } else {
-            "text-gray-400 break-all font-medium"
+            ` text-nd_gray-400 font-medium`
           }
 
           let iconColor = if isCurrentStep {

@@ -5,8 +5,6 @@ let make = () => {
 
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let profileIdFromUrl =
-    UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -39,12 +37,10 @@ let make = () => {
     Nullable.null
   }
 
-  <>
-    <PageLoaderWrapper screenState>
-      <Form onSubmit initialValues>
-        <PaymentProcessorSummary initialValues setInitialValues />
-        <FormValuesSpy />
-      </Form>
-    </PageLoaderWrapper>
-  </>
+  <PageLoaderWrapper screenState>
+    <Form onSubmit initialValues>
+      <PaymentProcessorSummary initialValues />
+      <FormValuesSpy />
+    </Form>
+  </PageLoaderWrapper>
 }
