@@ -1,13 +1,34 @@
 open VaultPaymentMethodDetailsTypes
 open LogicUtils
 
+let cardDetailsMapper = dict => {
+  card_holder_name: dict->getString("card_holder_name", ""),
+  card_type: dict->getString("card_type", ""),
+  card_network: dict->getString("card_network", ""),
+  last_four_digits: dict->getString("last_four_digits", ""),
+  card_expiry_month: dict->getString("card_expiry_month", ""),
+  card_expiry_year: dict->getString("card_expiry_year", ""),
+  card_issuer: dict->getString("card_issuer", ""),
+  card_issuing_country: dict->getString("card_issuing_country", ""),
+  card_is_in: dict->getString("card_is_in", ""),
+  card_extended_bin: dict->getString("card_extended_bin", ""),
+  payment_checks: dict->getString("payment_checks", ""),
+  authentication_data: dict->getString("authentication_data", ""),
+}
+
 let pspTokensizationMapper = dict => {
-  psp_token: dict->JSON.Encode.object->getArrayDataFromJson(VaultPSPTokensEntity.itemToObjMapper),
+  {
+    psp_token: dict
+    ->getArrayFromDict("psp_token", [])
+    ->JSON.Encode.array
+    ->getArrayDataFromJson(VaultPSPTokensEntity.itemToObjMapper),
+  }
 }
 
 let networkTokenizationMappper = dict => {
   network_token: dict
-  ->JSON.Encode.object
+  ->getArrayFromDict("network_token", [])
+  ->JSON.Encode.array
   ->getArrayDataFromJson(VaultNetworkTokensEntity.itemToObjMapper),
 }
 
@@ -19,20 +40,7 @@ let itemToObjMapper: JSON.t => paymentMethodDetails = json => {
     payment_method_id: dict->getString("payment_method_id", ""),
     payment_method_type: dict->getOptionString("payment_method_type"),
     payment_method: dict->getString("payment_method", ""),
-    card: {
-      card_holder_name: dict->getString("card_holder_name", ""),
-      card_type: dict->getString("card_type", ""),
-      card_network: dict->getString("card_network", ""),
-      last_four_digits: dict->getString("last_four_digits", ""),
-      card_expiry_month: dict->getString("card_expiry_month", ""),
-      card_expiry_year: dict->getString("card_expiry_year", ""),
-      card_issuer: dict->getString("card_issuer", ""),
-      card_issuing_country: dict->getString("card_issuing_country", ""),
-      card_is_in: dict->getString("card_is_in", ""),
-      card_extended_bin: dict->getString("card_extended_bin", ""),
-      payment_checks: dict->getString("payment_checks", ""),
-      authentication_data: dict->getString("authentication_data", ""),
-    },
+    card: dict->getDictfromDict("card")->cardDetailsMapper,
     recurring_enabled: dict->getBool("recurring_enabled", false),
     tokenization_type: dict->getDictfromDict("tokenization_type")->JSON.Encode.object,
     psp_tokensization: dict->getDictfromDict("psp_tokensization")->pspTokensizationMapper,
