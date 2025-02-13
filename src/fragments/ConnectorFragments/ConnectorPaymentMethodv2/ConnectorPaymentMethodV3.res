@@ -18,7 +18,7 @@ let make = (~initialValues, ~isInEditState) => {
     }
   }, [connector])
 
-  let initalValue = React.useMemo(() => {
+  let initialValue = React.useMemo(() => {
     initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   }, [initialValues])
 
@@ -43,7 +43,7 @@ let make = (~initialValues, ~isInEditState) => {
             val->getDictFromJsonObject->getString("payment_experience", "")
 
           let wasmDict = val->getDictFromJsonObject
-          let exisitngData = switch initalValue.payment_methods_enabled->Array.find(
+          let exisitngData = switch initialValue.payment_methods_enabled->Array.find(
             ele => {
               ele.payment_method == pm
             },
@@ -54,7 +54,7 @@ let make = (~initialValues, ~isInEditState) => {
                   // explicit check for card (for card we need to check the card network rather than the payment method type)
                   if (
                     available.payment_method_type == key &&
-                      available.card_networks->Array.get(0)->Option.getOr("") == paymemtMethodType
+                      available.card_networks->getValueFromArray(0, "") == paymemtMethodType
                   ) {
                     true
                   } // explicit check for klarna (for klarna we need to check the payment experience rather than the payment method type)
@@ -79,11 +79,7 @@ let make = (~initialValues, ~isInEditState) => {
                 },
               )
 
-              let data =
-                filterData
-                ->Array.get(0)
-                ->Option.getOr(wasmDict->getPaymentMethodDictV2(key, connector))
-              data
+              filterData->getValueFromArray(0, wasmDict->getPaymentMethodDictV2(key, connector))
             }
           | None => wasmDict->getPaymentMethodDictV2(key, connector)
           }
@@ -99,7 +95,7 @@ let make = (~initialValues, ~isInEditState) => {
       )
     })
     newDict
-  }, (initalValue, connector))
+  }, (initialValue, connector))
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
