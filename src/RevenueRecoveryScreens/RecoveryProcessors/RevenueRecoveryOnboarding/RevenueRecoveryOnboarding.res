@@ -32,7 +32,7 @@ let make = () => {
         currentStep setConnectorId onNextClick setNextStep profileId onPreviousClick
       />
       <RevenueRecoveryOnboardingBilling
-        currentStep setConnectorId onNextClick setNextStep profileId onPreviousClick
+        currentStep setConnectorId onNextClick setNextStep profileId
       />
     </div>
   </div>

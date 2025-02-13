@@ -1,12 +1,5 @@
 @react.component
-let make = (
-  ~currentStep,
-  ~setConnectorId,
-  ~onNextClick,
-  ~setNextStep,
-  ~profileId,
-  ~onPreviousClick,
-) => {
+let make = (~currentStep, ~setConnectorId, ~onNextClick, ~setNextStep, ~profileId) => {
   open APIUtils
   open LogicUtils
   open VerticalStepIndicatorTypes
@@ -63,7 +56,7 @@ let make = (
           <Button
             text="Next"
             buttonType=Primary
-            onClick={_ => onPreviousClick(currentStep, setNextStep)->ignore}
+            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
             customButtonStyle="w-full"
           />
         </>
