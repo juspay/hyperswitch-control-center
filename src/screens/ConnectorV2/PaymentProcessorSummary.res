@@ -104,11 +104,26 @@ let make = (~initialValues, ~setInitialValues) => {
             />
           </div>
         </div>
-        <ConnectorLabelV2 labelClass="font-normal" labelTextStyleClass="text-nd_gray-400" />
-        <ConnectorMetadataV2 labelTextStyleClass="text-nd_gray-400" labelClass="font-normal" />
-        <ConnectorWebhookDetails labelTextStyleClass="text-nd_gray-400" labelClass="font-normal" />
-        <ConnectorPaymentMethodV3 initialValues isInEditState=false />
+        <div className="grid grid-cols-2 gap-10 flex-wrap max-w-3xl">
+          <ConnectorLabelV2 labelClass="font-normal" labelTextStyleClass="text-nd_gray-400" />
+          <ConnectorMetadataV2 labelTextStyleClass="text-nd_gray-400" labelClass="font-normal" />
+          <ConnectorWebhookDetails
+            labelTextStyleClass="text-nd_gray-400" labelClass="font-normal"
+          />
+        </div>
       </div>
+      <div className="flex justify-between border-b pb-4 px-2 items-end">
+        <p className="text-lg font-semibold text-nd_gray-600"> {"PMTs"->React.string} </p>
+        <div className="flex gap-4">
+          <Button
+            text="Cancel" buttonType={Secondary} buttonSize={Small} customButtonStyle="w-fit"
+          />
+          <FormRenderer.SubmitButton
+            text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+          />
+        </div>
+      </div>
+      <ConnectorPaymentMethodV3 initialValues isInEditState=false />
     </div>
   </div>
 }

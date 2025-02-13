@@ -59,7 +59,7 @@ module HeadingSection = {
   @react.component
   let make = (~index, ~pm, ~availablePM, ~pmIndex, ~pmt, ~showSelectAll=true) => {
     open FormRenderer
-    <div className="border border-nd_gray-150 rounded-xl overflow-hidden">
+    <div className="border-nd_gray-150 rounded-t-xl overflow-hidden">
       <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
         <Heading heading=pmt />
         <RenderIf condition={showSelectAll}>
