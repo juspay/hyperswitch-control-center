@@ -4,10 +4,11 @@ let make = () => {
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "recovery", "home"} => <RevenueRecoveryHome />
-    | list{"v2", "recovery", "payment-processors"} => <RevenueRecoveryPaymentProcessors />
-    | list{"v2", "recovery", "billing-processors"} => <RevenueRecoveryBillingProcessors />
-    | list{"v2", "recovery", "payments"} => <RevenueRecoveryPayments />
+    | list{"v2", "recovery"} => <RevenueRecoveryOnboardingLanding />
+    | list{"v2", "recovery", "billing-connectors", ..._}
+    | list{"v2", "recovery", "connectors", ..._} =>
+      <RecoveryConnectorContainer />
+    | list{"v2", "recovery", "overview"} => <RevenueRecoveryOverview />
     | _ => React.null
     }
   }

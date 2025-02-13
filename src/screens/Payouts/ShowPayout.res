@@ -102,6 +102,7 @@ module PayoutInfo = {
       ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
       ~children=?,
     ) => {
+      let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
       <OrderUtils.Section
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
         <FormRenderer.DesktopRow>
@@ -114,7 +115,7 @@ module PayoutInfo = {
                 <div className={`flex ${widthClass} items-center`}>
                   <OrderUtils.DisplayKeyValueParams
                     heading={getHeading(colType)}
-                    value={getCell(data, colType)}
+                    value={getCell(data, colType, merchantId, orgId)}
                     customMoneyStyle="!font-normal !text-sm"
                     labelMargin="!py-0 mt-2"
                     overiddingHeadingStyles="text-black text-sm font-medium"

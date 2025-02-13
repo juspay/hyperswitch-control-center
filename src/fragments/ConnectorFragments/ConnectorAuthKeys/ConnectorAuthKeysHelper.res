@@ -82,6 +82,8 @@ module RenderConnectorInputFields = {
     ~isLabelNested=true,
     ~disabled=false,
     ~description="",
+    ~labelTextStyleClass="",
+    ~labelClass="font-semibold !text-hyperswitch_black",
   ) => {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     // open ConnectorUtils
@@ -97,7 +99,8 @@ module RenderConnectorInputFields = {
         <AddDataAttributes attributes=[("data-testid", label->titleToSnake->String.toLowerCase)]>
           <div key={label}>
             <FormRenderer.FieldRenderer
-              labelClass="font-semibold !text-hyperswitch_black"
+              labelClass
+              labelTextStyleClass
               field={switch (connector, field) {
               | (Processors(PAYPAL), "key1") =>
                 multiValueInput(
@@ -111,7 +114,10 @@ module RenderConnectorInputFields = {
                   ~name=formName,
                   ~description,
                   ~toolTipPosition=Right,
-                  ~customInput=InputFields.textInput(~isDisabled=disabled),
+                  ~customInput=InputFields.textInput(
+                    ~isDisabled=disabled,
+                    ~customStyle="border rounded-xl",
+                  ),
                   ~placeholder=switch getPlaceholder {
                   | Some(fun) => fun(label)
                   | None => `Enter ${label->LogicUtils.snakeToTitle}`
@@ -270,17 +276,13 @@ module ConnectorConfigurationFields = {
     ~connectorAccountFields,
     ~connector: connectorTypes,
     ~selectedConnector: integrationFields,
-    ~connectorMetaDataFields,
-    ~connectorWebHookDetails,
     ~isUpdateFlow=false,
-    ~connectorLabelDetailField,
-    ~connectorAdditionalMerchantData,
     ~showVertically=true,
   ) => {
     <div
       className={`grid ${showVertically
           ? "grid-cols-1"
-          : "grid-cols-2"} max-w-3xl gap-x-6 gap-y-2`}>
+          : "grid-cols-2"} max-w-3xl gap-x-6 gap-y-3 `}>
       {switch connector {
       | Processors(CASHTOCODE) =>
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
@@ -294,24 +296,6 @@ module ConnectorConfigurationFields = {
           selectedConnector
         />
       }}
-      // <RenderConnectorInputFields
-      //   details={connectorLabelDetailField}
-      //   name={"connector_label"}
-      //   connector
-      //   selectedConnector
-      //   isLabelNested=false
-      //   description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
-      // />
-
-      // <ConnectorMetaData connectorMetaDataFields />
-      // <ConnectorAdditionalMerchantData connector connectorAdditionalMerchantData />
-      // <RenderConnectorInputFields
-      //   details={connectorWebHookDetails}
-      //   name={"connector_webhook_details"}
-      //   checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
-      //   connector
-      //   selectedConnector
-      // />
     </div>
   }
 }

@@ -189,6 +189,7 @@ let make = (
             offset
             setOffset
             currrentFetchCount={businessProfileValues->Array.length}
+            showPagination=false
           />
         </div>
       </div>

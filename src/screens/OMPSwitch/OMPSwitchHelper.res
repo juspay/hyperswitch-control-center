@@ -331,8 +331,15 @@ module MerchantDropdownItem = {
               : `${secondaryTextColor}`}`}
           validateInput
           customInputStyle={`!py-0 ${secondaryTextColor}`}
-          customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(merchantId) customIconCss={`${secondaryTextColor}`}
+          customIconComponent={<ToolTip
+            description={currentId}
+            customStyle="!whitespace-nowrap"
+            toolTipFor={<div className="cursor-pointer">
+              <HelperComponents.CopyTextCustomComp
+                customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({currentId})
+              />
+            </div>}
+            toolTipPosition=ToolTip.Right
           />}
           customIconStyle={isActive ? `${secondaryTextColor}` : ""}
           handleClick={_ => handleMerchantSwitch(currentId)}
@@ -447,8 +454,15 @@ module ProfileDropdownItem = {
           labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
           validateInput
           customInputStyle="!py-0 text-nd_gray-600"
-          customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(profileId) customIconCss="text-nd_gray-600"
+          customIconComponent={<ToolTip
+            description={currentId}
+            customStyle="!whitespace-nowrap"
+            toolTipFor={<div className="cursor-pointer">
+              <HelperComponents.CopyTextCustomComp
+                displayValue=" " copyValue=Some(currentId) customIconCss="text-nd_gray-600"
+              />
+            </div>}
+            toolTipPosition=ToolTip.Right
           />}
           customIconStyle={isActive ? "text-nd_gray-600" : ""}
           handleClick={_ => handleProfileSwitch(currentId)}
