@@ -149,7 +149,7 @@ let make = () => {
         renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
       />
     | list{"webhooks", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.webhookDetails} authorization=Access>
+      <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
         <FilterContext key="webhooks" index="webhooks">
           <EntityScaffold
             entityName="Webhooks"

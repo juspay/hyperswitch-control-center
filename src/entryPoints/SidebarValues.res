@@ -672,7 +672,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     taxProcessor,
     newAnalytics,
     authenticationAnalytics,
-    webhookDetails,
+    devWebhooks,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -706,11 +706,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~userEntity,
     ),
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(
-      ~isWebhooksEnabled={webhookDetails},
-      ~userHasResourceAccess,
-      ~checkUserEntity,
-    ),
+    default->developers(~isWebhooksEnabled=devWebhooks, ~userHasResourceAccess, ~checkUserEntity),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 

@@ -9,7 +9,7 @@ let make = () => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Webhooks")->Option.getOr(defaultValue)
-  let (totalCount, setTotalCount) = React.useState(_ => 100) //to be extracted from API
+  let (totalCount, setTotalCount) = React.useState(_ => 100) //TODO: to be extracted from API
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateExistingKeys, filterValueJson, reset, filterValue} =
