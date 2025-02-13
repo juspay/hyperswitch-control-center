@@ -75,7 +75,7 @@ module Details = {
             condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened &&
               data.challenge_required_by->isNonEmptyString}>
             <div
-              className="border text-orange-950 bg-orange-100 text-sm px-2 py-1 rounded-md font-semibold">
+              className="border text-orange-400 bg-orange-50 text-sm px-2 py-1 rounded-md font-semibold">
               {`${daysToRespond->Float.toString} days to respond`->React.string}
             </div>
           </RenderIf>

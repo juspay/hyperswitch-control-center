@@ -98,7 +98,7 @@ module DownloadAPIKeyButton = {
           }}
         />
         <RenderIf condition=showCopyToClipboard>
-          <div className="text-green-700 text-lg"> {"Copied to clipboard"->React.string} </div>
+          <div className="text-green-300 text-lg"> {"Copied to clipboard"->React.string} </div>
         </RenderIf>
       </div>
     switch currentRoute {

@@ -103,7 +103,7 @@ let make = (~initialValues, ~currentStep) => {
       | Preview =>
         <div className="flex gap-6 items-center">
           <p
-            className={`text-fs-13 font-bold ${isfrmDisabled ? "text-red-800" : "text-green-700"}`}>
+            className={`text-fs-13 font-bold ${isfrmDisabled ? "text-red-800" : "text-green-300"}`}>
             {(isfrmDisabled ? "INACTIVE" : "ACTIVE")->React.string}
           </p>
           <ConnectorPreview.MenuOption

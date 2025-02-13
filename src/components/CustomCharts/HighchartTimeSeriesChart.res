@@ -371,7 +371,7 @@ module LineChart1D = {
                 } else if transactionTable.current < 90. {
                   <Icon name="smile" className="text-green-500" size=18 />
                 } else {
-                  <Icon name="smile" className="text-green-700" size=18 />
+                  <Icon name="smile" className="text-green-300" size=18 />
                 }}
               </div>
             } else {

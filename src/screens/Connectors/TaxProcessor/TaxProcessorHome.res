@@ -260,7 +260,7 @@ let make = () => {
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
     | true => "border bg-red-600/40 border-red-400 text-red-500"
-    | false => "border bg-green-600/40 border-green-700 text-green-700"
+    | false => "border bg-green-200/40 border-green-300 text-green-300"
     }
 
   let summaryPageButton = switch currentStep {

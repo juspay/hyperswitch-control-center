@@ -141,7 +141,7 @@ module CustomTag = {
         </div>
       | None => React.null
       }}
-      <div className={"text-hyperswitch_black text-sm font-medium text-green-960"}>
+      <div className={"text-hyperswitch_black text-sm font-medium text-green-600"}>
         {tagText->React.string}
       </div>
     </div>

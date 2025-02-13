@@ -34,11 +34,11 @@ let make = (
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let (popUpHeadingColor, topBorderColor) = switch popUpType {
-  | Success => ("bg-green-700", "border-t-green-700")
+  | Success => ("bg-green-300", "border-t-green-300")
   | Primary => ("bg-primary", "border-t-primary")
   | Secondary => ("bg-yellow-300", "border-t-yellow-300")
   | Danger | Denied => ("bg-red-600", "border-t-red-600")
-  | Warning => ("bg-orange-960", "border-t-orange-960")
+  | Warning => ("bg-orange-300", "border-t-orange-300")
   }
   let appPrefix = LogicUtils.useUrlPrefix()
   let rounded_top_border = "rounded-t-xl"

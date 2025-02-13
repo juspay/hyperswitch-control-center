@@ -157,31 +157,7 @@
   --color-green-900: #0A4020;
   --color-green-950: #072B15;
 
-
-
-  /* efactored till here  */
-
-
-
-  --color-green-50: #eff4ef;
-  --color-green-100: #f6ffed;
-  --color-green-600: #b8d1b4;
-  --color-green-700: #6cb851;
-  --color-green-950: #79a779;
-  --color-green-960: #3a833a;
-  --color-green-success_page_bg: #e8fdf2;
-  --color-green-accepted_green_800: #39934f;
-  --color-green-dark: #12b76a;
-  --color-green-light: #0e92551a;
-
-  --color-orange-100: #fffbe6;
-  --color-orange-500: #e07e41;
-  --color-orange-600: #fdd4b6;
-  --color-orange-950: #d88b54;
-  --color-orange-960: #e89519;
-  --color-orange-border_orange: #eea23640;
-  --color-orange-warning_background_orange: #eea2361a;
-  --color-orange-warning_text_orange: #eea236;
+  /* TODO CHANGES FROM HERE  */
 
   --color-red: #ff0000;
   --color-red-DEFAULT: #ff0000;

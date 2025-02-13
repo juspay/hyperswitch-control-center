@@ -36,7 +36,7 @@ let make = () => {
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
-  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green_trans n" : "bg-orange-500 "
+  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green_trans n" : "bg-orange-200 "
 
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active

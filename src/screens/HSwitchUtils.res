@@ -249,7 +249,7 @@ module AlertBanner = {
   let make = (~bannerText, ~bannerType: HSwitchUtilsTypes.bannerType, ~children=?) => {
     let bgClass = switch bannerType {
     | Success => " bg-green-100"
-    | Warning => "bg-orange-100"
+    | Warning => "bg-orange-50"
     | Error => "bg-red-100"
     | Info => "bg-primary-blue-50"
     }

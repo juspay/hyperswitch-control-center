@@ -325,13 +325,13 @@ let make = (
   | Disabled => "bg-slate-300"
   | _ =>
     switch badge.color {
-    | BadgeGreen => "bg-green-950 dark:bg-green-950/50"
-    | BadgeRed => "bg-red-960 dark:bg-green-950/50"
-    | BadgeBlue => "bg-primary dark:bg-green-950/50"
+    | BadgeGreen => "bg-green-200 dark:bg-green-200/50"
+    | BadgeRed => "bg-red-960 dark:bg-green-200/50"
+    | BadgeBlue => "bg-primary dark:bg-green-200/50"
     | BadgeGray => "bg-blue-table_gray"
-    | BadgeOrange => "bg-orange-950 dark:bg-green-950/50"
+    | BadgeOrange => "bg-orange-400 dark:bg-green-200/50"
     | BadgeYellow => "bg-blue-table_yellow"
-    | BadgeDarkGreen => "bg-green-700"
+    | BadgeDarkGreen => "bg-green-300"
     | BadgeDarkRed => "bg-red-400"
     | NoBadge => "hidden"
     }

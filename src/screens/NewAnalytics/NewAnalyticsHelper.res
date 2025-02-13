@@ -186,7 +186,7 @@ module StatisticsCard = {
   @react.component
   let make = (~value, ~tooltipValue as _, ~direction, ~isOverviewComponent=false) => {
     let (bgColor, textColor) = switch direction {
-    | Upward => ("bg-green-light", "text-green-dark")
+    | Upward => ("bg-green-200", "text-green-400")
     | Downward => ("bg-red-light", "text-red-dark")
     | No_Change => ("bg-gray-100", "text-gray-500")
     }

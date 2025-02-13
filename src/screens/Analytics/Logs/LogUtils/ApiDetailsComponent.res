@@ -71,14 +71,14 @@ let make = (
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "green-700"
+    | "200" => "green-300"
     | "500" | _ => "gray-700 opacity-50"
     }
   | API_EVENTS | CONNECTOR =>
     switch statusCode {
-    | "200" => "green-700"
+    | "200" => "green-300"
     | "500" => "gray-700 opacity-50"
-    | "400" | "422" => "orange-950"
+    | "400" | "422" => "orange-400"
     | _ => "gray-700 opacity-50"
     }
   }
@@ -100,7 +100,7 @@ let make = (
     switch statusCode {
     | "200" => "green-50"
     | "500" => "gray-100"
-    | "400" | "422" => "orange-100"
+    | "400" | "422" => "orange-50"
     | _ => "gray-100"
     }
   }
@@ -118,14 +118,14 @@ let make = (
         }
       | WEBHOOKS =>
         switch statusCode {
-        | "200" => "green-700"
+        | "200" => "green-300"
         | "500" | _ => "gray-700 opacity-50"
         }
       | API_EVENTS | CONNECTOR =>
         switch statusCode {
-        | "200" => "green-700"
+        | "200" => "green-300"
         | "500" => "gray-700 opacity-50"
-        | "400" | "422" => "orange-950"
+        | "400" | "422" => "orange-400"
         | _ => "gray-700 opacity-50"
         }
       }
@@ -136,19 +136,19 @@ let make = (
         switch statusCode {
         | "INFO" => "primary-primary-blue-500"
         | "ERROR" => "red-400"
-        | "WARNING" => "orange-500"
+        | "WARNING" => "orange-200"
         | _ => "gray-600"
         }
       | WEBHOOKS =>
         switch statusCode {
-        | "200" => "green-700"
+        | "200" => "green-300"
         | "500" | _ => "gray-700 opacity-50"
         }
       | API_EVENTS | CONNECTOR =>
         switch statusCode {
-        | "200" => "green-700"
+        | "200" => "green-300"
         | "500" => "gray-600"
-        | "400" | "422" => "orange-950"
+        | "400" | "422" => "orange-400"
         | _ => "gray-600"
         }
       }
@@ -164,14 +164,14 @@ let make = (
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "border border-green-700"
+    | "200" => "border border-green-300"
     | "500" | _ => "border border-gray-700 opacity-80"
     }
   | API_EVENTS | CONNECTOR =>
     switch statusCode {
-    | "200" => "border border-green-700"
+    | "200" => "border border-green-300"
     | "500" => "border border-gray-700 opacity-50"
-    | "400" | "422" => "border border-orange-950"
+    | "400" | "422" => "border border-orange-400"
     | _ => "border border-gray-700 opacity-50"
     }
   }
