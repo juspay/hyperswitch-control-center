@@ -190,12 +190,12 @@ let make = (
       <RenderIf condition={showLogType}>
         <Icon name=iconName size=12 className="text-jp-gray-900" />
         <div
-          className={`h-full border-${stepperBorderColor} border-dashed rounded-sm  divide-x-2 border-2 my-1`}
+          className={`h-full border-${stepperBorderColor} border-dashed rounded-sm divide-x-2 border-2 my-1`}
         />
       </RenderIf>
       <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
       <div
-        className={`h-full border-${stepperBorderColor} border-dashed rounded-sm  divide-x-2 border-2 my-1`}
+        className={`h-full border-${stepperBorderColor} border-dashed rounded-sm divide-x-2 border-2 my-1`}
       />
       <RenderIf condition={index === logsDataLength}>
         <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
@@ -237,7 +237,7 @@ let make = (
               </p>
             | API_EVENTS | WEBHOOKS | CONNECTOR =>
               <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>
-                <span className="mr-3 border-2 px-1 py-0.5 rounded-smtext-sm">
+                <span className="mr-3 border-2 px-1 py-0.5 rounded-sm text-sm">
                   {method->String.toUpperCase->React.string}
                 </span>
                 <span className="leading-7"> {apiName->React.string} </span>

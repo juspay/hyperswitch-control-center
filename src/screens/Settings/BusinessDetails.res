@@ -143,7 +143,7 @@ let make = () => {
           )
         }}>
         <div
-          className="flex flex-col md:flex-row justify-between bg-white p-7 gap-8 rounded-xsborder border-jp-gray-border_gray">
+          className="flex flex-col md:flex-row justify-between bg-white p-7 gap-8 rounded-xs border border-jp-gray-border_gray">
           <div className="w-full flex flex-col gap-5 md:gap-10">
             {renderingArray
             ->Array.mapWithIndex((details, i) =>

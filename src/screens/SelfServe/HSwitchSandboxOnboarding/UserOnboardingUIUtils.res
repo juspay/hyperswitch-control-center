@@ -116,7 +116,7 @@ module DownloadAPIKey = {
         bannerText="API key once misplaced cannot be restored. If misplaced, please re-generate a new key from Dashboard > Developers."
         bannerType=Warning
       />
-      <div className="p-10 bg-gray-50 border rounded-smflex flex-col gap-6">
+      <div className="p-10 bg-gray-50 border rounded-sm flex flex-col gap-6">
         <div className="flex flex-col gap-2.5">
           <div className="text-base text-grey-900 font-medium">
             {"Test API Key"->React.string}

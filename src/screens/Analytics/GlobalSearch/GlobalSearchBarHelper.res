@@ -26,7 +26,7 @@ module RenderedComponent = {
 module SearchBox = {
   @react.component
   let make = (~openModalOnClickHandler) => {
-    let iconBoxCss = "w-5 h-5 border border-gray-200 bg-white flex rounded-xsitems-center justify-center cursor-pointer "
+    let iconBoxCss = "w-5 h-5 border border-gray-200 bg-white flex rounded-xs items-center justify-center cursor-pointer "
     let cmdIcon = Window.Navigator.platform->String.includes("Mac") ? "⌘" : "^"
     let shortcutIcons = {
       <>
@@ -744,7 +744,7 @@ module ModalSearchBox = {
                       autoComplete="off"
                       autoFocus=true
                       placeholder="Search"
-                      className={`w-full pr-2 pl-2 ${textColor} placeholder-jp-gray-900/50  focus:outline-hidden rounded-sm  h-10 text-lg font-normal`}
+                      className={`w-full pr-2 pl-2 ${textColor} placeholder-jp-gray-900/50 focus:outline-hidden rounded-sm h-10 text-lg font-normal`}
                       name={input.name}
                       label="No"
                       value=localSearchText

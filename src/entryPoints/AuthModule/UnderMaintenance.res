@@ -12,7 +12,7 @@ let make = () => {
       leaveTo="opacity-0 translate-y-1"
       show={true}>
       <div
-        className={`flex flex-row px-4 py-2 md:gap-8 gap-4 rounded-smwhitespace-nowrap text-fs-13 bg-yellow-200 border-yellow-200 font-semibold justify-center`}>
+        className={`flex flex-row px-4 py-2 md:gap-8 gap-4 rounded-sm whitespace-nowrap text-fs-13 bg-yellow-200 border-yellow-200 font-semibold justify-center`}>
         <div className="flex gap-2">
           <div className="flex text-gray-500 items-center">
             {`Hyperswitch Control Center is under maintenance`->React.string}

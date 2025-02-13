@@ -822,7 +822,7 @@ module Base = {
           } else {
             <div
               ref={dropdownRef->ReactDOM.Ref.domRef}
-              className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 bg-white dark:bg-jp-gray-lightgray_background rounded-smborder-jp-gray-500 dark:border-jp-gray-960 shadow-md dark:shadow-xs dark:shadow-gray-700 max-h-min max-w-min overflow-auto`}>
+              className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 bg-white dark:bg-jp-gray-lightgray_background rounded-sm border-jp-gray-500 dark:border-jp-gray-960 shadow-md dark:shadow-xs dark:shadow-gray-700 max-h-min max-w-min overflow-auto`}>
               calendarElement
             </div>
           }

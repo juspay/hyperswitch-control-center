@@ -817,7 +817,7 @@ let make = (
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>
               <div
-                className="border rounded-smbg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
+                className="border rounded-sm bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
                 {if chartLoading {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {

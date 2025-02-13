@@ -563,7 +563,7 @@ module BaseSelect = {
         `bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 
             rounded-lg rounded-b-none animate-textTransition transition duration-400`
       } else if showToggle {
-        "bg-white border rounded-smrounded-b-none dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960"
+        "bg-white border rounded-sm rounded-b-none dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960"
       } else {
         ""
       }

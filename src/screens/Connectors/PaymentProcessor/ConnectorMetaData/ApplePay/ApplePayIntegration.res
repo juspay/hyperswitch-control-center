@@ -51,7 +51,7 @@ module Verified = {
             key={Int.toString(index)}
             className="mt-4 cursor-pointer"
             onClick={_ => setApplePayIntegrationType(_ => #manual)}>
-            <div className={`relative w-full  p-6 rounded-smflex flex-col justify-between border `}>
+            <div className={`relative w-full  p-6 rounded-sm flex flex-col justify-between border `}>
               <div className="flex justify-between">
                 <div className={`font-medium text-base text-hyperswitch_black `}>
                   {domainUrl->String.length > 0 ? domainUrl->React.string : "Default"->React.string}

@@ -75,7 +75,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
         onClick>
         <div key={i->Int.toString} className={`flex items-center ${textColor} font-medium gap-5`}>
           <span
-            className={`${indexBackground} ${indexColor} rounded-xsw-1.1-rem h-1.1-rem flex justify-center items-center text-sm`}>
+            className={`${indexBackground} ${indexColor} rounded-xs w-1.1-rem h-1.1-rem flex justify-center items-center text-sm`}>
             {(i + 1)->Int.toString->React.string}
           </span>
           <div className="flex-1">

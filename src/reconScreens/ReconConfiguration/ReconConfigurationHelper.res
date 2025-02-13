@@ -35,7 +35,7 @@ module ProgressBar = {
 
     <div className="p-2 md:p-6">
       <p> {`${percentage->Int.toString}% Completed`->React.string} </p>
-      <div className="w-full bg-blue-150 rounded-smh-2 mt-3">
+      <div className="w-full bg-blue-150 rounded-sm h-2 mt-3">
         <div className="bg-blue-500 h-2 rounded" style={{width: `${percentage->Int.toString}%`}} />
       </div>
     </div>

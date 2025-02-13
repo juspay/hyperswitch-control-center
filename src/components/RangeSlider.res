@@ -77,9 +77,9 @@ let make = (
 
   let bgClass = isMinFocused || isMaxFocused ? "bg-primary" : "bg-jp-2-light-gray-2000"
   <div className="relative pt-1 w-max">
-    <div className={`h-1 rounded-smrelative bg-gray-200`} style={width: width}>
+    <div className={`h-1 rounded-sm relative bg-gray-200`} style={width: width}>
       <div
-        className={`h-1 rounded-smabsolute ${bgClass}`}
+        className={`h-1 rounded-sm absolute ${bgClass}`}
         style={
           width: ((maxsliderVal->LogicUtils.getFloatFromString(0.) -.
             minsliderVal->LogicUtils.getFloatFromString(0.)) *.

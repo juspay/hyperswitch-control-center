@@ -62,7 +62,7 @@ let make = (
   let droppableDirection = isHorizontal ? "horizontal" : "vertical"
   <div>
     <div
-      className={`w-min p-3 bg-jp-gray-50 dark:bg-jp-gray-950 rounded-smborder border-jp-gray-500 dark:border-jp-gray-960 align-center justify-center rounded-t-none flex ${directionClass}`}>
+      className={`w-min p-3 bg-jp-gray-50 dark:bg-jp-gray-950 rounded-sm border border-jp-gray-500 dark:border-jp-gray-960 align-center justify-center rounded-t-none flex ${directionClass}`}>
       <span>
         <ReactBeautifulDND.DragDropContext onDragEnd={onDragEnd}>
           <ReactBeautifulDND.Droppable droppableId="droppable" direction={droppableDirection}>
@@ -84,7 +84,7 @@ let make = (
                               <span
                                 onDragStart={provided["onDragStart"]}
                                 ref={provided["innerRef"]}
-                                className={`flex ${directionClass} p-3 m-1 bg-jp-gray-50 dark:bg-jp-gray-950 rounded-smborder border-jp-gray-500 dark:border-jp-gray-960 align-center justify-center rounded-t-none`}>
+                                className={`flex ${directionClass} p-3 m-1 bg-jp-gray-50 dark:bg-jp-gray-950 rounded-sm border border-jp-gray-500 dark:border-jp-gray-960 align-center justify-center rounded-t-none`}>
                                 {React.string(str)}
                               </span>,
                               provided["draggableProps"],

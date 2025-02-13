@@ -45,7 +45,7 @@ let make = (
       | None => React.null
       }}
       <div
-        className={`border ${customBorderClass} bg-white p-3 pl-5 rounded-smfont-semibold text-jp-gray-900/50 dark:bg-jp-gray-lightgray_background dark:text-jp-gray-text_darktheme/50 dark:border-jp-gray-no_data_border`}>
+        className={`border ${customBorderClass} bg-white p-3 pl-5 rounded-sm font-semibold text-jp-gray-900/50 dark:bg-jp-gray-lightgray_background dark:text-jp-gray-text_darktheme/50 dark:border-jp-gray-no_data_border`}>
         {switch renderType {
         | InfoBox =>
           <div className="flex flex-row items-center">

@@ -203,7 +203,7 @@ let make = (
     checked: false,
   }
   let styleClass = showTime
-    ? " flex-col bg-white dark:bg-jp-gray-lightgray_background border-jp-gray-500 dark:border-jp-gray-960 p-4 rounded-smborder"
+    ? " flex-col bg-white dark:bg-jp-gray-lightgray_background border-jp-gray-500 dark:border-jp-gray-960 p-4 rounded-sm border"
     : "flex-row"
   let isMobileView = MatchMedia.useMobileChecker()
 

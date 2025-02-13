@@ -152,7 +152,7 @@ module InfoCard = {
   @react.component
   let make = (~children, ~customInfoStyle="") => {
     <div
-      className={`rounded-smborder bg-blue-800 border-blue-700 dark:border-blue-700 relative flex w-full p-6 `}>
+      className={`rounded-sm border bg-blue-800 border-blue-700 dark:border-blue-700 relative flex w-full p-6 `}>
       <Icon className=customInfoStyle name="info-circle-unfilled" size=16 />
       <div> {children} </div>
     </div>

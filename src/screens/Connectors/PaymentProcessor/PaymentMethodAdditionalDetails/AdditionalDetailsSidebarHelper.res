@@ -50,7 +50,7 @@ module InfoCard = {
   @react.component
   let make = (~children, ~customInfoStyle="") => {
     <div
-      className={`rounded-smborder bg-blue-800 border-blue-700 dark:border-blue-700 relative flex w-full p-6 `}>
+      className={`rounded-sm border bg-blue-800 border-blue-700 dark:border-blue-700 relative flex w-full p-6 `}>
       <Icon className=customInfoStyle name="info-circle-unfilled" size=16 />
       <div> {children} </div>
     </div>
@@ -65,7 +65,7 @@ module Card = {
     )
     <>
       <div
-        className={`relative w-full p-6 rounded-smflex flex-col justify-between  ${isSelected
+        className={`relative w-full p-6 rounded-sm flex flex-col justify-between  ${isSelected
             ? `bg-light_blue_bg ${borderColor.primaryNormal} dark: ${borderColor.primaryNormal}`
             : ""}`}>
         <div className="flex justify-between">

@@ -81,7 +81,7 @@ let make = (
 
                         <div
                           key={subSection.id}
-                          className="flex gap-x-3 items-center p-2 rounded-smrelative z-10">
+                          className="flex gap-x-3 items-center p-2 rounded-sm relative z-10">
                           <div className="h-4 w-4 flex items-center justify-center rounded">
                             {if isSubStepCompleted {
                               <Icon name="nd-small-check" customHeight="12" />

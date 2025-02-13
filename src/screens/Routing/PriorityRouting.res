@@ -180,7 +180,7 @@ module SimpleRoutingView = {
             onClick={_ => openConfirmPopUp()}
             text="Save Rule"
             buttonSize=Small
-            customButtonStyle="rounded-xsw-1/5"
+            customButtonStyle="rounded-xs w-1/5"
             buttonType=Primary
             leftIcon={FontAwesome("check")}
             loadingText="Activating..."
@@ -195,13 +195,13 @@ module SimpleRoutingView = {
                 setFormState(_ => EditConfig)
                 setPageState(_ => Create)
               }}
-              customButtonStyle="w-1/5 rounded-sm "
+              customButtonStyle="w-1/5 rounded-sm"
             />
             <Button
               text={"Activate Configuration"}
               buttonType=Secondary
               onClick={_ => handleActivateConfiguration()->ignore}
-              customButtonStyle="w-1/5 rounded-sm "
+              customButtonStyle="w-1/5 rounded-sm"
               buttonState={isActive ? Disabled : Normal}
             />
           </>

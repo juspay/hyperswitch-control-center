@@ -29,7 +29,7 @@ module CardLayout = {
   @react.component
   let make = (~width="w-1/2", ~children, ~customStyle="") => {
     <div
-      className={`relative bg-white ${width} border p-6 rounded-smflex flex-col justify-between ${customStyle}`}>
+      className={`relative bg-white ${width} border p-6 rounded-sm flex flex-col justify-between ${customStyle}`}>
       children
     </div>
   }

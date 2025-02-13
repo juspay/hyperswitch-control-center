@@ -576,9 +576,9 @@ module BaseSelect = {
 
     let borderClass = if !hideBorder {
       if isDropDown {
-        "bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 rounded-sm  shadow-generic_shadow dark:shadow-generic_shadow_dark animate-textTransition transition duration-400"
+        "bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark animate-textTransition transition duration-400"
       } else if showToggle {
-        "bg-white border rounded-smdark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 rounded-sm  "
+        "bg-white border dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 rounded-sm"
       } else {
         ""
       }
@@ -1653,7 +1653,7 @@ module BaseDropdown = {
 
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
-    let dropdownOuterClass = "border border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 rounded-sm  shadow-generic_shadow dark:shadow-generic_shadow_dark z-40"
+    let dropdownOuterClass = "border border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark z-40"
     let newInputSelect = input->ffInputToSelectInput
     let newInputRadio = input->ffInputToRadioInput
     let isMobileView = MatchMedia.useMobileChecker()
