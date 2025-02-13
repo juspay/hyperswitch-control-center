@@ -62,7 +62,16 @@ let make = (~currentStep, ~setConnectorId, ~onNextClick, ~setNextStep, ~profileI
           />
         </>
       | {sectionId: "addAPlatform", subSectionId: Some("configureRetries")}
-      | {sectionId: "addAPlatform", subSectionId: Some("connectProcessor")}
+      | {sectionId: "addAPlatform", subSectionId: Some("connectProcessor")} =>
+        <>
+          <BillingProcessorsConnectProcessor connector />
+          <Button
+            text="Next"
+            buttonType=Primary
+            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            customButtonStyle="w-full"
+          />
+        </>
       | {sectionId: "addAPlatform", subSectionId: Some("setupWebhookPlatform")} =>
         <>
           <BillingProcessorsWebhooks initialValues={updatedInitialVal} />
