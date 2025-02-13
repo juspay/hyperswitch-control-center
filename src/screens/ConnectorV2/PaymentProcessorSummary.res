@@ -123,7 +123,7 @@ let make = (~initialValues, ~setInitialValues) => {
           />
         </div>
       </div>
-      <ConnectorPaymentMethodV3 initialValues isInEditState=false />
+      <ConnectorPaymentMethodV3 initialValues isInEditState=true />
     </div>
   </div>
 }
