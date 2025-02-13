@@ -120,7 +120,7 @@ module PMSelectAll = {
       setIsSelectedAll(_ => isPMEnabled)
       None
     }, [])
-    <>
+    <div className="flex gap-2 items-center">
       <p className="font-normal"> {"Select All"->React.string} </p>
       <BoolInput.BaseComponent
         isSelected={isSelectedAll}
@@ -128,7 +128,7 @@ module PMSelectAll = {
         isDisabled={false}
         boolCustomClass="rounded-lg"
       />
-    </>
+    </div>
   }
 }
 
