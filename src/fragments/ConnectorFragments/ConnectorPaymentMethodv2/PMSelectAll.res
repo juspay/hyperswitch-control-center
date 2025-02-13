@@ -53,9 +53,9 @@ module PMSelectAll = {
 
         pmArrayInp.onChange(updatedData)
       } else {
-        let d = pmEnabledValue->Array.filter(ele => ele.payment_method != pm)
+        let updatedData = pmEnabledValue->Array.filter(ele => ele.payment_method != pm)
 
-        pmEnabledInp.onChange(d->Identity.anyTypeToReactEvent)
+        pmEnabledInp.onChange(updatedData->Identity.anyTypeToReactEvent)
       }
     }
     let selectAllPM = () => {
