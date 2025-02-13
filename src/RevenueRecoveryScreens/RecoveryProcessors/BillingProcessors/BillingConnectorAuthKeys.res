@@ -58,19 +58,19 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   <PageWrapper
     title="Choose your Billing Platform"
     subTitle="Choose one processor for now. You can connect more processors later">
-    <div className="-m-1 mt-5 mb-10 flex flex-col gap-7">
+    <div className="-m-1 mb-10 flex flex-col gap-7">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText="Select Platform"
         input
         deselectDisable=true
-        customButtonStyle="!rounded-xl h-[40px] pr-2"
+        customButtonStyle="!rounded-xl h-[45px] pr-2"
         options
         hideMultiSelectButtons=true
         addButton=false
         searchable=true
         customStyle="!w-full"
-        customDropdownOuterClass="!border-none w-full"
+        customDropdownOuterClass="!border-none"
         fullLength=true
         shouldDisplaySelectedOnTop=true
       />

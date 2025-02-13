@@ -66,10 +66,10 @@ let sections = [
       //   id: (#connectProcessor: revenueRecoverySubsections :> string),
       //   name: #connectProcessor->getStepName,
       // },
-      // {
-      //   id: (#setupWebhookPlatform: revenueRecoverySubsections :> string),
-      //   name: #setupWebhookPlatform->getStepName,
-      // },
+      {
+        id: (#setupWebhookPlatform: revenueRecoverySubsections :> string),
+        name: #setupWebhookPlatform->getStepName,
+      },
     ]),
   },
   {
@@ -111,7 +111,7 @@ let onPreviousClick = (currentStep, setNextStep) => {
 module PageWrapper = {
   @react.component
   let make = (~title, ~subTitle, ~children) => {
-    <div>
+    <div className="flex flex-col gap-7">
       <PageUtils.PageHeading
         title subTitle customSubTitleStyle="font-500 font-normal text-nd_gray-700"
       />

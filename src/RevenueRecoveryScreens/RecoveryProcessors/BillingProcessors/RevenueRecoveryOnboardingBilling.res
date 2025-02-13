@@ -44,7 +44,7 @@ let make = (
     <Form onSubmit initialValues>
       {switch currentStep {
       | {sectionId: "addAPlatform", subSectionId: Some("selectAPlatform")} =>
-        <div>
+        <>
           <BillingConnectorAuthKeys
             initialValues={updatedInitialVal} setInitialValues showVertically=true
           />
@@ -54,21 +54,19 @@ let make = (
             onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
             customButtonStyle="w-full"
           />
-        </div>
+        </>
       | {sectionId: "addAPlatform", subSectionId: Some("configureRetries")}
       | {sectionId: "addAPlatform", subSectionId: Some("connectProcessor")}
       | {sectionId: "addAPlatform", subSectionId: Some("setupWebhookPlatform")} =>
-        <div>
-          <Button
-            text="Previous" onClick={_ => onPreviousClick(currentStep, setNextStep)->ignore}
-          />
+        <>
+          <BillingProcessorsWebhooks initialValues={updatedInitialVal} />
           <Button
             text="Next"
             buttonType=Primary
-            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            onClick={_ => onPreviousClick(currentStep, setNextStep)->ignore}
+            customButtonStyle="w-full"
           />
-          {"billing"->React.string}
-        </div>
+        </>
       | {sectionId: "reviewDetails"} => "Review"->React.string
       | _ => React.null
       }}
