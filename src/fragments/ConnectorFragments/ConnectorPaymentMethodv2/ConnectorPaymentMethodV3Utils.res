@@ -137,8 +137,8 @@ let getPMTIndex = (~connData, ~pmIndex, ~cardNetworks, ~pmt) => {
     let pmEnabled = connData.payment_methods_enabled->Array.get(pmIndex)
 
     let index = switch pmEnabled {
-    | Some(k) => {
-        let isPMTEnabled = k.payment_method_types->Array.findIndex(val => {
+    | Some(pmEnbl) => {
+        let isPMTEnabled = pmEnbl.payment_method_types->Array.findIndex(val => {
           if (
             val.payment_method_type->getPMTFromString == Credit ||
               val.payment_method_type->getPMTFromString == Debit
@@ -151,7 +151,7 @@ let getPMTIndex = (~connData, ~pmIndex, ~cardNetworks, ~pmt) => {
           }
         })
 
-        isPMTEnabled == -1 ? k.payment_method_types->Array.length : isPMTEnabled
+        isPMTEnabled == -1 ? pmEnbl.payment_method_types->Array.length : isPMTEnabled
       }
     | None => 0
     }
