@@ -38,7 +38,7 @@ let make = (~initialValues) => {
 
   let integrationStatusCSS = {
     switch connectorInfodict.status {
-    | "active" => "bg-green-950"
+    | "active" => "bg-green-200"
     | _ => " "
     }
   }

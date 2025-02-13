@@ -65,7 +65,7 @@ module SetupAPIConnection = {
             )}
           />
         </div>
-        <h1 className="text-sm font-medium text-blue-500 mt-2 px-1.5">
+        <h1 className="text-sm font-medium text-primary-primary-blue-500 mt-2 px-1.5">
           {"Learn where to find these values ->"->React.string}
         </h1>
       </div>

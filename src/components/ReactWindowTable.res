@@ -27,11 +27,11 @@ module FilterRow = {
         let paddingClass = "py-3 px-3"
 
         let borderClass = if isLast {
-          ` border-jp-gray-light_table_border_color dark:border-gray-800`
+          ` border-jp-gray-table-border dark:border-gray-800`
         } else if removeVerticalLines {
-          ` border-jp-gray-light_table_border_color dark:border-gray-800`
+          ` border-jp-gray-table-border dark:border-gray-800`
         } else {
-          ` border-r border-jp-gray-light_table_border_color dark:border-gray-800`
+          ` border-r border-jp-gray-table-border dark:border-gray-800`
         }
 
         {
@@ -122,7 +122,7 @@ module NewCell = {
         : "bg-white hover:bg-gray-25 dark:hover:bg-gray-800"
 
     <div
-      className={`h-full ${customcellColouredCell} border-t border-jp-gray-light_table_border_color dark:border-gray-800 dark:bg-gray-900 transition duration-300 ease-in-out `}
+      className={`h-full ${customcellColouredCell} border-t border-jp-gray-table-border dark:border-gray-800 dark:bg-gray-900 transition duration-300 ease-in-out `}
       style>
       <div
         className={`flex flex-row group rounded-md ${cursorClass}  text-fs-13 text-gray-800 dark:text-gray-50/75 overflow-hidden break-words`}
@@ -157,9 +157,9 @@ module NewCell = {
           let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
 
           let borderClass = if isLast || removeVerticalLines {
-            `border-jp-gray-light_table_border_color dark:border-gray-800`
+            `border-jp-gray-table-border dark:border-gray-800`
           } else {
-            `border-r border-jp-gray-light_table_border_color dark:border-gray-800`
+            `border-r border-jp-gray-table-border dark:border-gray-800`
           }
           let cursorI = cellIndex == 0 ? "cursor-pointer" : ""
 

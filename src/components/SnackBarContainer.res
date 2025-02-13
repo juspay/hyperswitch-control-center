@@ -6,9 +6,9 @@ module Snackbar = {
     let borderColor = switch snackbarProps.snackbarType {
     | General
     | Information => "border-jp-2-primary-300"
-    | Success => "border-jp-2-light-green-700"
+    | Success => "border-jp-2-light-green-300"
     | Error => "border-jp-2-light-red-700"
-    | Warning => "border-jp-2-light-orange-600"
+    | Warning => "border-jp-2-light-orange-100"
     }
 
     let snackbarIconName = switch snackbarProps.snackbarType {

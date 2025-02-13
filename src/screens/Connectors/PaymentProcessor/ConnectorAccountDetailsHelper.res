@@ -86,7 +86,7 @@ module ErrorValidation = {
     let err = touched ? errorDict->Dict.get(fieldName) : None
     <RenderIf condition={err->Option.isSome}>
       <div
-        className={`flex flex-row items-center text-orange-950 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>
+        className={`flex flex-row items-center text-orange-400 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>
         <div className="flex mr-2">
           <img className=imageStyle src={`${appPrefix}/icons/warning.svg`} alt="warning" />
         </div>
@@ -426,7 +426,7 @@ module VerifyConnectorModal = {
       customHeight="border-0 h-fit"
       showCloseIcon=false
       modalHeading=" "
-      headingClass="h-2 bg-orange-960 rounded-t-xl"
+      headingClass="h-2 bg-orange-300 rounded-t-xl"
       onCloseClickCustomFun={_ => {
         setVerifyDone(_ => NoAttempt)
         setShowVerifyModal(_ => false)

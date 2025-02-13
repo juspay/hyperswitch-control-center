@@ -299,7 +299,7 @@ module Wrapper = {
         </RenderIf>
         <div
           onClick={handleClickExpand}
-          className={`cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-gray-950 rounded-full border ${borderColor.primaryNormal} dark:${borderColor.primaryNormal}`}>
+          className={`cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-primary-blue-50 dark:bg-gray-950 rounded-full border ${borderColor.primaryNormal} dark:${borderColor.primaryNormal}`}>
           <div className="font-semibold pl-2 text-sm md:text-base"> {React.string(heading)} </div>
           <Icon name={isExpanded ? "angle-up" : "angle-down"} size={isMobileView ? 14 : 16} />
         </div>

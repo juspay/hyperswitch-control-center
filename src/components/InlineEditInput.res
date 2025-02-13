@@ -120,7 +120,7 @@ let make = (
       </button>
       <button
         onClick={_ => handleSave()}
-        className={`cursor-pointer !text-blue-500 ${customIconStyle} ${isDisabledCss}`}
+        className={`cursor-pointer !text-primary-primary-blue-500 ${customIconStyle} ${isDisabledCss}`}
         disabled={isDisabled}>
         <Icon name="nd-check" size=16 />
       </button>
@@ -172,7 +172,7 @@ let make = (
         </RenderIf>
         <div
           className={`group relative flex items-center bg-white ${inputErrors->LogicUtils.isEmptyDict
-              ? "focus-within:ring-1 focus-within:ring-blue-400"
+              ? "focus-within:ring-1 focus-within:ring-primary-blue-200"
               : "ring-1 ring-red-300"}  rounded-md text-md !py-2 ${customStyle} `}>
           <div className={`flex-1 `}>
             <input

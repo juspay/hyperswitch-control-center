@@ -182,7 +182,7 @@ module WebHookAuthenticationHeaders = {
       <Modal
         showModal
         setShowModal
-        modalClass="w-full md:w-4/12 mx-auto my-40 border-t-8 border-t-orange-960 rounded-xl">
+        modalClass="w-full md:w-4/12 mx-auto my-40 border-t-8 border-t-orange-300 rounded-xl">
         <div className="relative flex items-start px-4 pb-10 pt-8 gap-4">
           <Icon
             name="warning-outlined" size=25 className="w-8" onClick={_ => setShowModal(_ => false)}
@@ -380,7 +380,7 @@ module CollectDetails = {
                 className="flex gap-2 mb-3 items-center cursor-pointer"
                 onClick={_ => onClick(option.key)}>
                 <RadioIcon
-                  isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
+                  isSelected={valuesDict->getBool(option.key, false)} fill="text-green-300"
                 />
                 <div className=p2RegularTextStyle>
                   {option.name->LogicUtils.snakeToTitle->React.string}

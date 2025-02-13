@@ -71,7 +71,7 @@ module RangeSliderLocalFilter = {
         <RenderIf condition={min !== max && showDropDown}>
           <div
             ref={dropdownRef->ReactDOM.Ref.domRef}
-            className=" top-3.5 px-4 pt-4 pb-2 bg-white dark:bg-gray-900 mt-8 absolute border border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
+            className=" top-3.5 px-4 pt-4 pb-2 bg-white dark:bg-gray-900 mt-8 absolute border border-jp-gray-steel/75 dark:border-gray-800 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
             <div className="flex">
               <RangeSlider min max maxSlide minSlide />
             </div>

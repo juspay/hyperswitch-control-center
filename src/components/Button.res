@@ -73,7 +73,7 @@ let useGetBgColor = (
   | NonFilled =>
     switch buttonState {
     | Focused
-    | Normal => "hover:bg-jp-gray-lightmode_steelgray/40 dark:hover:bg-gray-900/100 dark:text-gray-50/50 focus:outline-hidden"
+    | Normal => "hover:bg-jp-gray-steel/40 dark:hover:bg-gray-900/100 dark:text-gray-50/50 focus:outline-hidden"
     | Loading => "bg-gray-100 dark:bg-gray-500/10"
     | Disabled => "bg-gray-150 dark:bg-gray-900/50 border dark:border-gray-950/50"
     | NoHover => "hover:bg-gray-300/40 dark:hover:bg-gray-900/100 dark:text-gray-50/50 focus:outline-hidden"
@@ -81,7 +81,7 @@ let useGetBgColor = (
   | FilterAdd =>
     switch buttonState {
     | Focused
-    | Normal => "hover:bg-jp-gray-lightmode_steelgray/40 dark:hover:bg-gray-900/100 text-primary dark:text-primary/100 focus:outline-hidden"
+    | Normal => "hover:bg-jp-gray-steel/40 dark:hover:bg-gray-900/100 text-primary dark:text-primary/100 focus:outline-hidden"
     | Loading => "bg-gray-100 dark:bg-gray-500/10"
     | Disabled => "bg-gray-150 dark:bg-gray-900/50 border dark:border-gray-950/50"
     | NoHover => "hover:bg-gray-300/40 dark:hover:bg-gray-900/100 dark:text-primary/100 text-primary/50  focus:outline-hidden"
@@ -160,10 +160,10 @@ let useGetBgColor = (
   | SelectTransparent =>
     switch buttonState {
     | Focused
-    | Normal => "bg-blue-100   hover:bg-blue-200  dark:bg-black focus:outline-hidden"
-    | Loading => "bg-gray-100   hover:bg-blue-200 focus:outline-hidden"
-    | Disabled => "bg-gray-100   hover:bg-blue-200 focus:outline-hidden"
-    | NoHover => "bg-gray-100   hover:bg-blue-200 focus:outline-hidden"
+    | Normal => "bg-primary-blue-50   hover:bg-primary-blue-50  dark:bg-black focus:outline-hidden"
+    | Loading => "bg-gray-100   hover:bg-primary-blue-50 focus:outline-hidden"
+    | Disabled => "bg-gray-100   hover:bg-primary-blue-50 focus:outline-hidden"
+    | NoHover => "bg-gray-100   hover:bg-primary-blue-50 focus:outline-hidden"
     }
 
   | DarkPurple =>
@@ -325,13 +325,13 @@ let make = (
   | Disabled => "bg-slate-300"
   | _ =>
     switch badge.color {
-    | BadgeGreen => "bg-green-950 dark:bg-green-950/50"
-    | BadgeRed => "bg-red-960 dark:bg-green-950/50"
-    | BadgeBlue => "bg-primary dark:bg-green-950/50"
+    | BadgeGreen => "bg-green-200 dark:bg-green-200/50"
+    | BadgeRed => "bg-red-960 dark:bg-green-200/50"
+    | BadgeBlue => "bg-primary dark:bg-green-200/50"
     | BadgeGray => "bg-blue-table_gray"
-    | BadgeOrange => "bg-orange-950 dark:bg-green-950/50"
+    | BadgeOrange => "bg-orange-400 dark:bg-green-200/50"
     | BadgeYellow => "bg-blue-table_yellow"
-    | BadgeDarkGreen => "bg-green-700"
+    | BadgeDarkGreen => "bg-green-300"
     | BadgeDarkRed => "bg-red-400"
     | NoBadge => "hidden"
     }

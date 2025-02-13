@@ -218,7 +218,9 @@ module SuccessUI = {
   let make = (~downloadFun, ~apiKey) => {
     <div>
       <div className="flex p-5">
-        <Icon className="align-middle fill-blue-600 self-center" size=40 name="info-circle" />
+        <Icon
+          className="align-middle fill-primary-blue-600 self-center" size=40 name="info-circle"
+        />
         <div className="text-gray-800 ml-4">
           <div className="font-bold text-xl px-2 dark:text-gray-50/75">
             {React.string("Download the API Key")}

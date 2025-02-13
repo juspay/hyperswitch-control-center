@@ -37,7 +37,7 @@ let make = (
     None
   }, [input.value])
 
-  let className = `rounded-md border border-jp-gray-lightmode_steelgray/75 font-normal pl-4 pt-3 pb-3 text-sm text-gray-800/75 placeholder-gray-800/25 hover:bg-jp-gray-lightmode_steelgray/20 hover:border-gray-800/20 focus:text-gray-800/100 focus:outline-hidden focus:border-primary/100 dark:text-gray-50/75 dark:border-gray-800 dark:hover:border-gray-800 dark:hover:bg-gray-950 dark:bg-jp-gray-darkgray_background dark:placeholder-gray-50/25 dark:focus:text-gray-50/100 dark:focus:border-primary ${cursorClass} ${customClass}`
+  let className = `rounded-md border border-jp-gray-steel/75 font-normal pl-4 pt-3 pb-3 text-sm text-gray-800/75 placeholder-gray-800/25 hover:bg-jp-gray-steel/20 hover:border-gray-800/20 focus:text-gray-800/100 focus:outline-hidden focus:border-primary/100 dark:text-gray-50/75 dark:border-gray-800 dark:hover:border-gray-800 dark:hover:bg-gray-950 dark:bg-jp-gray-darkgray_background dark:placeholder-gray-50/25 dark:focus:text-gray-50/100 dark:focus:border-primary ${cursorClass} ${customClass}`
   let value = switch input.value->JSON.Classify.classify {
   | String(str) => str
   | Number(num) => num->Float.toString

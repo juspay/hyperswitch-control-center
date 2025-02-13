@@ -190,7 +190,7 @@ module ProgressCell = {
   let make = (~progressPercentage) => {
     <div className="w-full bg-gray-200 rounded-full">
       <div
-        className="bg-green-700 text font-medium text-blue-100 text-left pl-5 p-0.5 leading-none rounded-full"
+        className="bg-green-300 text font-medium text-primary-blue-50 text-left pl-5 p-0.5 leading-none rounded-full"
         style={width: `${Int.toString(progressPercentage)}%`}>
         {React.string(Int.toString(progressPercentage) ++ "%")}
       </div>
@@ -232,19 +232,19 @@ module LabelCell = {
   ) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let borderColor = switch labelColor {
-    | LabelGreen => `bg-green-950 dark:bg-green-950/50`
+    | LabelGreen => `bg-green-200 dark:bg-green-200/50`
     | LabelRed => `bg-red-960 dark:bg-red-960/50`
     | LabelBlue => `bg-primary/50`
     | LabelGray => "bg-blue-table_gray"
-    | LabelOrange => `bg-orange-950 dark:bg-orange-950/50`
+    | LabelOrange => `bg-orange-400 dark:bg-orange-400/50`
     | LabelYellow => "bg-yellow-600"
-    | LabelDarkGreen => "bg-green-700"
+    | LabelDarkGreen => "bg-green-300"
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600/50"
     | LabelLightBlue => "bg-primary/50"
     | LabelWhite => "bg-white border border-gray-150"
     | LabelViolet => "bg-violet-500"
-    | LabelLightGreen => "bg-green-700  dark:bg-green-700/50"
+    | LabelLightGreen => "bg-green-300  dark:bg-green-300/50"
     | LabelLightRed => "bg-red-400 dark:bg-red-400/50"
     }
 
@@ -255,8 +255,8 @@ module LabelCell = {
     }
 
     let mobileTextColor = switch labelColor {
-    | LabelGreen => "text-green-950"
-    | LabelOrange => "text-orange-950"
+    | LabelGreen => "text-green-200"
+    | LabelOrange => "text-orange-400"
     | LabelRed => "text-red-960"
     | _ => "text-white"
     }
@@ -290,19 +290,19 @@ module NewLabelCell = {
     ~fontStyle="font-ibm-plex",
   ) => {
     let _borderColor = switch labelColor {
-    | LabelGreen => "bg-green-950 dark:bg-green-950/50"
+    | LabelGreen => "bg-green-200 dark:bg-green-200/50"
     | LabelRed => "bg-red-960 dark:bg-red-960/50"
     | LabelBlue => "bg-primary dark:bg-primary/50"
     | LabelGray => "bg-blue-table_gray"
-    | LabelOrange => "bg-orange-950 dark:bg-orange-950/50"
+    | LabelOrange => "bg-orange-400 dark:bg-orange-400/50"
     | LabelYellow => "bg-blue-table_yellow"
-    | LabelDarkGreen => "bg-green-700"
+    | LabelDarkGreen => "bg-green-300"
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600/50"
     | LabelLightBlue => "bg-primary/50"
     | LabelWhite => "bg-white border border-gray-150"
     | LabelViolet => "bg-violet-500"
-    | LabelLightGreen => "bg-green-700 dark:bg-green-700/50"
+    | LabelLightGreen => "bg-green-300 dark:bg-green-300/50"
     | LabelLightRed => "bg-red-400 dark:bg-red-400/50"
     }
     let bgColor = switch labelColor {
@@ -347,13 +347,13 @@ module ColoredTextCell = {
     | LabelOrange => "text-status-text-orange"
     | LabelGray => "text-grey-500"
     | LabelYellow => "text-yellow-400"
-    | LabelDarkGreen => "text-green-700"
+    | LabelDarkGreen => "text-green-300"
     | LabelDarkRed => "text-red-700"
     | LabelBrown => "text-yellow-800"
     | LabelLightBlue => "text-sky-300"
     | LabelWhite => "text-gray-250"
     | LabelViolet => "bg-violet-500"
-    | LabelLightGreen => "bg-green-700"
+    | LabelLightGreen => "bg-green-300"
     | LabelLightRed => "bg-red-400"
     }
 
@@ -625,7 +625,7 @@ module DeltaColumn = {
       let textColor = "text-red-980"
       ("", textColor, "text-jp-2-red-100", "arrow-down", "bg-jp-2-red-100")
     } else {
-      let textColor = "text-green-950"
+      let textColor = "text-green-200"
       ("+", textColor, "text-jp-2-green-300", "arrow-up", "bg-jp-2-green-50")
     }
     let detlaStr = deltaText ++ detlaStr

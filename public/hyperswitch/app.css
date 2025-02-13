@@ -10,6 +10,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -25,105 +26,138 @@
 }
 
 @theme inline {
-  --breakpoint-mobile: 28.125rem;
-  --breakpoint-tablet: 93.75rem;
-  --breakpoint-desktop: 93.75rem;
-  --breakpoint-laptop: 67.5rem;
+
+  --breakpoint: {
+    mobile: 28.125rem;
+    tablet: 93.75rem;
+    desktop: 93.75rem;
+    laptop: 67.5rem;
+  }
 
   /* DOM CSS */
+
+  /* Primary Colors */
   --color-primary: rgb(var(--colors-primary));
   --color-primary-DEFAULT: rgb(var(--colors-primary));
-  --color-primary-custom: "#006DF9";
-
   --color-secondary: rgb(var(--colors-secondary));
   --color-secondary-DEFAULT: rgb(var(--colors-secondary));
-  --color-secondary-hover: rgb(var(--btn-secondary-hover-background-color));
 
+  /* Sidebar Colors */
+  --color-sidebar-primary: rgb(var(--sidebar-primary));
+  --color-sidebar-secondary: rgb(var(--sidebar-secondary));
+  --color-sidebar-hoverColor: rgb(var(--sidebar-hover-color));
+  --color-sidebar-primaryTextColor: rgb(var(--sidebar-primary-text-color));
+  --color-sidebar-secondaryTextColor: rgb(var(--sidebar-secondary-text-color));
+  --color-sidebar-borderColor: rgb(var(--sidebar-border-color));
+
+  /* Background Color */
   --color-background: rgb(var(--colors-background));
-  --color-background-DEFAULT: rgb(var(--colors-background));
 
-  --color-typography: rgb(var(--base-text-color));
-  --color-typography-DEFAULT: rgb(var(--base-text-color));
+  /* Typography */
+  --color-typography-text_color: rgb(var(--base-text-color));
   --color-typography-link: rgb(var(--base-link-color));
-  --color-typography-link-hover: rgb(var(--base-link-hover-color));
+  --color-typography-link_hover: rgb(var(--base-link-hover-color));
 
+  /* Button Colors */
   --color-button-primary-bg: rgb(var(--btn-primary-background-color));
   --color-button-primary-text: rgb(var(--btn-primary-text-color));
-  --color-button-primary-hoverbg: rgb(
-    var(--btn-primary-hover-background-color)
-  );
+  --color-button-primary-hoverbg: rgb(var(--btn-primary-hover-background-color));
 
   --color-button-secondary-bg: rgb(var(--btn-secondary-background-color));
   --color-button-secondary-text: rgb(var(--btn-secondary-text-color));
-  --color-button-secondary-hoverbg: rgb(
-    var(--btn-secondary-hover-background-color)
-  );
+  --color-button-secondary-hoverbg: rgb(var(--btn-secondary-hover-background-color));
 
+  /* Outline */
   --color-outline: rgb(var(--borders-border-color));
 
-  /* COLOR PALETTE  */
-
-  /* Neutral color set  */
-
-  --color-grey-0: #fefefe;
-  --color-gray-25: #fcfcfd;
-  --color-gray-50: #f5f7fa;
-  --color-gray-100: #f2f4f8;
-  --color-gray-150: #eceff3;
-  --color-gray-200: #e1e4ea;
-  --color-gray-300: #cacfd8;
-  --color-gray-400: #99a0ae;
+  /* Neutral Gray Palette */
+  --color-gray-0: #fefefe;
+  --color-gray-25: #FCFCFD;
+  --color-gray-50: #F5F7FA;
+  --color-gray-100: #F2F4F8;
+  --color-gray-150: #ECEFF3;
+  --color-gray-200: #E1E4EA;
+  --color-gray-300: #CACFD8;
+  --color-gray-400: #99A0AE;
   --color-gray-500: #717784;
   --color-gray-600: #525866;
-  --color-gray-700: #2b303b;
+  --color-gray-700: #2B303B;
   --color-gray-800: #222530;
-  --color-gray-900: #181b25;
-  --color-gray-950: #0e121b;
+  --color-gray-900: #181B25;
+  --color-gray-950: #0E121B;
   --color-gray-1000: #050506;
 
-  /* extra shades of grey */
-
-  --color-jp-gray-lightmode_steelgray: #ccd2e2;
-  --color-jp-gray-light_table_border_color: #cdd4eb;
+  /* Extra Shades of Gray */
+  --color-jp-gray-steel: #ccd2e2;
+  --color-jp-gray-table-border: #cdd4eb;
   --color-jp-gray-border_gray: #e8e8e8;
 
-  --color-blue-100: #f1f2f4;
-  --color-blue-150: #e6f7ff;
-  --color-blue-200: #daecff;
-  --color-blue-300: #bed4f0;
-  --color-blue-400: #006df9cc;
-  --color-blue-500: #006df9;
-  --color-blue-600: #005ed6;
-  --color-blue-700: #66a9ff;
-  --color-blue-800: #f5f9ff;
-  --color-blue-810: #b9d3f8;
-  --color-blue-811: #0069fd;
-  --color-blue-812: #1b85ff;
-  --color-blue-820: #37476c;
-  --color-blue-830: #465b8b;
-  --color-blue-840: #303e5f;
-  --color-blue-background_blue: #eaeef9;
-  --color-blue-info_blue_background: #f6f8fa;
+  /* Orange Palette */
+  --color-orange-50: #FDF1DD;
+  --color-orange-100: #F5D9A8;
+  --color-orange-200: #E9BE74;
+  --color-orange-300: #D99530;
+  --color-orange-400: #C17D10;
+  --color-orange-500: #AB6100;
+  --color-orange-600: #9E5400;
+  --color-orange-700: #8F4700;
+  --color-orange-800: #703800;
+  --color-orange-900: #5C2900;
+  --color-orange-950: #421F00;
 
-  --color-green-50: #eff4ef;
-  --color-green-100: #f6ffed;
-  --color-green-600: #b8d1b4;
-  --color-green-700: #6cb851;
-  --color-green-950: #79a779;
-  --color-green-960: #3a833a;
-  --color-green-success_page_bg: #e8fdf2;
-  --color-green-accepted_green_800: #39934f;
-  --color-green-dark: #12b76a;
-  --color-green-light: #0e92551a;
+  /* Red Palette */
+  --color-red-50: #FCF1EF;
+  --color-red-100: #FDD4CD;
+  --color-red-200: #FCB5AA;
+  --color-red-300: #F57F6C;
+  --color-red-400: #EC5941;
+  --color-red-500: #DD2B0E;
+  --color-red-600: #C91C00;
+  --color-red-700: #AE1800;
+  --color-red-800: #8D1300;
+  --color-red-900: #660E00;
+  --color-red-950: #4D0A00;
 
-  --color-orange-100: #fffbe6;
-  --color-orange-500: #e07e41;
-  --color-orange-600: #fdd4b6;
-  --color-orange-950: #d88b54;
-  --color-orange-960: #e89519;
-  --color-orange-border_orange: #eea23640;
-  --color-orange-warning_background_orange: #eea2361a;
-  --color-orange-warning_text_orange: #eea236;
+  /* Purple Palette */
+  --color-purple-50: #232150;
+  --color-purple-100: #E1D8F9;
+  --color-purple-200: #CBBBF2;
+  --color-purple-300: #AC93E6;
+  --color-purple-400: #9475DB;
+  --color-purple-500: #7B58CF;
+  --color-purple-600: #694CC0;
+  --color-purple-700: #5943B6;
+  --color-purple-800: #453894;
+  --color-purple-900: #2F2A6B;
+  --color-purple-950: #1D004D;
+
+  /* Primary Blue Palette */
+  --color-primary-blue-50: #E4F1FD;
+  --color-primary-blue-100: #BCD7FA;
+  --color-primary-blue-200: #A1C7F8;
+  --color-primary-blue-300: #6AA1F2;
+  --color-primary-blue-400: #4287EF;
+  --color-primary-blue-500: #1C6DEA;
+  --color-primary-blue-600: #0561E2;
+  --color-primary-blue-700: #0456C5;
+  --color-primary-blue-800: #034AA8;
+  --color-primary-blue-900: #023E8A;
+  --color-primary-blue-950: #01316C;
+
+  /* Green Palette */
+  --color-green-50: #ECF4EE;
+  --color-green-100: #C3E6CD;
+  --color-green-200: #91D4A8;
+  --color-green-300: #52B87A;
+  --color-green-400: #2DA160;
+  --color-green-500: #24663B;
+  --color-green-600: #217645;
+  --color-green-700: #108548;
+  --color-green-800: #0D532A;
+  --color-green-900: #0A4020;
+  --color-green-950: #072B15;
+
+  /* TODO CHANGES FROM HERE  */
 
   --color-red: #ff0000;
   --color-red-DEFAULT: #ff0000;
@@ -161,14 +195,14 @@
 
   --color-nd_green-200: #52b87a;
 
-  --color-sidebar: rgb(var(--sidebar-primary));
+  /* --color-sidebar: rgb(var(--sidebar-primary));
   --color-sidebar-DEFAULT: rgb(var(--sidebar-primary));
   --color-sidebar-primary: rgb(var(--sidebar-primary));
   --color-sidebar-secondary: rgb(var(--sidebar-secondary));
   --color-sidebar-hoverColor: rgb(var(--sidebar-hover-color));
   --color-sidebar-primaryTextColor: rgb(var(--sidebar-primary-text-color));
   --color-sidebar-secondaryTextColor: rgb(var(--sidebar-secondary-text-color));
-  --color-sidebar-borderColor: rgb(var(--sidebar-border-color));
+  --color-sidebar-borderColor: rgb(var(--sidebar-border-color)); */
 
   --spacing-90-px: 90px;
   --spacing-100: 25rem;
@@ -236,10 +270,10 @@
   --shadow-sidebarShadow: 0 -2px 12px 0 rgba(0, 0, 0, 0.06);
   --shadow-connectorTagShadow: 0px 1px 4px 2px rgba(0, 0, 0, 0.06);
   --shadow-boxShadowMultiple: 2px -2px 24px 0px rgba(0, 0, 0, 0.04),
-    -2px 2px 24px 0px rgba(0, 0, 0, 0.02);
+  -2px 2px 24px 0px rgba(0, 0, 0, 0.02);
   --shadow-homePageBoxShadow: 0px 2px 16px 2px rgba(51, 51, 51, 0.16);
   --shadow-focusBoxShadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05),
-    0px 0px 0px 4px rgba(232, 243, 255, 1);
+  0px 0px 0px 4px rgba(232, 243, 255, 1);
   --shadow-cardShadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.04);
 
   --text-base: var(--base-font-size);

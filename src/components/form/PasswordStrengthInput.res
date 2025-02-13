@@ -78,7 +78,7 @@ let make = (
   } else if passwordStatus.color == Yellow {
     "text-yellow-500"
   } else {
-    "text-green-700"
+    "text-green-300"
   }
   <div>
     <div>

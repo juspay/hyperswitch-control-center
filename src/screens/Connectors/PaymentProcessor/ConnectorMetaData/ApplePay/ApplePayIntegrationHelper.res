@@ -75,7 +75,7 @@ module SampleEmail = {
       <p className="flex gap-2">
         {truncatedText->React.string}
         <p
-          className="cursor-pointer text-blue-400 text-xl"
+          className="cursor-pointer text-primary-blue-200 text-xl"
           onClick={_ => setIsTextVisible(_ => true)}>
           {"..."->React.string}
         </p>
@@ -89,7 +89,7 @@ module SampleEmail = {
         <Link
           to_={`/compliance`}
           openInNewTab=false
-          className="text-blue-600 underline underline-offset-2 px-2 !opacity-100">
+          className="text-primary-blue-600 underline underline-offset-2 px-2 !opacity-100">
           {"PCI DSS AoC certificate"->React.string}
         </Link>
         <span className="text-hyperswitch_black opacity-50">
@@ -101,7 +101,7 @@ module SampleEmail = {
           <span>
             {"Stripe Account id: <Enter your account id:you can find it "->React.string}
             <a
-              className="underline text-blue-400 underline-offset-1"
+              className="underline text-primary-blue-200 underline-offset-1"
               href="https://dashboard.stripe.com/settings/user">
               {"here"->React.string}
             </a>
@@ -141,7 +141,7 @@ module CustomTag = {
         </div>
       | None => React.null
       }}
-      <div className={"text-hyperswitch_black text-sm font-medium text-green-960"}>
+      <div className={"text-hyperswitch_black text-sm font-medium text-green-600"}>
         {tagText->React.string}
       </div>
     </div>
@@ -152,7 +152,7 @@ module InfoCard = {
   @react.component
   let make = (~children, ~customInfoStyle="") => {
     <div
-      className={`rounded-sm border bg-blue-800 border-blue-700 dark:border-blue-700 relative flex w-full p-6 `}>
+      className={`rounded-sm border bg-primary-blue-50 border-primary-blue-400 dark:border-primary-blue-400 relative flex w-full p-6 `}>
       <Icon className=customInfoStyle name="info-circle-unfilled" size=16 />
       <div> {children} </div>
     </div>

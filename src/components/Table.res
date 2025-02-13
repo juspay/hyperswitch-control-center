@@ -11,7 +11,7 @@ module TableFilterRow = {
     ~showCheckbox,
   ) => {
     let colsLen = item->Array.length
-    let borderColor = "border-jp-gray-light_table_border_color dark:border-gray-800"
+    let borderColor = "border-jp-gray-table-border dark:border-gray-800"
     let paddingClass = "px-8 py-3"
     let hoverClass = "hover:bg-gray-25 dark:hover:bg-gray-25_dark"
     <tr
@@ -389,7 +389,7 @@ module TableHeadingCell = {
           : ""}`
     }
     let tableHeadingTextClass = if isHighchartLegend {
-      "text-fs-11 dark:text-blue-300/100 text-gray-800/80 font-medium not-italic whitespace-nowrap text-ellipsis overflow-x-hidden "
+      "text-fs-11 dark:text-primary-blue-100/100 text-gray-800/80 font-medium not-italic whitespace-nowrap text-ellipsis overflow-x-hidden "
     } else {
       `${fontWeight} ${fontSize} ${tableHeadingTextClass}`
     }

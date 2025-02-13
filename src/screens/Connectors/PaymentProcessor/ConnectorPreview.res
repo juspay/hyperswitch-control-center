@@ -233,7 +233,7 @@ module ConnectorSummaryGrid = {
             condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
               Processors(FIUU)}>
             <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+              className="flex border items-start bg-primary-blue-50 border-primary-blue-200 text-sm rounded-md gap-2 px-4 py-3">
               <Icon name="info-vacent" size=18 />
               <div>
                 <p className="mb-3">
@@ -296,7 +296,7 @@ module ConnectorSummaryGrid = {
               </RenderIf>
             </div>
             <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+              className="flex border items-start bg-primary-blue-50 border-primary-blue-200 text-sm rounded-md gap-2 px-4 py-3">
               <Icon name="info-vacent" size=18 />
               <p>
                 {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
@@ -374,7 +374,7 @@ let make = (
 
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
-    | false => "border bg-green-600/40 border-green-700 text-green-700"
+    | false => "border bg-green-200/40 border-green-300 text-green-300"
     | _ => "border bg-red-600/40 border-red-400 text-red-500"
     }
 

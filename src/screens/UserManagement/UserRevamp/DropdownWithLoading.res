@@ -2,7 +2,7 @@ open HeadlessUI
 
 type dropDownState = Loading | Success | NoData
 
-let commonDropdownCss = "absolute md:max-h-36 md:min-h-fit overflow-scroll z-30 w-full bg-white rounded-xs shadow-lg  focus:outline-hidden my-1 border border-jp-gray-lightmode_steelgray/75  ring-1 ring-black/5"
+let commonDropdownCss = "absolute md:max-h-36 md:min-h-fit overflow-scroll z-30 w-full bg-white rounded-xs shadow-lg  focus:outline-hidden my-1 border border-jp-gray-steel/75  ring-1 ring-black/5"
 
 module DropDownItems = {
   @react.component

@@ -7,7 +7,7 @@ module BasicAccountSetupSuccessfulPage = {
     ~buttonOnClick,
     ~errorMessage="",
     ~customWidth="w-full",
-    ~bgColor="bg-green-success_page_bg",
+    ~bgColor="bg-green-50",
     ~buttonState=Button.Normal,
     ~isButtonVisible=true,
   ) => {
@@ -129,7 +129,7 @@ let make = (
         buttonText=successButtonText
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
-        bgColor="bg-green-success_page_bg"
+        bgColor="bg-green-50"
         isButtonVisible={paymentId->Option.isSome}
       />
 

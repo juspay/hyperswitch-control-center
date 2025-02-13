@@ -5,7 +5,7 @@ module ToggleSwitch = {
     let cursorType = isToggleDisabled ? "cursor-not-allowed" : "cursor-pointer"
 
     let enabledClasses = if isOpen {
-      `bg-green-700 ${cursorType} ${toggleDefaultStyle}`
+      `bg-green-300 ${cursorType} ${toggleDefaultStyle}`
     } else {
       `bg-gray-300 ${cursorType} ${toggleDefaultStyle}`
     }

@@ -126,7 +126,7 @@ let defaultUIConfig: t = {
     border: {
       borderFirstWidthClass: "border focus:border-r",
       borderLastWidthClass: "border  focus:border-l",
-      borderPrimaryOutlineBorderStyleClass: "border-1 border-blue-800",
+      borderPrimaryOutlineBorderStyleClass: "border-1 border-primary-blue-50",
       borderSecondaryLoadingBorderStyleClass: "border-border_gray",
       borderSecondaryBorderStyleClass: "border-border_gray/20 dark:border-gray-800/100",
     },

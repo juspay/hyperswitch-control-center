@@ -53,7 +53,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
     ->Array.mapWithIndex((sidebarOption, i) => {
       let (icon, indexBackground, indexColor, background, textColor) = switch sidebarOption.status {
       | COMPLETED => ("green-check", backgroundColor, "text-white", "", "")
-      | PENDING => ("lock-icon", "bg-blue-200", textColor.primaryNormal, "bg-gray-25", "")
+      | PENDING => ("lock-icon", "bg-primary-blue-50", textColor.primaryNormal, "bg-gray-25", "")
       | ONGOING => ("", backgroundColor, "text-white", "", textColor.primaryNormal)
       }
 

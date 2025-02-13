@@ -31,7 +31,7 @@ module Verify2FAModalComponent = {
             <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
-                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
                 onClick={_ => handleOnClick(~stateToSet=RecoveryCode)}>
                 {"Use recovery-code"->React.string}
               </span>
@@ -46,7 +46,7 @@ module Verify2FAModalComponent = {
             <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
-                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
                 onClick={_ => handleOnClick(~stateToSet=Totp)}>
                 {"Use totp instead"->React.string}
               </span>

@@ -56,7 +56,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
                 />
               </RenderIf>
               <RenderIf condition={isActive}>
-                <div className="flex items-center gap-1 text-green-accepted_green_800">
+                <div className="flex items-center gap-1 text-green-500">
                   <Icon name="green-tick-without-background" />
                   {"Accepted"->React.string}
                 </div>
@@ -77,7 +77,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
       <div className="text-gray-200 flex gap-2">
         {"Log in with a different account?"->React.string}
         <p
-          className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
+          className="underline cursor-pointer underline-offset-2 hover:text-primary-blue-400"
           onClick={_ => handleLogout()->ignore}>
           {"Click here to log out."->React.string}
         </p>

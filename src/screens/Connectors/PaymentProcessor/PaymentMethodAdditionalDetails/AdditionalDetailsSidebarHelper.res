@@ -10,7 +10,7 @@ module Heading = {
               {"Apple Pay"->React.string}
             </div>
             <div
-              className={`flex items-center gap-1 text-sm text-gray-700 font-semibold border  rounded-full px-2 py-1 bg-orange-600/80 border-orange-500`}>
+              className={`flex items-center gap-1 text-sm text-gray-700 font-semibold border  rounded-full px-2 py-1 bg-orange-100/80 border-orange-200`}>
               <div>
                 <Icon name={"ellipse-black"} size=4 />
               </div>
@@ -39,7 +39,7 @@ module CustomTag = {
         </div>
       | None => React.null
       }}
-      <div className={"text-hyperswitch_black text-sm font-medium text-green-960"}>
+      <div className={"text-hyperswitch_black text-sm font-medium text-green-600"}>
         {tagText->React.string}
       </div>
     </div>
@@ -50,7 +50,7 @@ module InfoCard = {
   @react.component
   let make = (~children, ~customInfoStyle="") => {
     <div
-      className={`rounded-sm border bg-blue-800 border-blue-700 dark:border-blue-700 relative flex w-full p-6 `}>
+      className={`rounded-sm border bg-primary-blue-50 border-primary-blue-400 dark:border-primary-blue-400 relative flex w-full p-6 `}>
       <Icon className=customInfoStyle name="info-circle-unfilled" size=16 />
       <div> {children} </div>
     </div>

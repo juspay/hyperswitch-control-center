@@ -88,7 +88,7 @@ module ActiveSection = {
       className="relative flex flex-col flex-wrap bg-white border rounded-sm w-full px-6 py-10 gap-12">
       <div>
         <div
-          className="absolute top-0 left-0 bg-green-700 text-white py-2 px-4 rounded-br font-semibold">
+          className="absolute top-0 left-0 bg-green-300 text-white py-2 px-4 rounded-br font-semibold">
           {"ACTIVE"->React.string}
         </div>
         <div className="flex flex-col my-6 pt-4 gap-2">
