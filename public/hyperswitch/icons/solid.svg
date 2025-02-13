@@ -9134,15 +9134,7 @@ License)
       stroke-linejoin="round"
     />
   </symbol>
-  <symbol id="nd-arrow-right" viewBox="0 0 7 10" fill="none">
-    <path
-      d="M1.5 9C2.95386 7.94866 4.2576 6.71804 5.37811 5.34008C5.54063 5.14022 5.54063 4.85978 5.37811 4.65992C4.2576 3.28196 2.95386 2.05134 1.5 1"
-      stroke="white"
-      stroke-width="1.33333"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-  </symbol>
+
   <symbol id="nd-circle-dot" viewBox="0 0 18 17" fill="none">
     <path
       d="M1.375 8.50009C1.375 12.7113 4.78883 16.1251 9 16.1251C13.2112 16.1251 16.625 12.7113 16.625 8.50009C16.625 4.28892 13.2112 0.875092 9 0.875092C4.78883 0.875092 1.375 4.28892 1.375 8.50009Z"
