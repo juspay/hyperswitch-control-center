@@ -81,8 +81,8 @@ let sections = [
 ]
 
 let defaultStep = {
-  sectionId: (#connectProcessor: revenueRecoverySections :> string),
-  subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
+  sectionId: (#addAPlatform: revenueRecoverySections :> string),
+  subSectionId: Some((#selectAPlatform: revenueRecoverySubsections :> string)),
 }
 
 open VerticalStepIndicatorUtils
@@ -119,3 +119,6 @@ module PageWrapper = {
     </div>
   }
 }
+
+open ConnectorTypes
+let billingConnectorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]

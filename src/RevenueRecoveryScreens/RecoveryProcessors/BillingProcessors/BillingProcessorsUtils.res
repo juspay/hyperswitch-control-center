@@ -26,3 +26,26 @@ let getConnectorConfig = connector => {
   | _ => JSON.Encode.null
   }
 }
+
+let getOptions: array<ConnectorTypes.connectorTypes> => array<
+  SelectBox.dropdownOption,
+> = dropdownList => {
+  open ConnectorUtils
+  open ConnectorTypes
+
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+    connector
+  ): SelectBox.dropdownOption => {
+    let connectorValue = connector->getConnectorNameString
+    let connectorName = switch connector {
+    | BillingProcessor(processor) => processor->getDisplayNameForBillingProcessor
+    | _ => ""
+    }
+
+    {
+      label: connectorName,
+      value: connectorValue,
+    }
+  })
+  options
+}

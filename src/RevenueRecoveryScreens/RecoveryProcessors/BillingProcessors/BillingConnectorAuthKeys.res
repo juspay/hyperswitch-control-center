@@ -2,6 +2,7 @@
 let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   open LogicUtils
   open ConnectorAuthKeysHelper
+  open BillingProcessorsUtils
 
   let (connector, setConnector) = React.useState(() => "")
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
@@ -51,30 +52,20 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
     checked: true,
   }
 
-  let getOptions: array<string> => array<SelectBox.dropdownOption> = dropdownList => {
-    let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
-      item
-    ): SelectBox.dropdownOption => {
-      {
-        label: item,
-        value: item,
-      }
-    })
-    options
-  }
+  let options = RevenueRecoveryOnboardingUtils.billingConnectorList->getOptions
 
   open RevenueRecoveryOnboardingUtils
   <PageWrapper
     title="Choose your Billing Platform"
     subTitle="Choose one processor for now. You can connect more processors later">
-    <div className="-m-1 mt-5 mb-10">
+    <div className="-m-1 mt-5 mb-10 flex flex-col gap-7">
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText="Select Platform"
         input
         deselectDisable=true
-        customButtonStyle="!rounded-lg h-[40px] pr-2"
-        options={["Charbee"]->getOptions}
+        customButtonStyle="!rounded-xl h-[40px] pr-2"
+        options
         hideMultiSelectButtons=true
         addButton=false
         searchable=true
