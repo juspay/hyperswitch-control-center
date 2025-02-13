@@ -148,6 +148,9 @@ type paymentMethodTypes =
   | BankDebit
   | OpenBankingPIS
   | Paze
+  | AliPay
+  | WeChatPay
+  | DirectCarrierBilling
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
