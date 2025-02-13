@@ -33,13 +33,26 @@ let make = (~currentStep, ~setConnectorId, ~onNextClick, ~setNextStep, ~profileI
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
+  let connectorDetails = React.useMemo(() => {
+    try {
+      if connector->isNonEmptyString {
+        let dict = BillingProcessorsUtils.getConnectorConfig(connector)
+        dict
+      } else {
+        Dict.make()->JSON.Encode.object
+      }
+    } catch {
+    | Exn.Error(_e) => Dict.make()->JSON.Encode.object
+    }
+  }, [connector])
+
   <div>
     <Form onSubmit initialValues>
       {switch currentStep {
       | {sectionId: "addAPlatform", subSectionId: Some("selectAPlatform")} =>
         <>
           <BillingConnectorAuthKeys
-            initialValues={updatedInitialVal} setInitialValues showVertically=true
+            initialValues={updatedInitialVal} setInitialValues connectorDetails
           />
           <Button
             text="Next"
@@ -60,7 +73,11 @@ let make = (~currentStep, ~setConnectorId, ~onNextClick, ~setNextStep, ~profileI
             customButtonStyle="w-full"
           />
         </>
-      | {sectionId: "reviewDetails"} => "Review"->React.string
+      | {sectionId: "reviewDetails"} =>
+        <>
+          <BillingProcessorsReviewDetails initialValues connectorDetails />
+          <Button text="Done" buttonType=Primary onClick={_ => ()} customButtonStyle="w-full" />
+        </>
       | _ => React.null
       }}
       //<FormValuesSpy />

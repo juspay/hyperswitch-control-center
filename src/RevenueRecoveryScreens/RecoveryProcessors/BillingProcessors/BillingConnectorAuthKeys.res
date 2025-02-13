@@ -1,5 +1,5 @@
 @react.component
-let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
+let make = (~initialValues, ~setInitialValues, ~connectorDetails) => {
   open LogicUtils
   open ConnectorAuthKeysHelper
   open BillingProcessorsUtils
@@ -9,19 +9,6 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
 
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
-  }, [connector])
-
-  let connectorDetails = React.useMemo(() => {
-    try {
-      if connector->isNonEmptyString {
-        let dict = BillingProcessorsUtils.getConnectorConfig(connector)
-        dict
-      } else {
-        Dict.make()->JSON.Encode.object
-      }
-    } catch {
-    | Exn.Error(_e) => Dict.make()->JSON.Encode.object
-    }
   }, [connector])
 
   let (bodyType, connectorAccountFields, _, _, _, _, _) = ConnectorFragmentUtils.getConnectorFields(
@@ -76,7 +63,7 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
       />
       <RenderIf condition={connector->LogicUtils.isNonEmptyString}>
         <ConnectorConfigurationFields
-          connector={connectorTypeFromName} connectorAccountFields selectedConnector showVertically
+          connector={connectorTypeFromName} connectorAccountFields selectedConnector
         />
       </RenderIf>
     </div>
