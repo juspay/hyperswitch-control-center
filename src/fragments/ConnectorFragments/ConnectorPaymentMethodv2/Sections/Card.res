@@ -22,7 +22,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
       className="border border-nd_gray-150 rounded-xl overflow-hidden"
       key={`${index->Int.toString}-credit`}>
       <HeadingSection
-        index pm availablePM=credit pmIndex pmt="credit" showSelectAll={!isInEditState}
+        index pm availablePM=credit pmIndex pmt="credit" showSelectAll={isInEditState}
       />
       <div className="flex gap-8 p-6 flex-wrap">
         {credit
@@ -63,7 +63,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
       className="border border-nd_gray-150 rounded-xl overflow-hidden"
       key={`${index->Int.toString}-debit`}>
       <HeadingSection
-        index pm availablePM=debit pmIndex pmt="debit" showSelectAll={!isInEditState}
+        index pm availablePM=debit pmIndex pmt="debit" showSelectAll={isInEditState}
       />
       <div className="flex gap-8 p-6 flex-wrap">
         {debit

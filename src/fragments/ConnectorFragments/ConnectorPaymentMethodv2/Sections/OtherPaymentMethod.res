@@ -36,10 +36,11 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
     ->getPaymentMethodMapper(connector, pm)
 
   let showSelectAll = if (
-    (pm->getPMFromString == Wallet && pm->getPMFromString == BankDebit) ||
+    pm->getPMFromString == Wallet ||
+    pm->getPMFromString == BankDebit ||
     connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(KLARNA) &&
       connData->checkKlaranRegion ||
-    isInEditState
+    !isInEditState
   ) {
     false
   } else {

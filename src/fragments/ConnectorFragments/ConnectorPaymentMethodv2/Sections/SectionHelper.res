@@ -23,7 +23,7 @@ module PaymentMethodTypes = {
     ~connector,
     ~showCheckbox=true,
     ~onClick=None,
-    ~isInEditState=false,
+    ~isInEditState,
   ) => {
     let handleClick = () => {
       switch onClick {
@@ -35,7 +35,7 @@ module PaymentMethodTypes = {
     <RenderIf condition={showCheckbox}>
       <AddDataAttributes key={index->Int.toString} attributes=[("data-testid", `${label}`)]>
         <div key={index->Int.toString} className={"flex gap-1.5 items-center"}>
-          <RenderIf condition={!isInEditState}>
+          <RenderIf condition={isInEditState}>
             <div onClick={_ => handleClick()}>
               <FieldRenderer
                 field={PMTSelection.valueInput(
@@ -57,7 +57,7 @@ module PaymentMethodTypes = {
 
 module HeadingSection = {
   @react.component
-  let make = (~index, ~pm, ~availablePM, ~pmIndex, ~pmt, ~showSelectAll=true) => {
+  let make = (~index, ~pm, ~availablePM, ~pmIndex, ~pmt, ~showSelectAll) => {
     open FormRenderer
     <div className="border-nd_gray-150 rounded-t-xl overflow-hidden">
       <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
