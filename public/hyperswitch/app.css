@@ -66,29 +66,26 @@
   /* Neutral color set  */
 
   --color-grey-0: #fefefe;
-  --color-gray-25:#FCFCFD;
-  --color-gray-50:#F5F7FA;
-  --color-gray-100:#F2F4F8;
-  --color-gray-150:#ECEFF3;
-  --color-gray-200:#E1E4EA;
-  --color-gray-300:#CACFD8;
-  --color-gray-400:#99A0AE;
-  --color-gray-500:#717784;
-  --color-gray-600:#525866;
-  --color-gray-700:#2B303B;
-  --color-gray-800:#222530;
-  --color-gray-900:#181B25;
-  --color-gray-950:#0E121B;
-  --color-gray-1000:#050506;
+  --color-gray-25: #fcfcfd;
+  --color-gray-50: #f5f7fa;
+  --color-gray-100: #f2f4f8;
+  --color-gray-150: #eceff3;
+  --color-gray-200: #e1e4ea;
+  --color-gray-300: #cacfd8;
+  --color-gray-400: #99a0ae;
+  --color-gray-500: #717784;
+  --color-gray-600: #525866;
+  --color-gray-700: #2b303b;
+  --color-gray-800: #222530;
+  --color-gray-900: #181b25;
+  --color-gray-950: #0e121b;
+  --color-gray-1000: #050506;
 
   /* extra shades of grey */
 
   --color-jp-gray-lightmode_steelgray: #ccd2e2;
   --color-jp-gray-light_table_border_color: #cdd4eb;
   --color-jp-gray-border_gray: #e8e8e8;
-
-
-
 
   --color-blue-100: #f1f2f4;
   --color-blue-150: #e6f7ff;
@@ -107,9 +104,6 @@
   --color-blue-840: #303e5f;
   --color-blue-background_blue: #eaeef9;
   --color-blue-info_blue_background: #f6f8fa;
-
-
-
 
   --color-green-50: #eff4ef;
   --color-green-100: #f6ffed;
@@ -295,138 +289,248 @@
   }
 
   .primary-gradient-button {
-    box-shadow: 0px 0px 0px 1px rgb(var(--btn-primary-background-color));
+    box-shadow: 0px 0px 0px 1px
+      hsl(
+        from rgb(var(--btn-primary-background-color)) h calc(s + 1)
+          calc(l - 12) / 1
+      );
     background-image: linear-gradient(
         180deg,
-        rgb(var(--btn-primary-background-color)) -5%,
-        rgb(var(--colors-primary)) 107.5%
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 1)
+              calc(l - 7) / 1
+          ) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%
       ),
       linear-gradient(
         180deg,
-        rgba(var(--colors-primary), 0.7) -6.25%,
-        rgb(var(--btn-primary-background-color)) 100%
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 2)
+              calc(l + 10) / 1
+          ) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%
       );
+    transition: ease-out 120ms;
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
   .primary-gradient-button:hover {
-    box-shadow: 0px 0px 0px 1px rgb(var(--btn-primary-hover-background-color));
+    box-shadow: 0px 0px 0px 1px
+      hsl(
+        from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3)
+          calc(l + 3) / 1
+      );
     background-image: linear-gradient(
         180deg,
-        rgb(var(--btn-primary-hover-background-color)) -6.25%,
-        rgb(var(--btn-primary-hover-background-color)) 100%
+        rgb(var(--btn-primary-background-color)) 0%,
+        hsl(from rgb(var(--btn-primary-background-color)) h s calc(l + 4) / 1)
+          100%
       ),
       linear-gradient(
         180deg,
-        rgba(var(--colors-primary), 0.7) -6.25%,
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 2)
+              calc(l + 10) / 1
+          ) -6.25%,
         rgb(var(--btn-primary-hover-background-color)) 100%
       );
+    transition: ease-out 120ms;
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
   .primary-gradient-button:active {
-    box-shadow: 0px 3px 4px 0px rgb(var(--btn-primary-hover-background-color))
-      inset;
+    box-shadow: 0px 3px 4px 0px #00000026 inset;
     background-image: linear-gradient(
         180deg,
-        rgba(var(--btn-primary-background-color), 0.5) -5%,
-        rgb(var(--btn-primary-hover-background-color)) 107.5%
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 1)
+              calc(l - 13) / 1
+          ) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%
       ),
       linear-gradient(
         180deg,
-        rgb(var(--btn-primary-background-color)) -6.25%,
-        rgb(var(--btn-primary-background-color)) 100%
+        hsl(
+            from rgb(var(--btn-primary-background-color)) calc(h - 1)
+              calc(s + 1) calc(l - 18) / 1
+          ) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%
       );
     background-origin: border-box;
     background-clip: content-box, border-box;
+    transition: ease-out 120ms;
   }
 
-  .primary-gradient-button:focus {
+  .primary-gradient-button:focus-visible {
     box-shadow: 0px 0px 0px 3px
-      rgba(var(--btn-primary-hover-background-color), 0.25);
+      hsl(
+        from rgb(var(--btn-primary-hover-background-color)) calc(h - 1)
+          calc(s + 3) calc(l + 45) / 1
+      );
     background-image: linear-gradient(
         180deg,
-        rgba(var(--btn-primary-background-color), 0.9) -5%,
-        rgb(var(--btn-primary-hover-background-color)) 107.5%
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 1)
+              calc(l - 7) / 1
+          ) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%
       ),
       linear-gradient(
         180deg,
-        rgba(var(--btn-primary-background-color), 0.75) -6.25%,
-        rgb(var(--btn-primary-background-color)) 100%
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 2)
+              calc(l + 10) / 1
+          ) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%
       );
+    transition: ease-out 120ms;
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
   .primary-gradient-button:disabled {
-    box-shadow: 0px 0px 0px 1px rgb(var(--btn-primary-hover-background-color));
+    box-shadow: 0px 0px 0px 1px
+      hsl(
+        from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3)
+          calc(l + 35) / 1
+      );
+    background-image: linear-gradient(
+      180deg,
+      hsl(
+          from rgb(var(--btn-primary-background-color)) h calc(s - 10)
+            calc(l + 25) / 1
+        )
+        0%,
+      hsl(
+          from rgb(var(--btn-primary-background-color)) h calc(s - 10)
+            calc(l + 25) / 1
+        )
+        100%
+    );
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
-  .secondary-gradient-border {
-    box-shadow: 0px 0px 0px 1px rgba(var(--btn-secondary-text-color), 0.25);
+  .secondary-gradient-button {
+    box-shadow: 0px 0px 0px 1px #bfbfc380;
     background-image: linear-gradient(
         180deg,
         rgb(var(--btn-secondary-background-color)) 0%,
-        rgb(var(--btn-secondary-hover-background-color)) 100%
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1)
+          100%
       ),
       linear-gradient(
+        180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1)
+          0%,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 1) / 1)
+          97.5%
+      );
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    transition: ease-out 120ms;
+  }
+
+  .secondary-gradient-button:hover {
+    box-shadow: 0px 0px 0px 1px #bfbfc380;
+    background-image: linear-gradient(
         180deg,
         rgb(var(--btn-secondary-hover-background-color)) 0%,
-        rgb(var(--btn-secondary-background-color)) 97.5%
-      );
-    background-origin: border-box;
-    background-clip: content-box, border-box;
-  }
-
-  .secondary-gradient-border:hover {
-    box-shadow: 0px 0px 0px 1px rgba(var(--btn-secondary-text-color), 0.25);
-    background-image: linear-gradient(
-        180deg,
-        rgb(var(--btn-secondary-hover-background-color)) 0%,
-        rgb(var(--btn-secondary-background-color)) 100%
-      ),
-      linear-gradient(
-        180deg,
-        rgb(var(--btn-secondary-background-color)) 0%,
-        rgb(var(--btn-secondary-hover-background-color)) 97.5%
-      );
-    background-origin: border-box;
-    background-clip: content-box, border-box;
-  }
-
-  .secondary-gradient-border:active {
-    box-shadow: 0px 3px 4px 0px rgba(var(--btn-secondary-background-color), 0.9)
-      inset;
-    background-image: linear-gradient(
-        180deg,
-        rgba(var(--btn-secondary-background-color), 0.5) 0%,
         rgb(var(--btn-secondary-hover-background-color)) 100%
       ),
       linear-gradient(
         180deg,
-        rgb(var(--btn-secondary-background-color)) 0%,
-        rgba(var(--btn-secondary-hover-background-color), 0.1) 97.5%
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1)
+          0%,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 0.75
+          )
+          97.5%
       );
     background-origin: border-box;
     background-clip: content-box, border-box;
+    transition: ease-out 120ms;
   }
 
-  .secondary-gradient-border:focus {
-    box-shadow: 0px 0px 0px 3px rgba(var(--btn-secondary-text-color), 0.1);
+  .secondary-gradient-button:active {
+    box-shadow: 0px 3px 4px 0px #0000001a inset;
     background-image: linear-gradient(
         180deg,
-        rgba(var(--btn-secondary-background-color), 0.9) 0%,
-        rgb(var(--btn-secondary-hover-background-color)) 100%
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 1
+          )
+          0%,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1)
+          100%
       ),
       linear-gradient(
         180deg,
-        rgb(var(--btn-secondary-background-color)) 0%,
-        rgba(var(--btn-secondary-background-color), 0.7) 97.5%
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 0.75
+          )
+          0%,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 1
+          )
+          97.5%
       );
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    transition: ease-out 120ms;
+  }
+
+  .secondary-gradient-button:focus-visible {
+    box-shadow: 0px 0px 0px 3px #bfbfc354;
+    background-image: linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20)
+              calc(s + 23) l / 1
+          )
+          0%,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20)
+              calc(s + 23) l / 1
+          )
+          100%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1)
+          0%,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 0.75
+          )
+          97.5%
+      );
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    transition: ease-out 120ms;
+    outline: none;
+  }
+
+  .secondary-gradient-button:disabled {
+    box-shadow: 0px 0px 0px 1px #bfbfc354;
+    background-image: linear-gradient(
+      180deg,
+      hsl(
+          from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20)
+            calc(s + 10) calc(l - 3) / 1
+        )
+        0%,
+      hsl(
+          from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20)
+            calc(s + 10) calc(l - 3) / 1
+        )
+        100%
+    );
     background-origin: border-box;
     background-clip: content-box, border-box;
   }

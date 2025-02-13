@@ -116,7 +116,7 @@ module OMPViewBaseComp = {
     }
 
     <div
-      className="flex items-center text-sm font-medium cursor-pointer secondary-gradient-border rounded-lg h-40-px">
+      className="flex items-center text-sm font-medium cursor-pointer secondary-gradient-button rounded-lg h-40-px">
       <div className="flex flex-col items-start">
         <div className="text-left flex items-center gap-1 p-2">
           <Icon name="settings-new" size=18 />

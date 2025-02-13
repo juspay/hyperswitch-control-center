@@ -123,7 +123,7 @@ let useGetBgColor = (
     | Normal =>
       showBorder ? buttonConfig.secondaryNormal : buttonConfig.secondaryNoBorder
     | Loading => showBorder ? buttonConfig.secondaryLoading : buttonConfig.secondaryNoBorder
-    | Disabled => showBorder ? "bg-gray-150 dark:bg-gray-800/10" : "px-4"
+    | Disabled => showBorder ? buttonConfig.secondaryDisabled : buttonConfig.secondaryNoBorder
     | NoHover => buttonConfig.secondaryNoHover
     }
   | Pill =>
