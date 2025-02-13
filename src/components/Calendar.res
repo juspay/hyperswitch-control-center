@@ -174,7 +174,7 @@ module TableRow = {
             let classN = if obj->isEmptyString || hSelf.highlightSelf {
               `h-9 p-0 w-9 font-semibold font-fira-code text-center ${textColor}  dark:text-gray-50  ${dayClass}`
             } else {
-              `h-9 p-0 w-9 font-semibold text-center font-fira-code ${textColor}  dark:text-gray-50 hover:text-gray-800/100 dark:hover:text-gray-800/100 hover:bg-jp-gray-lightmode_steelgray/75 hover:rounded-lg dark:hover:bg-gray-800/100 ${dayClass} `
+              `h-9 p-0 w-9 font-semibold text-center font-fira-code ${textColor}  dark:text-gray-50 hover:text-gray-800/100 dark:hover:text-gray-800/100 hover:bg-jp-gray-steel/75 hover:rounded-lg dark:hover:bg-gray-800/100 ${dayClass} `
             }
             let c2 =
               obj->isNonEmptyString && hSelf.highlightSelf
@@ -193,7 +193,7 @@ module TableRow = {
                     : z == parsedEndDate
                     ? "h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white rounded-r-lg "
                     : z > parsedStartDate && z < parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-100  dark:bg-gray-700/100 text-gray-600 dark:text-gray-400"
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-primary-blue-50  dark:bg-gray-700/100 text-gray-600 dark:text-gray-400"
                     : "h-full w-full"
                 } else if z == parsedStartDate {
                   `h-full w-full flex flex-1 justify-center items-center bg-primary/100 dark:bg-primary/100 text-white rounded-lg ${changeHighlightCellStyle}`
@@ -208,7 +208,7 @@ module TableRow = {
                     (endDate->isEmptyString && !isInLimit)
                   )
                 ) {
-                  "h-full w-full flex flex-1 justify-center items-center bg-blue-100 dark:bg-gray-700/100"
+                  "h-full w-full flex flex-1 justify-center items-center bg-primary-blue-50 dark:bg-gray-700/100"
                 } else {
                   "h-full w-full"
                 }

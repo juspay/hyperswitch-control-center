@@ -56,7 +56,7 @@ module PredefinedOption = {
   ) => {
     open DateRangeUtils
     let optionBG = if predefinedOptionSelected === Some(value) {
-      "bg-blue-100 dark:bg-gray-800 py-2"
+      "bg-primary-blue-50 dark:bg-gray-800 py-2"
     } else {
       "bg-transparent md:bg-white md:dark:bg-gray-900 py-2"
     }

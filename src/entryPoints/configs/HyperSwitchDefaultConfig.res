@@ -40,7 +40,7 @@ let config: UIConfig.t = {
       paginationNoHover: "bg-white border-left-1 border-right-1 font-normal text-gray-800/75 hover:text-gray-800 dark:text-gray-50/75",
       dropdownDisabled: "bg-gray-200 dark:bg-gray-900/50 border dark:border-gray-950/50",
       secondaryNormal: "bg-button-secondary-bg hover:bg-button-secondary-hoverbg dark:bg-jp-gray-darkgray_background dark:text-gray-50/50 focus:outline-hidden",
-      secondaryNoBorder: "hover:bg-jp-gray-lightmode_steelgray/40 dark:bg-jp-gray-darkgray_background dark:text-gray-50/50 dark:hover:bg-gray-900 focus:outline-hidden",
+      secondaryNoBorder: "hover:bg-jp-gray-steel/40 dark:bg-jp-gray-darkgray_background dark:text-gray-50/50 dark:hover:bg-gray-900 focus:outline-hidden",
       secondaryLoading: "bg-button-secondary-bg  dark:bg-jp-gray-darkgray_background",
       secondaryNoHover: "bg-button-secondary-bg text-gray-800/50 hover:bg-button-secondary-hoverbg dark:bg-jp-gray-darkgray_background dark:text-gray-50/50 focus:outline-hidden",
     },

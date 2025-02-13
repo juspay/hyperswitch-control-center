@@ -217,7 +217,7 @@ let make = (
           input=inputFromDate
           fontClassName=textBoxClass
           placeholder="09:00 AM"
-          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-gray-500/75 focus:border-primary/100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
+          borderClass={`h-10 pl-1 border-b border-jp-gray-steel dark:border-gray-500/75 focus:border-primary/100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
           setVal=setFromTimeDropdown
         />
       </div>
@@ -229,7 +229,7 @@ let make = (
           input=inputtoDate
           fontClassName=textBoxClass
           placeholder="11:00 PM"
-          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-gray-500/75 focus:border-primary/100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
+          borderClass={`h-10 pl-1 border-b border-jp-gray-steel dark:border-gray-500/75 focus:border-primary/100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
           setVal=setToTimeDropdown
         />
       </div>

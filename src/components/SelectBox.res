@@ -576,9 +576,9 @@ module BaseSelect = {
 
     let borderClass = if !hideBorder {
       if isDropDown {
-        "bg-white border dark:bg-gray-900 border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark animate-textTransition transition duration-400"
+        "bg-white border dark:bg-gray-900 border-jp-gray-steel/75 dark:border-gray-800 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark animate-textTransition transition duration-400"
       } else if showToggle {
-        "bg-white border dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 rounded-sm"
+        "bg-white border dark:bg-jp-gray-darkgray_background border-jp-gray-steel/75 dark:border-gray-800 rounded-sm"
       } else {
         ""
       }
@@ -713,7 +713,7 @@ module BaseSelect = {
       {if showSelectAll && isDropDown {
         if !isMobileView {
           <div
-            className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 z-index: 50`}>
+            className={`${customSearchStyle} border-b border-jp-gray-steel/75 dark:border-gray-800 z-index: 50`}>
             <div className="flex flex-row justify-between">
               <div ref=?selectBtnRef onClick={selectAll(true)}>
                 <Button
@@ -820,10 +820,7 @@ module BaseSelect = {
             }}
           </div>
           {if !hideBorder {
-            <div
-              className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-gray-800  "
-              style={height: "1px"}
-            />
+            <div className="my-2 bg-jp-gray-steel dark:bg-gray-800  " style={height: "1px"} />
           } else {
             React.null
           }}
@@ -1014,7 +1011,7 @@ module BaseSelectButton = {
           : "animate-textTransitionOff transition duration-400"}`}>
       {if searchable {
         <div
-          className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 `}>
+          className={`${customSearchStyle} border-b border-jp-gray-steel/75 dark:border-gray-800 `}>
           <div className="pb-2">
             <SearchInput
               inputText=searchString
@@ -1455,7 +1452,7 @@ module BaseRadio = {
     }
     let searchInputUI =
       <div
-        className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 `}>
+        className={`${customSearchStyle} border-b border-jp-gray-steel/75 dark:border-gray-800 `}>
         <div>
           <SearchInput
             inputText=searchString
@@ -1652,7 +1649,7 @@ module BaseDropdown = {
 
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
-    let dropdownOuterClass = "border border-jp-gray-lightmode_steelgray/75 dark:border-gray-800 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark z-40"
+    let dropdownOuterClass = "border border-jp-gray-steel/75 dark:border-gray-800 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark z-40"
     let newInputSelect = input->ffInputToSelectInput
     let newInputRadio = input->ffInputToRadioInput
     let isMobileView = MatchMedia.useMobileChecker()
@@ -2185,7 +2182,7 @@ module ChipFilterSelectBox = {
     let transformedOptions = useTransformed(options)
 
     let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-gray-500 inline-block text-s px-2 py-1 rounded-2xl"
-    let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
+    let passedClassName = "flex items-center m-2 bg-primary-blue-200 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
     let saneValue = React.useMemo(() => {
@@ -2225,7 +2222,7 @@ module ChipFilterSelectBox = {
           className={`px-4 py-1 mr-1 mt-0.5 border rounded-full flex flex-row gap-2 items-center cursor-pointer ${chipsCss}`}>
           {if isTickRequired {
             if isSelected {
-              <Icon name="check-circle" size=9 className="fill-blue-150 mr-1 mt-0.5" />
+              <Icon name="check-circle" size=9 className="fill-primary-blue-50 mr-1 mt-0.5" />
             } else {
               <Icon name="check-circle" size=9 className="fill-gray-150 mr-1 mt-0.5" />
             }

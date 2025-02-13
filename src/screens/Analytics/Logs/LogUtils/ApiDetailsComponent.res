@@ -64,7 +64,7 @@ let make = (
   let statusCodeTextColor = switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "blue-500"
+    | "INFO" => "primary-primary-blue-500"
     | "ERROR" => "red-400"
     | "WARNING" => "yellow-800"
     | _ => "gray-700 opacity-50"
@@ -86,7 +86,7 @@ let make = (
   let statusCodeBg = switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "blue-100"
+    | "INFO" => "primary-blue-50"
     | "ERROR" => "red-100"
     | "WARNING" => "yellow-100"
     | _ => "gray-100"
@@ -111,7 +111,7 @@ let make = (
     ? switch logType {
       | SDK =>
         switch statusCode {
-        | "INFO" => "blue-500"
+        | "INFO" => "primary-primary-blue-500"
         | "ERROR" => "red-400"
         | "WARNING" => "yellow-300"
         | _ => "gray-700 opacity-50"
@@ -134,7 +134,7 @@ let make = (
     ? switch logType {
       | SDK =>
         switch statusCode {
-        | "INFO" => "blue-500"
+        | "INFO" => "primary-primary-blue-500"
         | "ERROR" => "red-400"
         | "WARNING" => "orange-500"
         | _ => "gray-600"

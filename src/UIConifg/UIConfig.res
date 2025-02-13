@@ -125,7 +125,7 @@ let defaultUIConfig: t = {
     border: {
       borderFirstWidthClass: "border focus:border-r",
       borderLastWidthClass: "border  focus:border-l",
-      borderPrimaryOutlineBorderStyleClass: "border-1 border-blue-800",
+      borderPrimaryOutlineBorderStyleClass: "border-1 border-primary-blue-50",
       borderSecondaryLoadingBorderStyleClass: "border-border_gray",
       borderSecondaryBorderStyleClass: "border-border_gray/20 dark:border-gray-800/100",
     },
@@ -141,7 +141,7 @@ let defaultUIConfig: t = {
       paginationNoHover: "font-medium text-primary/1 hover:text-primary/70 bg-primary/10 border-transparent font-medium  dark:text-gray-50/75",
       dropdownDisabled: "bg-gray-200 dark:bg-gray-900/50 border dark:border-gray-950/50",
       secondaryNormal: "border-1.5 border-double border-transparent text-button-secondary-text secondary-gradient-border",
-      secondaryNoBorder: "hover:bg-jp-gray-lightmode_steelgray/40 dark:bg-jp-gray-darkgray_background dark:text-gray-50/50 dark:hover:bg-gray-900 focus:outline-hidden",
+      secondaryNoBorder: "hover:bg-jp-gray-steel/40 dark:bg-jp-gray-darkgray_background dark:text-gray-50/50 dark:hover:bg-gray-900 focus:outline-hidden",
       secondaryLoading: "bg-button-secondary-bg  dark:bg-jp-gray-darkgray_background",
       secondaryNoHover: "bg-button-secondary-bg text-gray-800/50 hover:bg-button-secondary-hoverbg dark:bg-jp-gray-darkgray_background dark:text-gray-50/50 focus:outline-hidden",
     },

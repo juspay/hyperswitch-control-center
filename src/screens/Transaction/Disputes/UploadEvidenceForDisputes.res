@@ -251,8 +251,7 @@ module DisputesInfoBarComponent = {
     }, [])
 
     <PageLoaderWrapper screenState>
-      <div
-        className="w-full rounded-md border-gray-200/75 bg-blue-info_blue_background p-6 flex gap-6">
+      <div className="w-full rounded-md border-gray-200/75 bg-gray-50 p-6 flex gap-6">
         <div className="flex gap-3 items-start justify-start">
           <Icon name="note-icon" size=22 />
           {switch disputeStatus {

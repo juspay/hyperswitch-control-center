@@ -251,7 +251,7 @@ module AlertBanner = {
     | Success => " bg-green-100"
     | Warning => "bg-orange-100"
     | Error => "bg-red-100"
-    | Info => "bg-blue-150"
+    | Info => "bg-primary-blue-50"
     }
 
     let iconName = switch bannerType {

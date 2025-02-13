@@ -136,7 +136,7 @@ let make = (
   let className = `flex flex-wrap items-center  ${customStyleClass} bg-transparent
                   text-gray-800/75 dark:text-gray-50/75 text-sm font-semibold 
                   placeholder-gray-800/25 dark:placeholder-gray-50/25
-                  border rounded-sm border-jp-gray-lightmode_steelgray/75 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-800`
+                  border rounded-sm border-jp-gray-steel/75 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-800`
   <div className>
     {currentTags
     ->Array.map(tag => {

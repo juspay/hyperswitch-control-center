@@ -122,7 +122,7 @@ let make = () => {
       <div className="text-gray-200 flex gap-2">
         {"Log in with a different account?"->React.string}
         <p
-          className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
+          className="underline cursor-pointer underline-offset-2 hover:text-primary-blue-400"
           onClick={_ => handleLogout()->ignore}>
           {"Click here to log out."->React.string}
         </p>

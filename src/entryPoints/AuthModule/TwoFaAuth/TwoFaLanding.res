@@ -16,7 +16,7 @@ module AttemptsExpiredComponent = {
         <p className={`${p2Regular} text-gray-500`}>
           {"or "->React.string}
           <span
-            className="cursor-pointer underline underline-offset-2 text-blue-600"
+            className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
             onClick={_ => {
               setTwoFaStatus(_ => TwoFaNotExpired)
               setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)
@@ -35,7 +35,7 @@ module AttemptsExpiredComponent = {
         <p className={`${p2Regular} text-gray-500`}>
           {"or "->React.string}
           <span
-            className="cursor-pointer underline underline-offset-2 text-blue-600"
+            className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
             onClick={_ => {
               setTwoFaStatus(_ => TwoFaNotExpired)
               setTwoFaPageState(_ => TOTP_SHOW_QR)
@@ -60,7 +60,7 @@ module AttemptsExpiredComponent = {
         <div className="text-gray-200 flex gap-2">
           {"Log in with a different account?"->React.string}
           <p
-            className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
+            className="underline cursor-pointer underline-offset-2 hover:text-primary-blue-400"
             onClick={_ => handleLogout()->ignore}>
             {"Click here to log out."->React.string}
           </p>

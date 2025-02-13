@@ -169,7 +169,7 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
             className="absolute z-10 min-w-80 bg-white border rounded-md shadow-lg mt-1 cursor-pointer top-10 h-16">
             <div className="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4">
               <div className="flex items-center gap-2">
-                <Icon name="user" size=14 className="text-blue-600" />
+                <Icon name="user" size=14 className="text-primary-blue-600" />
                 <span className="font-medium"> {React.string(suggestion->Option.getOr(""))} </span>
               </div>
             </div>

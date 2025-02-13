@@ -269,7 +269,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  let customHRTagStyle = "border-t border-blue-830"
+  let customHRTagStyle = "border-t border-blue-800"
   let customPadding = "py-1 w-full"
   let customStyle = `w-56 ${secondaryTextColor} ${backgroundColor.sidebarSecondary} dark:bg-black hover:text-gray-100 !w-full`
 
@@ -300,7 +300,7 @@ let make = () => {
         onEditClick
         isDarkBg=true
       />}
-      baseComponentCustomStyle={`border-blue-820 rounded-sm ${backgroundColor.sidebarSecondary} rounded-smtext-white`}
+      baseComponentCustomStyle={`border-blue-950 rounded-sm ${backgroundColor.sidebarSecondary} rounded-smtext-white`}
       bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
         <OMPSwitchHelper.AddNewOMPButton
           user=#Organization

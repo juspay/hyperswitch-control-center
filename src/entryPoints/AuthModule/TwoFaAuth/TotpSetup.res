@@ -80,7 +80,7 @@ module EnterAccessCode = {
             <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
-                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
                 onClick={_ => setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_QR)}>
                 {"Use totp instead"->React.string}
               </span>
@@ -220,7 +220,7 @@ module ConfigureTotpScreen = {
             <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
-                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
                 onClick={_ => setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)}>
                 {"Use recovery-code"->React.string}
               </span>
@@ -401,7 +401,7 @@ let make = (
         <div className="text-gray-200 flex gap-2">
           {"Log in with a different account?"->React.string}
           <p
-            className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
+            className="underline cursor-pointer underline-offset-2 hover:text-primary-blue-400"
             onClick={_ => handleLogout()->ignore}>
             {"Click here to log out."->React.string}
           </p>

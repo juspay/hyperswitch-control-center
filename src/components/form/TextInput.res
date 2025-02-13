@@ -139,7 +139,7 @@ let make = (
 
   let borderClass = isInValid
     ? "border-red-500/75 focus:border-red-500/100  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
-    : `border-jp-gray-lightmode_steelgray/75 ${borderColor.primaryFocused} dark:border-gray-800 dark:hover:border-gray-800 dark:${borderColor.primaryFocused} focus:shadow-text_input_shadow ${shadowColor.primaryFocused}`
+    : `border-jp-gray-steel/75 ${borderColor.primaryFocused} dark:border-gray-800 dark:hover:border-gray-800 dark:${borderColor.primaryFocused} focus:shadow-text_input_shadow ${shadowColor.primaryFocused}`
 
   let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-normal")
   let rightPaddingClass = if description->LogicUtils.isNonEmptyString || isInValid {
@@ -164,7 +164,7 @@ let make = (
       ? `${rightPaddingClass} ${leftPaddingClass} ${verticalPadding}`
       : customPaddingClass
   let hoverCss = if onHoverCss->LogicUtils.isEmptyString {
-    "hover:bg-jp-gray-lightmode_steelgray/20/20 dark:hover:bg-gray-950"
+    "hover:bg-jp-gray-steel/20/20 dark:hover:bg-gray-950"
   } else {
     onHoverCss
   }
