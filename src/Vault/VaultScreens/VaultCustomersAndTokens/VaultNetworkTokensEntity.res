@@ -43,7 +43,7 @@ let itemToObjMapper = (dict: dict<JSON.t>) => {
   }
 }
 
-let getNetworkTokens: JSON.t => array<network_tokensization> = json => {
+let getNetworkTokens: JSON.t => array<network_tokens> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 

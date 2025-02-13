@@ -127,40 +127,34 @@ module VaultedPaymentMethodsTable = {
     let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
     let pageDetail = pageDetailDict->Dict.get("vaultedPaymentMethods")->Option.getOr(defaultValue)
     let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-    let (tableDataTyped, setTableDataTyped) = React.useState(_ => [])
+    let (tableData, setTableData) = React.useState(_ => [])
     let (showModal, setShowModal) = React.useState(_ => false)
     let (paymentId, setPaymentId) = React.useState(_ => "")
-
-    let data = {
-      "merchant": "mca_123456",
-      "customer_id": "cust_12345",
-      "payment_method_id": "pay_JfNiPryk5hUkm6J2cy8a",
-      "payment_method": "card",
-      "payment_method_type": "card",
-      "card": "credit",
-      "recurring_enabled": false,
-      "metadata": null,
-      "created": "",
-      "bank_transfer": "no_three_ds",
-      "last_used_at": "",
-    }->Identity.genericTypeToJson
-
-    let tableData = Array.make(~length=10, data)
-
-    React.useEffect(() => {
-      let tableDataTyped =
-        tableData
-        ->Identity.genericTypeToJson
-        ->getArrayDataFromJson(VaultPaymentMethodsEntity.itemToObjMapper)
-      setTableDataTyped(_ => tableDataTyped)
-      None
-    }, [])
 
     let fetchPaymentMethods = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let url = ""
         let _response = await fetchDetails(url)
+        let response = {
+          "merchant": "mca_123456",
+          "customer_id": "cust_12345",
+          "payment_method_id": "pay_JfNiPryk5hUkm6J2cy8a",
+          "payment_method": "card",
+          "payment_method_type": "card",
+          "card": "credit",
+          "recurring_enabled": false,
+          "metadata": null,
+          "created": "",
+          "bank_transfer": "no_three_ds",
+          "last_used_at": "",
+        }->Identity.genericTypeToJson
+        let response = Array.make(~length=10, response)
+        let tableData =
+          response
+          ->Identity.genericTypeToJson
+          ->getArrayDataFromJson(VaultPaymentMethodsEntity.itemToObjMapper)
+        setTableData(_ => tableData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -179,7 +173,7 @@ module VaultedPaymentMethodsTable = {
           hideTitle=true
           resultsPerPage=7
           entity={VaultPaymentMethodsEntity.vaultPaymentMethodsEntity}
-          actualData={tableDataTyped->Array.map(Nullable.make)}
+          actualData={tableData->Array.map(Nullable.make)}
           totalResults={tableData->Array.length}
           offset
           setOffset

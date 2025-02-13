@@ -171,47 +171,61 @@ let make = (~paymentId, ~setShowModal) => {
   let _getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-
-  let paymentsData = {
-    card_holder_name: "git",
-    card_type: "visa",
-    card_network: "stripe",
-    last_four_digits: "1234",
-    card_expiry_month: "04",
-    card_expiry_year: "2040",
-    card_issuer: "stripe",
-    card_issuing_country: "usa",
-    card_is_in: "",
-    card_extended_bin: "",
-    payment_checks: "",
-    authentication_data: "",
-  }
-
-  let networkTokenData: VaultPaymentMethodDetailsTypes.network_tokensization = {
-    enabled: false,
-    status: "ENABLED",
-    token: "token_uyrxuasytdfibausgf",
-    created: "",
-  }
-
-  let networkTokenData = Array.make(~length=5, networkTokenData)
-
-  let pspTokensData: VaultPaymentMethodDetailsTypes.psp_tokens = {
-    mca_id: "mca_12345678",
-    connector: "Stripe",
-    status: "ENABLED",
-    tokentype: "Single-use",
-    token: "token_gicksudfgoieu",
-    created: "",
-  }
-
-  let pspTokensData = Array.make(~length=5, pspTokensData)
+  let (paymentsDetailsData, setPaymentsDetailsData) = React.useState(() => JSON.Encode.null)
 
   let fetchPaymentMethodDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = ""
       let _response = await fetchDetails(url)
+
+      //** TODO: replace DUMMY DATA with api response*/
+      let networkTokenData: VaultPaymentMethodDetailsTypes.network_tokens = {
+        enabled: false,
+        status: "ENABLED",
+        token: "token_uyrxuasytdfibausgf",
+        created: "",
+      }
+      let networkTokenData = Array.make(~length=5, networkTokenData)
+      let pspTokensData: VaultPaymentMethodDetailsTypes.psp_tokens = {
+        mca_id: "mca_12345678",
+        connector: "Stripe",
+        status: "ENABLED",
+        tokentype: "Single-use",
+        token: "token_gicksudfgoieu",
+        created: "",
+      }
+      let pspTokensData = Array.make(~length=5, pspTokensData)
+
+      let response = {
+        merchant: "merchant",
+        customer_id: Some("custid_12345678"),
+        payment_method_id: "payid_2345678",
+        payment_method_type: Some("card"),
+        payment_method: "credit",
+        card: {
+          card_holder_name: "git",
+          card_type: "visa",
+          card_network: "stripe",
+          last_four_digits: "1234",
+          card_expiry_month: "04",
+          card_expiry_year: "2040",
+          card_issuer: "stripe",
+          card_issuing_country: "usa",
+          card_is_in: "",
+          card_extended_bin: "",
+          payment_checks: "",
+          authentication_data: "",
+        },
+        recurring_enabled: true,
+        tokenization_type: JSON.Encode.string(""),
+        psp_tokensization: {psp_token: pspTokensData},
+        network_tokensization: {network_token: networkTokenData},
+        created: "",
+        last_used_at: "",
+        network_transaction_id: "network_transac_id",
+      }->Identity.genericTypeToJson
+      setPaymentsDetailsData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -222,6 +236,8 @@ let make = (~paymentId, ~setShowModal) => {
     fetchPaymentMethodDetails()->ignore
     None
   }, [])
+
+  let paymentMethodsDetails = paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
 
   <PageLoaderWrapper screenState>
     <div className="bg-white height-screen">
@@ -236,9 +252,9 @@ let make = (~paymentId, ~setShowModal) => {
       </div>
       <hr />
       <div className="px-8 pb-20">
-        <PaymentMethodDetails data={paymentsData} />
-        <NetworkTokens data={networkTokenData} />
-        <PSPTokens data={pspTokensData} />
+        <PaymentMethodDetails data={paymentMethodsDetails.card} />
+        <NetworkTokens data={paymentMethodsDetails.network_tokensization.network_token} />
+        <PSPTokens data={paymentMethodsDetails.psp_tokensization.psp_token} />
       </div>
     </div>
   </PageLoaderWrapper>

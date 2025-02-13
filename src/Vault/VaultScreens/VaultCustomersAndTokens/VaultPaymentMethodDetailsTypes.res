@@ -9,12 +9,14 @@ type psp_tokens = {
 
 type psp_tokensization = {psp_token: array<psp_tokens>}
 
-type network_tokensization = {
+type network_tokens = {
   enabled: bool,
   status: string,
   token: string,
   created: string,
 }
+
+type network_tokensization = {network_token: array<network_tokens>}
 
 type cardDetails = {
   card_holder_name: string,
