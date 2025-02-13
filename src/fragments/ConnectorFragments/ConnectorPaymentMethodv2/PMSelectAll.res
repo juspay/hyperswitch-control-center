@@ -60,6 +60,13 @@ module PMSelectAll = {
     }
     let selectAllPM = () => {
       let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
+      /*
+      On "Select All" for credit:  
+      - Keep existing debit selections.  
+      - Add all credit payment methods.  
+      - Reason: Credit and debit are inside card PM.
+ */
+
       let updateData = if pm->getPMFromString == Card && pmt->getPMTFromString == Credit {
         let filterData = switch pmtData {
         | Some(data) =>
