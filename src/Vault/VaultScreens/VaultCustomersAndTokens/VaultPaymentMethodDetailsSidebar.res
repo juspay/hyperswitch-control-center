@@ -237,7 +237,13 @@ let make = (~paymentId, ~setShowModal) => {
     None
   }, [])
 
-  let paymentMethodsDetails = paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
+  let cardDetails = (paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper).card
+  let networkData = (
+    paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
+  ).network_tokensization.network_token
+  let pspData = (
+    paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
+  ).psp_tokensization.psp_token
 
   <PageLoaderWrapper screenState>
     <div className="bg-white height-screen">
@@ -252,9 +258,9 @@ let make = (~paymentId, ~setShowModal) => {
       </div>
       <hr />
       <div className="px-8 pb-20">
-        <PaymentMethodDetails data={paymentMethodsDetails.card} />
-        <NetworkTokens data={paymentMethodsDetails.network_tokensization.network_token} />
-        <PSPTokens data={paymentMethodsDetails.psp_tokensization.psp_token} />
+        <PaymentMethodDetails data={cardDetails} />
+        <NetworkTokens data={networkData} />
+        <PSPTokens data={pspData} />
       </div>
     </div>
   </PageLoaderWrapper>
