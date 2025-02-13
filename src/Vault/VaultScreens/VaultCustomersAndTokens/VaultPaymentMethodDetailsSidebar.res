@@ -168,7 +168,7 @@ module NetworkTokens = {
 let make = (~paymentId, ~setShowModal) => {
   open APIUtils
   open VaultPaymentMethodDetailsTypes
-  let _getURL = useGetURL()
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (paymentsDetailsData, setPaymentsDetailsData) = React.useState(() => JSON.Encode.null)
@@ -176,7 +176,7 @@ let make = (~paymentId, ~setShowModal) => {
   let fetchPaymentMethodDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = ""
+      let url = getURL(~entityName=PAYMENT_METHODS_DETAILS, ~methodType=Get, ~id=Some(paymentId))
       let _response = await fetchDetails(url)
 
       //** TODO: replace DUMMY DATA with api response*/

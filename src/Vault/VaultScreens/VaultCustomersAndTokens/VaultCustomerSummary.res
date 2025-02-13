@@ -120,7 +120,7 @@ module VaultedPaymentMethodsTable = {
   let make = () => {
     open APIUtils
     open LogicUtils
-    let _getURL = useGetURL()
+    let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
@@ -134,7 +134,7 @@ module VaultedPaymentMethodsTable = {
     let fetchPaymentMethods = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = ""
+        let url = getURL(~entityName=PAYMENT_METHODS, ~methodType=Get)
         let _response = await fetchDetails(url)
         let response = {
           "merchant": "mca_123456",
