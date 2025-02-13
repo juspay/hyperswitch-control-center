@@ -14,8 +14,7 @@ type network_tokensization = {
   token: string,
 }
 
-// network and psp types move to details page
-// not required to map here
+//TODO: network and psp types move to details page, modify as per API response
 
 type vaultPaymentMethods = {
   merchant: string,

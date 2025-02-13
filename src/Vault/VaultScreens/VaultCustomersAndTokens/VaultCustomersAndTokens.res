@@ -13,7 +13,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let total = 100 // TODO: take this value from API response [currenctly set to 5 pages]
-  let limit = 10 // each api calls will retrun 50 results
+  let limit = 10 // each api calls will return 50 results
 
   let getCustomersList = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
