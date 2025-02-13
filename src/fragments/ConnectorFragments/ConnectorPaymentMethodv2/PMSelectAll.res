@@ -17,7 +17,7 @@ module PMSelectAll = {
     let removeAllPM = () => {
       if pm->getPMFromString == Card && pmt->getPMTFromString == Credit {
         let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
-        let d = switch pmtData {
+        let updatePMTData = switch pmtData {
         | Some(data) =>
           data.payment_method_types->Array.filter(ele =>
             ele.payment_method_type->getPMTFromString != Credit
@@ -28,14 +28,14 @@ module PMSelectAll = {
         let updatedData =
           [
             ("payment_method", pm->JSON.Encode.string),
-            ("payment_method_types", d->Identity.genericTypeToJson),
+            ("payment_method_types", updatePMTData->Identity.genericTypeToJson),
           ]
           ->Dict.fromArray
           ->Identity.anyTypeToReactEvent
         pmArrayInp.onChange(updatedData)
       } else if pm->getPMFromString == Card && pmt->getPMTFromString == Debit {
         let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
-        let d = switch pmtData {
+        let updatePMTData = switch pmtData {
         | Some(data) =>
           data.payment_method_types->Array.filter(ele =>
             ele.payment_method_type->getPMTFromString != Debit
@@ -46,7 +46,7 @@ module PMSelectAll = {
         let updatedData =
           [
             ("payment_method", pm->JSON.Encode.string),
-            ("payment_method_types", d->Identity.genericTypeToJson),
+            ("payment_method_types", updatePMTData->Identity.genericTypeToJson),
           ]
           ->Dict.fromArray
           ->Identity.anyTypeToReactEvent
