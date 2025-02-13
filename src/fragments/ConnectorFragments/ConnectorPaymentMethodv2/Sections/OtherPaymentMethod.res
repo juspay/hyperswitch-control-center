@@ -103,13 +103,14 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
       {availablePM
       ->Array.mapWithIndex((pmtData, i) => {
         let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)
+        // determine the index of the payment method type from the form state
         let pmtIndex = switch paymentMethodTypeValues {
-        | Some(k) => {
+        | Some(pmt) => {
             let isPMTEnabled =
-              k.payment_method_types->Array.findIndex(val =>
+              pmt.payment_method_types->Array.findIndex(val =>
                 val.payment_method_type == pmtData.payment_method_type
               )
-            isPMTEnabled == -1 ? k.payment_method_types->Array.length : isPMTEnabled
+            isPMTEnabled == -1 ? pmt.payment_method_types->Array.length : isPMTEnabled
           }
         | None => 0
         }

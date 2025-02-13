@@ -1,6 +1,7 @@
 /*
 PM - PaymentMethod
 PMT - PaymentMethodType
+PME - PaymentMethodExperience
 PMIndex - PaymentMethod Index
 PMTIndex - PaymentMethodType Index
  */
@@ -35,7 +36,7 @@ let make = (~initialValues, ~isInEditState) => {
         key
       }
       let paymentMethodType = pmts->getArrayFromDict(key, [])
-      let up = paymentMethodType->Array.map(
+      let updatedData = paymentMethodType->Array.map(
         val => {
           let paymemtMethodType = val->getDictFromJsonObject->getString("payment_method_type", "")
           let paymemtMethodExperience =
@@ -48,15 +49,15 @@ let make = (~initialValues, ~isInEditState) => {
             },
           ) {
           | Some(data) => {
-              let t = data.payment_method_types->Array.filter(
+              let filterData = data.payment_method_types->Array.filter(
                 available => {
-                  // explicit check for card
+                  // explicit check for card (for card we need to check the card network rather than the payment method type)
                   if (
                     available.payment_method_type == key &&
                       available.card_networks->Array.get(0)->Option.getOr("") == paymemtMethodType
                   ) {
                     true
-                  } // explicit check for klarna
+                  } // explicit check for klarna (for klarna we need to check the payment experience rather than the payment method type)
                   else if (
                     connector->ConnectorUtils.getConnectorNameTypeFromString ==
                       Processors(KLARNA) &&
@@ -79,7 +80,9 @@ let make = (~initialValues, ~isInEditState) => {
               )
 
               let data =
-                t->Array.get(0)->Option.getOr(wasmDict->getPaymentMethodDictV2(key, connector))
+                filterData
+                ->Array.get(0)
+                ->Option.getOr(wasmDict->getPaymentMethodDictV2(key, connector))
               data
             }
           | None => wasmDict->getPaymentMethodDictV2(key, connector)
@@ -90,7 +93,10 @@ let make = (~initialValues, ~isInEditState) => {
       )
       let existingDataInDict =
         newDict->getArrayFromDict(pm, [])->getPaymentMethodMapper(connector, pm)
-      newDict->Dict.set(pm, existingDataInDict->Array.concat(up)->Identity.genericTypeToJson)
+      newDict->Dict.set(
+        pm,
+        existingDataInDict->Array.concat(updatedData)->Identity.genericTypeToJson,
+      )
     })
     newDict
   }, (initalValue, connector))
@@ -106,6 +112,7 @@ let make = (~initialValues, ~isInEditState) => {
       {paymentMethodValues
       ->Dict.keysToArray
       ->Array.mapWithIndex((pmValue, index) => {
+        // determine the index of the payment method from the form state
         let isPMEnabled =
           connData.payment_methods_enabled->Array.findIndex(ele => ele.payment_method == pmValue)
         let pmIndex =

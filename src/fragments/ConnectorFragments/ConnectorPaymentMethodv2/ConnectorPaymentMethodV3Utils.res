@@ -134,9 +134,9 @@ let pmIcon = pm =>
 
 let getPMTIndex = (~connData, ~pmIndex, ~cardNetworks, ~pmt) => {
   if connData.payment_methods_enabled->Array.length > 0 {
-    let t = connData.payment_methods_enabled->Array.get(pmIndex)
+    let pmEnabled = connData.payment_methods_enabled->Array.get(pmIndex)
 
-    let index = switch t {
+    let index = switch pmEnabled {
     | Some(k) => {
         let isPMTEnabled = k.payment_method_types->Array.findIndex(val => {
           if (

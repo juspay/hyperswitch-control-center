@@ -24,6 +24,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
     <div className="flex gap-8 p-6 flex-wrap">
       {credit
       ->Array.mapWithIndex((pmtData, i) => {
+        // determine the index of the payment method type from the form state
         let pmtIndex = switch paymentMethodTypeValues {
         | Some(k) => {
             let isPMTEnabled = k.payment_method_types->Array.findIndex(val => {
@@ -58,6 +59,7 @@ let make = (~index, ~pm, ~pmIndex, ~paymentMethodValues, ~connector, ~isInEditSt
     <div className="flex gap-8 p-6 flex-wrap">
       {debit
       ->Array.mapWithIndex((pmtData, i) => {
+        // determine the index of the payment method type from the form state
         let pmtIndex = switch paymentMethodTypeValues {
         | Some(k) => {
             let isPMTEnabled = k.payment_method_types->Array.findIndex(val => {
