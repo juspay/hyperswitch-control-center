@@ -1,5 +1,13 @@
 @react.component
-let make = (~currentStep, ~setConnectorId, ~onNextClick, ~setNextStep, ~profileId) => {
+let make = (
+  ~currentStep,
+  ~setConnectorId,
+  ~onNextClick,
+  ~setNextStep,
+  ~profileId,
+  ~merchantId,
+  ~connector,
+) => {
   open APIUtils
   open LogicUtils
   open VerticalStepIndicatorTypes
@@ -7,8 +15,6 @@ let make = (~currentStep, ~setConnectorId, ~onNextClick, ~setNextStep, ~profileI
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
-
-  let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
@@ -74,7 +80,7 @@ let make = (~currentStep, ~setConnectorId, ~onNextClick, ~setNextStep, ~profileI
         </>
       | {sectionId: "addAPlatform", subSectionId: Some("setupWebhookPlatform")} =>
         <>
-          <BillingProcessorsWebhooks initialValues={updatedInitialVal} />
+          <BillingProcessorsWebhooks initialValues={updatedInitialVal} merchantId />
           <Button
             text="Next"
             buttonType=Primary
@@ -84,7 +90,7 @@ let make = (~currentStep, ~setConnectorId, ~onNextClick, ~setNextStep, ~profileI
         </>
       | {sectionId: "reviewDetails"} =>
         <>
-          <BillingProcessorsReviewDetails initialValues connectorDetails />
+          <BillingProcessorsReviewDetails initialValues connectorDetails merchantId />
           <Button text="Done" buttonType=Primary onClick={_ => ()} customButtonStyle="w-full" />
         </>
       | _ => React.null

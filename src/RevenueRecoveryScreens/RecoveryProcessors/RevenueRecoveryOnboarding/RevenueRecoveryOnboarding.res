@@ -1,12 +1,19 @@
 @react.component
 let make = () => {
+  open CommonAuthHooks
   open RevenueRecoveryOnboardingUtils
 
   let (currentStep, setNextStep) = React.useState(() => defaultStep)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+
   let {profileId} = getUserInfoData()
-  let (_connectorId, setConnectorId) = React.useState(() => "")
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+
+  let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => "")
+  let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => "")
+  let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
+  let (billingConnectorID, setBillingConnectorID) = React.useState(() => "")
 
   React.useEffect(() => {
     setShowSideBar(_ => false)
@@ -27,12 +34,25 @@ let make = () => {
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
       }}
     />
-    <div className="flex flex-row ml-14 mt-16 w-[490px]">
+    <div className="flex flex-row ml-14 mt-16 w-[540px]">
       <RevenueRecoveryOnboardingPayments
-        currentStep setConnectorId onNextClick setNextStep profileId onPreviousClick
+        currentStep
+        setConnectorID={setPaymentConnectorID}
+        connector={paymentConnectorName}
+        setConnectorName={setPaymentConnectorName}
+        onNextClick
+        setNextStep
+        profileId
+        onPreviousClick
       />
       <RevenueRecoveryOnboardingBilling
-        currentStep setConnectorId onNextClick setNextStep profileId
+        currentStep
+        setConnectorId={setPaymentConnectorID}
+        onNextClick
+        setNextStep
+        profileId
+        merchantId
+        connector=paymentConnectorName
       />
     </div>
   </div>

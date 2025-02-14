@@ -1,9 +1,6 @@
 @react.component
-let make = (~initialValues, ~connectorDetails) => {
+let make = (~initialValues, ~connectorDetails, ~merchantId) => {
   open RevenueRecoveryOnboardingUtils
-
-  open CommonAuthHooks
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let connectorInfoDict =
     initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
