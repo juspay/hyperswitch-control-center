@@ -59,16 +59,16 @@ let make = (
   }, [minSlide.value])
 
   let minborderClass = hasMinError
-    ? "border-jp-2-light-red-600"
+    ? "border-jp-2-light-red-400"
     : `${isMinFocused || isMinInputFocused ? "border-jp-2-light-primary-600" : ""}`
 
   let maxborderClass = hasMaxError
-    ? "border-jp-2-light-red-600"
+    ? "border-jp-2-light-red-400"
     : `${isMaxFocused || isMaxInputFocused ? "border-jp-2-light-primary-600" : ""}`
 
   let inputClassname = (hasError, isFocused) => {
     let bg = hasError
-      ? "bg-jp-2-red-100"
+      ? "bg-jp-2-red-50"
       : `${isFocused
             ? "bg-jp-2-light-primary-200"
             : "focus:bg-jp-2-light-primary-200 hover:bg-jp-2-light-gray-100"}`

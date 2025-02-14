@@ -173,7 +173,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
               defaultLeftIcon={FontAwesome("plus")}
               maxHeight="max-h-full sm:max-h-64"
             />
-            <span className="text-lg text-red-500 ml-1"> {React.string("*")} </span>
+            <span className="text-lg text-red-400 ml-1"> {React.string("*")} </span>
           </div>
           {selectedOptions
           ->Array.mapWithIndex((item, i) => {

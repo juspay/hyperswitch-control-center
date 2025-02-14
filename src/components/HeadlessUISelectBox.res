@@ -122,7 +122,7 @@ let make = (
                               </div>
                               <RenderIf condition=selected>
                                 {if isCloseIcon {
-                                  <Icon name="close" size=10 className="text-red-500 mr-1" />
+                                  <Icon name="close" size=10 className="text-red-400 mr-1" />
                                 } else {
                                   <Tick isSelected=selected />
                                 }}
@@ -205,7 +205,7 @@ let make = (
                             </div>
                             {selected
                               ? props["active"] && deSelectAllowed
-                                  ? <Icon name="close" size=10 className="text-red-500 mr-1" />
+                                  ? <Icon name="close" size=10 className="text-red-400 mr-1" />
                                   : <Tick isSelected=selected />
                               : React.null}
                           </div>}

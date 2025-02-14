@@ -87,11 +87,6 @@
   --color-gray-950: #0E121B;
   --color-gray-1000: #050506;
 
-  /* Extra Shades of Gray */
-  --color-jp-gray-steel: #ccd2e2;
-  --color-jp-gray-table-border: #cdd4eb;
-  --color-jp-gray-border_gray: #e8e8e8;
-
   /* Orange Palette */
   --color-orange-50: #FDF1DD;
   --color-orange-100: #F5D9A8;
@@ -117,6 +112,8 @@
   --color-red-800: #8D1300;
   --color-red-900: #660E00;
   --color-red-950: #4D0A00;
+  --color-red-800-dull: #c04141;
+  --color-hyperswitch_red: #d7625b;
 
   /* Purple Palette */
   --color-purple-50: #232150;
@@ -156,53 +153,20 @@
   --color-green-800: #0D532A;
   --color-green-900: #0A4020;
   --color-green-950: #072B15;
+  --color-hyperswitch-green: #69AF7D;
 
-  /* TODO CHANGES FROM HERE  */
 
-  --color-red: #ff0000;
-  --color-red-DEFAULT: #ff0000;
-  --color-red-100: #fff1f0;
-  --color-red-800: #c04141;
-  --color-red-900: #da0e0f;
-  --color-red-950: #f04849;
-  --color-red-960: #ef6969;
-  --color-red-980: #fc5454;
-  --color-red-failed_page_bg: #fdede8;
-  --color-red-dark: #f04e42;
-  --color-red-light: #feedec;
-
+  /* Extra colors for Hyperswitch */
+  --color-jp-gray-steel: #ccd2e2;
+  --color-jp-gray-table-border: #cdd4eb;
+  --color-jp-gray-border_gray: #e8e8e8;
   --color-yellow-bg: #f7d59b4d;
-  --color-profile-sidebar-blue: #16488f;
-  --color-status-green: #36af47;
-  --color-popover-background: #334264;
-  --color-popover-background-hover: #2e3b58;
-  --color-status-text-orange: #e9aa0a;
-  --color-status-blue: #0585dd;
-  --color-light-blue-bg: #f8faff;
+  --color-hyperswitch-dark-bg: #212e46;
+  --color-hyperswitch-background: #ffffff;
 
-  --color-hyperswitch_dark_bg: #212e46;
-  --color-light-blue: #006df966;
-  --color-light_grey: #454545;
-  --color-hyperswitch_green: #71b44b;
-  --color-light_green: #32aa52;
-  --color-hyperswitch_green_trans: #71b44b20;
-  --color-hyperswitch_red: #d7625b;
-  --color-hyperswitch_background: #ffffff;
-  --color-pdf_background: #f5f5f5;
-  --color-offset_white: #fefefe;
-  --color-light_white: #ffffff0d;
-  --color-unselected_white: #9197a3;
 
-  --color-nd_green-200: #52b87a;
 
-  /* --color-sidebar: rgb(var(--sidebar-primary));
-  --color-sidebar-DEFAULT: rgb(var(--sidebar-primary));
-  --color-sidebar-primary: rgb(var(--sidebar-primary));
-  --color-sidebar-secondary: rgb(var(--sidebar-secondary));
-  --color-sidebar-hoverColor: rgb(var(--sidebar-hover-color));
-  --color-sidebar-primaryTextColor: rgb(var(--sidebar-primary-text-color));
-  --color-sidebar-secondaryTextColor: rgb(var(--sidebar-secondary-text-color));
-  --color-sidebar-borderColor: rgb(var(--sidebar-border-color)); */
+
 
   --spacing-90-px: 90px;
   --spacing-100: 25rem;

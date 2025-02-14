@@ -448,7 +448,7 @@ module VerifyConnectorModal = {
                 {`Received the following error from ${connector->LogicUtils.snakeToTitle}:`->React.string}
               </div>
               <div
-                className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-gray-50/50 bg-red-100 rounded-md font-semibold">
+                className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-gray-50/50 bg-red-50 rounded-md font-semibold">
                 {`${verifyErrorMessage->Option.getOr("")}`->React.string}
               </div>
               <RenderIf condition={suggestedActionExists}> {suggestedAction} </RenderIf>

@@ -29,10 +29,10 @@ let useGetStatus = (dispute: disputes) => {
   switch dispute.dispute_status->disputeStatusVariantMapper {
   | DisputeAccepted
   | DisputeWon =>
-    <div className={`${fixedCss} bg-hyperswitch_green`}> {orderStatusLabel->React.string} </div>
+    <div className={`${fixedCss} bg-hyperswitch-green`}> {orderStatusLabel->React.string} </div>
   | DisputeExpired
   | DisputeLost =>
-    <div className={`${fixedCss} bg-red-960`}> {orderStatusLabel->React.string} </div>
+    <div className={`${fixedCss} bg-red-300`}> {orderStatusLabel->React.string} </div>
   | DisputeOpened
   | DisputeCancelled
   | DisputeChallenged =>

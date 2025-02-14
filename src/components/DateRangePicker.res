@@ -762,7 +762,7 @@ module Base = {
                     let msg = `Date Range should not exceed ${dateRangeLimit
                       ->Option.getOr(0)
                       ->Int.toString} days`
-                    <span className="w-full flex flex-row items-center mr-0 text-red-500">
+                    <span className="w-full flex flex-row items-center mr-0 text-red-400">
                       <FormErrorIcon />
                       {React.string(msg)}
                     </span>

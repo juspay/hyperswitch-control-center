@@ -142,10 +142,10 @@ let useGetBgColor = (
   | Delete =>
     switch buttonState {
     | Focused
-    | Normal => "bg-red-960   hover:from-red-960 hover:to-red-950 focus:outline-hidden"
-    | Loading => "bg-red-960"
+    | Normal => "bg-red-300   hover:from-red-300 hover:to-red-400 focus:outline-hidden"
+    | Loading => "bg-red-300"
     | Disabled => "bg-gray-150 dark:bg-gray-900/50 border dark:border-gray-950/50"
-    | NoHover => "bg-gradient-to-t from-red-960 to-red-800  hover:from-red-960 hover:to-red-960 focus:outline-hidden"
+    | NoHover => "bg-gradient-to-t from-red-300 to-red-800-dull  hover:from-red-300 hover:to-red-300 focus:outline-hidden"
     }
 
   | Transparent =>
@@ -326,7 +326,7 @@ let make = (
   | _ =>
     switch badge.color {
     | BadgeGreen => "bg-green-200 dark:bg-green-200/50"
-    | BadgeRed => "bg-red-960 dark:bg-green-200/50"
+    | BadgeRed => "bg-red-300 dark:bg-green-200/50"
     | BadgeBlue => "bg-primary dark:bg-green-200/50"
     | BadgeGray => "bg-blue-table_gray"
     | BadgeOrange => "bg-orange-400 dark:bg-green-200/50"

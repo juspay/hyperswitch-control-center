@@ -233,7 +233,7 @@ module LabelCell = {
     let isMobileView = MatchMedia.useMobileChecker()
     let borderColor = switch labelColor {
     | LabelGreen => `bg-green-200 dark:bg-green-200/50`
-    | LabelRed => `bg-red-960 dark:bg-red-960/50`
+    | LabelRed => `bg-red-300 dark:bg-red-300/50`
     | LabelBlue => `bg-primary/50`
     | LabelGray => "bg-blue-table_gray"
     | LabelOrange => `bg-orange-400 dark:bg-orange-400/50`
@@ -257,7 +257,7 @@ module LabelCell = {
     let mobileTextColor = switch labelColor {
     | LabelGreen => "text-green-200"
     | LabelOrange => "text-orange-400"
-    | LabelRed => "text-red-960"
+    | LabelRed => "text-red-300"
     | _ => "text-white"
     }
 
@@ -291,7 +291,7 @@ module NewLabelCell = {
   ) => {
     let _borderColor = switch labelColor {
     | LabelGreen => "bg-green-200 dark:bg-green-200/50"
-    | LabelRed => "bg-red-960 dark:bg-red-960/50"
+    | LabelRed => "bg-red-300 dark:bg-red-300/50"
     | LabelBlue => "bg-primary dark:bg-primary/50"
     | LabelGray => "bg-blue-table_gray"
     | LabelOrange => "bg-orange-400 dark:bg-orange-400/50"
@@ -341,14 +341,14 @@ module ColoredTextCell = {
   @react.component
   let make = (~labelColor: labelColor, ~text, ~customPadding="px-2") => {
     let textColor = switch labelColor {
-    | LabelGreen => "text-status-green"
-    | LabelRed => "text-red-980"
+    | LabelGreen => "text-green-300"
+    | LabelRed => "text-red-400"
     | LabelBlue => "text-sky-500"
-    | LabelOrange => "text-status-text-orange"
+    | LabelOrange => "text-orange-300"
     | LabelGray => "text-grey-500"
     | LabelYellow => "text-yellow-400"
     | LabelDarkGreen => "text-green-300"
-    | LabelDarkRed => "text-red-700"
+    | LabelDarkRed => "text-red-600"
     | LabelBrown => "text-yellow-800"
     | LabelLightBlue => "text-sky-300"
     | LabelWhite => "text-gray-250"
@@ -622,8 +622,8 @@ module DeltaColumn = {
       let textColor = ""
       ("", textColor, "", "", "bg-jp-2-gray-30")
     } else if delta < 0. {
-      let textColor = "text-red-980"
-      ("", textColor, "text-jp-2-red-100", "arrow-down", "bg-jp-2-red-100")
+      let textColor = "text-red-400"
+      ("", textColor, "text-jp-2-red-50", "arrow-down", "bg-jp-2-red-50")
     } else {
       let textColor = "text-green-200"
       ("+", textColor, "text-jp-2-green-300", "arrow-up", "bg-jp-2-green-50")

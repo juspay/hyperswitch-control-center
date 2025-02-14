@@ -375,7 +375,7 @@ let make = (
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
     | false => "border bg-green-200/40 border-green-300 text-green-300"
-    | _ => "border bg-red-600/40 border-red-400 text-red-500"
+    | _ => "border bg-red-400/40 border-red-400 text-red-400"
     }
 
   let mixpanelEventName = isUpdateFlow ? "processor_step3_onUpdate" : "processor_step3"

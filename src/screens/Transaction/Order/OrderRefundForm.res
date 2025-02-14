@@ -132,7 +132,7 @@ let make = (
             />
           </div>
           <div className="flex text-fs-13 ">
-            <Icon size={14} name="exclamation-circle" className="text-red-600 mr-2 mt-1" />
+            <Icon size={14} name="exclamation-circle" className="text-red-400 mr-2 mt-1" />
             <span className="font-medium text-gray-500 mt-2">
               {React.string(
                 "Note: Refunds cannot be canceled once placed. Please verify before proceeding.",

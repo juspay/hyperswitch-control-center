@@ -141,7 +141,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         errorMessage
         customWidth
-        bgColor="bg-red-failed_page_bg"
+        bgColor="bg-red-50"
         isButtonVisible={paymentId->Option.isSome}
       />
     | CHECKCONFIGURATION =>

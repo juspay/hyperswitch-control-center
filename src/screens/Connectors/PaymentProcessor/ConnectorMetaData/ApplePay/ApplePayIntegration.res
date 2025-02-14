@@ -64,7 +64,7 @@ module Verified = {
                       tagText="Verified"
                       tagSize=4
                       tagLeftIcon=Some("ellipse-green")
-                      tagCustomStyle="bg-hyperswitch_green_trans"
+                      tagCustomStyle="bg-hyperswitch-green_trans"
                     />
                   | #manual =>
                     <Icon

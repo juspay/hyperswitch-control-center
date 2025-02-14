@@ -187,7 +187,7 @@ module StatisticsCard = {
   let make = (~value, ~tooltipValue as _, ~direction, ~isOverviewComponent=false) => {
     let (bgColor, textColor) = switch direction {
     | Upward => ("bg-green-200", "text-green-400")
-    | Downward => ("bg-red-light", "text-red-dark")
+    | Downward => ("bg-red-50", "text-red-400")
     | No_Change => ("bg-gray-100", "text-gray-500")
     }
 

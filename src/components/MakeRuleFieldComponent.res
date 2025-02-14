@@ -81,7 +81,7 @@ module CompressedView = {
         | Some(val) => <TextView str=val />
         | None => React.null
         }}
-        <TextView str=operator fontColor="text-red-500" fontWeight="font-semibold" />
+        <TextView str=operator fontColor="text-red-400" fontWeight="font-semibold" />
         <TextView str={value} />
       </div>
     | None => React.null

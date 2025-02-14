@@ -407,12 +407,12 @@ let useGetStatus = order => {
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
   | Succeeded
   | PartiallyCaptured =>
-    <div className={`${fixedStatusCss} bg-hyperswitch_green dark:bg-opacity-50`}>
+    <div className={`${fixedStatusCss} bg-hyperswitch-green dark:bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | Failed
   | Cancelled =>
-    <div className={`${fixedStatusCss} bg-red-960 dark:bg-opacity-50`}>
+    <div className={`${fixedStatusCss} bg-red-300 dark:bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | Processing

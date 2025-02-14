@@ -4,7 +4,7 @@ let make = (
   ~jsonToDisplay,
   ~headerText=None,
   ~maxHeightClass="max-h-25-rem",
-  ~overrideBackgroundColor="bg-hyperswitch_background",
+  ~overrideBackgroundColor="bg-hyperswitch-background",
 ) => {
   let showToast = ToastState.useShowToast()
   let (parsedJson, setParsedJson) = React.useState(_ => "")

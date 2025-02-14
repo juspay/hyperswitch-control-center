@@ -164,7 +164,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
-    | true => "border bg-red-600/40 border-red-400 text-red-500"
+    | true => "border bg-red-400/40 border-red-400 text-red-400"
     | false => "border bg-green-200/40 border-green-300 text-green-300"
     }
 

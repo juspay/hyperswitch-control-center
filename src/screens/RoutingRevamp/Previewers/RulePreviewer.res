@@ -150,7 +150,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                         <MakeRuleFieldComponent.TextView str={metadataKey->Option.getOr("")} />
                       </RenderIf>
                       <MakeRuleFieldComponent.TextView
-                        str=operator fontColor="text-red-500" fontWeight="font-semibold"
+                        str=operator fontColor="text-red-400" fontWeight="font-semibold"
                       />
                       <MakeRuleFieldComponent.TextView str=value />
                     </div>

@@ -7,7 +7,7 @@ module ClearFilters = {
     ~outsidefilter=false,
   ) => {
     let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-    let textStyle = "text-red-900"
+    let textStyle = "text-red-600"
     let leftIcon: Button.iconType = CustomIcon(<Icon name="trash-outline" size=24 />)
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(

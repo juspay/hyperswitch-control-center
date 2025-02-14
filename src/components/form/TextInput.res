@@ -138,7 +138,7 @@ let make = (
   }
 
   let borderClass = isInValid
-    ? "border-red-500/75 focus:border-red-500/100  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
+    ? "border-red-400/75 focus:border-red-400/100  dark:border-red-400 dark:hover:border-red-400 dark:focus:border-red-400 focus:shadow-text_input_shadow focus:shadow-red-400"
     : `border-jp-gray-steel/75 ${borderColor.primaryFocused} dark:border-gray-800 dark:hover:border-gray-800 dark:${borderColor.primaryFocused} focus:shadow-text_input_shadow ${shadowColor.primaryFocused}`
 
   let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-normal")

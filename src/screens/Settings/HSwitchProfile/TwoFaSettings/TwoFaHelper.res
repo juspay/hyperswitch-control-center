@@ -55,7 +55,7 @@ module Verify2FAModalComponent = {
         </>
       }}
       <RenderIf condition={errorMessage->LogicUtils.isNonEmptyString}>
-        <div className="text-sm text-red-600"> {`Error: ${errorMessage}`->React.string} </div>
+        <div className="text-sm text-red-400"> {`Error: ${errorMessage}`->React.string} </div>
       </RenderIf>
     </div>
   }

@@ -109,7 +109,7 @@ let make = (
               className="flex justify-start pt-2 pb-2 text-fs-13 text-gray-800 ml-1 font-semibold">
               {"Role"->React.string}
               <RenderIf condition=isRequired>
-                <span className="text-red-950"> {React.string("*")} </span>
+                <span className="text-red-400"> {React.string("*")} </span>
               </RenderIf>
             </div>
             <div

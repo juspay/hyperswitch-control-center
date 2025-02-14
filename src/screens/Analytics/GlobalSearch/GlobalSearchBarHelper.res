@@ -721,7 +721,7 @@ module ModalSearchBox = {
 
     let textColor =
       errorMessage->isNonEmptyString
-        ? "text-red-900/75 focus:text-red-900/100"
+        ? "text-red-600/75 focus:text-red-600/100"
         : "text-gray-800/75 focus:text-gray-800/100"
 
     <Form
@@ -764,7 +764,7 @@ module ModalSearchBox = {
                   </div>
                 </div>
                 <RenderIf condition={errorMessage->isNonEmptyString}>
-                  <div className="text-sm text-red-900 ml-12 pl-2">
+                  <div className="text-sm text-red-600 ml-12 pl-2">
                     {errorMessage->React.string}
                   </div>
                 </RenderIf>

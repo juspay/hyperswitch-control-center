@@ -13,7 +13,7 @@ let make = (~onClick) => {
         <div
           className={`leading-4 ml-1 mt-2 text-center flex items-center flex-col gap-6 w-full md:w-133 flex-wrap`}>
           <div className="flex gap-2.5 items-center">
-            <Icon name="exclamation-circle" size=22 className="fill-red-500 mr-1.5" />
+            <Icon name="exclamation-circle" size=22 className="fill-red-400 mr-1.5" />
             <p className="text-fs-20 font-bold text-white">
               {React.string("Invalid Link or session expired")}
             </p>

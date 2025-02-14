@@ -217,7 +217,7 @@ module FieldWrapper = {
                 <label className={`${labelPadding} ${labelTextClass} ${labelClass}`}>
                   {React.string(label)}
                   <RenderIf condition=isRequired>
-                    <span className="text-red-950"> {React.string(" *")} </span>
+                    <span className="text-red-400"> {React.string(" *")} </span>
                   </RenderIf>
                 </label>
               </AddDataAttributes>
@@ -277,7 +277,7 @@ module FieldError = {
     ~errorClass="",
     ~showErrorOnChange=false,
   ) => {
-    let errorTextStyle = "text-red-950 dark:text-red-400 text-fs-10 font-medium ml-1"
+    let errorTextStyle = "text-red-400 dark:text-red-400 text-fs-10 font-medium ml-1"
     let error = if meta.touched || alwaysShow || (showErrorOnChange && meta.modified) {
       if !(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit {
         Nullable.toOption(meta.submitError)
@@ -538,7 +538,7 @@ module FormError = {
         | Some(err) => LogicUtils.getStringFromJson(err, "")
         | None => "Error occurred on submit"
         }
-        <div className="text-red-950"> {React.string(errStr)} </div>
+        <div className="text-red-400"> {React.string(errStr)} </div>
       | None => React.null
       }
     | None => React.null

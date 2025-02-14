@@ -128,7 +128,7 @@ module CustomFilters = {
         }
       />
       <div>
-        <span className="flex break-words text-red-800">
+        <span className="flex break-words text-red-800-dull">
           {errMessage->isEmptyString ? React.null : React.string(errMessage)}
         </span>
         <div className="mt-6">

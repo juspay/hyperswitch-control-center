@@ -7,7 +7,7 @@ module Snackbar = {
     | General
     | Information => "border-jp-2-primary-300"
     | Success => "border-jp-2-light-green-300"
-    | Error => "border-jp-2-light-red-700"
+    | Error => "border-jp-2-light-red-600"
     | Warning => "border-jp-2-light-orange-100"
     }
 

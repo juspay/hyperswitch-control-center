@@ -255,7 +255,7 @@ let make = () => {
         </Portal>
       </div>
       <div
-        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
+        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch-background/70 py-1 rounded-lg my-2">
         topFilterUi
       </div>
       <div className="flex flex-col gap-14">

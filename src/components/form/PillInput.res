@@ -179,8 +179,8 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
     </div>
     <RenderIf condition={!(error->LogicUtils.isEmptyString)}>
       <div className="flex gap-1 mt-2">
-        <Icon name="exclamation-circle" size=12 className="text-red-600" />
-        <p className="text-red-600 text-xs"> {React.string(error)} </p>
+        <Icon name="exclamation-circle" size=12 className="text-red-400" />
+        <p className="text-red-400 text-xs"> {React.string(error)} </p>
       </div>
     </RenderIf>
   </div>

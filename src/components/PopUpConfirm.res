@@ -37,7 +37,7 @@ let make = (
   | Success => ("bg-green-300", "border-t-green-300")
   | Primary => ("bg-primary", "border-t-primary")
   | Secondary => ("bg-yellow-300", "border-t-yellow-300")
-  | Danger | Denied => ("bg-red-600", "border-t-red-600")
+  | Danger | Denied => ("bg-red-400", "border-t-red-400")
   | Warning => ("bg-orange-300", "border-t-orange-300")
   }
   let appPrefix = LogicUtils.useUrlPrefix()

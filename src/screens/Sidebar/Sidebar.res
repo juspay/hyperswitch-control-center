@@ -69,7 +69,7 @@ module SidebarSubOption = {
           ? "transition duration-[250ms] animate-textTransitionSideBar"
           : "transition duration-[1000ms] animate-textTransitionSideBarOff"} ${isSideBarExpanded
           ? "mx-2"
-          : "mx-1"} border-light_grey `}>
+          : "mx-1"} border-gray-600 `}>
       <div className="w-6" />
       <div
         className={`${subOptionClass} w-full pl-3 py-3 p-4.5 flex items-center ${hoverColor} whitespace-nowrap my-0.5 rounded-lg`}>
