@@ -395,7 +395,7 @@ module.exports = {
       const newUtilities = {
         ".primary-gradient-button": {
           boxShadow:
-            "0px 0px 0px 1px hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 12) / 1)",
+            "0px 0px 0px 1px hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l + 2) / 1)",
           backgroundImage: `linear-gradient(180deg, hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 7) / 1) -5%, rgb(var(--btn-primary-background-color)) 107.5%),
             linear-gradient(180deg, hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%)`,
           transition: "ease-out 120ms",
@@ -404,7 +404,7 @@ module.exports = {
         },
         ".primary-gradient-button:hover": {
           boxShadow:
-            "0px 0px 0px 1px hsl(from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3) calc(l + 3) / 1)",
+            "0px 0px 0px 1px hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l + 2) / 1)",
           backgroundImage: `linear-gradient(180deg, rgb(var(--btn-primary-background-color)) 0%, hsl(from rgb(var(--btn-primary-background-color)) h s calc(l + 4) / 1) 100%),
             linear-gradient(180deg, hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%, rgb(var(--btn-primary-hover-background-color)) 100%)`,
           transition: "ease-out 120ms",
