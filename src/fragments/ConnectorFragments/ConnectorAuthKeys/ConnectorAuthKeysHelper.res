@@ -58,7 +58,7 @@ module ErrorValidation = {
     let err = touched ? errorDict->Dict.get(fieldName) : None
     <RenderIf condition={err->Option.isSome}>
       <div
-        className={`flex flex-row items-center text-orange-950 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>
+        className={`flex flex-row items-center text-orange-400 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>
         <div className="flex mr-2">
           <img className=imageStyle src={`${appPrefix}/icons/warning.svg`} alt="warning" />
         </div>
@@ -158,7 +158,7 @@ module CashToCodeSelectBox = {
   ) => {
     open LogicUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-gray-700 opacity-50`
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (country, setSelectedCountry) = React.useState(_ => "")
     let selectedCountry = country => {
@@ -206,7 +206,7 @@ module CashToCodeSelectBox = {
         setShowModal={setShowWalletConfigurationModal}
         paddingClass=""
         revealFrom=Reveal.Right
-        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-gray-800"
         childClass={""}>
         <div>
           <RenderConnectorInputFields

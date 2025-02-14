@@ -69,14 +69,14 @@ let make = (
 
   if totalResults >= resultsPerPage {
     <div
-      className={`flex ${flexDirection} bg-nd_gray-25 border border-t-0 rounded-b-lg border-nd_br_gray-300 px-6 py-2 justify-between ${marginClass} ${paginationClass} `}>
+      className={`flex ${flexDirection} bg-gray-25 border border-t-0 rounded-b-lg border-nd_br_gray-300 px-6 py-2 justify-between ${marginClass} ${paginationClass} `}>
       <div className={`flex flex-row w-full ${justify} text-sm`}>
         <RenderIf condition={!isMobileView && showResultsPerPageSelector}>
           <div
-            className="flex self-center gap-2 items-center text-center text-nd_gray-500 dark:text-gray-500 font-medium whitespace-pre">
+            className="flex self-center gap-2 items-center text-center text-gray-500 dark:text-gray-500 font-medium whitespace-pre">
             <span>
               {React.string("Showing  ")}
-              <span className="text-nd_gray-700"> {React.string(toNum->Int.toString)} </span>
+              <span className="text-gray-700"> {React.string(toNum->Int.toString)} </span>
             </span>
             <SelectBox.BaseDropdown
               options=selectInputOption
@@ -93,7 +93,7 @@ let make = (
             />
             <span>
               {React.string("  of")}
-              <span className="text-nd_gray-700">
+              <span className="text-gray-700">
                 {React.string(`   ${totalResults->Int.toString}`)}
               </span>
             </span>

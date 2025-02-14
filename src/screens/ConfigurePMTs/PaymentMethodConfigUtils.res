@@ -11,7 +11,7 @@ let getAdvanceConfiguration = (
       obj.list->Array.length > 3
         ? <div>
             {`${firstThree},`->React.string}
-            <span className="text-blue-811">
+            <span className="text-primary-blue-500">
               {`+${Int.toString(restCount)} more`->React.string}
             </span>
           </div>

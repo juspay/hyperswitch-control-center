@@ -92,7 +92,7 @@ let make = (
         useHTML: true,
       },
       subtitle: {
-        text: `<div class='font-medium text-sm font-inter-style text-jp-gray-800 dark:text-dark_theme'>Distribution across ${titleKey->LogicUtils.snakeToTitle}s</div>`,
+        text: `<div class='font-medium text-sm font-inter-style text-gray-500 dark:text-dark_theme'>Distribution across ${titleKey->LogicUtils.snakeToTitle}s</div>`,
         align: "Left",
         useHTML: true,
       },

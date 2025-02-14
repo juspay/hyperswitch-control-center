@@ -1,9 +1,9 @@
-let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
+let tableBorderClass = "border-2 border-solid  border-gray-200/30 border-collapse dark:border-gray-800/30"
 module Card = {
   @react.component
   let make = (~children) => {
     <div
-      className={`h-full flex flex-col justify-between border rounded-lg dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox`}>
+      className={`h-full flex flex-col justify-between border rounded-lg dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden singlestatBox`}>
       {children}
     </div>
   }
@@ -39,13 +39,13 @@ module TabSwitch = {
     open NewAnalyticsTypes
 
     let (icon1Bg, icon1Color, icon1Name) = switch viewType {
-    | Graph => ("bg-white", "text-grey-dark", "graph-dark")
-    | Table => ("bg-grey-light", "", "graph")
+    | Graph => ("bg-white", "text-gray-950", "graph-dark")
+    | Table => ("bg-gray-100", "", "graph")
     }
 
     let (icon2Bg, icon2Color, icon2Name) = switch viewType {
-    | Graph => ("bg-grey-light", "text-grey-medium", "table-view")
-    | Table => ("bg-white", "text-grey-dark", "table-view")
+    | Graph => ("bg-gray-100", "text-gray-400", "table-view")
+    | Table => ("bg-white", "text-gray-950", "table-view")
     }
 
     <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer h-fit">
@@ -73,9 +73,7 @@ module Tabs = {
   ) => {
     let getStyle = (value: string, index) => {
       let textStyle =
-        value === option.value
-          ? "bg-white text-grey-dark font-medium"
-          : "bg-grey-light text-grey-medium"
+        value === option.value ? "bg-white text-gray-950 font-medium" : "bg-gray-100 text-gray-400"
 
       let borderStyle = index === 0 ? "" : "border-l"
 
@@ -125,7 +123,7 @@ module CustomDropDown = {
       {_ =>
         <div>
           <Menu.Button
-            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border">
+            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-white/80 bg-white border">
             {_ => {
               <>
                 {buttonText.label->React.string}
@@ -148,7 +146,7 @@ module CustomDropDown = {
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95">
             {<Menu.Items
-              className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
+              className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-gray-900 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden`}>
               {props => {
                 setArrow(_ => props["open"])
 
@@ -188,8 +186,8 @@ module StatisticsCard = {
   @react.component
   let make = (~value, ~tooltipValue as _, ~direction, ~isOverviewComponent=false) => {
     let (bgColor, textColor) = switch direction {
-    | Upward => ("bg-green-light", "text-green-dark")
-    | Downward => ("bg-red-light", "text-red-dark")
+    | Upward => ("bg-green-200", "text-green-400")
+    | Downward => ("bg-red-50", "text-red-400")
     | No_Change => ("bg-gray-100", "text-gray-500")
     }
 
@@ -217,7 +215,7 @@ module NoteSection = {
   let make = (~text) => {
     <div className="w-fit mx-7 mb-7 mt-3 py-3 px-4 bg-yellow-bg rounded-lg flex gap-2 font-medium">
       <Icon name="info-vacent" size=16 />
-      <p className="text-grey-text text-sm"> {text->React.string} </p>
+      <p className="text-gray-600 text-sm"> {text->React.string} </p>
     </div>
   }
 }
@@ -225,7 +223,7 @@ module NoteSection = {
 module ModuleHeader = {
   @react.component
   let make = (~title) => {
-    <h2 className="font-semibold text-xl text-jp-gray-900 pb-5"> {title->React.string} </h2>
+    <h2 className="font-semibold text-xl text-gray-800 pb-5"> {title->React.string} </h2>
   }
 }
 
@@ -262,7 +260,7 @@ module SmartRetryToggle = {
         toggleBorder="border-primary"
       />
       <p
-        className="!text-base text-grey-700 gap-2 inline-flex whitespace-pre justify-center font-medium text-start">
+        className="!text-base text-gray-700 gap-2 inline-flex whitespace-pre justify-center font-medium text-start">
         <span className="text-sm font-medium">
           {"Include Payment Retries data"->React.string}
         </span>

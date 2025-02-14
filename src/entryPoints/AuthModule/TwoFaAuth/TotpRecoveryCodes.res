@@ -48,13 +48,13 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
   <PageLoaderWrapper screenState>
     <div className={`bg-white h-40-rem w-133 rounded-2xl flex flex-col`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
-        <p className={`${h2TextStyle} text-grey-900`}>
+        <p className={`${h2TextStyle} text-gray-900`}>
           {"Two factor recovery codes"->React.string}
         </p>
       </div>
       <div className="px-8 py-8 flex flex-col flex-1 justify-between">
         <div className="flex flex-col  gap-6">
-          <p className="text-jp-gray-700">
+          <p className="text-gray-500">
             {"Recovery codes provide a way to access your account if you lose your device and can't receive two-factor authentication codes."->React.string}
           </p>
           <HSwitchUtils.AlertBanner

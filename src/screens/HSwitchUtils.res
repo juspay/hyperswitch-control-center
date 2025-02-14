@@ -7,10 +7,10 @@ module TextFieldRow = {
   let make = (~label, ~children, ~isRequired=true, ~labelWidth="w-72") => {
     <div className="flex mt-5">
       <div
-        className={`mt-2 ${labelWidth} text-gray-900/50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 font-semibold text-fs-14`}>
+        className={`mt-2 ${labelWidth} text-gray-900/50 dark:text-gray-50/50 font-semibold text-fs-14`}>
         {label->React.string}
         <RenderIf condition={isRequired}>
-          <span className="text-red-500"> {"*"->React.string} </span>
+          <span className="text-red-400"> {"*"->React.string} </span>
         </RenderIf>
       </div>
       children
@@ -29,7 +29,7 @@ module BackgroundImageWrapper = {
     let heightWidthCss = isBackgroundFullScreen ? "h-screen w-screen" : "h-full w-full"
     <RenderIf condition={children->Option.isSome}>
       <div
-        className={`bg-no-repeat bg-center bg-hyperswitch_dark_bg bg-fixed ${customPageCss} ${heightWidthCss}`}
+        className={`bg-no-repeat bg-center bg-hyperswitch-dark-bg bg-fixed ${customPageCss} ${heightWidthCss}`}
         style={
           backgroundImage: `url(${backgroundImageUrl})`,
           backgroundSize: `cover`,
@@ -249,9 +249,9 @@ module AlertBanner = {
   let make = (~bannerText, ~bannerType: HSwitchUtilsTypes.bannerType, ~children=?) => {
     let bgClass = switch bannerType {
     | Success => " bg-green-100"
-    | Warning => "bg-orange-100"
-    | Error => "bg-red-100"
-    | Info => "bg-blue-150"
+    | Warning => "bg-orange-50"
+    | Error => "bg-red-50"
+    | Info => "bg-primary-blue-50"
     }
 
     let iconName = switch bannerType {

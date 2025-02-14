@@ -24,13 +24,13 @@ module TextView = {
   @react.component
   let make = (
     ~str,
-    ~fontColor="text-jp-gray-800 dark:text-jp-gray-600",
+    ~fontColor="text-gray-500/75 dark:text-gray-300/75",
     ~fontWeight="font-medium",
   ) => {
     str->LogicUtils.isNonEmptyString
       ? <AddDataAttributes attributes=[("data-plc-text", str)]>
           <div
-            className={`text-opacity-75 dark:text-opacity-75 hover:text-opacity-100 dark:hover:text-opacity-100 mx-1 ${fontColor} ${fontWeight} `}>
+            className={`hover:text-gray-500/100 dark:hover:text-gray-300/100 mx-1 ${fontColor} ${fontWeight} `}>
             {React.string(str)}
           </div>
         </AddDataAttributes>
@@ -81,7 +81,7 @@ module CompressedView = {
         | Some(val) => <TextView str=val />
         | None => React.null
         }}
-        <TextView str=operator fontColor="text-red-500" fontWeight="font-semibold" />
+        <TextView str=operator fontColor="text-red-400" fontWeight="font-semibold" />
         <TextView str={value} />
       </div>
     | None => React.null

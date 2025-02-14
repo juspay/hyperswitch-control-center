@@ -232,7 +232,7 @@ module CheckoutForm = {
           </div>
           {switch error {
           | Some(val) =>
-            <div className="text-red-500">
+            <div className="text-red-400">
               {val
               ->JSON.stringifyAny
               ->Option.getOr("")

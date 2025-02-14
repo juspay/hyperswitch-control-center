@@ -9,7 +9,7 @@ let make = (~callBackFun) => {
     callBackFun()
     setSeconds(_ => 30)
   }
-  let disabledColor = isDisabled ? "text-jp-gray-700" : textColor.primaryNormal
+  let disabledColor = isDisabled ? "text-gray-500" : textColor.primaryNormal
 
   React.useEffect(() => {
     let intervalId = setInterval(() => setSeconds(p => p > 0 ? p - 1 : p), 1000)

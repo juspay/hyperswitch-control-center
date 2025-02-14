@@ -113,7 +113,7 @@ module NewProfileCreationModal = {
       setShowModal
       childClass="p-0"
       borderBottom=true
-      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-gray-900">
       {modalBody}
     </Modal>
   }
@@ -149,7 +149,7 @@ let make = () => {
       }
     }
   }
-  let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
+  let customStyle = "text-primary bg-white dark:bg-black hover:bg-gray-50 text-nowrap w-full"
   let addItemBtnStyle = "border border-t-0 w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 w-[14rem] max-w-[20rem]"

@@ -36,7 +36,7 @@ let make = () => {
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
-  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green_trans n" : "bg-orange-500 "
+  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch-green_trans n" : "bg-orange-200 "
 
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
@@ -123,7 +123,7 @@ let make = () => {
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
-                  className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
+                  className="flex relative flex-col flex-1  bg-hyperswitch-background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="w-full max-w-fixedPageWidth px-12 pt-3">
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
@@ -146,7 +146,7 @@ let make = () => {
                         <div className="flex gap-4 items-center ">
                           <ProfileSwitch />
                           <div
-                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap  justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300 cursor-pointer`}>
+                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap  justify-between h-8 bg-white border rounded-lg  text-sm text-gray-500 border-gray-300 cursor-pointer`}>
                             <div className={`w-2 h-2 rounded-full ${modebg} `} />
                             <span className="font-semibold"> {modeText->React.string} </span>
                           </div>

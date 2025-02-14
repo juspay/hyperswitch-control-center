@@ -7,7 +7,7 @@ type breadcrumb = {
 }
 let arrowDivider =
   <span className="ml-2 mr-2">
-    <Icon className="align-middle  text-jp-gray-930" size=8 name="chevron-right" />
+    <Icon className="align-middle  text-gray-400" size=8 name="chevron-right" />
   </span>
 
 @react.component
@@ -29,7 +29,7 @@ let make = (
   let parentGapClass = "gap-2"
   let childGapClass = ""
   let flexDirection = is_reverse ? "flex-wrap flex-row-reverse" : "flex-wrap flex-row"
-  let titleTextClass = "text-jp-gray-930"
+  let titleTextClass = "text-gray-400"
   let marginClass = ""
 
   <div

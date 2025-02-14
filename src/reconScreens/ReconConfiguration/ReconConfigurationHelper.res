@@ -2,14 +2,14 @@ module Heading = {
   @react.component
   let make = (
     ~title,
-    ~customTitleStyle="text-xl font-semibold text-grey-800",
+    ~customTitleStyle="text-xl font-semibold text-gray-800",
     ~customHeadingStyle="",
   ) => {
     <div>
       <div className={`p-2 md:p-6 ${customHeadingStyle}`}>
         <div className={`${customTitleStyle}`}> {title->React.string} </div>
       </div>
-      <div className="border-b border-grey-outline" />
+      <div className="border-b border-gray-150" />
     </div>
   }
 }
@@ -21,7 +21,7 @@ module SubHeading = {
       <p className="text-base text-gray-500">
         {`STEP ${currentStepCount->Int.toString} / 3`->React.string}
       </p>
-      <p className="text-lg font-semibold text-grey-800"> {title->React.string} </p>
+      <p className="text-lg font-semibold text-gray-800"> {title->React.string} </p>
       <p className="text-sm text-gray-500"> {subTitle->React.string} </p>
     </div>
   }
@@ -35,8 +35,8 @@ module ProgressBar = {
 
     <div className="p-2 md:p-6">
       <p> {`${percentage->Int.toString}% Completed`->React.string} </p>
-      <div className="w-full bg-blue-150 rounded h-2 mt-3">
-        <div className="bg-blue-500 h-2 rounded" style={{width: `${percentage->Int.toString}%`}} />
+      <div className="w-full bg-primary-blue-50 rounded-sm h-2 mt-3">
+        <div className="bg-primary h-2 rounded" style={{width: `${percentage->Int.toString}%`}} />
       </div>
     </div>
   }
@@ -60,23 +60,23 @@ module ReconConfigurationCurrentStepIndicator = {
           let subSectionsArr = step->ReconConfigurationUtils.getSubSections
 
           let stepNumberIndicator = if isCurrentStep {
-            "bg-blue-500"
+            "bg-primary"
           } else {
-            "border-blue-500 bg-white border"
+            "border-primary bg-white border"
           }
 
           let stepNameIndicator = if isCurrentStep {
-            "text-blue-500 break-all font-semibold text-base"
+            "text-primary break-all font-semibold text-base"
           } else {
             "text-gray-500 break-all font-semibold text-base"
           }
 
-          let textColor = isCurrentStep ? "text-white" : "text-blue-500"
+          let textColor = isCurrentStep ? "text-white" : "text-primary"
 
           <div key={i->Int.toString} className="font-semibold flex flex-col gap-y-5">
             <div className="flex gap-x-3 items-center w-full">
               <div
-                className={`h-6 w-6 flex items-center justify-center rounded ${stepNumberIndicator}`}>
+                className={`h-6 w-6 flex items-center justify-center rounded-sm ${stepNumberIndicator}`}>
                 {if isStepCompleted {
                   <p className={`text-base ${textColor}`}>
                     {(i + 1)->Int.toString->React.string}
@@ -150,8 +150,8 @@ module StepCard = {
   @react.component
   let make = (~stepName, ~description, ~isSelected, ~onClick, ~iconName) => {
     let ringClass = switch isSelected {
-    | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
-    | false => "ring-grey-outline"
+    | true => "border-primary-blue-500 ring-primary-blue-500/20 ring-offset-0 ring-2"
+    | false => "ring-gray-150"
     }
     <div
       key={stepName}
@@ -160,7 +160,7 @@ module StepCard = {
       <div className="flex items-center gap-x-2.5">
         <img alt={iconName} src={`/Recon/${iconName}.svg`} className="w-8 h-8" />
         <div className="flex flex-col gap-1">
-          <h3 className="text-medium font-medium text-grey-900"> {stepName->React.string} </h3>
+          <h3 className="text-medium font-medium text-gray-900"> {stepName->React.string} </h3>
           <p className="text-sm text-gray-500"> {description->React.string} </p>
         </div>
       </div>

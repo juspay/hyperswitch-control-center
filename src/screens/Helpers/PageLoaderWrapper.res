@@ -14,7 +14,7 @@ module ScreenLoader = {
       <RenderIf condition={!branding}>
         <div className="w-20 h-16">
           <ReactSuspenseWrapper>
-            <div className="scale-400 pt-px">
+            <div className="scale-[4] pt-px">
               <Lottie
                 animationData={showLoader ? loader : loaderLottieFile} autoplay=true loop=true
               />
@@ -51,7 +51,7 @@ let make = (
       customStyle={`py-16 !m-0 ${customStyleForDefaultLandingPage} ${sectionHeight}`}
       overriddingStylesTitle="text-2xl font-semibold"
       buttonText="Refresh"
-      overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
+      overriddingStylesSubtitle="!text-sm text-gray-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => Window.Location.hardReload(true)}
       isButton=true

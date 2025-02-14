@@ -21,7 +21,7 @@ let make = (
 
   <div className="flex flex-col gap-2">
     <RenderIf condition={!hideLabel}>
-      <h4 className="text-nd_gray-400 "> {"Webhook Url"->React.string} </h4>
+      <h4 className="text-gray-400 "> {"Webhook Url"->React.string} </h4>
     </RenderIf>
     <div className=containerClass>
       <p className=textCss> {valueOfWebhookEndPoint->React.string} </p>

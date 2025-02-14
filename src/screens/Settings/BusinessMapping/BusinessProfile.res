@@ -57,7 +57,7 @@ module AddEntryBtn = {
               bannerText="Now that you've configured more than one profile, you must pass 'profile_id' in payments API request every time"
               bannerType=Warning
             />
-            <p className="text-grey-700">
+            <p className="text-gray-700">
               {"Business Profile successfully created! Set up your payments settings like webhooks, return url for your new profile before trying a payment."->React.string}
             </p>
             <Button
@@ -105,7 +105,7 @@ module AddEntryBtn = {
         modalHeading=modalHeaderText
         setShowModal
         closeOnOutsideClick=true
-        modalClass="w-full max-w-2xl m-auto !bg-white dark:!bg-jp-gray-lightgray_background">
+        modalClass="w-full max-w-2xl m-auto !bg-white dark:!bg-gray-900">
         modalBody
       </Modal>
     </div>

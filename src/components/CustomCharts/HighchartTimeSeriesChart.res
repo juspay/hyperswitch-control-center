@@ -360,18 +360,18 @@ module LineChart1D = {
               <div className="flex items-stretch justify-start">
                 {if transactionTable.current < 20. {
                   <div className="flex items-stretch justify-start">
-                    <Icon name="sad-tear" className="text-red-500" size=18 />
+                    <Icon name="sad-tear" className="text-red-400" size=18 />
                   </div>
                 } else if transactionTable.current < 40. {
-                  <Icon name="sad-tear" className="text-red-100" size=18 />
+                  <Icon name="sad-tear" className="text-red-50" size=18 />
                 } else if transactionTable.current < 50. {
-                  <Icon name="sad-tear" className="text-red-100" size=18 />
+                  <Icon name="sad-tear" className="text-red-50" size=18 />
                 } else if transactionTable.current < 60. {
                   <Icon name="smile" className="text-green-200" size=18 />
                 } else if transactionTable.current < 90. {
                   <Icon name="smile" className="text-green-500" size=18 />
                 } else {
-                  <Icon name="smile" className="text-green-700" size=18 />
+                  <Icon name="smile" className="text-green-300" size=18 />
                 }}
               </div>
             } else {

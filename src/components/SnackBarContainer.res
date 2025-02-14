@@ -6,9 +6,9 @@ module Snackbar = {
     let borderColor = switch snackbarProps.snackbarType {
     | General
     | Information => "border-jp-2-primary-300"
-    | Success => "border-jp-2-light-green-700"
-    | Error => "border-jp-2-light-red-700"
-    | Warning => "border-jp-2-light-orange-600"
+    | Success => "border-jp-2-light-green-300"
+    | Error => "border-jp-2-light-red-600"
+    | Warning => "border-jp-2-light-orange-100"
     }
 
     let snackbarIconName = switch snackbarProps.snackbarType {
@@ -37,7 +37,7 @@ module Snackbar = {
     }, [hideSnackbar])
 
     <div
-      className={`p-3 pr-4 m-2 mr-3 shadow-lg z-50 pointer-events-auto bg-jp-2-light-gray-1800 max-w-md rounded ${borderCss} ${borderColor}`}>
+      className={`p-3 pr-4 m-2 mr-3 shadow-lg z-50 pointer-events-auto bg-jp-2-light-gray-1800 max-w-md rounded-sm ${borderCss} ${borderColor}`}>
       <div className="flex flex-row gap-2">
         {leftIcon}
         <div className="flex flex-col gap-4">
@@ -52,7 +52,7 @@ module Snackbar = {
           {snackbarProps.actionElement}
         </div>
         <div>
-          <button className=" hover:text-jp-gray-900 pl-5" onClick={handleClick}>
+          <button className=" hover:text-gray-800 pl-5" onClick={handleClick}>
             <Icon size=16 name="close-snackbar" />
           </button>
         </div>

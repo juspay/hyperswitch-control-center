@@ -161,7 +161,7 @@ module CopyLinkTableCell = {
                 {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
               </p>
               <span
-                className="flex text-blue-811 text-sm font-extrabold"
+                className="flex text-primary-blue-500 text-sm font-extrabold"
                 onClick={ev => handleClick(ev)}>
                 {"..."->React.string}
               </span>

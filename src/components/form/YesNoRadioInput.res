@@ -10,7 +10,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
         checked={input.value == "yes"->JSON.Encode.string}
         onChange=input.onChange
       />
-      <label className="text-sm text-jp-gray-800"> {"Yes"->React.string} </label>
+      <label className="text-sm text-gray-500"> {"Yes"->React.string} </label>
     </div>
     <div className="flex items-center gap-2">
       <input
@@ -21,7 +21,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
         checked={input.value == "no"->JSON.Encode.string}
         onChange=input.onChange
       />
-      <label className="text-sm text-jp-gray-800"> {"No"->React.string} </label>
+      <label className="text-sm text-gray-500"> {"No"->React.string} </label>
     </div>
   </div>
 }

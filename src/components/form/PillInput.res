@@ -136,12 +136,12 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
               onBlur={_ => saveItem(item)}
               onInput=handleEditChange
               onKeyDown={ev => handleEditKeydown(item, ev)}
-              className="rounded-md p-1 flex-grow"
+              className="rounded-md p-1 grow"
             />
           </RenderIf>
           <RenderIf condition={editingItem != Some(item)}>
             <div
-              className="cursor-pointer px-2 py-1 flex-grow"
+              className="cursor-pointer px-2 py-1 grow"
               onClick={event => toggleEditingItem(item, event)}>
               {React.string(item)}
             </div>
@@ -160,7 +160,7 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
           placeholder
           onChange=handleInputChange
           onKeyDown=handleKeyDown
-          className="outline-none p-2 flex-grow"
+          className="outline-hidden p-2 grow"
           name
         />
         <RenderIf condition={suggestion->Option.isSome}>
@@ -169,7 +169,7 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
             className="absolute z-10 min-w-80 bg-white border rounded-md shadow-lg mt-1 cursor-pointer top-10 h-16">
             <div className="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4">
               <div className="flex items-center gap-2">
-                <Icon name="user" size=14 className="text-blue-600" />
+                <Icon name="user" size=14 className="text-primary-blue-600" />
                 <span className="font-medium"> {React.string(suggestion->Option.getOr(""))} </span>
               </div>
             </div>
@@ -179,8 +179,8 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
     </div>
     <RenderIf condition={!(error->LogicUtils.isEmptyString)}>
       <div className="flex gap-1 mt-2">
-        <Icon name="exclamation-circle" size=12 className="text-red-600" />
-        <p className="text-red-600 text-xs"> {React.string(error)} </p>
+        <Icon name="exclamation-circle" size=12 className="text-red-400" />
+        <p className="text-red-400 text-xs"> {React.string(error)} </p>
       </div>
     </RenderIf>
   </div>

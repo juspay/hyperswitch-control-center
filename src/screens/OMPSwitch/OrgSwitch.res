@@ -56,7 +56,7 @@ module SwitchOrg = {
       customWidth="w-80"
       placeholder="Switch org"
       onKeyUp=handleKeyUp
-      customStyle={`!text-grey-300 !placeholder-grey-200 placeholder: text-sm font-inter-style ${backgroundColor.sidebarSecondary}`}
+      customStyle={`!text-grey-300 !placeholder-gray-200 placeholder: text-sm font-inter-style ${backgroundColor.sidebarSecondary}`}
       customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
     />
   }
@@ -187,7 +187,7 @@ module NewOrgCreationModal = {
       setShowModal
       childClass="p-0"
       borderBottom=true
-      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-gray-900">
       modalBody
     </Modal>
   }
@@ -269,7 +269,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  let customHRTagStyle = "border-t border-blue-830"
+  let customHRTagStyle = "border-t border-blue-800"
   let customPadding = "py-1 w-full"
   let customStyle = `w-56 ${secondaryTextColor} ${backgroundColor.sidebarSecondary} dark:bg-black hover:text-gray-100 !w-full`
 
@@ -284,11 +284,11 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options={orgList->generateDropdownOptions(~customIconCss="text-grey-200")}
+      options={orgList->generateDropdownOptions(~customIconCss="text-gray-200")}
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
-      customStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded !w-full`}
+      customStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded-sm !w-full`}
       customSelectStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded`}
       searchable=false
       baseComponent={<ListBaseComp
@@ -300,7 +300,7 @@ let make = () => {
         onEditClick
         isDarkBg=true
       />}
-      baseComponentCustomStyle={`border-blue-820 rounded ${backgroundColor.sidebarSecondary} rounded text-white`}
+      baseComponentCustomStyle={`border-blue-950 rounded-sm ${backgroundColor.sidebarSecondary} rounded-smtext-white`}
       bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
         <OMPSwitchHelper.AddNewOMPButton
           user=#Organization

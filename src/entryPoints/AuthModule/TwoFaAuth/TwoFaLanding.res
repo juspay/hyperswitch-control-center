@@ -13,10 +13,10 @@ module AttemptsExpiredComponent = {
         <p>
           {"There have been multiple unsuccessful TOTP attempts for this account. Please wait a moment before trying again."->React.string}
         </p>
-        <p className={`${p2Regular} text-jp-gray-700`}>
+        <p className={`${p2Regular} text-gray-500`}>
           {"or "->React.string}
           <span
-            className="cursor-pointer underline underline-offset-2 text-blue-600"
+            className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
             onClick={_ => {
               setTwoFaStatus(_ => TwoFaNotExpired)
               setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)
@@ -32,10 +32,10 @@ module AttemptsExpiredComponent = {
         <p>
           {"There have been multiple unsuccessful Recovery code attempts for this account. Please wait a moment before trying again."->React.string}
         </p>
-        <p className={`${p2Regular} text-jp-gray-700`}>
+        <p className={`${p2Regular} text-gray-500`}>
           {"or "->React.string}
           <span
-            className="cursor-pointer underline underline-offset-2 text-blue-600"
+            className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
             onClick={_ => {
               setTwoFaStatus(_ => TwoFaNotExpired)
               setTwoFaPageState(_ => TOTP_SHOW_QR)
@@ -57,10 +57,10 @@ module AttemptsExpiredComponent = {
     <BackgroundImageWrapper>
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6 ">
         {expiredComponent}
-        <div className="text-grey-200 flex gap-2">
+        <div className="text-gray-200 flex gap-2">
           {"Log in with a different account?"->React.string}
           <p
-            className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
+            className="underline cursor-pointer underline-offset-2 hover:text-primary-blue-400"
             onClick={_ => handleLogout()->ignore}>
             {"Click here to log out."->React.string}
           </p>

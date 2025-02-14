@@ -22,8 +22,8 @@ let make = () => {
         includeMargin=false
         lightThemeColor="black"
         defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-        textStyle="text-blue-600"
-        selectTabBottomBorderColor="bg-blue-600"
+        textStyle="text-primary-blue-600"
+        selectTabBottomBorderColor="bg-primary-blue-600"
       />
     </div>
   </div>

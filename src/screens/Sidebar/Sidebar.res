@@ -69,7 +69,7 @@ module SidebarSubOption = {
           ? "transition duration-[250ms] animate-textTransitionSideBar"
           : "transition duration-[1000ms] animate-textTransitionSideBarOff"} ${isSideBarExpanded
           ? "mx-2"
-          : "mx-1"} border-light_grey `}>
+          : "mx-1"} border-gray-600 `}>
       <div className="w-6" />
       <div
         className={`${subOptionClass} w-full pl-3 py-3 p-4.5 flex items-center ${hoverColor} whitespace-nowrap my-0.5 rounded-lg`}>
@@ -675,8 +675,7 @@ let make = (
           </div>
           <RenderIf condition={productSiebars->Array.length > 0}>
             <div className={"p-2.5"}>
-              <div
-                className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
+              <div className={`text-xs font-semibold px-3 pt-6 pb-2 text-gray-400 tracking-widest`}>
                 {React.string("Other modular services"->String.toUpperCase)}
               </div>
               {productSiebars
@@ -721,15 +720,15 @@ let make = (
                 <Popover.Button
                   className={
                     let openClasses = if popoverProps["open"] {
-                      `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                      `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-gray-800/100 focus:outline-hidden`
                     } else {
-                      `text-opacity-90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                      `text-gray-800/90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-gray-800/100 focus:outline-hidden`
                     }
                     `${openClasses} border-none`
                   }>
                   {_ => <>
                     <div className="flex items-center justify-between gap-x-3  ">
-                      <div className="bg-nd_gray-600 rounded-full p-1">
+                      <div className="bg-gray-600 rounded-full p-1">
                         <Icon name="nd-user" size=16 />
                       </div>
                       <ToolTip
@@ -765,7 +764,7 @@ let make = (
                     {panelProps => {
                       <div
                         id="neglectTopbarTheme"
-                        className={`relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-60 ${backgroundColor.sidebarSecondary}`}>
+                        className={`relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black/5 w-60 ${backgroundColor.sidebarSecondary}`}>
                         <MenuOption
                           onClick={_ => {
                             panelProps["close"]()

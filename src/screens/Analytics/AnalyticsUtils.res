@@ -601,7 +601,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges) => (st
             <div> {React.string(text)} </div>
           </AddDataAttributes>
           <AddDataAttributes attributes=[("data-numeric", value)]>
-            <div className="text-red-500 text-base font-bold font-fira-code">
+            <div className="text-red-400 text-base font-bold font-fira-code">
               {React.string(value)}
             </div>
           </AddDataAttributes>
@@ -615,7 +615,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges) => (st
             <div> {React.string(text)} </div>
           </AddDataAttributes>
           <AddDataAttributes attributes=[("data-numeric", value)]>
-            <div className="text-status-green text-base font-bold font-fira-code">
+            <div className="text-green-300 text-base font-bold font-fira-code">
               {React.string(value)}
             </div>
           </AddDataAttributes>
@@ -644,7 +644,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges) => (st
           <div> {React.string(text)} </div>
         </AddDataAttributes>
         <AddDataAttributes attributes=[("data-numeric", value)]>
-          <div className="text-red-500 text-base font-bold font-fira-code">
+          <div className="text-red-400 text-base font-bold font-fira-code">
             {React.string(value)}
           </div>
         </AddDataAttributes>
@@ -658,7 +658,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges) => (st
           <div> {React.string(text)} </div>
         </AddDataAttributes>
         <AddDataAttributes attributes=[("data-numeric", value)]>
-          <div className="text-status-green text-base font-bold font-fira-code">
+          <div className="text-green-300 text-base font-bold font-fira-code">
             {React.string(value)}
           </div>
         </AddDataAttributes>

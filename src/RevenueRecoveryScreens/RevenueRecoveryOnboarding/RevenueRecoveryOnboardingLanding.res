@@ -6,7 +6,7 @@ module Links = {
       <img alt="vaultServerImage" src=icon />
       <div className="flex flex-col gap-1">
         <p className="text-sm font-semibold"> {title->React.string} </p>
-        <p className="text-xs text-nd_gray-400 font-normal"> {subTitle->React.string} </p>
+        <p className="text-xs text-gray-400 font-normal"> {subTitle->React.string} </p>
       </div>
       <Icon name="angle-right" size=16 className="group-hover:scale-125" />
     </div>
@@ -21,7 +21,7 @@ let make = () => {
     <img alt="recoveryOnboarging" src="/assets/recoveryOnboarging.svg" />
     <div className="flex flex-col gap-8 items-center">
       <div
-        className="border rounded-md text-nd_green-200 border-nd_green-200 font-semibold p-1.5 text-sm w-fit">
+        className="border rounded-md text-green-300 border-green-300 font-semibold p-1.5 text-sm w-fit">
         {"Recovery"->React.string}
       </div>
       <PageHeading

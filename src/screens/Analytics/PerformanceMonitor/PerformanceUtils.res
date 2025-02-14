@@ -160,8 +160,8 @@ module Card = {
   @react.component
   let make = (~title, ~children) => {
     <div
-      className={`h-full flex flex-col justify-between border rounded-lg dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox px-7 py-5`}>
-      <div className={"flex gap-2 items-center text-jp-gray-700 font-bold self-start mb-5"}>
+      className={`h-full flex flex-col justify-between border rounded-lg dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden singlestatBox px-7 py-5`}>
+      <div className={"flex gap-2 items-center text-gray-500 font-bold self-start mb-5"}>
         <div className="font-semibold text-base text-black dark:text-white">
           {title->React.string}
         </div>

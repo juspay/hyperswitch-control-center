@@ -23,8 +23,7 @@ module NewProcessorCards = {
 
     let descriptedFRMs = (frmList: array<ConnectorTypes.connectorTypes>, heading) => {
       <>
-        <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+        <h2 className="font-bold text-xl text-black/75 dark:text-white/75">
           {heading->React.string}
         </h2>
         <div className="grid gap-4 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 mb-5">
@@ -53,9 +52,7 @@ module NewProcessorCards = {
                 onClick={_ => handleClick(frmName)}
                 leftIcon={CustomIcon(
                   <Icon
-                    name="plus"
-                    size=16
-                    className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+                    name="plus" size=16 className="text-gray-800 fill-opacity-50 dark:gray-50"
                   />,
                 )}
               />

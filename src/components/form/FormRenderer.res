@@ -199,14 +199,14 @@ module FieldWrapper = {
     } else {
       fieldWrapperClass
     }
-    let subTextClass = `pt-2 pb-2 text-sm text-bold text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ${subTextClass}`
+    let subTextClass = `pt-2 pb-2 text-sm text-bold text-gray-800/50 dark:text-gray-50/50 ${subTextClass}`
 
     let labelPadding = labelPadding->LogicUtils.isEmptyString ? "pt-2 pb-2" : labelPadding
 
     let labelTextClass =
       labelTextStyleClass->LogicUtils.isNonEmptyString
         ? labelTextStyleClass
-        : "text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1"
+        : "text-fs-13 text-gray-800 dark:text-gray-50/50 ml-1"
 
     <AddDataAttributes attributes=[("data-component-field-wrapper", `field-${dataId}`)]>
       <div className={fieldWrapperClass}>
@@ -217,7 +217,7 @@ module FieldWrapper = {
                 <label className={`${labelPadding} ${labelTextClass} ${labelClass}`}>
                   {React.string(label)}
                   <RenderIf condition=isRequired>
-                    <span className="text-red-950"> {React.string(" *")} </span>
+                    <span className="text-red-400"> {React.string(" *")} </span>
                   </RenderIf>
                 </label>
               </AddDataAttributes>
@@ -252,7 +252,7 @@ module FieldWrapper = {
               | None => React.null
               }}
               <div
-                className={`text-sm text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 mb-2 ${subHeadingClass}`}>
+                className={`text-sm text-gray-800/50 dark:text-gray-50/50 mb-2 ${subHeadingClass}`}>
                 {React.string(sb)}
               </div>
             </div>
@@ -277,7 +277,7 @@ module FieldError = {
     ~errorClass="",
     ~showErrorOnChange=false,
   ) => {
-    let errorTextStyle = "text-red-950 dark:text-red-400 text-fs-10 font-medium ml-1"
+    let errorTextStyle = "text-red-400 dark:text-red-400 text-fs-10 font-medium ml-1"
     let error = if meta.touched || alwaysShow || (showErrorOnChange && meta.modified) {
       if !(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit {
         Nullable.toOption(meta.submitError)
@@ -538,7 +538,7 @@ module FormError = {
         | Some(err) => LogicUtils.getStringFromJson(err, "")
         | None => "Error occurred on submit"
         }
-        <div className="text-red-950"> {React.string(errStr)} </div>
+        <div className="text-red-400"> {React.string(errStr)} </div>
       | None => React.null
       }
     | None => React.null

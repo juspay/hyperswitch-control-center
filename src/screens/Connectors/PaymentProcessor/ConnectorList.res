@@ -14,7 +14,7 @@ let make = () => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let textStyle = HSwitchUtils.getTextClass((H2, Optional))
-  let subtextStyle = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
+  let subtextStyle = `${HSwitchUtils.getTextClass((P1, Regular))} text-gray-700 opacity-50`
 
   let getConnectorListAndUpdateState = async () => {
     try {

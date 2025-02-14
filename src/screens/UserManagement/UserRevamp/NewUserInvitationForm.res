@@ -56,7 +56,7 @@ module RoleAccessOverview = {
       ->React.array}
       {moduleWithoutAccess
       ->Array.mapWithIndex((elem, index) => {
-        <ModuleAccessRenderer elem index customCss="text-grey-200" />
+        <ModuleAccessRenderer elem index customCss="text-gray-200" />
       })
       ->React.array}
     </div>

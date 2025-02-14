@@ -7,12 +7,13 @@ module BasicAccountSetupSuccessfulPage = {
     ~buttonOnClick,
     ~errorMessage="",
     ~customWidth="w-full",
-    ~bgColor="bg-green-success_page_bg",
+    ~bgColor="bg-green-50",
     ~buttonState=Button.Normal,
     ~isButtonVisible=true,
   ) => {
-    let headerTextStyle = "text-xl font-semibold text-grey-700"
-    <div className={`flex flex-col gap-4 p-9 h-full ${customWidth} justify-between rounded shadow`}>
+    let headerTextStyle = "text-xl font-semibold text-gray-700"
+    <div
+      className={`flex flex-col gap-4 p-9 h-full ${customWidth} justify-between rounded-sm shadow`}>
       <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
         <Icon name=iconName size=120 />
         <AddDataAttributes attributes=[("data-testid", "paymentSuccess")]>
@@ -128,7 +129,7 @@ let make = (
         buttonText=successButtonText
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
-        bgColor="bg-green-success_page_bg"
+        bgColor="bg-green-50"
         isButtonVisible={paymentId->Option.isSome}
       />
 
@@ -140,7 +141,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         errorMessage
         customWidth
-        bgColor="bg-red-failed_page_bg"
+        bgColor="bg-red-50"
         isButtonVisible={paymentId->Option.isSome}
       />
     | CHECKCONFIGURATION =>

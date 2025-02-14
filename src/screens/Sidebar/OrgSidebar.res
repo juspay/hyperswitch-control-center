@@ -19,9 +19,7 @@ module OrgTile = {
     let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
-      globalUIConfig: {
-        sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
-      },
+      globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let getOrgList = async () => {
       try {
@@ -87,12 +85,12 @@ module OrgTile = {
     // Common CSS
     let baseCSS = `absolute max-w-xs left-full top-0 rounded-md z-50 shadow-md ${backgroundColor.sidebarSecondary}`
     let currentEditCSS = isUnderEdit
-      ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
+      ? `p-2 ${baseCSS} border-gray-400/40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
     let ringClass = switch isActive {
-    | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
-    | false => "ring-grey-outline"
+    | true => "border-primary-blue-500 ring-primary-blue-500/20 ring-offset-0 ring-2"
+    | false => "ring-gray-150"
     }
     <div
       onClick={_ => orgSwitch(orgID)->ignore}
@@ -102,8 +100,7 @@ module OrgTile = {
             ? `bg-white/20 ${primaryTextColor} border-sidebar-primaryTextColor`
             : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
-        <div
-          className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40 `}>
+        <div className={` ${currentEditCSS} ${nonEditCSS} border border-sidebar-borderColor/40 `}>
           <InlineEditInput
             index
             labelText={orgName}
@@ -263,7 +260,7 @@ module NewOrgCreationModal = {
       setShowModal
       childClass="p-0"
       borderBottom=true
-      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-gray-900">
       modalBody
     </Modal>
   }
@@ -355,7 +352,7 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
+      rounded-md border shadow-xs ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
           <Icon name="plus" size=20 className={secondaryTextColor} />
         </div>
       </RenderIf>

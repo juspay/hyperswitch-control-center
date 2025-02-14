@@ -1,0 +1,410 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@theme inline {
+
+  --breakpoint: {
+    mobile: 28.125rem;
+    tablet: 93.75rem;
+    desktop: 93.75rem;
+    laptop: 67.5rem;
+  }
+
+  /* DOM CSS */
+
+  /* Primary Colors */
+
+  --color-secondary: rgb(var(--colors-secondary));
+  --color-primary: rgb(var(--colors-primary));
+
+  /* Sidebar Colors */
+  --color-sidebar-primary: rgb(var(--sidebar-primary));
+  --color-sidebar-secondary: rgb(var(--sidebar-secondary));
+  --color-sidebar-hoverColor: rgb(var(--sidebar-hover-color));
+  --color-sidebar-primaryTextColor: rgb(var(--sidebar-primary-text-color));
+  --color-sidebar-secondaryTextColor: rgb(var(--sidebar-secondary-text-color));
+  --color-sidebar-borderColor: rgb(var(--sidebar-border-color));
+
+  /* Background Color */
+  --color-background: rgb(var(--colors-background));
+
+  /* Typography */
+  --color-typography-text_color: rgb(var(--base-text-color));
+  --color-typography-link: rgb(var(--base-link-color));
+  --color-typography-link_hover: rgb(var(--base-link-hover-color));
+
+  /* Button Colors */
+  --color-button-primary-bg: rgb(var(--btn-primary-background-color));
+  --color-button-primary-text: rgb(var(--btn-primary-text-color));
+  --color-button-primary-hoverbg: rgb(var(--btn-primary-hover-background-color));
+
+  --color-button-secondary-bg: rgb(var(--btn-secondary-background-color));
+  --color-button-secondary-text: rgb(var(--btn-secondary-text-color));
+  --color-button-secondary-hoverbg: rgb(var(--btn-secondary-hover-background-color));
+
+  /* Outline */
+  --color-outline: rgb(var(--borders-border-color));
+
+  /* Neutral Gray Palette */
+  --color-gray-0: #fefefe;
+  --color-gray-25: #FCFCFD;
+  --color-gray-50: #F5F7FA;
+  --color-gray-100: #F2F4F8;
+  --color-gray-150: #ECEFF3;
+  --color-gray-200: #E1E4EA;
+  --color-gray-300: #CACFD8;
+  --color-gray-400: #99A0AE;
+  --color-gray-500: #717784;
+  --color-gray-600: #525866;
+  --color-gray-700: #2B303B;
+  --color-gray-800: #222530;
+  --color-gray-900: #181B25;
+  --color-gray-950: #0E121B;
+  --color-gray-1000: #050506;
+
+  /* Orange Palette */
+  --color-orange-50: #FDF1DD;
+  --color-orange-100: #F5D9A8;
+  --color-orange-200: #E9BE74;
+  --color-orange-300: #D99530;
+  --color-orange-400: #C17D10;
+  --color-orange-500: #AB6100;
+  --color-orange-600: #9E5400;
+  --color-orange-700: #8F4700;
+  --color-orange-800: #703800;
+  --color-orange-900: #5C2900;
+  --color-orange-950: #421F00;
+
+  /* Red Palette */
+  --color-red-50: #FCF1EF;
+  --color-red-100: #FDD4CD;
+  --color-red-200: #FCB5AA;
+  --color-red-300: #F57F6C;
+  --color-red-400: #EC5941;
+  --color-red-500: #DD2B0E;
+  --color-red-600: #C91C00;
+  --color-red-700: #AE1800;
+  --color-red-800: #8D1300;
+  --color-red-900: #660E00;
+  --color-red-950: #4D0A00;
+  --color-red-800-dull: #c04141;
+  --color-hyperswitch_red: #d7625b;
+
+  /* Purple Palette */
+  --color-purple-50: #232150;
+  --color-purple-100: #E1D8F9;
+  --color-purple-200: #CBBBF2;
+  --color-purple-300: #AC93E6;
+  --color-purple-400: #9475DB;
+  --color-purple-500: #7B58CF;
+  --color-purple-600: #694CC0;
+  --color-purple-700: #5943B6;
+  --color-purple-800: #453894;
+  --color-purple-900: #2F2A6B;
+  --color-purple-950: #1D004D;
+
+  /* Primary Blue Palette */
+  --color-primary-blue-50: #E4F1FD;
+  --color-primary-blue-100: #BCD7FA;
+  --color-primary-blue-200: #A1C7F8;
+  --color-primary-blue-300: #6AA1F2;
+  --color-primary-blue-400: #4287EF;
+  --color-primary-blue-500: #1C6DEA;
+  --color-primary-blue-600: #0561E2;
+  --color-primary-blue-700: #0456C5;
+  --color-primary-blue-800: #034AA8;
+  --color-primary-blue-900: #023E8A;
+  --color-primary-blue-950: #01316C;
+
+  /* Green Palette */
+  --color-green-50: #ECF4EE;
+  --color-green-100: #C3E6CD;
+  --color-green-200: #91D4A8;
+  --color-green-300: #52B87A;
+  --color-green-400: #2DA160;
+  --color-green-500: #24663B;
+  --color-green-600: #217645;
+  --color-green-700: #108548;
+  --color-green-800: #0D532A;
+  --color-green-900: #0A4020;
+  --color-green-950: #072B15;
+  --color-hyperswitch-green: #69AF7D;
+
+
+  /* Extra colors for Hyperswitch */
+  --color-jp-gray-steel: #ccd2e2;
+  --color-jp-gray-table-border: #cdd4eb;
+  --color-jp-gray-border_gray: #e8e8e8;
+  --color-yellow-bg: #f7d59b4d;
+  --color-hyperswitch-dark-bg: #212e46;
+  --color-hyperswitch-background: #ffffff;
+
+
+
+
+
+  --spacing-90-px: 90px;
+  --spacing-100: 25rem;
+  --spacing-133: 35rem;
+  --spacing-200: 58rem;
+  --spacing-150: 9.375rem;
+  --spacing-18-rem: 18rem;
+  --spacing-22-rem: 22rem;
+  --spacing-77-rem: 77rem;
+  --spacing-30-rem: 30rem;
+  --spacing-137-px: 137px;
+  --spacing-145-px: 145px;
+  --spacing-147-px: 147px;
+  --spacing-334-px: 334px;
+  --spacing-499-px: 499px;
+  --spacing-1034-px: 1034px;
+  --spacing-pageWidth11: 75rem;
+  --spacing-standardPageWidth: 67.5rem;
+  --spacing-1-rem: 1rem;
+  --spacing-5-rem: 5rem;
+  --spacing-6-rem: 6rem;
+  --spacing-7-rem: 7rem;
+  --spacing-8-rem: 8rem;
+  --spacing-12-rem: 12rem;
+  --spacing-25-rem: 25rem;
+  --spacing-30-rem: 30rem;
+  --spacing-35-rem: 35rem;
+  --spacing-40-rem: 40rem;
+  --spacing-45-rem: 45rem;
+  --spacing-48-rem: 48rem;
+  --spacing-50-rem: 50rem;
+  --spacing-93-per: 93%;
+  --spacing-80-vh: 80vh;
+  --spacing-85-vh: 85vh;
+  --spacing-30-vh: 30vh;
+  --spacing-40-vh: 40vh;
+  --spacing-75-vh: 75vh;
+  --spacing-10-px: 10px;
+  --spacing-18: 18px;
+  --spacing-21: 21px;
+  --spacing-24: 24px;
+  --spacing-38: 38px;
+  --spacing-32-px: 32px;
+  --spacing-36-px: 36px;
+  --spacing-40-px: 40px;
+  --spacing-68-px: 68px;
+  --spacing-195-px: 195px;
+  --spacing-774-px: 774px;
+  --spacing-923-px: 923px;
+  --spacing-onBordingSupplier: calc(100vh - 300px);
+  --spacing-fixedPageWidth: 85.5rem;
+  --spacing-860: 860px;
+  --spacing-600: 600px;
+  --spacing-700: 700px;
+  --spacing-800: 800px;
+
+  --radius-DEFAULT: var(--borders-default-radius);
+  --radius-10-px: 10px;
+
+  --shadow-generic_shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.12);
+  --shadow-generic_shadow_dark: 0px 2px 5px 0 rgba(0, 0, 0, 0.78);
+  --shadow-side_shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  --shadow-hyperswitch_box_shadow: 0 2px 8px 0px rgba(0, 0, 0, 0.08);
+  --shadow-checklistShadow: -2px -4px 12px 0px rgba(0, 0, 0, 0.11);
+  --shadow-sidebarShadow: 0 -2px 12px 0 rgba(0, 0, 0, 0.06);
+  --shadow-connectorTagShadow: 0px 1px 4px 2px rgba(0, 0, 0, 0.06);
+  --shadow-boxShadowMultiple: 2px -2px 24px 0px rgba(0, 0, 0, 0.04),
+  -2px 2px 24px 0px rgba(0, 0, 0, 0.02);
+  --shadow-homePageBoxShadow: 0px 2px 16px 2px rgba(51, 51, 51, 0.16);
+  --shadow-focusBoxShadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05),
+  0px 0px 0px 4px rgba(232, 243, 255, 1);
+  --shadow-cardShadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.04);
+
+  --text-base: var(--base-font-size);
+  --text-heading: var(--base-heading-font-size);
+  --text-fs-10: 10px;
+  --text-fs-11: 11px;
+  --text-fs-13: 13px;
+  --text-fs-14: 14px;
+  --text-fs-15: 15px;
+  --text-fs-16: 16px;
+  --text-fs-18: 18px;
+  --text-fs-20: 20px;
+  --text-fs-24: 24px;
+  --text-fs-28: 28px;
+  --text-fs-32: 32px;
+  --text-fs-48: 48px;
+}
+
+@layer utilities {
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    scrollbar-width: none;
+  }
+
+  .show-scrollbar::-webkit-scrollbar {
+    display: block;
+    overflow: scroll;
+    height: 4px;
+    width: 8px;
+  }
+
+  .show-scrollbar::-webkit-scrollbar-thumb {
+    display: block;
+    border-radius: 20rem;
+    background-color: #8a8c8f;
+  }
+
+  .show-scrollbar::-webkit-scrollbar-track {
+    background-color: #ffffff;
+  }
+
+  .red .red\:bg-red {
+    background-color: rgb(255 0 0 / var(--tw-bg-opacity));
+  }
+
+  .primary-gradient-button {
+    box-shadow: 0px 0px 0px 1px hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 12) / 1);
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 7) / 1) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%);
+    transition: ease-out 120ms;
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+  }
+
+  .primary-gradient-button:hover {
+    box-shadow: 0px 0px 0px 1px hsl(from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3) calc(l + 3) / 1);
+    background-image: linear-gradient(180deg,
+        rgb(var(--btn-primary-background-color)) 0%,
+        hsl(from rgb(var(--btn-primary-background-color)) h s calc(l + 4) / 1) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%);
+    transition: ease-out 120ms;
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+  }
+
+  .primary-gradient-button:active {
+    box-shadow: 0px 3px 4px 0px #00000026 inset;
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 13) / 1) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) calc(h - 1) calc(s + 1) calc(l - 18) / 1) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    transition: ease-out 120ms;
+  }
+
+  .primary-gradient-button:focus-visible {
+    box-shadow: 0px 0px 0px 3px hsl(from rgb(var(--btn-primary-hover-background-color)) calc(h - 1) calc(s + 3) calc(l + 45) / 1);
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 7) / 1) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%);
+    transition: ease-out 120ms;
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+  }
+
+  .primary-gradient-button:disabled {
+    box-shadow: 0px 0px 0px 1px hsl(from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3) calc(l + 35) / 1);
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s - 10) calc(l + 25) / 1) 0%,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s - 10) calc(l + 25) / 1) 100%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+  }
+
+  .secondary-gradient-button {
+    box-shadow: 0px 0px 0px 1px #bfbfc380;
+    background-image: linear-gradient(180deg,
+        rgb(var(--btn-secondary-background-color)) 0%,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 1) / 1) 97.5%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    transition: ease-out 120ms;
+  }
+
+  .secondary-gradient-button:hover {
+    box-shadow: 0px 0px 0px 1px #bfbfc380;
+    background-image: linear-gradient(180deg,
+        rgb(var(--btn-secondary-hover-background-color)) 0%,
+        rgb(var(--btn-secondary-hover-background-color)) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 0.75) 97.5%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    transition: ease-out 120ms;
+  }
+
+  .secondary-gradient-button:active {
+    box-shadow: 0px 3px 4px 0px #0000001a inset;
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 0.75) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 1) 97.5%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    transition: ease-out 120ms;
+  }
+
+  .secondary-gradient-button:focus-visible {
+    box-shadow: 0px 0px 0px 3px #bfbfc354;
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20) calc(s + 23) l / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20) calc(s + 23) l / 1) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 0.75) 97.5%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    transition: ease-out 120ms;
+    outline: none;
+  }
+
+  .secondary-gradient-button:disabled {
+    box-shadow: 0px 0px 0px 1px #bfbfc354;
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20) calc(s + 10) calc(l - 3) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20) calc(s + 10) calc(l - 3) / 1) 100%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+  }
+}

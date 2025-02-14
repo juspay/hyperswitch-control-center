@@ -152,7 +152,7 @@ let make = () => {
         <PageUtils.PageHeading
           title="Authenticate Processor"
           subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
-          customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+          customSubTitleStyle="font-500 font-normal text-gray-700"
         />
         <PageLoaderWrapper screenState>
           <Form onSubmit initialValues validate=validateMandatoryField>
@@ -180,12 +180,12 @@ let make = () => {
         <PageUtils.PageHeading
           title="Setup Webhook"
           subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
-          customSubTitleStyle="font-medium text-nd_gray-700"
+          customSubTitleStyle="font-medium text-gray-700"
         />
         <ConnectorWebhookPreview
           merchantId
           connectorName=connectorInfoDict.merchant_connector_id
-          textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
+          textCss="border border-gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-gray-400"
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true
           showFullCopy=true

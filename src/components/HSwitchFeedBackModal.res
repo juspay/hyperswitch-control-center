@@ -71,12 +71,12 @@ let make = (
 
   <Modal
     modalHeading
-    headingClass="!bg-transparent dark:!bg-jp-gray-lightgray_background"
+    headingClass="!bg-transparent dark:!bg-gray-900"
     showModal
     setShowModal
     borderBottom=true
     closeOnOutsideClick=true
-    modalClass="w-full max-w-xl m-auto dark:!bg-jp-gray-lightgray_background pb-3">
+    modalClass="w-full max-w-xl m-auto dark:!bg-gray-900 pb-3">
     <Form onSubmit validate={values => values->validateFields(~modalType)}>
       <LabelVisibilityContext showLabel>
         <div className="flex flex-col justify-center">

@@ -34,11 +34,11 @@ let make = (
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let (popUpHeadingColor, topBorderColor) = switch popUpType {
-  | Success => ("bg-green-700", "border-t-green-700")
+  | Success => ("bg-green-300", "border-t-green-300")
   | Primary => ("bg-primary", "border-t-primary")
   | Secondary => ("bg-yellow-300", "border-t-yellow-300")
-  | Danger | Denied => ("bg-red-600", "border-t-red-600")
-  | Warning => ("bg-orange-960", "border-t-orange-960")
+  | Danger | Denied => ("bg-red-400", "border-t-red-400")
+  | Warning => ("bg-orange-300", "border-t-orange-300")
   }
   let appPrefix = LogicUtils.useUrlPrefix()
   let rounded_top_border = "rounded-t-xl"
@@ -132,7 +132,7 @@ let make = (
       onClick=handleOverlayClick>
       // <Reveal showReveal=showPopUp revealFrom=Reveal.Top>
       <div
-        className={`${topBorderColor} absolute lg:top-1/3 md:top-1/3 left-0 lg:left-1/3 border border-jp-gray-500 dark:border-jp-gray-960 w-full bottom-0 md:bottom-auto ${modalWidth} bg-jp-gray-100 dark:bg-jp-gray-lightgray_background shadow ${containerBorderRadius} z-20 dark:text-opacity-75 ${rounded_top_border}`}>
+        className={`${topBorderColor} absolute lg:top-1/3 md:top-1/3 left-0 lg:left-1/3 border border-gray-250 dark:border-gray-800 w-full bottom-0 md:bottom-auto ${modalWidth} bg-gray-50 dark:bg-gray-900 shadow-sm ${containerBorderRadius} z-20 dark:text-gray-50/75 ${rounded_top_border}`}>
         <div className={`h-2 w-12/12 p-0 mt-0 ${popUpHeadingColor} ${rounded_top_border}`} />
         <div className={`flex flex-row ${popupMargin} justify-between`}>
           <div className="flex flex-row gap-5 pt-4 items-center w-full">

@@ -90,7 +90,7 @@ let make = (
   }, [])
 
   <div
-    className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
+    className={` mb-6 p-4 bg-white dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-800`}>
     {if formState === ViewConfig {
       <div>
         <div className="flex flex-row justify-between gap-4">

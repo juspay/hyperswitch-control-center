@@ -6,7 +6,7 @@ module InfoField = {
     <RenderIf condition={str->LogicUtils.isNonEmptyString}>
       <div>
         <h2 className="text-medium font-semibold"> {label->React.string} </h2>
-        <h3 className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold">
+        <h3 className="text-base text-gray-700 opacity-70 break-all overflow-scroll font-semibold">
           {str->React.string}
         </h3>
       </div>
@@ -20,7 +20,7 @@ module KeyAndCopyArea = {
     let showToast = ToastState.useShowToast()
     <div className="flex flex-col md:flex-row items-center">
       <p
-        className="text-base text-grey-700 opacity-70 break-all overflow-scroll font-semibold w-89.5-per">
+        className="text-base text-gray-700 opacity-70 break-all overflow-scroll font-semibold w-89.5-per">
         {copyValue->React.string}
       </p>
       <div
@@ -106,7 +106,7 @@ module MenuOption = {
           {panelProps => {
             <div
               id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded-sm ring-1 ring-black/5 w-40">
               {<>
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
@@ -212,7 +212,7 @@ module ConnectorSummaryGrid = {
       </div>
       <div className="grid grid-cols-4 border-b  md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
-        <div className="col-span-3 font-semibold text-base text-grey-700 opacity-70">
+        <div className="col-span-3 font-semibold text-base text-gray-700 opacity-70">
           {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
@@ -233,7 +233,7 @@ module ConnectorSummaryGrid = {
             condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
               Processors(FIUU)}>
             <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+              className="flex border items-start bg-primary-blue-50 border-primary-blue-200 text-sm rounded-md gap-2 px-4 py-3">
               <Icon name="info-vacent" size=18 />
               <div>
                 <p className="mb-3">
@@ -296,7 +296,7 @@ module ConnectorSummaryGrid = {
               </RenderIf>
             </div>
             <div
-              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+              className="flex border items-start bg-primary-blue-50 border-primary-blue-200 text-sm rounded-md gap-2 px-4 py-3">
               <Icon name="info-vacent" size=18 />
               <p>
                 {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
@@ -374,8 +374,8 @@ let make = (
 
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
-    | _ => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
+    | false => "border bg-green-200/40 border-green-300 text-green-300"
+    | _ => "border bg-red-400/40 border-red-400 text-red-400"
     }
 
   let mixpanelEventName = isUpdateFlow ? "processor_step3_onUpdate" : "processor_step3"
