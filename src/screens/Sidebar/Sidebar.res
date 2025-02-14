@@ -560,8 +560,8 @@ let make = (
   let expansionClass = !isSidebarExpanded ? "-translate-x-full" : ""
 
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
-  let sidebarWidth = showSideBar ? "325px" : "56px"
-  let sidebarContainerClassWidth = isMobileView ? "0px" : `${sidebarWidth}`
+  let sidebarCollapseWidth = showSideBar ? "325px" : "56px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : `${sidebarCollapseWidth}`
 
   let transformClass = "transform md:translate-x-0 transition"
 

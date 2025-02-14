@@ -15,7 +15,6 @@ let make = () => {
     setDashboardPageState,
     currentProduct,
     setDefaultProductToSessionStorage,
-    showSideBar,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
