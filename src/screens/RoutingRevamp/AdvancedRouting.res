@@ -94,8 +94,9 @@ module AddSurchargeCondition = {
                   ~customInput=InputFields.selectInput(
                     ~options,
                     ~buttonText="Select Surcharge Type",
-                    ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                    ~customButtonStyle=`!-mt-5 ${classStyle} !p-0 !rounded-md`,
                     ~deselectDisable=true,
+                    ~textStyle="!px-2 !py-2",
                   ),
                 )}
               />
