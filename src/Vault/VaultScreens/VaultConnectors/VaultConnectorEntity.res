@@ -92,7 +92,6 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         "",
       )
     | ConnectorLabel => Text(connector.connector_label)
-
     | Actions => Table.CustomCell(<div />, "")
     | PaymentMethods =>
       Table.CustomCell(
