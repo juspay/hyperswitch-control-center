@@ -91,6 +91,8 @@ let make = (~initialValues) => {
           customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
           customElementStyle="px-2 "
         />
+      </div>
+      <div className="flex flex-col gap-4">
         <div className="flex justify-between border-b pb-4 px-2 items-end">
           <p className="text-lg font-semibold text-nd_gray-600"> {"Metadata"->React.string} </p>
           <div className="flex gap-4">
