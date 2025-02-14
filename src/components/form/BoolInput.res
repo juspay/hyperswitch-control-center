@@ -13,9 +13,9 @@ module BaseComponent = {
     ~addAttributeId="",
     ~toggleBorder="border-green-950",
     ~toggleEnableColor="bg-green-950",
-    ~toggleHeight="16px",
-    ~toggleWidth="30px",
-    ~innerCircleHeight="12px",
+    ~customToggleHeight="16px",
+    ~customToggleWidth="30px",
+    ~customInnerCircleHeight="12px",
     ~transformValue="14px",
   ) => {
     let toggleSelect = React.useCallback(_ => {
@@ -79,9 +79,9 @@ module BaseComponent = {
 
     let innerShadow = ""
     let roundedClass = "rounded-2.5"
-    let toggleHeight = `${toggleHeight}`
-    let toggleWidth = `${toggleWidth}`
-    let innerCircleHeight = `${innerCircleHeight}`
+    let toggleHeight = `${customToggleHeight}`
+    let toggleWidth = `${customToggleWidth}`
+    let innerCircleHeight = `${customInnerCircleHeight}`
     let innerCircleWidth = innerCircleHeight
 
     <AddDataAttributes

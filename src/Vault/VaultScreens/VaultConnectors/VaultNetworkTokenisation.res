@@ -9,12 +9,12 @@ let make = () => {
       </p>
       <BoolInput.BaseComponent
         isSelected=toggleState
-        setIsSelected={_ => setToggleState(p => !p)}
+        setIsSelected={_ => setToggleState(prev => !prev)}
         boolCustomClass="rounded-xl"
         toggleEnableColor="bg-primary"
-        toggleHeight="20px"
-        toggleWidth="36px"
-        innerCircleHeight="16px"
+        customToggleHeight="20px"
+        customToggleWidth="36px"
+        customInnerCircleHeight="16px"
         transformValue="18px"
         isDisabled=true
       />
