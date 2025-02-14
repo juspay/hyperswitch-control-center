@@ -4,7 +4,7 @@ module CopyTextCustomComp = {
     ~displayValue,
     ~copyValue=None,
     ~customTextCss="",
-    ~customParentClass="flex items-center justify-between",
+    ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
     ~customIconCss="h-7 opacity-70",
   ) => {

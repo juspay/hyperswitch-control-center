@@ -123,9 +123,9 @@ module CopyLinkTableCell = {
     ~displayValue: string,
     ~url,
     ~copyValue,
-    ~customParentClass="flex items-center justify-between gap-2",
+    ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
-    ~customTextCss="w-52 truncate whitespace-nowrap",
+    ~customTextCss="w-40 truncate whitespace-nowrap",
     ~endValue=25,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
