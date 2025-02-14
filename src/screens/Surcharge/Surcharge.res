@@ -253,7 +253,7 @@ let make = () => {
 
     let errors = Dict.make()
 
-    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors, ~validateFields=["name"])
 
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {
@@ -315,7 +315,7 @@ let make = () => {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
           <Form initialValues validate formClass="flex flex-col gap-6 justify-between" onSubmit>
-            <BasicDetailsForm isThreeDs=true />
+            <BasicDetailsForm isThreeDs=true showDescription=false />
             <ConfigureSurchargeRule wasm />
             <FormValuesSpy />
             <div className="flex gap-4">
