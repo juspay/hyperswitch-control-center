@@ -47,7 +47,7 @@ module ListBaseComp = {
 
       | #Profile =>
         <div
-          className="flex flex-row items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg shadow-sm border-nd_gray-100 shadow-sm">
+          className="flex flex-row cursor-pointer items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg shadow-sm border-nd_gray-100 shadow-sm">
           <div>
             <p className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500">
               subHeadingElem
