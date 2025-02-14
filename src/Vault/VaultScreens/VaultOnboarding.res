@@ -50,7 +50,7 @@ let make = () => {
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
     initialValuesToDict->Dict.set(
       "test_mode",
-      (featureFlagDetails.isLiveMode ? false : true)->JSON.Encode.bool,
+      (!featureFlagDetails.isLiveMode)->JSON.Encode.bool,
     )
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
