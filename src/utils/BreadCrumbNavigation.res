@@ -18,18 +18,26 @@ let make = (
   ~cursorStyle="cursor-help",
   ~commonTextClass="",
   ~linkTextClass="",
+  ~customTextClass="",
+  ~fontWeight="font-semibold",
+  ~titleTextClass="text-jp-gray-930",
+  ~dividerVal="arrow",
+  ~childGapClass="",
 ) => {
+  open LogicUtils
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let prefix = LogicUtils.useUrlPrefix()
   let showPopUp = PopUpState.useShowPopUp()
   let pathLength = path->Array.length
-  let divider = arrowDivider
-  let fontWeight = "font-semibold"
-  let textClass = `${textColor.primaryNormal}`
+  let divider = {
+    switch dividerVal {
+    | "slash" => <p className="text-nd_br_gray-400"> {"   / "->React.string} </p>
+    | _ => arrowDivider
+    }
+  }
+  let textClass = {customTextClass->isEmptyString ? `${textColor.primaryNormal}` : customTextClass}
   let parentGapClass = "gap-2"
-  let childGapClass = ""
   let flexDirection = is_reverse ? "flex-wrap flex-row-reverse" : "flex-wrap flex-row"
-  let titleTextClass = "text-jp-gray-930"
   let marginClass = ""
 
   <div
@@ -58,7 +66,7 @@ let make = (
           })
       }
       <RenderIf key={Int.toString(index)} condition=showCrumb>
-        <div className={`flex ${flexDirection} ${childGapClass} items-center`}>
+        <div className={`flex ${flexDirection} ${childGapClass} items-center `}>
           {if collapse {
             <div
               className="flex flex-row gap-1 text-jp-2-gray-100 font-medium items-center justify-center">
@@ -74,6 +82,7 @@ let make = (
                     className={`${textClass} ${linkTextClass} ${commonTextClass}`}
                     to_={GlobalVars.appendDashboardPath(~url=`${prefix}${crumb.link}`)}>
                     {React.string(crumb.title)}
+                    <div />
                   </Link>
                 | _ =>
                   <a
