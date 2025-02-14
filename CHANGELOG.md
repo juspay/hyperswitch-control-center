@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.14.0
+
+### Features
+
+- Addition of new connectors-Inespay ([#2245](https://github.com/juspay/hyperswitch-control-center/pull/2245)) ([`b62c2c8`](https://github.com/juspay/hyperswitch-control-center/commit/b62c2c82e3bebdf47b0a32979b684101aae77ebf))
+
+### Refactors
+
+- Update v2 payment methods ([#2234](https://github.com/juspay/hyperswitch-control-center/pull/2234)) ([`7912de4`](https://github.com/juspay/hyperswitch-control-center/commit/7912de45ba1c530e499a2a62cfc8110e94d68ead))
+
+### Miscellaneous Tasks
+
+- Wasm update for Inespay ([#2246](https://github.com/juspay/hyperswitch-control-center/pull/2246)) ([`da4e58f`](https://github.com/juspay/hyperswitch-control-center/commit/da4e58f08cc0458684be3a8ac446bb616869ea61))
+
+**Full Changelog:** [`2025.02.13.0...2025.02.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.13.0...2025.02.14.0)
+
+- - -
+
 ## 2025.02.13.0
 
 ### Features

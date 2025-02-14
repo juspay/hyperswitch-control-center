@@ -97,6 +97,7 @@ type processorTypes =
   | NEXIXPAY
   | XENDIT
   | JPMORGAN
+  | INESPAY
 
 type payoutProcessorTypes =
   | ADYEN
@@ -147,6 +148,9 @@ type paymentMethodTypes =
   | BankDebit
   | OpenBankingPIS
   | Paze
+  | AliPay
+  | WeChatPay
+  | DirectCarrierBilling
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
