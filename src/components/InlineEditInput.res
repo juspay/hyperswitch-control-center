@@ -120,7 +120,7 @@ let make = (
       </button>
       <button
         onClick={_ => handleSave()}
-        className={`cursor-pointer !text-primary-primary-blue-500 ${customIconStyle} ${isDisabledCss}`}
+        className={`cursor-pointer !text-primary ${customIconStyle} ${isDisabledCss}`}
         disabled={isDisabled}>
         <Icon name="nd-check" size=16 />
       </button>

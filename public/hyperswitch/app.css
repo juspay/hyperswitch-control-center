@@ -37,10 +37,9 @@
   /* DOM CSS */
 
   /* Primary Colors */
-  --color-primary: rgb(var(--colors-primary));
-  --color-primary-DEFAULT: rgb(var(--colors-primary));
+
   --color-secondary: rgb(var(--colors-secondary));
-  --color-secondary-DEFAULT: rgb(var(--colors-secondary));
+  --color-primary: rgb(var(--colors-primary));
 
   /* Sidebar Colors */
   --color-sidebar-primary: rgb(var(--sidebar-primary));
@@ -287,52 +286,26 @@
   }
 
   .primary-gradient-button {
-    box-shadow: 0px 0px 0px 1px
-      hsl(
-        from rgb(var(--btn-primary-background-color)) h calc(s + 1)
-          calc(l - 12) / 1
-      );
-    background-image: linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-primary-background-color)) h calc(s + 1)
-              calc(l - 7) / 1
-          ) -5%,
-        rgb(var(--btn-primary-background-color)) 107.5%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-primary-background-color)) h calc(s + 2)
-              calc(l + 10) / 1
-          ) -6.25%,
-        rgb(var(--btn-primary-hover-background-color)) 100%
-      );
+    box-shadow: 0px 0px 0px 1px hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 12) / 1);
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 7) / 1) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%);
     transition: ease-out 120ms;
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
   .primary-gradient-button:hover {
-    box-shadow: 0px 0px 0px 1px
-      hsl(
-        from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3)
-          calc(l + 3) / 1
-      );
-    background-image: linear-gradient(
-        180deg,
+    box-shadow: 0px 0px 0px 1px hsl(from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3) calc(l + 3) / 1);
+    background-image: linear-gradient(180deg,
         rgb(var(--btn-primary-background-color)) 0%,
-        hsl(from rgb(var(--btn-primary-background-color)) h s calc(l + 4) / 1)
-          100%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-primary-background-color)) h calc(s + 2)
-              calc(l + 10) / 1
-          ) -6.25%,
-        rgb(var(--btn-primary-hover-background-color)) 100%
-      );
+        hsl(from rgb(var(--btn-primary-background-color)) h s calc(l + 4) / 1) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%);
     transition: ease-out 120ms;
     background-origin: border-box;
     background-clip: content-box, border-box;
@@ -340,92 +313,47 @@
 
   .primary-gradient-button:active {
     box-shadow: 0px 3px 4px 0px #00000026 inset;
-    background-image: linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-primary-background-color)) h calc(s + 1)
-              calc(l - 13) / 1
-          ) -5%,
-        rgb(var(--btn-primary-background-color)) 107.5%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-primary-background-color)) calc(h - 1)
-              calc(s + 1) calc(l - 18) / 1
-          ) -6.25%,
-        rgb(var(--btn-primary-hover-background-color)) 100%
-      );
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 13) / 1) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) calc(h - 1) calc(s + 1) calc(l - 18) / 1) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%);
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
   }
 
   .primary-gradient-button:focus-visible {
-    box-shadow: 0px 0px 0px 3px
-      hsl(
-        from rgb(var(--btn-primary-hover-background-color)) calc(h - 1)
-          calc(s + 3) calc(l + 45) / 1
-      );
-    background-image: linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-primary-background-color)) h calc(s + 1)
-              calc(l - 7) / 1
-          ) -5%,
-        rgb(var(--btn-primary-background-color)) 107.5%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-primary-background-color)) h calc(s + 2)
-              calc(l + 10) / 1
-          ) -6.25%,
-        rgb(var(--btn-primary-hover-background-color)) 100%
-      );
+    box-shadow: 0px 0px 0px 3px hsl(from rgb(var(--btn-primary-hover-background-color)) calc(h - 1) calc(s + 3) calc(l + 45) / 1);
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 7) / 1) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%);
     transition: ease-out 120ms;
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
   .primary-gradient-button:disabled {
-    box-shadow: 0px 0px 0px 1px
-      hsl(
-        from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3)
-          calc(l + 35) / 1
-      );
-    background-image: linear-gradient(
-      180deg,
-      hsl(
-          from rgb(var(--btn-primary-background-color)) h calc(s - 10)
-            calc(l + 25) / 1
-        )
-        0%,
-      hsl(
-          from rgb(var(--btn-primary-background-color)) h calc(s - 10)
-            calc(l + 25) / 1
-        )
-        100%
-    );
+    box-shadow: 0px 0px 0px 1px hsl(from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3) calc(l + 35) / 1);
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s - 10) calc(l + 25) / 1) 0%,
+        hsl(from rgb(var(--btn-primary-background-color)) h calc(s - 10) calc(l + 25) / 1) 100%);
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
   .secondary-gradient-button {
     box-shadow: 0px 0px 0px 1px #bfbfc380;
-    background-image: linear-gradient(
-        180deg,
+    background-image: linear-gradient(180deg,
         rgb(var(--btn-secondary-background-color)) 0%,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1)
-          100%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1)
-          0%,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 1) / 1)
-          97.5%
-      );
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 1) / 1) 97.5%);
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
@@ -433,21 +361,12 @@
 
   .secondary-gradient-button:hover {
     box-shadow: 0px 0px 0px 1px #bfbfc380;
-    background-image: linear-gradient(
-        180deg,
+    background-image: linear-gradient(180deg,
         rgb(var(--btn-secondary-hover-background-color)) 0%,
-        rgb(var(--btn-secondary-hover-background-color)) 100%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1)
-          0%,
-        hsl(
-            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
-              calc(l - 6) / 0.75
-          )
-          97.5%
-      );
+        rgb(var(--btn-secondary-hover-background-color)) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 0.75) 97.5%);
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
@@ -455,29 +374,12 @@
 
   .secondary-gradient-button:active {
     box-shadow: 0px 3px 4px 0px #0000001a inset;
-    background-image: linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
-              calc(l - 6) / 1
-          )
-          0%,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1)
-          100%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
-              calc(l - 6) / 0.75
-          )
-          0%,
-        hsl(
-            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
-              calc(l - 6) / 1
-          )
-          97.5%
-      );
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 0.75) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 1) 97.5%);
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
@@ -485,29 +387,12 @@
 
   .secondary-gradient-button:focus-visible {
     box-shadow: 0px 0px 0px 3px #bfbfc354;
-    background-image: linear-gradient(
-        180deg,
-        hsl(
-            from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20)
-              calc(s + 23) l / 1
-          )
-          0%,
-        hsl(
-            from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20)
-              calc(s + 23) l / 1
-          )
-          100%
-      ),
-      linear-gradient(
-        180deg,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1)
-          0%,
-        hsl(
-            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
-              calc(l - 6) / 0.75
-          )
-          97.5%
-      );
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20) calc(s + 23) l / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20) calc(s + 23) l / 1) 100%),
+      linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 0.75) 97.5%);
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
@@ -516,19 +401,9 @@
 
   .secondary-gradient-button:disabled {
     box-shadow: 0px 0px 0px 1px #bfbfc354;
-    background-image: linear-gradient(
-      180deg,
-      hsl(
-          from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20)
-            calc(s + 10) calc(l - 3) / 1
-        )
-        0%,
-      hsl(
-          from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20)
-            calc(s + 10) calc(l - 3) / 1
-        )
-        100%
-    );
+    background-image: linear-gradient(180deg,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20) calc(s + 10) calc(l - 3) / 1) 0%,
+        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20) calc(s + 10) calc(l - 3) / 1) 100%);
     background-origin: border-box;
     background-clip: content-box, border-box;
   }

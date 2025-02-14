@@ -74,7 +74,7 @@ let make = (
                         let subSectionLineHeight = isCurrentSubStep ? "h-7" : "h-6"
 
                         let subStepNameIndicator = if isCurrentSubStep {
-                          "text-primary-primary-blue-500 break-all font-semibold text-base pl-5"
+                          "text-primary break-all font-semibold text-base pl-5"
                         } else {
                           "text-gray-400 break-all text-base font-medium pl-5"
                         }
@@ -86,11 +86,7 @@ let make = (
                             {if isSubStepCompleted {
                               <Icon name="nd-small-check" customHeight="12" />
                             } else if isCurrentSubStep {
-                              <Icon
-                                name="nd-radio"
-                                className="text-primary-primary-blue-500"
-                                customHeight="8"
-                              />
+                              <Icon name="nd-radio" className="text-primary" customHeight="8" />
                             } else {
                               <Icon name="nd-radio" className="text-gray-500" customHeight="8" />
                             }}
