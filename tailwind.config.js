@@ -58,6 +58,7 @@ module.exports = {
         "195-px": "195px",
         "774-px": "774px",
         "923-px": "923px",
+        "12.5-rem": "12.5rem",
         onBordingSupplier: "calc(100vh - 300px)",
       },
       padding: {
@@ -89,6 +90,9 @@ module.exports = {
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",
         standardPageWidth: "67.5rem",
+      },
+      gap: {
+        "0.5-rem": "0.5rem",
       },
       maxWidth: {
         fixedPageWidth: "82.75rem",

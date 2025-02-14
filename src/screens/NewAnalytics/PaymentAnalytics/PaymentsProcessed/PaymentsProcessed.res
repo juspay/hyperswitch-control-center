@@ -174,15 +174,18 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
-  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
-  let (granularity, setGranularity) = React.useState(_ =>
-    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let defaulGranularity = getDefaultGranularity(
+    ~startTime=startTimeVal,
+    ~endTime=endTimeVal,
+    ~granularity=featureFlag.granularity,
   )
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
 
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      setGranularity(_ => getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal))
+      setGranularity(_ => defaulGranularity)
     }
     None
   }, (startTimeVal, endTimeVal))
@@ -254,6 +257,7 @@ let make = (
               }->Identity.genericTypeToJson,
               ~granularity=granularity.value,
               ~isoStringToCustomTimeZone,
+              ~granularityEnabled=featureFlag.granularity,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -275,6 +279,7 @@ let make = (
             }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
             ~isoStringToCustomTimeZone,
+            ~granularityEnabled=featureFlag.granularity,
           )
         })
 

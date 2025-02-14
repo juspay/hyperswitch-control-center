@@ -134,6 +134,7 @@ let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(
 
 @react.component
 let make = (
+  ~hideCustomisableColumnButton=false,
   ~visibleColumns=?,
   ~defaultSort=?,
   ~title,
@@ -923,6 +924,7 @@ let make = (
           <div className="w-full">
             <RenderIf condition={!hideTitle}>
               <NewThemeHeading
+                headingColor="text-nd_gray-600"
                 heading=title
                 headingSize=titleSize
                 outerMargin=""
@@ -970,7 +972,7 @@ let make = (
           <RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
             {tableActionElements}
           </RenderIf>
-          customizeColumsButtons
+          <RenderIf condition={!hideCustomisableColumnButton}> customizeColumsButtons </RenderIf>
         </div>
       </div>
       {if dataLoading {

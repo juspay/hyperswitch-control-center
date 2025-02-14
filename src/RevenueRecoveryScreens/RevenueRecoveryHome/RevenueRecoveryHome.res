@@ -37,7 +37,14 @@ let make = () => {
   }
 
   <div className="flex flex-row">
-    <VerticalStepIndicator title="Setup Recovery" sections currentStep backClick />
+    <VerticalStepIndicator
+      titleElement={<h1 className="text-medium font-semibold text-gray-600">
+        {"Setup Recovery"->React.string}
+      </h1>}
+      sections
+      currentStep
+      backClick
+    />
     <div className="flex flex-row gap-x-4">
       <Button text="Previous" onClick={_ => onPreviousClick()->ignore} />
       <Button text="Next" buttonType=Primary onClick={_ => onNextClick()->ignore} />
