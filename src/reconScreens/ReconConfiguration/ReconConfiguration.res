@@ -19,10 +19,15 @@ let make = () => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/onboarding"))
   }
 
+  let vaultTitleElement =
+    <h1 className="text-medium font-semibold text-gray-600">
+      {"Setup Reconciliation"->React.string}
+    </h1>
+
   <div className="flex flex-col gap-10">
     <div className="rounded-lg h-774-px flex flex-col">
       <div className="flex h-full">
-        <VerticalStepIndicator title="Setup Reconciliation" currentStep sections backClick />
+        <VerticalStepIndicator titleElement=vaultTitleElement currentStep sections backClick />
         <div className="flex-[7] h-full p-12">
           <div className="w-500-px">
             {switch currentStep.sectionId->getVariantFromSectionString {
