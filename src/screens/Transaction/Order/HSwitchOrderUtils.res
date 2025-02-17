@@ -125,7 +125,7 @@ module CopyLinkTableCell = {
     ~copyValue,
     ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
-    ~customTextCss="w-40 truncate whitespace-nowrap",
+    ~customTextCss="w-36 truncate whitespace-nowrap",
     ~endValue=25,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
@@ -157,7 +157,7 @@ module CopyLinkTableCell = {
             displayValue->isNonEmptyString &&
             displayValue->String.length > endValue}>
             <div className="flex text-nowrap gap-1 ">
-              <p className="">
+              <p className=customTextCss>
                 {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
               </p>
               <span

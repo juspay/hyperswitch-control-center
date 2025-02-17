@@ -52,7 +52,6 @@ module Details = {
     open DisputeTypes
     open DisputesUtils
     open LogicUtils
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)
@@ -119,14 +118,14 @@ module Details = {
       />
       <FormRenderer.DesktopRow>
         <div
-          className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+          className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
           {detailsFields
           ->Array.mapWithIndex((colType, i) => {
             <RenderIf condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>
               <div className={`flex ${widthClass} items-center`}>
                 <OrderUtils.DisplayKeyValueParams
                   heading={getHeading(colType)}
-                  value={getCell(data, colType, merchantId, orgId)}
+                  value={getCell(data, colType)}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
                   overiddingHeadingStyles="text-black text-sm font-medium"

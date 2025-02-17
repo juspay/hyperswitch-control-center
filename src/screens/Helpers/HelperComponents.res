@@ -29,7 +29,7 @@ module CopyTextCustomComp = {
           onClick={ev => {
             onCopyClick(ev)
           }}
-          className={`${customIconCss}`}
+          className={`${customIconCss} cursor-pointer`}
         />
       </div>
     } else {

@@ -573,7 +573,7 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | ConnectorTransactionID =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-40 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
       />,
       "",
     )
@@ -649,23 +649,22 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   }
 }
 
-let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
+let getCell = (order, colType: colType): Table.cell => {
   open HelperComponents
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Metadata =>
     CustomCell(
-      <HelperComponents.EllipsisText
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-20 truncate whitespace-nowrap"
         displayValue={order.metadata->JSON.Encode.object->JSON.stringify}
       />,
       "",
     )
   | PaymentId =>
     CustomCell(
-      <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`}
-        displayValue={order.payment_id}
-        copyValue={Some(order.payment_id)}
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue={order.payment_id}
       />,
       "",
     )
@@ -701,7 +700,12 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | Description =>
-    CustomCell(<HelperComponents.EllipsisText displayValue={order.description} endValue={5} />, "")
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-20 truncate whitespace-nowrap" displayValue=order.description
+      />,
+      "",
+    )
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)
@@ -728,7 +732,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | ConnectorTransactionID =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-40 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
       />,
       "",
     )
@@ -926,7 +930,7 @@ let orderEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
+    ~getCell=(order, colType) => getCell(order, colType),
     ~dataKey="",
     ~getShowLink={
       order =>

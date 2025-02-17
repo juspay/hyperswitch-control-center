@@ -88,11 +88,17 @@ let getCell = (disputesData, colType): Table.cell => {
   | DisputeId =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-40 truncate whitespace-nowrap" displayValue=disputesData.dispute_id
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=disputesData.dispute_id
       />,
       "",
     )
-  | PaymentId => DisplayCopyCell(disputesData.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=disputesData.payment_id
+      />,
+      "",
+    )
   | AttemptId => DisplayCopyCell(disputesData.attempt_id)
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
@@ -154,7 +160,7 @@ let disputesEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(disputes, disputesColsType) => getCell(disputes, disputesColsType, merchantId, orgId),
+    ~getCell=(disputes, disputesColsType) => getCell(disputes, disputesColsType),
     ~dataKey="",
     ~getShowLink={
       disputesData =>

@@ -306,7 +306,7 @@ let getCell = (payoutData, colType): Table.cell => {
   | PayoutId =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-40 truncate whitespace-nowrap" displayValue=payoutData.payout_id
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=payoutData.payout_id
       />,
       "",
     )
@@ -434,7 +434,7 @@ let payoutEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(payout, payoutColsType) => getCell(payout, payoutColsType, merchantId, orgId),
+    ~getCell=(payout, payoutColsType) => getCell(payout, payoutColsType),
     ~dataKey="",
     ~getShowLink={
       payoutData =>

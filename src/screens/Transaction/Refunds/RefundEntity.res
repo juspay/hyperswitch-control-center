@@ -92,7 +92,7 @@ let getHeading = colType => {
   }
 }
 
-let getCell = (refundData, colType, merchantId, orgId): Table.cell => {
+let getCell = (refundData, colType): Table.cell => {
   switch colType {
   | Amount =>
     CustomCell(
@@ -105,14 +105,18 @@ let getCell = (refundData, colType, merchantId, orgId): Table.cell => {
   | Currency => Text(refundData.currency)
   | ErrorCode => Text(refundData.error_code)
   | ErrorMessage => Text(refundData.error_message)
-  | PaymentId => DisplayCopyCell(refundData.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue={refundData.payment_id}
+      />,
+      "",
+    )
   | RefundReason => Text(refundData.reason)
   | RefundId =>
     CustomCell(
-      <CopyLinkTableCell
-        url={`/refunds/${refundData.refund_id}/${refundData.profile_id}/${merchantId}/${orgId}`}
-        displayValue={refundData.refund_id}
-        copyValue={Some(refundData.refund_id)}
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue={refundData.refund_id}
       />,
       "",
     )
@@ -167,7 +171,7 @@ let refundEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(refunds, refundsColType) => getCell(refunds, refundsColType, merchantId, orgId),
+    ~getCell=(refunds, refundsColType) => getCell(refunds, refundsColType),
     ~dataKey="",
     ~getShowLink={
       refundData =>

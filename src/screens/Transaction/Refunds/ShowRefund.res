@@ -25,7 +25,7 @@ module RefundInfo = {
         </div>
         <FormRenderer.DesktopRow>
           <div
-            className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+            className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               if !(excludeColKeys->Array.includes(colType)) {
@@ -56,7 +56,6 @@ module RefundInfo = {
   @react.component
   let make = (~orderDict) => {
     let refundData = itemToObjMapper(orderDict)
-    let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
@@ -64,7 +63,7 @@ module RefundInfo = {
       <Details
         data=refundData
         getHeading
-        getCell={(refunds, refundsColType) => getCell(refunds, refundsColType, merchantId, orgId)}
+        getCell={(refunds, refundsColType) => getCell(refunds, refundsColType)}
         excludeColKeys=[RefundStatus, Amount]
         detailsFields=allColumns
       />
