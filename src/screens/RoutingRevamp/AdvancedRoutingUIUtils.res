@@ -55,7 +55,11 @@ module OperatorInp = {
         operator.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ => (),
-      value: operator.value,
+      value: operator.value
+      ->LogicUtils.getStringFromJson("")
+      ->operatorMapper
+      ->operatorTypeToStringMapper
+      ->JSON.Encode.string,
       checked: true,
     }
     React.useEffect(() => {
@@ -109,10 +113,22 @@ module OperatorInp = {
 
 module ValueInp = {
   @react.component
-  let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~variantValues, ~keyType) => {
+  let make = (
+    ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
+    ~variantValues,
+    ~keyType,
+    ~id,
+    ~valuePath,
+  ) => {
     let valueField = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let opField = (fieldsArray[2]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+    let form = ReactFinalForm.useForm()
+
+    React.useEffect(() => {
+      form.change(`${id}.${valuePath}`, ""->JSON.Encode.string)
+      None
+    }, [opField.value])
 
     React.useEffect(() => {
       typeField.onChange(
@@ -154,6 +170,7 @@ module ValueInp = {
         options={variantValues->SelectBox.makeOptions}
         hideMultiSelectButtons=true
         showSelectionAsChips={false}
+        maxHeight="max-h-full sm:max-h-64"
       />
     | IS | IS_NOT => {
         let val = valueField.value->LogicUtils.getStringFromJson("")
@@ -216,10 +233,10 @@ module MetadataInp = {
 let renderOperatorInp = keyType => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <OperatorInp fieldsArray keyType />
 }
-let renderValueInp = (keyType: string, variantValues) => (
+let renderValueInp = (keyType: string, variantValues, id, valuePath) => (
   fieldsArray: array<ReactFinalForm.fieldRenderProps>,
 ) => {
-  <ValueInp fieldsArray variantValues keyType />
+  <ValueInp fieldsArray variantValues keyType id valuePath />
 }
 
 let renderMetaInput = keyType => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
@@ -247,7 +264,7 @@ let valueInput = (id, variantValues, keyType) => {
   }
   makeMultiInputFieldInfoOld(
     ~label="",
-    ~comboCustomInput=renderValueInp(keyType, variantValues),
+    ~comboCustomInput=renderValueInp(keyType, variantValues, id, valuePath),
     ~inputFields=[
       makeInputFieldInfo(~name=`${id}.lhs`),
       makeInputFieldInfo(~name=`${id}.${valuePath}`),

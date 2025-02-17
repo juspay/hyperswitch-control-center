@@ -2,11 +2,9 @@
 let make = () => {
   open APIUtils
   open PageLoaderWrapper
-
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let profileIdFromUrl =
-    UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -17,15 +15,10 @@ let make = () => {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
-      Js.log(json)
       setInitialValues(_ => json)
       setScreenState(_ => Success)
     } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to update!")
-        Exn.raiseError(err)
-      }
-    | _ => Exn.raiseError("Something went wrong")
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
     }
   }
 
@@ -35,16 +28,17 @@ let make = () => {
   }, [])
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    Js.log(values)
+    let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
+    let _response = await updateAPIHook(connectorUrl, values, Post)
+
+    // let connectorId = response->getDictFromJsonObject->getString("merchant_connector_id", "")
     Nullable.null
   }
 
-  <>
-    <PageLoaderWrapper screenState>
-      <Form onSubmit initialValues>
-        <PaymentProcessorSummary initialValues setInitialValues />
-        <FormValuesSpy />
-      </Form>
-    </PageLoaderWrapper>
-  </>
+  <PageLoaderWrapper screenState>
+    <Form onSubmit initialValues>
+      <PaymentProcessorSummary initialValues />
+      <FormValuesSpy />
+    </Form>
+  </PageLoaderWrapper>
 }

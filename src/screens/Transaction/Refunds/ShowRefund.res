@@ -175,6 +175,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
               />,
             )}
             buttonType={Primary}
+            customButtonStyle="mr-1"
             onClick={_ => syncData()}
           />
         </RenderIf>

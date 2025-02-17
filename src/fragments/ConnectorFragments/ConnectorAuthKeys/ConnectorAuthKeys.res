@@ -1,10 +1,9 @@
 @react.component
 let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   open LogicUtils
-  open ConnectorAuthKeyUtils
+  open ConnectorFragmentUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  Js.log2("connectorconnectorconnectorconnector", connector)
 
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
 
@@ -29,15 +28,7 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
     }
   }, [selectedConnector])
 
-  let (
-    bodyType,
-    connectorAccountFields,
-    connectorMetaDataFields,
-    isVerifyConnector,
-    connectorWebHookDetails,
-    connectorLabelDetailField,
-    connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  let (bodyType, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
     let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
@@ -52,13 +43,6 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
   }, [connector])
 
   <ConnectorConfigurationFields
-    connector={connectorTypeFromName}
-    connectorAccountFields
-    selectedConnector
-    connectorMetaDataFields
-    connectorWebHookDetails
-    connectorLabelDetailField
-    connectorAdditionalMerchantData
-    showVertically
+    connector={connectorTypeFromName} connectorAccountFields selectedConnector showVertically
   />
 }
