@@ -73,7 +73,7 @@ module EllipsisText = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
-    <div className="flex text-nowrap">
+    <div className="flex text-nowrap gap-2">
       <RenderIf condition={isTextVisible}>
         <div className={customTextStyle}> {displayValue->React.string} </div>
       </RenderIf>

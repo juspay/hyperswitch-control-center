@@ -655,8 +655,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   switch colType {
   | Metadata =>
     CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-20 truncate whitespace-nowrap"
+      <HelperComponents.EllipsisText
         displayValue={order.metadata->JSON.Encode.object->JSON.stringify}
       />,
       "",
@@ -702,12 +701,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | Description =>
-    CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-20 truncate whitespace-nowrap" displayValue=order.description
-      />,
-      "",
-    )
+    CustomCell(<HelperComponents.EllipsisText displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)
