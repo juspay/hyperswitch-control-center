@@ -101,7 +101,13 @@ let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
       />,
       "",
     )
-  | AttemptId => DisplayCopyCell(disputesData.attempt_id)
+  | AttemptId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=disputesData.attempt_id
+      />,
+      "",
+    )
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
   | DisputeStatus =>
