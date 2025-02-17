@@ -1,27 +1,41 @@
 @react.component
-let make = (~currentStep, ~setCurrentStep) => {
+let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSource) => {
   open ReconConfigurationUtils
-
-  let currentStepCount = currentStep->getSectionFromStep->getSectionCount
+  open ConnectOrderDataTypes
+  open VerticalStepIndicatorTypes
 
   <div className="flex flex-col h-full">
-    <div className="flex flex-col gap-10 p-2 md:p-6">
-      <ReconConfigurationHelper.SubHeading
-        currentStepCount
-        title="Manual Mapping"
-        subTitle="Map the fields from your order data to the processor data to ensure accurate reconciliation"
-      />
-    </div>
-    {switch currentStep->getSubsectionFromStep {
-    | TestLivePayment =>
+    {switch selectedOrderSource {
+    | Hyperswitch =>
+      <div className="flex flex-col gap-10">
+        <ReconConfigurationHelper.SubHeading
+          title="Recon Setup is complete"
+          subTitle="You have successfully connected to Hyperswitch and PSP"
+        />
+      </div>
+    | Dummy =>
+      <div className="flex flex-col gap-10">
+        <ReconConfigurationHelper.SubHeading
+          title="Run Recon" subTitle="Run Recon to view the reports"
+        />
+      </div>
+    | OrderManagementSystem =>
+      <div className="flex flex-col gap-10">
+        <ReconConfigurationHelper.SubHeading
+          title="Run Recon" subTitle="Run Recon to view the reports"
+        />
+      </div>
+    }}
+    {switch currentStep.subSectionId->getVariantFromSubsectionString {
+    | #testLivePayment =>
       <ManualMappingHelper.TestLivePayment
-        currentStep={currentStep} setCurrentStep={setCurrentStep}
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+        selectedProcessor
+        selectedOrderSource
       />
-    | SetupCompleted =>
-      <ManualMappingHelper.SetupCompleted
-        currentStep={currentStep} setCurrentStep={setCurrentStep}
-      />
-    | _ => <div />
+    | #setupCompleted => <ManualMappingHelper.SetupCompleted />
+    | _ => React.null
     }}
   </div>
 }

@@ -1,27 +1,28 @@
 @react.component
-let make = (~currentStep, ~setCurrentStep) => {
+let make = (
+  ~currentStep: VerticalStepIndicatorTypes.step,
+  ~setCurrentStep,
+  ~selectedOrderSource,
+  ~setSelectedOrderSource,
+) => {
   open ReconConfigurationUtils
 
-  let currentStepCount = currentStep->getSectionFromStep->getSectionCount
-
-  <div className="flex flex-col h-full">
-    <div className="flex flex-col gap-10 p-2 md:p-6">
-      <ReconConfigurationHelper.SubHeading
-        currentStepCount
-        title="Connect Order Data"
-        subTitle="Enable automatic fetching of your order data to ensure seamless transaction matching and reconciliation"
-      />
-    </div>
-    {switch currentStep->getSubsectionFromStep {
-    | SelectSource =>
+  <div className="flex flex-col h-full gap-y-10">
+    {switch currentStep.subSectionId->getVariantFromSubsectionString {
+    | #selectSource =>
       <ConnectOrderDataHelper.SelectSource
-        currentStep={currentStep} setCurrentStep={setCurrentStep}
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+        selectedOrderSource={selectedOrderSource}
+        setSelectedOrderSource={setSelectedOrderSource}
       />
-    | SetupAPIConnection =>
+    | #setupAPIConnection =>
       <ConnectOrderDataHelper.SetupAPIConnection
-        currentStep={currentStep} setCurrentStep={setCurrentStep}
+        selectedOrderSource={selectedOrderSource}
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
       />
-    | _ => <div />
+    | _ => React.null
     }}
   </div>
 }

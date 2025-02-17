@@ -407,6 +407,10 @@ let textTagInput = (
   />
 }
 
+let fileInput = () => (~input: ReactFinalForm.fieldRenderPropsInput) => {
+  <MultipleFileUpload input />
+}
+
 let numericTextInput = (
   ~isDisabled=false,
   ~customStyle="",
