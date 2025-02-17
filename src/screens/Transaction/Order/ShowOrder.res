@@ -187,9 +187,9 @@ module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
     let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-    let widthClass = "w-4/12"
+    let widthClass = "w-1/3"
     <div className="flex flex-row flex-wrap">
-      <div className="w-1/2 p-2">
+      <div className="w-full p-2">
         <Details
           heading=String("Dispute Details")
           data

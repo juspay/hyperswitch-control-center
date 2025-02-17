@@ -29,6 +29,7 @@ let selectInput = (
       ~customStyle="max-h-48",
       ~options={options},
       ~buttonText="Select Value",
+      ~dropdownCustomWidth="",
     )(
       ~input={
         ...input,
