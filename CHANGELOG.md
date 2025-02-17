@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.17.0
+
+### Features
+
+- Vault customers and tokens ([#2244](https://github.com/juspay/hyperswitch-control-center/pull/2244)) ([`5d0c3ea`](https://github.com/juspay/hyperswitch-control-center/commit/5d0c3eaea48af42dd404b26f5ec44c3dcd046ffd))
+- Vault network token ([#2243](https://github.com/juspay/hyperswitch-control-center/pull/2243)) ([`a775fae`](https://github.com/juspay/hyperswitch-control-center/commit/a775faed2e9fc9723bcb27e2849ed7c22421c108))
+
+### Bug Fixes
+
+- Routing bugfixes ([#2263](https://github.com/juspay/hyperswitch-control-center/pull/2263)) ([`6b79577`](https://github.com/juspay/hyperswitch-control-center/commit/6b79577aa2d721f0a74d549d2a3e57969ae59889))
+- Added focus-visible on button and used hsl to generate colors ([#2256](https://github.com/juspay/hyperswitch-control-center/pull/2256)) ([`03b22c2`](https://github.com/juspay/hyperswitch-control-center/commit/03b22c241ec55b315181fd52183a95e2eb5dba43))
+
+### Miscellaneous Tasks
+
+- Vault-fixes and enhancements ([#2250](https://github.com/juspay/hyperswitch-control-center/pull/2250)) ([`7d63196`](https://github.com/juspay/hyperswitch-control-center/commit/7d631966539d21e7d218d89aa1d87d8c9ef29e0f))
+- Commenting unavailable api ([#2264](https://github.com/juspay/hyperswitch-control-center/pull/2264)) ([`b61461d`](https://github.com/juspay/hyperswitch-control-center/commit/b61461dfe6079134d8ac1058ed3b397d26db003b))
+
+**Full Changelog:** [`2025.02.14.0...2025.02.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.14.0...2025.02.17.0)
+
+- - -
+
+## 2025.02.14.0
+
+### Features
+
+- Addition of new connectors-Inespay ([#2245](https://github.com/juspay/hyperswitch-control-center/pull/2245)) ([`b62c2c8`](https://github.com/juspay/hyperswitch-control-center/commit/b62c2c82e3bebdf47b0a32979b684101aae77ebf))
+
+### Refactors
+
+- Update v2 payment methods ([#2234](https://github.com/juspay/hyperswitch-control-center/pull/2234)) ([`7912de4`](https://github.com/juspay/hyperswitch-control-center/commit/7912de45ba1c530e499a2a62cfc8110e94d68ead))
+
+### Miscellaneous Tasks
+
+- Wasm update for Inespay ([#2246](https://github.com/juspay/hyperswitch-control-center/pull/2246)) ([`da4e58f`](https://github.com/juspay/hyperswitch-control-center/commit/da4e58f08cc0458684be3a8ac446bb616869ea61))
+
+**Full Changelog:** [`2025.02.13.0...2025.02.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.13.0...2025.02.14.0)
+
+- - -
+
 ## 2025.02.13.0
 
 ### Features
