@@ -649,7 +649,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   }
 }
 
-let getCell = (order, colType: colType): Table.cell => {
+let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   open HelperComponents
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
@@ -663,8 +663,10 @@ let getCell = (order, colType: colType): Table.cell => {
     )
   | PaymentId =>
     CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue={order.payment_id}
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`}
+        displayValue={order.payment_id}
+        copyValue={Some(order.payment_id)}
       />,
       "",
     )
@@ -930,7 +932,7 @@ let orderEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(order, colType) => getCell(order, colType),
+    ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
     ~dataKey="",
     ~getShowLink={
       order =>
