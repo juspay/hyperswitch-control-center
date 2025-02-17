@@ -15,7 +15,6 @@ let make = () => {
     setDashboardPageState,
     currentProduct,
     setDefaultProductToSessionStorage,
-    showSideBar,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
@@ -113,9 +112,6 @@ let make = () => {
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
               <RenderIf condition={screenState === Success}>
-                <OrgSidebar />
-              </RenderIf>
-              <RenderIf condition={screenState === Success && showSideBar}>
                 <Sidebar
                   path={url.path}
                   sidebars={hyperSwitchAppSidebars}

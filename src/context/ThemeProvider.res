@@ -39,14 +39,14 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     },
     buttons: {
       primary: {
-        backgroundColor: "#0561E2",
+        backgroundColor: "#1272f9",
         textColor: "#ffffff",
-        hoverBackgroundColor: "#247DF9",
+        hoverBackgroundColor: "#0860dd",
       },
       secondary: {
-        backgroundColor: "#F3F3F3",
-        textColor: "#525866",
-        hoverBackgroundColor: "#FCFCFD",
+        backgroundColor: "#f3f3f3",
+        textColor: "#626168",
+        hoverBackgroundColor: "#fcfcfd",
       },
     },
     borders: {
