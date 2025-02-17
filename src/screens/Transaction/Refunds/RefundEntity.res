@@ -105,7 +105,13 @@ let getCell = (refundData, colType, merchantId, orgId): Table.cell => {
   | Currency => Text(refundData.currency)
   | ErrorCode => Text(refundData.error_code)
   | ErrorMessage => Text(refundData.error_message)
-  | PaymentId => DisplayCopyCell(refundData.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue={refundData.payment_id}
+      />,
+      "",
+    )
   | RefundReason => Text(refundData.reason)
   | RefundId =>
     CustomCell(
