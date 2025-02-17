@@ -17,16 +17,21 @@ let make = () => {
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let fetchDetails = useGetMethod()
 
+  let removeFieldsFromRespose = json => {
+    let dict = json->getDictFromJsonObject
+    dict->Dict.delete("applepay_verified_domains")
+    dict->Dict.delete("business_country")
+    dict->Dict.delete("business_label")
+    dict->Dict.delete("business_sub_label")
+    dict->JSON.Encode.object
+  }
+
   let getConnectorDetails = async () => {
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
-      let dict = json->getDictFromJsonObject
-
-      dict->Dict.delete("connector_account_details")
-      Js.log(dict)
-      setInitialValues(_ => dict->JSON.Encode.object)
+      setInitialValues(_ => json->removeFieldsFromRespose)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
@@ -91,10 +96,22 @@ let make = () => {
   let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    Js.log2(values, "VALUES")
-    let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
-
-    // let _response = await updateAPIHook(connectorUrl, values, Post)
+    let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+    let dict = values->getDictFromJsonObject
+    switch currentActiveSection {
+    | Some(AuthenticationKeys) => {
+        dict->Dict.delete("profile_id")
+        dict->Dict.delete("merchant_connector_id")
+        dict->Dict.delete("connector_name")
+      }
+    | _ => {
+        dict->Dict.delete("profile_id")
+        dict->Dict.delete("merchant_connector_id")
+        dict->Dict.delete("connector_name")
+        dict->Dict.delete("connector_account_details")
+      }
+    }
+    let _response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Post)
     setCurrentActiveSection(_ => None)
     setInitialValues(_ => values)
     Nullable.null
@@ -149,9 +166,11 @@ let make = () => {
                     />
                   </>
                 } else {
-                  <div onClick={_ => handleClick(Some(AuthenticationKeys))}>
+                  <a
+                    className="text-primary cursor-pointer"
+                    onClick={_ => handleClick(Some(AuthenticationKeys))}>
                     {"Edit"->React.string}
-                  </div>
+                  </a>
                 }}
               </div>
             </div>
@@ -180,7 +199,11 @@ let make = () => {
                     />
                   </>
                 } else {
-                  <div onClick={_ => handleClick(Some(Metadata))}> {"Edit"->React.string} </div>
+                  <a
+                    className="text-primary cursor-pointer"
+                    onClick={_ => handleClick(Some(Metadata))}>
+                    {"Edit"->React.string}
+                  </a>
                 }}
               </div>
             </div>
@@ -219,7 +242,9 @@ let make = () => {
                   />
                 </>
               } else {
-                <div onClick={_ => handleClick(Some(PMTs))}> {"Edit"->React.string} </div>
+                <a className="text-primary cursor-pointer" onClick={_ => handleClick(Some(PMTs))}>
+                  {"Edit"->React.string}
+                </a>
               }}
             </div>
           </div>
