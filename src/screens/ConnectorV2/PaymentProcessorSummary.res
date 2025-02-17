@@ -1,5 +1,5 @@
 @react.component
-let make = (~initialValues, ~setInitialValues) => {
+let make = (~initialValues) => {
   open ConnectorUtils
   open LogicUtils
   open CommonAuthHooks
