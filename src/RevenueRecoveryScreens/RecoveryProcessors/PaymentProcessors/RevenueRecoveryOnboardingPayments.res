@@ -57,6 +57,6 @@ let make = (
       </div>
     | _ => React.null
     }}
-    <FormValuesSpy />
+    //<FormValuesSpy />
   </Form>
 }

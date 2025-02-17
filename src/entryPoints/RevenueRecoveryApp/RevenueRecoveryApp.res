@@ -5,7 +5,7 @@ let make = () => {
   {
     switch url.path->HSwitchUtils.urlPath {
     | list{"v2", "recovery"} => <RevenueRecoveryOnboardingLanding />
-    | list{"v2", "recovery", "billing-connectors", ..._}
+    | list{"v2", "recovery", "onboarding"}
     | list{"v2", "recovery", "connectors", ..._} =>
       <RecoveryConnectorContainer />
     | list{"v2", "recovery", "overview", ...remainingPath} =>

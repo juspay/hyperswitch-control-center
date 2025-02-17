@@ -38,7 +38,17 @@ let make = () => {
           remainingPath
           renderList={() => <RecoveryConnectorList />}
           renderNewForm={() => <RecoveryConnectorHome />}
-          renderShow={(_, _) => <RecoveryConnectorHome />}
+          renderShow={(_, _) => <ConnectorSummary />}
+        />
+      </AccessControl>
+    | list{"v2", "recovery", "onboarding", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <EntityScaffold
+          entityName="onboarding"
+          remainingPath
+          renderList={() => <RevenueRecoveryOnboarding />}
+          renderNewForm={() => <RevenueRecoveryOnboarding />}
+          renderShow={(_, _) => <RevenueRecoveryOnboarding />}
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
