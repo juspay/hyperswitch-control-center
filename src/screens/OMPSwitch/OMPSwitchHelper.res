@@ -34,7 +34,7 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`text-sm font-medium cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
+          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
           <div className="text-left flex gap-2">
             <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap`}>
               subHeadingElem
@@ -47,7 +47,7 @@ module ListBaseComp = {
 
       | #Profile =>
         <div
-          className="flex flex-row cursor-pointer items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg shadow-sm border-nd_gray-100 shadow-sm">
+          className="flex flex-row cursor-pointer items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
           <div>
             <p className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500">
               subHeadingElem
@@ -117,7 +117,7 @@ module OMPViewBaseComp = {
     }
 
     <div
-      className="flex items-center text-sm font-medium cursor-pointer secondary-gradient-button rounded-lg h-40-px">
+      className="flex items-center text-sm font-medium cursor-pointer border-1.5 border-double border-transparent secondary-gradient-button rounded-lg h-40-px">
       <div className="flex flex-col items-start">
         <div className="text-left flex items-center gap-1 p-2">
           <Icon name="settings-new" size=18 />
@@ -176,7 +176,7 @@ module OMPViewsComp = {
         customStyle="md:rounded"
         searchable=false
         baseComponent={<OMPViewBaseComp displayName arrow />}
-        baseComponentCustomStyle="bg-white rounded"
+        baseComponentCustomStyle="bg-white rounded-lg"
         optionClass="font-inter text-fs-14 font-normal leading-5"
         selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"
         labelDescriptionClass="font-inter text-fs-12 font-normal leading-4"
