@@ -56,6 +56,7 @@ module RefundInfo = {
   @react.component
   let make = (~orderDict) => {
     let refundData = itemToObjMapper(orderDict)
+    let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
@@ -63,7 +64,7 @@ module RefundInfo = {
       <Details
         data=refundData
         getHeading
-        getCell={(refunds, refundsColType) => getCell(refunds, refundsColType)}
+        getCell={(refunds, refundsColType) => getCell(refunds, refundsColType, merchantId, orgId)}
         excludeColKeys=[RefundStatus, Amount]
         detailsFields=allColumns
       />

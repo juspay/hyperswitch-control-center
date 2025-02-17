@@ -301,12 +301,14 @@ let getHeading = colType => {
   }
 }
 
-let getCell = (payoutData, colType): Table.cell => {
+let getCell = (payoutData, colType, merchantId, orgId): Table.cell => {
   switch colType {
   | PayoutId =>
     CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=payoutData.payout_id
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/payouts/${payoutData.payout_id}/${payoutData.profile_id}/${merchantId}/${orgId}`}
+        displayValue={payoutData.payout_id}
+        copyValue={Some(payoutData.payout_id)}
       />,
       "",
     )
@@ -434,7 +436,7 @@ let payoutEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(payout, payoutColsType) => getCell(payout, payoutColsType),
+    ~getCell=(payout, payoutColsType) => getCell(payout, payoutColsType, merchantId, orgId),
     ~dataKey="",
     ~getShowLink={
       payoutData =>

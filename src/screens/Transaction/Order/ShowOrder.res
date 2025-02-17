@@ -27,6 +27,7 @@ module ShowOrderDetails = {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
+
     <Section customCssClass={`${border} ${bgColor} rounded-md px-5 pt-5 h-full`}>
       {switch sectionTitle {
       | Some(title) =>
@@ -186,6 +187,7 @@ module AttemptsSection = {
 module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
+    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let widthClass = "w-4/12"
     <div className="flex flex-row flex-wrap">
       <div className="w-1/2 p-2">
@@ -195,7 +197,7 @@ module DisputesSection = {
           detailsFields=DisputesEntity.columnsInPaymentPage
           getHeading=DisputesEntity.getHeading
           getCell={(disputes, disputesColsType) =>
-            DisputesEntity.getCell(disputes, disputesColsType)}
+            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId)}
           widthClass
         />
       </div>
@@ -340,6 +342,7 @@ module Disputes = {
   @react.component
   let make = (~disputesData) => {
     let expand = -1
+    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = columnsInPaymentPage->Array.map(getHeading)
     React.useEffect(() => {
@@ -373,7 +376,7 @@ module Disputes = {
     }
 
     let rows = disputesData->Array.map(item => {
-      columnsInPaymentPage->Array.map(colType => getCell(item, colType))
+      columnsInPaymentPage->Array.map(colType => getCell(item, colType, merchantId, orgId))
     })
 
     let getRowDetails = rowIndex => {

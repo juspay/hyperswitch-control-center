@@ -92,7 +92,7 @@ let getHeading = colType => {
   }
 }
 
-let getCell = (refundData, colType): Table.cell => {
+let getCell = (refundData, colType, merchantId, orgId): Table.cell => {
   switch colType {
   | Amount =>
     CustomCell(
@@ -115,8 +115,10 @@ let getCell = (refundData, colType): Table.cell => {
   | RefundReason => Text(refundData.reason)
   | RefundId =>
     CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue={refundData.refund_id}
+      <CopyLinkTableCell
+        url={`/refunds/${refundData.refund_id}/${refundData.profile_id}/${merchantId}/${orgId}`}
+        displayValue={refundData.refund_id}
+        copyValue={Some(refundData.refund_id)}
       />,
       "",
     )
@@ -171,7 +173,7 @@ let refundEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(refunds, refundsColType) => getCell(refunds, refundsColType),
+    ~getCell=(refunds, refundsColType) => getCell(refunds, refundsColType, merchantId, orgId),
     ~dataKey="",
     ~getShowLink={
       refundData =>

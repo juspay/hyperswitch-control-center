@@ -81,14 +81,16 @@ let amountValue = (amount, currency) => {
   `${amountInFloat->Float.toString} ${currency}`
 }
 
-let getCell = (disputesData, colType): Table.cell => {
+let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
   open DisputesUtils
   open HelperComponents
   switch colType {
   | DisputeId =>
     CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=disputesData.dispute_id
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}/${merchantId}/${orgId}`}
+        displayValue={disputesData.dispute_id}
+        copyValue={Some(disputesData.dispute_id)}
       />,
       "",
     )
@@ -160,7 +162,7 @@ let disputesEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(disputes, disputesColsType) => getCell(disputes, disputesColsType),
+    ~getCell=(disputes, disputesColsType) => getCell(disputes, disputesColsType, merchantId, orgId),
     ~dataKey="",
     ~getShowLink={
       disputesData =>
