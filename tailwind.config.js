@@ -339,6 +339,7 @@ module.exports = {
         },
         nd_green: {
           200: "#52B87A",
+          400: "#2DA160",
         },
       },
       borderRadius: {

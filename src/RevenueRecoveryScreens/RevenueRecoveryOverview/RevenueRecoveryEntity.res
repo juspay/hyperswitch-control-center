@@ -195,7 +195,7 @@ let getRefundHeading = (refundsColType: refundsColType) => {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
-  | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
+  | LastUpdated => Table.makeHeaderInfo(~key="modified_at", ~title="Last Updated")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id")
   | RefundStatus => Table.makeHeaderInfo(~key="status", ~title="Refund Status")
   | RefundId => Table.makeHeaderInfo(~key="refund_id", ~title="Refund ID")
@@ -402,12 +402,12 @@ let getHeading = (colType: colType) => {
 
 let useGetStatus = order => {
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
-  let orderStatusLabel = order.status->String.toUpperCase
-  let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
+  let orderStatusLabel = order.status->capitalizeString
+  let fixedStatusCss = "text-sm text-nd_green-400 font-medium px-2 py-1 rounded-md h-1/2"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
   | Succeeded
   | PartiallyCaptured =>
-    <div className={`${fixedStatusCss} bg-hyperswitch_green dark:bg-opacity-50`}>
+    <div className={`${fixedStatusCss} bg-green-50 dark:bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | Failed
@@ -431,9 +431,10 @@ let useGetStatus = order => {
 
 let getHeadingForSummary = summaryColType => {
   switch summaryColType {
-  | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
+  | Created => Table.makeHeaderInfo(~key="created", ~title="Created On")
   | NetAmount => Table.makeHeaderInfo(~key="net_amount", ~title="Net Amount")
-  | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
+  | OrderAmount => Table.makeHeaderInfo(~key="order_amount", ~title="Order Amount")
+  | LastUpdated => Table.makeHeaderInfo(~key="modified_at", ~title="Last Updated")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | AmountReceived =>
@@ -462,7 +463,10 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
   | AuthenticationType => Table.makeHeaderInfo(~key="authentication_type", ~title="Auth Type")
   | CaptureMethod => Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method")
-  | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network")
+  | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Brand")
+  | MandateId => Table.makeHeaderInfo(~key="MandateId", ~title="Mandate Id")
+  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable")
+  | AmountReceived => Table.makeHeaderInfo(~key="amount_receieved", ~title="Amount Received")
   }
 }
 
@@ -490,7 +494,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | ShippingAddress => Table.makeHeaderInfo(~key="shipping", ~title="Address")
   | ShippingEmail => Table.makeHeaderInfo(~key="shipping", ~title="Email")
   | ShippingPhone => Table.makeHeaderInfo(~key="shipping", ~title="Phone")
-  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable")
+  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable")
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
   | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="Tag")
   | FRMTransactionType =>
@@ -506,13 +510,26 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | Created => Date(order.created)
   | NetAmount =>
     CustomCell(
+      <CurrencyCell amount={(order.amount /. 100.0)->Float.toString} currency={order.currency} />,
+      "",
+    )
+  | OrderAmount =>
+    CustomCell(
       <CurrencyCell
-        amount={(order.net_amount /. 100.0)->Float.toString} currency={order.currency}
+        amount={(order.order_amount /. 100.0)->Float.toString} currency={order.currency}
       />,
       "",
     )
   | LastUpdated => Date(order.last_updated)
-  | PaymentId => DisplayCopyCell(order.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="max-w-xs truncate whitespace-nowrap"
+        displayValue=order.payment_id
+        customParentClass="flex items-center gap-4"
+      />,
+      "",
+    )
   | Currency => Text(order.currency)
   | AmountReceived =>
     CustomCell(
@@ -559,6 +576,15 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
 
       Text(dict->getString("card_network", ""))
     }
+  | MandateId => Text(order.payment_id)
+  | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
+  | AmountReceived =>
+    CustomCell(
+      <CurrencyCell
+        amount={(order.amount_received /. 100.0)->Float.toString} currency={order.currency}
+      />,
+      "",
+    )
   }
 }
 
@@ -738,13 +764,16 @@ let itemToObjMapper = dict => {
     invoice_id: dict->getString("id", ""),
     merchant_id: dict->getString("merchant_id", ""),
     net_amount: dict->getFloat("net_amount", 0.0),
+    order_amount: dict
+    ->getDictfromDict("amount")
+    ->getFloat("order_amount", 0.0),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),
     amount_capturable: dict->getFloat("amount_capturable", 0.0),
     amount_received: dict->getFloat("amount_received", 0.0),
     created: dict->getString("created", ""),
-    last_updated: dict->getString("last_updated", ""),
+    last_updated: dict->getString("modified_at", ""),
     currency: dict->getString("currency", ""),
     customer_id: dict->getString("customer_id", ""),
     description: dict->getString("description", ""),
@@ -823,7 +852,7 @@ let revenueRecoveryEntity = (merchantId, orgId) =>
     ~getShowLink={
       order =>
         GlobalVars.appendDashboardPath(
-          ~url=`v2/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`,
+          ~url=`v2/recovery/overview/${order.invoice_id}/${order.profile_id}/${merchantId}/${orgId}`,
         )
     },
   )

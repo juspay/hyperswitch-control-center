@@ -92,6 +92,7 @@ type order = {
   payment_id: string,
   merchant_id: string,
   net_amount: float,
+  order_amount: float,
   status: string,
   amount: float,
   amount_capturable: float,
@@ -195,6 +196,7 @@ type attemptColType =
 type summaryColType =
   | Created
   | NetAmount
+  | OrderAmount
   | LastUpdated
   | PaymentId
   | Currency
@@ -215,6 +217,9 @@ type aboutPaymentColType =
   | AuthenticationType
   | CaptureMethod
   | CardNetwork
+  | MandateId
+  | AmountCapturable
+  | AmountReceived
 
 type otherDetailsColType =
   | AmountCapturable
