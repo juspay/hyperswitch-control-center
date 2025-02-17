@@ -1,5 +1,5 @@
 @react.component
-let make = (~labelTextStyleClass="", ~labelClass="font-semibold") => {
+let make = (~labelTextStyleClass="", ~labelClass="font-semibold", ~isInEditState) => {
   open LogicUtils
   let labelFieldDict = ConnectorFragmentUtils.connectorLabelDetailField
   let label = labelFieldDict->getString("connector_label", "")

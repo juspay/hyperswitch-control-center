@@ -3,6 +3,7 @@ let make = (
   ~showVertically=true,
   ~labelTextStyleClass="",
   ~labelClass="font-semibold !text-hyperswitch_black",
+  ~isInEditState,
 ) => {
   open LogicUtils
   open ConnectorFragmentUtils

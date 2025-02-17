@@ -1,5 +1,9 @@
 @react.component
-let make = (~labelTextStyleClass="", ~labelClass="font-semibold !text-hyperswitch_black") => {
+let make = (
+  ~labelTextStyleClass="",
+  ~labelClass="font-semibold !text-hyperswitch_black",
+  ~isInEditState,
+) => {
   open LogicUtils
   open ConnectorMetaDataUtils
   open ConnectorFragmentUtils

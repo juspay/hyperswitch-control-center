@@ -160,9 +160,9 @@ let make = () => {
               <ConnectorAuthKeys
                 initialValues={updatedInitialVal} setInitialValues showVertically=true
               />
-              <ConnectorLabelV2 />
-              <ConnectorMetadataV2 />
-              <ConnectorWebhookDetails />
+              <ConnectorLabelV2 isInEditState=true />
+              <ConnectorMetadataV2 isInEditState=true />
+              <ConnectorWebhookDetails isInEditState=true />
               <FormRenderer.SubmitButton
                 text="Next"
                 buttonSize={Small}
