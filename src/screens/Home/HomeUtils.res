@@ -251,7 +251,7 @@ module ControlCenter = {
               customSubHeadingStyle="w-full max-w-none"
             />
             <MerchantAuthInfo />
-            <CardFooter customFooterStyle="lg:-mt-0 lg:mb-0">
+            <CardFooter customFooterStyle="lg:-mt-0 lg:mb-12">
               <Button
                 text="Go to API keys"
                 buttonType={Secondary}
