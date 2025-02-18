@@ -13,29 +13,8 @@ module SelectedCardValues = {
     | Some(data) => data.payment_method_types
     | _ => []
     }
-    <>
-      <RenderIf condition={pmtData->Array.length > 0}>
-        <div
-          className="border border-nd_gray-150 rounded-xl overflow-hidden"
-          key={`${index->Int.toString}-debit`}>
-          <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
-            <Heading heading=pm />
-          </div>
-          <div className="flex gap-8 p-6 flex-wrap">
-            {pmtData
-            ->Array.mapWithIndex((pmtData, i) => {
-              let label = pmtData.payment_method_type->snakeToTitle
-              <AddDataAttributes key={i->Int.toString} attributes=[("data-testid", `${label}`)]>
-                <div key={i->Int.toString} className={"flex gap-1.5 items-center"}>
-                  <p className="mt-4"> {label->React.string} </p>
-                </div>
-              </AddDataAttributes>
-            })
-            ->React.array}
-          </div>
-        </div>
-      </RenderIf>
-    </>
+
+    <SelectedPMT pmtData index pm />
   }
 }
 

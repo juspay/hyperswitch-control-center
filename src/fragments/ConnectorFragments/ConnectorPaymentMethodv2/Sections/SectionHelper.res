@@ -78,3 +78,35 @@ module HeadingSection = {
     </div>
   }
 }
+
+module SelectedPMT = {
+  @react.component
+  let make = (~pmtData: array<ConnectorTypes.paymentMethodConfigType>, ~index, ~pm) => {
+    open LogicUtils
+    open ConnectorPaymentMethodV3Utils
+    <RenderIf condition={pmtData->Array.length > 0}>
+      <div
+        className="border border-nd_gray-150 rounded-xl overflow-hidden"
+        key={`${index->Int.toString}-debit`}>
+        <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
+          <Heading heading=pm />
+        </div>
+        <div className="flex gap-8 p-6 flex-wrap">
+          {pmtData
+          ->Array.mapWithIndex((data, i) => {
+            let label = switch pm->getPMTFromString {
+            | Credit | Debit => data.card_networks->Array.joinWith(",")
+            | _ => data.payment_method_type->snakeToTitle
+            }
+            <AddDataAttributes key={i->Int.toString} attributes=[("data-testid", `${label}`)]>
+              <div key={i->Int.toString} className={"flex gap-1.5 items-center"}>
+                <p className="mt-4"> {label->React.string} </p>
+              </div>
+            </AddDataAttributes>
+          })
+          ->React.array}
+        </div>
+      </div>
+    </RenderIf>
+  }
+}

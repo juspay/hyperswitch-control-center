@@ -24,48 +24,8 @@ module SelectedCardValues = {
     | _ => []
     }
     <>
-      <RenderIf condition={credit->Array.length > 0}>
-        <div
-          className="border border-nd_gray-150 rounded-xl overflow-hidden"
-          key={`${index->Int.toString}-credit`}>
-          <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
-            <Heading heading="Credit" />
-          </div>
-          <div className="flex gap-8 p-6 flex-wrap">
-            {credit
-            ->Array.mapWithIndex((pmtData, i) => {
-              let label = pmtData.card_networks->Array.joinWith(",")
-              <AddDataAttributes key={i->Int.toString} attributes=[("data-testid", `${label}`)]>
-                <div key={i->Int.toString} className={"flex gap-1.5 items-center"}>
-                  <p className="mt-4"> {label->React.string} </p>
-                </div>
-              </AddDataAttributes>
-            })
-            ->React.array}
-          </div>
-        </div>
-      </RenderIf>
-      <RenderIf condition={debit->Array.length > 0}>
-        <div
-          className="border border-nd_gray-150 rounded-xl overflow-hidden"
-          key={`${index->Int.toString}-debit`}>
-          <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
-            <Heading heading="Debit" />
-          </div>
-          <div className="flex gap-8 p-6 flex-wrap">
-            {debit
-            ->Array.mapWithIndex((pmtData, i) => {
-              let label = pmtData.card_networks->Array.joinWith(",")
-              <AddDataAttributes key={i->Int.toString} attributes=[("data-testid", `${label}`)]>
-                <div key={i->Int.toString} className={"flex gap-1.5 items-center"}>
-                  <p className="mt-4"> {label->React.string} </p>
-                </div>
-              </AddDataAttributes>
-            })
-            ->React.array}
-          </div>
-        </div>
-      </RenderIf>
+      <SelectedPMT pmtData={credit} index pm="credit" />
+      <SelectedPMT pmtData={debit} index pm="debit" />
     </>
   }
 }
