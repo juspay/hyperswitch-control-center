@@ -6,8 +6,28 @@ let make = () => {
   open VerticalStepIndicatorUtils
   open ConnectorUtils
   open CommonAuthHooks
-  open VaultHomeUtils
   open PageLoaderWrapper
+
+  let sections = [
+    {
+      id: "authenticate-processor",
+      name: "Authenticate your processor",
+      icon: "nd-shield",
+      subSections: None,
+    },
+    {
+      id: "setup-webhook",
+      name: "Setup Webhook",
+      icon: "nd-webhook",
+      subSections: None,
+    },
+    {
+      id: "review-and-connect",
+      name: "Review and Connect",
+      icon: "nd-flag",
+      subSections: None,
+    },
+  ]
 
   let getURL = useGetURL()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
@@ -90,7 +110,7 @@ let make = () => {
   }
 
   let backClick = () => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/vault/onboarding"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/connectors"))
     setShowSideBar(_ => true)
   }
   let connectorDetails = React.useMemo(() => {
@@ -137,7 +157,7 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
-  let vaultTitleElement =
+  let recoveryTitleElement =
     <>
       <GatewayIcon gateway={`${connectorInfoDict.connector_name}`->String.toUpperCase} />
       <h1 className="text-medium font-semibold text-gray-600">
@@ -146,7 +166,7 @@ let make = () => {
     </>
 
   <div className="flex flex-row gap-x-6">
-    <VerticalStepIndicator titleElement=vaultTitleElement sections currentStep backClick />
+    <VerticalStepIndicator titleElement=recoveryTitleElement sections currentStep backClick />
     {switch currentStep {
     | {sectionId: "authenticate-processor"} =>
       <div className="flex flex-col w-1/2 px-10 ">
@@ -198,7 +218,7 @@ let make = () => {
           customButtonStyle="w-full mt-8"
         />
       </div>
-    | {sectionId: "review-and-connect"} => <VaultProceesorReview connectorInfo=initialValues />
+    | {sectionId: "review-and-connect"} => <RecoveryProceesorReview connectorInfo=initialValues />
     | _ => React.null
     }}
   </div>

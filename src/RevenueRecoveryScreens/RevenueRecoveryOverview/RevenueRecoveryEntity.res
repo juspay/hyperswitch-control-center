@@ -400,7 +400,7 @@ let getHeading = (colType: colType) => {
   }
 }
 
-let getStatus = (order,primaryColor) => {
+let getStatus = (order, primaryColor) => {
   let orderStatusLabel = order.status->capitalizeString
   let fixedStatusCss = "text-sm text-nd_green-400 font-medium px-2 py-1 rounded-md h-1/2"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
