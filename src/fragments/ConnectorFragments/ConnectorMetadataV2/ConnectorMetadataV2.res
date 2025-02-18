@@ -7,7 +7,6 @@ let make = (
 ) => {
   open LogicUtils
   open ConnectorMetaDataUtils
-  open ConnectorFragmentUtils
   open ConnectorHelperV2
 
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
@@ -17,24 +16,22 @@ let make = (
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
   }, [connector])
 
-  let connectorDetails = React.useMemo(() => {
+  let connectorMetaDataFields = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
         let dict = Window.getConnectorConfig(connector)
 
-        dict
+        dict->getDictFromJsonObject->getDictfromDict("metadata")
       } else {
-        Dict.make()->JSON.Encode.object
+        Dict.make()
       }
     } catch {
     | Exn.Error(e) => {
-        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        Dict.make()->JSON.Encode.object
+        Js.log2("FAILED TO LOAD CONNECTOR METADATA CONFIG", e)
+        Dict.make()
       }
     }
   }, [selectedConnector])
-
-  let (_, _, connectorMetaDataFields, _, _, _, _) = getConnectorFields(connectorDetails)
 
   let keys =
     connectorMetaDataFields
