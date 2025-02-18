@@ -68,8 +68,7 @@ module OrderInfo = {
 @react.component
 let make = (~id) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (orderStatus, setOrderStatus) = React.useState(_ => <> </>)
-  let (revenueOrderData, setRevenueOrderData) = React.useState(_ =>
+  let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ =>
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
   )
   let showToast = ToastState.useShowToast()
@@ -140,8 +139,7 @@ let make = (~id) => {
       }->Identity.genericTypeToJson
 
       let order = RevenueRecoveryEntity.itemToObjMapper(res->getDictFromJsonObject)
-      setOrderStatus(_ => useGetStatus(order))
-      setRevenueOrderData(_ => order)
+      setRevenueRecoveryData(_ => order)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -163,7 +161,7 @@ let make = (~id) => {
     fetchOrderDetails()->ignore
     None
   }, [])
-  let statusUI = orderStatus
+  let statusUI = useGetStatus(revenueRecoveryData)
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
@@ -179,7 +177,7 @@ let make = (~id) => {
     <div className="flex flex-col gap-10">
       <div className="flex flex-row justify-between items-center">
         <div className="flex gap-2 items-center">
-          <PageUtils.PageHeading title={`${revenueOrderData.invoice_id}`} />
+          <PageUtils.PageHeading title={`${revenueRecoveryData.invoice_id}`} />
           {statusUI}
         </div>
         <RenderIf condition=false>
@@ -196,7 +194,7 @@ let make = (~id) => {
         />}>
         <div className="grid grid-cols-4  ">
           <div className="col-span-3">
-            <OrderInfo order=revenueOrderData />
+            <OrderInfo order=revenueRecoveryData />
           </div>
           <div className="col-span-1">
             <div className="border rounded-lg rounded-b-none bg-nd_gray-100 px-4 py-2">
@@ -207,7 +205,7 @@ let make = (~id) => {
             <div
               className="border-l border-b border-r rounded-t-none rounded-lg bg-nd_gray-100 px-2 py-2">
               <ShowOrderDetails
-                data=revenueOrderData
+                data=revenueRecoveryData
                 widthClass="w-full"
                 getHeading=getHeadingForAboutPayment
                 getCell=getCellForAboutPayment
