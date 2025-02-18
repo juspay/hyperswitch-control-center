@@ -68,7 +68,7 @@ let make = (
     mixpanelEvent(~eventName=`connect_processor_${connectorName}`)
     setShowSideBar(_ => false)
     RescriptReactRouter.push(
-      GlobalVars.appendDashboardPath(~url=`v2/recovery/onboarding/new?name=${connectorName}`),
+      GlobalVars.appendDashboardPath(~url=`v2/recovery/connectors/new?name=${connectorName}`),
     )
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length

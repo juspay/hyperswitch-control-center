@@ -75,7 +75,7 @@ let make = () => {
           offset
           setOffset
           entity={RecoveryConnectorEntity.connectorEntity(
-            "v2/recovery/onboarding",
+            "v2/recovery/connectors",
             ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
           )}
           currrentFetchCount={filteredConnectorData->Array.length}
