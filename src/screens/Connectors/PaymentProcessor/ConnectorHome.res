@@ -256,16 +256,16 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           />
         | SummaryAndTest
         | Preview =>
-          <PaymentProcessorSummary />
-        // <ConnectorPreview
-        //   connectorInfo={initialValues}
-        //   currentStep
-        //   setCurrentStep
-        //   isUpdateFlow
-        //   setInitialValues
-        //   getPayPalStatus
-        //   getConnectorDetails={Some(getConnectorDetails)}
-        // />
+          // <PaymentProcessorSummary />
+          <ConnectorPreview
+            connectorInfo={initialValues}
+            currentStep
+            setCurrentStep
+            isUpdateFlow
+            setInitialValues
+            getPayPalStatus
+            getConnectorDetails={Some(getConnectorDetails)}
+          />
         }}
       </div>
     </div>
