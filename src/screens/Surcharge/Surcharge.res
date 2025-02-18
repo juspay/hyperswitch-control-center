@@ -253,7 +253,7 @@ let make = () => {
 
     let errors = Dict.make()
 
-    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors, ~validateFields=["name"])
 
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {
@@ -315,8 +315,35 @@ let make = () => {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
           <Form initialValues validate formClass="flex flex-col gap-6 justify-between" onSubmit>
-            <BasicDetailsForm isThreeDs=true />
-            <ConfigureSurchargeRule wasm />
+            <BasicDetailsForm isThreeDs=true showDescription=false />
+            <div>
+              <div
+                className={`flex flex-wrap items-center justify-between p-4 py-8 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850 
+        `}>
+                <div>
+                  <div className="font-bold"> {React.string("Surcharge")} </div>
+                  <div className="flex flex-col gap-4">
+                    <span className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
+                      {"Configure Advanced Rules to apply surcharges"->React.string}
+                    </span>
+                    <span className="flex flex-col text-jp-gray-700">
+                      {"For example:"->React.string}
+                      <p className="flex gap-2 items-center">
+                        <div className="p-1 h-fit rounded-full bg-jp-gray-700 ml-2" />
+                        {"If payment_method = card && amount > 50000, apply 5% or 2500 surcharge."->React.string}
+                      </p>
+                    </span>
+                    <span className="text-jp-gray-700 text-sm">
+                      <i>
+                        {"Ensure to enter the payment amount and surcharge fixed amount in the smallest currency unit (e.g., cents for USD, yen for JPY). 
+                For instance, pass 100 to charge $1.00 (USD) and ¥100 (JPY) since ¥ is a zero-decimal currency."->React.string}
+                      </i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <ConfigureSurchargeRule wasm />
+            </div>
             <FormValuesSpy />
             <div className="flex gap-4">
               <Button

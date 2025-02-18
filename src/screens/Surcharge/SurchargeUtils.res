@@ -129,6 +129,7 @@ let connectorSelectionMapper = dict => {
         \"type": surcharge->getString("type", ""),
         value: {
           percentage: surcharge->getDictfromDict("value")->getFloat("percentage", 0.0),
+          amount: surcharge->getDictfromDict("value")->getFloat("amount", 0.0),
         },
       },
       tax_on_surcharge: {
@@ -195,7 +196,7 @@ let mapResponseToFormValues = response => {
 
   let formValues: AdvancedRoutingTypes.advancedRoutingType = {
     name,
-    description: "New Rule",
+    description: "",
     algorithm: {
       defaultSelection: getDefaultSelection(defaultSelection),
       rules: rulesData,

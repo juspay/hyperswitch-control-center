@@ -247,7 +247,11 @@ let make = () => {
 
     let errors = Dict.make()
 
-    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(
+      ~dict,
+      ~errors,
+      ~validateFields=["name", "description"],
+    )
 
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {

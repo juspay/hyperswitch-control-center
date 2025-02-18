@@ -70,6 +70,7 @@ let make = (
   ~profile=?,
   ~setProfile=?,
   ~routingType=ADVANCED,
+  ~showDescription=true,
 ) => {
   open MerchantAccountUtils
   let ip1 = ReactFinalForm.useField(`name`).input
@@ -107,18 +108,20 @@ let make = (
                 </AddDataAttributes>
               </div>
             </AddDataAttributes>
-            <AddDataAttributes attributes=[("data-field", "Description")]>
-              <div className="flex flex-col gap-2 items-start justify-between py-2">
-                <span className="text-gray-500 dark:text-gray-400">
-                  {React.string("Description")}
-                </span>
-                <AddDataAttributes attributes=[("data-text", getStringFromJson(ip2.value, ""))]>
-                  <span className="font-semibold">
-                    {React.string(getStringFromJson(ip2.value, ""))}
+            <RenderIf condition=showDescription>
+              <AddDataAttributes attributes=[("data-field", "Description")]>
+                <div className="flex flex-col gap-2 items-start justify-between py-2">
+                  <span className="text-gray-500 dark:text-gray-400">
+                    {React.string("Description")}
                   </span>
-                </AddDataAttributes>
-              </div>
-            </AddDataAttributes>
+                  <AddDataAttributes attributes=[("data-text", getStringFromJson(ip2.value, ""))]>
+                    <span className="font-semibold">
+                      {React.string(getStringFromJson(ip2.value, ""))}
+                    </span>
+                  </AddDataAttributes>
+                </div>
+              </AddDataAttributes>
+            </RenderIf>
           </div>
         </div>
         <div className="flex flex-row justify-between gap-4">
@@ -154,7 +157,9 @@ let make = (
               />
             </RenderIf>
             <FieldRenderer field=configurationNameInput />
-            <FieldRenderer field=descriptionInput />
+            <RenderIf condition=showDescription>
+              <FieldRenderer field=descriptionInput />
+            </RenderIf>
           </div>
         </div>
       </>
