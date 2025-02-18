@@ -72,6 +72,7 @@ let make = (~id) => {
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
   )
   let showToast = ToastState.useShowToast()
+  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 
   let fetchOrderDetails = async _ => {
     try {
@@ -161,7 +162,7 @@ let make = (~id) => {
     fetchOrderDetails()->ignore
     None
   }, [])
-  let statusUI = useGetStatus(revenueRecoveryData)
+  let statusUI = getStatus(revenueRecoveryData, primaryColor)
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
@@ -180,12 +181,10 @@ let make = (~id) => {
           <PageUtils.PageHeading title={`${revenueRecoveryData.invoice_id}`} />
           {statusUI}
         </div>
-        <RenderIf condition=false>
-          <div className="flex gap-2 ">
-            <ACLButton text="Stop Recovery" customButtonStyle="!w-fit" buttonType={Secondary} />
-            <ACLButton text="Refund Amount" customButtonStyle="!w-fit" buttonType={Primary} />
-          </div>
-        </RenderIf>
+        // <div className="flex gap-2 ">
+        //   <ACLButton text="Stop Recovery" customButtonStyle="!w-fit" buttonType={Secondary} />
+        //   <ACLButton text="Refund Amount" customButtonStyle="!w-fit" buttonType={Primary} />
+        // </div>
       </div>
       <PageLoaderWrapper
         screenState
@@ -202,8 +201,7 @@ let make = (~id) => {
                 {"Amount Details"->React.string}
               </p>
             </div>
-            <div
-              className="border-l border-b border-r rounded-t-none rounded-lg bg-nd_gray-100 px-2 py-2">
+            <div className="border border-t-none rounded-t-none rounded-lg bg-nd_gray-100 p-2">
               <ShowOrderDetails
                 data=revenueRecoveryData
                 widthClass="w-full"
@@ -211,7 +209,7 @@ let make = (~id) => {
                 getCell=getCellForAboutPayment
                 detailsFields=[AmountCapturable, AmountReceived, AuthenticationType]
                 isButtonEnabled=true
-                customFlex="flex-col "
+                customFlex="flex-col"
                 isHorizontal=true
               />
             </div>
