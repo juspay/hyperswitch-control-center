@@ -100,24 +100,30 @@ let make = () => {
   let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
-    let dict = values->getDictFromJsonObject
-    switch currentActiveSection {
-    | Some(AuthenticationKeys) => {
-        dict->Dict.delete("profile_id")
-        dict->Dict.delete("merchant_connector_id")
-        dict->Dict.delete("connector_name")
+    try {
+      setScreenState(_ => Loading)
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let dict = values->getDictFromJsonObject
+      switch currentActiveSection {
+      | Some(AuthenticationKeys) => {
+          dict->Dict.delete("profile_id")
+          dict->Dict.delete("merchant_connector_id")
+          dict->Dict.delete("connector_name")
+        }
+      | _ => {
+          dict->Dict.delete("profile_id")
+          dict->Dict.delete("merchant_connector_id")
+          dict->Dict.delete("connector_name")
+          dict->Dict.delete("connector_account_details")
+        }
       }
-    | _ => {
-        dict->Dict.delete("profile_id")
-        dict->Dict.delete("merchant_connector_id")
-        dict->Dict.delete("connector_name")
-        dict->Dict.delete("connector_account_details")
-      }
+      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Post)
+      setCurrentActiveSection(_ => None)
+      setInitialValues(_ => response->removeFieldsFromRespose)
+      setScreenState(_ => Success)
+    } catch {
+    | _ => ()
     }
-    let _response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Post)
-    setCurrentActiveSection(_ => None)
-    setInitialValues(_ => values)
     Nullable.null
   }
 
@@ -144,10 +150,9 @@ let make = () => {
               {connectorInfodict.profile_id->React.string}
             </div>
             <div className="flex flex-col gap-0.5-rem ">
-              <h4 className="text-nd_gray-400 "> {"Integration status"->React.string} </h4>
+              <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
               <div className="flex flex-row gap-2 items-center ">
-                <div className={`w-3 h-3  rounded-full ${integrationStatusCSS}`} />
-                {connectorInfodict.status->capitalizeString->React.string}
+                <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
               </div>
             </div>
           </div>
