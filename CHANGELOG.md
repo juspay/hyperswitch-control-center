@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.18.0
+
+### Features
+
+- Billing connector addition ([#2248](https://github.com/juspay/hyperswitch-control-center/pull/2248)) ([`40b6b85`](https://github.com/juspay/hyperswitch-control-center/commit/40b6b85a1c690f51c83abc93ebc63ca582383aa7))
+
+### Bug Fixes
+
+- Global search amount filter special characters fix ([#2266](https://github.com/juspay/hyperswitch-control-center/pull/2266)) ([`d0f57b8`](https://github.com/juspay/hyperswitch-control-center/commit/d0f57b81c8072c6ba27b454b5233faa086092ad1))
+- View data gradient button ([#2270](https://github.com/juspay/hyperswitch-control-center/pull/2270)) ([`9f853ec`](https://github.com/juspay/hyperswitch-control-center/commit/9f853eca712cf8a35c2e906b84c83f0031d4a7d7))
+- Fixed ui design bugs ([#2273](https://github.com/juspay/hyperswitch-control-center/pull/2273)) ([`04bc569`](https://github.com/juspay/hyperswitch-control-center/commit/04bc56964ab0c3b3b40fbaa946ee7b5a8fa912ff))
+- Granularity time conversion fix for smart retry and refunds ([#2260](https://github.com/juspay/hyperswitch-control-center/pull/2260)) ([`a11fdd8`](https://github.com/juspay/hyperswitch-control-center/commit/a11fdd82de258e335510aba1a77d4cc8c54196dd))
+- Design bugs ([#2262](https://github.com/juspay/hyperswitch-control-center/pull/2262)) ([`1efe310`](https://github.com/juspay/hyperswitch-control-center/commit/1efe3109df79aef9725581aeb6549bdcf5251571))
+
+### Miscellaneous Tasks
+
+- Sidebar collapse in products ([#2268](https://github.com/juspay/hyperswitch-control-center/pull/2268)) ([`d02c25c`](https://github.com/juspay/hyperswitch-control-center/commit/d02c25c582c1424a4b846c6391e13f6b35731e54))
+
+**Full Changelog:** [`2025.02.17.0...2025.02.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.17.0...2025.02.18.0)
+
+- - -
+
 ## 2025.02.17.0
 
 ### Features
