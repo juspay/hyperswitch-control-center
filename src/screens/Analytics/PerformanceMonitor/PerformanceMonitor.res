@@ -94,12 +94,14 @@ let make = (~domain="payments") => {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between ">
         <PageUtils.PageHeading title="Performance Monitor" subTitle="" />
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
-          selectedEntity={analyticsEntity}
-          onChange={updateAnalytcisEntity}
-          entityMapper=UserInfoUtils.analyticsEntityMapper
-        />
+        <div className="mr-5">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            selectedEntity={analyticsEntity}
+            onChange={updateAnalytcisEntity}
+            entityMapper=UserInfoUtils.analyticsEntityMapper
+          />
+        </div>
       </div>
       <div
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">

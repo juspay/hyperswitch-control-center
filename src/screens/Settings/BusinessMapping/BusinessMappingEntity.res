@@ -80,7 +80,7 @@ module ProfileActions = {
       <ToolTip
         description="Copy profile Id"
         toolTipFor={<Icon
-          name="copy-code"
+          name="nd-copy"
           size=20
           className="cursor-pointer"
           onClick={_ => {

@@ -55,7 +55,7 @@ module ChangeRoleSection = {
           {"Change the role in the current scope"->React.string}
         </p>
       </div>
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-10 items-center">
         <SelectBox.BaseDropdown
           options
           searchable=false

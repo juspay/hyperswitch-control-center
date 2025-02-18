@@ -28,7 +28,7 @@ let make = (
 
   let copyParsedJson =
     <div onClick={_ => handleOnClickCopy(~parsedValue=parsedJson)} className="cursor-pointer">
-      <Icon name="copy-code" />
+      <Icon name="nd-copy" />
     </div>
 
   <div className="flex flex-col gap-2">
