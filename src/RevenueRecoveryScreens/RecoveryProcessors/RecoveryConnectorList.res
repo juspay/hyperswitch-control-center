@@ -74,15 +74,15 @@ let make = () => {
           resultsPerPage=20
           offset
           setOffset
-          entity={VaultConnectorEntity.connectorEntity(
-            "v2/vault/onboarding",
+          entity={RecoveryConnectorEntity.connectorEntity(
+            "v2/recovery/onboarding",
             ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
           )}
           currrentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false
         />
       </RenderIf>
-      <VaultProcessorCards configuredConnectors connectorsAvailableForIntegration />
+      <RecoveryProcessorCards configuredConnectors connectorsAvailableForIntegration />
     </div>
   </PageLoaderWrapper>
 }
