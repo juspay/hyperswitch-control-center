@@ -1,9 +1,9 @@
 open ProductTypes
 let getVariantFromString = product =>
-  switch product {
-  | "Recon" => Recon
-  | "Recovery" => Recovery
-  | "Vault" => Vault
+  switch product->String.toLowerCase {
+  | "recon" => Recon
+  | "recovery" => Recovery
+  | "vault" => Vault
   | _ => Orchestrator
   }
 

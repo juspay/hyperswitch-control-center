@@ -7,13 +7,12 @@ let make = () => {
   open HyperswitchAtom
   let pageViewEvent = MixpanelHook.usePageView()
   let url = RescriptReactRouter.useUrl()
-
   let {
     showFeedbackModal,
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
-    currentProduct,
+    activeProduct,
     setDefaultProductToSessionStorage,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -28,7 +27,7 @@ let make = () => {
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-
+  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {
     userInfo: {orgId, merchantId, profileId, roleId, themeId},
     checkUserEntity,
@@ -43,7 +42,7 @@ let make = () => {
 
   let maintainenceAlert = featureFlagDetails.maintainenceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
-  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~currentProduct)
+  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
   sessionExpired := false
 
   let applyTheme = async () => {
@@ -62,9 +61,11 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
+      let response = await fetchMerchantAccountDetails()
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      setDefaultProductToSessionStorage()
+      setDefaultProductToSessionStorage(response.product_type)
+      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -311,9 +312,14 @@ let make = () => {
                             <DisputeTable />
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />
-                        | _ =>
-                          RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-                          <MerchantAccountContainer setAppScreenState=setScreenState />
+                        | _ => // SPECIAL CASE FOR ORCHESTRATOR
+                          if activeProduct === Orchestrator {
+                            RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
+                            <MerchantAccountContainer setAppScreenState=setScreenState />
+                          } else {
+                            RescriptReactRouter.replace(appendDashboardPath(~url="/v2/home"))
+                            React.null
+                          }
                         }}
                       </ErrorBoundary>
                     </div>
