@@ -48,7 +48,7 @@ module DisplayKeyValueParams = {
             </RenderIf>
           </div>
           <div
-            className={`  ${isHorizontal
+            className={`${isHorizontal
                 ? "flex justify-end"
                 : ""} ${fontClass} font-semibold text-left ${textColor}`}>
             <Table.TableCell

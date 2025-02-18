@@ -510,7 +510,9 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | Created => Date(order.created)
   | NetAmount =>
     CustomCell(
-      <CurrencyCell amount={(order.amount /. 100.0)->Float.toString} currency={order.currency} />,
+      <CurrencyCell
+        amount={(order.net_amount /. 100.0)->Float.toString} currency={order.currency}
+      />,
       "",
     )
   | OrderAmount =>
