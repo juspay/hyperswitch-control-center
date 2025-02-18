@@ -150,7 +150,7 @@ module CopyLinkTableCell = {
       {if displayValue->isNonEmptyString {
         <div className=customParentClass>
           <RenderIf condition={isTextVisible || displayValue->String.length <= endValue}>
-            <div className=""> {displayValue->React.string} </div>
+            <div> {displayValue->React.string} </div>
           </RenderIf>
           <RenderIf
             condition={!isTextVisible &&
