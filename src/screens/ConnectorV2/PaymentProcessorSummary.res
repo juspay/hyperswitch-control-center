@@ -115,7 +115,7 @@ let make = () => {
       setInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to update"))
     }
     Nullable.null
   }

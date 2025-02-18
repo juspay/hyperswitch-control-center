@@ -261,13 +261,11 @@ module ProcessorStatus = {
       form.change("disabled", !isSelected->Identity.genericTypeToJson)
       form.submit()->ignore
     }
-    <>
-      <BoolInput.BaseComponent
-        isSelected={!connectorInfo.disabled}
-        setIsSelected={isSelected => updateConnectorStatus(isSelected)}
-        isDisabled=false
-        boolCustomClass="rounded-lg"
-      />
-    </>
+    <BoolInput.BaseComponent
+      isSelected={!connectorInfo.disabled}
+      setIsSelected={isSelected => updateConnectorStatus(isSelected)}
+      isDisabled=false
+      boolCustomClass="rounded-lg"
+    />
   }
 }
