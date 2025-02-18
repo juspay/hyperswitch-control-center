@@ -43,9 +43,9 @@ let make = (
       let label = connectorWebHookDetails->getString(field, "")
       let value = webHookDetails->getString(field, "")
 
-      <div key={index->Int.toString}>
-        {if isInEditState {
-          <RenderIf condition={label->String.length > 0}>
+      <RenderIf condition={label->String.length > 0}>
+        <div key={index->Int.toString}>
+          {if isInEditState {
             <FormRenderer.FieldRenderer
               labelClass
               field={FormRenderer.makeFieldInfo(
@@ -57,11 +57,13 @@ let make = (
               )}
               labelTextStyleClass
             />
-          </RenderIf>
-        } else {
-          <InfoField label str={value} />
-        }}
-      </div>
+          } else {
+            <RenderIf condition={value->String.length > 0}>
+              <InfoField label str={value} />
+            </RenderIf>
+          }}
+        </div>
+      </RenderIf>
     })
     ->React.array}
   </>

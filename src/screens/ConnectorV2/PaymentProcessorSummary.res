@@ -90,13 +90,6 @@ let make = () => {
     }
   }, [connectorInfodict.merchant_connector_id])
 
-  let integrationStatusCSS = {
-    switch connectorInfodict.status {
-    | "active" => "bg-green-950"
-    | _ => " "
-    }
-  }
-
   let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
