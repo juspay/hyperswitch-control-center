@@ -29,8 +29,6 @@ let make = (~initialValues, ~showVertically=true) => {
     }
   }, [selectedConnector])
 
-  // let (bodyType, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
-
   React.useEffect(() => {
     let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
     let acc =

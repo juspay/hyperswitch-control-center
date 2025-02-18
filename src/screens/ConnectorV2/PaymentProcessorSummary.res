@@ -3,19 +3,19 @@ type connectorSummarySection = AuthenticationKeys | Metadata | PMTs
 let make = () => {
   open ConnectorUtils
   open LogicUtils
-  open CommonAuthHooks
   open APIUtils
   open PageLoaderWrapper
-
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (screenState, setScreenState) = React.useState(_ => Loading)
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+
   let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+
   let url = RescriptReactRouter.useUrl()
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-  let fetchDetails = useGetMethod()
 
   let removeFieldsFromRespose = json => {
     let dict = json->getDictFromJsonObject
@@ -45,7 +45,7 @@ let make = () => {
 
   let handleClick = (section: option<connectorSummarySection>) => {
     if section->Option.isNone {
-      setInitialValues(_ => initialValues)
+      setInitialValues(_ => JSON.stringify(initialValues)->safeParse)
     }
     setCurrentActiveSection(_ => section)
   }
@@ -60,13 +60,13 @@ let make = () => {
   let connectorInfodict =
     initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let {connector_name: connectorName} = connectorInfodict
-  let (processorType, _) =
-    connectorInfodict.connector_type
-    ->connectorTypeTypedValueToStringMapper
-    ->connectorTypeTuple
 
   let connectorDetails = React.useMemo(() => {
     try {
+      let (processorType, _) =
+        connectorInfodict.connector_type
+        ->connectorTypeTypedValueToStringMapper
+        ->connectorTypeTuple
       if connectorName->LogicUtils.isNonEmptyString {
         let dict = switch processorType {
         | PaymentProcessor => Window.getConnectorConfig(connectorName)
@@ -90,7 +90,15 @@ let make = () => {
     }
   }, [connectorInfodict.merchant_connector_id])
 
-  let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
+  let (
+    _,
+    connectorAccountFields,
+    connectorMetaDataFields,
+    _,
+    connectorWebHookDetails,
+    connectorLabelDetailField,
+    _,
+  ) = getConnectorFields(connectorDetails)
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
@@ -120,8 +128,28 @@ let make = () => {
     Nullable.null
   }
 
+  let validateMandatoryField = values => {
+    let errors = Dict.make()
+    let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
+    let profileId = valuesFlattenJson->getString("profile_id", "")
+    if profileId->String.length === 0 {
+      Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
+    }
+    let connectorTypeFromName = connectorName->getConnectorNameTypeFromString
+
+    validateConnectorRequiredFields(
+      connectorTypeFromName,
+      valuesFlattenJson,
+      connectorAccountFields,
+      connectorMetaDataFields,
+      connectorWebHookDetails,
+      connectorLabelDetailField,
+      errors->JSON.Encode.object,
+    )
+  }
+
   <PageLoaderWrapper screenState>
-    <Form onSubmit initialValues>
+    <Form onSubmit initialValues validate=validateMandatoryField>
       <div className="flex flex-col gap-10 p-6">
         <div>
           <div className="flex flex-row gap-4 items-center">
