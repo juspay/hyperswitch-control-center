@@ -2,7 +2,7 @@
 let make = (
   ~showVertically=true,
   ~labelTextStyleClass="",
-  ~labelClass="font-semibold !text-hyperswitch_black",
+  ~labelClass="font-semibold ",
   ~isInEditState,
   ~connectorInfo: ConnectorTypes.connectorPayload,
 ) => {
@@ -37,7 +37,6 @@ let make = (
   let (_, _, _, _, connectorWebHookDetails, _, _) = getConnectorFields(connectorDetails)
   let webHookDetails = connectorInfo.connector_webhook_details->getDictFromJsonObject
   let keys = connectorWebHookDetails->Dict.keysToArray
-
   <>
     {keys
     ->Array.mapWithIndex((field, index) => {
@@ -46,16 +45,19 @@ let make = (
 
       <div key={index->Int.toString}>
         {if isInEditState {
-          <FormRenderer.FieldRenderer
-            labelClass
-            field={FormRenderer.makeFieldInfo(
-              ~label,
-              ~name={`connector_webhook_details.${field}`},
-              ~placeholder="plc",
-              ~customInput=InputFields.textInput(),
-              ~isRequired=false,
-            )}
-          />
+          <RenderIf condition={label->String.length > 0}>
+            <FormRenderer.FieldRenderer
+              labelClass
+              field={FormRenderer.makeFieldInfo(
+                ~label,
+                ~name={`connector_webhook_details.${field}`},
+                ~placeholder={label},
+                ~customInput=InputFields.textInput(~customStyle="rounded-xl "),
+                ~isRequired=false,
+              )}
+              labelTextStyleClass
+            />
+          </RenderIf>
         } else {
           <InfoField label str={value} />
         }}
