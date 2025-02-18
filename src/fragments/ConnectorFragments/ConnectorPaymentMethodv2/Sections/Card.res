@@ -127,6 +127,7 @@ let make = (
               | None => 0
               }
               <PaymentMethodTypes
+                key={i->Int.toString}
                 pm
                 pmtData
                 pmIndex

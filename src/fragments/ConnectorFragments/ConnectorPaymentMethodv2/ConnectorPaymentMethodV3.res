@@ -120,11 +120,25 @@ let make = (~initialValues, ~isInEditState) => {
         switch pmValue->getPMFromString {
         | Card =>
           <Card
-            index pm=pmValue pmIndex paymentMethodValues connector isInEditState initialValues
+            key={index->Int.toString}
+            index
+            pm=pmValue
+            pmIndex
+            paymentMethodValues
+            connector
+            isInEditState
+            initialValues
           />
         | _ =>
           <OtherPaymentMethod
-            index pm=pmValue pmIndex paymentMethodValues connector isInEditState initialValues
+            key={index->Int.toString}
+            index
+            pm=pmValue
+            pmIndex
+            paymentMethodValues
+            connector
+            isInEditState
+            initialValues
           />
         }
       })

@@ -43,8 +43,8 @@ let make = (
       let label = connectorWebHookDetails->getString(field, "")
       let value = webHookDetails->getString(field, "")
 
-      <RenderIf condition={label->String.length > 0}>
-        <div key={index->Int.toString}>
+      <RenderIf key={index->Int.toString} condition={label->String.length > 0}>
+        <div>
           {if isInEditState {
             <FormRenderer.FieldRenderer
               labelClass

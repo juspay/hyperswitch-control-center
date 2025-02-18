@@ -168,10 +168,10 @@ module CredsInfoField = {
       {dict
       ->Dict.keysToArray
       ->Array.filter(ele => ele !== "auth_type")
-      ->Array.map(field => {
+      ->Array.mapWithIndex((field, index) => {
         let value = dict->getString(field, "")
         let label = connectorAccountFields->getString(field, "")
-        <InfoField label str=value customElementStyle />
+        <InfoField key={index->Int.toString} label str=value customElementStyle />
       })
       ->React.array}
     </div>

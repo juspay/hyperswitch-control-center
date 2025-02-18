@@ -57,17 +57,20 @@ let make = (
       | _ => ""
       }
 
-      <div key={index->Int.toString}>
-        {if isInEditState {
+      {
+        if isInEditState {
           <FormRenderer.FieldRenderer
+            key={index->Int.toString}
             labelClass
             field={ConnectorHelperV2.connectorMetaDataValueInput(~connectorMetaDataFields={fields})}
             labelTextStyleClass
           />
         } else {
-          <InfoField label str=value />
-        }}
-      </div>
+          <RenderIf key={index->Int.toString} condition={value->isNonEmptyString}>
+            <InfoField label str=value />
+          </RenderIf>
+        }
+      }
     })
     ->React.array}
   </>
