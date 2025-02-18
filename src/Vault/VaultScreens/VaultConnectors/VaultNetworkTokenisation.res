@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  let (toggleState, setToggleState) = React.useState(_ => true)
+  let (toggleState, setToggleState) = React.useState(_ => false)
 
   <div className="mt-10 flex flex-col gap-2">
     <div className="flex flex-row  justify-between items-center">
@@ -19,8 +19,13 @@ let make = () => {
         isDisabled=true
       />
     </div>
-    <div className="font-medium text-nd_gray-400">
-      {"Network Tokenization is enabled for your merchant account with Juspay as the token requestor, ensuring secure and seamless card storage for future transactions"->React.string}
+    <div className="font-medium text-nd_gray-400 w-3/4">
+      {"Network Tokenization is enabled for your merchant account with Juspay as the token requestor, providing secure and seamless card storage for future transactions. To enable this feature, please contact us on "->React.string}
+      <a
+        href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+        className="text-primary hover:cursor-pointer hover:underline">
+        {"Slack"->React.string}
+      </a>
     </div>
   </div>
 }
