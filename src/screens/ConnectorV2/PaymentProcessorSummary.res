@@ -1,5 +1,5 @@
 @react.component
-let make = (~initialValues, ~setInitialValues) => {
+let make = (~initialValues) => {
   open ConnectorUtils
   open LogicUtils
   open CommonAuthHooks
@@ -21,6 +21,7 @@ let make = (~initialValues, ~setInitialValues) => {
         | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
+        | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
         dict
