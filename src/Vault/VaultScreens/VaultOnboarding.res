@@ -159,9 +159,9 @@ let make = () => {
           <Form onSubmit initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
               <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
-              <ConnectorLabelV2 isInEditState=true />
-              <ConnectorMetadataV2 isInEditState=true />
-              <ConnectorWebhookDetails isInEditState=true />
+              <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
+              <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
+              <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
               <FormRenderer.SubmitButton
                 text="Next"
                 buttonSize={Small}
