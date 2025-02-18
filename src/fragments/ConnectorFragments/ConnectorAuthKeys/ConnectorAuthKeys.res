@@ -1,10 +1,10 @@
 @react.component
-let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
+let make = (~initialValues, ~showVertically=true) => {
   open LogicUtils
   open ConnectorFragmentUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-
+  let form = ReactFinalForm.useForm()
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
 
   let selectedConnector = React.useMemo(() => {
@@ -38,7 +38,8 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
       ->JSON.Encode.object
 
     let _ = updatedValues->Dict.set("connector_account_details", acc)
-    setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
+    form.reset(updatedValues->JSON.Encode.object->Nullable.make)
+
     None
   }, [connector])
 

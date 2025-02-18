@@ -44,6 +44,9 @@ let make = () => {
   }, [])
 
   let handleClick = (section: option<connectorSummarySection>) => {
+    if section->Option.isNone {
+      setInitialValues(_ => initialValues)
+    }
     setCurrentActiveSection(_ => section)
   }
 
@@ -116,6 +119,7 @@ let make = () => {
     setInitialValues(_ => values)
     Nullable.null
   }
+
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues>
       <div className="flex flex-col gap-10 p-6">
@@ -174,12 +178,16 @@ let make = () => {
                 }}
               </div>
             </div>
-            <ConnectorHelperV2.PreviewCreds
-              connectorInfo=connectorInfodict
-              connectorAccountFields
-              customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
-              customElementStyle="px-2 "
-            />
+            {if checkCurrentEditState(AuthenticationKeys) {
+              <ConnectorAuthKeys initialValues />
+            } else {
+              <ConnectorHelperV2.PreviewCreds
+                connectorInfo=connectorInfodict
+                connectorAccountFields
+                customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
+                customElementStyle="px-2 "
+              />
+            }}
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between border-b pb-4 px-2 items-end">
@@ -212,16 +220,19 @@ let make = () => {
                 labelClass="font-normal"
                 labelTextStyleClass="text-nd_gray-400"
                 isInEditState={checkCurrentEditState(Metadata)}
+                connectorInfo=connectorInfodict
               />
               <ConnectorMetadataV2
                 labelTextStyleClass="text-nd_gray-400"
                 labelClass="font-normal"
                 isInEditState={checkCurrentEditState(Metadata)}
+                connectorInfo=connectorInfodict
               />
               <ConnectorWebhookDetails
                 labelTextStyleClass="text-nd_gray-400"
                 labelClass="font-normal"
                 isInEditState={checkCurrentEditState(Metadata)}
+                connectorInfo=connectorInfodict
               />
             </div>
           </div>

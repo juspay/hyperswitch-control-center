@@ -3,10 +3,12 @@ let make = (
   ~labelTextStyleClass="",
   ~labelClass="font-semibold !text-hyperswitch_black",
   ~isInEditState,
+  ~connectorInfo: ConnectorTypes.connectorPayload,
 ) => {
   open LogicUtils
   open ConnectorMetaDataUtils
   open ConnectorFragmentUtils
+  open ConnectorHelperV2
 
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
@@ -48,12 +50,23 @@ let make = (
         ->convertMapObjectToDict
         ->CommonConnectorUtils.inputFieldMapper
 
+      let {\"type", name, label} = fields
+
+      let value = switch \"type" {
+      | Text | Select | Toggle => connectorInfo.metadata->getDictFromJsonObject->getString(name, "")
+      | _ => ""
+      }
+
       <div key={index->Int.toString}>
-        <FormRenderer.FieldRenderer
-          labelClass
-          field={ConnectorHelperV2.connectorMetaDataValueInput(~connectorMetaDataFields={fields})}
-          labelTextStyleClass
-        />
+        {if isInEditState {
+          <FormRenderer.FieldRenderer
+            labelClass
+            field={ConnectorHelperV2.connectorMetaDataValueInput(~connectorMetaDataFields={fields})}
+            labelTextStyleClass
+          />
+        } else {
+          <InfoField label str=value />
+        }}
       </div>
     })
     ->React.array}

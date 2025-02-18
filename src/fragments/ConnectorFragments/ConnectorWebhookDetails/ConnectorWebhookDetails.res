@@ -4,10 +4,11 @@ let make = (
   ~labelTextStyleClass="",
   ~labelClass="font-semibold !text-hyperswitch_black",
   ~isInEditState,
+  ~connectorInfo: ConnectorTypes.connectorPayload,
 ) => {
   open LogicUtils
   open ConnectorFragmentUtils
-  open ConnectorAuthKeysHelper
+  open ConnectorHelperV2
   let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
 
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
@@ -34,14 +35,32 @@ let make = (
   }, [selectedConnector])
 
   let (_, _, _, _, connectorWebHookDetails, _, _) = getConnectorFields(connectorDetails)
+  let webHookDetails = connectorInfo.connector_webhook_details->getDictFromJsonObject
+  let keys = connectorWebHookDetails->Dict.keysToArray
 
-  <RenderConnectorInputFields
-    details={connectorWebHookDetails}
-    name={"connector_webhook_details"}
-    checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
-    connector={connectorTypeFromName}
-    selectedConnector
-    labelTextStyleClass
-    labelClass
-  />
+  <>
+    {keys
+    ->Array.mapWithIndex((field, index) => {
+      let label = connectorWebHookDetails->getString(field, "")
+      let value = webHookDetails->getString(field, "")
+
+      <div key={index->Int.toString}>
+        {if isInEditState {
+          <FormRenderer.FieldRenderer
+            labelClass
+            field={FormRenderer.makeFieldInfo(
+              ~label,
+              ~name={`connector_webhook_details.${field}`},
+              ~placeholder="plc",
+              ~customInput=InputFields.textInput(),
+              ~isRequired=false,
+            )}
+          />
+        } else {
+          <InfoField label str={value} />
+        }}
+      </div>
+    })
+    ->React.array}
+  </>
 }

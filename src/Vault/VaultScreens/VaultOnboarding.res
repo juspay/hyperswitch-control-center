@@ -157,9 +157,7 @@ let make = () => {
         <PageLoaderWrapper screenState>
           <Form onSubmit initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
-              <ConnectorAuthKeys
-                initialValues={updatedInitialVal} setInitialValues showVertically=true
-              />
+              <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
               <ConnectorLabelV2 isInEditState=true />
               <ConnectorMetadataV2 isInEditState=true />
               <ConnectorWebhookDetails isInEditState=true />
