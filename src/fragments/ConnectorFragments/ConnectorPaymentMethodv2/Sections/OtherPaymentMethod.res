@@ -205,6 +205,7 @@ let make = (
               modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
               childClass={""}>
               <RenderIf condition={showWalletConfigurationModal}>
+                // Need to refactor
                 <AdditionalDetailsSidebarComp
                   method={selectedWallet}
                   setMetaData={_ => ()}
