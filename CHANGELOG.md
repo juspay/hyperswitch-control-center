@@ -3,6 +3,36 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.19.1
+
+### Bug Fixes
+
+- Table ui fixes ([#2287](https://github.com/juspay/hyperswitch-control-center/pull/2287)) ([`83d9c47`](https://github.com/juspay/hyperswitch-control-center/commit/83d9c47d051141f63e5bdca000024653d299c910))
+
+**Full Changelog:** [`2025.02.19.0...2025.02.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.19.0...2025.02.19.1)
+
+- - -
+
+## 2025.02.19.0
+
+### Features
+
+- Added recovery details page ([#2258](https://github.com/juspay/hyperswitch-control-center/pull/2258)) ([`55072ef`](https://github.com/juspay/hyperswitch-control-center/commit/55072ef2cb404f954b06d1d12af39c9b759e8cbd))
+- Added slack link to network tokenization page ([#2280](https://github.com/juspay/hyperswitch-control-center/pull/2280)) ([`28b1e1e`](https://github.com/juspay/hyperswitch-control-center/commit/28b1e1e4bc9347d2975367d6dca7df32028545a2))
+
+### Bug Fixes
+
+- User role selection width adjustment in manage user modal ([#2281](https://github.com/juspay/hyperswitch-control-center/pull/2281)) ([`ffc82bb`](https://github.com/juspay/hyperswitch-control-center/commit/ffc82bbe1b963e920e415cc933f87b94f75d04a1))
+
+### Miscellaneous Tasks
+
+- Novalnet live ([#2279](https://github.com/juspay/hyperswitch-control-center/pull/2279)) ([`2627d70`](https://github.com/juspay/hyperswitch-control-center/commit/2627d70be409175d8e890849b43e9e6621d2a085))
+- Fix empty type value causing error in update ([#2285](https://github.com/juspay/hyperswitch-control-center/pull/2285)) ([`ad74e13`](https://github.com/juspay/hyperswitch-control-center/commit/ad74e13453958446e8280a504c91b92fdf96f34d))
+
+**Full Changelog:** [`2025.02.18.0...2025.02.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.18.0...2025.02.19.0)
+
+- - -
+
 ## 2025.02.18.0
 
 ### Features
