@@ -197,16 +197,17 @@ let make = () => {
                     />
                   </>
                 } else {
-                  <a
-                    className="text-primary cursor-pointer"
+                  <div
+                    className="flex gap-2 items-center cursor-pointer"
                     onClick={_ => handleClick(Some(AuthenticationKeys))}>
-                    {"Edit"->React.string}
-                  </a>
+                    <Icon name="nd-edit" size=14 />
+                    <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                  </div>
                 }}
               </div>
             </div>
             {if checkCurrentEditState(AuthenticationKeys) {
-              <ConnectorAuthKeys initialValues />
+              <ConnectorAuthKeys initialValues showVertically=false />
             } else {
               <ConnectorHelperV2.PreviewCreds
                 connectorInfo=connectorInfodict
@@ -234,11 +235,12 @@ let make = () => {
                     />
                   </>
                 } else {
-                  <a
-                    className="text-primary cursor-pointer"
+                  <div
+                    className="flex gap-2 items-center cursor-pointer"
                     onClick={_ => handleClick(Some(Metadata))}>
-                    {"Edit"->React.string}
-                  </a>
+                    <Icon name="nd-edit" size=14 />
+                    <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                  </div>
                 }}
               </div>
             </div>
@@ -280,9 +282,12 @@ let make = () => {
                   />
                 </>
               } else {
-                <a className="text-primary cursor-pointer" onClick={_ => handleClick(Some(PMTs))}>
-                  {"Edit"->React.string}
-                </a>
+                <div
+                  className="flex gap-2 items-center cursor-pointer"
+                  onClick={_ => handleClick(Some(PMTs))}>
+                  <Icon name="nd-edit" size=14 />
+                  <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                </div>
               }}
             </div>
           </div>
