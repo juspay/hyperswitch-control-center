@@ -25,7 +25,7 @@ let make = (~connectorInfo) => {
         | PaymentVas => JSON.Encode.null
         }
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
-        let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
+        let bodyType = connectorAccountDict->Dict.keysToArray->getValueFromArray(0, "")
         let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
         connectorAccountFields
       } else {

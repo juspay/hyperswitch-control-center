@@ -15,7 +15,7 @@ let make = (~initialValues, ~showVertically=true) => {
       if connector->isNonEmptyString {
         let dict = Window.getConnectorConfig(connector)
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
-        let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
+        let bodyType = connectorAccountDict->Dict.keysToArray->getValueFromArray(0, "")
         let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
         (bodyType, connectorAccountFields)
       } else {
