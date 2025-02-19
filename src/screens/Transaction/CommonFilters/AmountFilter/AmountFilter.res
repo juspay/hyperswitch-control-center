@@ -189,7 +189,7 @@ let make = (~options) => {
     />
     {<RenderIf condition={selectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
       <div
-        className="border border-jp-gray-940 border-opacity-50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0">
+        className="border border-jp-gray-940 border-opacity-50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0 items-center">
         {renderFields()}
         <Button
           buttonType=Primary

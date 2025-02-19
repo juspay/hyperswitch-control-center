@@ -66,7 +66,7 @@ module ShowOrderDetails = {
       </RenderIf>
       <FormRenderer.DesktopRow>
         <div
-          className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+          className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
           {detailsFields
           ->Array.mapWithIndex((colType, i) => {
             <div className=widthClass key={i->Int.toString}>
@@ -187,9 +187,9 @@ module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
     let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-    let widthClass = "w-4/12"
+    let widthClass = "w-1/3"
     <div className="flex flex-row flex-wrap">
-      <div className="w-1/2 p-2">
+      <div className="w-full p-2">
         <Details
           heading=String("Dispute Details")
           data
@@ -490,7 +490,7 @@ module FraudRiskBannerDetails = {
     <div
       className="w-full bg-white dark:bg-jp-gray-lightgray_background rounded-md px-4 pb-5 h-full">
       <div
-        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border lg:flex-row flex-col`}>
         {frmColumns
         ->Array.mapWithIndex((colType, i) => {
           <div className="w-1/3" key={i->Int.toString}>
@@ -536,7 +536,7 @@ module AuthenticationDetails = {
     <div
       className="w-full bg-white dark:bg-jp-gray-lightgray_background rounded-md px-4 pb-5 h-full">
       <div
-        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border lg:flex-row flex-col`}>
         {authenticationColumns
         ->Array.mapWithIndex((colType, i) => {
           <div className="w-1/3" key={i->Int.toString}>

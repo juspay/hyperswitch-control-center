@@ -200,7 +200,7 @@ let getDefaultSelection: Dict.t<
     {
       surcharge_details: {
         surcharge: {
-          \"type": surchargeValue->getString("type", ""),
+          \"type": surchargeValue->getString("type", "rate"),
           value: {
             percentage: surchargeValue->getDictfromDict("value")->getFloat("percentage", 0.0),
             amount: surchargeValue->getDictfromDict("value")->getFloat("amount", 0.0),

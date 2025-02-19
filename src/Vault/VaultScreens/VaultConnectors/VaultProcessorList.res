@@ -20,7 +20,6 @@ let make = () => {
       setConfiguredConnectors(_ => connectorsList->getConnectorTypeArrayFromListConnectors)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
-      setConfiguredConnectors(_ => connectorsList->getConnectorTypeArrayFromListConnectors)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
