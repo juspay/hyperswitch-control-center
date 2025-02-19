@@ -89,6 +89,11 @@ let make = () => {
     Nullable.null
   }
 
+  let handleAuthKeySubmit = async (_, _) => {
+    onNextClick()
+    Nullable.null
+  }
+
   let backClick = () => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/vault/onboarding"))
     setShowSideBar(_ => true)
@@ -156,12 +161,35 @@ let make = () => {
           customSubTitleStyle="font-500 font-normal text-nd_gray-700"
         />
         <PageLoaderWrapper screenState>
-          <Form onSubmit initialValues validate=validateMandatoryField>
+          <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
               <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
               <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
               <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
               <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
+              <FormRenderer.SubmitButton
+                text="Next"
+                buttonSize={Small}
+                customSumbitButtonStyle="!w-full mt-8"
+                tooltipForWidthClass="w-full"
+              />
+            </div>
+            <FormValuesSpy />
+          </Form>
+        </PageLoaderWrapper>
+      </div>
+
+    | {sectionId: "setup-pmts"} =>
+      <div className="flex flex-col w-1/2 px-10 ">
+        <PageUtils.PageHeading
+          title="Payment Methods"
+          subTitle="Configure your PaymentMethods."
+          customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+        />
+        <PageLoaderWrapper screenState>
+          <Form onSubmit initialValues validate=validateMandatoryField>
+            <div className="flex flex-col mb-5 gap-3 ">
+              <ConnectorPaymentMethodV3 initialValues isInEditState=true />
               <FormRenderer.SubmitButton
                 text="Next"
                 buttonSize={Small}
