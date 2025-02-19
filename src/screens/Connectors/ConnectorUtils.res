@@ -56,6 +56,7 @@ let connectorList: array<connectorTypes> = [
   Processors(CASHTOCODE),
   Processors(CHECKOUT),
   Processors(COINBASE),
+  Processors(COINGATE),
   Processors(CRYPTOPAY),
   Processors(CYBERSOURCE),
   Processors(DATATRANS),
@@ -269,6 +270,10 @@ let worldpayInfo = {
 
 let cybersourceInfo = {
   description: "Reliable processor providing fraud management tools, secure payment processing, and a variety of payment methods.",
+}
+
+let coingateInfo = {
+  description: "CoinGate is a cryptocurrency payment gateway that enables businesses to accept Bitcoin, Ethereum, and other cryptocurrencies as payment. It provides APIs, plugins, and point-of-sale solutions for merchants, supporting features like automatic conversion to fiat, payouts, and payment processing for various blockchain networks.",
 }
 
 let ebanxInfo = {
@@ -580,6 +585,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | AIRWALLEX => "airwallex"
   | WORLDPAY => "worldpay"
   | CYBERSOURCE => "cybersource"
+  | COINGATE => "coingate"
   | ELAVON => "elavon"
   | ACI => "aci"
   | WORLDLINE => "worldline"
@@ -718,6 +724,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpay" => Processors(WORLDPAY)
     | "cybersource" => Processors(CYBERSOURCE)
     | "elavon" => Processors(ELAVON)
+    | "coingate" => Processors(COINGATE)
     | "aci" => Processors(ACI)
     | "worldline" => Processors(WORLDLINE)
     | "fiserv" => Processors(FISERV)
@@ -835,6 +842,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | AIRWALLEX => airwallexInfo
   | WORLDPAY => worldpayInfo
   | CYBERSOURCE => cybersourceInfo
+  | COINGATE => coingateInfo
   | ELAVON => elavonInfo
   | ACI => aciInfo
   | WORLDLINE => worldlineInfo
@@ -1696,6 +1704,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | AIRWALLEX => "Airwallex"
   | WORLDPAY => "Worldpay"
   | CYBERSOURCE => "Cybersource"
+  | COINGATE => "CoinGate"
   | ELAVON => "Elavon"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
