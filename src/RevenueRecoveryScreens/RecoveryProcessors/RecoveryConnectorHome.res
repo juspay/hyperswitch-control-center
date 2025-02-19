@@ -5,7 +5,6 @@ let make = () => {
   open VerticalStepIndicatorTypes
   open VerticalStepIndicatorUtils
   open ConnectorUtils
-  open CommonAuthHooks
   open PageLoaderWrapper
 
   let sections = [
@@ -36,7 +35,7 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => Success)
-  let {profileId} = getUserInfoData()
+  let {profileId, merchantId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
   let connectorInfoDict =
     initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
@@ -54,7 +53,7 @@ let make = () => {
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+
   let activeBusinessProfile = getNameForId(#Profile)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
