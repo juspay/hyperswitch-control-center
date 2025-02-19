@@ -502,15 +502,20 @@ let generateQuery = searchQuery => {
       let key = query->String.split(filterSeparator)->Array.get(0)->Option.getOr("")
 
       if key == Amount->getcategoryFromVariant {
-        let value = (query
-        ->String.split(filterSeparator)
-        ->Array.get(1)
-        ->Option.getOr("")
-        ->Float.fromString
-        ->Option.getOr(0.0) *. 100.00)->Float.toString
+        let valueString =
+          query
+          ->String.split(filterSeparator)
+          ->Array.get(1)
+          ->Option.getOr("")
 
-        let filter = `${Amount->getcategoryFromVariant}${filterSeparator}${value}`
-        filters->Array.push(filter)
+        if valueString->isNonEmptyString && RegExp.test(%re("/^\d+(\.\d+)?$/"), valueString) {
+          let value = (valueString
+          ->Float.fromString
+          ->Option.getOr(0.0) *. 100.00)->Float.toString
+
+          let filter = `${Amount->getcategoryFromVariant}${filterSeparator}${value}`
+          filters->Array.push(filter)
+        }
       } else {
         filters->Array.push(query)
       }

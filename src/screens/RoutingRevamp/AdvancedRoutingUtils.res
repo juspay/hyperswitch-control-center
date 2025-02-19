@@ -430,9 +430,10 @@ let initialValues: AdvancedRoutingTypes.advancedRouting = {
   },
 }
 
-let validateNameAndDescription = (~dict, ~errors) => {
+let validateNameAndDescription = (~dict, ~errors, ~validateFields) => {
   open LogicUtils
-  ["name", "description"]->Array.forEach(field => {
+
+  validateFields->Array.forEach(field => {
     if dict->getString(field, "")->String.trim->isEmptyString {
       errors->Dict.set(field, `Please provide ${field} field`->JSON.Encode.string)
     }

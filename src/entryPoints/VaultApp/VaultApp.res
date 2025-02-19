@@ -26,9 +26,16 @@ let make = () => {
         access=Access
         renderList={() => <VaultConfiguration />}
         renderNewForm={() => <VaultOnboarding />}
-        renderShow={(_, _) => <ConnectorSummary />}
+        renderShow={(_, _) => <PaymentProcessorSummary />}
       />
-    | list{"v2", "vault", "customers-tokens"} => <VaultCustomersAndTokens />
+    | list{"v2", "vault", "customers-tokens", ...remainingPath} =>
+      <EntityScaffold
+        entityName="Vault"
+        remainingPath
+        access=Access
+        renderList={() => <VaultCustomersAndTokens />}
+        renderShow={(id, _) => <VaultCustomerSummary id />}
+      />
     | _ => React.null
     }
   }

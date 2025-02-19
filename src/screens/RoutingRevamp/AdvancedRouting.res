@@ -94,8 +94,9 @@ module AddSurchargeCondition = {
                   ~customInput=InputFields.selectInput(
                     ~options,
                     ~buttonText="Select Surcharge Type",
-                    ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                    ~customButtonStyle=`!-mt-5 ${classStyle} !p-0 !rounded-md`,
                     ~deselectDisable=true,
+                    ~textStyle="!px-2 !py-2",
                   ),
                 )}
               />
@@ -550,7 +551,11 @@ let make = (
 
     let errors = Dict.make()
 
-    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(
+      ~dict,
+      ~errors,
+      ~validateFields=["name", "description"],
+    )
 
     let validateGateways = (connectorData: array<AdvancedRoutingTypes.connectorSelectionData>) => {
       if connectorData->Array.length === 0 {
