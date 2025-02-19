@@ -138,8 +138,18 @@ let make = () => {
                         <div className="flex gap-4 items-center">
                           <img className="w-40 h-16" alt="image" src={`${url}`} />
                           <ProfileSwitch />
-                          <div className={`w-2 h-2 rounded-full ${modebg} `} />
-                          <span className="font-semibold"> {modeText->React.string} </span>
+                          <div
+                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
+                            <span className="relative flex h-2 w-2">
+                              <span
+                                className={`animate-ping absolute inline-flex h-full w-full rounded-full ${modebg} opacity-75`}
+                              />
+                              <span
+                                className={`relative inline-flex rounded-full h-2 w-2  ${modebg}`}
+                              />
+                            </span>
+                            <span className="font-semibold"> {modeText->React.string} </span>
+                          </div>
                         </div>
                       | None =>
                         <div className="flex gap-4 items-center ">
