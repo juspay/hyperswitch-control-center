@@ -508,9 +508,13 @@ let getGranularityOptions = (~startTime, ~endTime) => {
   })
 }
 
-let getDefaultGranularity = (~startTime, ~endTime) => {
+let getDefaultGranularity = (~startTime, ~endTime, ~granularity) => {
   let options = getGranularityOptions(~startTime, ~endTime)
-  options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
+  if granularity {
+    options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
+  } else {
+    defaulGranularity
+  }
 }
 
 let getGranularityGap = option => {
@@ -529,13 +533,14 @@ let fillMissingDataPoints = (
   ~timeKey="time_bucket",
   ~defaultValue: JSON.t,
   ~granularity: string,
-  ~isoStringToCustomTimeZone: option<string => TimeZoneHook.dateTimeString>=?,
+  ~isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
+  ~granularityEnabled,
 ) => {
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
-    let time = switch isoStringToCustomTimeZone {
-    | Some(timeConvert) => {
+    let time = switch (granularityEnabled, granularity != (#G_ONEDAY: granularity :> string)) {
+    | (true, true) => {
         let value =
           item
           ->getDictFromJsonObject
@@ -543,7 +548,7 @@ let fillMissingDataPoints = (
 
         let time = value->getString("start_time", "")
 
-        let {year, month, date, hour, minute} = timeConvert(time)
+        let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
 
         if (
           granularity == (#G_THIRTYMIN: granularity :> string) ||
@@ -581,9 +586,14 @@ let fillMissingDataPoints = (
     ->Math.floor
     ->Float.toInt
 
+  let format =
+    granularity != (#G_ONEDAY: granularity :> string)
+      ? "YYYY-MM-DD HH:mm:ss"
+      : "YYYY-MM-DD 00:00:00"
+
   for x in 0 to limit {
     let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-    let timeVal = startingPoint.add(x * devider, gap).format("YYYY-MM-DD HH:mm:ss")
+    let timeVal = startingPoint.add(x * devider, gap).format(format)
     switch dataDict->Dict.get(timeVal) {
     | Some(val) => {
         newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)

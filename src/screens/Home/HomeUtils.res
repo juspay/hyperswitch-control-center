@@ -220,18 +220,13 @@ module ControlCenter = {
         <CheckoutCard />
       </RenderIf>
       <div className=isLiveModeEnabledStyles>
-        <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-3/6"}>
+        <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-4/6"}>
           <CardHeader
             heading="Integrate a connector"
             subHeading="Give a headstart to the control centre by connecting with more than 20+ gateways, payment methods, and networks."
             leftIcon=Some("connector")
           />
           <CardFooter customFooterStyle="mt-5">
-            <img
-              alt="connector-list"
-              className="inline-block absolute lg:right-5 lg:bottom-5 bottom-0 right-0 lg:block lg:w-40 md:w-24 w-36"
-              src="/assets/connectorsList.svg"
-            />
             <Button
               text="+  Connect"
               buttonType={Secondary}
@@ -240,10 +235,15 @@ module ControlCenter = {
                 RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
               }}
             />
+            <img
+              alt="connector-list"
+              className="inline-block absolute bottom-0 right-0 lg:block lg:w-40 md:w-24 w-24"
+              src="/assets/connectorsList.svg"
+            />
           </CardFooter>
         </CardLayout>
         <RenderIf condition={!checkUserEntity([#Profile])}>
-          <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-4/6"}>
+          <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-3/6"}>
             <CardHeader
               heading="Credentials and Keys"
               subHeading="Your secret credentials to start integrating"
@@ -251,7 +251,7 @@ module ControlCenter = {
               customSubHeadingStyle="w-full max-w-none"
             />
             <MerchantAuthInfo />
-            <CardFooter>
+            <CardFooter customFooterStyle="lg:-mt-0 lg:mb-12">
               <Button
                 text="Go to API keys"
                 buttonType={Secondary}

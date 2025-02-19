@@ -69,11 +69,12 @@ module ClearFilters = {
       <Button
         text
         customButtonStyle="!h-10"
-        showBorder=false
+        showBorder=true
         textStyle
         leftIcon
         onClick=handleClearFilter
         buttonType={Secondary}
+        customIconMargin="-mr-1"
       />
     </RenderIf>
   }

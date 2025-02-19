@@ -11,14 +11,32 @@ let getCurrentShortUTCTime = () => {
   `${currYear}-${currMonth}-${currDay}`
 }
 
+let operatorTypeToStringMapper = (operator: AdvancedRoutingTypes.operator) => {
+  switch operator {
+  | CONTAINS => "CONTAINS"
+  | NOT_CONTAINS => "NOT_CONTAINS"
+  | IS => "IS"
+  | IS_NOT => "IS_NOT"
+  | GREATER_THAN => "GREATER THAN"
+  | LESS_THAN => "LESS THAN"
+  | EQUAL_TO => "EQUAL TO"
+  | NOT_EQUAL_TO => "NOT EQUAL_TO"
+  | UnknownOperator(str) => str
+  }
+}
+
 let operatorMapper: string => AdvancedRoutingTypes.operator = value => {
   switch value {
   | "CONTAINS" => CONTAINS
   | "NOT_CONTAINS" => NOT_CONTAINS
   | "IS" => IS
   | "IS_NOT" => IS_NOT
-  | "GREATER THAN" => GREATER_THAN
-  | "LESS THAN" => LESS_THAN
+  | "GREATER_THAN"
+  | "GREATER THAN" =>
+    GREATER_THAN
+  | "LESS_THAN"
+  | "LESS THAN" =>
+    LESS_THAN
   | "EQUAL TO" => EQUAL_TO
   | "NOT EQUAL_TO" => NOT_EQUAL_TO
   | _ => UnknownOperator("")
@@ -182,7 +200,7 @@ let getDefaultSelection: Dict.t<
     {
       surcharge_details: {
         surcharge: {
-          \"type": surchargeValue->getString("type", ""),
+          \"type": surchargeValue->getString("type", "rate"),
           value: {
             percentage: surchargeValue->getDictfromDict("value")->getFloat("percentage", 0.0),
             amount: surchargeValue->getDictfromDict("value")->getFloat("amount", 0.0),
@@ -259,9 +277,11 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
   switch comparison {
   | "equal" =>
     switch variantType {
+    | "number" => "EQUAL TO"
     | "enum_variant" => "IS"
     | "enum_variant_array" => "CONTAINS"
-    | "str_value" => "EQUAL_TO"
+    | "str_value" => "EQUAL TO"
+    | "metadata_variant" => "EQUAL TO"
     | _ => "IS"
     }
   | "not_equal" =>
@@ -410,9 +430,10 @@ let initialValues: AdvancedRoutingTypes.advancedRouting = {
   },
 }
 
-let validateNameAndDescription = (~dict, ~errors) => {
+let validateNameAndDescription = (~dict, ~errors, ~validateFields) => {
   open LogicUtils
-  ["name", "description"]->Array.forEach(field => {
+
+  validateFields->Array.forEach(field => {
     if dict->getString(field, "")->String.trim->isEmptyString {
       errors->Dict.set(field, `Please provide ${field} field`->JSON.Encode.string)
     }

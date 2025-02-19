@@ -59,7 +59,7 @@ let make = () => {
               GlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
             )
           }}
-          customButtonStyle="w-fit !rounded-md"
+          customButtonStyle="w-fit"
           buttonState={checkUserEntity([#Profile]) ? Disabled : Normal}
         />
       </div>

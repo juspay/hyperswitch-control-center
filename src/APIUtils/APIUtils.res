@@ -59,6 +59,20 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | PAYMENT_METHODS =>
+      switch methodType {
+      | Get => "payemnt_methods"
+      | _ => ""
+      }
+    | PAYMENT_METHODS_DETAILS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        | Some(id) => `payemnt_methods/${id}`
+        | None => `payemnt_methods`
+        }
+      | _ => ""
+      }
 
     /* CONNECTORS & FRAUD AND RISK MANAGEMENT */
     | FRAUD_RISK_MANAGEMENT | CONNECTOR =>

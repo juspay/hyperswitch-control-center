@@ -97,6 +97,7 @@ type processorTypes =
   | NEXIXPAY
   | XENDIT
   | JPMORGAN
+  | INESPAY
 
 type payoutProcessorTypes =
   | ADYEN
@@ -117,6 +118,8 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
+type billingProcessorTypes = CHARGEBEE
+
 type connectorTypes =
   | Processors(processorTypes)
   | PayoutProcessor(payoutProcessorTypes)
@@ -124,6 +127,7 @@ type connectorTypes =
   | FRM(frmTypes)
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
   | TaxProcessor(taxProcessorTypes)
+  | BillingProcessor(billingProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -147,6 +151,9 @@ type paymentMethodTypes =
   | BankDebit
   | OpenBankingPIS
   | Paze
+  | AliPay
+  | WeChatPay
+  | DirectCarrierBilling
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
@@ -288,7 +295,7 @@ type connectorAccountDetails = {
 
 type paymentMethodEnabledType = {
   payment_method: string,
-  payment_method_types: array<paymentMethodConfigType>,
+  mutable payment_method_types: array<paymentMethodConfigType>,
 }
 
 type payment_methods_enabled = array<paymentMethodEnabledType>
@@ -317,6 +324,7 @@ type connectorTypeVariants =
   | AuthenticationProcessor
   | PMAuthProcessor
   | TaxProcessor
+  | BillingProcessor
 
 type connectorPayload = {
   connector_type: connectorTypeVariants,
@@ -325,7 +333,7 @@ type connectorPayload = {
   connector_account_details: connectorAuthTypeObj,
   test_mode: bool,
   disabled: bool,
-  payment_methods_enabled: payment_methods_enabled,
+  mutable payment_methods_enabled: payment_methods_enabled,
   profile_id: string,
   metadata: JSON.t,
   merchant_connector_id: string,
@@ -342,3 +350,4 @@ type connector =
   | ThreeDsAuthenticator
   | PMAuthenticationProcessor
   | TaxProcessor
+  | BillingProcessor
