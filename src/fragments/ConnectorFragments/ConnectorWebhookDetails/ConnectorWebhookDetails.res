@@ -2,11 +2,12 @@
 let make = (
   ~showVertically=true,
   ~labelTextStyleClass="",
-  ~labelClass="font-semibold !text-hyperswitch_black",
+  ~labelClass="font-semibold ",
+  ~isInEditState,
+  ~connectorInfo: ConnectorTypes.connectorPayload,
 ) => {
   open LogicUtils
-  open ConnectorFragmentUtils
-  open ConnectorAuthKeysHelper
+  open ConnectorHelperV2
   let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
 
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
@@ -15,32 +16,53 @@ let make = (
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
   }, [connector])
 
-  let connectorDetails = React.useMemo(() => {
+  let connectorWebHookDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
         let dict = Window.getConnectorConfig(connector)
 
-        dict
+        dict->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
       } else {
-        Dict.make()->JSON.Encode.object
+        Dict.make()
       }
     } catch {
     | Exn.Error(e) => {
-        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        Dict.make()->JSON.Encode.object
+        Js.log2("FAILED TO LOAD CONNECTOR WEBHOOK CONFIG", e)
+        Dict.make()
       }
     }
   }, [selectedConnector])
 
-  let (_, _, _, _, connectorWebHookDetails, _, _) = getConnectorFields(connectorDetails)
+  let webHookDetails = connectorInfo.connector_webhook_details->getDictFromJsonObject
+  let keys = connectorWebHookDetails->Dict.keysToArray
+  <>
+    {keys
+    ->Array.mapWithIndex((field, index) => {
+      let label = connectorWebHookDetails->getString(field, "")
+      let value = webHookDetails->getString(field, "")
 
-  <RenderConnectorInputFields
-    details={connectorWebHookDetails}
-    name={"connector_webhook_details"}
-    checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
-    connector={connectorTypeFromName}
-    selectedConnector
-    labelTextStyleClass
-    labelClass
-  />
+      <RenderIf key={index->Int.toString} condition={label->String.length > 0}>
+        <div>
+          {if isInEditState {
+            <FormRenderer.FieldRenderer
+              labelClass
+              field={FormRenderer.makeFieldInfo(
+                ~label,
+                ~name={`connector_webhook_details.${field}`},
+                ~placeholder={label},
+                ~customInput=InputFields.textInput(~customStyle="rounded-xl "),
+                ~isRequired=false,
+              )}
+              labelTextStyleClass
+            />
+          } else {
+            <RenderIf condition={value->String.length > 0}>
+              <InfoField label str={value} />
+            </RenderIf>
+          }}
+        </div>
+      </RenderIf>
+    })
+    ->React.array}
+  </>
 }

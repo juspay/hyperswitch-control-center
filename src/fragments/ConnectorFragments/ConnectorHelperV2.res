@@ -168,10 +168,10 @@ module CredsInfoField = {
       {dict
       ->Dict.keysToArray
       ->Array.filter(ele => ele !== "auth_type")
-      ->Array.map(field => {
+      ->Array.mapWithIndex((field, index) => {
         let value = dict->getString(field, "")
         let label = connectorAccountFields->getString(field, "")
-        <InfoField label str=value customElementStyle />
+        <InfoField key={index->Int.toString} label str=value customElementStyle />
       })
       ->React.array}
     </div>
@@ -250,5 +250,22 @@ let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonConnectorType
     | (MultiSelect, _) => multiSelectInput(~field={connectorMetaDataFields}, ~formName)
     | _ => textInput(~field={connectorMetaDataFields}, ~formName)
     }
+  }
+}
+
+module ProcessorStatus = {
+  @react.component
+  let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
+    let form = ReactFinalForm.useForm()
+    let updateConnectorStatus = (isSelected: bool) => {
+      form.change("disabled", !isSelected->Identity.genericTypeToJson)
+      form.submit()->ignore
+    }
+    <BoolInput.BaseComponent
+      isSelected={!connectorInfo.disabled}
+      setIsSelected={isSelected => updateConnectorStatus(isSelected)}
+      isDisabled=false
+      boolCustomClass="rounded-lg"
+    />
   }
 }

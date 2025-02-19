@@ -125,8 +125,8 @@ module CopyLinkTableCell = {
     ~copyValue,
     ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
-    ~customTextCss="w-36 truncate whitespace-nowrap",
-    ~endValue=25,
+    ~customTextCss="w-36",
+    ~endValue=20,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let showToast = ToastState.useShowToast()
@@ -150,18 +150,18 @@ module CopyLinkTableCell = {
       {if displayValue->isNonEmptyString {
         <div className=customParentClass>
           <RenderIf condition={isTextVisible || displayValue->String.length <= endValue}>
-            <div className=customTextCss> {displayValue->React.string} </div>
+            <div> {displayValue->React.string} </div>
           </RenderIf>
           <RenderIf
             condition={!isTextVisible &&
             displayValue->isNonEmptyString &&
             displayValue->String.length > endValue}>
             <div className="flex text-nowrap gap-1 ">
-              <p className=customTextCss>
+              <p className={`${customTextCss} overflow-hidden`}>
                 {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
               </p>
               <span
-                className="flex text-blue-811 text-sm font-extrabold"
+                className="flex text-blue-811 text-sm font-extrabold cursor-pointer"
                 onClick={ev => handleClick(ev)}>
                 {"..."->React.string}
               </span>
