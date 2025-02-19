@@ -3,46 +3,32 @@ open SidebarTypes
 let revenueRecoveryHome = {
   Link({
     name: "Home",
-    link: `/v2/recovery/home`,
+    link: `/v2/recovery`,
     access: Access,
-    icon: "home",
+    icon: "nd-home",
   })
 }
 
 let revenueRecoveryPaymentProcessors = {
   Link({
-    name: "Payment Processors",
-    link: `/v2/recovery/payment-processors`,
+    name: "Connectors",
+    link: `/v2/recovery/connectors`,
     access: Access,
-    icon: "payment",
-  })
-}
-
-let revenueRecoveryBillingProcessors = {
-  Link({
-    name: "Billing Processors",
-    link: `/v2/recovery/billing-processors`,
-    access: Access,
-    icon: "billing",
+    icon: "nd-connectors",
   })
 }
 
 let revenueRecoveryPayments = {
   Link({
-    name: "Payments",
-    link: `/v2/recovery/payments`,
+    name: "Overview",
+    link: `/v2/recovery/overview`,
     access: Access,
-    icon: "payments",
+    icon: "nd-operations",
   })
 }
 
 let recoverySidebars = {
-  let links = [
-    revenueRecoveryHome,
-    revenueRecoveryPayments,
-    revenueRecoveryPaymentProcessors,
-    revenueRecoveryBillingProcessors,
-  ]
+  let links = [revenueRecoveryPayments, revenueRecoveryPaymentProcessors]
 
   links
 }

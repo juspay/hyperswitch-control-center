@@ -7,6 +7,7 @@ type filterTypes = {
   status: array<string>,
   connector_label: array<string>,
   card_network: array<string>,
+  card_discovery: array<string>,
   customer_id: array<string>,
   amount: array<string>,
   merchant_order_reference_id: array<string>,
@@ -21,6 +22,7 @@ type filter = [
   | #payment_method_type
   | #connector_label
   | #card_network
+  | #card_discovery
   | #customer_id
   | #amount
   | #merchant_order_reference_id
@@ -37,6 +39,7 @@ let getFilterTypeFromString = filterType => {
   | "payment_method_type" => #payment_method_type
   | "connector_label" => #connector_label
   | "card_network" => #card_network
+  | "card_discovery" => #card_discovery
   | "customer_id" => #customer_id
   | "amount" => #amount
   | "merchant_order_reference_id" => #merchant_order_reference_id
@@ -141,14 +144,13 @@ module GenerateSampleDataButton = {
           buttonType={Secondary}
           buttonSize=Small
           text="Generate Sample Data"
-          customButtonStyle="!rounded-l-md !rounded-none"
           onClick={_ => generateSampleData()->ignore}
           leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
         />
         <ACLDiv
           height="h-fit"
           authorization={userHasAccess(~groupAccess=OperationsManage)}
-          className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
+          className="bg-jp-gray-button_gray text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
           border flex items-center justify-center rounded-r-md"
           onClick={ev => rightIconClick(ev)}>
           <Icon name="delete" size=16 customWidth="14" className="scale-125" />
@@ -293,6 +295,7 @@ let itemToObjMapper = dict => {
     payment_method_type: getAllPaymentMethodType(dict),
     connector_label: [],
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
+    card_discovery: dict->getArrayFromDict("card_discovery", [])->getStrArrayFromJsonArray,
     customer_id: [],
     amount: [],
     merchant_order_reference_id: [],
@@ -336,6 +339,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         : filterData.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | #card_network => filterData.card_network
+    | #card_discovery => filterData.card_discovery
     | _ => []
     }
 

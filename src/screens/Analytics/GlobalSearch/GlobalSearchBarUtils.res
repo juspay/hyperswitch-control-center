@@ -117,8 +117,11 @@ let getLocalMatchedResults = (searchText, tabs) => {
 }
 
 let getElements = (hits, section) => {
-  let getAmount = (value, amountKey, currencyKey) =>
-    `${value->getFloat(amountKey, 0.0)->Belt.Float.toString} ${value->getString(currencyKey, "")}`
+  let getAmount = (value, amountKey, currencyKey) => {
+    let amount = (value->getFloat(amountKey, 0.0) /. 100.0)->Belt.Float.toString
+    let currency = value->getString(currencyKey, "")
+    `${amount} ${currency}`
+  }
 
   let getValues = item => {
     let value = item->JSON.Decode.object->Option.getOr(Dict.make())
@@ -162,7 +165,7 @@ let getElements = (hits, section) => {
     hits->Array.map(item => {
       let value = item->JSON.Decode.object->Option.getOr(Dict.make())
       let refId = value->getString("refund_id", "")
-      let amount = value->getAmount("total_amount", "currency")
+      let amount = value->getAmount("refund_amount", "currency")
       let status = value->getString("refund_status", "")
       let profileId = value->getString("profile_id", "")
       let orgId = value->getString("organization_id", "")
@@ -329,6 +332,7 @@ let categoryList = [
   Card_Last_4,
   Status,
   Payment_id,
+  Amount,
 ]
 
 let getcategoryFromVariant = category => {
@@ -343,6 +347,7 @@ let getcategoryFromVariant = category => {
   | Date => "date"
   | Status => "status"
   | Payment_id => "payment_id"
+  | Amount => "amount"
   }
 }
 
@@ -358,6 +363,7 @@ let getDefaultPlaceholderValue = category => {
   | Date => "date:today"
   | Status => "status:charged"
   | Payment_id => "payment_id:pay_xxxxxxxxx"
+  | Amount => "amount:100"
   }
 }
 
@@ -470,7 +476,13 @@ let generateFilter = (queryArray: array<string>) => {
   ->Dict.toArray
   ->Array.map(item => {
     let (key, value) = item
-    let newValue = value->Array.map(JSON.Encode.string)
+    let newValue = if key == Amount->getcategoryFromVariant {
+      value->Array.map(item => {
+        item->Float.fromString->Option.getOr(0.0)->JSON.Encode.float
+      })
+    } else {
+      value->Array.map(JSON.Encode.string)
+    }
     (key, newValue->JSON.Encode.array)
   })
   ->Dict.fromArray
@@ -487,9 +499,28 @@ let generateQuery = searchQuery => {
   })
   ->Array.forEach(query => {
     if RegExp.test(%re("/^[^:\s]+:[^:\s]*$/"), query) {
-      filters->Array.push(query)
+      let key = query->String.split(filterSeparator)->Array.get(0)->Option.getOr("")
+
+      if key == Amount->getcategoryFromVariant {
+        let valueString =
+          query
+          ->String.split(filterSeparator)
+          ->Array.get(1)
+          ->Option.getOr("")
+
+        if valueString->isNonEmptyString && RegExp.test(%re("/^\d+(\.\d+)?$/"), valueString) {
+          let value = (valueString
+          ->Float.fromString
+          ->Option.getOr(0.0) *. 100.00)->Float.toString
+
+          let filter = `${Amount->getcategoryFromVariant}${filterSeparator}${value}`
+          filters->Array.push(filter)
+        }
+      } else {
+        filters->Array.push(query)
+      }
     } else if !(query->CommonAuthUtils.isValidEmail) {
-      let filter = `${Customer_Email->getcategoryFromVariant}:${query}`
+      let filter = `${Customer_Email->getcategoryFromVariant}${filterSeparator}${query}`
       filters->Array.push(filter)
     } else if queryText.contents->isEmptyString {
       queryText := query

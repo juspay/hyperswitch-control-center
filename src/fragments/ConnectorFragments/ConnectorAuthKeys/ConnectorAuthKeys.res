@@ -1,43 +1,33 @@
 @react.component
-let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
+let make = (~initialValues, ~showVertically=true) => {
   open LogicUtils
-  open ConnectorAuthKeyUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  Js.log2("connectorconnectorconnectorconnector", connector)
-
+  let form = ReactFinalForm.useForm()
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
 
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
   }, [connector])
 
-  let connectorDetails = React.useMemo(() => {
+  let (bodyType, connectorAccountFields) = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
         let dict = Window.getConnectorConfig(connector)
-
-        dict
+        let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
+        let bodyType = connectorAccountDict->Dict.keysToArray->getValueFromArray(0, "")
+        let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
+        (bodyType, connectorAccountFields)
       } else {
-        Dict.make()->JSON.Encode.object
+        ("", Dict.make())
       }
     } catch {
     | Exn.Error(e) => {
-        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        Dict.make()->JSON.Encode.object
+        Js.log2("FAILED TO LOAD CONNECTOR AUTH KEYS CONFIG", e)
+        ("", Dict.make())
       }
     }
   }, [selectedConnector])
-
-  let (
-    bodyType,
-    connectorAccountFields,
-    connectorMetaDataFields,
-    isVerifyConnector,
-    connectorWebHookDetails,
-    connectorLabelDetailField,
-    connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
     let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
@@ -47,18 +37,12 @@ let make = (~initialValues, ~setInitialValues, ~showVertically=true) => {
       ->JSON.Encode.object
 
     let _ = updatedValues->Dict.set("connector_account_details", acc)
-    setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
+    form.reset(updatedValues->JSON.Encode.object->Nullable.make)
+
     None
   }, [connector])
 
   <ConnectorConfigurationFields
-    connector={connectorTypeFromName}
-    connectorAccountFields
-    selectedConnector
-    connectorMetaDataFields
-    connectorWebHookDetails
-    connectorLabelDetailField
-    connectorAdditionalMerchantData
-    showVertically
+    connector={connectorTypeFromName} connectorAccountFields selectedConnector showVertically
   />
 }

@@ -306,4 +306,6 @@ let make: (
   ~tableHeadingTextClass: string=?,
   ~nonFrozenTableParentClass: string=?,
   ~showAutoScroll: bool=?,
+  ~showVerticalScroll: bool=?,
+  ~showPagination: bool=?,
 ) => React.element

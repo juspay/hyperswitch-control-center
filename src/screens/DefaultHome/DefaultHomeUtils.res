@@ -65,19 +65,19 @@ let defaultHomeActionArray = {
   [
     {
       heading: "Set up API Keys",
-      description: "One Liner about this task",
+      description: "Configure API keys and start integrating.",
       imgSrc: "/assets/VaultServerImage.svg",
       action: InternalRoute("developer-api-keys"),
     },
     {
       heading: "Invite your team",
-      description: "One Liner about this task",
+      description: "Invite your team to collaborate.",
       imgSrc: "/assets/DefaultHomeTeam.svg",
       action: InternalRoute("users"),
     },
     {
       heading: "Developer Docs",
-      description: "One Liner about this task",
+      description: "Dive into the dev docs and start building",
       imgSrc: "/assets/VaultSdkImage.svg",
       action: ExternalLink({
         url: "https://hyperswitch.io/docs",
@@ -88,6 +88,13 @@ let defaultHomeActionArray = {
 }
 let defaultHomeCardsArray = {
   [
+    {
+      product: Orchestrator,
+      heading: "Orchestrator",
+      description: "Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
+      imgSrc: "/assets/DefaultHomeVaultCard.svg",
+      action: InternalRoute("home"),
+    },
     {
       product: Vault,
       heading: "Vault",
@@ -101,13 +108,6 @@ let defaultHomeCardsArray = {
       description: "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
       imgSrc: "/assets/DefaultHomeReconCard.svg",
       action: InternalRoute("v2/recon/onboarding"),
-    },
-    {
-      product: Orchestrator,
-      heading: "Orchestrator",
-      description: "Unified the divers abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
-      imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      action: InternalRoute("dashboard/home"),
     },
     {
       product: Recovery,

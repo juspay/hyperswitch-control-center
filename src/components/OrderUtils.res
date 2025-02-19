@@ -143,7 +143,7 @@ module Details = {
         <RenderIf condition=showDetails>
           <FormRenderer.DesktopRow>
             <div
-              className={`${flexClass} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+              className={`${flexClass} ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
               {detailsFields
               ->Array.mapWithIndex((colType, i) => {
                 if !(excludeColKeys->Array.includes(colType)) {

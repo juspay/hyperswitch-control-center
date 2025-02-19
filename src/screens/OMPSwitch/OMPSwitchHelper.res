@@ -22,22 +22,15 @@ module ListBaseComp = {
             ? "rotate-0"
             : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
-    let subHeadingElem = if subHeading->String.length > 20 {
-      <HelperComponents.EllipsisText
-        displayValue=subHeading endValue=20 showCopy=false customTextStyle={`${secondaryTextColor}`}
-      />
-    } else {
-      {subHeading->React.string}
-    }
-
     <>
       {switch user {
       | #Merchant =>
         <div
-          className={`text-sm font-medium cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
-          <div className="text-left flex gap-2">
-            <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap`}>
-              subHeadingElem
+          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
+          <div className="text-left flex gap-2 w-52">
+            <p
+              className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
+              {subHeading->React.string}
             </p>
             {showDropdownArrow
               ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
@@ -47,10 +40,11 @@ module ListBaseComp = {
 
       | #Profile =>
         <div
-          className="flex flex-row items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg shadow-sm border-nd_gray-100 shadow-sm">
-          <div>
-            <p className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500">
-              subHeadingElem
+          className="flex flex-row cursor-pointer items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
+          <div className="max-w-40">
+            <p
+              className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
+              {subHeading->React.string}
             </p>
           </div>
           {showDropdownArrow
@@ -117,7 +111,7 @@ module OMPViewBaseComp = {
     }
 
     <div
-      className="flex items-center text-sm font-medium cursor-pointer secondary-gradient-border rounded-lg h-40-px">
+      className="flex items-center text-sm font-medium cursor-pointer border-1.5 border-double border-transparent secondary-gradient-button rounded-lg h-40-px">
       <div className="flex flex-col items-start">
         <div className="text-left flex items-center gap-1 p-2">
           <Icon name="settings-new" size=18 />
@@ -176,7 +170,7 @@ module OMPViewsComp = {
         customStyle="md:rounded"
         searchable=false
         baseComponent={<OMPViewBaseComp displayName arrow />}
-        baseComponentCustomStyle="bg-white rounded"
+        baseComponentCustomStyle="bg-white rounded-lg"
         optionClass="font-inter text-fs-14 font-normal leading-5"
         selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"
         labelDescriptionClass="font-inter text-fs-12 font-normal leading-4"
@@ -331,8 +325,15 @@ module MerchantDropdownItem = {
               : `${secondaryTextColor}`}`}
           validateInput
           customInputStyle={`!py-0 ${secondaryTextColor}`}
-          customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(merchantId) customIconCss={`${secondaryTextColor}`}
+          customIconComponent={<ToolTip
+            description={currentId}
+            customStyle="!whitespace-nowrap"
+            toolTipFor={<div className="cursor-pointer">
+              <HelperComponents.CopyTextCustomComp
+                customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({currentId})
+              />
+            </div>}
+            toolTipPosition=ToolTip.Right
           />}
           customIconStyle={isActive ? `${secondaryTextColor}` : ""}
           handleClick={_ => handleMerchantSwitch(currentId)}
@@ -447,8 +448,15 @@ module ProfileDropdownItem = {
           labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
           validateInput
           customInputStyle="!py-0 text-nd_gray-600"
-          customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(profileId) customIconCss="text-nd_gray-600"
+          customIconComponent={<ToolTip
+            description={currentId}
+            customStyle="!whitespace-nowrap"
+            toolTipFor={<div className="cursor-pointer">
+              <HelperComponents.CopyTextCustomComp
+                displayValue=" " copyValue=Some(currentId) customIconCss="text-nd_gray-600"
+              />
+            </div>}
+            toolTipPosition=ToolTip.Right
           />}
           customIconStyle={isActive ? "text-nd_gray-600" : ""}
           handleClick={_ => handleProfileSwitch(currentId)}

@@ -125,8 +125,8 @@ module CopyLinkTableCell = {
     ~copyValue,
     ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
-    ~customTextCss="",
-    ~endValue=30,
+    ~customTextCss="w-36",
+    ~endValue=20,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let showToast = ToastState.useShowToast()
@@ -150,18 +150,18 @@ module CopyLinkTableCell = {
       {if displayValue->isNonEmptyString {
         <div className=customParentClass>
           <RenderIf condition={isTextVisible || displayValue->String.length <= endValue}>
-            <div className=customTextCss> {displayValue->React.string} </div>
+            <div> {displayValue->React.string} </div>
           </RenderIf>
           <RenderIf
             condition={!isTextVisible &&
             displayValue->isNonEmptyString &&
             displayValue->String.length > endValue}>
-            <div className="flex text-nowrap gap-1">
-              <p className="">
+            <div className="flex text-nowrap gap-1 ">
+              <p className={`${customTextCss} overflow-hidden`}>
                 {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
               </p>
               <span
-                className="flex text-blue-811 text-sm font-extrabold"
+                className="flex text-blue-811 text-sm font-extrabold cursor-pointer"
                 onClick={ev => handleClick(ev)}>
                 {"..."->React.string}
               </span>
@@ -169,13 +169,13 @@ module CopyLinkTableCell = {
           </RenderIf>
           <Icon
             name="nd-copy"
-            className="cursor-pointer  opacity-70 hover:opacity-100 py-1"
+            className="cursor-pointer opacity-70 h-7 py-1"
             onClick={ev => {
               onCopyClick(ev)
             }}
           />
           <a
-            className="opacity-70 hover:opacity-100 py-1"
+            className="opacity-70 py-1"
             href={GlobalVars.appendDashboardPath(~url)}
             onClick={ev => ev->ReactEvent.Mouse.stopPropagation}
             target="_blank">

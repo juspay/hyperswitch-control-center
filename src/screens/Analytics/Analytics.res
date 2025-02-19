@@ -673,14 +673,16 @@ let make = (
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle />
           // Refactor required
-          <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
-            <OMPSwitchHelper.OMPViews
-              views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
-              selectedEntity={analyticsEntity}
-              onChange={updateAnalytcisEntity}
-              entityMapper=UserInfoUtils.analyticsEntityMapper
-            />
-          </RenderIf>
+          <div className="mr-4">
+            <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
+              <OMPSwitchHelper.OMPViews
+                views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+                selectedEntity={analyticsEntity}
+                onChange={updateAnalytcisEntity}
+                entityMapper=UserInfoUtils.analyticsEntityMapper
+              />
+            </RenderIf>
+          </div>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>
         <div>
