@@ -161,7 +161,7 @@ let make = () => {
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-12">
           <div className="flex gap-10 max-w-3xl flex-wrap px-2">
             <ConnectorWebhookPreview
               merchantId connectorName=connectorInfodict.merchant_connector_id
