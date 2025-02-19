@@ -6,27 +6,8 @@ let make = () => {
   open VerticalStepIndicatorUtils
   open ConnectorUtils
   open PageLoaderWrapper
-
-  let sections = [
-    {
-      id: "authenticate-processor",
-      name: "Authenticate your processor",
-      icon: "nd-shield",
-      subSections: None,
-    },
-    {
-      id: "setup-webhook",
-      name: "Setup Webhook",
-      icon: "nd-webhook",
-      subSections: None,
-    },
-    {
-      id: "review-and-connect",
-      name: "Review and Connect",
-      icon: "nd-flag",
-      subSections: None,
-    },
-  ]
+  open RecoveryConnectorTypes
+  open RecoveryConnectorUtils
 
   let getURL = useGetURL()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
@@ -40,7 +21,7 @@ let make = () => {
   let connectorInfoDict =
     initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let (currentStep, setNextStep) = React.useState(() => {
-    sectionId: "authenticate-processor",
+    sectionId: (#AuthenticateProcessor: sectionType :> string),
     subSectionId: None,
   })
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
@@ -78,6 +59,11 @@ let make = () => {
     }
   }
 
+  let handleAuthKeySubmit = async (_, _) => {
+    onNextClick()
+    Nullable.null
+  }
+
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
@@ -95,7 +81,7 @@ let make = () => {
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setNextStep(_ => {
-            sectionId: "authenticate-processor",
+            sectionId: (#AuthenticateProcessor: sectionType :> string),
             subSectionId: None,
           })
           setScreenState(_ => Success)
@@ -166,8 +152,8 @@ let make = () => {
 
   <div className="flex flex-row gap-x-6">
     <VerticalStepIndicator titleElement=recoveryTitleElement sections currentStep backClick />
-    {switch currentStep {
-    | {sectionId: "authenticate-processor"} =>
+    {switch currentStep->getSectionVariant {
+    | #AuthenticateProcessor =>
       <div className="flex flex-col w-1/2 px-10 ">
         <PageUtils.PageHeading
           title="Authenticate Processor"
@@ -175,7 +161,7 @@ let make = () => {
           customSubTitleStyle="font-500 font-normal text-nd_gray-700"
         />
         <PageLoaderWrapper screenState>
-          <Form onSubmit initialValues validate=validateMandatoryField>
+          <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
               <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
               <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
@@ -192,8 +178,29 @@ let make = () => {
           </Form>
         </PageLoaderWrapper>
       </div>
-
-    | {sectionId: "setup-webhook"} =>
+    | #SetupPmts =>
+      <div className="flex flex-col w-1/2 px-10 ">
+        <PageUtils.PageHeading
+          title="Payment Methods"
+          subTitle="Configure your PaymentMethods."
+          customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+        />
+        <PageLoaderWrapper screenState>
+          <Form onSubmit initialValues validate=validateMandatoryField>
+            <div className="flex flex-col mb-5 gap-3 ">
+              <ConnectorPaymentMethodV3 initialValues isInEditState=true />
+              <FormRenderer.SubmitButton
+                text="Next"
+                buttonSize={Small}
+                customSumbitButtonStyle="!w-full mt-8"
+                tooltipForWidthClass="w-full"
+              />
+            </div>
+            <FormValuesSpy />
+          </Form>
+        </PageLoaderWrapper>
+      </div>
+    | #SetupWebhook =>
       <div className="flex flex-col w-1/2 px-10">
         <PageUtils.PageHeading
           title="Setup Webhook"
@@ -215,8 +222,7 @@ let make = () => {
           customButtonStyle="w-full mt-8"
         />
       </div>
-    | {sectionId: "review-and-connect"} => <RecoveryProceesorReview connectorInfo=initialValues />
-    | _ => React.null
+    | #ReviewAndConnect => <RecoveryProceesorReview connectorInfo=initialValues />
     }}
   </div>
 }
