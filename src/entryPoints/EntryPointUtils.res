@@ -3,7 +3,7 @@ module ContextWrapper = {
   @react.component
   let make = (~children) => {
     let loader =
-      <div className={`h-screen w-scrren flex justify-center items-center`}>
+      <div className={`h-screen w-screen flex justify-center items-center`}>
         <Loader />
       </div>
 
