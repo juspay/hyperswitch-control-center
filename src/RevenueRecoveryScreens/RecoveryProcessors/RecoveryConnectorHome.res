@@ -50,7 +50,7 @@ let make = () => {
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->getConnectorInfo
   }, [connector])
-  let connectorName = connectorInfoDict.connector_name->getDisplayNameForConnector
+  let connectorName = connector->getDisplayNameForConnector
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
@@ -159,7 +159,7 @@ let make = () => {
   }
   let recoveryTitleElement =
     <>
-      <GatewayIcon gateway={`${connectorInfoDict.connector_name}`->String.toUpperCase} />
+      <GatewayIcon gateway={`${connector}`->String.toUpperCase} />
       <h1 className="text-medium font-semibold text-gray-600">
         {`Setup ${connectorName}`->React.string}
       </h1>
@@ -178,12 +178,10 @@ let make = () => {
         <PageLoaderWrapper screenState>
           <Form onSubmit initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
-              <ConnectorAuthKeys
-                initialValues={updatedInitialVal} setInitialValues showVertically=true
-              />
-              <ConnectorLabelV2 />
-              <ConnectorMetadataV2 />
-              <ConnectorWebhookDetails />
+              <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
+              <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
+              <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
+              <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
               <FormRenderer.SubmitButton
                 text="Next"
                 buttonSize={Small}
