@@ -46,7 +46,6 @@ let sections = [
 ]
 
 let getSectionVariant = ({sectionId}) => {
-  Js.log2(">>", sectionId)
   switch sectionId {
   | "AuthenticateProcessor" => #AuthenticateProcessor
   | "SetupPmts" => #SetupPmts
