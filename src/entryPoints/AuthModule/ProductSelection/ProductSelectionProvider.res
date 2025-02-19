@@ -61,8 +61,10 @@ module SelectMerchantBody = {
       ~isRequired=true,
     )
 
-    let switchMerch = async merchantid => {
+    let onSubmit = async (values, _) => {
       try {
+        let dict = values->getDictFromJsonObject
+        let merchantid = dict->getString("merchant_selected", "")->String.trim
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
         setActiveProductValue(selectedProduct)
       } catch {
@@ -70,12 +72,6 @@ module SelectMerchantBody = {
       }
       setShowModal(_ => false)
       Nullable.null
-    }
-
-    let onSubmit = (values, _) => {
-      let dict = values->getDictFromJsonObject
-      let trimmedData = dict->getString("merchant_selected", "")->String.trim
-      switchMerch(trimmedData)
     }
 
     <div>
@@ -159,8 +155,11 @@ module CreateNewMerchantBody = {
       }
     }
 
-    let createNewMerchant = async values => {
+    let onSubmit = async (values, _) => {
       try {
+        let dict = values->getDictFromJsonObject
+        let trimmedData = dict->getString("company_name", "")->String.trim
+        Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let res = await updateDetails(url, values, Post)
         let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
@@ -180,13 +179,6 @@ module CreateNewMerchantBody = {
       }
       setShowModal(_ => false)
       Nullable.null
-    }
-
-    let onSubmit = (values, _) => {
-      let dict = values->getDictFromJsonObject
-      let trimmedData = dict->getString("company_name", "")->String.trim
-      Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
-      createNewMerchant(dict->JSON.Encode.object)
     }
 
     let merchantName = FormRenderer.makeFieldInfo(
