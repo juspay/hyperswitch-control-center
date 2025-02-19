@@ -12,9 +12,11 @@ let make = () => {
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
-    activeProduct,
-    setDefaultProductToSessionStorage,
   } = React.useContext(GlobalProvider.defaultContext)
+
+  let {activeProduct, setDefaultProductToSessionStorage} = React.useContext(
+    ProductSelectionProvider.defaultContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -312,7 +314,8 @@ let make = () => {
                             <DisputeTable />
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />
-                        | _ => // SPECIAL CASE FOR ORCHESTRATOR
+                        | _ =>
+                          // SPECIAL CASE FOR ORCHESTRATOR
                           if activeProduct === Orchestrator {
                             RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                             <MerchantAccountContainer setAppScreenState=setScreenState />

@@ -3,9 +3,13 @@ open ProductTypes
 
 module SwitchMerchantBody = {
   @react.component
-  let make = (~merchantDetails: OMPSwitchTypes.ompListTypes, ~setShowModal, ~selectedProduct) => {
+  let make = (
+    ~merchantDetails: OMPSwitchTypes.ompListTypes,
+    ~setShowModal,
+    ~selectedProduct,
+    ~setActiveProductValue,
+  ) => {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let {setActiveProductValue} = React.useContext(GlobalProvider.defaultContext)
     let showToast = ToastState.useShowToast()
 
     let switchMerch = async () => {
@@ -31,11 +35,10 @@ module SwitchMerchantBody = {
 
 module SelectMerchantBody = {
   @react.component
-  let make = (~setShowModal, ~merchantList, ~selectedProduct) => {
+  let make = (~setShowModal, ~merchantList, ~selectedProduct, ~setActiveProductValue) => {
     open LogicUtils
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let showToast = ToastState.useShowToast()
-    let {setActiveProductValue} = React.useContext(GlobalProvider.defaultContext)
 
     let dropDownOptions =
       merchantList->Array.map((item: OMPSwitchTypes.ompListTypes): SelectBox.dropdownOption => {
@@ -112,7 +115,7 @@ module SelectMerchantBody = {
 
 module CreateNewMerchantBody = {
   @react.component
-  let make = (~setShowModal, ~selectedProduct) => {
+  let make = (~setShowModal, ~selectedProduct, ~setActiveProductValue) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -120,7 +123,6 @@ module CreateNewMerchantBody = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let {setActiveProductValue} = React.useContext(GlobalProvider.defaultContext)
     let setMerchantList = Recoil.useSetRecoilState(HyperswitchAtom.merchantListAtom)
     let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -134,12 +136,20 @@ module CreateNewMerchantBody = {
     }
 
     // TODO: remove after backend starts sendng merchant details from create merchant API
-    let getMerchantList = async () => {
+    let findMerchantId = async (~merchantName) => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
         let response = await fetchDetails(url)
-        setMerchantList(_ => response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper))
-        response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper)
+        let merchantTypedValue =
+          response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper)
+        setMerchantList(_ => merchantTypedValue)
+
+        let filteredValue = merchantTypedValue->Array.find(value => value.name === merchantName)
+        let merchantID = switch filteredValue {
+        | Some(data) => data.id
+        | None => merchantId
+        }
+        merchantID
       } catch {
       | _ => {
           setMerchantList(_ => OMPSwitchUtils.ompDefaultValue(merchantId, ""))
@@ -155,14 +165,9 @@ module CreateNewMerchantBody = {
         let res = await updateDetails(url, values, Post)
         let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
 
-        // TODO: remove after backend starts sendng merchant details from create merchant API
-        let merchantnameee = values->getDictFromJsonObject->getString("company_name", "")
-        let typedResponse = await getMerchantList()
-        let filteredValue = typedResponse->Array.find(value => value.name === merchantnameee)
-        let merchantID = switch filteredValue {
-        | Some(data) => data.id
-        | None => merchantId
-        }
+        // TODO : remove after backend starts sendng merchant details from create merchant API
+        let merchantName = values->getDictFromJsonObject->getString("company_name", "")
+        let merchantID = await findMerchantId(~merchantName)
 
         switchMerch(merchantID)->ignore
         showToast(
@@ -239,20 +244,23 @@ module CreateNewMerchantBody = {
 
 module ModalBody = {
   @react.component
-  let make = (~action, ~setShowModal, ~selectedProduct) => {
+  let make = (~action, ~setShowModal, ~selectedProduct, ~setActiveProductValue) => {
     switch action {
-    | CreateNewMerchant => <CreateNewMerchantBody setShowModal selectedProduct />
+    | CreateNewMerchant =>
+      <CreateNewMerchantBody setShowModal selectedProduct setActiveProductValue />
     | SwitchToMerchant(merchantDetails) =>
-      <SwitchMerchantBody merchantDetails setShowModal selectedProduct />
+      <SwitchMerchantBody merchantDetails setShowModal selectedProduct setActiveProductValue />
     | SelectMerchantToSwitch(merchantDetails) =>
-      <SelectMerchantBody setShowModal merchantList={merchantDetails} selectedProduct />
+      <SelectMerchantBody
+        setShowModal merchantList={merchantDetails} selectedProduct setActiveProductValue
+      />
     }
   }
 }
 
 module ProductExistModal = {
   @react.component
-  let make = (~showModal, ~setShowModal, ~action, ~selectedProduct) => {
+  let make = (~showModal, ~setShowModal, ~action, ~selectedProduct, ~setActiveProductValue) => {
     <Modal
       showModal
       closeOnOutsideClick=true
@@ -260,12 +268,18 @@ module ProductExistModal = {
       childClass="p-0"
       borderBottom=true
       modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
-      <ModalBody setShowModal action selectedProduct />
+      <ModalBody setShowModal action selectedProduct setActiveProductValue />
     </Modal>
   }
 }
 
-let defaultContext = React.createContext(defaultValueOfProductProvider)
+open SessionStorage
+let currentProductValue =
+  sessionStorage.getItem("product")
+  ->Nullable.toOption
+  ->Option.getOr("Orchestrator")
+
+let defaultContext = React.createContext(defaultValueOfProductProvider(~currentProductValue))
 
 module Provider = {
   let make = React.Context.provider(defaultContext)
@@ -276,25 +290,12 @@ let make = (~children) => {
   let merchantList: array<OMPSwitchTypes.ompListTypes> = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantListAtom,
   )
-  // let {setActiveProductValue, activeProduct} = React.useContext(GlobalProvider.defaultContext)
+  let (activeProduct, setActiveProduct) = React.useState(_ =>
+    currentProductValue->ProductUtils.getVariantFromString
+  )
   let (action, setAction) = React.useState(_ => None)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (selectedProduct, setSelectedProduct) = React.useState(_ => None)
-
-  //REmoev this
-
-  let merchantHandle = React.useMemo(() => {
-    switch action {
-    | None => React.null
-    | Some(actionVariant) =>
-      <ProductExistModal
-        showModal
-        setShowModal
-        action={actionVariant}
-        selectedProduct={selectedProduct->Option.getOr(Vault)}
-      />
-    }
-  }, (action, showModal))
 
   let setCreateNewMerchant = product => {
     setShowModal(_ => true)
@@ -314,8 +315,6 @@ let make = (~children) => {
   }
 
   let onProductSelectClick = product => {
-    Js.log3("inside onProductSelectClick", product, merchantList)
-    // let productName = product->String.toLowerCase
     let productVariant = product->ProductUtils.getVariantFromString
     setSelectedProduct(_ => Some(product->ProductUtils.getVariantFromString))
 
@@ -343,12 +342,44 @@ let make = (~children) => {
     }
   }
 
+  let setActiveProductValue = product => {
+    setActiveProduct(_ => product)
+    sessionStorage.setItem("product", product->ProductUtils.getStringFromVariant)
+  }
+
+  let setDefaultProductToSessionStorage = productType => {
+    open ProductUtils
+    let currentSessionData = sessionStorage.getItem("product")->Nullable.toOption
+    let data = switch currentSessionData {
+    | Some(sessionData) => sessionData->getVariantFromString
+    | None => productType
+    }
+    setActiveProductValue(data)
+  }
+
+  let merchantHandle = React.useMemo(() => {
+    switch action {
+    | Some(actionVariant) =>
+      <ProductExistModal
+        showModal
+        setShowModal
+        action={actionVariant}
+        selectedProduct={selectedProduct->Option.getOr(Vault)}
+        setActiveProductValue
+      />
+    | None => React.null
+    }
+  }, (action, showModal))
+
   <Provider
     value={
       setCreateNewMerchant,
       setSwitchToMerchant,
       setSelectMerchantToSwitch,
       onProductSelectClick,
+      activeProduct,
+      setActiveProductValue,
+      setDefaultProductToSessionStorage,
     }>
     children
     {merchantHandle}
