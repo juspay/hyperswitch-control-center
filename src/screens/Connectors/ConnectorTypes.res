@@ -40,6 +40,7 @@ type processorTypes =
   | AIRWALLEX
   | WORLDPAY
   | CYBERSOURCE
+  | COINGATE
   | ELAVON
   | ACI
   | WORLDLINE
