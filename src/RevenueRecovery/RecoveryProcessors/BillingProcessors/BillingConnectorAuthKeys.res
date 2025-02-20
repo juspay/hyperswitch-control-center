@@ -1,10 +1,15 @@
 @react.component
-let make = (~initialValues, ~setInitialValues, ~connectorDetails) => {
+let make = (
+  ~initialValues,
+  ~setInitialValues,
+  ~connectorDetails,
+  ~setConnectorName,
+  ~connector,
+) => {
   // open LogicUtils
   // open ConnectorAuthKeysHelper
   // open BillingProcessorsUtils
 
-  let (connector, setConnector) = React.useState(() => "")
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
 
   let selectedConnector = React.useMemo(() => {
@@ -32,7 +37,7 @@ let make = (~initialValues, ~setInitialValues, ~connectorDetails) => {
     onBlur: _ => (),
     onChange: ev => {
       let value = ev->Identity.formReactEventToString
-      setConnector(_ => value)
+      setConnectorName(_ => value)
     },
     onFocus: _ => (),
     value: connector->JSON.Encode.string,

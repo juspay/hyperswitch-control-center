@@ -65,6 +65,7 @@ let make = () => {
       <RecoveryOnboardingBilling
         currentStep
         setConnectorId={setPaymentConnectorID}
+        setConnectorName=setBillingConnectorName
         onNextClick
         setNextStep
         profileId

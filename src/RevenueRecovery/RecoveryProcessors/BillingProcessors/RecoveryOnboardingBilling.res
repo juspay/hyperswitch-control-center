@@ -2,6 +2,7 @@
 let make = (
   ~currentStep,
   ~setConnectorId,
+  ~setConnectorName,
   ~onNextClick,
   ~setNextStep,
   ~profileId,
@@ -57,7 +58,11 @@ let make = (
       | (#addAPlatform, #selectAPlatform) =>
         <>
           <BillingConnectorAuthKeys
-            initialValues={updatedInitialVal} setInitialValues connectorDetails
+            initialValues={updatedInitialVal}
+            setInitialValues
+            connectorDetails
+            connector
+            setConnectorName
           />
           <Button
             text="Next"
@@ -66,7 +71,16 @@ let make = (
             customButtonStyle="w-full"
           />
         </>
-      | (#addAPlatform, #configureRetries)
+      | (#addAPlatform, #configureRetries) =>
+        <>
+          <BillingProcessorsConfigureRetry />
+          <Button
+            text="Next"
+            buttonType=Primary
+            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            customButtonStyle="w-full"
+          />
+        </>
       | (#addAPlatform, #connectProcessor) =>
         <>
           <BillingProcessorsConnectProcessor connector />

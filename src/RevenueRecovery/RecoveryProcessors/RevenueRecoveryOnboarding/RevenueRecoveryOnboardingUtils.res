@@ -58,10 +58,10 @@ let sections = [
         id: (#selectAPlatform: revenueRecoverySubsections :> string),
         name: #selectAPlatform->getStepName,
       },
-      // {
-      //   id: (#configureRetries: revenueRecoverySubsections :> string),
-      //   name: #configureRetries->getStepName,
-      // },
+      {
+        id: (#configureRetries: revenueRecoverySubsections :> string),
+        name: #configureRetries->getStepName,
+      },
       {
         id: (#connectProcessor: revenueRecoverySubsections :> string),
         name: #connectProcessor->getStepName,
@@ -81,8 +81,8 @@ let sections = [
 ]
 
 let defaultStep = {
-  sectionId: (#connectProcessor: revenueRecoverySections :> string),
-  subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
+  sectionId: (#addAPlatform: revenueRecoverySections :> string),
+  subSectionId: Some((#configureRetries: revenueRecoverySubsections :> string)),
 }
 
 open VerticalStepIndicatorUtils
