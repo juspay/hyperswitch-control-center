@@ -256,7 +256,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           </div>
           <IntegrationHelp.Render connector setShowModal showModal />
         </div>
-        <FormValuesSpy />
+        // <FormValuesSpy />
       </ConnectorHeaderWrapper>
       <VerifyConnectorModal
         showVerifyModal
