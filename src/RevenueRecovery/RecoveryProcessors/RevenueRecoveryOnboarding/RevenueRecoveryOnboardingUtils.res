@@ -81,8 +81,8 @@ let sections = [
 ]
 
 let defaultStep = {
-  sectionId: (#addAPlatform: revenueRecoverySections :> string),
-  subSectionId: Some((#selectAPlatform: revenueRecoverySubsections :> string)),
+  sectionId: (#connectProcessor: revenueRecoverySections :> string),
+  subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
 }
 
 open VerticalStepIndicatorUtils

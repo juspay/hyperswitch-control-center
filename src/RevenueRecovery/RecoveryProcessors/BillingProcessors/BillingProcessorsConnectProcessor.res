@@ -1,9 +1,14 @@
 @react.component
-let make = (~connector) => {
+let make = (
+  ~connector,
+  ~onSubmit,
+  ~initialValues,
+  ~validateMandatoryField,
+  ~connector_account_reference_id,
+) => {
   open RevenueRecoveryOnboardingUtils
-  open ConnectorUtils
 
-  let connectorName = connector->getDisplayNameForConnector
+  let connectorName = connector->ConnectorUtils.getDisplayNameForConnector
 
   <PageWrapper
     title="Connect Your Processor"
@@ -20,21 +25,30 @@ let make = (~connector) => {
           </h1>
         </div>
       </div>
-      <div>
-        <div className="text-nd_gray-700 font-medium"> {"Account ID"->React.string} </div>
-        <div className="-m-1 -mt-3">
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={FormRenderer.makeFieldInfo(
-              ~label="",
-              ~name="billing_account_reference",
-              ~toolTipPosition=Right,
-              ~customInput=InputFields.textInput(~customStyle="border rounded-xl"),
-              ~placeholder="Enter Account ID",
-            )}
-          />
+      <Form onSubmit initialValues validate=validateMandatoryField>
+        <div>
+          <div className="text-nd_gray-700 font-medium"> {"Account ID"->React.string} </div>
+          <div className="-m-1 -mt-3">
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold !text-hyperswitch_black"
+              field={FormRenderer.makeFieldInfo(
+                ~label="",
+                ~name=`feature_metadata.payment_connector_recovery_metadata.${connector_account_reference_id}`,
+                ~toolTipPosition=Right,
+                ~customInput=InputFields.textInput(~customStyle="border rounded-xl"),
+                ~placeholder="Enter Account ID",
+              )}
+            />
+            <FormRenderer.SubmitButton
+              text="Next"
+              buttonSize={Small}
+              customSumbitButtonStyle="!w-full mt-8"
+              tooltipForWidthClass="w-full"
+            />
+          </div>
         </div>
-      </div>
+        <FormValuesSpy />
+      </Form>
     </div>
   </PageWrapper>
 }

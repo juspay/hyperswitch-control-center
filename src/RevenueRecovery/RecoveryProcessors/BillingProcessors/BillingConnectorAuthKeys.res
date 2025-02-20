@@ -1,36 +1,15 @@
 @react.component
 let make = (
   ~initialValues,
-  ~setInitialValues,
-  ~connectorDetails,
   ~setConnectorName,
   ~connector,
+  ~handleAuthKeySubmit,
+  ~validateMandatoryField,
+  ~updatedInitialVal,
+  ~connectorInfoDict,
+  ~screenState,
 ) => {
-  // open LogicUtils
-  // open ConnectorAuthKeysHelper
-  // open BillingProcessorsUtils
-
-  let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
-
-  let selectedConnector = React.useMemo(() => {
-    connectorTypeFromName->ConnectorUtils.getConnectorInfo
-  }, [connector])
-
-  //   let (bodyType, connectorAccountFields, _, _, _, _, _) = ConnectorFragmentUtils.getConnectorFields(
-  //     connectorDetails,
-  //   )
-
-  //   React.useEffect(() => {
-  //     let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
-  //     let acc =
-  //       [("auth_type", bodyType->JSON.Encode.string)]
-  //       ->Dict.fromArray
-  //       ->JSON.Encode.object
-
-  //     let _ = updatedValues->Dict.set("connector_account_details", acc)
-  //     setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
-  //     None
-  //   }, [connector])
+  open LogicUtils
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
@@ -52,26 +31,53 @@ let make = (
     title="Choose your Billing Platform"
     subTitle="Choose one processor for now. You can connect more processors later">
     <div className="-m-1 mb-10 flex flex-col gap-7">
-      <SelectBox.BaseDropdown
-        allowMultiSelect=false
-        buttonText="Select Platform"
-        input
-        deselectDisable=true
-        customButtonStyle="!rounded-xl h-[45px] pr-2"
-        options
-        hideMultiSelectButtons=true
-        addButton=false
-        searchable=true
-        customStyle="!w-full"
-        customDropdownOuterClass="!border-none"
-        fullLength=true
-        shouldDisplaySelectedOnTop=true
-      />
-      //   <RenderIf condition={connector->LogicUtils.isNonEmptyString}>
-      //     <ConnectorConfigurationFields
-      //       connector={connectorTypeFromName} connectorAccountFields selectedConnector
-      //     />
-      //   </RenderIf>
+      <PageLoaderWrapper screenState>
+        <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+          <SelectBox.BaseDropdown
+            allowMultiSelect=false
+            buttonText="Select Platform"
+            input
+            deselectDisable=true
+            customButtonStyle="!rounded-xl h-[45px] pr-2"
+            options
+            hideMultiSelectButtons=true
+            addButton=false
+            searchable=true
+            customStyle="!w-full"
+            customDropdownOuterClass="!border-none"
+            fullLength=true
+            shouldDisplaySelectedOnTop=true
+            searchInputPlaceHolder="Search Platform"
+          />
+          <RenderIf condition={connector->isNonEmptyString}>
+            <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
+              <ConnectorAuthKeys
+                initialValues={updatedInitialVal}
+                showVertically=true
+                processorType=ConnectorTypes.BillingProcessor
+              />
+              <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
+              <ConnectorMetadataV2
+                isInEditState=true
+                connectorInfo={connectorInfoDict}
+                processorType=ConnectorTypes.BillingProcessor
+              />
+              <ConnectorWebhookDetails
+                isInEditState=true
+                connectorInfo={connectorInfoDict}
+                processorType=ConnectorTypes.BillingProcessor
+              />
+              <FormRenderer.SubmitButton
+                text="Next"
+                buttonSize={Small}
+                customSumbitButtonStyle="!w-full mt-8"
+                tooltipForWidthClass="w-full"
+              />
+            </div>
+          </RenderIf>
+          <FormValuesSpy />
+        </Form>
+      </PageLoaderWrapper>
     </div>
   </PageWrapper>
 }

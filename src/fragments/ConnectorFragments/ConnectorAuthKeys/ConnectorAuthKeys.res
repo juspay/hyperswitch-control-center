@@ -1,10 +1,12 @@
 @react.component
-let make = (~initialValues, ~showVertically=true) => {
+let make = (~initialValues, ~showVertically=true, ~processorType=ConnectorTypes.Processor) => {
   open LogicUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+
   let form = ReactFinalForm.useForm()
-  let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
+  let connectorTypeFromName =
+    connector->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=processorType)
 
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
@@ -13,7 +15,16 @@ let make = (~initialValues, ~showVertically=true) => {
   let (bodyType, connectorAccountFields) = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = Window.getConnectorConfig(connector)
+        let dict = switch processorType {
+        | Processor => Window.getConnectorConfig(connector)
+        | PayoutProcessor => Window.getPayoutConnectorConfig(connector)
+        | ThreeDsAuthenticator => Window.getAuthenticationConnectorConfig(connector)
+        | PMAuthenticationProcessor => Window.getPMAuthenticationProcessorConfig(connector)
+        | TaxProcessor => Window.getTaxProcessorConfig(connector)
+        | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connector)
+        | FRMPlayer => JSON.Encode.null
+        }
+
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
         let bodyType = connectorAccountDict->Dict.keysToArray->getValueFromArray(0, "")
         let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)

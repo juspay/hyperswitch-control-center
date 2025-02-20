@@ -52,6 +52,10 @@ let make = (
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    let dict = values->getDictFromJsonObject
+    dict->Dict.set("connector_name", "stripe"->JSON.Encode.string)
+    let values = dict->JSON.Encode.object
+
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
@@ -81,7 +85,7 @@ let make = (
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = Window.getConnectorConfig(connector)
+        let dict = BillingProcessorsUtils.getConnectorConfig(connector)
         dict
       } else {
         Dict.make()->JSON.Encode.object
@@ -123,158 +127,124 @@ let make = (
     )
   }
 
-  let input: ReactFinalForm.fieldRenderPropsInput = {
-    name: "name",
-    onBlur: _ => (),
-    onChange: ev => {
-      let value = ev->Identity.formReactEventToString
-      setConnectorName(_ => value)
-    },
-    onFocus: _ => (),
-    value: connector->JSON.Encode.string,
-    checked: true,
-  }
+  /* <div>
+    {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
+    | (#connectProcessor, #selectProcessor) =>
+      <PageWrapper
+        title="Authenticate Processor"
+        subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+          <PageLoaderWrapper screenState>
+            <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+              <SelectBox.BaseDropdown
+                allowMultiSelect=false
+                buttonText="Select Processor"
+                input
+                deselectDisable=true
+                customButtonStyle="!rounded-xl h-[45px] pr-2"
+                options
+                hideMultiSelectButtons=true
+                addButton=false
+                searchable=true
+                customStyle="!w-full"
+                customDropdownOuterClass="!border-none"
+                fullLength=true
+                shouldDisplaySelectedOnTop=true
+              />
+              <RenderIf condition={connector->isNonEmptyString}>
+                <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
+                  <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
+                  <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
+                  <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
+                  <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
+                  <FormRenderer.SubmitButton
+                    text="Next"
+                    buttonSize={Small}
+                    customSumbitButtonStyle="!w-full mt-8"
+                    tooltipForWidthClass="w-full"
+                  />
+                </div>
+              </RenderIf>
+              <FormValuesSpy />
+            </Form>
+          </PageLoaderWrapper>
+        </div>
+      </PageWrapper>
+    | (#connectProcessor, #activePaymentMethods) =>
+      <PageWrapper title="Payment Methods" subTitle="Configure your PaymentMethods.">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+          <PageLoaderWrapper screenState>
+            <Form onSubmit initialValues validate=validateMandatoryField>
+              <div className="flex flex-col mb-5 gap-3 ">
+                <ConnectorPaymentMethodV3 initialValues isInEditState=true />
+                <FormRenderer.SubmitButton
+                  text="Next"
+                  buttonSize={Small}
+                  customSumbitButtonStyle="!w-full mt-8"
+                  tooltipForWidthClass="w-full"
+                />
+              </div>
+              <FormValuesSpy />
+            </Form>
+          </PageLoaderWrapper>
+        </div>
+      </PageWrapper>
+    | (#connectProcessor, #setupWebhookProcessor) =>
+      <PageWrapper
+        title="Setup Webhook"
+        subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+          <ConnectorWebhookPreview
+            merchantId
+            connectorName=connectorInfoDict.merchant_connector_id
+            textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
+            containerClass="flex flex-row items-center justify-between"
+            displeyTextLength=46
+            hideLabel=true
+            showFullCopy=true
+          />
+          <Button
+            text="Next"
+            buttonType=Primary
+            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            customButtonStyle="w-full mt-8"
+          />
+        </div>
+      </PageWrapper>
 
-  let options = (featureFlagDetails.isLiveMode ? connectorListForLive : connectorList)->getOptions
-
-  // <div>
-  //   {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
-  //   | (#connectProcessor, #selectProcessor) =>
-  //     <PageWrapper
-  //       title="Authenticate Processor"
-  //       subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
-  //       <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
-  //         <PageLoaderWrapper screenState>
-  //           <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
-  //             <SelectBox.BaseDropdown
-  //               allowMultiSelect=false
-  //               buttonText="Select Processor"
-  //               input
-  //               deselectDisable=true
-  //               customButtonStyle="!rounded-xl h-[45px] pr-2"
-  //               options
-  //               hideMultiSelectButtons=true
-  //               addButton=false
-  //               searchable=true
-  //               customStyle="!w-full"
-  //               customDropdownOuterClass="!border-none"
-  //               fullLength=true
-  //               shouldDisplaySelectedOnTop=true
-  //             />
-  //             <RenderIf condition={connector->isNonEmptyString}>
-  //               <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
-  //                 <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
-  //                 <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
-  //                 <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
-  //                 <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
-  //                 <FormRenderer.SubmitButton
-  //                   text="Next"
-  //                   buttonSize={Small}
-  //                   customSumbitButtonStyle="!w-full mt-8"
-  //                   tooltipForWidthClass="w-full"
-  //                 />
-  //               </div>
-  //             </RenderIf>
-  //             <FormValuesSpy />
-  //           </Form>
-  //         </PageLoaderWrapper>
-  //       </div>
-  //     </PageWrapper>
-  //   | (#connectProcessor, #activePaymentMethods) =>
-  //     <PageWrapper title="Payment Methods" subTitle="Configure your PaymentMethods.">
-  //       <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
-  //         <PageLoaderWrapper screenState>
-  //           <Form onSubmit initialValues validate=validateMandatoryField>
-  //             <div className="flex flex-col mb-5 gap-3 ">
-  //               <ConnectorPaymentMethodV3 initialValues isInEditState=true />
-  //               <FormRenderer.SubmitButton
-  //                 text="Next"
-  //                 buttonSize={Small}
-  //                 customSumbitButtonStyle="!w-full mt-8"
-  //                 tooltipForWidthClass="w-full"
-  //               />
-  //             </div>
-  //             <FormValuesSpy />
-  //           </Form>
-  //         </PageLoaderWrapper>
-  //       </div>
-  //     </PageWrapper>
-  //   | (#connectProcessor, #setupWebhookProcessor) =>
-  //     <PageWrapper
-  //       title="Setup Webhook"
-  //       subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor">
-  //       <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
-  //         <ConnectorWebhookPreview
-  //           merchantId
-  //           connectorName=connectorInfoDict.merchant_connector_id
-  //           textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
-  //           containerClass="flex flex-row items-center justify-between"
-  //           displeyTextLength=46
-  //           hideLabel=true
-  //           showFullCopy=true
-  //         />
-  //         <Button
-  //           text="Next"
-  //           buttonType=Primary
-  //           onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
-  //           customButtonStyle="w-full mt-8"
-  //         />
-  //       </div>
-  //     </PageWrapper>
-
-  //   | (_, _) => React.null
-  //   }}
-  // </div>
+    | (_, _) => React.null
+    }}
+  </div>
+ */
 
   <div>
     <Form onSubmit initialValues>
       {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
       | (#addAPlatform, #selectAPlatform) =>
-        <>
-          <BillingConnectorAuthKeys
-            initialValues={updatedInitialVal}
-            setInitialValues
-            connectorDetails
-            connector
-            setConnectorName
-          />
-          <Button
-            text="Next"
-            buttonType=Primary
-            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
-            customButtonStyle="w-full"
-          />
-        </>
+        <BillingConnectorAuthKeys
+          initialValues
+          setConnectorName
+          connector
+          handleAuthKeySubmit
+          validateMandatoryField
+          updatedInitialVal
+          connectorInfoDict
+          screenState
+        />
       | (#addAPlatform, #configureRetries) =>
-        <>
-          <BillingProcessorsConfigureRetry />
-          <Button
-            text="Next"
-            buttonType=Primary
-            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
-            customButtonStyle="w-full"
-          />
-        </>
+        <BillingProcessorsConfigureRetry initialValues handleAuthKeySubmit validateMandatoryField />
       | (#addAPlatform, #connectProcessor) =>
-        <>
-          <BillingProcessorsConnectProcessor connector />
-          <Button
-            text="Next"
-            buttonType=Primary
-            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
-            customButtonStyle="w-full"
-          />
-        </>
+        <BillingProcessorsConnectProcessor
+          connector
+          initialValues
+          onSubmit={handleAuthKeySubmit}
+          validateMandatoryField
+          connector_account_reference_id=connectorID
+        />
       | (#addAPlatform, #setupWebhookPlatform) =>
-        <>
-          <BillingProcessorsWebhooks initialValues={updatedInitialVal} merchantId />
-          <Button
-            text="Next"
-            buttonType=Primary
-            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
-            customButtonStyle="w-full"
-          />
-        </>
+        <BillingProcessorsWebhooks
+          initialValues merchantId onNextClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+        />
       | (#reviewDetails, _) =>
         <>
           <BillingProcessorsReviewDetails initialValues connectorDetails merchantId />
@@ -282,7 +252,6 @@ let make = (
         </>
       | _ => React.null
       }}
-      <FormValuesSpy />
     </Form>
   </div>
 }

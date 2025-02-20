@@ -163,6 +163,7 @@ let make = (
                 customDropdownOuterClass="!border-none"
                 fullLength=true
                 shouldDisplaySelectedOnTop=true
+                searchInputPlaceHolder="Search Processor"
               />
               <RenderIf condition={connector->isNonEmptyString}>
                 <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
