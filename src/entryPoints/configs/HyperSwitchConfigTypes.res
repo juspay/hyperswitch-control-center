@@ -52,11 +52,8 @@ type buttonConfig = {
 
 type sidebarConfig = {
   primary: string,
-  secondary: string,
-  hoverColor: string,
   primaryTextColor: string,
   secondaryTextColor: string,
-  borderColor: string,
 }
 
 type themeSettings = {

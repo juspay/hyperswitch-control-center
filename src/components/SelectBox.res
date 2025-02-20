@@ -2036,7 +2036,7 @@ module BaseDropdown = {
                   dropDirection == BottomMiddle ||
                   dropDirection == BottomRight
                     ? "origin-top"
-                    : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950 ${fullLength
+                    : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} rounded-lg dark:bg-jp-gray-950 ${fullLength
                     ? "w-full"
                     : ""}`}
                 ref={dropdownRef->ReactDOM.Ref.domRef}>
@@ -2056,7 +2056,7 @@ module BaseDropdown = {
               dropDirection == BottomMiddle ||
               dropDirection == BottomRight
                 ? "origin-top"
-                : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950`}
+                : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} rounded-lg dark:bg-jp-gray-950`}
             ref={dropdownRef->ReactDOM.Ref.domRef}>
             optionsElement
           </div>

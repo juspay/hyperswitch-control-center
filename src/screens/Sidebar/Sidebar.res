@@ -16,11 +16,11 @@ let getIconSize = buttonType => {
 module MenuOption = {
   @react.component
   let make = (~text=?, ~children=?, ~onClick=?) => {
-    let {globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {
+      globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
+    } = React.useContext(ThemeProvider.themeContext)
     <button
-      className={`px-4 py-3 flex text-sm w-full ${secondaryTextColor} cursor-pointer ${backgroundColor.sidebarSecondary} hover:bg-black/10`}
+      className={`px-4 py-3 flex text-sm w-full ${secondaryTextColor} cursor-pointer ${backgroundColor.sidebarSecondary} ${hoverColor}`}
       ?onClick>
       {switch text {
       | Some(str) => React.string(str)

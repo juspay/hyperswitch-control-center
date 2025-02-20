@@ -11,7 +11,7 @@ type customUIConfig = {
   theme: theme,
   themeSetter: theme => unit,
   configCustomDomainTheme: JSON.t => unit,
-  getThemesJson: (string, JSON.t, bool) => promise<JSON.t>,
+  getThemesJson: string => promise<JSON.t>,
 }
 
 let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
@@ -23,11 +23,8 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     },
     sidebar: {
       primary: "#FCFCFD",
-      secondary: "#FFFFFF",
-      hoverColor: "#D9DDE5",
       primaryTextColor: "#1C6DEA",
       secondaryTextColor: "#525866",
-      borderColor: "#ECEFF3",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -69,7 +66,7 @@ let themeContext = {
   theme: Light,
   themeSetter: defaultSetter,
   configCustomDomainTheme: _ => (),
-  getThemesJson: (_, _, _) => JSON.Encode.null->Promise.resolve,
+  getThemesJson: _ => JSON.Encode.null->Promise.resolve,
 }
 
 let themeContext = React.createContext(themeContext)
@@ -140,10 +137,6 @@ let make = (~children) => {
         sidebar: {
           // This 'colorsConfig' will be replaced with 'sidebarConfig', and the 'sidebar' key will be changed to 'primary' after API Changes.
           primary: colorsConfig->getString("sidebar", defaultSettings.sidebar.primary),
-          // This 'colorsConfig' will be replaced with 'sidebarConfig' once the API changes are done.
-          secondary: sidebarConfig->getString("secondary", defaultSettings.sidebar.secondary),
-          hoverColor: sidebarConfig->getString("hoverColor", defaultSettings.sidebar.hoverColor),
-          // This property is currently required to support current sidebar changes. It will be removed in a future update.
           primaryTextColor: sidebarConfig->getString(
             "primaryTextColor",
             defaultSettings.sidebar.primaryTextColor,
@@ -152,7 +145,6 @@ let make = (~children) => {
             "secondaryTextColor",
             defaultSettings.sidebar.secondaryTextColor,
           ),
-          borderColor: sidebarConfig->getString("borderColor", defaultSettings.sidebar.borderColor),
         },
         typography: {
           fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
@@ -255,54 +247,9 @@ let make = (~children) => {
     }
   }
 
-  let getThemesJson = async (themesID, configRes, devThemeFeature) => {
-    open LogicUtils
-    //will remove configRes once feature flag is removed.
+  let getThemesJson = async themesID => {
     try {
-      let themeJson = if !devThemeFeature || themesID->isEmptyString {
-        let dict = configRes->getDictFromJsonObject->getDictfromDict("theme")
-        let {settings: defaultSettings, _} = newDefaultConfig
-        let defaultStyle = {
-          "settings": {
-            "colors": {
-              "primary": dict->getString("primary_color", defaultSettings.colors.primary),
-              "sidebar": dict->getString("sidebar_primary", defaultSettings.sidebar.primary),
-            },
-            "sidebar": {
-              "secondary": dict->getString("sidebar_secondary", defaultSettings.sidebar.secondary),
-              "hoverColor": dict->getString(
-                "sidebar_hover_color",
-                defaultSettings.sidebar.hoverColor,
-              ),
-              "primaryTextColor": dict->getString(
-                "sidebar_primary_text_color",
-                defaultSettings.sidebar.primaryTextColor,
-              ),
-              "secondaryTextColor": dict->getString(
-                "sidebar_secondary_text_color",
-                defaultSettings.sidebar.secondaryTextColor,
-              ),
-              "borderColor": dict->getString(
-                "sidebar_border_color",
-                defaultSettings.sidebar.borderColor,
-              ),
-            },
-            "buttons": {
-              "primary": {
-                "backgroundColor": dict->getString(
-                  "primary_color",
-                  defaultSettings.buttons.primary.backgroundColor,
-                ),
-                "hoverBackgroundColor": dict->getString(
-                  "primary_hover_color",
-                  defaultSettings.buttons.primary.hoverBackgroundColor,
-                ),
-              },
-            },
-          },
-        }
-        defaultStyle->Identity.genericTypeToJson
-      } else {
+      let themeJson = {
         let url = `${GlobalVars.getHostUrl}/themes/${themesID}/theme.json`
         let themeResponse = await fetchApi(
           `${url}`,

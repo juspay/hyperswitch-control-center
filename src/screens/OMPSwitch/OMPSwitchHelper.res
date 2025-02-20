@@ -317,7 +317,7 @@ module MerchantDropdownItem = {
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
-      <div className={`rounded-lg mb-1`}>
+      <div className={`rounded-lg`}>
         <InlineEditInput
           index
           labelText=merchantName

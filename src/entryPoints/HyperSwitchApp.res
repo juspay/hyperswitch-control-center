@@ -21,7 +21,6 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
     fetchMerchantSpecificConfig,
     useIsFeatureEnabledForMerchant,
@@ -46,10 +45,13 @@ let make = () => {
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~currentProduct)
   sessionExpired := false
 
+  let _ = HyperSwitchEntryUtils.updateSessionData(~key="theme_id", ~value=themeId)
+  let sessionThemeId = HyperSwitchEntryUtils.getSessionData(~key="theme_id", ~defaultValue="")
+
   let applyTheme = async () => {
     try {
-      if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
-        let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
+      if themeId->LogicUtils.isNonEmptyString {
+        let _ = await getThemesJson(sessionThemeId)
       }
     } catch {
     | _ => ()
@@ -84,7 +86,7 @@ let make = () => {
   React.useEffect(() => {
     applyTheme()->ignore
     None
-  }, (themeId, devThemeFeature))
+  }, [themeId])
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {
@@ -138,12 +140,6 @@ let make = () => {
                         <div className="flex gap-4 items-center">
                           <img className="w-40 h-16" alt="image" src={`${url}`} />
                           <ProfileSwitch />
-                          <div className={`w-2 h-2 rounded-full ${modebg} `} />
-                          <span className="font-semibold"> {modeText->React.string} </span>
-                        </div>
-                      | None =>
-                        <div className="flex gap-4 items-center ">
-                          <ProfileSwitch />
                           <div
                             className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
                             <span className="relative flex h-2 w-2">
@@ -156,6 +152,10 @@ let make = () => {
                             </span>
                             <span className="font-semibold"> {modeText->React.string} </span>
                           </div>
+                        </div>
+                      | None =>
+                        <div className="flex gap-4 items-center ">
+                          <ProfileSwitch />
                         </div>
                       }}
                     />
