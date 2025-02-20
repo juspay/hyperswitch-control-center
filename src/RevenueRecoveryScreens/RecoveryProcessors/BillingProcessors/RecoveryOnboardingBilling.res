@@ -10,7 +10,6 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
-  open VerticalStepIndicatorTypes
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
@@ -54,8 +53,8 @@ let make = (
 
   <div>
     <Form onSubmit initialValues>
-      {switch currentStep {
-      | {sectionId: "addAPlatform", subSectionId: Some("selectAPlatform")} =>
+      {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
+      | (#addAPlatform, #selectAPlatform) =>
         <>
           <BillingConnectorAuthKeys
             initialValues={updatedInitialVal} setInitialValues connectorDetails
@@ -67,8 +66,8 @@ let make = (
             customButtonStyle="w-full"
           />
         </>
-      | {sectionId: "addAPlatform", subSectionId: Some("configureRetries")}
-      | {sectionId: "addAPlatform", subSectionId: Some("connectProcessor")} =>
+      | (#addAPlatform, #configureRetries)
+      | (#addAPlatform, #connectProcessor) =>
         <>
           <BillingProcessorsConnectProcessor connector />
           <Button
@@ -78,7 +77,7 @@ let make = (
             customButtonStyle="w-full"
           />
         </>
-      | {sectionId: "addAPlatform", subSectionId: Some("setupWebhookPlatform")} =>
+      | (#addAPlatform, #setupWebhookPlatform) =>
         <>
           <BillingProcessorsWebhooks initialValues={updatedInitialVal} merchantId />
           <Button
@@ -88,7 +87,7 @@ let make = (
             customButtonStyle="w-full"
           />
         </>
-      | {sectionId: "reviewDetails"} =>
+      | (#reviewDetails, _) =>
         <>
           <BillingProcessorsReviewDetails initialValues connectorDetails merchantId />
           <Button text="Done" buttonType=Primary onClick={_ => ()} customButtonStyle="w-full" />

@@ -39,14 +39,14 @@ let sections = [
         id: (#selectProcessor: revenueRecoverySubsections :> string),
         name: #selectProcessor->getStepName,
       },
-      // {
-      //   id: (#activePaymentMethods: revenueRecoverySubsections :> string),
-      //   name: #activePaymentMethods->getStepName,
-      // },
-      // {
-      //   id: (#setupWebhookProcessor: revenueRecoverySubsections :> string),
-      //   name: #setupWebhookProcessor->getStepName,
-      // },
+      {
+        id: (#activePaymentMethods: revenueRecoverySubsections :> string),
+        name: #activePaymentMethods->getStepName,
+      },
+      {
+        id: (#setupWebhookProcessor: revenueRecoverySubsections :> string),
+        name: #setupWebhookProcessor->getStepName,
+      },
     ]),
   },
   {
@@ -106,6 +106,26 @@ let onPreviousClick = (currentStep, setNextStep) => {
   | Some(previousStep) => setNextStep(_ => previousStep)
   | None => ()
   }
+}
+
+let getSectionVariant = ({sectionId, subSectionId}) => {
+  let mainSection = switch sectionId {
+  | "connectProcessor" => #connectProcessor
+  | "addAPlatform" => #addAPlatform
+  | "reviewDetails" | _ => #reviewDetails
+  }
+
+  let subSection = switch subSectionId {
+  | Some("selectProcessor") => #selectProcessor
+  | Some("activePaymentMethods") => #activePaymentMethods
+  | Some("setupWebhookProcessor") => #setupWebhookProcessor
+  | Some("selectAPlatform") => #selectAPlatform
+  | Some("configureRetries") => #configureRetries
+  | Some("connectProcessor") => #connectProcessor
+  | Some("setupWebhookPlatform") | _ => #setupWebhookPlatform
+  }
+
+  (mainSection, subSection)
 }
 
 module PageWrapper = {
