@@ -252,3 +252,6 @@ type optionObj = {
 }
 
 type frmStatus = [#APPROVE | #REJECT]
+type topic =
+  | String(string)
+  | ReactElement(React.element)

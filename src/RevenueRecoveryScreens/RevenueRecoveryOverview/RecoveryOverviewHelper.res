@@ -65,13 +65,15 @@ module DisplayKeyValueParams = {
     }
   }
 }
-type topic =
-  | String(string)
-  | ReactElement(React.element)
 
 module Heading = {
   @react.component
-  let make = (~topic: topic, ~children=?, ~borderClass="border-b", ~headingCss="") => {
+  let make = (
+    ~topic: RevenueRecoveryOrderTypes.topic,
+    ~children=?,
+    ~borderClass="border-b",
+    ~headingCss="",
+  ) => {
     let widthClass = headingCss->LogicUtils.isEmptyString ? "" : "w-full"
     <div
       className={`${borderClass} border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 flex justify justify-between dark:bg-jp-gray-lightgray_background ${headingCss}`}>
@@ -131,11 +133,11 @@ module Details = {
     ~showTitle=true,
     ~flexClass="flex flex-wrap",
   ) => {
+    let customBorderCss = `${borderRequired
+        ? "border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960"
+        : ""}`
     if !cardView {
-      <Section
-        customCssClass={`${borderRequired
-            ? "border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960"
-            : ""} ${bgColor} rounded-md `}>
+      <Section customCssClass={` ${customBorderCss} ${bgColor} rounded-md `}>
         <RenderIf condition=isHeadingRequired>
           <Heading topic=heading headingCss> {headRightElement} </Heading>
         </RenderIf>
