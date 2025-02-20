@@ -49,7 +49,6 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       <CurrencyCell amount={attempt.attempt_amount->Float.toString} currency={attempt.currency} />,
       "",
     )
-  | Currency => Text(attempt.currency)
   | Connector =>
     CustomCell(<HelperComponents.ConnectorCustomCell connectorName=attempt.connector />, "")
   | Status =>
@@ -68,7 +67,6 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       | _ => LabelLightBlue
       },
     })
-  | PaymentMethod => Text(attempt.payment_method)
   | PaymentMethodType => Text(attempt.payment_method_type)
   | AttemptId => DisplayCopyCell(attempt.id)
   | ErrorMessage => Text(attempt.error_message)
@@ -81,7 +79,6 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | PaymentToken => Text(attempt.payment_token)
   | ConnectorMetadata => Text(attempt.connector_metadata)
   | PaymentExperience => Text(attempt.payment_experience)
-  | ReferenceID => Text(attempt.reference_id)
   | ClientSource => Text(attempt.client_source)
   | ClientVersion => Text(attempt.client_version)
   }
@@ -207,9 +204,7 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
     )
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | Amount => Table.makeHeaderInfo(~key="attempt_amount", ~title="Amount")
-  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Processor")
-  | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
   | ErrorMessage => Table.makeHeaderInfo(~key="error_message", ~title="Error Message")
@@ -227,7 +222,6 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
     Table.makeHeaderInfo(~key="connector_metadata", ~title="Connector Metadata")
   | PaymentExperience =>
     Table.makeHeaderInfo(~key="payment_experience", ~title="Payment Experience")
-  | ReferenceID => Table.makeHeaderInfo(~key="conector_reference_id", ~title="Reference ID")
   | ClientSource => Table.makeHeaderInfo(~key="client_source", ~title="Client Source")
   | ClientVersion => Table.makeHeaderInfo(~key="client_version", ~title="Client Version")
   }

@@ -109,7 +109,6 @@ module Section = {
 }
 
 module Details = {
-  // open PreviewDetails
   @react.component
   let make = (
     ~heading,

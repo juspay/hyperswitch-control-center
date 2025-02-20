@@ -59,7 +59,7 @@ module OrderInfo = {
           data=order
           getHeading=getHeadingForAboutPayment
           getCell=getCellForAboutPayment
-          detailsFields=[Connector, ProfileId, PaymentMethod, CardNetwork, MandateId]
+          detailsFields=[Connector, ProfileId, PaymentMethodType, CardNetwork, MandateId]
         />
       </div>
     </div>

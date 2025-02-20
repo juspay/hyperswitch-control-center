@@ -177,9 +177,7 @@ type attemptColType =
   | AttemptId
   | Status
   | Amount
-  | Currency
   | Connector
-  | PaymentMethod
   | PaymentMethodType
   | ErrorMessage
   | ConnectorReferenceID
@@ -191,7 +189,6 @@ type attemptColType =
   | PaymentToken
   | ConnectorMetadata
   | PaymentExperience
-  | ReferenceID
   | ClientSource
   | ClientVersion
 
