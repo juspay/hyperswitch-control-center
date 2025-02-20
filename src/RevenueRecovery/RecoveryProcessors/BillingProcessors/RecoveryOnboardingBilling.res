@@ -245,11 +245,7 @@ let make = (
         <BillingProcessorsWebhooks
           initialValues merchantId onNextClick={_ => onNextClick(currentStep, setNextStep)->ignore}
         />
-      | (#reviewDetails, _) =>
-        <>
-          <BillingProcessorsReviewDetails initialValues connectorDetails merchantId />
-          <Button text="Done" buttonType=Primary onClick={_ => ()} customButtonStyle="w-full" />
-        </>
+      | (#reviewDetails, _) => <BillingProcessorsReviewDetails connectorInfo={initialValues} />
       | _ => React.null
       }}
     </Form>
