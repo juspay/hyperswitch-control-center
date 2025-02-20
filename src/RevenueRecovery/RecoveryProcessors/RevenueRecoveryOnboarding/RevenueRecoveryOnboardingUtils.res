@@ -82,7 +82,7 @@ let sections = [
 
 let defaultStep = {
   sectionId: (#addAPlatform: revenueRecoverySections :> string),
-  subSectionId: Some((#configureRetries: revenueRecoverySubsections :> string)),
+  subSectionId: Some((#selectAPlatform: revenueRecoverySubsections :> string)),
 }
 
 open VerticalStepIndicatorUtils

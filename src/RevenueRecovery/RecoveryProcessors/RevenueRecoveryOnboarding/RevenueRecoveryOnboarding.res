@@ -64,13 +64,13 @@ let make = () => {
       />
       <RecoveryOnboardingBilling
         currentStep
-        setConnectorId={setPaymentConnectorID}
+        connectorID={paymentConnectorID}
+        connector=paymentConnectorName
         setConnectorName=setBillingConnectorName
-        onNextClick
         setNextStep
         profileId
         merchantId
-        connector=paymentConnectorName
+        activeBusinessProfile
       />
     </div>
   </div>
