@@ -102,6 +102,7 @@ type processorTypes =
   | MONERIS
   | REDSYS
   | HIPAY
+  | PAYSTACK
 
 type payoutProcessorTypes =
   | ADYEN
