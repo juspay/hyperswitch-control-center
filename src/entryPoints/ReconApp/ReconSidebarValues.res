@@ -2,36 +2,31 @@ open SidebarTypes
 
 let reconOnBoarding = {
   Link({
-    name: "Profile Setup",
+    name: "Overview",
     link: `/v2/recon/onboarding`,
     access: Access,
-    icon: "user-circle",
-  })
-}
-let reconHome = {
-  Link({
-    name: "Home",
-    link: `/v2/recon/home`,
-    access: Access,
-    icon: "nd-home",
+    icon: "nd-overview",
+    selectedIcon: "nd-overview-fill",
   })
 }
 
 let reconReports = {
   Link({
-    name: "Reports",
+    name: "Reconciliation Report",
     link: `/v2/recon/reports`,
     access: Access,
     icon: "nd-reports",
+    selectedIcon: "nd-reports-fill",
   })
 }
 
-let reconHistory = {
+let reconConnectors = {
   Link({
-    name: "History",
+    name: "Connectors",
     link: `/v2/recon/run-recon`,
     access: Access,
-    icon: "history",
+    icon: "nd-connectors",
+    selectedIcon: "nd-connectors-fill",
   })
 }
 
@@ -45,6 +40,6 @@ let reconAnalytics = {
 }
 
 let reconSidebars = {
-  let sidebar = [reconOnBoarding, reconReports, reconAnalytics, reconHistory]
+  let sidebar = [reconOnBoarding, reconReports, reconConnectors]
   sidebar
 }

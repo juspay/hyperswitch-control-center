@@ -9,7 +9,7 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
   let backClick = () => {
-    setShowSideBar(prev => !prev)
+    setShowSideBar(_ => true)
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/onboarding"))
   }
 

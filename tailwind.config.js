@@ -67,6 +67,9 @@ module.exports = {
       maxHeight: {
         "25-rem": "25rem",
       },
+      inset: {
+        "76-px": "76px",
+      },
       width: {
         "90-px": "90px",
         100: "25rem",
@@ -80,6 +83,7 @@ module.exports = {
         "30-rem": "30rem",
         "10.25-rem": "10.25rem",
         "89.5-per": "89.5%",
+        "104-px": "104px",
         "137-px": "137px",
         "145-px": "145px",
         "147-px": "147px",
@@ -112,6 +116,7 @@ module.exports = {
       },
       borderWidth: {
         1.5: "1.5px",
+        "20-px": "20px",
       },
       boxShadow: {
         generic_shadow: "0 2px 5px 0 rgba(0, 0, 0, 0.12)",
