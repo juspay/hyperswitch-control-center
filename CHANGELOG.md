@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.20.0
+
+### Features
+
+- Added new connector coingate ([#2290](https://github.com/juspay/hyperswitch-control-center/pull/2290)) ([`db979f7`](https://github.com/juspay/hyperswitch-control-center/commit/db979f759cdcee3a76f42fa0f38bbbaf7c309f64))
+- Wasm update for coingate ([#2291](https://github.com/juspay/hyperswitch-control-center/pull/2291)) ([`c867857`](https://github.com/juspay/hyperswitch-control-center/commit/c8678575d918470f7c711269c95db73e0d870cab))
+- Recovery payment connector ([#2288](https://github.com/juspay/hyperswitch-control-center/pull/2288)) ([`e099c4f`](https://github.com/juspay/hyperswitch-control-center/commit/e099c4f0053fc2cae7bc0404b03d9c278a1de861))
+
+### Bug Fixes
+
+- Overflowing merchant profile names in dropdowns ([#2294](https://github.com/juspay/hyperswitch-control-center/pull/2294)) ([`98123ff`](https://github.com/juspay/hyperswitch-control-center/commit/98123ff069f3fc8381a091b4e1afc7a9f9bbf2a8))
+
+### Miscellaneous Tasks
+
+- Enable cancel edit pmt ([#2272](https://github.com/juspay/hyperswitch-control-center/pull/2272)) ([`3170e9b`](https://github.com/juspay/hyperswitch-control-center/commit/3170e9b069fcc338303ff6dd76ed922511805465))
+- Add pmt in vault onboarding ([#2292](https://github.com/juspay/hyperswitch-control-center/pull/2292)) ([`395c78c`](https://github.com/juspay/hyperswitch-control-center/commit/395c78cfc9e7df8a53061157182797b3f99b820e))
+- Addition of card discovery filter in payment ops ([#2297](https://github.com/juspay/hyperswitch-control-center/pull/2297)) ([`ae26068`](https://github.com/juspay/hyperswitch-control-center/commit/ae26068432886bb56ed7d8aa9fcdf19329693188))
+
+**Full Changelog:** [`2025.02.19.1...2025.02.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.19.1...2025.02.20.0)
+
+- - -
+
 ## 2025.02.19.1
 
 ### Bug Fixes
