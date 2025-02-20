@@ -1,53 +1,59 @@
 @react.component
 let make = () => {
+  open CommonAuthHooks
   open RevenueRecoveryOnboardingUtils
-  open VerticalStepIndicatorTypes
-  open VerticalStepIndicatorUtils
-  open RevenueRecoveryOnboardingTypes
 
-  let (currentStep, setNextStep) = React.useState(() => {
-    sectionId: (#connectProcessor: revenueRecoverySections :> string),
-    subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
-  })
+  let (currentStep, setNextStep) = React.useState(() => defaultStep)
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
 
-  let getNextStep = (currentStep: step): option<step> => {
-    findNextStep(sections, currentStep)
-  }
+  let {profileId} = getUserInfoData()
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
-  let getPreviousStep = (currentStep: step): option<step> => {
-    findPreviousStep(sections, currentStep)
-  }
+  let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => "")
+  let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => "")
+  let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
+  let (billingConnectorID, setBillingConnectorID) = React.useState(() => "")
 
-  let onNextClick = () => {
-    switch getNextStep(currentStep) {
-    | Some(nextStep) => setNextStep(_ => nextStep)
-    | None => ()
-    }
-  }
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
 
-  let onPreviousClick = () => {
-    switch getPreviousStep(currentStep) {
-    | Some(previousStep) => setNextStep(_ => previousStep)
-    | None => ()
-    }
-  }
-
-  let backClick = () => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
-  }
+    (
+      () => {
+        setShowSideBar(_ => true)
+      }
+    )->Some
+  }, [])
 
   <div className="flex flex-row">
     <VerticalStepIndicator
-      titleElement={<h1 className="text-medium font-semibold text-gray-600">
-        {"Setup Recovery"->React.string}
-      </h1>}
+      titleElement={"Setup Recovery"->React.string}
       sections
       currentStep
-      backClick
+      backClick={() => {
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery"))
+      }}
     />
-    <div className="flex flex-row gap-x-4">
-      <Button text="Previous" onClick={_ => onPreviousClick()->ignore} />
-      <Button text="Next" buttonType=Primary onClick={_ => onNextClick()->ignore} />
+    <div className="flex flex-row ml-14 mt-16 w-[540px]">
+      <RevenueRecoveryOnboardingPayments
+        currentStep
+        setConnectorID={setPaymentConnectorID}
+        connector={paymentConnectorName}
+        setConnectorName={setPaymentConnectorName}
+        onNextClick
+        setNextStep
+        profileId
+        onPreviousClick
+      />
+      <RevenueRecoveryOnboardingBilling
+        currentStep
+        setConnectorId={setPaymentConnectorID}
+        onNextClick
+        setNextStep
+        profileId
+        merchantId
+        connector=paymentConnectorName
+      />
     </div>
   </div>
 }
