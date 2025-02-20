@@ -23,8 +23,8 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     },
     sidebar: {
       primary: "#FCFCFD",
-      primaryTextColor: "#1C6DEA",
-      secondaryTextColor: "#525866",
+      textColor: "#525866",
+      textColorPrimary: "#1C6DEA",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -136,14 +136,11 @@ let make = (~children) => {
         },
         sidebar: {
           // This 'colorsConfig' will be replaced with 'sidebarConfig', and the 'sidebar' key will be changed to 'primary' after API Changes.
-          primary: colorsConfig->getString("sidebar", defaultSettings.sidebar.primary),
-          primaryTextColor: sidebarConfig->getString(
-            "primaryTextColor",
-            defaultSettings.sidebar.primaryTextColor,
-          ),
-          secondaryTextColor: sidebarConfig->getString(
-            "secondaryTextColor",
-            defaultSettings.sidebar.secondaryTextColor,
+          primary: sidebarConfig->getString("primary", defaultSettings.sidebar.primary),
+          textColor: sidebarConfig->getString("textColor", defaultSettings.sidebar.textColor),
+          textColorPrimary: sidebarConfig->getString(
+            "textColorPrimary",
+            defaultSettings.sidebar.textColorPrimary,
           ),
         },
         typography: {

@@ -155,11 +155,11 @@ module.exports = {
         sidebar: {
           DEFAULT: withOpacity("--sidebar-primary"),
           primary: withOpacity("--sidebar-primary"),
+          textColor: withOpacity("--sidebar-text-color"),
+          textColorPrimary: withOpacity("--sidebar-text-color-primary"),
           secondary: `hsl(from rgb(var(--sidebar-primary)) h s calc(l + 10) / 1)`, //color for dropdowns in sidebar
           hoverColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.5)`,
-          primaryTextColor: withOpacity("--sidebar-primary-text-color"),
-          secondaryTextColor: withOpacity("--sidebar-secondary-text-color"),
-          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 6) / 1)`,
+          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.8)`,
         },
 
         background: {

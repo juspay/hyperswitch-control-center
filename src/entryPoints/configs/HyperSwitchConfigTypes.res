@@ -52,8 +52,8 @@ type buttonConfig = {
 
 type sidebarConfig = {
   primary: string,
-  primaryTextColor: string,
-  secondaryTextColor: string,
+  textColor: string,
+  textColorPrimary: string,
 }
 
 type themeSettings = {
