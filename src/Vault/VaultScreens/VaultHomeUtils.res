@@ -52,6 +52,12 @@ let sections = [
     subSections: None,
   },
   {
+    id: "setup-pmts",
+    name: "Setup Payment Methods",
+    icon: "nd-webhook",
+    subSections: None,
+  },
+  {
     id: "setup-webhook",
     name: "Setup Webhook",
     icon: "nd-webhook",

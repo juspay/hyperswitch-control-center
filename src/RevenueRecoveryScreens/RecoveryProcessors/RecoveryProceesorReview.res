@@ -42,7 +42,7 @@ let make = (~connectorInfo) => {
 
   let handleClick = () => {
     setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding/`))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/recovery/connectors`))
   }
 
   <div className="flex flex-col px-10 gap-8">
