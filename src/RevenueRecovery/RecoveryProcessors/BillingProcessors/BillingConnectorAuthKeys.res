@@ -1,8 +1,8 @@
 @react.component
 let make = (~initialValues, ~setInitialValues, ~connectorDetails) => {
-  open LogicUtils
-  open ConnectorAuthKeysHelper
-  open BillingProcessorsUtils
+  // open LogicUtils
+  // open ConnectorAuthKeysHelper
+  // open BillingProcessorsUtils
 
   let (connector, setConnector) = React.useState(() => "")
   let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
@@ -39,7 +39,8 @@ let make = (~initialValues, ~setInitialValues, ~connectorDetails) => {
     checked: true,
   }
 
-  let options = RevenueRecoveryOnboardingUtils.billingConnectorList->getOptions
+  let options =
+    RevenueRecoveryOnboardingUtils.billingConnectorList->RevenueRecoveryOnboardingUtils.getOptions
 
   open RevenueRecoveryOnboardingUtils
   <PageWrapper

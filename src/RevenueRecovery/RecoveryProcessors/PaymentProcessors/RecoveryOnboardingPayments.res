@@ -57,6 +57,9 @@ let make = (
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post)
       setInitialValues(_ => response)
+      let connectorInfoDict =
+        response->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+      setConnectorID(_ => connectorInfoDict.merchant_connector_id)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
       onNextClick(currentStep, setNextStep)
@@ -123,27 +126,58 @@ let make = (
     )
   }
 
-  <div className="flex flex-row gap-x-6">
+  let input: ReactFinalForm.fieldRenderPropsInput = {
+    name: "name",
+    onBlur: _ => (),
+    onChange: ev => {
+      let value = ev->Identity.formReactEventToString
+      setConnectorName(_ => value)
+    },
+    onFocus: _ => (),
+    value: connector->JSON.Encode.string,
+    checked: true,
+  }
+
+  let options = (featureFlagDetails.isLiveMode ? connectorListForLive : connectorList)->getOptions
+
+  <div>
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
     | (#connectProcessor, #selectProcessor) =>
       <PageWrapper
         title="Authenticate Processor"
         subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
-        <div className="-m-1 mb-10 flex flex-col gap-7">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
-              <div className="flex flex-col mb-5 gap-3 ">
-                <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
-                <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
-                <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
-                <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
-                <FormRenderer.SubmitButton
-                  text="Next"
-                  buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
-                  tooltipForWidthClass="w-full"
-                />
-              </div>
+              <SelectBox.BaseDropdown
+                allowMultiSelect=false
+                buttonText="Select Processor"
+                input
+                deselectDisable=true
+                customButtonStyle="!rounded-xl h-[45px] pr-2"
+                options
+                hideMultiSelectButtons=true
+                addButton=false
+                searchable=true
+                customStyle="!w-full"
+                customDropdownOuterClass="!border-none"
+                fullLength=true
+                shouldDisplaySelectedOnTop=true
+              />
+              <RenderIf condition={connector->isNonEmptyString}>
+                <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
+                  <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
+                  <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
+                  <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
+                  <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
+                  <FormRenderer.SubmitButton
+                    text="Next"
+                    buttonSize={Small}
+                    customSumbitButtonStyle="!w-full mt-8"
+                    tooltipForWidthClass="w-full"
+                  />
+                </div>
+              </RenderIf>
               <FormValuesSpy />
             </Form>
           </PageLoaderWrapper>
@@ -151,7 +185,7 @@ let make = (
       </PageWrapper>
     | (#connectProcessor, #activePaymentMethods) =>
       <PageWrapper title="Payment Methods" subTitle="Configure your PaymentMethods.">
-        <div className="-m-1 mb-10 flex flex-col gap-7">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <div className="flex flex-col mb-5 gap-3 ">
@@ -172,12 +206,13 @@ let make = (
       <PageWrapper
         title="Setup Webhook"
         subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor">
-        <div className="-m-1 mb-10 flex flex-col gap-7">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <ConnectorWebhookPreview
             merchantId
             connectorName=connectorInfoDict.merchant_connector_id
-            textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
+            textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
             containerClass="flex flex-row items-center justify-between"
+            displeyTextLength=46
             hideLabel=true
             showFullCopy=true
           />

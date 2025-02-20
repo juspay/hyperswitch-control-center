@@ -5,12 +5,23 @@ let make = (
   ~textCss="",
   ~showFullText=false,
   ~showFullCopy=false,
+  ~displeyTextLength=?,
   ~containerClass="flex",
   ~hideLabel=false,
 ) => {
   let showToast = ToastState.useShowToast()
   let copyValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
   let displayValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}...${connectorName}`
+
+  let displayValueOfWebhookEndpoint = switch displeyTextLength {
+  | Some(end) => displayValueOfWebhookEndpoint->String.slice(~start=0, ~end)->String.concat("...")
+  | _ =>
+    displayValueOfWebhookEndpoint->String.slice(
+      ~start=0,
+      ~end=displayValueOfWebhookEndpoint->String.length,
+    )
+  }
+
   let handleWebHookCopy = copyValue => {
     Clipboard.writeText(copyValue)
     showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)

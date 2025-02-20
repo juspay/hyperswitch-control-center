@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open RevenueRecoveryOnboardingUtils
+  open LogicUtils
 
   let (currentStep, setNextStep) = React.useState(() => defaultStep)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
@@ -14,7 +15,22 @@ let make = () => {
   let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => "")
   let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => "")
   let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
-  let (billingConnectorID, setBillingConnectorID) = React.useState(() => "")
+
+  React.useEffect(() => {
+    if paymentConnectorName->isNonEmptyString {
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${paymentConnectorName}`),
+      )
+    }
+
+    if billingConnectorName->isNonEmptyString {
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${billingConnectorName}`),
+      )
+    }
+
+    None
+  }, [paymentConnectorName, billingConnectorName])
 
   React.useEffect(() => {
     setShowSideBar(_ => false)
@@ -35,7 +51,7 @@ let make = () => {
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery"))
       }}
     />
-    <div className="flex flex-row ml-14 mt-16 w-[540px]">
+    <div className="flex flex-row ml-14 mt-16 w-540-px">
       <RecoveryOnboardingPayments
         currentStep
         setConnectorID={setPaymentConnectorID}
