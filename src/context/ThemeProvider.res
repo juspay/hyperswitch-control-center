@@ -135,7 +135,6 @@ let make = (~children) => {
           background: colorsConfig->getString("background", defaultSettings.colors.background),
         },
         sidebar: {
-          // This 'colorsConfig' will be replaced with 'sidebarConfig', and the 'sidebar' key will be changed to 'primary' after API Changes.
           primary: sidebarConfig->getString("primary", defaultSettings.sidebar.primary),
           textColor: sidebarConfig->getString("textColor", defaultSettings.sidebar.textColor),
           textColorPrimary: sidebarConfig->getString(
