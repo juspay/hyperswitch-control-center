@@ -147,6 +147,18 @@ let make = (~previewOnly=false) => {
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Revenue Recovery Payments" subTitle="" customTitleStyle />
+        <Button
+          text="View Chargebee"
+          buttonType={Secondary}
+          onClick={_ =>
+            RescriptReactRouter.replace(
+              GlobalVars.appendDashboardPath(
+                ~url=`/v2/recovery/summary/mca_ODpn6HPuGH5F3fa12K2B?name=stripe`,
+              ),
+            )}
+          buttonSize={Small}
+          customButtonStyle="w-fit"
+        />
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
