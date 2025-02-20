@@ -78,6 +78,6 @@ let stringToSectionVariantMapper = string => {
   | "setupPMTS" => #setupPMTS
   | "setupWebhook" => #setupWebhook
   | "reviewAndConnect" => #reviewAndConnect
-  | _ => #dsd
+  | _ => #authenticateProcessor
   }
 }
