@@ -1,5 +1,6 @@
 open VaultHomeTypes
 open VerticalStepIndicatorTypes
+
 module VaultActionItem = {
   @react.component
   let make = (~heading, ~description, ~img, ~action) => {
@@ -46,27 +47,37 @@ let vaultActionArray = {
 
 let sections = [
   {
-    id: "authenticate-processor",
+    id: (#authenticateProcessor: vaultSections :> string),
     name: "Authenticate your processor",
     icon: "nd-shield",
     subSections: None,
   },
   {
-    id: "setup-pmts",
+    id: (#setupPMTS: vaultSections :> string),
     name: "Setup Payment Methods",
     icon: "nd-webhook",
     subSections: None,
   },
   {
-    id: "setup-webhook",
+    id: (#setupWebhook: vaultSections :> string),
     name: "Setup Webhook",
     icon: "nd-webhook",
     subSections: None,
   },
   {
-    id: "review-and-connect",
+    id: (#reviewAndConnect: vaultSections :> string),
     name: "Review and Connect",
     icon: "nd-flag",
     subSections: None,
   },
 ]
+
+let stringToSectionVariantMapper = string => {
+  switch string {
+  | "authenticateProcessor" => #authenticateProcessor
+  | "setupPMTS" => #setupPMTS
+  | "setupWebhook" => #setupWebhook
+  | "reviewAndConnect" => #reviewAndConnect
+  | _ => #dsd
+  }
+}

@@ -321,6 +321,7 @@ module FieldInputRenderer = {
     ~showError=true,
     ~errorClass="",
     ~showErrorOnChange=false,
+    ~showExplicitError=true,
   ) => {
     React.cloneElement(
       <ReactFinalForm.Field
@@ -335,7 +336,7 @@ module FieldInputRenderer = {
           ({input, meta}) => {
             <>
               {field.customInput(~input, ~placeholder=field.placeholder)}
-              {if showError {
+              {if showError && showExplicitError {
                 <FieldError meta errorClass showErrorOnChange />
               } else {
                 React.null
@@ -457,6 +458,7 @@ module FieldRenderer = {
     ~subTextClass="",
     ~subHeadingClass="",
     ~showErrorOnChange=false,
+    ~showExplicitError=true,
   ) => {
     let portalKey = ""
 
@@ -487,9 +489,8 @@ module FieldRenderer = {
               dataId=names>
               {if field.inputFields->Array.length === 1 {
                 let field = field.inputFields[0]->Option.getOr(makeInputFieldInfo(~name=""))
-
                 <ErrorBoundary>
-                  <FieldInputRenderer field errorClass showErrorOnChange />
+                  <FieldInputRenderer field errorClass showErrorOnChange showExplicitError />
                 </ErrorBoundary>
               } else {
                 switch field.comboCustomInput {

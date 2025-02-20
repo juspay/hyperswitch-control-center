@@ -45,7 +45,7 @@ let make = (~connectorInfo) => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding/`))
   }
 
-  <div className="flex flex-col px-10 gap-8">
+  <div className="flex flex-col w-1/2 px-10 gap-8">
     <div className="flex flex-col ">
       <PageUtils.PageHeading
         title="Review and Connect"
