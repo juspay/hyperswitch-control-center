@@ -28,6 +28,7 @@ let getConnectorMapper = (type t, mapperModule: connectorMapper<t>, dict: Dict.t
 let useConnectorMapper = (type t, mapperModule: connectorMapper<t>, dict: Dict.t<JSON.t>): t => {
   getConnectorMapper(mapperModule, dict)
 }
+// Example
 
 let result1 = useConnectorMapper(connectorMapperV1, Dict.make())
 let result2 = useConnectorMapper(connectorMapperV2, Dict.make())
