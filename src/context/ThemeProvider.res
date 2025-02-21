@@ -246,7 +246,7 @@ let make = (~children) => {
   let getThemesJson = async themesID => {
     try {
       let themeJson = if themesID->LogicUtils.isNonEmptyString {
-        let url = `https://mocki.io/v1/d56d6bb2-81b7-4ca9-b8e4-9469dde647b5 `
+        let url = `${GlobalVars.getHostUrl}/themes/${themesID}/theme.json`
         let themeResponse = await fetchApi(
           `${url}`,
           ~method_=Get,
