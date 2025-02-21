@@ -267,7 +267,10 @@ let make = (~children) => {
       themeJson
     } catch {
     | _ => {
-        let defaultStyle = {"settings": newDefaultConfig.settings}->Identity.genericTypeToJson
+        let defaultStyle = {
+          "settings": newDefaultConfig.settings,
+          "urls": newDefaultConfig.urls,
+        }->Identity.genericTypeToJson
         updateThemeURLs(defaultStyle)->ignore
         configCustomDomainTheme(defaultStyle)->ignore
         defaultStyle
