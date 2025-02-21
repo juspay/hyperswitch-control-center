@@ -1,1 +1,1 @@
-type orderDataSteps = Hyperswitch | OrderManagementSystem | Dummy
+type orderDataSteps = ConnectYourOrderDataSource | UploadFile

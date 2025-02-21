@@ -1,40 +1,72 @@
-@react.component
-let make = (~currentStep, ~setCurrentStep, ~selectedProcessor, ~selectedOrderSource) => {
-  open ReconConfigurationUtils
-  open ConnectOrderDataTypes
+open VerticalStepIndicatorTypes
 
-  <div className="flex flex-col h-full">
-    {switch selectedOrderSource {
-    | Hyperswitch =>
-      <div className="flex flex-col gap-10">
-        <ReconConfigurationHelper.SubHeading
-          title="Recon Setup is complete"
-          subTitle="You have successfully connected to Hyperswitch and PSP"
-        />
-      </div>
-    | Dummy =>
-      <div className="flex flex-col gap-10">
-        <ReconConfigurationHelper.SubHeading
-          title="Run Recon" subTitle="Run Recon to view the reports"
-        />
-      </div>
-    | OrderManagementSystem =>
-      <div className="flex flex-col gap-10">
-        <ReconConfigurationHelper.SubHeading
-          title="Run Recon" subTitle="Run Recon to view the reports"
-        />
-      </div>
-    }}
-    {switch currentStep->getSubsectionFromStep {
-    | TestLivePayment =>
-      <ManualMappingHelper.TestLivePayment
-        currentStep={currentStep}
-        setCurrentStep={setCurrentStep}
-        selectedProcessor
-        selectedOrderSource
+@react.component
+let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding, ~setShowSkeleton) => {
+  open ReconConfigurationUtils
+  open VerticalStepIndicatorUtils
+
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+
+  let getNextStep = (currentStep: step): option<step> => {
+    findNextStep(sections, currentStep)
+  }
+
+  let onNextClick = () => {
+    switch getNextStep(currentStep) {
+    | Some(nextStep) => setCurrentStep(_ => nextStep)
+    | None => ()
+    }
+    setShowSideBar(_ => true)
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/onboarding"))
+    setShowOnBoarding(_ => false)
+    setShowSkeleton(_ => false)
+  }
+
+  let customSelectionComponent =
+    <>
+      <Icon name="nd-tick-circle" customHeight="16" />
+      <p className="font-semibold text-sm leading-5 text-nd_green-600">
+        {"Completed"->React.string}
+      </p>
+    </>
+
+  <div className="flex flex-col h-full gap-y-10">
+    <div className="flex flex-col h-full gap-y-10">
+      <ReconConfigurationHelper.SubHeading
+        title="Reconciliation Successful"
+        subTitle="Explore the all the Recon metrics in the dashboard"
       />
-    | SetupCompleted => <ManualMappingHelper.SetupCompleted />
-    | _ => <div />
-    }}
+      <div className="flex flex-col gap-6">
+        <ReconConfigurationHelper.StepCard
+          key="order_data_successful"
+          stepName="Order connection successful"
+          description=""
+          isSelected=true
+          customSelectionComponent
+          iconName="nd-inbox-with-outline"
+          onClick={_ => ()}
+          customSelectionBorderClass="border-nd_br_gray-500"
+        />
+        <ReconConfigurationHelper.StepCard
+          key="processor_data_sucessful"
+          stepName="Processor connection successful"
+          description=""
+          isSelected=true
+          customSelectionComponent
+          iconName="nd-plugin-with-outline"
+          onClick={_ => ()}
+          customSelectionBorderClass="border-nd_br_gray-500"
+        />
+      </div>
+    </div>
+    <div className="flex justify-end items-center">
+      <Button
+        text="Start exploring"
+        customButtonStyle="rounded w-full"
+        buttonType={Primary}
+        buttonState={Normal}
+        onClick={_ => onNextClick()->ignore}
+      />
+    </div>
   </div>
 }

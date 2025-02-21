@@ -285,8 +285,7 @@ module SkeletonLoader = {
 
 module ReconOverview = {
   @react.component
-  let make = () => {
-    let (showSkeleton, setShowSkeleton) = React.useState(_ => true)
+  let make = (~showSkeleton, ~setShowSkeleton) => {
     switch showSkeleton {
     | true => <SkeletonLoader setShowSkeleton />
     | false => <ReconOverviewContent />

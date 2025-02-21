@@ -1,12 +1,11 @@
 @react.component
-let make = () => {
+let make = (~showOnBoarding, ~setShowOnBoarding, ~showSkeleton, ~setShowSkeleton) => {
   open ReconOnboardingHelper
-  let (showOnboarding, setShowOnBoarding) = React.useState(_ => true)
 
   {
-    switch showOnboarding {
+    switch showOnBoarding {
     | true => <ReconOnboardingLanding setShowOnBoarding />
-    | false => <ReconOverview />
+    | false => <ReconOverview showSkeleton setShowSkeleton />
     }
   }
 }

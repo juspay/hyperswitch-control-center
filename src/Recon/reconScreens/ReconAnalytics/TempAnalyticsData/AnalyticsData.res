@@ -1,5 +1,5 @@
 let getAnalyticsCardList = (~start: string, ~end: string) => {
-  let url = `http://localhost:8000/q/internal/query?api-type=singlestat-timeseries&metrics=recon_success_rate,matched,mismatched,missing_in_system_a,missing_in_system_b,tax_amount,amount_settled,mdr_amount`
+  let url = `http://localhost:9000/q/internal/query?api-type=singlestat-timeseries&metrics=recon_success_rate,matched,mismatched,missing_in_system_a,missing_in_system_b,tax_amount,amount_settled,mdr_amount`
   let body = {
     "metric": [
       "recon_success_rate",
@@ -49,7 +49,7 @@ let useFetchAnalyticsCardList = () => {
 }
 
 let getBarGraphData = (~start, ~end) => {
-  let url = `http://localhost:8000/q/internal/query?api-type=Top-Chart-timeseries&metrics=recon_success_rate`
+  let url = `http://localhost:9000/q/internal/query?api-type=Top-Chart-timeseries&metrics=recon_success_rate`
   let body = {
     "metric": "recon_success_rate",
     "dimensions": [

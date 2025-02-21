@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~setShowOnBoarding, ~setShowSkeleton) => {
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
 
   let goToLanding = () => {
@@ -13,5 +13,5 @@ let make = () => {
     None
   })
 
-  <ReconConfiguration />
+  <ReconConfiguration setShowOnBoarding setShowSkeleton />
 }

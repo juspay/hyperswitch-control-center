@@ -7,36 +7,11 @@ const config = import("./src/server/config.mjs");
 const appName = process.env.appName;
 const integ = process.env.integ;
 
-let port = 8000;
+let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
 let proxy = {
   "/api": {
-    target: "https://app.hyperswitch.io/api",
-    pathRewrite: { "^/api": "" },
-    changeOrigin: true,
-  },
-  "/recon-rest-api": {
-    target: "https://sandbox.hyperswitch.io",
-    pathRewrite: { "^/api": "" },
-    changeOrigin: true,
-  },
-  "/q": {
-    target: "https://sandbox.hyperswitch.io",
-    pathRewrite: { "^/q": "/api/q" },
-    changeOrigin: true,
-  },
-  "/fileUploader": {
-    target: "https://sandbox.hyperswitch.io",
-    pathRewrite: { "^/api": "" },
-    changeOrigin: true,
-  },
-  "/recon-settlement-api-integ": {
-    target: "https://integ-api.hyperswitch.io",
-    pathRewrite: { "^/recon-settlement-api-integ": "recon-settlement-api" },
-    changeOrigin: true,
-  },
-  "/recon-settlement-api": {
-    target: "https://sandbox.hyperswitch.io",
+    target: "http://localhost:8000/api",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },

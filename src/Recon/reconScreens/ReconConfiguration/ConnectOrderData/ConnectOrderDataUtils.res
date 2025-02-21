@@ -2,26 +2,23 @@ open ConnectOrderDataTypes
 
 let getSelectedStepName = step => {
   switch step {
-  | Hyperswitch => "Hyperswitch"
-  | OrderManagementSystem => "Order Management System"
-  | Dummy => "Dummy"
+  | ConnectYourOrderDataSource => "Connect your order data source"
+  | UploadFile => "Upload File"
   }
 }
 
 let getSelectedStepDescription = step => {
   switch step {
-  | Hyperswitch => "Hyperswitch order data integration"
-  | OrderManagementSystem => "In-house order management system"
-  | Dummy => "Dummy work flow"
+  | ConnectYourOrderDataSource => "This feature is available in production only"
+  | UploadFile => "Use data in a .csv file"
   }
 }
 
-let orderDataStepsArr: array<orderDataSteps> = [Hyperswitch, OrderManagementSystem, Dummy]
+let orderDataStepsArr: array<orderDataSteps> = [ConnectYourOrderDataSource, UploadFile]
 
 let getIconName = step => {
   switch step {
-  | OrderManagementSystem => "ORDERMANAGEMENTSYSTEM"
-  | Hyperswitch => "HYPERSWITCH"
-  | Dummy => "BIGQUERY"
+  | ConnectYourOrderDataSource => "nd-connect-your-order-data-source"
+  | UploadFile => "nd-upload-file"
   }
 }

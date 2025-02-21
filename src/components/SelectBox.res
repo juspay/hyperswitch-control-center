@@ -64,6 +64,7 @@ module ListItem = {
     ~customRowClass="",
     ~labelDescription=Some(""),
     ~labelDescriptionClass="",
+    ~customSelectionIcon=Button.NoIcon,
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let labelText = switch labelValue->String.length {
@@ -314,9 +315,13 @@ module ListItem = {
               <RadioIcon isSelected isDisabled />
             }
           } else if isDropDown {
-            <div className="mr-2">
-              <Tick isSelected />
-            </div>
+            switch (customSelectionIcon, isSelected) {
+            | (Button.CustomIcon(ele), true) => <div className="mr-2"> ele </div>
+            | (_, _) =>
+              <div className="mr-2">
+                <Tick isSelected />
+              </div>
+            }
           } else {
             React.null
           }}
@@ -1123,6 +1128,7 @@ module RenderListItemInBaseRadio = {
     ~customScrollStyle=?,
     ~shouldDisplaySelectedOnTop,
     ~labelDescriptionClass="",
+    ~customSelectionIcon=Button.NoIcon,
   ) => {
     let decodedValue = value->JSON.Decode.string
     switch (decodedValue, shouldDisplaySelectedOnTop) {
@@ -1183,6 +1189,7 @@ module RenderListItemInBaseRadio = {
             selectClass
             labelDescription=option.labelDescription
             labelDescriptionClass
+            customSelectionIcon
           />
         }
 
@@ -1322,6 +1329,7 @@ module BaseRadio = {
     ~dropdownContainerStyle="",
     ~shouldDisplaySelectedOnTop=false,
     ~labelDescriptionClass="",
+    ~customSelectionIcon=Button.NoIcon,
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1512,6 +1520,7 @@ module BaseRadio = {
             ?customScrollStyle
             shouldDisplaySelectedOnTop
             labelDescriptionClass
+            customSelectionIcon
           />
         } else {
           {
@@ -1643,6 +1652,7 @@ module BaseDropdown = {
     ~dropdownContainerStyle="",
     ~shouldDisplaySelectedOnTop=false,
     ~labelDescriptionClass="",
+    ~customSelectionIcon=Button.NoIcon,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1913,6 +1923,7 @@ module BaseDropdown = {
         dropdownContainerStyle
         shouldDisplaySelectedOnTop
         labelDescriptionClass
+        customSelectionIcon
       />
     }
 
