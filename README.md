@@ -144,7 +144,7 @@ Enabling `branding` feature flag enables customization of branding elements like
 
 ## Themes
 
-Themes can now be customized in `ThemesProvider.res` by overriding the values in `newDefaultConfig`. This is where you can update default colors, sidebar, buttons, and URLs for the logo and favicon.
+Themes can now be customized in `ThemesProvider.res` by overriding the values in `newDefaultConfig`. This allows you to update default colors, sidebar styles, button designs, and URLs for the logo and favicon.
 
 ## Enable the features on Run time by overriding the default value
 
