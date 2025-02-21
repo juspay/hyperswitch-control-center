@@ -66,6 +66,7 @@ let make = () => {
         currentStep
         connectorID={paymentConnectorID}
         connector=billingConnectorName
+        paymentConnectorName={paymentConnectorName}
         setConnectorName=setBillingConnectorName
         setNextStep
         profileId

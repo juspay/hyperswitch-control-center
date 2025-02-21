@@ -22,7 +22,7 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
             />
           </div>
         </div>
-        <div>
+        <div className="mt-5">
           <div className="text-nd_gray-700 font-medium"> {"Max Retry Attempts"->React.string} </div>
           <div className="-m-1 -mt-3">
             <FormRenderer.FieldRenderer

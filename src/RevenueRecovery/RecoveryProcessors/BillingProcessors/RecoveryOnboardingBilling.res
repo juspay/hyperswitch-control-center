@@ -3,6 +3,7 @@ let make = (
   ~currentStep,
   ~connectorID,
   ~connector,
+  ~paymentConnectorName,
   ~setConnectorName,
   ~setNextStep,
   ~profileId,
