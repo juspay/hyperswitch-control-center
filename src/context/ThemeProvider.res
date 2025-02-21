@@ -12,6 +12,7 @@ type customUIConfig = {
   themeSetter: theme => unit,
   configCustomDomainTheme: JSON.t => unit,
   getThemesJson: string => promise<JSON.t>,
+  logoURL: option<string>,
 }
 
 let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
@@ -67,6 +68,7 @@ let themeContext = {
   themeSetter: defaultSetter,
   configCustomDomainTheme: _ => (),
   getThemesJson: _ => JSON.Encode.null->Promise.resolve,
+  logoURL: Some(""),
 }
 
 let themeContext = React.createContext(themeContext)
@@ -84,6 +86,7 @@ let make = (~children) => {
   let eventTheme = ThemeUtils.useThemeFromEvent()
   let fetchApi = AuthHooks.useApiFetcher()
   let isCurrentlyDark = MatchMedia.useMatchMedia("(prefers-color-scheme: dark)")
+  let (contextLogoUrl, setContextLogoUrl) = React.useState(() => Some(""))
 
   let initialTheme = Light
 
@@ -202,15 +205,25 @@ let make = (~children) => {
     }
     Window.appendStyle(value)
   }, [])
-
   let configureFavIcon = (faviconUrl: option<string>) => {
+    open DOMUtils
     try {
-      open DOMUtils
-      let a = createElement(DOMUtils.document, "link")
-      let _ = setAttribute(a, "href", `${faviconUrl->Option.getOr("/HyperswitchFavicon.png")}`)
-      let _ = setAttribute(a, "rel", "shortcut icon")
-      let _ = setAttribute(a, "type", "image/x-icon")
-      let _ = appendHead(a)
+      let existingFavicon =
+        Webapi.Dom.document->Webapi.Dom.Document.querySelector("link[rel='shortcut icon']")
+
+      switch existingFavicon {
+      | Some(faviconElement) =>
+        faviconElement->Webapi.Dom.Element.setAttribute(
+          "href",
+          faviconUrl->Option.getOr("/HyperswitchFavicon.png"),
+        )
+      | None =>
+        let a = createElement(DOMUtils.document, "link")
+        a->setAttribute("href", faviconUrl->Option.getOr("/HyperswitchFavicon.png"))
+        a->setAttribute("rel", "shortcut icon")
+        a->setAttribute("type", "image/x-icon")
+        appendHead(a)
+      }
     } catch {
     | _ => Exn.raiseError("Error on configuring favicon")
     }
@@ -237,6 +250,7 @@ let make = (~children) => {
       }
       DOMUtils.window._env_ = updatedUrlConfig
       configureFavIcon(updatedUrlConfig.urlThemeConfig.faviconUrl)->ignore
+      setContextLogoUrl(_ => val.logoUrl)
       updatedUrlConfig.urlThemeConfig.faviconUrl
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
@@ -285,8 +299,9 @@ let make = (~children) => {
       themeSetter: setTheme,
       configCustomDomainTheme,
       getThemesJson,
+      logoURL: contextLogoUrl,
     }
-  }, (theme, setTheme))
+  }, (theme, setTheme, contextLogoUrl))
   React.useEffect(() => {
     if theme === Dark {
       setTheme(Light)

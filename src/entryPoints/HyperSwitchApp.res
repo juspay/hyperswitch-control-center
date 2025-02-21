@@ -74,7 +74,7 @@ let make = () => {
     }
   }
   let path = url.path->List.toArray->Array.joinWith("/")
-
+  let {logoURL} = React.useContext(ThemeProvider.themeContext)
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
@@ -132,7 +132,7 @@ let make = () => {
                           </RenderIf>
                         </div>
                       </div>}
-                      headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
+                      headerLeftActions={switch logoURL {
                       | Some(url) =>
                         <div className="flex gap-4 items-center">
                           <img className="w-fit h-12" alt="image" src={`${url}`} />
