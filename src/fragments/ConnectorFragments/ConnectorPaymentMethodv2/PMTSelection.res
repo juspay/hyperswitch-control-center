@@ -7,7 +7,6 @@ module PMT = {
     ~connector,
     ~formValues: ConnectorTypes.connectorPayload,
   ) => {
-    open LogicUtils
     open ConnectorPaymentMethodV3Utils
     let pmInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
@@ -16,9 +15,25 @@ module PMT = {
 
     let pmtInp = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
-    let pmtArrayValue = pmtArrayInp.value->ConnectorUtils.getPaymentMethodMapper
     let pmEnabledValue = formValues.payment_methods_enabled
-    let pmtInpValue = pmtInp.value->getDictFromJsonObject->itemProviderMapper
+
+    let pmtArrayValue = (
+      pmEnabledValue
+      ->Array.find(ele => ele.payment_method == pm)
+      ->Option.getOr({payment_method: "", payment_method_types: []})
+    ).payment_method_types
+    let pmtValue = pmtArrayValue->Array.find(val => {
+      if (
+        pmtData.payment_method_type->getPMTFromString == Credit ||
+          pmtData.payment_method_type->getPMTFromString == Debit
+      ) {
+        val.payment_method_type == pmtData.payment_method_type &&
+          val.card_networks->Array.get(0)->Option.getOr("") ==
+            pmtData.card_networks->Array.get(0)->Option.getOr("")
+      } else {
+        val.payment_method_type == pmtData.payment_method_type
+      }
+    })
 
     let removeMethods = () => {
       let updatedPmtArray = pmtArrayValue->Array.filter(ele =>
@@ -56,8 +71,7 @@ module PMT = {
     }
 
     <CheckBoxIcon
-      isSelected={pmtInpValue.payment_method_type == pmtData.payment_method_type}
-      setIsSelected={isSelected => update(isSelected)}
+      isSelected={pmtValue->Option.isSome} setIsSelected={isSelected => update(isSelected)}
     />
   }
 }
