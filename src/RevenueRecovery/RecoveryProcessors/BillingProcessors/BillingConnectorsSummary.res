@@ -30,38 +30,7 @@ let make = () => {
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
-      //let json = await fetchDetails(connectorUrl)
-      let json = {
-        "connector_type": "payment_processor",
-        "connector_name": "adyen",
-        "connector_account_details": {
-          "auth_type": "SignatureKey",
-          "api_key": "asdfa",
-          "api_secret": "asdfasd",
-          "key1": "asdfasdf",
-        },
-        "metadata": {
-          "status_url": "https://2753-2401-4900-1cb8-2ff9-24dd-1ccf-ed12-b464.in.ngrok.io/webhooks/merchant_1678699058/globalpay",
-          "account_name": "transaction_processing",
-          "pricing_type": "fixed_price",
-          "acquirer_bin": "438309",
-          "acquirer_merchant_id": "00002000000",
-        },
-        "connector_webhook_details": {
-          "merchant_secret": "",
-        },
-        "feature_metadata": {
-          "revenue_recovery": {
-            "max_retry_count": 27,
-            "billing_connector_retry_threshold": 16,
-            "billing_account_reference": {
-              "mca_stripe_123": "charge_123",
-              "mca_adyen_123": "charge_124",
-            },
-          },
-        },
-        "profile_id": "pro_k8oS0c6doIkX0XXVMQOq",
-      }->Identity.genericTypeToJson
+      let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json->removeFieldsFromRespose)
       setScreenState(_ => Success)
     } catch {
