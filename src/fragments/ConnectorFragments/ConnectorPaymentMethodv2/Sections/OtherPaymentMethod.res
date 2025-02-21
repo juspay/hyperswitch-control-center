@@ -27,6 +27,7 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
+  ~formValues: ConnectorTypes.connectorPayload,
 ) => {
   open LogicUtils
   open SectionHelper
@@ -42,10 +43,9 @@ let make = (
     },
   ]
   let (meteDataInitialValues, connectorWalletsInitialValues) = React.useMemo(() => {
-    let formValues = formState.values->getDictFromJsonObject
     (
-      formValues->getDictfromDict("metadata"),
-      formValues->getDictfromDict("connector_wallets_details"),
+      formValues.metadata->Identity.genericTypeToJson,
+      formValues.connector_webhook_details->Identity.genericTypeToJson,
     )
   }, [])
   //
@@ -186,6 +186,7 @@ let make = (
               showCheckbox
               index=i
               onClick={Some(() => onClick(pmtData, pmtIndex))}
+              formValues
             />
           })
           ->React.array}

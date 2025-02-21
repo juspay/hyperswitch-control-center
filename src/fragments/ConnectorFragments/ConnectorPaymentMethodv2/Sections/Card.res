@@ -39,6 +39,7 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
+  ~formValues: ConnectorTypes.connectorPayload,
 ) => {
   open LogicUtils
   open SectionHelper
@@ -94,6 +95,7 @@ let make = (
                 connector
                 index=i
                 label={pmtData.card_networks->Array.joinWith(",")}
+                formValues
               />
             })
             ->React.array}
@@ -135,6 +137,7 @@ let make = (
                 connector
                 index=i
                 label={pmtData.card_networks->Array.joinWith(",")}
+                formValues
               />
             })
             ->React.array}

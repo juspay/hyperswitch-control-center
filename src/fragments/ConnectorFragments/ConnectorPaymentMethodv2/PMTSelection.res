@@ -5,6 +5,7 @@ module PMT = {
     ~pm,
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
     ~connector,
+    ~formValues: ConnectorTypes.connectorPayload,
   ) => {
     open LogicUtils
     open ConnectorPaymentMethodV3Utils
@@ -16,8 +17,7 @@ module PMT = {
     let pmtInp = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
     let pmtArrayValue = pmtArrayInp.value->ConnectorUtils.getPaymentMethodMapper
-    let pmEnabledValue =
-      pmEnabledInp.value->getArrayDataFromJson(ConnectorListMapper.getPaymentMethodsEnabled)
+    let pmEnabledValue = formValues.payment_methods_enabled
     let pmtInpValue = pmtInp.value->getDictFromJsonObject->itemProviderMapper
 
     let removeMethods = () => {
@@ -62,18 +62,18 @@ module PMT = {
   }
 }
 
-let renderValueInp = (~pmtData, ~pm, ~connector) => (
+let renderValueInp = (~pmtData, ~pm, ~connector, ~formValues) => (
   fieldsArray: array<ReactFinalForm.fieldRenderProps>,
 ) => {
-  <PMT pmtData pm fieldsArray connector />
+  <PMT pmtData pm fieldsArray connector formValues />
 }
 
-let valueInput = (~pmtData, ~pmIndex, ~pmtIndex, ~pm, ~connector) => {
+let valueInput = (~pmtData, ~pmIndex, ~pmtIndex, ~pm, ~connector, ~formValues) => {
   open FormRenderer
 
   makeMultiInputFieldInfoOld(
     ~label=``,
-    ~comboCustomInput=renderValueInp(~pmtData, ~pm, ~connector),
+    ~comboCustomInput=renderValueInp(~pmtData, ~pm, ~connector, ~formValues),
     ~inputFields=[
       makeInputFieldInfo(~name=`payment_methods_enabled[${pmIndex->Int.toString}].payment_method`),
       makeInputFieldInfo(
