@@ -43,7 +43,12 @@ let make = (~setShowOnBoarding, ~setShowSkeleton) => {
             | #connectProcessorData =>
               <ConnectProcessorData currentStep={currentStep} setCurrentStep={setCurrentStep} />
             | #manualMapping =>
-              <ManualMapping currentStep={currentStep} setCurrentStep={setCurrentStep} setShowOnBoarding setShowSkeleton />
+              <ManualMapping
+                currentStep={currentStep}
+                setCurrentStep={setCurrentStep}
+                setShowOnBoarding
+                setShowSkeleton
+              />
             }}
           </div>
         </div>

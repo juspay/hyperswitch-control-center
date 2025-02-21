@@ -40,7 +40,10 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
 
     | false =>
       <Icon
-        name="nd-delete-dustbin" className="cursor-pointer" onClick={_ => setShowDummyFile(_ => false)} customHeight="16"
+        name="nd-delete-dustbin"
+        className="cursor-pointer"
+        onClick={_ => setShowDummyFile(_ => false)}
+        customHeight="16"
       />
     }
   }
