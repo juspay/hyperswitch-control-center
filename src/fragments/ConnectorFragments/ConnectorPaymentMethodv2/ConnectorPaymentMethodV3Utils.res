@@ -135,7 +135,7 @@ let pmIcon = pm =>
   | _ => ""
   }
 
-let checkKlaranRegion = connData =>
+let checkKlaranRegion = (connData: connectorPayload) =>
   switch connData.metadata
   ->getDictFromJsonObject
   ->getString("klarna_region", "")
