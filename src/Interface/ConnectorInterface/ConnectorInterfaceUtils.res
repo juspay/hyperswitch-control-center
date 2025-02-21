@@ -47,7 +47,7 @@ let getCertificateAuth = (dict): certificateAuth => {
 
 let getAccountDetails = (dict): connectorAuthTypeObj => {
   let authType = dict->getString("auth_type", "")->connectorAuthTypeMapper
-  let d = switch authType {
+  switch authType {
   | HeaderKey => HeaderKey(dict->getHeaderAuth)
   | BodyKey => BodyKey(dict->getBodyKeyAuth)
   | SignatureKey => SignatureKey(dict->getSignatureKeyAuth)
@@ -56,7 +56,6 @@ let getAccountDetails = (dict): connectorAuthTypeObj => {
   | CertificateAuth => CertificateAuth(dict->getCertificateAuth)
   | UnKnownAuthType => UnKnownAuthType(JSON.Encode.null)
   }
-  d
 }
 
 let parsePaymentMethodType = paymentMethodType => {
