@@ -197,16 +197,13 @@ let getProcessorPayloadTypeV2 = (dict): connectorPayloadV2 => {
     test_mode: dict->getBool("test_mode", true),
     disabled: dict->getBool("disabled", true),
     payment_methods_enabled: dict
-    ->Dict.get("payment_methods_enabled")
-    ->Option.getOr(Dict.make()->JSON.Encode.object)
+    ->getJsonObjectFromDict("payment_methods_enabled")
     ->getArrayDataFromJson(getPaymentMethodsEnabledV2),
     profile_id: dict->getString("profile_id", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
     frm_configs: dict->getArrayFromDict("frm_configs", [])->convertFRMConfigJsonToObjResponse,
     status: dict->getString("status", "inactive"),
-    connector_webhook_details: dict
-    ->Dict.get("connector_webhook_details")
-    ->Option.getOr(JSON.Encode.null),
+    connector_webhook_details: dict->getJsonObjectFromDict("connector_webhook_details"),
     metadata: dict->getObj("metadata", Dict.make())->JSON.Encode.object,
     additional_merchant_data: dict
     ->getObj("additional_merchant_data", Dict.make())
