@@ -8,7 +8,7 @@ sidebar_primary_text_color="#1C6DEA" # To support current dashboard theme and to
 sidebar_secondary_text_color= "#525866" # To support current dashboard theme and to be removed later
 sidebar_border_color= "#ECEFF3" # To support current dashboard theme and to be removed later
 [default.endpoints]
-api_url="http://localhost:8000/api"
+api_url="http://localhost:9000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
 logo_url=""
 favicon_url=""
@@ -21,13 +21,13 @@ dss_certificate_url=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
-email=true
+email=false
 quick_start=false
 audit_trail=false
 sample_data=false
 frm=false
 payout=true
-recon=true
+recon=false
 test_processors=true
 feedback=false
 mixpanel=false
@@ -67,4 +67,3 @@ maintainence_alert=""
 org_ids=[]
 merchant_ids=[]
 profile_ids=[]
-
