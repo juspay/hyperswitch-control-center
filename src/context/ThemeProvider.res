@@ -56,8 +56,8 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     },
   },
   urls: {
-    faviconUrl: None,
-    logoUrl: None,
+    faviconUrl: Some("/HyperswitchFavicon.png"),
+    logoUrl: Some(""),
   },
 }
 
@@ -246,7 +246,7 @@ let make = (~children) => {
   let getThemesJson = async themesID => {
     try {
       let themeJson = if themesID->LogicUtils.isNonEmptyString {
-        let url = `${GlobalVars.getHostUrl}/themes/${themesID}/theme.json`
+        let url = `https://mocki.io/v1/d56d6bb2-81b7-4ca9-b8e4-9469dde647b5 `
         let themeResponse = await fetchApi(
           `${url}`,
           ~method_=Get,
@@ -256,7 +256,10 @@ let make = (~children) => {
         let themesData = await themeResponse->(res => res->Fetch.Response.json)
         themesData
       } else {
-        let defaultStyle = {"settings": newDefaultConfig.settings}->Identity.genericTypeToJson
+        let defaultStyle = {
+          "settings": newDefaultConfig.settings,
+          "urls": newDefaultConfig.urls,
+        }->Identity.genericTypeToJson
         defaultStyle
       }
       updateThemeURLs(themeJson)->ignore
