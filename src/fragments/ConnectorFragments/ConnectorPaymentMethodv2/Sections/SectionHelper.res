@@ -23,6 +23,7 @@ module PaymentMethodTypes = {
     ~connector,
     ~showCheckbox=true,
     ~onClick=None,
+    ~formValues,
   ) => {
     let handleClick = () => {
       switch onClick {
@@ -42,6 +43,7 @@ module PaymentMethodTypes = {
                 ~pmtIndex=pmtIndex->Int.toString,
                 ~pm,
                 ~connector,
+                ~formValues,
               )}
             />
           </div>

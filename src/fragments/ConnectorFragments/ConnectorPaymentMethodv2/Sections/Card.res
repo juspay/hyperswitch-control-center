@@ -39,16 +39,11 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
+  ~formValues: ConnectorTypes.connectorPayload,
 ) => {
   open LogicUtils
   open SectionHelper
   open ConnectorPaymentMethodV3Utils
-
-  let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-  )
-  let connData =
-    formState.values->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
 
   let data =
     paymentMethodValues
@@ -56,7 +51,7 @@ let make = (
     ->getPaymentMethodMapper(connector, pm)
   let credit = data->Array.filter(ele => ele.payment_method_type->getPMTFromString == Credit)
   let debit = data->Array.filter(ele => ele.payment_method_type->getPMTFromString == Debit)
-  let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)
+  let paymentMethodTypeValues = formValues.payment_methods_enabled->Array.get(pmIndex)
 
   {
     if isInEditState {
@@ -94,6 +89,7 @@ let make = (
                 connector
                 index=i
                 label={pmtData.card_networks->Array.joinWith(",")}
+                formValues
               />
             })
             ->React.array}
@@ -135,6 +131,7 @@ let make = (
                 connector
                 index=i
                 label={pmtData.card_networks->Array.joinWith(",")}
+                formValues
               />
             })
             ->React.array}

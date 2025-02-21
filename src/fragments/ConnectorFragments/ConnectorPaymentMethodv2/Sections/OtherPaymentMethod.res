@@ -27,6 +27,7 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
+  ~formValues: ConnectorTypes.connectorPayload,
 ) => {
   open LogicUtils
   open SectionHelper
@@ -186,6 +187,7 @@ let make = (
               showCheckbox
               index=i
               onClick={Some(() => onClick(pmtData, pmtIndex))}
+              formValues
             />
           })
           ->React.array}

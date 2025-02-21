@@ -128,6 +128,7 @@ let make = (~initialValues, ~isInEditState) => {
             connector
             isInEditState
             initialValues
+            formValues=connData
           />
         | _ =>
           <OtherPaymentMethod
@@ -139,6 +140,7 @@ let make = (~initialValues, ~isInEditState) => {
             connector
             isInEditState
             initialValues
+            formValues=connData
           />
         }
       })
