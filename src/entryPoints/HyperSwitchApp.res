@@ -47,12 +47,9 @@ let make = () => {
 
   let _ = HyperSwitchEntryUtils.updateSessionData(~key="theme_id", ~value=themeId)
   let sessionThemeId = HyperSwitchEntryUtils.getSessionData(~key="theme_id", ~defaultValue="")
-
   let applyTheme = async () => {
     try {
-      if themeId->LogicUtils.isNonEmptyString {
-        let _ = await getThemesJson(sessionThemeId)
-      }
+      let _ = await getThemesJson(sessionThemeId)
     } catch {
     | _ => ()
     }

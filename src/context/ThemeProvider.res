@@ -245,7 +245,7 @@ let make = (~children) => {
 
   let getThemesJson = async themesID => {
     try {
-      let themeJson = {
+      let themeJson = if themesID->LogicUtils.isNonEmptyString {
         let url = `${GlobalVars.getHostUrl}/themes/${themesID}/theme.json`
         let themeResponse = await fetchApi(
           `${url}`,
@@ -255,6 +255,9 @@ let make = (~children) => {
         )
         let themesData = await themeResponse->(res => res->Fetch.Response.json)
         themesData
+      } else {
+        let defaultStyle = {"settings": newDefaultConfig.settings}->Identity.genericTypeToJson
+        defaultStyle
       }
       updateThemeURLs(themeJson)->ignore
       configCustomDomainTheme(themeJson)->ignore
