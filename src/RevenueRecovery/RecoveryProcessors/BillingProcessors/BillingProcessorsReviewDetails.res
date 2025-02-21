@@ -3,6 +3,7 @@ let make = (~connectorInfo) => {
   open CommonAuthHooks
   open RevenueRecoveryOnboardingUtils
   open LogicUtils
+
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let connectorInfodict =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
@@ -46,16 +47,44 @@ let make = (~connectorInfo) => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/recovery/connectors`))
   }
 
+  let revenueRecovery =
+    connectorInfodict.revenue_recovery
+    ->Option.getOr(Dict.make()->JSON.Encode.object)
+    ->getDictFromJsonObject
+
+  let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
+  let billing_connector_retry_threshold =
+    revenueRecovery->getInt("billing_connector_retry_threshold", 0)
+  let paymentConnectors =
+    revenueRecovery->getObj("billing_account_reference", Dict.make())->Dict.toArray
+
   <PageWrapper
     title="Review and Connect"
     subTitle="Review your configured processor details, enabled payment methods and associated settings.">
-    <div className=" flex flex-col py-4 gap-6">
+    <div className=" flex flex-col py-4 gap-9">
       <div className="flex flex-col gap-0.5-rem ">
         <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
         {connectorInfodict.profile_id->React.string}
       </div>
       <div className="flex flex-col ">
         <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
+      </div>
+      <div className="flex flex-col gap-0.5-rem ">
+        <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
+        {max_retry_count->Int.toString->React.string}
+      </div>
+      <div className="flex flex-col gap-0.5-rem ">
+        <h4 className="text-nd_gray-400 "> {"Billing Connector Retry Threshold"->React.string} </h4>
+        {billing_connector_retry_threshold->Int.toString->React.string}
+      </div>
+      <div className="flex flex-col gap-0.5-rem ">
+        <h4 className="text-nd_gray-400 "> {"Payment Connectors"->React.string} </h4>
+        {paymentConnectors
+        ->Array.map(item => {
+          let (key, value) = item
+          <div> {`${key} : ${value->JSON.Decode.string->Option.getOr("")}`->React.string} </div>
+        })
+        ->React.array}
       </div>
       <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.merchant_connector_id />
       <ACLButton

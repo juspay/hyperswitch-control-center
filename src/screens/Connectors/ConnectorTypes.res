@@ -342,6 +342,7 @@ type connectorPayload = {
   status: string,
   connector_webhook_details: JSON.t,
   additional_merchant_data: JSON.t,
+  revenue_recovery?: JSON.t,
 }
 
 type connector =
