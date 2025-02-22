@@ -1,4 +1,4 @@
-open ConnectOrderDataTypes
+open OrderDataConnectionTypes
 
 let getSelectedStepName = step => {
   switch step {

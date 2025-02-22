@@ -106,7 +106,7 @@ module AddNewOMPButton = {
             {"Available for production"->React.string}
           </p>
           <div className="flex flex-col gap-2.5 h-40 overflow-scroll cursor-not-allowed w-full">
-            {ConnectProcessorDataUtils.connectorListForLive
+            {ConnectProcessorsUtils.connectorListForLive
             ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, _) => {
               let connectorName = connector->getConnectorNameString
               let size = "w-4 h-4 rounded-sm"

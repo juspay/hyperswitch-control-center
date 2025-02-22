@@ -14,7 +14,8 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
     ...title,
     align: "center",
     verticalAlign: "middle", // Centered vertically within the chart
-    y: 10, // Adjust this value to fine-tune vertical position
+    y: 5, // Adjust this value to fine-tune vertical position
+    x: 45,
     style: {
       fontSize: "14px",
       fontWeight: "400",
@@ -24,6 +25,10 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
     useHTML: true,
   }
   {
+    chart: {
+      \"type": "pie",
+      height: 270,
+    },
     accessibility: {
       enabled: false, // Disables accessibility features
     },
@@ -60,10 +65,10 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
     },
     legend: {
       enabled: true, // Ensures the legend is enabled
-      align: "right",
+      align: "left",
       verticalAlign: "middle",
       layout: "vertical",
-      itemMarginBottom: 16,
+      itemMarginBottom: 30,
       symbolRadius: 2,
       labelFormatter: legendFormatter,
     },
@@ -71,9 +76,9 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
 }
 
 let pieGraphColorSeries = [
-  "#BCBD22",
-  "#CB80DC",
   "#72BEF4",
+  "#CB80DC",
+  "#BCBD22",
   "#5CB7AF",
   "#F36960",
   "#9467BD",
@@ -138,7 +143,7 @@ let pieGraphLegendFormatter = () => {
 }
 
 let getCategoryWisePieChartPayload = (
-  data: array<categoryWiseBreakDown>,
+  ~data: array<categoryWiseBreakDown>,
   ~chartSize,
   ~toolTipStyle: toolTipStyle,
   ~showInLegend: bool=true,

@@ -352,10 +352,16 @@ module.exports = {
           400: "#E1E1E1",
           500: "#E1E3EA",
         },
+        nd_br_red: {
+          subtle: "#FCDAD7",
+        },
         nd_green: {
           200: "#52B87A",
           400: "#2DA160",
           600: "#217645",
+        },
+        nd_red: {
+          50: "#FCF1EF",
         },
       },
       borderRadius: {

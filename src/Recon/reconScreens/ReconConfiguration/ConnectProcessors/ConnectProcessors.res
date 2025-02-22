@@ -1,15 +1,17 @@
-open VerticalStepIndicatorTypes
-
 @react.component
-let make = (~currentStep: step, ~setCurrentStep) => {
+let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
   open ReconConfigurationUtils
   open VerticalStepIndicatorUtils
+  open ConnectProcessorsHelper
+  open OMPSwitchTypes
 
   let (selectedProcessor, setSelectedProcessor) = React.useState(_ => "")
   let (processorList, _) = React.useState(_ => [{id: "Stripe", name: "Stripe"}])
   let (arrow, setArrow) = React.useState(_ => false)
 
-  let getNextStep = (currentStep: step): option<step> => {
+  let getNextStep = (currentStep: VerticalStepIndicatorTypes.step): option<
+    VerticalStepIndicatorTypes.step,
+  > => {
     findNextStep(sections, currentStep)
   }
 
@@ -31,16 +33,6 @@ let make = (~currentStep: step, ~setCurrentStep) => {
     value: selectedProcessor->JSON.Encode.string,
     checked: true,
   }
-
-  let updatedProcessorList: array<
-    OMPSwitchTypes.ompListTypes,
-  > = processorList->Array.mapWithIndex((item, _) => {
-    let listItem: OMPSwitchTypes.ompListTypes = {
-      id: item.id,
-      name: item.name,
-    }
-    listItem
-  })
 
   let toggleChevronState = () => {
     setArrow(prev => !prev)
@@ -67,17 +59,13 @@ let make = (~currentStep: step, ~setCurrentStep) => {
             input
             deselectDisable=true
             customButtonStyle="!rounded-lg"
-            options={updatedProcessorList->ConnectProcessorDataHelper.generateDropdownOptionsCustomComponent}
+            options={processorList->generateDropdownOptionsCustomComponent}
             marginTop="mt-10"
             hideMultiSelectButtons=true
             addButton=false
             searchable=true
-            baseComponent={<ConnectProcessorDataHelper.ListBaseComp
-              heading="Profile" subHeading=selectedProcessor arrow
-            />}
-            bottomComponent={<ConnectProcessorDataHelper.AddNewOMPButton
-              user=#Profile addItemBtnStyle
-            />}
+            baseComponent={<ListBaseComp heading="Profile" subHeading=selectedProcessor arrow />}
+            bottomComponent={<AddNewOMPButton user=#Profile addItemBtnStyle />}
             customDropdownOuterClass="!border-none !w-full"
             fullLength=true
             toggleChevronState
@@ -122,6 +110,7 @@ let make = (~currentStep: step, ~setCurrentStep) => {
             text="Next"
             customButtonStyle="rounded w-full"
             buttonType={Primary}
+            buttonState={selectedProcessor->String.length > 0 ? Normal : Disabled}
             onClick={_ => onNextClick()->ignore}
           />
         </div>

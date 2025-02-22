@@ -3,7 +3,7 @@ open VerticalStepIndicatorTypes
 @react.component
 let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelectedOrderSource) => {
   open ReconConfigurationUtils
-  open ConnectOrderDataUtils
+  open OrderDataConnectionUtils
   open VerticalStepIndicatorUtils
 
   let (showDummyFile, setShowDummyFile) = React.useState(_ => false)
@@ -69,7 +69,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
               stepName={stepName}
               description={description}
               isSelected={isSelected}
-              iconName={step->ConnectOrderDataUtils.getIconName}
+              iconName={step->getIconName}
               onClick={_ => setSelectedOrderSource(_ => step)}
               customSelectionComponent={<Icon name="nd-circle-dot" customHeight="16" />}
               customOuterClass="cursor-pointer"
