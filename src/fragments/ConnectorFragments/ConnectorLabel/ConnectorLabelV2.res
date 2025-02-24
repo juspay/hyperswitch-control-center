@@ -8,14 +8,15 @@ let make = (
   open LogicUtils
   open ConnectorHelperV2
 
-  let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
-  let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
-  let selectedConnector = React.useMemo(() => {
-    connectorTypeFromName->ConnectorUtils.getConnectorInfo
-  }, [connector])
+  // let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
+  // let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
+  // let selectedConnector = React.useMemo(() => {
+  //   connectorTypeFromName->ConnectorUtils.getConnectorInfo
+  // }, [connector])
   let labelFieldDict = ConnectorFragmentUtils.connectorLabelDetailField
   let label = labelFieldDict->getString("connector_label", "")
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  // let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   if isInEditState {
     <>
@@ -29,16 +30,6 @@ let make = (
           ~isRequired=true,
         )}
         labelTextStyleClass
-        showExplicitError=false
-      />
-      <ConnectorAuthKeysHelper.ErrorValidation
-        fieldName="connector_label"
-        validate={ConnectorUtils.validate(
-          ~selectedConnector,
-          ~dict=labelFieldDict,
-          ~fieldName="connector_label",
-          ~isLiveMode={featureFlagDetails.isLiveMode},
-        )}
       />
     </>
   } else {
