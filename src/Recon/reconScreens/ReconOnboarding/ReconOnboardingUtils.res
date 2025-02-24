@@ -77,6 +77,21 @@ let stackedBarGraphLabelFormatter = () => {
 
   (
     @this
+    (this: StackedBarGraphTypes.labelFormatter) => {
+      let name = this.name
+      let yData = this.yData->getValueFromArray(0, 0)
+      let title = `<div style="font-size: 10px; font-weight: bold;">${name} | ${yData->Int.toString}</div>`
+      title
+    }
+  )->asLabelFormatter
+}
+
+let pieGraphLabelFormatter = () => {
+  open LogicUtils
+  open StackedBarGraphTypes
+
+  (
+    @this
     this => {
       let name = this.name
       let yData = this.yData->getValueFromArray(0, 0)
