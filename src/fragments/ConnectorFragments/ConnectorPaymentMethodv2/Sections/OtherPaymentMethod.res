@@ -56,7 +56,7 @@ let make = (
   let (selectedPMTIndex, setSelectedPMTIndex) = React.useState(_ => 0)
 
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let connData =
+  let connData: ConnectorTypes.connectorPayload =
     formState.values->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let availablePM =
     paymentMethodValues
