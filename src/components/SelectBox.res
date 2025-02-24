@@ -315,13 +315,12 @@ module ListItem = {
               <RadioIcon isSelected isDisabled />
             }
           } else if isDropDown {
-            switch (customSelectionIcon, isSelected) {
-            | (Button.CustomIcon(ele), true) => <div className="mr-2"> ele </div>
-            | (_, _) =>
-              <div className="mr-2">
-                <Tick isSelected />
-              </div>
-            }
+            <div className="mr-2">
+              {switch (customSelectionIcon, isSelected) {
+              | (Button.CustomIcon(ele), true) => ele
+              | (_, _) => <Tick isSelected />
+              }}
+            </div>
           } else {
             React.null
           }}
