@@ -21,7 +21,7 @@ let getStackedBarGraphOptions = (stackedBarGraphOptions: stackedBarGraphPayload)
     },
     yAxis: {
       title: {
-        text: "Count trophies",
+        text: "",
       },
       stackLabels: {
         enabled: true,
