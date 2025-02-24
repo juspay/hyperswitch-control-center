@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.24.0
+
+### Features
+
+- Added attempts table to revenue order details ([#2305](https://github.com/juspay/hyperswitch-control-center/pull/2305)) ([`2a6f34d`](https://github.com/juspay/hyperswitch-control-center/commit/2a6f34db1015dd4bf1d6c34a08e59fcc8b55e7ea))
+
+### Testing
+
+- Fix failing connector test ([#2310](https://github.com/juspay/hyperswitch-control-center/pull/2310)) ([`50e3bfc`](https://github.com/juspay/hyperswitch-control-center/commit/50e3bfc34acaf8cee00e3a193878e79be5fbd66d))
+
+### Miscellaneous Tasks
+
+- Implement v2 connector type ([#2315](https://github.com/juspay/hyperswitch-control-center/pull/2315)) ([`e061d8b`](https://github.com/juspay/hyperswitch-control-center/commit/e061d8ba15a8d4e83145d37377b89e1aec7c36d7))
+
+**Full Changelog:** [`2025.02.20.0...2025.02.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.20.0...2025.02.24.0)
+
+- - -
+
 ## 2025.02.20.0
 
 ### Features
