@@ -8,15 +8,8 @@ let make = (
   open LogicUtils
   open ConnectorHelperV2
 
-  // let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
-  // let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
-  // let selectedConnector = React.useMemo(() => {
-  //   connectorTypeFromName->ConnectorUtils.getConnectorInfo
-  // }, [connector])
   let labelFieldDict = ConnectorFragmentUtils.connectorLabelDetailField
   let label = labelFieldDict->getString("connector_label", "")
-
-  // let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   if isInEditState {
     <>
