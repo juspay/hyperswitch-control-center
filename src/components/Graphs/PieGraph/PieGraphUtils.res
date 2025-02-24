@@ -15,7 +15,7 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
     align: "center",
     verticalAlign: "middle", // Centered vertically within the chart
     y: 10, // Adjust this value to fine-tune vertical position
-    x: 50,
+    x: 55,
     style: {
       fontSize: "14px",
       fontWeight: "400",
@@ -137,7 +137,9 @@ let pieGraphLegendFormatter = () => {
   (
     @this
     (this: PieGraphTypes.legendLabelFormatter) => {
-      `${this.name->LogicUtils.snakeToTitle}`
+      let name = this.name->LogicUtils.snakeToTitle
+      let title = `<div style="font-size: 10px; font-weight: bold;">${name} | ${this.y->Int.toString}</div>`
+      title
     }
   )->PieGraphTypes.asLegendPointFormatter
 }
