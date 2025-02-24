@@ -12,19 +12,17 @@ let make = (
   let label = labelFieldDict->getString("connector_label", "")
 
   if isInEditState {
-    <>
-      <FormRenderer.FieldRenderer
-        labelClass
-        field={FormRenderer.makeFieldInfo(
-          ~label,
-          ~name="connector_label",
-          ~placeholder="Enter Connector Label name",
-          ~customInput=InputFields.textInput(~customStyle="rounded-xl "),
-          ~isRequired=true,
-        )}
-        labelTextStyleClass
-      />
-    </>
+    <FormRenderer.FieldRenderer
+      labelClass
+      field={FormRenderer.makeFieldInfo(
+        ~label,
+        ~name="connector_label",
+        ~placeholder="Enter Connector Label name",
+        ~customInput=InputFields.textInput(~customStyle="rounded-xl "),
+        ~isRequired=true,
+      )}
+      labelTextStyleClass
+    />
   } else {
     <InfoField label str={connectorInfo.connector_label} />
   }
