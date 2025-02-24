@@ -115,8 +115,14 @@ type dataObj<'t> = {
   pointPadding?: float,
 }
 
+type chart = {
+  \"type": string,
+  height: int,
+}
+
 type pieCartData<'t> = array<dataObj<'t>>
 type pieGraphOptions<'t> = {
+  chart: chart,
   accessibility: enabled,
   title?: title,
   plotOptions: plotOptions,
