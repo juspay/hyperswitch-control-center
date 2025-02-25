@@ -23,7 +23,6 @@ module PaymentMethodTypes = {
     ~connector,
     ~showCheckbox=true,
     ~onClick=None,
-    ~isInEditState,
   ) => {
     let handleClick = () => {
       switch onClick {
@@ -32,22 +31,20 @@ module PaymentMethodTypes = {
       }
     }
     open FormRenderer
-    <RenderIf condition={showCheckbox}>
+    <RenderIf key={index->Int.toString} condition={showCheckbox}>
       <AddDataAttributes key={index->Int.toString} attributes=[("data-testid", `${label}`)]>
         <div key={index->Int.toString} className={"flex gap-1.5 items-center"}>
-          <RenderIf condition={isInEditState}>
-            <div onClick={_ => handleClick()}>
-              <FieldRenderer
-                field={PMTSelection.valueInput(
-                  ~pmtData,
-                  ~pmIndex,
-                  ~pmtIndex=pmtIndex->Int.toString,
-                  ~pm,
-                  ~connector,
-                )}
-              />
-            </div>
-          </RenderIf>
+          <div onClick={_ => handleClick()}>
+            <FieldRenderer
+              field={PMTSelection.valueInput(
+                ~pmtData,
+                ~pmIndex,
+                ~pmtIndex=pmtIndex->Int.toString,
+                ~pm,
+                ~connector,
+              )}
+            />
+          </div>
           <p className="mt-4"> {label->React.string} </p>
         </div>
       </AddDataAttributes>
@@ -59,26 +56,57 @@ module HeadingSection = {
   @react.component
   let make = (~index, ~pm, ~availablePM, ~pmIndex, ~pmt, ~showSelectAll) => {
     open FormRenderer
-    <div className="border-nd_gray-150 rounded-t-xl overflow-hidden">
-      <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
-        <Heading heading=pmt />
-        <RenderIf condition={showSelectAll}>
-          <div className="flex gap-2 items-center">
-            <AddDataAttributes
-              key={index->Int.toString}
-              attributes=[("data-testid", pm->String.concat("_")->String.concat("select_all"))]>
-              <FieldRenderer
-                field={PMSelectAll.selectAllValueInput(
-                  ~availablePM,
-                  ~pmIndex=pmIndex->Int.toString,
-                  ~pm,
-                  ~pmt,
-                )}
-              />
-            </AddDataAttributes>
-          </div>
-        </RenderIf>
-      </div>
+
+    <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
+      <Heading heading=pmt />
+      <RenderIf condition={showSelectAll}>
+        <div className="flex gap-2 items-center">
+          <AddDataAttributes
+            key={index->Int.toString}
+            attributes=[("data-testid", pm->String.concat("_")->String.concat("select_all"))]>
+            <FieldRenderer
+              field={PMSelectAll.selectAllValueInput(
+                ~availablePM,
+                ~pmIndex=pmIndex->Int.toString,
+                ~pm,
+                ~pmt,
+              )}
+            />
+          </AddDataAttributes>
+        </div>
+      </RenderIf>
     </div>
+  }
+}
+
+module SelectedPMT = {
+  @react.component
+  let make = (~pmtData: array<ConnectorTypes.paymentMethodConfigType>, ~index, ~pm) => {
+    open LogicUtils
+    open ConnectorPaymentMethodV3Utils
+    <RenderIf condition={pmtData->Array.length > 0}>
+      <div
+        className="border border-nd_gray-150 rounded-xl overflow-hidden"
+        key={`${index->Int.toString}-debit`}>
+        <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
+          <Heading heading=pm />
+        </div>
+        <div className="flex gap-8 p-6 flex-wrap">
+          {pmtData
+          ->Array.mapWithIndex((data, i) => {
+            let label = switch pm->getPMTFromString {
+            | Credit | Debit => data.card_networks->Array.joinWith(",")
+            | _ => data.payment_method_type->snakeToTitle
+            }
+            <AddDataAttributes key={i->Int.toString} attributes=[("data-testid", `${label}`)]>
+              <div key={i->Int.toString} className={"flex gap-1.5 items-center"}>
+                <p className="mt-4"> {label->React.string} </p>
+              </div>
+            </AddDataAttributes>
+          })
+          ->React.array}
+        </div>
+      </div>
+    </RenderIf>
   }
 }

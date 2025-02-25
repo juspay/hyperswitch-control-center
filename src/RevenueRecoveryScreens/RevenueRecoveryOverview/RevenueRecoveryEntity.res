@@ -1,5 +1,5 @@
 open LogicUtils
-open RevenueRecoveryTypes
+open RevenueRecoveryOrderTypes
 
 module CurrencyCell = {
   @react.component
@@ -46,12 +46,9 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   switch attemptColType {
   | Amount =>
     CustomCell(
-      <CurrencyCell
-        amount={(attempt.amount /. 100.0)->Float.toString} currency={attempt.currency}
-      />,
+      <CurrencyCell amount={attempt.attempt_amount->Float.toString} currency={attempt.currency} />,
       "",
     )
-  | Currency => Text(attempt.currency)
   | Connector =>
     CustomCell(<HelperComponents.ConnectorCustomCell connectorName=attempt.connector />, "")
   | Status =>
@@ -70,11 +67,10 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       | _ => LabelLightBlue
       },
     })
-  | PaymentMethod => Text(attempt.payment_method)
   | PaymentMethodType => Text(attempt.payment_method_type)
-  | AttemptId => DisplayCopyCell(attempt.attempt_id)
+  | AttemptId => DisplayCopyCell(attempt.id)
   | ErrorMessage => Text(attempt.error_message)
-  | ConnectorTransactionID => DisplayCopyCell(attempt.connector_transaction_id)
+  | ConnectorReferenceID => DisplayCopyCell(attempt.connector_reference_id)
   | CaptureMethod => Text(attempt.capture_method)
   | AuthenticationType => Text(attempt.authentication_type)
   | CancellationReason => Text(attempt.cancellation_reason)
@@ -83,7 +79,6 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | PaymentToken => Text(attempt.payment_token)
   | ConnectorMetadata => Text(attempt.connector_metadata)
   | PaymentExperience => Text(attempt.payment_experience)
-  | ReferenceID => Text(attempt.reference_id)
   | ClientSource => Text(attempt.client_source)
   | ClientVersion => Text(attempt.client_version)
   }
@@ -130,9 +125,8 @@ let refundColumns: array<refundsColType> = [Created, LastUpdated, Amount, Paymen
 let attemptsColumns: array<attemptColType> = [
   Status,
   Amount,
-  Currency,
+  AuthenticationType,
   Connector,
-  PaymentMethod,
   PaymentMethodType,
 ]
 
@@ -171,13 +165,10 @@ let attemptDetailsField = [
   AttemptId,
   Status,
   Amount,
-  Currency,
   Connector,
-  PaymentMethod,
   PaymentMethodType,
   ErrorMessage,
-  ConnectorTransactionID,
-  CaptureMethod,
+  ConnectorReferenceID,
   AuthenticationType,
   CancellationReason,
   MandateID,
@@ -185,7 +176,6 @@ let attemptDetailsField = [
   PaymentToken,
   ConnectorMetadata,
   PaymentExperience,
-  ReferenceID,
   ClientSource,
   ClientVersion,
 ]
@@ -195,7 +185,7 @@ let getRefundHeading = (refundsColType: refundsColType) => {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
-  | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
+  | LastUpdated => Table.makeHeaderInfo(~key="modified_at", ~title="Last Updated")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id")
   | RefundStatus => Table.makeHeaderInfo(~key="status", ~title="Refund Status")
   | RefundId => Table.makeHeaderInfo(~key="refund_id", ~title="Refund ID")
@@ -208,20 +198,18 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
   switch attemptColType {
   | AttemptId =>
     Table.makeHeaderInfo(
-      ~key="attempt_id",
+      ~key="id",
       ~title="Attempt ID",
       ~description="You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.",
     )
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
-  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
+  | Amount => Table.makeHeaderInfo(~key="attempt_amount", ~title="Amount")
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Processor")
-  | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
   | ErrorMessage => Table.makeHeaderInfo(~key="error_message", ~title="Error Message")
-  | ConnectorTransactionID =>
-    Table.makeHeaderInfo(~key="connector_transaction_id", ~title="Connector Transaction ID")
+  | ConnectorReferenceID =>
+    Table.makeHeaderInfo(~key="connector_reference_id", ~title="Connector Reference ID")
   | CaptureMethod => Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method")
   | AuthenticationType =>
     Table.makeHeaderInfo(~key="authentication_type", ~title="Authentication Type")
@@ -234,7 +222,6 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
     Table.makeHeaderInfo(~key="connector_metadata", ~title="Connector Metadata")
   | PaymentExperience =>
     Table.makeHeaderInfo(~key="payment_experience", ~title="Payment Experience")
-  | ReferenceID => Table.makeHeaderInfo(~key="reference_id", ~title="Reference ID")
   | ClientSource => Table.makeHeaderInfo(~key="client_source", ~title="Client Source")
   | ClientVersion => Table.makeHeaderInfo(~key="client_version", ~title="Client Version")
   }
@@ -297,14 +284,16 @@ let refunditemToObjMapper = dict => {
 }
 
 let attemptsItemToObjMapper = dict => {
-  attempt_id: dict->getString("attempt_id", ""),
+  id: dict->getString("id", ""),
   status: dict->getString("status", ""),
   amount: dict->getFloat("amount", 0.0),
-  currency: dict->getString("currency", ""),
+  currency: dict
+  ->getDictfromDict("amount")
+  ->getString("currency", ""),
   connector: dict->getString("connector", ""),
   error_message: dict->getString("error_message", ""),
   payment_method: dict->getString("payment_method", ""),
-  connector_transaction_id: dict->getString("connector_transaction_id", ""),
+  connector_reference_id: dict->getString("connector_reference_id", ""),
   capture_method: dict->getString("capture_method", ""),
   authentication_type: dict->getString("authentication_type", ""),
   cancellation_reason: dict->getString("cancellation_reason", ""),
@@ -317,6 +306,9 @@ let attemptsItemToObjMapper = dict => {
   reference_id: dict->getString("reference_id", ""),
   client_source: dict->getString("client_source", ""),
   client_version: dict->getString("client_version", ""),
+  attempt_amount: dict
+  ->getDictfromDict("amount")
+  ->getFloat("net_amount", 00.0),
 }
 
 let getRefunds: JSON.t => array<refunds> = json => {
@@ -400,14 +392,13 @@ let getHeading = (colType: colType) => {
   }
 }
 
-let useGetStatus = order => {
-  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
-  let orderStatusLabel = order.status->String.toUpperCase
-  let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
+let getStatus = (order, primaryColor) => {
+  let orderStatusLabel = order.status->capitalizeString
+  let fixedStatusCss = "text-sm text-nd_green-400 font-medium px-2 py-1 rounded-md h-1/2"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
   | Succeeded
   | PartiallyCaptured =>
-    <div className={`${fixedStatusCss} bg-hyperswitch-green dark:bg-opacity-50`}>
+    <div className={`${fixedStatusCss} bg-green-50 dark:bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | Failed
@@ -431,9 +422,10 @@ let useGetStatus = order => {
 
 let getHeadingForSummary = summaryColType => {
   switch summaryColType {
-  | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
+  | Created => Table.makeHeaderInfo(~key="created", ~title="Created On")
   | NetAmount => Table.makeHeaderInfo(~key="net_amount", ~title="Net Amount")
-  | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
+  | OrderAmount => Table.makeHeaderInfo(~key="order_amount", ~title="Order Amount")
+  | LastUpdated => Table.makeHeaderInfo(~key="modified_at", ~title="Last Updated")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | AmountReceived =>
@@ -462,7 +454,10 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
   | AuthenticationType => Table.makeHeaderInfo(~key="authentication_type", ~title="Auth Type")
   | CaptureMethod => Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method")
-  | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network")
+  | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Brand")
+  | MandateId => Table.makeHeaderInfo(~key="MandateId", ~title="Mandate Id")
+  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable")
+  | AmountReceived => Table.makeHeaderInfo(~key="amount_receieved", ~title="Amount Received")
   }
 }
 
@@ -490,7 +485,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | ShippingAddress => Table.makeHeaderInfo(~key="shipping", ~title="Address")
   | ShippingEmail => Table.makeHeaderInfo(~key="shipping", ~title="Email")
   | ShippingPhone => Table.makeHeaderInfo(~key="shipping", ~title="Phone")
-  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable")
+  | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable")
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
   | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="Tag")
   | FRMTransactionType =>
@@ -511,8 +506,23 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
       />,
       "",
     )
+  | OrderAmount =>
+    CustomCell(
+      <CurrencyCell
+        amount={(order.order_amount /. 100.0)->Float.toString} currency={order.currency}
+      />,
+      "",
+    )
   | LastUpdated => Date(order.last_updated)
-  | PaymentId => DisplayCopyCell(order.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="max-w-xs truncate whitespace-nowrap"
+        displayValue=order.payment_id
+        customParentClass="flex items-center gap-4"
+      />,
+      "",
+    )
   | Currency => Text(order.currency)
   | AmountReceived =>
     CustomCell(
@@ -559,6 +569,15 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
 
       Text(dict->getString("card_network", ""))
     }
+  | MandateId => Text(order.payment_id)
+  | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
+  | AmountReceived =>
+    CustomCell(
+      <CurrencyCell
+        amount={(order.amount_received /. 100.0)->Float.toString} currency={order.currency}
+      />,
+      "",
+    )
   }
 }
 
@@ -738,13 +757,16 @@ let itemToObjMapper = dict => {
     invoice_id: dict->getString("id", ""),
     merchant_id: dict->getString("merchant_id", ""),
     net_amount: dict->getFloat("net_amount", 0.0),
+    order_amount: dict
+    ->getDictfromDict("amount")
+    ->getFloat("order_amount", 0.0),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),
     amount_capturable: dict->getFloat("amount_capturable", 0.0),
     amount_received: dict->getFloat("amount_received", 0.0),
     created: dict->getString("created", ""),
-    last_updated: dict->getString("last_updated", ""),
+    last_updated: dict->getString("modified_at", ""),
     currency: dict->getString("currency", ""),
     customer_id: dict->getString("customer_id", ""),
     description: dict->getString("description", ""),
@@ -805,6 +827,9 @@ let itemToObjMapper = dict => {
     merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
     attempt_count: dict->getInt("attempt_count", 0),
     connector_label: dict->getString("connector_label", "NA"),
+    attempt_amount: dict
+    ->getDictfromDict("amount")
+    ->getFloat("net_amount", 0.0),
   }
 }
 let getOrders: JSON.t => array<order> = json => {
@@ -823,7 +848,7 @@ let revenueRecoveryEntity = (merchantId, orgId) =>
     ~getShowLink={
       order =>
         GlobalVars.appendDashboardPath(
-          ~url=`v2/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`,
+          ~url=`v2/recovery/overview/${order.invoice_id}/${order.profile_id}/${merchantId}/${orgId}`,
         )
     },
   )

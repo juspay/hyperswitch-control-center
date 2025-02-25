@@ -38,7 +38,7 @@ let make = () => {
           remainingPath
           renderList={() => <RecoveryConnectorList />}
           renderNewForm={() => <RecoveryConnectorHome />}
-          renderShow={(_, _) => <RecoveryConnectorHome />}
+          renderShow={(_, _) => <PaymentProcessorSummary />}
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />

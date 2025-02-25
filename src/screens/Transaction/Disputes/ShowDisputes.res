@@ -118,7 +118,8 @@ module Details = {
         setFileUploadedDict
       />
       <FormRenderer.DesktopRow>
-        <div className={`flex flex-wrap ${justifyClassName} dark:bg-gray-900 dark:border-gray-500`}>
+        <div
+          className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
           {detailsFields
           ->Array.mapWithIndex((colType, i) => {
             <RenderIf condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>

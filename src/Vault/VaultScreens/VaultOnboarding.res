@@ -36,6 +36,7 @@ let make = () => {
   }
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let activeBusinessProfile = getNameForId(#Profile)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
@@ -47,7 +48,7 @@ let make = () => {
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-
+    initialValuesToDict->Dict.set("test_mode", !featureFlagDetails.isLiveMode->JSON.Encode.bool)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
@@ -85,6 +86,11 @@ let make = () => {
         }
       }
     }
+    Nullable.null
+  }
+
+  let handleAuthKeySubmit = async (_, _) => {
+    onNextClick()
     Nullable.null
   }
 
@@ -155,14 +161,35 @@ let make = () => {
           customSubTitleStyle="font-500 font-normal text-gray-700"
         />
         <PageLoaderWrapper screenState>
+          <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+            <div className="flex flex-col mb-5 gap-3 ">
+              <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
+              <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
+              <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
+              <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
+              <FormRenderer.SubmitButton
+                text="Next"
+                buttonSize={Small}
+                customSumbitButtonStyle="!w-full mt-8"
+                tooltipForWidthClass="w-full"
+              />
+            </div>
+            <FormValuesSpy />
+          </Form>
+        </PageLoaderWrapper>
+      </div>
+
+    | {sectionId: "setup-pmts"} =>
+      <div className="flex flex-col w-1/2 px-10 ">
+        <PageUtils.PageHeading
+          title="Payment Methods"
+          subTitle="Configure your PaymentMethods."
+          customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+        />
+        <PageLoaderWrapper screenState>
           <Form onSubmit initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
-              <ConnectorAuthKeys
-                initialValues={updatedInitialVal} setInitialValues showVertically=true
-              />
-              <ConnectorLabelV2 />
-              <ConnectorMetadataV2 />
-              <ConnectorWebhookDetails />
+              <ConnectorPaymentMethodV3 initialValues isInEditState=true />
               <FormRenderer.SubmitButton
                 text="Next"
                 buttonSize={Small}

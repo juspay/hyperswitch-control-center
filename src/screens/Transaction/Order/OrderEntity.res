@@ -565,7 +565,7 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | ConnectorTransactionID =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-40 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
       />,
       "",
     )
@@ -720,7 +720,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | ConnectorTransactionID =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-40 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
       />,
       "",
     )

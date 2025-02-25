@@ -533,18 +533,14 @@ let fillMissingDataPoints = (
   ~timeKey="time_bucket",
   ~defaultValue: JSON.t,
   ~granularity: string,
-  ~isoStringToCustomTimeZone: option<string => TimeZoneHook.dateTimeString>=?,
+  ~isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
   ~granularityEnabled,
 ) => {
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
-    let time = switch (
-      isoStringToCustomTimeZone,
-      granularityEnabled,
-      granularity != (#G_ONEDAY: granularity :> string),
-    ) {
-    | (Some(timeConvert), true, true) => {
+    let time = switch (granularityEnabled, granularity != (#G_ONEDAY: granularity :> string)) {
+    | (true, true) => {
         let value =
           item
           ->getDictFromJsonObject
@@ -552,7 +548,7 @@ let fillMissingDataPoints = (
 
         let time = value->getString("start_time", "")
 
-        let {year, month, date, hour, minute} = timeConvert(time)
+        let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
 
         if (
           granularity == (#G_THIRTYMIN: granularity :> string) ||

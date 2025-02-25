@@ -153,7 +153,7 @@ let getAccountDetails = (dict): connectorAuthTypeObj => {
   d
 }
 
-let getProcessorPayloadType = dict => {
+let getProcessorPayloadType = (dict): connectorPayload => {
   {
     connector_type: dict
     ->getString("connector_type", "")

@@ -42,7 +42,7 @@ module SearchBox = {
       <Icon size=14 name="search" className="mx-2" onClick={openModalOnClickHandler} />
     } else {
       <div
-        className={`flex w-80 gap-2 items-center text-gray-800/40 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text shadow-xs bg-gray-50`}
+        className={`flex w-80 gap-2 items-center text-gray-800/40 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text shadow-xs bg-white`}
         onClick={openModalOnClickHandler}>
         <div className="flex gap-2 ">
           <Icon size=14 name="search" />

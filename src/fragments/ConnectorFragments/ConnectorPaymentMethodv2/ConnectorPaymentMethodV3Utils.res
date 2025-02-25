@@ -102,6 +102,8 @@ let getPaymentMethodDictV2 = (dict, pm, connector) => {
   let minimumAmount = dict->getInt("minimum_amount", 0)
   let maximumAmount = dict->getInt("maximum_amount", 68607706)
   let recurringEnabled = dict->getBool("recurring_enabled", true)
+  let installmentPaymentEnabled = dict->getBool("installment_payment_enabled", true)
+
   let paymentExperience = dict->getOptionString("payment_experience")
   let pme = getPaymentExperience(connector, pm, modifedPaymentMethodType, paymentExperience)
   let newPaymentMenthodDict =
@@ -111,6 +113,7 @@ let getPaymentMethodDictV2 = (dict, pm, connector) => {
       ("minimum_amount", minimumAmount->JSON.Encode.int),
       ("maximum_amount", maximumAmount->JSON.Encode.int),
       ("recurring_enabled", recurringEnabled->JSON.Encode.bool),
+      ("installment_payment_enabled", installmentPaymentEnabled->JSON.Encode.bool),
     ]->Dict.fromArray
   newPaymentMenthodDict->setOptionString("payment_experience", pme)
   newPaymentMenthodDict->itemProviderMapper
@@ -132,7 +135,7 @@ let pmIcon = pm =>
   | _ => ""
   }
 
-let checkKlaranRegion = connData =>
+let checkKlaranRegion = (connData: connectorPayload) =>
   switch connData.metadata
   ->getDictFromJsonObject
   ->getString("klarna_region", "")

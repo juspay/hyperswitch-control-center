@@ -10,7 +10,6 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-
   *,
   ::after,
   ::before,
@@ -26,7 +25,6 @@
 }
 
 @theme inline {
-
   --breakpoint: {
     mobile: 28.125rem;
     tablet: 93.75rem;
@@ -60,100 +58,104 @@
   /* Button Colors */
   --color-button-primary-bg: rgb(var(--btn-primary-background-color));
   --color-button-primary-text: rgb(var(--btn-primary-text-color));
-  --color-button-primary-hoverbg: rgb(var(--btn-primary-hover-background-color));
+  --color-button-primary-hoverbg: rgb(
+    var(--btn-primary-hover-background-color)
+  );
 
   --color-button-secondary-bg: rgb(var(--btn-secondary-background-color));
   --color-button-secondary-text: rgb(var(--btn-secondary-text-color));
-  --color-button-secondary-hoverbg: rgb(var(--btn-secondary-hover-background-color));
+  --color-button-secondary-hoverbg: rgb(
+    var(--btn-secondary-hover-background-color)
+  );
 
   /* Outline */
   --color-outline: rgb(var(--borders-border-color));
 
   /* Neutral Gray Palette */
   --color-gray-0: #fefefe;
-  --color-gray-25: #FCFCFD;
-  --color-gray-50: #F5F7FA;
-  --color-gray-100: #F2F4F8;
-  --color-gray-150: #ECEFF3;
-  --color-gray-200: #E1E4EA;
-  --color-gray-300: #CACFD8;
-  --color-gray-400: #99A0AE;
+  --color-gray-25: #fcfcfd;
+  --color-gray-50: #f5f7fa;
+  --color-gray-100: #f2f4f8;
+  --color-gray-150: #eceff3;
+  --color-gray-200: #e1e4ea;
+  --color-gray-300: #cacfd8;
+  --color-gray-400: #99a0ae;
   --color-gray-500: #717784;
   --color-gray-600: #525866;
-  --color-gray-700: #2B303B;
+  --color-gray-700: #2b303b;
   --color-gray-800: #222530;
-  --color-gray-900: #181B25;
-  --color-gray-950: #0E121B;
+  --color-gray-900: #181b25;
+  --color-gray-950: #0e121b;
   --color-gray-1000: #050506;
 
   /* Orange Palette */
-  --color-orange-50: #FDF1DD;
-  --color-orange-100: #F5D9A8;
-  --color-orange-200: #E9BE74;
-  --color-orange-300: #D99530;
-  --color-orange-400: #C17D10;
-  --color-orange-500: #AB6100;
-  --color-orange-600: #9E5400;
-  --color-orange-700: #8F4700;
+  --color-orange-50: #fdf1dd;
+  --color-orange-100: #f5d9a8;
+  --color-orange-200: #e9be74;
+  --color-orange-300: #d99530;
+  --color-orange-400: #c17d10;
+  --color-orange-500: #ab6100;
+  --color-orange-600: #9e5400;
+  --color-orange-700: #8f4700;
   --color-orange-800: #703800;
-  --color-orange-900: #5C2900;
-  --color-orange-950: #421F00;
+  --color-orange-900: #5c2900;
+  --color-orange-950: #421f00;
 
   /* Red Palette */
-  --color-red-50: #FCF1EF;
-  --color-red-100: #FDD4CD;
-  --color-red-200: #FCB5AA;
-  --color-red-300: #F57F6C;
-  --color-red-400: #EC5941;
-  --color-red-500: #DD2B0E;
-  --color-red-600: #C91C00;
-  --color-red-700: #AE1800;
-  --color-red-800: #8D1300;
-  --color-red-900: #660E00;
-  --color-red-950: #4D0A00;
+  --color-red-50: #fcf1ef;
+  --color-red-100: #fdd4cd;
+  --color-red-200: #fcb5aa;
+  --color-red-300: #f57f6c;
+  --color-red-400: #ec5941;
+  --color-red-500: #dd2b0e;
+  --color-red-600: #c91c00;
+  --color-red-700: #ae1800;
+  --color-red-800: #8d1300;
+  --color-red-900: #660e00;
+  --color-red-950: #4d0a00;
   --color-red-800-dull: #c04141;
   --color-hyperswitch_red: #d7625b;
+  --color-hyperswitch_green: #71b44b;
 
   /* Purple Palette */
   --color-purple-50: #232150;
-  --color-purple-100: #E1D8F9;
-  --color-purple-200: #CBBBF2;
-  --color-purple-300: #AC93E6;
-  --color-purple-400: #9475DB;
-  --color-purple-500: #7B58CF;
-  --color-purple-600: #694CC0;
-  --color-purple-700: #5943B6;
+  --color-purple-100: #e1d8f9;
+  --color-purple-200: #cbbbf2;
+  --color-purple-300: #ac93e6;
+  --color-purple-400: #9475db;
+  --color-purple-500: #7b58cf;
+  --color-purple-600: #694cc0;
+  --color-purple-700: #5943b6;
   --color-purple-800: #453894;
-  --color-purple-900: #2F2A6B;
-  --color-purple-950: #1D004D;
+  --color-purple-900: #2f2a6b;
+  --color-purple-950: #1d004d;
 
   /* Primary Blue Palette */
-  --color-primary-blue-50: #E4F1FD;
-  --color-primary-blue-100: #BCD7FA;
-  --color-primary-blue-200: #A1C7F8;
-  --color-primary-blue-300: #6AA1F2;
-  --color-primary-blue-400: #4287EF;
-  --color-primary-blue-500: #1C6DEA;
-  --color-primary-blue-600: #0561E2;
-  --color-primary-blue-700: #0456C5;
-  --color-primary-blue-800: #034AA8;
-  --color-primary-blue-900: #023E8A;
-  --color-primary-blue-950: #01316C;
+  --color-primary-blue-50: #e4f1fd;
+  --color-primary-blue-100: #bcd7fa;
+  --color-primary-blue-200: #a1c7f8;
+  --color-primary-blue-300: #6aa1f2;
+  --color-primary-blue-400: #4287ef;
+  --color-primary-blue-500: #1c6dea;
+  --color-primary-blue-600: #0561e2;
+  --color-primary-blue-700: #0456c5;
+  --color-primary-blue-800: #034aa8;
+  --color-primary-blue-900: #023e8a;
+  --color-primary-blue-950: #01316c;
 
   /* Green Palette */
-  --color-green-50: #ECF4EE;
-  --color-green-100: #C3E6CD;
-  --color-green-200: #91D4A8;
-  --color-green-300: #52B87A;
-  --color-green-400: #2DA160;
-  --color-green-500: #24663B;
+  --color-green-50: #ecf4ee;
+  --color-green-100: #c3e6cd;
+  --color-green-200: #91d4a8;
+  --color-green-300: #52b87a;
+  --color-green-400: #2da160;
+  --color-green-500: #24663b;
   --color-green-600: #217645;
   --color-green-700: #108548;
-  --color-green-800: #0D532A;
-  --color-green-900: #0A4020;
-  --color-green-950: #072B15;
-  --color-hyperswitch-green: #69AF7D;
-
+  --color-green-800: #0d532a;
+  --color-green-900: #0a4020;
+  --color-green-950: #072b15;
+  --color-hyperswitch-green: #69af7d;
 
   /* Extra colors for Hyperswitch */
   --color-jp-gray-steel: #ccd2e2;
@@ -162,10 +164,6 @@
   --color-yellow-bg: #f7d59b4d;
   --color-hyperswitch-dark-bg: #212e46;
   --color-hyperswitch-background: #ffffff;
-
-
-
-
 
   --spacing-90-px: 90px;
   --spacing-100: 25rem;
@@ -182,6 +180,7 @@
   --spacing-334-px: 334px;
   --spacing-499-px: 499px;
   --spacing-1034-px: 1034px;
+  --spacing-modalOverlay: calc(100vw + 7rem);
   --spacing-pageWidth11: 75rem;
   --spacing-standardPageWidth: 67.5rem;
   --spacing-1-rem: 1rem;
@@ -233,10 +232,10 @@
   --shadow-sidebarShadow: 0 -2px 12px 0 rgba(0, 0, 0, 0.06);
   --shadow-connectorTagShadow: 0px 1px 4px 2px rgba(0, 0, 0, 0.06);
   --shadow-boxShadowMultiple: 2px -2px 24px 0px rgba(0, 0, 0, 0.04),
-  -2px 2px 24px 0px rgba(0, 0, 0, 0.02);
+    -2px 2px 24px 0px rgba(0, 0, 0, 0.02);
   --shadow-homePageBoxShadow: 0px 2px 16px 2px rgba(51, 51, 51, 0.16);
   --shadow-focusBoxShadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05),
-  0px 0px 0px 4px rgba(232, 243, 255, 1);
+    0px 0px 0px 4px rgba(232, 243, 255, 1);
   --shadow-cardShadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.04);
 
   --text-base: var(--base-font-size);
@@ -286,26 +285,52 @@
   }
 
   .primary-gradient-button {
-    box-shadow: 0px 0px 0px 1px hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 12) / 1);
-    background-image: linear-gradient(180deg,
-        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 7) / 1) -5%,
-        rgb(var(--btn-primary-background-color)) 107.5%),
-      linear-gradient(180deg,
-        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%,
-        rgb(var(--btn-primary-hover-background-color)) 100%);
+    box-shadow: 0px 0px 0px 1px
+      hsl(
+        from rgb(var(--btn-primary-background-color)) h calc(s + 1)
+          calc(l - 12) / 1
+      );
+    background-image: linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 1)
+              calc(l - 7) / 1
+          ) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 2)
+              calc(l + 10) / 1
+          ) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%
+      );
     transition: ease-out 120ms;
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
   .primary-gradient-button:hover {
-    box-shadow: 0px 0px 0px 1px hsl(from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3) calc(l + 3) / 1);
-    background-image: linear-gradient(180deg,
+    box-shadow: 0px 0px 0px 1px
+      hsl(
+        from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3)
+          calc(l + 3) / 1
+      );
+    background-image: linear-gradient(
+        180deg,
         rgb(var(--btn-primary-background-color)) 0%,
-        hsl(from rgb(var(--btn-primary-background-color)) h s calc(l + 4) / 1) 100%),
-      linear-gradient(180deg,
-        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%,
-        rgb(var(--btn-primary-hover-background-color)) 100%);
+        hsl(from rgb(var(--btn-primary-background-color)) h s calc(l + 4) / 1)
+          100%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 2)
+              calc(l + 10) / 1
+          ) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%
+      );
     transition: ease-out 120ms;
     background-origin: border-box;
     background-clip: content-box, border-box;
@@ -313,47 +338,92 @@
 
   .primary-gradient-button:active {
     box-shadow: 0px 3px 4px 0px #00000026 inset;
-    background-image: linear-gradient(180deg,
-        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 13) / 1) -5%,
-        rgb(var(--btn-primary-background-color)) 107.5%),
-      linear-gradient(180deg,
-        hsl(from rgb(var(--btn-primary-background-color)) calc(h - 1) calc(s + 1) calc(l - 18) / 1) -6.25%,
-        rgb(var(--btn-primary-hover-background-color)) 100%);
+    background-image: linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 1)
+              calc(l - 13) / 1
+          ) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-primary-background-color)) calc(h - 1)
+              calc(s + 1) calc(l - 18) / 1
+          ) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%
+      );
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
   }
 
   .primary-gradient-button:focus-visible {
-    box-shadow: 0px 0px 0px 3px hsl(from rgb(var(--btn-primary-hover-background-color)) calc(h - 1) calc(s + 3) calc(l + 45) / 1);
-    background-image: linear-gradient(180deg,
-        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 1) calc(l - 7) / 1) -5%,
-        rgb(var(--btn-primary-background-color)) 107.5%),
-      linear-gradient(180deg,
-        hsl(from rgb(var(--btn-primary-background-color)) h calc(s + 2) calc(l + 10) / 1) -6.25%,
-        rgb(var(--btn-primary-hover-background-color)) 100%);
+    box-shadow: 0px 0px 0px 3px
+      hsl(
+        from rgb(var(--btn-primary-hover-background-color)) calc(h - 1)
+          calc(s + 3) calc(l + 45) / 1
+      );
+    background-image: linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 1)
+              calc(l - 7) / 1
+          ) -5%,
+        rgb(var(--btn-primary-background-color)) 107.5%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-primary-background-color)) h calc(s + 2)
+              calc(l + 10) / 1
+          ) -6.25%,
+        rgb(var(--btn-primary-hover-background-color)) 100%
+      );
     transition: ease-out 120ms;
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
   .primary-gradient-button:disabled {
-    box-shadow: 0px 0px 0px 1px hsl(from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3) calc(l + 35) / 1);
-    background-image: linear-gradient(180deg,
-        hsl(from rgb(var(--btn-primary-background-color)) h calc(s - 10) calc(l + 25) / 1) 0%,
-        hsl(from rgb(var(--btn-primary-background-color)) h calc(s - 10) calc(l + 25) / 1) 100%);
+    box-shadow: 0px 0px 0px 1px
+      hsl(
+        from rgb(var(--btn-primary-hover-background-color)) h calc(s + 3)
+          calc(l + 35) / 1
+      );
+    background-image: linear-gradient(
+      180deg,
+      hsl(
+          from rgb(var(--btn-primary-background-color)) h calc(s - 10)
+            calc(l + 25) / 1
+        )
+        0%,
+      hsl(
+          from rgb(var(--btn-primary-background-color)) h calc(s - 10)
+            calc(l + 25) / 1
+        )
+        100%
+    );
     background-origin: border-box;
     background-clip: content-box, border-box;
   }
 
   .secondary-gradient-button {
     box-shadow: 0px 0px 0px 1px #bfbfc380;
-    background-image: linear-gradient(180deg,
+    background-image: linear-gradient(
+        180deg,
         rgb(var(--btn-secondary-background-color)) 0%,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1) 100%),
-      linear-gradient(180deg,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1) 0%,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 1) / 1) 97.5%);
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1)
+          100%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1)
+          0%,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 1) / 1)
+          97.5%
+      );
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
@@ -361,12 +431,21 @@
 
   .secondary-gradient-button:hover {
     box-shadow: 0px 0px 0px 1px #bfbfc380;
-    background-image: linear-gradient(180deg,
+    background-image: linear-gradient(
+        180deg,
         rgb(var(--btn-secondary-hover-background-color)) 0%,
-        rgb(var(--btn-secondary-hover-background-color)) 100%),
-      linear-gradient(180deg,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1) 0%,
-        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 0.75) 97.5%);
+        rgb(var(--btn-secondary-hover-background-color)) 100%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 5) / 1)
+          0%,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 0.75
+          )
+          97.5%
+      );
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
@@ -374,12 +453,29 @@
 
   .secondary-gradient-button:active {
     box-shadow: 0px 3px 4px 0px #0000001a inset;
-    background-image: linear-gradient(180deg,
-        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 1) 0%,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1) 100%),
-      linear-gradient(180deg,
-        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 0.75) 0%,
-        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 1) 97.5%);
+    background-image: linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 1
+          )
+          0%,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1)
+          100%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 0.75
+          )
+          0%,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 1
+          )
+          97.5%
+      );
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
@@ -387,12 +483,29 @@
 
   .secondary-gradient-button:focus-visible {
     box-shadow: 0px 0px 0px 3px #bfbfc354;
-    background-image: linear-gradient(180deg,
-        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20) calc(s + 23) l / 1) 0%,
-        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20) calc(s + 23) l / 1) 100%),
-      linear-gradient(180deg,
-        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1) 0%,
-        hsl(from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11) calc(l - 6) / 0.75) 97.5%);
+    background-image: linear-gradient(
+        180deg,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20)
+              calc(s + 23) l / 1
+          )
+          0%,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) calc(h + 20)
+              calc(s + 23) l / 1
+          )
+          100%
+      ),
+      linear-gradient(
+        180deg,
+        hsl(from rgb(var(--btn-secondary-background-color)) h s calc(l + 3) / 1)
+          0%,
+        hsl(
+            from rgb(var(--btn-secondary-hover-background-color)) h calc(s - 11)
+              calc(l - 6) / 0.75
+          )
+          97.5%
+      );
     background-origin: border-box;
     background-clip: content-box, border-box;
     transition: ease-out 120ms;
@@ -401,9 +514,19 @@
 
   .secondary-gradient-button:disabled {
     box-shadow: 0px 0px 0px 1px #bfbfc354;
-    background-image: linear-gradient(180deg,
-        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20) calc(s + 10) calc(l - 3) / 1) 0%,
-        hsl(from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20) calc(s + 10) calc(l - 3) / 1) 100%);
+    background-image: linear-gradient(
+      180deg,
+      hsl(
+          from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20)
+            calc(s + 10) calc(l - 3) / 1
+        )
+        0%,
+      hsl(
+          from rgb(var(--btn-secondary-hover-background-color)) calc(h - 20)
+            calc(s + 10) calc(l - 3) / 1
+        )
+        100%
+    );
     background-origin: border-box;
     background-clip: content-box, border-box;
   }

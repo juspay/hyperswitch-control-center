@@ -55,14 +55,14 @@ type refunds = {
 }
 
 type attempts = {
-  attempt_id: string,
+  id: string,
   status: string,
   amount: float,
   currency: string,
   connector: string,
   error_message: string,
   payment_method: string,
-  connector_transaction_id: string,
+  connector_reference_id: string,
   capture_method: string,
   authentication_type: string,
   cancellation_reason: string,
@@ -75,6 +75,7 @@ type attempts = {
   reference_id: string,
   client_source: string,
   client_version: string,
+  attempt_amount: float,
 }
 
 type frmMessage = {
@@ -92,6 +93,7 @@ type order = {
   payment_id: string,
   merchant_id: string,
   net_amount: float,
+  order_amount: float,
   status: string,
   amount: float,
   amount_capturable: float,
@@ -138,6 +140,7 @@ type order = {
   merchant_order_reference_id: string,
   attempt_count: int,
   connector_label: string,
+  attempt_amount: float,
 }
 
 type refundsColType =
@@ -174,12 +177,10 @@ type attemptColType =
   | AttemptId
   | Status
   | Amount
-  | Currency
   | Connector
-  | PaymentMethod
   | PaymentMethodType
   | ErrorMessage
-  | ConnectorTransactionID
+  | ConnectorReferenceID
   | CaptureMethod
   | AuthenticationType
   | CancellationReason
@@ -188,13 +189,13 @@ type attemptColType =
   | PaymentToken
   | ConnectorMetadata
   | PaymentExperience
-  | ReferenceID
   | ClientSource
   | ClientVersion
 
 type summaryColType =
   | Created
   | NetAmount
+  | OrderAmount
   | LastUpdated
   | PaymentId
   | Currency
@@ -215,6 +216,9 @@ type aboutPaymentColType =
   | AuthenticationType
   | CaptureMethod
   | CardNetwork
+  | MandateId
+  | AmountCapturable
+  | AmountReceived
 
 type otherDetailsColType =
   | AmountCapturable
@@ -248,3 +252,6 @@ type optionObj = {
 }
 
 type frmStatus = [#APPROVE | #REJECT]
+type topic =
+  | String(string)
+  | ReactElement(React.element)

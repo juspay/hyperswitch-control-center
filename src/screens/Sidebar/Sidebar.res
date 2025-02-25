@@ -501,7 +501,7 @@ let make = (
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-  let {setCurrentProductValue} = React.useContext(GlobalProvider.defaultContext)
+  let {setCurrentProductValue, showSideBar} = React.useContext(GlobalProvider.defaultContext)
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -560,8 +560,8 @@ let make = (
   let expansionClass = !isSidebarExpanded ? "-translate-x-full" : ""
 
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
-
-  let sidebarContainerClassWidth = isMobileView ? "0px" : "325px"
+  let sidebarCollapseWidth = showSideBar ? "325px" : "56px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : `${sidebarCollapseWidth}`
 
   let transformClass = "transform md:translate-x-0 transition"
 
@@ -598,89 +598,54 @@ let make = (
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
-      className={`flex h-full flex-col transition-all duration-100 relative inset-0`}
-      style={width: sidebarContainerClassWidth}
+      className={`flex h-full flex-col transition-all ease-in-out duration-200 relative inset-0`}
+      style={
+        width: sidebarContainerClassWidth,
+      }
     />
     <div
       className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
       <OrgSidebar />
-      <div
-        ref={sideBarRef->ReactDOM.Ref.domRef}
-        className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
-        style={width: sidebarWidth}>
-        <RenderIf condition={isMobileView}>
-          <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
-            <Icon
-              className="mr-1"
-              size=20
-              name="collapse-cross"
-              customIconColor={`${secondaryTextColor}`}
-              onClick={_ => setIsSidebarExpanded(_ => false)}
-            />
-          </div>
-        </RenderIf>
-        <RenderIf condition={!isInternalUser}>
-          <SidebarSwitch isSidebarExpanded />
-        </RenderIf>
+      <RenderIf condition={showSideBar}>
         <div
-          className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
-          style={height: `calc(100vh - ${verticalOffset})`}>
-          <style> {React.string(sidebarScrollbarCss)} </style>
-          <div className="p-2.5">
-            {sidebars
-            ->Array.mapWithIndex((tabInfo, index) => {
-              switch tabInfo {
-              | RemoteLink(record)
-              | Link(record) => {
-                  let isSelected = linkSelectionCheck(firstPart, record.link)
-                  <SidebarItem
-                    key={Int.toString(index)} tabInfo isSelected isSidebarExpanded setOpenItem
-                  />
-                }
-
-              | LinkWithTag(record) => {
-                  let isSelected = linkSelectionCheck(firstPart, record.link)
-                  <SidebarItem key={Int.toString(index)} tabInfo isSelected isSidebarExpanded />
-                }
-
-              | Section(section) =>
-                <RenderIf condition={section.showSection} key={Int.toString(index)}>
-                  <SidebarNestedSection
-                    key={Int.toString(index)}
-                    section
-                    linkSelectionCheck
-                    firstPart
-                    isSideBarExpanded={isSidebarExpanded}
-                    openItem
-                    setOpenItem
-                    isSectionAutoCollapseEnabled=true
-                  />
-                </RenderIf>
-              | Heading(headingOptions) =>
-                <div
-                  key={Int.toString(index)}
-                  className={`text-xs font-medium leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-lg border-transparent px-3 ${isSidebarExpanded
-                      ? "mx-2"
-                      : "mx-1"} mt-5 mb-3`}>
-                  {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
-                </div>
-
-              | CustomComponent(customComponentOptions) =>
-                <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
-                  customComponentOptions.component
-                </RenderIf>
-              }
-            })
-            ->React.array}
-          </div>
-          <RenderIf condition={productSiebars->Array.length > 0}>
-            <div className={"p-2.5"}>
-              <div className={`text-xs font-semibold px-3 pt-6 pb-2 text-gray-400 tracking-widest`}>
-                {React.string("Other modular services"->String.toUpperCase)}
-              </div>
-              {productSiebars
+          ref={sideBarRef->ReactDOM.Ref.domRef}
+          className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
+          style={width: sidebarWidth}>
+          <RenderIf condition={isMobileView}>
+            <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
+              <Icon
+                className="mr-1"
+                size=20
+                name="collapse-cross"
+                customIconColor={`${secondaryTextColor}`}
+                onClick={_ => setIsSidebarExpanded(_ => false)}
+              />
+            </div>
+          </RenderIf>
+          <RenderIf condition={!isInternalUser}>
+            <SidebarSwitch isSidebarExpanded />
+          </RenderIf>
+          <div
+            className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
+            style={height: `calc(100vh - ${verticalOffset})`}>
+            <style> {React.string(sidebarScrollbarCss)} </style>
+            <div className="p-2.5">
+              {sidebars
               ->Array.mapWithIndex((tabInfo, index) => {
                 switch tabInfo {
+                | RemoteLink(record)
+                | Link(record) => {
+                    let isSelected = linkSelectionCheck(firstPart, record.link)
+                    <SidebarItem
+                      key={Int.toString(index)} tabInfo isSelected isSidebarExpanded setOpenItem
+                    />
+                  }
+
+                | LinkWithTag(record) => {
+                    let isSelected = linkSelectionCheck(firstPart, record.link)
+                    <SidebarItem key={Int.toString(index)} tabInfo isSelected isSidebarExpanded />
+                  }
+
                 | Section(section) =>
                   <RenderIf condition={section.showSection} key={Int.toString(index)}>
                     <SidebarNestedSection
@@ -694,96 +659,136 @@ let make = (
                       isSectionAutoCollapseEnabled=true
                     />
                   </RenderIf>
-                | Link(record) => {
-                    let isSelected = linkSelectionCheck(firstPart, record.link)
-                    <SidebarItem
-                      key={Int.toString(index)}
-                      tabInfo
-                      isSelected
-                      isSidebarExpanded
-                      setOpenItem
-                      onItemClickCustom={_ => onItemClickCustom(record)}
-                    />
-                  }
-                | _ => React.null
+                | Heading(headingOptions) =>
+                  <div
+                    key={Int.toString(index)}
+                    className={`text-xs font-medium leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-lg border-transparent px-3 ${isSidebarExpanded
+                        ? "mx-2"
+                        : "mx-1"} mt-5 mb-3`}>
+                    {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
+                  </div>
+
+                | CustomComponent(customComponentOptions) =>
+                  <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
+                    customComponentOptions.component
+                  </RenderIf>
                 }
               })
               ->React.array}
             </div>
-          </RenderIf>
-        </div>
-        <div
-          className={`flex items-center justify-between p-3 border-t ${borderColor} ${hoverColor}`}>
-          <RenderIf condition={isSidebarExpanded}>
-            <Popover className="relative inline-block text-left">
-              {popoverProps => <>
-                <Popover.Button
-                  className={
-                    let openClasses = if popoverProps["open"] {
-                      `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-gray-800/100 focus:outline-hidden`
-                    } else {
-                      `text-gray-800/90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-gray-800/100 focus:outline-hidden`
-                    }
-                    `${openClasses} border-none`
-                  }>
-                  {_ => <>
-                    <div className="flex items-center justify-between gap-x-3  ">
-                      <div className="bg-gray-600 rounded-full p-1">
-                        <Icon name="nd-user" size=16 />
-                      </div>
-                      <ToolTip
-                        description=email
-                        toolTipFor={<RenderIf condition={isSidebarExpanded}>
-                          <div
-                            className={`w-[${profileMaxWidth}] text-sm font-medium text-left ${secondaryTextColor} dark:text-gray-600 text-ellipsis overflow-hidden`}>
-                            {email->React.string}
-                          </div>
-                        </RenderIf>}
-                        toolTipPosition=ToolTip.Top
-                        tooltipWidthClass="!w-fit !z-50"
+            <RenderIf condition={productSiebars->Array.length > 0}>
+              <div className={"p-2.5"}>
+                <div
+                  className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
+                  {React.string("Other modular services"->String.toUpperCase)}
+                </div>
+                {productSiebars
+                ->Array.mapWithIndex((tabInfo, index) => {
+                  switch tabInfo {
+                  | Section(section) =>
+                    <RenderIf condition={section.showSection} key={Int.toString(index)}>
+                      <SidebarNestedSection
+                        key={Int.toString(index)}
+                        section
+                        linkSelectionCheck
+                        firstPart
+                        isSideBarExpanded={isSidebarExpanded}
+                        openItem
+                        setOpenItem
+                        isSectionAutoCollapseEnabled=true
                       />
-                      <div className={`flex flex-row`}>
-                        <Icon
-                          name="nd-dropdown-menu"
-                          size=18
-                          className={`cursor-pointer ${secondaryTextColor}`}
+                    </RenderIf>
+                  | Link(record) => {
+                      let isSelected = linkSelectionCheck(firstPart, record.link)
+                      <SidebarItem
+                        key={Int.toString(index)}
+                        tabInfo
+                        isSelected
+                        isSidebarExpanded
+                        setOpenItem
+                        onItemClickCustom={_ => onItemClickCustom(record)}
+                      />
+                    }
+                  | _ => React.null
+                  }
+                })
+                ->React.array}
+              </div>
+            </RenderIf>
+          </div>
+          <div
+            className={`flex items-center justify-between p-3 border-t ${borderColor} ${hoverColor}`}>
+            <RenderIf condition={isSidebarExpanded}>
+              <Popover className="relative inline-block text-left">
+                {popoverProps => <>
+                  <Popover.Button
+                    className={
+                      let openClasses = if popoverProps["open"] {
+                        `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                      } else {
+                        `text-opacity-90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                      }
+                      `${openClasses} border-none`
+                    }>
+                    {_ => <>
+                      <div className="flex items-center justify-between gap-x-3  ">
+                        <div className="bg-nd_gray-600 rounded-full p-1">
+                          <Icon name="nd-user" size=16 />
+                        </div>
+                        <ToolTip
+                          description=email
+                          toolTipFor={<RenderIf condition={isSidebarExpanded}>
+                            <div
+                              className={`w-[${profileMaxWidth}] text-sm font-medium text-left ${secondaryTextColor} dark:text-gray-600 text-ellipsis overflow-hidden`}>
+                              {email->React.string}
+                            </div>
+                          </RenderIf>}
+                          toolTipPosition=ToolTip.Top
+                          tooltipWidthClass="!w-fit !z-50"
                         />
+                        <div className={`flex flex-row`}>
+                          <Icon
+                            name="nd-dropdown-menu"
+                            size=18
+                            className={`cursor-pointer ${secondaryTextColor}`}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </>}
-                </Popover.Button>
-                <Transition
-                  \"as"="span"
-                  enter={"transition ease-out duration-200"}
-                  enterFrom="opacity-0 translate-y-1"
-                  enterTo="opacity-100 translate-y-0"
-                  leave={"transition ease-in duration-150"}
-                  leaveFrom="opacity-100 translate-y-0"
-                  leaveTo="opacity-0 translate-y-1">
-                  <Popover.Panel className={`absolute !z-30 bottom-[100%] left-1 `}>
-                    {panelProps => {
-                      <div
-                        id="neglectTopbarTheme"
-                        className={`relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black/5 w-60 ${backgroundColor.sidebarSecondary}`}>
-                        <MenuOption
-                          onClick={_ => {
-                            panelProps["close"]()
-                            RescriptReactRouter.replace(
-                              GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
-                            )
-                          }}
-                          text="Profile"
-                        />
-                        <MenuOption onClick={_ => handleLogout()->ignore} text="Sign out" />
-                      </div>
-                    }}
-                  </Popover.Panel>
-                </Transition>
-              </>}
-            </Popover>
-          </RenderIf>
+                    </>}
+                  </Popover.Button>
+                  <Transition
+                    \"as"="span"
+                    enter={"transition ease-out duration-200"}
+                    enterFrom="opacity-0 translate-y-1"
+                    enterTo="opacity-100 translate-y-0"
+                    leave={"transition ease-in duration-150"}
+                    leaveFrom="opacity-100 translate-y-0"
+                    leaveTo="opacity-0 translate-y-1">
+                    <Popover.Panel className={`absolute !z-30 bottom-[100%] left-1 `}>
+                      {panelProps => {
+                        <div
+                          id="neglectTopbarTheme"
+                          className={`relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-60 ${backgroundColor.sidebarSecondary}`}>
+                          <MenuOption
+                            onClick={_ => {
+                              panelProps["close"]()
+                              RescriptReactRouter.replace(
+                                GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
+                              )
+                            }}
+                            text="Profile"
+                          />
+                          <MenuOption onClick={_ => handleLogout()->ignore} text="Sign out" />
+                        </div>
+                      }}
+                    </Popover.Panel>
+                  </Transition>
+                </>}
+              </Popover>
+            </RenderIf>
+          </div>
         </div>
-      </div>
+      </RenderIf>
     </div>
   </div>
 }

@@ -165,6 +165,7 @@ module ConnectorSummaryGrid = {
           | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
           | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
           | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
+          | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
           | PaymentVas => JSON.Encode.null
           }
           dict

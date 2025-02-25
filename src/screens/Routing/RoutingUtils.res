@@ -261,7 +261,7 @@ let filter = (connector_type, ~retainInList) => {
   }
 }
 
-let filterConnectorList = (items, ~retainInList) => {
+let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, ~retainInList) => {
   open ConnectorTypes
   items->Array.filter(connector =>
     connector.connector_type

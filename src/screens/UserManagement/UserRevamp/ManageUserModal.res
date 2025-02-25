@@ -64,6 +64,7 @@ module ChangeRoleSection = {
           deselectDisable=true
           allowMultiSelect=false
           buttonText="Select role"
+          fullLength=true
         />
         <Button
           text="Update"

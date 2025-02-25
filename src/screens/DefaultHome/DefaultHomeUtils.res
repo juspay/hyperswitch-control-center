@@ -89,7 +89,7 @@ let defaultHomeCardsArray = {
     {
       product: Orchestrator,
       heading: "Orchestrator",
-      description: "Unified the divers abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
+      description: "Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
       action: InternalRoute("home"),
     },

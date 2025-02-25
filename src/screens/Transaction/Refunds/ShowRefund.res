@@ -25,7 +25,7 @@ module RefundInfo = {
         </div>
         <FormRenderer.DesktopRow>
           <div
-            className={`flex flex-wrap ${justifyClassName} dark:bg-gray-900 dark:border-gray-500`}>
+            className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               if !(excludeColKeys->Array.includes(colType)) {
@@ -173,6 +173,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
               <Icon name="sync" className="gray-800 fill-opacity-50 dark:gray-50" />,
             )}
             buttonType={Primary}
+            customButtonStyle="mr-1"
             onClick={_ => syncData()}
           />
         </RenderIf>

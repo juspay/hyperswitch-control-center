@@ -151,6 +151,7 @@ let make = (
   open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (refundsProcessedData, setRefundsProcessedData) = React.useState(_ => JSON.Encode.array([]))
@@ -241,6 +242,7 @@ let make = (
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
               ~granularity=granularity.value,
+              ~isoStringToCustomTimeZone,
               ~granularityEnabled=featureFlag.granularity,
             )
           })
@@ -261,6 +263,7 @@ let make = (
               "payment_processed_amount": 0,
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
+            ~isoStringToCustomTimeZone,
             ~granularity=granularity.value,
             ~granularityEnabled=featureFlag.granularity,
           )

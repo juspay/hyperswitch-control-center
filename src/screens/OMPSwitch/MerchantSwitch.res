@@ -139,7 +139,9 @@ let make = () => {
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, borderColor}},
+    globalUIConfig: {
+      sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
+    },
   } = React.useContext(ThemeProvider.themeContext)
   let getMerchantList = async () => {
     try {
@@ -222,7 +224,7 @@ let make = () => {
       hideMultiSelectButtons=true
       addButton=false
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
-      searchable=false
+      searchable=true
       baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
       baseComponentCustomStyle={`!border-none`}
       bottomComponent={<AddNewOMPButton
@@ -236,6 +238,7 @@ let make = () => {
       customScrollStyle
       dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
+      customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />
