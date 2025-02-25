@@ -15,7 +15,7 @@ let make = (
   ~bgColor="border-jp-gray-600 border-opacity-75 focus-within:border-primary",
   ~iconName="new_search_icon",
   ~onKeyDown=_ => {()},
-  ~showSearchIcon=true,
+  ~showSearchIcon=false,
 ) => {
   let (prevVal, setPrevVal) = React.useState(_ => "")
   let showPopUp = PopUpState.useShowPopUp()
@@ -73,7 +73,7 @@ let make = (
       onKeyDown
     />
     <AddDataAttributes attributes=[("data-icon", "searchExit")]>
-      <div className="h-6 my-auto w-6" onClick=clearSearch>
+      <div className="h-6 flex w-6" onClick=clearSearch>
         <ReactSuspenseWrapper loadingText="">
           <Lottie
             animationData={(prevVal->LogicUtils.isNonEmptyString &&
