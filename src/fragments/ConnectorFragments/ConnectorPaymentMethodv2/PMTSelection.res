@@ -5,7 +5,7 @@ module PMT = {
     ~pm,
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
     ~connector,
-    ~formValues: ConnectorTypes.connectorPayload,
+    ~formValues: ConnectorTypes.connectorPayloadV2,
   ) => {
     open ConnectorPaymentMethodV3Utils
     let pmInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
@@ -19,9 +19,9 @@ module PMT = {
 
     let pmtArrayValue = (
       pmEnabledValue
-      ->Array.find(ele => ele.payment_method == pm)
-      ->Option.getOr({payment_method: "", payment_method_types: []})
-    ).payment_method_types
+      ->Array.find(ele => ele.payment_method_type == pm)
+      ->Option.getOr({payment_method_type: "", payment_method_subtypes: []})
+    ).payment_method_subtypes
     let pmtValue = pmtArrayValue->Array.find(val => {
       if (
         pmtData.payment_method_type->getPMTFromString == Credit ||
@@ -49,7 +49,7 @@ module PMT = {
         }
       )
       if updatedPmtArray->Array.length == 0 {
-        let updatedPmArray = pmEnabledValue->Array.filter(ele => ele.payment_method != pm)
+        let updatedPmArray = pmEnabledValue->Array.filter(ele => ele.payment_method_type != pm)
 
         if updatedPmArray->Array.length == 0 {
           pmEnabledInp.onChange([]->Identity.anyTypeToReactEvent)

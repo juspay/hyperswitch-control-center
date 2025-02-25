@@ -19,8 +19,11 @@ let make = () => {
   let getConnectorListAndUpdateState = async () => {
     try {
       // TODO : maintain separate list for multiple types of connectors
-      let connectorsList =
-        connectorListFromRecoil->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
+      let connectorsList = ConnectorInterface.getProcessorsFilterList(
+        ConnectorInterface.filterProcessorsListV1,
+        connectorListFromRecoil,
+        ConnectorTypes.FRMPlayer,
+      )
       connectorsList->Array.reverse
       sortByDisableField(connectorsList, connectorPayload => connectorPayload.disabled)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))

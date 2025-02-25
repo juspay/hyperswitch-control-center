@@ -18,8 +18,13 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => Success)
   let {profileId, merchantId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
-  let connectorInfoDict =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+
+  let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
+  let connectorInfoDict = ConnectorInterface.getConnectorMapper(
+    ConnectorInterface.connectorMapperV2,
+    connectorInfo,
+  )
+
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: (#AuthenticateProcessor: sectionType :> string),
     subSectionId: None,

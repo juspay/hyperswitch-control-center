@@ -23,7 +23,7 @@ module PaymentMethodTypes = {
     ~connector,
     ~showCheckbox=true,
     ~onClick=None,
-    ~formValues: ConnectorTypes.connectorPayload,
+    ~formValues: ConnectorTypes.connectorPayloadV2,
   ) => {
     let handleClick = () => {
       switch onClick {

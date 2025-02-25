@@ -4,7 +4,7 @@ let make = (
   ~labelTextStyleClass="",
   ~labelClass="font-semibold ",
   ~isInEditState,
-  ~connectorInfo: ConnectorTypes.connectorPayload,
+  ~connectorInfo: ConnectorTypes.connectorPayloadV2,
 ) => {
   open LogicUtils
   open ConnectorHelperV2

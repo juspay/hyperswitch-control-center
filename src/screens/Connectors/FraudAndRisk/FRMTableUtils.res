@@ -8,10 +8,9 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<ConnectorTypes.connectorPayload> = json => {
-  getArrayDataFromJson(
-    json,
-    ConnectorListMapper.getProcessorPayloadType,
-  )->ConnectorTableUtils.sortPreviouslyConnectedList
+  json
+  ->ConnectorInterface.getArrayOfConnectorListPayloadType
+  ->ConnectorTableUtils.sortPreviouslyConnectedList
 }
 
 let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

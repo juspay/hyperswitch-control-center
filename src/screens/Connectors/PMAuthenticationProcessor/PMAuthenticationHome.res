@@ -75,8 +75,10 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfo = ConnectorInterface.getConnectorMapper(
+    ConnectorInterface.connectorMapperV1,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
 
   let isConnectorDisabled = connectorInfo.disabled
 

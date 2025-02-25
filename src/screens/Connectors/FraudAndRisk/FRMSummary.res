@@ -70,7 +70,12 @@ let make = (~initialValues, ~currentStep) => {
 
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let frmInfo = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+
+  let frmInfo = ConnectorInterface.getConnectorMapper(
+    ConnectorInterface.connectorMapperV1,
+    initialValues->getDictFromJsonObject,
+  )
+
   let isfrmDisabled = initialValues->getDictFromJsonObject->getBool("disabled", false)
 
   let frmConfigs = switch frmInfo.frm_configs {

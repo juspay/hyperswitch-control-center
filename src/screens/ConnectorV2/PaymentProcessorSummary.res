@@ -57,8 +57,11 @@ let make = () => {
     }
   }
 
-  let connectorInfodict =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let data = initialValues->getDictFromJsonObject
+  let connectorInfodict = ConnectorInterface.getConnectorMapper(
+    ConnectorInterface.connectorMapperV2,
+    data,
+  )
   let {connector_name: connectorName} = connectorInfodict
 
   let connectorDetails = React.useMemo(() => {

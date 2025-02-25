@@ -50,10 +50,11 @@ module CardRenderer = {
 
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
-    let pmAuthProcessorList =
-      connectorList->getProcessorsListFromJson(
-        ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
-      )
+    let pmAuthProcessorList = ConnectorInterface.getProcessorsFilterList(
+      ConnectorInterface.filterProcessorsListV1,
+      connectorList,
+      ConnectorTypes.PMAuthenticationProcessor,
+    )
 
     let isPMAuthConnector = pmAuthProcessorList->Array.length > 0
 

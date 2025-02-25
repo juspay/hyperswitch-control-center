@@ -102,7 +102,11 @@ let make = (
         ->Array.filter(item =>
           item.merchant_connector_id === paymentMethodConfig.merchant_connector_id
         )
-        ->getValueFromArray(0, Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+        ->getValueFromArray(
+          0,
+          ConnectorInterface.getConnectorMapper(ConnectorInterface.connectorMapperV1, Dict.make()),
+        )
+
       let encodeConnectorPayload = data->PaymentMethodConfigUtils.encodeConnectorPayload
       let res = await fetchDetails(
         `${paymentMethoConfigUrl}?connector=${connector_name}&paymentMethodType=${payment_method_type}`,

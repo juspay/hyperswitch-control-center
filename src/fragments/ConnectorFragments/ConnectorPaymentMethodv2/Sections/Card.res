@@ -4,21 +4,22 @@ module SelectedCardValues = {
     open LogicUtils
     open SectionHelper
     open ConnectorPaymentMethodV3Utils
-    let data = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+    let data1 = initialValues->getDictFromJsonObject
+    let data = ConnectorInterface.getConnectorMapper(ConnectorInterface.connectorMapperV2, data1)
     let cardData =
       data.payment_methods_enabled
-      ->Array.filter(ele => ele.payment_method->getPMFromString == Card)
+      ->Array.filter(ele => ele.payment_method_type->getPMFromString == Card)
       ->Array.at(0)
     let credit = switch cardData {
     | Some(data) =>
-      data.payment_method_types->Array.filter(ele =>
+      data.payment_method_subtypes->Array.filter(ele =>
         ele.payment_method_type->getPMTFromString == Credit
       )
     | _ => []
     }
     let debit = switch cardData {
     | Some(data) =>
-      data.payment_method_types->Array.filter(ele =>
+      data.payment_method_subtypes->Array.filter(ele =>
         ele.payment_method_type->getPMTFromString == Debit
       )
     | _ => []
@@ -39,7 +40,7 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
-  ~formValues: ConnectorTypes.connectorPayload,
+  ~formValues: ConnectorTypes.connectorPayloadV2,
 ) => {
   open LogicUtils
   open SectionHelper
@@ -48,8 +49,11 @@ let make = (
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  let connData =
-    formState.values->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let data = formState.values->getDictFromJsonObject
+  let connData: ConnectorTypes.connectorPayloadV2 = ConnectorInterface.getConnectorMapper(
+    ConnectorInterface.connectorMapperV2,
+    data,
+  )
 
   let data =
     paymentMethodValues
@@ -72,7 +76,7 @@ let make = (
               // determine the index of the payment method type from the form state
               let pmtIndex = switch paymentMethodTypeValues {
               | Some(pmt) => {
-                  let isPMTEnabled = pmt.payment_method_types->Array.findIndex(val => {
+                  let isPMTEnabled = pmt.payment_method_subtypes->Array.findIndex(val => {
                     if val.payment_method_type->getPMTFromString == Credit {
                       val.card_networks->Array.some(
                         networks => {
@@ -83,7 +87,7 @@ let make = (
                       false
                     }
                   })
-                  isPMTEnabled == -1 ? pmt.payment_method_types->Array.length : isPMTEnabled
+                  isPMTEnabled == -1 ? pmt.payment_method_subtypes->Array.length : isPMTEnabled
                 }
               | None => 0
               }
@@ -113,7 +117,7 @@ let make = (
               // determine the index of the payment method type from the form state
               let pmtIndex = switch paymentMethodTypeValues {
               | Some(pmt) => {
-                  let isPMTEnabled = pmt.payment_method_types->Array.findIndex(val => {
+                  let isPMTEnabled = pmt.payment_method_subtypes->Array.findIndex(val => {
                     if val.payment_method_type->getPMTFromString == Debit {
                       val.card_networks->Array.some(
                         networks => {
@@ -124,7 +128,7 @@ let make = (
                       false
                     }
                   })
-                  isPMTEnabled == -1 ? pmt.payment_method_types->Array.length : isPMTEnabled
+                  isPMTEnabled == -1 ? pmt.payment_method_subtypes->Array.length : isPMTEnabled
                 }
               | None => 0
               }

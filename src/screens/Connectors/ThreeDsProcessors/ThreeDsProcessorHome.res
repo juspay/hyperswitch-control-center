@@ -236,9 +236,10 @@ let make = () => {
             connectorType=ThreeDsAuthenticator
             headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={initialValues
-              ->LogicUtils.getDictFromJsonObject
-              ->ConnectorListMapper.getProcessorPayloadType}
+              connectorInfo={ConnectorInterface.getConnectorMapper(
+                ConnectorInterface.connectorMapperV1,
+                initialValues->LogicUtils.getDictFromJsonObject,
+              )}
               connector=connectorName
               setCurrentStep={_ => ()}
               getConnectorDetails={Some(getConnectorDetails)}

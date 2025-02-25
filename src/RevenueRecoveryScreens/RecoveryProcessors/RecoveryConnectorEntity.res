@@ -1,6 +1,6 @@
 open ConnectorTypes
-let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+let getPreviouslyConnectedList: JSON.t => array<connectorPayloadV2> = json => {
+  json->ConnectorInterface.getArrayOfConnectorListPayloadTypeV2
 }
 type colType =
   | Name
@@ -47,22 +47,26 @@ let connectorStatusStyle = connectorStatus =>
   | _ => "text-grey-800 opacity-50"
   }
 let getConnectorObjectFromListViaId = (
-  connectorList: array<ConnectorTypes.connectorPayload>,
+  connectorList: array<ConnectorTypes.connectorPayloadV2>,
   mca_id: string,
 ) => {
+  let default = ConnectorInterface.getConnectorMapper(
+    ConnectorInterface.connectorMapperV2,
+    Dict.make(),
+  )
   connectorList
   ->Array.find(ele => {ele.merchant_connector_id == mca_id})
-  ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+  ->Option.getOr(default)
 }
 
-let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>) => {
+let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeV2>) => {
   let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {
-    acc->Array.concat([item.payment_method->LogicUtils.capitalizeString])
+    acc->Array.concat([item.payment_method_type->LogicUtils.capitalizeString])
   })
   paymentMethods
 }
 let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
-  let getCell = (connector: connectorPayload, colType): Table.cell => {
+  let getCell = (connector: connectorPayloadV2, colType): Table.cell => {
     switch colType {
     | Name =>
       CustomCell(

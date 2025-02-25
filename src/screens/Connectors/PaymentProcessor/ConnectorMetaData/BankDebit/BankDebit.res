@@ -82,10 +82,11 @@ let make = (
   )
   let form = ReactFinalForm.useForm()
 
-  let connectorsListPMAuth =
-    connectorList->ConnectorUtils.getProcessorsListFromJson(
-      ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
-    )
+  let connectorsListPMAuth = ConnectorInterface.getProcessorsFilterList(
+    ConnectorInterface.filterProcessorsListV1,
+    connectorList,
+    ConnectorTypes.PMAuthenticationProcessor,
+  )
   let pmAuthConnectorOptions =
     connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate->dropdownOptions
 

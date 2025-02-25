@@ -5,7 +5,9 @@ let make = () => {
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let connectorListFromRecoil = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  // let connectorListFromRecoil = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let connectorListFromRecoil =
+    JSON.Encode.null->ConnectorInterface.getArrayOfConnectorListPayloadTypeV2
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -14,10 +16,20 @@ let make = () => {
   let getConnectorListAndUpdateState = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorsList =
-        connectorListFromRecoil->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
+      let connectorsList = ConnectorInterface.getProcessorsFilterList(
+        ConnectorInterface.filterProcessorsListV2,
+        connectorListFromRecoil,
+        ConnectorTypes.FRMPlayer,
+      )
+      // connectorListFromRecoil->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
       connectorsList->Array.reverse
-      setConfiguredConnectors(_ => connectorsList->getConnectorTypeArrayFromListConnectors)
+
+      let list = ConnectorInterface.convertConnectorNameToType(
+        ConnectorInterface.convertConnectorNameToTypeV2,
+        ConnectorTypes.FRMPlayer,
+        connectorListFromRecoil,
+      )
+      setConfiguredConnectors(_ => list)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setScreenState(_ => Success)
@@ -40,7 +52,7 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadV2>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||

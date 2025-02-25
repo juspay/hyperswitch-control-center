@@ -103,14 +103,16 @@ let getCell = (~setReferesh) => {
 }
 
 let itemObjMapper = (dict, mappedArr) => {
-  open ConnectorListMapper
   open LogicUtils
-  let connectorPayload = dict->getProcessorPayloadType
+  let connectorPayload = ConnectorInterface.getConnectorMapper(
+    ConnectorInterface.connectorMapperV1,
+    dict,
+  )
   let paymentMethod =
     dict
     ->Dict.get("payment_methods_enabled")
     ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->getArrayDataFromJson(getPaymentMethodsEnabled)
+    ->getArrayDataFromJson(ConnectorInterfaceUtils.getPaymentMethodsEnabled)
   if dict->getString("connector_type", "") === "payment_processor" {
     paymentMethod->Array.forEachWithIndex((_, pmIndex) => {
       PaymentMethodConfigUtils.mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex)

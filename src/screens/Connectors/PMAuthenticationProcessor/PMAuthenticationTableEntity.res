@@ -83,7 +83,8 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+  // LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+  json->ConnectorInterface.getArrayOfConnectorListPayloadType
 }
 
 let pmAuthenticationEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

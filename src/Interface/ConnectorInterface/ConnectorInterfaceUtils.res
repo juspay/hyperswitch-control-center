@@ -209,3 +209,79 @@ let getProcessorPayloadTypeV2 = (dict): connectorPayloadV2 => {
     ->JSON.Encode.object,
   }
 }
+
+let getProcessorsFilterList = (
+  connnectorList: array<ConnectorTypes.connectorPayload>,
+  ~removeFromList: connector=FRMPlayer,
+) => {
+  connnectorList->Array.filter(dict => {
+    let connectorType = dict.connector_type
+    let isPayoutProcessor = connectorType == PayoutProcessor
+    let isThreeDsAuthenticator = connectorType == AuthenticationProcessor
+    let isPMAuthenticationProcessor = connectorType == PMAuthProcessor
+    let isTaxProcessor = connectorType == TaxProcessor
+    let isConnector =
+      connectorType !== PaymentVas &&
+      !isPayoutProcessor &&
+      !isThreeDsAuthenticator &&
+      !isPMAuthenticationProcessor &&
+      !isTaxProcessor
+
+    switch removeFromList {
+    | Processor => !isConnector
+    | FRMPlayer => isConnector
+    | PayoutProcessor => isPayoutProcessor
+    | ThreeDsAuthenticator => isThreeDsAuthenticator
+    | PMAuthenticationProcessor => isPMAuthenticationProcessor
+    | TaxProcessor => isTaxProcessor
+    | BillingProcessor => connectorType == BillingProcessor
+    }
+  })
+}
+
+let getProcessorsFilterListV2 = (
+  connnectorList: array<ConnectorTypes.connectorPayloadV2>,
+  ~removeFromList: connector=FRMPlayer,
+) => {
+  connnectorList->Array.filter(dict => {
+    let connectorType = dict.connector_type
+    let isPayoutProcessor = connectorType == PayoutProcessor
+    let isThreeDsAuthenticator = connectorType == AuthenticationProcessor
+    let isPMAuthenticationProcessor = connectorType == PMAuthProcessor
+    let isTaxProcessor = connectorType == TaxProcessor
+    let isConnector =
+      connectorType !== PaymentVas &&
+      !isPayoutProcessor &&
+      !isThreeDsAuthenticator &&
+      !isPMAuthenticationProcessor &&
+      !isTaxProcessor
+
+    switch removeFromList {
+    | Processor => !isConnector
+    | FRMPlayer => isConnector
+    | PayoutProcessor => isPayoutProcessor
+    | ThreeDsAuthenticator => isThreeDsAuthenticator
+    | PMAuthenticationProcessor => isPMAuthenticationProcessor
+    | TaxProcessor => isTaxProcessor
+    | BillingProcessor => connectorType == BillingProcessor
+    }
+  })
+}
+
+let convertConnectorNameToType = (
+  ~connectorType=ConnectorTypes.Processor,
+  connectorsList: array<ConnectorTypes.connectorPayload>,
+) => {
+  connectorsList->Array.map(connectorDetail =>
+    connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
+  )
+}
+
+let convertConnectorNameToTypeV2 = (
+  ~connectorType=ConnectorTypes.Processor,
+  connectorsList: array<ConnectorTypes.connectorPayloadV2>,
+) => {
+  connectorsList->Array.map(connectorDetail =>
+    connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
+  )
+}

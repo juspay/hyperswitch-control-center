@@ -114,8 +114,10 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
-  let connectorInfo =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfo = ConnectorInterface.getConnectorMapper(
+    ConnectorInterface.connectorMapperV1,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"payoutconnectors", "new"} => false
@@ -262,9 +264,10 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector connectorType={PayoutProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={initialValues
-              ->LogicUtils.getDictFromJsonObject
-              ->ConnectorListMapper.getProcessorPayloadType}
+              connectorInfo={ConnectorInterface.getConnectorMapper(
+                ConnectorInterface.connectorMapperV1,
+                initialValues->LogicUtils.getDictFromJsonObject,
+              )}
               connector
               setCurrentStep
               getConnectorDetails={Some(getConnectorDetails)}

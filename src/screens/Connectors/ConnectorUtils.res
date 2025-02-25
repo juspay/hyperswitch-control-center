@@ -1657,39 +1657,6 @@ let getConnectorPaymentMethodDetails = async (
   }
 }
 
-let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
-  items->Array.filter(dict => {
-    let connectorType = dict.connector_type
-    let isPayoutProcessor = connectorType == PayoutProcessor
-    let isThreeDsAuthenticator = connectorType == AuthenticationProcessor
-    let isPMAuthenticationProcessor = connectorType == PMAuthProcessor
-    let isTaxProcessor = connectorType == TaxProcessor
-    let isConnector =
-      connectorType !== PaymentVas &&
-      !isPayoutProcessor &&
-      !isThreeDsAuthenticator &&
-      !isPMAuthenticationProcessor &&
-      !isTaxProcessor
-
-    switch removeFromList {
-    | Processor => !isConnector
-    | FRMPlayer => isConnector
-    | PayoutProcessor => isPayoutProcessor
-    | ThreeDsAuthenticator => isThreeDsAuthenticator
-    | PMAuthenticationProcessor => isPMAuthenticationProcessor
-    | TaxProcessor => isTaxProcessor
-    | BillingProcessor => connectorType == BillingProcessor
-    }
-  })
-}
-
-let getProcessorsListFromJson = (
-  connnectorList: array<ConnectorTypes.connectorPayload>,
-  ~removeFromList: connector=FRMPlayer,
-) => {
-  connnectorList->filterList(~removeFromList)
-}
-
 let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
   | ADYEN => "Adyen"
@@ -1824,6 +1791,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   }
 }
 
+// Use Interface
 let getConnectorTypeArrayFromListConnectors = (
   ~connectorType=ConnectorTypes.Processor,
   connectorsList: array<ConnectorTypes.connectorPayload>,
