@@ -67,6 +67,13 @@ type connectorArrayMapper<'a> = module(ConnectorArrayMapperType with type output
 let connectorArrayMapperV1: connectorArrayMapper<connectorPayload> = module(V1ArrayMapper)
 let connectorArrayMapperV2: connectorArrayMapper<connectorPayloadV2> = module(V2ArrayMapper)
 
+let getConnectorArrayMapper = (type t, mapperModule: connectorArrayMapper<t>, json: JSON.t): array<
+  t,
+> => {
+  module L = unpack(mapperModule) // Extract the module
+  L.getArrayOfConnectorListPayloadType(json) // Call the function
+}
+
 module type FilterProcessorsList = {
   type input1
   type input2

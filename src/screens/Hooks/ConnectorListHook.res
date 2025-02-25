@@ -2,13 +2,17 @@ let useFetchConnectorList = () => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
+  let setConnectorList = HyperswitchAtom.connectorListAtomV2->Recoil.useSetRecoilState
 
   async _ => {
     try {
       let url = getURL(~entityName=CONNECTOR, ~methodType=Get)
       let res = await fetchDetails(url)
-      setConnectorList(_ => res->ConnectorInterface.getArrayOfConnectorListPayloadType)
+      let data = ConnectorInterface.getConnectorArrayMapper(
+        ConnectorInterface.connectorArrayMapperV1,
+        res,
+      )
+      setConnectorList(_ => data)
       res
     } catch {
     | Exn.Error(e) => {
