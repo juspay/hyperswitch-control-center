@@ -144,7 +144,7 @@ module StackedBarGraphs = {
                   color: "#1F77B4",
                 },
               ],
-              labelFormatter: ReconOnboardingUtils.stackedBarGraphLabelFormatter(),
+              labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(),
             })}
           />
         </div>
@@ -175,7 +175,7 @@ module StackedBarGraphs = {
                   color: "#17BECF",
                 },
               ],
-              labelFormatter: ReconOnboardingUtils.stackedBarGraphLabelFormatter(),
+              labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(),
             })}
           />
         </div>
@@ -317,7 +317,7 @@ module Exceptions = {
           ],
         },
       ],
-      tooltipFormatter: ReconOnboardingUtils.columnGraphTooltipFormatter(
+      tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
         ~title="Exceptions Aging",
         ~metricType=Amount,
       ),
@@ -483,13 +483,12 @@ module SkeletonExceptions = {
 
 module SkeletonLoader = {
   @react.component
-  let make = (~setShowSkeleton) => {
+  let make = () => {
     let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
     let onConnectSampleDataClick = () => {
       setShowSideBar(_ => false)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/configuration"))
-      setShowSkeleton(_ => false)
     }
 
     <div className="relative h-774-px overflow-hidden">
@@ -520,9 +519,9 @@ module SkeletonLoader = {
 
 module ReconOverview = {
   @react.component
-  let make = (~showSkeleton, ~setShowSkeleton) => {
+  let make = (~showSkeleton) => {
     switch showSkeleton {
-    | true => <SkeletonLoader setShowSkeleton />
+    | true => <SkeletonLoader />
     | false => <ReconOverviewContent />
     }
   }
