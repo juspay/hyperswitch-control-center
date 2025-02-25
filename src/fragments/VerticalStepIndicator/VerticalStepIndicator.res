@@ -39,7 +39,7 @@ let make = (
             "text-gray-400"
           }
 
-          let sectionLineHeight = isCurrentStep ? "h-5" : "h-6"
+          let sectionLineHeight = isCurrentStep && currentStep.subSectionId != None ? "h-5" : "h-6"
 
           <div key={section.id} className="font-semibold flex flex-col gap-y-2.5">
             <div className="flex gap-x-3 items-center w-full relative z-10">

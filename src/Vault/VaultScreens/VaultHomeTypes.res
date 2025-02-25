@@ -8,3 +8,9 @@ type actionCards = {
   imgSrc: string,
   action: actionType,
 }
+type vaultSections = [
+  | #authenticateProcessor
+  | #setupPMTS
+  | #setupWebhook
+  | #reviewAndConnect
+]

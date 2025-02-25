@@ -7,8 +7,10 @@ let make = (
 ) => {
   open LogicUtils
   open ConnectorHelperV2
+
   let labelFieldDict = ConnectorFragmentUtils.connectorLabelDetailField
   let label = labelFieldDict->getString("connector_label", "")
+
   if isInEditState {
     <FormRenderer.FieldRenderer
       labelClass
