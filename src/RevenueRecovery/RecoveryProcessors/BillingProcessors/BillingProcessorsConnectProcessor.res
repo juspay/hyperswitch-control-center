@@ -1,3 +1,36 @@
+module ConnectorConnect = {
+  @react.component
+  let make = (~connector_account_reference_id, ~autoFocus=false) => {
+    <FormRenderer.FieldRenderer
+      labelClass="font-semibold !text-hyperswitch_black"
+      field={FormRenderer.makeFieldInfo(
+        ~label="",
+        ~name=`feature_metadata.revenue_recovery.billing_account_reference.${connector_account_reference_id}`,
+        ~toolTipPosition=Right,
+        ~customInput=InputFields.textInput(~customStyle="border rounded-xl", ~autoFocus),
+        ~placeholder="Enter Account ID",
+      )}
+    />
+  }
+}
+
+module ConnectorConnectSummary = {
+  @react.component
+  let make = (~connector, ~connector_account_reference_id, ~autoFocus=false) => {
+    let connectorName = connector->ConnectorUtils.getDisplayNameForConnector
+
+    <div className="flex gap-7">
+      <div className="flex gap-3 items-center">
+        <GatewayIcon gateway={connector->String.toUpperCase} className="w-10" />
+        <h1 className="text-medium font-semibold text-gray-600"> {connectorName->React.string} </h1>
+      </div>
+      <div className="w-full ml-5 mb-2">
+        <ConnectorConnect connector_account_reference_id autoFocus />
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = (
   ~connector,
@@ -29,16 +62,7 @@ let make = (
         <div>
           <div className="text-nd_gray-700 font-medium"> {"Account ID"->React.string} </div>
           <div className="-m-1 -mt-3">
-            <FormRenderer.FieldRenderer
-              labelClass="font-semibold !text-hyperswitch_black"
-              field={FormRenderer.makeFieldInfo(
-                ~label="",
-                ~name=`feature_metadata.payment_connector_recovery_metadata.${connector_account_reference_id}`,
-                ~toolTipPosition=Right,
-                ~customInput=InputFields.textInput(~customStyle="border rounded-xl"),
-                ~placeholder="Enter Account ID",
-              )}
-            />
+            <ConnectorConnect connector_account_reference_id />
             <FormRenderer.SubmitButton
               text="Next"
               buttonSize={Small}
@@ -47,7 +71,6 @@ let make = (
             />
           </div>
         </div>
-        <FormValuesSpy />
       </Form>
     </div>
   </PageWrapper>

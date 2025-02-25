@@ -1,4 +1,4 @@
-type connectorSummarySection = AuthenticationKeys | Metadata | PMTs
+type connectorSummarySection = AuthenticationKeys | Metadata | PMTs | PaymentConnectors
 @react.component
 let make = () => {
   open ConnectorUtils
@@ -118,9 +118,9 @@ let make = () => {
           dict->Dict.delete("connector_account_details")
         }
       }
-      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Post)
+      //let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Post)
       setCurrentActiveSection(_ => None)
-      setInitialValues(_ => response->removeFieldsFromRespose)
+      setInitialValues(_ => values->removeFieldsFromRespose)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to update"))
@@ -148,17 +148,30 @@ let make = () => {
     )
   }
 
-  Js.log2(">>", connectorInfodict)
-
   let revenueRecovery =
     connectorInfodict.revenue_recovery
     ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getDictFromJsonObject
-  let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
+  let max_retry_count = revenueRecovery->getInt("max_retry_count", 4)
   let billing_connector_retry_threshold =
-    revenueRecovery->getInt("billing_connector_retry_threshold", 0)
-  let paymentConnectors =
-    revenueRecovery->getObj("billing_account_reference", Dict.make())->Dict.toArray
+    revenueRecovery->getInt("billing_connector_retry_threshold", 10)
+
+  let paymentConnectors = revenueRecovery->getObj("billing_account_reference", Dict.make())
+
+  paymentConnectors->Dict.set("mca_stripe_123", "charge_123"->JSON.Encode.string)
+
+  let paymentConnectors = paymentConnectors->Dict.toArray
+
+  let paymentConnectorName =
+    UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("payment_connector_name", "")
+  let paymentConnectorID = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("mca", "")
+
+  React.useEffect(() => {
+    if paymentConnectorName->isNonEmptyString && paymentConnectorID->isNonEmptyString {
+      handleClick(Some(PaymentConnectors))
+    }
+    None
+  }, [paymentConnectorName])
 
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues validate=validateMandatoryField>
@@ -204,6 +217,22 @@ let make = () => {
               <p className="text-lg font-semibold text-nd_gray-600">
                 {"Payment Connectors"->React.string}
               </p>
+              <div className="flex gap-4">
+                <RenderIf condition={checkCurrentEditState(PaymentConnectors)}>
+                  {<>
+                    <Button
+                      text="Cancel"
+                      onClick={_ => handleClick(None)}
+                      buttonType={Secondary}
+                      buttonSize={Small}
+                      customButtonStyle="w-fit"
+                    />
+                    <FormRenderer.SubmitButton
+                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                    />
+                  </>}
+                </RenderIf>
+              </div>
             </div>
             <div className="flex gap-10 max-w-3xl flex-wrap px-2">
               {paymentConnectors
@@ -216,6 +245,15 @@ let make = () => {
               })
               ->React.array}
             </div>
+            <RenderIf condition={checkCurrentEditState(PaymentConnectors)}>
+              <div className="w-[540px]">
+                <BillingProcessorsConnectProcessor.ConnectorConnectSummary
+                  connector=paymentConnectorName
+                  connector_account_reference_id=paymentConnectorID
+                  autoFocus=true
+                />
+              </div>
+            </RenderIf>
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between border-b pb-4 px-2 items-end">

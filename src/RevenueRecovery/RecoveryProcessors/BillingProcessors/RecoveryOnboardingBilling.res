@@ -129,28 +129,6 @@ let make = (
     )
   }
 
-  // <PageWrapper
-  //   title="Setup Webhook"
-  //   subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor">
-  //   <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
-  //     <ConnectorWebhookPreview
-  //       merchantId
-  //       connectorName=connectorInfoDict.merchant_connector_id
-  //       textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
-  //       containerClass="flex flex-row items-center justify-between"
-  //       displeyTextLength=46
-  //       hideLabel=true
-  //       showFullCopy=true
-  //     />
-  //     <Button
-  //       text="Next"
-  //       buttonType=Primary
-  //       onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
-  //       customButtonStyle="w-full mt-8"
-  //     />
-  //   </div>
-  // </PageWrapper>
-
   <div>
     <Form onSubmit initialValues>
       {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
@@ -169,7 +147,7 @@ let make = (
         <BillingProcessorsConfigureRetry initialValues handleAuthKeySubmit validateMandatoryField />
       | (#addAPlatform, #connectProcessor) =>
         <BillingProcessorsConnectProcessor
-          connector
+          connector={paymentConnectorName}
           initialValues
           onSubmit={handleAuthKeySubmit}
           validateMandatoryField
