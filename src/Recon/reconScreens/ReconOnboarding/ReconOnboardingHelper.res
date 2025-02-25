@@ -376,14 +376,9 @@ module ReconOverviewContent = {
         className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
         <div className="flex gap-4 items-center">
           <Icon name="nd-information-triangle" size=24 />
-          <div className="flex flex-col items-start">
-            <h3 className="text-lg font-semibold text-nd_gray-700 leading-6">
-              {"Demo Mode"->React.string}
-            </h3>
-            <p className="text-nd_gray-600 text-base leading-6 font-medium">
-              {"Get started with sample analytics"->React.string}
-            </p>
-          </div>
+          <p className="text-nd_gray-600 text-base leading-6 font-medium">
+            {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
+          </p>
         </div>
         <Button
           text="Get Production Access"
@@ -405,7 +400,7 @@ module SkeletonCard = {
     <div
       className="flex flex-col gap-4 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
       <p className="text-nd_gray-400 text-xs leading-4 font-medium"> {title->React.string} </p>
-      <div className="h-3 bg-nd_gray-200 rounded-lg w-104-px" />
+      <p className="text-nd_gray-900 leading-8 text-2xl font-semibold"> {"--"->React.string} </p>
     </div>
   }
 }
@@ -413,18 +408,20 @@ module SkeletonCard = {
 module SkeletonReconciliationOverview = {
   @react.component
   let make = () => {
-    <div className="flex flex-col gap-8 w-full">
-      <div className="flex items-center justify-between w-full mt-8">
+    <div className="flex flex-col gap-4 w-full">
+      <div className="flex items-center justify-between w-full">
         <PageUtils.PageHeading
           title={"Reconciliation Overview"}
           customTitleStyle="!text-2xl !leading-8 !font-semibold !text-nd_gray-700 !tracking-normal"
         />
-        <div className="border border-nd_gray-200 py-2 px-3.5 rounded-lg flex items-center gap-2">
-          <div className="w-104-px h-3 bg-nd_gray-50 rounded-lg" />
+        <div className="border border-nd_gray-200 py-1 px-4 rounded-lg flex items-center gap-10">
+          <p className="text-nd_gray-500 leading-8 text-lg font-semibold">
+            {"--------"->React.string}
+          </p>
           <Icon name="nd-chevron-arrow-down" className="text-nd_gray-500" />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 gap-5">
         <SkeletonCard title="Automatic Reconciliation Rate" />
         <SkeletonCard title="Total Reconciled Amount" />
         <SkeletonCard title="Unreconciled Amount" />
@@ -438,21 +435,11 @@ module SkeletonReconciliationOverview = {
           <p className="text-nd_gray-500 text-sm leading-5 font-medium">
             {"Reconciliation Summary"->React.string}
           </p>
-          <div className="flex flex-row items-center pr-4 justify-between w-full">
-            <div className="flex flex-[1] flex-col gap-10 h-full py-4">
-              <p className="text-nd_gray-400 text-xs leading-4 font-medium">
-                {"Merchant"->React.string}
-              </p>
-              <p className="text-nd_gray-400 text-xs leading-4 font-medium">
-                {"Gateway"->React.string}
-              </p>
-            </div>
-            <div
-              className="flex flex-[5] flex-col gap-2 items-center justify-center bg-nd_gray-25 rounded-2xl h-full">
-              <p className="text-nd_gray-500 text-xs leading-4 font-medium">
-                {"Connect sample data to preview"->React.string}
-              </p>
-            </div>
+          <div className="flex flex-row items-center justify-center w-full h-130-px">
+            <div className="flex-[5]" />
+            <p className="flex-[10] text-nd_gray-500 text-sm leading-4 font-medium">
+              {"Connect data to preview"->React.string}
+            </p>
           </div>
         </div>
         <div
@@ -460,21 +447,11 @@ module SkeletonReconciliationOverview = {
           <p className="text-nd_gray-500 text-sm leading-5 font-medium">
             {"Amount Discrepancy Summary"->React.string}
           </p>
-          <div className="flex flex-row items-center pr-4 justify-between w-full">
-            <div className="flex flex-[1] flex-col gap-10 h-full py-4">
-              <p className="text-nd_gray-400 text-xs leading-4 font-medium">
-                {"Merchant"->React.string}
-              </p>
-              <p className="text-nd_gray-400 text-xs leading-4 font-medium">
-                {"Gateway"->React.string}
-              </p>
-            </div>
-            <div
-              className="flex flex-[5] flex-col gap-2 items-center justify-center bg-nd_gray-25 rounded-2xl h-full">
-              <p className="text-nd_gray-500 text-xs leading-4 font-medium">
-                {"Connect sample data to preview"->React.string}
-              </p>
-            </div>
+          <div className="flex flex-row items-center justify-center w-full h-130-px">
+            <div className="flex-[7]" />
+            <p className="flex-[10] text-nd_gray-500 text-sm leading-4 font-medium">
+              {"Connect data to preview"->React.string}
+            </p>
           </div>
         </div>
       </div>
@@ -485,47 +462,20 @@ module SkeletonReconciliationOverview = {
 module SkeletonExceptions = {
   @react.component
   let make = () => {
-    <div className="flex flex-col gap-6 w-full">
-      <div className="flex items-center justify-between w-full mt-12">
+    <div className="flex flex-col gap-3 w-full">
+      <div className="flex items-center justify-between w-full mt-3">
         <PageUtils.PageHeading
           title={"Exceptions"}
           customTitleStyle=" !text-2xl !leading-8 !font-semibold !text-nd_gray-600 !tracking-normal"
         />
       </div>
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 gap-5">
         <SkeletonCard title="Unmatched Transactions" />
         <SkeletonCard title="Data Missing" />
         <SkeletonCard title="Awaiting approval" />
         <SkeletonCard title="Manual adjustment rate" />
         <SkeletonCard title="Discrepancy resolution time" />
         <SkeletonCard title="Number of unresolved discrepancies" />
-      </div>
-      <div className="grid grid-cols-2 gap-6">
-        <div
-          className="flex flex-col gap-6 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-          <p className="text-nd_gray-500 text-sm leading-5 font-medium">
-            {"Exceptions Aging"->React.string}
-          </p>
-          <div className="flex items-center justify-center w-full h-full bg-nd_gray-25 rounded-2xl">
-            <p className="text-nd_gray-500 text-xs leading-4 font-medium">
-              {"Connect sample data to preview"->React.string}
-            </p>
-          </div>
-        </div>
-        <div
-          className="flex flex-col gap-6 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-          <p className="text-nd_gray-500 text-sm leading-5 font-medium">
-            {"Status Mismatch & Amount Mismatch"->React.string}
-          </p>
-          <div className="flex items-center justify-center w-full h-full">
-            <div
-              className="w-[200px] h-[200px] border-solid border-20-px border-nd_gray-200 rounded-full flex items-center justify-center">
-              <p className="text-nd_gray-400 font-medium text-sm w-24 text-center">
-                {"Connect sample data to preview"->React.string}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   }
@@ -542,22 +492,25 @@ module SkeletonLoader = {
       setShowSkeleton(_ => false)
     }
 
-    <div>
+    <div className="relative h-774-px overflow-hidden">
       <div
-        className="absolute top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
-        <div className="flex gap-4 items-center">
-          <Icon name="nd-information-triangle" size=24 />
-          <p className="text-nd_gray-600 text-base leading-6 font-medium">
-            {"Get started with sample analytics"->React.string}
-          </p>
+        className="absolute w-full h-774-px bg-white/60 flex flex-col justify-center items-center">
+        <div
+          className="w-[482px] h-[482px] flex flex-col gap-10 rounded-full items-center justify-center bg-white p-14">
+          <div className="flex flex-col gap-4 items-center">
+            <Icon name="nd-info-circle" size=24 className="text-nd_gray-500" />
+            <p className="text-nd_gray-600 text-base text-center leading-6 font-medium">
+              {"You can see sample analytics to help you understand how the reports will look with real data"->React.string}
+            </p>
+          </div>
+          <Button
+            text="Connect sample data"
+            buttonType=Primary
+            buttonSize=Medium
+            buttonState=Normal
+            onClick={_ => onConnectSampleDataClick()}
+          />
         </div>
-        <Button
-          text="Connect sample data"
-          buttonType=Primary
-          buttonSize=Medium
-          buttonState=Normal
-          onClick={_ => onConnectSampleDataClick()}
-        />
       </div>
       <SkeletonReconciliationOverview />
       <SkeletonExceptions />
