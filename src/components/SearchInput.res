@@ -58,6 +58,9 @@ let make = (
     dark:bg-jp-gray-lightgray_background
     dark:focus-within:border-primary hover:border-opacity-100 
     dark:border-jp-gray-850 dark:border-opacity-50 dark:hover:border-opacity-100`}>
+    <RenderIf condition={showSearchIcon}>
+      <Icon name="nd-search" className="w-4 h-4" />
+    </RenderIf>
     <input
       ref={searchRef->ReactDOM.Ref.domRef}
       type_="text"
