@@ -1,6 +1,6 @@
 open ThreeDSUtils
 
-let defaultSurcharge: AdvancedRoutingTypes.surchargeDetailsType = {
+let defaultSurcharge: RoutingTypes.surchargeDetailsType = {
   surcharge: {
     \"type": "rate",
     value: {
@@ -12,7 +12,7 @@ let defaultSurcharge: AdvancedRoutingTypes.surchargeDetailsType = {
   },
 }
 
-let surchargeRules: AdvancedRoutingTypes.rule = {
+let surchargeRules: RoutingTypes.rule = {
   name: "rule_1",
   connectorSelection: {
     surcharge_details: defaultSurcharge->Nullable.make,
@@ -59,7 +59,7 @@ let getTypedSurchargeConnectorSelection = ruleDict => {
   AdvancedRoutingUtils.getDefaultSelection(connectorsDict)
 }
 
-let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithmData = json => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 
@@ -71,7 +71,7 @@ let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = j
     let connectorSelection = getTypedSurchargeConnectorSelection(ruleDict)
     let ruleName = ruleDict->getString("name", "")
 
-    let eachRule: AdvancedRoutingTypes.rule = {
+    let eachRule: RoutingTypes.rule = {
       name: ruleName,
       connectorSelection,
       statements: AdvancedRoutingUtils.conditionTypeMapper(
@@ -117,7 +117,7 @@ let validateConditionsForSurcharge = dict => {
 
 open AdvancedRoutingUtils
 let connectorSelectionMapper = dict => {
-  open AdvancedRoutingTypes
+  open RoutingTypes
   open LogicUtils
 
   let surchargeDetails = dict->getDictfromDict("surcharge_details")
@@ -154,7 +154,7 @@ let conditionTypeMapper = (statementArr: array<JSON.t>) => {
         ->getString("comparison", "")
         ->getOperatorFromComparisonType(variantType)
 
-      let returnValue: AdvancedRoutingTypes.statement = {
+      let returnValue: RoutingTypes.statement = {
         lhs: statementDict->getString("lhs", ""),
         comparison: comparision,
         logical: index === 0 ? "OR" : "AND",
@@ -186,7 +186,7 @@ let mapResponseToFormValues = response => {
     let ruleName = ruleDict->getString("name", "")
     let statements = ruleDict->getArrayFromDict("statements", [])
 
-    let eachRule: AdvancedRoutingTypes.rule = {
+    let eachRule: RoutingTypes.rule = {
       name: ruleName,
       connectorSelection: connectorSelection->connectorSelectionMapper,
       statements: conditionTypeMapper(statements),
@@ -194,7 +194,7 @@ let mapResponseToFormValues = response => {
     eachRule
   })
 
-  let formValues: AdvancedRoutingTypes.advancedRoutingType = {
+  let formValues: RoutingTypes.advancedRoutingType = {
     name,
     description: "",
     algorithm: {

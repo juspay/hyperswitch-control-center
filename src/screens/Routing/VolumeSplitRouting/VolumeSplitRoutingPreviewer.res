@@ -1,33 +1,5 @@
 open RoutingTypes
 
-module SimplePreview = {
-  @react.component
-  let make = (~gateways) => {
-    let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
-    <RenderIf condition={gateways->Array.length > 0}>
-      <div
-        className="w-full mb-6 p-4 px-6 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
-        <div
-          className="flex flex-col mt-6 mb-4 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 divide-y divide-jp-gray-500 dark:divide-jp-gray-960">
-          {gateways
-          ->Array.mapWithIndex((item, i) => {
-            <div
-              className="h-12 flex flex-row items-center gap-4
-             text-jp-gray-900 dark:text-jp-gray-text_darktheme px-3 ">
-              <div
-                className={`px-1.5 rounded-full ${primaryColor} text-white font-semibold text-sm`}>
-                {React.string(Int.toString(i + 1))}
-              </div>
-              <div> {React.string(item)} </div>
-            </div>
-          })
-          ->React.array}
-        </div>
-      </div>
-    </RenderIf>
-  }
-}
-
 module GatewayView = {
   @react.component
   let make = (~gateways, ~connectorList=?) => {

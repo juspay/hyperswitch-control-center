@@ -1,4 +1,4 @@
-open AdvancedRoutingTypes
+open RoutingTypes
 open AdvancedRoutingUtils
 
 module GatewayView = {

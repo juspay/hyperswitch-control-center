@@ -1,6 +1,6 @@
 open APIUtils
 open RoutingTypes
-open RoutingPreviewer
+open VolumeSplitRoutingPreviewer
 open LogicUtils
 
 module VolumeRoutingView = {
@@ -165,7 +165,7 @@ module VolumeRoutingView = {
                 text={"Duplicate & Edit Configuration"}
                 buttonType={Secondary}
                 onClick={_ => {
-                  setFormState(_ => AdvancedRoutingTypes.EditConfig)
+                  setFormState(_ => RoutingTypes.EditConfig)
                   setPageState(_ => Create)
                 }}
                 customButtonStyle="w-1/5"
@@ -212,7 +212,7 @@ let make = (
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
-  let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
+  let (formState, setFormState) = React.useState(_ => RoutingTypes.EditReplica)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

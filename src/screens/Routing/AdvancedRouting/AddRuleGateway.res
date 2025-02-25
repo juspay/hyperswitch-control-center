@@ -1,4 +1,4 @@
-external anyToEnum: 'a => AdvancedRoutingTypes.connectorSelectionData = "%identity"
+external anyToEnum: 'a => RoutingTypes.connectorSelectionData = "%identity"
 
 @react.component
 let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
@@ -47,7 +47,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
         gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
       } else {
         let gatewaysArr = newSelectedOptions->Array.map(item => {
-          open AdvancedRoutingTypes
+          open RoutingTypes
 
           let sharePercent = isDistribute ? 100 / newSelectedOptions->Array.length : 100
           if isDistribute {
@@ -84,7 +84,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   }
 
   let onClickDistribute = newDistributeValue => {
-    open AdvancedRoutingTypes
+    open RoutingTypes
 
     let sharePercent = newDistributeValue ? 100 / selectedOptions->Array.length : 100
     let gatewaysArr = selectedOptions->Array.mapWithIndex((item, i) => {
@@ -113,8 +113,8 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
     gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
   }
 
-  let updatePercentage = (item: AdvancedRoutingTypes.connectorSelectionData, value) => {
-    open AdvancedRoutingTypes
+  let updatePercentage = (item: RoutingTypes.connectorSelectionData, value) => {
+    open RoutingTypes
     let slectedConnector = switch item {
     | PriorityObject(obj) => obj.connector
     | VolumeObject(obj) =>

@@ -1,5 +1,5 @@
 open FormRenderer
-open AdvancedRoutingTypes
+open RoutingTypes
 open LogicUtils
 
 let configurationNameInput = makeFieldInfo(

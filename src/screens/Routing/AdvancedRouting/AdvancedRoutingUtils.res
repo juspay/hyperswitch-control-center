@@ -11,7 +11,7 @@ let getCurrentShortUTCTime = () => {
   `${currYear}-${currMonth}-${currDay}`
 }
 
-let operatorTypeToStringMapper = (operator: AdvancedRoutingTypes.operator) => {
+let operatorTypeToStringMapper = (operator: RoutingTypes.operator) => {
   switch operator {
   | CONTAINS => "CONTAINS"
   | NOT_CONTAINS => "NOT_CONTAINS"
@@ -25,7 +25,7 @@ let operatorTypeToStringMapper = (operator: AdvancedRoutingTypes.operator) => {
   }
 }
 
-let operatorMapper: string => AdvancedRoutingTypes.operator = value => {
+let operatorMapper: string => RoutingTypes.operator = value => {
   switch value {
   | "CONTAINS" => CONTAINS
   | "NOT_CONTAINS" => NOT_CONTAINS
@@ -43,11 +43,10 @@ let operatorMapper: string => AdvancedRoutingTypes.operator = value => {
   }
 }
 
-let getRoutingTypeName = (routingType: AdvancedRoutingTypes.routing) => {
+let getRoutingTypeName = (routingType: RoutingTypes.routingType) => {
   switch routingType {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
-  | PRIORITY => "rank"
   | DEFAULTFALLBACK => "default"
   | NO_ROUTING => ""
   }
@@ -97,7 +96,7 @@ let getWasmPayoutVariantValues = (wasm, value) => {
   }
 }
 
-let variantTypeMapper: string => AdvancedRoutingTypes.variantType = variantType => {
+let variantTypeMapper: string => RoutingTypes.variantType = variantType => {
   switch variantType {
   | "number" => Number
   | "enum_variant" => Enum_variant
@@ -107,7 +106,7 @@ let variantTypeMapper: string => AdvancedRoutingTypes.variantType = variantType 
   }
 }
 
-let getStatementValue: Dict.t<JSON.t> => AdvancedRoutingTypes.value = valueDict => {
+let getStatementValue: Dict.t<JSON.t> => RoutingTypes.value = valueDict => {
   open LogicUtils
   {
     \"type": valueDict->getString("type", ""),
@@ -115,7 +114,7 @@ let getStatementValue: Dict.t<JSON.t> => AdvancedRoutingTypes.value = valueDict 
   }
 }
 
-let statementTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.statement = dict => {
+let statementTypeMapper: Dict.t<JSON.t> => RoutingTypes.statement = dict => {
   open LogicUtils
   {
     lhs: dict->getString("lhs", ""),
@@ -132,7 +131,7 @@ let conditionTypeMapper = (statementArr: array<JSON.t>) => {
 
     let arr = conditionArray->Array.mapWithIndex((conditionJson, index) => {
       let statementDict = conditionJson->getDictFromJsonObject
-      let returnValue: AdvancedRoutingTypes.statement = {
+      let returnValue: RoutingTypes.statement = {
         lhs: statementDict->getString("lhs", ""),
         comparison: statementDict->getString("comparison", ""),
         logical: index === 0 ? "OR" : "AND",
@@ -148,7 +147,7 @@ let conditionTypeMapper = (statementArr: array<JSON.t>) => {
 
 let volumeSplitConnectorSelectionDataMapper: Dict.t<
   JSON.t,
-> => AdvancedRoutingTypes.volumeSplitConnectorSelectionData = dict => {
+> => RoutingTypes.volumeSplitConnectorSelectionData = dict => {
   open LogicUtils
   {
     split: dict->getInt("split", 0),
@@ -161,9 +160,7 @@ let volumeSplitConnectorSelectionDataMapper: Dict.t<
   }
 }
 
-let priorityConnectorSelectionDataMapper: Dict.t<
-  JSON.t,
-> => AdvancedRoutingTypes.connector = dict => {
+let priorityConnectorSelectionDataMapper: Dict.t<JSON.t> => RoutingTypes.connector = dict => {
   open LogicUtils
   {
     connector: dict->getString("connector", ""),
@@ -171,7 +168,7 @@ let priorityConnectorSelectionDataMapper: Dict.t<
   }
 }
 
-let connectorSelectionDataMapperFromJson: JSON.t => AdvancedRoutingTypes.connectorSelectionData = json => {
+let connectorSelectionDataMapperFromJson: JSON.t => RoutingTypes.connectorSelectionData = json => {
   open LogicUtils
   let split = json->getDictFromJsonObject->getOptionInt("split")
   let dict = json->getDictFromJsonObject
@@ -181,11 +178,9 @@ let connectorSelectionDataMapperFromJson: JSON.t => AdvancedRoutingTypes.connect
   }
 }
 
-let getDefaultSelection: Dict.t<
-  JSON.t,
-> => AdvancedRoutingTypes.connectorSelection = defaultSelection => {
+let getDefaultSelection: Dict.t<JSON.t> => RoutingTypes.connectorSelection = defaultSelection => {
   open LogicUtils
-  open AdvancedRoutingTypes
+  open RoutingTypes
   let override3dsValue = defaultSelection->getString("override_3ds", "")
   let surchargeDetailsOptionalValue = defaultSelection->Dict.get("surcharge_details")
   let surchargeDetailsValue = defaultSelection->getDictfromDict("surcharge_details")
@@ -224,7 +219,7 @@ let getDefaultSelection: Dict.t<
 }
 
 let getConnectorStringFromConnectorSelectionData = connectorSelectionData => {
-  open AdvancedRoutingTypes
+  open RoutingTypes
   switch connectorSelectionData {
   | VolumeObject(obj) => {
       merchant_connector_id: obj.connector.merchant_connector_id,
@@ -238,14 +233,14 @@ let getConnectorStringFromConnectorSelectionData = connectorSelectionData => {
 }
 
 let getSplitFromConnectorSelectionData = connectorSelectionData => {
-  open AdvancedRoutingTypes
+  open RoutingTypes
   switch connectorSelectionData {
   | VolumeObject(obj) => obj.split
   | _ => 0
   }
 }
 
-let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithmData = json => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 
@@ -258,7 +253,7 @@ let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = j
     let connectorSelection = getDefaultSelection(connectorsDict)
     let ruleName = ruleDict->getString("name", "")
 
-    let eachRule: AdvancedRoutingTypes.rule = {
+    let eachRule: RoutingTypes.rule = {
       name: ruleName,
       connectorSelection,
       statements: conditionTypeMapper(ruleDict->getArrayFromDict("statements", [])),
@@ -297,7 +292,7 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
   }
 }
 
-let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.statement) => {
+let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   open LogicUtils
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
@@ -308,7 +303,7 @@ let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.stateme
   statement.lhs->isNonEmptyString && (statement.value.\"type"->isNonEmptyString && statementValue)
 }
 
-let algorithmTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithm = values => {
+let algorithmTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithm = values => {
   open LogicUtils
   {
     data: values->getDictfromDict("data")->ruleInfoTypeMapper,
@@ -316,7 +311,7 @@ let algorithmTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithm = valu
   }
 }
 
-let getRoutingTypesFromJson: JSON.t => AdvancedRoutingTypes.advancedRouting = values => {
+let getRoutingTypesFromJson: JSON.t => RoutingTypes.advancedRouting = values => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
@@ -334,7 +329,7 @@ let validateStatements = statementsArray => {
 let generateStatements = statements => {
   open LogicUtils
 
-  let initialValueForStatement: AdvancedRoutingTypes.statementSendType = {
+  let initialValueForStatement: RoutingTypes.statementSendType = {
     condition: [],
   }
 
@@ -344,7 +339,7 @@ let generateStatements = statements => {
 
     let lastItem = acc->Array.get(acc->Array.length - 1)->Option.getOr({condition: []})
 
-    let condition: AdvancedRoutingTypes.statement = {
+    let condition: RoutingTypes.statement = {
       lhs: statementDict->getString("lhs", ""),
       comparison: switch statementDict->getString("comparison", "")->operatorMapper {
       | IS
@@ -395,7 +390,7 @@ let generateRule = rulesDict => {
   modifiedRules
 }
 
-let defaultRule: AdvancedRoutingTypes.rule = {
+let defaultRule: RoutingTypes.rule = {
   name: "rule_1",
   connectorSelection: {
     \"type": "priority",
@@ -412,7 +407,7 @@ let defaultRule: AdvancedRoutingTypes.rule = {
   ],
 }
 
-let defaultAlgorithmData: AdvancedRoutingTypes.algorithmData = {
+let defaultAlgorithmData: RoutingTypes.algorithmData = {
   rules: [defaultRule],
   metadata: Dict.make()->JSON.Encode.object,
   defaultSelection: {
@@ -421,7 +416,7 @@ let defaultAlgorithmData: AdvancedRoutingTypes.algorithmData = {
   },
 }
 
-let initialValues: AdvancedRoutingTypes.advancedRouting = {
+let initialValues: RoutingTypes.advancedRouting = {
   name: getRoutingNameString(~routingType=ADVANCED),
   description: getRoutingDescriptionString(~routingType=ADVANCED),
   algorithm: {
