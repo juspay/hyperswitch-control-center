@@ -64,7 +64,7 @@ let make = (~connectorInfo) => {
         setShowSideBar(_ => true)
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(
-            ~url=`/v2/recovery/summary/mca_ODpn6HPuGH5F3fa12K2B?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.merchant_connector_id}`,
+            ~url=`/v2/recovery/summary/${connectorInfodict.merchant_connector_id}?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.merchant_connector_id}`,
           ),
         )
       }}

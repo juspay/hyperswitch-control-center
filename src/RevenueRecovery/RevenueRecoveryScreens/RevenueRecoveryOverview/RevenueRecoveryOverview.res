@@ -153,7 +153,7 @@ let make = (~previewOnly=false) => {
           onClick={_ =>
             RescriptReactRouter.replace(
               GlobalVars.appendDashboardPath(
-                ~url=`/v2/recovery/summary/mca_ODpn6HPuGH5F3fa12K2B?name=stripe`,
+                ~url=`/v2/recovery/summary/mca_f2dBJYU5uo0bWM7vGfWk?name=adyen`,
               ),
             )}
           buttonSize={Small}
