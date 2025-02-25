@@ -28,10 +28,10 @@ module Verify2FAModalComponent = {
         <>
           <TwoFaElements.TotpInput otp setOtp />
           <RenderIf condition={!showOnlyTotp}>
-            <p className={`${p2Regular} text-jp-gray-700`}>
+            <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
-                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
                 onClick={_ => handleOnClick(~stateToSet=RecoveryCode)}>
                 {"Use recovery-code"->React.string}
               </span>
@@ -43,10 +43,10 @@ module Verify2FAModalComponent = {
         <>
           <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
           <RenderIf condition={!showOnlyRc}>
-            <p className={`${p2Regular} text-jp-gray-700`}>
+            <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
-                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
                 onClick={_ => handleOnClick(~stateToSet=Totp)}>
                 {"Use totp instead"->React.string}
               </span>
@@ -55,7 +55,7 @@ module Verify2FAModalComponent = {
         </>
       }}
       <RenderIf condition={errorMessage->LogicUtils.isNonEmptyString}>
-        <div className="text-sm text-red-600"> {`Error: ${errorMessage}`->React.string} </div>
+        <div className="text-sm text-red-400"> {`Error: ${errorMessage}`->React.string} </div>
       </RenderIf>
     </div>
   }

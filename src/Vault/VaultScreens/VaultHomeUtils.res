@@ -19,8 +19,8 @@ module VaultActionItem = {
       <div className="flex items-center gap-2">
         <img alt={heading} src={img} />
         <div className="flex flex-col gap-1">
-          <p className="text-sm text-nd_gray-600 font-semibold"> {{heading}->React.string} </p>
-          <p className="text-xs text-nd_gray-400 font-medium"> {{description}->React.string} </p>
+          <p className="text-sm text-gray-600 font-semibold"> {{heading}->React.string} </p>
+          <p className="text-xs text-gray-400 font-medium"> {{description}->React.string} </p>
         </div>
       </div>
       <Icon name="nd-angle-right" size={16} className="group-hover:scale-125" />

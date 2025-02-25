@@ -21,9 +21,9 @@ module ConnectorCurrentStepIndicator = {
 
           let stepNameIndicator = isStepCompleted
             ? "text-black break-all"
-            : "text-jp-gray-700 break-all"
+            : "text-gray-500 break-all"
 
-          let textColor = isCurrentStep ? "text-white" : "text-grey-700"
+          let textColor = isCurrentStep ? "text-white" : "text-gray-700"
 
           let stepLineIndicator = isPreviousStepCompleted ? "bg-gray-700" : "bg-gray-200"
 
@@ -81,7 +81,7 @@ module MenuOption = {
           {panelProps => {
             <div
               id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded-sm ring-1 ring-black/5 w-40">
               {<Navbar.MenuOption
                 text={connectorStatusAvailableToSwitch}
                 onClick={_ => {
@@ -164,8 +164,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
-    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
+    | true => "border bg-red-400/40 border-red-400 text-red-400"
+    | false => "border bg-green-200/40 border-green-300 text-green-300"
     }
 
   let isConnectorDisabled = connectorInfo.disabled

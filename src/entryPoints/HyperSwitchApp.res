@@ -35,7 +35,7 @@ let make = () => {
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
-  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green" : "bg-orange-500 "
+  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green/75" : "bg-orange-300"
 
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
@@ -122,7 +122,7 @@ let make = () => {
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
-                  className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
+                  className="flex relative flex-col flex-1  bg-hyperswitch-background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="w-full max-w-fixedPageWidth px-12 pt-3">
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
@@ -139,7 +139,7 @@ let make = () => {
                           <img className="w-40 h-16" alt="image" src={`${url}`} />
                           <ProfileSwitch />
                           <div
-                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
+                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg border-nd_gray-300`}>
                             <span className="relative flex h-2 w-2">
                               <span
                                 className={`animate-ping absolute inline-flex h-full w-full rounded-full ${modebg} opacity-75`}
@@ -148,14 +148,16 @@ let make = () => {
                                 className={`relative inline-flex rounded-full h-2 w-2  ${modebg}`}
                               />
                             </span>
-                            <span className="font-semibold"> {modeText->React.string} </span>
+                            <span className="font-semibold text-sm text-gray-500">
+                              {modeText->React.string}
+                            </span>
                           </div>
                         </div>
                       | None =>
                         <div className="flex gap-4 items-center ">
                           <ProfileSwitch />
                           <div
-                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
+                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg border-nd_gray-300`}>
                             <span className="relative flex h-2 w-2">
                               <span
                                 className={`animate-ping absolute inline-flex h-full w-full rounded-full ${modebg} opacity-75`}
@@ -164,7 +166,9 @@ let make = () => {
                                 className={`relative inline-flex rounded-full h-2 w-2  ${modebg}`}
                               />
                             </span>
-                            <span className="font-semibold"> {modeText->React.string} </span>
+                            <span className="font-semibold text-sm text-gray-500">
+                              {modeText->React.string}
+                            </span>
                           </div>
                         </div>
                       }}

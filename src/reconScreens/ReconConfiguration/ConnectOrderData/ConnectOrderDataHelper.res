@@ -6,8 +6,8 @@ module SelectSource = {
 
     let (selectedStep, setSelectedStep) = React.useState(_ => Hyperswitch)
     <div className="flex flex-col h-full">
-      <div className="flex flex-col gap-3 flex-grow p-2 md:p-7">
-        <p className="text-medium text-grey-800 font-semibold mb-5">
+      <div className="flex flex-col gap-3 grow p-2 md:p-7">
+        <p className="text-medium text-gray-800 font-semibold mb-5">
           {"Select your order data source"->React.string}
         </p>
         <div className="flex flex-col gap-4">
@@ -41,8 +41,8 @@ module SetupAPIConnection = {
   @react.component
   let make = (~currentStep, ~setCurrentStep) => {
     <div className="flex flex-col h-full">
-      <div className="flex flex-col gap-4 flex-grow p-2 md:p-7">
-        <p className="text-medium text-grey-800 font-semibold mb-5">
+      <div className="flex flex-col gap-4 grow p-2 md:p-7">
+        <p className="text-medium text-gray-800 font-semibold mb-5">
           {"Setup Your API Connection"->React.string}
         </p>
         <div className="flex gap-6">
@@ -65,7 +65,7 @@ module SetupAPIConnection = {
             )}
           />
         </div>
-        <h1 className="text-sm font-medium text-blue-500 mt-2 px-1.5">
+        <h1 className="text-sm font-medium text-primary mt-2 px-1.5">
           {"Learn where to find these values ->"->React.string}
         </h1>
       </div>

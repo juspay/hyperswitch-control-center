@@ -64,21 +64,21 @@ let make = (
   let statusCodeTextColor = switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "blue-500"
+    | "INFO" => "primary"
     | "ERROR" => "red-400"
     | "WARNING" => "yellow-800"
     | _ => "gray-700 opacity-50"
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "green-700"
+    | "200" => "green-300"
     | "500" | _ => "gray-700 opacity-50"
     }
   | API_EVENTS | CONNECTOR =>
     switch statusCode {
-    | "200" => "green-700"
+    | "200" => "green-300"
     | "500" => "gray-700 opacity-50"
-    | "400" | "422" => "orange-950"
+    | "400" | "422" => "orange-400"
     | _ => "gray-700 opacity-50"
     }
   }
@@ -86,8 +86,8 @@ let make = (
   let statusCodeBg = switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "blue-100"
-    | "ERROR" => "red-100"
+    | "INFO" => "primary-blue-50"
+    | "ERROR" => "red-50"
     | "WARNING" => "yellow-100"
     | _ => "gray-100"
     }
@@ -100,7 +100,7 @@ let make = (
     switch statusCode {
     | "200" => "green-50"
     | "500" => "gray-100"
-    | "400" | "422" => "orange-100"
+    | "400" | "422" => "orange-50"
     | _ => "gray-100"
     }
   }
@@ -111,21 +111,21 @@ let make = (
     ? switch logType {
       | SDK =>
         switch statusCode {
-        | "INFO" => "blue-500"
+        | "INFO" => "primary"
         | "ERROR" => "red-400"
         | "WARNING" => "yellow-300"
         | _ => "gray-700 opacity-50"
         }
       | WEBHOOKS =>
         switch statusCode {
-        | "200" => "green-700"
+        | "200" => "green-300"
         | "500" | _ => "gray-700 opacity-50"
         }
       | API_EVENTS | CONNECTOR =>
         switch statusCode {
-        | "200" => "green-700"
+        | "200" => "green-300"
         | "500" => "gray-700 opacity-50"
-        | "400" | "422" => "orange-950"
+        | "400" | "422" => "orange-400"
         | _ => "gray-700 opacity-50"
         }
       }
@@ -134,21 +134,21 @@ let make = (
     ? switch logType {
       | SDK =>
         switch statusCode {
-        | "INFO" => "blue-500"
+        | "INFO" => "primary"
         | "ERROR" => "red-400"
-        | "WARNING" => "orange-500"
+        | "WARNING" => "orange-200"
         | _ => "gray-600"
         }
       | WEBHOOKS =>
         switch statusCode {
-        | "200" => "green-700"
+        | "200" => "green-300"
         | "500" | _ => "gray-700 opacity-50"
         }
       | API_EVENTS | CONNECTOR =>
         switch statusCode {
-        | "200" => "green-700"
+        | "200" => "green-300"
         | "500" => "gray-600"
-        | "400" | "422" => "orange-950"
+        | "400" | "422" => "orange-400"
         | _ => "gray-600"
         }
       }
@@ -164,14 +164,14 @@ let make = (
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "border border-green-700"
+    | "200" => "border border-green-300"
     | "500" | _ => "border border-gray-700 opacity-80"
     }
   | API_EVENTS | CONNECTOR =>
     switch statusCode {
-    | "200" => "border border-green-700"
+    | "200" => "border border-green-300"
     | "500" => "border border-gray-700 opacity-50"
-    | "400" | "422" => "border border-orange-950"
+    | "400" | "422" => "border border-orange-400"
     | _ => "border border-gray-700 opacity-50"
     }
   }
@@ -188,14 +188,14 @@ let make = (
   <div className="flex items-start gap-4">
     <div className="flex flex-col items-center h-full my-4 relative">
       <RenderIf condition={showLogType}>
-        <Icon name=iconName size=12 className="text-jp-gray-900" />
+        <Icon name=iconName size=12 className="text-gray-800" />
         <div
-          className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
+          className={`h-full border-${stepperBorderColor} border-dashed rounded-sm divide-x-2 border-2 my-1`}
         />
       </RenderIf>
       <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
       <div
-        className={`h-full border-${stepperBorderColor} border-dashed rounded  divide-x-2 border-2 my-1`}
+        className={`h-full border-${stepperBorderColor} border-dashed rounded-sm divide-x-2 border-2 my-1`}
       />
       <RenderIf condition={index === logsDataLength}>
         <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
@@ -204,7 +204,7 @@ let make = (
     <div className="flex flex-col gap-3 w-full">
       <RenderIf condition={showLogType}>
         <span
-          className={`text-base font-bold break-all flex gap-1 leading-none my-4 text-jp-gray-900`}>
+          className={`text-base font-bold break-all flex gap-1 leading-none my-4 text-gray-800`}>
           {`${logType->getTagName}`->React.string}
         </span>
       </RenderIf>
@@ -237,7 +237,7 @@ let make = (
               </p>
             | API_EVENTS | WEBHOOKS | CONNECTOR =>
               <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>
-                <span className="mr-3 border-2 px-1 py-0.5 rounded text-sm">
+                <span className="mr-3 border-2 px-1 py-0.5 rounded-sm text-sm">
                   {method->String.toUpperCase->React.string}
                 </span>
                 <span className="leading-7"> {apiName->React.string} </span>

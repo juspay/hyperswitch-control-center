@@ -98,7 +98,7 @@ let make = () => {
     <div>
       <PageUtils.PageHeading title="Insights" />
       <div
-        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
+        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch-background/70 py-1 rounded-lg my-2">
         <DynamicFilter
           title="NewAnalytics"
           initialFilters=[]
@@ -140,8 +140,8 @@ let make = () => {
         includeMargin=false
         lightThemeColor="black"
         defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-        textStyle="text-blue-600"
-        selectTabBottomBorderColor="bg-blue-600"
+        textStyle="text-primary-blue-600"
+        selectTabBottomBorderColor="bg-primary-blue-600"
       />
     </div>
   </PageLoaderWrapper>

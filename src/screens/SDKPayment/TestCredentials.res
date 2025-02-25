@@ -2,7 +2,7 @@
 let make = () => {
   let initialValues = Dict.make()
   Dict.set(initialValues, "dummy_card_number", "4242 4242 4242 4242"->JSON.Encode.string)
-  <div className="p-6 bg-jp-gray-test_credentials_bg w-full h-fit">
+  <div className="p-6 bg-gray-1000 w-full h-fit">
     <div className="mb-4">
       <div className="flex items-center gap-4">
         <p className="text-sm font-semibold">
@@ -36,7 +36,7 @@ let make = () => {
           </p>
         </div>
         <div
-          className="flex items-center cursor-pointer text-blue-400 dark:text-blue-300 hover:underline"
+          className="flex items-center cursor-pointer text-primary-blue-200 dark:text-primary-blue-100 hover:underline"
           onClick={_ => {
             Window._open(
               "https://docs.hyperswitch.io/hyperswitch-cloud/connectors/test-a-payment-with-connector",
@@ -52,12 +52,12 @@ let make = () => {
       <img alt="apple-pay" src={`/Gateway/APPLE_PAY.svg`} className="w-10 h-10" />
     </div>
     <div className="flex flex-row w-full mb-4 text-sm">
-      <p className="text-grey-700 opacity-50 leading-5">
+      <p className="text-gray-700 opacity-50 leading-5">
         <p className="inline">
           {"Apple Pay cannot be tested from the dashboard as it is registered with merchant domain name and not app.hyperswitch. Please test using merchant SDK - refer the "->React.string}
         </p>
         <a
-          className="inline text-blue-400 underline underline-offset-4 decoration-blue-400"
+          className="inline text-primary-blue-200 underline underline-offset-4 decoration-primary-blue-200"
           href="https://hyperswitch.io/docs/paymentMethods/testCredentials"
           target="_blank">
           //TODO - Need to be changed with Apple Pay Hyperlink.

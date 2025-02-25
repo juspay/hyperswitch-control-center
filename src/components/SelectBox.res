@@ -86,9 +86,9 @@ module ListItem = {
             }
           }
 
-    let bgClass = "md:bg-jp-gray-100 md:dark:bg-jp-gray-text_darktheme md:dark:bg-opacity-3 dark:hover:text-white dark:text-white"
+    let bgClass = "md:bg-gray-50 md:dark:bg-gray-50/3 dark:hover:text-white dark:text-white"
 
-    let hoverClass = "hover:bg-jp-gray-100 dark:hover:bg-jp-gray-text_darktheme dark:hover:bg-opacity-10 dark:hover:text-white dark:text-white"
+    let hoverClass = "hover:bg-gray-50 dark:hover:bg-gray-50/10 dark:hover:text-white dark:text-white"
 
     let customMarginStyle = if isMobileView {
       "py-2 gap-2"
@@ -111,11 +111,11 @@ module ListItem = {
       ""
     }
     let selectedClass = if isSelected {
-      "text-opacity-100 dark:text-opacity-100"
+      "text-black/100 dark:text-white/100"
     } else if isDisabled {
-      "text-opacity-50 dark:text-opacity-50"
+      "text-black/50 dark:text-white/50"
     } else {
-      "text-opacity-75 dark:text-opacity-75"
+      "text-black/75 dark:text-white/75"
     }
     let leftElementClass = if leftVacennt {
       "px-4 "
@@ -149,7 +149,7 @@ module ListItem = {
     }
     let parentRef = React.useRef(Nullable.null)
 
-    let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
+    let textColor = "text-gray-800 dark:text-gray-50"
 
     let textColor = if textColorClass->LogicUtils.isNonEmptyString {
       textColorClass
@@ -462,7 +462,7 @@ module BaseSelect = {
     ~allSelectType=Icon,
     ~isMobileView=false,
     ~isModalView=false,
-    ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+    ~customSearchStyle="bg-gray-50 dark:bg-gray-900 p-2",
     ~hasApplyButton=false,
     ~setShowDropDown=?,
     ~dropdownCustomWidth="w-full md:max-w-md min-w-[10rem]",
@@ -580,9 +580,9 @@ module BaseSelect = {
 
     let borderClass = if !hideBorder {
       if isDropDown {
-        "bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  shadow-generic_shadow dark:shadow-generic_shadow_dark animate-textTransition transition duration-400"
+        "bg-white border dark:bg-gray-900 border-jp-gray-steel/75 dark:border-gray-800 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark animate-textTransition transition duration-400"
       } else if showToggle {
-        "bg-white border rounded dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  "
+        "bg-white border dark:bg-jp-gray-darkgray_background border-jp-gray-steel/75 dark:border-gray-800 rounded-sm"
       } else {
         ""
       }
@@ -717,7 +717,7 @@ module BaseSelect = {
       {if showSelectAll && isDropDown {
         if !isMobileView {
           <div
-            className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 z-index: 50`}>
+            className={`${customSearchStyle} border-b border-jp-gray-steel/75 dark:border-gray-800 z-index: 50`}>
             <div className="flex flex-row justify-between">
               <div ref=?selectBtnRef onClick={selectAll(true)}>
                 <Button
@@ -784,8 +784,7 @@ module BaseSelect = {
       {if showToggle {
         <div>
           <div className={`grid grid-cols-2 items-center ${marginClass}`}>
-            <div
-              className="ml-5 font-bold text-fs-16 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
+            <div className="ml-5 font-bold text-fs-16 text-gray-800/50 dark:text-gray-50/50">
               {React.string(heading)}
             </div>
             {if showSelectAll {
@@ -825,10 +824,7 @@ module BaseSelect = {
             }}
           </div>
           {if !hideBorder {
-            <div
-              className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-jp-gray-960  "
-              style={height: "1px"}
-            />
+            <div className="my-2 bg-jp-gray-steel dark:bg-gray-800  " style={height: "1px"} />
           } else {
             React.null
           }}
@@ -1019,7 +1015,7 @@ module BaseSelectButton = {
           : "animate-textTransitionOff transition duration-400"}`}>
       {if searchable {
         <div
-          className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 `}>
+          className={`${customSearchStyle} border-b border-jp-gray-steel/75 dark:border-gray-800 `}>
           <div className="pb-2">
             <SearchInput
               inputText=searchString
@@ -1463,7 +1459,7 @@ module BaseRadio = {
     }
     let searchInputUI =
       <div
-        className={`border-b p-2 border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 ${customSearchStyle}`}>
+        className={`border-b p-2 border-jp-gray-lightmode_steelgray/75 dark:border-jp-gray-960 ${customSearchStyle}`}>
         <div>
           <SearchInput
             inputText=searchString
@@ -1477,7 +1473,7 @@ module BaseRadio = {
         </div>
       </div>
     <div
-      className={`${dropDownbgClass} ${roundedClass} dark:bg-jp-gray-lightgray_background ${dropdownContainerStyle} ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
+      className={`${dropDownbgClass} ${roundedClass} dark:bg-gray-900 ${dropdownContainerStyle} ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
@@ -1488,7 +1484,7 @@ module BaseRadio = {
         </RenderIf>
       }}
       <div
-        className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
+        className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-gray-800/75 dark:text-gray-50/75 ${inlineClass} ${baseComponentCustomStyle}`}>
         {if newOptions->Array.length === 0 && showMatchingRecordsText {
           <div className={`flex justify-center items-center m-4 ${customSearchStyle}`}>
             {React.string("No matching records found")}
@@ -1662,7 +1658,7 @@ module BaseDropdown = {
 
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
-    let dropdownOuterClass = "border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  shadow-generic_shadow dark:shadow-generic_shadow_dark z-40"
+    let dropdownOuterClass = "border border-jp-gray-steel/75 dark:border-gray-800 rounded-sm shadow-generic_shadow dark:shadow-generic_shadow_dark z-40"
     let newInputSelect = input->ffInputToSelectInput
     let newInputRadio = input->ffInputToRadioInput
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1955,7 +1951,7 @@ module BaseDropdown = {
       <div className={`flex relative ${flexWrapper} ${fullLength ? "w-full" : ""}`}>
         <div
           ref={selectBoxRef->ReactDOM.Ref.domRef}
-          className={`text-opacity-50 ${fullLength ? "w-full" : ""}`}>
+          className={`text-black/50 ${fullLength ? "w-full" : ""}`}>
           {switch baseComponent {
           | Some(comp) => <span onClick> {comp} </span>
           | None =>
@@ -2124,8 +2120,8 @@ module InfraSelectBox = {
     ~deselectDisable=false,
     ~allowMultiSelect=true,
     ~borderRadius="rounded-full",
-    ~selectedClass="border-jp-gray-600 dark:border-jp-gray-800 text-jp-gray-850 dark:text-jp-gray-400",
-    ~nonSelectedClass="border-jp-gray-900 dark:border-jp-gray-300 text-jp-gray-900 dark:text-jp-gray-300 font-semibold",
+    ~selectedClass="border-gray-300 dark:border-gray-500 text-gray-800 dark:text-gray-200",
+    ~nonSelectedClass="border-gray-800 dark:border-gray-150 text-gray-800 dark:text-gray-150 font-semibold",
     ~showTickMark=true,
   ) => {
     let transformedOptions = useTransformed(options)
@@ -2170,7 +2166,7 @@ module InfraSelectBox = {
           className={`px-4 py-1 border ${borderRadius} flex flex-row gap-2 items-center cursor-pointer ${selectedClass}`}>
           {if isSelected && showTickMark {
             <Icon
-              className="align-middle font-thin text-jp-gray-900 dark:text-jp-gray-300"
+              className="align-middle font-thin text-gray-800 dark:text-gray-150"
               size=12
               name="check"
             />
@@ -2197,8 +2193,8 @@ module ChipFilterSelectBox = {
   ) => {
     let transformedOptions = useTransformed(options)
 
-    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
-    let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
+    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-gray-500 inline-block text-s px-2 py-1 rounded-2xl"
+    let passedClassName = "flex items-center m-2 bg-primary-blue-200 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
     let saneValue = React.useMemo(() => {
@@ -2238,7 +2234,7 @@ module ChipFilterSelectBox = {
           className={`px-4 py-1 mr-1 mt-0.5 border rounded-full flex flex-row gap-2 items-center cursor-pointer ${chipsCss}`}>
           {if isTickRequired {
             if isSelected {
-              <Icon name="check-circle" size=9 className="fill-blue-150 mr-1 mt-0.5" />
+              <Icon name="check-circle" size=9 className="fill-primary-blue-50 mr-1 mt-0.5" />
             } else {
               <Icon name="check-circle" size=9 className="fill-gray-150 mr-1 mt-0.5" />
             }
@@ -2283,7 +2279,7 @@ let make = (
   ~optionRigthElement=?,
   ~hideBorder=false,
   ~allSelectType=Icon,
-  ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+  ~customSearchStyle="bg-gray-50 dark:bg-gray-900 p-2",
   ~searchInputPlaceHolder=?,
   ~showSearchIcon=false,
   ~customLabelStyle=?,

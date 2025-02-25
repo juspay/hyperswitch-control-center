@@ -59,27 +59,27 @@ let make = (
   }, [minSlide.value])
 
   let minborderClass = hasMinError
-    ? "border-jp-2-light-red-600"
+    ? "border-jp-2-light-red-400"
     : `${isMinFocused || isMinInputFocused ? "border-jp-2-light-primary-600" : ""}`
 
   let maxborderClass = hasMaxError
-    ? "border-jp-2-light-red-600"
+    ? "border-jp-2-light-red-400"
     : `${isMaxFocused || isMaxInputFocused ? "border-jp-2-light-primary-600" : ""}`
 
   let inputClassname = (hasError, isFocused) => {
     let bg = hasError
-      ? "bg-jp-2-red-100"
+      ? "bg-jp-2-red-50"
       : `${isFocused
             ? "bg-jp-2-light-primary-200"
             : "focus:bg-jp-2-light-primary-200 hover:bg-jp-2-light-gray-100"}`
-    `w-max numberInput outline-none p-1 ${bg} `
+    `w-max numberInput outline-hidden p-1 ${bg} `
   }
 
   let bgClass = isMinFocused || isMaxFocused ? "bg-primary" : "bg-jp-2-light-gray-2000"
   <div className="relative pt-1 w-max">
-    <div className={`h-1 rounded relative bg-gray-200`} style={width: width}>
+    <div className={`h-1 rounded-sm relative bg-gray-200`} style={width: width}>
       <div
-        className={`h-1 rounded absolute ${bgClass}`}
+        className={`h-1 rounded-sm absolute ${bgClass}`}
         style={
           width: ((maxsliderVal->LogicUtils.getFloatFromString(0.) -.
             minsliderVal->LogicUtils.getFloatFromString(0.)) *.
@@ -95,7 +95,7 @@ let make = (
     <div className={`absolute top-0`}>
       <input
         style={width: width}
-        className={`absolute bg-transparent pointer-events-none appearance-none slider hover:sliderFocus active:sliderFocus outline-none`}
+        className={`absolute bg-transparent pointer-events-none appearance-none slider hover:sliderFocus active:sliderFocus outline-hidden`}
         type_="range"
         value=minsliderVal
         min={min->Float.toString}
@@ -114,7 +114,7 @@ let make = (
       />
       <input
         style={width: width}
-        className={`absolute bg-transparent pointer-events-none appearance-none slider hover:sliderFocus active:sliderFocus outline-none`}
+        className={`absolute bg-transparent pointer-events-none appearance-none slider hover:sliderFocus active:sliderFocus outline-hidden`}
         type_="range"
         value=maxsliderVal
         min={min->Float.toString}

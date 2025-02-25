@@ -7,7 +7,7 @@ type breadcrumb = {
 }
 let arrowDivider =
   <span className="ml-2 mr-2">
-    <Icon className="align-middle  text-jp-gray-930" size=8 name="chevron-right" />
+    <Icon className="align-middle  text-gray-400" size=8 name="chevron-right" />
   </span>
 type dividerVal =
   | Slash

@@ -67,7 +67,7 @@ module InviteForMultipleInvitation = {
                   </div>
                   {switch checkIfInvitationAccepted(ele.entityId, ele.entityType) {
                   | Some(_) =>
-                    <div className="flex items-center gap-1 text-green-accepted_green_800">
+                    <div className="flex items-center gap-1 text-green-500">
                       <Icon name="green-tick-without-background" />
                       {"Accepted"->React.string}
                     </div>

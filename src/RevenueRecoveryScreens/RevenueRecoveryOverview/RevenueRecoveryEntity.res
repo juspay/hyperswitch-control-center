@@ -403,7 +403,7 @@ let getStatus = (order, primaryColor) => {
     </div>
   | Failed
   | Cancelled =>
-    <div className={`${fixedStatusCss} bg-red-960 dark:bg-opacity-50`}>
+    <div className={`${fixedStatusCss} bg-red-300 dark:bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | Processing

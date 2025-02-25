@@ -61,8 +61,8 @@ module CardDetails = {
 
     <div className="w-full lg:w-1/4 md:w-1/2" onClick=onCardClick>
       <div
-        className={`flex justify-between flex-wrap dark:bg-jp-gray-lightgray_background bg-white my-2 px-4 ${isBorderEnabled
-            ? "border border-jp-gray-500 dark:border-jp-gray-960 p-4 rounded"
+        className={`flex justify-between flex-wrap dark:bg-gray-900 bg-white my-2 px-4 ${isBorderEnabled
+            ? "border border-gray-250 dark:border-gray-800 p-4 rounded"
             : ""} `}>
         {
           let itemArray = !show ? itemArray : Array.slice(itemArray, ~start=0, ~end=size)

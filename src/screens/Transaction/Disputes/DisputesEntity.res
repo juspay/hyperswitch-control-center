@@ -24,30 +24,20 @@ let allColumns = [
 
 let useGetStatus = (dispute: disputes) => {
   open DisputesUtils
-  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = dispute.dispute_status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch dispute.dispute_status->disputeStatusVariantMapper {
   | DisputeAccepted
   | DisputeWon =>
-    <div className={`${fixedCss} bg-hyperswitch_green dark:bg-opacity-50`}>
-      {orderStatusLabel->React.string}
-    </div>
+    <div className={`${fixedCss} bg-hyperswitch-green`}> {orderStatusLabel->React.string} </div>
   | DisputeExpired
   | DisputeLost =>
-    <div className={`${fixedCss} bg-red-960 dark:bg-opacity-50`}>
-      {orderStatusLabel->React.string}
-    </div>
+    <div className={`${fixedCss} bg-red-300`}> {orderStatusLabel->React.string} </div>
   | DisputeOpened
   | DisputeCancelled
   | DisputeChallenged =>
-    <div className={`${fixedCss} ${primaryColor} bg-opacity-50`}>
-      {orderStatusLabel->React.string}
-    </div>
-  | _ =>
-    <div className={`${fixedCss} ${primaryColor} bg-opacity-50`}>
-      {orderStatusLabel->React.string}
-    </div>
+    <div className={`${fixedCss} bg-primary/50`}> {orderStatusLabel->React.string} </div>
+  | _ => <div className={`${fixedCss} bg-primary/50`}> {orderStatusLabel->React.string} </div>
   }
 }
 

@@ -52,7 +52,7 @@ let make = (
               {if showBottomUp {
                 <BottomModal headerText="Select Action" onCloseClick=closeClick>
                   <Menu.Items
-                    className={`w-full p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
+                    className={`w-full p-1 origin-top-right bg-white dark:bg-gray-900 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden`}>
                     {_ =>
                       options
                       ->Array.mapWithIndex((option, index) => {
@@ -122,7 +122,7 @@ let make = (
                               </div>
                               <RenderIf condition=selected>
                                 {if isCloseIcon {
-                                  <Icon name="close" size=10 className="text-red-500 mr-1" />
+                                  <Icon name="close" size=10 className="text-red-400 mr-1" />
                                 } else {
                                   <Tick isSelected=selected />
                                 }}
@@ -136,7 +136,7 @@ let make = (
                 </BottomModal>
               } else {
                 <Menu.Items
-                  className={`absolute z-10 ${dropdownPositionClass} mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${dropDownClass}`}>
+                  className={`absolute z-10 ${dropdownPositionClass} mt-2 p-1 origin-top-right bg-white dark:bg-gray-900 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden ${dropDownClass}`}>
                   {_ =>
                     options
                     ->Array.mapWithIndex((option, index) => {
@@ -205,7 +205,7 @@ let make = (
                             </div>
                             {selected
                               ? props["active"] && deSelectAllowed
-                                  ? <Icon name="close" size=10 className="text-red-500 mr-1" />
+                                  ? <Icon name="close" size=10 className="text-red-400 mr-1" />
                                   : <Tick isSelected=selected />
                               : React.null}
                           </div>}

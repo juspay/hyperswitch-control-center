@@ -97,7 +97,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
     setShowModal
     childClass="p-0"
     borderBottom=true
-    modalClass="w-full max-w-2xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+    modalClass="w-full max-w-2xl mx-auto my-auto dark:!bg-gray-900">
     modalBody
   </Modal>
 }

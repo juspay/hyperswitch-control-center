@@ -52,7 +52,7 @@ module Copy = {
       writeText([data]->Array.joinWithUnsafe("\n"))
     }
 
-    let iconClass = GlobalVars.isHyperSwitchDashboard ? "text-gray-600" : "text-jp-gray-900"
+    let iconClass = GlobalVars.isHyperSwitchDashboard ? "text-gray-600" : "text-gray-800"
 
     <div
       className={`flex justify-end ${outerPadding}`}
@@ -62,7 +62,7 @@ module Copy = {
       <div onClick={onCopyClick}>
         <ToolTip
           tooltipWidthClass="w-fit"
-          bgColor={tooltipText == "copy" ? "" : "bg-green-950 text-white"}
+          bgColor={tooltipText == "copy" ? "" : "bg-green-200 text-white"}
           arrowBgClass={tooltipText == "copy" ? "" : "#36AF47"}
           description=tooltipText
           toolTipFor={switch copyElement {

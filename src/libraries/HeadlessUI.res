@@ -472,7 +472,7 @@ module SelectBoxHeadlessUI = {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95">
               <Menu.Items
-                className={`absolute z-10 ${dropdownPositionClass} ${dropdownWidth} max-h-[225px] overflow-auto mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
+                className={`absolute z-10 ${dropdownPositionClass} ${dropdownWidth} max-h-[225px] overflow-auto mt-2 p-1 origin-top-right bg-white dark:bg-gray-900 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-hidden`}>
                 {_ =>
                   transformedOptions
                   ->Array.mapWithIndex((option, index) => {
@@ -513,7 +513,7 @@ module SelectBoxHeadlessUI = {
                           </div>
                           {selected
                             ? props["active"] && deSelectAllowed
-                                ? <Icon name="close" size=10 className="text-red-500 mr-1" />
+                                ? <Icon name="close" size=10 className="text-red-400 mr-1" />
                                 : <Tick isSelected=selected />
                             : React.null}
                         </div>}

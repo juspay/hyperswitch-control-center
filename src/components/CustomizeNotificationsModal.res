@@ -47,11 +47,7 @@ let make = (
         Normal
       }}
       leftIcon={CustomIcon(
-        <Icon
-          name=iconName
-          size=17
-          className="-mr-1 jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme ml-3"
-        />,
+        <Icon name=iconName size=17 className="-mr-1 gray-800 fill-opacity-50 dark:gray-50 ml-3" />,
       )}
       onClick={onSubmitModal}
     />
@@ -68,7 +64,7 @@ let make = (
     onCloseClickCustomFun
     isBackdropBlurReq
     overlayBG
-    modalClass={`${modalWidth} ${customHeight} float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background !rounded-none !shadow-xl !backdrop-blur-none`}
+    modalClass={`${modalWidth} ${customHeight} float-right overflow-hidden !bg-white dark:!bg-gray-900 !rounded-none !shadow-xl !backdrop-blur-none`}
     headingClass={`py-6 px-2.5 border-b border-solid border-slate-300 dark:border-slate-500 ${headingClassOverride}`}
     headerTextClass
     childClass="p-0 m-0"

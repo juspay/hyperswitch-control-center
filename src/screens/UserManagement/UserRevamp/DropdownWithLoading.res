@@ -2,7 +2,7 @@ open HeadlessUI
 
 type dropDownState = Loading | Success | NoData
 
-let commonDropdownCss = "absolute md:max-h-36 md:min-h-fit overflow-scroll z-30 w-full bg-white rounded-sm shadow-lg  focus:outline-none my-1 border border-jp-gray-lightmode_steelgray border-opacity-75  ring-1 ring-black ring-opacity-5"
+let commonDropdownCss = "absolute md:max-h-36 md:min-h-fit overflow-scroll z-30 w-full bg-white rounded-xs shadow-lg  focus:outline-hidden my-1 border border-jp-gray-steel/75  ring-1 ring-black/5"
 
 module DropDownItems = {
   @react.component
@@ -106,14 +106,14 @@ let make = (
           let arrow = props["open"]
           <div className="w-full flex flex-col">
             <div
-              className="flex justify-start pt-2 pb-2 text-fs-13 text-jp-gray-900 ml-1 font-semibold">
+              className="flex justify-start pt-2 pb-2 text-fs-13 text-gray-800 ml-1 font-semibold">
               {"Role"->React.string}
               <RenderIf condition=isRequired>
-                <span className="text-red-950"> {React.string("*")} </span>
+                <span className="text-red-400"> {React.string("*")} </span>
               </RenderIf>
             </div>
             <div
-              className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"
+              className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-white/80 bg-white border w-full"
               onClick={_ => arrow ? () : onClickDropDownApi()->ignore}>
               <span
                 className="px-1 text-fs-13 text-sm font-medium leading-5  whitespace-pre !text-gray-500">

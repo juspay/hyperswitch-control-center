@@ -2,7 +2,7 @@
 let make = (~size=10) => {
   <AddDataAttributes attributes=[("data-icon", "formErrorIcon")]>
     <svg
-      className={`fill-red-500 mr-1.5`}
+      className={`fill-red-400 mr-1.5`}
       width={Int.toString(size) ++ "px"}
       height={Int.toString(size) ++ "px"}
       viewBox="0 0 8 9"

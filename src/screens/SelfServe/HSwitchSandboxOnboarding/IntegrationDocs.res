@@ -78,13 +78,13 @@ module RequestPage = {
     }
 
     <div
-      className="border bg-jp-gray-light_gray_bg h-full rounded-md p-6 overflow-scroll flex flex-col justify-center items-center gap-6">
+      className="border bg-gray-25 h-full rounded-md p-6 overflow-scroll flex flex-col justify-center items-center gap-6">
       <Icon name={requestedValue->String.toLowerCase} size=180 className="!scale-200" />
       <div className="flex flex-col gap-2 items-center justify-center">
-        <p className="text-2xl font-semibold text-grey-700">
+        <p className="text-2xl font-semibold text-gray-700">
           {`${requestedValue} (Coming Soon)`->React.string}
         </p>
-        <p className="text-base font-semibold text-grey-700 opacity-50 w-1/2 text-center">
+        <p className="text-base font-semibold text-gray-700 opacity-50 w-1/2 text-center">
           {subText()->React.string}
         </p>
       </div>
@@ -221,7 +221,7 @@ let make = (
                   <Icon
                     name="arrow-right"
                     size=15
-                    className="mr-1 jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+                    className="mr-1 gray-800 fill-opacity-50 dark:gray-50"
                   />,
                 )}
                 buttonType={Secondary}
@@ -234,7 +234,7 @@ let make = (
           </RenderIf>
           <div className="flex gap-1 flex-wrap pb-5 justify-between ">
             <div className="flex gap-2">
-              <p className="text-base font-normal text-grey-700">
+              <p className="text-base font-normal text-gray-700">
                 {"Explore our detailed developer documentation on our"->React.string}
               </p>
               <p

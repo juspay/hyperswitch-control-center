@@ -71,16 +71,16 @@ module EnterAccessCode = {
 
     <div className={`bg-white h-20-rem w-200 rounded-2xl flex flex-col`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
-        <p className={`${h2TextStyle} text-grey-900`}> {"Enter access code"->React.string} </p>
+        <p className={`${h2TextStyle} text-gray-900`}> {"Enter access code"->React.string} </p>
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
           <RenderIf condition={!showOnlyRc}>
-            <p className={`${p2Regular} text-jp-gray-700`}>
+            <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
-                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
                 onClick={_ => setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_QR)}>
                 {"Use totp instead"->React.string}
               </span>
@@ -208,7 +208,7 @@ module ConfigureTotpScreen = {
           ? "h-20-rem"
           : "h-40-rem"} w-200 rounded-2xl flex flex-col`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
-        <p className={`${h2TextStyle} text-grey-900`}> {modalHeaderText->React.string} </p>
+        <p className={`${h2TextStyle} text-gray-900`}> {modalHeaderText->React.string} </p>
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
         <RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
@@ -217,10 +217,10 @@ module ConfigureTotpScreen = {
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.TotpInput otp setOtp />
           <RenderIf condition={twoFaStatus === TWO_FA_SET && !showOnlyTotp}>
-            <p className={`${p2Regular} text-jp-gray-700`}>
+            <p className={`${p2Regular} text-gray-500`}>
               {"Didn't get a code? "->React.string}
               <span
-                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                className="cursor-pointer underline underline-offset-2 text-primary-blue-600"
                 onClick={_ => setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)}>
                 {"Use recovery-code"->React.string}
               </span>
@@ -398,10 +398,10 @@ let make = (
             showOnlyRc
           />
         }}
-        <div className="text-grey-200 flex gap-2">
+        <div className="text-gray-200 flex gap-2">
           {"Log in with a different account?"->React.string}
           <p
-            className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
+            className="underline cursor-pointer underline-offset-2 hover:text-primary-blue-400"
             onClick={_ => handleLogout()->ignore}>
             {"Click here to log out."->React.string}
           </p>

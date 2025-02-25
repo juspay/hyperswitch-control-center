@@ -174,12 +174,9 @@ let groupByMerchants: array<UserManagementTypes.userDetailstype> => Dict.t<
 
 let getLabelForStatus = value => {
   switch value {
-  | "InvitationSent" => (
-      UserManagementTypes.InviteSent,
-      "text-orange-950 bg-orange-950 bg-opacity-20",
-    )
-  | "Active" => (UserManagementTypes.Active, "text-green-700 bg-green-700 bg-opacity-20")
-  | _ => (UserManagementTypes.None, "text-grey-700 opacity-50")
+  | "InvitationSent" => (UserManagementTypes.InviteSent, "text-orange-400 bg-orange-400/20")
+  | "Active" => (UserManagementTypes.Active, "text-green-300 bg-green-300/20")
+  | _ => (UserManagementTypes.None, "text-gray-700 opacity-50")
   }
 }
 

@@ -86,7 +86,7 @@ module ErrorValidation = {
     let err = touched ? errorDict->Dict.get(fieldName) : None
     <RenderIf condition={err->Option.isSome}>
       <div
-        className={`flex flex-row items-center text-orange-950 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>
+        className={`flex flex-row items-center text-orange-400 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>
         <div className="flex mr-2">
           <img className=imageStyle src={`${appPrefix}/icons/warning.svg`} alt="warning" />
         </div>
@@ -176,7 +176,7 @@ module CashToCodeSelectBox = {
   ) => {
     open LogicUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-gray-700 opacity-50`
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (country, setSelectedCountry) = React.useState(_ => "")
     let selectedCountry = country => {
@@ -224,7 +224,7 @@ module CashToCodeSelectBox = {
         setShowModal={setShowWalletConfigurationModal}
         paddingClass=""
         revealFrom=Reveal.Right
-        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-gray-800"
         childClass={""}>
         <div>
           <RenderConnectorInputFields
@@ -347,7 +347,7 @@ module BusinessProfileRender = {
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
 
     let hereTextStyle = isUpdateFlow
-      ? "text-grey-700 opacity-50 cursor-not-allowed"
+      ? "text-gray-700 opacity-50 cursor-not-allowed"
       : `${textColor.primaryNormal}  cursor-pointer`
 
     <>
@@ -426,7 +426,7 @@ module VerifyConnectorModal = {
       customHeight="border-0 h-fit"
       showCloseIcon=false
       modalHeading=" "
-      headingClass="h-2 bg-orange-960 rounded-t-xl"
+      headingClass="h-2 bg-orange-300 rounded-t-xl"
       onCloseClickCustomFun={_ => {
         setVerifyDone(_ => NoAttempt)
         setShowVerifyModal(_ => false)
@@ -439,17 +439,16 @@ module VerifyConnectorModal = {
               src={`/icons/warning.svg`}
               alt="warning"
             />
-            <div className="text-jp-gray-900">
-              <div
-                className="font-semibold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
+            <div className="text-gray-800">
+              <div className="font-semibold ml-4 text-xl px-2 dark:text-gray-50/75">
                 {"Are you sure you want to proceed?"->React.string}
               </div>
               <div
-                className="whitespace-pre-line break-all flex flex-col gap-1  p-2 ml-4 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 font-medium leading-7 opacity-50">
+                className="whitespace-pre-line break-all flex flex-col gap-1  p-2 ml-4 text-base dark:text-gray-50/50 font-medium leading-7 opacity-50">
                 {`Received the following error from ${connector->LogicUtils.snakeToTitle}:`->React.string}
               </div>
               <div
-                className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 bg-red-100 rounded-md font-semibold">
+                className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-gray-50/50 bg-red-50 rounded-md font-semibold">
                 {`${verifyErrorMessage->Option.getOr("")}`->React.string}
               </div>
               <RenderIf condition={suggestedActionExists}> {suggestedAction} </RenderIf>

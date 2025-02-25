@@ -73,7 +73,7 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payout Attempts"->React.string} </p>
+      <p className="font-bold text-fs-16 text-gray-800"> {"Payout Attempts"->React.string} </p>
       <CustomExpandableTable
         title="Attempts"
         heading
@@ -99,12 +99,12 @@ module PayoutInfo = {
       ~detailsFields,
       ~justifyClassName="justify-start",
       ~widthClass="w-1/4",
-      ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+      ~bgColor="bg-white dark:bg-gray-900",
       ~children=?,
     ) => {
       let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
       <OrderUtils.Section
-        customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
+        customCssClass={`border border-gray-200/75 dark:border-gray-800 ${bgColor} rounded-md p-5`}>
         <FormRenderer.DesktopRow>
           <div
             className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
@@ -119,7 +119,7 @@ module PayoutInfo = {
                     customMoneyStyle="!font-normal !text-sm"
                     labelMargin="!py-0 mt-2"
                     overiddingHeadingStyles="text-black text-sm font-medium"
-                    textColor="!font-normal !text-jp-gray-700"
+                    textColor="!font-normal !text-gray-500"
                   />
                 </div>
               </RenderIf>
@@ -137,7 +137,7 @@ module PayoutInfo = {
   let make = (~dict) => {
     let payoutData = itemToObjMapper(dict)
     <>
-      <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
+      <div className={`font-bold text-fs-16 dark:text-white/75 mt-4 mb-4`}>
         {"Summary"->React.string}
       </div>
       <Details data=payoutData getHeading getCell detailsFields=allColumns />
