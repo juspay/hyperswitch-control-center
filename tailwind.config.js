@@ -116,6 +116,9 @@ module.exports = {
         38: "38px",
         60: "60px",
       },
+      blur: {
+        xs: "0.2px",
+      },
       borderWidth: {
         1.5: "1.5px",
         "20-px": "20px",

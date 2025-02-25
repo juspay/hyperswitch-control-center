@@ -1,4 +1,4 @@
 @react.component
-let make = (~showOnBoarding, ~setShowOnBoarding, ~showSkeleton) => {
-  <ReconOnboarding showOnBoarding setShowOnBoarding showSkeleton />
+let make = (~showOnBoarding, ~setShowOnBoarding) => {
+  <ReconOnboarding showOnBoarding setShowOnBoarding />
 }
