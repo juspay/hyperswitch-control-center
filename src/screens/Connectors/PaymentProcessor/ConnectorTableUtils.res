@@ -86,7 +86,13 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         </div>,
         "",
       )
-    | ProfileId => DisplayCopyCell(connector.profile_id)
+    | ProfileId =>
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap" displayValue=connector.profile_id
+        />,
+        "",
+      )
     | ProfileName =>
       Table.CustomCell(
         <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
@@ -107,7 +113,14 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         </div>,
         "",
       )
-    | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
+    | MerchantConnectorId =>
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap"
+          displayValue=connector.merchant_connector_id
+        />,
+        "",
+      )
     }
   }
   getCell
