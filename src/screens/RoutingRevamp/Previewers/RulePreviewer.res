@@ -11,7 +11,7 @@ module GatewayView = {
     | _ => RoutingTypes.PaymentConnector
     }
 
-    let connectorList =
+    let connectorList: array<ConnectorTypes.connectorPayload> =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
       ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
