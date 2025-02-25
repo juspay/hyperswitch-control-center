@@ -129,7 +129,6 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let url = RescriptReactRouter.useUrl()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
@@ -157,7 +156,6 @@ let make = () => {
     try {
       setShowSwitchingProfile(_ => true)
       let _ = await internalSwitch(~expectedProfileId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {
