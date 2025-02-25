@@ -63,9 +63,9 @@ module ListBaseComp = {
           </p>
         </RenderIf>
       </div>
-      {showDropdownArrow
-        ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
-        : React.null}
+      <RenderIf condition={showDropdownArrow}>
+        <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+      </RenderIf>
     </div>
   }
 }
