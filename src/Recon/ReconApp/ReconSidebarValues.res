@@ -20,26 +20,7 @@ let reconReports = {
   })
 }
 
-let reconConnectors = {
-  Link({
-    name: "Connectors",
-    link: `/v2/recon/run-recon`,
-    access: Access,
-    icon: "nd-connectors",
-    selectedIcon: "nd-connectors-fill",
-  })
-}
-
-let reconAnalytics = {
-  Link({
-    name: "Analytics",
-    link: `/v2/recon/analytics`,
-    access: Access,
-    icon: "nd-analytics",
-  })
-}
-
 let reconSidebars = {
-  let sidebar = [reconOnBoarding, reconReports, reconConnectors]
+  let sidebar = [reconOnBoarding, reconReports]
   sidebar
 }
