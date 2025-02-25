@@ -40,6 +40,7 @@ type processorTypes =
   | AIRWALLEX
   | WORLDPAY
   | CYBERSOURCE
+  | COINGATE
   | ELAVON
   | ACI
   | WORLDLINE
@@ -206,17 +207,6 @@ type pmAuthPaymentMethods = {
   mca_id: string,
 }
 
-type pmAuthDict = {enabled_payment_methods: array<pmAuthPaymentMethods>}
-
-type paymentMethodConfig = {
-  bank_redirect?: option<array<string>>,
-  bank_transfer?: option<array<string>>,
-  credit_card?: option<array<string>>,
-  debit_card?: option<array<string>>,
-  pay_later?: option<array<string>>,
-  wallets?: option<array<string>>,
-}
-
 type wasmRequest = {
   payment_methods_enabled: array<paymentMethodEnabled>,
   connector: string,
@@ -285,20 +275,18 @@ type connectorAuthTypeObj =
   | CertificateAuth(certificateAuth)
   | UnKnownAuthType(JSON.t)
 
-type connectorAccountDetails = {
-  auth_type: string,
-  api_secret?: string,
-  api_key?: string,
-  key1?: string,
-  key2?: string,
-}
-
 type paymentMethodEnabledType = {
   payment_method: string,
   mutable payment_method_types: array<paymentMethodConfigType>,
 }
 
+type paymentMethodEnabledTypeV2 = {
+  payment_method_type: string,
+  payment_method_subtypes: array<paymentMethodConfigType>,
+}
+
 type payment_methods_enabled = array<paymentMethodEnabledType>
+type payment_methods_enabledV2 = array<paymentMethodEnabledTypeV2>
 
 type frm_payment_method_type = {
   payment_method_type: string,
@@ -333,11 +321,28 @@ type connectorPayload = {
   connector_account_details: connectorAuthTypeObj,
   test_mode: bool,
   disabled: bool,
-  mutable payment_methods_enabled: payment_methods_enabled,
+  payment_methods_enabled: payment_methods_enabled,
   profile_id: string,
   metadata: JSON.t,
   merchant_connector_id: string,
   frm_configs?: array<frm_config>,
+  status: string,
+  connector_webhook_details: JSON.t,
+  additional_merchant_data: JSON.t,
+}
+
+type connectorPayloadV2 = {
+  connector_type: connectorTypeVariants,
+  connector_name: string,
+  connector_label: string,
+  connector_account_details: connectorAuthTypeObj,
+  test_mode: bool,
+  disabled: bool,
+  payment_methods_enabled: payment_methods_enabledV2,
+  profile_id: string,
+  metadata: JSON.t,
+  merchant_connector_id: string,
+  frm_configs: array<frm_config>,
   status: string,
   connector_webhook_details: JSON.t,
   additional_merchant_data: JSON.t,

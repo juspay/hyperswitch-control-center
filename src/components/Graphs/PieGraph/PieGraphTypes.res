@@ -8,7 +8,7 @@ type pointFormatter = {
   series: toolTipSeris,
   point: point,
 }
-type legendLabelFormatter = {name: string}
+type legendLabelFormatter = {name: string, y: int}
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =
   "%identity"
 external asLegendPointFormatter: Js_OO.Callback.arity1<'a> => legendLabelFormatter => string =
@@ -115,8 +115,14 @@ type dataObj<'t> = {
   pointPadding?: float,
 }
 
+type chart = {
+  \"type": string,
+  height: int,
+}
+
 type pieCartData<'t> = array<dataObj<'t>>
 type pieGraphOptions<'t> = {
+  chart: chart,
   accessibility: enabled,
   title?: title,
   plotOptions: plotOptions,

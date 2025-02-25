@@ -22,22 +22,15 @@ module ListBaseComp = {
             ? "rotate-0"
             : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
-    let subHeadingElem = if subHeading->String.length > 20 {
-      <HelperComponents.EllipsisText
-        displayValue=subHeading endValue=20 showCopy=false customTextStyle={`${secondaryTextColor}`}
-      />
-    } else {
-      {subHeading->React.string}
-    }
-
     <>
       {switch user {
       | #Merchant =>
         <div
           className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
-          <div className="text-left flex gap-2">
-            <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap`}>
-              subHeadingElem
+          <div className="text-left flex gap-2 w-52">
+            <p
+              className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
+              {subHeading->React.string}
             </p>
             {showDropdownArrow
               ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
@@ -48,9 +41,10 @@ module ListBaseComp = {
       | #Profile =>
         <div
           className="flex flex-row cursor-pointer items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
-          <div>
-            <p className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500">
-              subHeadingElem
+          <div className="max-w-40">
+            <p
+              className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
+              {subHeading->React.string}
             </p>
           </div>
           {showDropdownArrow
