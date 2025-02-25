@@ -133,6 +133,7 @@ let make = () => {
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
+  let isMobileView = MatchMedia.useMobileChecker()
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
   )
@@ -182,9 +183,12 @@ let make = () => {
     checked: true,
   }
 
+  let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
+  let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
+
   let addItemBtnStyle = `w-full ${borderColor} border-t-0`
   let customScrollStyle = `max-h-72 overflow-scroll px-1 pt-1 ${borderColor}`
-  let dropdownContainerStyle = `rounded-md border border-1 w-[14rem] ${borderColor} max-w-[20rem]`
+  let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass}`
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
