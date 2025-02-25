@@ -5,12 +5,14 @@ let make = (
   ~labelClass="font-semibold ",
   ~isInEditState,
   ~connectorInfo: ConnectorTypes.connectorPayload,
+  ~processorType=ConnectorTypes.Processor,
 ) => {
   open LogicUtils
   open ConnectorHelperV2
   let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
 
-  let connectorTypeFromName = connector->ConnectorUtils.getConnectorNameTypeFromString
+  let connectorTypeFromName =
+    connector->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=processorType)
 
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->ConnectorUtils.getConnectorInfo
@@ -19,7 +21,15 @@ let make = (
   let connectorWebHookDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = Window.getConnectorConfig(connector)
+        let dict = switch processorType {
+        | Processor => Window.getConnectorConfig(connector)
+        | PayoutProcessor => Window.getPayoutConnectorConfig(connector)
+        | ThreeDsAuthenticator => Window.getAuthenticationConnectorConfig(connector)
+        | PMAuthenticationProcessor => Window.getPMAuthenticationProcessorConfig(connector)
+        | TaxProcessor => Window.getTaxProcessorConfig(connector)
+        | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connector)
+        | FRMPlayer => JSON.Encode.null
+        }
 
         dict->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
       } else {
