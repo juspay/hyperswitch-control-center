@@ -13,7 +13,7 @@ let make = (~initialValues, ~merchantId, ~onNextClick) => {
           connectorName=connectorInfoDict.merchant_connector_id
           textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
           containerClass="flex flex-row items-center justify-between"
-          displeyTextLength=46
+          displayTextLength=46
           hideLabel=true
           showFullCopy=true
         />
