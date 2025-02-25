@@ -40,11 +40,6 @@ let make = (~connectorInfo) => {
     }
   }, [connectorInfodict.merchant_connector_id])
 
-  let handleClick = () => {
-    setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/recovery/connectors`))
-  }
-
   <div className="flex flex-col px-10 gap-8">
     <div className="flex flex-col ">
       <PageUtils.PageHeading
@@ -65,7 +60,14 @@ let make = (~connectorInfo) => {
     </div>
     <ACLButton
       text="Done"
-      onClick={_ => handleClick()}
+      onClick={_ => {
+        setShowSideBar(_ => true)
+        RescriptReactRouter.replace(
+          GlobalVars.appendDashboardPath(
+            ~url=`/v2/recovery/summary/mca_ODpn6HPuGH5F3fa12K2B?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.merchant_connector_id}`,
+          ),
+        )
+      }}
       buttonSize=Large
       buttonType=Primary
       customButtonStyle="w-full"
