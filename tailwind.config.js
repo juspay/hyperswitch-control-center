@@ -367,6 +367,7 @@ module.exports = {
         },
         nd_red: {
           50: "#FCF1EF",
+          400: "#EC5941",
         },
       },
       borderRadius: {

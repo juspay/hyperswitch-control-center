@@ -1,4 +1,16 @@
 @react.component
 let make = () => {
-  <ReconReports />
+  let url = RescriptReactRouter.useUrl()
+
+  switch url.path->HSwitchUtils.urlPath {
+  | list{"v2", "recon", "reports", ...remainingPath} =>
+    <EntityScaffold
+      entityName="Payments"
+      remainingPath
+      access=Access
+      renderList={() => <ReconReports />}
+      renderShow={(_, _) => <ShowReconExceptionReport />}
+    />
+  | _ => React.null
+  }
 }
