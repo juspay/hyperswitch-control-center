@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.02.26.0
+
+### Features
+
+- Added Column Graph, PieGraph, Stacked BarGraph ([#2317](https://github.com/juspay/hyperswitch-control-center/pull/2317)) ([`b3e0fee`](https://github.com/juspay/hyperswitch-control-center/commit/b3e0feeb4fe063c4aa4a7161867ff29d46f9dd14))
+
+### Bug Fixes
+
+- Recon icon display ([#2324](https://github.com/juspay/hyperswitch-control-center/pull/2324)) ([`39693ed`](https://github.com/juspay/hyperswitch-control-center/commit/39693ed6641c57836d0b96324aa8dcd6555ee1ef))
+- Responsive merchant and profile dropdowns ([#2334](https://github.com/juspay/hyperswitch-control-center/pull/2334)) ([`6598e2d`](https://github.com/juspay/hyperswitch-control-center/commit/6598e2d68f9103f628eba832d7ec6936500c883f))
+
+### Miscellaneous Tasks
+
+- Changes in Input Fields, Search Box and Buttons ([#2319](https://github.com/juspay/hyperswitch-control-center/pull/2319)) ([`94f0b06`](https://github.com/juspay/hyperswitch-control-center/commit/94f0b06bc176f57764ff10ed932e9c75cd93e81b))
+- Merchant search in dropdown ([#2321](https://github.com/juspay/hyperswitch-control-center/pull/2321)) ([`d8d9b86`](https://github.com/juspay/hyperswitch-control-center/commit/d8d9b8672c94eb42f153cc1ed921f84d78a8f61a))
+- Recovery new folder structure ([#2314](https://github.com/juspay/hyperswitch-control-center/pull/2314)) ([`f0c9861`](https://github.com/juspay/hyperswitch-control-center/commit/f0c9861e2ffebecdbacbfac7a21587e11d163c69))
+- Edit PMTs option for payout processors ([#2327](https://github.com/juspay/hyperswitch-control-center/pull/2327)) ([`412d278`](https://github.com/juspay/hyperswitch-control-center/commit/412d2781bd0d775e7d1b47f8c4c979e2717ed5f1))
+
+**Full Changelog:** [`2025.02.24.0...2025.02.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.24.0...2025.02.26.0)
+
+
+- - -
+
 ## 2025.02.24.0
 
 ### Features
