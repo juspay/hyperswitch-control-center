@@ -8,7 +8,7 @@ let make = () => {
     | list{"v2", "recon", "onboarding"} =>
       <ReconOnBoardingContainer showOnBoarding setShowOnBoarding />
     | list{"v2", "recon", "configuration"} => <ReconConfigurationContainer setShowOnBoarding />
-    | list{"v2", "recon", "reports"} => <ReconReportsContainer />
+    | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer />
     | _ => React.null
     }
   }
