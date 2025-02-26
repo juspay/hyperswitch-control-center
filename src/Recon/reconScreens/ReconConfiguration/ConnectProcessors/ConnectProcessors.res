@@ -74,6 +74,7 @@ let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
             shouldDisplaySelectedOnTop=true
             customSelectionIcon={CustomIcon(<Icon name="nd-checkbox-base" />)}
             searchInputPlaceHolder="Search"
+            showSearchIcon=true
           />
         </div>
         <RenderIf condition={selectedProcessor->String.length > 0}>

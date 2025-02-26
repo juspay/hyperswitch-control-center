@@ -65,3 +65,52 @@ module DisplayKeyValueParams = {
     }
   }
 }
+
+module ListBaseComp = {
+  @react.component
+  let make = (
+    ~heading="",
+    ~subHeading,
+    ~arrow,
+    ~showEditIcon=false,
+    ~onEditClick=_ => (),
+    ~isDarkBg=false,
+    ~showDropdownArrow=true,
+    ~placeHolder="Select Processor",
+  ) => {
+    let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
+
+    let arrowClassName = isDarkBg
+      ? `${arrow
+            ? "rotate-180"
+            : "-rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+      : `${arrow
+            ? "rotate-0"
+            : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+
+    let bgClass = subHeading->String.length > 0 ? "bg-white" : "bg-nd_gray-50"
+
+    <div
+      className={`flex flex-row cursor-pointer items-center px-4 gap-2 min-w-44 justify-between h-36-px ${bgClass} border rounded-lg border-nd_gray-100 shadow-sm`}>
+      <div className="flex flex-row items-center gap-2">
+        <RenderIf condition={subHeading->String.length > 0}>
+          <p
+            className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
+            {subHeading->React.string}
+          </p>
+        </RenderIf>
+        <RenderIf condition={subHeading->String.length == 0}>
+          <p
+            className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
+            {placeHolder->React.string}
+          </p>
+        </RenderIf>
+      </div>
+      <RenderIf condition={showDropdownArrow}>
+        <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+      </RenderIf>
+    </div>
+  }
+}

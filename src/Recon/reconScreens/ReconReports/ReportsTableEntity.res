@@ -56,7 +56,7 @@ let useGetAllReportStatus = (order: allReportPayload) => {
 let getHeading = (colType: allColtype) => {
   switch colType {
   | TransactionId => Table.makeHeaderInfo(~key="transaction_id", ~title="Transaction Id")
-  | OrderId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant Id")
+  | OrderId => Table.makeHeaderInfo(~key="order_id", ~title="Order Id")
   | ReconStatus => Table.makeHeaderInfo(~key="recon_status", ~title="Recon Status")
   | PaymentGateway => Table.makeHeaderInfo(~key="payment_gateway", ~title="Payment Gateway")
   | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
@@ -71,7 +71,13 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
   switch colType {
   | TransactionId => Text(report.transaction_id)
   | OrderId => Text(report.order_id)
-  | PaymentGateway => Text(report.payment_gateway)
+  | PaymentGateway =>
+    CustomCell(
+      <HelperComponents.ConnectorCustomCell
+        connectorName=report.payment_gateway connectorType={Processor}
+      />,
+      "",
+    )
   | PaymentMethod => Text(report.payment_method)
   | ReconStatus =>
     Label({
@@ -85,7 +91,7 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
   | TransactionDate => Date(report.transaction_date)
   | SettlementAmount => Text(Js.Float.toString(report.settlement_amount))
   | TxnAmount => Text(Js.Float.toString(report.txn_amount))
-  | Actions => CustomCell(<Icon name="external-link-alt" />, "")
+  | Actions => CustomCell(<Icon name="nd-external-link-square" size=16 />, "")
   }
 }
 

@@ -27,7 +27,7 @@ let make = (~setShowOnBoarding) => {
 
   <div>
     <div className="flex flex-col gap-10 py-10 h-774-px overflow-y-hidden">
-      <div className="flex h-full">
+      <div className="flex h-full mt-10">
         <div className="flex flex-col">
           <VerticalStepIndicator titleElement=reconTitleElement sections currentStep backClick />
         </div>

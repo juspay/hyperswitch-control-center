@@ -235,7 +235,7 @@ module ReconciliationOverview = {
     let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
     let dropdownContainerStyle = "rounded-md border border-1 !w-full"
     <div className="flex flex-col gap-6 w-full">
-      <div className="relative flex items-center justify-between w-full mt-8">
+      <div className="relative flex items-center justify-between w-full mt-12">
         <PageUtils.PageHeading
           title={"Reconciliation Overview"}
           customTitleStyle="!text-2xl !leading-8 !font-semibold !text-nd_gray-700 !tracking-normal"

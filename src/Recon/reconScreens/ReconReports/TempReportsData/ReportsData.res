@@ -1,30 +1,114 @@
-let getReconReports = (~merchantId, ~startDate, ~endDate) => {
-  let url = `http://localhost:9000/recon-settlement-api/recon/settlements/v1/dashboard/reports/recon`
-  let body = {
-    "merchant_id": merchantId,
-    "start_date": `${startDate}T00:00:00`,
-    "end_date": `${endDate}T23:59:59`,
-    "offset": 0,
-    "limit": 100,
-  }->Identity.genericTypeToJson
-  (url, body)
-}
-
-let useFetchReportsList = () => {
-  open APIUtils
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-
-  async (~startDate, ~endDate) => {
-    try {
-      let (url, body) = getReconReports(~merchantId, ~startDate, ~endDate)
-      let res = await updateAPIHook(url, body, Post)
-      res
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-}
+let reportsResponse = {
+  "data": [
+    {
+      "transaction_id": "Txn_1234",
+      "order_id": "Ord_5678",
+      "payment_gateway": "Stripe",
+      "payment_method": "Credit Card",
+      "txn_amount": 324.0,
+      "settlement_amount": 324.0,
+      "recon_status": "Reconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+    {
+      "transaction_id": "Txn_1235",
+      "order_id": "Ord_5679",
+      "payment_gateway": "Stripe",
+      "payment_method": "Credit Card",
+      "txn_amount": 221.0,
+      "settlement_amount": 180.0,
+      "recon_status": "Unreconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+    {
+      "transaction_id": "Txn_1236",
+      "order_id": "Ord_5680",
+      "payment_gateway": "Stripe",
+      "payment_method": "Credit Card",
+      "txn_amount": 801.0,
+      "settlement_amount": 801.0,
+      "recon_status": "Reconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+    {
+      "transaction_id": "Txn_1237",
+      "order_id": "Ord_5681",
+      "payment_gateway": "Stripe",
+      "payment_method": "Debit Card",
+      "txn_amount": 831.0,
+      "settlement_amount": 820.0,
+      "recon_status": "Unreconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+    {
+      "transaction_id": "Txn_1238",
+      "order_id": "Ord_5682",
+      "payment_gateway": "Stripe",
+      "payment_method": "Wallet",
+      "txn_amount": 218.0,
+      "settlement_amount": 218.0,
+      "recon_status": "Reconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+    {
+      "transaction_id": "Txn_1239",
+      "order_id": "Ord_5683",
+      "payment_gateway": "Stripe",
+      "payment_method": "Debit Card",
+      "txn_amount": 916.0,
+      "settlement_amount": 910.0,
+      "recon_status": "Unreconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+    {
+      "transaction_id": "Txn_1240",
+      "order_id": "Ord_5684",
+      "payment_gateway": "Stripe",
+      "payment_method": "Credit Card",
+      "txn_amount": 507.0,
+      "settlement_amount": 507.0,
+      "recon_status": "Reconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+    {
+      "transaction_id": "Txn_1241",
+      "order_id": "Ord_5685",
+      "payment_gateway": "Stripe",
+      "payment_method": "Wallet",
+      "txn_amount": 137.0,
+      "settlement_amount": 137.0,
+      "recon_status": "Reconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+    {
+      "transaction_id": "Txn_1242",
+      "order_id": "Ord_5686",
+      "payment_gateway": "Stripe",
+      "payment_method": "Credit Card",
+      "txn_amount": 808.0,
+      "settlement_amount": 808.0,
+      "recon_status": "Reconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+    {
+      "transaction_id": "Txn_1243",
+      "order_id": "Ord_5687",
+      "payment_gateway": "Stripe",
+      "payment_method": "Debit Card",
+      "txn_amount": 807.0,
+      "settlement_amount": 720.0,
+      "recon_status": "Unreconciled",
+      "transaction_date": "Jan 22, 2025 03:25PM",
+      "actions": "",
+    },
+  ],
+}->Identity.genericTypeToJson
