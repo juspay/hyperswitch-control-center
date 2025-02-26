@@ -267,6 +267,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
               ->ConnectorListMapper.getProcessorPayloadType}
               connector
               setCurrentStep
+              updateStepValue={Some(ConnectorTypes.PaymentMethods)}
               getConnectorDetails={Some(getConnectorDetails)}
             />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
