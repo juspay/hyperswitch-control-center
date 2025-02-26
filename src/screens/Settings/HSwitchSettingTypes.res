@@ -158,6 +158,7 @@ type profileEntity = {
   outgoing_webhook_custom_http_headers: option<Dict.t<JSON.t>>,
   is_auto_retries_enabled: option<bool>,
   max_auto_retries_enabled: option<int>,
+  always_request_overcapture: option<bool>,
 }
 
 type twoFaType = RecoveryCode | Totp

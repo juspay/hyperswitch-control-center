@@ -114,6 +114,7 @@ type order = {
   merchant_order_reference_id: string,
   attempt_count: int,
   connector_label: string,
+  overcapture_status: string,
 }
 
 type refundsColType =
@@ -274,6 +275,7 @@ type otherDetailsColType =
   | FRMTransactionType
   | FRMStatus
   | MerchantOrderReferenceId
+  | OvercaptureStatus
 
 type optionObj = {
   urlKey: string,
