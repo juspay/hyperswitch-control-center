@@ -3,18 +3,25 @@ open OrderDataConnectionTypes
 let getSelectedStepName = step => {
   switch step {
   | ConnectYourOrderDataSource => "Connect your order data source"
-  | UploadFile => "Upload File"
+  | UploadFile => "Try with Sample Data"
   }
 }
 
 let getSelectedStepDescription = step => {
   switch step {
   | ConnectYourOrderDataSource => "This feature is available in production only"
-  | UploadFile => "Use data in a .csv file"
+  | UploadFile => "Explore with our pre-populated sample order data."
   }
 }
 
-let orderDataStepsArr: array<orderDataSteps> = [ConnectYourOrderDataSource, UploadFile]
+let isDisabled = step => {
+  switch step {
+  | ConnectYourOrderDataSource => true
+  | UploadFile => false
+  }
+}
+
+let orderDataStepsArr: array<orderDataSteps> = [UploadFile, ConnectYourOrderDataSource]
 
 let getIconName = step => {
   switch step {

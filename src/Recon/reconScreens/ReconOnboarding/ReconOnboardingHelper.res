@@ -2,6 +2,14 @@ module ReconOnboardingLanding = {
   @react.component
   let make = (~setShowOnBoarding: ('a => bool) => unit) => {
     open PageUtils
+
+    let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+    let onTryDemoClick = () => {
+      setShowSideBar(_ => false)
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/configuration"))
+      setShowOnBoarding(_ => false)
+    }
+
     <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
       <img alt="reconOnboarding" src="/Recon/landing.svg" className="rounded-3xl" />
       <div className="flex flex-col gap-8 items-center">
@@ -17,10 +25,10 @@ module ReconOnboardingLanding = {
           subTitle="Built for 10x financial & transactional accuracy"
         />
         <Button
-          text="Get Started"
-          onClick={_ => setShowOnBoarding(_ => false)}
+          text="Try the Demo"
+          onClick={_ => onTryDemoClick()}
           rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}
-          customTextPaddingClass="pr-1"
+          customTextPaddingClass="pr-0"
           buttonType=Primary
           buttonSize=Large
           buttonState=Normal
@@ -72,9 +80,9 @@ module ListBaseComp = {
           </p>
         </RenderIf>
       </div>
-      {showDropdownArrow
-        ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
-        : React.null}
+      <RenderIf condition={showDropdownArrow}>
+        <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+      </RenderIf>
     </div>
   }
 }
@@ -338,7 +346,7 @@ module Exceptions = {
             {"Exceptions Aging"->React.string}
           </p>
           <div className="w-full">
-            <ColumnGraph options={ColumGraphUtils.getColumnGraphOptions(columnGraphOptions)} />
+            <ColumnGraph options={ColumnGraphUtils.getColumnGraphOptions(columnGraphOptions)} />
           </div>
         </div>
         <div
@@ -394,135 +402,9 @@ module ReconOverviewContent = {
   }
 }
 
-module SkeletonCard = {
-  @react.component
-  let make = (~title) => {
-    <div
-      className="flex flex-col gap-4 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-      <p className="text-nd_gray-400 text-xs leading-4 font-medium"> {title->React.string} </p>
-      <p className="text-nd_gray-900 leading-8 text-2xl font-semibold"> {"--"->React.string} </p>
-    </div>
-  }
-}
-
-module SkeletonReconciliationOverview = {
-  @react.component
-  let make = () => {
-    <div className="flex flex-col gap-4 w-full">
-      <div className="flex items-center justify-between w-full">
-        <PageUtils.PageHeading
-          title={"Reconciliation Overview"}
-          customTitleStyle="!text-2xl !leading-8 !font-semibold !text-nd_gray-700 !tracking-normal"
-        />
-        <div className="border border-nd_gray-200 py-1 px-4 rounded-lg flex items-center gap-10">
-          <p className="text-nd_gray-500 leading-8 text-lg font-semibold">
-            {"--------"->React.string}
-          </p>
-          <Icon name="nd-chevron-arrow-down" className="text-nd_gray-500" />
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-5">
-        <SkeletonCard title="Automatic Reconciliation Rate" />
-        <SkeletonCard title="Total Reconciled Amount" />
-        <SkeletonCard title="Unreconciled Amount" />
-        <SkeletonCard title="Total Orders" />
-        <SkeletonCard title="Total Reconciled Orders" />
-        <SkeletonCard title="Unreconciled Orders" />
-      </div>
-      <div className="grid grid-cols-2 gap-6">
-        <div
-          className="flex flex-col gap-6 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-          <p className="text-nd_gray-500 text-sm leading-5 font-medium">
-            {"Reconciliation Summary"->React.string}
-          </p>
-          <div className="flex flex-row items-center justify-center w-full h-130-px">
-            <div className="flex-[5]" />
-            <p className="flex-[10] text-nd_gray-500 text-sm leading-4 font-medium">
-              {"Connect data to preview"->React.string}
-            </p>
-          </div>
-        </div>
-        <div
-          className="flex flex-col gap-6 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-          <p className="text-nd_gray-500 text-sm leading-5 font-medium">
-            {"Amount Discrepancy Summary"->React.string}
-          </p>
-          <div className="flex flex-row items-center justify-center w-full h-130-px">
-            <div className="flex-[7]" />
-            <p className="flex-[10] text-nd_gray-500 text-sm leading-4 font-medium">
-              {"Connect data to preview"->React.string}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  }
-}
-
-module SkeletonExceptions = {
-  @react.component
-  let make = () => {
-    <div className="flex flex-col gap-3 w-full">
-      <div className="flex items-center justify-between w-full mt-3">
-        <PageUtils.PageHeading
-          title={"Exceptions"}
-          customTitleStyle=" !text-2xl !leading-8 !font-semibold !text-nd_gray-600 !tracking-normal"
-        />
-      </div>
-      <div className="grid grid-cols-3 gap-5">
-        <SkeletonCard title="Unmatched Transactions" />
-        <SkeletonCard title="Data Missing" />
-        <SkeletonCard title="Awaiting approval" />
-        <SkeletonCard title="Manual adjustment rate" />
-        <SkeletonCard title="Discrepancy resolution time" />
-        <SkeletonCard title="Number of unresolved discrepancies" />
-      </div>
-    </div>
-  }
-}
-
-module SkeletonLoader = {
-  @react.component
-  let make = () => {
-    let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-
-    let onConnectSampleDataClick = () => {
-      setShowSideBar(_ => false)
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/configuration"))
-    }
-
-    <div className="relative h-774-px overflow-hidden">
-      <div
-        className="absolute w-full h-774-px bg-white/60 flex flex-col justify-center items-center">
-        <div
-          className="w-[482px] h-[482px] flex flex-col gap-10 rounded-full items-center justify-center bg-white p-14">
-          <div className="flex flex-col gap-4 items-center">
-            <Icon name="nd-info-circle" size=24 className="text-nd_gray-500" />
-            <p className="text-nd_gray-600 text-base text-center leading-6 font-medium">
-              {"You can see sample analytics to help you understand how the reports will look with real data"->React.string}
-            </p>
-          </div>
-          <Button
-            text="Connect sample data"
-            buttonType=Primary
-            buttonSize=Medium
-            buttonState=Normal
-            onClick={_ => onConnectSampleDataClick()}
-          />
-        </div>
-      </div>
-      <SkeletonReconciliationOverview />
-      <SkeletonExceptions />
-    </div>
-  }
-}
-
 module ReconOverview = {
   @react.component
-  let make = (~showSkeleton) => {
-    switch showSkeleton {
-    | true => <SkeletonLoader />
-    | false => <ReconOverviewContent />
-    }
+  let make = () => {
+    <ReconOverviewContent />
   }
 }

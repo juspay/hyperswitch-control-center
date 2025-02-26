@@ -1,7 +1,7 @@
 open VerticalStepIndicatorTypes
 
 @react.component
-let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding, ~setShowSkeleton) => {
+let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
   open ReconConfigurationUtils
   open VerticalStepIndicatorUtils
 
@@ -19,7 +19,6 @@ let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding, ~setShowSke
     setShowSideBar(_ => true)
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/onboarding"))
     setShowOnBoarding(_ => false)
-    setShowSkeleton(_ => false)
   }
 
   let customSelectionComponent =

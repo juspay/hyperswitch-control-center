@@ -20,6 +20,7 @@ module StepCard = {
     ~customSelectionComponent,
     ~customOuterClass="",
     ~customSelectionBorderClass=?,
+    ~isDisabled=false,
   ) => {
     let borderClass = switch (customSelectionBorderClass, isSelected) {
     | (Some(val), true) => val
@@ -27,9 +28,14 @@ module StepCard = {
     | _ => ""
     }
 
+    let disabledClass = switch isDisabled {
+    | true => "opacity-50 filter blur-xs pointer-events-none cursor-not-allowed"
+    | false => "cursor-pointer"
+    }
+
     <div
       key={stepName}
-      className={`flex items-center gap-x-2.5 border ${borderClass} rounded-xl p-3 transition-shadow justify-between w-full ${customOuterClass}`}
+      className={`flex items-center gap-x-2.5 border rounded-xl p-3 transition-shadow justify-between w-full ${borderClass}  ${disabledClass} ${customOuterClass}`}
       onClick={onClick}>
       <div className="flex flex-row items-center gap-x-4">
         <Icon name=iconName className="w-8 h-8" />
@@ -44,6 +50,9 @@ module StepCard = {
       </div>
       <RenderIf condition={isSelected}>
         {<div className="flex flex-row items-center gap-2"> customSelectionComponent </div>}
+      </RenderIf>
+      <RenderIf condition={isDisabled}>
+        <div className="h-4 w-4 border border-nd_gray-300 rounded-full" />
       </RenderIf>
     </div>
   }
