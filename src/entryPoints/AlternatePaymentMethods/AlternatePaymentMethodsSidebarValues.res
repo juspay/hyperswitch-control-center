@@ -6,7 +6,7 @@ let altPaymentMethodsHome = {
     link: `/v2/alt-payment-methods/home`,
     icon: "home",
     access: Access,
-    searchOptions: [("Alt Payment Methods home", "")],
+    searchOptions: [("Alternate Payment Methods home", "")],
   })
 }
 

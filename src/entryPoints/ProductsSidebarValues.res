@@ -67,8 +67,8 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
   if devAltPaymentMethods {
     sideBarValues->Array.push(
       Link({
-        name: AltPaymentMethods->getStringFromVariant,
-        icon: "vault-home",
+        name: AlternatePaymentMethods->getStringFromVariant,
+        icon: "alt-payment-methods-home",
         link: "/v2/alt-payment-methods/home",
         access: Access,
       }),

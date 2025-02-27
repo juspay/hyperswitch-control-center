@@ -723,7 +723,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | Recon => [ReconSidebarValues.reconSidebars]
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
-  | AltPaymentMethods => AlternatePaymentMethodsSidebarValues.altPaymentMethodsSidebars
+  | AlternatePaymentMethods => AlternatePaymentMethodsSidebarValues.altPaymentMethodsSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }
