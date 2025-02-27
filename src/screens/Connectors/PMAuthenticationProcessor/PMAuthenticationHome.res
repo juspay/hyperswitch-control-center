@@ -75,7 +75,7 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo = ConnectorInterface.getConnectorMapper(
+  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )

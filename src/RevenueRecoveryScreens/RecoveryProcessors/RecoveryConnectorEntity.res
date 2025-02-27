@@ -1,6 +1,6 @@
 open ConnectorTypes
 let getPreviouslyConnectedList: JSON.t => array<connectorPayloadV2> = json => {
-  let data = ConnectorInterface.getConnectorArrayMapper(
+  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
     ConnectorInterface.connectorInterfaceV2,
     json,
     PayoutProcessor,
@@ -55,7 +55,7 @@ let getConnectorObjectFromListViaId = (
   connectorList: array<ConnectorTypes.connectorPayloadV2>,
   mca_id: string,
 ) => {
-  let default = ConnectorInterface.getConnectorMapper(
+  let default = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     Dict.make(),
   )

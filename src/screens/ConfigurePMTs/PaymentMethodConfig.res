@@ -108,7 +108,7 @@ let make = (
         )
         ->getValueFromArray(
           0,
-          ConnectorInterface.getConnectorMapper(
+          ConnectorInterface.mapDictToConnectorPayload(
             ConnectorInterface.connectorInterfaceV1,
             Dict.make(),
           ),

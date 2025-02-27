@@ -20,7 +20,7 @@ let make = () => {
   let showToast = ToastState.useShowToast()
 
   let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
-  let connectorInfoDict = ConnectorInterface.getConnectorMapper(
+  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     connectorInfo,
   )

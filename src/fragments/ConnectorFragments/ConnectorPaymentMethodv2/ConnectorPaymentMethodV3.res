@@ -21,7 +21,7 @@ let make = (~initialValues, ~isInEditState) => {
   let initialValue = React.useMemo(() => {
     let val = initialValues->getDictFromJsonObject
 
-    ConnectorInterface.getConnectorMapper(ConnectorInterface.connectorInterfaceV2, val)
+    ConnectorInterface.mapDictToConnectorPayload(ConnectorInterface.connectorInterfaceV2, val)
   }, [initialValues])
 
   let paymentMethodValues = React.useMemo(() => {
@@ -102,7 +102,7 @@ let make = (~initialValues, ~isInEditState) => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let data = formState.values->getDictFromJsonObject
-  let connData = ConnectorInterface.getConnectorMapper(
+  let connData = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     data,
   )

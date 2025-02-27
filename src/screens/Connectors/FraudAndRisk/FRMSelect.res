@@ -179,7 +179,7 @@ let make = () => {
         />
       </RenderIf>
       <NewProcessorCards
-        configuredFRMs={ConnectorInterface.convertConnectorNameToType(
+        configuredFRMs={ConnectorInterface.mapConnectorPayloadToConnectorType(
           ConnectorInterface.connectorInterfaceV1,
           ConnectorTypes.FRMPlayer,
           configuredFRMs,

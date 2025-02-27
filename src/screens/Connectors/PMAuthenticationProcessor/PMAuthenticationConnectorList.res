@@ -82,7 +82,7 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={ConnectorInterface.convertConnectorNameToType(
+          configuredConnectors={ConnectorInterface.mapConnectorPayloadToConnectorType(
             ConnectorInterface.connectorInterfaceV1,
             ConnectorTypes.PMAuthenticationProcessor,
             configuredConnectors,

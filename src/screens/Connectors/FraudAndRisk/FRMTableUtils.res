@@ -8,7 +8,7 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<ConnectorTypes.connectorPayload> = json => {
-  let data = ConnectorInterface.getConnectorArrayMapper(
+  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
     ConnectorInterface.connectorInterfaceV1,
     json,
     PaymentVas,

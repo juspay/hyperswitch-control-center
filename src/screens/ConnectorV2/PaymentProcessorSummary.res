@@ -58,7 +58,7 @@ let make = () => {
   }
 
   let data = initialValues->getDictFromJsonObject
-  let connectorInfodict = ConnectorInterface.getConnectorMapper(
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     data,
   )

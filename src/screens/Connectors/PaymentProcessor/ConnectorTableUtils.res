@@ -32,7 +32,10 @@ let getConnectorObjectFromListViaId = (
   connectorList
   ->Array.find(ele => {ele.merchant_connector_id == mca_id})
   ->Option.getOr(
-    ConnectorInterface.getConnectorMapper(ConnectorInterface.connectorInterfaceV1, Dict.make()),
+    ConnectorInterface.mapDictToConnectorPayload(
+      ConnectorInterface.connectorInterfaceV1,
+      Dict.make(),
+    ),
   )
 }
 
@@ -124,7 +127,7 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  let data = ConnectorInterface.getConnectorArrayMapper(
+  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
     ConnectorInterface.connectorInterfaceV1,
     json,
     PaymentProcessor,

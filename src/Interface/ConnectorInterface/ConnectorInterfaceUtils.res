@@ -143,7 +143,7 @@ let getPaymentMethodsEnabled: Dict.t<JSON.t> => paymentMethodEnabledType = dict 
   }
 }
 
-let getProcessorPayloadType = (dict): connectorPayload => {
+let mapDictToConnectorPayload = (dict): connectorPayload => {
   {
     connector_type: dict
     ->getString("connector_type", "")
@@ -183,7 +183,7 @@ let getPaymentMethodsEnabledV2: Dict.t<JSON.t> => paymentMethodEnabledTypeV2 = d
   }
 }
 
-let getProcessorPayloadTypeV2 = (dict): connectorPayloadV2 => {
+let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
   {
     connector_type: dict
     ->getString("connector_type", "")
@@ -231,65 +231,7 @@ let filterConnectorListV2 = (items: array<ConnectorTypes.connectorPayloadV2>, re
   items->Array.filter(connector => connector.connector_type->filter(~retainInList))
 }
 
-let getProcessorsFilterList = (
-  connnectorList: array<ConnectorTypes.connectorPayload>,
-  ~removeFromList: connector=FRMPlayer,
-) => {
-  connnectorList->Array.filter(dict => {
-    let connectorType = dict.connector_type
-    let isPayoutProcessor = connectorType == PayoutProcessor
-    let isThreeDsAuthenticator = connectorType == AuthenticationProcessor
-    let isPMAuthenticationProcessor = connectorType == PMAuthProcessor
-    let isTaxProcessor = connectorType == TaxProcessor
-    let isConnector =
-      connectorType !== PaymentVas &&
-      !isPayoutProcessor &&
-      !isThreeDsAuthenticator &&
-      !isPMAuthenticationProcessor &&
-      !isTaxProcessor
-
-    switch removeFromList {
-    | Processor => !isConnector
-    | FRMPlayer => isConnector
-    | PayoutProcessor => isPayoutProcessor
-    | ThreeDsAuthenticator => isThreeDsAuthenticator
-    | PMAuthenticationProcessor => isPMAuthenticationProcessor
-    | TaxProcessor => isTaxProcessor
-    | BillingProcessor => connectorType == BillingProcessor
-    }
-  })
-}
-
-let getProcessorsFilterListV2 = (
-  connnectorList: array<ConnectorTypes.connectorPayloadV2>,
-  ~removeFromList: connector=FRMPlayer,
-) => {
-  connnectorList->Array.filter(dict => {
-    let connectorType = dict.connector_type
-    let isPayoutProcessor = connectorType == PayoutProcessor
-    let isThreeDsAuthenticator = connectorType == AuthenticationProcessor
-    let isPMAuthenticationProcessor = connectorType == PMAuthProcessor
-    let isTaxProcessor = connectorType == TaxProcessor
-    let isConnector =
-      connectorType !== PaymentVas &&
-      !isPayoutProcessor &&
-      !isThreeDsAuthenticator &&
-      !isPMAuthenticationProcessor &&
-      !isTaxProcessor
-
-    switch removeFromList {
-    | Processor => !isConnector
-    | FRMPlayer => isConnector
-    | PayoutProcessor => isPayoutProcessor
-    | ThreeDsAuthenticator => isThreeDsAuthenticator
-    | PMAuthenticationProcessor => isPMAuthenticationProcessor
-    | TaxProcessor => isTaxProcessor
-    | BillingProcessor => connectorType == BillingProcessor
-    }
-  })
-}
-
-let convertConnectorNameToType = (
+let mapConnectorPayloadToConnectorType = (
   ~connectorType=ConnectorTypes.Processor,
   connectorsList: array<ConnectorTypes.connectorPayload>,
 ) => {
@@ -298,11 +240,31 @@ let convertConnectorNameToType = (
   )
 }
 
-let convertConnectorNameToTypeV2 = (
+let mapConnectorPayloadToConnectorTypeV2 = (
   ~connectorType=ConnectorTypes.Processor,
   connectorsList: array<ConnectorTypes.connectorPayloadV2>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
     connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
   )
+}
+
+let mapJsonArrayToConnectorPayloads = (json, retainInList) => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(connectorJson => {
+    let data = connectorJson->getDictFromJsonObject->mapDictToConnectorPayload
+    data
+  })
+  ->filterConnectorList(retainInList)
+}
+
+let mapJsonArrayToConnectorPayloadsV2 = (json, retainInList) => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(connectorJson => {
+    let data = connectorJson->getDictFromJsonObject->mapDictToConnectorPayloadV2
+    data
+  })
+  ->filterConnectorListV2(retainInList)
 }

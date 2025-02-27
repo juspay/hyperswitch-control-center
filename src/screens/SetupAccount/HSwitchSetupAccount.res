@@ -43,7 +43,7 @@ let make = () => {
       // ->getDictFromJsonObject
       //   ->ConnectorListMapper.getProcessorPayloadType
       let stripeTest = (await updateDetails(url, stripeTestBody, Post))->getDictFromJsonObject
-      let stripeTestRes = ConnectorInterface.getConnectorMapper(
+      let stripeTestRes = ConnectorInterface.mapDictToConnectorPayload(
         ConnectorInterface.connectorInterfaceV1,
         stripeTest,
       )
@@ -54,7 +54,7 @@ let make = () => {
         ~profileId=activeBusinessProfile.profile_id,
       )
       let payPalTest = (await updateDetails(url, paypalTestBody, Post))->getDictFromJsonObject
-      let payPalTestRes = ConnectorInterface.getConnectorMapper(
+      let payPalTestRes = ConnectorInterface.mapDictToConnectorPayload(
         ConnectorInterface.connectorInterfaceV1,
         payPalTest,
       )

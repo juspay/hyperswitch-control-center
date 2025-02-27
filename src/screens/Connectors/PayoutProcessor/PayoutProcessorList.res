@@ -24,7 +24,7 @@ let make = () => {
       setFilteredConnectorData(_ => connectorList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorList->Array.map(Nullable.make))
 
-      let list = ConnectorInterface.convertConnectorNameToType(
+      let list = ConnectorInterface.mapConnectorPayloadToConnectorType(
         ConnectorInterface.connectorInterfaceV1,
         ConnectorTypes.PayoutProcessor,
         connectorList,

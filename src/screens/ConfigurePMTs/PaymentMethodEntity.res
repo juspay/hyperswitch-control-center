@@ -104,7 +104,7 @@ let getCell = (~setReferesh) => {
 
 let itemObjMapper = (dict, mappedArr) => {
   open LogicUtils
-  let connectorPayload = ConnectorInterface.getConnectorMapper(
+  let connectorPayload = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     dict,
   )

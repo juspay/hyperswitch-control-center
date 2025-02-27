@@ -25,7 +25,7 @@ let make = () => {
 
       connectorListFromRecoil->Array.reverse
 
-      let list = ConnectorInterface.convertConnectorNameToType(
+      let list = ConnectorInterface.mapConnectorPayloadToConnectorType(
         ConnectorInterface.connectorInterfaceV2,
         ConnectorTypes.Processor,
         connectorListFromRecoil,

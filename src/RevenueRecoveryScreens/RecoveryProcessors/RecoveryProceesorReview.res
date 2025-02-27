@@ -5,7 +5,7 @@ let make = (~connectorInfo) => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let connectorInfo = connectorInfo->LogicUtils.getDictFromJsonObject
 
-  let connectorInfodict = ConnectorInterface.getConnectorMapper(
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     connectorInfo,
   )

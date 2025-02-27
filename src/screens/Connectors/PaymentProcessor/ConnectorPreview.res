@@ -346,7 +346,7 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
 
-  let connectorInfo = ConnectorInterface.getConnectorMapper(
+  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     connectorInfoDict,
   )

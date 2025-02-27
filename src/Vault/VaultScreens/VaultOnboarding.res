@@ -19,7 +19,7 @@ let make = () => {
   let {profileId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
 
-  let connectorInfoDict = ConnectorInterface.getConnectorMapper(
+  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )

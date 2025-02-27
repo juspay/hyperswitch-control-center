@@ -236,7 +236,7 @@ let make = () => {
             connectorType=ThreeDsAuthenticator
             headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={ConnectorInterface.getConnectorMapper(
+              connectorInfo={ConnectorInterface.mapDictToConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
                 initialValues->LogicUtils.getDictFromJsonObject,
               )}

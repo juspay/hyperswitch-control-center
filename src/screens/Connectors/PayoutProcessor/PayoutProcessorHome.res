@@ -114,7 +114,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
-  let connectorInfo = ConnectorInterface.getConnectorMapper(
+  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
@@ -264,7 +264,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector connectorType={PayoutProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={ConnectorInterface.getConnectorMapper(
+              connectorInfo={ConnectorInterface.mapDictToConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
                 initialValues->LogicUtils.getDictFromJsonObject,
               )}

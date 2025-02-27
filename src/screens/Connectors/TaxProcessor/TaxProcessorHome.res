@@ -73,7 +73,7 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo = ConnectorInterface.getConnectorMapper(
+  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
@@ -344,7 +344,7 @@ let make = () => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector=connectorName connectorType={TaxProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={ConnectorInterface.getConnectorMapper(
+              connectorInfo={ConnectorInterface.mapDictToConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
                 initialValues->LogicUtils.getDictFromJsonObject,
               )}
