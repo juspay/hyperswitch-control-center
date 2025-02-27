@@ -487,7 +487,6 @@ module FieldRenderer = {
               dataId=names>
               {if field.inputFields->Array.length === 1 {
                 let field = field.inputFields[0]->Option.getOr(makeInputFieldInfo(~name=""))
-
                 <ErrorBoundary>
                   <FieldInputRenderer field errorClass showErrorOnChange />
                 </ErrorBoundary>

@@ -73,7 +73,7 @@ let make = (
           className="border border-nd_gray-150 rounded-xl overflow-hidden"
           key={`${index->Int.toString}-credit`}>
           <HeadingSection index pm availablePM=credit pmIndex pmt="credit" showSelectAll={true} />
-          <div className="flex gap-8 p-6 flex-wrap">
+          <div className="flex gap-6 p-6 flex-wrap">
             {credit
             ->Array.mapWithIndex((pmtData, i) => {
               // determine the index of the payment method type from the form state
@@ -114,7 +114,7 @@ let make = (
           <HeadingSection
             index pm availablePM=debit pmIndex pmt="debit" showSelectAll={isInEditState}
           />
-          <div className="flex gap-8 p-6 flex-wrap">
+          <div className="flex gap-6 p-6 flex-wrap">
             {debit
             ->Array.mapWithIndex((pmtData, i) => {
               // determine the index of the payment method type from the form state

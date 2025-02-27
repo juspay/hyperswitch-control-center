@@ -270,6 +270,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
               )}
               connector
               setCurrentStep
+              updateStepValue={Some(ConnectorTypes.PaymentMethods)}
               getConnectorDetails={Some(getConnectorDetails)}
             />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>

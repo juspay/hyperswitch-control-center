@@ -138,7 +138,7 @@ let make = (
             {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
           </div>
         </RenderIf>
-        <div className="flex gap-8 p-6 flex-wrap">
+        <div className="flex gap-6 p-6 flex-wrap">
           {availablePM
           ->Array.mapWithIndex((pmtData, i) => {
             let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)

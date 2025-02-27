@@ -25,7 +25,7 @@ let make = () => {
   )
 
   let (currentStep, setNextStep) = React.useState(() => {
-    sectionId: "authenticate-processor",
+    sectionId: (#authenticateProcessor: VaultHomeTypes.vaultSections :> string),
     subSectionId: None,
   })
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
@@ -34,7 +34,6 @@ let make = () => {
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->getConnectorInfo
   }, [connector])
-  let connectorName = connectorInfoDict.connector_name->getDisplayNameForConnector
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
@@ -148,16 +147,16 @@ let make = () => {
   }
   let vaultTitleElement =
     <>
-      <GatewayIcon gateway={`${connectorInfoDict.connector_name}`->String.toUpperCase} />
+      <GatewayIcon gateway={`${connector}`->String.toUpperCase} />
       <h1 className="text-medium font-semibold text-gray-600">
-        {`Setup ${connectorName}`->React.string}
+        {`Setup ${connector->capitalizeString}`->React.string}
       </h1>
     </>
 
   <div className="flex flex-row gap-x-6">
     <VerticalStepIndicator titleElement=vaultTitleElement sections currentStep backClick />
-    {switch currentStep {
-    | {sectionId: "authenticate-processor"} =>
+    {switch currentStep.sectionId->stringToSectionVariantMapper {
+    | #authenticateProcessor =>
       <div className="flex flex-col w-1/2 px-10 ">
         <PageUtils.PageHeading
           title="Authenticate Processor"
@@ -183,7 +182,7 @@ let make = () => {
         </PageLoaderWrapper>
       </div>
 
-    | {sectionId: "setup-pmts"} =>
+    | #setupPMTS =>
       <div className="flex flex-col w-1/2 px-10 ">
         <PageUtils.PageHeading
           title="Payment Methods"
@@ -206,7 +205,7 @@ let make = () => {
         </PageLoaderWrapper>
       </div>
 
-    | {sectionId: "setup-webhook"} =>
+    | #setupWebhook =>
       <div className="flex flex-col w-1/2 px-10">
         <PageUtils.PageHeading
           title="Setup Webhook"
@@ -228,7 +227,7 @@ let make = () => {
           customButtonStyle="w-full mt-8"
         />
       </div>
-    | {sectionId: "review-and-connect"} => <VaultProceesorReview connectorInfo=initialValues />
+    | #reviewAndConnect => <VaultProceesorReview connectorInfo=initialValues />
     | _ => React.null
     }}
   </div>

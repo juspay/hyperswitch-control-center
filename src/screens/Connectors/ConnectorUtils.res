@@ -1352,7 +1352,7 @@ let validateConnectorRequiredFields = (
   ->Array.forEach(fieldName => {
     let key = `connector_webhook_details.${fieldName}`
     let errorKey = connectorWebHookDetails->getString(fieldName, "")
-    let value = valuesFlattenJson->getString(`connector_webhook_details.${fieldName}`, "")
+    let value = valuesFlattenJson->getString(key, "")
     if value->String.length === 0 && connector->getWebHookRequiredFields(fieldName) {
       Dict.set(newDict, key, `Please enter ${errorKey}`->JSON.Encode.string)
     }
