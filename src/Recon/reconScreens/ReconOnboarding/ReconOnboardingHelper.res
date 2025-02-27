@@ -1,13 +1,12 @@
 module ReconOnboardingLanding = {
   @react.component
-  let make = (~setShowOnBoarding: ('a => bool) => unit) => {
+  let make = () => {
     open PageUtils
 
     let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
     let onTryDemoClick = () => {
       setShowSideBar(_ => false)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/configuration"))
-      setShowOnBoarding(_ => false)
     }
 
     <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">

@@ -134,10 +134,10 @@ let make = () => {
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
 
-  <div className="flex flex-col space-y-2 justify-center relative">
+  <div className="flex flex-col gap-5 justify-center relative">
     <div className="flex justify-between items-center">
       <p className="text-2xl font-semibold text-nd_gray-700">
-        {"Reconciliation Reports"->React.string}
+        {"Reconciliation Report"->React.string}
       </p>
       <div className="flex flex-row gap-4">
         <div className="flex flex-row gap-6">
@@ -164,7 +164,7 @@ let make = () => {
           />
         </div>
         <Button
-          text="Download Reports"
+          text="Download Report"
           buttonType={Secondary}
           leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=14 />)}
           onClick={_ => {

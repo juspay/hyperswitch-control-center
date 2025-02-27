@@ -1,10 +1,10 @@
 @react.component
-let make = (~showOnBoarding, ~setShowOnBoarding) => {
+let make = (~showOnBoarding) => {
   open ReconOnboardingHelper
 
   {
     switch showOnBoarding {
-    | true => <ReconOnboardingLanding setShowOnBoarding />
+    | true => <ReconOnboardingLanding />
     | false => <ReconOverview />
     }
   }

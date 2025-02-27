@@ -42,7 +42,7 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
       modalHeading={`${selectedId.transaction_id}`}>
       <ShowAllReports isModal=true setShowModal />
     </Modal>
-    <div className="flex flex-col mx-auto w-full h-full mt-5  ">
+    <div className="flex flex-col mx-auto w-full h-full">
       <RenderIf condition={configuredReports->Array.length > 0}>
         <LoadedTableWithCustomColumns
           title="All Reports"
@@ -55,11 +55,11 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
             data={configuredReports->Array.map(Nullable.make)}
             filterLogic
             placeholder="Search Transaction Id or Order Id or Status"
-            customSearchBarWrapperWidth="w-full lg:w-1/2"
+            customSearchBarWrapperWidth="w-1/3"
             searchVal=searchText
             setSearchVal=setSearchText
           />}
-          resultsPerPage=20
+          resultsPerPage=10
           showSerialNumber=true
           totalResults={filteredReportsData->Array.length}
           offset

@@ -57,7 +57,7 @@ let make = () => {
         `v2/recon/reports`,
         ~authorization=userHasAccess(~groupAccess=UsersManage),
       )}
-      resultsPerPage=20
+      resultsPerPage=10
       showSerialNumber=false
       totalResults={filteredReportsData->Array.length}
       offset
