@@ -180,6 +180,10 @@ let getProcessorPayloadType = (dict): connectorPayload => {
     additional_merchant_data: dict
     ->getObj("additional_merchant_data", Dict.make())
     ->JSON.Encode.object,
+    revenue_recovery: dict
+    ->getObj("feature_metadata", Dict.make())
+    ->getObj("revenue_recovery", Dict.make())
+    ->JSON.Encode.object,
   }
 }
 
