@@ -193,7 +193,7 @@ let make = () => {
         <PageLoaderWrapper screenState>
           <Form onSubmit initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
-              <ConnectorPaymentMethodV3 initialValues isInEditState=true />
+              <ConnectorPaymentMethodV2 initialValues isInEditState=true />
               <FormRenderer.SubmitButton
                 text="Next"
                 buttonSize={Small}

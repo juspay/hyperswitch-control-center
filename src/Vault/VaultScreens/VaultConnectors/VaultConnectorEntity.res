@@ -3,7 +3,7 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayloadV2> = json => {
   let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
     ConnectorInterface.connectorInterfaceV2,
     json,
-    PayoutProcessor,
+    PaymentProcessor,
   )
   data
 }

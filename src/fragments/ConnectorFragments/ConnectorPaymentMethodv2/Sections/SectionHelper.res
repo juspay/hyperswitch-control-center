@@ -1,7 +1,7 @@
 module Heading = {
   @react.component
   let make = (~heading) => {
-    open ConnectorPaymentMethodV3Utils
+    open ConnectorPaymentMethodV2Utils
     <div className="flex gap-2.5 items-center">
       <div className="p-2 bg-white border rounded-md">
         <Icon name={heading->pmIcon} />
@@ -85,7 +85,7 @@ module SelectedPMT = {
   @react.component
   let make = (~pmtData: array<ConnectorTypes.paymentMethodConfigType>, ~index, ~pm) => {
     open LogicUtils
-    open ConnectorPaymentMethodV3Utils
+    open ConnectorPaymentMethodV2Utils
     <RenderIf condition={pmtData->Array.length > 0}>
       <div
         className="border border-nd_gray-150 rounded-xl overflow-hidden"

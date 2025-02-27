@@ -3,7 +3,7 @@ module SelectedCardValues = {
   let make = (~initialValues, ~index) => {
     open LogicUtils
     open SectionHelper
-    open ConnectorPaymentMethodV3Utils
+    open ConnectorPaymentMethodV2Utils
     let data1 = initialValues->getDictFromJsonObject
     let data = ConnectorInterface.mapDictToConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
@@ -47,7 +47,7 @@ let make = (
 ) => {
   open LogicUtils
   open SectionHelper
-  open ConnectorPaymentMethodV3Utils
+  open ConnectorPaymentMethodV2Utils
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,

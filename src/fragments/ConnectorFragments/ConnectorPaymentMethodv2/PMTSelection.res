@@ -7,7 +7,7 @@ module PMT = {
     ~connector,
     ~formValues: ConnectorTypes.connectorPayloadV2,
   ) => {
-    open ConnectorPaymentMethodV3Utils
+    open ConnectorPaymentMethodV2Utils
     let pmInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
     let pmtArrayInp = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input

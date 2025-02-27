@@ -36,7 +36,7 @@ let make = (
   open LogicUtils
   open SectionHelper
   open AdditionalDetailsSidebar
-  open ConnectorPaymentMethodV3Utils
+  open ConnectorPaymentMethodV2Utils
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )

@@ -294,7 +294,7 @@ let make = () => {
               }}
             </div>
           </div>
-          <ConnectorPaymentMethodV3 initialValues isInEditState={checkCurrentEditState(PMTs)} />
+          <ConnectorPaymentMethodV2 initialValues isInEditState={checkCurrentEditState(PMTs)} />
         </div>
       </div>
       <FormValuesSpy />

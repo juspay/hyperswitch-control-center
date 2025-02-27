@@ -8,7 +8,7 @@ PMTIndex - PaymentMethodType Index
 @react.component
 let make = (~initialValues, ~isInEditState) => {
   open LogicUtils
-  open ConnectorPaymentMethodV3Utils
+  open ConnectorPaymentMethodV2Utils
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let pmts = React.useMemo(() => {
     try {

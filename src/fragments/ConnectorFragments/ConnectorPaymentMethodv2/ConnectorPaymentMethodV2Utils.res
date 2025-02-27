@@ -63,22 +63,6 @@ let acceptedValues = dict => {
   values.list->Array.length > 0 ? Some(values) : None
 }
 
-// let itemProviderMapper = dict => {
-//   {
-//     payment_method_type: dict->getString("payment_method_type", ""),
-//     accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
-//     accepted_currencies: dict
-//     ->getDictfromDict("accepted_currencies")
-//     ->acceptedValues,
-//     minimum_amount: dict->getOptionInt("minimum_amount"),
-//     maximum_amount: dict->getOptionInt("maximum_amount"),
-//     recurring_enabled: dict->getOptionBool("recurring_enabled"),
-//     installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
-//     payment_experience: dict->getOptionString("payment_experience"),
-//     card_networks: dict->getStrArrayFromDict("card_networks", []),
-//   }
-// }
-
 let getPaymentMethodDictV2 = (dict, pm, connector) => {
   let paymentMethodType = dict->getString("payment_method_type", "")
   let (cardNetworks, modifedPaymentMethodType) = switch pm->getPMTFromString {

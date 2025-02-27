@@ -6,10 +6,6 @@ let make = () => {
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
 
-  // let connectorListFromRecoil = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-
-  // let connectorListFromRecoil =
-  //   JSON.Encode.null->ConnectorInterface.getArrayOfConnectorListPayloadTypeV2
   let connectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV2,
     ~retainInList=PaymentProcessor,
