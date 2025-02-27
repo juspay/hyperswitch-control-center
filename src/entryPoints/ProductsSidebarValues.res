@@ -21,7 +21,7 @@ let useGetSideBarValues = () => {
 
 let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) => {
   open ProductUtils
-  let {devReconv2Product, devRecoveryV2Product, devVaultV2Product} =
+  let {devReconv2Product, devRecoveryV2Product, devVaultV2Product, devIntelligentRoutingV2} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
@@ -60,6 +60,16 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
         name: Vault->getStringFromVariant,
         icon: "vault-home",
         link: "/v2/vault/home",
+        access: Access,
+      }),
+    )
+  }
+  if devIntelligentRoutingV2 {
+    sideBarValues->Array.push(
+      Link({
+        name: IntelligentRouting->getStringFromVariant,
+        icon: "intelligent-routing-home",
+        link: "/v2/intelligent-routing/home",
         access: Access,
       }),
     )

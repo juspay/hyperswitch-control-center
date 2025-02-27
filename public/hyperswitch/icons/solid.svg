@@ -9261,6 +9261,18 @@ License)
       stroke-linejoin="round"
     />
   </symbol>
+  
+  <symbol id="nd-arrow-up" width="20" height="20" viewBox="0 0 20 20" fill="none">
+    <path
+      d="M12 14H3M3.66667 7.22C4.7037 5.81773 5.91518 4.55829 7.27045 3.47275C7.38671 3.37962 7.52668 3.33306 7.66667 3.33306M11.6667 7.22C10.6296 5.81773 9.41815 4.55829 8.06288 3.47275C7.94662 3.37962 7.80665 3.33306 7.66667 3.33306M7.66667 3.33306V11.3331"
+      stroke="#525866" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+  </symbol>
+
+  <symbol id="nd-arrow-down" width="20" height="20" viewBox="0 0 20 20" fill="none">
+    <path
+      d="M14 15H5M5.66667 8.44699C6.7037 9.84926 7.91518 11.1087 9.27045 12.1942C9.38671 12.2873 9.52668 12.3339 9.66667 12.3339M13.6667 8.44699C12.6296 9.84926 11.4181 11.1087 10.0629 12.1942C9.94662 12.2873 9.80665 12.3339 9.66667 12.3339M9.66667 12.3339V4.33398"
+      stroke="#1C6DEA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(4 3)" />
+  </symbol>
 
   <symbol id="nd-plus" width="16" height="17" viewBox="0 0 16 17" fill="none">
     <path
@@ -9314,6 +9326,11 @@ License)
       stroke-linecap="round"
       stroke-linejoin="round"
     />
+  </symbol>
+  <symbol id="intelligent-routing-home" viewBox="0 0 11 12" fill="none">
+    <path
+        d="M8.75 7.625C9.64746 7.625 10.375 8.35254 10.375 9.25C10.375 10.1475 9.64746 10.875 8.75 10.875C7.85254 10.875 7.125 10.1475 7.125 9.25C7.125 8.35254 7.85254 7.625 8.75 7.625ZM8.75 7.625V5.45833C8.75 3.96256 7.53744 2.75 6.04167 2.75M2.25 4.375C1.35254 4.375 0.625 3.64746 0.625 2.75C0.625 1.85254 1.35254 1.125 2.25 1.125C3.14746 1.125 3.875 1.85254 3.875 2.75C3.875 3.64746 3.14746 4.375 2.25 4.375ZM2.25 4.375V6.54167C2.25 8.03744 3.46256 9.25 4.95833 9.25"
+        stroke="currentColor" stroke-width="1.08333" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
   <symbol id="nd-angle-right" viewBox="0 0 20 20" fill="none">
     <path

@@ -723,6 +723,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | Recon => [ReconSidebarValues.reconSidebars]
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
+  | IntelligentRouting => IntelligentaRoutingSidebarValues.intelligentRoutingSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

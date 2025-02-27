@@ -1,1 +1,1 @@
-type productTypes = Orchestrator | Recon | Recovery | Vault
+type productTypes = Orchestrator | Recon | Recovery | Vault | IntelligentRouting

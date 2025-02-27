@@ -60,6 +60,7 @@ dev_click_to_pay=false
 dev_recon_v2_product=false
 dev_recovery_v2_product=false
 dev_vault_v2_product=false
+dev_intelligent_routing_v2=false 
 dev_modularity_v2=false
 maintainence_alert=""
 [default.merchant_config]
