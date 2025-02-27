@@ -19,8 +19,11 @@ let make = () => {
     setUserModuleEntity,
   ) = React.useState(_ => #Default)
 
-  let sortByEmail = (email1, email2) => {
-    compareLogic(email2, email1)
+  let sortByEmail = (
+    user1: ListUserTableEntity.userTableTypes,
+    user2: ListUserTableEntity.userTableTypes,
+  ) => {
+    compareLogic(user2.email->String.toLowerCase, user1.email->String.toLowerCase)
   }
 
   let getUserData = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
