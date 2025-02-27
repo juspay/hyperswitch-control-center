@@ -20,6 +20,7 @@ let make = () => {
   {
     switch url.path->HSwitchUtils.urlPath {
     | list{"v2", "alt-payment-methods", "home"} => <AlternatePaymentMethodsHome />
+    | list{"v2", "alt-payment-methods", "onboarding", ..._} => <AlternatePaymentMethodsOnboarding />
     | _ => React.null
     }
   }
