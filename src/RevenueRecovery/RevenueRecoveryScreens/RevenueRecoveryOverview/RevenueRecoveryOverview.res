@@ -1,5 +1,5 @@
 @react.component
-let make = (~previewOnly=false) => {
+let make = () => {
   open LogicUtils
   open RevenueRecoveryOrderUtils
 
@@ -101,9 +101,6 @@ let make = (~previewOnly=false) => {
         arr
         ->Array.concat(orderDataDictArr)
         ->Array.map(RevenueRecoveryEntity.itemToObjMapper)
-        ->Array.filterWithIndex((_, i) => {
-          !previewOnly || i <= 2
-        })
 
       let list = orderData->Array.map(Nullable.make)
       setRevenueRecoveryData(_ => list)
@@ -139,9 +136,7 @@ let make = (~previewOnly=false) => {
       handleClick=handleExtendDateButtonClick
     />
 
-  let (widthClass, heightClass) = React.useMemo(() => {
-    previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
-  }, [previewOnly])
+  let (widthClass, heightClass) = ("w-full", "")
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
@@ -155,7 +150,7 @@ let make = (~previewOnly=false) => {
           entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId)}
           resultsPerPage=20
           showSerialNumber=true
-          totalResults={previewOnly ? revenueRecoveryData->Array.length : totalCount}
+          totalResults={totalCount}
           offset
           setOffset
           currrentFetchCount={revenueRecoveryData->Array.length}
@@ -164,7 +159,6 @@ let make = (~previewOnly=false) => {
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
           hideTitle=true
-          previewOnly
           remoteSortEnabled=true
           showAutoScroll=true
           hideCustomisableColumnButton=true
