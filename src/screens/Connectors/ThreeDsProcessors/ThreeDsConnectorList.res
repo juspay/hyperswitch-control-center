@@ -7,7 +7,11 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=AuthenticationProcessor,
+  )
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -82,8 +86,10 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
+          configuredConnectors={ConnectorInterface.mapConnectorPayloadToConnectorType(
+            ConnectorInterface.connectorInterfaceV1,
+            ConnectorTypes.ThreeDsAuthenticator,
+            configuredConnectors,
           )}
           connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
             ? ConnectorUtils.threedsAuthenticatorListForLive

@@ -88,7 +88,10 @@ let make = () => {
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PaymentVas,
+  )
 
   let customUI =
     <HelperComponents.BluredTableComponent
@@ -176,8 +179,10 @@ let make = () => {
         />
       </RenderIf>
       <NewProcessorCards
-        configuredFRMs={configuredFRMs->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-          ~connectorType=ConnectorTypes.FRMPlayer,
+        configuredFRMs={ConnectorInterface.mapConnectorPayloadToConnectorType(
+          ConnectorInterface.connectorInterfaceV1,
+          ConnectorTypes.FRMPlayer,
+          configuredFRMs,
         )}
       />
       <RenderIf condition={!isMobileView}>

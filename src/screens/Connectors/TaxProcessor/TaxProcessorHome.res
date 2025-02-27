@@ -73,8 +73,10 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
 
   let isConnectorDisabled = connectorInfo.disabled
 
@@ -342,9 +344,10 @@ let make = () => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector=connectorName connectorType={TaxProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={initialValues
-              ->LogicUtils.getDictFromJsonObject
-              ->ConnectorListMapper.getProcessorPayloadType}
+              connectorInfo={ConnectorInterface.mapDictToConnectorPayload(
+                ConnectorInterface.connectorInterfaceV1,
+                initialValues->LogicUtils.getDictFromJsonObject,
+              )}
               connector=connectorName
               setCurrentStep
               getConnectorDetails={Some(getConnectorDetails)}

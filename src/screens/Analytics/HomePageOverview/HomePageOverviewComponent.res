@@ -6,10 +6,11 @@ module ConnectorOverview = {
     open ConnectorUtils
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
-    let connectorsList =
-      HyperswitchAtom.connectorListAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
+
+    let connectorsList = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV1,
+      ~retainInList=ConnectorTypes.PaymentProcessor,
+    )
     let configuredConnectors =
       connectorsList->Array.map(paymentMethod =>
         paymentMethod.connector_name->getConnectorNameTypeFromString

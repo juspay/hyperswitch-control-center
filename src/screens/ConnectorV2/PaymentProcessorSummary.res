@@ -57,8 +57,11 @@ let make = () => {
     }
   }
 
-  let connectorInfodict =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let data = initialValues->getDictFromJsonObject
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    data,
+  )
   let {connector_name: connectorName} = connectorInfodict
 
   let connectorDetails = React.useMemo(() => {
@@ -291,7 +294,7 @@ let make = () => {
               }}
             </div>
           </div>
-          <ConnectorPaymentMethodV3 initialValues isInEditState={checkCurrentEditState(PMTs)} />
+          <ConnectorPaymentMethodV2 initialValues isInEditState={checkCurrentEditState(PMTs)} />
         </div>
       </div>
       <FormValuesSpy />

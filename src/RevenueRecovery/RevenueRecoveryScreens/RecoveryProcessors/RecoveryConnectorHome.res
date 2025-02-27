@@ -18,8 +18,13 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => Success)
   let {profileId, merchantId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
-  let connectorInfoDict =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+
+  let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
+  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    connectorInfo,
+  )
+
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: (#AuthenticateProcessor: sectionType :> string),
     subSectionId: None,
@@ -188,7 +193,7 @@ let make = () => {
         <PageLoaderWrapper screenState>
           <Form onSubmit initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
-              <ConnectorPaymentMethodV3 initialValues isInEditState=true />
+              <ConnectorPaymentMethodV2 initialValues isInEditState=true />
               <FormRenderer.SubmitButton
                 text="Next"
                 buttonSize={Small}
