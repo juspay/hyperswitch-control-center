@@ -153,10 +153,6 @@ module Wrapper = {
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
     let (isExpanded, setIsExpanded) = React.useState(_ => true)
-    let (addBtnHover, setAddBtnHover) = React.useState(_ => false)
-    let (dragBtnHover, setDragBtnHover) = React.useState(_ => false)
-    let (copyBtnHover, setCopyBtnHover) = React.useState(_ => false)
-    let (deleteBtnHover, setDeleteBtnHover) = React.useState(_ => false)
     let gateWaysInput = ReactFinalForm.useField(`${id}.connectorSelection.data`).input
     let name = ReactFinalForm.useField(`${id}.name`).input
     let conditionsInput = ReactFinalForm.useField(`${id}.statements`).input
