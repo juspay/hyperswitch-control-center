@@ -24,7 +24,7 @@ module ReconOnboardingLanding = {
           subTitle="Built for 10x financial & transactional accuracy"
         />
         <Button
-          text="Try the Demo"
+          text="Try Demo"
           onClick={_ => onTryDemoClick()}
           rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}
           customTextPaddingClass="pr-0"
@@ -88,19 +88,11 @@ module ListBaseComp = {
 
 module Card = {
   @react.component
-  let make = (
-    ~title: string,
-    ~subTitle: string,
-    ~value: float,
-    ~statType: LogicUtilsTypes.valueType,
-  ) => {
-    let _ = LogicUtils.valueFormatter(value, statType)
+  let make = (~title: string, ~value: string) => {
     <div
       className="flex flex-col gap-4 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
       <p className="text-nd_gray-400 text-xs leading-4 font-medium"> {title->React.string} </p>
-      <p className="text-nd_gray-800 font-semibold leading-8 text-2xl">
-        {subTitle->React.string}
-      </p>
+      <p className="text-nd_gray-800 font-semibold leading-8 text-2xl"> {value->React.string} </p>
     </div>
   }
 }
@@ -109,14 +101,12 @@ module ReconCards = {
   @react.component
   let make = () => {
     <div className="grid grid-cols-3 gap-6 mt-2">
-      <Card title="Automatic Reconciliation Rate" subTitle="90%" value={90.0} statType=Rate />
-      <Card
-        title="Total Reconciled Amount" subTitle="$ 1,000,000" value={1000000.0} statType=No_Type
-      />
-      <Card title="Unreconciled Amount" subTitle="$ 20,000" value={20000.0} statType=No_Type />
-      <Card title="Total Orders" subTitle="1823" value={1823.0} statType=No_Type />
-      <Card title="Total Reconciled Orders" subTitle="1640" value={1640.0} statType=No_Type />
-      <Card title="Unreconciled Orders" subTitle="183" value={183.0} statType=No_Type />
+      <Card title="Automatic Reconciliation Rate" value="90%" />
+      <Card title="Total Reconciled Amount" value="$ 1,000,000" />
+      <Card title="Unreconciled Amount" value="$ 300,000" />
+      <Card title="Reconciled Orders" value="1800" />
+      <Card title="Unreconciled Orders" value="150" />
+      <Card title="Data Missing" value="50" />
     </div>
   }
 }
@@ -126,64 +116,82 @@ module StackedBarGraphs = {
   let make = () => {
     <div className="grid grid-cols-2 gap-6">
       <div
-        className="flex flex-col space-y-0 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-        <p className="text-nd_gray-500 text-sm leading-5 font-medium">
-          {"Reconciliation Summary"->React.string}
+        className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
+        <p className="text-nd_gray-400 text-xs leading-5 font-medium">
+          {"Total Orders"->React.string}
+        </p>
+        <p className="text-nd_gray-800 font-semibold text-2xl leading-8">
+          {"2000"->React.string}
         </p>
         <div className="w-full">
           <StackedBarGraph
-            options={StackedBarGraphUtils.getStackedBarGraphOptions({
-              categories: ["Reconciliation Summary"],
-              data: [
-                {
-                  name: "Transactions Missing",
-                  data: [50.0],
-                  color: "#FEBBB2",
-                },
-                {
-                  name: "Transactions Mismatch",
-                  data: [190.0],
-                  color: "#7F7F7F",
-                },
-                {
-                  name: "Transactions Matched",
-                  data: [220.0],
-                  color: "#1F77B4",
-                },
-              ],
-              labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(),
-            })}
+            options={StackedBarGraphUtils.getStackedBarGraphOptions(
+              {
+                categories: ["Total Orders"],
+                data: [
+                  {
+                    name: "Missing",
+                    data: [50.0],
+                    color: "#FEBBB2",
+                  },
+                  {
+                    name: "Mismatch",
+                    data: [150.0],
+                    color: "#7F7F7F",
+                  },
+                  {
+                    name: "Matched",
+                    data: [1800.0],
+                    color: "#1F77B4",
+                  },
+                ],
+                labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(
+                  ~statType=No_Type,
+                ),
+              },
+              ~yMax=2000,
+              ~labelItemDistance=130,
+            )}
           />
         </div>
       </div>
       <div
-        className="flex flex-col space-y-0 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-        <p className="text-nd_gray-500 text-sm leading-5 font-medium">
-          {"Amount Discrepancy Summary"->React.string}
+        className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
+        <p className="text-nd_gray-400 text-xs leading-5 font-medium">
+          {"Total Reconciled Amount"->React.string}
+        </p>
+        <p className="text-nd_gray-800 font-semibold text-2xl leading-8">
+          {"$ 1,000,000"->React.string}
         </p>
         <div className="w-full">
           <StackedBarGraph
-            options={StackedBarGraphUtils.getStackedBarGraphOptions({
-              categories: ["Amount Discrepancy Summary"],
-              data: [
-                {
-                  name: "Transactions Missing",
-                  data: [50.0],
-                  color: "#E377C2",
-                },
-                {
-                  name: "Transactions Mismatch",
-                  data: [190.0],
-                  color: "#A0872C",
-                },
-                {
-                  name: "Transactions Matched",
-                  data: [220.0],
-                  color: "#17BECF",
-                },
-              ],
-              labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(),
-            })}
+            options={StackedBarGraphUtils.getStackedBarGraphOptions(
+              {
+                categories: ["Total Reconciled Amount"],
+                data: [
+                  {
+                    name: "Missing",
+                    data: [100000.0],
+                    color: "#E377C2",
+                  },
+                  {
+                    name: "Mismatch",
+                    data: [200000.0],
+                    color: "#A0872C",
+                  },
+                  {
+                    name: "Matched",
+                    data: [700000.0],
+                    color: "#17BECF",
+                  },
+                ],
+                labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(
+                  ~statType=Amount,
+                ),
+              },
+              ~yMax=1000000,
+              ~labelItemDistance=80,
+            )}
           />
         </div>
       </div>
@@ -195,12 +203,9 @@ module ExceptionCards = {
   @react.component
   let make = () => {
     <div className="grid grid-cols-3 gap-6">
-      <Card title="Unreconciled Transactions" subTitle="183" value={183.0} statType=No_Type />
-      <Card title="Unmatched Transactions" subTitle="160" value={160.0} statType=No_Type />
-      <Card title="Data Missing" subTitle="23" value={23.0} statType=No_Type />
-      <Card title="Manual adjustment rate" subTitle="80%" value={80.0} statType=No_Type />
-      <Card title="Discrepancy resolution time" subTitle="2 Days" value={2.0} statType=No_Type />
-      <Card title="Number of unresolved discrepancies" subTitle="5" value={5.0} statType=No_Type />
+      <Card title="Exceptions Transactions" value="150" />
+      <Card title="Average Aging Time" value="2.5" />
+      <Card title="Total Exception Value" value="$ 200,000" />
     </div>
   }
 }
@@ -297,29 +302,29 @@ module ReconciliationOverview = {
 module Exceptions = {
   @react.component
   let make = () => {
-    let columnGraphOptions: ColumnGraphTypes.columnGraphPayload = {
+    let exceptionsAgingOptions: ColumnGraphTypes.columnGraphPayload = {
       title: {
         text: "",
       },
       data: [
         {
-          name: "Browsers",
+          name: "Exceptions Aging",
           colorByPoint: true,
           data: [
             {
               name: "1 Day",
-              y: 10000.0,
-              color: "#7856FF",
+              y: 4500.0,
+              color: "#1E90FF",
             },
             {
               name: "2 Day",
-              y: 8000.0,
-              color: "#FEBBB2",
+              y: 6000.0,
+              color: "#5CB7AF",
             },
             {
               name: "3 Day",
-              y: 6000.0,
-              color: "#3BA974",
+              y: 9000.0,
+              color: "#B3596E",
             },
           ],
         },
@@ -328,6 +333,41 @@ module Exceptions = {
         ~title="Exceptions Aging",
         ~metricType=Amount,
       ),
+      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=Amount),
+    }
+
+    let unmatchedTransactionsOptions: ColumnGraphTypes.columnGraphPayload = {
+      title: {
+        text: "",
+      },
+      data: [
+        {
+          name: "Unmatched Transactions",
+          colorByPoint: true,
+          data: [
+            {
+              name: "Status Mismatch",
+              y: 75.0,
+              color: "#B89BEC",
+            },
+            {
+              name: "Amount Mismatch",
+              y: 75.0,
+              color: "#E377C2",
+            },
+            {
+              name: "Both",
+              y: 90.0,
+              color: "#B6D198",
+            },
+          ],
+        },
+      ],
+      tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
+        ~title="Unmatched Transactions",
+        ~metricType=Amount,
+      ),
+      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=Amount),
     }
 
     <div className="flex flex-col gap-6 w-full">
@@ -341,32 +381,21 @@ module Exceptions = {
       <div className="grid grid-cols-2 gap-6">
         <div
           className="flex flex-col gap-6 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-          <p className="text-nd_gray-500 text-sm leading-5 font-medium">
+          <p className="text-nd_gray-600 text-sm leading-5 font-medium">
             {"Exceptions Aging"->React.string}
           </p>
           <div className="w-full">
-            <ColumnGraph options={ColumnGraphUtils.getColumnGraphOptions(columnGraphOptions)} />
+            <ColumnGraph options={ColumnGraphUtils.getColumnGraphOptions(exceptionsAgingOptions)} />
           </div>
         </div>
         <div
           className="flex flex-col gap-6 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-          <p className="text-nd_gray-500 text-sm leading-5 font-medium">
-            {"Status Mismatch & Amount Mismatch"->React.string}
+          <p className="text-nd_gray-600 text-sm leading-5 font-medium">
+            {"Unmatched Transactions"->React.string}
           </p>
           <div className="w-full">
-            <PieGraph
-              options={PieGraphUtils.getCategoryWisePieChartPayload(
-                ~data=[
-                  {name: "Status", total: 80.0},
-                  {name: "Amount", total: 64.0},
-                  {name: "Both", total: 16.0},
-                ],
-                ~chartSize="200",
-                ~toolTipStyle={
-                  title: "Total Mismatch",
-                  valueFormatterType: Amount,
-                },
-              )->PieGraphUtils.getPieChartOptions}
+            <ColumnGraph
+              options={ColumnGraphUtils.getColumnGraphOptions(unmatchedTransactionsOptions)}
             />
           </div>
         </div>
