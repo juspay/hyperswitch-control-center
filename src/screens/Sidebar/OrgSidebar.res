@@ -276,7 +276,6 @@ let make = () => {
   open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let url = RescriptReactRouter.useUrl()
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let (showEditOrgModal, setShowEditOrgModal) = React.useState(_ => false)
@@ -311,7 +310,6 @@ let make = () => {
     try {
       setShowSwitchingOrg(_ => true)
       let _ = await internalSwitch(~expectedOrgId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {

@@ -129,7 +129,6 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let url = RescriptReactRouter.useUrl()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
@@ -161,7 +160,6 @@ let make = () => {
     try {
       setShowSwitchingMerch(_ => true)
       let _ = await internalSwitch(~expectedMerchantId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingMerch(_ => false)
     } catch {
     | _ => {

@@ -76,6 +76,7 @@ type merchantPayload = {
   redirect_to_merchant_with_http_post: bool,
   sub_merchants_enabled: bool,
   recon_status: reconStatus,
+  product_type: ProductTypes.productTypes,
 }
 
 type colType =

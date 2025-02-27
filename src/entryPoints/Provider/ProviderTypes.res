@@ -31,9 +31,6 @@ type contextType = {
   ) => unit,
   isProdIntentCompleted: option<bool>,
   setIsProdIntentCompleted: (option<bool> => option<bool>) => unit,
-  currentProduct: ProductTypes.productTypes,
-  setCurrentProductValue: ProductTypes.productTypes => unit,
-  setDefaultProductToSessionStorage: unit => unit,
   showSideBar: bool,
   setShowSideBar: (bool => bool) => unit,
 }
