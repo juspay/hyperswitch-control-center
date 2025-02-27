@@ -10,7 +10,9 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ConnectorInterface.connectorArrayMapperV1,
+  )
 
   let getConnectorListAndUpdateState = async () => {
     try {

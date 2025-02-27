@@ -88,7 +88,9 @@ let make = () => {
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ConnectorInterface.connectorArrayMapperV1,
+  )
 
   let customUI =
     <HelperComponents.BluredTableComponent

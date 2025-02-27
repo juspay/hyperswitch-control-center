@@ -12,11 +12,8 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   | PayoutRouting => RoutingTypes.PayoutProcessor
   | _ => RoutingTypes.PaymentConnector
   }
-
-  let connectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+  let list = ConnectorInterface.useConnectorArrayMapper(ConnectorInterface.connectorArrayMapperV1)
+  let connectorList = list->RoutingUtils.filterConnectorList(~retainInList=connectorType)
 
   React.useEffect(() => {
     let typeString = if isDistribute {

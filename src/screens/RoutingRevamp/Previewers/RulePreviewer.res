@@ -10,11 +10,9 @@ module GatewayView = {
     | PayoutRouting => RoutingTypes.PayoutProcessor
     | _ => RoutingTypes.PaymentConnector
     }
-
+    let list = ConnectorInterface.useConnectorArrayMapper(ConnectorInterface.connectorArrayMapperV1)
     let connectorList: array<ConnectorTypes.connectorPayload> =
-      HyperswitchAtom.connectorListAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+      list->RoutingUtils.filterConnectorList(~retainInList=connectorType)
 
     let getGatewayName = merchantConnectorId => {
       (

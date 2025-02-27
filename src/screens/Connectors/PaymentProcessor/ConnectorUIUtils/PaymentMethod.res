@@ -48,7 +48,9 @@ module CardRenderer = {
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 
-    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let connectorList = ConnectorInterface.useConnectorArrayMapper(
+      ConnectorInterface.connectorArrayMapperV1,
+    )
 
     let pmAuthProcessorList = ConnectorInterface.getProcessorsFilterList(
       ConnectorInterface.filterProcessorsListV1,

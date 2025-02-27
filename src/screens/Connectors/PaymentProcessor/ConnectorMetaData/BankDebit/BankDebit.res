@@ -76,7 +76,9 @@ let make = (
 ) => {
   open LogicUtils
   open BankDebitUtils
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ConnectorInterface.connectorArrayMapperV1,
+  )
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )

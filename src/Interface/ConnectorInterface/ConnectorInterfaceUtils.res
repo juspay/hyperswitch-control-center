@@ -210,6 +210,27 @@ let getProcessorPayloadTypeV2 = (dict): connectorPayloadV2 => {
   }
 }
 
+let filter = (connectorType, ~retainInList) => {
+  switch (retainInList, connectorType) {
+  | (PaymentProcessor, PaymentProcessor) => true
+  | (PaymentVas, PaymentVas) => true
+  | (PayoutProcessor, PayoutProcessor) => true
+  | (AuthenticationProcessor, AuthenticationProcessor) => true
+  | (PMAuthProcessor, PMAuthProcessor) => true
+  | (TaxProcessor, TaxProcessor) => true
+  | (BillingProcessor, BillingProcessor) => true
+  | _ => false
+  }
+}
+
+let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, ~retainInList) => {
+  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
+}
+
+let filterConnectorListV2 = (items: array<ConnectorTypes.connectorPayloadV2>, ~retainInList) => {
+  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
+}
+
 let getProcessorsFilterList = (
   connnectorList: array<ConnectorTypes.connectorPayload>,
   ~removeFromList: connector=FRMPlayer,

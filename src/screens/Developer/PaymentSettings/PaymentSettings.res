@@ -452,7 +452,9 @@ module ClickToPaySection = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let connectorListAtom = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let connectorListAtom = ConnectorInterface.useConnectorArrayMapper(
+      ConnectorInterface.connectorArrayMapperV1,
+    )
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     let isClickToPayEnabled =
@@ -532,10 +534,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     None
   }, [businessProfileDetails.profile_id])
 
+  let list = ConnectorInterface.useConnectorArrayMapper(ConnectorInterface.connectorArrayMapperV1)
+
   let threedsConnectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->Array.filter(item => item.connector_type === AuthenticationProcessor)
+    list->Array.filter(item => item.connector_type === AuthenticationProcessor)
 
   let isBusinessProfileHasThreeds = threedsConnectorList->Array.some(item => item.profile_id == id)
 

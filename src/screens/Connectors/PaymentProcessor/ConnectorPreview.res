@@ -351,10 +351,12 @@ let make = (
     connectorInfoDict,
   )
 
+  let list = ConnectorInterface.useConnectorArrayMapper(ConnectorInterface.connectorArrayMapperV1)
+
   let connectorCount =
     ConnectorInterface.getProcessorsFilterList(
       ConnectorInterface.filterProcessorsListV1,
-      HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom,
+      list,
       ConnectorTypes.FRMPlayer,
     )->Array.length
   let isFeedbackModalToBeOpen =

@@ -7,7 +7,10 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ConnectorInterface.connectorArrayMapperV1,
+  )
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils

@@ -6,9 +6,10 @@ module ConnectorOverview = {
     open ConnectorUtils
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
+    let list = ConnectorInterface.useConnectorArrayMapper(ConnectorInterface.connectorArrayMapperV1)
     let connectorsList = ConnectorInterface.getProcessorsFilterList(
       ConnectorInterface.filterProcessorsListV1,
-      HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom,
+      list,
       ConnectorTypes.FRMPlayer,
     )
     let configuredConnectors =

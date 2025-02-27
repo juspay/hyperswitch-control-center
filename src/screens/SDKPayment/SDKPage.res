@@ -6,7 +6,9 @@ module SDKConfiguarationFields = {
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let disableSelectionForProfile = businessProfiles->HomeUtils.isDefaultBusinessProfile
-    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let connectorList = ConnectorInterface.useConnectorArrayMapper(
+      ConnectorInterface.connectorArrayMapperV1,
+    )
     let paymentConnectorList =
       connectorList->RoutingUtils.filterConnectorList(~retainInList=PaymentConnector)
     let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
@@ -88,7 +90,9 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ =>
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ConnectorInterface.connectorArrayMapperV1,
+  )
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()

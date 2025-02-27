@@ -87,7 +87,9 @@ let make = (
   } = paymentMethodConfig
   open APIUtils
   let getURL = useGetURL()
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ConnectorInterface.connectorArrayMapperV1,
+  )
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
 

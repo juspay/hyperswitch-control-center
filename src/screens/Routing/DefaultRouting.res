@@ -16,7 +16,9 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
-  let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let typedConnectorValue = ConnectorInterface.useConnectorArrayMapper(
+    ConnectorInterface.connectorArrayMapperV1,
+  )
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 
   let settingUpConnectorsState = routingRespArray => {

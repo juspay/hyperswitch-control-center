@@ -197,3 +197,8 @@ let convertConnectorNameToType = (
 let useConnectorMapper = (type t, mapperModule: connectorMapper<t>, dict: Dict.t<JSON.t>): t => {
   getConnectorMapper(mapperModule, dict)
 }
+
+let useConnectorArrayMapper = (type t, mapperModule: connectorArrayMapper<t>): array<t> => {
+  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  getConnectorArrayMapper(mapperModule, connectorList)
+}

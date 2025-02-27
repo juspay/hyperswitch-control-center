@@ -151,7 +151,9 @@ module CheckoutCard = {
     let {userHasAccess, hasAllGroupsAccess} = GroupACLHooks.useUserGroupACLHook()
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
-    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let connectorList = ConnectorInterface.useConnectorArrayMapper(
+      ConnectorInterface.connectorArrayMapperV1,
+    )
 
     let isConfigureConnector = connectorList->Array.length > 0
 
