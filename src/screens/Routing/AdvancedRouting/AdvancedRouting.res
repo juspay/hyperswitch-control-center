@@ -1,5 +1,5 @@
 open APIUtils
-open AdvancedRoutingTypes
+open RoutingTypes
 open AdvancedRoutingUtils
 open LogicUtils
 
@@ -557,7 +557,7 @@ let make = (
       ~validateFields=["name", "description"],
     )
 
-    let validateGateways = (connectorData: array<AdvancedRoutingTypes.connectorSelectionData>) => {
+    let validateGateways = (connectorData: array<RoutingTypes.connectorSelectionData>) => {
       if connectorData->Array.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {

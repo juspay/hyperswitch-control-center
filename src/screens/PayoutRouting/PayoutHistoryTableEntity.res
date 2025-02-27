@@ -47,7 +47,7 @@ let getHeading: historyColType => Table.header = colType => {
   }
 }
 let getTableCell = activeRoutingIds => {
-  let getCell = (historyData, colType: historyColType): Table.cell => {
+  let getCell = (historyData: historyData, colType: historyColType): Table.cell => {
     switch colType {
     | Name => Text(historyData.name)
     | Type =>
