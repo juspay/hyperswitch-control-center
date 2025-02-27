@@ -23,11 +23,18 @@ module OrgTile = {
         sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
       },
     } = React.useContext(ThemeProvider.themeContext)
+
+    let sortByOrgName = (org1, org2) => {
+      compareLogic(org2, org1)
+    }
+
     let getOrgList = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
         let response = await fetchDetails(url)
-        setOrgList(_ => response->getArrayDataFromJson(OMPSwitchUtils.orgItemToObjMapper))
+        let orgData = response->getArrayDataFromJson(OMPSwitchUtils.orgItemToObjMapper)
+        orgData->Array.sort(sortByOrgName)
+        setOrgList(_ => orgData)
       } catch {
       | _ => {
           setOrgList(_ => OMPSwitchUtils.ompDefaultValue(orgId, ""))
@@ -287,6 +294,10 @@ let make = () => {
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
   let showToast = ToastState.useShowToast()
 
+  let sortByOrgName = (org1, org2) => {
+    compareLogic(org2, org1)
+  }
+
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
@@ -294,7 +305,9 @@ let make = () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
-      setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
+      let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
+      orgData->Array.sort(sortByOrgName)
+      setOrgList(_ => orgData)
     } catch {
     | _ => {
         setOrgList(_ => ompDefaultValue(orgId, ""))
@@ -329,15 +342,6 @@ let make = () => {
     // the org tiles
     <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
       {orgList
-      ->Array.toSorted((org1, org2) => {
-        if org1.id === orgId {
-          -1.
-        } else if org2.id === orgId {
-          1.
-        } else {
-          0.
-        }
-      })
       ->Array.mapWithIndex((org, i) => {
         <OrgTile
           key={Int.toString(i)}
