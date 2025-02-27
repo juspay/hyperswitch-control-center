@@ -361,6 +361,7 @@ module.exports = {
           subtle: "#FCDAD7",
         },
         nd_green: {
+          50: "#ECF4EE",
           200: "#52B87A",
           400: "#2DA160",
           600: "#217645",

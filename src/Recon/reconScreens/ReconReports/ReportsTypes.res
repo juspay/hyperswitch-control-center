@@ -6,27 +6,25 @@ type reportCommonPayload = {
   txn_amount: float,
   actions: string,
   recon_status: string,
+  transaction_date: string,
+  settlement_amount: float,
 }
 type allReportPayload = {
   ...reportCommonPayload,
-  settlement_amount: float,
-  transaction_date: string,
 }
-
-type reportExceptionsPayload = {
-  ...reportCommonPayload,
-  mismatch_amount: float,
-  exception_status: string,
-  exception_type: string,
-  last_updated: string,
-}
-type exceptionAttemptsPayload = {
+type exceptionMatrixPayload = {
   source: string,
   order_id: string,
   txn_amount: float,
   payment_gateway: string,
-  settlement_date: string,
+  settlement_date: float,
   fee_amount: float,
+}
+
+type reportExceptionsPayload = {
+  ...reportCommonPayload,
+  exception_type: string,
+  exception_matrix: array<exceptionMatrixPayload>,
 }
 
 type commonColType =
@@ -37,20 +35,16 @@ type commonColType =
   | TxnAmount
   | Actions
   | ReconStatus
-
-type allColtype =
-  | ...commonColType
-  | SettlementAmount
   | TransactionDate
+  | SettlementAmount
+
+type allColtype = | ...commonColType
 
 type exceptionColtype =
   | ...commonColType
-  | MismatchAmount
-  | ExceptionStatus
   | ExceptionType
-  | LastUpdated
 
-type exceptionAttemptsColType =
+type exceptionMatrixColType =
   | Source
   | OrderId
   | TxnAmount

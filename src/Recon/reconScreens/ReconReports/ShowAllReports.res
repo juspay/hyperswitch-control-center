@@ -6,7 +6,7 @@ module ShowOrderDetails = {
     ~getCell,
     ~detailsFields,
     ~justifyClassName="justify-start",
-    ~widthClass="w-1/3",
+    ~widthClass="w-full",
     ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
     ~isButtonEnabled=false,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
@@ -14,11 +14,9 @@ module ShowOrderDetails = {
     ~isHorizontal=false,
     ~isModal=false,
   ) => {
-    <FormRenderer.DesktopRow>
+    <FormRenderer.DesktopRow itemWrapperClass="">
       <div
-        className={`${isModal
-            ? "grid grid-cols-2"
-            : "flex ${customFlex} ${justifyClassName}"} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
+        className={`grid grid-cols-2 dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
         {detailsFields
         ->Array.mapWithIndex((colType, i) => {
           <div className=widthClass key={i->Int.toString}>
@@ -27,7 +25,7 @@ module ShowOrderDetails = {
               value={getCell(data, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
+              overiddingHeadingStyles=" flex text-nd_gray-400 text-sm font-medium"
               isHorizontal
             />
             // {CustomModalCellUtils.getHeadingForModal(colType)->React.string}
@@ -47,7 +45,14 @@ module OrderInfo = {
         data=reportDetails
         getHeading={ReportsTableEntity.getHeading}
         getCell={ReportsTableEntity.getCell}
-        detailsFields=[TransactionId, OrderId, PaymentGateway, PaymentMethod]
+        detailsFields=[
+          OrderId,
+          TransactionId,
+          PaymentGateway,
+          PaymentMethod,
+          TxnAmount,
+          SettlementAmount,
+        ]
         isButtonEnabled=true
         isModal
       />
@@ -55,8 +60,7 @@ module OrderInfo = {
   }
 }
 @react.component
-let make = (~isModal, ~setShowModal) => {
-  open LogicUtils
+let make = (~isModal, ~setShowModal, ~selectedId) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let showToast = ToastState.useShowToast()
   let (reconReport, setReconReport) = React.useState(_ =>
@@ -67,38 +71,14 @@ let make = (~isModal, ~setShowModal) => {
       GlobalVars.appendDashboardPath(~url=`/v2/recon/reports/${reconReport.transaction_id}`),
     )
   }
-  let input: ReactFinalForm.fieldRenderPropsInput = {
-    name: "name",
-    onBlur: _ => (),
-    onChange: _ => (),
-    onFocus: _ => (),
-    value: Null,
-    checked: true,
-  }
-  let assigneeDropdown = ["Jim", "Harry"]
-  let assigneeOptions = assigneeDropdown->Array.map((op): SelectBox.dropdownOption => {
-    {value: (op :> string), label: (op :> string)}
-  })
+
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
 
       // let res = await fetchDetails(url)
-      let res = {
-        {
-          "transaction_id": "Txn_1234",
-          "order_id": "Ord_5678",
-          "payment_gateway": "Stripe",
-          "payment_method": "Credit Card",
-          "txn_amount": 324.0,
-          "settlement_amount": 324.0,
-          "recon_status": "unreconciled",
-          "transaction_date": "Jan 22, 2025 03:25PM",
-          "actions": "",
-        }
-      }->Identity.genericTypeToJson
 
-      let order = res->getDictFromJsonObject->ReportsTableEntity.getAllReportPayloadType
+      let order = selectedId
       setReconReport(_ => order)
       setScreenState(_ => Success)
     } catch {
@@ -127,19 +107,15 @@ let make = (~isModal, ~setShowModal) => {
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      //   <div className="flex gap-2 items-center">
-      //     <PageUtils.PageHeading title={`${reconExceptionReport.transaction_id}`} />
-      //     // {statusUI}
-      //   </div>
-      <div className="flex flex-col h-[87vh] justify-between">
+      <div className="flex flex-col h-[82vh] px-6">
         <OrderInfo reportDetails=reconReport isModal />
-        <Button
-          text="Done"
-          buttonType=Primary
-          onClick={_ => setShowModal(_ => false)}
-          customButtonStyle="w-full"
-        />
       </div>
+      <Button
+        text="Done"
+        buttonType=Primary
+        onClick={_ => setShowModal(_ => false)}
+        customButtonStyle="w-full"
+      />
     </PageLoaderWrapper>
   } else {
     <PageLoaderWrapper
@@ -147,41 +123,34 @@ let make = (~isModal, ~setShowModal) => {
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      //   <div className="flex gap-2 items-center">
-      //     <PageUtils.PageHeading title={`${reconExceptionReport.transaction_id}`} />
-      //     // {statusUI}
-      //   </div>
-      <div className="flex flex-col h-[87vh] justify-between ">
+      <div className="flex flex-col h-[82vh] px-6">
         <OrderInfo reportDetails=reconReport isModal />
-        <div>
-          <p> {"Add Assignee"->React.string} </p>
-          <SelectBox.BaseDropdown
-            options=assigneeOptions
-            buttonText="Select Assignee"
-            allowMultiSelect=false
-            input
-            hideMultiSelectButtons=true
-            customButtonStyle="w-full"
-          />
-        </div>
-        <div>
-          <p> {"Add Note"->React.string} </p>
-          <div className="border rounded-md h-12.5-rem ">
-            // <p className="p-4"> {"You Can Log Comments"->React.string} </p>
-            // <input placeholder="You Can Log Comments" maxLength=12 className="hover:none" />
-            <input
-              className="w-full border-none focus:outline-none p-2"
-              placeholder="You Can Log Comments"
-            />
+        <div className="gap-6 border-t border-b ">
+          <div className="my-6">
+            <p className="text-nd_gray-400  text-sm font-medium"> {"Reason"->React.string} </p>
+            <p className="text-base font-medium text-nd_gray-600">
+              {"Missing (PG processed payment, but no bank settlement found."->React.string}
+            </p>
           </div>
         </div>
-        <Button
-          text="More Details "
-          buttonType=Primary
-          onClick={_ => handleAboutPaymentsClick()}
-          customButtonStyle="w-full"
-        />
+        <div className="flex flex-col  gap-6 my-6 ">
+          <div className="flex flex-col gap-3">
+            <p className="font-medium text-nd_gray-600 text-sm"> {"Add Note"->React.string} </p>
+            <div className="border rounded-md h-12.5-rem font-medium p-4  ">
+              <input
+                className="w-full border-none h-6 focus:outline-none  text-nd_gray-400 text-sm"
+                placeholder="You can log comments"
+              />
+            </div>
+          </div>
+        </div>
       </div>
+      <Button
+        text="More Details "
+        buttonType=Primary
+        onClick={_ => handleAboutPaymentsClick()}
+        customButtonStyle="w-full"
+      />
     </PageLoaderWrapper>
   }
 }

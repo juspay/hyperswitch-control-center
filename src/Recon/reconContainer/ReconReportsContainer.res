@@ -9,7 +9,7 @@ let make = () => {
       remainingPath
       access=Access
       renderList={() => <ReconReports />}
-      renderShow={(_, _) => <ShowReconExceptionReport />}
+      renderShow={(id, _) => <ShowReconExceptionReport id />}
     />
   | _ => React.null
   }

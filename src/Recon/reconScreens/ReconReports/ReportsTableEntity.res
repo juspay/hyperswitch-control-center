@@ -2,8 +2,8 @@ open ReportsTypes
 open LogicUtils
 
 let defaultColumns: array<allColtype> = [
-  TransactionId,
   OrderId,
+  TransactionId,
   PaymentGateway,
   PaymentMethod,
   TxnAmount,
@@ -29,22 +29,24 @@ type reconStatus =
   | None
 let reconStatusVariantMapper: string => reconStatus = statusLabel =>
   switch statusLabel->String.toUpperCase {
-  | "Reconciled" => Reconciled
-  | "Unreconciled" => Unreconciled
+  | "RECONCILED" => Reconciled
+  | "UNRECONCILED" => Unreconciled
   | _ => None
   }
 let useGetAllReportStatus = (order: allReportPayload) => {
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
-  let orderStatusLabel = order.recon_status->String.toUpperCase
+  let orderStatusLabel = order.recon_status->capitalizeString
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
   switch order.recon_status->reconStatusVariantMapper {
   | Reconciled =>
-    <div className={`${fixedStatusCss} bg-hyperswitch_green dark:bg-opacity-50`}>
-      {orderStatusLabel->React.string}
+    <div className={`${fixedStatusCss}  bg-nd_green-50 dark:bg-opacity-50 flex gap-2`}>
+      <p className="text-nd_green-400"> {orderStatusLabel->React.string} </p>
+      <Icon name="nd-check" customIconColor="text-nd_green-400" />
     </div>
   | Unreconciled =>
-    <div className={`${fixedStatusCss} bg-red-960 dark:bg-opacity-50`}>
-      {orderStatusLabel->React.string}
+    <div className={`${fixedStatusCss} bg-nd_red-50 dark:bg-opacity-50 flex gap-2`}>
+      <p className="text-nd_red-400"> {orderStatusLabel->React.string} </p>
+      <Icon name="nd-info-circle" customIconColor="text-nd_red-400" />
     </div>
   | _ =>
     <div className={`${fixedStatusCss} ${primaryColor} bg-opacity-50`}>
@@ -80,14 +82,34 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
     )
   | PaymentMethod => Text(report.payment_method)
   | ReconStatus =>
-    Label({
-      title: report.recon_status,
-      color: switch report.recon_status {
-      | "Reconciled" => LabelGreen
-      | "Unreconciled" => LabelRed
-      | _ => LabelOrange
-      },
-    })
+    switch report.recon_status {
+    | "Reconciled" =>
+      CustomCell(
+        <div
+          className={`text-sm  font-bold px-2 py-0.5 rounded-lg  bg-nd_green-50 dark:bg-opacity-50 flex items-center h-7 gap-1 w-fit`}>
+          <p className="text-nd_green-400"> {report.recon_status->React.string} </p>
+          <Icon name="nd-check" customIconColor="text-nd_green-400" />
+        </div>,
+        "",
+      )
+    | "Unreconciled" =>
+      CustomCell(
+        <div
+          className={`text-sm font-bold px-2 py-0.5 rounded-lg bg-nd_red-50 dark:bg-opacity-50 h-7 flex gap-1 items-center w-fit`}>
+          <p className="text-nd_red-400"> {report.recon_status->React.string} </p>
+          <Icon name="nd-info-circle" customIconColor="text-nd_red-400" />
+        </div>,
+        "",
+      )
+    | _ =>
+      CustomCell(
+        <div className={`text-sm text-white font-bold px-3 py-2 border rounded-lg bg-opacity-50`}>
+          {report.recon_status->React.string}
+        </div>,
+        "",
+      )
+    }
+
   | TransactionDate => Date(report.transaction_date)
   | SettlementAmount => Text(Js.Float.toString(report.settlement_amount))
   | TxnAmount => Text(Js.Float.toString(report.txn_amount))

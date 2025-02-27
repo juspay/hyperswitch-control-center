@@ -9,6 +9,25 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
 
+  let statusUI = ReportsTableEntity.useGetAllReportStatus(selectedId)
+
+  let modalHeading = {
+    <div className="flex justify-between border-b ">
+      <div className="flex gap-4 items-center">
+        <p className="font-semibold text-nd_gray-600 px-8 pt-8 mb-6 text-lg">
+          {`${selectedId.transaction_id}`->React.string}
+        </p>
+        <div> {statusUI} </div>
+      </div>
+      <Icon
+        name="modal-close-icon"
+        className="cursor-pointer mr-4"
+        size=30
+        onClick={_ => setShowModal(_ => false)}
+      />
+    </div>
+  }
+
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
@@ -27,7 +46,7 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
     setFilteredReports(_ => filteredList)
   }, ~wait=200)
 
-  <div className="mt-8">
+  <div className="mt-9">
     <RenderIf condition={configuredReports->Array.length === 0}>
       <div className="my-4">
         <NoDataFound message={"No data available"} renderType={Painting} />
@@ -38,9 +57,9 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
       showModal
       closeOnOutsideClick=true
       modalClass="w-1/3 h-screen float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
-      childClass="p-2 m-2 h-full"
-      modalHeading={`${selectedId.transaction_id}`}>
-      <ShowAllReports isModal=true setShowModal />
+      childClass="m-2 h-full"
+      customModalHeading=modalHeading>
+      <ShowAllReports isModal=true setShowModal selectedId />
     </Modal>
     <div className="flex flex-col mx-auto w-full h-full">
       <RenderIf condition={configuredReports->Array.length > 0}>
@@ -60,7 +79,6 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
             setSearchVal=setSearchText
           />}
           resultsPerPage=10
-          showSerialNumber=true
           totalResults={filteredReportsData->Array.length}
           offset
           setOffset
@@ -71,11 +89,11 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
           sortingBasedOnDisabled=false
           hideTitle=true
           remoteSortEnabled=true
-          showAutoScroll=true
           onEntityClick={val => {
             setSelectedId(_ => val)
             setShowModal(_ => true)
           }}
+          customizeColumnButtonIcon="nd-filter-horizontal"
         />
       </RenderIf>
     </div>

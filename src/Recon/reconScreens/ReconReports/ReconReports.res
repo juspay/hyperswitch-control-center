@@ -9,17 +9,11 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
-  let (selectedFilter, setSelectedFilter) = React.useState(_ => "")
-  let (filtersList, _) = React.useState(_ => [
-    {id: "Status", name: "Status"},
-    {id: "Payment Gateway", name: "Payment Gateway"},
-  ])
   let (selectedReconId, setSelectedReconId) = React.useState(_ => "Recon_235")
 
   let (reconList, _) = React.useState(_ => [{id: "Recon_235", name: "Recon_235"}])
 
   let (reconArrow, setReconArrow) = React.useState(_ => false)
-  let (arrow, setArrow) = React.useState(_ => false)
   let getTabName = index => index == 0 ? "All" : "Exceptions"
 
   let getReportsList = async _ => {
@@ -99,18 +93,6 @@ let make = () => {
     ]
   }, (configuredReports, filteredReportsData))
 
-  let filterInput: ReactFinalForm.fieldRenderPropsInput = {
-    name: "name",
-    onBlur: _ => (),
-    onChange: ev => {
-      let value = ev->Identity.formReactEventToString
-      setSelectedFilter(_ => value)
-    },
-    onFocus: _ => (),
-    value: selectedFilter->JSON.Encode.string,
-    checked: true,
-  }
-
   let reconInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
@@ -127,93 +109,84 @@ let make = () => {
     setReconArrow(prev => !prev)
   }
 
-  let toggleChevronState = () => {
-    setArrow(prev => !prev)
-  }
-
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
-
-  <div className="flex flex-col gap-5 justify-center relative">
-    <div className="flex justify-between items-center">
-      <p className="text-2xl font-semibold text-nd_gray-700">
-        {"Reconciliation Report"->React.string}
-      </p>
-      <div className="flex flex-row gap-4">
-        <div className="flex flex-row gap-6">
-          <SelectBox.BaseDropdown
-            allowMultiSelect=false
-            buttonText=""
-            input=reconInput
-            deselectDisable=true
-            customButtonStyle="!rounded-lg"
-            options={reconList->generateDropdownOptionsCustomComponent}
-            marginTop="mt-10"
-            hideMultiSelectButtons=true
-            addButton=false
-            baseComponent={<ReconReportsHelper.ListBaseComp
-              heading="Recon" subHeading=selectedReconId arrow=reconArrow
-            />}
-            customDropdownOuterClass="!border-none !w-full"
-            fullLength=true
-            toggleChevronState=toggleReconChevronState
-            customScrollStyle
-            dropdownContainerStyle
-            shouldDisplaySelectedOnTop=true
-            customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
-          />
+  <div>
+    <div
+      className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
+      <div className="flex gap-4 items-center">
+        <Icon name="nd-information-triangle" size=24 />
+        <p className="text-nd_gray-600 text-base leading-6 font-medium">
+          {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
+        </p>
+      </div>
+      <Button
+        text="Get Production Access"
+        buttonType=Primary
+        buttonSize=Medium
+        buttonState=Normal
+        onClick={_ => ()}
+      />
+    </div>
+    <div className="flex flex-col space-y-2 justify-center relative gap-4 mt-16">
+      <div>
+        <div className="flex justify-between items-center">
+          <p className="text-2xl font-semibold text-nd_gray-700">
+            {"Reconciliation Reports"->React.string}
+          </p>
+          <div className="flex flex-row gap-4">
+            <div className="flex flex-row gap-6">
+              <SelectBox.BaseDropdown
+                allowMultiSelect=false
+                buttonText=""
+                input=reconInput
+                deselectDisable=true
+                customButtonStyle="!rounded-lg"
+                options={reconList->generateDropdownOptionsCustomComponent}
+                marginTop="mt-10"
+                hideMultiSelectButtons=true
+                addButton=false
+                baseComponent={<ReconReportsHelper.ListBaseComp
+                  heading="Recon" subHeading=selectedReconId arrow=reconArrow
+                />}
+                customDropdownOuterClass="!border-none !w-full"
+                fullLength=true
+                toggleChevronState=toggleReconChevronState
+                customScrollStyle
+                dropdownContainerStyle
+                shouldDisplaySelectedOnTop=true
+                customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
+              />
+            </div>
+            <Button
+              text="Download Reports"
+              buttonType={Secondary}
+              leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=14 />)}
+              onClick={_ => {
+                downloadReport()->ignore
+              }}
+              buttonSize={Medium}
+            />
+          </div>
         </div>
-        <Button
-          text="Download Report"
-          buttonType={Secondary}
-          leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=14 />)}
-          onClick={_ => {
-            downloadReport()->ignore
-          }}
-          buttonSize={Medium}
-        />
+        <PageLoaderWrapper screenState>
+          <div className="flex flex-col relative">
+            <Tabs
+              initialIndex={tabIndex >= 0 ? tabIndex : 0}
+              tabs
+              showBorder=true
+              includeMargin=false
+              defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+              onTitleClick={indx => {
+                setTabIndex(_ => indx)
+                setCurrentTabName(_ => getTabName(indx))
+              }}
+              selectTabBottomBorderColor="bg-primary"
+              customBottomBorderColor="bg-nd_gray-150"
+            />
+          </div>
+        </PageLoaderWrapper>
       </div>
     </div>
-    <PageLoaderWrapper screenState>
-      <div className="relative">
-        <div className="absolute top-[85px] right-16 z-10">
-          <SelectBox.BaseDropdown
-            allowMultiSelect=false
-            buttonText=""
-            input=filterInput
-            deselectDisable=true
-            customButtonStyle="!rounded-lg"
-            options={filtersList->ReconReportUtils.generateDropdownOptionsCustomComponent}
-            marginTop="mt-10"
-            hideMultiSelectButtons=true
-            addButton=false
-            baseComponent={<ReconReportUtils.ListBaseComp
-              heading="Profile" subHeading=selectedFilter arrow
-            />}
-            customDropdownOuterClass="!border-none !w-full"
-            fullLength=true
-            toggleChevronState
-            customScrollStyle
-            dropdownContainerStyle
-            shouldDisplaySelectedOnTop=true
-            customSelectionIcon={CustomIcon(<Icon name="nd-checkbox-base" />)}
-          />
-        </div>
-        <div className="flex flex-col relative">
-          <Tabs
-            initialIndex={tabIndex >= 0 ? tabIndex : 0}
-            tabs
-            showBorder=false
-            includeMargin=false
-            lightThemeColor="black"
-            defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-            onTitleClick={indx => {
-              setTabIndex(_ => indx)
-              setCurrentTabName(_ => getTabName(indx))
-            }}
-          />
-        </div>
-      </div>
-    </PageLoaderWrapper>
   </div>
 }

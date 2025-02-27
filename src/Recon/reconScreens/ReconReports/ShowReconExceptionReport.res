@@ -44,14 +44,21 @@ module OrderInfo = {
         data=exceptionReportDetails
         getHeading
         getCell
-        detailsFields=[TransactionId, OrderId, PaymentGateway, PaymentMethod]
+        detailsFields=[
+          TransactionId,
+          OrderId,
+          PaymentGateway,
+          PaymentMethod,
+          TxnAmount,
+          ExceptionType,
+        ]
         isButtonEnabled=true
       />
     </div>
   }
 }
 @react.component
-let make = () => {
+let make = (~id) => {
   open LogicUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let showToast = ToastState.useShowToast()
@@ -61,34 +68,25 @@ let make = () => {
   )
   let (attemptData, setAttemptData) = React.useState(_ => [])
 
+  let defaultObject = Dict.make()->ReportsExceptionTableEntity.getExceptionReportPayloadType
+
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
 
       // let res = await fetchDetails(url)
-      let res = {
-        {
-          "transaction_id": "1234",
-          "order_id": "Ord_5678",
-          "payment_gateway": "Stripe",
-          "payment_method": "Credit Card",
-          "txn_amount": 324.0,
-          "recon_status": "Unreconciled",
-          "mismatch_amount": 93.0,
-          "exception_status": "Under Review",
-          "exception_type": "Status Mismatch",
-          "last_updated": "Jan 22, 2025 03:25PM",
-          "actions": "View",
-        }
-      }->Identity.genericTypeToJson
-      let orderForAttempts = ReportsExceptionTableEntity.getArrayOfReportsAttemptsListPayloadType(
-        res->getArrayFromJson([]),
-      )
-      let order = ReportsExceptionTableEntity.getExceptionReportPayloadType(
-        res->getDictFromJsonObject,
-      )
-      setAttemptData(_ => orderForAttempts)
-      setReconExceptionReport(_ => order)
+      let res = ReportsData.reportsExceptionResponse
+      let data =
+        res
+        ->getDictFromJsonObject
+        ->getArrayFromDict("data", [])
+        ->ReportsExceptionTableEntity.getArrayOfReportsListPayloadType
+      let selectedDataArray = data->Array.filter(item => {item.transaction_id == id})
+      let selectedDataObject = selectedDataArray->getValueFromArray(0, defaultObject)
+      let exceptionMatrixArray = selectedDataObject.exception_matrix
+
+      setAttemptData(_ => exceptionMatrixArray)
+      setReconExceptionReport(_ => selectedDataObject)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -129,7 +127,6 @@ let make = () => {
           {statusUI}
         </div>
         <div className="flex gap-2 ">
-          <ACLButton text="Contact Processor" customButtonStyle="!w-fit" buttonType={Secondary} />
           <ACLButton text="Resolve" customButtonStyle="!w-fit" buttonType={Primary} />
         </div>
       </div>
