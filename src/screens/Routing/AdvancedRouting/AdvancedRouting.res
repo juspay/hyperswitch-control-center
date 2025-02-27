@@ -227,13 +227,12 @@ module Wrapper = {
 
     let border = isDragging ? "border-dashed" : "border-solid"
     let flex = isExpanded ? "flex-col" : "flex-wrap items-center gap-4"
-    let hoverCss = "transition-all duration-150 hover:bg-gray-200 dark:hover:bg-jp-gray-950 active:scale-95 active:bg-gray-300 dark:active:bg-jp-gray-900"
+    let hoverCss = "transition-all duration-150 hover:bg-gray-200 active:scale-95 active:bg-gray-300 "
     let actionTextCss = "flex flex-row gap-2 items-center justify-around p-2 bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer"
     let actionIconCss = "flex items-center justify-center p-2 bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer"
+    let responsiveCss = isMobileView ? "" : "w-1/3 mr-6"
     let actions =
-      <div
-        className={`flex flex-row gap-3 md:gap-10 items-center justify-end
-    ${isMobileView ? "" : "w-1/3 mr-6"}`}>
+      <div className={`flex flex-row gap-3 md:gap-10 items-center justify-end ${responsiveCss}`}>
         <RenderIf condition={notFirstRule}>
           <div className={`${actionTextCss} ${hoverCss}`}>
             <Icon name="grip-vertical" className="text-jp-gray-700" size={14} />
