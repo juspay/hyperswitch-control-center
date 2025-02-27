@@ -16,3 +16,11 @@ let revenueRecoveryMapDefaultCols = Recoil.atom(
   "revenueRecoveryMapDefaultCols",
   RevenueRecoveryEntity.defaultColumns,
 )
+let reconReportsDefaultCols = Recoil.atom(
+  "reconReportsDefaultCols",
+  ReportsTableEntity.defaultColumns,
+)
+let reconExceptionReportsDefaultCols = Recoil.atom(
+  "reconExceptionReportsDefaultCols",
+  ReportsExceptionTableEntity.defaultColumns,
+)

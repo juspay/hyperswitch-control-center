@@ -23,6 +23,7 @@ type style = {
   color: color,
   fontFamily: string,
   fontSize: string,
+  fill: string,
 }
 type enabled = {enabled: bool}
 type credits = {
@@ -42,15 +43,16 @@ type column = {
   borderWidth: int,
   borderRadius: int,
   stacking: string,
+  pointWidth: int,
 }
 type plotOptions = {series: column}
-type labels = {
-  align: align,
-  style: style,
-}
+
 type chart = {
   \"type": string,
   height: int,
+  style: style,
+  spacingRight: spacingRight,
+  spacingLeft: spacingLeft,
 }
 
 type dataObj = {
@@ -67,13 +69,16 @@ type seriesObj = {
 
 type series = array<seriesObj>
 
-type yAxis = {title: title}
-
-type xAxis = {\"type": string}
-
 type info = {index: int}
 type point = {color: string, x: string, y: float, point: info, key: string}
 type pointFormatter = {points: array<point>}
+type yAxisFormatter = {value: int}
+
+type labels = {formatter: pointFormatter => string}
+
+type yAxis = {title: title, labels: labels}
+
+type xAxis = {\"type": string}
 
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =
   "%identity"
@@ -112,4 +117,5 @@ type columnGraphPayload = {
   data: series,
   title: title,
   tooltipFormatter: pointFormatter => string,
+  yAxisFormatter: pointFormatter => string,
 }

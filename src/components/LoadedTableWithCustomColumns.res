@@ -66,6 +66,7 @@ let make = (
   ~remoteSortEnabled=false,
   ~showAutoScroll=false,
   ~hideCustomisableColumnButton=false,
+  ~customizeColumnButtonIcon="customise-columns",
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -93,7 +94,7 @@ let make = (
     <RenderIf condition={!hideRightTitleElement}>
       <Portal to={`${title}CustomizeColumn`}>
         <Button
-          leftIcon=Button.CustomIcon(<Icon name="customise-columns" size=16 />)
+          leftIcon=Button.CustomIcon(<Icon name=customizeColumnButtonIcon size=16 />)
           buttonType=SecondaryFilled
           buttonSize=Small
           onClick={_ => setShowColumnSelector(_ => true)}
