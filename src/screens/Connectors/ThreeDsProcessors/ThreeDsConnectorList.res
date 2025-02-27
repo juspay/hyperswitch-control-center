@@ -9,7 +9,8 @@ let make = () => {
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
 
   let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ConnectorInterface.connectorArrayMapperV1,
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=AuthenticationProcessor,
   )
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
@@ -85,8 +86,10 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
+          configuredConnectors={ConnectorInterface.convertConnectorNameToType(
+            ConnectorInterface.connectorInterfaceV1,
+            ConnectorTypes.ThreeDsAuthenticator,
+            configuredConnectors,
           )}
           connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
             ? ConnectorUtils.threedsAuthenticatorListForLive

@@ -237,7 +237,7 @@ let make = () => {
             headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={ConnectorInterface.getConnectorMapper(
-                ConnectorInterface.connectorMapperV1,
+                ConnectorInterface.connectorInterfaceV1,
                 initialValues->LogicUtils.getDictFromJsonObject,
               )}
               connector=connectorName

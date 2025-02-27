@@ -5,7 +5,7 @@ module SelectedCardValues = {
     open SectionHelper
     open ConnectorPaymentMethodV3Utils
     let data1 = initialValues->getDictFromJsonObject
-    let data = ConnectorInterface.getConnectorMapper(ConnectorInterface.connectorMapperV2, data1)
+    let data = ConnectorInterface.getConnectorMapper(ConnectorInterface.connectorInterfaceV2, data1)
     let cardData =
       data.payment_methods_enabled
       ->Array.filter(ele => ele.payment_method_type->getPMFromString == Card)
@@ -51,7 +51,7 @@ let make = (
   )
   let data = formState.values->getDictFromJsonObject
   let connData: ConnectorTypes.connectorPayloadV2 = ConnectorInterface.getConnectorMapper(
-    ConnectorInterface.connectorMapperV2,
+    ConnectorInterface.connectorInterfaceV2,
     data,
   )
 

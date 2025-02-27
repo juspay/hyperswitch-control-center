@@ -453,21 +453,19 @@ module ClickToPaySection = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let connectorListAtom = ConnectorInterface.useConnectorArrayMapper(
-      ConnectorInterface.connectorArrayMapperV1,
+      ~interface=ConnectorInterface.connectorInterfaceV1,
+      ~retainInList=AuthenticationProcessor,
     )
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     let isClickToPayEnabled =
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
-    let dropDownOptions =
-      connectorListAtom
-      ->Array.filter(ele => ele.connector_type === AuthenticationProcessor)
-      ->Array.map((item): SelectBox.dropdownOption => {
-        {
-          label: `${item.connector_label} - ${item.merchant_connector_id}`,
-          value: item.merchant_connector_id,
-        }
-      })
+    let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
+      {
+        label: `${item.connector_label} - ${item.merchant_connector_id}`,
+        value: item.merchant_connector_id,
+      }
+    })
 
     <RenderIf condition={featureFlagDetails.clickToPay && connectorView}>
       <DesktopRow>
@@ -534,10 +532,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     None
   }, [businessProfileDetails.profile_id])
 
-  let list = ConnectorInterface.useConnectorArrayMapper(ConnectorInterface.connectorArrayMapperV1)
-
-  let threedsConnectorList =
-    list->Array.filter(item => item.connector_type === AuthenticationProcessor)
+  let threedsConnectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=AuthenticationProcessor,
+  )
 
   let isBusinessProfileHasThreeds = threedsConnectorList->Array.some(item => item.profile_id == id)
 

@@ -347,18 +347,15 @@ let make = (
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
 
   let connectorInfo = ConnectorInterface.getConnectorMapper(
-    ConnectorInterface.connectorMapperV1,
+    ConnectorInterface.connectorInterfaceV1,
     connectorInfoDict,
   )
 
-  let list = ConnectorInterface.useConnectorArrayMapper(ConnectorInterface.connectorArrayMapperV1)
-
   let connectorCount =
-    ConnectorInterface.getProcessorsFilterList(
-      ConnectorInterface.filterProcessorsListV1,
-      list,
-      ConnectorTypes.FRMPlayer,
+    ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV1,
     )->Array.length
+
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
 

@@ -76,19 +76,15 @@ let make = (
 ) => {
   open LogicUtils
   open BankDebitUtils
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ConnectorInterface.connectorArrayMapperV1,
+  let connectorsListPMAuth = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PMAuthProcessor,
   )
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let form = ReactFinalForm.useForm()
 
-  let connectorsListPMAuth = ConnectorInterface.getProcessorsFilterList(
-    ConnectorInterface.filterProcessorsListV1,
-    connectorList,
-    ConnectorTypes.PMAuthenticationProcessor,
-  )
   let pmAuthConnectorOptions =
     connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate->dropdownOptions
 

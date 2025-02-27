@@ -152,7 +152,7 @@ module CheckoutCard = {
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
     let connectorList = ConnectorInterface.useConnectorArrayMapper(
-      ConnectorInterface.connectorArrayMapperV1,
+      ~interface=ConnectorInterface.connectorInterfaceV1,
     )
 
     let isConfigureConnector = connectorList->Array.length > 0

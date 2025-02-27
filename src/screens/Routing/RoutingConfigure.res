@@ -8,8 +8,10 @@ let make = (~routingType) => {
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
-  let list = ConnectorInterface.useConnectorArrayMapper(ConnectorInterface.connectorArrayMapperV1)
-  let connectorList = list->filterConnectorList(~retainInList=PaymentConnector)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=ConnectorTypes.PaymentProcessor,
+  )
 
   React.useEffect(() => {
     let searchParams = url.search

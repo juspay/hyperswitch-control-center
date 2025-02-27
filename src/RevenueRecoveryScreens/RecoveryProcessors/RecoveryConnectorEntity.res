@@ -1,6 +1,11 @@
 open ConnectorTypes
 let getPreviouslyConnectedList: JSON.t => array<connectorPayloadV2> = json => {
-  json->ConnectorInterface.getArrayOfConnectorListPayloadTypeV2
+  let data = ConnectorInterface.getConnectorArrayMapper(
+    ConnectorInterface.connectorInterfaceV2,
+    json,
+    PayoutProcessor,
+  )
+  data
 }
 type colType =
   | Name
@@ -51,7 +56,7 @@ let getConnectorObjectFromListViaId = (
   mca_id: string,
 ) => {
   let default = ConnectorInterface.getConnectorMapper(
-    ConnectorInterface.connectorMapperV2,
+    ConnectorInterface.connectorInterfaceV2,
     Dict.make(),
   )
   connectorList

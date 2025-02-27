@@ -19,7 +19,7 @@ let make = (
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
 
   let connectorInfo = ConnectorInterface.getConnectorMapper(
-    ConnectorInterface.connectorMapperV1,
+    ConnectorInterface.connectorInterfaceV1,
     connectorInfoDict,
   )
 

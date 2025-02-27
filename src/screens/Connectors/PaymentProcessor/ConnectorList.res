@@ -9,8 +9,10 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
-  let connectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
-    ConnectorInterface.connectorArrayMapperV1,
+
+  let connectorsList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -21,16 +23,19 @@ let make = () => {
   let getConnectorListAndUpdateState = async () => {
     try {
       // TODO : maintain separate list for multiple types of connectors
-      let connectorsList = ConnectorInterface.getProcessorsFilterList(
-        ConnectorInterface.filterProcessorsListV1,
-        connectorListFromRecoil,
-        ConnectorTypes.FRMPlayer,
-      )
+
       connectorsList->Array.reverse
       sortByDisableField(connectorsList, connectorPayload => connectorPayload.disabled)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
-      setConfiguredConnectors(_ => connectorsList->getConnectorTypeArrayFromListConnectors)
+
+      let list = ConnectorInterface.convertConnectorNameToType(
+        ConnectorInterface.connectorInterfaceV1,
+        ConnectorTypes.Processor,
+        connectorsList,
+      )
+      setConfiguredConnectors(_ => list)
+
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))

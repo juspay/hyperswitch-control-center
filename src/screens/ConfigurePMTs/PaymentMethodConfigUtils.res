@@ -198,7 +198,7 @@ let filterItemObjMapper = (
   filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
 ) => {
   let connectorPayload = ConnectorInterface.getConnectorMapper(
-    ConnectorInterface.connectorMapperV1,
+    ConnectorInterface.connectorInterfaceV1,
     dict,
   )
   let {profile_id, connector_type} = connectorPayload

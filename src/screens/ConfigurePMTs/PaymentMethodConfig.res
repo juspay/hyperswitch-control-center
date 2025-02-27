@@ -87,8 +87,10 @@ let make = (
   } = paymentMethodConfig
   open APIUtils
   let getURL = useGetURL()
+
   let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ConnectorInterface.connectorArrayMapperV1,
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PaymentProcessor,
   )
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -106,7 +108,10 @@ let make = (
         )
         ->getValueFromArray(
           0,
-          ConnectorInterface.getConnectorMapper(ConnectorInterface.connectorMapperV1, Dict.make()),
+          ConnectorInterface.getConnectorMapper(
+            ConnectorInterface.connectorInterfaceV1,
+            Dict.make(),
+          ),
         )
 
       let encodeConnectorPayload = data->PaymentMethodConfigUtils.encodeConnectorPayload

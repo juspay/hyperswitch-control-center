@@ -44,7 +44,7 @@ let make = () => {
       //   ->ConnectorListMapper.getProcessorPayloadType
       let stripeTest = (await updateDetails(url, stripeTestBody, Post))->getDictFromJsonObject
       let stripeTestRes = ConnectorInterface.getConnectorMapper(
-        ConnectorInterface.connectorMapperV1,
+        ConnectorInterface.connectorInterfaceV1,
         stripeTest,
       )
 
@@ -55,7 +55,7 @@ let make = () => {
       )
       let payPalTest = (await updateDetails(url, paypalTestBody, Post))->getDictFromJsonObject
       let payPalTestRes = ConnectorInterface.getConnectorMapper(
-        ConnectorInterface.connectorMapperV1,
+        ConnectorInterface.connectorInterfaceV1,
         payPalTest,
       )
 

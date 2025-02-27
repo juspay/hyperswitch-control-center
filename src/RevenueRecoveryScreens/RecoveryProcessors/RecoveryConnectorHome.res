@@ -21,7 +21,7 @@ let make = () => {
 
   let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
   let connectorInfoDict = ConnectorInterface.getConnectorMapper(
-    ConnectorInterface.connectorMapperV2,
+    ConnectorInterface.connectorInterfaceV2,
     connectorInfo,
   )
 

@@ -7,7 +7,8 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ConnectorInterface.connectorArrayMapperV1,
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PMAuthProcessor,
   )
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
@@ -31,14 +32,12 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let pmAuthConnectorsList =
-        connectorList->Array.filter(item => item.connector_type === PMAuthProcessor)
-      ConnectorUtils.sortByDisableField(pmAuthConnectorsList, connectorPayload =>
+      ConnectorUtils.sortByDisableField(connectorList, connectorPayload =>
         connectorPayload.disabled
       )
 
-      setConfiguredConnectors(_ => pmAuthConnectorsList)
-      setFilteredConnectorData(_ => pmAuthConnectorsList->Array.map(Nullable.make))
+      setConfiguredConnectors(_ => connectorList)
+      setFilteredConnectorData(_ => connectorList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -83,8 +82,10 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
+          configuredConnectors={ConnectorInterface.convertConnectorNameToType(
+            ConnectorInterface.connectorInterfaceV1,
+            ConnectorTypes.PMAuthenticationProcessor,
+            configuredConnectors,
           )}
           connectorsAvailableForIntegration=ConnectorUtils.pmAuthenticationConnectorList
           urlPrefix="pm-authentication-processor/new"

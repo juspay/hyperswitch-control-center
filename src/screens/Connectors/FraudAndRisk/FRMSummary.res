@@ -72,7 +72,7 @@ let make = (~initialValues, ~currentStep) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let frmInfo = ConnectorInterface.getConnectorMapper(
-    ConnectorInterface.connectorMapperV1,
+    ConnectorInterface.connectorInterfaceV1,
     initialValues->getDictFromJsonObject,
   )
 

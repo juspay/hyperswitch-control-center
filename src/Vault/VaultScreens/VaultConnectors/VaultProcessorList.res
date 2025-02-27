@@ -5,9 +5,10 @@ let make = () => {
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  // let connectorListFromRecoil = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  let connectorListFromRecoil =
-    JSON.Encode.null->ConnectorInterface.getArrayOfConnectorListPayloadTypeV2
+  let connectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV2,
+    ~retainInList=PaymentProcessor,
+  )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -16,22 +17,16 @@ let make = () => {
   let getConnectorListAndUpdateState = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorsList = ConnectorInterface.getProcessorsFilterList(
-        ConnectorInterface.filterProcessorsListV2,
-        connectorListFromRecoil,
-        ConnectorTypes.FRMPlayer,
-      )
-      // connectorListFromRecoil->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
-      connectorsList->Array.reverse
-
+      connectorListFromRecoil->Array.reverse
       let list = ConnectorInterface.convertConnectorNameToType(
-        ConnectorInterface.convertConnectorNameToTypeV2,
-        ConnectorTypes.FRMPlayer,
+        ConnectorInterface.connectorInterfaceV2,
+        ConnectorTypes.Processor,
         connectorListFromRecoil,
       )
       setConfiguredConnectors(_ => list)
-      setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
-      setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
+
+      setFilteredConnectorData(_ => connectorListFromRecoil->Array.map(Nullable.make))
+      setPreviouslyConnectedData(_ => connectorListFromRecoil->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))

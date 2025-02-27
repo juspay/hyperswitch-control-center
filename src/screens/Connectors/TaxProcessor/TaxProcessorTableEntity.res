@@ -83,7 +83,12 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  json->ConnectorInterface.getArrayOfConnectorListPayloadType
+  let data = ConnectorInterface.getConnectorArrayMapper(
+    ConnectorInterface.connectorInterfaceV1,
+    json,
+    TaxProcessor,
+  )
+  data
 }
 
 let taxProcessorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

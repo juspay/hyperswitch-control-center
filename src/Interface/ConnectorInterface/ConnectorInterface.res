@@ -1,204 +1,132 @@
 open ConnectorTypes
 open ConnectorInterfaceUtils
-module type ConnectorMappperType = {
+
+module type ConnectorInterface = {
+  type mapperInput
+  type mapperOutput
+  type filterCriteria
+  type input
   type output
-  let getProcessorPayloadType: Dict.t<JSON.t> => output
+  let getProcessorPayloadType: mapperInput => mapperOutput
+  let getArrayOfConnectorListPayloadType: (JSON.t, filterCriteria) => array<mapperOutput>
+  let convertConnectorNameToType: (input, array<mapperOutput>) => array<output>
 }
 
-module V1: ConnectorMappperType with type output = connectorPayload = {
-  type output = connectorPayload
-  let getProcessorPayloadType = (dict: Dict.t<JSON.t>) => getProcessorPayloadType(dict)
+module V1: ConnectorInterface
+  with type mapperInput = Dict.t<JSON.t>
+  and type mapperOutput = connectorPayload
+  and type filterCriteria = ConnectorTypes.connectorTypeVariants
+  and type input = ConnectorTypes.connector
+  and type output = ConnectorTypes.connectorTypes = {
+  type mapperInput = Dict.t<JSON.t>
+  type mapperOutput = connectorPayload
+  type filterCriteria = ConnectorTypes.connectorTypeVariants
+  type input = ConnectorTypes.connector
+  type output = ConnectorTypes.connectorTypes
+
+  let getProcessorPayloadType = (dict: mapperInput): mapperOutput => getProcessorPayloadType(dict)
+  let getArrayOfConnectorListPayloadType = (json: JSON.t, retainInList: filterCriteria) =>
+    ConnectorInterfaceUtilsV2.getArrayOfConnectorListPayloadType(json, retainInList)
+  let convertConnectorNameToType = (
+    connectorType: input,
+    connectorList: array<mapperOutput>,
+  ): array<output> => convertConnectorNameToType(~connectorType, connectorList)
 }
 
-module V2: ConnectorMappperType with type output = connectorPayloadV2 = {
-  type output = connectorPayloadV2
-  let getProcessorPayloadType = (dict: Dict.t<JSON.t>) => getProcessorPayloadTypeV2(dict)
+module V2: ConnectorInterface
+  with type mapperInput = Dict.t<JSON.t>
+  and type mapperOutput = connectorPayloadV2
+  and type filterCriteria = ConnectorTypes.connectorTypeVariants
+  and type input = ConnectorTypes.connector
+  and type output = ConnectorTypes.connectorTypes = {
+  type mapperInput = Dict.t<JSON.t>
+  type mapperOutput = connectorPayloadV2
+  type filterCriteria = ConnectorTypes.connectorTypeVariants
+  type input = ConnectorTypes.connector
+  type output = ConnectorTypes.connectorTypes
+  let getProcessorPayloadType = (dict: mapperInput): mapperOutput => getProcessorPayloadTypeV2(dict)
+  let getArrayOfConnectorListPayloadType = (json: JSON.t, retainInList: filterCriteria) =>
+    ConnectorInterfaceUtilsV2.getArrayOfConnectorListPayloadTypeV2(json, retainInList)
+  let convertConnectorNameToType = (
+    connectorType: input,
+    connectorList: array<mapperOutput>,
+  ): array<output> => convertConnectorNameToTypeV2(~connectorType, connectorList)
 }
 
-type connectorMapper<'a> = module(ConnectorMappperType with type output = 'a)
-
-let connectorMapperV1: connectorMapper<connectorPayload> = module(V1)
-let connectorMapperV2: connectorMapper<connectorPayloadV2> = module(V2)
-
-let getConnectorMapper = (type t, mapperModule: connectorMapper<t>, dict: Dict.t<JSON.t>): t => {
-  module L = unpack(mapperModule) // Extract the module
-  L.getProcessorPayloadType(dict) // Call the function
-}
-
-let getArrayOfConnectorListPayloadType = json => {
-  open LogicUtils
-  json
-  ->getArrayFromJson([])
-  ->Array.map(connectorJson => {
-    let data = connectorJson->getDictFromJsonObject
-    getConnectorMapper(connectorMapperV1, data)
-  })
-}
-
-let getArrayOfConnectorListPayloadTypeV2 = json => {
-  open LogicUtils
-  json
-  ->getArrayFromJson([])
-  ->Array.map(connectorJson => {
-    let data = connectorJson->getDictFromJsonObject
-    getConnectorMapper(connectorMapperV2, data)
-  })
-}
-
-module type ConnectorArrayMapperType = {
-  type output
-  let getArrayOfConnectorListPayloadType: JSON.t => array<output>
-}
-
-module V1ArrayMapper: ConnectorArrayMapperType with type output = connectorPayload = {
-  type output = connectorPayload
-  let getArrayOfConnectorListPayloadType = (json: JSON.t) =>
-    getArrayOfConnectorListPayloadType(json)
-}
-
-module V2ArrayMapper: ConnectorArrayMapperType with type output = connectorPayloadV2 = {
-  type output = connectorPayloadV2
-  let getArrayOfConnectorListPayloadType = (json: JSON.t) =>
-    getArrayOfConnectorListPayloadTypeV2(json)
-}
-
-type connectorArrayMapper<'a> = module(ConnectorArrayMapperType with type output = 'a)
-
-let connectorArrayMapperV1: connectorArrayMapper<connectorPayload> = module(V1ArrayMapper)
-let connectorArrayMapperV2: connectorArrayMapper<connectorPayloadV2> = module(V2ArrayMapper)
-
-let getConnectorArrayMapper = (type t, mapperModule: connectorArrayMapper<t>, json: JSON.t): array<
-  t,
-> => {
-  module L = unpack(mapperModule) // Extract the module
-  L.getArrayOfConnectorListPayloadType(json) // Call the function
-}
-
-module type FilterProcessorsList = {
-  type input1
-  type input2
-  type output
-  let getProcessorsFilterList: (input1, input2) => output
-}
-
-module V1FilterProcessorsList: FilterProcessorsList
-  with type input1 = array<ConnectorTypes.connectorPayload>
-  and type input2 = ConnectorTypes.connector
-  and type output = array<ConnectorTypes.connectorPayload> = {
-  type input1 = array<ConnectorTypes.connectorPayload>
-  type input2 = ConnectorTypes.connector
-  type output = array<ConnectorTypes.connectorPayload>
-
-  let getProcessorsFilterList = (connectorList: input1, removeFromList: input2): output =>
-    getProcessorsFilterList(connectorList, ~removeFromList)
-}
-
-module V2FilterProcessorsList: FilterProcessorsList
-  with type input1 = array<ConnectorTypes.connectorPayloadV2>
-  and type input2 = ConnectorTypes.connector
-  and type output = array<ConnectorTypes.connectorPayloadV2> = {
-  type input1 = array<ConnectorTypes.connectorPayloadV2>
-  type input2 = ConnectorTypes.connector
-  type output = array<ConnectorTypes.connectorPayloadV2>
-
-  let getProcessorsFilterList = (connectorList: input1, removeFromList: input2): output =>
-    getProcessorsFilterListV2(connectorList, ~removeFromList)
-}
-
-type filterProcessorsList<'a, 'b, 'c> = module(FilterProcessorsList with
-  type input1 = 'a
-  and type input2 = 'b
-  and type output = 'c
+type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorInterface with
+  type mapperInput = 'a
+  and type mapperOutput = 'b
+  and type filterCriteria = 'c
+  and type input = 'd
+  and type output = 'e
 )
 
-let filterProcessorsListV1: filterProcessorsList<
-  array<ConnectorTypes.connectorPayload>,
+let connectorInterfaceV1: connectorInterfaceFCM<
+  Dict.t<JSON.t>,
+  connectorPayload,
+  ConnectorTypes.connectorTypeVariants,
   ConnectorTypes.connector,
-  array<ConnectorTypes.connectorPayload>,
-> = module(V1FilterProcessorsList)
+  ConnectorTypes.connectorTypes,
+> = module(V1)
 
-let filterProcessorsListV2: filterProcessorsList<
-  array<ConnectorTypes.connectorPayloadV2>,
+let connectorInterfaceV2: connectorInterfaceFCM<
+  Dict.t<JSON.t>,
+  connectorPayloadV2,
+  ConnectorTypes.connectorTypeVariants,
   ConnectorTypes.connector,
-  array<ConnectorTypes.connectorPayloadV2>,
-> = module(V2FilterProcessorsList)
+  ConnectorTypes.connectorTypes,
+> = module(V2)
 
-let getProcessorsFilterList = (
-  type a b c,
-  module(L: FilterProcessorsList with type input1 = a and type input2 = b and type output = c),
-  inp1: a,
-  inp2: b,
-): c => {
-  L.getProcessorsFilterList(inp1, inp2)
+let getConnectorMapper = (
+  type a b c d e,
+  module(L: ConnectorInterface with
+    type mapperInput = a
+    and type mapperOutput = b
+    and type filterCriteria = c
+    and type input = d
+    and type output = e
+  ),
+  inp: a,
+): b => {
+  L.getProcessorPayloadType(inp)
 }
 
-module type ConvertConnectorNameToType = {
-  type input1
-  type input2
-  type output
-  let convertConnectorNameToType: (input1, input2) => output
+let getConnectorArrayMapper = (
+  type a b c d e,
+  module(L: ConnectorInterface with
+    type mapperInput = a
+    and type mapperOutput = b
+    and type filterCriteria = c
+    and type input = d
+    and type output = e
+  ),
+  inp: JSON.t,
+  filterCriteria: c,
+): array<b> => {
+  L.getArrayOfConnectorListPayloadType(inp, filterCriteria)
 }
-
-module V1ConvertConnectorNameToType: ConvertConnectorNameToType
-  with type input1 = ConnectorTypes.connector
-  and type input2 = array<ConnectorTypes.connectorPayload>
-  and type output = array<ConnectorTypes.connectorTypes> = {
-  type input1 = ConnectorTypes.connector
-  type input2 = array<ConnectorTypes.connectorPayload>
-  type output = array<ConnectorTypes.connectorTypes>
-
-  let convertConnectorNameToType = (connectorType: input1, connectorList: input2): output =>
-    convertConnectorNameToType(~connectorType, connectorList)
-}
-
-module V2ConvertConnectorNameToType: ConvertConnectorNameToType
-  with type input1 = ConnectorTypes.connector
-  and type input2 = array<ConnectorTypes.connectorPayloadV2>
-  and type output = array<ConnectorTypes.connectorTypes> = {
-  type input1 = ConnectorTypes.connector
-  type input2 = array<ConnectorTypes.connectorPayloadV2>
-  type output = array<ConnectorTypes.connectorTypes>
-
-  let convertConnectorNameToType = (connectorType: input1, connectorList: input2): output =>
-    convertConnectorNameToTypeV2(~connectorType, connectorList)
-}
-
-type convertConnectorNameToType<'a, 'b, 'c> = module(ConvertConnectorNameToType with
-  type input1 = 'a
-  and type input2 = 'b
-  and type output = 'c
-)
-
-let convertConnectorNameToTypeV1: convertConnectorNameToType<
-  ConnectorTypes.connector,
-  array<ConnectorTypes.connectorPayload>,
-  array<ConnectorTypes.connectorTypes>,
-> = module(V1ConvertConnectorNameToType)
-
-let convertConnectorNameToTypeV2: convertConnectorNameToType<
-  ConnectorTypes.connector,
-  array<ConnectorTypes.connectorPayloadV2>,
-  array<ConnectorTypes.connectorTypes>,
-> = module(V2ConvertConnectorNameToType)
 
 let convertConnectorNameToType = (
-  type a b c,
-  module(L: ConvertConnectorNameToType with
-    type input1 = a
-    and type input2 = b
-    and type output = c
+  type a b c d e,
+  module(L: ConnectorInterface with
+    type mapperInput = a
+    and type mapperOutput = b
+    and type filterCriteria = c
+    and type input = d
+    and type output = e
   ),
-  inp1: a,
-  inp2: b,
-): c => {
+  inp1: d,
+  inp2: array<b>,
+): array<e> => {
   L.convertConnectorNameToType(inp1, inp2)
 }
 
-let useConnectorMapper = (type t, mapperModule: connectorMapper<t>, dict: Dict.t<JSON.t>): t => {
-  getConnectorMapper(mapperModule, dict)
+let useConnectorArrayMapper = (~interface, ~retainInList=PaymentProcessor) => {
+  let json = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  let data = getConnectorArrayMapper(interface, json, retainInList)
+  data
 }
 
-let useConnectorArrayMapper = (type t, mapperModule: connectorArrayMapper<t>): array<t> => {
-  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
-  getConnectorArrayMapper(mapperModule, connectorList)
-}
+let test2 = getConnectorMapper(connectorInterfaceV1, Dict.make())
+
+let test4 = getConnectorArrayMapper(connectorInterfaceV1, JSON.Encode.null, PaymentProcessor)

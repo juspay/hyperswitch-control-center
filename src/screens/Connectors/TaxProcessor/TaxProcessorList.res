@@ -1,7 +1,8 @@
 @react.component
 let make = () => {
   let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ConnectorInterface.connectorArrayMapperV1,
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=TaxProcessor,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
@@ -31,14 +32,12 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let taxConnectorsList =
-        connectorList->Array.filter(item => item.connector_type === TaxProcessor)
-      ConnectorUtils.sortByDisableField(taxConnectorsList, connectorPayload =>
+      ConnectorUtils.sortByDisableField(connectorList, connectorPayload =>
         connectorPayload.disabled
       )
 
-      setConfiguredConnectors(_ => taxConnectorsList)
-      setFilteredConnectorData(_ => taxConnectorsList->Array.map(Nullable.make))
+      setConfiguredConnectors(_ => connectorList)
+      setFilteredConnectorData(_ => connectorList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -82,8 +81,10 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.TaxProcessor,
+          configuredConnectors={ConnectorInterface.convertConnectorNameToType(
+            ConnectorInterface.connectorInterfaceV1,
+            ConnectorTypes.TaxProcessor,
+            configuredConnectors,
           )}
           connectorsAvailableForIntegration=ConnectorUtils.taxProcessorList
           urlPrefix="tax-processor/new"

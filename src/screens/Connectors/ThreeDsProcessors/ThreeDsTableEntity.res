@@ -84,7 +84,13 @@ let sortPreviouslyConnectedList = arr => {
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   // LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
-  json->ConnectorInterface.getArrayOfConnectorListPayloadType
+  // json->ConnectorInterface.getArrayOfConnectorListPayloadType
+  let data = ConnectorInterface.getConnectorArrayMapper(
+    ConnectorInterface.connectorInterfaceV1,
+    json,
+    AuthenticationProcessor,
+  )
+  data
 }
 
 let threeDsAuthenticatorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

@@ -223,11 +223,11 @@ let filter = (connectorType, ~retainInList) => {
   }
 }
 
-let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, ~retainInList) => {
+let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, retainInList) => {
   items->Array.filter(connector => connector.connector_type->filter(~retainInList))
 }
 
-let filterConnectorListV2 = (items: array<ConnectorTypes.connectorPayloadV2>, ~retainInList) => {
+let filterConnectorListV2 = (items: array<ConnectorTypes.connectorPayloadV2>, retainInList) => {
   items->Array.filter(connector => connector.connector_type->filter(~retainInList))
 }
 

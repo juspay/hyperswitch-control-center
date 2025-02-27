@@ -89,7 +89,8 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ConnectorInterface.connectorArrayMapperV1,
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PaymentVas,
   )
 
   let customUI =
@@ -178,8 +179,10 @@ let make = () => {
         />
       </RenderIf>
       <NewProcessorCards
-        configuredFRMs={configuredFRMs->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-          ~connectorType=ConnectorTypes.FRMPlayer,
+        configuredFRMs={ConnectorInterface.convertConnectorNameToType(
+          ConnectorInterface.connectorInterfaceV1,
+          ConnectorTypes.FRMPlayer,
+          configuredFRMs,
         )}
       />
       <RenderIf condition={!isMobileView}>

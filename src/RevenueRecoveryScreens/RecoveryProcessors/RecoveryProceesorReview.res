@@ -6,7 +6,7 @@ let make = (~connectorInfo) => {
   let connectorInfo = connectorInfo->LogicUtils.getDictFromJsonObject
 
   let connectorInfodict = ConnectorInterface.getConnectorMapper(
-    ConnectorInterface.connectorMapperV2,
+    ConnectorInterface.connectorInterfaceV2,
     connectorInfo,
   )
   let (processorType, _) =
