@@ -24,8 +24,8 @@ module OrgTile = {
       },
     } = React.useContext(ThemeProvider.themeContext)
 
-    let sortByOrgName = (org1, org2) => {
-      compareLogic(org2, org1)
+    let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
+      compareLogic(org2.name->String.toLowerCase, org1.name->String.toLowerCase)
     }
 
     let getOrgList = async () => {
@@ -42,6 +42,7 @@ module OrgTile = {
         }
       }
     }
+
     let onSubmit = async (newOrgName: string) => {
       try {
         let values = {"organization_name": newOrgName}->Identity.genericTypeToJson
@@ -294,8 +295,8 @@ let make = () => {
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
   let showToast = ToastState.useShowToast()
 
-  let sortByOrgName = (org1, org2) => {
-    compareLogic(org2, org1)
+  let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
+    compareLogic(org2.name->String.toLowerCase, org1.name->String.toLowerCase)
   }
 
   let {
