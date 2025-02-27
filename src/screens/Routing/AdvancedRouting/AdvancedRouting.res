@@ -782,6 +782,15 @@ let make = (
                     {switch pageState {
                     | Preview =>
                       <div className="flex flex-col md:flex-row gap-4 my-5">
+                        <Button
+                          text={"Duplicate & Edit Configuration"}
+                          buttonType={Secondary}
+                          onClick={_ => {
+                            setFormState(_ => RoutingTypes.EditConfig)
+                            setPageState(_ => Create)
+                          }}
+                          customButtonStyle="w-1/5"
+                        />
                         <RenderIf condition={!isActive}>
                           <Button
                             text={"Activate Configuration"}
