@@ -183,7 +183,7 @@ let make = () => {
     checked: true,
   }
 
-  let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
+  let widthClass = isMobileView ? "w-full" : "md:w-60 md:max-w-80"
   let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
 
   let addItemBtnStyle = `w-full ${borderColor} border-t-0`

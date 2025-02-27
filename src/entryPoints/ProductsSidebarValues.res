@@ -5,7 +5,7 @@ let emptyComponent = CustomComponent({
 
 let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) => {
   open ProductUtils
-  let {devReconv2Product, devRecoveryV2Product, devVaultV2Product} =
+  let {devReconv2Product, devRecoveryV2Product, devVaultV2Product, devAltPaymentMethods} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
@@ -44,6 +44,16 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
         name: Vault->getStringFromVariant,
         icon: "vault-home",
         link: "/v2/vault/home",
+        access: Access,
+      }),
+    )
+  }
+  if devAltPaymentMethods {
+    sideBarValues->Array.push(
+      Link({
+        name: AlternatePaymentMethods->getStringFromVariant,
+        icon: "alt-payment-methods-home",
+        link: "/v2/alt-payment-methods/home",
         access: Access,
       }),
     )

@@ -191,6 +191,9 @@ let make = () => {
                         /* VAULT PRODUCT */
                         | list{"v2", "vault", ..._} => <VaultApp />
 
+                        /* ALTERNATE PAYMENT METHODS PRODUCT */
+                        | list{"v2", "alt-payment-methods", ..._} => <AlternatePaymentMethodsApp />
+
                         /* ORCHESTRATOR PRODUCT */
                         | list{"home", ..._}
                         | list{"recon"}
