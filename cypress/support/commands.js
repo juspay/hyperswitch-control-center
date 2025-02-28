@@ -27,6 +27,8 @@
 import { v4 as uuidv4 } from "uuid";
 import * as helper from "../support/helper";
 import SignInPage from "../support/pages/auth/SignInPage";
+import SignUpPage from "../support/pages/auth/SignUpPage";
+import ResetPasswordPage from "../support/pages/auth/ResetPasswordPage";
 
 import {
   rolePermissions,
@@ -35,6 +37,8 @@ import {
 } from "../support/permissions";
 
 const signinPage = new SignInPage();
+const signupPage = new SignUpPage();
+const resetPasswordPage = new ResetPasswordPage();
 
 // Custom command to check permissions and decide whether to skip or run the test
 Cypress.Commands.add("checkPermissionsFromTestName", (testName) => {
@@ -311,22 +315,11 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
   // cy.url().should("include", "dashboard/payments");
 });
 
-const selectors = {
-  email: "[data-testid=email]",
-  password: "[data-testid=password]",
-  createPassword: "[data-testid=create_password]",
-  comfirmPassword: "[data-testid=comfirm_password]",
-  submitButton: 'button[type="submit"]',
-  authSubmitButton: '[data-testid="auth-submit-btn"]',
-  skipNowButton: "[data-testid=skip-now]",
-  cardHeader: "[data-testid=card-header]",
-};
-
 Cypress.Commands.add("sign_up_with_email", (username, password) => {
   const MAIL_URL = "http://localhost:8025";
   cy.url().should("include", "/register");
-  cy.get(selectors.email).type(username);
-  cy.get(selectors.authSubmitButton).click();
+  signupPage.emailInput.type(username);
+  signupPage.signUpButton.click();
   cy.get("[data-testid=card-header]").should(
     "contain",
     "Please check your inbox",
@@ -339,17 +332,17 @@ Cypress.Commands.add("sign_up_with_email", (username, password) => {
     const doc = $iframe.contents();
     const verifyEmail = doc.find("a").get(0);
     cy.visit(verifyEmail.href);
-    cy.get(selectors.skipNowButton).click();
+    signinPage.skip2FAButton.click();
     // Set password
-    cy.get(selectors.createPassword).type(password);
-    cy.get(selectors.comfirmPassword).type(password);
-    cy.get("#auth-submit-btn").click();
+    resetPasswordPage.createPassword.type(password);
+    resetPasswordPage.confirmPassword.type(password);
+    resetPasswordPage.confirmButton.click();
     // Login to dashboard
-    cy.get(selectors.email).type(username);
-    cy.get(selectors.password).type(password);
-    cy.get(selectors.authSubmitButton).click();
+    signinPage.emailInput.type(username);
+    signinPage.passwordInput.type(password);
+    signinPage.signinButton.click();
     // Skip 2FA
-    cy.get(selectors.skipNowButton).click();
+    signinPage.skip2FAButton.click();
   });
 });
 
