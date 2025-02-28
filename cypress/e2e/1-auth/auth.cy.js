@@ -1,9 +1,11 @@
 import * as helper from "../../support/helper";
 import SignInPage from "../../support/pages/auth/SignInPage";
 import SignUpPage from "../../support/pages/auth/SignUpPage";
+import ResetPasswordPage from "../../support/pages/auth/ResetPasswordPage";
 
 const signinPage = new SignInPage();
 const signupPage = new SignUpPage();
+const resetPasswordPage = new ResetPasswordPage();
 
 describe("Sign up", () => {
   it("should verify all components on the sign-up page", () => {
@@ -96,6 +98,53 @@ describe("Sign up", () => {
 
     signupPage.footerText.click();
     cy.url().should("include", "/login");
+  });
+
+  it("should verify password masking while signup", () => {
+    const email = helper.generateUniqueEmail();
+    cy.visit_signupPage();
+    cy.url().should("include", "/register");
+    signupPage.emailInput.type(email);
+    signupPage.signUpButton.click();
+    cy.get("[data-testid=card-header]").should(
+      "contain",
+      "Please check your inbox",
+    );
+    cy.visit("http://localhost:8025");
+    cy.get("div.messages > div:nth-child(2)").click();
+    cy.get("iframe").then(($iframe) => {
+      const doc = $iframe.contents();
+      const verifyEmail = doc.find("a").get(0);
+      cy.visit(verifyEmail.href);
+      signinPage.skip2FAButton.click();
+    });
+
+    resetPasswordPage.createPassword.should("have.attr", "type", "password");
+    resetPasswordPage.confirmPassword
+      .children()
+      .eq(1)
+      .should("have.attr", "type", "password");
+
+    resetPasswordPage.createPassword.type(Cypress.env("CYPRESS_PASSWORD"));
+    resetPasswordPage.confirmPassword.type(Cypress.env("CYPRESS_PASSWORD"));
+
+    resetPasswordPage.eyeIcon.eq(0).click();
+    resetPasswordPage.eyeIcon.click();
+
+    resetPasswordPage.createPassword.should("have.attr", "type", "text");
+    resetPasswordPage.confirmPassword
+      .children()
+      .eq(1)
+      .should("have.attr", "type", "text");
+
+    resetPasswordPage.createPassword.should(
+      "have.value",
+      Cypress.env("CYPRESS_PASSWORD"),
+    );
+    resetPasswordPage.confirmPassword
+      .children()
+      .eq(1)
+      .should("have.value", Cypress.env("CYPRESS_PASSWORD"));
   });
 });
 
@@ -304,7 +353,7 @@ describe("Sign in", () => {
     cy.url().should("include", "/dashboard/home");
   });
 
-  it("should navigate to signin page when 'Click here to log out.' is clickeed in 2FA page", () => {
+  it("should navigate to signin page when 'Click here to log out.' is clicked in 2FA page", () => {
     const email = helper.generateUniqueEmail();
     cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
 
@@ -326,8 +375,7 @@ describe("Sign in", () => {
 
 describe("Forgot password", () => {
   it("should verify all components in forgot passowrd page", () => {
-    cy.enable_email_feature_flag();
-
+    cy.visit("/");
     signinPage.forgetPasswordLink.click();
     cy.url().should("include", "/dashboard/forget-password");
     signinPage.forgetPasswordHeader.should("contain", "Forgot Password?");

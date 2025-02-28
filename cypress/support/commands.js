@@ -27,8 +27,115 @@
 import { v4 as uuidv4 } from "uuid";
 import * as helper from "../support/helper";
 import SignInPage from "../support/pages/auth/SignInPage";
+import SignUpPage from "../support/pages/auth/SignUpPage";
+import ResetPasswordPage from "../support/pages/auth/ResetPasswordPage";
+
+import {
+  rolePermissions,
+  hasPermission,
+  hasAccessLevelPermission,
+} from "../support/permissions";
 
 const signinPage = new SignInPage();
+const signupPage = new SignUpPage();
+const resetPasswordPage = new ResetPasswordPage();
+
+// Custom command to check permissions and decide whether to skip or run the test
+Cypress.Commands.add("checkPermissionsFromTestName", (testName) => {
+  const rbac = Cypress.env("RBAC").split(",");
+  const userAccessLevel = rbac[0]; // "Access Level"
+  const userRole = rbac[1]; // "Role"
+
+  // Extract tags from the test name using a regex
+  const regex = /@([a-zA-Z0-9_-]+)/g;
+  const tags = [...testName.matchAll(regex)].map((match) => match[1]);
+
+  // Parse the tags from test case name and get "section" and "accessLevel"
+  const sectionTag = tags.find((tag) =>
+    [
+      "operations",
+      "connectors",
+      "analytics",
+      "workflows",
+      "reconOps",
+      "reconReports",
+      "users",
+      "account",
+    ].includes(tag),
+  );
+  const accessLevelTag = tags.find((tag) =>
+    ["org", "merchant", "profile"].includes(tag),
+  );
+  const permissionTag =
+    rolePermissions[userRole] && rolePermissions[userRole][sectionTag];
+
+  // Default values if no tags are found in the name
+  const requiredSection = sectionTag || "users"; // Default to 'analytics'
+  const requiredAccessLevel = accessLevelTag || "org"; // Default to 'org'
+  const requiredPermission = permissionTag || "write"; // Default to 'write'
+
+  // Check access level and run the test based on the user’s access level
+  if (userAccessLevel === "profile") {
+    // If the user is at 'profile' access level, run tests with the 'profile' tag only
+    if (!tags.includes("profile")) {
+      Cypress.log({
+        name: "Test skipped",
+        message: `Skipping test for "${requiredSection}" section: User access level from env is 'profile' and this test is not tagged with 'profile'`,
+      });
+      return true;
+    }
+  } else if (userAccessLevel === "merchant") {
+    // If the user is at 'merchant' access level, run tests with 'merchant' or 'profile' tag
+    if (!tags.includes("merchant") && !tags.includes("profile")) {
+      Cypress.log({
+        name: "Test skipped",
+        message: `Skipping test for "${requiredSection}" section: User access level from env is 'merchant' and this test is not tagged with 'merchant' or 'profile'`,
+      });
+      return true; // Skip the test
+    }
+  } else if (userAccessLevel === "org") {
+    // If the user is at 'org' access level, run tests with 'org', 'merchant', or 'profile' tag
+    if (
+      !tags.includes("org") &&
+      !tags.includes("merchant") &&
+      !tags.includes("profile")
+    ) {
+      Cypress.log({
+        name: "Test skipped",
+        message: `Skipping test for "${requiredSection}" section: User access level from env is 'org' and this test is not tagged with 'org', 'merchant', or 'profile'`,
+      });
+      return true; // Skip the test
+    }
+  }
+
+  // Validate if user has access level permission to the section
+  const canAccess = hasAccessLevelPermission(
+    userAccessLevel,
+    userRole,
+    requiredSection,
+  );
+  if (!canAccess) {
+    Cypress.log({
+      name: "Test Skipped",
+      message: `Skipping ${requiredSection} test due to insufficient access level`,
+    });
+    return true; // Skip the test
+  }
+
+  // Validate if user has the correct permission (read/write)
+  const hasCorrectPermission = hasPermission(
+    userRole,
+    requiredSection,
+    requiredPermission,
+  );
+  if (!hasCorrectPermission) {
+    Cypress.log({
+      name: "Test Skipped",
+      message: `Skipping ${requiredSection} test due to insufficient permissions (${requiredPermission})`,
+    });
+    return true; // Skip the test
+  }
+});
 
 Cypress.Commands.add("visit_signupPage", () => {
   cy.visit("/");
@@ -208,22 +315,11 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
   // cy.url().should("include", "dashboard/payments");
 });
 
-const selectors = {
-  email: "[data-testid=email]",
-  password: "[data-testid=password]",
-  createPassword: "[data-testid=create_password]",
-  comfirmPassword: "[data-testid=comfirm_password]",
-  submitButton: 'button[type="submit"]',
-  authSubmitButton: '[data-testid="auth-submit-btn"]',
-  skipNowButton: "[data-testid=skip-now]",
-  cardHeader: "[data-testid=card-header]",
-};
-
 Cypress.Commands.add("sign_up_with_email", (username, password) => {
   const MAIL_URL = "http://localhost:8025";
   cy.url().should("include", "/register");
-  cy.get(selectors.email).type(username);
-  cy.get(selectors.authSubmitButton).click();
+  signupPage.emailInput.type(username);
+  signupPage.signUpButton.click();
   cy.get("[data-testid=card-header]").should(
     "contain",
     "Please check your inbox",
@@ -236,17 +332,17 @@ Cypress.Commands.add("sign_up_with_email", (username, password) => {
     const doc = $iframe.contents();
     const verifyEmail = doc.find("a").get(0);
     cy.visit(verifyEmail.href);
-    cy.get(selectors.skipNowButton).click();
+    signinPage.skip2FAButton.click();
     // Set password
-    cy.get(selectors.createPassword).type(password);
-    cy.get(selectors.comfirmPassword).type(password);
-    cy.get("#auth-submit-btn").click();
+    resetPasswordPage.createPassword.type(password);
+    resetPasswordPage.confirmPassword.type(password);
+    resetPasswordPage.confirmButton.click();
     // Login to dashboard
-    cy.get(selectors.email).type(username);
-    cy.get(selectors.password).type(password);
-    cy.get(selectors.authSubmitButton).click();
+    signinPage.emailInput.type(username);
+    signinPage.passwordInput.type(password);
+    signinPage.signinButton.click();
     // Skip 2FA
-    cy.get(selectors.skipNowButton).click();
+    signinPage.skip2FAButton.click();
   });
 });
 
