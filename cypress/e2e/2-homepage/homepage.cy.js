@@ -52,7 +52,7 @@ describe("Sign up", () => {
 
     cy.url().should("include", "/dashboard/home");
 
-    cy.get("[class='max-w-40']").click(); // .children().eq(4).click();
+    cy.get("[class='md:max-w-40 max-w-16']").click();
     cy.get("[data-icon='nd-plus']").click({ force: true });
 
     cy.get("[name='profile_name']").clear().type("new_profile_name");
