@@ -38,8 +38,9 @@ const signinPage = new SignInPage();
 
 // Custom command to check permissions and decide whether to skip or run the test
 Cypress.Commands.add("checkPermissionsFromTestName", (testName) => {
-  const userAccessLevel = Cypress.env("ACCESS_LEVEL");
-  const userRole = Cypress.env("ROLE");
+  const rbac = Cypress.env("RBAC").split(",");
+  const userAccessLevel = rbac[0]; // "Access Level"
+  const userRole = rbac[1]; // "Role"
 
   // Extract tags from the test name using a regex
   const regex = /@([a-zA-Z0-9_-]+)/g;

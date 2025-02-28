@@ -10,10 +10,12 @@ describe("Sign up", () => {
 
   // check if the permissions and access level allow the test to run
   beforeEach(function () {
-    if (!Cypress.env("RBAC")) {
+    if (Cypress.env("RBAC") == "") {
       email = helper.generateUniqueEmail();
       cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
-    } else {
+    }
+    // add valid param check
+    else {
       const testName = Cypress.currentTest.title;
       const tags = testName.match(/@([a-zA-Z0-9_-]+)/g) || []; // Extract all tags from the test name
 
@@ -40,7 +42,7 @@ describe("Sign up", () => {
     }
   });
 
-  it("@profile", () => {
+  it("@merchant should run for both org and custom role", () => {
     cy.visit("/");
 
     signinPage.emailInput.type(email);
@@ -50,19 +52,15 @@ describe("Sign up", () => {
 
     cy.url().should("include", "/dashboard/home");
 
-    cy.get("[class='flex flex-col items-start']").children().eq(4).click();
-    cy.get("[aria-label='Edit']").click({ force: true });
+    cy.get("[class='max-w-40']").click(); // .children().eq(4).click();
+    cy.get("[data-icon='nd-plus']").click({ force: true });
 
-    cy.get(
-      '[class="w-full p-2 bg-transparent focus:outline-none text-md !py-0 text-nd_gray-600"]',
-    )
-      .clear()
-      .type("new_profile_name");
+    cy.get("[name='profile_name']").clear().type("new_profile_name");
 
-    cy.get('[data-icon="nd-check"]').eq(1).click();
+    cy.get("[data-button-for='addProfile']").click();
   });
 
-  it("test case", () => {
+  it("should only for org user", () => {
     cy.visit("/");
   });
 });
