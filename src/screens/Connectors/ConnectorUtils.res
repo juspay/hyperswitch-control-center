@@ -108,6 +108,7 @@ let connectorList: array<connectorTypes> = [
   Processors(JPMORGAN),
   Processors(XENDIT),
   Processors(INESPAY),
+  Processors(PAYSTACK),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -411,6 +412,10 @@ let inespayInfo = {
   description: "Inespay is an online bank transfer payment gateway that operates in three simple steps without the need for prior registration. It is registered as a payment institution authorized by the Bank of Spain with number 6902. Specializing in integrating bank transfer as an online payment method on all kinds of web platforms, especially in B2B environments. It collaborates with leaders in various economic sectors, offering a real-time bank transfer income service and automatic reconciliation.",
 }
 
+let paystackInfo = {
+  description: "Paystack is a technology company solving payments problems for ambitious businesses. Paystack builds technology to help Africa's best businesses grow - from new startups, to market leaders launching new business models.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -646,6 +651,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | JPMORGAN => "jpmorgan"
   | XENDIT => "xendit"
   | INESPAY => "inespay"
+  | PAYSTACK => "paystack"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -784,6 +790,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "jpmorgan" => Processors(JPMORGAN)
     | "xendit" => Processors(XENDIT)
     | "inespay" => Processors(INESPAY)
+    | "paystack" => Processors(PAYSTACK)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -902,6 +909,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | JPMORGAN => jpmorganInfo
   | XENDIT => xenditInfo
   | INESPAY => inespayInfo
+  | PAYSTACK => paystackInfo
   }
 }
 
@@ -1764,6 +1772,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | JPMORGAN => "JP Morgan"
   | XENDIT => "Xendit"
   | INESPAY => "Inespay"
+  | PAYSTACK => "Paystack"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
