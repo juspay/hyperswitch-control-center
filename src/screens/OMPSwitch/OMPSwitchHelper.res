@@ -40,8 +40,8 @@ module ListBaseComp = {
 
       | #Profile =>
         <div
-          className="flex flex-row cursor-pointer items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
-          <div className="max-w-40">
+          className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
+          <div className="md:max-w-40 max-w-16">
             <p
               className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
               {subHeading->React.string}
