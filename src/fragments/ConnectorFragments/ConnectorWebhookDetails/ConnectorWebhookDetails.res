@@ -4,12 +4,13 @@ let make = (
   ~labelTextStyleClass="",
   ~labelClass="font-semibold ",
   ~isInEditState,
-  ~connectorInfo: ConnectorTypes.connectorPayload,
+  ~connectorInfo: ConnectorTypes.connectorPayloadV2,
   ~processorType=ConnectorTypes.Processor,
 ) => {
   open LogicUtils
   open ConnectorHelperV2
   let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let connectorTypeFromName =
     connector->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=processorType)
@@ -43,6 +44,10 @@ let make = (
     }
   }, [selectedConnector])
 
+  let checkIfRequired = (connector, field) => {
+    ConnectorUtils.getWebHookRequiredFields(connector, field)
+  }
+
   let webHookDetails = connectorInfo.connector_webhook_details->getDictFromJsonObject
   let keys = connectorWebHookDetails->Dict.keysToArray
   <>
@@ -54,17 +59,28 @@ let make = (
       <RenderIf key={index->Int.toString} condition={label->String.length > 0}>
         <div>
           {if isInEditState {
-            <FormRenderer.FieldRenderer
-              labelClass
-              field={FormRenderer.makeFieldInfo(
-                ~label,
-                ~name={`connector_webhook_details.${field}`},
-                ~placeholder={label},
-                ~customInput=InputFields.textInput(~customStyle="rounded-xl "),
-                ~isRequired=false,
-              )}
-              labelTextStyleClass
-            />
+            <>
+              <FormRenderer.FieldRenderer
+                labelClass
+                field={FormRenderer.makeFieldInfo(
+                  ~label,
+                  ~name={`connector_webhook_details.${field}`},
+                  ~placeholder={label},
+                  ~customInput=InputFields.textInput(~customStyle="rounded-xl "),
+                  ~isRequired=checkIfRequired(connectorTypeFromName, field),
+                )}
+                labelTextStyleClass
+              />
+              <ConnectorAuthKeysHelper.ErrorValidation
+                fieldName={`connector_webhook_details.${field}`}
+                validate={ConnectorUtils.validate(
+                  ~selectedConnector,
+                  ~dict=connectorWebHookDetails,
+                  ~fieldName={`connector_webhook_details.${field}`},
+                  ~isLiveMode={featureFlagDetails.isLiveMode},
+                )}
+              />
+            </>
           } else {
             <RenderIf condition={value->String.length > 0}>
               <InfoField label str={value} />

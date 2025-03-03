@@ -121,6 +121,15 @@ type taxProcessorTypes = TAXJAR
 
 type billingProcessorTypes = CHARGEBEE
 
+type connectorTypeVariants =
+  | PaymentProcessor
+  | PaymentVas
+  | PayoutProcessor
+  | AuthenticationProcessor
+  | PMAuthProcessor
+  | TaxProcessor
+  | BillingProcessor
+
 type connectorTypes =
   | Processors(processorTypes)
   | PayoutProcessor(payoutProcessorTypes)
@@ -304,15 +313,6 @@ type frm_config = {
   gateway: string,
   mutable payment_methods: array<frm_payment_method>,
 }
-
-type connectorTypeVariants =
-  | PaymentProcessor
-  | PaymentVas
-  | PayoutProcessor
-  | AuthenticationProcessor
-  | PMAuthProcessor
-  | TaxProcessor
-  | BillingProcessor
 
 type connectorPayload = {
   connector_type: connectorTypeVariants,

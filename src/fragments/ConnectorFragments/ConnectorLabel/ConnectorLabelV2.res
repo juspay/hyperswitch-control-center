@@ -3,12 +3,14 @@ let make = (
   ~labelTextStyleClass="",
   ~labelClass="font-semibold",
   ~isInEditState,
-  ~connectorInfo: ConnectorTypes.connectorPayload,
+  ~connectorInfo: ConnectorTypes.connectorPayloadV2,
 ) => {
   open LogicUtils
   open ConnectorHelperV2
+
   let labelFieldDict = ConnectorFragmentUtils.connectorLabelDetailField
   let label = labelFieldDict->getString("connector_label", "")
+
   if isInEditState {
     <FormRenderer.FieldRenderer
       labelClass

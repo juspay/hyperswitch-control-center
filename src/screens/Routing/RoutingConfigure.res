@@ -8,18 +8,16 @@ let make = (~routingType) => {
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
-
-  let connectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->filterConnectorList(~retainInList=PaymentConnector)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=ConnectorTypes.PaymentProcessor,
+  )
 
   React.useEffect(() => {
     let searchParams = url.search
     let filtersFromUrl = getDictFromUrlSearchParams(searchParams)->Dict.get("id")
     setId(_ => filtersFromUrl)
     switch routingType->String.toLowerCase {
-    | "rank" => setCurrentRouting(_ => PRIORITY)
     | "volume" => setCurrentRouting(_ => VOLUME_SPLIT)
     | "rule" => setCurrentRouting(_ => ADVANCED)
     | "default" => setCurrentRouting(_ => DEFAULTFALLBACK)
@@ -38,8 +36,6 @@ let make = (~routingType) => {
     <PageUtils.PageHeading title="Smart routing configuration" />
     <History.BreadCrumbWrapper pageTitle={getContent(currentRouting).heading} baseLink={"/routing"}>
       {switch currentRouting {
-      | PRIORITY =>
-        <PriorityRouting routingRuleId=id isActive connectorList baseUrlForRedirection />
       | VOLUME_SPLIT =>
         <VolumeSplitRouting
           routingRuleId=id isActive connectorList urlEntityName=ROUTING baseUrlForRedirection

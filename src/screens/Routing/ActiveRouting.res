@@ -6,7 +6,7 @@ module TopLeftIcons = {
   @react.component
   let make = (~routeType: routingType) => {
     switch routeType {
-    | PRIORITY | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
+    | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
     | VOLUME_SPLIT => <Icon name="processorLevel" size=25 className="w-14" />
     | ADVANCED => <Icon name="parameterLevel" size=25 className="w-20" />
     | _ => React.null
@@ -17,7 +17,7 @@ module TopRightIcons = {
   @react.component
   let make = (~routeType: routingType) => {
     switch routeType {
-    | VOLUME_SPLIT | PRIORITY => <Icon name="quickSetup" size=25 className="w-28" />
+    | VOLUME_SPLIT => <Icon name="quickSetup" size=25 className="w-28" />
     | _ => React.null
     }
   }
@@ -29,7 +29,6 @@ module ActionButtons = {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     switch routeType {
-    | PRIORITY
     | VOLUME_SPLIT
     | ADVANCED =>
       <ACLButton

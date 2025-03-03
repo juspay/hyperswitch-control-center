@@ -1,10 +1,8 @@
 open LogicUtils
 open APIUtilsTypes
-open CommonAuthHooks
 exception JsonException(JSON.t)
 
 let useGetURL = () => {
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let getUrl = (
     ~entityName: entityName,
@@ -16,7 +14,7 @@ let useGetURL = () => {
     ~reconType: reconType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity} = getUserInfoData()
+    let {transactionEntity, analyticsEntity, userEntity, merchantId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -729,6 +727,7 @@ let useGetURL = () => {
   getUrl
 }
 let useHandleLogout = () => {
+  open SessionStorage
   let getURL = useGetURL()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
@@ -749,6 +748,7 @@ let useHandleLogout = () => {
         })
       setAuthStateToLogout()
       clearRecoilValue()
+      sessionStorage.removeItem("product")
       LocalStorage.clear()
     } catch {
     | _ => LocalStorage.clear()

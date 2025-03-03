@@ -1,4 +1,4 @@
-external anyToEnum: 'a => AdvancedRoutingTypes.connectorSelectionData = "%identity"
+external anyToEnum: 'a => RoutingTypes.connectorSelectionData = "%identity"
 
 @react.component
 let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
@@ -8,15 +8,14 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   let isDistributeInput = ReactFinalForm.useField(`${id}.isDistribute`).input
   let isDistribute = isDistributeInput.value->LogicUtils.getBoolFromJson(false)
 
-  let connectorType = switch url->RoutingUtils.urlToVariantMapper {
-  | PayoutRouting => RoutingTypes.PayoutProcessor
-  | _ => RoutingTypes.PaymentConnector
+  let connectorType: ConnectorTypes.connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
+  | PayoutRouting => ConnectorTypes.PayoutProcessor
+  | _ => ConnectorTypes.PaymentProcessor
   }
-
-  let connectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=connectorType,
+  )
 
   React.useEffect(() => {
     let typeString = if isDistribute {
@@ -47,7 +46,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
         gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
       } else {
         let gatewaysArr = newSelectedOptions->Array.map(item => {
-          open AdvancedRoutingTypes
+          open RoutingTypes
 
           let sharePercent = isDistribute ? 100 / newSelectedOptions->Array.length : 100
           if isDistribute {
@@ -84,7 +83,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   }
 
   let onClickDistribute = newDistributeValue => {
-    open AdvancedRoutingTypes
+    open RoutingTypes
 
     let sharePercent = newDistributeValue ? 100 / selectedOptions->Array.length : 100
     let gatewaysArr = selectedOptions->Array.mapWithIndex((item, i) => {
@@ -113,8 +112,8 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
     gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
   }
 
-  let updatePercentage = (item: AdvancedRoutingTypes.connectorSelectionData, value) => {
-    open AdvancedRoutingTypes
+  let updatePercentage = (item: RoutingTypes.connectorSelectionData, value) => {
+    open RoutingTypes
     let slectedConnector = switch item {
     | PriorityObject(obj) => obj.connector
     | VolumeObject(obj) =>
@@ -180,11 +179,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
             let key = Int.toString(i + 1)
             <div key className="flex flex-row">
               <div
-                className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
-                 hover:text-opacity-100 dark:hover:text-jp-gray-text_darktheme
-               dark:hover:text-opacity-75 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
-               from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme
-               dark:text-opacity-50 focus:outline-none px-1 ">
+                className="w-min flex flex-row items-center justify-around gap-2 rounded-lg border border-jp-gray-500 dark:border-jp-gray-960 hover:text-opacity-100 dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b from-jp-gray-250 dark:text-opacity-50 focus:outline-none px-2 text-sm cursor-pointer">
                 <NewThemeUtils.Badge number={i + 1} />
                 <div>
                   {React.string(
@@ -197,15 +192,6 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                     ).connector_label,
                   )}
                 </div>
-                <Icon
-                  name="close"
-                  size=10
-                  className="mr-2 cursor-pointer "
-                  onClick={ev => {
-                    ev->ReactEvent.Mouse.stopPropagation
-                    removeItem(i)
-                  }}
-                />
                 <RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
                   {<>
                     <input
@@ -224,6 +210,15 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                     <div> {React.string("%")} </div>
                   </>}
                 </RenderIf>
+                <Icon
+                  name="close"
+                  size=10
+                  className="mr-2 cursor-pointer "
+                  onClick={ev => {
+                    ev->ReactEvent.Mouse.stopPropagation
+                    removeItem(i)
+                  }}
+                />
               </div>
             </div>
           })

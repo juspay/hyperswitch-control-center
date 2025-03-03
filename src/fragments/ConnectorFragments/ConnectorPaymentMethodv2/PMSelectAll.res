@@ -7,10 +7,10 @@ module PMSelectAll = {
     ~pmt,
   ) => {
     open LogicUtils
-    open ConnectorPaymentMethodV3Utils
+    open ConnectorPaymentMethodV2Utils
     let pmEnabledInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let pmEnabledValue =
-      pmEnabledInp.value->getArrayDataFromJson(ConnectorListMapper.getPaymentMethodsEnabled)
+      pmEnabledInp.value->getArrayDataFromJson(ConnectorInterfaceUtils.getPaymentMethodsEnabled)
     let pmArrayInp = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
     let (isSelectedAll, setIsSelectedAll) = React.useState(() => false)
@@ -27,8 +27,8 @@ module PMSelectAll = {
         }
         let updatedData =
           [
-            ("payment_method", pm->JSON.Encode.string),
-            ("payment_method_types", updatePMTData->Identity.genericTypeToJson),
+            ("payment_method_type", pm->JSON.Encode.string),
+            ("payment_method_subtypes", updatePMTData->Identity.genericTypeToJson),
           ]
           ->Dict.fromArray
           ->Identity.anyTypeToReactEvent
@@ -45,8 +45,8 @@ module PMSelectAll = {
         }
         let updatedData =
           [
-            ("payment_method", pm->JSON.Encode.string),
-            ("payment_method_types", updatePMTData->Identity.genericTypeToJson),
+            ("payment_method_type", pm->JSON.Encode.string),
+            ("payment_method_subtypes", updatePMTData->Identity.genericTypeToJson),
           ]
           ->Dict.fromArray
           ->Identity.anyTypeToReactEvent
@@ -91,8 +91,8 @@ module PMSelectAll = {
 
       let updatedData =
         [
-          ("payment_method", pm->JSON.Encode.string),
-          ("payment_method_types", updateData->Identity.genericTypeToJson),
+          ("payment_method_type", pm->JSON.Encode.string),
+          ("payment_method_subtypes", updateData->Identity.genericTypeToJson),
         ]
         ->Dict.fromArray
         ->Identity.anyTypeToReactEvent

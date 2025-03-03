@@ -3,8 +3,12 @@ let make = (~connectorInfo) => {
   open CommonAuthHooks
   open LogicUtils
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let connectorInfodict =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfo = connectorInfo->LogicUtils.getDictFromJsonObject
+
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    connectorInfo,
+  )
   let (processorType, _) =
     connectorInfodict.connector_type
     ->ConnectorUtils.connectorTypeTypedValueToStringMapper

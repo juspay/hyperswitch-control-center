@@ -1,4 +1,4 @@
-open AdvancedRoutingTypes
+open RoutingTypes
 open AdvancedRoutingUtils
 
 module GatewayView = {
@@ -6,15 +6,14 @@ module GatewayView = {
   let make = (~gateways) => {
     let url = RescriptReactRouter.useUrl()
 
-    let connectorType = switch url->RoutingUtils.urlToVariantMapper {
-    | PayoutRouting => RoutingTypes.PayoutProcessor
-    | _ => RoutingTypes.PaymentConnector
+    let connectorType: ConnectorTypes.connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
+    | PayoutRouting => ConnectorTypes.PayoutProcessor
+    | _ => ConnectorTypes.PaymentProcessor
     }
-
-    let connectorList: array<ConnectorTypes.connectorPayload> =
-      HyperswitchAtom.connectorListAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+    let connectorList = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV1,
+      ~retainInList=connectorType,
+    )
 
     let getGatewayName = merchantConnectorId => {
       (
