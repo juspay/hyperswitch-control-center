@@ -122,8 +122,6 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  // LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
-  // json->ConnectorInterface.
   let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
     ConnectorInterface.connectorInterfaceV1,
     json,
