@@ -78,7 +78,6 @@ let columnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueTyp
       let primartPoint = this.points->getValueFromArray(0, defaultValue)
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        // let valueString = valueFormatter(value, metricType)
         let formatDollarAmount = amount => {
           let rec addCommas = str => {
             let len = Js.String.length(str)
