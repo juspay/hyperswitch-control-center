@@ -3,7 +3,23 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
-let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) => {
+let useGetSideBarValues = () => {
+  let {devReconv2Product, devRecoveryV2Product} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let sideBarValues = []
+
+  if devReconv2Product {
+    sideBarValues->Array.pushMany(ReconSidebarValues.reconSidebars)
+  }
+
+  if devRecoveryV2Product {
+    sideBarValues->Array.pushMany(RevenueRecoverySidebarValues.recoverySidebars)
+  }
+
+  sideBarValues
+}
+
+let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => {
   open ProductUtils
   let {devReconv2Product, devRecoveryV2Product, devVaultV2Product, devAltPaymentMethods} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -59,7 +75,7 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
     )
   }
 
-  let productName = currentProduct->ProductUtils.getStringFromVariant
+  let productName = activeProduct->ProductUtils.getStringFromVariant
 
   sideBarValues->Array.filter(topLevelItem =>
     switch topLevelItem {
