@@ -85,7 +85,7 @@ module GenerateSampleDataButton = {
     let generateSampleData = async () => {
       mixpanelEvent(~eventName="generate_sample_data")
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
+        let generateSampleDataUrl = getURL(~entityName=V1(GENERATE_SAMPLE_DATA), ~methodType=Post)
         let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
@@ -100,7 +100,7 @@ module GenerateSampleDataButton = {
 
     let deleteSampleData = async () => {
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete)
+        let generateSampleDataUrl = getURL(~entityName=V1(GENERATE_SAMPLE_DATA), ~methodType=Delete)
         let _ = await updateDetails(generateSampleDataUrl, Dict.make()->JSON.Encode.object, Delete)
         showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess)
         getOrdersList()->ignore
@@ -489,7 +489,7 @@ let getOrdersList = async (
   open LogicUtils
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
-    let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
+    let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
     let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)

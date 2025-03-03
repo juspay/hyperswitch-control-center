@@ -84,7 +84,11 @@ let make = (~showModal, ~setShowModal) => {
 
   let udpateMerchantDetails = async values => {
     try {
-      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ~id=Some(merchantId))
+      let accountUrl = getURL(
+        ~entityName=V1(MERCHANT_ACCOUNT),
+        ~methodType=Post,
+        ~id=Some(merchantId),
+      )
       let body =
         [
           ("merchant_id", merchantId->JSON.Encode.string),

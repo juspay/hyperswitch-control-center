@@ -12,7 +12,14 @@ let useUserInfo = () => {
 
   let getUserInfo = async () => {
     try {
-      let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+      let res = await fetchApi(
+        `${url}`,
+        ~method_=Get,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~merchantId={userInfo.merchantId},
+        ~profileId={userInfo.profileId},
+      )
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       userInfo
@@ -51,7 +58,7 @@ let useOrgSwitch = () => {
   async (~expectedOrgId, ~currentOrgId, ~defaultValue) => {
     try {
       if expectedOrgId !== currentOrgId {
-        let url = getURL(~entityName=USERS, ~userType=#SWITCH_ORG, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_ORG, ~methodType=Post)
         let body =
           [("org_id", expectedOrgId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = await updateDetails(url, body, Post)
@@ -85,7 +92,7 @@ let useMerchantSwitch = () => {
   async (~expectedMerchantId, ~currentMerchantId, ~defaultValue) => {
     try {
       if expectedMerchantId !== currentMerchantId {
-        let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT_NEW, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_MERCHANT_NEW, ~methodType=Post)
         let body =
           [
             ("merchant_id", expectedMerchantId->JSON.Encode.string),
@@ -119,7 +126,7 @@ let useProfileSwitch = () => {
     try {
       // Need to remove the Empty string check once userInfo contains the profileId
       if expectedProfileId !== currentProfileId && currentProfileId->LogicUtils.isNonEmptyString {
-        let url = getURL(~entityName=USERS, ~userType=#SWITCH_PROFILE, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_PROFILE, ~methodType=Post)
         let body =
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = await updateDetails(url, body, Post)

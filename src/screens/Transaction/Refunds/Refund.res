@@ -99,7 +99,7 @@ let make = () => {
             />
           </Portal>
           <RenderIf condition={generateReport && refundData->Array.length > 0}>
-            <GenerateReport entityName={REFUND_REPORT} />
+            <GenerateReport entityName={V1(REFUND_REPORT)} />
           </RenderIf>
         </div>
       </div>
@@ -120,7 +120,7 @@ let make = () => {
               setSearchVal=setSearchText
               searchVal=searchText
             />}
-            entityName=REFUND_FILTERS
+            entityName=V1(REFUND_FILTERS)
             title="Refunds"
           />
         </div>

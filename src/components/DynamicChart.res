@@ -235,7 +235,7 @@ let useChartFetch = (~setStatusDict) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
+  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchChartData = (updatedChartBody: array<fetchDataConfig>, setState) => {
     open Promise
 
@@ -248,6 +248,8 @@ let useChartFetch = (~setStatusDict) => {
         ~headers=[("QueryType", "Chart")]->Dict.fromArray,
         ~xFeatureRoute,
         ~forceCookies,
+        ~merchantId,
+        ~profileId,
       )
       ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
       ->then(json => {
@@ -264,6 +266,8 @@ let useChartFetch = (~setStatusDict) => {
             ~headers=[("QueryType", "Chart")]->Dict.fromArray,
             ~xFeatureRoute,
             ~forceCookies,
+            ~merchantId,
+            ~profileId,
           )
           ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
           ->then(

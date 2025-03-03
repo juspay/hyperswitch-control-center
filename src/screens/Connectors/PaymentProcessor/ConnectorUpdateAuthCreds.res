@@ -94,7 +94,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   let onSubmit = async (values, _) => {
     try {
       let url = getURL(
-        ~entityName=CONNECTOR,
+        ~entityName=V1(CONNECTOR),
         ~methodType=Post,
         ~id=Some(connectorInfo.merchant_connector_id),
       )
