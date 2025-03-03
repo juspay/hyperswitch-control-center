@@ -135,6 +135,10 @@ let make = () => {
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+  let isMobileView = MatchMedia.useMobileChecker()
+
+  let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
+  let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
 
   let getProfileList = async () => {
     try {
@@ -151,7 +155,7 @@ let make = () => {
   let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
   let addItemBtnStyle = "border border-t-0 w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
-  let dropdownContainerStyle = "rounded-md border border-1 w-[14rem] max-w-[20rem]"
+  let dropdownContainerStyle = `${roundedClass} border border-1 ${widthClass}`
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)

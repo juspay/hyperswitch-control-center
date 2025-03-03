@@ -1,4 +1,4 @@
-type gateway = AdvancedRoutingTypes.volumeSplitConnectorSelectionData
+type gateway = RoutingTypes.volumeSplitConnectorSelectionData
 
 module GatewayView = {
   @react.component
