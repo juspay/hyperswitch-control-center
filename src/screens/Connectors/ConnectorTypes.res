@@ -345,7 +345,6 @@ type connectorPayloadV2 = {
   connector_name: string,
   connector_label: string,
   connector_account_details: connectorAuthTypeObj,
-  test_mode: bool,
   disabled: bool,
   payment_methods_enabled: payment_methods_enabledV2,
   profile_id: string,

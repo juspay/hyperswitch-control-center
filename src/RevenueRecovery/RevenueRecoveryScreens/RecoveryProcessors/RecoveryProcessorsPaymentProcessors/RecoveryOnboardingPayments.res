@@ -44,7 +44,6 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-    initialValuesToDict->Dict.set("test_mode", !featureFlagDetails.isLiveMode->JSON.Encode.bool)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 

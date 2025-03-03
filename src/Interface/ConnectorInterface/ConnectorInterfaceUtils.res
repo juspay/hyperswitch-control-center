@@ -208,7 +208,6 @@ let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
     connector_account_details: dict
     ->getObj("connector_account_details", Dict.make())
     ->getAccountDetails,
-    test_mode: dict->getBool("test_mode", true),
     disabled: dict->getBool("disabled", true),
     payment_methods_enabled: dict
     ->getJsonObjectFromDict("payment_methods_enabled")
