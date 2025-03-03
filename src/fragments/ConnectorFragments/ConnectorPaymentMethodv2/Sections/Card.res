@@ -16,14 +16,14 @@ module SelectedCardValues = {
     let credit = switch cardData {
     | Some(data) =>
       data.payment_method_subtypes->Array.filter(ele =>
-        ele.payment_method_type->getPMTFromString == Credit
+        ele.payment_method_subtype->getPMTFromString == Credit
       )
     | _ => []
     }
     let debit = switch cardData {
     | Some(data) =>
       data.payment_method_subtypes->Array.filter(ele =>
-        ele.payment_method_type->getPMTFromString == Debit
+        ele.payment_method_subtype->getPMTFromString == Debit
       )
     | _ => []
     }
@@ -53,8 +53,8 @@ let make = (
     paymentMethodValues
     ->getArrayFromDict("card", [])
     ->getPaymentMethodMapper(connector, pm)
-  let credit = data->Array.filter(ele => ele.payment_method_type->getPMTFromString == Credit)
-  let debit = data->Array.filter(ele => ele.payment_method_type->getPMTFromString == Debit)
+  let credit = data->Array.filter(ele => ele.payment_method_subtype->getPMTFromString == Credit)
+  let debit = data->Array.filter(ele => ele.payment_method_subtype->getPMTFromString == Debit)
   let paymentMethodTypeValues = formValues.payment_methods_enabled->Array.get(pmIndex)
 
   {
@@ -71,7 +71,7 @@ let make = (
               let pmtIndex = switch paymentMethodTypeValues {
               | Some(pmt) => {
                   let isPMTEnabled = pmt.payment_method_subtypes->Array.findIndex(val => {
-                    if val.payment_method_type->getPMTFromString == Credit {
+                    if val.payment_method_subtype->getPMTFromString == Credit {
                       val.card_networks->Array.some(
                         networks => {
                           pmtData.card_networks->Array.includes(networks)
@@ -112,7 +112,7 @@ let make = (
               let pmtIndex = switch paymentMethodTypeValues {
               | Some(pmt) => {
                   let isPMTEnabled = pmt.payment_method_subtypes->Array.findIndex(val => {
-                    if val.payment_method_type->getPMTFromString == Debit {
+                    if val.payment_method_subtype->getPMTFromString == Debit {
                       val.card_networks->Array.some(
                         networks => {
                           pmtData.card_networks->Array.includes(networks)

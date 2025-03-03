@@ -63,8 +63,8 @@ let acceptedValues = dict => {
   values.list->Array.length > 0 ? Some(values) : None
 }
 
-let getPaymentMethodDictV2 = (dict, pm, connector) => {
-  let paymentMethodType = dict->getString("payment_method_type", "")
+let getPaymentMethodDictV2 = (dict, pm, connector): ConnectorTypes.paymentMethodConfigTypeV2 => {
+  let paymentMethodType = dict->getString("payment_method_subtype", "")
   let (cardNetworks, modifedPaymentMethodType) = switch pm->getPMTFromString {
   | Credit => {
       let cardNetworks = [paymentMethodType->JSON.Encode.string]
@@ -92,7 +92,7 @@ let getPaymentMethodDictV2 = (dict, pm, connector) => {
   let pme = getPaymentExperience(connector, pm, modifedPaymentMethodType, paymentExperience)
   let newPaymentMenthodDict =
     [
-      ("payment_method_type", modifedPaymentMethodType->JSON.Encode.string),
+      ("payment_method_subtype", modifedPaymentMethodType->JSON.Encode.string),
       ("card_networks", cardNetworks->JSON.Encode.array),
       ("minimum_amount", minimumAmount->JSON.Encode.int),
       ("maximum_amount", maximumAmount->JSON.Encode.int),
@@ -100,7 +100,7 @@ let getPaymentMethodDictV2 = (dict, pm, connector) => {
       ("installment_payment_enabled", installmentPaymentEnabled->JSON.Encode.bool),
     ]->Dict.fromArray
   newPaymentMenthodDict->setOptionString("payment_experience", pme)
-  newPaymentMenthodDict->ConnectorInterfaceUtils.getPaymentMethodTypes
+  newPaymentMenthodDict->ConnectorInterfaceUtils.getPaymentMethodTypesV2
 }
 
 let getPaymentMethodMapper = (arr, connector, pm) => {

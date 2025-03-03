@@ -173,8 +173,7 @@ type advancedConfigurationList = {
 
 type advancedConfiguration = {options: advancedConfigurationList}
 
-type paymentMethodConfigType = {
-  payment_method_type: string,
+type paymentMethodConfigCommonType = {
   card_networks: array<string>,
   accepted_currencies: option<advancedConfigurationList>,
   accepted_countries: option<advancedConfigurationList>,
@@ -183,6 +182,16 @@ type paymentMethodConfigType = {
   recurring_enabled: option<bool>,
   installment_payment_enabled: option<bool>,
   payment_experience: option<string>,
+}
+
+type paymentMethodConfigType = {
+  payment_method_type: string,
+  ...paymentMethodConfigCommonType,
+}
+
+type paymentMethodConfigTypeV2 = {
+  payment_method_subtype: string,
+  ...paymentMethodConfigCommonType,
 }
 
 type paymentMethodEnabled = {
@@ -291,7 +300,7 @@ type paymentMethodEnabledType = {
 
 type paymentMethodEnabledTypeV2 = {
   payment_method_type: string,
-  payment_method_subtypes: array<paymentMethodConfigType>,
+  payment_method_subtypes: array<paymentMethodConfigTypeV2>,
 }
 
 type payment_methods_enabled = array<paymentMethodEnabledType>

@@ -1,7 +1,7 @@
 module PMSelectAll = {
   @react.component
   let make = (
-    ~availablePM: array<ConnectorTypes.paymentMethodConfigType>,
+    ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeV2>,
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
     ~pm,
     ~pmt,
@@ -10,17 +10,17 @@ module PMSelectAll = {
     open ConnectorPaymentMethodV2Utils
     let pmEnabledInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let pmEnabledValue =
-      pmEnabledInp.value->getArrayDataFromJson(ConnectorInterfaceUtils.getPaymentMethodsEnabled)
+      pmEnabledInp.value->getArrayDataFromJson(ConnectorInterfaceUtils.getPaymentMethodsEnabledV2)
     let pmArrayInp = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
     let (isSelectedAll, setIsSelectedAll) = React.useState(() => false)
     let removeAllPM = () => {
       if pm->getPMFromString == Card && pmt->getPMTFromString == Credit {
-        let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
+        let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method_type == pm)
         let updatePMTData = switch pmtData {
         | Some(data) =>
-          data.payment_method_types->Array.filter(ele =>
-            ele.payment_method_type->getPMTFromString != Credit
+          data.payment_method_subtypes->Array.filter(ele =>
+            ele.payment_method_subtype->getPMTFromString != Credit
           )
 
         | None => []
@@ -34,11 +34,11 @@ module PMSelectAll = {
           ->Identity.anyTypeToReactEvent
         pmArrayInp.onChange(updatedData)
       } else if pm->getPMFromString == Card && pmt->getPMTFromString == Debit {
-        let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
+        let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method_type == pm)
         let updatePMTData = switch pmtData {
         | Some(data) =>
-          data.payment_method_types->Array.filter(ele =>
-            ele.payment_method_type->getPMTFromString != Debit
+          data.payment_method_subtypes->Array.filter(ele =>
+            ele.payment_method_subtype->getPMTFromString != Debit
           )
 
         | None => []
@@ -53,13 +53,13 @@ module PMSelectAll = {
 
         pmArrayInp.onChange(updatedData)
       } else {
-        let updatedData = pmEnabledValue->Array.filter(ele => ele.payment_method != pm)
+        let updatedData = pmEnabledValue->Array.filter(ele => ele.payment_method_type != pm)
 
         pmEnabledInp.onChange(updatedData->Identity.anyTypeToReactEvent)
       }
     }
     let selectAllPM = () => {
-      let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
+      let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method_type == pm)
       /*
       On "Select All" for credit:  
       - Keep existing debit selections.  
@@ -70,8 +70,8 @@ module PMSelectAll = {
       let updateData = if pm->getPMFromString == Card && pmt->getPMTFromString == Credit {
         let filterData = switch pmtData {
         | Some(data) =>
-          data.payment_method_types
-          ->Array.filter(ele => ele.payment_method_type->getPMTFromString != Credit)
+          data.payment_method_subtypes
+          ->Array.filter(ele => ele.payment_method_subtype->getPMTFromString != Credit)
           ->Array.concat(availablePM)
         | None => availablePM
         }
@@ -79,8 +79,8 @@ module PMSelectAll = {
       } else if pm->getPMFromString == Card && pmt->getPMTFromString == Debit {
         let filterData = switch pmtData {
         | Some(data) =>
-          data.payment_method_types
-          ->Array.filter(ele => ele.payment_method_type->getPMTFromString != Debit)
+          data.payment_method_subtypes
+          ->Array.filter(ele => ele.payment_method_subtype->getPMTFromString != Debit)
           ->Array.concat(availablePM)
         | None => availablePM
         }
@@ -108,19 +108,19 @@ module PMSelectAll = {
     }
 
     React.useEffect(() => {
-      let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method == pm)
+      let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method_type == pm)
       let isPMEnabled = switch pmtData {
       | Some(data) =>
         if pm->getPMFromString == Card && pmt->getPMTFromString == Credit {
-          data.payment_method_types
-          ->Array.filter(ele => ele.payment_method_type->getPMTFromString == Credit)
+          data.payment_method_subtypes
+          ->Array.filter(ele => ele.payment_method_subtype->getPMTFromString == Credit)
           ->Array.length == availablePM->Array.length
         } else if pm->getPMFromString == Card && pmt->getPMTFromString == Debit {
-          data.payment_method_types
-          ->Array.filter(ele => ele.payment_method_type->getPMTFromString == Debit)
+          data.payment_method_subtypes
+          ->Array.filter(ele => ele.payment_method_subtype->getPMTFromString == Debit)
           ->Array.length == availablePM->Array.length
         } else {
-          data.payment_method_types->Array.length == availablePM->Array.length
+          data.payment_method_subtypes->Array.length == availablePM->Array.length
         }
       | None => false
       }
@@ -139,13 +139,20 @@ module PMSelectAll = {
   }
 }
 
-let renderSelectAllValueInp = (~availablePM, ~pm, ~pmt) => (
-  fieldsArray: array<ReactFinalForm.fieldRenderProps>,
-) => {
+let renderSelectAllValueInp = (
+  ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeV2>,
+  ~pm,
+  ~pmt,
+) => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <PMSelectAll availablePM fieldsArray pm pmt />
 }
 
-let selectAllValueInput = (~availablePM, ~pmIndex, ~pm, ~pmt) => {
+let selectAllValueInput = (
+  ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeV2>,
+  ~pmIndex,
+  ~pm,
+  ~pmt,
+) => {
   open FormRenderer
   makeMultiInputFieldInfoOld(
     ~label=``,
