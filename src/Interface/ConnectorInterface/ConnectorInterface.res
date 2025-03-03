@@ -1,6 +1,7 @@
 open ConnectorTypes
 open ConnectorInterfaceUtils
 
+// Interface
 module type ConnectorInterface = {
   type mapperInput
   type mapperOutput
@@ -12,6 +13,9 @@ module type ConnectorInterface = {
   let mapConnectorPayloadToConnectorType: (input, array<mapperOutput>) => array<output>
 }
 
+// Each module implements the ConnectorInterface but uses different types.
+
+// Module Implementation for V1
 module V1: ConnectorInterface
   with type mapperInput = Dict.t<JSON.t>
   and type mapperOutput = connectorPayload
@@ -34,6 +38,7 @@ module V1: ConnectorInterface
   ): array<output> => mapConnectorPayloadToConnectorType(~connectorType, connectorList)
 }
 
+// Module Implementation for V2
 module V2: ConnectorInterface
   with type mapperInput = Dict.t<JSON.t>
   and type mapperOutput = connectorPayloadV2
@@ -54,7 +59,9 @@ module V2: ConnectorInterface
     connectorList: array<mapperOutput>,
   ): array<output> => mapConnectorPayloadToConnectorTypeV2(~connectorType, connectorList)
 }
+//parametric polymorphism, connectorInterfaceFCM is a type that takes 5 type parameters
 
+// This allows for parametric polymorphism, meaning we can generalize the ConnectorInterface module with different types ('a, 'b, etc.).
 type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorInterface with
   type mapperInput = 'a
   and type mapperOutput = 'b
@@ -63,6 +70,9 @@ type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorInterface with
   and type output = 'e
 )
 
+//Creating Instances of the Interface
+
+//Defines connectorInterfaceV1 as an instance of ConnectorInterface using V1.
 let connectorInterfaceV1: connectorInterfaceFCM<
   Dict.t<JSON.t>,
   connectorPayload,
@@ -71,6 +81,7 @@ let connectorInterfaceV1: connectorInterfaceFCM<
   ConnectorTypes.connectorTypes,
 > = module(V1)
 
+// Defines connectorInterfaceV2 using V2.
 let connectorInterfaceV2: connectorInterfaceFCM<
   Dict.t<JSON.t>,
   connectorPayloadV2,
@@ -79,6 +90,12 @@ let connectorInterfaceV2: connectorInterfaceFCM<
   ConnectorTypes.connectorTypes,
 > = module(V2)
 
+// Generic Function: mapDictToConnectorPayload
+
+// This function takes:
+// 1. A module L implementing ConnectorInterface.
+// 2. An input of type a (mapperInput).
+// 3. It calls L.mapDictToConnectorPayload and returns the mapped output.
 let mapDictToConnectorPayload = (
   type a b c d e,
   module(L: ConnectorInterface with
