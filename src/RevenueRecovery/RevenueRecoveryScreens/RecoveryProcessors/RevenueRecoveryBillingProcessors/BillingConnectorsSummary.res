@@ -110,7 +110,7 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let _connectorUrl = getURL(
+      let connectorUrl = getURL(
         ~entityName=V2(V2_CONNECTOR),
         ~methodType=Post,
         ~id=Some(connectorID),
@@ -129,9 +129,9 @@ let make = () => {
           dict->Dict.delete("connector_account_details")
         }
       }
-      //let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Post)
+      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put)
       setCurrentActiveSection(_ => None)
-      setInitialValues(_ => values->removeFieldsFromRespose)
+      setInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to update"))

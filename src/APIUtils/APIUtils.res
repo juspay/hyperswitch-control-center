@@ -9,7 +9,7 @@ let getV2Url = (
   ~profileId,
   ~queryParamerters: option<string>=None,
 ) => {
-  let connectorBaseURL = "/v2/connector-accounts"
+  let connectorBaseURL = "v2/connector-accounts"
 
   switch entityName {
   | V2_CUSTOMERS_LIST => "/v2/customers/list"
