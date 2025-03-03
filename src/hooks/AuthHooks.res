@@ -31,10 +31,7 @@ let getHeaders = (
     switch token {
     | Some(str) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
-        headers->Dict.set(
-          "api-key",
-          `snd_Nrhf0igyQfDuXVR9ez1nPKiqVZeJ7d6jaJc4sGjuxodp8wkCf3ijS8KFSPJM71hW`,
-        )
+        headers->Dict.set("api-key", `hyperswitch`)
       }
     | None => ()
     }
