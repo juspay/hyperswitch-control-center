@@ -332,7 +332,7 @@ module Exceptions = {
       ],
       tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
         ~title="Exceptions Aging",
-        ~metricType=Amount,
+        ~metricType=FormattedAmount,
       ),
       yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
         ~statType=FormattedAmount,
