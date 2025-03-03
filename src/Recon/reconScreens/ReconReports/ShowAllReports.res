@@ -28,8 +28,6 @@ module ShowOrderDetails = {
               overiddingHeadingStyles=" flex text-nd_gray-400 text-sm font-medium"
               isHorizontal
             />
-            // {CustomModalCellUtils.getHeadingForModal(colType)->React.string}
-            // {CustomModalCellUtils.colTypeMapper(~report=data, ~colType)->React.string}
           </div>
         })
         ->React.array}
@@ -52,6 +50,7 @@ module OrderInfo = {
           PaymentMethod,
           TxnAmount,
           SettlementAmount,
+          TransactionDate,
         ]
         isButtonEnabled=true
         isModal
@@ -75,11 +74,7 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
-
-      // let res = await fetchDetails(url)
-
-      let order = selectedId
-      setReconReport(_ => order)
+      setReconReport(_ => selectedId)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>

@@ -39,7 +39,7 @@ module DisplayKeyValueParams = {
                 ? "flex justify-start"
                 : ""} text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 `}>
             <div className={overiddingHeadingStyles}>
-              {React.string(showTitle ? `${heading.title}:` : " x")}
+              {React.string(showTitle ? heading.title : " x")}
             </div>
             <RenderIf condition={description->LogicUtils.isNonEmptyString}>
               <div className="text-sm text-gray-500 mx-2 -mt-1 ">

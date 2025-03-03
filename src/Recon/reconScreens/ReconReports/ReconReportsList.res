@@ -15,7 +15,7 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
     <div className="flex justify-between border-b ">
       <div className="flex gap-4 items-center">
         <p className="font-semibold text-nd_gray-600 px-8 pt-8 mb-6 text-lg">
-          {`${selectedId.transaction_id}`->React.string}
+          {`Transaction ID: ${selectedId.transaction_id}`->React.string}
         </p>
         <div> {statusUI} </div>
       </div>
@@ -67,7 +67,7 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
           title="All Reports"
           actualData={filteredReportsData}
           entity={ReportsTableEntity.reportsEntity(
-            `v2/recon/reports`,
+            `v2/recon/reports?tab=all`,
             ~authorization=userHasAccess(~groupAccess=UsersManage),
           )}
           filters={<TableSearchFilter

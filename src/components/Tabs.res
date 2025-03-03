@@ -174,7 +174,7 @@ let make = (
   let tabOuterClass = `${tabBottomShadow} ${gapBetweenTabs}`
   let bottomBorderColor = switch customBottomBorderColor {
   | Some(val) => val
-  | None => "bg-[#CBCBCB]"
+  | None => "bg-nd_gray-150"
   }
   let bottomBorderClass = `${bottomBorderColor}
    w-full h-0.5 rounded-full -mt-0.5`

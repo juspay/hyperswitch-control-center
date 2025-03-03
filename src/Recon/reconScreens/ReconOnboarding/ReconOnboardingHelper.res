@@ -186,7 +186,8 @@ module StackedBarGraphs = {
                   },
                 ],
                 labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(
-                  ~statType=Amount,
+                  ~statType=FormattedAmount,
+                  ~currency="$",
                 ),
               },
               ~yMax=1000000,
@@ -333,7 +334,10 @@ module Exceptions = {
         ~title="Exceptions Aging",
         ~metricType=Amount,
       ),
-      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=Amount),
+      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
+        ~statType=FormattedAmount,
+        ~currency="$",
+      ),
     }
 
     let unmatchedTransactionsOptions: ColumnGraphTypes.columnGraphPayload = {
@@ -365,9 +369,9 @@ module Exceptions = {
       ],
       tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
         ~title="Unmatched Transactions",
-        ~metricType=Amount,
+        ~metricType=No_Type,
       ),
-      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=Amount),
+      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=No_Type),
     }
 
     <div className="flex flex-col gap-6 w-full">

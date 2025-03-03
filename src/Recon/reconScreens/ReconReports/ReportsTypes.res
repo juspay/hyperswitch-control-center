@@ -1,3 +1,5 @@
+type url = All | Exceptions
+
 type reportCommonPayload = {
   transaction_id: string,
   order_id: string,
@@ -17,7 +19,7 @@ type exceptionMatrixPayload = {
   order_id: string,
   txn_amount: float,
   payment_gateway: string,
-  settlement_date: float,
+  settlement_date: string,
   fee_amount: float,
 }
 
@@ -33,12 +35,11 @@ type commonColType =
   | PaymentGateway
   | PaymentMethod
   | TxnAmount
-  | Actions
-  | ReconStatus
-  | TransactionDate
   | SettlementAmount
+  | Actions
+  | TransactionDate
 
-type allColtype = | ...commonColType
+type allColtype = ReconStatus | ...commonColType
 
 type exceptionColtype =
   | ...commonColType
@@ -49,5 +50,5 @@ type exceptionMatrixColType =
   | OrderId
   | TxnAmount
   | PaymentGateway
-  | SettlmentDate
+  | SettlementDate
   | FeeAmount

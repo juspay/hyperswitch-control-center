@@ -1,4 +1,4 @@
-// open ReportsTypes
+open ReportsTypes
 let getArrayDictFromRes = res => {
   open LogicUtils
   res->getDictFromJsonObject->getArrayFromDict("data", [])
@@ -6,6 +6,13 @@ let getArrayDictFromRes = res => {
 let getSizeofRes = res => {
   open LogicUtils
   res->getDictFromJsonObject->getInt("size", 0)
+}
+
+let getTabFromUrl = search => {
+  switch search {
+  | "tab=exceptions" => Exceptions
+  | _ => All
+  }
 }
 
 let getHeadersForCSV = () => {

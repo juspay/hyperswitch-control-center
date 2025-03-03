@@ -11,7 +11,6 @@ let make = () => {
   let getReportsList = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      //   let response = await fetchReportListResponse(~startDate, ~endDate)
       let response = ReportsData.reportsExceptionResponse
       let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
 

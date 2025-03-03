@@ -78,31 +78,12 @@ let columnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueTyp
       let primartPoint = this.points->getValueFromArray(0, defaultValue)
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        // let valueString = valueFormatter(value, metricType)
-        let formatDollarAmount = amount => {
-          let rec addCommas = str => {
-            let len = Js.String.length(str)
-            if len <= 3 {
-              str
-            } else {
-              let prefix = Js.String.slice(~from=0, ~to_=len - 3, str)
-              let suffix = Js.String.slice(~from=len - 3, ~to_=len, str)
-              addCommas(prefix) ++ "," ++ suffix
-            }
-          }
+        let formattedValue = LogicUtils.valueFormatter(value, metricType, ~currency="$")
 
-          let strAmount = amount->Float.toString
-          "$ " ++ addCommas(strAmount)
-        }
-        let displayValue = switch metricType {
-        | No_Type => value->Float.toString
-        | Amount => value->formatDollarAmount
-        | _ => value->Float.toString
-        }
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
             <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${displayValue}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${formattedValue}</div>
         </div>`
       }
 
@@ -143,34 +124,14 @@ let columnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueTyp
   )->asTooltipPointFormatter
 }
 
-let columnGraphYAxisFormatter = (~statType: LogicUtilsTypes.valueType) => {
+let columnGraphYAxisFormatter = (~statType: LogicUtilsTypes.valueType, ~currency="") => {
   (
     @this
     (this: yAxisFormatter) => {
-      let value = this.value
-      let formatDollarAmount = amount => {
-        let rec addCommas = str => {
-          let len = Js.String.length(str)
-          if len <= 3 {
-            str
-          } else {
-            let prefix = Js.String.slice(~from=0, ~to_=len - 3, str)
-            let suffix = Js.String.slice(~from=len - 3, ~to_=len, str)
-            addCommas(prefix) ++ "," ++ suffix
-          }
-        }
+      let value = this.value->Int.toFloat
+      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency)
 
-        let strAmount = amount->Int.toString
-        "$ " ++ addCommas(strAmount)
-      }
-
-      let valueDisplay = switch statType {
-      | No_Type => value->Int.toString
-      | Amount => value->formatDollarAmount
-      | _ => value->Int.toString
-      }
-
-      valueDisplay
+      formattedValue
     }
   )->asTooltipPointFormatter
 }

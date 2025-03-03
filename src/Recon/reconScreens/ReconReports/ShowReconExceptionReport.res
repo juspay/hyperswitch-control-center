@@ -39,7 +39,7 @@ module OrderInfo = {
   let make = (~exceptionReportDetails) => {
     open ReportsExceptionTableEntity
 
-    <div className="w-full mb-6 ">
+    <div className="w-full pb-6 border-b border-nd_gray-150">
       <ShowOrderDetails
         data=exceptionReportDetails
         getHeading
@@ -47,9 +47,11 @@ module OrderInfo = {
         detailsFields=[
           TransactionId,
           OrderId,
+          TransactionDate,
           PaymentGateway,
           PaymentMethod,
           TxnAmount,
+          SettlementAmount,
           ExceptionType,
         ]
         isButtonEnabled=true
@@ -73,8 +75,6 @@ let make = (~id) => {
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
-
-      // let res = await fetchDetails(url)
       let res = ReportsData.reportsExceptionResponse
       let data =
         res
@@ -111,7 +111,7 @@ let make = (~id) => {
   let statusUI = ReportsExceptionTableEntity.useGetStatus(reconExceptionReport)
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
-      path=[{title: "Recon", link: `/v2/recon/reports`}]
+      path=[{title: "Recon", link: `/v2/recon/reports?tab=exceptions`}]
       currentPageTitle="Exceptions Summary"
       cursorStyle="cursor-pointer"
       customTextClass="text-nd_gray-400"
@@ -120,14 +120,20 @@ let make = (~id) => {
       dividerVal=Slash
       childGapClass="gap-2"
     />
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-row justify-between items-center">
         <div className="flex gap-2 items-center">
-          <PageUtils.PageHeading title={`${reconExceptionReport.transaction_id}`} />
+          <PageUtils.PageHeading title={`Transaction ID: ${reconExceptionReport.transaction_id}`} />
           {statusUI}
         </div>
-        <div className="flex gap-2 ">
-          <ACLButton text="Resolve" customButtonStyle="!w-fit" buttonType={Primary} />
+        <ACLButton text="Resolve" customButtonStyle="!w-fit" buttonType={Primary} />
+      </div>
+      <div className="w-full py-3 px-4 bg-orange-50 flex justify-between items-center rounded-lg">
+        <div className="flex gap-4 items-center">
+          <Icon name="nd-hour-glass" size=16 />
+          <p className="text-nd_gray-600 text-base leading-6 font-medium">
+            {"PG processed the payment, but no matching record exists in the bank statement (Settlement Missing)."->React.string}
+          </p>
         </div>
       </div>
       <PageLoaderWrapper

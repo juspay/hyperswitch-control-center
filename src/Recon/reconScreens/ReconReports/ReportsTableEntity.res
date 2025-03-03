@@ -57,13 +57,14 @@ let useGetAllReportStatus = (order: allReportPayload) => {
 
 let getHeading = (colType: allColtype) => {
   switch colType {
-  | TransactionId => Table.makeHeaderInfo(~key="transaction_id", ~title="Transaction Id")
-  | OrderId => Table.makeHeaderInfo(~key="order_id", ~title="Order Id")
+  | TransactionId => Table.makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
+  | OrderId => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   | ReconStatus => Table.makeHeaderInfo(~key="recon_status", ~title="Recon Status")
   | PaymentGateway => Table.makeHeaderInfo(~key="payment_gateway", ~title="Payment Gateway")
   | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
-  | SettlementAmount => Table.makeHeaderInfo(~key="settlement_amount", ~title="Settlement Amount")
-  | TxnAmount => Table.makeHeaderInfo(~key="txn_amount", ~title="Txn Amount")
+  | SettlementAmount =>
+    Table.makeHeaderInfo(~key="settlement_amount", ~title="Settlement Amount ($)")
+  | TxnAmount => Table.makeHeaderInfo(~key="txn_amount", ~title="Txn Amount ($)")
   | TransactionDate => Table.makeHeaderInfo(~key="transaction_date", ~title="Transaction Date")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }
@@ -111,8 +112,8 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
     }
 
   | TransactionDate => Date(report.transaction_date)
-  | SettlementAmount => Text(Js.Float.toString(report.settlement_amount))
-  | TxnAmount => Text(Js.Float.toString(report.txn_amount))
+  | SettlementAmount => Text(Float.toString(report.settlement_amount))
+  | TxnAmount => Text(Float.toString(report.txn_amount))
   | Actions => CustomCell(<Icon name="nd-external-link-square" size=16 />, "")
   }
 }

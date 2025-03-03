@@ -7,6 +7,7 @@ let make = () => {
   let (configuredReports, setConfiguredReports) = React.useState(_ => [])
   let (filteredReportsData, setFilteredReports) = React.useState(_ => [])
   let showToast = ToastState.useShowToast()
+  let url = RescriptReactRouter.useUrl()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let (selectedReconId, setSelectedReconId) = React.useState(_ => "Recon_235")
@@ -19,7 +20,6 @@ let make = () => {
   let getReportsList = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      // let response = await fetchReportListResponse(~startDate, ~endDate)
       let response = ReportsData.reportsResponse
       let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
       let reportsList = data->ReportsTableEntity.getArrayOfReportsListPayloadType
@@ -32,10 +32,14 @@ let make = () => {
   }
 
   React.useEffect(() => {
+    switch url.search->ReconReportUtils.getTabFromUrl {
+    | Exceptions => setTabIndex(_ => 1)
+    | All => setTabIndex(_ => 0)
+    }
     setScreenState(_ => PageLoaderWrapper.Success)
     getReportsList()->ignore
     None
-  }, [])
+  }, [url.search])
 
   let convertArrayToCSV = arr => {
     let headers = ReconReportUtils.getHeadersForCSV()
@@ -85,10 +89,20 @@ let make = () => {
         title: "All",
         renderContent: () =>
           <ReconReportsList configuredReports filteredReportsData setFilteredReports />,
+        onTabSelection: () => {
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(~url="/v2/recon/reports?tab=all"),
+          )
+        },
       },
       {
         title: "Exceptions",
         renderContent: () => <ReconExceptionsList />,
+        onTabSelection: () => {
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(~url="/v2/recon/reports?tab=exceptions"),
+          )
+        },
       },
     ]
   }, (configuredReports, filteredReportsData))
