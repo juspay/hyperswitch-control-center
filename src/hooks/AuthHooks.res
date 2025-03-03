@@ -17,6 +17,8 @@ let getHeaders = (
   ~contentType=Headers("application/json"),
   ~xFeatureRoute,
   ~token,
+  ~merchantId,
+  ~profileId,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
 
@@ -29,7 +31,10 @@ let getHeaders = (
     switch token {
     | Some(str) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
-        headers->Dict.set("api-key", `hyperswitch`)
+        headers->Dict.set(
+          "api-key",
+          `snd_Nrhf0igyQfDuXVR9ez1nPKiqVZeJ7d6jaJc4sGjuxodp8wkCf3ijS8KFSPJM71hW`,
+        )
       }
     | None => ()
     }
@@ -40,6 +45,9 @@ let getHeaders = (
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
     }
+    // headers for V2
+    headers->Dict.set("X-Profile-Id", profileId)
+    headers->Dict.set("X-Merchant-Id", merchantId)
     headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
@@ -67,6 +75,8 @@ let useApiFetcher = () => {
       ~contentType=Headers("application/json"),
       ~xFeatureRoute,
       ~forceCookies,
+      ~merchantId="",
+      ~profileId="",
     ) => {
       let token = {
         switch authStatus {
@@ -100,7 +110,15 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials={forceCookies ? SameOrigin : Omit},
-            ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ~xFeatureRoute),
+            ~headers=getHeaders(
+              ~headers,
+              ~uri,
+              ~contentType,
+              ~token,
+              ~xFeatureRoute,
+              ~merchantId,
+              ~profileId,
+            ),
           ),
         )
         ->catch(

@@ -69,7 +69,7 @@ module CustomerDetails = {
     let getSearchResults = async () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       try {
-        let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
+        let url = getURL(~entityName=V1(GLOBAL_SEARCH), ~methodType=Post)
 
         let body = [("query", id->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
 
@@ -116,7 +116,7 @@ let make = (~id) => {
   let fetchCustomersData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let customersUrl = getURL(~entityName=CUSTOMERS, ~methodType=Get, ~id=Some(id))
+      let customersUrl = getURL(~entityName=V1(CUSTOMERS), ~methodType=Get, ~id=Some(id))
       let response = await fetchDetails(customersUrl)
       setCustomersData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

@@ -7,7 +7,7 @@ let make = () => {
     <div className="flex gap-2">
       <NewAnalyticsHelper.SmartRetryToggle />
       <RenderIf condition={newAnalyticsFilters}>
-        <NewAnalyticsFilters domain={#payments} entityName={ANALYTICS_PAYMENTS} />
+        <NewAnalyticsFilters domain={#payments} entityName={V1(ANALYTICS_PAYMENTS)} />
       </RenderIf>
     </div>
     <NewPaymentsOverviewSection entity={overviewSectionEntity} />

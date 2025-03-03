@@ -7,7 +7,7 @@ module NewMerchantCreationModal = {
     let showToast = ToastState.useShowToast()
     let createNewMerchant = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let _ = await updateDetails(url, values, Post)
         getMerchantList()->ignore
         showToast(
@@ -145,7 +145,7 @@ let make = () => {
   } = React.useContext(ThemeProvider.themeContext)
   let getMerchantList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
       let response = await fetchDetails(url)
       setMerchantList(_ => response->getArrayDataFromJson(merchantItemToObjMapper))
     } catch {
