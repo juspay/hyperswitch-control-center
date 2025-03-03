@@ -100,7 +100,7 @@ let make = (
     try {
       setShowPaymentMthdConfigModal(_ => true)
       setScreenState(_ => Loading)
-      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get)
+      let paymentMethoConfigUrl = getURL(~entityName=V1(PAYMENT_METHOD_CONFIG), ~methodType=Get)
       let data =
         connectorList
         ->Array.filter(item =>
@@ -153,7 +153,7 @@ let make = (
 
   let onSubmit = async (values, _) => {
     try {
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(merchant_connector_id))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(merchant_connector_id))
       let _ = await updateDetails(url, values, Post)
       let _ = await setReferesh()
       setShowPaymentMthdConfigModal(_ => false)

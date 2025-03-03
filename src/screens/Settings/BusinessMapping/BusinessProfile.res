@@ -137,7 +137,7 @@ let make = (
   let updateMerchantDetails = async body => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
       let response = await updateDetails(url, body, Post)
       setUpdatedProfileId(_ =>
         response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")

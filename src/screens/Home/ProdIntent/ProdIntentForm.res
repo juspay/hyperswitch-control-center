@@ -15,7 +15,7 @@ let make = (~isFromMilestoneCard=false) => {
     open LogicUtils
     try {
       let url = getURL(
-        ~entityName=USERS,
+        ~entityName=V1(USERS),
         ~userType=#USER_DATA,
         ~methodType=Get,
         ~queryParamerters=Some(`keys=ProdIntent`),

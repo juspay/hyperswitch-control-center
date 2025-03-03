@@ -6,7 +6,7 @@ let useFetchMerchantDetails = () => {
 
   async _ => {
     try {
-      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get)
+      let accountUrl = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Get)
       let merchantDetailsJSON = await fetchDetails(accountUrl)
       let jsonToTypedValue = merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails
       setMerchantDetailsValue(_ => jsonToTypedValue)
