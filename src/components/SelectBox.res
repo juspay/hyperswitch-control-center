@@ -64,6 +64,7 @@ module ListItem = {
     ~customRowClass="",
     ~labelDescription=Some(""),
     ~labelDescriptionClass="",
+    ~customSelectionIcon=Button.NoIcon,
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let labelText = switch labelValue->String.length {
@@ -315,7 +316,10 @@ module ListItem = {
             }
           } else if isDropDown {
             <div className="mr-2">
-              <Tick isSelected />
+              {switch (customSelectionIcon, isSelected) {
+              | (Button.CustomIcon(ele), true) => ele
+              | (_, _) => <Tick isSelected />
+              }}
             </div>
           } else {
             React.null
@@ -449,7 +453,7 @@ module BaseSelect = {
     ~searchable=?,
     ~optionRigthElement=?,
     ~searchInputPlaceHolder="",
-    ~showSearchIcon=true,
+    ~showSearchIcon=false,
     ~customStyle="",
     ~customMargin="",
     ~disableSelect=false,
@@ -839,7 +843,7 @@ module BaseSelect = {
           wrapBasis->LogicUtils.isEmptyString ? "" : " flex flex-wrap justify-between"
         }}>
         {if filteredOptions->Array.length === 0 {
-          <div className="flex justify-center items-center m-4">
+          <div className={`flex justify-center items-center m-4 ${customSearchStyle}`}>
             {React.string("No matching records found")}
           </div>
         } else if filteredOptions->Array.find(item => item.value === "Loading...")->Option.isSome {
@@ -950,7 +954,7 @@ module BaseSelectButton = {
     ~isMobileView=false,
     ~hideAssignBtn=false,
     ~searchInputPlaceHolder="",
-    ~showSearchIcon=true,
+    ~showSearchIcon=false,
     ~allowButtonTextMinWidth=?,
   ) => {
     let options = useTransformed(options)
@@ -1010,7 +1014,7 @@ module BaseSelectButton = {
     let overflowClass = !isDropDown ? "" : "overflow-auto"
 
     <div
-      className={`bg-white dark:bg-jp-gray-lightgray_background ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
+      className={`dark:bg-jp-gray-lightgray_background ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {if searchable {
@@ -1123,6 +1127,7 @@ module RenderListItemInBaseRadio = {
     ~customScrollStyle=?,
     ~shouldDisplaySelectedOnTop,
     ~labelDescriptionClass="",
+    ~customSelectionIcon=Button.NoIcon,
   ) => {
     let decodedValue = value->JSON.Decode.string
     switch (decodedValue, shouldDisplaySelectedOnTop) {
@@ -1183,6 +1188,7 @@ module RenderListItemInBaseRadio = {
             selectClass
             labelDescription=option.labelDescription
             labelDescriptionClass
+            customSelectionIcon
           />
         }
 
@@ -1296,7 +1302,7 @@ module BaseRadio = {
     ~customStyle="",
     ~searchable=?,
     ~isMobileView=false,
-    ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+    ~customSearchStyle="dark:bg-jp-gray-950 p-2",
     ~descriptionOnHover=false,
     ~addDynamicValue=false,
     ~dropdownCustomWidth="w-80",
@@ -1312,7 +1318,7 @@ module BaseRadio = {
     ~maxHeight="md:max-h-72",
     ~textOverflowClass=?,
     ~searchInputPlaceHolder="",
-    ~showSearchIcon=true,
+    ~showSearchIcon=false,
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
     ~bottomComponent=React.null,
@@ -1322,6 +1328,7 @@ module BaseRadio = {
     ~dropdownContainerStyle="",
     ~shouldDisplaySelectedOnTop=false,
     ~labelDescriptionClass="",
+    ~customSelectionIcon=Button.NoIcon,
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1456,7 +1463,7 @@ module BaseRadio = {
     }
     let searchInputUI =
       <div
-        className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 `}>
+        className={`border-b p-2 border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 ${customSearchStyle}`}>
         <div>
           <SearchInput
             inputText=searchString
@@ -1483,7 +1490,7 @@ module BaseRadio = {
       <div
         className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
         {if newOptions->Array.length === 0 && showMatchingRecordsText {
-          <div className="flex justify-center items-center m-4">
+          <div className={`flex justify-center items-center m-4 ${customSearchStyle}`}>
             {React.string("No matching records found")}
           </div>
         } else if isNonGrouped {
@@ -1512,6 +1519,7 @@ module BaseRadio = {
             ?customScrollStyle
             shouldDisplaySelectedOnTop
             labelDescriptionClass
+            customSelectionIcon
           />
         } else {
           {
@@ -1591,7 +1599,7 @@ module BaseDropdown = {
     ~addButton=false,
     ~marginTop="mt-10", //to position dropdown below the button,
     ~customStyle="",
-    ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+    ~customSearchStyle="dark:bg-jp-gray-950 p-2",
     ~showSelectionAsChips=true,
     ~showToolTip=false,
     ~showNameAsToolTip=false,
@@ -1631,7 +1639,7 @@ module BaseDropdown = {
     ~showBtnTextToolTip=false,
     ~dropdownClassName="",
     ~searchInputPlaceHolder="",
-    ~showSearchIcon=true,
+    ~showSearchIcon=false,
     ~sortingBasedOnDisabled=?,
     ~customSelectStyle="",
     ~baseComponentCustomStyle="",
@@ -1643,6 +1651,7 @@ module BaseDropdown = {
     ~dropdownContainerStyle="",
     ~shouldDisplaySelectedOnTop=false,
     ~labelDescriptionClass="",
+    ~customSelectionIcon=Button.NoIcon,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1853,6 +1862,7 @@ module BaseDropdown = {
         showSearchIcon
         ?sortingBasedOnDisabled
         preservedAppliedOptions
+        customSearchStyle
       />
     } else if addButton {
       <BaseSelectButton
@@ -1913,6 +1923,8 @@ module BaseDropdown = {
         dropdownContainerStyle
         shouldDisplaySelectedOnTop
         labelDescriptionClass
+        customSelectionIcon
+        customSearchStyle
       />
     }
 
@@ -2036,7 +2048,7 @@ module BaseDropdown = {
                   dropDirection == BottomMiddle ||
                   dropDirection == BottomRight
                     ? "origin-top"
-                    : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950 ${fullLength
+                    : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} rounded-lg dark:bg-jp-gray-950 ${fullLength
                     ? "w-full"
                     : ""}`}
                 ref={dropdownRef->ReactDOM.Ref.domRef}>
@@ -2056,7 +2068,7 @@ module BaseDropdown = {
               dropDirection == BottomMiddle ||
               dropDirection == BottomRight
                 ? "origin-top"
-                : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950`}
+                : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} rounded-lg dark:bg-jp-gray-950`}
             ref={dropdownRef->ReactDOM.Ref.domRef}>
             optionsElement
           </div>
@@ -2273,7 +2285,7 @@ let make = (
   ~allSelectType=Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
   ~searchInputPlaceHolder=?,
-  ~showSearchIcon=true,
+  ~showSearchIcon=false,
   ~customLabelStyle=?,
   ~customMargin="",
   ~showToolTip=false,

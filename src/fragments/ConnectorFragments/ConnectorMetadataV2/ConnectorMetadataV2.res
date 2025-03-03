@@ -3,7 +3,7 @@ let make = (
   ~labelTextStyleClass="",
   ~labelClass="font-semibold !text-hyperswitch_black",
   ~isInEditState,
-  ~connectorInfo: ConnectorTypes.connectorPayload,
+  ~connectorInfo: ConnectorTypes.connectorPayloadV2,
 ) => {
   open LogicUtils
   open ConnectorMetaDataUtils

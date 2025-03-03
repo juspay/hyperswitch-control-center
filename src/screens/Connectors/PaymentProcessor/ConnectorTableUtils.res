@@ -31,7 +31,12 @@ let getConnectorObjectFromListViaId = (
 ) => {
   connectorList
   ->Array.find(ele => {ele.merchant_connector_id == mca_id})
-  ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+  ->Option.getOr(
+    ConnectorInterface.mapDictToConnectorPayload(
+      ConnectorInterface.connectorInterfaceV1,
+      Dict.make(),
+    ),
+  )
 }
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>) => {
@@ -86,7 +91,13 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         </div>,
         "",
       )
-    | ProfileId => DisplayCopyCell(connector.profile_id)
+    | ProfileId =>
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap" displayValue=connector.profile_id
+        />,
+        "",
+      )
     | ProfileName =>
       Table.CustomCell(
         <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
@@ -107,7 +118,14 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         </div>,
         "",
       )
-    | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
+    | MerchantConnectorId =>
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap"
+          displayValue=connector.merchant_connector_id
+        />,
+        "",
+      )
     }
   }
   getCell
@@ -122,7 +140,12 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
+    ConnectorInterface.connectorInterfaceV1,
+    json,
+    PaymentProcessor,
+  )
+  data
 }
 
 let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

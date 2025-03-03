@@ -38,20 +38,23 @@ let make = () => {
         ~json=Window.getConnectorConfig("stripe_test"),
         ~profileId=activeBusinessProfile.profile_id,
       )
-      let stripeTestRes =
-        (await updateDetails(url, stripeTestBody, Post))
-        ->getDictFromJsonObject
-        ->ConnectorListMapper.getProcessorPayloadType
+      let stripeTest = (await updateDetails(url, stripeTestBody, Post))->getDictFromJsonObject
+      let stripeTestRes = ConnectorInterface.mapDictToConnectorPayload(
+        ConnectorInterface.connectorInterfaceV1,
+        stripeTest,
+      )
 
       let paypalTestBody = constructBody(
         ~connectorName="paypal_test",
         ~json=Window.getConnectorConfig("paypal_test"),
         ~profileId=activeBusinessProfile.profile_id,
       )
-      let payPalTestRes =
-        (await updateDetails(url, paypalTestBody, Post))
-        ->getDictFromJsonObject
-        ->ConnectorListMapper.getProcessorPayloadType
+      let payPalTest = (await updateDetails(url, paypalTestBody, Post))->getDictFromJsonObject
+      let payPalTestRes = ConnectorInterface.mapDictToConnectorPayload(
+        ConnectorInterface.connectorInterfaceV1,
+        payPalTest,
+      )
+
       let _ = await fetchConnectorListResponse()
       setStepCounter(_ => #CONNECTORS_CONFIGURED)
 
