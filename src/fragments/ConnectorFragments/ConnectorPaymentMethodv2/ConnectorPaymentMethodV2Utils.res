@@ -64,7 +64,8 @@ let acceptedValues = dict => {
 }
 
 let getPaymentMethodDictV2 = (dict, pm, connector): ConnectorTypes.paymentMethodConfigTypeV2 => {
-  let paymentMethodType = dict->getString("payment_method_subtype", "")
+  let paymentMethodType =
+    dict->getString("payment_method_subtype", dict->getString("payment_method_type", ""))
   let (cardNetworks, modifedPaymentMethodType) = switch pm->getPMTFromString {
   | Credit => {
       let cardNetworks = [paymentMethodType->JSON.Encode.string]
