@@ -78,36 +78,17 @@ let getStackedBarGraphOptions = (
   }
 }
 
-let stackedBarGraphLabelFormatter = (~statType: LogicUtilsTypes.valueType) => {
+let stackedBarGraphLabelFormatter = (~statType: LogicUtilsTypes.valueType, ~currency="") => {
   open LogicUtils
 
   (
     @this
     (this: labelFormatter) => {
       let name = this.name
-      let yData = this.yData->getValueFromArray(0, 0)
-      let formatDollarAmount = amount => {
-        let rec addCommas = str => {
-          let len = Js.String.length(str)
-          if len <= 3 {
-            str
-          } else {
-            let prefix = Js.String.slice(~from=0, ~to_=len - 3, str)
-            let suffix = Js.String.slice(~from=len - 3, ~to_=len, str)
-            addCommas(prefix) ++ "," ++ suffix
-          }
-        }
+      let yData = this.yData->getValueFromArray(0, 0)->Int.toFloat
+      let formattedValue = LogicUtils.valueFormatter(yData, statType, ~currency)
 
-        let strAmount = amount->Int.toString
-        "$ " ++ addCommas(strAmount)
-      }
-      let valueDisplay = switch statType {
-      | No_Type => yData->Int.toString
-      | Amount => formatDollarAmount(yData)
-      | _ => yData->Int.toString
-      }
-
-      let title = `<div style="color: #525866; font-weight: 500;">${name}<span style="color: #99A0AE"> | ${valueDisplay}</span></div>`
+      let title = `<div style="color: #525866; font-weight: 500;">${name}<span style="color: #99A0AE"> | ${formattedValue}</span></div>`
       title
     }
   )->asLabelFormatter
