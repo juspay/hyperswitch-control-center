@@ -146,7 +146,7 @@ let make = (~setAppScreenState) => {
 
   let getListOfMerchantIds = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_INVITATION, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_INVITATION, ~methodType=Get)
       let listOfMerchants = await fetchDetails(url)
       setPendingInvites(_ =>
         listOfMerchants->getArrayDataFromJson(PreLoginUtils.itemToObjectMapper)
@@ -159,7 +159,7 @@ let make = (~setAppScreenState) => {
   let acceptInvite = async acceptedInvitesArray => {
     try {
       setAppScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITATION_HOME, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#ACCEPT_INVITATION_HOME, ~methodType=Post)
 
       let body =
         acceptedInvitesArray

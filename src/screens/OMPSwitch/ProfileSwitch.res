@@ -8,7 +8,7 @@ module NewProfileCreationModal = {
 
     let createNewProfile = async values => {
       try {
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
+        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
         let body = values
         let _ = await updateDetails(url, body, Post)
         getProfileList()->ignore
@@ -142,7 +142,7 @@ let make = () => {
 
   let getProfileList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
       let response = await fetchDetails(url)
       setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
     } catch {

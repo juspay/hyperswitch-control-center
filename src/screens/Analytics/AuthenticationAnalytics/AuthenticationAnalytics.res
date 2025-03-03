@@ -15,7 +15,7 @@ let make = () => {
     open LogicUtils
     try {
       let infoUrl = getURL(
-        ~entityName=ANALYTICS_AUTHENTICATION,
+        ~entityName=V1(ANALYTICS_AUTHENTICATION),
         ~methodType=Get,
         ~id=Some("auth_events"),
       )
