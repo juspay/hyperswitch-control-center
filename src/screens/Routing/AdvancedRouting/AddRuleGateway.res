@@ -8,15 +8,14 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   let isDistributeInput = ReactFinalForm.useField(`${id}.isDistribute`).input
   let isDistribute = isDistributeInput.value->LogicUtils.getBoolFromJson(false)
 
-  let connectorType = switch url->RoutingUtils.urlToVariantMapper {
-  | PayoutRouting => RoutingTypes.PayoutProcessor
-  | _ => RoutingTypes.PaymentConnector
+  let connectorType: ConnectorTypes.connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
+  | PayoutRouting => ConnectorTypes.PayoutProcessor
+  | _ => ConnectorTypes.PaymentProcessor
   }
-
-  let connectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=connectorType,
+  )
 
   React.useEffect(() => {
     let typeString = if isDistribute {

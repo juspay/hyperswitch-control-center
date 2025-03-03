@@ -229,7 +229,6 @@ module MerchantDropdownItem = {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
@@ -274,7 +273,6 @@ module MerchantDropdownItem = {
       try {
         setShowSwitchingMerch(_ => true)
         let _ = await internalSwitch(~expectedMerchantId=Some(value))
-        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
         setShowSwitchingMerch(_ => false)
       } catch {
       | _ => {
@@ -360,7 +358,6 @@ module ProfileDropdownItem = {
       setUnderEdit(_ => selectedEditId)
     }
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
@@ -404,7 +401,6 @@ module ProfileDropdownItem = {
       try {
         setShowSwitchingProfile(_ => true)
         let _ = await internalSwitch(~expectedProfileId=Some(value))
-        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
         setShowSwitchingProfile(_ => false)
       } catch {
       | _ => {
