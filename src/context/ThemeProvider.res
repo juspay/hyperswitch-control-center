@@ -228,30 +228,29 @@ let make = (~children) => {
     | _ => Exn.raiseError("Error on configuring favicon")
     }
   }
-
   let updateThemeURLs = themesData => {
     open LogicUtils
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
       let existingEnv = DOMUtils.window._env_
+      let getUrl = (key, defaultVal, existingVal) =>
+        urlsDict->isEmptyDict
+          ? Some(defaultVal)
+          : urlsDict->getString(key, existingVal->Option.getOr(defaultVal))->getNonEmptyString
       let val = {
-        faviconUrl: urlsDict
-        ->getString("faviconUrl", existingEnv.urlThemeConfig.faviconUrl->Option.getOr(""))
-        ->getNonEmptyString,
-        logoUrl: urlsDict
-        ->getString("logoUrl", existingEnv.urlThemeConfig.logoUrl->Option.getOr(""))
-        ->getNonEmptyString,
+        faviconUrl: getUrl(
+          "faviconUrl",
+          "/HyperswitchFavicon.png",
+          existingEnv.urlThemeConfig.faviconUrl,
+        ),
+        logoUrl: getUrl("logoUrl", "", existingEnv.urlThemeConfig.logoUrl),
       }
-
-      let updatedUrlConfig = {
-        ...existingEnv,
-        urlThemeConfig: val,
-      }
+      let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
       DOMUtils.window._env_ = updatedUrlConfig
-      configureFavIcon(updatedUrlConfig.urlThemeConfig.faviconUrl)->ignore
+      configureFavIcon(val.faviconUrl)->ignore
       setContextLogoUrl(_ => val.logoUrl)
-      updatedUrlConfig.urlThemeConfig.faviconUrl
+      val.faviconUrl
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }

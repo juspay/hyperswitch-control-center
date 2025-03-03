@@ -136,7 +136,7 @@ let make = () => {
                         </div>
                       </div>}
                       headerLeftActions={switch logoURL {
-                      | Some(url) =>
+                      | Some(url) if url->LogicUtils.isNonEmptyString =>
                         <div className="flex md:gap-4 gap-2 items-center">
                           <img className="w-fit h-12" alt="image" src={`${url}`} />
                           <ProfileSwitch />
@@ -153,7 +153,7 @@ let make = () => {
                             <span className="font-semibold"> {modeText->React.string} </span>
                           </div>
                         </div>
-                      | None =>
+                      | _ =>
                         <div className="flex md:gap-4 gap-2 items-center ">
                           <ProfileSwitch />
                           <div
