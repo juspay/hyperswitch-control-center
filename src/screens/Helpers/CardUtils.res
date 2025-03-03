@@ -21,7 +21,7 @@ module CardHeader = {
 module CardFooter = {
   @react.component
   let make = (~customFooterStyle="", ~children) => {
-    <div className={`lg:ml-9 lg:mt-7 lg:mb-3 flex gap-5 ${customFooterStyle}`}> children </div>
+    <div className={`lg:ml-9 lg:mb-3 flex gap-5 ${customFooterStyle}`}> children </div>
   }
 }
 
