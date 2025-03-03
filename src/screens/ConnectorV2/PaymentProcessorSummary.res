@@ -108,6 +108,7 @@ let make = () => {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
       let dict = values->getDictFromJsonObject
+      dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
       switch currentActiveSection {
       | Some(AuthenticationKeys) => {
           dict->Dict.delete("profile_id")
@@ -116,12 +117,12 @@ let make = () => {
         }
       | _ => {
           dict->Dict.delete("profile_id")
-          dict->Dict.delete("merchant_connector_id")
+          dict->Dict.delete("id")
           dict->Dict.delete("connector_name")
           dict->Dict.delete("connector_account_details")
         }
       }
-      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Post)
+      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put)
       setCurrentActiveSection(_ => None)
       setInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)
