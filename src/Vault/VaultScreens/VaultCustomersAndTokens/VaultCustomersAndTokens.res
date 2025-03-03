@@ -19,7 +19,7 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let customersUrl = getURL(
-        ~entityName=CUSTOMERS,
+        ~entityName=V1(CUSTOMERS),
         ~methodType=Get,
         ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
       )

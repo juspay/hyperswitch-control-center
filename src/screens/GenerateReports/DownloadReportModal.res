@@ -48,9 +48,9 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   }->Identity.genericTypeToJson
 
   let category = switch entityName {
-  | PAYMENT_REPORT => "Payment"
-  | REFUND_REPORT => "Refund"
-  | DISPUTE_REPORT => "Dispute"
+  | V1(PAYMENT_REPORT) => "Payment"
+  | V1(REFUND_REPORT) => "Refund"
+  | V1(DISPUTE_REPORT) => "Dispute"
   | _ => ""
   }
   let currentview = `${(transactionEntity :> string)} (${getNameForId(transactionEntity)})`

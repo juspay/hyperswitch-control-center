@@ -22,7 +22,7 @@ let make = () => {
 
   let loadInfo = async () => {
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
+      let infoUrl = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       // Need to be removed
       let ignoreSessionizedPayment =
@@ -42,7 +42,7 @@ let make = () => {
   let getPaymetsDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let paymentUrl = getURL(~entityName=ORDERS, ~methodType=Get)
+      let paymentUrl = getURL(~entityName=V1(ORDERS), ~methodType=Get)
       let paymentDetails = await fetchDetails(paymentUrl)
       let data = paymentDetails->getDictFromJsonObject->getArrayFromDict("data", [])
       if data->Array.length < 0 {
@@ -169,9 +169,13 @@ let make = () => {
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
 
-  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let analyticsfilterUrl = getURL(
+    ~entityName=V1(ANALYTICS_FILTERS),
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
   let paymentAnalyticsUrl = getURL(
-    ~entityName=ANALYTICS_PAYMENTS,
+    ~entityName=V1(ANALYTICS_PAYMENTS),
     ~methodType=Post,
     ~id=Some(domain),
   )

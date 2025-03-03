@@ -16,7 +16,7 @@ module ActiveRulePreview = {
 
     let deleteCurrentSurchargeRule = async () => {
       try {
-        let url = getURL(~entityName=SURCHARGE, ~methodType=Delete)
+        let url = getURL(~entityName=V1(SURCHARGE), ~methodType=Delete)
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
         showToast(
           ~message="Successfully deleted current active surcharge rule",
@@ -179,7 +179,7 @@ let make = () => {
   let activeRoutingDetails = async () => {
     open LogicUtils
     try {
-      let surchargeUrl = getURL(~entityName=SURCHARGE, ~methodType=Get)
+      let surchargeUrl = getURL(~entityName=V1(SURCHARGE), ~methodType=Get)
       let surchargeRuleDetail = await fetchDetails(surchargeUrl)
       let responseDict = surchargeRuleDetail->getDictFromJsonObject
       let programValue = responseDict->getObj("algorithm", Dict.make())
@@ -232,7 +232,7 @@ let make = () => {
     try {
       mixpanelEvent(~eventName="surcharge_save")
       let surchargePayload = values->buildSurchargePayloadBody
-      let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put)
+      let getActivateUrl = getURL(~entityName=V1(SURCHARGE), ~methodType=Put)
       let _ = await updateDetails(getActivateUrl, surchargePayload->Identity.genericTypeToJson, Put)
       fetchDetails()->ignore
       setShowWarning(_ => true)

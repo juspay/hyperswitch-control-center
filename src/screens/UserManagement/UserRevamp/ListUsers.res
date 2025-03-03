@@ -30,7 +30,7 @@ let make = () => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
         ~queryParamerters=userModuleEntity == #Default
