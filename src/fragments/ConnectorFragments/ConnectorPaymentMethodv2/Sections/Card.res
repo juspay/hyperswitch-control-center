@@ -49,22 +49,13 @@ let make = (
   open SectionHelper
   open ConnectorPaymentMethodV2Utils
 
-  let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-  )
-  let data = formState.values->getDictFromJsonObject
-  let connData: ConnectorTypes.connectorPayloadV2 = ConnectorInterface.mapDictToConnectorPayload(
-    ConnectorInterface.connectorInterfaceV2,
-    data,
-  )
-
   let data =
     paymentMethodValues
     ->getArrayFromDict("card", [])
     ->getPaymentMethodMapper(connector, pm)
   let credit = data->Array.filter(ele => ele.payment_method_type->getPMTFromString == Credit)
   let debit = data->Array.filter(ele => ele.payment_method_type->getPMTFromString == Debit)
-  let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)
+  let paymentMethodTypeValues = formValues.payment_methods_enabled->Array.get(pmIndex)
 
   {
     if isInEditState {
