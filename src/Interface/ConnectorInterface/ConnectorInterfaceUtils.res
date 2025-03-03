@@ -143,7 +143,7 @@ let getPaymentMethodsEnabled: Dict.t<JSON.t> => paymentMethodEnabledType = dict 
   }
 }
 
-let getProcessorPayloadType = (dict): connectorPayload => {
+let mapDictToConnectorPayload = (dict): connectorPayload => {
   {
     connector_type: dict
     ->getString("connector_type", "")
@@ -183,7 +183,7 @@ let getPaymentMethodsEnabledV2: Dict.t<JSON.t> => paymentMethodEnabledTypeV2 = d
   }
 }
 
-let getProcessorPayloadTypeV2 = (dict): connectorPayloadV2 => {
+let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
   {
     connector_type: dict
     ->getString("connector_type", "")
@@ -208,4 +208,63 @@ let getProcessorPayloadTypeV2 = (dict): connectorPayloadV2 => {
     ->getObj("additional_merchant_data", Dict.make())
     ->JSON.Encode.object,
   }
+}
+
+let filter = (connectorType, ~retainInList) => {
+  switch (retainInList, connectorType) {
+  | (PaymentProcessor, PaymentProcessor)
+  | (PaymentVas, PaymentVas)
+  | (PayoutProcessor, PayoutProcessor)
+  | (AuthenticationProcessor, AuthenticationProcessor)
+  | (PMAuthProcessor, PMAuthProcessor)
+  | (TaxProcessor, TaxProcessor)
+  | (BillingProcessor, BillingProcessor) => true
+  | _ => false
+  }
+}
+
+let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, retainInList) => {
+  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
+}
+
+let filterConnectorListV2 = (items: array<ConnectorTypes.connectorPayloadV2>, retainInList) => {
+  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
+}
+
+let mapConnectorPayloadToConnectorType = (
+  ~connectorType=ConnectorTypes.Processor,
+  connectorsList: array<ConnectorTypes.connectorPayload>,
+) => {
+  connectorsList->Array.map(connectorDetail =>
+    connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
+  )
+}
+
+let mapConnectorPayloadToConnectorTypeV2 = (
+  ~connectorType=ConnectorTypes.Processor,
+  connectorsList: array<ConnectorTypes.connectorPayloadV2>,
+) => {
+  connectorsList->Array.map(connectorDetail =>
+    connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
+  )
+}
+
+let mapJsonArrayToConnectorPayloads = (json, retainInList) => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(connectorJson => {
+    let data = connectorJson->getDictFromJsonObject->mapDictToConnectorPayload
+    data
+  })
+  ->filterConnectorList(retainInList)
+}
+
+let mapJsonArrayToConnectorPayloadsV2 = (json, retainInList) => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(connectorJson => {
+    let data = connectorJson->getDictFromJsonObject->mapDictToConnectorPayloadV2
+    data
+  })
+  ->filterConnectorListV2(retainInList)
 }
