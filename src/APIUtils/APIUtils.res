@@ -6,11 +6,27 @@ let getV2Url = (
   ~entityName: v2entityNameType,
   ~methodType: Fetch.requestMethod,
   ~id=None,
+  ~profileId,
   ~queryParamerters: option<string>=None,
 ) => {
+  let connectorBaseURL = "/v2/connector-accounts"
+
   switch entityName {
   | V2_CUSTOMERS_LIST => "/v2/customers/list"
-  | V2_CONNECTOR => "/v2/connector-accounts"
+  | V2_CONNECTOR =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => `/v2/profiles/${profileId}/connector-accounts`
+      }
+    | Put =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => connectorBaseURL
+      }
+    | _ => ""
+    }
   }
 }
 
@@ -27,7 +43,7 @@ let useGetURL = () => {
     ~reconType: reconType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity, merchantId} = getUserInfoData()
+    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -739,7 +755,7 @@ let useGetURL = () => {
       }
 
     | V2(entityNameForv2) =>
-      getV2Url(~entityName=entityNameForv2, ~id, ~methodType, ~queryParamerters)
+      getV2Url(~entityName=entityNameForv2, ~id, ~profileId, ~methodType, ~queryParamerters)
     }
 
     `${Window.env.apiBaseUrl}/${endpoint}`
