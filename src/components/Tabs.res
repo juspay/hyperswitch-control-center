@@ -166,12 +166,18 @@ let make = (
   ~showStickyHeader=false,
   ~contentHeight="",
   ~selectTabBottomBorderColor="",
+  ~customBottomBorderColor=?,
 ) => {
   let _ = defaultClasses
   let initialIndex = initialIndex->Option.getOr(0)
   let (selectedIndex, setSelectedIndex) = React.useState(() => initialIndex)
   let tabOuterClass = `${tabBottomShadow} ${gapBetweenTabs}`
-  let bottomBorderClass = "bg-[#CBCBCB] w-full h-0.5 rounded-full -mt-0.5"
+  let bottomBorderColor = switch customBottomBorderColor {
+  | Some(val) => val
+  | None => "bg-[#CBCBCB]"
+  }
+  let bottomBorderClass = `${bottomBorderColor}
+   w-full h-0.5 rounded-full -mt-0.5`
 
   let renderedTabClassName = renderedTabClassName
 

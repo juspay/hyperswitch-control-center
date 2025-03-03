@@ -14,11 +14,11 @@ module TabInfo: {
   @react.component
   let make: (
     ~title: string,
-    ~tabElement: option<React.element>=?,
+    ~tabElement: option<'a>=?,
     ~isSelected: bool,
     ~isScrollIntoViewRequired: bool=?,
-    ~index: 'index,
-    ~handleSelectedIndex: 'index => unit,
+    ~index: 'b,
+    ~handleSelectedIndex: 'b => unit,
     ~isDisabled: bool=?,
     ~disabledTab: array<string>=?,
     ~textStyle: string=?,
@@ -29,7 +29,7 @@ module TabInfo: {
     ~backgroundStyle: string=?,
     ~tabView: tabView=?,
     ~showRedDot: bool=?,
-    ~visitedTabs: array<string>=?,
+    ~visitedTabs: array<'c>=?,
     ~borderSelectionStyle: string=?,
     ~borderDefaultStyle: string=?,
     ~showBottomBorder: bool=?,
@@ -46,7 +46,10 @@ module IndicationArrow: {
     ~isVisible: bool,
   ) => React.element
 }
-let getBoundingRectInfo: (React.ref<Nullable.t<Dom.element>>, boundingClient => int) => int
+let getBoundingRectInfo: (
+  React.ref<RescriptCore.Nullable.t<Dom.element>>,
+  boundingClient => int,
+) => int
 @react.component
 let make: (
   ~tabs: array<tab>,
@@ -60,7 +63,7 @@ let make: (
   ~textStyle: string=?,
   ~isDisabled: bool=?,
   ~showRedDot: bool=?,
-  ~visitedTabs: array<string>=?,
+  ~visitedTabs: array<'a>=?,
   ~disabledTab: array<string>=?,
   ~tabBottomShadow: string=?,
   ~lightThemeColor: string=?,
@@ -80,4 +83,5 @@ let make: (
   ~showStickyHeader: bool=?,
   ~contentHeight: string=?,
   ~selectTabBottomBorderColor: string=?,
+  ~customBottomBorderColor: string=?,
 ) => React.element
