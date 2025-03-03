@@ -211,6 +211,7 @@ describe("connector", () => {
     cy.get("[data-testid=operations]").click();
     cy.get("[data-testid=payments]").click();
     cy.contains("Payment Operations").should("be.visible");
+    cy.get("span").contains("...").click();
     cy.get("[data-table-location=Orders_tr1_td2]")
       .invoke("text")
       .then((expectedPaymentId) => {
@@ -219,6 +220,7 @@ describe("connector", () => {
           .click()
           .type(`${expectedPaymentId}{enter}`);
         cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
+        cy.get("span").contains("...").click();
         cy.get("[data-table-location=Orders_tr1_td2]")
           .invoke("text")
           .should((actualPaymentId) => {

@@ -129,17 +129,19 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let url = RescriptReactRouter.useUrl()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
+  let isMobileView = MatchMedia.useMobileChecker()
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
   )
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, borderColor}},
+    globalUIConfig: {
+      sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
+    },
   } = React.useContext(ThemeProvider.themeContext)
   let getMerchantList = async () => {
     try {
@@ -158,7 +160,6 @@ let make = () => {
     try {
       setShowSwitchingMerch(_ => true)
       let _ = await internalSwitch(~expectedMerchantId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingMerch(_ => false)
     } catch {
     | _ => {
@@ -180,9 +181,12 @@ let make = () => {
     checked: true,
   }
 
+  let widthClass = isMobileView ? "w-full" : "md:w-60 md:max-w-80"
+  let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
+
   let addItemBtnStyle = `w-full ${borderColor} border-t-0`
   let customScrollStyle = `max-h-72 overflow-scroll px-1 pt-1 ${borderColor}`
-  let dropdownContainerStyle = `rounded-md border border-1 w-[14rem] ${borderColor} max-w-[20rem]`
+  let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass}`
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
@@ -222,7 +226,7 @@ let make = () => {
       hideMultiSelectButtons=true
       addButton=false
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
-      searchable=false
+      searchable=true
       baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
       baseComponentCustomStyle={`!border-none`}
       bottomComponent={<AddNewOMPButton
@@ -236,6 +240,7 @@ let make = () => {
       customScrollStyle
       dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
+      customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />

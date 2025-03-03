@@ -8,11 +8,10 @@ let make = (~routingType) => {
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
-
-  let connectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->filterConnectorList(~retainInList=PayoutProcessor)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PayoutProcessor,
+  )
 
   let baseUrlForRedirection = "/payoutrouting"
 
@@ -21,7 +20,6 @@ let make = (~routingType) => {
     let filtersFromUrl = getDictFromUrlSearchParams(searchParams)->Dict.get("id")
     setId(_ => filtersFromUrl)
     switch routingType->String.toLowerCase {
-    | "rank" => setCurrentRouting(_ => PRIORITY)
     | "volume" => setCurrentRouting(_ => VOLUME_SPLIT)
     | "rule" => setCurrentRouting(_ => ADVANCED)
     | "default" => setCurrentRouting(_ => DEFAULTFALLBACK)
@@ -41,8 +39,6 @@ let make = (~routingType) => {
     <History.BreadCrumbWrapper
       pageTitle={getContent(currentRouting).heading} baseLink={"/payoutrouting"}>
       {switch currentRouting {
-      | PRIORITY =>
-        <PriorityRouting routingRuleId=id isActive connectorList baseUrlForRedirection />
       | VOLUME_SPLIT =>
         <VolumeSplitRouting
           routingRuleId=id isActive connectorList urlEntityName=PAYOUT_ROUTING baseUrlForRedirection

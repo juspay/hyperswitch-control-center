@@ -19,9 +19,9 @@ let useGetSideBarValues = () => {
   sideBarValues
 }
 
-let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) => {
+let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => {
   open ProductUtils
-  let {devReconv2Product, devRecoveryV2Product, devVaultV2Product} =
+  let {devReconv2Product, devRecoveryV2Product, devVaultV2Product, devAltPaymentMethods} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
@@ -64,8 +64,18 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
       }),
     )
   }
+  if devAltPaymentMethods {
+    sideBarValues->Array.push(
+      Link({
+        name: AlternatePaymentMethods->getStringFromVariant,
+        icon: "alt-payment-methods-home",
+        link: "/v2/alt-payment-methods/home",
+        access: Access,
+      }),
+    )
+  }
 
-  let productName = currentProduct->ProductUtils.getStringFromVariant
+  let productName = activeProduct->ProductUtils.getStringFromVariant
 
   sideBarValues->Array.filter(topLevelItem =>
     switch topLevelItem {
