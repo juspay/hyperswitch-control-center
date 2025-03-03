@@ -6,7 +6,6 @@ let make = (
   ~isInEditState,
   ~connectorInfo: ConnectorTypes.connectorPayload,
 ) => {
-
   open LogicUtils
   open ConnectorHelperV2
   let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
