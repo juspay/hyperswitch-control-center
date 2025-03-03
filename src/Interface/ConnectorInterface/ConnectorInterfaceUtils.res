@@ -212,12 +212,12 @@ let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
 
 let filter = (connectorType, ~retainInList) => {
   switch (retainInList, connectorType) {
-  | (PaymentProcessor, PaymentProcessor) => true
-  | (PaymentVas, PaymentVas) => true
-  | (PayoutProcessor, PayoutProcessor) => true
-  | (AuthenticationProcessor, AuthenticationProcessor) => true
-  | (PMAuthProcessor, PMAuthProcessor) => true
-  | (TaxProcessor, TaxProcessor) => true
+  | (PaymentProcessor, PaymentProcessor)
+  | (PaymentVas, PaymentVas)
+  | (PayoutProcessor, PayoutProcessor)
+  | (AuthenticationProcessor, AuthenticationProcessor)
+  | (PMAuthProcessor, PMAuthProcessor)
+  | (TaxProcessor, TaxProcessor)
   | (BillingProcessor, BillingProcessor) => true
   | _ => false
   }
