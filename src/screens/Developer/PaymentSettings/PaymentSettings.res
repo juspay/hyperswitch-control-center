@@ -251,7 +251,7 @@ module WebHookAuthenticationHeaders = {
     <div className="flex-1">
       <div className="flex flex-row items-center gap-4 ">
         <p
-          className={` text-xl dark:text-jp-gray-text_darktheme dark:text-opacity-50  !text-grey-700 font-semibold ml-4`}>
+          className={`text-xl dark:text-jp-gray-text_darktheme dark:text-opacity-50  !text-grey-700 font-semibold ml-4`}>
           {"Custom Headers"->React.string}
         </p>
         <RenderIf
@@ -267,7 +267,7 @@ module WebHookAuthenticationHeaders = {
           />
         </RenderIf>
       </div>
-      <div className="grid grid-cols-5  gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {Array.fromInitializer(~length=4, i => i)
         ->Array.mapWithIndex((_, index) =>
           <div key={index->Int.toString} className="col-span-4">
@@ -371,7 +371,7 @@ module WebHookSection = {
               />
             </div>
           </DesktopRow>
-          <FormValuesSpy />
+          // <FormValuesSpy />
         </form>
       }}
     />
@@ -406,7 +406,7 @@ module MetadataHeaders = {
     <div className="flex-1">
       <div className="flex flex-row items-center gap-4 ">
         <p
-          className={`ml-4 text-xl dark:text-jp-gray-text_darktheme dark:text-opacity-50  !text-grey-700 font-semibold `}>
+          className={`ml-4 text-xl dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-grey-700 font-semibold `}>
           {"Custom Metadata Headers"->React.string}
         </p>
         <RenderIf
@@ -422,7 +422,7 @@ module MetadataHeaders = {
           />
         </RenderIf>
       </div>
-      <div className="grid grid-cols-5 flex gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {Array.fromInitializer(~length=2, i => i)
         ->Array.mapWithIndex((_, index) =>
           <div key={index->Int.toString} className="col-span-4">
@@ -524,7 +524,7 @@ module MetadataSection = {
               />
             </div>
           </DesktopRow>
-          <FormValuesSpy />
+          // <FormValuesSpy />
         </form>
       }}
     />
