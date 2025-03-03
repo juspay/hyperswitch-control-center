@@ -38,10 +38,6 @@ let make = () => {
         ~json=Window.getConnectorConfig("stripe_test"),
         ~profileId=activeBusinessProfile.profile_id,
       )
-      // let stripeTestRes =
-      // (await updateDetails(url, stripeTestBody, Post))
-      // ->getDictFromJsonObject
-      //   ->ConnectorListMapper.getProcessorPayloadType
       let stripeTest = (await updateDetails(url, stripeTestBody, Post))->getDictFromJsonObject
       let stripeTestRes = ConnectorInterface.mapDictToConnectorPayload(
         ConnectorInterface.connectorInterfaceV1,
