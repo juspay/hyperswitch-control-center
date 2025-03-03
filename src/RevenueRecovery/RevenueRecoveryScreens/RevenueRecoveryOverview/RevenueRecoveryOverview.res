@@ -1,19 +1,22 @@
 @react.component
 let make = () => {
+  open APIUtils
   open LogicUtils
+  open HSwitchRemoteFilter
   open RevenueRecoveryOrderUtils
-
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get("recovery-orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+  let (filters, setFilters) = React.useState(_ => None)
+  let (searchText, setSearchText) = React.useState(_ => "")
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString("start_time", "")
-  let arr = Array.make(~length=offset, Dict.make())
-  let showToast = ToastState.useShowToast()
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
 
   let handleExtendDateButtonClick = _ => {
@@ -24,110 +27,56 @@ let make = () => {
     updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
     updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
   }
-  //Need to integrate api
-  let fetchOrderDetails = async _ => {
-    try {
-      setScreenState(_ => Loading)
 
-      // let res = await fetchDetails(url)
-      let res = {
-        "size": 1,
-        "data": [
-          {
-            "id": "12345_pay_01926c58bc6e77c09e809964e72af8c8",
-            "merchant_id": "merchant_1668273825",
-            "profile_id": "<string>",
-            "customer_id": "12345_cus_01926c58bc6e77c09e809964e72af8c8",
-            "payment_method_id": "<string>",
-            "status": "succeeded",
-            "amount": {
-              "order_amount": 6540,
-              "currency": "AED",
-              "shipping_cost": 123,
-              "order_tax_amount": 123,
-              "external_tax_calculation": "skip",
-              "surcharge_calculation": "skip",
-              "surcharge_amount": 123,
-              "tax_on_surcharge": 123,
-              "net_amount": 123,
-              "amount_to_capture": 123,
-              "amount_capturable": 123,
-              "amount_captured": 123,
-            },
-            "created": "2022-09-10T10:11:12Z",
-            "payment_method_type": "card",
-            "payment_method_subtype": "ach",
-            "connector": "adyen",
-            "merchant_connector_id": "<string>",
-            "customer": {
-              "id": "cus_y3oqhf46pyzuxjbcn2giaqnb44",
-              "name": "John Doe",
-              "email": "johntest@test.com",
-              "phone": "9123456789",
-              "phone_country_code": "+1",
-            },
-            "merchant_reference_id": "pay_mbabizu24mvu3mela5njyhpit4",
-            "connector_payment_id": "993672945374576J",
-            "connector_response_reference_id": "<string>",
-            "metadata": "{}",
-            "description": "It's my first payment request",
-            "authentication_type": "three_ds",
-            "capture_method": "automatic",
-            "setup_future_usage": "off_session",
-            "attempt_count": 123,
-            "error": {
-              "code": "<string>",
-              "message": "<string>",
-              "unified_code": "<string>",
-              "unified_message": "<string>",
-            },
-            "cancellation_reason": "<string>",
-            "order_details": "[{\n        \"product_name\": \"gillete creme\",\n        \"quantity\": 15,\n        \"amount\" : 900\n    }]",
-            "return_url": "https://hyperswitch.io",
-            "statement_descriptor_name": "Hyperswitch Router",
-            "statement_descriptor_suffix": "Payment for shoes purchase",
-            "allowed_payment_method_types": ["ach"],
-            "authorization_count": 123,
-            "modified_at": "2022-09-10T10:11:12Z",
-          },
-        ],
-      }->Identity.genericTypeToJson
-      let data = getArrayDictFromRes(res)
-      let total = getSizeofRes(res)
+  let fetchOrders = () => {
+    let query = switch filters {
+    | Some(dict) =>
+      let filters = Dict.make()
 
-      let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
-
-      let orderData =
-        arr
-        ->Array.concat(orderDataDictArr)
-        ->Array.map(RevenueRecoveryEntity.itemToObjMapper)
-
-      let list = orderData->Array.map(Nullable.make)
-      setRevenueRecoveryData(_ => list)
-      setTotalCount(_ => total)
-      setScreenState(_ => Success)
-    } catch {
-    | Exn.Error(e) =>
-      switch Exn.message(e) {
-      | Some(message) =>
-        if message->String.includes("HE_02") {
-          setScreenState(_ => Custom)
-        } else {
-          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
-          setScreenState(_ => Error("Failed to Fetch!"))
-        }
-
-      | None => setScreenState(_ => Error("Failed to Fetch!"))
+      filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
+      filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
+      if !(searchText->isEmptyString) {
+        filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
       }
+
+      //to create amount_filter query
+      let newDict = AmountFilterUtils.createAmountQuery(~dict)
+      newDict
+      ->Dict.toArray
+      ->Array.forEach(item => {
+        let (key, value) = item
+        filters->Dict.set(key, value)
+      })
+      //to delete unused keys
+      filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
+
+      filters
+    | _ => Dict.make()
     }
+
+    query
+    ->getPaymentsList(
+      ~fetchDetails,
+      ~getURL,
+      ~setOrdersData=setRevenueRecoveryData,
+      ~setScreenState,
+      ~setOffset,
+      ~setTotalCount,
+      ~offset,
+    )
+    ->ignore
   }
 
-  let customTitleStyle = "py-0 !pt-0"
   React.useEffect(() => {
-    fetchOrderDetails()->ignore
-    setScreenState(_ => PageLoaderWrapper.Success)
+    if filters->OrderUIUtils.isNonEmptyValue {
+      fetchOrders()
+    }
+
     None
-  }, [])
+  }, (offset, filters, searchText))
+
+  let customTitleStyle = "py-0 !pt-0"
+
   let customUI =
     <NoDataFound
       customCssClass="my-6"
@@ -138,11 +87,29 @@ let make = () => {
 
   let (widthClass, heightClass) = ("w-full", "")
 
+  let filtersUI = React.useMemo(() => {
+    <RemoteTableFilters
+      title="Orders"
+      setFilters
+      endTimeFilterKey
+      startTimeFilterKey
+      initialFilters
+      initialFixedFilter
+      setOffset
+      submitInputOnEnter=true
+      customLeftView={<SearchBarFilter
+        placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
+      />}
+      entityName=ORDER_FILTERS // TODO: route needed to be changed
+    />
+  }, [searchText])
+
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="Revenue Recovery Payments" subTitle="" customTitleStyle />
+        <PageUtils.PageHeading title="Recovery Overview" subTitle="" customTitleStyle />
       </div>
+      <div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
           title="Recovery"
