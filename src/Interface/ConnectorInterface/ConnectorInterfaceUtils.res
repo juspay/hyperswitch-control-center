@@ -177,7 +177,7 @@ let getPaymentMethodsEnabledV2: Dict.t<JSON.t> => paymentMethodEnabledTypeV2 = d
   {
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_subtypes: dict
-    ->Dict.get("payment_method_types")
+    ->Dict.get("payment_method_subtypes")
     ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getArrayDataFromJson(getPaymentMethodTypes),
   }
