@@ -89,7 +89,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
       // TODO -  Seperate RoleName & RoleId in Backend. role_name as free text and role_id as snake_text
       setScreenState(_ => PageLoaderWrapper.Loading)
       let copiedJson = JSON.parseExn(JSON.stringify(values))
-      let url = getURL(~entityName=USERS, ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post)
 
       let body = copiedJson->getDictFromJsonObject->JSON.Encode.object
       let roleNameValue =
@@ -119,7 +119,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
-        ~entityName=USERS,
+        ~entityName=V1(USERS),
         ~userType=#GROUP_ACCESS_INFO,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),

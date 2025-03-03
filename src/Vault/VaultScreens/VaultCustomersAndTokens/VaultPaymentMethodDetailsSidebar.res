@@ -176,7 +176,11 @@ let make = (~paymentId, ~setShowModal) => {
   let fetchPaymentMethodDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let _url = getURL(~entityName=PAYMENT_METHODS_DETAILS, ~methodType=Get, ~id=Some(paymentId))
+      let _url = getURL(
+        ~entityName=V1(PAYMENT_METHODS_DETAILS),
+        ~methodType=Get,
+        ~id=Some(paymentId),
+      )
       // let _response = await fetchDetails(url)
 
       //** TODO: replace DUMMY DATA with api response*/

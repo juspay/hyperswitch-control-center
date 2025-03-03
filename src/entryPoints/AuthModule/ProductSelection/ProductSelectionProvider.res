@@ -134,7 +134,7 @@ module CreateNewMerchantBody = {
     // TODO: remove after backend starts sendng merchant details from create merchant API
     let findMerchantId = async (~merchantName) => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
         let response = await fetchDetails(url)
         let merchantTypedValue =
           response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper)
@@ -160,7 +160,7 @@ module CreateNewMerchantBody = {
         let dict = values->getDictFromJsonObject
         let trimmedData = dict->getString("company_name", "")->String.trim
         Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let res = await updateDetails(url, values, Post)
         let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
 

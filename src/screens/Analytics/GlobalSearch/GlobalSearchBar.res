@@ -47,7 +47,7 @@ let make = () => {
     setState(_ => Loading)
     try {
       let paymentsUrl = getURL(
-        ~entityName=ANALYTICS_FILTERS,
+        ~entityName=V1(ANALYTICS_FILTERS),
         ~methodType=Post,
         ~id=Some("payments"),
       )
@@ -69,7 +69,7 @@ let make = () => {
     try {
       let local_results = []
 
-      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
+      let url = getURL(~entityName=V1(GLOBAL_SEARCH), ~methodType=Post)
       let body = searchText->generateQuery
 
       mixpanelEvent(~eventName="global_search", ~metadata=body->JSON.Encode.object)
