@@ -495,13 +495,14 @@ let make = (
   } = React.useContext(ThemeProvider.themeContext)
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
+  let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-  let {setCurrentProductValue, showSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -591,8 +592,7 @@ let make = (
   `
 
   let onItemClickCustom = (valueSelected: SidebarTypes.optionType) => {
-    open ProductUtils
-    setCurrentProductValue(getVariantFromString(valueSelected.name))
+    onProductSelectClick(valueSelected.name)
   }
 
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
