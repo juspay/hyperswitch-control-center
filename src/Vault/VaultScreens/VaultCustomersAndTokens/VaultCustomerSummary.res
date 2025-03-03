@@ -134,7 +134,7 @@ module VaultedPaymentMethodsTable = {
     let fetchPaymentMethods = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let _url = getURL(~entityName=PAYMENT_METHODS, ~methodType=Get)
+        let _url = getURL(~entityName=V1(PAYMENT_METHODS), ~methodType=Get)
         // let _response = await fetchDetails(url)
         let response = {
           "merchant": "mca_123456",
@@ -220,7 +220,7 @@ let make = (~id) => {
   let fetchCustomersData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let customersUrl = getURL(~entityName=CUSTOMERS, ~methodType=Get, ~id=Some(id))
+      let customersUrl = getURL(~entityName=V1(CUSTOMERS), ~methodType=Get, ~id=Some(id))
       let response = await fetchDetails(customersUrl)
       setCustomersData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

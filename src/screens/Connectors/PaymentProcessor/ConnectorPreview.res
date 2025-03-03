@@ -44,7 +44,7 @@ module DeleteConnectorMenu = {
     let deleteConnector = async () => {
       try {
         let connectorID = connectorInfo.merchant_connector_id
-        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+        let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
       } catch {
@@ -367,7 +367,7 @@ let make = (
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
       let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
       fetchConnectorListResponse()->ignore
       setInitialValues(_ => res)

@@ -217,7 +217,7 @@ let make = (~moduleName) => {
   open APIUtils
   let getURL = useGetURL()
   let smartRetryAnalyticsUrl = getURL(
-    ~entityName=ANALYTICS_PAYMENTS_V2,
+    ~entityName=V1(ANALYTICS_PAYMENTS_V2),
     ~methodType=Post,
     ~id=Some(domain),
   )

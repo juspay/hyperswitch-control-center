@@ -70,7 +70,7 @@ module NewOrgCreationModal = {
     let showToast = ToastState.useShowToast()
     let createNewOrg = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_ORG, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_ORG, ~methodType=Post)
         let _ = await updateDetails(url, values, Post)
         getOrgList()->ignore
         showToast(~toastType=ToastSuccess, ~message="Org Created Successfully!", ~autoClose=true)
@@ -217,7 +217,7 @@ let make = () => {
   )
   let getOrgList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
     } catch {

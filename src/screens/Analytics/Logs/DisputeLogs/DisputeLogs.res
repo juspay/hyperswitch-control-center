@@ -4,17 +4,17 @@ let make = (~paymentId, ~disputeId) => {
   open APIUtils
   let getURL = useGetURL()
   let webhookLogsUrl = getURL(
-    ~entityName=WEBHOOKS_EVENT_LOGS,
+    ~entityName=V1(WEBHOOKS_EVENT_LOGS),
     ~methodType=Get,
     ~queryParamerters=Some(`payment_id=${paymentId}&dispute_id=${disputeId}`),
   )
   let disputesLogsUrl = getURL(
-    ~entityName=API_EVENT_LOGS,
+    ~entityName=V1(API_EVENT_LOGS),
     ~methodType=Get,
     ~queryParamerters=Some(`type=Dispute&payment_id=${paymentId}&dispute_id=${disputeId}`),
   )
   let connectorLogsUrl = getURL(
-    ~entityName=CONNECTOR_EVENT_LOGS,
+    ~entityName=V1(CONNECTOR_EVENT_LOGS),
     ~methodType=Get,
     ~queryParamerters=Some(`payment_id=${paymentId}&dispute_id=${disputeId}`),
   )

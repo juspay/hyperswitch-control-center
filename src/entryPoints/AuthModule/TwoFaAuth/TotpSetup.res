@@ -298,7 +298,7 @@ let make = (
       open AuthUtils
 
       let url = getURL(
-        ~entityName=USERS,
+        ~entityName=V1(USERS),
         ~userType=#TERMINATE_TWO_FACTOR_AUTH,
         ~methodType=Get,
         ~queryParamerters=Some(`skip_two_factor_auth=${skip_2fa->getStringFromBool}`),
@@ -330,7 +330,7 @@ let make = (
     open LogicUtils
     try {
       setTotpUrl(_ => "")
-      let url = getURL(~entityName=USERS, ~userType=#BEGIN_TOTP, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#BEGIN_TOTP, ~methodType=Get)
       let response = await fetchDetails(url)
       let responseDict = response->getDictFromJsonObject->getJsonObjectFromDict("secret")
       switch responseDict->JSON.Classify.classify {
