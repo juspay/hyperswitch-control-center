@@ -328,7 +328,6 @@ type connectorPayload = {
   frm_configs?: array<frm_config>,
   status: string,
   connector_webhook_details: JSON.t,
-  revenue_recovery?: JSON.t,
   additional_merchant_data: JSON.t,
 }
 
@@ -347,6 +346,7 @@ type connectorPayloadV2 = {
   status: string,
   connector_webhook_details: JSON.t,
   additional_merchant_data: JSON.t,
+  feature_metadata: JSON.t,
 }
 
 type connector =

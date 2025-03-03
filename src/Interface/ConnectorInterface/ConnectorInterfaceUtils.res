@@ -207,6 +207,9 @@ let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
     additional_merchant_data: dict
     ->getObj("additional_merchant_data", Dict.make())
     ->JSON.Encode.object,
+    feature_metadata: dict
+    ->getObj("feature_metadata", Dict.make())
+    ->JSON.Encode.object,
   }
 }
 

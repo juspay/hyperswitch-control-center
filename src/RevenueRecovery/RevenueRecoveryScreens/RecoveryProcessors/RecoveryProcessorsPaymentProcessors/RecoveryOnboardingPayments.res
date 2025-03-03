@@ -24,8 +24,10 @@ let make = (
 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-  let connectorInfoDict =
-    initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
 
   let selectedConnector = React.useMemo(() => {
@@ -57,8 +59,11 @@ let make = (
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post)
       setInitialValues(_ => response)
-      let connectorInfoDict =
-        response->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+
+      let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+        ConnectorInterface.connectorInterfaceV2,
+        response->getDictFromJsonObject,
+      )
       setConnectorID(_ => connectorInfoDict.merchant_connector_id)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
@@ -190,7 +195,7 @@ let make = (
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <div className="flex flex-col mb-5 gap-3 ">
-                <ConnectorPaymentMethodV3 initialValues isInEditState=true />
+                <ConnectorPaymentMethodV2 initialValues isInEditState=true />
                 <FormRenderer.SubmitButton
                   text="Next"
                   buttonSize={Small}

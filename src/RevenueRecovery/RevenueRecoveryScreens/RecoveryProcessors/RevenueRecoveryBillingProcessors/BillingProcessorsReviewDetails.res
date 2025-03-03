@@ -5,8 +5,10 @@ let make = (~connectorInfo) => {
   open LogicUtils
 
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let connectorInfodict =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    connectorInfo->LogicUtils.getDictFromJsonObject,
+  )
   let (processorType, _) =
     connectorInfodict.connector_type
     ->ConnectorUtils.connectorTypeTypedValueToStringMapper
@@ -48,9 +50,7 @@ let make = (~connectorInfo) => {
   }
 
   let revenueRecovery =
-    connectorInfodict.revenue_recovery
-    ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->getDictFromJsonObject
+    connectorInfodict.feature_metadata->getDictFromJsonObject->getDictfromDict("revenue_recovery")
 
   let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
   let billing_connector_retry_threshold =

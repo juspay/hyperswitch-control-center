@@ -57,8 +57,11 @@ let make = () => {
     }
   }
 
-  let connectorInfodict =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
+
   let {connector_name: connectorName} = connectorInfodict
 
   let connectorDetails = React.useMemo(() => {
@@ -149,9 +152,7 @@ let make = () => {
   }
 
   let revenueRecovery =
-    connectorInfodict.revenue_recovery
-    ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->getDictFromJsonObject
+    connectorInfodict.feature_metadata->getDictFromJsonObject->getDictfromDict("revenue_recovery")
   let max_retry_count = revenueRecovery->getInt("max_retry_count", 4)
   let billing_connector_retry_threshold =
     revenueRecovery->getInt("billing_connector_retry_threshold", 10)

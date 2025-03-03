@@ -1,7 +1,9 @@
 @react.component
 let make = (~initialValues, ~merchantId, ~onNextClick) => {
-  let connectorInfoDict =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
 
   <RevenueRecoveryOnboardingUtils.PageWrapper
     title="Setup Webhook"
