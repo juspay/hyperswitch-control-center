@@ -101,11 +101,11 @@ let make = (
   }
   let updateDetails = _val => {
     form.change(
-      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method_types[${selectedPMTIndex->Int.toString}]`,
+      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method_subtypes[${selectedPMTIndex->Int.toString}]`,
       selectedWallet->Identity.genericTypeToJson,
     )
     form.change(
-      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method`,
+      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method_type`,
       "wallet"->Identity.genericTypeToJson,
     )
   }

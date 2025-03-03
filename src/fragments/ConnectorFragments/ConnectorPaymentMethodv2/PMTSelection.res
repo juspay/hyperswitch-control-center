@@ -89,13 +89,15 @@ let valueInput = (~pmtData, ~pmIndex, ~pmtIndex, ~pm, ~connector, ~formValues) =
     ~label=``,
     ~comboCustomInput=renderValueInp(~pmtData, ~pm, ~connector, ~formValues),
     ~inputFields=[
-      makeInputFieldInfo(~name=`payment_methods_enabled[${pmIndex->Int.toString}].payment_method`),
       makeInputFieldInfo(
-        ~name=`payment_methods_enabled[${pmIndex->Int.toString}].payment_method_types`,
+        ~name=`payment_methods_enabled[${pmIndex->Int.toString}].payment_method_type`,
+      ),
+      makeInputFieldInfo(
+        ~name=`payment_methods_enabled[${pmIndex->Int.toString}].payment_method_subtypes`,
       ),
       makeInputFieldInfo(~name=`payment_methods_enabled`),
       makeInputFieldInfo(
-        ~name=`payment_methods_enabled[${pmIndex->Int.toString}].payment_method_types[${pmtIndex}]`,
+        ~name=`payment_methods_enabled[${pmIndex->Int.toString}].payment_method_subtypes[${pmtIndex}]`,
       ),
     ],
     (),

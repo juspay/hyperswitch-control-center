@@ -27,8 +27,8 @@ module PMSelectAll = {
         }
         let updatedData =
           [
-            ("payment_method", pm->JSON.Encode.string),
-            ("payment_method_types", updatePMTData->Identity.genericTypeToJson),
+            ("payment_method_type", pm->JSON.Encode.string),
+            ("payment_method_subtypes", updatePMTData->Identity.genericTypeToJson),
           ]
           ->Dict.fromArray
           ->Identity.anyTypeToReactEvent
@@ -45,8 +45,8 @@ module PMSelectAll = {
         }
         let updatedData =
           [
-            ("payment_method", pm->JSON.Encode.string),
-            ("payment_method_types", updatePMTData->Identity.genericTypeToJson),
+            ("payment_method_type", pm->JSON.Encode.string),
+            ("payment_method_subtypes", updatePMTData->Identity.genericTypeToJson),
           ]
           ->Dict.fromArray
           ->Identity.anyTypeToReactEvent
@@ -91,8 +91,8 @@ module PMSelectAll = {
 
       let updatedData =
         [
-          ("payment_method", pm->JSON.Encode.string),
-          ("payment_method_types", updateData->Identity.genericTypeToJson),
+          ("payment_method_type", pm->JSON.Encode.string),
+          ("payment_method_subtypes", updateData->Identity.genericTypeToJson),
         ]
         ->Dict.fromArray
         ->Identity.anyTypeToReactEvent
