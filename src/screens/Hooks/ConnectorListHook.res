@@ -8,10 +8,6 @@ let useFetchConnectorList = () => {
     try {
       let url = getURL(~entityName=CONNECTOR, ~methodType=Get)
       let res = await fetchDetails(url)
-      // let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
-      //   ConnectorInterface.connectorArrayMapperV1,
-      //   res,
-      // )
       setConnectorList(_ => res)
       res
     } catch {
