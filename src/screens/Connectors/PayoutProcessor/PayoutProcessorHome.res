@@ -125,7 +125,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   }
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -179,7 +179,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
       let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))

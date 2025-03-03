@@ -14,7 +14,7 @@ module RequestPage = {
 
     let handleSubmitRequest = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
         let values =
           [
             ("rating", 5.0->JSON.Encode.float),

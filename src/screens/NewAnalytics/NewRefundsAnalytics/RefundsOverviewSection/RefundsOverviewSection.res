@@ -26,7 +26,7 @@ let make = (~entity: moduleEntity) => {
       let secondaryData = defaultValue->Dict.copy
 
       let refundsUrl = getURL(
-        ~entityName=ANALYTICS_REFUNDS,
+        ~entityName=V1(ANALYTICS_REFUNDS),
         ~methodType=Post,
         ~id=Some((#refunds: domain :> string)),
       )

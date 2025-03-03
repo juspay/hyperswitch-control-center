@@ -19,7 +19,7 @@ let make = () => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
         ~queryParamerters=userModuleEntity == #Default

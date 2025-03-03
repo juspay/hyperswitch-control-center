@@ -56,6 +56,8 @@ type entityName =
   | ANALYTICS_PAYMENTS_V2
   | ANALYTICS_SANKEY
 
+type v2entityNameType = V2_CUSTOMERS_LIST | V2_CONNECTOR
+
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
 type reconType = [#TOKEN | #REQUEST | #NONE]
@@ -117,8 +119,10 @@ type userType = [
   | #NONE
 ]
 
+type entityTypeWithVersion = V1(entityName) | V2(v2entityNameType)
+
 type getUrlTypes = (
-  ~entityName: entityName,
+  ~entityName: entityTypeWithVersion,
   ~methodType: Fetch.requestMethod,
   ~id: option<string>=?,
   ~connector: option<string>=?,

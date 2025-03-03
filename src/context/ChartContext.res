@@ -83,7 +83,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let (bottomChartVisible, setBottomChartVisible) = React.useState(_ => false)
   let (topChartDataLegendData, setTopChartDataLegendData) = React.useState(_ => Loading)
   let (bottomChartDataLegendData, setBottomChartDataLegendData) = React.useState(_ => Loading)
-
+  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let getGranularity = LineChartUtils.getGranularityNewStr
   let {filterValue} = React.useContext(FilterContext.filterContext)
   let (currentTopMatrix, currentBottomMetrix) = chartEntity.currentMetrics
@@ -345,6 +345,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~betaEndpointConfig=?betaEndPointConfig,
               ~xFeatureRoute,
               ~forceCookies,
+              ~merchantId,
+              ~profileId,
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch`)
             ->then(
@@ -405,6 +407,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
             ~forceCookies,
+            ~merchantId,
+            ~profileId,
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -474,6 +478,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~betaEndpointConfig=?betaEndPointConfig,
               ~xFeatureRoute,
               ~forceCookies,
+              ~merchantId,
+              ~profileId,
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch bottomChart`)
             ->then(
@@ -531,6 +537,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
             ~forceCookies,
+            ~merchantId,
+            ~profileId,
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -598,7 +606,7 @@ module SDKAnalyticsChartContext = {
     | {jsonTransformer} => jsonTransformer
     | _ => (_val, arr) => arr
     }
-
+    let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let (topChartData, setTopChartData) = React.useState(_ => Loading)
     let (topChartVisible, setTopChartVisible) = React.useState(_ => false)
     let bottomChartData = Loading
@@ -823,6 +831,8 @@ module SDKAnalyticsChartContext = {
                   ~betaEndpointConfig=?betaEndPointConfig,
                   ~xFeatureRoute,
                   ~forceCookies,
+                  ~merchantId,
+                  ~profileId,
                 )
                 ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                 ->then(text => {
@@ -864,6 +874,8 @@ module SDKAnalyticsChartContext = {
                         ~betaEndpointConfig=?betaEndPointConfig,
                         ~xFeatureRoute,
                         ~forceCookies,
+                        ~merchantId,
+                        ~profileId,
                       )
                       ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                       ->then(

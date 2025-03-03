@@ -41,7 +41,7 @@ module ProfileActions = {
 
     let onSubmit = async (values, _) => {
       try {
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
+        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
         let res = await updateDetails(url, values, Post)
         let filteredProfileList =
           businessProfiles

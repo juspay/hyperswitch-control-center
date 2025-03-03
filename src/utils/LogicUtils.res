@@ -560,6 +560,21 @@ let formatCurrency = currency => {
   }
 }
 
+let formatAmount = (amount, currency) => {
+  let rec addCommas = str => {
+    let len = String.length(str)
+    if len <= 3 {
+      str
+    } else {
+      let prefix = String.slice(~start=0, ~end=len - 3, str)
+      let suffix = String.slice(~start=len - 3, ~end=len, str)
+      addCommas(prefix) ++ "," ++ suffix
+    }
+  }
+
+  `${currency} ${addCommas(amount->Int.toString)}`
+}
+
 let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="") => {
   let amountSuffix = currency->formatCurrency
 
@@ -573,6 +588,7 @@ let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="") 
   | Volume => value->indianShortNum
   | Latency => latencyShortNum(~labelValue=value)
   | LatencyMs => latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
+  | FormattedAmount => formatAmount(value->Float.toInt, currency)
   | No_Type => value->Float.toString
   }
 }

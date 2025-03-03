@@ -54,7 +54,7 @@ let make = () => {
         })
         ->Array.joinWith("&")
       let disputesUrl = getURL(
-        ~entityName=DISPUTES,
+        ~entityName=V1(DISPUTES),
         ~methodType=Get,
         ~queryParamerters=Some(queryParam),
       )
@@ -102,7 +102,7 @@ let make = () => {
       customLeftView={<SearchBarFilter
         placeholder="Search for dispute ID" setSearchVal=setSearchText searchVal=searchText
       />}
-      entityName=DISPUTE_FILTERS
+      entityName=V1(DISPUTE_FILTERS)
       title="Disputes"
     />
 
@@ -119,7 +119,7 @@ let make = () => {
           />
         </Portal>
         <RenderIf condition={generateReport && disputesData->Array.length > 0}>
-          <GenerateReport entityName={DISPUTE_REPORT} />
+          <GenerateReport entityName={V1(DISPUTE_REPORT)} />
         </RenderIf>
       </div>
     </div>
