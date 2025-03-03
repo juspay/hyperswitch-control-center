@@ -87,7 +87,11 @@ let make = (
   } = paymentMethodConfig
   open APIUtils
   let getURL = useGetURL()
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PaymentProcessor,
+  )
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
 
@@ -102,7 +106,14 @@ let make = (
         ->Array.filter(item =>
           item.merchant_connector_id === paymentMethodConfig.merchant_connector_id
         )
-        ->getValueFromArray(0, Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+        ->getValueFromArray(
+          0,
+          ConnectorInterface.mapDictToConnectorPayload(
+            ConnectorInterface.connectorInterfaceV1,
+            Dict.make(),
+          ),
+        )
+
       let encodeConnectorPayload = data->PaymentMethodConfigUtils.encodeConnectorPayload
       let res = await fetchDetails(
         `${paymentMethoConfigUrl}?connector=${connector_name}&paymentMethodType=${payment_method_type}`,

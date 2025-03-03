@@ -31,7 +31,12 @@ let getConnectorObjectFromListViaId = (
 ) => {
   connectorList
   ->Array.find(ele => {ele.merchant_connector_id == mca_id})
-  ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+  ->Option.getOr(
+    ConnectorInterface.mapDictToConnectorPayload(
+      ConnectorInterface.connectorInterfaceV1,
+      Dict.make(),
+    ),
+  )
 }
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>) => {
@@ -135,7 +140,12 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
+    ConnectorInterface.connectorInterfaceV1,
+    json,
+    PaymentProcessor,
+  )
+  data
 }
 
 let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

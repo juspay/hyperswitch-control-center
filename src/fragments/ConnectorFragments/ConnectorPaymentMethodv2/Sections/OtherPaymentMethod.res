@@ -3,14 +3,18 @@ module SelectedCardValues = {
   let make = (~initialValues, ~index, ~pm) => {
     open LogicUtils
     open SectionHelper
-    let data = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+    let data1 = initialValues->getDictFromJsonObject
+    let data = ConnectorInterface.mapDictToConnectorPayload(
+      ConnectorInterface.connectorInterfaceV2,
+      data1,
+    )
     let paymentMethodData =
       data.payment_methods_enabled
-      ->Array.filter(ele => ele.payment_method->String.toLowerCase == pm)
+      ->Array.filter(ele => ele.payment_method_type->String.toLowerCase == pm)
       ->Array.at(0)
 
     let pmtData = switch paymentMethodData {
-    | Some(data) => data.payment_method_types
+    | Some(data) => data.payment_method_subtypes
     | _ => []
     }
 
@@ -27,11 +31,12 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
+  ~formValues: ConnectorTypes.connectorPayloadV2,
 ) => {
   open LogicUtils
   open SectionHelper
   open AdditionalDetailsSidebar
-  open ConnectorPaymentMethodV3Utils
+  open ConnectorPaymentMethodV2Utils
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
@@ -42,22 +47,26 @@ let make = (
     },
   ]
   let (meteDataInitialValues, connectorWalletsInitialValues) = React.useMemo(() => {
-    let formValues = formState.values->getDictFromJsonObject
     (
-      formValues->getDictfromDict("metadata"),
-      formValues->getDictfromDict("connector_wallets_details"),
+      formValues.metadata->Identity.genericTypeToJson,
+      formValues.connector_webhook_details->Identity.genericTypeToJson,
     )
   }, [])
   //
 
   let form = ReactFinalForm.useForm()
   let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
-  let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
+  let (selectedWallet, setSelectedWallet) = React.useState(_ =>
+    Dict.make()->ConnectorInterfaceUtils.getPaymentMethodTypes
+  )
   let (selectedPMTIndex, setSelectedPMTIndex) = React.useState(_ => 0)
 
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let connData: ConnectorTypes.connectorPayload =
-    formState.values->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let data = formState.values->getDictFromJsonObject
+  let connData: ConnectorTypes.connectorPayloadV2 = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    data,
+  )
   let availablePM =
     paymentMethodValues
     ->getArrayFromDict(pm, [])
@@ -92,11 +101,11 @@ let make = (
   }
   let updateDetails = _val => {
     form.change(
-      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method_types[${selectedPMTIndex->Int.toString}]`,
+      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method_subtypes[${selectedPMTIndex->Int.toString}]`,
       selectedWallet->Identity.genericTypeToJson,
     )
     form.change(
-      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method`,
+      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method_type`,
       "wallet"->Identity.genericTypeToJson,
     )
   }
@@ -137,10 +146,10 @@ let make = (
             let pmtIndex = switch paymentMethodTypeValues {
             | Some(pmt) => {
                 let isPMTEnabled =
-                  pmt.payment_method_types->Array.findIndex(val =>
+                  pmt.payment_method_subtypes->Array.findIndex(val =>
                     val.payment_method_type == pmtData.payment_method_type
                   )
-                isPMTEnabled == -1 ? pmt.payment_method_types->Array.length : isPMTEnabled
+                isPMTEnabled == -1 ? pmt.payment_method_subtypes->Array.length : isPMTEnabled
               }
             | None => 0
             }
@@ -186,6 +195,7 @@ let make = (
               showCheckbox
               index=i
               onClick={Some(() => onClick(pmtData, pmtIndex))}
+              formValues
             />
           })
           ->React.array}
