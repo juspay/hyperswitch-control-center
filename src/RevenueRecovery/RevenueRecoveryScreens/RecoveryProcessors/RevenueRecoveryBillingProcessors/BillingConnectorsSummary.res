@@ -29,7 +29,11 @@ let make = () => {
   let getConnectorDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Get,
+        ~id=Some(connectorID),
+      )
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json->removeFieldsFromRespose)
       setScreenState(_ => Success)
@@ -106,7 +110,11 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let _connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let _connectorUrl = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Post,
+        ~id=Some(connectorID),
+      )
       let dict = values->getDictFromJsonObject
       switch currentActiveSection {
       | Some(AuthenticationKeys) => {

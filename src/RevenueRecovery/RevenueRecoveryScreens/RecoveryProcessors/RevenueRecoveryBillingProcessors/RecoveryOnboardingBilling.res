@@ -62,7 +62,7 @@ let make = (
 
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
+      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
