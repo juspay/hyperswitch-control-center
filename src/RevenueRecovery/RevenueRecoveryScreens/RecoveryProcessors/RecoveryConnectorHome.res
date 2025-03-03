@@ -72,7 +72,7 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore

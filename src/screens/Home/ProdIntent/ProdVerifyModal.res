@@ -13,7 +13,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
 
   let updateProdDetails = async values => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let bodyValues = values->getBody->JSON.Encode.object
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)

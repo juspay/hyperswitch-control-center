@@ -32,19 +32,19 @@ let make = (~entity: moduleEntity) => {
       let secondaryData = defaultValue->Dict.copy
 
       let paymentsUrl = getURL(
-        ~entityName=ANALYTICS_PAYMENTS_V2,
+        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
         ~methodType=Post,
         ~id=Some((#payments: domain :> string)),
       )
 
       let refundsUrl = getURL(
-        ~entityName=ANALYTICS_REFUNDS,
+        ~entityName=V1(ANALYTICS_REFUNDS),
         ~methodType=Post,
         ~id=Some((#refunds: domain :> string)),
       )
 
       let disputesUrl = getURL(
-        ~entityName=ANALYTICS_DISPUTES,
+        ~entityName=V1(ANALYTICS_DISPUTES),
         ~methodType=Post,
         ~id=Some((#disputes: domain :> string)),
       )

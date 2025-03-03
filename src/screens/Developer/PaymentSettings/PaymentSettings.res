@@ -233,7 +233,7 @@ module WebHookSection = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let valuesDict = values->getDictFromJsonObject
 
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
+        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
         let body = valuesDict->JSON.Encode.object->getCustomHeadersPayload->JSON.Encode.object
         let res = await updateDetails(url, body, Post)
         setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
@@ -553,7 +553,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       open LogicUtils
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)

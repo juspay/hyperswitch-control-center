@@ -163,7 +163,7 @@ module RemoteTableFilters = {
     ~customLeftView,
     ~title="",
     ~submitInputOnEnter=false,
-    ~entityName: APIUtilsTypes.entityName,
+    ~entityName: APIUtilsTypes.entityTypeWithVersion,
     (),
   ) => {
     open LogicUtils

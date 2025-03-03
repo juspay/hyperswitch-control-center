@@ -54,7 +54,7 @@ module DownloadAPIKeyButton = {
 
     let apiKeyGeneration = async () => {
       try {
-        let url = getURL(~entityName=API_KEYS, ~methodType=Post)
+        let url = getURL(~entityName=V1(API_KEYS), ~methodType=Post)
         let body =
           [
             ("name", "DefaultAPIKey"->JSON.Encode.string),
@@ -401,7 +401,7 @@ module LandingPageTileForIntegrateDocs = {
     }
     let skipAndContinue = async () => {
       try {
-        let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
+        let url = getURL(~entityName=V1(INTEGRATION_DETAILS), ~methodType=Post)
         let metaDataDict = Dict.fromArray([("is_skip", true->JSON.Encode.bool)])->JSON.Encode.object
         let body = HSwitchUtils.constructOnboardingBody(
           ~dashboardPageState,

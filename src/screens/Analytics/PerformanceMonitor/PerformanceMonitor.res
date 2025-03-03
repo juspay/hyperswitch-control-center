@@ -36,7 +36,7 @@ let make = (~domain="payments") => {
   let fetchFilterData = async dimensions => {
     try {
       let groupBy = getStringListFromArrayDict(dimensions)
-      let filterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+      let filterUrl = getURL(~entityName=V1(ANALYTICS_FILTERS), ~methodType=Post, ~id=Some(domain))
       let res = await updateDetails(filterUrl, filterBody(~groupBy)->JSON.Encode.object, Post)
       let dim =
         res
@@ -53,7 +53,7 @@ let make = (~domain="payments") => {
   let loadInfo = async () => {
     try {
       setScreenState(_ => Loading)
-      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
+      let infoUrl = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       let dimensions = infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", [])
       fetchFilterData(dimensions)->ignore

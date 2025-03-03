@@ -22,7 +22,11 @@ let make = () => {
     try {
       //Currency Conversion is failing in Backend for the first time so to fix that we are the calling the api for one time and ignoring the error
       setScreenState(_ => Loading)
-      let url = getURL(~entityName=ANALYTICS_PAYMENTS_V2, ~methodType=Post, ~id=Some("payments"))
+      let url = getURL(
+        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
+        ~methodType=Post,
+        ~id=Some("payments"),
+      )
       let date = (Date.make()->Date.toString->DayJs.getDayJsForString).format(
         "YYYY-MM-DDTHH:mm:00[Z]",
       )

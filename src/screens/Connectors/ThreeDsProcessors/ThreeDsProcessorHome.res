@@ -28,7 +28,7 @@ let make = () => {
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -122,7 +122,7 @@ let make = () => {
           ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(
-        ~entityName=CONNECTOR,
+        ~entityName=V1(CONNECTOR),
         ~methodType=Post,
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
