@@ -28,12 +28,6 @@ module MetadataAuthenticationInput = {
       None
     }, [])
 
-    React.useEffect(() => {
-      if allowEdit {
-        setValue(_ => "")
-      }
-      None
-    }, [allowEdit])
     let form = ReactFinalForm.useForm()
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -103,7 +97,6 @@ module MetadataHeaders = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let form = ReactFinalForm.useForm()
     let metadataKeyValueDict =
       formState.values
       ->getDictFromJsonObject
@@ -112,7 +105,6 @@ module MetadataHeaders = {
     let (isDisabled, setDisabled) = React.useState(_ => true)
 
     let allowEditConfiguration = () => {
-      form.change(`metadata`, JSON.Encode.null)
       setAllowEdit(_ => true)
       setShowModal(_ => false)
     }
@@ -123,22 +115,19 @@ module MetadataHeaders = {
       None
     }, [])
     <div className="flex-1">
-      <div className="flex flex-row items-center gap-4 ">
+      <div className="flex flex-row justify-between items-center gap-4 ">
         <p
           className={`ml-4 text-xl dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-grey-700 font-semibold `}>
           {"Custom Metadata Headers"->React.string}
         </p>
         <RenderIf
           condition={!(metadataKeyValueDict->LogicUtils.isEmptyDict) && isDisabled && !allowEdit}>
-          <Button
-            text=""
-            customButtonStyle="bg-none !border-none cursor-pointer !p-0"
-            customBackColor="bg-transparent"
-            rightIcon={FontAwesome("edit")}
-            customIconSize={18}
-            buttonSize=Small
-            onClick={_ => setShowModal(_ => true)}
-          />
+          <div
+            className="flex gap-2 items-center cursor-pointer"
+            onClick={_ => setShowModal(_ => true)}>
+            <Icon name="nd-edit" size=14 />
+            <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+          </div>
         </RenderIf>
       </div>
       <div className="grid grid-cols-5 gap-2">
@@ -227,18 +216,22 @@ let make = (~busiProfieDetails, ~setBusiProfie, ~setScreenState, ~profileId="") 
         <MetadataHeaders setAllowEdit allowEdit />
         <DesktopRow>
           <div className="flex justify-end w-full gap-2">
-            <SubmitButton
-              text="Update"
-              buttonType=Button.Primary
-              buttonSize=Button.Medium
-              disabledParamter={!allowEdit}
-            />
-            <Button
-              buttonType=Button.Secondary
-              onClick={_ =>
-                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payment-settings"))}
-              text="Cancel"
-            />
+            <RenderIf condition=allowEdit>
+              <SubmitButton
+                text="Update"
+                buttonType=Button.Primary
+                buttonSize=Button.Medium
+                disabledParamter={!allowEdit}
+              />
+              <Button
+                buttonType=Button.Secondary
+                onClick={_ =>
+                  RescriptReactRouter.push(
+                    GlobalVars.appendDashboardPath(~url="/payment-settings"),
+                  )}
+                text="Cancel"
+              />
+            </RenderIf>
           </div>
         </DesktopRow>
         // <FormValuesSpy />
