@@ -111,10 +111,8 @@ let connectorList: array<connectorTypes> = [
 ]
 
 let connectorListForLive: array<connectorTypes> = [
-  Processors(STRIPE),
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
-  Processors(PAYPAL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -123,18 +121,22 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CRYPTOPAY),
   Processors(CASHTOCODE),
   Processors(CYBERSOURCE),
+  Processors(COINGATE),
+  Processors(DATATRANS),
   Processors(FIUU),
   Processors(IATAPAY),
   Processors(KLARNA),
   Processors(MIFINITY),
   Processors(NMI),
   Processors(NOVALNET),
+  Processors(PAYPAL),
+  Processors(PAYBOX),
   Processors(PAYME),
+  Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
   Processors(ZSL),
   Processors(ZEN),
-  Processors(PAYBOX),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
