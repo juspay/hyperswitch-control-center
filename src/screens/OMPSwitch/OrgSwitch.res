@@ -70,7 +70,7 @@ module NewOrgCreationModal = {
     let showToast = ToastState.useShowToast()
     let createNewOrg = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_ORG, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_ORG, ~methodType=Post)
         let _ = await updateDetails(url, values, Post)
         getOrgList()->ignore
         showToast(~toastType=ToastSuccess, ~message="Org Created Successfully!", ~autoClose=true)
@@ -203,7 +203,6 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
@@ -218,7 +217,7 @@ let make = () => {
   )
   let getOrgList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
     } catch {
@@ -238,7 +237,6 @@ let make = () => {
     try {
       setShowSwitchingOrg(_ => true)
       let _ = await internalSwitch(~expectedOrgId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {

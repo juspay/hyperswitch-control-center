@@ -3,6 +3,44 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.04.0
+
+### Refactors
+
+- Support for v2 routes ([#2349](https://github.com/juspay/hyperswitch-control-center/pull/2349)) ([`a3d2d36`](https://github.com/juspay/hyperswitch-control-center/commit/a3d2d3655b5b4cb21176791c0b2fbfd7a064c58f))
+
+### Miscellaneous Tasks
+
+- Changes for modularity on product select ([#2276](https://github.com/juspay/hyperswitch-control-center/pull/2276)) ([`a7b510b`](https://github.com/juspay/hyperswitch-control-center/commit/a7b510b40ea8cb816674e3bf72b0a17b4e562fa8))
+- Update v2 payment methods ([#2326](https://github.com/juspay/hyperswitch-control-center/pull/2326)) ([`52a7a55`](https://github.com/juspay/hyperswitch-control-center/commit/52a7a55dd993cd4a29455b07dcb149811d1d6fb5))
+- Remove ([`157f91e`](https://github.com/juspay/hyperswitch-control-center/commit/157f91e0ebda640d35f1f28d57f59cf2974c3b47))
+- Customization for charts and tabs ([#2345](https://github.com/juspay/hyperswitch-control-center/pull/2345)) ([`e5edcc2`](https://github.com/juspay/hyperswitch-control-center/commit/e5edcc24859f0e53070f7f127ee25117b2053ec6))
+
+**Full Changelog:** [`2025.02.28.0...2025.03.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.28.0...2025.03.04.0)
+
+- - -
+
+## 2025.02.28.0
+
+### Features
+
+- Alt payment methods ([#2341](https://github.com/juspay/hyperswitch-control-center/pull/2341)) ([`e7d02fd`](https://github.com/juspay/hyperswitch-control-center/commit/e7d02fdafd36d1d582df29f7e95e74b2f50dd63a))
+
+### Bug Fixes
+
+- Maintaining org sidebar list order ([#2337](https://github.com/juspay/hyperswitch-control-center/pull/2337)) ([`0da43e3`](https://github.com/juspay/hyperswitch-control-center/commit/0da43e3b5e6da28a94cd1f832e462be559d71822))
+- Enhancements in advance routing ([#2338](https://github.com/juspay/hyperswitch-control-center/pull/2338)) ([`82947eb`](https://github.com/juspay/hyperswitch-control-center/commit/82947eb149197d6fdff2db9eebee1465d42742db))
+
+### Miscellaneous Tasks
+
+- Routing folder structure revamp ([#2331](https://github.com/juspay/hyperswitch-control-center/pull/2331)) ([`af99476`](https://github.com/juspay/hyperswitch-control-center/commit/af99476d764afad26a0e2a8218ff704c6b47583c))
+- Changed vault pmt screen css ([#2303](https://github.com/juspay/hyperswitch-control-center/pull/2303)) ([`dfcb5a7`](https://github.com/juspay/hyperswitch-control-center/commit/dfcb5a7426878c6e01e56c5f6e169af809f0d9d9))
+
+**Full Changelog:** [`2025.02.26.0...2025.02.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.02.26.0...2025.02.28.0)
+
+
+- - -
+
 ## 2025.02.26.0
 
 ### Features

@@ -98,7 +98,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   let fetchRefundData = async () => {
     try {
-      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id))
+      let refundUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Get, ~id=Some(id))
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
@@ -108,7 +108,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       let paymentId =
         refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
       let orderUrl = getURL(
-        ~entityName=ORDERS,
+        ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(paymentId),
         ~queryParamerters=Some("expand_attempts=true"),

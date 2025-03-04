@@ -8,11 +8,10 @@ let make = (~routingType) => {
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
-
-  let connectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->filterConnectorList(~retainInList=PayoutProcessor)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PayoutProcessor,
+  )
 
   let baseUrlForRedirection = "/payoutrouting"
 
@@ -42,7 +41,11 @@ let make = (~routingType) => {
       {switch currentRouting {
       | VOLUME_SPLIT =>
         <VolumeSplitRouting
-          routingRuleId=id isActive connectorList urlEntityName=PAYOUT_ROUTING baseUrlForRedirection
+          routingRuleId=id
+          isActive
+          connectorList
+          urlEntityName=V1(PAYOUT_ROUTING)
+          baseUrlForRedirection
         />
       | ADVANCED =>
         <AdvancedRouting
@@ -50,11 +53,11 @@ let make = (~routingType) => {
           isActive
           setCurrentRouting
           connectorList
-          urlEntityName=PAYOUT_ROUTING
+          urlEntityName=V1(PAYOUT_ROUTING)
           baseUrlForRedirection
         />
       | DEFAULTFALLBACK =>
-        <DefaultRouting urlEntityName=PAYOUT_DEFAULT_FALLBACK baseUrlForRedirection />
+        <DefaultRouting urlEntityName=V1(PAYOUT_DEFAULT_FALLBACK) baseUrlForRedirection />
       | _ => React.null
       }}
     </History.BreadCrumbWrapper>

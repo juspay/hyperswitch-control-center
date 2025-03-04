@@ -6,9 +6,10 @@ module SDKConfiguarationFields = {
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let disableSelectionForProfile = businessProfiles->HomeUtils.isDefaultBusinessProfile
-    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-    let paymentConnectorList =
-      connectorList->RoutingUtils.filterConnectorList(~retainInList=PaymentConnector)
+    let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV1,
+      ~retainInList=PaymentProcessor,
+    )
     let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
       {
         label: `${item.countryName} (${item.currency})`,
@@ -26,6 +27,7 @@ module SDKConfiguarationFields = {
         ~buttonText="Select Profile",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,
+        ~textStyle="w-56 truncate",
       ),
     )
     let selectCurrencyField = FormRenderer.makeFieldInfo(
@@ -88,13 +90,15 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ =>
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PaymentProcessor,
+  )
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
-  let paymentConnectorList =
-    connectorList->RoutingUtils.filterConnectorList(~retainInList=PaymentConnector)
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {userInfo: {profileId, merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
 

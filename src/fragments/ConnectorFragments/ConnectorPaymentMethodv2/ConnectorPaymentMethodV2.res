@@ -8,7 +8,7 @@ PMTIndex - PaymentMethodType Index
 @react.component
 let make = (~initialValues, ~isInEditState) => {
   open LogicUtils
-  open ConnectorPaymentMethodV3Utils
+  open ConnectorPaymentMethodV2Utils
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let pmts = React.useMemo(() => {
     try {
@@ -19,7 +19,9 @@ let make = (~initialValues, ~isInEditState) => {
   }, [connector])
 
   let initialValue = React.useMemo(() => {
-    initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+    let val = initialValues->getDictFromJsonObject
+
+    ConnectorInterface.mapDictToConnectorPayload(ConnectorInterface.connectorInterfaceV2, val)
   }, [initialValues])
 
   let paymentMethodValues = React.useMemo(() => {
@@ -45,15 +47,15 @@ let make = (~initialValues, ~isInEditState) => {
           let wasmDict = val->getDictFromJsonObject
           let exisitngData = switch initialValue.payment_methods_enabled->Array.find(
             ele => {
-              ele.payment_method == pm
+              ele.payment_method_type == pm
             },
           ) {
           | Some(data) => {
-              let filterData = data.payment_method_types->Array.filter(
+              let filterData = data.payment_method_subtypes->Array.filter(
                 available => {
                   // explicit check for card (for card we need to check the card network rather than the payment method type)
                   if (
-                    available.payment_method_type == key &&
+                    available.payment_method_subtype == key &&
                       available.card_networks->getValueFromArray(0, "") == paymemtMethodType
                   ) {
                     true
@@ -61,16 +63,16 @@ let make = (~initialValues, ~isInEditState) => {
                   else if (
                     connector->ConnectorUtils.getConnectorNameTypeFromString ==
                       Processors(KLARNA) &&
-                      available.payment_method_type->getPMTFromString == Klarna
+                      available.payment_method_subtype->getPMTFromString == Klarna
                   ) {
                     switch available.payment_experience {
                     | Some(str) => str == paymemtMethodExperience
                     | None => false
                     }
                   } else if (
-                    available.payment_method_type == paymemtMethodType &&
-                    available.payment_method_type->getPMTFromString != Credit &&
-                    available.payment_method_type->getPMTFromString != Debit
+                    available.payment_method_subtype == paymemtMethodType &&
+                    available.payment_method_subtype->getPMTFromString != Credit &&
+                    available.payment_method_subtype->getPMTFromString != Debit
                   ) {
                     true
                   } else {
@@ -99,9 +101,11 @@ let make = (~initialValues, ~isInEditState) => {
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-
-  let connData =
-    formState.values->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let data = formState.values->getDictFromJsonObject
+  let connData = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    data,
+  )
 
   <div className="flex flex-col gap-6 col-span-3">
     <div className="max-w-3xl flex flex-col gap-8">
@@ -110,7 +114,9 @@ let make = (~initialValues, ~isInEditState) => {
       ->Array.mapWithIndex((pmValue, index) => {
         // determine the index of the payment method from the form state
         let isPMEnabled =
-          connData.payment_methods_enabled->Array.findIndex(ele => ele.payment_method == pmValue)
+          connData.payment_methods_enabled->Array.findIndex(ele =>
+            ele.payment_method_type == pmValue
+          )
         let pmIndex =
           isPMEnabled == -1
             ? connData.payment_methods_enabled->Array.length > 0
@@ -128,6 +134,7 @@ let make = (~initialValues, ~isInEditState) => {
             connector
             isInEditState
             initialValues
+            formValues=connData
           />
         | _ =>
           <OtherPaymentMethod
@@ -139,6 +146,7 @@ let make = (~initialValues, ~isInEditState) => {
             connector
             isInEditState
             initialValues
+            formValues=connData
           />
         }
       })

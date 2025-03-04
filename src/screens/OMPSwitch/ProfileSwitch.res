@@ -8,7 +8,7 @@ module NewProfileCreationModal = {
 
     let createNewProfile = async values => {
       try {
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
+        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
         let body = values
         let _ = await updateDetails(url, body, Post)
         getProfileList()->ignore
@@ -129,7 +129,6 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let url = RescriptReactRouter.useUrl()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
@@ -143,7 +142,7 @@ let make = () => {
 
   let getProfileList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
       let response = await fetchDetails(url)
       setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
     } catch {
@@ -161,7 +160,6 @@ let make = () => {
     try {
       setShowSwitchingProfile(_ => true)
       let _ = await internalSwitch(~expectedProfileId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {

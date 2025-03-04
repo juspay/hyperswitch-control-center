@@ -1,11 +1,12 @@
 open VaultHomeTypes
 open VerticalStepIndicatorTypes
+
 module VaultActionItem = {
   @react.component
   let make = (~heading, ~description, ~img, ~action) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     <div
-      className="border rounded-xl p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer justify-between py-4"
+      className="border rounded-xl p-3 flex items-center gap-4 group cursor-pointer justify-between py-4"
       onClick={_ => {
         switch action {
         | InternalRoute(route) =>
@@ -33,40 +34,56 @@ let vaultActionArray = {
       heading: "Learn how to vault from your server",
       description: "If you're PCI compliant, you can vault cards directly to Hyperswitch's Vault service from your server.",
       imgSrc: "/assets/VaultServerImage.svg",
-      action: InternalRoute("v2/vault/home"), //TODO: TO be updated once routing is confirmed
+      action: ExternalLink({
+        url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault",
+        trackingEvent: "vault-server-redirect",
+      }),
     },
     {
-      heading: "Learn using Hyperswitch vault SDK",
+      heading: "Learn how to vault using our Vault SDK",
       description: "If you're not PCI compliant, securely store cards using our Vault SDK with Hyperswitch's Vault service.",
       imgSrc: "/assets/VaultSdkImage.svg",
-      action: InternalRoute("v2/vault/home"), //TODO: TO be updated once routing is confirmed
+      action: ExternalLink({
+        url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault",
+        trackingEvent: "vault-sdk-redirect",
+      }),
     },
   ]
 }
 
 let sections = [
   {
-    id: "authenticate-processor",
+    id: (#authenticateProcessor: vaultSections :> string),
     name: "Authenticate your processor",
     icon: "nd-shield",
     subSections: None,
   },
   {
-    id: "setup-pmts",
+    id: (#setupPMTS: vaultSections :> string),
     name: "Setup Payment Methods",
     icon: "nd-webhook",
     subSections: None,
   },
   {
-    id: "setup-webhook",
+    id: (#setupWebhook: vaultSections :> string),
     name: "Setup Webhook",
     icon: "nd-webhook",
     subSections: None,
   },
   {
-    id: "review-and-connect",
+    id: (#reviewAndConnect: vaultSections :> string),
     name: "Review and Connect",
     icon: "nd-flag",
     subSections: None,
   },
 ]
+
+let stringToSectionVariantMapper = string => {
+  switch string {
+  | "authenticateProcessor" => #authenticateProcessor
+  | "setupPMTS" => #setupPMTS
+  | "setupWebhook" => #setupWebhook
+  | "reviewAndConnect" => #reviewAndConnect
+  | _ => #authenticateProcessor
+  }
+}

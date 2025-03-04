@@ -105,7 +105,7 @@ let make = () => {
             customLeftView={<SearchBarFilter
               placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
             />}
-            entityName=PAYOUTS_FILTERS
+            entityName=V1(PAYOUTS_FILTERS)
           />
         </div>
         <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />

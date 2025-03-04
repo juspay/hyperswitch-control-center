@@ -456,7 +456,7 @@ module FraudRiskBannerDetails = {
     let updateMerchantDecision = async (~decision) => {
       try {
         let ordersDecisionUrl = `${getURL(
-            ~entityName=ORDERS,
+            ~entityName=V1(ORDERS),
             ~methodType=Get,
             ~id=Some(order.payment_id),
           )}/${decision->String.toLowerCase}`
@@ -632,7 +632,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   React.useEffect(() => {
     let accountUrl = getURL(
-      ~entityName=ORDERS,
+      ~entityName=V1(ORDERS),
       ~methodType=Get,
       ~id=Some(id),
       ~queryParamerters=Some("expand_attempts=true"),
@@ -658,7 +658,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let refreshStatus = async () => {
     try {
       let getRefreshStatusUrl = getURL(
-        ~entityName=ORDERS,
+        ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(id),
         ~queryParamerters=Some("force_sync=true&expand_attempts=true"),

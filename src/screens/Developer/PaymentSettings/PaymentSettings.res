@@ -233,7 +233,7 @@ module WebHookSection = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let valuesDict = values->getDictFromJsonObject
 
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
+        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
         let body = valuesDict->JSON.Encode.object->getCustomHeadersPayload->JSON.Encode.object
         let res = await updateDetails(url, body, Post)
         setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
@@ -452,20 +452,20 @@ module ClickToPaySection = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let connectorListAtom = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let connectorListAtom = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV1,
+      ~retainInList=AuthenticationProcessor,
+    )
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     let isClickToPayEnabled =
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
-    let dropDownOptions =
-      connectorListAtom
-      ->Array.filter(ele => ele.connector_type === AuthenticationProcessor)
-      ->Array.map((item): SelectBox.dropdownOption => {
-        {
-          label: `${item.connector_label} - ${item.merchant_connector_id}`,
-          value: item.merchant_connector_id,
-        }
-      })
+    let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
+      {
+        label: `${item.connector_label} - ${item.merchant_connector_id}`,
+        value: item.merchant_connector_id,
+      }
+    })
 
     <RenderIf condition={featureFlagDetails.clickToPay && connectorView}>
       <DesktopRow>
@@ -532,10 +532,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     None
   }, [businessProfileDetails.profile_id])
 
-  let threedsConnectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->Array.filter(item => item.connector_type === AuthenticationProcessor)
+  let threedsConnectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=AuthenticationProcessor,
+  )
 
   let isBusinessProfileHasThreeds = threedsConnectorList->Array.some(item => item.profile_id == id)
 
@@ -553,7 +553,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       open LogicUtils
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)

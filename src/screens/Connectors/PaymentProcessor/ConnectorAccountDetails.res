@@ -159,7 +159,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           ~isLiveMode={featureFlagDetails.isLiveMode},
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~connector=Some(connector))
       let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore

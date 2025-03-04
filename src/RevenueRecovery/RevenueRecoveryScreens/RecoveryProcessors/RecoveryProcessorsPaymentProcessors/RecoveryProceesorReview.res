@@ -3,8 +3,12 @@ let make = (~connectorInfo) => {
   open CommonAuthHooks
   open LogicUtils
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let connectorInfodict =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfo = connectorInfo->LogicUtils.getDictFromJsonObject
+
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    connectorInfo,
+  )
   let (processorType, _) =
     connectorInfodict.connector_type
     ->ConnectorUtils.connectorTypeTypedValueToStringMapper
@@ -40,11 +44,6 @@ let make = (~connectorInfo) => {
     }
   }, [connectorInfodict.merchant_connector_id])
 
-  let handleClick = () => {
-    setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/recovery/connectors`))
-  }
-
   <div className="flex flex-col px-10 gap-8">
     <div className="flex flex-col ">
       <PageUtils.PageHeading
@@ -65,7 +64,14 @@ let make = (~connectorInfo) => {
     </div>
     <ACLButton
       text="Done"
-      onClick={_ => handleClick()}
+      onClick={_ => {
+        setShowSideBar(_ => true)
+        RescriptReactRouter.replace(
+          GlobalVars.appendDashboardPath(
+            ~url=`/v2/recovery/summary/${connectorInfodict.merchant_connector_id}?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.merchant_connector_id}`,
+          ),
+        )
+      }}
       buttonSize=Large
       buttonType=Primary
       customButtonStyle="w-full"

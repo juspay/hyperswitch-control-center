@@ -19,15 +19,18 @@ let make = () => {
     setUserModuleEntity,
   ) = React.useState(_ => #Default)
 
-  let sortByEmail = (email1, email2) => {
-    compareLogic(email2, email1)
+  let sortByEmail = (
+    user1: ListUserTableEntity.userTableTypes,
+    user2: ListUserTableEntity.userTableTypes,
+  ) => {
+    compareLogic(user2.email->String.toLowerCase, user1.email->String.toLowerCase)
   }
 
   let getUserData = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
         ~queryParamerters=userModuleEntity == #Default

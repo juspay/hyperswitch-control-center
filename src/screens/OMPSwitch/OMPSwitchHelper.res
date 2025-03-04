@@ -229,7 +229,6 @@ module MerchantDropdownItem = {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
@@ -241,7 +240,7 @@ module MerchantDropdownItem = {
     let (_, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
     let getMerchantList = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
         let response = await fetchDetails(url)
         setMerchantList(_ => response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper))
       } catch {
@@ -274,7 +273,6 @@ module MerchantDropdownItem = {
       try {
         setShowSwitchingMerch(_ => true)
         let _ = await internalSwitch(~expectedMerchantId=Some(value))
-        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
         setShowSwitchingMerch(_ => false)
       } catch {
       | _ => {
@@ -295,7 +293,7 @@ module MerchantDropdownItem = {
             ("merchant_name", newMerchantName->JSON.Encode.string),
           ]->getJsonFromArrayOfJson
         let accountUrl = getURL(
-          ~entityName=MERCHANT_ACCOUNT,
+          ~entityName=V1(MERCHANT_ACCOUNT),
           ~methodType=Post,
           ~id=Some(merchantId),
         )
@@ -360,7 +358,6 @@ module ProfileDropdownItem = {
       setUnderEdit(_ => selectedEditId)
     }
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
@@ -372,7 +369,7 @@ module ProfileDropdownItem = {
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let getProfileList = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
         let response = await fetchDetails(url)
         setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
       } catch {
@@ -404,7 +401,6 @@ module ProfileDropdownItem = {
       try {
         setShowSwitchingProfile(_ => true)
         let _ = await internalSwitch(~expectedProfileId=Some(value))
-        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
         setShowSwitchingProfile(_ => false)
       } catch {
       | _ => {
@@ -420,7 +416,11 @@ module ProfileDropdownItem = {
     let onSubmit = async (newProfileName: string) => {
       try {
         let body = [("profile_name", newProfileName->JSON.Encode.string)]->getJsonFromArrayOfJson
-        let accountUrl = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
+        let accountUrl = getURL(
+          ~entityName=V1(BUSINESS_PROFILE),
+          ~methodType=Post,
+          ~id=Some(profileId),
+        )
         let _ = await updateDetails(accountUrl, body, Post)
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
@@ -571,7 +571,7 @@ module EditOrgName = {
 
     let onSubmit = async (values, _) => {
       try {
-        let url = getURL(~entityName=UPDATE_ORGANIZATION, ~methodType=Put, ~id=Some(orgId))
+        let url = getURL(~entityName=V1(UPDATE_ORGANIZATION), ~methodType=Put, ~id=Some(orgId))
         let _ = await updateDetails(url, values, Put)
         let _ = await getOrgList()
         showToast(~message="Updated organization name!", ~toastType=ToastSuccess)

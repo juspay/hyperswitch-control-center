@@ -18,8 +18,13 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => Success)
   let {profileId, merchantId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
-  let connectorInfoDict =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+
+  let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
+  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    connectorInfo,
+  )
+
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: (#AuthenticateProcessor: sectionType :> string),
     subSectionId: None,
@@ -36,7 +41,6 @@ let make = () => {
   }
 
   let activeBusinessProfile = getNameForId(#Profile)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
@@ -48,7 +52,6 @@ let make = () => {
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-    initialValuesToDict->Dict.set("test_mode", !featureFlagDetails.isLiveMode->JSON.Encode.bool)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
@@ -67,7 +70,7 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
+      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
@@ -188,7 +191,7 @@ let make = () => {
         <PageLoaderWrapper screenState>
           <Form onSubmit initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
-              <ConnectorPaymentMethodV3 initialValues isInEditState=true />
+              <ConnectorPaymentMethodV2 initialValues isInEditState=true />
               <FormRenderer.SubmitButton
                 text="Next"
                 buttonSize={Small}
