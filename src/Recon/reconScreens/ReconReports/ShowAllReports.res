@@ -106,7 +106,7 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
         <OrderInfo reportDetails=reconReport isModal />
       </div>
       <Button
-        text="Done"
+        text="OK"
         buttonType=Primary
         onClick={_ => setShowModal(_ => false)}
         customButtonStyle="w-full"
@@ -120,23 +120,12 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
       />}>
       <div className="flex flex-col h-[82vh] px-6">
         <OrderInfo reportDetails=reconReport isModal />
-        <div className="gap-6 border-t border-b ">
-          <div className="my-6">
+        <div className="gap-6 border-t">
+          <div className="flex flex-col gap-2 my-6">
             <p className="text-nd_gray-400  text-sm font-medium"> {"Reason"->React.string} </p>
             <p className="text-base font-medium text-nd_gray-600">
               {"Missing (PG processed payment, but no bank settlement found."->React.string}
             </p>
-          </div>
-        </div>
-        <div className="flex flex-col  gap-6 my-6 ">
-          <div className="flex flex-col gap-3">
-            <p className="font-medium text-nd_gray-600 text-sm"> {"Add Note"->React.string} </p>
-            <div className="border rounded-md h-12.5-rem font-medium p-4  ">
-              <input
-                className="w-full border-none h-6 focus:outline-none  text-nd_gray-400 text-sm"
-                placeholder="You can log comments"
-              />
-            </div>
           </div>
         </div>
       </div>

@@ -69,7 +69,7 @@ let make = (~id) => {
     Dict.make()->ReportsExceptionTableEntity.getExceptionReportPayloadType
   )
   let (attemptData, setAttemptData) = React.useState(_ => [])
-
+  let (showModal, setShowModal) = React.useState(_ => false)
   let defaultObject = Dict.make()->ReportsExceptionTableEntity.getExceptionReportPayloadType
 
   let fetchOrderDetails = async _ => {
@@ -108,7 +108,23 @@ let make = (~id) => {
     fetchOrderDetails()->ignore
     None
   }, [])
-  let statusUI = ReportsExceptionTableEntity.useGetStatus(reconExceptionReport)
+
+  let modalHeading = {
+    <div className="flex justify-between border-b">
+      <div className="flex gap-4 items-center my-5">
+        <p className="font-semibold text-nd_gray-700 px-6 leading-5 text-lg">
+          {"Resolve Issue"->React.string}
+        </p>
+      </div>
+      <Icon
+        name="modal-close-icon"
+        className="cursor-pointer mr-4"
+        size=30
+        onClick={_ => setShowModal(_ => false)}
+      />
+    </div>
+  }
+
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
       path=[{title: "Recon", link: `/v2/recon/reports?tab=exceptions`}]
@@ -124,9 +140,18 @@ let make = (~id) => {
       <div className="flex flex-row justify-between items-center">
         <div className="flex gap-2 items-center">
           <PageUtils.PageHeading title={`Transaction ID: ${reconExceptionReport.transaction_id}`} />
-          {statusUI}
+          <div
+            className="text-sm text-white font-semibold px-3  py-1 rounded-md bg-nd_red-50 dark:bg-opacity-50 flex gap-2">
+            <p className="text-nd_red-400"> {reconExceptionReport.exception_type->React.string} </p>
+            <Icon name="nd-alert-circle" customIconColor="text-nd_red-400" />
+          </div>
         </div>
-        <ACLButton text="Resolve" customButtonStyle="!w-fit" buttonType={Primary} />
+        <ACLButton
+          text="Resolve Issue"
+          customButtonStyle="!w-fit"
+          buttonType={Primary}
+          onClick={_ => setShowModal(_ => true)}
+        />
       </div>
       <div className="w-full py-3 px-4 bg-orange-50 flex justify-between items-center rounded-lg">
         <div className="flex gap-4 items-center">
@@ -154,5 +179,32 @@ let make = (~id) => {
         />
       </PageLoaderWrapper>
     </div>
+    <Modal
+      setShowModal
+      showModal
+      closeOnOutsideClick=true
+      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background"
+      childClass="m-6 h-full"
+      customModalHeading=modalHeading>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
+          <p className="font-medium text-nd_gray-600 text-sm leading-5">
+            {"Add Note"->React.string}
+          </p>
+          <div className="border rounded-xl h-120-px p-4">
+            <input
+              className="w-full border-none focus:outline-none text-nd_gray-400 text-sm leading-5 font-medium"
+              placeholder="You can log comments"
+            />
+          </div>
+        </div>
+        <Button
+          text="Done"
+          buttonType={Primary}
+          customButtonStyle="w-full mt-4"
+          onClick={_ => setShowModal(_ => false)}
+        />
+      </div>
+    </Modal>
   </div>
 }

@@ -34,7 +34,7 @@ let merchantItemToObjMapper: Dict.t<'t> => OMPSwitchTypes.ompListTypes = dict =>
         ? dict->getString("merchant_id", "")
         : dict->getString("merchant_name", "")
     },
-    productType: dict->getString("product_type", "")->ProductUtils.getVariantFromString,
+    productType: dict->getString("product_type", "recon")->ProductUtils.getVariantFromString,
   }
 }
 

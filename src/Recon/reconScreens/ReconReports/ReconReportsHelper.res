@@ -33,7 +33,7 @@ module DisplayKeyValueParams = {
     {
       <AddDataAttributes attributes=[("data-label", heading.title)]>
         <div
-          className={`flex ${isHorizontal ? "flex-row justify-between" : "flex-col gap-1"} py-4 `}>
+          className={`flex ${isHorizontal ? "flex-row justify-between" : "flex-col gap-2"} py-4`}>
           <div
             className={`flex flex-row text-fs-11  ${isHorizontal
                 ? "flex justify-start"

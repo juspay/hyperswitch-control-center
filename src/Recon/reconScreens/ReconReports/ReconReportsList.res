@@ -12,9 +12,9 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
   let statusUI = ReportsTableEntity.useGetAllReportStatus(selectedId)
 
   let modalHeading = {
-    <div className="flex justify-between border-b ">
-      <div className="flex gap-4 items-center">
-        <p className="font-semibold text-nd_gray-600 px-8 pt-8 mb-6 text-lg">
+    <div className="flex justify-between border-b">
+      <div className="flex gap-4 items-center my-8">
+        <p className="font-semibold text-nd_gray-600 px-8 text-lg leading-6">
           {`Transaction ID: ${selectedId.transaction_id}`->React.string}
         </p>
         <div> {statusUI} </div>
