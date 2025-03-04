@@ -7,7 +7,7 @@ let getSizeofRes = res => {
   res->getDictFromJsonObject->getInt("size", 0)
 }
 
-let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
+let (startTimeFilterKey, endTimeFilterKey) = ("created.gte", "created.lte")
 
 type filterTypes = {
   connector: array<string>,
@@ -71,7 +71,6 @@ type filter = [
   | #card_network
   | #card_discovery
   | #customer_id
-  | #amount
   | #merchant_order_reference_id
   | #unknown
 ]
@@ -88,7 +87,6 @@ let getFilterTypeFromString = filterType => {
   | "card_network" => #card_network
   | "card_discovery" => #card_discovery
   | "customer_id" => #customer_id
-  | "amount" => #amount
   | "merchant_order_reference_id" => #merchant_order_reference_id
   | _ => #unknown
   }
@@ -195,7 +193,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   }
 
   let additionalFilters =
-    [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]->Array.map(
+    [#payment_method_type, #customer_id, #merchant_order_reference_id]->Array.map(
       getLabelFromFilterType,
     )
 
@@ -244,11 +242,6 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
           </div>,
           ~customWidth="w-48",
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
-    | #amount =>
-      (~input as _, ~placeholder as _) => {
-        <AmountFilter options=AmountFilterUtils.amountFilterOptions />
-      }
-
     | _ =>
       InputFields.filterMultiSelectInput(
         ~options,
@@ -256,7 +249,9 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         ~showSelectionAsChips=false,
         ~searchable=true,
         ~showToolTip=true,
+        ~allowMultiSelect=false,
         ~showNameAsToolTip=true,
+        ~showAllSelectedOptions=false,
         ~customButtonStyle="bg-none",
         (),
       )
@@ -368,9 +363,9 @@ let setData = (offset, setOffset, total, data, setTotalCount, setOrdersData, set
 }
 
 let getPaymentsList = async (
-  filterValueJson,
-  ~fetchDetails as _: string => promise<JSON.t>,
-  ~getURL as _: APIUtilsTypes.getUrlTypes,
+  filterValueJson: RescriptCore.Dict.t<Core__JSON.t>,
+  ~fetchDetails: string => promise<JSON.t>,
+  ~getURL: APIUtilsTypes.getUrlTypes,
   ~setOrdersData,
   ~setScreenState,
   ~setOffset,
@@ -380,301 +375,28 @@ let getPaymentsList = async (
   open LogicUtils
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
-    // TODO: need to include V2 routes
-    //let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
-    //let res = await  fetchDetails(ordersUrl)
+    let filter =
+      filterValueJson
+      ->Dict.toArray
+      ->Array.map(item => {
+        let (key, value) = item
 
-    let res = {
-      "size": 5,
-      "total_count": 23,
-      "data": [
-        {
-          "id": "12345_pay_01926c58bc6e77c09e809964e72af8c8",
-          "merchant_id": "merchant_1668273825",
-          "profile_id": "<string>",
-          "customer_id": "12345_cus_01926c58bc6e77c09e809964e72af8c8",
-          "payment_method_id": "<string>",
-          "status": "succeeded",
-          "amount": {
-            "order_amount": 6540,
-            "currency": "AED",
-            "shipping_cost": 123,
-            "order_tax_amount": 123,
-            "external_tax_calculation": "skip",
-            "surcharge_calculation": "skip",
-            "surcharge_amount": 123,
-            "tax_on_surcharge": 123,
-            "net_amount": 123,
-            "amount_to_capture": 123,
-            "amount_capturable": 123,
-            "amount_captured": 123,
-          },
-          "created": "2022-09-10T10:11:12Z",
-          "payment_method_type": "card",
-          "payment_method_subtype": "ach",
-          "connector": "adyen",
-          "merchant_connector_id": "<string>",
-          "customer": {
-            "id": "cus_y3oqhf46pyzuxjbcn2giaqnb44",
-            "name": "John Doe",
-            "email": "johntest@test.com",
-            "phone": "9123456789",
-            "phone_country_code": "+1",
-          },
-          "merchant_reference_id": "pay_mbabizu24mvu3mela5njyhpit4",
-          "connector_payment_id": "993672945374576J",
-          "connector_response_reference_id": "<string>",
-          "metadata": "{}",
-          "description": "It's my first payment request",
-          "authentication_type": "three_ds",
-          "capture_method": "automatic",
-          "setup_future_usage": "off_session",
-          "attempt_count": 123,
-          "error": {
-            "code": "<string>",
-            "message": "<string>",
-            "unified_code": "<string>",
-            "unified_message": "<string>",
-          },
-          "cancellation_reason": "<string>",
-          "order_details": "[{\n        \"product_name\": \"gillete creme\",\n        \"quantity\": 15,\n        \"amount\" : 900\n    }]",
-          "return_url": "https://hyperswitch.io",
-          "statement_descriptor_name": "Hyperswitch Router",
-          "statement_descriptor_suffix": "Payment for shoes purchase",
-          "allowed_payment_method_types": ["ach"],
-          "authorization_count": 123,
-          "modified_at": "2022-09-10T10:11:12Z",
-        },
-        {
-          "id": "12345_pay_01926c58bc6e77c09e809964e72af8c8",
-          "merchant_id": "merchant_1668273825",
-          "profile_id": "<string>",
-          "customer_id": "12345_cus_01926c58bc6e77c09e809964e72af8c8",
-          "payment_method_id": "<string>",
-          "status": "succeeded",
-          "amount": {
-            "order_amount": 6540,
-            "currency": "AED",
-            "shipping_cost": 123,
-            "order_tax_amount": 123,
-            "external_tax_calculation": "skip",
-            "surcharge_calculation": "skip",
-            "surcharge_amount": 123,
-            "tax_on_surcharge": 123,
-            "net_amount": 123,
-            "amount_to_capture": 123,
-            "amount_capturable": 123,
-            "amount_captured": 123,
-          },
-          "created": "2022-09-10T10:11:12Z",
-          "payment_method_type": "card",
-          "payment_method_subtype": "ach",
-          "connector": "adyen",
-          "merchant_connector_id": "<string>",
-          "customer": {
-            "id": "cus_y3oqhf46pyzuxjbcn2giaqnb44",
-            "name": "John Doe",
-            "email": "johntest@test.com",
-            "phone": "9123456789",
-            "phone_country_code": "+1",
-          },
-          "merchant_reference_id": "pay_mbabizu24mvu3mela5njyhpit4",
-          "connector_payment_id": "993672945374576J",
-          "connector_response_reference_id": "<string>",
-          "metadata": "{}",
-          "description": "It's my first payment request",
-          "authentication_type": "three_ds",
-          "capture_method": "automatic",
-          "setup_future_usage": "off_session",
-          "attempt_count": 123,
-          "error": {
-            "code": "<string>",
-            "message": "<string>",
-            "unified_code": "<string>",
-            "unified_message": "<string>",
-          },
-          "cancellation_reason": "<string>",
-          "order_details": "[{\n        \"product_name\": \"gillete creme\",\n        \"quantity\": 15,\n        \"amount\" : 900\n    }]",
-          "return_url": "https://hyperswitch.io",
-          "statement_descriptor_name": "Hyperswitch Router",
-          "statement_descriptor_suffix": "Payment for shoes purchase",
-          "allowed_payment_method_types": ["ach"],
-          "authorization_count": 123,
-          "modified_at": "2022-09-10T10:11:12Z",
-        },
-        {
-          "id": "12345_pay_01926c58bc6e77c09e809964e72af8c8",
-          "merchant_id": "merchant_1668273825",
-          "profile_id": "<string>",
-          "customer_id": "12345_cus_01926c58bc6e77c09e809964e72af8c8",
-          "payment_method_id": "<string>",
-          "status": "succeeded",
-          "amount": {
-            "order_amount": 6540,
-            "currency": "AED",
-            "shipping_cost": 123,
-            "order_tax_amount": 123,
-            "external_tax_calculation": "skip",
-            "surcharge_calculation": "skip",
-            "surcharge_amount": 123,
-            "tax_on_surcharge": 123,
-            "net_amount": 123,
-            "amount_to_capture": 123,
-            "amount_capturable": 123,
-            "amount_captured": 123,
-          },
-          "created": "2022-09-10T10:11:12Z",
-          "payment_method_type": "card",
-          "payment_method_subtype": "ach",
-          "connector": "adyen",
-          "merchant_connector_id": "<string>",
-          "customer": {
-            "id": "cus_y3oqhf46pyzuxjbcn2giaqnb44",
-            "name": "John Doe",
-            "email": "johntest@test.com",
-            "phone": "9123456789",
-            "phone_country_code": "+1",
-          },
-          "merchant_reference_id": "pay_mbabizu24mvu3mela5njyhpit4",
-          "connector_payment_id": "993672945374576J",
-          "connector_response_reference_id": "<string>",
-          "metadata": "{}",
-          "description": "It's my first payment request",
-          "authentication_type": "three_ds",
-          "capture_method": "automatic",
-          "setup_future_usage": "off_session",
-          "attempt_count": 123,
-          "error": {
-            "code": "<string>",
-            "message": "<string>",
-            "unified_code": "<string>",
-            "unified_message": "<string>",
-          },
-          "cancellation_reason": "<string>",
-          "order_details": "[{\n        \"product_name\": \"gillete creme\",\n        \"quantity\": 15,\n        \"amount\" : 900\n    }]",
-          "return_url": "https://hyperswitch.io",
-          "statement_descriptor_name": "Hyperswitch Router",
-          "statement_descriptor_suffix": "Payment for shoes purchase",
-          "allowed_payment_method_types": ["ach"],
-          "authorization_count": 123,
-          "modified_at": "2022-09-10T10:11:12Z",
-        },
-        {
-          "id": "12345_pay_01926c58bc6e77c09e809964e72af8c8",
-          "merchant_id": "merchant_1668273825",
-          "profile_id": "<string>",
-          "customer_id": "12345_cus_01926c58bc6e77c09e809964e72af8c8",
-          "payment_method_id": "<string>",
-          "status": "succeeded",
-          "amount": {
-            "order_amount": 6540,
-            "currency": "AED",
-            "shipping_cost": 123,
-            "order_tax_amount": 123,
-            "external_tax_calculation": "skip",
-            "surcharge_calculation": "skip",
-            "surcharge_amount": 123,
-            "tax_on_surcharge": 123,
-            "net_amount": 123,
-            "amount_to_capture": 123,
-            "amount_capturable": 123,
-            "amount_captured": 123,
-          },
-          "created": "2022-09-10T10:11:12Z",
-          "payment_method_type": "card",
-          "payment_method_subtype": "ach",
-          "connector": "adyen",
-          "merchant_connector_id": "<string>",
-          "customer": {
-            "id": "cus_y3oqhf46pyzuxjbcn2giaqnb44",
-            "name": "John Doe",
-            "email": "johntest@test.com",
-            "phone": "9123456789",
-            "phone_country_code": "+1",
-          },
-          "merchant_reference_id": "pay_mbabizu24mvu3mela5njyhpit4",
-          "connector_payment_id": "993672945374576J",
-          "connector_response_reference_id": "<string>",
-          "metadata": "{}",
-          "description": "It's my first payment request",
-          "authentication_type": "three_ds",
-          "capture_method": "automatic",
-          "setup_future_usage": "off_session",
-          "attempt_count": 123,
-          "error": {
-            "code": "<string>",
-            "message": "<string>",
-            "unified_code": "<string>",
-            "unified_message": "<string>",
-          },
-          "cancellation_reason": "<string>",
-          "order_details": "[{\n        \"product_name\": \"gillete creme\",\n        \"quantity\": 15,\n        \"amount\" : 900\n    }]",
-          "return_url": "https://hyperswitch.io",
-          "statement_descriptor_name": "Hyperswitch Router",
-          "statement_descriptor_suffix": "Payment for shoes purchase",
-          "allowed_payment_method_types": ["ach"],
-          "authorization_count": 123,
-          "modified_at": "2022-09-10T10:11:12Z",
-        },
-        {
-          "id": "12345_pay_01926c58bc6e77c09e809964e72af8c8",
-          "merchant_id": "merchant_1668273825",
-          "profile_id": "<string>",
-          "customer_id": "12345_cus_01926c58bc6e77c09e809964e72af8c8",
-          "payment_method_id": "<string>",
-          "status": "succeeded",
-          "amount": {
-            "order_amount": 6540,
-            "currency": "AED",
-            "shipping_cost": 123,
-            "order_tax_amount": 123,
-            "external_tax_calculation": "skip",
-            "surcharge_calculation": "skip",
-            "surcharge_amount": 123,
-            "tax_on_surcharge": 123,
-            "net_amount": 123,
-            "amount_to_capture": 123,
-            "amount_capturable": 123,
-            "amount_captured": 123,
-          },
-          "created": "2022-09-10T10:11:12Z",
-          "payment_method_type": "card",
-          "payment_method_subtype": "ach",
-          "connector": "adyen",
-          "merchant_connector_id": "<string>",
-          "customer": {
-            "id": "cus_y3oqhf46pyzuxjbcn2giaqnb44",
-            "name": "John Doe",
-            "email": "johntest@test.com",
-            "phone": "9123456789",
-            "phone_country_code": "+1",
-          },
-          "merchant_reference_id": "pay_mbabizu24mvu3mela5njyhpit4",
-          "connector_payment_id": "993672945374576J",
-          "connector_response_reference_id": "<string>",
-          "metadata": "{}",
-          "description": "It's my first payment request",
-          "authentication_type": "three_ds",
-          "capture_method": "automatic",
-          "setup_future_usage": "off_session",
-          "attempt_count": 123,
-          "error": {
-            "code": "<string>",
-            "message": "<string>",
-            "unified_code": "<string>",
-            "unified_message": "<string>",
-          },
-          "cancellation_reason": "<string>",
-          "order_details": "[{\n        \"product_name\": \"gillete creme\",\n        \"quantity\": 15,\n        \"amount\" : 900\n    }]",
-          "return_url": "https://hyperswitch.io",
-          "statement_descriptor_name": "Hyperswitch Router",
-          "statement_descriptor_suffix": "Payment for shoes purchase",
-          "allowed_payment_method_types": ["ach"],
-          "authorization_count": 123,
-          "modified_at": "2022-09-10T10:11:12Z",
-        },
-      ],
-    }->Identity.genericTypeToJson
+        let value = switch value->JSON.Classify.classify {
+        | String(str) => str
+        | Number(num) => num->Float.toString
+        | _ => ""
+        }
+
+        (key, value)
+      })
+      ->Dict.fromArray
+
+    let ordersUrl = getURL(
+      ~entityName=V2(V2_ORDERS_LIST),
+      ~methodType=Get,
+      ~queryParamerters=Some(filter->FilterUtils.parseFilterDict),
+    )
+    let res = await fetchDetails(ordersUrl)
 
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)

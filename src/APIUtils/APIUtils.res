@@ -7,9 +7,10 @@ let getV2Url = (
   ~methodType: Fetch.requestMethod,
   ~id=None,
   ~profileId,
-  ~queryParamerters: option<string>=None,
+  ~queryParameters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
+  let peymantsBaseURL = "v2/payments"
 
   switch entityName {
   | V2_CUSTOMERS_LIST => "/v2/customers/list"
@@ -24,6 +25,23 @@ let getV2Url = (
       switch id {
       | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
       | None => connectorBaseURL
+      }
+    | _ => ""
+    }
+  | V2_ORDERS_LIST =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) =>
+        switch queryParameters {
+        | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
+        | None => `${peymantsBaseURL}/${key_id}`
+        }
+      | None =>
+        switch queryParameters {
+        | Some(queryParams) => `${peymantsBaseURL}/list?${queryParams}`
+        | None => `${peymantsBaseURL}/list?limit=100`
+        }
       }
     | _ => ""
     }
@@ -755,7 +773,13 @@ let useGetURL = () => {
       }
 
     | V2(entityNameForv2) =>
-      getV2Url(~entityName=entityNameForv2, ~id, ~profileId, ~methodType, ~queryParamerters)
+      getV2Url(
+        ~entityName=entityNameForv2,
+        ~id,
+        ~profileId,
+        ~methodType,
+        ~queryParameters=queryParamerters,
+      )
     }
 
     `${Window.env.apiBaseUrl}/${endpoint}`

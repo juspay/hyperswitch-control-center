@@ -56,7 +56,7 @@ type entityName =
   | ANALYTICS_PAYMENTS_V2
   | ANALYTICS_SANKEY
 
-type v2entityNameType = V2_CUSTOMERS_LIST | V2_CONNECTOR
+type v2entityNameType = V2_CUSTOMERS_LIST | V2_CONNECTOR | V2_ORDERS_LIST
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 

@@ -16,7 +16,7 @@ let make = () => {
   let (filters, setFilters) = React.useState(_ => None)
   let (searchText, setSearchText) = React.useState(_ => "")
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
-  let startTime = filterValueJson->getString("start_time", "")
+  let startTime = filterValueJson->getString("created.gte", "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
 
   let handleExtendDateButtonClick = _ => {
@@ -24,8 +24,8 @@ let make = () => {
     let prevStartdate = startDateObj.toDate()->Date.toISOString
     let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
 
-    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
-    updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
+    updateExistingKeys(Dict.fromArray([("created.gte", {extendedStartDate})]))
+    updateExistingKeys(Dict.fromArray([("created.lte", {prevStartdate})]))
   }
 
   let fetchOrders = () => {
@@ -47,8 +47,8 @@ let make = () => {
         let (key, value) = item
         filters->Dict.set(key, value)
       })
-      //to delete unused keys
-      filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
+      // TODO: enable amount filter later
+      filters->Dict.delete("amount_filter")
 
       filters
     | _ => Dict.make()
