@@ -7,15 +7,16 @@ let make = () => {
   open HyperswitchAtom
   let pageViewEvent = MixpanelHook.usePageView()
   let url = RescriptReactRouter.useUrl()
-
   let {
     showFeedbackModal,
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
-    currentProduct,
-    setDefaultProductToSessionStorage,
   } = React.useContext(GlobalProvider.defaultContext)
+
+  let {activeProduct, setDefaultProductToSessionStorage} = React.useContext(
+    ProductSelectionProvider.defaultContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -28,7 +29,7 @@ let make = () => {
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-
+  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {
     userInfo: {orgId, merchantId, profileId, roleId, themeId},
     checkUserEntity,
@@ -43,7 +44,7 @@ let make = () => {
 
   let maintainenceAlert = featureFlagDetails.maintainenceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
-  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~currentProduct)
+  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
   sessionExpired := false
 
   let applyTheme = async () => {
@@ -62,9 +63,11 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
+      let response = await fetchMerchantAccountDetails()
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      setDefaultProductToSessionStorage()
+      setDefaultProductToSessionStorage(response.product_type)
+      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -123,7 +126,7 @@ let make = () => {
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                  <div className="w-full max-w-fixedPageWidth px-12 pt-3">
+                  <div className="w-full max-w-fixedPageWidth md:px-12 px-5 pt-3">
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
@@ -135,7 +138,7 @@ let make = () => {
                       </div>}
                       headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
                       | Some(url) =>
-                        <div className="flex gap-4 items-center">
+                        <div className="flex md:gap-4 gap-2 items-center">
                           <img className="w-40 h-16" alt="image" src={`${url}`} />
                           <ProfileSwitch />
                           <div
@@ -152,7 +155,7 @@ let make = () => {
                           </div>
                         </div>
                       | None =>
-                        <div className="flex gap-4 items-center ">
+                        <div className="flex md:gap-4 gap-2 items-center ">
                           <ProfileSwitch />
                           <div
                             className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
@@ -176,7 +179,7 @@ let make = () => {
                       <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
                     </RenderIf>
                     <div
-                      className="p-6 md:px-12 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
+                      className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
                         /* DEFAULT HOME */
@@ -190,6 +193,9 @@ let make = () => {
 
                         /* VAULT PRODUCT */
                         | list{"v2", "vault", ..._} => <VaultApp />
+
+                        /* ALTERNATE PAYMENT METHODS PRODUCT */
+                        | list{"v2", "alt-payment-methods", ..._} => <AlternatePaymentMethodsApp />
 
                         /* ORCHESTRATOR PRODUCT */
                         | list{"home", ..._}
@@ -322,8 +328,14 @@ let make = () => {
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />
                         | _ =>
-                          RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-                          <MerchantAccountContainer setAppScreenState=setScreenState />
+                          // SPECIAL CASE FOR ORCHESTRATOR
+                          if activeProduct === Orchestrator {
+                            RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
+                            <MerchantAccountContainer setAppScreenState=setScreenState />
+                          } else {
+                            RescriptReactRouter.replace(appendDashboardPath(~url="/v2/home"))
+                            React.null
+                          }
                         }}
                       </ErrorBoundary>
                     </div>

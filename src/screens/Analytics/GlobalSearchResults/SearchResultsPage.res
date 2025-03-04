@@ -98,7 +98,7 @@ let make = () => {
 
   let getSearchResults = async results => {
     try {
-      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
+      let url = getURL(~entityName=V1(GLOBAL_SEARCH), ~methodType=Post)
 
       let body = query->generateQuery
       let response = await fetchDetails(url, body->JSON.Encode.object, Post)

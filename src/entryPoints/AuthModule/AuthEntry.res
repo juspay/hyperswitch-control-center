@@ -11,7 +11,9 @@ let make = () => {
         <AuthWrapper>
           <GlobalProvider>
             <UserInfoProvider>
-              <HyperSwitchApp />
+              <ProductSelectionProvider>
+                <HyperSwitchApp />
+              </ProductSelectionProvider>
             </UserInfoProvider>
           </GlobalProvider>
         </AuthWrapper>

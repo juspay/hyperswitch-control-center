@@ -19,7 +19,6 @@ let getCurrentUTCTime = () => {
 
 let routingTypeMapper = routingType => {
   switch routingType {
-  | "priority" => PRIORITY
   | "volume_split" => VOLUME_SPLIT
   | "advanced" => ADVANCED
   | "default" => DEFAULTFALLBACK
@@ -31,7 +30,6 @@ let routingTypeName = routingType => {
   switch routingType {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
-  | PRIORITY => "rank"
   | DEFAULTFALLBACK => "default"
   | NO_ROUTING => ""
   }
@@ -67,14 +65,6 @@ let getModalObj = (routingType, text) => {
         )
       },
     }
-  | PRIORITY => {
-      conType: "Activate current configured configuration?",
-      conText: {
-        React.string(
-          `If you want to activate the ${text} configuration, the simple configuration, set previously will be lost. Are you sure you want to activate it?`,
-        )
-      },
-    }
   | DEFAULTFALLBACK => {
       conType: "Save the Current Changes ?",
       conText: {
@@ -93,10 +83,6 @@ let getContent = routetype =>
   | DEFAULTFALLBACK => {
       heading: "Default fallback ",
       subHeading: "Fallback is a priority order of all the configured processors which is used to route traffic standalone or when other routing rules are not applicable. You can reorder the list with simple drag and drop",
-    }
-  | PRIORITY => {
-      heading: "Rank Based Configuration",
-      subHeading: "Fallback is activated when the above routing conditions happen to be false.",
     }
   | VOLUME_SPLIT => {
       heading: "Volume Based Configuration",
@@ -276,7 +262,7 @@ let filter = (connector_type, ~retainInList) => {
   }
 }
 
-let filterConnectorList = (items, ~retainInList) => {
+let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, ~retainInList) => {
   open ConnectorTypes
   items->Array.filter(connector =>
     connector.connector_type

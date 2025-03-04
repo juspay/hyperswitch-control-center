@@ -1,12 +1,12 @@
 open SidebarTypes
 
-let vaultHome = {
+let vaultConfiguration = {
   Link({
     name: "Configuration",
-    link: `/v2/vault/home`,
+    link: `/v2/vault/onboarding`,
     icon: "nd-overview",
     access: Access,
-    searchOptions: [("Vault home", ""), ("Vault configuration", "")],
+    searchOptions: [("Vault configuration", "")],
     selectedIcon: "nd-overview-fill",
   })
 }
@@ -21,7 +21,17 @@ let vaultCustomersAndTokens = {
     selectedIcon: "nd-vault-customers-fill",
   })
 }
+let vaultHome = {
+  Link({
+    name: "Home",
+    link: `/v2/vault/home`,
+    icon: "home",
+    access: Access,
+    searchOptions: [("Vault home", "")],
+    selectedIcon: "home",
+  })
+}
 
 let vaultSidebars = {
-  [vaultHome, vaultCustomersAndTokens]
+  [vaultHome, vaultConfiguration, vaultCustomersAndTokens]
 }

@@ -50,7 +50,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
 
   let inviteListOfUsersWithInviteMultiple = async values => {
     let url = getURL(
-      ~entityName=USERS,
+      ~entityName=V1(USERS),
       ~userType=#INVITE_MULTIPLE,
       ~methodType=Post,
       ~queryParamerters=Some(`auth_id=${authId}`),

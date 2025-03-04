@@ -22,22 +22,15 @@ module ListBaseComp = {
             ? "rotate-0"
             : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
-    let subHeadingElem = if subHeading->String.length > 20 {
-      <HelperComponents.EllipsisText
-        displayValue=subHeading endValue=20 showCopy=false customTextStyle={`${secondaryTextColor}`}
-      />
-    } else {
-      {subHeading->React.string}
-    }
-
     <>
       {switch user {
       | #Merchant =>
         <div
           className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
-          <div className="text-left flex gap-2">
-            <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap`}>
-              subHeadingElem
+          <div className="text-left flex gap-2 w-52">
+            <p
+              className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
+              {subHeading->React.string}
             </p>
             {showDropdownArrow
               ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
@@ -47,10 +40,11 @@ module ListBaseComp = {
 
       | #Profile =>
         <div
-          className="flex flex-row cursor-pointer items-center p-3 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
-          <div>
-            <p className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500">
-              subHeadingElem
+          className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
+          <div className="md:max-w-40 max-w-16">
+            <p
+              className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
+              {subHeading->React.string}
             </p>
           </div>
           {showDropdownArrow
@@ -235,7 +229,6 @@ module MerchantDropdownItem = {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
@@ -247,7 +240,7 @@ module MerchantDropdownItem = {
     let (_, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
     let getMerchantList = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
         let response = await fetchDetails(url)
         setMerchantList(_ => response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper))
       } catch {
@@ -280,7 +273,6 @@ module MerchantDropdownItem = {
       try {
         setShowSwitchingMerch(_ => true)
         let _ = await internalSwitch(~expectedMerchantId=Some(value))
-        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
         setShowSwitchingMerch(_ => false)
       } catch {
       | _ => {
@@ -301,7 +293,7 @@ module MerchantDropdownItem = {
             ("merchant_name", newMerchantName->JSON.Encode.string),
           ]->getJsonFromArrayOfJson
         let accountUrl = getURL(
-          ~entityName=MERCHANT_ACCOUNT,
+          ~entityName=V1(MERCHANT_ACCOUNT),
           ~methodType=Post,
           ~id=Some(merchantId),
         )
@@ -366,7 +358,6 @@ module ProfileDropdownItem = {
       setUnderEdit(_ => selectedEditId)
     }
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
@@ -378,7 +369,7 @@ module ProfileDropdownItem = {
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let getProfileList = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
         let response = await fetchDetails(url)
         setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
       } catch {
@@ -410,7 +401,6 @@ module ProfileDropdownItem = {
       try {
         setShowSwitchingProfile(_ => true)
         let _ = await internalSwitch(~expectedProfileId=Some(value))
-        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
         setShowSwitchingProfile(_ => false)
       } catch {
       | _ => {
@@ -426,7 +416,11 @@ module ProfileDropdownItem = {
     let onSubmit = async (newProfileName: string) => {
       try {
         let body = [("profile_name", newProfileName->JSON.Encode.string)]->getJsonFromArrayOfJson
-        let accountUrl = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
+        let accountUrl = getURL(
+          ~entityName=V1(BUSINESS_PROFILE),
+          ~methodType=Post,
+          ~id=Some(profileId),
+        )
         let _ = await updateDetails(accountUrl, body, Post)
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
@@ -577,7 +571,7 @@ module EditOrgName = {
 
     let onSubmit = async (values, _) => {
       try {
-        let url = getURL(~entityName=UPDATE_ORGANIZATION, ~methodType=Put, ~id=Some(orgId))
+        let url = getURL(~entityName=V1(UPDATE_ORGANIZATION), ~methodType=Put, ~id=Some(orgId))
         let _ = await updateDetails(url, values, Put)
         let _ = await getOrgList()
         showToast(~message="Updated organization name!", ~toastType=ToastSuccess)

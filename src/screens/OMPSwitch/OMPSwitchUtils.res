@@ -25,7 +25,7 @@ let orgItemToObjMapper = dict => {
   }
 }
 
-let merchantItemToObjMapper = dict => {
+let merchantItemToObjMapper: Dict.t<'t> => OMPSwitchTypes.ompListTypes = dict => {
   open LogicUtils
   {
     id: dict->getString("merchant_id", ""),
@@ -34,6 +34,7 @@ let merchantItemToObjMapper = dict => {
         ? dict->getString("merchant_id", "")
         : dict->getString("merchant_name", "")
     },
+    productType: dict->getString("product_type", "")->ProductUtils.getVariantFromString,
   }
 }
 

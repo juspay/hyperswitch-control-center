@@ -1,4 +1,4 @@
-type gateway = AdvancedRoutingTypes.volumeSplitConnectorSelectionData
+type gateway = RoutingTypes.volumeSplitConnectorSelectionData
 
 module GatewayView = {
   @react.component
@@ -6,14 +6,14 @@ module GatewayView = {
     let url = RescriptReactRouter.useUrl()
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
 
-    let connectorType = switch url->RoutingUtils.urlToVariantMapper {
-    | PayoutRouting => RoutingTypes.PayoutProcessor
-    | _ => RoutingTypes.PaymentConnector
+    let connectorType: ConnectorTypes.connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
+    | PayoutRouting => ConnectorTypes.PayoutProcessor
+    | _ => ConnectorTypes.PaymentProcessor
     }
-    let connectorList =
-      HyperswitchAtom.connectorListAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+    let connectorList = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV1,
+      ~retainInList=connectorType,
+    )
 
     let getGatewayName = merchantConnectorId => {
       (

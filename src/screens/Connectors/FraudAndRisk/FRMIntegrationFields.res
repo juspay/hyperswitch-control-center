@@ -238,9 +238,9 @@ let make = (
   let updateDetails = useUpdateMethod()
 
   let frmUrl = if frmID->String.length <= 0 {
-    getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post)
+    getURL(~entityName=V1(FRAUD_RISK_MANAGEMENT), ~methodType=Post)
   } else {
-    getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID))
+    getURL(~entityName=V1(FRAUD_RISK_MANAGEMENT), ~methodType=Post, ~id=Some(frmID))
   }
 
   let updateMerchantDetails = async () => {
@@ -256,7 +256,7 @@ let make = (
       ]
       ->Dict.fromArray
       ->JSON.Encode.object
-    let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post)
+    let url = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Post)
     try {
       let _ = await updateDetails(url, body, Post)
     } catch {

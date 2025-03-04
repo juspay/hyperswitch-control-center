@@ -3,14 +3,18 @@ module SelectedCardValues = {
   let make = (~initialValues, ~index, ~pm) => {
     open LogicUtils
     open SectionHelper
-    let data = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+    let data1 = initialValues->getDictFromJsonObject
+    let data = ConnectorInterface.mapDictToConnectorPayload(
+      ConnectorInterface.connectorInterfaceV2,
+      data1,
+    )
     let paymentMethodData =
       data.payment_methods_enabled
-      ->Array.filter(ele => ele.payment_method->String.toLowerCase == pm)
+      ->Array.filter(ele => ele.payment_method_type->String.toLowerCase == pm)
       ->Array.at(0)
 
     let pmtData = switch paymentMethodData {
-    | Some(data) => data.payment_method_types
+    | Some(data) => data.payment_method_subtypes
     | _ => []
     }
 
@@ -27,11 +31,12 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
+  ~formValues: ConnectorTypes.connectorPayloadV2,
 ) => {
   open LogicUtils
   open SectionHelper
-  open AdditionalDetailsSidebar
-  open ConnectorPaymentMethodV3Utils
+  // open AdditionalDetailsSidebar
+  open ConnectorPaymentMethodV2Utils
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
@@ -42,22 +47,26 @@ let make = (
     },
   ]
   let (meteDataInitialValues, connectorWalletsInitialValues) = React.useMemo(() => {
-    let formValues = formState.values->getDictFromJsonObject
     (
-      formValues->getDictfromDict("metadata"),
-      formValues->getDictfromDict("connector_wallets_details"),
+      formValues.metadata->Identity.genericTypeToJson,
+      formValues.connector_webhook_details->Identity.genericTypeToJson,
     )
   }, [])
   //
 
   let form = ReactFinalForm.useForm()
   let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
-  let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
+  let (selectedWallet, setSelectedWallet) = React.useState(_ =>
+    Dict.make()->ConnectorInterfaceUtils.getPaymentMethodTypesV2
+  )
   let (selectedPMTIndex, setSelectedPMTIndex) = React.useState(_ => 0)
 
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let connData =
-    formState.values->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let data = formState.values->getDictFromJsonObject
+  let connData: ConnectorTypes.connectorPayloadV2 = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    data,
+  )
   let availablePM =
     paymentMethodValues
     ->getArrayFromDict(pm, [])
@@ -77,7 +86,7 @@ let make = (
 
   let title = switch pm->getPMFromString {
   | BankDebit => pm->snakeToTitle
-  | Wallet => selectedWallet.payment_method_type->snakeToTitle
+  | Wallet => selectedWallet.payment_method_subtype->snakeToTitle
   | _ => ""
   }
   let resetValues = () => {
@@ -92,17 +101,17 @@ let make = (
   }
   let updateDetails = _val => {
     form.change(
-      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method_types[${selectedPMTIndex->Int.toString}]`,
+      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method_subtypes[${selectedPMTIndex->Int.toString}]`,
       selectedWallet->Identity.genericTypeToJson,
     )
     form.change(
-      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method`,
+      `payment_methods_enabled[${pmIndex->Int.toString}].payment_method_type`,
       "wallet"->Identity.genericTypeToJson,
     )
   }
 
-  let onClick = (pmtData: ConnectorTypes.paymentMethodConfigType, pmtIndex) => {
-    if isMetaDataRequired(pmtData.payment_method_type, connector) {
+  let onClick = (pmtData: ConnectorTypes.paymentMethodConfigTypeV2, pmtIndex) => {
+    if isMetaDataRequired(pmtData.payment_method_subtype, connector) {
       setSelectedWallet(_ => pmtData)
       setSelectedPMTIndex(_ => pmtIndex)
       setShowWalletConfigurationModal(_ => true)
@@ -129,7 +138,7 @@ let make = (
             {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
           </div>
         </RenderIf>
-        <div className="flex gap-8 p-6 flex-wrap">
+        <div className="flex gap-6 p-6 flex-wrap">
           {availablePM
           ->Array.mapWithIndex((pmtData, i) => {
             let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)
@@ -137,16 +146,16 @@ let make = (
             let pmtIndex = switch paymentMethodTypeValues {
             | Some(pmt) => {
                 let isPMTEnabled =
-                  pmt.payment_method_types->Array.findIndex(val =>
-                    val.payment_method_type == pmtData.payment_method_type
+                  pmt.payment_method_subtypes->Array.findIndex(val =>
+                    val.payment_method_subtype == pmtData.payment_method_subtype
                   )
-                isPMTEnabled == -1 ? pmt.payment_method_types->Array.length : isPMTEnabled
+                isPMTEnabled == -1 ? pmt.payment_method_subtypes->Array.length : isPMTEnabled
               }
             | None => 0
             }
 
             let label = switch (
-              pmtData.payment_method_type->getPMTFromString,
+              pmtData.payment_method_subtype->getPMTFromString,
               pm->getPMFromString,
               connector->ConnectorUtils.getConnectorNameTypeFromString,
             ) {
@@ -159,11 +168,11 @@ let make = (
                 ? "Klarna Checkout"
                 : "Klarna SDK"
             | (OpenBankingPIS, _, _) => "Open Banking PIS"
-            | _ => pmtData.payment_method_type->snakeToTitle
+            | _ => pmtData.payment_method_subtype->snakeToTitle
             }
 
             let showCheckbox = switch (
-              pmtData.payment_method_type->getPMTFromString,
+              pmtData.payment_method_subtype->getPMTFromString,
               pm->getPMFromString,
               connector->ConnectorUtils.getConnectorNameTypeFromString,
             ) {
@@ -186,39 +195,40 @@ let make = (
               showCheckbox
               index=i
               onClick={Some(() => onClick(pmtData, pmtIndex))}
+              formValues
             />
           })
           ->React.array}
-          <RenderIf
-            condition={pmtWithMetaData->Array.includes(
-              selectedWallet.payment_method_type->getPMTFromString,
-            )}>
-            <Modal
-              modalHeading
-              headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
-              headBgClass="sticky top-0 z-30 bg-white"
-              showModal={showWalletConfigurationModal}
-              setShowModal={setShowWalletConfigurationModal}
-              onCloseClickCustomFun={resetValues}
-              paddingClass=""
-              revealFrom=Reveal.Right
-              modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-              childClass={""}>
-              <RenderIf condition={showWalletConfigurationModal}>
-                // Need to refactor
-                <AdditionalDetailsSidebarComp
-                  method={selectedWallet}
-                  setMetaData={_ => ()}
-                  setShowWalletConfigurationModal
-                  updateDetails={_val => updateDetails(_val)}
-                  paymentMethodsEnabled=temp
-                  paymentMethod={pm}
-                  onCloseClickCustomFun={resetValues}
-                  setInitialValues={_ => ()}
-                />
-              </RenderIf>
-            </Modal>
-          </RenderIf>
+          // <RenderIf
+          //   condition={pmtWithMetaData->Array.includes(
+          //     selectedWallet.payment_method_subtype->getPMTFromString,
+          //   )}>
+          //   <Modal
+          //     modalHeading
+          //     headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
+          //     headBgClass="sticky top-0 z-30 bg-white"
+          //     showModal={showWalletConfigurationModal}
+          //     setShowModal={setShowWalletConfigurationModal}
+          //     onCloseClickCustomFun={resetValues}
+          //     paddingClass=""
+          //     revealFrom=Reveal.Right
+          //     modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+          //     childClass={""}>
+          //     <RenderIf condition={showWalletConfigurationModal}>
+          //       // Need to refactor
+          //       <AdditionalDetailsSidebarComp
+          //         method={selectedWallet}
+          //         setMetaData={_ => ()}
+          //         setShowWalletConfigurationModal
+          //         updateDetails={_val => updateDetails(_val)}
+          //         paymentMethodsEnabled=temp
+          //         paymentMethod={pm}
+          //         onCloseClickCustomFun={resetValues}
+          //         setInitialValues={_ => ()}
+          //       />
+          //     </RenderIf>
+          //   </Modal>
+          // </RenderIf>
         </div>
       </div>
     } else {

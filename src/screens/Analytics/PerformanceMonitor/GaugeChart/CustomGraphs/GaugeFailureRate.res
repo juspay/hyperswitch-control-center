@@ -17,7 +17,7 @@ let make = (
 
   let fetchExactData = async overallData => {
     try {
-      let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
+      let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some(domain))
 
       let body = PerformanceUtils.requestBody(
         ~dimensions,
@@ -57,7 +57,7 @@ let make = (
 
   let fetchOverallData = async () => {
     try {
-      let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
+      let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some(domain))
 
       let body = PerformanceUtils.requestBody(
         ~dimensions,

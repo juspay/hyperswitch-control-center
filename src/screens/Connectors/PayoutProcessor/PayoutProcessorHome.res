@@ -114,8 +114,10 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
-  let connectorInfo =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"payoutconnectors", "new"} => false
@@ -123,7 +125,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   }
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -177,7 +179,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
       let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))
@@ -262,11 +264,13 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector connectorType={PayoutProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={initialValues
-              ->LogicUtils.getDictFromJsonObject
-              ->ConnectorListMapper.getProcessorPayloadType}
+              connectorInfo={ConnectorInterface.mapDictToConnectorPayload(
+                ConnectorInterface.connectorInterfaceV1,
+                initialValues->LogicUtils.getDictFromJsonObject,
+              )}
               connector
               setCurrentStep
+              updateStepValue={Some(ConnectorTypes.PaymentMethods)}
               getConnectorDetails={Some(getConnectorDetails)}
             />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>

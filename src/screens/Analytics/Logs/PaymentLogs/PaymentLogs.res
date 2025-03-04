@@ -4,11 +4,11 @@ let make = (~paymentId, ~createdAt) => {
   open APIUtils
   let getURL = useGetURL()
   let apiLogsUrl = getURL(
-    ~entityName=API_EVENT_LOGS,
+    ~entityName=V1(API_EVENT_LOGS),
     ~methodType=Get,
     ~queryParamerters=Some(`type=Payment&payment_id=${paymentId}`),
   )
-  let sdkLogsUrl = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId))
+  let sdkLogsUrl = getURL(~entityName=V1(SDK_EVENT_LOGS), ~methodType=Post, ~id=Some(paymentId))
   let startTime = createdAt->Date.fromString->Date.getTime -. 1000. *. 60. *. 5.
   let startTime = startTime->Js.Date.fromFloat->Date.toISOString
   let endTime = createdAt->Date.fromString->Date.getTime +. 1000. *. 60. *. 60. *. 3.
@@ -23,12 +23,12 @@ let make = (~paymentId, ~createdAt) => {
     ),
   ]->LogicUtils.getJsonFromArrayOfJson
   let webhookLogsUrl = getURL(
-    ~entityName=WEBHOOKS_EVENT_LOGS,
+    ~entityName=V1(WEBHOOKS_EVENT_LOGS),
     ~methodType=Get,
     ~queryParamerters=Some(`payment_id=${paymentId}`),
   )
   let connectorLogsUrl = getURL(
-    ~entityName=CONNECTOR_EVENT_LOGS,
+    ~entityName=V1(CONNECTOR_EVENT_LOGS),
     ~methodType=Get,
     ~queryParamerters=Some(`type=Payment&payment_id=${paymentId}`),
   )

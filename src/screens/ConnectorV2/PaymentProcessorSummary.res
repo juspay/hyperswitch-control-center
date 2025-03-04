@@ -29,7 +29,7 @@ let make = () => {
   let getConnectorDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json->removeFieldsFromRespose)
       setScreenState(_ => Success)
@@ -57,8 +57,11 @@ let make = () => {
     }
   }
 
-  let connectorInfodict =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let data = initialValues->getDictFromJsonObject
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    data,
+  )
   let {connector_name: connectorName} = connectorInfodict
 
   let connectorDetails = React.useMemo(() => {
@@ -103,8 +106,9 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
       let dict = values->getDictFromJsonObject
+      dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
       switch currentActiveSection {
       | Some(AuthenticationKeys) => {
           dict->Dict.delete("profile_id")
@@ -113,12 +117,12 @@ let make = () => {
         }
       | _ => {
           dict->Dict.delete("profile_id")
-          dict->Dict.delete("merchant_connector_id")
+          dict->Dict.delete("id")
           dict->Dict.delete("connector_name")
           dict->Dict.delete("connector_account_details")
         }
       }
-      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Post)
+      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put)
       setCurrentActiveSection(_ => None)
       setInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)
@@ -291,7 +295,7 @@ let make = () => {
               }}
             </div>
           </div>
-          <ConnectorPaymentMethodV3 initialValues isInEditState={checkCurrentEditState(PMTs)} />
+          <ConnectorPaymentMethodV2 initialValues isInEditState={checkCurrentEditState(PMTs)} />
         </div>
       </div>
       <FormValuesSpy />
