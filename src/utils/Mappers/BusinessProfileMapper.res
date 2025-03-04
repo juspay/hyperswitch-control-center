@@ -30,6 +30,7 @@ let businessProfileTypeMapper = values => {
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+  let metadataKeyValue = jsonDict->getDictfromDict("metadata")
 
   {
     merchant_id: jsonDict->getString("merchant_id", ""),
@@ -55,6 +56,7 @@ let businessProfileTypeMapper = values => {
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,
+    metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
