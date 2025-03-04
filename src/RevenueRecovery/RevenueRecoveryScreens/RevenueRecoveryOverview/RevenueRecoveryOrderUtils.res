@@ -9,57 +9,6 @@ let getSizeofRes = res => {
 
 let (startTimeFilterKey, endTimeFilterKey) = ("created.gte", "created.lte")
 
-type filterTypes = {
-  connector: array<string>,
-  currency: array<string>,
-  authentication_type: array<string>,
-  payment_method: array<string>,
-  payment_method_type: array<string>,
-  status: array<string>,
-  connector_label: array<string>,
-  card_network: array<string>,
-  card_discovery: array<string>,
-  customer_id: array<string>,
-  amount: array<string>,
-  merchant_order_reference_id: array<string>,
-}
-
-let getAllPaymentMethodType = dict => {
-  open LogicUtils
-  let paymentMethods = dict->getDictfromDict("payment_method")->Dict.keysToArray
-  paymentMethods->Array.reduce([], (acc, item) => {
-    Array.concat(
-      acc,
-      {
-        dict
-        ->getDictfromDict("payment_method")
-        ->getArrayFromDict(item, [])
-        ->getStrArrayFromJsonArray
-      },
-    )
-  })
-}
-
-let itemToObjMapper = dict => {
-  open LogicUtils
-  {
-    connector: dict->getDictfromDict("connector")->Dict.keysToArray,
-    currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
-    authentication_type: dict
-    ->getArrayFromDict("authentication_type", [])
-    ->getStrArrayFromJsonArray,
-    status: dict->getArrayFromDict("status", [])->getStrArrayFromJsonArray,
-    payment_method: dict->getDictfromDict("payment_method")->Dict.keysToArray,
-    payment_method_type: getAllPaymentMethodType(dict),
-    connector_label: [],
-    card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
-    card_discovery: dict->getArrayFromDict("card_discovery", [])->getStrArrayFromJsonArray,
-    customer_id: [],
-    amount: [],
-    merchant_order_reference_id: [],
-  }
-}
-
 type filter = [
   | #connector
   | #payment_method
@@ -92,95 +41,12 @@ let getFilterTypeFromString = filterType => {
   }
 }
 
-let getLabelFromFilterType = (filter: filter) => (filter :> string)
-
-let getConditionalFilter = (key, dict, filterValues) => {
-  open LogicUtils
-
-  let filtersArr = switch key->getFilterTypeFromString {
-  | #connector_label =>
-    filterValues
-    ->getArrayFromDict("connector", [])
-    ->getStrArrayFromJsonArray
-    ->Array.flatMap(connector => {
-      dict
-      ->getDictfromDict("connector")
-      ->getArrayFromDict(connector, [])
-      ->Array.map(item => {
-        item->getDictFromJsonObject->getString("connector_label", "")
-      })
-    })
-  | #payment_method_type =>
-    filterValues
-    ->getArrayFromDict("payment_method", [])
-    ->getStrArrayFromJsonArray
-    ->Array.flatMap(paymentMethod => {
-      dict
-      ->getDictfromDict("payment_method")
-      ->getArrayFromDict(paymentMethod, [])
-      ->getStrArrayFromJsonArray
-      ->Array.map(item => item)
-    })
-  | _ => []
-  }
-
-  filtersArr
-}
-
-let getOptionsForOrderFilters = (dict, filterValues) => {
-  open LogicUtils
-  filterValues
-  ->getArrayFromDict("connector", [])
-  ->getStrArrayFromJsonArray
-  ->Array.flatMap(connector => {
-    let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
-    connectorLabelArr->Array.map(item => {
-      let label = item->getDictFromJsonObject->getString("connector_label", "")
-      let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
-      let option: FilterSelectBox.dropdownOption = {
-        label: label->LogicUtils.snakeToTitle,
-        value,
-      }
-      option
-    })
-  })
-}
-
-let getValueFromFilterType = (filter: filter) => {
-  switch filter {
-  | #connector_label => "merchant_connector_id"
-  | _ => (filter :> string)
-  }
-}
-
-let filterByData = (txnArr, value) => {
-  open LogicUtils
-  let searchText = value->getStringFromJson("")
-
-  txnArr
-  ->Belt.Array.keepMap(Nullable.toOption)
-  ->Belt.Array.keepMap(data => {
-    let valueArr =
-      data
-      ->Identity.genericTypeToDictOfJson
-      ->Dict.toArray
-      ->Array.map(item => {
-        let (_, value) = item
-
-        value->getStringFromJson("")->String.toLowerCase->String.includes(searchText)
-      })
-      ->Array.reduce(false, (acc, item) => item || acc)
-
-    valueArr ? Some(data->Nullable.make) : None
-  })
-}
-
 let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys) => {
   open LogicUtils
 
   let filterDict = json->getDictFromJsonObject
 
-  let filterData = filterDict->itemToObjMapper
+  let filterData = filterDict->OrderUIUtils.itemToObjMapper
   let filtersArray = filterDict->Dict.keysToArray
   let onDeleteClick = name => {
     [name]->removeKeys
@@ -189,12 +55,12 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
-    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
+    filtersArray->Array.push(#connector_label->OrderUIUtils.getLabelFromFilterType)
   }
 
   let additionalFilters =
     [#payment_method_type, #customer_id, #merchant_order_reference_id]->Array.map(
-      getLabelFromFilterType,
+      OrderUIUtils.getLabelFromFilterType,
     )
 
   let allFiltersArray = filtersArray->Array.concat(additionalFilters)
@@ -207,10 +73,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     | #authentication_type => filterData.authentication_type
     | #status => filterData.status
     | #payment_method_type =>
-      getConditionalFilter(key, filterDict, filtervalues)->Array.length > 0
-        ? getConditionalFilter(key, filterDict, filtervalues)
+      OrderUIUtils.getConditionalFilter(key, filterDict, filtervalues)->Array.length > 0
+        ? OrderUIUtils.getConditionalFilter(key, filterDict, filtervalues)
         : filterData.payment_method_type
-    | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    | #connector_label => OrderUIUtils.getConditionalFilter(key, filterDict, filtervalues)
     | #card_network => filterData.card_network
     | #card_discovery => filterData.card_discovery
     | _ => []
@@ -226,7 +92,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     }
 
     let options = switch key->getFilterTypeFromString {
-    | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
+    | #connector_label => OrderUIUtils.getOptionsForOrderFilters(filterDict, filtervalues)
     | _ => values->makeOptions
     }
 
@@ -259,49 +125,13 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     {
       field: FormRenderer.makeFieldInfo(
         ~label=key,
-        ~name=getValueFromFilterType(key->getFilterTypeFromString),
+        ~name=OrderUIUtils.getValueFromFilterType(key->getFilterTypeFromString),
         ~customInput,
       ),
-      localFilter: Some(filterByData),
+      localFilter: Some(OrderUIUtils.filterByData),
     }
   })
 }
-
-let initialFixedFilter = () => [
-  (
-    {
-      localFilter: None,
-      field: FormRenderer.makeMultiInputFieldInfo(
-        ~label="",
-        ~comboCustomInput=InputFields.filterDateRangeField(
-          ~startKey=startTimeFilterKey,
-          ~endKey=endTimeFilterKey,
-          ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-          ~showTime=false,
-          ~disablePastDates={false},
-          ~disableFutureDates={true},
-          ~predefinedDays=[
-            Hour(0.5),
-            Hour(1.0),
-            Hour(2.0),
-            Today,
-            Yesterday,
-            Day(2.0),
-            Day(7.0),
-            Day(30.0),
-            ThisMonth,
-            LastMonth,
-          ],
-          ~numMonths=2,
-          ~disableApply=false,
-          ~dateRangeLimit=180,
-        ),
-        ~inputFields=[],
-        ~isRequired=false,
-      ),
-    }: EntityType.initialFilters<'t>
-  ),
-]
 
 let initialFixedFilter = () => [
   (
