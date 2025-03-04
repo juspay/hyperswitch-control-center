@@ -388,6 +388,7 @@ let validationFieldsMapper = key => {
 }
 
 let checkValueChange = (~initialDict, ~valuesDict) => {
+  open LogicUtils
   let initialKeys = Dict.keysToArray(initialDict)
   let updatedKeys = Dict.keysToArray(valuesDict)
   let key =
@@ -403,28 +404,28 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
       | "outgoing_webhook_custom_http_headers" => {
           let initialDictLength =
             initialDict
-            ->LogicUtils.getDictfromDict("outgoing_webhook_custom_http_headers")
+            ->getDictfromDict("outgoing_webhook_custom_http_headers")
             ->Dict.keysToArray
           let updatedDictLength =
             valuesDict
-            ->LogicUtils.getDictfromDict("outgoing_webhook_custom_http_headers")
+            ->getDictfromDict("outgoing_webhook_custom_http_headers")
             ->Dict.keysToArray
           initialDictLength != updatedDictLength
         }
       | "metadata" => {
           let initialDictLength =
             initialDict
-            ->LogicUtils.getDictfromDict("metadata")
+            ->getDictfromDict("metadata")
             ->Dict.keysToArray
           let updatedDictLength =
             valuesDict
-            ->LogicUtils.getDictfromDict("metadata")
+            ->getDictfromDict("metadata")
             ->Dict.keysToArray
           initialDictLength != updatedDictLength
         }
       | _ => {
-          let initialValue = initialDict->LogicUtils.getString(key, "")
-          let updatedValue = valuesDict->LogicUtils.getString(key, "")
+          let initialValue = initialDict->getString(key, "")
+          let updatedValue = valuesDict->getString(key, "")
           initialValue !== updatedValue
         }
       }
