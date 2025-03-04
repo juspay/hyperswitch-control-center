@@ -1,7 +1,7 @@
 module PMT = {
   @react.component
   let make = (
-    ~pmtData: ConnectorTypes.paymentMethodConfigType,
+    ~pmtData: ConnectorTypes.paymentMethodConfigTypeV2,
     ~pm,
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
     ~connector,
@@ -24,28 +24,28 @@ module PMT = {
     ).payment_method_subtypes
     let pmtValue = pmtArrayValue->Array.find(val => {
       if (
-        pmtData.payment_method_type->getPMTFromString == Credit ||
-          pmtData.payment_method_type->getPMTFromString == Debit
+        pmtData.payment_method_subtype->getPMTFromString == Credit ||
+          pmtData.payment_method_subtype->getPMTFromString == Debit
       ) {
-        val.payment_method_type == pmtData.payment_method_type &&
+        val.payment_method_subtype == pmtData.payment_method_subtype &&
           val.card_networks->Array.get(0)->Option.getOr("") ==
             pmtData.card_networks->Array.get(0)->Option.getOr("")
       } else {
-        val.payment_method_type == pmtData.payment_method_type
+        val.payment_method_subtype == pmtData.payment_method_subtype
       }
     })
 
     let removeMethods = () => {
       let updatedPmtArray = pmtArrayValue->Array.filter(ele =>
         if (
-          pmtData.payment_method_type->getPMTFromString == Credit ||
-            pmtData.payment_method_type->getPMTFromString == Debit
+          pmtData.payment_method_subtype->getPMTFromString == Credit ||
+            pmtData.payment_method_subtype->getPMTFromString == Debit
         ) {
-          ele.payment_method_type != pmtData.payment_method_type ||
+          ele.payment_method_subtype != pmtData.payment_method_subtype ||
             ele.card_networks->Array.get(0)->Option.getOr("") !=
               pmtData.card_networks->Array.get(0)->Option.getOr("")
         } else {
-          ele.payment_method_type != pmtData.payment_method_type
+          ele.payment_method_subtype != pmtData.payment_method_subtype
         }
       )
       if updatedPmtArray->Array.length == 0 {
@@ -64,7 +64,7 @@ module PMT = {
     let update = isSelected => {
       if !isSelected {
         removeMethods()
-      } else if !isMetaDataRequired(pmtData.payment_method_type, connector) {
+      } else if !isMetaDataRequired(pmtData.payment_method_subtype, connector) {
         pmInp.onChange(pm->Identity.anyTypeToReactEvent)
         pmtInp.onChange(pmtData->Identity.anyTypeToReactEvent)
       }
