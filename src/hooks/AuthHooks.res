@@ -1,4 +1,6 @@
 type contentType = Headers(string) | Unknown
+type headerType = V1Headers | V2Headers
+
 let headersForXFeature = (~uri, ~headers) => {
   if (
     uri->String.includes("lottie-files") ||
@@ -19,6 +21,7 @@ let getHeaders = (
   ~token,
   ~merchantId,
   ~profileId,
+  ~headerType,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
 
@@ -28,12 +31,12 @@ let getHeaders = (
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    switch token {
-    | Some(str) => {
-        headers->Dict.set("authorization", `Bearer ${str}`)
-        headers->Dict.set("api-key", `hyperswitch`)
-      }
-    | None => ()
+    //snd_Nrhf0igyQfDuXVR9ez1nPKiqVZeJ7d6jaJc4sGjuxodp8wkCf3ijS8KFSPJM71hW
+    switch (token, headerType) {
+    | (Some(str), V1Headers) => headers->Dict.set("authorization", `Bearer ${str}`)
+    | (Some(str), V2Headers) => headers->Dict.set("authorization", `jwt=Bearer ${str}`)
+    // headers->Dict.set("api-key", `hyperswitch`)
+    | _ => ()
     }
     switch contentType {
     | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
@@ -74,6 +77,7 @@ let useApiFetcher = () => {
       ~forceCookies,
       ~merchantId="",
       ~profileId="",
+      ~headerType=V1Headers,
     ) => {
       let token = {
         switch authStatus {
@@ -115,6 +119,7 @@ let useApiFetcher = () => {
               ~xFeatureRoute,
               ~merchantId,
               ~profileId,
+              ~headerType,
             ),
           ),
         )

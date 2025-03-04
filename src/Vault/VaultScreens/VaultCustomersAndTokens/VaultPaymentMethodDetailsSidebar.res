@@ -169,66 +169,20 @@ let make = (~paymentId, ~setShowModal) => {
   open APIUtils
   open VaultPaymentMethodDetailsTypes
   let getURL = useGetURL()
-  let _fetchDetails = useGetMethod()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (paymentsDetailsData, setPaymentsDetailsData) = React.useState(() => JSON.Encode.null)
 
   let fetchPaymentMethodDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let _url = getURL(
-        ~entityName=V1(PAYMENT_METHODS_DETAILS),
+      let url = getURL(
+        ~entityName=V2(RETRIEVE_PAYMENT_METHOD),
         ~methodType=Get,
         ~id=Some(paymentId),
       )
-      // let _response = await fetchDetails(url)
+      let response = await fetchDetails(url, ~headerType=V2Headers)
 
-      //** TODO: replace DUMMY DATA with api response*/
-      let networkTokenData: VaultPaymentMethodDetailsTypes.network_tokens = {
-        enabled: false,
-        status: "ENABLED",
-        token: "token_uyrxuasytdfibausgf",
-        created: "",
-      }
-      let networkTokenData = Array.make(~length=5, networkTokenData)
-      let pspTokensData: VaultPaymentMethodDetailsTypes.psp_tokens = {
-        mca_id: "mca_12345678",
-        connector: "Stripe",
-        status: "ENABLED",
-        tokentype: "Single-use",
-        token: "token_gicksudfgoieu",
-        created: "",
-      }
-      let pspTokensData = Array.make(~length=5, pspTokensData)
-
-      let response = {
-        merchant: "merchant",
-        customer_id: Some("custid_12345678"),
-        payment_method_id: "payid_2345678",
-        payment_method_type: Some("card"),
-        payment_method: "credit",
-        card: {
-          card_holder_name: "git",
-          card_type: "visa",
-          card_network: "stripe",
-          last_four_digits: "1234",
-          card_expiry_month: "04",
-          card_expiry_year: "2040",
-          card_issuer: "stripe",
-          card_issuing_country: "usa",
-          card_is_in: "",
-          card_extended_bin: "",
-          payment_checks: "",
-          authentication_data: "",
-        },
-        recurring_enabled: true,
-        tokenization_type: JSON.Encode.string(""),
-        psp_tokensization: {psp_token: pspTokensData},
-        network_tokensization: {network_token: networkTokenData},
-        created: "",
-        last_used_at: "",
-        network_transaction_id: "network_transac_id",
-      }->Identity.genericTypeToJson
       setPaymentsDetailsData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -242,12 +196,31 @@ let make = (~paymentId, ~setShowModal) => {
   }, [])
 
   let cardDetails = (paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper).card
-  let networkData = (
-    paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
-  ).network_tokensization.network_token
-  let pspData = (
-    paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
-  ).psp_tokensization.psp_token
+  // let networkData = (
+  //   paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
+  // ).network_tokensization.network_token
+
+  // let pspData = (
+  //   paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
+  // ).psp_tokensization.psp_token
+
+  //** TODO: replace DUMMY DATA with api response*/
+  let networkTokenData: VaultPaymentMethodDetailsTypes.network_tokens = {
+    enabled: false,
+    status: "ENABLED",
+    token: "token_uyrxuasytdfibausgf",
+    created: "",
+  }
+  let networkTokenData = Array.make(~length=5, networkTokenData)
+  let pspTokensData: VaultPaymentMethodDetailsTypes.psp_tokens = {
+    mca_id: "mca_12345678",
+    connector: "Stripe",
+    status: "ENABLED",
+    tokentype: "Single-use",
+    token: "token_gicksudfgoieu",
+    created: "",
+  }
+  let pspTokensData = Array.make(~length=5, pspTokensData)
 
   <PageLoaderWrapper screenState>
     <div className="bg-white height-screen">
@@ -263,8 +236,8 @@ let make = (~paymentId, ~setShowModal) => {
       <hr />
       <div className="px-8 pb-20">
         <PaymentMethodDetails data={cardDetails} />
-        <NetworkTokens data={networkData} />
-        <PSPTokens data={pspData} />
+        <NetworkTokens data={networkTokenData} />
+        <PSPTokens data={pspTokensData} />
       </div>
     </div>
   </PageLoaderWrapper>

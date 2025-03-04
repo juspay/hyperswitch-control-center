@@ -12,7 +12,12 @@ let getV2Url = (
   let connectorBaseURL = "v2/connector-accounts"
 
   switch entityName {
-  | V2_CUSTOMERS_LIST => "/v2/customers/list"
+  | CUSTOMERS =>
+    switch (methodType, id) {
+    | (Get, None) => "v2/customers/list"
+    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | _ => ""
+    }
   | V2_CONNECTOR =>
     switch methodType {
     | Get =>
@@ -26,6 +31,16 @@ let getV2Url = (
       | None => connectorBaseURL
       }
     | _ => ""
+    }
+  | PAYMENT_METHOD_LIST =>
+    switch id {
+    | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
+    | None => ""
+    }
+  | RETRIEVE_PAYMENT_METHOD =>
+    switch id {
+    | Some(paymentMethodId) => `/v2/payment-methods/${paymentMethodId}`
+    | None => ""
     }
   }
 }
@@ -942,7 +957,7 @@ let useGetMethod = (~showErrorToast=true) => {
     })
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async url => {
+  async (url, ~headerType=AuthHooks.V1Headers) => {
     try {
       let res = await fetchApi(
         url,
@@ -951,6 +966,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
+        ~headerType,
       )
       await responseHandler(
         ~url,
@@ -1003,6 +1019,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~bodyFormData=?,
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
+    ~headerType=AuthHooks.V1Headers,
   ) => {
     try {
       let res = await fetchApi(
@@ -1016,6 +1033,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
+        ~headerType,
       )
       await responseHandler(
         ~url,

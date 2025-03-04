@@ -19,12 +19,12 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let customersUrl = getURL(
-        ~entityName=V1(CUSTOMERS),
+        ~entityName=V2(CUSTOMERS),
         ~methodType=Get,
         ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
       )
 
-      let response = await fetchDetails(customersUrl)
+      let response = await fetchDetails(customersUrl, ~headerType=V2Headers)
       let data = response->JSON.Decode.array->Option.getOr([])
 
       let arr = Array.make(~length=offset, Dict.make())
