@@ -27,6 +27,7 @@ module SDKConfiguarationFields = {
         ~buttonText="Select Profile",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,
+        ~textStyle="w-56 truncate",
       ),
     )
     let selectCurrencyField = FormRenderer.makeFieldInfo(
