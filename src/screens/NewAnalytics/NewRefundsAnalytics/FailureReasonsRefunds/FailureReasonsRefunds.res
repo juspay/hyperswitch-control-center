@@ -65,7 +65,7 @@ let make = (~entity: moduleEntity) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_REFUNDS,
+        ~entityName=V1(ANALYTICS_REFUNDS),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )

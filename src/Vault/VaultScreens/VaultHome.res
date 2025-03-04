@@ -1,8 +1,9 @@
 @react.component
 let make = () => {
   open PageUtils
-  open VaultHomeUtils
-  <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
+  let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+
+  <div className="flex flex-1 flex-col w-full gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
     <div className="flex flex-col gap-8 items-center">
       <div
@@ -19,21 +20,12 @@ let make = () => {
       <Button
         text="Get Started"
         onClick={_ => {
-          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/vault/onboarding"))
+          setCreateNewMerchant(ProductTypes.Vault)
         }}
         buttonType=Primary
         buttonSize=Large
         buttonState=Normal
       />
-    </div>
-    <div className="flex gap-4 max-w-800">
-      {vaultActionArray
-      ->Array.map(item =>
-        <VaultActionItem
-          heading=item.heading description=item.description img=item.imgSrc action=item.action
-        />
-      )
-      ->React.array}
     </div>
   </div>
 }

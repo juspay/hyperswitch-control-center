@@ -134,7 +134,7 @@ let make = (
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let showToast = ToastState.useShowToast()
-
+  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let localOptions =
     Array.concat(options, popupFilterFields)->Array.filter(item => item.localFilter->Option.isSome)
   let remoteOptions =
@@ -244,6 +244,8 @@ let make = (
       ~method_=method,
       ~xFeatureRoute,
       ~forceCookies,
+      ~merchantId,
+      ~profileId,
     )
     ->then(resp => {
       let status = resp->Fetch.Response.status

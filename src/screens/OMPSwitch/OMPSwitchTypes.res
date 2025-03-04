@@ -1,4 +1,5 @@
-type ompListTypes = {id: string, name: string}
+// TODO: remove productType optional
+type ompListTypes = {id: string, name: string, productType?: ProductTypes.productTypes}
 type ompListTypesCustom = {...ompListTypes, customComponent: React.element}
 
 type opmView = {

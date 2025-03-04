@@ -3,23 +3,27 @@ module SelectedCardValues = {
   let make = (~initialValues, ~index) => {
     open LogicUtils
     open SectionHelper
-    open ConnectorPaymentMethodV3Utils
-    let data = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+    open ConnectorPaymentMethodV2Utils
+    let data1 = initialValues->getDictFromJsonObject
+    let data = ConnectorInterface.mapDictToConnectorPayload(
+      ConnectorInterface.connectorInterfaceV2,
+      data1,
+    )
     let cardData =
       data.payment_methods_enabled
-      ->Array.filter(ele => ele.payment_method->getPMFromString == Card)
+      ->Array.filter(ele => ele.payment_method_type->getPMFromString == Card)
       ->Array.at(0)
     let credit = switch cardData {
     | Some(data) =>
-      data.payment_method_types->Array.filter(ele =>
-        ele.payment_method_type->getPMTFromString == Credit
+      data.payment_method_subtypes->Array.filter(ele =>
+        ele.payment_method_subtype->getPMTFromString == Credit
       )
     | _ => []
     }
     let debit = switch cardData {
     | Some(data) =>
-      data.payment_method_types->Array.filter(ele =>
-        ele.payment_method_type->getPMTFromString == Debit
+      data.payment_method_subtypes->Array.filter(ele =>
+        ele.payment_method_subtype->getPMTFromString == Debit
       )
     | _ => []
     }
@@ -39,24 +43,19 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
+  ~formValues: ConnectorTypes.connectorPayloadV2,
 ) => {
   open LogicUtils
   open SectionHelper
-  open ConnectorPaymentMethodV3Utils
-
-  let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-  )
-  let connData =
-    formState.values->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  open ConnectorPaymentMethodV2Utils
 
   let data =
     paymentMethodValues
     ->getArrayFromDict("card", [])
     ->getPaymentMethodMapper(connector, pm)
-  let credit = data->Array.filter(ele => ele.payment_method_type->getPMTFromString == Credit)
-  let debit = data->Array.filter(ele => ele.payment_method_type->getPMTFromString == Debit)
-  let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)
+  let credit = data->Array.filter(ele => ele.payment_method_subtype->getPMTFromString == Credit)
+  let debit = data->Array.filter(ele => ele.payment_method_subtype->getPMTFromString == Debit)
+  let paymentMethodTypeValues = formValues.payment_methods_enabled->Array.get(pmIndex)
 
   {
     if isInEditState {
@@ -71,8 +70,8 @@ let make = (
               // determine the index of the payment method type from the form state
               let pmtIndex = switch paymentMethodTypeValues {
               | Some(pmt) => {
-                  let isPMTEnabled = pmt.payment_method_types->Array.findIndex(val => {
-                    if val.payment_method_type->getPMTFromString == Credit {
+                  let isPMTEnabled = pmt.payment_method_subtypes->Array.findIndex(val => {
+                    if val.payment_method_subtype->getPMTFromString == Credit {
                       val.card_networks->Array.some(
                         networks => {
                           pmtData.card_networks->Array.includes(networks)
@@ -82,7 +81,7 @@ let make = (
                       false
                     }
                   })
-                  isPMTEnabled == -1 ? pmt.payment_method_types->Array.length : isPMTEnabled
+                  isPMTEnabled == -1 ? pmt.payment_method_subtypes->Array.length : isPMTEnabled
                 }
               | None => 0
               }
@@ -94,6 +93,7 @@ let make = (
                 connector
                 index=i
                 label={pmtData.card_networks->Array.joinWith(",")}
+                formValues
               />
             })
             ->React.array}
@@ -111,8 +111,8 @@ let make = (
               // determine the index of the payment method type from the form state
               let pmtIndex = switch paymentMethodTypeValues {
               | Some(pmt) => {
-                  let isPMTEnabled = pmt.payment_method_types->Array.findIndex(val => {
-                    if val.payment_method_type->getPMTFromString == Debit {
+                  let isPMTEnabled = pmt.payment_method_subtypes->Array.findIndex(val => {
+                    if val.payment_method_subtype->getPMTFromString == Debit {
                       val.card_networks->Array.some(
                         networks => {
                           pmtData.card_networks->Array.includes(networks)
@@ -122,7 +122,7 @@ let make = (
                       false
                     }
                   })
-                  isPMTEnabled == -1 ? pmt.payment_method_types->Array.length : isPMTEnabled
+                  isPMTEnabled == -1 ? pmt.payment_method_subtypes->Array.length : isPMTEnabled
                 }
               | None => 0
               }
@@ -135,6 +135,7 @@ let make = (
                 connector
                 index=i
                 label={pmtData.card_networks->Array.joinWith(",")}
+                formValues
               />
             })
             ->React.array}

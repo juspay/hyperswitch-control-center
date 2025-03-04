@@ -30,7 +30,7 @@ module OrgTile = {
 
     let getOrgList = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
         let response = await fetchDetails(url)
         let orgData = response->getArrayDataFromJson(OMPSwitchUtils.orgItemToObjMapper)
         orgData->Array.sort(sortByOrgName)
@@ -46,7 +46,7 @@ module OrgTile = {
     let onSubmit = async (newOrgName: string) => {
       try {
         let values = {"organization_name": newOrgName}->Identity.genericTypeToJson
-        let url = getURL(~entityName=UPDATE_ORGANIZATION, ~methodType=Put, ~id=Some(orgID))
+        let url = getURL(~entityName=V1(UPDATE_ORGANIZATION), ~methodType=Put, ~id=Some(orgID))
         let _ = await updateDetails(url, values, Put)
         let _ = await getOrgList()
 
@@ -154,7 +154,7 @@ module NewOrgCreationModal = {
     let showToast = ToastState.useShowToast()
     let createNewOrg = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_ORG, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_ORG, ~methodType=Post)
         let _ = await updateDetails(url, values, Post)
         getOrgList()->ignore
         showToast(~toastType=ToastSuccess, ~message="Org Created Successfully!", ~autoClose=true)
@@ -284,7 +284,6 @@ let make = () => {
   open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let url = RescriptReactRouter.useUrl()
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let (showEditOrgModal, setShowEditOrgModal) = React.useState(_ => false)
@@ -304,7 +303,7 @@ let make = () => {
   } = React.useContext(ThemeProvider.themeContext)
   let getOrgList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
       orgData->Array.sort(sortByOrgName)
@@ -325,7 +324,6 @@ let make = () => {
     try {
       setShowSwitchingOrg(_ => true)
       let _ = await internalSwitch(~expectedOrgId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {

@@ -111,10 +111,8 @@ let connectorList: array<connectorTypes> = [
 ]
 
 let connectorListForLive: array<connectorTypes> = [
-  Processors(STRIPE),
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
-  Processors(PAYPAL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -123,18 +121,22 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CRYPTOPAY),
   Processors(CASHTOCODE),
   Processors(CYBERSOURCE),
+  Processors(COINGATE),
+  Processors(DATATRANS),
   Processors(FIUU),
   Processors(IATAPAY),
   Processors(KLARNA),
   Processors(MIFINITY),
   Processors(NMI),
   Processors(NOVALNET),
+  Processors(PAYPAL),
+  Processors(PAYBOX),
   Processors(PAYME),
+  Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
   Processors(ZSL),
   Processors(ZEN),
-  Processors(PAYBOX),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
@@ -1657,39 +1659,6 @@ let getConnectorPaymentMethodDetails = async (
   }
 }
 
-let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
-  items->Array.filter(dict => {
-    let connectorType = dict.connector_type
-    let isPayoutProcessor = connectorType == PayoutProcessor
-    let isThreeDsAuthenticator = connectorType == AuthenticationProcessor
-    let isPMAuthenticationProcessor = connectorType == PMAuthProcessor
-    let isTaxProcessor = connectorType == TaxProcessor
-    let isConnector =
-      connectorType !== PaymentVas &&
-      !isPayoutProcessor &&
-      !isThreeDsAuthenticator &&
-      !isPMAuthenticationProcessor &&
-      !isTaxProcessor
-
-    switch removeFromList {
-    | Processor => !isConnector
-    | FRMPlayer => isConnector
-    | PayoutProcessor => isPayoutProcessor
-    | ThreeDsAuthenticator => isThreeDsAuthenticator
-    | PMAuthenticationProcessor => isPMAuthenticationProcessor
-    | TaxProcessor => isTaxProcessor
-    | BillingProcessor => connectorType == BillingProcessor
-    }
-  })
-}
-
-let getProcessorsListFromJson = (
-  connnectorList: array<ConnectorTypes.connectorPayload>,
-  ~removeFromList: connector=FRMPlayer,
-) => {
-  connnectorList->filterList(~removeFromList)
-}
-
 let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
   | ADYEN => "Adyen"
@@ -1824,14 +1793,6 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   }
 }
 
-let getConnectorTypeArrayFromListConnectors = (
-  ~connectorType=ConnectorTypes.Processor,
-  connectorsList: array<ConnectorTypes.connectorPayload>,
-) => {
-  connectorsList->Array.map(connectorDetail =>
-    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType)
-  )
-}
 // Need to remove connector and merge connector and connectorTypeVariants
 let connectorTypeTuple = connectorType => {
   switch connectorType {

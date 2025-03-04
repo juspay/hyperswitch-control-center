@@ -76,6 +76,7 @@ type merchantPayload = {
   redirect_to_merchant_with_http_post: bool,
   sub_merchants_enabled: bool,
   recon_status: reconStatus,
+  product_type: ProductTypes.productTypes,
 }
 
 type colType =
@@ -158,6 +159,7 @@ type profileEntity = {
   outgoing_webhook_custom_http_headers: option<Dict.t<JSON.t>>,
   is_auto_retries_enabled: option<bool>,
   max_auto_retries_enabled: option<int>,
+  metadata: option<Dict.t<JSON.t>>,
 }
 
 type twoFaType = RecoveryCode | Totp
