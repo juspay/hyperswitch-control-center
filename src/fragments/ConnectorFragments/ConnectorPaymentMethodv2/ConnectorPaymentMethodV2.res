@@ -55,7 +55,7 @@ let make = (~initialValues, ~isInEditState) => {
                 available => {
                   // explicit check for card (for card we need to check the card network rather than the payment method type)
                   if (
-                    available.payment_method_type == key &&
+                    available.payment_method_subtype == key &&
                       available.card_networks->getValueFromArray(0, "") == paymemtMethodType
                   ) {
                     true
@@ -63,16 +63,16 @@ let make = (~initialValues, ~isInEditState) => {
                   else if (
                     connector->ConnectorUtils.getConnectorNameTypeFromString ==
                       Processors(KLARNA) &&
-                      available.payment_method_type->getPMTFromString == Klarna
+                      available.payment_method_subtype->getPMTFromString == Klarna
                   ) {
                     switch available.payment_experience {
                     | Some(str) => str == paymemtMethodExperience
                     | None => false
                     }
                   } else if (
-                    available.payment_method_type == paymemtMethodType &&
-                    available.payment_method_type->getPMTFromString != Credit &&
-                    available.payment_method_type->getPMTFromString != Debit
+                    available.payment_method_subtype == paymemtMethodType &&
+                    available.payment_method_subtype->getPMTFromString != Credit &&
+                    available.payment_method_subtype->getPMTFromString != Debit
                   ) {
                     true
                   } else {

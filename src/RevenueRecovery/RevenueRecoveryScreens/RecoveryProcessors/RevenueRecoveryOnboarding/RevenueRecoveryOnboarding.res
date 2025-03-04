@@ -1,53 +1,78 @@
 @react.component
 let make = () => {
   open RevenueRecoveryOnboardingUtils
-  open VerticalStepIndicatorTypes
-  open VerticalStepIndicatorUtils
-  open RevenueRecoveryOnboardingTypes
+  open LogicUtils
 
-  let (currentStep, setNextStep) = React.useState(() => {
-    sectionId: (#connectProcessor: revenueRecoverySections :> string),
-    subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
-  })
+  let (currentStep, setNextStep) = React.useState(() => defaultStep)
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
 
-  let getNextStep = (currentStep: step): option<step> => {
-    findNextStep(sections, currentStep)
-  }
+  let {profileId, merchantId} = getUserInfoData()
+  let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
-  let getPreviousStep = (currentStep: step): option<step> => {
-    findPreviousStep(sections, currentStep)
-  }
+  let activeBusinessProfile = getNameForId(#Profile)
 
-  let onNextClick = () => {
-    switch getNextStep(currentStep) {
-    | Some(nextStep) => setNextStep(_ => nextStep)
-    | None => ()
+  let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => "")
+  let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => "")
+  let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
+
+  React.useEffect(() => {
+    if paymentConnectorName->isNonEmptyString {
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${paymentConnectorName}`),
+      )
     }
-  }
 
-  let onPreviousClick = () => {
-    switch getPreviousStep(currentStep) {
-    | Some(previousStep) => setNextStep(_ => previousStep)
-    | None => ()
+    if billingConnectorName->isNonEmptyString {
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${billingConnectorName}`),
+      )
     }
-  }
 
-  let backClick = () => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
-  }
+    None
+  }, [paymentConnectorName, billingConnectorName])
+
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+
+    (
+      () => {
+        setShowSideBar(_ => true)
+      }
+    )->Some
+  }, [])
 
   <div className="flex flex-row">
     <VerticalStepIndicator
-      titleElement={<h1 className="text-medium font-semibold text-gray-600">
-        {"Setup Recovery"->React.string}
-      </h1>}
+      titleElement={"Setup Recovery"->React.string}
       sections
       currentStep
-      backClick
+      backClick={() => {
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery"))
+      }}
     />
-    <div className="flex flex-row gap-x-4">
-      <Button text="Previous" onClick={_ => onPreviousClick()->ignore} />
-      <Button text="Next" buttonType=Primary onClick={_ => onNextClick()->ignore} />
+    <div className="flex flex-row ml-14 mt-16 w-540-px">
+      <RecoveryOnboardingPayments
+        currentStep
+        setConnectorID={setPaymentConnectorID}
+        connector={paymentConnectorName}
+        setConnectorName={setPaymentConnectorName}
+        setNextStep
+        profileId
+        merchantId
+        activeBusinessProfile
+      />
+      <RecoveryOnboardingBilling
+        currentStep
+        connectorID={paymentConnectorID}
+        connector=billingConnectorName
+        paymentConnectorName={paymentConnectorName}
+        setConnectorName=setBillingConnectorName
+        setNextStep
+        profileId
+        merchantId
+        activeBusinessProfile
+      />
     </div>
   </div>
 }
