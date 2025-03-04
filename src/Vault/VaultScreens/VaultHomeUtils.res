@@ -31,20 +31,23 @@ module VaultActionItem = {
 let vaultActionArray = {
   [
     {
-      heading: "Learn how to vault using our Vault SDK",
+      heading: "Learn how to vault from your server",
       description: "If you're PCI compliant, you can vault cards directly to Hyperswitch's Vault service from your server.",
       imgSrc: "/assets/VaultServerImage.svg",
       action: ExternalLink({
         url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault",
-        trackingEvent: "vault-using-vault-sdk",
-      }), //TODO: TO be updated once routing is confirmed
+        trackingEvent: "vault-server-redirect",
+      }),
     },
-    // {
-    //   heading: "Learn using Hyperswitch vault SDK",
-    //   description: "If you're not PCI compliant, securely store cards using our Vault SDK with Hyperswitch's Vault service.",
-    //   imgSrc: "/assets/VaultSdkImage.svg",
-    //   action: InternalRoute("v2/vault/home"), //TODO: TO be updated once routing is confirmed
-    // },
+    {
+      heading: "Learn how to vault using our Vault SDK",
+      description: "If you're not PCI compliant, securely store cards using our Vault SDK with Hyperswitch's Vault service.",
+      imgSrc: "/assets/VaultSdkImage.svg",
+      action: ExternalLink({
+        url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault",
+        trackingEvent: "vault-sdk-redirect",
+      }),
+    },
   ]
 }
 
