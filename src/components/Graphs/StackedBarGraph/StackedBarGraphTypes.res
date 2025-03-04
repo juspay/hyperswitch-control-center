@@ -24,6 +24,7 @@ type style = {
   color: color,
   fontFamily: string,
   fontSize: string,
+  fill: string,
 }
 type enabled = {enabled: bool}
 type credits = {
@@ -45,6 +46,10 @@ type labels = {
 type chart = {
   \"type": \"type",
   height: int,
+  spacingRight: spacingRight,
+  spacingLeft: spacingLeft,
+  spacingTop: int,
+  style: style,
 }
 
 type dataObj = {
@@ -59,6 +64,7 @@ type yAxis = {
   title: yAxisTitle,
   visible: bool,
   stackLabels: enabled,
+  max: int,
 }
 
 type xAxis = {
@@ -96,6 +102,7 @@ type legend = {
   itemDistance: int,
   reversed: bool,
   labelFormatter: labelFormatter => string,
+  width: int,
 }
 
 type stackedBarGraphOptions = {

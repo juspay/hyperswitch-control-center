@@ -1,4 +1,4 @@
-type connectorSummarySection = AuthenticationKeys | Metadata | PMTs
+type connectorSummarySection = AuthenticationKeys | Metadata | PMTs | PaymentConnectors
 @react.component
 let make = () => {
   open ConnectorUtils
@@ -29,7 +29,11 @@ let make = () => {
   let getConnectorDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Get,
+        ~id=Some(connectorID),
+      )
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json->removeFieldsFromRespose)
       setScreenState(_ => Success)
@@ -57,11 +61,11 @@ let make = () => {
     }
   }
 
-  let data = initialValues->getDictFromJsonObject
   let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
-    data,
+    initialValues->LogicUtils.getDictFromJsonObject,
   )
+
   let {connector_name: connectorName} = connectorInfodict
 
   let connectorDetails = React.useMemo(() => {
@@ -106,9 +110,12 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
+      let connectorUrl = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Post,
+        ~id=Some(connectorID),
+      )
       let dict = values->getDictFromJsonObject
-      dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
       switch currentActiveSection {
       | Some(AuthenticationKeys) => {
           dict->Dict.delete("profile_id")
@@ -117,7 +124,7 @@ let make = () => {
         }
       | _ => {
           dict->Dict.delete("profile_id")
-          dict->Dict.delete("id")
+          dict->Dict.delete("merchant_connector_id")
           dict->Dict.delete("connector_name")
           dict->Dict.delete("connector_account_details")
         }
@@ -152,16 +159,39 @@ let make = () => {
     )
   }
 
+  let revenueRecovery =
+    connectorInfodict.feature_metadata->getDictFromJsonObject->getDictfromDict("revenue_recovery")
+  let max_retry_count = revenueRecovery->getInt("max_retry_count", 4)
+  let billing_connector_retry_threshold =
+    revenueRecovery->getInt("billing_connector_retry_threshold", 10)
+
+  let paymentConnectors = revenueRecovery->getObj("billing_account_reference", Dict.make())
+
+  paymentConnectors->Dict.set("mca_stripe_123", "charge_123"->JSON.Encode.string)
+
+  let paymentConnectors = paymentConnectors->Dict.toArray
+
+  let paymentConnectorName =
+    UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("payment_connector_name", "")
+  let paymentConnectorID = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("mca", "")
+
+  React.useEffect(() => {
+    if paymentConnectorName->isNonEmptyString && paymentConnectorID->isNonEmptyString {
+      handleClick(Some(PaymentConnectors))
+    }
+    None
+  }, [paymentConnectorName])
+
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues validate=validateMandatoryField>
       <div className="flex flex-col gap-10 p-6">
         <div>
           <div className="flex flex-row gap-4 items-center">
             <GatewayIcon
-              gateway={connectorName->String.toUpperCase} className=" w-10 h-10 rounded-sm"
+              gateway={"chargebee"->String.toUpperCase} className=" w-10 h-10 rounded-sm"
             />
             <p className={`text-2xl font-semibold break-all`}>
-              {`${connectorName->getDisplayNameForConnector} Summary`->React.string}
+              {`Chargebee Summary`->React.string}
             </p>
           </div>
         </div>
@@ -180,6 +210,59 @@ let make = () => {
                 <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
               </div>
             </div>
+          </div>
+          <div className="flex gap-10 max-w-3xl flex-wrap px-2">
+            <div className="flex flex-col gap-0.5-rem ">
+              <h4 className="text-nd_gray-400 "> {"Connector_retry_threshold"->React.string} </h4>
+              {billing_connector_retry_threshold->Int.toString->React.string}
+            </div>
+            <div className="flex flex-col gap-0.5-rem ">
+              <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
+              {max_retry_count->Int.toString->React.string}
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between border-b pb-4 px-2 items-end">
+              <p className="text-lg font-semibold text-nd_gray-600">
+                {"Payment Connectors"->React.string}
+              </p>
+              <div className="flex gap-4">
+                <RenderIf condition={checkCurrentEditState(PaymentConnectors)}>
+                  {<>
+                    <Button
+                      text="Cancel"
+                      onClick={_ => handleClick(None)}
+                      buttonType={Secondary}
+                      buttonSize={Small}
+                      customButtonStyle="w-fit"
+                    />
+                    <FormRenderer.SubmitButton
+                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                    />
+                  </>}
+                </RenderIf>
+              </div>
+            </div>
+            <div className="flex gap-10 max-w-3xl flex-wrap px-2">
+              {paymentConnectors
+              ->Array.map(item => {
+                let (key, value) = item
+                <div>
+                  <h4 className="text-nd_gray-400 "> {key->React.string} </h4>
+                  <div> {value->JSON.Decode.string->Option.getOr("")->React.string} </div>
+                </div>
+              })
+              ->React.array}
+            </div>
+            <RenderIf condition={checkCurrentEditState(PaymentConnectors)}>
+              <div className="w-[540px]">
+                <BillingProcessorsConnectProcessor.ConnectorConnectSummary
+                  connector=paymentConnectorName
+                  connector_account_reference_id=paymentConnectorID
+                  autoFocus=true
+                />
+              </div>
+            </RenderIf>
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between border-b pb-4 px-2 items-end">
@@ -269,33 +352,6 @@ let make = () => {
               />
             </div>
           </div>
-          <div className="flex justify-between border-b pb-4 px-2 items-end">
-            <p className="text-lg font-semibold text-nd_gray-600"> {"PMTs"->React.string} </p>
-            <div className="flex gap-4">
-              {if checkCurrentEditState(PMTs) {
-                <>
-                  <Button
-                    text="Cancel"
-                    buttonType={Secondary}
-                    onClick={_ => handleClick(None)}
-                    buttonSize={Small}
-                    customButtonStyle="w-fit"
-                  />
-                  <FormRenderer.SubmitButton
-                    text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
-                  />
-                </>
-              } else {
-                <div
-                  className="flex gap-2 items-center cursor-pointer"
-                  onClick={_ => handleClick(Some(PMTs))}>
-                  <Icon name="nd-edit" size=14 />
-                  <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
-                </div>
-              }}
-            </div>
-          </div>
-          <ConnectorPaymentMethodV2 initialValues isInEditState={checkCurrentEditState(PMTs)} />
         </div>
       </div>
       <FormValuesSpy />
