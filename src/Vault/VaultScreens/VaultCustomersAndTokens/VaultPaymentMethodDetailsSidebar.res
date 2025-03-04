@@ -142,24 +142,14 @@ module PSPTokens = {
 module NetworkTokens = {
   @react.component
   let make = (~data) => {
-    let (offset, setOffset) = React.useState(() => 0)
+    open VaultNetworkTokensEntity
 
     <>
       <div
         className="font-semibold text-nd_gray-700 leading-6 text-fs-20 dark:text-white dark:text-opacity-75 mt-8 mb-4">
         {"Network Tokens"->React.string}
       </div>
-      <LoadedTable
-        title=" "
-        hideTitle=true
-        resultsPerPage=7
-        entity={VaultNetworkTokensEntity.networkTokensEntity}
-        actualData={data->Array.map(Nullable.make)}
-        totalResults={data->Array.length}
-        offset
-        setOffset
-        currrentFetchCount={data->Array.length}
-      />
+      <Details data getHeading getCell detailsFields=defaultColumns widthClass="" />
     </>
   }
 }
@@ -171,7 +161,9 @@ let make = (~paymentId, ~setShowModal) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (paymentsDetailsData, setPaymentsDetailsData) = React.useState(() => JSON.Encode.null)
+  let (paymentsDetailsData, setPaymentsDetailsData) = React.useState(() =>
+    JSON.Encode.null->VaultPaymentMethodDetailsUtils.itemToObjMapper
+  )
 
   let fetchPaymentMethodDetails = async () => {
     try {
@@ -182,8 +174,7 @@ let make = (~paymentId, ~setShowModal) => {
         ~id=Some(paymentId),
       )
       let response = await fetchDetails(url, ~headerType=V2Headers)
-
-      setPaymentsDetailsData(_ => response)
+      setPaymentsDetailsData(_ => response->VaultPaymentMethodDetailsUtils.itemToObjMapper)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -194,33 +185,6 @@ let make = (~paymentId, ~setShowModal) => {
     fetchPaymentMethodDetails()->ignore
     None
   }, [])
-
-  let cardDetails = (paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper).card
-  // let networkData = (
-  //   paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
-  // ).network_tokensization.network_token
-
-  // let pspData = (
-  //   paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
-  // ).psp_tokensization.psp_token
-
-  //** TODO: replace DUMMY DATA with api response*/
-  let networkTokenData: VaultPaymentMethodDetailsTypes.network_tokens = {
-    enabled: false,
-    status: "ENABLED",
-    token: "token_uyrxuasytdfibausgf",
-    created: "",
-  }
-  let networkTokenData = Array.make(~length=5, networkTokenData)
-  let pspTokensData: VaultPaymentMethodDetailsTypes.psp_tokens = {
-    mca_id: "mca_12345678",
-    connector: "Stripe",
-    status: "ENABLED",
-    tokentype: "Single-use",
-    token: "token_gicksudfgoieu",
-    created: "",
-  }
-  let pspTokensData = Array.make(~length=5, pspTokensData)
 
   <PageLoaderWrapper screenState>
     <div className="bg-white height-screen">
@@ -235,9 +199,9 @@ let make = (~paymentId, ~setShowModal) => {
       </div>
       <hr />
       <div className="px-8 pb-20">
-        <PaymentMethodDetails data={cardDetails} />
-        <NetworkTokens data={networkTokenData} />
-        <PSPTokens data={pspTokensData} />
+        <PaymentMethodDetails data={paymentsDetailsData.payment_method_data.card} />
+        <NetworkTokens data={paymentsDetailsData.network_tokens} />
+        <PSPTokens data={paymentsDetailsData.connector_tokens} />
       </div>
     </div>
   </PageLoaderWrapper>

@@ -1,23 +1,3 @@
-type psp_tokens = {
-  mca_id: string,
-  connector: string,
-  status: string,
-  tokentype: string,
-  token: string,
-  created: string,
-}
-
-type psp_tokensization = {psp_token: array<psp_tokens>}
-
-type network_tokens = {
-  enabled: bool,
-  status: string,
-  token: string,
-  created: string,
-}
-
-type network_tokensization = {network_token: array<network_tokens>}
-
 type cardDetails = {
   issuer_country: string,
   last4_digits: string,
@@ -33,6 +13,25 @@ type cardDetails = {
   saved_to_locker: bool,
 }
 
+type paymentMethodDataType = {card: cardDetails}
+
+type networkTokensData = {
+  token: string,
+  card_network: string,
+}
+
+type connectorTokenType = {
+  connector_id: string,
+  token_type: string,
+  status: string,
+  connector_token_request_reference_id: string,
+  original_payment_authorized_amount: int,
+  original_payment_authorized_currency: string,
+  metadata: Dict.t<JSON.t>,
+  token: string,
+  connector: string,
+}
+
 type paymentMethodDetails = {
   id: string,
   merchant_id: string,
@@ -42,8 +41,9 @@ type paymentMethodDetails = {
   recurring_enabled: bool,
   created: string,
   last_used_at: string,
-  card: cardDetails,
-  card_tokens: Dict.t<JSON.t>,
+  payment_method_data: paymentMethodDataType,
+  connector_tokens: array<connectorTokenType>,
+  network_tokens: networkTokensData,
 }
 
 type paymentMethodDetailsColsType =

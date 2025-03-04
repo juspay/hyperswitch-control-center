@@ -31,11 +31,13 @@ let getHeaders = (
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    //snd_Nrhf0igyQfDuXVR9ez1nPKiqVZeJ7d6jaJc4sGjuxodp8wkCf3ijS8KFSPJM71hW
     switch (token, headerType) {
-    | (Some(str), V1Headers) => headers->Dict.set("authorization", `Bearer ${str}`)
+    | (Some(str), V1Headers) => {
+        headers->Dict.set("authorization", `Bearer ${str}`)
+        headers->Dict.set("api-key", `hyperswitch`)
+      }
     | (Some(str), V2Headers) => headers->Dict.set("authorization", `jwt=Bearer ${str}`)
-    // headers->Dict.set("api-key", `hyperswitch`)
+
     | _ => ()
     }
     switch contentType {

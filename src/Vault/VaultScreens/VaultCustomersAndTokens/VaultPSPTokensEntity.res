@@ -7,9 +7,9 @@ type pspTokenColsTypes =
   | MCAId
   | TokenType
   | Status
-  | Created
+// | Created
 
-let defaultColumns = [TokenId, Connector, MCAId, TokenType, Status, Created]
+let defaultColumns = [TokenId, MCAId, TokenType, Status]
 
 let getHeading = colType => {
   switch colType {
@@ -18,16 +18,18 @@ let getHeading = colType => {
   | MCAId => Table.makeHeaderInfo(~key="mca_id", ~title="MCA Id")
   | TokenType => Table.makeHeaderInfo(~key="tokentype", ~title="Token Type")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   }
 }
 
-let getCell = (pspTokens: VaultPaymentMethodDetailsTypes.psp_tokens, colType): Table.cell => {
+let getCell = (
+  pspTokens: VaultPaymentMethodDetailsTypes.connectorTokenType,
+  colType,
+): Table.cell => {
   switch colType {
   | TokenId => Text(pspTokens.token)
   | Connector => Text(pspTokens.connector)
-  | MCAId => Text(pspTokens.mca_id)
-  | TokenType => Text(pspTokens.tokentype)
+  | MCAId => Text(pspTokens.connector_id)
+  | TokenType => Text(pspTokens.token_type)
   | Status =>
     Label({
       title: pspTokens.status->String.toUpperCase,
@@ -36,21 +38,29 @@ let getCell = (pspTokens: VaultPaymentMethodDetailsTypes.psp_tokens, colType): T
       | Disabled => LabelRed
       },
     })
-  | Created => Text(pspTokens.created)
   }
 }
-let itemToObjMapper = (dict: dict<JSON.t>) => {
+let itemToObjMapper = dict => {
   {
-    mca_id: dict->getString("token", ""),
+    connector_id: dict->getString("connector_id", ""),
     connector: dict->getString("connector", ""),
+    token_type: dict->getString("token_type", ""),
     status: dict->getString("status", ""),
-    created: dict->getString("created", ""),
-    tokentype: dict->getString("tokentype", ""),
+    connector_token_request_reference_id: dict->getString(
+      "connector_token_request_reference_id",
+      "",
+    ),
+    original_payment_authorized_amount: dict->getInt("original_payment_authorized_amount", 0),
+    original_payment_authorized_currency: dict->getString(
+      "original_payment_authorized_currency",
+      "",
+    ),
+    metadata: dict->getDictfromDict("metadata"),
     token: dict->getString("token", ""),
   }
 }
 
-let getPSPTokens: JSON.t => array<psp_tokens> = json => {
+let getPSPTokens: JSON.t => array<connectorTokenType> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 

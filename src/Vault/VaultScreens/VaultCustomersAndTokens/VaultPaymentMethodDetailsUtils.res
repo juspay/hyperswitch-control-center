@@ -16,20 +16,25 @@ let cardDetailsMapper = dict => {
   saved_to_locker: dict->getBool("saved_to_locker", false),
 }
 
-let pspTokensizationMapper = dict => {
-  {
-    psp_token: dict
-    ->getArrayFromDict("psp_token", [])
-    ->JSON.Encode.array
-    ->getArrayDataFromJson(VaultPSPTokensEntity.itemToObjMapper),
-  }
+let paymentMethodDataMapper = dict => {
+  card: dict->getDictfromDict("card")->cardDetailsMapper,
 }
 
-let networkTokenizationMappper = dict => {
-  network_token: dict
-  ->getArrayFromDict("network_token", [])
-  ->JSON.Encode.array
-  ->getArrayDataFromJson(VaultNetworkTokensEntity.itemToObjMapper),
+let networkTokensData = dict => {
+  token: dict->getString("token", ""),
+  card_network: dict->getString("card_network", ""),
+}
+
+let connectorTokensMapper = dict => {
+  connector_id: dict->getString("connector_id", ""),
+  connector: dict->getString("connector", "NA"),
+  token_type: dict->getString("token_type", ""),
+  status: dict->getString("status", ""),
+  connector_token_request_reference_id: dict->getString("connector_token_request_reference_id", ""),
+  original_payment_authorized_amount: dict->getInt("original_payment_authorized_amount", 0),
+  original_payment_authorized_currency: dict->getString("original_payment_authorized_currency", ""),
+  metadata: dict->getDictfromDict("metadata"),
+  token: dict->getString("token", ""),
 }
 
 let itemToObjMapper: JSON.t => paymentMethodDetails = json => {
@@ -43,7 +48,12 @@ let itemToObjMapper: JSON.t => paymentMethodDetails = json => {
     recurring_enabled: dict->getBool("recurring_enabled", false),
     created: dict->getString("created", ""),
     last_used_at: dict->getString("last_used_at", ""),
-    card: dict->getDictfromDict("payment_method_data")->getDictfromDict("card")->cardDetailsMapper,
-    card_tokens: dict->getDictfromDict("connector_tokens"),
+    payment_method_data: dict
+    ->getDictfromDict("payment_method_data")
+    ->paymentMethodDataMapper,
+    connector_tokens: dict
+    ->getJsonObjectFromDict("connector_tokens")
+    ->getArrayDataFromJson(connectorTokensMapper),
+    network_tokens: dict->getDictfromDict("network_tokens")->networkTokensData,
   }
 }

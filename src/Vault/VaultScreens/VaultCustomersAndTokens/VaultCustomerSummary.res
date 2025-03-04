@@ -142,7 +142,6 @@ module VaultedPaymentMethodsTable = {
           ~id=Some(customerIdFromUrl),
         )
         let response = await fetchDetails(url, ~headerType=V2Headers)
-
         let tableData =
           response
           ->getDictFromJsonObject
