@@ -118,10 +118,25 @@ let convertFRMConfigJsonToObj = json => {
   })
 }
 
-let getPaymentMethodTypes = dict => {
+let getPaymentMethodTypes = (dict): paymentMethodConfigType => {
   open ConnectorUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
+    payment_experience: dict->getOptionString("payment_experience"),
+    card_networks: dict->getStrArrayFromDict("card_networks", []),
+    accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
+    accepted_currencies: dict->getDictfromDict("accepted_currencies")->acceptedValues,
+    minimum_amount: dict->getOptionInt("minimum_amount"),
+    maximum_amount: dict->getOptionInt("maximum_amount"),
+    recurring_enabled: dict->getOptionBool("recurring_enabled"),
+    installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
+  }
+}
+
+let getPaymentMethodTypesV2 = (dict): ConnectorTypes.paymentMethodConfigTypeV2 => {
+  open ConnectorUtils
+  {
+    payment_method_subtype: dict->getString("payment_method_subtype", ""),
     payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
     accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
@@ -177,9 +192,9 @@ let getPaymentMethodsEnabledV2: Dict.t<JSON.t> => paymentMethodEnabledTypeV2 = d
   {
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_subtypes: dict
-    ->Dict.get("payment_method_types")
+    ->Dict.get("payment_method_subtypes")
     ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->getArrayDataFromJson(getPaymentMethodTypes),
+    ->getArrayDataFromJson(getPaymentMethodTypesV2),
   }
 }
 
@@ -193,7 +208,6 @@ let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
     connector_account_details: dict
     ->getObj("connector_account_details", Dict.make())
     ->getAccountDetails,
-    test_mode: dict->getBool("test_mode", true),
     disabled: dict->getBool("disabled", true),
     payment_methods_enabled: dict
     ->getJsonObjectFromDict("payment_methods_enabled")
@@ -206,6 +220,9 @@ let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
     metadata: dict->getObj("metadata", Dict.make())->JSON.Encode.object,
     additional_merchant_data: dict
     ->getObj("additional_merchant_data", Dict.make())
+    ->JSON.Encode.object,
+    feature_metadata: dict
+    ->getObj("feature_metadata", Dict.make())
     ->JSON.Encode.object,
   }
 }
