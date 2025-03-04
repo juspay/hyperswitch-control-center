@@ -711,7 +711,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             <WebHookSection busiProfieDetails setBusiProfie setScreenState profileId />
           </div>
         </div>
-        <div className={` py-4 md:py-10 h-full flex flex-col `}>
+        <div className="py-4 md:py-10 h-full flex flex-col">
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
             <PaymentSettingsMetadata busiProfieDetails setBusiProfie setScreenState profileId />
