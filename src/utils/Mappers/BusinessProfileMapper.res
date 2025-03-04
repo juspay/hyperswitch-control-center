@@ -56,7 +56,7 @@ let businessProfileTypeMapper = values => {
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,
-    metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
+    metadata: metadataKeyValue->isEmptyDict ? None : Some(metadataKeyValue),
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
