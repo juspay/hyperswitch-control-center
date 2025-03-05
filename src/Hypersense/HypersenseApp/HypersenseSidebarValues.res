@@ -2,10 +2,11 @@ open SidebarTypes
 
 let hypersenseConfiguration = {
   Link({
-    name: "Configuration",
-    link: `v2/hypersense`,
+    name: "Home",
+    link: `/v2/hypersense/home`,
     icon: "home",
     access: Access,
+    selectedIcon: "home",
   })
 }
 

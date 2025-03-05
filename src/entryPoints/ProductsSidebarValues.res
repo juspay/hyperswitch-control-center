@@ -65,7 +65,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Vault->getStringFromVariant,
         icon: "vault-home",
-        link: "/v2/vault/home",
+        link: "/v2/vault",
         access: Access,
       }),
     )
@@ -84,7 +84,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     sideBarValues->Array.push(
       Link({
         name: Hypersense->getStringFromVariant,
-        icon: "hypersense-home",
+        icon: "nd-piggy-bank",
         link: "/v2/hypersense",
         access: Access,
       }),
