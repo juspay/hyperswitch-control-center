@@ -70,20 +70,9 @@ let make = () => {
 
   let connectorDetails = React.useMemo(() => {
     try {
-      let (processorType, _) =
-        connectorInfodict.connector_type
-        ->connectorTypeTypedValueToStringMapper
-        ->connectorTypeTuple
       if connectorName->LogicUtils.isNonEmptyString {
-        let dict = switch processorType {
-        | PaymentProcessor => Window.getConnectorConfig(connectorName)
-        | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
-        | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
-        | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
-        | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
-        | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
-        | PaymentVas => JSON.Encode.null
-        }
+        let dict = BillingProcessorsUtils.getConnectorConfig(connectorName)
+
         dict
       } else {
         JSON.Encode.null
@@ -119,16 +108,17 @@ let make = () => {
       switch currentActiveSection {
       | Some(AuthenticationKeys) => {
           dict->Dict.delete("profile_id")
-          dict->Dict.delete("merchant_connector_id")
+          dict->Dict.delete("id")
           dict->Dict.delete("connector_name")
         }
       | _ => {
           dict->Dict.delete("profile_id")
-          dict->Dict.delete("merchant_connector_id")
+          dict->Dict.delete("id")
           dict->Dict.delete("connector_name")
           dict->Dict.delete("connector_account_details")
         }
       }
+      dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
       let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put)
       setCurrentActiveSection(_ => None)
       setInitialValues(_ => response->removeFieldsFromRespose)
@@ -161,15 +151,11 @@ let make = () => {
 
   let revenueRecovery =
     connectorInfodict.feature_metadata->getDictFromJsonObject->getDictfromDict("revenue_recovery")
-  let max_retry_count = revenueRecovery->getInt("max_retry_count", 4)
+  let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
   let billing_connector_retry_threshold =
-    revenueRecovery->getInt("billing_connector_retry_threshold", 10)
-
-  let paymentConnectors = revenueRecovery->getObj("billing_account_reference", Dict.make())
-
-  paymentConnectors->Dict.set("mca_stripe_123", "charge_123"->JSON.Encode.string)
-
-  let paymentConnectors = paymentConnectors->Dict.toArray
+    revenueRecovery->getInt("billing_connector_retry_threshold", 0)
+  let paymentConnectors =
+    revenueRecovery->getObj("billing_account_reference", Dict.make())->Dict.toArray
 
   let paymentConnectorName =
     UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("payment_connector_name", "")
@@ -188,10 +174,10 @@ let make = () => {
         <div>
           <div className="flex flex-row gap-4 items-center">
             <GatewayIcon
-              gateway={"chargebee"->String.toUpperCase} className=" w-10 h-10 rounded-sm"
+              gateway={connectorName->String.toUpperCase} className=" w-10 h-10 rounded-sm"
             />
             <p className={`text-2xl font-semibold break-all`}>
-              {`Chargebee Summary`->React.string}
+              {`${connectorName} Summary`->React.string}
             </p>
           </div>
         </div>

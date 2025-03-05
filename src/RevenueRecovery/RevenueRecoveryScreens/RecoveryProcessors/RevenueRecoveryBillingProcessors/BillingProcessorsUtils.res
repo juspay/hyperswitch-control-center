@@ -15,7 +15,6 @@ let getConnectorConfig = connector => {
       "connector_auth": {
         "HeaderKey": {
           "api_key": "Chargebee API Key",
-          "key1": "Your site name",
         },
       },
       "connector_webhook_details": {

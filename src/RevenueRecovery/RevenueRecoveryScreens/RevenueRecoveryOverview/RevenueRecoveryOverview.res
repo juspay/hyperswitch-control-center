@@ -151,9 +151,10 @@ let make = (~previewOnly=false) => {
           text="View Chargebee"
           buttonType={Secondary}
           onClick={_ =>
+            // TODO: billiig connector id should be removed
             RescriptReactRouter.replace(
               GlobalVars.appendDashboardPath(
-                ~url=`/v2/recovery/summary/mca_f2dBJYU5uo0bWM7vGfWk?name=adyen`,
+                ~url=`/v2/recovery/summary/mca_JxiR6yu2EAGOvWjWxBOM?name=chargebee`,
               ),
             )}
           buttonSize={Small}
