@@ -724,6 +724,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   | AlternatePaymentMethods => AlternatePaymentMethodsSidebarValues.altPaymentMethodsSidebars
+  | Hypersense => HypersenseSidebarValues.hypersenseSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }
