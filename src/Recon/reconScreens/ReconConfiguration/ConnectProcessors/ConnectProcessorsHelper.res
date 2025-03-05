@@ -88,6 +88,10 @@ module AddNewOMPButton = {
     }
     let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
     let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
+    let connectorsList =
+      ConnectorUtils.connectorListForLive->Array.filter(connector =>
+        connector != Processors(STRIPE)
+      )
 
     <ACLDiv
       authorization={hasOMPCreateAccess}
@@ -106,7 +110,7 @@ module AddNewOMPButton = {
             {"Available for production"->React.string}
           </p>
           <div className="flex flex-col gap-2.5 h-40 overflow-scroll cursor-not-allowed w-full">
-            {ConnectProcessorsUtils.connectorListForLive
+            {connectorsList
             ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, _) => {
               let connectorName = connector->getConnectorNameString
               let size = "w-4 h-4 rounded-sm"
