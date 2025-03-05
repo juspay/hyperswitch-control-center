@@ -9,25 +9,15 @@ let make = (~connectorInfo) => {
     ConnectorInterface.connectorInterfaceV2,
     connectorInfo->LogicUtils.getDictFromJsonObject,
   )
-  let (processorType, _) =
-    connectorInfodict.connector_type
-    ->ConnectorUtils.connectorTypeTypedValueToStringMapper
-    ->ConnectorUtils.connectorTypeTuple
+
   let {connector_name: connectorName} = connectorInfodict
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let connectorAccountFields = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
-        let dict = switch processorType {
-        | PaymentProcessor => Window.getConnectorConfig(connectorName)
-        | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
-        | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
-        | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
-        | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
-        | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
-        | PaymentVas => JSON.Encode.null
-        }
+        let dict = BillingProcessorsUtils.getConnectorConfig(connectorName)
+
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
         let bodyType = connectorAccountDict->Dict.keysToArray->getValueFromArray(0, "")
         let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)

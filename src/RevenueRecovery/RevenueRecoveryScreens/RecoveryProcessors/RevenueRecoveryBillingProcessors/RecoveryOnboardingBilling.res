@@ -45,7 +45,6 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-    initialValuesToDict->Dict.set("test_mode", !featureFlagDetails.isLiveMode->JSON.Encode.bool)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
@@ -57,13 +56,12 @@ let make = (
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     let dict = values->getDictFromJsonObject
-    dict->Dict.set("connector_name", "stripe"->JSON.Encode.string)
     let values = dict->JSON.Encode.object
 
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Put)
+      let connectorUrl = "https://integ-api.hyperswitch.io/v2/connector-accounts" //getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
+      let response = await updateAPIHook(connectorUrl, values, Post)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
@@ -151,7 +149,7 @@ let make = (
         <BillingProcessorsConnectProcessor
           connector={paymentConnectorName}
           initialValues
-          onSubmit={handleAuthKeySubmit}
+          onSubmit
           validateMandatoryField
           connector_account_reference_id=connectorID
         />

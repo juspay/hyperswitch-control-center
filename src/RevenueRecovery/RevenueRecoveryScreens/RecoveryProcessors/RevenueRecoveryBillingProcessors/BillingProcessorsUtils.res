@@ -13,7 +13,7 @@ let getConnectorConfig = connector => {
   | "chargebee" =>
     {
       "connector_auth": {
-        "BodyKey": {
+        "HeaderKey": {
           "api_key": "Chargebee API Key",
           "key1": "Your site name",
         },
