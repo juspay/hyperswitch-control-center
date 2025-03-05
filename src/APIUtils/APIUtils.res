@@ -41,6 +41,7 @@ let useGetURL = () => {
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
+    ~hypersenseType: hypersenseType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
@@ -479,6 +480,7 @@ let useGetURL = () => {
 
       /* RECONCILIATION */
       | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
+      | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
       | PAYMENT_REPORT =>
