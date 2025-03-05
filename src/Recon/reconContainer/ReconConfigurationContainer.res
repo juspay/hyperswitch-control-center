@@ -8,10 +8,10 @@ let make = (~setShowOnBoarding) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     goToLanding()
     None
-  })
+  }, [])
 
   <ReconConfiguration setShowOnBoarding />
 }
