@@ -4,7 +4,7 @@ let make = () => {
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
-    <img alt="hypersenseOnboarding" src="/assets/hypersenseOnboarding.svg" />
+    <img alt="hypersenseOnboarding" src="/assets/DefaultHomeHypersenseCard.svg" />
     <div className="flex flex-col gap-8 items-center">
       <div
         className="border rounded-md text-nd_green-200 border-nd_green-200 font-semibold p-1.5 text-sm w-fit">
