@@ -84,7 +84,7 @@ let make = () => {
         JSON.Encode.null
       }
     }
-  }, [connectorInfodict.merchant_connector_id])
+  }, [connectorInfodict.id])
 
   let (
     _,
@@ -183,9 +183,7 @@ let make = () => {
         </div>
         <div className="flex flex-col gap-12">
           <div className="flex gap-10 max-w-3xl flex-wrap px-2">
-            <ConnectorWebhookPreview
-              merchantId connectorName=connectorInfodict.merchant_connector_id
-            />
+            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
             <div className="flex flex-col gap-0.5-rem ">
               <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
               {connectorInfodict.profile_id->React.string}

@@ -42,7 +42,7 @@ let make = (~connectorInfo) => {
         Dict.make()
       }
     }
-  }, [connectorInfodict.merchant_connector_id])
+  }, [connectorInfodict.id])
 
   <div className="flex flex-col px-10 gap-8">
     <div className="flex flex-col ">
@@ -66,6 +66,7 @@ let make = (~connectorInfo) => {
       text="Done"
       onClick={_ => {
         setShowSideBar(_ => true)
+        // TODO: billiig connector id should be removed
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(
             ~url=`/v2/recovery/summary/mca_JxiR6yu2EAGOvWjWxBOM?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.merchant_connector_id}`,

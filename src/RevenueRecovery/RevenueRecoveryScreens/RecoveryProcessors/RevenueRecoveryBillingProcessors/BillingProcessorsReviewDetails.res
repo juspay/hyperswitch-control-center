@@ -32,7 +32,7 @@ let make = (~connectorInfo) => {
         Dict.make()
       }
     }
-  }, [connectorInfodict.merchant_connector_id])
+  }, [connectorInfodict.id])
 
   let handleClick = () => {
     setShowSideBar(_ => true)
@@ -76,7 +76,7 @@ let make = (~connectorInfo) => {
         })
         ->React.array}
       </div>
-      <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.merchant_connector_id />
+      <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
       <ACLButton
         text="Done"
         onClick={_ => handleClick()}
