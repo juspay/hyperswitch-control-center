@@ -40,7 +40,7 @@ let make = () => {
           remainingPath
           renderList={() => <RecoveryConnectorList />}
           renderNewForm={() => <RecoveryConnectorHome />}
-          renderShow={(_, _) => <PaymentProcessorSummary />}
+          renderShow={(_, _) => <PaymentProcessorSummary baseUrl="v2/recovery/connectors" />}
         />
       </AccessControl>
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
