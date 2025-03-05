@@ -99,6 +99,7 @@ type processorTypes =
   | XENDIT
   | JPMORGAN
   | INESPAY
+  | MONERIS
 
 type payoutProcessorTypes =
   | ADYEN
