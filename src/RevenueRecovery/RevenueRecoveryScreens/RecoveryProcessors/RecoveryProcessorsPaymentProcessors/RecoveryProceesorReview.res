@@ -59,7 +59,7 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col ">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.merchant_connector_id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
       </div>
     </div>
     <ACLButton
@@ -69,7 +69,7 @@ let make = (~connectorInfo) => {
         // TODO: billiig connector id should be removed
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(
-            ~url=`/v2/recovery/summary/mca_JxiR6yu2EAGOvWjWxBOM?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.merchant_connector_id}`,
+            ~url=`/v2/recovery/summary/mca_JxiR6yu2EAGOvWjWxBOM?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.id}`,
           ),
         )
       }}
