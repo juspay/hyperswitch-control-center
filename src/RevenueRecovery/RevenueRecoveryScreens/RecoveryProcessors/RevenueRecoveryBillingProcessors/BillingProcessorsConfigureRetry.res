@@ -17,7 +17,7 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
                 ~name="feature_metadata.revenue_recovery.billing_connector_retry_threshold",
                 ~toolTipPosition=Right,
                 ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
-                ~placeholder="",
+                ~placeholder="ex 3",
               )}
             />
           </div>
@@ -32,7 +32,7 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
                 ~name="feature_metadata.revenue_recovery.max_retry_count",
                 ~toolTipPosition=Right,
                 ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
-                ~placeholder="",
+                ~placeholder="ex 15",
               )}
             />
             <FormRenderer.SubmitButton

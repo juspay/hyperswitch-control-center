@@ -31,10 +31,6 @@ let make = (
   )
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
 
-  let selectedConnector = React.useMemo(() => {
-    connectorTypeFromName->getConnectorInfo
-  }, [connector])
-
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     // TODO: Refactor for generic case
@@ -98,7 +94,7 @@ let make = (
         Dict.make()->JSON.Encode.object
       }
     }
-  }, [selectedConnector])
+  }, [connector])
 
   let (
     _,
@@ -116,6 +112,47 @@ let make = (
     let profileId = valuesFlattenJson->getString("profile_id", "")
     if profileId->String.length === 0 {
       Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
+    }
+
+    if (
+      currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
+        (#addAPlatform, #configureRetries)
+    ) {
+      let valueDict = values->getDictFromJsonObject
+      let revenue_recovery =
+        valueDict->getDictfromDict("feature_metadata")->getDictfromDict("revenue_recovery")
+
+      let billing_connector_retry_threshold =
+        revenue_recovery->getInt("billing_connector_retry_threshold", 0)
+      let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
+
+      if billing_connector_retry_threshold === 0 {
+        Dict.set(
+          errors,
+          "billing_connector_retry_threshold",
+          `Please enter start retry count`->JSON.Encode.string,
+        )
+      } else if billing_connector_retry_threshold > 15 {
+        Dict.set(
+          errors,
+          "billing_connector_retry_threshold",
+          `Start retry count should be less than 15`->JSON.Encode.string,
+        )
+      }
+
+      if max_retry_count === 0 {
+        Dict.set(
+          errors,
+          "max_retry_count",
+          `Please enter max retry count count`->JSON.Encode.string,
+        )
+      } else if max_retry_count > 15 {
+        Dict.set(
+          errors,
+          "max_retry_count",
+          `Max retry count count should be less than 15`->JSON.Encode.string,
+        )
+      }
     }
 
     validateConnectorRequiredFields(
