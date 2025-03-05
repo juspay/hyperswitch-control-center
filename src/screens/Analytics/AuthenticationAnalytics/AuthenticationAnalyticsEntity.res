@@ -72,7 +72,7 @@ let timeSeriesObjMapper = json =>
   json->getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
 
 type colT =
-  | ThreeDsCount
+  | AuthenticationCount
   | AuthenticationSuccessRate
   | ChallengeFlowRate
   | FrictionlessFlowRate
@@ -84,7 +84,7 @@ let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
     columns: [
-      ThreeDsCount,
+      AuthenticationCount,
       AuthenticationSuccessRate,
       ChallengeFlowRate,
       FrictionlessFlowRate,
@@ -109,7 +109,7 @@ let compareLogic = (firstValue, secondValue) => {
 
 let constructData = (key, singlestatTimeseriesData: array<authenticationSingleStatSeries>) => {
   switch key {
-  | ThreeDsCount =>
+  | AuthenticationCount =>
     singlestatTimeseriesData->Array.map(ob => {
       (ob.time_series->DateTimeUtils.parseAsFloat, ob.authentication_count->Int.toFloat)
     })
@@ -171,13 +171,13 @@ let getStatData = (
   _mode,
 ) => {
   switch colType {
-  | ThreeDsCount => {
+  | AuthenticationCount => {
       title: "Payments requiring 3DS Authentication",
       tooltipText: "Total number of payments which require 3DS 2.0 Authentication.",
       deltaTooltipComponent: _ => React.null,
       value: singleStatData.authentication_count->Int.toFloat,
       delta: 0.0,
-      data: constructData(ThreeDsCount, timeSeriesData),
+      data: constructData(AuthenticationCount, timeSeriesData),
       statType: "Volume",
       showDelta: false,
     }
