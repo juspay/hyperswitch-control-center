@@ -9,7 +9,7 @@ let useGetSideBarValues = () => {
   let sideBarValues = []
 
   if devReconv2Product {
-    sideBarValues->Array.push(ReconSidebarValues.reconSidebars)
+    sideBarValues->Array.pushMany(ReconSidebarValues.reconSidebars)
   }
 
   if devRecoveryV2Product {
@@ -44,7 +44,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Recon->getStringFromVariant,
         icon: "recon-home",
-        link: "/v2/recon/onboarding",
+        link: "/v2/recon",
         access: Access,
       }),
     )

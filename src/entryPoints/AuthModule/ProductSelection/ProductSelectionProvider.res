@@ -168,7 +168,7 @@ module CreateNewMerchantBody = {
         let merchantName = values->getDictFromJsonObject->getString("company_name", "")
         let merchantID = await findMerchantId(~merchantName)
 
-        switchMerch(merchantID)->ignore
+        let _ = await switchMerch(merchantID)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Merchant Created Successfully!",

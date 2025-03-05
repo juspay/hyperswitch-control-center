@@ -3,7 +3,7 @@ let make = () => {
   open PageUtils
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
 
-  <div className="flex flex-1 flex-col w-full gap-14 items-center justify-center w-full h-screen">
+  <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
     <div className="flex flex-col gap-8 items-center">
       <div

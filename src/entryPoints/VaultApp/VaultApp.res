@@ -13,7 +13,7 @@ let make = () => {
         access=Access
         renderList={() => <VaultConfiguration />}
         renderNewForm={() => <VaultOnboarding />}
-        renderShow={(_, _) => <PaymentProcessorSummary />}
+        renderShow={(_, _) => <PaymentProcessorSummary baseUrl="v2/vault/onboarding" />}
       />
     | list{"v2", "vault", "customers-tokens", ...remainingPath} =>
       <EntityScaffold

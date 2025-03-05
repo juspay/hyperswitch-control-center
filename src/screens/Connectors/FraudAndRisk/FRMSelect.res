@@ -90,7 +90,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let connectorList = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PaymentVas,
+    ~retainInList=PaymentProcessor,
   )
 
   let customUI =
