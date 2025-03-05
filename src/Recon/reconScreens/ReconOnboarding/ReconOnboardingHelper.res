@@ -3,10 +3,9 @@ module ReconOnboardingLanding = {
   let make = () => {
     open PageUtils
 
-    let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+    let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
     let onTryDemoClick = () => {
-      setShowSideBar(_ => false)
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/configuration"))
+      setCreateNewMerchant(ProductTypes.Recon)
     }
 
     <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">

@@ -1,11 +1,9 @@
 @react.component
 let make = (~setShowOnBoarding) => {
-  let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
   let goToLanding = () => {
-    if showSideBar {
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/onboarding"))
-    }
+    setShowSideBar(_ => false)
   }
 
   React.useEffect(() => {

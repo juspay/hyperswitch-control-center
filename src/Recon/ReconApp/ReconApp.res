@@ -5,8 +5,8 @@ let make = () => {
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "recon", "onboarding"} => <ReconOnBoardingContainer showOnBoarding />
-    | list{"v2", "recon", "configuration"} => <ReconConfigurationContainer setShowOnBoarding />
+    | list{"v2", "recon"} => <ReconOnBoardingContainer showOnBoarding />
+    | list{"v2", "recon", "home"} => <ReconConfigurationContainer setShowOnBoarding />
     | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer />
     | _ => React.null
     }

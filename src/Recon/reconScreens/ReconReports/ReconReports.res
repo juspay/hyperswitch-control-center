@@ -50,10 +50,6 @@ let make = () => {
     headers ++ "\n" ++ csv
   }
 
-  let toast = (message, toastType) => {
-    showToast(~message, ~toastType)
-  }
-
   let downloadReport = async () => {
     try {
       let arr = configuredReports->Array.map((obj: ReportsTypes.allReportPayload) => {
@@ -76,9 +72,9 @@ let make = () => {
         ~fileType="text/csv",
       )
 
-      toast("Report downloaded successfully", ToastSuccess)
+      showToast(~message="Report downloaded successfully", ~toastType=ToastSuccess)
     } catch {
-    | _ => toast("Failed to download report", ToastError)
+    | _ => showToast(~message="Failed to download report", ~toastType=ToastError)
     }
   }
 

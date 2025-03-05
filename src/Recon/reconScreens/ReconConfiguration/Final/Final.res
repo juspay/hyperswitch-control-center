@@ -17,7 +17,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
     | None => ()
     }
     setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/onboarding"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon"))
     setShowOnBoarding(_ => false)
   }
 

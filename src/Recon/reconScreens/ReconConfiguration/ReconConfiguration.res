@@ -15,7 +15,7 @@ let make = (~setShowOnBoarding) => {
 
   let backClick = () => {
     setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/onboarding"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon"))
   }
 
   let reconTitleElement =

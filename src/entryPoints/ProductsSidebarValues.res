@@ -38,7 +38,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Recon->getStringFromVariant,
         icon: "recon-home",
-        link: "/v2/recon/onboarding",
+        link: "/v2/recon",
         access: Access,
       }),
     )

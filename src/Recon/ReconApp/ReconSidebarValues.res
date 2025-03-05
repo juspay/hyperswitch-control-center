@@ -3,7 +3,7 @@ open SidebarTypes
 let reconOnBoarding = {
   Link({
     name: "Overview",
-    link: `/v2/recon/onboarding`,
+    link: `/v2/recon`,
     access: Access,
     icon: "nd-overview",
     selectedIcon: "nd-overview-fill",
