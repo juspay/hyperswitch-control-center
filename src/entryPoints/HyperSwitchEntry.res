@@ -20,9 +20,7 @@ module HyperSwitchEntryComponent = {
       }
     }
 
-    let themesID =
-      url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("theme_id")->Option.getOr("")
-
+    let sessionThemeId = HyperSwitchEntryUtils.getSessionData(~key="theme_id", ~defaultValue="")
     let configEnv = (urlConfig: JSON.t) => {
       open LogicUtils
       open HyperSwitchConfigTypes
@@ -58,9 +56,8 @@ module HyperSwitchEntryComponent = {
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
-        let devThemeFeature = featureFlags.devThemeFeature
         let _ = configEnv(res) // to set initial env
-        let _ = await getThemesJson(themesID, res, devThemeFeature)
+        let _ = await getThemesJson(sessionThemeId)
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -72,7 +69,7 @@ module HyperSwitchEntryComponent = {
     React.useEffect(() => {
       let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
       let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search) // todo: setting domain in session storage shall be removed later
-
+      let _ = HyperSwitchEntryUtils.setSessionData(~key="theme_id", ~searchParams=url.search)
       let _ = fetchConfig()->ignore
       None
     }, [])
