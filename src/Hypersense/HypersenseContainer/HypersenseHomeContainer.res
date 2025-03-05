@@ -5,6 +5,7 @@ let make = () => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let {hypersenseUrl} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let onCreatingMerchant = async () => {
     let hypersenseTokenUrl = getURL(
@@ -14,7 +15,7 @@ let make = () => {
     )
     let res = await fetchDetails(hypersenseTokenUrl)
     let token = res->getDictFromJsonObject->getString("token", "")
-    Window.Location.replace(`https://hypersense-sbx-2.netlify.app/login?auth_token=${token}`)
+    Window.Location.replace(`${hypersenseUrl}/login?auth_token=${token}`)
   }
 
   React.useEffect0(() => {
