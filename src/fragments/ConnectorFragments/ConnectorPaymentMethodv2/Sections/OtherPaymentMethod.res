@@ -35,7 +35,7 @@ let make = (
 ) => {
   open LogicUtils
   open SectionHelper
-  // open AdditionalDetailsSidebar
+  open AdditionalDetailsSidebar
   open ConnectorPaymentMethodV2Utils
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -199,36 +199,37 @@ let make = (
             />
           })
           ->React.array}
-          // <RenderIf
-          //   condition={pmtWithMetaData->Array.includes(
-          //     selectedWallet.payment_method_subtype->getPMTFromString,
-          //   )}>
-          //   <Modal
-          //     modalHeading
-          //     headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
-          //     headBgClass="sticky top-0 z-30 bg-white"
-          //     showModal={showWalletConfigurationModal}
-          //     setShowModal={setShowWalletConfigurationModal}
-          //     onCloseClickCustomFun={resetValues}
-          //     paddingClass=""
-          //     revealFrom=Reveal.Right
-          //     modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-          //     childClass={""}>
-          //     <RenderIf condition={showWalletConfigurationModal}>
-          //       // Need to refactor
-          //       <AdditionalDetailsSidebarComp
-          //         method={selectedWallet}
-          //         setMetaData={_ => ()}
-          //         setShowWalletConfigurationModal
-          //         updateDetails={_val => updateDetails(_val)}
-          //         paymentMethodsEnabled=temp
-          //         paymentMethod={pm}
-          //         onCloseClickCustomFun={resetValues}
-          //         setInitialValues={_ => ()}
-          //       />
-          //     </RenderIf>
-          //   </Modal>
-          // </RenderIf>
+          <RenderIf
+            condition={pmtWithMetaData->Array.includes(
+              selectedWallet.payment_method_subtype->getPMTFromString,
+            )}>
+            <Modal
+              modalHeading
+              headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
+              headBgClass="sticky top-0 z-30 bg-white"
+              showModal={showWalletConfigurationModal}
+              setShowModal={setShowWalletConfigurationModal}
+              onCloseClickCustomFun={resetValues}
+              paddingClass=""
+              revealFrom=Reveal.Right
+              modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+              childClass={""}>
+              <RenderIf condition={showWalletConfigurationModal}>
+                // Need to refactor
+                <AdditionalDetailsSidebarComp
+                  method={None}
+                  setMetaData={_ => ()}
+                  setShowWalletConfigurationModal
+                  updateDetails={_val => updateDetails(_val)}
+                  paymentMethodsEnabled=temp
+                  paymentMethod={pm}
+                  onCloseClickCustomFun={resetValues}
+                  setInitialValues={_ => ()}
+                  pmtName={selectedWallet.payment_method_subtype}
+                />
+              </RenderIf>
+            </Modal>
+          </RenderIf>
         </div>
       </div>
     } else {
