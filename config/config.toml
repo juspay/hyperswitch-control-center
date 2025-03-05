@@ -10,7 +10,7 @@ sidebar_border_color= "#ECEFF3" # To support current dashboard theme and to be r
 [default.endpoints]
 api_url="http://localhost:9000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
-hypersense_url="https://hypersense-sbx-2.netlify.app"
+hypersense_url=""
 logo_url=""
 favicon_url=""
 agreement_url=""
