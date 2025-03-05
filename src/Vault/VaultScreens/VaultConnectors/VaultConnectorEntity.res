@@ -9,7 +9,6 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayloadV2> = json => {
 }
 type colType =
   | Name
-  | TestMode
   | Status
   | Disabled
   | Actions
@@ -27,14 +26,12 @@ let defaultColumns = [
   ConnectorLabel,
   Status,
   Disabled,
-  TestMode,
   Actions,
   PaymentMethods,
 ]
 let getHeading = colType => {
   switch colType {
   | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
-  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
@@ -80,7 +77,6 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         />,
         "",
       )
-    | TestMode => Text(connector.test_mode ? "True" : "False")
     | Disabled =>
       Label({
         title: connector.disabled ? "DISABLED" : "ENABLED",

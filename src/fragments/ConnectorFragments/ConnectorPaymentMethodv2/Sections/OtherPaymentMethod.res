@@ -57,7 +57,7 @@ let make = (
   let form = ReactFinalForm.useForm()
   let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
   let (selectedWallet, setSelectedWallet) = React.useState(_ =>
-    Dict.make()->ConnectorInterfaceUtils.getPaymentMethodTypes
+    Dict.make()->ConnectorInterfaceUtils.getPaymentMethodTypesV2
   )
   let (selectedPMTIndex, setSelectedPMTIndex) = React.useState(_ => 0)
 
@@ -86,7 +86,7 @@ let make = (
 
   let title = switch pm->getPMFromString {
   | BankDebit => pm->snakeToTitle
-  | Wallet => selectedWallet.payment_method_type->snakeToTitle
+  | Wallet => selectedWallet.payment_method_subtype->snakeToTitle
   | _ => ""
   }
   let resetValues = () => {
@@ -110,8 +110,8 @@ let make = (
     )
   }
 
-  let onClick = (pmtData: ConnectorTypes.paymentMethodConfigType, pmtIndex) => {
-    if isMetaDataRequired(pmtData.payment_method_type, connector) {
+  let onClick = (pmtData: ConnectorTypes.paymentMethodConfigTypeV2, pmtIndex) => {
+    if isMetaDataRequired(pmtData.payment_method_subtype, connector) {
       setSelectedWallet(_ => pmtData)
       setSelectedPMTIndex(_ => pmtIndex)
       setShowWalletConfigurationModal(_ => true)
@@ -147,7 +147,7 @@ let make = (
             | Some(pmt) => {
                 let isPMTEnabled =
                   pmt.payment_method_subtypes->Array.findIndex(val =>
-                    val.payment_method_type == pmtData.payment_method_type
+                    val.payment_method_subtype == pmtData.payment_method_subtype
                   )
                 isPMTEnabled == -1 ? pmt.payment_method_subtypes->Array.length : isPMTEnabled
               }
@@ -155,7 +155,7 @@ let make = (
             }
 
             let label = switch (
-              pmtData.payment_method_type->getPMTFromString,
+              pmtData.payment_method_subtype->getPMTFromString,
               pm->getPMFromString,
               connector->ConnectorUtils.getConnectorNameTypeFromString,
             ) {
@@ -168,11 +168,11 @@ let make = (
                 ? "Klarna Checkout"
                 : "Klarna SDK"
             | (OpenBankingPIS, _, _) => "Open Banking PIS"
-            | _ => pmtData.payment_method_type->snakeToTitle
+            | _ => pmtData.payment_method_subtype->snakeToTitle
             }
 
             let showCheckbox = switch (
-              pmtData.payment_method_type->getPMTFromString,
+              pmtData.payment_method_subtype->getPMTFromString,
               pm->getPMFromString,
               connector->ConnectorUtils.getConnectorNameTypeFromString,
             ) {
@@ -201,7 +201,7 @@ let make = (
           ->React.array}
           <RenderIf
             condition={pmtWithMetaData->Array.includes(
-              selectedWallet.payment_method_type->getPMTFromString,
+              selectedWallet.payment_method_subtype->getPMTFromString,
             )}>
             <Modal
               modalHeading
@@ -217,7 +217,7 @@ let make = (
               <RenderIf condition={showWalletConfigurationModal}>
                 // Need to refactor
                 <AdditionalDetailsSidebarComp
-                  method={selectedWallet}
+                  method={None}
                   setMetaData={_ => ()}
                   setShowWalletConfigurationModal
                   updateDetails={_val => updateDetails(_val)}
@@ -225,6 +225,7 @@ let make = (
                   paymentMethod={pm}
                   onCloseClickCustomFun={resetValues}
                   setInitialValues={_ => ()}
+                  pmtName={selectedWallet.payment_method_subtype}
                 />
               </RenderIf>
             </Modal>
