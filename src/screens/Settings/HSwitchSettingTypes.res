@@ -29,7 +29,15 @@ type webhookDetails = {
   payment_succeeded_enabled: option<bool>,
   payment_failed_enabled: option<bool>,
 }
-
+type cardGuardDetails = {
+  card_ip_blocking_status: option<string>,
+  card_ip_blocking_threshold: option<int>,
+  guest_user_card_blocking_status: option<string>,
+  guest_user_card_blocking_threshold: option<int>,
+  customer_id_blocking_status: option<string>,
+  customer_id_blocking_threshold: option<int>,
+  card_testing_guard_expiry: option<int>,
+}
 type authConnectorDetailsType = {
   authentication_connectors: option<array<JSON.t>>,
   three_ds_requestor_url: option<string>,
@@ -106,6 +114,10 @@ type validationFields =
   | ThreeDsRequestorUrl
   | UnknownValidateFields(string)
   | MaxAutoRetries
+  | CardTestingGuardExpiry
+  | CardIpBlockingThreshold
+  | GuestUserCardBlockingThreshold
+  | CustomerIdBlockingThreshold
 
 type formStateType = Preview | Edit
 type fieldType = {
@@ -160,6 +172,7 @@ type profileEntity = {
   is_auto_retries_enabled: option<bool>,
   max_auto_retries_enabled: option<int>,
   metadata: option<Dict.t<JSON.t>>,
+  card_testing_guard_config: cardGuardDetails,
 }
 
 type twoFaType = RecoveryCode | Totp

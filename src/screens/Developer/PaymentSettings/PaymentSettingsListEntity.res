@@ -66,6 +66,9 @@ let itemToObjMapper = dict => {
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    card_testing_guard_config: dict
+    ->getObj("card_testing_guard_config", Dict.make())
+    ->BusinessProfileMapper.constructCardGuardDetailsObject,
   }
 }
 

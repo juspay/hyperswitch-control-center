@@ -392,6 +392,185 @@ module CollectDetails = {
   }
 }
 
+module CardGuardTest = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+    open LogicUtils
+    open DeveloperUtils
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
+
+    let form = ReactFinalForm.useForm()
+    let options = ["Enabled", "Disabled"]
+    let dropDownOptions = options->Array.map((item): SelectBox.dropdownOption => {
+      {
+        label: item,
+        value: item->String.toLowerCase,
+      }
+    })
+    let isCardGuardEnabled =
+      formState.values->getDictFromJsonObject->getBool("is_card_testing_guard_enabled", false)
+    let isCardIPBlockingStatusEnabled =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("card_testing_guard_config")
+      ->getString("card_ip_blocking_status", "disabled") == "enabled"
+
+    let isGuestUserCardEnabled =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("card_testing_guard_config")
+      ->getString("guest_user_card_blocking_status", "disabled") == "enabled"
+    let isCustomerBlockingEnabled =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("card_testing_guard_config")
+      ->getString("customer_id_blocking_status", "disabled") == "enabled"
+    if !isCardGuardEnabled {
+      form.change("card_testing_guard_config", JSON.Encode.null->Identity.genericTypeToJson)
+    }
+    React.useEffect(() => {
+      if isCardGuardEnabled {
+        form.change("card_testing_guard_config", JSON.Encode.null->Identity.genericTypeToJson)
+        form.change(
+          "card_testing_guard_config.card_ip_blocking_threshold",
+          0->Identity.genericTypeToJson,
+        )
+        form.change(
+          "card_testing_guard_config.guest_user_card_blocking_threshold",
+          0->Identity.genericTypeToJson,
+        )
+        form.change(
+          "card_testing_guard_config.customer_id_blocking_threshold",
+          0->Identity.genericTypeToJson,
+        )
+        form.change(
+          "card_testing_guard_config.card_ip_blocking_status",
+          "disabled"->Identity.genericTypeToJson,
+        )
+        form.change(
+          "card_testing_guard_config.guest_user_card_blocking_status",
+          "disabled"->Identity.genericTypeToJson,
+        )
+        form.change(
+          "card_testing_guard_config.customer_id_blocking_status",
+          "disabled"->Identity.genericTypeToJson,
+        )
+        form.change(
+          "card_testing_guard_config.card_testing_guard_expiry",
+          0->Identity.genericTypeToJson,
+        )
+      }
+      None
+    }, [isCardGuardEnabled])
+
+    <>
+      <DesktopRow>
+        <FieldRenderer
+          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          fieldWrapperClass="w-full flex justify-between items-center border-t  border-gray-200 pt-8 "
+          field={makeFieldInfo(
+            ~name="is_card_testing_guard_enabled",
+            ~label="Card Guard Config",
+            ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+          )}
+        />
+      </DesktopRow>
+      <RenderIf condition={isCardGuardEnabled}>
+        <div className="mx-4 flex flex-col gap-5">
+          // card ip blocking_status
+          <div className="flex flex-row gap-8 items-center !text-fs-14 ">
+            <FormRenderer.FieldRenderer
+              labelClass="!text-fs-14 !text-grey-700 font-medium"
+              fieldWrapperClass="min-w-40"
+              field={FormRenderer.makeFieldInfo(
+                ~label="Card IP Blocking",
+                ~name="card_testing_guard_config.card_ip_blocking_status",
+                ~placeholder="",
+                ~customInput=InputFields.selectInput(
+                  ~options=dropDownOptions,
+                  ~buttonText="Select Status",
+                  ~deselectDisable=true,
+                  ~customButtonStyle="!rounded-md !text-fs-14",
+                ),
+              )}
+            />
+            <RenderIf condition={isCardIPBlockingStatusEnabled}>
+              <FieldRenderer
+                field={cardIPBlockingThreshold}
+                errorClass
+                labelClass="!text-fs-14 !text-grey-700 font-medium"
+                fieldWrapperClass="w-80"
+              />
+            </RenderIf>
+          </div>
+          // guest_user_card_blocking_status
+          <div className="flex flex-row gap-8 items-center">
+            <FormRenderer.FieldRenderer
+              labelClass="!text-fs-14 !text-grey-700 font-medium"
+              fieldWrapperClass="min-w-40"
+              field={FormRenderer.makeFieldInfo(
+                ~label="Guest User Card Blocking ",
+                ~name="card_testing_guard_config.guest_user_card_blocking_status",
+                ~placeholder="",
+                ~customInput=InputFields.selectInput(
+                  ~options=dropDownOptions,
+                  ~buttonText="Select Status",
+                  ~deselectDisable=true,
+                  ~customButtonStyle="!rounded-md !text-fs-14",
+                ),
+              )}
+            />
+            <RenderIf condition={isGuestUserCardEnabled}>
+              <FieldRenderer
+                field={guestCardBlockingThreshold}
+                errorClass
+                labelClass="!text-fs-14 !text-grey-700 font-medium"
+                fieldWrapperClass="w-80"
+              />
+            </RenderIf>
+          </div>
+          // customer_id_blocking_status
+          <div className="flex flex-row gap-8 items-center">
+            <FormRenderer.FieldRenderer
+              labelClass="!text-fs-14 !text-grey-700 font-medium"
+              fieldWrapperClass="min-w-40"
+              field={FormRenderer.makeFieldInfo(
+                ~label="Customer ID Blocking",
+                ~name="card_testing_guard_config.customer_id_blocking_status",
+                ~placeholder="",
+                ~customInput=InputFields.selectInput(
+                  ~options=dropDownOptions,
+                  ~buttonText="Select Status",
+                  ~deselectDisable=true,
+                  ~customButtonStyle="!rounded-md !text-fs-14",
+                ),
+              )}
+            />
+            <RenderIf condition={isCustomerBlockingEnabled}>
+              <FieldRenderer
+                field={customerIdBlockingThreshold}
+                errorClass
+                labelClass="!text-fs-14 !text-grey-700 font-medium"
+                fieldWrapperClass="w-80"
+              />
+            </RenderIf>
+          </div>
+          // card_testing_guard_expiry
+          <FieldRenderer
+            field={cardTestingGuardExpiry}
+            errorClass
+            labelClass="!text-fs-14 !text-grey-700 font-medium"
+            fieldWrapperClass="max-w-lg "
+          />
+        </div>
+      </RenderIf>
+    </>
+  }
+}
 module AutoRetries = {
   @react.component
   let make = (~setCheckMaxAutoRetry) => {
@@ -537,7 +716,14 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
-      [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
+      [
+        WebhookUrl,
+        ReturnUrl,
+        CardTestingGuardExpiry,
+        CardIpBlockingThreshold,
+        GuestUserCardBlockingThreshold,
+        CustomerIdBlockingThreshold,
+      ]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
     if checkMaxAutoRetry {
       defaultFieldsToValidate->Array.push(MaxAutoRetries)
     }
@@ -684,6 +870,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 </RenderIf>
                 <ReturnUrl />
                 <WebHook />
+                <CardGuardTest />
                 <DesktopRow>
                   <div className="flex justify-end w-full gap-2">
                     <SubmitButton

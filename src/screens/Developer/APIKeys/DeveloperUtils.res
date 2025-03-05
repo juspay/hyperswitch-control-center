@@ -195,6 +195,34 @@ let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~isRequired=true,
 )
 
+let cardIPBlockingThreshold = FormRenderer.makeFieldInfo(
+  ~label="Card IP Blocking Threshold",
+  ~name="card_testing_guard_config.card_ip_blocking_threshold",
+  ~placeholder="Enter number of card IP blocking threshold",
+  ~customInput=InputFields.numericTextInput(),
+  ~isRequired=true,
+)
+let guestCardBlockingThreshold = FormRenderer.makeFieldInfo(
+  ~label="Guest Card Blocking Threshold",
+  ~name="card_testing_guard_config.guest_user_card_blocking_threshold",
+  ~placeholder="Enter number of guest card blocking threshold",
+  ~customInput=InputFields.numericTextInput(),
+  ~isRequired=true,
+)
+let customerIdBlockingThreshold = FormRenderer.makeFieldInfo(
+  ~label="Customer ID Blocking Threshold",
+  ~name="card_testing_guard_config.customer_id_blocking_threshold",
+  ~placeholder="Enter number of customer ID blocking threshold",
+  ~customInput=InputFields.numericTextInput(),
+  ~isRequired=true,
+)
+let cardTestingGuardExpiry = FormRenderer.makeFieldInfo(
+  ~label="Card Testing Guard Expiry",
+  ~name="card_testing_guard_config.card_testing_guard_expiry",
+  ~placeholder="Enter Expiration",
+  ~customInput=InputFields.numericTextInput(),
+  ~isRequired=true,
+)
 module ErrorUI = {
   @react.component
   let make = (~text) => {

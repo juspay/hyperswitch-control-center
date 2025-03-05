@@ -24,6 +24,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     max_auto_retries_enabled,
     is_click_to_pay_enabled,
     authentication_product_ids,
+    card_testing_guard_config,
   } = profileRecord
 
   let profileInfo =
@@ -65,10 +66,15 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "authentication_connectors",
     authentication_connector_details.authentication_connectors,
   )
-  profileInfo->setOptionString(
-    "three_ds_requestor_url",
-    authentication_connector_details.three_ds_requestor_url,
-  )
+
+  // profileInfo->setOptionString(
+  //   "guest_user_card_blocking_status",
+  //   card_testing_guard_config.guest_user_card_blocking_status,
+  // )
+  // profileInfo->setOptionString(
+  //   "three_ds_requestor_url",
+  //   authentication_connector_details.three_ds_requestor_url,
+  // )
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
@@ -186,6 +192,8 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let webhookSettingsValue = Dict.make()
+  let cardGuardDetails = valuesDict->getDictfromDict("card_testing_guard_config")
+  Js.log2("values", values)
   webhookSettingsValue->setOptionString(
     "webhook_version",
     valuesDict->getOptionString("webhook_version"),
@@ -261,10 +269,13 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "is_connector_agnostic_mit_enabled",
     valuesDict->getOptionBool("is_connector_agnostic_mit_enabled"),
   )
-
   profileDetailsDict->setOptionDict(
     "webhook_details",
     !(webhookSettingsValue->isEmptyDict) ? Some(webhookSettingsValue) : None,
+  )
+  profileDetailsDict->setOptionDict(
+    "card_testing_guard_config",
+    !(cardGuardDetails->isEmptyDict) ? Some(cardGuardDetails) : None,
   )
   profileDetailsDict->setOptionDict(
     "authentication_connector_details",
@@ -384,6 +395,10 @@ let validationFieldsMapper = key => {
   | ThreeDsRequestorUrl => "three_ds_requestor_url"
   | UnknownValidateFields(key) => key
   | MaxAutoRetries => "max_auto_retries_enabled"
+  | CardIpBlockingThreshold => "card_testing_guard_config.card_ip_blocking_threshold"
+  | CardTestingGuardExpiry => "card_testing_guard_expiry"
+  | CustomerIdBlockingThreshold => "customer_id_blocking_threshold"
+  | GuestUserCardBlockingThreshold => "guest_user_card_blocking_threshold"
   }
 }
 
@@ -500,6 +515,7 @@ let validateMerchantAccountForm = (
           )
         }
       }
+
     | _ => {
         let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
         switch value {
@@ -512,6 +528,14 @@ let validateMerchantAccountForm = (
 
   let threedsArray = getArrayFromDict(valuesDict, "authentication_connectors", [])->getNonEmptyArray
   let threedsUrl = getString(valuesDict, "three_ds_requestor_url", "")->getNonEmptyString
+  let cardGuardTest = getDictfromDict(valuesDict, "card_testing_guard_config")
+  let cardIpBlockingThreshold = getInt(cardGuardTest, "card_ip_blocking_threshold", 0)
+
+  Js.log2("cardIpBlockingThreshold", cardIpBlockingThreshold)
+
+  // if cardIpBlockingThreshold < 5 || cardIpBlockingThreshold > 25 {
+  //   Dict.set(errors, "webhook_url", "Please enter integer value from 5 to 25"->JSON.Encode.string)
+  // }
   switch threedsArray {
   | Some(valArr) => {
       let url = getString(valuesDict, "three_ds_requestor_url", "")
@@ -562,6 +586,15 @@ let defaultValueForBusinessProfile = {
   max_auto_retries_enabled: None,
   is_click_to_pay_enabled: None,
   authentication_product_ids: None,
+  card_testing_guard_config: {
+    card_ip_blocking_status: None,
+    card_ip_blocking_threshold: None,
+    guest_user_card_blocking_status: None,
+    guest_user_card_blocking_threshold: None,
+    customer_id_blocking_status: None,
+    customer_id_blocking_threshold: None,
+    card_testing_guard_expiry: None,
+  },
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
