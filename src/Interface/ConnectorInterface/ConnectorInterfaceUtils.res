@@ -213,7 +213,7 @@ let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
     ->getJsonObjectFromDict("payment_methods_enabled")
     ->getArrayDataFromJson(getPaymentMethodsEnabledV2),
     profile_id: dict->getString("profile_id", ""),
-    merchant_connector_id: dict->getString("merchant_connector_id", ""),
+    id: dict->getString("id", ""),
     frm_configs: dict->getArrayFromDict("frm_configs", [])->convertFRMConfigJsonToObjResponse,
     status: dict->getString("status", "inactive"),
     connector_webhook_details: dict->getJsonObjectFromDict("connector_webhook_details"),
