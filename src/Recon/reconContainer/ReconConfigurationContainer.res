@@ -2,12 +2,12 @@
 let make = (~setShowOnBoarding) => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
-  let goToLanding = () => {
+  let removeSidebar = () => {
     setShowSideBar(_ => false)
   }
 
   React.useEffect(() => {
-    goToLanding()
+    removeSidebar()
     None
   }, [])
 
