@@ -21,10 +21,10 @@ let make = () => {
     url->Window._open
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     onCreatingMerchant()->ignore
     None
-  })
+  }, [])
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="hypersenseOnboarding" src="/assets/hypersenseOnboarding.svg" />
