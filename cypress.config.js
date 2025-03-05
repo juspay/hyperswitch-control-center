@@ -15,6 +15,7 @@ module.exports = defineConfig({
   env: {
     CYPRESS_USERNAME: process.env.CYPRESS_USERNAME || "cypress@gmail.com",
     CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD || "Cypress98#",
+    RBAC: "", //"profile,admin"
   },
   viewportWidth: 1440,
   viewportHeight: 1005,
