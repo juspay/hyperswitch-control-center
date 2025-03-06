@@ -184,6 +184,7 @@ let itemToObjMapper = dict => {
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    force_3ds_challenge: None,
   }
 }
 

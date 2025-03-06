@@ -666,6 +666,20 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
+                    field={makeFieldInfo(
+                      ~name="force_3ds_challenge",
+                      ~label="Force 3DS Challenge",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg ",
+                      ),
+                    )}
+                  />
+                </DesktopRow>
                 <ClickToPaySection />
                 <AutoRetries setCheckMaxAutoRetry />
                 <RenderIf condition={isBusinessProfileHasThreeds}>

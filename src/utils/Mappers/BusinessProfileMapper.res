@@ -52,6 +52,7 @@ let businessProfileTypeMapper = values => {
       "always_collect_billing_details_from_wallet_connector",
     ),
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
+    force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,
