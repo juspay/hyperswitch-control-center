@@ -27,6 +27,11 @@ let getV2Url = (
       }
     | _ => ""
     }
+  | SIMULATE_INTELLIGENT_ROUTING =>
+    switch queryParamerters {
+    | Some(queryParams) => `simulate?${queryParams}`
+    | None => `simulate`
+    }
   }
 }
 
@@ -613,19 +618,6 @@ let useGetURL = () => {
             }
           | _ => ""
           }
-        }
-
-      /* INTELLIGENT ROUTING */
-      | SIMULATE_INTELLIGENT_ROUTING =>
-        switch queryParamerters {
-        | Some(queryParams) => `simulate?${queryParams}`
-        | None => `simulate`
-        }
-
-      | SIMULATE_PROCESS_DATA =>
-        switch id {
-        | Some(id) => `simulate/${id}/process-data`
-        | None => `simulate`
         }
 
       /* USERS */

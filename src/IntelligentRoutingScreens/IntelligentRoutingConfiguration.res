@@ -50,7 +50,7 @@ module Analyze = {
 
     let getReviewData = async () => {
       try {
-        let _url = getURL(~entityName=SIMULATE_INTELLIGENT_ROUTING, ~methodType=Get)
+        let _url = getURL(~entityName=V2(SIMULATE_INTELLIGENT_ROUTING), ~methodType=Get)
         // let _res = await Fetch.fetch(url)
         let response = {
           file_name: "random_data.csv",
