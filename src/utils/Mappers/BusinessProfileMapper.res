@@ -14,7 +14,6 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   webhookDetails
 }
 let constructAuthConnectorObject = authConnectorDict => {
-  Js.log2("authConnectorDict", authConnectorDict)
   open LogicUtils
   let authConnectorDetails = {
     authentication_connectors: authConnectorDict->getOptionalArrayFromDict(
