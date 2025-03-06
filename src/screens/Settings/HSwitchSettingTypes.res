@@ -33,7 +33,6 @@ type webhookDetails = {
 type authConnectorDetailsType = {
   authentication_connectors: option<array<JSON.t>>,
   three_ds_requestor_url: option<string>,
-  force_3ds_challenge: option<bool>,
 }
 
 type profileSetting = {
@@ -161,6 +160,7 @@ type profileEntity = {
   is_auto_retries_enabled: option<bool>,
   max_auto_retries_enabled: option<int>,
   metadata: option<Dict.t<JSON.t>>,
+  force_3ds_challenge: option<bool>,
 }
 
 type twoFaType = RecoveryCode | Totp
