@@ -615,22 +615,22 @@ let useGetURL = () => {
           }
         }
 
-    /* INTELLIGENT ROUTING */
-    | SIMULATE_INTELLIGENT_ROUTING =>
-      switch queryParamerters {
-      | Some(queryParams) => `simulate?${queryParams}`
-      | None => `simulate`
-      }
+      /* INTELLIGENT ROUTING */
+      | SIMULATE_INTELLIGENT_ROUTING =>
+        switch queryParamerters {
+        | Some(queryParams) => `simulate?${queryParams}`
+        | None => `simulate`
+        }
 
-    | SIMULATE_PROCESS_DATA =>
-      switch id {
-      | Some(id) => `simulate/${id}/process-data`
-      | None => `simulate`
-      }
+      | SIMULATE_PROCESS_DATA =>
+        switch id {
+        | Some(id) => `simulate/${id}/process-data`
+        | None => `simulate`
+        }
 
-    /* USERS */
-    | USERS =>
-      let userUrl = `user`
+      /* USERS */
+      | USERS =>
+        let userUrl = `user`
 
         switch userType {
         // DASHBOARD LOGIN / SIGNUP

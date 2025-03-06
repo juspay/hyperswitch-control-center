@@ -27,7 +27,8 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     devVaultV2Product,
     devAltPaymentMethods,
     devHypersenseV2Product,
-  , devIntelligentRoutingV2} =
+    devIntelligentRoutingV2,
+  } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
