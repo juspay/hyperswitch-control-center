@@ -3,7 +3,9 @@ let make = () => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+  )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let setUpConnectoreContainer = async () => {

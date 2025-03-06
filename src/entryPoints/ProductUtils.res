@@ -5,6 +5,7 @@ let getVariantFromString = product =>
   | "recovery" => Recovery
   | "vault" => Vault
   | "alternate payment methods" => AlternatePaymentMethods
+  | "hypersense" => Hypersense
   | _ => Orchestrator
   }
 
@@ -15,4 +16,5 @@ let getStringFromVariant = product =>
   | Orchestrator => "Orchestrator"
   | Vault => "Vault"
   | AlternatePaymentMethods => "Alternate Payment Methods"
+  | Hypersense => "Hypersense"
   }
