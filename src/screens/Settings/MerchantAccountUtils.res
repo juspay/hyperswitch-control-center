@@ -531,9 +531,16 @@ let validateMerchantAccountForm = (
 
   Js.log2("cardIpBlockingThreshold", cardIpBlockingThreshold)
 
-  // if cardIpBlockingThreshold < 5 || cardIpBlockingThreshold > 25 {
-  //   Dict.set(errors, "webhook_url", "Please enter integer value from 5 to 25"->JSON.Encode.string)
-  // }
+  let cardTestingGuardConfig = Dict.make()
+
+  if cardIpBlockingThreshold < 5 || cardIpBlockingThreshold > 25 {
+    Dict.set(
+      cardTestingGuardConfig,
+      "card_ip_blocking_threshold",
+      "Please enter integer value from 5 to 25"->JSON.Encode.string,
+    )
+    Dict.set(errors, "card_testing_guard_config", cardTestingGuardConfig->JSON.Encode.object)
+  }
   switch threedsArray {
   | Some(valArr) => {
       let url = getString(valuesDict, "three_ds_requestor_url", "")
