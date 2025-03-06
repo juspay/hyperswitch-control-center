@@ -92,6 +92,10 @@ let make = () => {
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PaymentProcessor,
   )
+  let frmConnectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PaymentVas,
+  )
 
   let customUI =
     <HelperComponents.BluredTableComponent
@@ -110,8 +114,6 @@ let make = () => {
 
       let connectorsCount = processorsList->Array.length
       if connectorsCount > 0 {
-        let frmConnectorList =
-          connectorList->Array.filter(item => item.connector_type === PaymentVas)
         setConfiguredFRMs(_ => frmConnectorList)
         setFilteredFRMData(_ => frmConnectorList->Array.map(Nullable.make))
         setScreenState(_ => Success)
