@@ -69,6 +69,10 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "three_ds_requestor_url",
     authentication_connector_details.three_ds_requestor_url,
   )
+  profileInfo->setOptionBool(
+    "force_3ds_challenge",
+    authentication_connector_details.force_3ds_challenge,
+  )
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
@@ -224,7 +228,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "three_ds_requestor_url",
     valuesDict->getString("three_ds_requestor_url", "")->getNonEmptyString,
   )
-
+  authenticationConnectorDetails->setOptionBool(
+    "force_3ds_challenge",
+    valuesDict->getOptionBool("force_3ds_challenge"),
+  )
   let profileDetailsDict = Dict.make()
   profileDetailsDict->setDictNull(
     "return_url",
@@ -550,6 +557,7 @@ let defaultValueForBusinessProfile = {
   authentication_connector_details: {
     authentication_connectors: None,
     three_ds_requestor_url: None,
+    force_3ds_challenge: None,
   },
   collect_shipping_details_from_wallet_connector: None,
   always_collect_shipping_details_from_wallet_connector: None,

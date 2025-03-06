@@ -666,20 +666,36 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 <AutoRetries setCheckMaxAutoRetry />
                 <RenderIf condition={isBusinessProfileHasThreeds}>
                   <DesktopRow>
-                    <FieldRenderer
-                      field={threedsConnectorList
-                      ->Array.map(item => item.connector_name)
-                      ->authenticationConnectors}
-                      errorClass
-                      labelClass="!text-fs-15 !text-grey-700 font-semibold "
-                      fieldWrapperClass="max-w-xl"
-                    />
-                    <FieldRenderer
-                      field={threeDsRequestorUrl}
-                      errorClass
-                      labelClass="!text-fs-15 !text-grey-700 font-semibold"
-                      fieldWrapperClass="max-w-xl"
-                    />
+                    <div className="flex flex-col gap-4 w-full">
+                      <div className="flex flex-row items-center gap-10 w-full ">
+                        <FieldRenderer
+                          field={threedsConnectorList
+                          ->Array.map(item => item.connector_name)
+                          ->authenticationConnectors}
+                          errorClass
+                          labelClass="!text-fs-15 !text-grey-700 font-semibold "
+                          fieldWrapperClass="max-w-xl"
+                        />
+                        <FieldRenderer
+                          field={threeDsRequestorUrl}
+                          errorClass
+                          labelClass="!text-fs-15 !text-grey-700 font-semibold "
+                          fieldWrapperClass="w-1/2"
+                        />
+                      </div>
+                      <FieldRenderer
+                        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                        fieldWrapperClass="w-full flex justify-between items-center pt-8 "
+                        field={makeFieldInfo(
+                          ~name="force_3ds_challenge",
+                          ~label="Force 3DS Challenge",
+                          ~customInput=InputFields.boolInput(
+                            ~isDisabled=false,
+                            ~boolCustomClass="rounded-lg",
+                          ),
+                        )}
+                      />
+                    </div>
                   </DesktopRow>
                 </RenderIf>
                 <ReturnUrl />

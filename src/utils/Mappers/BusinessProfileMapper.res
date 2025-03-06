@@ -14,12 +14,14 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   webhookDetails
 }
 let constructAuthConnectorObject = authConnectorDict => {
+  Js.log2("authConnectorDict", authConnectorDict)
   open LogicUtils
   let authConnectorDetails = {
     authentication_connectors: authConnectorDict->getOptionalArrayFromDict(
       "authentication_connectors",
     ),
     three_ds_requestor_url: authConnectorDict->getOptionString("three_ds_requestor_url"),
+    force_3ds_challenge: authConnectorDict->getOptionBool("force_3ds_challenge"),
   }
   authConnectorDetails
 }
