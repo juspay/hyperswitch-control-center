@@ -110,20 +110,18 @@ module AuthenticationInput = {
       checked: true,
     }
 
-    <>
-      <DesktopRow wrapperClass="flex-1">
-        <div className="mt-5">
-          <TextInput
-            input={keyInput} placeholder={"Enter key"} isDisabled={isDisabled && !allowEdit}
-          />
-        </div>
-        <div className="mt-5">
-          <TextInput
-            input={valueInput} placeholder={"Enter value"} isDisabled={isDisabled && !allowEdit}
-          />
-        </div>
-      </DesktopRow>
-    </>
+    <DesktopRow wrapperClass="flex-1">
+      <div className="mt-5">
+        <TextInput
+          input={keyInput} placeholder={"Enter key"} isDisabled={isDisabled && !allowEdit}
+        />
+      </div>
+      <div className="mt-5">
+        <TextInput
+          input={valueInput} placeholder={"Enter value"} isDisabled={isDisabled && !allowEdit}
+        />
+      </div>
+    </DesktopRow>
   }
 }
 module WebHookAuthenticationHeaders = {
@@ -153,25 +151,22 @@ module WebHookAuthenticationHeaders = {
       None
     }, [])
     <div className="flex-1">
-      <div className="flex flex-row items-center gap-4 ">
+      <div className="flex flex-row justify-between items-center gap-4 ">
         <p
-          className={`ml-4 text-xl text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1  !text-grey-700 font-semibold ml-1`}>
+          className={`text-xl dark:text-jp-gray-text_darktheme dark:text-opacity-50  !text-grey-700 font-semibold ml-4`}>
           {"Custom Headers"->React.string}
         </p>
         <RenderIf
           condition={!(outGoingWebhookDict->LogicUtils.isEmptyDict) && isDisabled && !allowEdit}>
-          <Button
-            text=""
-            customButtonStyle="bg-none !border-none cursor-pointer !p-0"
-            customBackColor="bg-transparent"
-            rightIcon={FontAwesome("edit")}
-            customIconSize={18}
-            buttonSize=Small
-            onClick={_ => setShowModal(_ => true)}
-          />
+          <div
+            className="flex gap-2 items-center cursor-pointer"
+            onClick={_ => setShowModal(_ => true)}>
+            <Icon name="nd-edit" size=14 />
+            <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+          </div>
         </RenderIf>
       </div>
-      <div className="grid grid-cols-5 flex gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {Array.fromInitializer(~length=4, i => i)
         ->Array.mapWithIndex((_, index) =>
           <div key={index->Int.toString} className="col-span-4">
@@ -233,7 +228,7 @@ module WebHookSection = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let valuesDict = values->getDictFromJsonObject
 
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
+        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
         let body = valuesDict->JSON.Encode.object->getCustomHeadersPayload->JSON.Encode.object
         let res = await updateDetails(url, body, Post)
         setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
@@ -249,17 +244,18 @@ module WebHookSection = {
       }
       Nullable.null
     }
-    <>
-      <ReactFinalForm.Form
-        key="auth"
-        initialValues={busiProfieDetails->parseBussinessProfileJson->JSON.Encode.object}
-        subscription=ReactFinalForm.subscribeToValues
-        onSubmit
-        render={({handleSubmit}) => {
-          <form onSubmit={handleSubmit} className="flex flex-col gap-8 h-full w-full py-6 px-4">
-            <WebHookAuthenticationHeaders setAllowEdit allowEdit />
-            <DesktopRow>
-              <div className="flex justify-end w-full gap-2">
+
+    <ReactFinalForm.Form
+      key="auth"
+      initialValues={busiProfieDetails->parseBussinessProfileJson->JSON.Encode.object}
+      subscription=ReactFinalForm.subscribeToValues
+      onSubmit
+      render={({handleSubmit}) => {
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8 h-full w-full py-6 px-4">
+          <WebHookAuthenticationHeaders setAllowEdit allowEdit />
+          <DesktopRow>
+            <div className="flex justify-end w-full gap-2">
+              <RenderIf condition=allowEdit>
                 <SubmitButton
                   text="Update"
                   buttonType=Button.Primary
@@ -274,13 +270,13 @@ module WebHookSection = {
                     )}
                   text="Cancel"
                 />
-              </div>
-            </DesktopRow>
-            // <FormValuesSpy />
-          </form>
-        }}
-      />
-    </>
+              </RenderIf>
+            </div>
+          </DesktopRow>
+          // <FormValuesSpy />
+        </form>
+      }}
+    />
   }
 }
 
@@ -452,20 +448,20 @@ module ClickToPaySection = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let connectorListAtom = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let connectorListAtom = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV1,
+      ~retainInList=AuthenticationProcessor,
+    )
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     let isClickToPayEnabled =
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
-    let dropDownOptions =
-      connectorListAtom
-      ->Array.filter(ele => ele.connector_type === AuthenticationProcessor)
-      ->Array.map((item): SelectBox.dropdownOption => {
-        {
-          label: `${item.connector_label} - ${item.merchant_connector_id}`,
-          value: item.merchant_connector_id,
-        }
-      })
+    let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
+      {
+        label: `${item.connector_label} - ${item.merchant_connector_id}`,
+        value: item.merchant_connector_id,
+      }
+    })
 
     <RenderIf condition={featureFlagDetails.clickToPay && connectorView}>
       <DesktopRow>
@@ -532,10 +528,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     None
   }, [businessProfileDetails.profile_id])
 
-  let threedsConnectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->Array.filter(item => item.connector_type === AuthenticationProcessor)
+  let threedsConnectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=AuthenticationProcessor,
+  )
 
   let isBusinessProfileHasThreeds = threedsConnectorList->Array.some(item => item.profile_id == id)
 
@@ -553,7 +549,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       open LogicUtils
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
@@ -712,6 +708,12 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
             <WebHookSection busiProfieDetails setBusiProfie setScreenState profileId />
+          </div>
+        </div>
+        <div className="py-4 md:py-10 h-full flex flex-col">
+          <div
+            className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
+            <PaymentSettingsMetadata busiProfieDetails setBusiProfie setScreenState profileId />
           </div>
         </div>
       </div>

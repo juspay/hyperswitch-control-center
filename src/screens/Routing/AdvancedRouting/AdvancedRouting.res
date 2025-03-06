@@ -153,10 +153,6 @@ module Wrapper = {
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
     let (isExpanded, setIsExpanded) = React.useState(_ => true)
-    let (addBtnHover, setAddBtnHover) = React.useState(_ => false)
-    let (dragBtnHover, setDragBtnHover) = React.useState(_ => false)
-    let (copyBtnHover, setCopyBtnHover) = React.useState(_ => false)
-    let (deleteBtnHover, setDeleteBtnHover) = React.useState(_ => false)
     let gateWaysInput = ReactFinalForm.useField(`${id}.connectorSelection.data`).input
     let name = ReactFinalForm.useField(`${id}.name`).input
     let conditionsInput = ReactFinalForm.useField(`${id}.statements`).input
@@ -231,64 +227,40 @@ module Wrapper = {
 
     let border = isDragging ? "border-dashed" : "border-solid"
     let flex = isExpanded ? "flex-col" : "flex-wrap items-center gap-4"
-
+    let hoverCss = "transition-all duration-150 hover:bg-gray-200 active:scale-95 active:bg-gray-300 "
+    let actionTextCss = "flex flex-row gap-2 items-center justify-around p-2 bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer"
+    let actionIconCss = "flex items-center justify-center p-2 bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer"
+    let responsiveCss = isMobileView ? "" : "w-1/3 mr-6"
     let actions =
-      <div
-        className={`flex flex-row gap-3 md:gap-10 items-center justify-end
-        ${isMobileView ? "" : "w-1/3 mr-6"}`}>
+      <div className={`flex flex-row gap-3 md:gap-10 items-center justify-end ${responsiveCss}`}>
         <RenderIf condition={notFirstRule}>
-          <div
-            onMouseEnter={_ => setDragBtnHover(_ => !isMobileView)}
-            onMouseLeave={_ => setDragBtnHover(_ => false)}
-            className={`flex flex-row gap-2 items-center justify-around p-2 ${dragBtnHover
-                ? "py-1"
-                : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
-            <Icon name="grip-vertical" className="text-jp-gray-700" size=14 />
-            <RenderIf condition={dragBtnHover}>
-              <div className="text-sm "> {React.string("Drag Rule")} </div>
-            </RenderIf>
+          <div className={`${actionTextCss} ${hoverCss}`}>
+            <Icon name="grip-vertical" className="text-jp-gray-700" size={14} />
+            <div className="text-xs font-medium"> {React.string("Drag Rule")} </div>
           </div>
         </RenderIf>
-        <div
-          onClick=onClickAdd
-          onMouseEnter={_ => setAddBtnHover(_ => !isMobileView)}
-          onMouseLeave={_ => setAddBtnHover(_ => false)}
-          className={`flex flex-row gap-2 items-center justify-around p-2 ${addBtnHover
-              ? "py-1"
-              : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
-          <Icon name="plus" className="text-jp-gray-700" size=12 />
-          <RenderIf condition={addBtnHover}>
-            <div className="text-sm "> {React.string("Add New Rule")} </div>
-          </RenderIf>
+        <div onClick={onClickAdd} className={`${actionTextCss} ${hoverCss}`}>
+          <Icon name="plus" className="text-jp-gray-700" size={12} />
+          <div className="text-xs font-medium"> {React.string("Add New Rule")} </div>
         </div>
         {switch onClickCopy {
         | Some(onClick) =>
-          <div
-            onClick
-            onMouseEnter={_ => setCopyBtnHover(_ => !isMobileView)}
-            onMouseLeave={_ => setCopyBtnHover(_ => false)}
-            className={`flex flex-row gap-2 items-center justify-around p-2 ${copyBtnHover
-                ? "py-1"
-                : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
-            <Icon name="nd-copy" className="text-jp-gray-700" size=12 />
-            <RenderIf condition={copyBtnHover}>
-              <div className="text-sm "> {React.string("Copy Rule")} </div>
-            </RenderIf>
+          <div onClick={onClick} className={`${actionIconCss} ${hoverCss}`}>
+            <ToolTip
+              description="Copy Rule"
+              toolTipFor={<Icon name="nd-copy" className="text-jp-gray-700" size={12} />}
+              toolTipPosition=Top
+            />
           </div>
         | None => React.null
         }}
         <RenderIf condition={notFirstRule}>
-          <div
-            onClick=onClickRemove
-            onMouseEnter={_ => setDeleteBtnHover(_ => !isMobileView)}
-            onMouseLeave={_ => setDeleteBtnHover(_ => false)}
-            className={`flex flex-row gap-2 items-center justify-around p-2 ${deleteBtnHover
-                ? "py-1"
-                : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
-            <Icon name="trash" className="text-jp-gray-700" size=12 />
-            <RenderIf condition={deleteBtnHover}>
-              <div className="text-sm "> {React.string("Delete Rule")} </div>
-            </RenderIf>
+          <div onClick={onClickRemove} className={`${actionIconCss} ${hoverCss}`}>
+            <ToolTip
+              description="Delete Rule"
+              toolTipFor={<Icon name="trash" className="text-jp-gray-700" size={12} />}
+              toolTipPosition=Top
+            />
           </div>
         </RenderIf>
       </div>

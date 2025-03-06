@@ -118,10 +118,25 @@ let convertFRMConfigJsonToObj = json => {
   })
 }
 
-let getPaymentMethodTypes = dict => {
+let getPaymentMethodTypes = (dict): paymentMethodConfigType => {
   open ConnectorUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
+    payment_experience: dict->getOptionString("payment_experience"),
+    card_networks: dict->getStrArrayFromDict("card_networks", []),
+    accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
+    accepted_currencies: dict->getDictfromDict("accepted_currencies")->acceptedValues,
+    minimum_amount: dict->getOptionInt("minimum_amount"),
+    maximum_amount: dict->getOptionInt("maximum_amount"),
+    recurring_enabled: dict->getOptionBool("recurring_enabled"),
+    installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
+  }
+}
+
+let getPaymentMethodTypesV2 = (dict): ConnectorTypes.paymentMethodConfigTypeV2 => {
+  open ConnectorUtils
+  {
+    payment_method_subtype: dict->getString("payment_method_subtype", ""),
     payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
     accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
@@ -143,7 +158,7 @@ let getPaymentMethodsEnabled: Dict.t<JSON.t> => paymentMethodEnabledType = dict 
   }
 }
 
-let getProcessorPayloadType = (dict): connectorPayload => {
+let mapDictToConnectorPayload = (dict): connectorPayload => {
   {
     connector_type: dict
     ->getString("connector_type", "")
@@ -177,13 +192,13 @@ let getPaymentMethodsEnabledV2: Dict.t<JSON.t> => paymentMethodEnabledTypeV2 = d
   {
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_subtypes: dict
-    ->Dict.get("payment_method_types")
+    ->Dict.get("payment_method_subtypes")
     ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->getArrayDataFromJson(getPaymentMethodTypes),
+    ->getArrayDataFromJson(getPaymentMethodTypesV2),
   }
 }
 
-let getProcessorPayloadTypeV2 = (dict): connectorPayloadV2 => {
+let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
   {
     connector_type: dict
     ->getString("connector_type", "")
@@ -193,13 +208,12 @@ let getProcessorPayloadTypeV2 = (dict): connectorPayloadV2 => {
     connector_account_details: dict
     ->getObj("connector_account_details", Dict.make())
     ->getAccountDetails,
-    test_mode: dict->getBool("test_mode", true),
     disabled: dict->getBool("disabled", true),
     payment_methods_enabled: dict
     ->getJsonObjectFromDict("payment_methods_enabled")
     ->getArrayDataFromJson(getPaymentMethodsEnabledV2),
     profile_id: dict->getString("profile_id", ""),
-    merchant_connector_id: dict->getString("merchant_connector_id", ""),
+    id: dict->getString("id", ""),
     frm_configs: dict->getArrayFromDict("frm_configs", [])->convertFRMConfigJsonToObjResponse,
     status: dict->getString("status", "inactive"),
     connector_webhook_details: dict->getJsonObjectFromDict("connector_webhook_details"),
@@ -207,5 +221,67 @@ let getProcessorPayloadTypeV2 = (dict): connectorPayloadV2 => {
     additional_merchant_data: dict
     ->getObj("additional_merchant_data", Dict.make())
     ->JSON.Encode.object,
+    feature_metadata: dict
+    ->getObj("feature_metadata", Dict.make())
+    ->JSON.Encode.object,
   }
+}
+
+let filter = (connectorType, ~retainInList) => {
+  switch (retainInList, connectorType) {
+  | (PaymentProcessor, PaymentProcessor)
+  | (PaymentVas, PaymentVas)
+  | (PayoutProcessor, PayoutProcessor)
+  | (AuthenticationProcessor, AuthenticationProcessor)
+  | (PMAuthProcessor, PMAuthProcessor)
+  | (TaxProcessor, TaxProcessor)
+  | (BillingProcessor, BillingProcessor) => true
+  | _ => false
+  }
+}
+
+let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, retainInList) => {
+  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
+}
+
+let filterConnectorListV2 = (items: array<ConnectorTypes.connectorPayloadV2>, retainInList) => {
+  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
+}
+
+let mapConnectorPayloadToConnectorType = (
+  ~connectorType=ConnectorTypes.Processor,
+  connectorsList: array<ConnectorTypes.connectorPayload>,
+) => {
+  connectorsList->Array.map(connectorDetail =>
+    connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
+  )
+}
+
+let mapConnectorPayloadToConnectorTypeV2 = (
+  ~connectorType=ConnectorTypes.Processor,
+  connectorsList: array<ConnectorTypes.connectorPayloadV2>,
+) => {
+  connectorsList->Array.map(connectorDetail =>
+    connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
+  )
+}
+
+let mapJsonArrayToConnectorPayloads = (json, retainInList) => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(connectorJson => {
+    let data = connectorJson->getDictFromJsonObject->mapDictToConnectorPayload
+    data
+  })
+  ->filterConnectorList(retainInList)
+}
+
+let mapJsonArrayToConnectorPayloadsV2 = (json, retainInList) => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(connectorJson => {
+    let data = connectorJson->getDictFromJsonObject->mapDictToConnectorPayloadV2
+    data
+  })
+  ->filterConnectorListV2(retainInList)
 }

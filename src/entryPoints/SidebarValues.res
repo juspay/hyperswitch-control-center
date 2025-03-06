@@ -50,10 +50,10 @@ module GetProductionAccess = {
 module ProductHeaderComponent = {
   @react.component
   let make = () => {
-    let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
+    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
     <div className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest`}>
-      {React.string(currentProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
+      {React.string(activeProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
     </div>
   }
 }
@@ -695,7 +695,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
 }
 
 let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
-  let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {isLiveMode, devModularityV2} = featureFlagDetails
@@ -718,11 +718,13 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
     ])
   }
 
-  let sidebarValuesForProduct = switch currentProduct {
+  let sidebarValuesForProduct = switch activeProduct {
   | Orchestrator => hsSidebars
-  | Recon => [ReconSidebarValues.reconSidebars]
+  | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
+  | AlternatePaymentMethods => AlternatePaymentMethodsSidebarValues.altPaymentMethodsSidebars
+  | Hypersense => HypersenseSidebarValues.hypersenseSidebars
   | IntelligentRouting => IntelligentaRoutingSidebarValues.intelligentRoutingSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)

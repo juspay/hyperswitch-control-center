@@ -45,10 +45,12 @@ type featureFlag = {
   devReconv2Product: bool,
   devRecoveryV2Product: bool,
   devVaultV2Product: bool,
+  devAltPaymentMethods: bool,
+  devHypersenseV2Product: bool,
+  devModularityV2: bool,
   maintainenceAlert: string,
   forceCookies: bool,
   authenticationAnalytics: bool,
-  devModularityV2: bool,
   devIntelligentRoutingV2: bool,
 }
 
@@ -97,10 +99,12 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devReconv2Product: dict->getBool("dev_recon_v2_product", false),
     devRecoveryV2Product: dict->getBool("dev_recovery_v2_product", false),
     devVaultV2Product: dict->getBool("dev_vault_v2_product", false),
+    devHypersenseV2Product: dict->getBool("dev_hypersense_v2_product", false),
     maintainenceAlert: dict->getString("maintainence_alert", ""),
     forceCookies: dict->getBool("force_cookies", false),
     authenticationAnalytics: dict->getBool("authentication_analytics", false),
     devModularityV2: dict->getBool("dev_modularity_v2", false),
+    devAltPaymentMethods: dict->getBool("dev_alt_payment_methods", false),
     devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
   }
 }

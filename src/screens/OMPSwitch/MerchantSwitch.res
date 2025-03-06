@@ -7,7 +7,7 @@ module NewMerchantCreationModal = {
     let showToast = ToastState.useShowToast()
     let createNewMerchant = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let _ = await updateDetails(url, values, Post)
         getMerchantList()->ignore
         showToast(
@@ -129,7 +129,6 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let url = RescriptReactRouter.useUrl()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
@@ -146,7 +145,7 @@ let make = () => {
   } = React.useContext(ThemeProvider.themeContext)
   let getMerchantList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
       let response = await fetchDetails(url)
       setMerchantList(_ => response->getArrayDataFromJson(merchantItemToObjMapper))
     } catch {
@@ -161,7 +160,6 @@ let make = () => {
     try {
       setShowSwitchingMerch(_ => true)
       let _ = await internalSwitch(~expectedMerchantId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingMerch(_ => false)
     } catch {
     | _ => {
@@ -183,7 +181,7 @@ let make = () => {
     checked: true,
   }
 
-  let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
+  let widthClass = isMobileView ? "w-full" : "md:w-60 md:max-w-80"
   let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
 
   let addItemBtnStyle = `w-full ${borderColor} border-t-0`

@@ -1,7 +1,7 @@
 module Heading = {
   @react.component
   let make = (~heading) => {
-    open ConnectorPaymentMethodV3Utils
+    open ConnectorPaymentMethodV2Utils
     <div className="flex gap-2.5 items-center">
       <div className="p-2 bg-white border rounded-md">
         <Icon name={heading->pmIcon} />
@@ -23,6 +23,7 @@ module PaymentMethodTypes = {
     ~connector,
     ~showCheckbox=true,
     ~onClick=None,
+    ~formValues: ConnectorTypes.connectorPayloadV2,
   ) => {
     let handleClick = () => {
       switch onClick {
@@ -42,6 +43,7 @@ module PaymentMethodTypes = {
                 ~pmtIndex=pmtIndex->Int.toString,
                 ~pm,
                 ~connector,
+                ~formValues,
               )}
             />
           </div>
@@ -54,7 +56,14 @@ module PaymentMethodTypes = {
 
 module HeadingSection = {
   @react.component
-  let make = (~index, ~pm, ~availablePM, ~pmIndex, ~pmt, ~showSelectAll) => {
+  let make = (
+    ~index,
+    ~pm,
+    ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeV2>,
+    ~pmIndex,
+    ~pmt,
+    ~showSelectAll,
+  ) => {
     open FormRenderer
 
     <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
@@ -81,9 +90,9 @@ module HeadingSection = {
 
 module SelectedPMT = {
   @react.component
-  let make = (~pmtData: array<ConnectorTypes.paymentMethodConfigType>, ~index, ~pm) => {
+  let make = (~pmtData: array<ConnectorTypes.paymentMethodConfigTypeV2>, ~index, ~pm) => {
     open LogicUtils
-    open ConnectorPaymentMethodV3Utils
+    open ConnectorPaymentMethodV2Utils
     <RenderIf condition={pmtData->Array.length > 0}>
       <div
         className="border border-nd_gray-150 rounded-xl overflow-hidden"
@@ -96,7 +105,7 @@ module SelectedPMT = {
           ->Array.mapWithIndex((data, i) => {
             let label = switch pm->getPMTFromString {
             | Credit | Debit => data.card_networks->Array.joinWith(",")
-            | _ => data.payment_method_type->snakeToTitle
+            | _ => data.payment_method_subtype->snakeToTitle
             }
             <AddDataAttributes key={i->Int.toString} attributes=[("data-testid", `${label}`)]>
               <div key={i->Int.toString} className={"flex gap-1.5 items-center"}>

@@ -14,7 +14,7 @@ let make = (
   let getURL = useGetURL()
   let onSubmit = async (values, _) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let body =
         [
           (

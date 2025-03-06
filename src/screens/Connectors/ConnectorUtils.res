@@ -108,13 +108,12 @@ let connectorList: array<connectorTypes> = [
   Processors(JPMORGAN),
   Processors(XENDIT),
   Processors(INESPAY),
+  Processors(MONERIS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
-  Processors(STRIPE),
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
-  Processors(PAYPAL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -123,18 +122,22 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CRYPTOPAY),
   Processors(CASHTOCODE),
   Processors(CYBERSOURCE),
+  Processors(COINGATE),
+  Processors(DATATRANS),
   Processors(FIUU),
   Processors(IATAPAY),
   Processors(KLARNA),
   Processors(MIFINITY),
   Processors(NMI),
   Processors(NOVALNET),
+  Processors(PAYPAL),
+  Processors(PAYBOX),
   Processors(PAYME),
+  Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
   Processors(ZSL),
   Processors(ZEN),
-  Processors(PAYBOX),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
@@ -410,6 +413,9 @@ let xenditInfo = {
 let inespayInfo = {
   description: "Inespay is an online bank transfer payment gateway that operates in three simple steps without the need for prior registration. It is registered as a payment institution authorized by the Bank of Spain with number 6902. Specializing in integrating bank transfer as an online payment method on all kinds of web platforms, especially in B2B environments. It collaborates with leaders in various economic sectors, offering a real-time bank transfer income service and automatic reconciliation.",
 }
+let monerisInfo = {
+  description: "Unify your retail operations with the combined power of Moneris and Wix, in an all-in-one omnichannel POS solution.",
+}
 
 // Dummy Connector Info
 let pretendpayInfo = {
@@ -646,6 +652,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | JPMORGAN => "jpmorgan"
   | XENDIT => "xendit"
   | INESPAY => "inespay"
+  | MONERIS => "moneris"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -784,6 +791,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "jpmorgan" => Processors(JPMORGAN)
     | "xendit" => Processors(XENDIT)
     | "inespay" => Processors(INESPAY)
+    | "moneris" => Processors(MONERIS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -902,6 +910,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | JPMORGAN => jpmorganInfo
   | XENDIT => xenditInfo
   | INESPAY => inespayInfo
+  | MONERIS => monerisInfo
   }
 }
 
@@ -1657,39 +1666,6 @@ let getConnectorPaymentMethodDetails = async (
   }
 }
 
-let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
-  items->Array.filter(dict => {
-    let connectorType = dict.connector_type
-    let isPayoutProcessor = connectorType == PayoutProcessor
-    let isThreeDsAuthenticator = connectorType == AuthenticationProcessor
-    let isPMAuthenticationProcessor = connectorType == PMAuthProcessor
-    let isTaxProcessor = connectorType == TaxProcessor
-    let isConnector =
-      connectorType !== PaymentVas &&
-      !isPayoutProcessor &&
-      !isThreeDsAuthenticator &&
-      !isPMAuthenticationProcessor &&
-      !isTaxProcessor
-
-    switch removeFromList {
-    | Processor => !isConnector
-    | FRMPlayer => isConnector
-    | PayoutProcessor => isPayoutProcessor
-    | ThreeDsAuthenticator => isThreeDsAuthenticator
-    | PMAuthenticationProcessor => isPMAuthenticationProcessor
-    | TaxProcessor => isTaxProcessor
-    | BillingProcessor => connectorType == BillingProcessor
-    }
-  })
-}
-
-let getProcessorsListFromJson = (
-  connnectorList: array<ConnectorTypes.connectorPayload>,
-  ~removeFromList: connector=FRMPlayer,
-) => {
-  connnectorList->filterList(~removeFromList)
-}
-
 let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
   | ADYEN => "Adyen"
@@ -1764,6 +1740,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | JPMORGAN => "JP Morgan"
   | XENDIT => "Xendit"
   | INESPAY => "Inespay"
+  | MONERIS => "Moneris"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -1824,14 +1801,6 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   }
 }
 
-let getConnectorTypeArrayFromListConnectors = (
-  ~connectorType=ConnectorTypes.Processor,
-  connectorsList: array<ConnectorTypes.connectorPayload>,
-) => {
-  connectorsList->Array.map(connectorDetail =>
-    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType)
-  )
-}
 // Need to remove connector and merge connector and connectorTypeVariants
 let connectorTypeTuple = connectorType => {
   switch connectorType {

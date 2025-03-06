@@ -3,8 +3,12 @@ let make = (~connectorInfo) => {
   open CommonAuthHooks
   open LogicUtils
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let connectorInfodict =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    connectorInfo->LogicUtils.getDictFromJsonObject,
+  )
+
   let (processorType, _) =
     connectorInfodict.connector_type
     ->ConnectorUtils.connectorTypeTypedValueToStringMapper
@@ -39,7 +43,7 @@ let make = (~connectorInfo) => {
         Dict.make()
       }
     }
-  }, [connectorInfodict.merchant_connector_id])
+  }, [connectorInfodict.id])
 
   let handleClick = () => {
     setShowSideBar(_ => true)
@@ -62,7 +66,7 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col ">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.merchant_connector_id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
       </div>
     </div>
     <ACLButton

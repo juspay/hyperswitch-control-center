@@ -57,10 +57,14 @@ type entityName =
   | API_EVENT_LOGS
   | ANALYTICS_PAYMENTS_V2
   | ANALYTICS_SANKEY
+  | HYPERSENSE
+
+type v2entityNameType = V2_CUSTOMERS_LIST | V2_CONNECTOR
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
 type reconType = [#TOKEN | #REQUEST | #NONE]
+type hypersenseType = [#TOKEN | #HOME | #NONE]
 
 type userType = [
   | #CONNECT_ACCOUNT
@@ -119,13 +123,16 @@ type userType = [
   | #NONE
 ]
 
+type entityTypeWithVersion = V1(entityName) | V2(v2entityNameType)
+
 type getUrlTypes = (
-  ~entityName: entityName,
+  ~entityName: entityTypeWithVersion,
   ~methodType: Fetch.requestMethod,
   ~id: option<string>=?,
   ~connector: option<string>=?,
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
   ~reconType: reconType=?,
+  ~hypersenseType: hypersenseType=?,
   ~queryParamerters: option<string>=?,
 ) => string

@@ -68,7 +68,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
   let generateRecoveryCodes = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get)
       let response = await fetchDetails(url)
       let recoveryCodesValue = response->getDictFromJsonObject->getStrArray("recovery_codes")
       setRecoveryCodes(_ => recoveryCodesValue)
