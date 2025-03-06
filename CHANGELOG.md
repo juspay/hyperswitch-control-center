@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.06.1
+
+### Features
+
+- Add force 3ds challenge ([#2381](https://github.com/juspay/hyperswitch-control-center/pull/2381)) ([`4941adb`](https://github.com/juspay/hyperswitch-control-center/commit/4941adbf70a576eef4e67452ae8f8c0a98c4986e))
+
+### Miscellaneous Tasks
+
+- Authentication analytics revamp ([#2377](https://github.com/juspay/hyperswitch-control-center/pull/2377)) ([`f7253de`](https://github.com/juspay/hyperswitch-control-center/commit/f7253de3332f30a184a8075de16b4cf1394a9f12))
+
+**Full Changelog:** [`2025.03.06.0...2025.03.06.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.06.0...2025.03.06.1)
+
+
+- - -
+
 ## 2025.03.06.0
 
 ### Features
