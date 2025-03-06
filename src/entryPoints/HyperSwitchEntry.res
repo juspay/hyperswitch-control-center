@@ -43,6 +43,7 @@ module HyperSwitchEntryComponent = {
             faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
             logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           },
+          hypersenseUrl: dict->getString("hypersense_url", ""),
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore

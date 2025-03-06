@@ -720,10 +720,11 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
 
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestrator => hsSidebars
-  | Recon => [ReconSidebarValues.reconSidebars]
+  | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   | AlternatePaymentMethods => AlternatePaymentMethodsSidebarValues.altPaymentMethodsSidebars
+  | Hypersense => HypersenseSidebarValues.hypersenseSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }
