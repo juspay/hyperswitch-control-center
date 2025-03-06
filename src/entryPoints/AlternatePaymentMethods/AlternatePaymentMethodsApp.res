@@ -12,10 +12,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     goToLanding()
     None
-  })
+  }, [])
 
   {
     switch url.path->HSwitchUtils.urlPath {

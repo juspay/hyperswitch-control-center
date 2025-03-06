@@ -1,6 +1,11 @@
 @react.component
-let make = () => {
-  <div>
-    <ReconOnbdLanding />
-  </div>
+let make = (~showOnBoarding) => {
+  open ReconOnboardingHelper
+
+  {
+    switch showOnBoarding {
+    | true => <ReconOnboardingLanding />
+    | false => <ReconOverview />
+    }
+  }
 }

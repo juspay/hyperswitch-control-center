@@ -108,6 +108,7 @@ let connectorList: array<connectorTypes> = [
   Processors(JPMORGAN),
   Processors(XENDIT),
   Processors(INESPAY),
+  Processors(MONERIS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -412,6 +413,9 @@ let xenditInfo = {
 let inespayInfo = {
   description: "Inespay is an online bank transfer payment gateway that operates in three simple steps without the need for prior registration. It is registered as a payment institution authorized by the Bank of Spain with number 6902. Specializing in integrating bank transfer as an online payment method on all kinds of web platforms, especially in B2B environments. It collaborates with leaders in various economic sectors, offering a real-time bank transfer income service and automatic reconciliation.",
 }
+let monerisInfo = {
+  description: "Unify your retail operations with the combined power of Moneris and Wix, in an all-in-one omnichannel POS solution.",
+}
 
 // Dummy Connector Info
 let pretendpayInfo = {
@@ -648,6 +652,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | JPMORGAN => "jpmorgan"
   | XENDIT => "xendit"
   | INESPAY => "inespay"
+  | MONERIS => "moneris"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -786,6 +791,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "jpmorgan" => Processors(JPMORGAN)
     | "xendit" => Processors(XENDIT)
     | "inespay" => Processors(INESPAY)
+    | "moneris" => Processors(MONERIS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -904,6 +910,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | JPMORGAN => jpmorganInfo
   | XENDIT => xenditInfo
   | INESPAY => inespayInfo
+  | MONERIS => monerisInfo
   }
 }
 
@@ -1733,6 +1740,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | JPMORGAN => "JP Morgan"
   | XENDIT => "Xendit"
   | INESPAY => "Inespay"
+  | MONERIS => "Moneris"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

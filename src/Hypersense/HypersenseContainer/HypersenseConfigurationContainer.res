@@ -1,4 +1,4 @@
 @react.component
 let make = () => {
-  <ReconAnalytics />
+  <HypersenseConfiguration />
 }
