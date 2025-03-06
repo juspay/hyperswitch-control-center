@@ -911,8 +911,8 @@ let make = (
                   <FunnelChart
                     data={data}
                     metrics={metrics}
-                    moduleName="Sales Funnel"
-                    description=Some("Conversion metrics from visit to purchase")
+                    moduleName="Authentication Funnel"
+                    description=Some("Breakdown of ThreeDS 2.0 Journey")
                   />
                 </div>
               </div>
