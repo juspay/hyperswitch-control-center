@@ -13,6 +13,23 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   }
   webhookDetails
 }
+let constructCardGuardDetailsObject = cardDetailsDict => {
+  open LogicUtils
+  let cardGuardDetails = {
+    card_ip_blocking_status: cardDetailsDict->getOptionString("card_ip_blocking_status"),
+    card_ip_blocking_threshold: cardDetailsDict->getOptionInt("card_ip_blocking_threshold"),
+    guest_user_card_blocking_status: cardDetailsDict->getOptionString(
+      "guest_user_card_blocking_status",
+    ),
+    guest_user_card_blocking_threshold: cardDetailsDict->getOptionInt(
+      "guest_user_card_blocking_threshold",
+    ),
+    customer_id_blocking_status: cardDetailsDict->getOptionString("customer_id_blocking_status"),
+    customer_id_blocking_threshold: cardDetailsDict->getOptionInt("customer_id_blocking_threshold"),
+    card_testing_guard_expiry: cardDetailsDict->getOptionInt("card_testing_guard_expiry"),
+  }
+  cardGuardDetails
+}
 let constructAuthConnectorObject = authConnectorDict => {
   open LogicUtils
   let authConnectorDetails = {
@@ -65,6 +82,9 @@ let businessProfileTypeMapper = values => {
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    card_testing_guard_config: jsonDict
+    ->getDictfromDict("card_testing_guard_config")
+    ->constructCardGuardDetailsObject,
   }
 }
 
