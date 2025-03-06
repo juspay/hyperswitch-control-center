@@ -30,6 +30,7 @@ type filterBodyEntity = {
   groupByNames: array<string>,
   source: string,
   mode?: string,
+  metrics?: array<string>,
 }
 // check the ISOLATING FILTERS Component section https://docs.google.com/document/d/1Wub6jhmKqJVrxthYZ_y8BNUOGv9MW_wU3LsY5shYdUE/edit for more info
 type filterEntity<'t> = {
@@ -296,6 +297,7 @@ let filterBody = (filterBodyEntity: filterBodyEntity) => {
     ~endDateTime=endTime,
     ~groupByNames=Some(filterBodyEntity.groupByNames),
     ~source=filterBodyEntity.source,
+    ~metrics=filterBodyEntity.metrics,
   )
 }
 

@@ -570,6 +570,7 @@ let make = (
       endTime: endTimeVal,
       groupByNames: filteredTabKeys,
       source: "BATCH",
+      metrics: ["authentication_count", "authentication_success_count"],
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
   }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
@@ -577,6 +578,7 @@ let make = (
   open APIUtils
   open Promise
   let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
+
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = FilterContext.filterContext->React.useContext
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -587,8 +589,10 @@ let make = (
       try {
         switch filterUri {
         | Some(filterUri) =>
-          updateDetails(filterUri, filterBody->JSON.Encode.object, Post)
-          ->thenResolve(json => setFilterDataJson(_ => Some(json)))
+          updateDetails(filterUri, [filterBody->JSON.Encode.object]->JSON.Encode.array, Post)
+          ->thenResolve(json => {
+            setFilterDataJson(_ => Some(json))
+          })
           ->catch(_ => resolve())
           ->ignore
         | None => ()
@@ -601,13 +605,21 @@ let make = (
   }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
   let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
-  let activeTab = React.useMemo(() => {
-    Some(
-      filterValueDict
-      ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
-      ->Array.filter(item => item->LogicUtils.isNonEmptyString),
-    )
-  }, [filterValueDict])
+  let queryData =
+    filterData
+    ->getDictFromJsonObject
+    ->getArrayFromDict("queryData", [])
+    ->Array.get(0)
+    ->Option.getOr(JSON.Encode.null)
+    ->getDictFromJsonObject
+
+  // let activeTab = React.useMemo(() => {
+  //   Some(
+  //     filterValueDict
+  //     ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
+  //     ->Array.filter(item => item->LogicUtils.isNonEmptyString),
+  //   )
+  // }, [filterValueDict])
   let isMobileView = MatchMedia.useMobileChecker()
 
   let tabDetailsClass = React.useMemo(() => {
@@ -665,6 +677,71 @@ let make = (
       />
     </div>
   }
+
+  let authenticationCount = queryData->getInt("authentication_count", 0)
+  let authenticationSuccessCount = queryData->getInt("authentication_success_count", 0)
+
+  let paymentReq3DSAuth = {
+    if authenticationCount > 0 && authenticationSuccessCount > 0 {
+      (authenticationCount / authenticationCount)->Int.toFloat
+    } else {
+      0.0
+    }
+  }
+
+  let authenticationSuccesful = {
+    if authenticationCount > 0 && authenticationSuccessCount > 0 {
+      authenticationSuccessCount->Int.toFloat /. authenticationCount->Int.toFloat
+    } else {
+      0.0
+    }
+  }
+
+  let metrics: array<LineChartUtils.metricsConfig> = [
+    {
+      metric_name_db: "payments_requiring_3ds_2_authentication",
+      metric_label: "Payments Requiring 3DS 2.0 Authentication",
+      thresholdVal: Some(paymentReq3DSAuth *. 100.0),
+      step_up_threshold: Some(paymentReq3DSAuth *. 100.0),
+      metric_type: Volume,
+      disabled: false,
+    },
+    {
+      metric_name_db: "authentication_initiated",
+      metric_label: "Authentication Initiated",
+      thresholdVal: Some(100->Int.toFloat),
+      step_up_threshold: Some(100->Int.toFloat),
+      metric_type: Volume,
+      disabled: false,
+    },
+    {
+      metric_name_db: "authentication_attemped",
+      metric_label: "Authentication Attempted",
+      thresholdVal: Some(100->Int.toFloat),
+      step_up_threshold: Some(100->Int.toFloat),
+      metric_type: Volume,
+      disabled: false,
+    },
+    {
+      metric_name_db: "authentication_successful",
+      metric_label: "Authentication Successful",
+      thresholdVal: Some(authenticationSuccesful *. 100.0),
+      step_up_threshold: Some(authenticationSuccesful *. 100.0),
+      metric_type: Volume,
+      disabled: false,
+    },
+  ]
+
+  let data = [
+    Js.Json.parseExn(
+      `{
+    "payments_requiring_3ds_2_authentication": ${(paymentReq3DSAuth *. 100.0)->Float.toString},
+    "authentication_initiated": 10,
+    "authentication_attemped": 10,
+    "authentication_successful": ${(authenticationSuccesful *. 100.0)->Float.toString}
+  }`,
+    ),
+  ]
 
   <RenderIf condition={filterValueDict->Dict.toArray->Array.length > 0}>
     {switch chartEntity1 {
@@ -798,38 +875,46 @@ let make = (
               </div>
             | _ =>
               <div className="flex flex-col h-full overflow-scroll w-full mt-5">
-                <DynamicTabs
-                  tabs=filteredTabVales
-                  maxSelection=3
-                  tabId=moduleName
-                  setActiveTab
-                  updateUrlDict={dict => {
-                    let updateUrlWithPrefix = updateUrlWithPrefix("")
-                    updateUrlWithPrefix(dict)
-                  }}
-                  tabContainerClass="analyticsTabs"
-                  initalTab=?activeTab
-                />
-                <TabDetails
-                  chartEntity
-                  activeTab
-                  defaultSort
-                  distributionArray
-                  getTable
-                  colMapper
-                  tableEntity
-                  deltaMetrics
-                  deltaArray
-                  tableUpdatedHeading
-                  tableGlobalFilter
-                  moduleName
-                  updateUrl={dict => {
-                    let updateUrlWithPrefix = updateUrlWithPrefix("")
-                    updateUrlWithPrefix(dict)
-                  }}
-                  weeklyTableMetricsCols
-                  formatData
-                />
+                // <DynamicTabs
+                //   tabs=filteredTabVales
+                //   maxSelection=3
+                //   tabId=moduleName
+                //   setActiveTab
+                //   updateUrlDict={dict => {
+                //     let updateUrlWithPrefix = updateUrlWithPrefix("")
+                //     updateUrlWithPrefix(dict)
+                //   }}
+                //   tabContainerClass="analyticsTabs"
+                //   initalTab=?activeTab
+                // />
+                // <TabDetails
+                //   chartEntity
+                //   activeTab
+                //   defaultSort
+                //   distributionArray
+                //   getTable
+                //   colMapper
+                //   tableEntity
+                //   deltaMetrics
+                //   deltaArray
+                //   tableUpdatedHeading
+                //   tableGlobalFilter
+                //   moduleName
+                //   updateUrl={dict => {
+                //     let updateUrlWithPrefix = updateUrlWithPrefix("")
+                //     updateUrlWithPrefix(dict)
+                //   }}
+                //   weeklyTableMetricsCols
+                //   formatData
+                // />
+                <div className="border border-gray-200 mt-5 p-5 rounded-lg">
+                  <FunnelChart
+                    data={data}
+                    metrics={metrics}
+                    moduleName="Sales Funnel"
+                    description=Some("Conversion metrics from visit to purchase")
+                  />
+                </div>
               </div>
             }}
           </div>

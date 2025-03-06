@@ -371,8 +371,7 @@ let useGetURL = () => {
       /* ANALYTICS */
       | ANALYTICS_REFUNDS
       | ANALYTICS_PAYMENTS
-      | ANALYTICS_DISPUTES
-      | ANALYTICS_AUTHENTICATION =>
+      | ANALYTICS_DISPUTES =>
         switch methodType {
         | Get =>
           switch id {
@@ -401,6 +400,25 @@ let useGetURL = () => {
 
           | _ => ""
           }
+        | _ => ""
+        }
+      | ANALYTICS_AUTHENTICATION =>
+        switch methodType {
+        | Get =>
+          switch id {
+          // Need to write seperate enum for info api
+          | Some(domain) =>
+            switch analyticsEntity {
+            | #Tenant
+            | #Organization =>
+              `analytics/v1/org/${domain}/info`
+            | #Merchant => `analytics/v1/merchant/${domain}/info`
+            | #Profile => `analytics/v1/profile/${domain}/info`
+            }
+
+          | _ => ""
+          }
+        | Post => `analytics/v1/metrics/auth_events`
         | _ => ""
         }
       | ANALYTICS_FILTERS =>

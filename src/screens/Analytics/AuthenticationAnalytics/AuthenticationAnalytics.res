@@ -57,12 +57,13 @@ let make = () => {
   })
 
   let title = "Authentication Analytics"
+  let analyticsfilterUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION), ~methodType=Post)
 
   <div>
     <PageLoaderWrapper screenState customUI={<NoData title />}>
       <Analytics
         pageTitle=title
-        filterUri=None
+        filterUri=Some(analyticsfilterUrl)
         key="AuthenticationAnalytics"
         moduleName="Authentication"
         deltaMetrics={getStringListFromArrayDict(metrics)}
