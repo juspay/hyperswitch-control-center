@@ -412,7 +412,7 @@ module CardGuardTest = {
       }
     })
     let isCardGuardEnabled =
-      formState.values->getDictFromJsonObject->getBool("is_card_testing_guard_enabled", false)
+      formState.values->getDictFromJsonObject->getBool("is_card_testing_guard_enabled", true)
     let isCardIPBlockingStatusEnabled =
       formState.values
       ->getDictFromJsonObject
@@ -434,34 +434,63 @@ module CardGuardTest = {
     }
     React.useEffect(() => {
       if isCardGuardEnabled {
-        form.change("card_testing_guard_config", JSON.Encode.null->Identity.genericTypeToJson)
+        form.change("is_card_testing_guard_enabled", true->Identity.genericTypeToJson)
         form.change(
           "card_testing_guard_config.card_ip_blocking_threshold",
-          0->Identity.genericTypeToJson,
+          formState.values
+          ->getDictFromJsonObject
+          ->getDictfromDict("card_testing_guard_config")
+          ->getInt("card_ip_blocking_threshold", 0)
+          ->Identity.genericTypeToJson,
         )
         form.change(
           "card_testing_guard_config.guest_user_card_blocking_threshold",
-          0->Identity.genericTypeToJson,
+          formState.values
+          ->getDictFromJsonObject
+          ->getDictfromDict("card_testing_guard_config")
+          ->getInt("guest_user_card_blocking_threshold", 0)
+          ->Identity.genericTypeToJson,
         )
         form.change(
           "card_testing_guard_config.customer_id_blocking_threshold",
-          0->Identity.genericTypeToJson,
+          formState.values
+          ->getDictFromJsonObject
+          ->getDictfromDict("card_testing_guard_config")
+          ->getInt("customer_id_blocking_threshold", 0)
+          ->Identity.genericTypeToJson,
         )
         form.change(
           "card_testing_guard_config.card_ip_blocking_status",
-          "disabled"->Identity.genericTypeToJson,
+          formState.values
+          ->getDictFromJsonObject
+          ->getDictfromDict("card_testing_guard_config")
+          ->getString("card_ip_blocking_status", "disabled")
+          ->Identity.genericTypeToJson,
         )
         form.change(
           "card_testing_guard_config.guest_user_card_blocking_status",
-          "disabled"->Identity.genericTypeToJson,
+          formState.values
+          ->getDictFromJsonObject
+          ->getDictfromDict("card_testing_guard_config")
+          ->getString("guest_user_card_blocking_status", "disabled")
+          ->Identity.genericTypeToJson,
         )
         form.change(
           "card_testing_guard_config.customer_id_blocking_status",
-          "disabled"->Identity.genericTypeToJson,
+          formState.values
+          ->getDictFromJsonObject
+          ->getDictfromDict("card_testing_guard_config")
+          ->getString("customer_id_blocking_status", "disabled")
+          ->Identity.genericTypeToJson,
         )
+
         form.change(
           "card_testing_guard_config.card_testing_guard_expiry",
-          0->Identity.genericTypeToJson,
+          formState.values
+          ->getDictFromJsonObject
+          ->getDictfromDict("card_testing_guard_config")
+          ->getInt("card_testing_guard_expiry", 0)
+          ->Identity.genericTypeToJson,
         )
       }
       None
@@ -716,14 +745,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
-      [
-        WebhookUrl,
-        ReturnUrl,
-        CardTestingGuardExpiry,
-        CardIpBlockingThreshold,
-        GuestUserCardBlockingThreshold,
-        CustomerIdBlockingThreshold,
-      ]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
+      [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
     if checkMaxAutoRetry {
       defaultFieldsToValidate->Array.push(MaxAutoRetries)
     }

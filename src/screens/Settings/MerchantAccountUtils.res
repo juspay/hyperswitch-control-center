@@ -67,14 +67,10 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     authentication_connector_details.authentication_connectors,
   )
 
-  // profileInfo->setOptionString(
-  //   "guest_user_card_blocking_status",
-  //   card_testing_guard_config.guest_user_card_blocking_status,
-  // )
-  // profileInfo->setOptionString(
-  //   "three_ds_requestor_url",
-  //   authentication_connector_details.three_ds_requestor_url,
-  // )
+  profileInfo->setOptionJson(
+    "card_testing_guard_config",
+    Some(card_testing_guard_config->Identity.genericTypeToJson),
+  )
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
@@ -193,7 +189,6 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   let valuesDict = values->getDictFromJsonObject
   let webhookSettingsValue = Dict.make()
   let cardGuardDetails = valuesDict->getDictfromDict("card_testing_guard_config")
-  Js.log2("values", values)
   webhookSettingsValue->setOptionString(
     "webhook_version",
     valuesDict->getOptionString("webhook_version"),
@@ -273,9 +268,12 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "webhook_details",
     !(webhookSettingsValue->isEmptyDict) ? Some(webhookSettingsValue) : None,
   )
-  profileDetailsDict->setOptionDict(
+
+  profileDetailsDict->setOptionJson(
     "card_testing_guard_config",
-    !(cardGuardDetails->isEmptyDict) ? Some(cardGuardDetails) : None,
+    !(cardGuardDetails->isEmptyDict)
+      ? Some(cardGuardDetails->Identity.genericTypeToJson)
+      : Some(Js.Json.null),
   )
   profileDetailsDict->setOptionDict(
     "authentication_connector_details",
