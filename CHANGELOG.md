@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.07.3
+
+### Features
+
+- Analytics authentication insights ([#2390](https://github.com/juspay/hyperswitch-control-center/pull/2390)) ([`6f6a8eb`](https://github.com/juspay/hyperswitch-control-center/commit/6f6a8eb404a812145a062bb81684e1993cdeb28d))
+
+### Bug Fixes
+
+- Hypersense svg rendering on the home page ([#2391](https://github.com/juspay/hyperswitch-control-center/pull/2391)) ([`5ad0f80`](https://github.com/juspay/hyperswitch-control-center/commit/5ad0f80d50afe6362cfe5c84d30ab3dcf2a21a91))
+- Changed metrics calculations ([#2395](https://github.com/juspay/hyperswitch-control-center/pull/2395)) ([`3e80641`](https://github.com/juspay/hyperswitch-control-center/commit/3e8064119b9c2b928f1777049e3f899ad359489b))
+
+### Miscellaneous Tasks
+
+- Intelligent routing ([#2379](https://github.com/juspay/hyperswitch-control-center/pull/2379)) ([`4ac7a4d`](https://github.com/juspay/hyperswitch-control-center/commit/4ac7a4dd7cc60a4934e27aabea7cc91f0fc11b9c))
+
+**Full Changelog:** [`2025.03.07.2...2025.03.07.3`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.07.2...2025.03.07.3)
+
+
+- - -
+
 ## 2025.03.07.2
 
 ### Features
