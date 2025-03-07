@@ -35,7 +35,7 @@ let make = () => {
         isEnabled={authenticationAnalytics && [#Tenant, #Organization, #Merchant]->checkUserEntity}
         authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="AuthenticationAnalytics" index="AuthenticationAnalytics">
-          <AuthenticationAnalytics />
+          <AuthenticationAnalyticsV2 />
         </FilterContext>
       </AccessControl>
     | list{"performance-monitor"} =>
