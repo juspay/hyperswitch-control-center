@@ -403,6 +403,18 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | ANALYTICS_AUTHENTICATION_V2 =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/metrics/auth_events`
+          }
+
+        | _ => ""
+        }
       | ANALYTICS_FILTERS =>
         switch methodType {
         | Post =>
