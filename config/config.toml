@@ -61,6 +61,7 @@ dev_click_to_pay=false
 dev_recon_v2_product=false
 dev_recovery_v2_product=false
 dev_vault_v2_product=false
+dev_intelligent_routing_v2=false 
 dev_modularity_v2=false
 dev_alt_payment_methods=false
 dev_hypersense_v2_product=false

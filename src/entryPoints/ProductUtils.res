@@ -6,6 +6,7 @@ let getVariantFromString = product =>
   | "vault" => Vault
   | "alternate payment methods" => AlternatePaymentMethods
   | "hypersense" => Hypersense
+  | "intelligent Routing" => IntelligentRouting
   | _ => Orchestrator
   }
 
@@ -17,4 +18,5 @@ let getStringFromVariant = product =>
   | Vault => "Vault"
   | AlternatePaymentMethods => "Alternate Payment Methods"
   | Hypersense => "Hypersense"
+  | IntelligentRouting => "Intelligent Routing"
   }

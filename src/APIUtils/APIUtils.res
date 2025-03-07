@@ -27,6 +27,11 @@ let getV2Url = (
       }
     | _ => ""
     }
+  | SIMULATE_INTELLIGENT_ROUTING =>
+    switch queryParamerters {
+    | Some(queryParams) => `simulate?${queryParams}`
+    | None => `simulate`
+    }
   }
 }
 

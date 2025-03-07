@@ -200,6 +200,9 @@ let make = () => {
                         /* HYPERSENSE PRODUCT */
                         | list{"v2", "hypersense", ..._} => <HypersenseApp />
 
+                        /* INTELLIGENT ROUTING PRODUCT */
+                        | list{"v2", "intelligent-routing", ..._} => <IntelligentRoutingApp />
+
                         /* ORCHESTRATOR PRODUCT */
                         | list{"home", ..._}
                         | list{"recon"}
