@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.07.2
+
+### Features
+
+- Authentication analytics page ([#2389](https://github.com/juspay/hyperswitch-control-center/pull/2389)) ([`a0365f2`](https://github.com/juspay/hyperswitch-control-center/commit/a0365f268b74e6f0c81d095c35f5b0f6f9ccf223))
+
+**Full Changelog:** [`2025.03.07.1...2025.03.07.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.07.1...2025.03.07.2)
+
+
+- - -
+
 ## 2025.03.07.1
 
 ### Features
