@@ -292,7 +292,11 @@ let make = () => {
           description="Total number of successful frictionless count"
         />
       </div>
-      <RenderIf condition={funnelData->getInt("authentication_initiated", 0) > 0}>
+      <RenderIf
+        condition={funnelData->getInt("authentication_initiated", 0) > 0 &&
+        funnelData->getInt("payments_requiring_3ds_2_authentication", 0) > 0 &&
+        funnelData->getInt("authentication_attemped", 0) > 0 &&
+        funnelData->getInt("authentication_successful", 0) > 0}>
         <div className="border border-gray-200 mt-5 p-5 rounded-lg">
           <FunnelChart
             data={data}
@@ -302,6 +306,7 @@ let make = () => {
           />
         </div>
       </RenderIf>
+      <Insights startTimeVal endTimeVal />
     </div>
   </PageLoaderWrapper>
 }
