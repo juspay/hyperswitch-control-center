@@ -7,7 +7,6 @@ type pspTokenColsTypes =
   | MCAId
   | TokenType
   | Status
-// | Created
 
 let defaultColumns = [TokenId, MCAId, TokenType, Status]
 

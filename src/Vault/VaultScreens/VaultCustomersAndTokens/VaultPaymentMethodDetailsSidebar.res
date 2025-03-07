@@ -36,7 +36,7 @@ module DisplayKeyValueParams = {
     let description = heading.description->Option.getOr("")
 
     <AddDataAttributes attributes=[("data-label", heading.title)]>
-      <div className={`flex ${isHorizontal ? "flex-row gap-3" : "flex-col gap-1"} py-4`}>
+      <div className={`flex ${isHorizontal ? "flex-row gap-3" : "flex-col gap-1"}`}>
         <div
           className="flex flex-row text-fs-11 leading-3 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 items-center">
           <div className={`${overiddingHeadingStyles}`}>
@@ -75,9 +75,9 @@ module Details = {
     ~widthClass="w-1/4",
     ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
   ) => {
-    <FormRenderer.DesktopRow>
+    <FormRenderer.DesktopRow itemWrapperClass="mx-0">
       <div
-        className={`grid grid-cols-3 ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+        className={`grid grid-cols-3 ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border gap-y-8`}>
         {detailsFields
         ->Array.mapWithIndex((colType, i) => {
           <RenderIf condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>
@@ -104,13 +104,13 @@ module PaymentMethodDetails = {
   let make = (~data) => {
     open VaultPaymentMethodDetailsEntity
 
-    <>
+    <div className="flex flex-col gap-6">
       <div
-        className="font-semibold text-nd_gray-700 leading-6 text-fs-20 dark:text-white dark:text-opacity-75 mt-6 mb-4">
+        className="font-semibold text-nd_gray-700 leading-6 text-fs-18 dark:text-white dark:text-opacity-75">
         {"Payment Method Details"->React.string}
       </div>
       <Details data getHeading getCell detailsFields=allColumns widthClass="" />
-    </>
+    </div>
   }
 }
 
@@ -119,9 +119,9 @@ module PSPTokens = {
   let make = (~data) => {
     let (offset, setOffset) = React.useState(() => 0)
 
-    <>
+    <div className="flex flex-col gap-6">
       <div
-        className="font-semibold text-fs-20 text-nd_gray-700 leading-6 dark:text-white dark:text-opacity-75 mt-8 mb-4">
+        className="font-semibold text-fs-18 text-nd_gray-700 leading-6 dark:text-white dark:text-opacity-75">
         {"PSP Tokens"->React.string}
       </div>
       <LoadedTable
@@ -135,7 +135,7 @@ module PSPTokens = {
         setOffset
         currrentFetchCount={data->Array.length}
       />
-    </>
+    </div>
   }
 }
 
@@ -144,13 +144,13 @@ module NetworkTokens = {
   let make = (~data) => {
     open VaultNetworkTokensEntity
 
-    <>
+    <div className="flex flex-col gap-6">
       <div
-        className="font-semibold text-nd_gray-700 leading-6 text-fs-20 dark:text-white dark:text-opacity-75 mt-8 mb-4">
+        className="font-semibold text-nd_gray-700 leading-6 text-fs-18 dark:text-white dark:text-opacity-75">
         {"Network Tokens"->React.string}
       </div>
       <Details data getHeading getCell detailsFields=defaultColumns widthClass="" />
-    </>
+    </div>
   }
 }
 
@@ -198,9 +198,11 @@ let make = (~paymentId, ~setShowModal) => {
         </div>
       </div>
       <hr />
-      <div className="px-8 pb-20">
-        <PaymentMethodDetails data={paymentsDetailsData.payment_method_data.card} />
+      <div className="px-8 py-6 flex flex-col gap-8 h-full">
         <NetworkTokens data={paymentsDetailsData.network_tokens} />
+        <hr />
+        <PaymentMethodDetails data={paymentsDetailsData.payment_method_data.card} />
+        <hr />
         <PSPTokens data={paymentsDetailsData.connector_tokens} />
       </div>
     </div>

@@ -23,7 +23,7 @@ let getV2Url = (
     | Get =>
       switch id {
       | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-      | None => `/v2/profiles/${profileId}/connector-accounts`
+      | None => `v2/profiles/${profileId}/connector-accounts`
       }
     | Put =>
       switch id {
@@ -39,7 +39,7 @@ let getV2Url = (
     }
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `/v2/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
     | None => ""
     }
   }

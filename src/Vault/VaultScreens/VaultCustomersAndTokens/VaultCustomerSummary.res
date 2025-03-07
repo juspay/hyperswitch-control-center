@@ -180,7 +180,7 @@ module VaultedPaymentMethodsTable = {
           showModal
           setShowModal
           closeOnOutsideClick=true
-          modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+          modalClass="w-full md:w-1/2 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
           childClass="">
           <VaultPaymentMethodDetailsSidebar paymentId setShowModal />
         </Modal>
@@ -214,7 +214,26 @@ let make = (~id) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let customersUrl = getURL(~entityName=V2(CUSTOMERS), ~methodType=Get, ~id=Some(id))
-      let response = await fetchDetails(customersUrl, ~headerType=V2Headers)
+      // let response = await fetchDetails(customersUrl, ~headerType=V2Headers)
+      let response = {
+        "id": "12345_cus_019537b2f6557ba088fc6d341423fb69",
+        "merchant_reference_id": "customer_1740396229",
+        "name": "John Doe",
+        "email": "guest@example.com",
+        "phone": "999999999",
+        "phone_country_code": "+65",
+        "description": "First customer",
+        "default_billing_address": null,
+        "default_shipping_address": null,
+        "created_at": "2025-02-24T11:23:50.230Z",
+        "metadata": {
+          "udf1": "value1",
+          "new_customer": "true",
+          "login_date": "2019-09-10T10:11:12Z",
+        },
+        "default_payment_method_id": null,
+      }->Identity.genericTypeToJson
+
       setCustomersData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
