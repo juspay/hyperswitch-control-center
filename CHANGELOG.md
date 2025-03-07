@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.07.1
+
+### Features
+
+- Add juspaythreeds connector addition ([#2387](https://github.com/juspay/hyperswitch-control-center/pull/2387)) ([`7b76584`](https://github.com/juspay/hyperswitch-control-center/commit/7b76584a3ce956d800fb9dd4abba1d0e249891b9))
+
+**Full Changelog:** [`2025.03.07.0...2025.03.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.07.0...2025.03.07.1)
+
+
+- - -
+
 ## 2025.03.07.0
 
 ### Features
