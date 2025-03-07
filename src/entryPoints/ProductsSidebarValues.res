@@ -101,16 +101,6 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       }),
     )
   }
-  if devIntelligentRoutingV2 {
-    sideBarValues->Array.push(
-      Link({
-        name: IntelligentRouting->getStringFromVariant,
-        icon: "intelligent-routing-home",
-        link: "/v2/intelligent-routing/home",
-        access: Access,
-      }),
-    )
-  }
 
   let productName = activeProduct->ProductUtils.getStringFromVariant
 
