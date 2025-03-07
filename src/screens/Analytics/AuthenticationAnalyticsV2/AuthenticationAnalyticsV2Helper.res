@@ -36,13 +36,13 @@ module Insights = {
   @react.component
   let make = (~startTimeVal, ~endTimeVal) => {
     open APIUtils
-    // open LogicUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (data, setData) = React.useState(_ => Dict.make())
 
     let loadTable = async () => {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       try {
         let infoUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
 
