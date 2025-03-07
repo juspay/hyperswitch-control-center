@@ -11,13 +11,15 @@ let make = () => {
     | list{"v2", "recovery", "connectors", ..._} =>
       <RecoveryConnectorContainer />
     | list{"v2", "recovery", "overview", ...remainingPath} =>
-      <EntityScaffold
-        entityName="Payments"
-        remainingPath
-        access=Access
-        renderList={() => <RevenueRecoveryOverview />}
-        renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
-      />
+      <FilterContext key="recovery-payments" index="recovery-payments">
+        <EntityScaffold
+          entityName="Payments"
+          remainingPath
+          access=Access
+          renderList={() => <RevenueRecoveryOverview />}
+          renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
+        />
+      </FilterContext>
     | _ => React.null
     }
   }

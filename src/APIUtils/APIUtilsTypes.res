@@ -57,7 +57,7 @@ type entityName =
   | ANALYTICS_SANKEY
   | HYPERSENSE
 
-type v2entityNameType = V2_CUSTOMERS_LIST | V2_CONNECTOR
+type v2entityNameType = V2_CUSTOMERS_LIST | V2_CONNECTOR | V2_ORDERS_LIST
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 

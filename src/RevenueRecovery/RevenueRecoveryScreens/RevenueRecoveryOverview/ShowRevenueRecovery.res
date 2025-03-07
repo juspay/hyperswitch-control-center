@@ -49,7 +49,7 @@ module OrderInfo = {
           data=order
           getHeading=getHeadingForSummary
           getCell=getCellForSummary
-          detailsFields=[OrderAmount, Created, LastUpdated, PaymentId, ProductName]
+          detailsFields=[OrderAmount, Created, PaymentId, ProductName]
           isButtonEnabled=true
         />
       </div>
@@ -157,6 +157,9 @@ module Attempts = {
 
 @react.component
 let make = (~id) => {
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ =>
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
@@ -168,185 +171,8 @@ let make = (~id) => {
     try {
       setScreenState(_ => Loading)
 
-      // let res = await fetchDetails(url)
-      let res = {
-        {
-          "id": "12345_pay_01926c58bc6e77c09e809964e72af8c8",
-          "status": "succeeded",
-          "amount": {
-            "order_amount": 6540,
-            "currency": "AED",
-            "shipping_cost": 123,
-            "order_tax_amount": 123,
-            "external_tax_calculation": "skip",
-            "surcharge_calculation": "skip",
-            "surcharge_amount": 123,
-            "tax_on_surcharge": 123,
-            "net_amount": 123,
-            "amount_to_capture": 123,
-            "amount_capturable": 123,
-            "amount_captured": 123,
-          },
-          "customer_id": "12345_cus_01926c58bc6e77c09e809964e72af8c8",
-          "connector": "stripe",
-          "client_secret": "<string>",
-          "created": "2022-09-10T10:11:12Z",
-          "payment_method_data": {
-            "card": {
-              "last4": "<string>",
-              "card_type": "<string>",
-              "card_network": "Visa",
-              "card_issuer": "<string>",
-              "card_issuing_country": "<string>",
-              "card_isin": "<string>",
-              "card_extended_bin": "<string>",
-              "card_exp_month": "<string>",
-              "card_exp_year": "<string>",
-              "card_holder_name": "<string>",
-              "payment_checks": "<any>",
-              "authentication_data": "<any>",
-            },
-            "billing": {
-              "address": {
-                "city": "New York",
-                "country": "AF",
-                "line1": "123, King Street",
-                "line2": "Powelson Avenue",
-                "line3": "Bridgewater",
-                "zip": "08807",
-                "state": "New York",
-                "first_name": "John",
-                "last_name": "Doe",
-              },
-              "phone": {
-                "number": "9123456789",
-                "country_code": "+1",
-              },
-              "email": "<string>",
-            },
-          },
-          "payment_method_type": "card",
-          "payment_method_subtype": "ach",
-          "connector_transaction_id": "993672945374576J",
-          "connector_reference_id": "993672945374576J",
-          "merchant_connector_id": "<string>",
-          "browser_info": {
-            "color_depth": 1,
-            "java_enabled": true,
-            "java_script_enabled": true,
-            "language": "<string>",
-            "screen_height": 1,
-            "screen_width": 1,
-            "time_zone": 123,
-            "ip_address": "<string>",
-            "accept_header": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-            "user_agent": "<string>",
-            "os_type": "<string>",
-            "os_version": "<string>",
-            "device_model": "<string>",
-            "accept_language": "<string>",
-          },
-          "error": {
-            "code": "<string>",
-            "message": "<string>",
-            "unified_code": "<string>",
-            "unified_message": "<string>",
-          },
-          "shipping": {
-            "address": {
-              "city": "New York",
-              "country": "AF",
-              "line1": "123, King Street",
-              "line2": "Powelson Avenue",
-              "line3": "Bridgewater",
-              "zip": "08807",
-              "state": "New York",
-              "first_name": "John",
-              "last_name": "Doe",
-            },
-            "phone": {
-              "number": "9123456789",
-              "country_code": "+1",
-            },
-            "email": "<string>",
-          },
-          "billing": {
-            "address": {
-              "city": "New York",
-              "country": "AF",
-              "line1": "123, King Street",
-              "line2": "Powelson Avenue",
-              "line3": "Bridgewater",
-              "zip": "08807",
-              "state": "New York",
-              "first_name": "John",
-              "last_name": "Doe",
-            },
-            "phone": {
-              "number": "9123456789",
-              "country_code": "+1",
-            },
-            "email": "<string>",
-          },
-          "attempts": [
-            {
-              "id": "<string>",
-              "status": "started",
-              "amount": {
-                "net_amount": 123,
-                "amount_to_capture": 123,
-                "surcharge_amount": 123,
-                "tax_on_surcharge": 123,
-                "amount_capturable": 123,
-                "shipping_cost": 123,
-                "order_tax_amount": 123,
-              },
-              "connector": "stripe",
-              "error": {
-                "code": "<string>",
-                "message": "<string>",
-                "unified_code": "<string>",
-                "unified_message": "<string>",
-              },
-              "authentication_type": "three_ds",
-              "created_at": "2023-11-07T05:31:56Z",
-              "modified_at": "2023-11-07T05:31:56Z",
-              "cancellation_reason": "<string>",
-              "payment_token": "187282ab-40ef-47a9-9206-5099ba31e432",
-              "connector_metadata": {
-                "apple_pay": {
-                  "session_token_data": {
-                    "payment_processing_certificate": "<string>",
-                    "payment_processing_certificate_key": "<string>",
-                    "payment_processing_details_at": "Hyperswitch",
-                    "certificate": "<string>",
-                    "certificate_keys": "<string>",
-                    "merchant_identifier": "<string>",
-                    "display_name": "<string>",
-                    "initiative": "web",
-                    "initiative_context": "<string>",
-                    "merchant_business_country": "AF",
-                  },
-                },
-                "airwallex": {
-                  "payload": "<string>",
-                },
-                "noon": {
-                  "order_category": "<string>",
-                },
-              },
-              "payment_experience": "redirect_to_url",
-              "payment_method_type": "card",
-              "connector_reference_id": "993672945374576J",
-              "payment_method_subtype": "ach",
-              "connector_payment_id": "993672945374576J",
-              "payment_method_id": "12345_pm_01926c58bc6e77c09e809964e72af8c8",
-              "client_source": "<string>",
-              "client_version": "<string>",
-            },
-          ],
-        }
-      }->Identity.genericTypeToJson
+      let ordersUrl = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+      let res = await fetchDetails(ordersUrl)
 
       let order = RevenueRecoveryEntity.itemToObjMapper(res->getDictFromJsonObject)
       setRevenueRecoveryData(_ => order)

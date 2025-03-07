@@ -1212,6 +1212,8 @@ module BaseRadio = {
         setSearchString(_ => "")
       },
     )
+    let form = ReactFinalForm.useForm()
+
     let onItemClick = (itemData, isDisabled) => _ => {
       if !isDisabled {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
@@ -1237,6 +1239,7 @@ module BaseRadio = {
         | None => ()
         }
       }
+      form.submit()->ignore
     }
     let handleSearch = str => {
       setSearchString(_ => str)
@@ -1328,6 +1331,7 @@ module BaseRadio = {
           />
         </div>
       </div>
+
     <div
       className={`${dropDownbgClass} ${roundedClass} dark:bg-jp-gray-lightgray_background ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
           ? "animate-textTransition transition duration-400"
@@ -1719,7 +1723,7 @@ module BaseDropdown = {
       ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
 
-    let title = showAllSelectedOptions ? allSellectedOptions : buttonText
+    let title = showAllSelectedOptions ? allSellectedOptions : dropDowntext
 
     let badgeForSelect = React.useMemo((): Button.badge => {
       let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
