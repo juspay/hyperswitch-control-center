@@ -39,7 +39,6 @@ type vaultPaymentMethods = {
   id: string,
   payment_method_type: option<string>,
   payment_method: string,
-  // card: option<JSON.t>,
   recurring_enabled: bool,
   metadata: JSON.t,
   tokenization_type: JSON.t,
