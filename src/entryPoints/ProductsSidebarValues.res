@@ -27,6 +27,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     devVaultV2Product,
     devAltPaymentMethods,
     devHypersenseV2Product,
+    devIntelligentRoutingV2,
   } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -86,6 +87,16 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
         name: Hypersense->getStringFromVariant,
         icon: "nd-piggy-bank",
         link: "/v2/hypersense",
+        access: Access,
+      }),
+    )
+  }
+  if devIntelligentRoutingV2 {
+    sideBarValues->Array.push(
+      Link({
+        name: IntelligentRouting->getStringFromVariant,
+        icon: "intelligent-routing-home",
+        link: "/v2/intelligent-routing/home",
         access: Access,
       }),
     )

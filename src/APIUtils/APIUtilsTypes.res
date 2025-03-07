@@ -58,7 +58,10 @@ type entityName =
   | ANALYTICS_SANKEY
   | HYPERSENSE
 
-type v2entityNameType = V2_CUSTOMERS_LIST | V2_CONNECTOR
+type v2entityNameType =
+  | V2_CUSTOMERS_LIST
+  | V2_CONNECTOR
+  | SIMULATE_INTELLIGENT_ROUTING
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
