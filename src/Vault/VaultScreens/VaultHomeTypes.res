@@ -4,7 +4,6 @@ type actionType =
 
 type actionCards = {
   heading: string,
-  description: string,
   imgSrc: string,
   action: actionType,
 }

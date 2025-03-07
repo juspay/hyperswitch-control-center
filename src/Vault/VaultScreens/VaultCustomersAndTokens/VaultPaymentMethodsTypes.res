@@ -14,15 +14,31 @@ type network_tokensization = {
   token: string,
 }
 
+type paymentMethodCardType = {
+  issuer_country: string,
+  last4_digits: string,
+  expiry_month: string,
+  expiry_year: string,
+  card_holder_name: string,
+  card_fingerprint: string,
+  nick_name: string,
+  card_network: string,
+  card_isin: string,
+  card_issuer: string,
+  card_type: string,
+  saved_to_locker: string,
+}
+
+type paymentMethodType = {card: paymentMethodCardType}
+
 //TODO: network and psp types move to details page, modify as per API response
 
 type vaultPaymentMethods = {
   merchant: string,
   customer_id: option<string>,
-  payment_method_id: string,
+  id: string,
   payment_method_type: option<string>,
   payment_method: string,
-  card: option<JSON.t>,
   recurring_enabled: bool,
   metadata: JSON.t,
   tokenization_type: JSON.t,
@@ -32,6 +48,7 @@ type vaultPaymentMethods = {
   created: string,
   last_used_at: string,
   network_transaction_id: string,
+  payment_method_data: paymentMethodType,
 }
 
 type paymentMethodsColsTypes =

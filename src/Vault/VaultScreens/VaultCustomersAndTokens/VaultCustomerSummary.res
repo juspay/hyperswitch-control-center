@@ -121,7 +121,8 @@ module VaultedPaymentMethodsTable = {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
-    let _fetchDetails = useGetMethod()
+    let url = RescriptReactRouter.useUrl()
+    let fetchDetails = useGetMethod()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
     let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
@@ -130,29 +131,21 @@ module VaultedPaymentMethodsTable = {
     let (tableData, setTableData) = React.useState(_ => [])
     let (showModal, setShowModal) = React.useState(_ => false)
     let (paymentId, setPaymentId) = React.useState(_ => "")
+    let customerIdFromUrl = url.path->List.toArray->Array.get(4)->Option.getOr("")
 
     let fetchPaymentMethods = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let _url = getURL(~entityName=V1(PAYMENT_METHODS), ~methodType=Get)
-        // let _response = await fetchDetails(url)
-        let response = {
-          "merchant": "mca_123456",
-          "customer_id": "cust_12345",
-          "payment_method_id": "pay_JfNiPryk5hUkm6J2cy8a",
-          "payment_method": "card",
-          "payment_method_type": "card",
-          "card": "credit",
-          "recurring_enabled": false,
-          "metadata": null,
-          "created": "",
-          "bank_transfer": "no_three_ds",
-          "last_used_at": "",
-        }->Identity.genericTypeToJson
-        let response = Array.make(~length=10, response)
+        let url = getURL(
+          ~entityName=V2(PAYMENT_METHOD_LIST),
+          ~methodType=Get,
+          ~id=Some(customerIdFromUrl),
+        )
+        let response = await fetchDetails(url, ~headerType=V2Headers)
         let tableData =
           response
-          ->Identity.genericTypeToJson
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("customer_payment_methods")
           ->getArrayDataFromJson(VaultPaymentMethodsEntity.itemToObjMapper)
         setTableData(_ => tableData)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -178,7 +171,7 @@ module VaultedPaymentMethodsTable = {
           offset
           setOffset
           onEntityClick={val => {
-            setPaymentId(_ => val.payment_method_id)
+            setPaymentId(_ => val.id)
             setShowModal(_ => true)
           }}
           currrentFetchCount={tableData->Array.length}
@@ -187,7 +180,7 @@ module VaultedPaymentMethodsTable = {
           showModal
           setShowModal
           closeOnOutsideClick=true
-          modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+          modalClass="w-full md:w-1/2 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
           childClass="">
           <VaultPaymentMethodDetailsSidebar paymentId setShowModal />
         </Modal>
@@ -220,8 +213,8 @@ let make = (~id) => {
   let fetchCustomersData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let customersUrl = getURL(~entityName=V1(CUSTOMERS), ~methodType=Get, ~id=Some(id))
-      let response = await fetchDetails(customersUrl)
+      let customersUrl = getURL(~entityName=V2(CUSTOMERS), ~methodType=Get, ~id=Some(id))
+      let response = await fetchDetails(customersUrl, ~headerType=V2Headers)
       setCustomersData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
