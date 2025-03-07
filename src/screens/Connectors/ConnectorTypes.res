@@ -110,7 +110,8 @@ type payoutProcessorTypes =
   | STRIPE
   | WISE
 
-type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD
+type threeDsAuthenticatorTypes =
+  THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER
 
 type frmTypes =
   | Signifyd
