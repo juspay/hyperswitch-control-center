@@ -261,35 +261,38 @@ let make = () => {
         />
         <Card
           title="Challenge Flow Rate"
+          value={queryData->getInt("challenge_flow_count", 0)->Int.toFloat /.
+          queryData->getInt("authentication_count", 1)->Int.toFloat *. 100.0}
+          statType={Rate}
+          description="Challenge flow requests over total authentication requests"
+        />
+        <Card
+          title="Frictionless Flow Rate"
+          value={queryData->getInt("frictionless_flow_count", 0)->Int.toFloat /.
+          queryData->getInt("authentication_count", 1)->Int.toFloat *. 100.0}
+          statType={Rate}
+          description="Frictionless flow requests over total authentication requests"
+        />
+        <Card
+          title="Challenge Attempt Rate"
+          value={queryData->getInt("challenge_attempt_count", 0)->Int.toFloat /.
+          queryData->getInt("challenge_flow_count", 1)->Int.toFloat *. 100.0}
+          statType={Rate}
+          description="Attempted challenge requests over total challenge requests"
+        />
+        <Card
+          title="Challenge Success Rate"
           value={queryData->getInt("challenge_success_count", 0)->Int.toFloat /.
           queryData->getInt("challenge_flow_count", 1)->Int.toFloat *. 100.0}
           statType={Rate}
           description="Successful challenge requests over total challenge requests"
         />
         <Card
-          title="Frictionless Flow Rate"
+          title="Frictionless Success Rate"
           value={queryData->getInt("frictionless_success_count", 0)->Int.toFloat /.
           queryData->getInt("frictionless_flow_count", 1)->Int.toFloat *. 100.0}
           statType={Rate}
           description="Successful frictionless requests over total frictionless requests"
-        />
-        <Card
-          title="Challenge Attempt Count"
-          value={queryData->getInt("challenge_attempt_count", 0)->Int.toFloat}
-          statType={No_Type}
-          description="Total number of challenge attempts"
-        />
-        <Card
-          title="Challenge Success Count"
-          value={queryData->getInt("challenge_success_count", 0)->Int.toFloat}
-          statType={No_Type}
-          description="Total number of successful challenge count"
-        />
-        <Card
-          title="Frictionless Success Count"
-          value={queryData->getInt("frictionless_success_count", 0)->Int.toFloat}
-          statType={No_Type}
-          description="Total number of successful frictionless count"
         />
       </div>
       <RenderIf
