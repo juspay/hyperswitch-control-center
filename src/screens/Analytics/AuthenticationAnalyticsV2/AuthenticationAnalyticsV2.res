@@ -9,17 +9,9 @@ open AuthenticationAnalyticsV2Helper
 let make = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (queryData, setQueryData) = React.useState(_ =>
-    AuthenticationAnalyticsV2Utils.defaultQueryData
-    ->Identity.genericTypeToJson
-    ->LogicUtils.getDictFromJsonObject
-  )
-  let (funnelData, setFunnelData) = React.useState(_ =>
-    AuthenticationAnalyticsV2Utils.defaultFunnelData
-    ->Identity.genericTypeToJson
-    ->LogicUtils.getDictFromJsonObject
-  )
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (queryData, setQueryData) = React.useState(_ => Dict.make())
+  let (funnelData, setFunnelData) = React.useState(_ => Dict.make())
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -27,6 +19,7 @@ let make = () => {
   let title = "Authentication Analytics"
 
   let loadInfo = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let infoUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
 
@@ -127,26 +120,21 @@ let make = () => {
         ->getValueFromArray(0, AuthenticationAnalyticsV2Utils.defaultSecondFunnelData)
       ).authentication_funnel
 
-      setFunnelData(prev => {
-        let newPrev =
-          prev
-          ->Identity.genericTypeToJson
-          ->JSON.stringify
-          ->LogicUtils.safeParse
-          ->LogicUtils.getDictFromJsonObject
+      let funnelDict = Dict.make()
 
-        newPrev->Dict.set("authentication_initiated", secondFunnelQueryDataArray->JSON.Encode.int)
-        newPrev->Dict.set("authentication_attemped", thirdFunnelQueryDataArray->JSON.Encode.int)
-        newPrev->Dict.set(
-          "payments_requiring_3ds_2_authentication",
-          getFirstValueOfQueryData->getInt("authentication_count", 0)->JSON.Encode.int,
-        )
-        newPrev->Dict.set(
-          "authentication_successful",
-          getFirstValueOfQueryData->getInt("authentication_success_count", 0)->JSON.Encode.int,
-        )
+      funnelDict->Dict.set("authentication_initiated", secondFunnelQueryDataArray->JSON.Encode.int)
+      funnelDict->Dict.set("authentication_attemped", thirdFunnelQueryDataArray->JSON.Encode.int)
+      funnelDict->Dict.set(
+        "payments_requiring_3ds_2_authentication",
+        getFirstValueOfQueryData->getInt("authentication_count", 0)->JSON.Encode.int,
+      )
+      funnelDict->Dict.set(
+        "authentication_successful",
+        getFirstValueOfQueryData->getInt("authentication_success_count", 0)->JSON.Encode.int,
+      )
 
-        newPrev
+      setFunnelData(_ => {
+        funnelDict
       })
 
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -156,6 +144,8 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
+
+  // Need to be refactored
 
   let paymentReq3DSAuth = {
     if (
@@ -211,40 +201,6 @@ let make = () => {
     "authentication_successful": (authenticationSuccesful *. 100.0)->Float.toString,
   }->Identity.genericTypeToJson
   let data = [dict]
-  let metrics: array<LineChartUtils.metricsConfig> = [
-    {
-      metric_name_db: "payments_requiring_3ds_2_authentication",
-      metric_label: "Payments Requiring 3DS 2.0 Authentication",
-      thresholdVal: None,
-      step_up_threshold: None,
-      metric_type: Rate,
-      disabled: false,
-    },
-    {
-      metric_name_db: "authentication_initiated",
-      metric_label: "Authentication Initiated",
-      thresholdVal: None,
-      step_up_threshold: None,
-      metric_type: Rate,
-      disabled: false,
-    },
-    {
-      metric_name_db: "authentication_attemped",
-      metric_label: "Authentication Attempted",
-      thresholdVal: None,
-      step_up_threshold: None,
-      metric_type: Rate,
-      disabled: false,
-    },
-    {
-      metric_name_db: "authentication_successful",
-      metric_label: "Authentication Successful",
-      thresholdVal: None,
-      step_up_threshold: None,
-      metric_type: Rate,
-      disabled: false,
-    },
-  ]
 
   React.useEffect(() => {
     if startTimeVal->String.length > 0 && endTimeVal->String.length > 0 {
@@ -340,7 +296,7 @@ let make = () => {
         <div className="border border-gray-200 mt-5 p-5 rounded-lg">
           <FunnelChart
             data={data}
-            metrics={metrics}
+            metrics={AuthenticationAnalyticsV2Utils.metrics}
             moduleName="Authentication Funnel"
             description=Some("Breakdown of ThreeDS 2.0 Journey")
           />

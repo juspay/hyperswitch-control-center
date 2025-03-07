@@ -156,3 +156,38 @@ let itemToObjMapperForSecondFunnelData: Dict.t<JSON.t> => secondFunnelDataType =
     time_bucket: getString(dict, "time_bucket", ""),
   }
 }
+
+let metrics: array<LineChartUtils.metricsConfig> = [
+  {
+    metric_name_db: "payments_requiring_3ds_2_authentication",
+    metric_label: "Payments Requiring 3DS 2.0 Authentication",
+    thresholdVal: None,
+    step_up_threshold: None,
+    metric_type: Rate,
+    disabled: false,
+  },
+  {
+    metric_name_db: "authentication_initiated",
+    metric_label: "Authentication Initiated",
+    thresholdVal: None,
+    step_up_threshold: None,
+    metric_type: Rate,
+    disabled: false,
+  },
+  {
+    metric_name_db: "authentication_attemped",
+    metric_label: "Authentication Attempted",
+    thresholdVal: None,
+    step_up_threshold: None,
+    metric_type: Rate,
+    disabled: false,
+  },
+  {
+    metric_name_db: "authentication_successful",
+    metric_label: "Authentication Successful",
+    thresholdVal: None,
+    step_up_threshold: None,
+    metric_type: Rate,
+    disabled: false,
+  },
+]
