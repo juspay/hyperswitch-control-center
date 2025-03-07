@@ -197,6 +197,12 @@ let make = () => {
                         /* ALTERNATE PAYMENT METHODS PRODUCT */
                         | list{"v2", "alt-payment-methods", ..._} => <AlternatePaymentMethodsApp />
 
+                        /* HYPERSENSE PRODUCT */
+                        | list{"v2", "hypersense", ..._} => <HypersenseApp />
+
+                        /* INTELLIGENT ROUTING PRODUCT */
+                        | list{"v2", "intelligent-routing", ..._} => <IntelligentRoutingApp />
+
                         /* ORCHESTRATOR PRODUCT */
                         | list{"home", ..._}
                         | list{"recon"}

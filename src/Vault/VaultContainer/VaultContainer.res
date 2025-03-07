@@ -23,15 +23,6 @@ let make = () => {
     }
   }
 
-  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-
-  let isMerchantAvailForProduct =
-    merchantList
-    ->Array.find(value =>
-      value.productType->Option.mapOr(false, productType => productType == Vault)
-    )
-    ->Option.isSome
-
   React.useEffect(() => {
     setUpVaultContainer()->ignore
     None
@@ -39,8 +30,8 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     {switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "vault", "home"} =>
-      isMerchantAvailForProduct ? <VaultDefaultHome /> : <VaultHome />
+    | list{"v2", "vault"} => <VaultHome />
+    | list{"v2", "vault", "home"} => <VaultDefaultHome />
     | list{"v2", "vault", "onboarding", ...remainingPath} =>
       <EntityScaffold
         entityName="VaultConnector"
@@ -48,7 +39,7 @@ let make = () => {
         access=Access
         renderList={() => <VaultConfiguration />}
         renderNewForm={() => <VaultOnboarding />}
-        renderShow={(_, _) => <PaymentProcessorSummary />}
+        renderShow={(_, _) => <PaymentProcessorSummary baseUrl="v2/vault/onboarding" />}
       />
     | list{"v2", "vault", "customers-tokens", ...remainingPath} =>
       <EntityScaffold

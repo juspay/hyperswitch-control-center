@@ -57,7 +57,7 @@ let getConnectorObjectFromListViaId = (
     Dict.make(),
   )
   connectorList
-  ->Array.find(ele => {ele.merchant_connector_id == mca_id})
+  ->Array.find(ele => {ele.id == mca_id})
   ->Option.getOr(default)
 }
 
@@ -108,7 +108,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         </div>,
         "",
       )
-    | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
+    | MerchantConnectorId => DisplayCopyCell(connector.id)
     }
   }
   getCell
@@ -126,7 +126,7 @@ let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorizati
       connec =>
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
           ),
           ~authorization,
         )

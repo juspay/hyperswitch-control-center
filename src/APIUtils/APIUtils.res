@@ -42,6 +42,11 @@ let getV2Url = (
     | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
     | None => ""
     }
+  | SIMULATE_INTELLIGENT_ROUTING =>
+    switch queryParamerters {
+    | Some(queryParams) => `simulate?${queryParams}`
+    | None => `simulate`
+    }
   }
 }
 
@@ -56,6 +61,7 @@ let useGetURL = () => {
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
+    ~hypersenseType: hypersenseType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
@@ -417,6 +423,18 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | ANALYTICS_AUTHENTICATION_V2 =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/metrics/auth_events`
+          }
+
+        | _ => ""
+        }
       | ANALYTICS_FILTERS =>
         switch methodType {
         | Post =>
@@ -494,6 +512,7 @@ let useGetURL = () => {
 
       /* RECONCILIATION */
       | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
+      | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
       | PAYMENT_REPORT =>

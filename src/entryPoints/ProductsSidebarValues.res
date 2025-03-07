@@ -9,7 +9,7 @@ let useGetSideBarValues = () => {
   let sideBarValues = []
 
   if devReconv2Product {
-    sideBarValues->Array.push(ReconSidebarValues.reconSidebars)
+    sideBarValues->Array.pushMany(ReconSidebarValues.reconSidebars)
   }
 
   if devRecoveryV2Product {
@@ -21,7 +21,14 @@ let useGetSideBarValues = () => {
 
 let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => {
   open ProductUtils
-  let {devReconv2Product, devRecoveryV2Product, devVaultV2Product, devAltPaymentMethods} =
+  let {
+    devReconv2Product,
+    devRecoveryV2Product,
+    devVaultV2Product,
+    devAltPaymentMethods,
+    devHypersenseV2Product,
+    devIntelligentRoutingV2,
+  } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
@@ -38,7 +45,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Recon->getStringFromVariant,
         icon: "recon-home",
-        link: "/v2/recon/onboarding",
+        link: "/v2/recon",
         access: Access,
       }),
     )
@@ -59,7 +66,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Vault->getStringFromVariant,
         icon: "vault-home",
-        link: "/v2/vault/home",
+        link: "/v2/vault",
         access: Access,
       }),
     )
@@ -70,6 +77,26 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
         name: AlternatePaymentMethods->getStringFromVariant,
         icon: "alt-payment-methods-home",
         link: "/v2/alt-payment-methods/home",
+        access: Access,
+      }),
+    )
+  }
+  if devHypersenseV2Product {
+    sideBarValues->Array.push(
+      Link({
+        name: Hypersense->getStringFromVariant,
+        icon: "nd-piggy-bank",
+        link: "/v2/hypersense",
+        access: Access,
+      }),
+    )
+  }
+  if devIntelligentRoutingV2 {
+    sideBarValues->Array.push(
+      Link({
+        name: IntelligentRouting->getStringFromVariant,
+        icon: "intelligent-routing-home",
+        link: "/v2/intelligent-routing/home",
         access: Access,
       }),
     )

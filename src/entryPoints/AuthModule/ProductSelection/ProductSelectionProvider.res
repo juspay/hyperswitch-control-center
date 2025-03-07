@@ -111,7 +111,7 @@ module SelectMerchantBody = {
 
 module CreateNewMerchantBody = {
   @react.component
-  let make = (~setShowModal, ~selectedProduct, ~setActiveProductValue) => {
+  let make = (~setShowModal, ~selectedProduct: productTypes, ~setActiveProductValue) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -168,11 +168,18 @@ module CreateNewMerchantBody = {
         let merchantName = values->getDictFromJsonObject->getString("company_name", "")
         let merchantID = await findMerchantId(~merchantName)
 
-        switchMerch(merchantID)->ignore
+        let _ = await switchMerch(merchantID)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Merchant Created Successfully!",
           ~autoClose=true,
+        )
+        RescriptReactRouter.replace(
+          GlobalVars.appendDashboardPath(
+            ~url=`/v2/${selectedProduct
+              ->ProductUtils.getStringFromVariant
+              ->String.toLowerCase}/home`,
+          ),
         )
       } catch {
       | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
