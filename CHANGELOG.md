@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.07.0
+
+### Features
+
+- Apm onboarding page ([#2374](https://github.com/juspay/hyperswitch-control-center/pull/2374)) ([`59210cc`](https://github.com/juspay/hyperswitch-control-center/commit/59210ccb650b4af60e663a7223ca42ae7a63e044))
+
+### Bug Fixes
+
+- Frm connector list bug fix ([#2383](https://github.com/juspay/hyperswitch-control-center/pull/2383)) ([`a8ad21d`](https://github.com/juspay/hyperswitch-control-center/commit/a8ad21d00fe3e55d45fb202172f996e1bd09bf9d))
+
+**Full Changelog:** [`2025.03.06.1...2025.03.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.06.1...2025.03.07.0)
+
+
+- - -
+
 ## 2025.03.06.1
 
 ### Features
