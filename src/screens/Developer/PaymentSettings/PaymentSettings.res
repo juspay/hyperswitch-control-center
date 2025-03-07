@@ -151,22 +151,19 @@ module WebHookAuthenticationHeaders = {
       None
     }, [])
     <div className="flex-1">
-      <div className="flex flex-row items-center gap-4 ">
+      <div className="flex flex-row justify-between items-center gap-4 ">
         <p
           className={`text-xl dark:text-jp-gray-text_darktheme dark:text-opacity-50  !text-grey-700 font-semibold ml-4`}>
           {"Custom Headers"->React.string}
         </p>
         <RenderIf
           condition={!(outGoingWebhookDict->LogicUtils.isEmptyDict) && isDisabled && !allowEdit}>
-          <Button
-            text=""
-            customButtonStyle="bg-none !border-none cursor-pointer !p-0"
-            customBackColor="bg-transparent"
-            rightIcon={FontAwesome("edit")}
-            customIconSize={18}
-            buttonSize=Small
-            onClick={_ => setShowModal(_ => true)}
-          />
+          <div
+            className="flex gap-2 items-center cursor-pointer"
+            onClick={_ => setShowModal(_ => true)}>
+            <Icon name="nd-edit" size=14 />
+            <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+          </div>
         </RenderIf>
       </div>
       <div className="grid grid-cols-5 gap-2">
@@ -258,20 +255,22 @@ module WebHookSection = {
           <WebHookAuthenticationHeaders setAllowEdit allowEdit />
           <DesktopRow>
             <div className="flex justify-end w-full gap-2">
-              <SubmitButton
-                text="Update"
-                buttonType=Button.Primary
-                buttonSize=Button.Medium
-                disabledParamter={!allowEdit}
-              />
-              <Button
-                buttonType=Button.Secondary
-                onClick={_ =>
-                  RescriptReactRouter.push(
-                    GlobalVars.appendDashboardPath(~url="/payment-settings"),
-                  )}
-                text="Cancel"
-              />
+              <RenderIf condition=allowEdit>
+                <SubmitButton
+                  text="Update"
+                  buttonType=Button.Primary
+                  buttonSize=Button.Medium
+                  disabledParamter={!allowEdit}
+                />
+                <Button
+                  buttonType=Button.Secondary
+                  onClick={_ =>
+                    RescriptReactRouter.push(
+                      GlobalVars.appendDashboardPath(~url="/payment-settings"),
+                    )}
+                  text="Cancel"
+                />
+              </RenderIf>
             </div>
           </DesktopRow>
           // <FormValuesSpy />
@@ -656,6 +655,20 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     field={makeFieldInfo(
                       ~name="is_connector_agnostic_mit_enabled",
                       ~label="Connector Agnostic",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg ",
+                      ),
+                    )}
+                  />
+                </DesktopRow>
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
+                    field={makeFieldInfo(
+                      ~name="force_3ds_challenge",
+                      ~label="Force 3DS Challenge",
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg ",

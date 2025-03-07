@@ -14,6 +14,7 @@ type entityName =
   | ANALYTICS_DISPUTES
   | ANALYTICS_REFUNDS
   | ANALYTICS_AUTHENTICATION
+  | ANALYTICS_AUTHENTICATION_V2
   | API_KEYS
   | ORDERS
   | ORDER_FILTERS
@@ -55,12 +56,17 @@ type entityName =
   | API_EVENT_LOGS
   | ANALYTICS_PAYMENTS_V2
   | ANALYTICS_SANKEY
+  | HYPERSENSE
 
-type v2entityNameType = V2_CUSTOMERS_LIST | V2_CONNECTOR
+type v2entityNameType =
+  | V2_CUSTOMERS_LIST
+  | V2_CONNECTOR
+  | SIMULATE_INTELLIGENT_ROUTING
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
 type reconType = [#TOKEN | #REQUEST | #NONE]
+type hypersenseType = [#TOKEN | #HOME | #NONE]
 
 type userType = [
   | #CONNECT_ACCOUNT
@@ -129,5 +135,6 @@ type getUrlTypes = (
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
   ~reconType: reconType=?,
+  ~hypersenseType: hypersenseType=?,
   ~queryParamerters: option<string>=?,
 ) => string

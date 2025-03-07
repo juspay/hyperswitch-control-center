@@ -160,6 +160,7 @@ type profileEntity = {
   is_auto_retries_enabled: option<bool>,
   max_auto_retries_enabled: option<int>,
   metadata: option<Dict.t<JSON.t>>,
+  force_3ds_challenge: option<bool>,
 }
 
 type twoFaType = RecoveryCode | Totp

@@ -375,7 +375,7 @@ module CardRenderer = {
             modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
             childClass={""}>
             <AdditionalDetailsSidebarComp
-              method={selectedWallet}
+              method={Some(selectedWallet)}
               setMetaData
               setShowWalletConfigurationModal
               updateDetails
@@ -383,6 +383,7 @@ module CardRenderer = {
               paymentMethod
               onCloseClickCustomFun={removeSelectedWallet}
               setInitialValues
+              pmtName={selectedWallet.payment_method_type}
             />
           </Modal>
         </RenderIf>
