@@ -16,7 +16,9 @@ module Card = {
         <div className="text-2xl font-bold text-gray-800"> {valueString->React.string} </div>
         <div className="flex flex-row items-center gap-4">
           <div className="text-sm font-medium text-gray-500"> {props.title->React.string} </div>
-          <ToolTip description={props.title} toolTipPosition={ToolTip.Top} />
+          <div className="cursor-pointer">
+            <ToolTip description={props.description} toolTipPosition={ToolTip.Top} />
+          </div>
         </div>
       </div>
     </div>
