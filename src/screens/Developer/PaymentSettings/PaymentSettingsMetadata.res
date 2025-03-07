@@ -39,7 +39,9 @@ module MetadataAuthenticationInput = {
           let name = `metadata.${metadataKey}`
           let newKey = `metadata.${key}`
           form.change(name, JSON.Encode.null)
-          form.change(newKey, customMetadataVal->JSON.Encode.string)
+          if key->String.length > 0 {
+            form.change(newKey, customMetadataVal->JSON.Encode.string)
+          }
         }
 
         //When we empty the key field , then just put a new key field name, keeping the value field the same.
