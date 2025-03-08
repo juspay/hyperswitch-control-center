@@ -14,10 +14,10 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
               labelClass="font-semibold !text-hyperswitch_black"
               field={FormRenderer.makeFieldInfo(
                 ~label="",
-                ~name="feature_metadata.billing_connector_recovery_metadata.start_after_retry_count",
+                ~name="feature_metadata.revenue_recovery.billing_connector_retry_threshold",
                 ~toolTipPosition=Right,
-                ~customInput=InputFields.textInput(~customStyle="border rounded-xl"),
-                ~placeholder="",
+                ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
+                ~placeholder="ex 3",
               )}
             />
           </div>
@@ -29,10 +29,10 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
               labelClass="font-semibold !text-hyperswitch_black"
               field={FormRenderer.makeFieldInfo(
                 ~label="",
-                ~name="feature_metadata.billing_connector_recovery_metadata.max_retry_count",
+                ~name="feature_metadata.revenue_recovery.max_retry_count",
                 ~toolTipPosition=Right,
-                ~customInput=InputFields.textInput(~customStyle="border rounded-xl"),
-                ~placeholder="",
+                ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
+                ~placeholder="ex 15",
               )}
             />
             <FormRenderer.SubmitButton
