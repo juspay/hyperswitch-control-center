@@ -15,3 +15,8 @@ let getSessionData = (~key, ~defaultValue="") => {
   | None => defaultValue
   }
 }
+
+let updateSessionData = (~key, ~value) => {
+  sessionStorage.setItem(key, value)
+  value
+}
