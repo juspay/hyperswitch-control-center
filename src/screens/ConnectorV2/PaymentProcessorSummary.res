@@ -1,6 +1,6 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs
 @react.component
-let make = () => {
+let make = (~baseUrl) => {
   open ConnectorUtils
   open LogicUtils
   open APIUtils
@@ -29,7 +29,11 @@ let make = () => {
   let getConnectorDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Get,
+        ~id=Some(connectorID),
+      )
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json->removeFieldsFromRespose)
       setScreenState(_ => Success)
@@ -91,7 +95,7 @@ let make = () => {
         JSON.Encode.null
       }
     }
-  }, [connectorInfodict.merchant_connector_id])
+  }, [connectorInfodict.id])
 
   let (
     _,
@@ -131,7 +135,6 @@ let make = () => {
     }
     Nullable.null
   }
-
   let validateMandatoryField = values => {
     let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
@@ -153,6 +156,19 @@ let make = () => {
   }
 
   <PageLoaderWrapper screenState>
+    <BreadCrumbNavigation
+      path=[
+        {
+          title: "Connected Processors ",
+          link: `${baseUrl}`,
+        },
+      ]
+      currentPageTitle={`${connectorName->getDisplayNameForConnector}`}
+      dividerVal=Slash
+      customTextClass="text-nd_gray-400 font-medium "
+      childGapClass="gap-2"
+      titleTextClass="text-ng_gray-600 font-medium"
+    />
     <Form onSubmit initialValues validate=validateMandatoryField>
       <div className="flex flex-col gap-10 p-6">
         <div>
@@ -167,9 +183,7 @@ let make = () => {
         </div>
         <div className="flex flex-col gap-12">
           <div className="flex gap-10 max-w-3xl flex-wrap px-2">
-            <ConnectorWebhookPreview
-              merchantId connectorName=connectorInfodict.merchant_connector_id
-            />
+            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
             <div className="flex flex-col gap-0.5-rem ">
               <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
               {connectorInfodict.profile_id->React.string}

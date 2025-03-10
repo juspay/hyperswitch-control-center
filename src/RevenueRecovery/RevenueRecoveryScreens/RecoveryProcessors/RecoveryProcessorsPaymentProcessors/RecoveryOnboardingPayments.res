@@ -63,7 +63,7 @@ let make = (
         ConnectorInterface.connectorInterfaceV2,
         response->getDictFromJsonObject,
       )
-      setConnectorID(_ => connectorInfoDict.merchant_connector_id)
+      setConnectorID(_ => connectorInfoDict.id)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
       onNextClick(currentStep, setNextStep)
@@ -214,7 +214,7 @@ let make = (
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <ConnectorWebhookPreview
             merchantId
-            connectorName=connectorInfoDict.merchant_connector_id
+            connectorName=connectorInfoDict.id
             textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
             containerClass="flex flex-row items-center justify-between"
             displayTextLength=46

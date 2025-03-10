@@ -1,4 +1,4 @@
-type funnelMetric = Volume | Percentage
+type funnelMetric = Volume | Rate
 
 @react.component
 let make = (
@@ -19,7 +19,7 @@ let make = (
     !(metric.disabled->Option.getOr(false))
   })
   let (hoverIndex, setHoverIndex) = React.useState(_ => -1.)
-  let (selectedMetric, setSelectedMetric) = React.useState(_ => Volume)
+  let (selectedMetric, setSelectedMetric) = React.useState(_ => Rate)
   let length = metrics->Array.length->Float.fromInt
   let widths = React.useMemo(() => {
     metrics->Array.mapWithIndex((metric, i) => {
@@ -67,15 +67,15 @@ let make = (
           <div className={`flex flex-col ${widthClass}`} />
           <div
             className={`flex flex-row items-start ml-6 ${widthClass} font-medium text-sm text-jp-gray-800 dark:text-dark_theme cursor-pointer`}>
+            // <div
+            //   className={selectedMetric === Volume ? "font-bold" : ""}
+            //   onClick={_ => setSelectedMetric(_ => Volume)}>
+            //   {React.string("Volume")}
+            // </div>
+            // {React.string("/")}
             <div
-              className={selectedMetric === Volume ? "font-bold" : ""}
-              onClick={_ => setSelectedMetric(_ => Volume)}>
-              {React.string("Volume")}
-            </div>
-            {React.string("/")}
-            <div
-              className={selectedMetric === Percentage ? "font-bold" : ""}
-              onClick={_ => setSelectedMetric(_ => Percentage)}>
+              className={selectedMetric === Rate ? "font-bold" : ""}
+              onClick={_ => setSelectedMetric(_ => Rate)}>
               {React.string("Percentage")}
             </div>
           </div>
@@ -132,7 +132,7 @@ let make = (
                 ->Array.mapWithIndex((metric, i) => {
                   let marginBottom = `${(size *. 1.4)->Float.toString}rem`
                   let paddingTop = `${(size *. 4.2)->Float.toString}rem`
-                  let metricVal = funnelData->getInt(metric.metric_name_db, 0)->Float.fromInt
+                  let metricVal = funnelData->getFloat(metric.metric_name_db, 0.0)
                   let prevMetricVolume = switch prevMetricVol.contents {
                   | Some(vol) => vol
                   | None => metricVal
@@ -154,7 +154,7 @@ let make = (
                       {switch selectedMetric {
                       | Volume =>
                         shortNum(~labelValue=metricVal, ~numberFormat=getDefaultNumberFormat())
-                      | Percentage =>
+                      | Rate =>
                         (metricVal *. 100. /. prevMetricVolume)
                           ->Float.toFixedWithPrecision(~digits=2) ++ "%"
                       }->React.string}

@@ -32,6 +32,7 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(THREEDSECUREIO),
   ThreeDsAuthenticator(NETCETERA),
   ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD),
+  ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
 ]
 
 let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
@@ -108,6 +109,7 @@ let connectorList: array<connectorTypes> = [
   Processors(JPMORGAN),
   Processors(XENDIT),
   Processors(INESPAY),
+  Processors(MONERIS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -412,6 +414,9 @@ let xenditInfo = {
 let inespayInfo = {
   description: "Inespay is an online bank transfer payment gateway that operates in three simple steps without the need for prior registration. It is registered as a payment institution authorized by the Bank of Spain with number 6902. Specializing in integrating bank transfer as an online payment method on all kinds of web platforms, especially in B2B environments. It collaborates with leaders in various economic sectors, offering a real-time bank transfer income service and automatic reconciliation.",
 }
+let monerisInfo = {
+  description: "Unify your retail operations with the combined power of Moneris and Wix, in an all-in-one omnichannel POS solution.",
+}
 
 // Dummy Connector Info
 let pretendpayInfo = {
@@ -462,6 +467,10 @@ let netceteraInfo = {
 
 let clickToPayInfo = {
   description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
+}
+
+let juspayThreeDsServerInfo = {
+  description: "Juspay's cost-effective 3DS platform, ensures security, compliance, and seamless checkout—reducing fraud, boosting conversions, and enhancing customer trust with frictionless authentication.",
 }
 
 let unknownConnectorInfo = {
@@ -648,6 +657,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | JPMORGAN => "jpmorgan"
   | XENDIT => "xendit"
   | INESPAY => "inespay"
+  | MONERIS => "moneris"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -666,6 +676,7 @@ let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthentica
   | THREEDSECUREIO => "threedsecureio"
   | NETCETERA => "netcetera"
   | CLICK_TO_PAY_MASTERCARD => "ctp_mastercard"
+  | JUSPAYTHREEDSSERVER => "juspaythreedsserver"
   }
 
 let getFRMNameString = (frm: frmTypes) => {
@@ -786,6 +797,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "jpmorgan" => Processors(JPMORGAN)
     | "xendit" => Processors(XENDIT)
     | "inespay" => Processors(INESPAY)
+    | "moneris" => Processors(MONERIS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -804,6 +816,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "threedsecureio" => ThreeDsAuthenticator(THREEDSECUREIO)
     | "netcetera" => ThreeDsAuthenticator(NETCETERA)
     | "ctp_mastercard" => ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD)
+    | "juspaythreedsserver" => ThreeDsAuthenticator(JUSPAYTHREEDSSERVER)
     | _ => UnknownConnector("Not known")
     }
   | FRMPlayer =>
@@ -904,6 +917,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | JPMORGAN => jpmorganInfo
   | XENDIT => xenditInfo
   | INESPAY => inespayInfo
+  | MONERIS => monerisInfo
   }
 }
 
@@ -924,6 +938,7 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   | THREEDSECUREIO => threedsecuredotioInfo
   | NETCETERA => netceteraInfo
   | CLICK_TO_PAY_MASTERCARD => clickToPayInfo
+  | JUSPAYTHREEDSSERVER => juspayThreeDsServerInfo
   }
 let getFrmInfo = frm =>
   switch frm {
@@ -1733,6 +1748,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | JPMORGAN => "JP Morgan"
   | XENDIT => "Xendit"
   | INESPAY => "Inespay"
+  | MONERIS => "Moneris"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -1751,6 +1767,7 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   | THREEDSECUREIO => "3dsecure.io"
   | NETCETERA => "Netcetera"
   | CLICK_TO_PAY_MASTERCARD => "Unified Click to Pay"
+  | JUSPAYTHREEDSSERVER => "Juspay 3DS Server"
   }
 
 let getDisplayNameForFRMConnector = frmConnector =>
