@@ -232,40 +232,41 @@ module Wrapper = {
     let actions =
       <div className={`flex flex-row gap-3 md:gap-4 mr-4 w-1/3 items-center justify-end `}>
         <RenderIf condition={notFirstRule}>
-          <div className={`${actionIconCss} ${hoverCss}`}>
-            <ToolTip
-              description="Drag Rule"
-              toolTipFor={<Icon name="grip-vertical" className="text-jp-gray-700" size={14} />}
-              toolTipPosition=Top
-            />
-          </div>
-        </RenderIf>
-        <div onClick={onClickAdd} className={`${actionIconCss} ${hoverCss}`}>
           <ToolTip
-            description="Add new rule"
-            toolTipFor={<Icon name="plus" className="text-jp-gray-700" size={14} />}
+            description="Drag Rule"
+            toolTipFor={<div className={`${actionIconCss} ${hoverCss}`}>
+              <Icon name="grip-vertical" className="text-jp-gray-700" size={14} />
+            </div>}
             toolTipPosition=Top
           />
-        </div>
+        </RenderIf>
+        <ToolTip
+          description="Add new rule"
+          toolTipFor={<div onClick={onClickAdd} className={`${actionIconCss} ${hoverCss}`}>
+            <Icon name="plus" className="text-jp-gray-700" size={14} />
+          </div>}
+          toolTipPosition=Top
+        />
         {switch onClickCopy {
         | Some(onClick) =>
-          <div onClick={onClick} className={`${actionIconCss} ${hoverCss}`}>
-            <ToolTip
-              description="Copy Rule"
-              toolTipFor={<Icon name="nd-copy" className="text-jp-gray-700" size={12} />}
-              toolTipPosition=Top
-            />
-          </div>
+          <ToolTip
+            description="Copy Rule"
+            toolTipFor={<div onClick={onClick} className={`${actionIconCss} ${hoverCss}`}>
+              <Icon name="nd-copy" className="text-jp-gray-700" size={12} />
+            </div>}
+            toolTipPosition=Top
+          />
+
         | None => React.null
         }}
         <RenderIf condition={notFirstRule}>
-          <div onClick={onClickRemove} className={`${actionIconCss} ${hoverCss}`}>
-            <ToolTip
-              description="Delete Rule"
-              toolTipFor={<Icon name="trash" className="text-jp-gray-700" size={12} />}
-              toolTipPosition=Top
-            />
-          </div>
+          <ToolTip
+            description="Delete Rule"
+            toolTipFor={<div onClick={onClickRemove} className={`${actionIconCss} ${hoverCss}`}>
+              <Icon name="trash" className="text-jp-gray-700" size={12} />
+            </div>}
+            toolTipPosition=Top
+          />
         </RenderIf>
       </div>
 
