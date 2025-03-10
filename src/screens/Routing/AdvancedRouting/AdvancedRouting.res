@@ -228,19 +228,24 @@ module Wrapper = {
     let border = isDragging ? "border-dashed" : "border-solid"
     let flex = isExpanded ? "flex-col" : "flex-wrap items-center gap-4"
     let hoverCss = "transition-all duration-150 hover:bg-gray-200 active:scale-95 active:bg-gray-300 "
-    let actionTextCss = "flex flex-row gap-2 items-center justify-around p-2 bg-gray-100 dark:bg-jp-gray-970 rounded-xl border border-jp-gray-600 cursor-pointer"
-    let actionIconCss = "flex items-center justify-center p-2 bg-gray-100 dark:bg-jp-gray-970 rounded-xl border border-jp-gray-600 cursor-pointer"
+    let actionIconCss = "flex items-center justify-center p-2 bg-gray-100 dark:bg-jp-gray-970 rounded-xl border border-jp-gray-600 cursor-pointer h-8"
     let actions =
-      <div className={`flex flex-row gap-3 md:gap-10 items-center justify-end `}>
+      <div className={`flex flex-row gap-3 md:gap-4 mr-4 w-1/3 items-center justify-end `}>
         <RenderIf condition={notFirstRule}>
-          <div className={`${actionTextCss} ${hoverCss}`}>
-            <Icon name="grip-vertical" className="text-jp-gray-700" size={14} />
-            <div className="text-xs font-medium"> {React.string("Drag Rule")} </div>
+          <div className={`${actionIconCss} ${hoverCss}`}>
+            <ToolTip
+              description="Drag Rule"
+              toolTipFor={<Icon name="grip-vertical" className="text-jp-gray-700" size={14} />}
+              toolTipPosition=Top
+            />
           </div>
         </RenderIf>
-        <div onClick={onClickAdd} className={`${actionTextCss} ${hoverCss}`}>
-          <Icon name="plus" className="text-jp-gray-700" size={12} />
-          <div className="text-xs font-medium"> {React.string("Add New Rule")} </div>
+        <div onClick={onClickAdd} className={`${actionIconCss} ${hoverCss}`}>
+          <ToolTip
+            description="Add new rule"
+            toolTipFor={<Icon name="plus" className="text-jp-gray-700" size={14} />}
+            toolTipPosition=Top
+          />
         </div>
         {switch onClickCopy {
         | Some(onClick) =>
