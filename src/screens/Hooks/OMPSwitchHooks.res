@@ -62,7 +62,7 @@ let useOrgSwitch = () => {
         let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_ORG, ~methodType=Post)
         let body =
           [("org_id", expectedOrgId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-        mixpanelEvent(~eventName=`switched_to_org_${expectedOrgId}`)
+        mixpanelEvent(~eventName=`switch_org`, ~metadata=expectedOrgId->JSON.Encode.string)
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
@@ -100,7 +100,10 @@ let useMerchantSwitch = () => {
           [
             ("merchant_id", expectedMerchantId->JSON.Encode.string),
           ]->LogicUtils.getJsonFromArrayOfJson
-        mixpanelEvent(~eventName=`switched_to_merchant_${expectedMerchantId}`)
+        mixpanelEvent(
+          ~eventName=`switch_merchant`,
+          ~metadata=expectedMerchantId->JSON.Encode.string,
+        )
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
@@ -134,7 +137,7 @@ let useProfileSwitch = () => {
         let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_PROFILE, ~methodType=Post)
         let body =
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-        mixpanelEvent(~eventName=`switched_to_profile_${expectedProfileId}`)
+        mixpanelEvent(~eventName=`switch_profile`, ~metadata=expectedProfileId->JSON.Encode.string)
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
