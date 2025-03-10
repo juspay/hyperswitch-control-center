@@ -241,7 +241,7 @@ module Wrapper = {
           />
         </RenderIf>
         <ToolTip
-          description="Add new rule"
+          description="Add New Rule"
           toolTipFor={<div onClick={onClickAdd} className={`${actionIconCss} ${hoverCss}`}>
             <Icon name="plus" className="text-jp-gray-700" size={14} />
           </div>}
