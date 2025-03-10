@@ -53,6 +53,7 @@ let useOrgSwitch = () => {
   let updateDetails = useUpdateMethod()
   let {getUserInfo} = useUserInfo()
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   async (~expectedOrgId, ~currentOrgId, ~defaultValue) => {
@@ -61,6 +62,7 @@ let useOrgSwitch = () => {
         let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_ORG, ~methodType=Post)
         let body =
           [("org_id", expectedOrgId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+        mixpanelEvent(~eventName=`switch_org`, ~metadata=expectedOrgId->JSON.Encode.string)
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
@@ -87,6 +89,7 @@ let useMerchantSwitch = () => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let {getUserInfo} = useUserInfo()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   async (~expectedMerchantId, ~currentMerchantId, ~defaultValue) => {
@@ -97,6 +100,10 @@ let useMerchantSwitch = () => {
           [
             ("merchant_id", expectedMerchantId->JSON.Encode.string),
           ]->LogicUtils.getJsonFromArrayOfJson
+        mixpanelEvent(
+          ~eventName=`switch_merchant`,
+          ~metadata=expectedMerchantId->JSON.Encode.string,
+        )
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
@@ -120,6 +127,7 @@ let useProfileSwitch = () => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let {getUserInfo} = useUserInfo()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   async (~expectedProfileId, ~currentProfileId, ~defaultValue) => {
@@ -129,6 +137,7 @@ let useProfileSwitch = () => {
         let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_PROFILE, ~methodType=Post)
         let body =
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+        mixpanelEvent(~eventName=`switch_profile`, ~metadata=expectedProfileId->JSON.Encode.string)
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()

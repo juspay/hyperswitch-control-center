@@ -3,6 +3,7 @@ module NewProfileCreationModal = {
   let make = (~setShowModal, ~showModal, ~getProfileList) => {
     open APIUtils
     let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
 
@@ -10,6 +11,7 @@ module NewProfileCreationModal = {
       try {
         let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
         let body = values
+        mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
         let _ = await updateDetails(url, body, Post)
         getProfileList()->ignore
         showToast(

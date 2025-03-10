@@ -3,11 +3,13 @@ module NewMerchantCreationModal = {
   let make = (~setShowModal, ~showModal, ~getMerchantList) => {
     open APIUtils
     let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let createNewMerchant = async values => {
       try {
         let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+        mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
         let _ = await updateDetails(url, values, Post)
         getMerchantList()->ignore
         showToast(
