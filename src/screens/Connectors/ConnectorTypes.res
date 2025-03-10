@@ -99,6 +99,7 @@ type processorTypes =
   | XENDIT
   | JPMORGAN
   | INESPAY
+  | MONERIS
 
 type payoutProcessorTypes =
   | ADYEN
@@ -109,7 +110,8 @@ type payoutProcessorTypes =
   | STRIPE
   | WISE
 
-type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD
+type threeDsAuthenticatorTypes =
+  THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER
 
 type frmTypes =
   | Signifyd
@@ -349,7 +351,7 @@ type connectorPayloadV2 = {
   payment_methods_enabled: payment_methods_enabledV2,
   profile_id: string,
   metadata: JSON.t,
-  merchant_connector_id: string,
+  id: string,
   frm_configs: array<frm_config>,
   status: string,
   connector_webhook_details: JSON.t,

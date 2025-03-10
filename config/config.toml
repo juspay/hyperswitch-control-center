@@ -1,6 +1,7 @@
 [default.endpoints]
 api_url="http://localhost:9000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
+hypersense_url=""
 logo_url=""
 favicon_url=""
 agreement_url=""
@@ -50,12 +51,13 @@ dev_click_to_pay=false
 dev_recon_v2_product=false
 dev_recovery_v2_product=false
 dev_vault_v2_product=false
+dev_intelligent_routing_v2=false 
 dev_modularity_v2=false
 dev_alt_payment_methods=false
+dev_hypersense_v2_product=false
 maintainence_alert=""
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
 merchant_ids=[]
 profile_ids=[]
-

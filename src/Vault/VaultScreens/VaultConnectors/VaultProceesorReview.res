@@ -43,7 +43,7 @@ let make = (~connectorInfo) => {
         Dict.make()
       }
     }
-  }, [connectorInfodict.merchant_connector_id])
+  }, [connectorInfodict.id])
 
   let handleClick = () => {
     setShowSideBar(_ => true)
@@ -66,7 +66,7 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col ">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.merchant_connector_id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
       </div>
     </div>
     <ACLButton
