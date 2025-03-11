@@ -1,5 +1,4 @@
 type contentType = Headers(string) | Unknown
-type headerType = V1Headers | V2Headers
 
 let headersForXFeature = (~uri, ~headers) => {
   if (
@@ -21,7 +20,7 @@ let getHeaders = (
   ~token,
   ~merchantId,
   ~profileId,
-  ~headerType,
+  ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
 
@@ -31,13 +30,12 @@ let getHeaders = (
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    switch (token, headerType) {
-    | (Some(str), V1Headers) => {
+    switch (token, version) {
+    | (Some(str), V1) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
       }
-    | (Some(str), V2Headers) => headers->Dict.set("authorization", `jwt=Bearer ${str}`)
-
+    | (Some(str), V2) => headers->Dict.set("authorization", `jwt=Bearer ${str}`)
     | _ => ()
     }
     switch contentType {
@@ -79,7 +77,7 @@ let useApiFetcher = () => {
       ~forceCookies,
       ~merchantId="",
       ~profileId="",
-      ~headerType=V1Headers,
+      ~version=UserInfoTypes.V1,
     ) => {
       let token = {
         switch authStatus {
@@ -121,7 +119,7 @@ let useApiFetcher = () => {
               ~xFeatureRoute,
               ~merchantId,
               ~profileId,
-              ~headerType,
+              ~version,
             ),
           ),
         )

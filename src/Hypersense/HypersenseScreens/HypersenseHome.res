@@ -8,7 +8,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let onCreatingMerchant = async () => {
+  let onExploreClick = async () => {
     let hypersenseTokenUrl = getURL(
       ~entityName=V1(HYPERSENSE),
       ~methodType=Get,
@@ -20,11 +20,6 @@ let make = () => {
     let url = `${Window.env.hypersenseUrl}/login?auth_token=${token}`
     url->Window._open
   }
-
-  React.useEffect(() => {
-    onCreatingMerchant()->ignore
-    None
-  }, [])
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="hypersenseOnboarding" src="/assets/DefaultHomeHypersenseCard.svg" />
@@ -39,6 +34,17 @@ let make = () => {
         customTitleStyle="text-2xl text-center font-bold text-nd_gray-700 font-500"
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
         subTitle="Audit, Observe and Optimize payment costs to uncover cost-saving opportunities"
+      />
+      <Button
+        text="Explore Hypersense"
+        onClick={_ => {
+          onExploreClick()->ignore
+        }}
+        customTextPaddingClass="pr-0"
+        rightIcon={CustomIcon(<Icon name="nd-angle-right" size=16 className="cursor-pointer" />)}
+        buttonType=Primary
+        buttonSize=Large
+        buttonState=Normal
       />
     </div>
   </div>

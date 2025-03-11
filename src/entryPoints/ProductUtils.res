@@ -5,18 +5,18 @@ let getVariantFromString = product =>
   | "recovery" => Recovery
   | "vault" => Vault
   | "alternate payment methods" => AlternatePaymentMethods
-  | "hypersense" => Hypersense
-  | "intelligent Routing" => IntelligentRouting
-  | _ => Orchestrator
+  | "hypersense" => CostObservability
+  | "intelligent Routing" => DynamicRouting
+  | _ => Orchestration
   }
 
 let getStringFromVariant = product =>
   switch product {
   | Recon => "Recon"
   | Recovery => "Recovery"
-  | Orchestrator => "Orchestrator"
+  | Orchestration => "Orchestrator"
   | Vault => "Vault"
   | AlternatePaymentMethods => "Alternate Payment Methods"
-  | Hypersense => "Hypersense"
-  | IntelligentRouting => "Intelligent Routing"
+  | CostObservability => "Hypersense"
+  | DynamicRouting => "Intelligent Routing"
   }

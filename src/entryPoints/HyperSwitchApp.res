@@ -335,7 +335,7 @@ let make = () => {
                         | list{"unauthorized"} => <UnauthorizedPage />
                         | _ =>
                           // SPECIAL CASE FOR ORCHESTRATOR
-                          if activeProduct === Orchestrator {
+                          if activeProduct === Orchestration {
                             RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                             <MerchantAccountContainer setAppScreenState=setScreenState />
                           } else {

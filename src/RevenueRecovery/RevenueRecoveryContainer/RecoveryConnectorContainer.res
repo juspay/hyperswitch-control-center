@@ -5,6 +5,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
+    ~version=V2,
   )
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

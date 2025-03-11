@@ -706,7 +706,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   if devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
-        name: "Home",
+        name: "Overview",
         icon: "nd-home",
         link: "/v2/home",
         access: Access,
@@ -719,13 +719,13 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   }
 
   let sidebarValuesForProduct = switch activeProduct {
-  | Orchestrator => hsSidebars
+  | Orchestration => hsSidebars
   | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   | AlternatePaymentMethods => AlternatePaymentMethodsSidebarValues.altPaymentMethodsSidebars
-  | Hypersense => HypersenseSidebarValues.hypersenseSidebars
-  | IntelligentRouting => IntelligentaRoutingSidebarValues.intelligentRoutingSidebars
+  | CostObservability => HypersenseSidebarValues.hypersenseSidebars
+  | DynamicRouting => IntelligentaRoutingSidebarValues.intelligentRoutingSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }
