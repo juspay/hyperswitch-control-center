@@ -71,7 +71,7 @@ let make = () => {
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Post)
+      let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)

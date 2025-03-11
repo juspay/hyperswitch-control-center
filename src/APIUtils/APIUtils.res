@@ -4,6 +4,7 @@ exception JsonException(JSON.t)
 
 let getV2Url = (
   ~entityName: v2entityNameType,
+  ~userType: userType=#NONE,
   ~methodType: Fetch.requestMethod,
   ~id=None,
   ~profileId,
@@ -47,10 +48,16 @@ let getV2Url = (
     | Some(queryParams) => `simulate?${queryParams}`
     | None => `simulate`
     }
-  | CREATE_MERCHANT =>
-    switch queryParamerters {
-    | Some(params) => `v2/merchant-accounts?${params}`
-    | None => `v2/merchant-accounts`
+  | USERS =>
+    let userUrl = `user`
+    switch userType {
+    | #CREATE_MERCHANT =>
+      switch queryParamerters {
+      | Some(params) => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+      | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
+      }
+    | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
+    | _ => ""
     }
   }
 }
@@ -825,7 +832,14 @@ let useGetURL = () => {
       }
 
     | V2(entityNameForv2) =>
-      getV2Url(~entityName=entityNameForv2, ~id, ~profileId, ~methodType, ~queryParamerters)
+      getV2Url(
+        ~entityName=entityNameForv2,
+        ~userType,
+        ~id,
+        ~profileId,
+        ~methodType,
+        ~queryParamerters,
+      )
     }
 
     `${Window.env.apiBaseUrl}/${endpoint}`

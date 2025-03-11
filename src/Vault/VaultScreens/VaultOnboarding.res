@@ -30,6 +30,7 @@ let make = () => {
   })
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
+    ~version=V2,
   )
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
@@ -66,7 +67,7 @@ let make = () => {
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Post)
+      let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
