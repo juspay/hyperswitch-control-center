@@ -8,9 +8,10 @@ let getV2Url = (
   ~methodType: Fetch.requestMethod,
   ~id=None,
   ~profileId,
-  ~queryParamerters: option<string>=None,
+  ~queryParameters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
+  let peymantsBaseURL = "v2/payments"
 
   switch entityName {
   | CUSTOMERS =>
@@ -33,6 +34,24 @@ let getV2Url = (
       }
     | _ => ""
     }
+  | V2_ORDERS_LIST =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) =>
+        switch queryParameters {
+        | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
+        | None => `${peymantsBaseURL}/${key_id}`
+        }
+      | None =>
+        switch queryParameters {
+        | Some(queryParams) => `${peymantsBaseURL}/list?${queryParams}`
+        | None => `${peymantsBaseURL}/list?limit=100`
+        }
+      }
+    | _ => ""
+    }
+  | V2_ORDER_FILTERS => "v2/payments/profile/filter"
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
@@ -44,7 +63,7 @@ let getV2Url = (
     | None => ""
     }
   | SIMULATE_INTELLIGENT_ROUTING =>
-    switch queryParamerters {
+    switch queryParameters {
     | Some(queryParams) => `simulate?${queryParams}`
     | None => `simulate`
     }
@@ -52,7 +71,7 @@ let getV2Url = (
     let userUrl = `user`
     switch userType {
     | #CREATE_MERCHANT =>
-      switch queryParamerters {
+      switch queryParameters {
       | Some(params) => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
       | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
@@ -838,7 +857,7 @@ let useGetURL = () => {
         ~id,
         ~profileId,
         ~methodType,
-        ~queryParamerters,
+        ~queryParameters=queryParamerters,
       )
     }
 
