@@ -16,6 +16,14 @@ let make = (~previewOnly=false) => {
   let showToast = ToastState.useShowToast()
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
 
+  let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV2,
+    ~retainInList=BillingProcessor,
+  )
+
+  let (billingConnectorID, billingConnectorName) =
+    billingConnectorListFromRecoil->getBillingConnectorDetails
+
   let handleExtendDateButtonClick = _ => {
     let startDateObj = startTime->DayJs.getDayJsForString
     let prevStartdate = startDateObj.toDate()->Date.toISOString
@@ -147,19 +155,22 @@ let make = (~previewOnly=false) => {
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Revenue Recovery Payments" subTitle="" customTitleStyle />
-        <Button
-          text="View Chargebee"
-          buttonType={Secondary}
-          onClick={_ =>
-            // TODO: billiig connector id should be removed
-            RescriptReactRouter.replace(
-              GlobalVars.appendDashboardPath(
-                ~url=`/v2/recovery/summary/mca_JxiR6yu2EAGOvWjWxBOM?name=chargebee`,
-              ),
-            )}
-          buttonSize={Small}
-          customButtonStyle="w-fit"
-        />
+        <RenderIf
+          condition={billingConnectorID->isNonEmptyString &&
+            billingConnectorName->isNonEmptyString}>
+          <Button
+            text="View Details"
+            buttonType={Secondary}
+            onClick={_ =>
+              RescriptReactRouter.replace(
+                GlobalVars.appendDashboardPath(
+                  ~url=`/v2/recovery/summary/${billingConnectorID}?name=${billingConnectorName}`,
+                ),
+              )}
+            buttonSize={Small}
+            customButtonStyle="w-fit"
+          />
+        </RenderIf>
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns

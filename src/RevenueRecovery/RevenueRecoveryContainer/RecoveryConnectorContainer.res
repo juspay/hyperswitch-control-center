@@ -53,6 +53,14 @@ let make = () => {
           renderShow={(_, _) => <RevenueRecoveryOnboarding />}
         />
       </AccessControl>
+    | list{"v2", "recovery", "overview", ...remainingPath} =>
+      <EntityScaffold
+        entityName="Payments"
+        remainingPath
+        access=Access
+        renderList={() => <RevenueRecoveryOverview />}
+        renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
+      />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
