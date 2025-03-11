@@ -477,7 +477,7 @@ let getOrdersList = async (
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
-    ~headerType: AuthHooks.headerType=?,
+    ~version: UserInfoTypes.version=?,
   ) => promise<JSON.t>,
   ~getURL: APIUtilsTypes.getUrlTypes,
   ~setOrdersData,

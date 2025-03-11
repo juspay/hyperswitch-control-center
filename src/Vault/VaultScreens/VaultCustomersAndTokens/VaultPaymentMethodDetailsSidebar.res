@@ -173,7 +173,7 @@ let make = (~paymentId, ~setShowModal) => {
         ~methodType=Get,
         ~id=Some(paymentId),
       )
-      let response = await fetchDetails(url, ~headerType=V2Headers)
+      let response = await fetchDetails(url, ~version=V2)
       setPaymentsDetailsData(_ => response->VaultPaymentMethodDetailsUtils.itemToObjMapper)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
