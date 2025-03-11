@@ -57,3 +57,9 @@ let itemToObjMapper: JSON.t => paymentMethodDetails = json => {
     network_tokens: dict->getDictfromDict("network_tokens")->networkTokensData,
   }
 }
+
+let getArrayOfPaymentMethodListPayloadType = json => {
+  json->Array.map(reportJson => {
+    reportJson->itemToObjMapper
+  })
+}

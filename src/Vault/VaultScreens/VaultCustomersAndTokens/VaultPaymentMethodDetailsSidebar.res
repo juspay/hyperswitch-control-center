@@ -155,16 +155,17 @@ module NetworkTokens = {
 }
 
 @react.component
-let make = (~paymentId, ~setShowModal) => {
+let make = (~paymentId, ~setShowModal, ~sampleReport) => {
   open APIUtils
   open VaultPaymentMethodDetailsTypes
+  open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (paymentsDetailsData, setPaymentsDetailsData) = React.useState(() =>
     JSON.Encode.null->VaultPaymentMethodDetailsUtils.itemToObjMapper
   )
-
+  let defaultObject = JSON.Encode.null->VaultPaymentMethodDetailsUtils.itemToObjMapper
   let fetchPaymentMethodDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -173,9 +174,24 @@ let make = (~paymentId, ~setShowModal) => {
         ~methodType=Get,
         ~id=Some(paymentId),
       )
-      let response = await fetchDetails(url, ~headerType=V2Headers)
-      setPaymentsDetailsData(_ => response->VaultPaymentMethodDetailsUtils.itemToObjMapper)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if sampleReport {
+        let response = VaultSampleData.retrievePMT
+        let data =
+          response
+          ->getDictFromJsonObject
+          ->getArrayFromDict("data", [])
+          ->VaultPaymentMethodDetailsUtils.getArrayOfPaymentMethodListPayloadType
+        let selectedDataArray = data->Array.filter(item => {item.id == paymentId})
+
+        let selectedDataObject = selectedDataArray->getValueFromArray(0, defaultObject)
+
+        setPaymentsDetailsData(_ => selectedDataObject)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        let response = await fetchDetails(url, ~headerType=V2Headers)
+        setPaymentsDetailsData(_ => response->VaultPaymentMethodDetailsUtils.itemToObjMapper)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }

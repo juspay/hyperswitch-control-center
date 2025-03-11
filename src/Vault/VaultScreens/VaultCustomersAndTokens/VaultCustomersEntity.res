@@ -54,6 +54,11 @@ let itemToObjMapper = dict => {
     metadata: dict->getJsonObjectFromDict("metadata"),
   }
 }
+let getArrayOfCustomerListPayloadType = json => {
+  json->Array.map(reportJson => {
+    reportJson->LogicUtils.getDictFromJsonObject->itemToObjMapper
+  })
+}
 
 let getCustomers: JSON.t => array<customers> = json => {
   open LogicUtils

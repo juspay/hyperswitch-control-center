@@ -100,7 +100,7 @@ module Details = {
 }
 
 module CustomerInfo = {
-  open CustomersEntity
+  open VaultCustomersEntity
 
   @react.component
   let make = (~dict) => {
@@ -117,7 +117,7 @@ module CustomerInfo = {
 
 module VaultedPaymentMethodsTable = {
   @react.component
-  let make = () => {
+  let make = (~sampleReport) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -141,7 +141,9 @@ module VaultedPaymentMethodsTable = {
           ~methodType=Get,
           ~id=Some(customerIdFromUrl),
         )
-        let response = await fetchDetails(url, ~headerType=V2Headers)
+        let response = sampleReport
+          ? VaultSampleData.pmtList
+          : await fetchDetails(url, ~headerType=V2Headers)
         let tableData =
           response
           ->getDictFromJsonObject
@@ -182,7 +184,7 @@ module VaultedPaymentMethodsTable = {
           closeOnOutsideClick=true
           modalClass="w-full md:w-1/2 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
           childClass="">
-          <VaultPaymentMethodDetailsSidebar paymentId setShowModal />
+          <VaultPaymentMethodDetailsSidebar paymentId setShowModal sampleReport />
         </Modal>
       </PageLoaderWrapper>
     </>
@@ -191,32 +193,49 @@ module VaultedPaymentMethodsTable = {
 
 module VaultedPaymentMethods = {
   @react.component
-  let make = () => {
+  let make = (~sampleReport) => {
     <>
       <div
         className={`font-semibold text-nd_gray-600 text-fs-24 leading-6 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Vaulted Payment Methods"->React.string}
       </div>
-      <VaultedPaymentMethodsTable />
+      <VaultedPaymentMethodsTable sampleReport />
     </>
   }
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~sampleReport) => {
   open APIUtils
+  open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => JSON.Encode.null)
-
+  let defaultObject = Dict.make()->VaultCustomersEntity.itemToObjMapper
   let fetchCustomersData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let customersUrl = getURL(~entityName=V2(CUSTOMERS), ~methodType=Get, ~id=Some(id))
-      let response = await fetchDetails(customersUrl, ~headerType=V2Headers)
-      setCustomersData(_ => response)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if sampleReport {
+        let response = VaultSampleData.retrieveCustomer
+        let data =
+          response
+          ->getDictFromJsonObject
+          ->getArrayFromDict("data", [])
+          ->VaultCustomersEntity.getArrayOfCustomerListPayloadType
+        let selectedDataArray = data->Array.filter(item => {item.id == id})
+
+        let selectedDataObject =
+          selectedDataArray->getValueFromArray(0, defaultObject)->Identity.genericTypeToJson
+
+        setCustomersData(_ => selectedDataObject)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        let response = await fetchDetails(customersUrl)
+        setCustomersData(_ => response)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -243,7 +262,7 @@ let make = (~id) => {
         </div>
       </div>
       <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
-      <VaultedPaymentMethods />
+      <VaultedPaymentMethods sampleReport />
     </div>
   </PageLoaderWrapper>
 }
