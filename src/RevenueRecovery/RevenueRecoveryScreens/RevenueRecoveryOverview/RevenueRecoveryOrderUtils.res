@@ -194,7 +194,7 @@ let setData = (offset, setOffset, total, data, setTotalCount, setOrdersData, set
 
 let getPaymentsList = async (
   filterValueJson: RescriptCore.Dict.t<Core__JSON.t>,
-  ~fetchDetails: string => promise<JSON.t>,
+  ~fetchDetails: (string, ~headerType: AuthHooks.headerType=?) => promise<Js.Json.t>,
   ~getURL: APIUtilsTypes.getUrlTypes,
   ~setOrdersData,
   ~setScreenState,

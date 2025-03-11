@@ -49,6 +49,7 @@ let getV2Url = (
         }
       }
     | _ => ""
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
@@ -60,7 +61,7 @@ let getV2Url = (
     | None => ""
     }
   | SIMULATE_INTELLIGENT_ROUTING =>
-    switch queryParamerters {
+    switch queryParameters {
     | Some(queryParams) => `simulate?${queryParams}`
     | None => `simulate`
     }
