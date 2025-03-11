@@ -191,6 +191,7 @@ let make = () => {
   let toggleChevronState = () => {
     setArrow(prev => !prev)
   }
+
   let updatedProfileList: array<
     OMPSwitchTypes.ompListTypesCustom,
   > = profileList->Array.mapWithIndex((item, i) => {
@@ -203,6 +204,7 @@ let make = () => {
     }
     listItem
   })
+
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false

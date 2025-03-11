@@ -4,6 +4,7 @@ exception JsonException(JSON.t)
 
 let getV2Url = (
   ~entityName: v2entityNameType,
+  ~userType: userType=#NONE,
   ~methodType: Fetch.requestMethod,
   ~id=None,
   ~profileId,
@@ -65,6 +66,17 @@ let getV2Url = (
     switch queryParameters {
     | Some(queryParams) => `simulate?${queryParams}`
     | None => `simulate`
+    }
+  | USERS =>
+    let userUrl = `user`
+    switch userType {
+    | #CREATE_MERCHANT =>
+      switch queryParameters {
+      | Some(params) => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+      | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
+      }
+    | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
+    | _ => ""
     }
   }
 }
@@ -841,6 +853,7 @@ let useGetURL = () => {
     | V2(entityNameForv2) =>
       getV2Url(
         ~entityName=entityNameForv2,
+        ~userType,
         ~id,
         ~profileId,
         ~methodType,
@@ -1034,7 +1047,7 @@ let useGetMethod = (~showErrorToast=true) => {
     })
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async (url, ~headerType=AuthHooks.V1Headers) => {
+  async (url, ~version=UserInfoTypes.V1) => {
     try {
       let res = await fetchApi(
         url,
@@ -1043,7 +1056,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
-        ~headerType,
+        ~version,
       )
       await responseHandler(
         ~url,
@@ -1096,7 +1109,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~bodyFormData=?,
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
-    ~headerType=AuthHooks.V1Headers,
+    ~version=UserInfoTypes.V1,
   ) => {
     try {
       let res = await fetchApi(
@@ -1110,7 +1123,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
-        ~headerType,
+        ~version,
       )
       await responseHandler(
         ~url,
