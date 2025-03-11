@@ -253,7 +253,6 @@ module ModalBody = {
     switch action {
     | CreateNewMerchant =>
       <CreateNewMerchantBody setShowModal selectedProduct setActiveProductValue />
-
     | SwitchToMerchant(merchantDetails) =>
       <SwitchMerchantBody merchantDetails setShowModal selectedProduct setActiveProductValue />
     | SelectMerchantToSwitch(merchantDetails) =>
