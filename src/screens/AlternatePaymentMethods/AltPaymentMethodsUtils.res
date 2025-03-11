@@ -24,7 +24,7 @@ let alternatePaymentConfiguration = [
     </div>,
     buttonText: "Learn More",
     action: ExternalLink({
-      url: "https://hyperswitch.io/docs",
+      url: "https://docs.hyperswitch.io/explore-hyperswitch/merchant-controls/integration-guide/web/node-and-react",
       trackingEvent: "dev_docs",
     }),
   },
@@ -34,7 +34,10 @@ let alternatePaymentConfiguration = [
       {"Tailor the SDK to your specific needs and branding for a consistent user experience."->React.string}
     </span>,
     buttonText: "Customize SDK",
-    action: InternalRoute("/sdk"),
+    action: ExternalLink({
+      url: "https://docs.hyperswitch.io/explore-hyperswitch/merchant-controls/integration-guide/web/customization",
+      trackingEvent: "dev_docs",
+    }),
   },
   {
     heading: "Enable Automatic Tax Calculation",
@@ -42,7 +45,10 @@ let alternatePaymentConfiguration = [
       {"Ensure accurate and dynamic tax collection for Express Checkout wallets using TaxJar."->React.string}
     </span>,
     buttonText: "Setup TaxJar",
-    action: InternalRoute("/tax-processor"),
+    action: ExternalLink({
+      url: "https://docs.hyperswitch.io/explore-hyperswitch/e-commerce-platform-plugins/automatic-tax-calculation-for-express-checkout-wallets",
+      trackingEvent: "dev_docs",
+    }),
   },
 ]
 module APMConfigureStep = {
