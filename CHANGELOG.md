@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.11.0
+
+### Bug Fixes
+
+- Advanced routing responsiveness ([#2400](https://github.com/juspay/hyperswitch-control-center/pull/2400)) ([`ed184a2`](https://github.com/juspay/hyperswitch-control-center/commit/ed184a20ee41c556cf888eec76ad7f551cc4c0f8))
+- Key field not updating when changed in custom metadata headers ([#2393](https://github.com/juspay/hyperswitch-control-center/pull/2393)) ([`0c1ecd2`](https://github.com/juspay/hyperswitch-control-center/commit/0c1ecd2e14a8a6ed39311d06893ec0e251b988f4))
+
+### Miscellaneous Tasks
+
+- Intelligent routing transaction table ([#2401](https://github.com/juspay/hyperswitch-control-center/pull/2401)) ([`23ecaaa`](https://github.com/juspay/hyperswitch-control-center/commit/23ecaaafa5aa334c10b52d8863cc6eae68cc63a8))
+
+**Full Changelog:** [`2025.03.07.3...2025.03.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.07.3...2025.03.11.0)
+
+
+- - -
+
 ## 2025.03.07.3
 
 ### Features
