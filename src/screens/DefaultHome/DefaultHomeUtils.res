@@ -120,7 +120,7 @@ let defaultHomeCardsArray = {
       heading: "Recon",
       description: "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
       imgSrc: "/assets/DefaultHomeReconCard.svg",
-      action: InternalRoute("v2/recon/onboarding"),
+      action: InternalRoute("v2/recon"),
     },
     {
       product: Recovery,
