@@ -68,7 +68,7 @@ module SelectMerchantBody = {
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
         setActiveProductValue(selectedProduct)
         switch selectedProduct {
-        | Orchestrator => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+        | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
         | _ =>
           RescriptReactRouter.replace(
             GlobalVars.appendDashboardPath(
@@ -146,7 +146,7 @@ module CreateNewMerchantBody = {
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
         setActiveProductValue(selectedProduct)
         switch selectedProduct {
-        | Orchestrator => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+        | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
         | _ =>
           RescriptReactRouter.replace(
             GlobalVars.appendDashboardPath(
@@ -189,8 +189,15 @@ module CreateNewMerchantBody = {
         let dict = values->getDictFromJsonObject
         let trimmedData = dict->getString("company_name", "")->String.trim
         Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
-        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+
+        let url = switch selectedProduct {
+        | Orchestration
+        | CostObservability =>
+          getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+        | _ => getURL(~entityName=V2(CREATE_MERCHANT), ~methodType=Post)
+        }
         mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
+
         let res = await updateDetails(url, values, Post)
         let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
 
@@ -353,7 +360,7 @@ let make = (~children) => {
         ->Option.getOr({
           name: "",
           id: "",
-          productType: Orchestrator,
+          productType: Orchestration,
         })
 
       setSwitchToMerchant(merchantIdToSwitch, productVariant)

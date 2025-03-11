@@ -64,7 +64,8 @@ module DefaultHomeCard = {
             }
           | CustomAction =>
             switch activeProduct {
-            | Orchestrator => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/home"))
+            | Orchestration =>
+              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/home"))
             | _ => setSelectMerchantToSwitch(merchantList)
             }
           }
@@ -102,7 +103,7 @@ let defaultHomeActionArray = {
 let defaultHomeCardsArray = {
   [
     {
-      product: Orchestrator,
+      product: Orchestration,
       heading: "Orchestrator",
       description: "Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
