@@ -18,7 +18,7 @@ type max = int
 type showInLegend = bool
 type name = string
 
-type title = {text: string}
+type title = {text: string, align?: align, x?: int, y?: int}
 type style = {
   color: color,
   fontFamily: string,
@@ -29,9 +29,28 @@ type enabled = {enabled: bool}
 type credits = {
   ...enabled,
 }
+type itemStyle = {
+  fontFamily: string,
+  fontSize: string,
+  color: string,
+}
+type legendPoint = {
+  color: string,
+  name: string,
+}
 
 type legend = {
-  ...enabled,
+  itemStyle: itemStyle,
+  useHTML: bool,
+  labelFormatter: legendPoint => string,
+  symbolPadding: int,
+  symbolWidth: int,
+  symbolHeight: int,
+  symbolRadius: int,
+  align: string,
+  verticalAlign: string,
+  x: int,
+  y: int,
 }
 
 type marker = {
@@ -44,6 +63,7 @@ type column = {
   borderRadius: int,
   stacking: string,
   pointWidth: int,
+  grouping: bool,
 }
 type plotOptions = {series: column}
 
@@ -62,9 +82,11 @@ type dataObj = {
 }
 
 type seriesObj = {
+  showInLegend: bool,
   name: name,
   colorByPoint: bool,
   data: array<dataObj>,
+  color: color,
 }
 
 type series = array<seriesObj>
@@ -76,12 +98,14 @@ type yAxisFormatter = {value: int}
 
 type labels = {formatter: pointFormatter => string}
 
-type yAxis = {title: title, labels: labels}
+type yAxis = {title: title, labels: labels, gridLineDashStyle: gridLineDashStyle}
 
 type xAxis = {\"type": string}
 
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =
   "%identity"
+
+external asLegendsFormatter: Js_OO.Callback.arity1<'a> => legendPoint => string = "%identity"
 
 type cssStyle = {
   fontFamily: string,
