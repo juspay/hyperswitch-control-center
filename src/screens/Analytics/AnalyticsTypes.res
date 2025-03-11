@@ -210,7 +210,7 @@ type nestedEntityType = {
 }
 
 type authenticationSingleStat = {
-  three_ds_sdk_count: int,
+  authentication_count: int,
   authentication_success_count: int,
   authentication_attempt_count: int,
   challenge_flow_count: int,
@@ -221,7 +221,7 @@ type authenticationSingleStat = {
 }
 
 type authenticationSingleStatSeries = {
-  three_ds_sdk_count: int,
+  authentication_count: int,
   authentication_success_count: int,
   authentication_attempt_count: int,
   challenge_flow_count: int,

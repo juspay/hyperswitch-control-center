@@ -1,1 +1,8 @@
-type productTypes = Orchestrator | Recon | Recovery | Vault | AlternatePaymentMethods
+type productTypes =
+  | Orchestrator
+  | Recon
+  | Recovery
+  | Vault
+  | AlternatePaymentMethods
+  | Hypersense
+  | IntelligentRouting

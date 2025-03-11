@@ -100,7 +100,7 @@ let defaultHomeCardsArray = {
       heading: "Vault",
       description: "A modular solution designed to unify various abstractions, seamlessly connecting with payment processors, payout processors, fraud management, tax automation, identity solutions, and reporting systems.",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      action: InternalRoute("v2/vault/configuration"),
+      action: InternalRoute("v2/vault"),
     },
     {
       product: Recon,

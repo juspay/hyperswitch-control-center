@@ -84,6 +84,7 @@ module AuthenticationInput = {
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, JSON.Encode.null)
         }
+        //Not allow users to enter just integers
         switch (value->getOptionIntFromString->Option.isNone, isValid) {
         | (true, true) => setKey(_ => value)
         | _ => ()
@@ -655,6 +656,20 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     field={makeFieldInfo(
                       ~name="is_connector_agnostic_mit_enabled",
                       ~label="Connector Agnostic",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg ",
+                      ),
+                    )}
+                  />
+                </DesktopRow>
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
+                    field={makeFieldInfo(
+                      ~name="force_3ds_challenge",
+                      ~label="Force 3DS Challenge",
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg ",
