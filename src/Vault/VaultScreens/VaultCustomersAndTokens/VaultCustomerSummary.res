@@ -141,7 +141,7 @@ module VaultedPaymentMethodsTable = {
           ~methodType=Get,
           ~id=Some(customerIdFromUrl),
         )
-        let response = await fetchDetails(url, ~headerType=V2Headers)
+        let response = await fetchDetails(url, ~version=V2)
         let tableData =
           response
           ->getDictFromJsonObject
@@ -214,7 +214,7 @@ let make = (~id) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let customersUrl = getURL(~entityName=V2(CUSTOMERS), ~methodType=Get, ~id=Some(id))
-      let response = await fetchDetails(customersUrl, ~headerType=V2Headers)
+      let response = await fetchDetails(customersUrl, ~version=V2)
       setCustomersData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
