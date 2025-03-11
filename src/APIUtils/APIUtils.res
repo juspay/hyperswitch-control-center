@@ -4,6 +4,7 @@ exception JsonException(JSON.t)
 
 let getV2Url = (
   ~entityName: v2entityNameType,
+  ~userType: userType=#NONE,
   ~methodType: Fetch.requestMethod,
   ~id=None,
   ~profileId,
@@ -46,6 +47,17 @@ let getV2Url = (
     switch queryParamerters {
     | Some(queryParams) => `simulate?${queryParams}`
     | None => `simulate`
+    }
+  | USERS =>
+    let userUrl = `user`
+    switch userType {
+    | #CREATE_MERCHANT =>
+      switch queryParamerters {
+      | Some(params) => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+      | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
+      }
+    | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
+    | _ => ""
     }
   }
 }
@@ -425,12 +437,31 @@ let useGetURL = () => {
         }
       | ANALYTICS_AUTHENTICATION_V2 =>
         switch methodType {
+        | Get =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/auth_events/info`
+          }
         | Post =>
           switch analyticsEntity {
           | #Tenant
           | #Organization
           | #Merchant
           | #Profile => `analytics/v1/metrics/auth_events`
+          }
+
+        | _ => ""
+        }
+      | ANALYTICS_AUTHENTICATION_V2_FILTERS =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/filters/auth_events`
           }
 
         | _ => ""
@@ -801,7 +832,14 @@ let useGetURL = () => {
       }
 
     | V2(entityNameForv2) =>
-      getV2Url(~entityName=entityNameForv2, ~id, ~profileId, ~methodType, ~queryParamerters)
+      getV2Url(
+        ~entityName=entityNameForv2,
+        ~userType,
+        ~id,
+        ~profileId,
+        ~methodType,
+        ~queryParamerters,
+      )
     }
 
     `${Window.env.apiBaseUrl}/${endpoint}`
@@ -812,6 +850,7 @@ let useGetURL = () => {
 let useHandleLogout = () => {
   open SessionStorage
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
@@ -820,6 +859,7 @@ let useHandleLogout = () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
+      mixpanelEvent(~eventName="user_sign_out")
       let _ =
         fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
         ->then(Fetch.Response.json)
@@ -988,7 +1028,7 @@ let useGetMethod = (~showErrorToast=true) => {
     })
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async (url, ~headerType=AuthHooks.V1Headers) => {
+  async (url, ~version=UserInfoTypes.V1) => {
     try {
       let res = await fetchApi(
         url,
@@ -997,7 +1037,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
-        ~headerType,
+        ~version,
       )
       await responseHandler(
         ~url,
@@ -1050,7 +1090,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~bodyFormData=?,
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
-    ~headerType=AuthHooks.V1Headers,
+    ~version=UserInfoTypes.V1,
   ) => {
     try {
       let res = await fetchApi(
@@ -1064,7 +1104,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
-        ~headerType,
+        ~version,
       )
       await responseHandler(
         ~url,

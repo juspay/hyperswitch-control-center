@@ -34,7 +34,7 @@ let make = () => {
         ~methodType=Get,
         ~id=Some(connectorID),
       )
-      let json = await fetchDetails(connectorUrl)
+      let json = await fetchDetails(connectorUrl, ~version=V2)
       setInitialValues(_ => json->removeFieldsFromRespose)
       setScreenState(_ => Success)
     } catch {

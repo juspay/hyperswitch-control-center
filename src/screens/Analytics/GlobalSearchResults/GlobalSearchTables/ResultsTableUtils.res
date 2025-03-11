@@ -11,7 +11,7 @@ let useGetData = () => {
       ~bodyFormData: Fetch.formData=?,
       ~headers: Dict.t<'a>=?,
       ~contentType: AuthHooks.contentType=?,
-      ~headerType: AuthHooks.headerType=?,
+      ~version: UserInfoTypes.version=?,
     ) => promise<JSON.t>,
     ~offset,
     ~query,
