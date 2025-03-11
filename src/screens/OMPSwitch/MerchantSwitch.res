@@ -33,7 +33,6 @@ module NewMerchantCreationModal = {
     let onSubmit = (values, _) => {
       open LogicUtils
       let dict = values->getDictFromJsonObject
-
       let trimmedData = dict->getString("company_name", "")->String.trim
       Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
       Dict.set(
