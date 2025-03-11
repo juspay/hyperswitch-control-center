@@ -20,7 +20,7 @@ let make = () => {
       <Button
         text="Get Started"
         onClick={_ => {
-          setCreateNewMerchant(ProductTypes.Hypersense)
+          setCreateNewMerchant(ProductTypes.CostObservability)
         }}
         customTextPaddingClass="pr-0"
         rightIcon={CustomIcon(<Icon name="nd-angle-right" size=16 className="cursor-pointer" />)}

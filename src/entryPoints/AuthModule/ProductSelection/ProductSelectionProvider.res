@@ -67,6 +67,17 @@ module SelectMerchantBody = {
         let merchantid = dict->getString("merchant_selected", "")->String.trim
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
         setActiveProductValue(selectedProduct)
+        switch selectedProduct {
+        | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+        | _ =>
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(
+              ~url=`/v2/${selectedProduct
+                ->ProductUtils.getStringFromVariant
+                ->String.toLowerCase}/home`,
+            ),
+          )
+        }
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -134,6 +145,17 @@ module CreateNewMerchantBody = {
       try {
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
         setActiveProductValue(selectedProduct)
+        switch selectedProduct {
+        | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+        | _ =>
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(
+              ~url=`/v2/${selectedProduct
+                ->ProductUtils.getStringFromVariant
+                ->String.toLowerCase}/home`,
+            ),
+          )
+        }
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -167,8 +189,15 @@ module CreateNewMerchantBody = {
         let dict = values->getDictFromJsonObject
         let trimmedData = dict->getString("company_name", "")->String.trim
         Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
-        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+
+        let url = switch selectedProduct {
+        | Orchestration
+        | CostObservability =>
+          getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+        | _ => getURL(~entityName=V2(CREATE_MERCHANT), ~methodType=Post)
+        }
         mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
+
         let res = await updateDetails(url, values, Post)
         let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
 
@@ -181,13 +210,6 @@ module CreateNewMerchantBody = {
           ~toastType=ToastSuccess,
           ~message="Merchant Created Successfully!",
           ~autoClose=true,
-        )
-        RescriptReactRouter.replace(
-          GlobalVars.appendDashboardPath(
-            ~url=`/v2/${selectedProduct
-              ->ProductUtils.getStringFromVariant
-              ->String.toLowerCase}/home`,
-          ),
         )
       } catch {
       | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
@@ -338,7 +360,7 @@ let make = (~children) => {
         ->Option.getOr({
           name: "",
           id: "",
-          productType: Orchestrator,
+          productType: Orchestration,
         })
 
       setSwitchToMerchant(merchantIdToSwitch, productVariant)

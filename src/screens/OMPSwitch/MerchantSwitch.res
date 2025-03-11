@@ -9,7 +9,12 @@ module NewMerchantCreationModal = {
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let createNewMerchant = async values => {
       try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+        let url = switch activeProduct {
+        | Orchestration
+        | CostObservability =>
+          getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+        | _ => getURL(~entityName=V2(CREATE_MERCHANT), ~methodType=Post)
+        }
         mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
         let _ = await updateDetails(url, values, Post)
         getMerchantList()->ignore

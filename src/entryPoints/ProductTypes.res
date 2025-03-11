@@ -1,8 +1,8 @@
 type productTypes =
-  | Orchestrator
+  | Orchestration
   | Recon
   | Recovery
   | Vault
   | AlternatePaymentMethods
-  | Hypersense
-  | IntelligentRouting
+  | CostObservability
+  | DynamicRouting

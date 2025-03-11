@@ -47,6 +47,11 @@ let getV2Url = (
     | Some(queryParams) => `simulate?${queryParams}`
     | None => `simulate`
     }
+  | CREATE_MERCHANT =>
+    switch queryParamerters {
+    | Some(params) => `v2/merchant-accounts?${params}`
+    | None => `v2/merchant-accounts`
+    }
   }
 }
 
