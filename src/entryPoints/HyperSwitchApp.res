@@ -194,9 +194,6 @@ let make = () => {
                         /* VAULT PRODUCT */
                         | list{"v2", "vault", ..._} => <VaultApp />
 
-                        /* ALTERNATE PAYMENT METHODS PRODUCT */
-                        | list{"v2", "alt-payment-methods", ..._} => <AlternatePaymentMethodsApp />
-
                         /* HYPERSENSE PRODUCT */
                         | list{"v2", "hypersense", ..._} => <HypersenseApp />
 
@@ -224,6 +221,8 @@ let make = () => {
                         | list{"fraud-risk-management", ..._}
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}
+                        | list{"apm"} =>
+                          <APMContainer />
                         | list{"payoutrouting", ..._}
                         | list{"payment-settings", ..._} =>
                           <ConnectorContainer />
