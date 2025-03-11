@@ -647,6 +647,18 @@ let useGetURL = () => {
           }
         }
 
+      /* INTELLIGENT ROUTING */
+      | SIMULATE_INTELLIGENT_ROUTING =>
+        switch queryParamerters {
+        | Some(queryParams) => `simulate?${queryParams}`
+        | None => `simulate`
+        }
+      | INTELLIGENT_ROUTING_RECORDS =>
+        switch queryParamerters {
+        | Some(queryParams) => `simulate/get-records?${queryParams}`
+        | None => `simulate/get-records`
+        }
+
       /* USERS */
       | USERS =>
         let userUrl = `user`
