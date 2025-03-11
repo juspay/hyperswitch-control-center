@@ -141,6 +141,9 @@ module CreateNewMerchantBody = {
       )
       dict->JSON.Encode.object
     }, [selectedProduct])
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {devModularityV2} = featureFlagDetails
+
     let switchMerch = async merchantid => {
       try {
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
@@ -161,14 +164,39 @@ module CreateNewMerchantBody = {
       }
     }
 
+    let getV2MerchantList = async () => {
+      try {
+        let v2MerchantListUrl = getURL(
+          ~entityName=V2(USERS),
+          ~userType=#LIST_MERCHANT,
+          ~methodType=Get,
+        )
+        let v2MerchantResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
+        let v2MerchantList =
+          v2MerchantResponse->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper)
+        v2MerchantList
+      } catch {
+      | _ => []
+      }
+    }
     // TODO: remove after backend starts sendng merchant details from create merchant API
     let findMerchantId = async (~merchantName) => {
       try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
-        let response = await fetchDetails(url)
-        let merchantTypedValue =
-          response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper)
-        setMerchantList(_ => merchantTypedValue)
+        let v1MerchantListUrl = getURL(
+          ~entityName=V1(USERS),
+          ~userType=#LIST_MERCHANT,
+          ~methodType=Get,
+        )
+        let v1MerchantResponse = await fetchDetails(v1MerchantListUrl)
+
+        let v1MerchantList =
+          v1MerchantResponse->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper)
+        let v2MerchantList = if devModularityV2 {
+          await getV2MerchantList()
+        } else {
+          []
+        }
+        let merchantTypedValue = v1MerchantList->Array.concat(v2MerchantList)
 
         let filteredValue = merchantTypedValue->Array.find(value => value.name === merchantName)
         let merchantID = switch filteredValue {
@@ -190,15 +218,19 @@ module CreateNewMerchantBody = {
         let trimmedData = dict->getString("company_name", "")->String.trim
         Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
 
-        let url = switch selectedProduct {
+        let res = switch selectedProduct {
         | Orchestration
-        | CostObservability =>
-          getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
-        | _ => getURL(~entityName=V2(CREATE_MERCHANT), ~methodType=Post)
+        | CostObservability => {
+            let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            await updateDetails(url, values, Post)
+          }
+        | _ => {
+            let url = getURL(~entityName=V2(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            await updateDetails(url, values, Post, ~version=V2)
+          }
         }
         mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
 
-        let res = await updateDetails(url, values, Post)
         let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
 
         // TODO : remove after backend starts sendng merchant details from create merchant API
