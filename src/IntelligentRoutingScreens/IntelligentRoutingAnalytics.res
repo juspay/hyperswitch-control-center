@@ -131,6 +131,11 @@ let make = () => {
       <Overview />
       <div className="flex flex-col gap-6">
         <div className="text-nd_gray-600 font-semibold"> {"Insights"->React.string} </div>
+        <div className="border rounded-lg p-4">
+          <LineAndColumnGraph
+            options={LineAndColumnGraphUtils.getLineColumnGraphOptions(lineColumnGraphOptions)}
+          />
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="border rounded-lg p-4">
             <LineGraph
