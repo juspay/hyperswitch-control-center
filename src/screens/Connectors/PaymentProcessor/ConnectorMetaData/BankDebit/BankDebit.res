@@ -61,6 +61,7 @@ module PMAuthProcessorInput = {
       showSelectionAsChips=true
       customButtonStyle="w-full"
       fullLength=true
+      dropdownCustomWidth="w-full"
       dropdownClassName={`${options->PaymentMethodConfigUtils.dropdownClassName}`}
     />
   }
