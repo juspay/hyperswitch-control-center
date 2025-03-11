@@ -312,6 +312,7 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Medium}
               onClick={_ => {
+                mixpanelEvent(~eventName=`dev_tech_blocks`)
                 "https://hyperswitch.io/blog"->Window._open
               }}
             />
