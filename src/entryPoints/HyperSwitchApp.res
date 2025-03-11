@@ -221,11 +221,10 @@ let make = () => {
                         | list{"fraud-risk-management", ..._}
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}
-                        | list{"apm"} =>
-                          <APMContainer />
                         | list{"payoutrouting", ..._}
                         | list{"payment-settings", ..._} =>
                           <ConnectorContainer />
+                        | list{"apm"} => <APMContainer />
                         | list{"business-details", ..._}
                         | list{"business-profiles", ..._} =>
                           <BusinessProfileContainer />
