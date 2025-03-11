@@ -9,14 +9,18 @@ module NewMerchantCreationModal = {
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let createNewMerchant = async values => {
       try {
-        let url = switch activeProduct {
+        switch activeProduct {
         | Orchestration
-        | CostObservability =>
-          getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
-        | _ => getURL(~entityName=V2(CREATE_MERCHANT), ~methodType=Post)
+        | CostObservability => {
+            let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            let _ = await updateDetails(url, values, Post)
+          }
+        | _ => {
+            let url = getURL(~entityName=V2(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            let _ = await updateDetails(url, values, Post, ~version=V2)
+          }
         }
         mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
-        let _ = await updateDetails(url, values, Post)
         getMerchantList()->ignore
         showToast(
           ~toastType=ToastSuccess,
@@ -160,11 +164,42 @@ let make = () => {
       sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
     },
   } = React.useContext(ThemeProvider.themeContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devModularityV2} = featureFlagDetails
+
+  let getV2MerchantList = async () => {
+    try {
+      let v2MerchantListUrl = getURL(
+        ~entityName=V2(USERS),
+        ~userType=#LIST_MERCHANT,
+        ~methodType=Get,
+      )
+      let v2MerchantResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
+      let v2MerchantList = v2MerchantResponse->getArrayDataFromJson(merchantItemToObjMapper)
+      v2MerchantList
+    } catch {
+    | _ => []
+    }
+  }
   let getMerchantList = async () => {
     try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
-      let response = await fetchDetails(url)
-      setMerchantList(_ => response->getArrayDataFromJson(merchantItemToObjMapper))
+      let v1MerchantListUrl = getURL(
+        ~entityName=V1(USERS),
+        ~userType=#LIST_MERCHANT,
+        ~methodType=Get,
+      )
+      let v1MerchantResponse = await fetchDetails(v1MerchantListUrl)
+
+      let v2MerchantList = if devModularityV2 {
+        await getV2MerchantList()
+      } else {
+        []
+      }
+
+      let v1MerchantList = v1MerchantResponse->getArrayDataFromJson(merchantItemToObjMapper)
+      let concatMerchantList = v1MerchantList->Array.concat(v2MerchantList)
+
+      setMerchantList(_ => concatMerchantList)
     } catch {
     | _ => {
         setMerchantList(_ => ompDefaultValue(merchantId, ""))
@@ -223,7 +258,7 @@ let make = () => {
   > = merchantList->Array.mapWithIndex((item, i) => {
     let customComponent =
       <MerchantDropdownItem
-        key={Int.toString(i)} merchantName=item.name index=i currentId=item.id
+        key={Int.toString(i)} merchantName=item.name index=i currentId=item.id getMerchantList
       />
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,

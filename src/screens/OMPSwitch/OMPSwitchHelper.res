@@ -218,7 +218,7 @@ module OMPViews = {
 
 module MerchantDropdownItem = {
   @react.component
-  let make = (~merchantName, ~index: int, ~currentId) => {
+  let make = (~merchantName, ~index: int, ~currentId, ~getMerchantList) => {
     open LogicUtils
     open APIUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
@@ -231,25 +231,12 @@ module MerchantDropdownItem = {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
-    let (_, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
-    let getMerchantList = async () => {
-      try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
-        let response = await fetchDetails(url)
-        setMerchantList(_ => response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper))
-      } catch {
-      | _ => {
-          setMerchantList(_ => OMPSwitchUtils.ompDefaultValue(merchantId, ""))
-          showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
-        }
-      }
-    }
+
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
       let regexForMerchantName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
@@ -298,7 +285,7 @@ module MerchantDropdownItem = {
           ~id=Some(merchantId),
         )
         let _ = await updateDetails(accountUrl, body, Post)
-        let _ = await getMerchantList()
+        getMerchantList()->ignore
         showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
       } catch {
       | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
