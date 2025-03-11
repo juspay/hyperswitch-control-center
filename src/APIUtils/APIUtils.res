@@ -425,12 +425,31 @@ let useGetURL = () => {
         }
       | ANALYTICS_AUTHENTICATION_V2 =>
         switch methodType {
+        | Get =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/auth_events/info`
+          }
         | Post =>
           switch analyticsEntity {
           | #Tenant
           | #Organization
           | #Merchant
           | #Profile => `analytics/v1/metrics/auth_events`
+          }
+
+        | _ => ""
+        }
+      | ANALYTICS_AUTHENTICATION_V2_FILTERS =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/filters/auth_events`
           }
 
         | _ => ""
@@ -812,6 +831,7 @@ let useGetURL = () => {
 let useHandleLogout = () => {
   open SessionStorage
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
@@ -820,6 +840,7 @@ let useHandleLogout = () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
+      mixpanelEvent(~eventName="user_sign_out")
       let _ =
         fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
         ->then(Fetch.Response.json)
