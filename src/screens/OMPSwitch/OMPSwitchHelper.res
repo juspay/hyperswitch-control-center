@@ -285,7 +285,7 @@ module MerchantDropdownItem = {
           ~id=Some(merchantId),
         )
         let _ = await updateDetails(accountUrl, body, Post)
-        getMerchantList()->ignore
+        let _ = await getMerchantList()
         showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
       } catch {
       | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
