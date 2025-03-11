@@ -36,7 +36,7 @@ let make = (~connectorInfo) => {
 
   let handleClick = () => {
     setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/recovery/connectors`))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/recovery/overview`))
   }
 
   let revenueRecovery =

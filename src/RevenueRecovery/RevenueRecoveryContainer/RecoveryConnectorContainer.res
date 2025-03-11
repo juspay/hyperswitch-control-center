@@ -34,16 +34,6 @@ let make = () => {
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
-    | list{"v2", "recovery", "connectors", ...remainingPath} =>
-      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
-        <EntityScaffold
-          entityName="connectors"
-          remainingPath
-          renderList={() => <RecoveryConnectorList />}
-          renderNewForm={() => <RecoveryConnectorHome />}
-          renderShow={(_, _) => <PaymentProcessorSummary baseUrl="v2/recovery/connectors" />}
-        />
-      </AccessControl>
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold
