@@ -28,6 +28,86 @@ let make = () => {
     updateExistingKeys(Dict.fromArray([("created.lte", {prevStartdate})]))
   }
 
+  let setData = (total, data) => {
+    let arr = Array.make(~length=offset, Dict.make())
+    if total <= offset {
+      setOffset(_ => 0)
+    }
+
+    if total > 0 {
+      let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
+
+      let orderData =
+        arr
+        ->Array.concat(orderDataDictArr)
+        ->Array.map(RevenueRecoveryEntity.itemToObjMapper)
+
+      let list = orderData->Array.map(Nullable.make)
+      setTotalCount(_ => total)
+      setRevenueRecoveryData(_ => list)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } else {
+      setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  }
+
+  let getPaymentsList = async (filterValueJson: RescriptCore.Dict.t<Core__JSON.t>) => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    try {
+      let filter =
+        filterValueJson
+        ->Dict.toArray
+        ->Array.map(item => {
+          let (key, value) = item
+
+          let value = switch value->JSON.Classify.classify {
+          | String(str) => str
+          | Number(num) => num->Float.toString
+          | _ => ""
+          }
+
+          (key, value)
+        })
+        ->Dict.fromArray
+
+      let ordersUrl = getURL(
+        ~entityName=V2(V2_ORDERS_LIST),
+        ~methodType=Get,
+        ~queryParamerters=Some(filter->FilterUtils.parseFilterDict),
+      )
+      let res = await fetchDetails(ordersUrl, ~version=V2)
+
+      let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
+      let total = res->getDictFromJsonObject->getInt("total_count", 0)
+
+      if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
+        let payment_id =
+          filterValueJson
+          ->Dict.get("payment_id")
+          ->Option.getOr(""->JSON.Encode.string)
+          ->JSON.Decode.string
+          ->Option.getOr("")
+
+        if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
+          let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
+          filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
+
+          let res = await fetchDetails(ordersUrl, ~version=V2)
+          let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
+          let total = res->getDictFromJsonObject->getInt("total_count", 0)
+
+          setData(total, data)
+        } else {
+          setScreenState(_ => PageLoaderWrapper.Custom)
+        }
+      } else {
+        setData(total, data)
+      }
+    } catch {
+    | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+    }
+  }
+
   let fetchOrders = () => {
     let query = switch filters {
     | Some(dict) =>
@@ -55,15 +135,7 @@ let make = () => {
     }
 
     query
-    ->getPaymentsList(
-      ~fetchDetails,
-      ~getURL,
-      ~setOrdersData=setRevenueRecoveryData,
-      ~setScreenState,
-      ~setOffset,
-      ~setTotalCount,
-      ~offset,
-    )
+    ->getPaymentsList
     ->ignore
   }
 
@@ -101,6 +173,7 @@ let make = () => {
         placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
       entityName=V2(V2_ORDER_FILTERS)
+      version=V2
     />
   }, [searchText])
 
