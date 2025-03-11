@@ -33,9 +33,9 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
 
   let sideBarValues = [
     Link({
-      name: Orchestrator->getStringFromVariant,
+      name: Orchestration->getStringFromVariant,
       icon: "orchestrator-home",
-      link: "/home",
+      link: "/v2/home",
       access: Access,
     }),
   ]
@@ -84,7 +84,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devHypersenseV2Product {
     sideBarValues->Array.push(
       Link({
-        name: Hypersense->getStringFromVariant,
+        name: CostObservability->getStringFromVariant,
         icon: "nd-piggy-bank",
         link: "/v2/hypersense",
         access: Access,
@@ -94,7 +94,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devIntelligentRoutingV2 {
     sideBarValues->Array.push(
       Link({
-        name: IntelligentRouting->getStringFromVariant,
+        name: DynamicRouting->getStringFromVariant,
         icon: "intelligent-routing-home",
         link: "/v2/intelligent-routing/home",
         access: Access,

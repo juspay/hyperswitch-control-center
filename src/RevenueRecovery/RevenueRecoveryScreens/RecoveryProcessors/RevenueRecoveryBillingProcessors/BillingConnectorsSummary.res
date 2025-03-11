@@ -34,7 +34,7 @@ let make = () => {
         ~methodType=Get,
         ~id=Some(connectorID),
       )
-      let json = await fetchDetails(connectorUrl)
+      let json = await fetchDetails(connectorUrl, ~version=V2)
       setInitialValues(_ => json->removeFieldsFromRespose)
       setScreenState(_ => Success)
     } catch {
@@ -129,7 +129,7 @@ let make = () => {
           dict->Dict.delete("connector_account_details")
         }
       }
-      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put)
+      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
       setCurrentActiveSection(_ => None)
       setInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)

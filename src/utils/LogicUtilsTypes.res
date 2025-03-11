@@ -5,4 +5,5 @@ type valueType =
   | Latency
   | LatencyMs
   | FormattedAmount
+  | AmountWithSuffix
   | No_Type

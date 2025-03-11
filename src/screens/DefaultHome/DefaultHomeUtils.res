@@ -13,6 +13,7 @@ module DefaultActionItem = {
             mixpanelEvent(~eventName=trackingEvent)
             url->Window._open
           }
+        | CustomAction => ()
         }
       }}>
       <div className="flex items-center gap-2">
@@ -30,6 +31,13 @@ module DefaultHomeCard = {
   @react.component
   let make = (~heading, ~description, ~img, ~action) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let merchantList: array<OMPSwitchTypes.ompListTypes> = Recoil.useRecoilValueFromAtom(
+      HyperswitchAtom.merchantListAtom,
+    )
+    let {activeProduct, setSelectMerchantToSwitch} = React.useContext(
+      ProductSelectionProvider.defaultContext,
+    )
+
     <div
       className="w-499-px p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
       <img className="w-full h-195-px object-cover rounded-xl" src={img} />
@@ -53,6 +61,12 @@ module DefaultHomeCard = {
           | ExternalLink({url, trackingEvent}) => {
               mixpanelEvent(~eventName=trackingEvent)
               url->Window._open
+            }
+          | CustomAction =>
+            switch activeProduct {
+            | Orchestration =>
+              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/home"))
+            | _ => setSelectMerchantToSwitch(merchantList)
             }
           }
         }}
@@ -89,11 +103,11 @@ let defaultHomeActionArray = {
 let defaultHomeCardsArray = {
   [
     {
-      product: Orchestrator,
+      product: Orchestration,
       heading: "Orchestrator",
       description: "Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      action: InternalRoute("home"),
+      action: CustomAction,
     },
     {
       product: Vault,
@@ -107,7 +121,7 @@ let defaultHomeCardsArray = {
       heading: "Recon",
       description: "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
       imgSrc: "/assets/DefaultHomeReconCard.svg",
-      action: InternalRoute("v2/recon/onboarding"),
+      action: InternalRoute("v2/recon"),
     },
     {
       product: Recovery,
