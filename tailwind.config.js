@@ -95,6 +95,7 @@ module.exports = {
         "540-px": "540px",
         "500-px": "500px",
         "1034-px": "1034px",
+        "306-px": "306px",
         modalOverlay: "calc(100vw + 7rem)",
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",

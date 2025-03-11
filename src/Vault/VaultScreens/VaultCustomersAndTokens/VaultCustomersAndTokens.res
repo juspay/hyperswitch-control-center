@@ -12,9 +12,11 @@ let make = (~sampleReport, ~setSampleReport) => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+  let (filteredCustomersData, setFilteredCustomersData) = React.useState(_ => [])
+  let (searchVal, setSearchVal) = React.useState(_ => "")
   let total = 100 // TODO: take this value from API response [currenctly set to 5 pages]
   let limit = 10 // each api calls will return 50 results
-  
+
   let handleSampleReportButtonClick = () => {
     setSampleReport(_ => true)
   }
@@ -46,6 +48,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           ->Array.map(Nullable.make)
 
         setCustomersData(_ => customersData)
+        setFilteredCustomersData(_ => customersData)
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -54,54 +57,103 @@ let make = (~sampleReport, ~setSampleReport) => {
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
-  React.useEffect(() => {
-    getCustomersList()->ignore
-    None
-  }, [offset])
 
   React.useEffect(() => {
     getCustomersList()->ignore
     None
-  }, [sampleReport])
+  }, (sampleReport, offset))
+
+  let filterLogic = ReactDebounce.useDebounced(ob => {
+    open LogicUtils
+    let (searchText, arr) = ob
+    let filteredList = if searchText->isNonEmptyString {
+      arr->Array.filter((obj: Nullable.t<VaultCustomersType.customers>) => {
+        switch Nullable.toOption(obj) {
+        | Some(obj) =>
+          isContainingStringLowercase(obj.id, searchText) ||
+          isContainingStringLowercase(obj.name, searchText) ||
+          isContainingStringLowercase(obj.phone, searchText)
+        | None => false
+        }
+      })
+    } else {
+      arr
+    }
+    setFilteredCustomersData(_ => filteredList)
+  }, ~wait=200)
 
   <PageLoaderWrapper screenState>
     <PageHeading
       title="Customers & Tokens" subTitle="List of customers and their vaulted payment tokens"
     />
+    <VaultCustomersTotalDataView />
     <RenderIf condition={customersData->Array.length == 0}>
-      <div className="flex flex-col  items-center gap-4 justify-center h-[75vh]">
-        <div className="flex flex-col items-center">
-          <p className=" text-nd_gray-700 font-semibold text-lg">
-            {"No Data Available"->React.string}
-          </p>
-          <p className="font-medium text-nd_gray-500">
-            {"You can generate sample data to gain a better understanding of the product."->React.string}
-          </p>
+      {<>
+        <TableSearchFilter placeholder="Search any customer ID" searchVal setSearchVal data="" />
+        <div className="-mt-7">
+          <div className="flex bg-nd_gray-50 h-11 gap-20 border rounded-t-lg overflow-clip ">
+            <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
+              {"S.No"->React.string}
+            </p>
+            <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
+              {"Customer Id"->React.string}
+            </p>
+            <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
+              {"Customer Name"->React.string}
+            </p>
+            <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
+              {"Email"->React.string}
+            </p>
+            <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
+              {"Phone Country Code"->React.string}
+            </p>
+            <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
+              {"Phone"->React.string}
+            </p>
+            <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
+              {"Description"->React.string}
+            </p>
+          </div>
+          <div className="border border-t-0 h-1/2">
+            <div className="flex flex-col  items-center gap-4 justify-center h-[65vh]">
+              <div className="flex flex-col items-center">
+                <p className=" text-nd_gray-700 font-semibold text-lg">
+                  {"No Data Available"->React.string}
+                </p>
+                <p className="font-medium text-nd_gray-500">
+                  {"You can generate sample data to gain a better understanding of the product."->React.string}
+                </p>
+              </div>
+              <Button
+                text="Generate Sample Data"
+                onClick={_ => handleSampleReportButtonClick()}
+                buttonType={Primary}
+              />
+            </div>
+          </div>
         </div>
-        <Button
-          text="Generate Sample Data"
-          onClick={_ => handleSampleReportButtonClick()}
-          buttonType={Primary}
-        />
-      </div>
+      </>}
     </RenderIf>
     <RenderIf condition={customersData->Array.length > 0}>
-      <LoadedTableWithCustomColumns
+      <LoadedTable
         title=" "
         hideTitle=true
-        actualData=customersData
+        actualData=filteredCustomersData
         entity={customersEntity}
         resultsPerPage=10
         showSerialNumber=true
+        filters={<TableSearchFilter
+          data={customersData}
+          filterLogic
+          placeholder="Search any customer ID"
+          searchVal
+          setSearchVal
+        />}
         totalResults=total
         offset
         setOffset
         currrentFetchCount={customersData->Array.length}
-        defaultColumns={defaultColumns}
-        customColumnMapper={vaultCustomersMapDefaultCols}
-        showSerialNumberInCustomizeColumns=false
         showResultsPerPageSelector=false
-        sortingBasedOnDisabled=false
         showAutoScroll=true
       />
     </RenderIf>
