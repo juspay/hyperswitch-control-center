@@ -100,7 +100,7 @@ let make = () => {
       customLeftView={<SearchBarFilter
         placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
-      entityName=V1(ORDER_FILTERS) // TODO: route needed to be changed
+      entityName=V2(V2_ORDER_FILTERS)
     />
   }, [searchText])
 
@@ -108,18 +108,6 @@ let make = () => {
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Recovery Overview" subTitle="" customTitleStyle />
-        <Button
-          text="View Chargebee"
-          buttonType={Secondary}
-          onClick={_ =>
-            RescriptReactRouter.replace(
-              GlobalVars.appendDashboardPath(
-                ~url=`/v2/recovery/summary/mca_f2dBJYU5uo0bWM7vGfWk?name=adyen`,
-              ),
-            )}
-          buttonSize={Small}
-          customButtonStyle="w-fit"
-        />
       </div>
       <div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState customUI>

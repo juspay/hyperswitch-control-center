@@ -243,8 +243,7 @@ let getPaymentsList = async (
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
         filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-        // TODO: need to include V2 routes
-        //let res = await  fetchDetails(ordersUrl)
+        let res = await fetchDetails(ordersUrl)
         let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 

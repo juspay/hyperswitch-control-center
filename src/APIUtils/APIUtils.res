@@ -50,6 +50,7 @@ let getV2Url = (
       }
     | _ => ""
     }
+  | V2_ORDER_FILTERS => "v2/payments/profile/filter"
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
