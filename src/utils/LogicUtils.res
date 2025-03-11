@@ -575,7 +575,7 @@ let formatAmount = (amount, currency) => {
   `${currency} ${addCommas(amount->Int.toString)}`
 }
 
-let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="") => {
+let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="", ~suffix="") => {
   let amountSuffix = currency->formatCurrency
 
   let percentFormat = value => {
@@ -584,6 +584,7 @@ let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="") 
 
   switch statType {
   | Amount => `${value->indianShortNum} ${amountSuffix}`
+  | AmountWithSuffix => `${currency} ${value->Float.toString}${suffix}`
   | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
   | Volume => value->indianShortNum
   | Latency => latencyShortNum(~labelValue=value)

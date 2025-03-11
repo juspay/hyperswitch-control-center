@@ -31,7 +31,7 @@ type style = {
   fontFamily?: string,
   fontSize?: string,
 }
-type title = {text: string, style?: style}
+type title = {text: string, style?: style, align?: align, x?: int, y?: int}
 type enabled = {enabled: bool}
 type credits = {
   ...enabled,
@@ -126,6 +126,10 @@ type legend = {
   labelFormatter: legendPoint => string,
   symbolPadding: int,
   symbolWidth: int,
+  align: string,
+  verticalAlign: string,
+  x: int,
+  y: int,
 }
 
 type lineGraphOptions = {

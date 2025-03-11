@@ -308,6 +308,7 @@ module Exceptions = {
       },
       data: [
         {
+          showInLegend: false,
           name: "Exceptions Aging",
           colorByPoint: true,
           data: [
@@ -327,6 +328,7 @@ module Exceptions = {
               color: "#B3596E",
             },
           ],
+          color: "",
         },
       ],
       tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
@@ -345,6 +347,7 @@ module Exceptions = {
       },
       data: [
         {
+          showInLegend: false,
           name: "Unmatched Transactions",
           colorByPoint: true,
           data: [
@@ -364,6 +367,7 @@ module Exceptions = {
               color: "#B6D198",
             },
           ],
+          color: "",
         },
       ],
       tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
