@@ -13,13 +13,18 @@ let getV2Url = (
   let peymantsBaseURL = "v2/payments"
 
   switch entityName {
-  | V2_CUSTOMERS_LIST => "/v2/customers/list"
+  | CUSTOMERS =>
+    switch (methodType, id) {
+    | (Get, None) => "v2/customers/list"
+    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | _ => ""
+    }
   | V2_CONNECTOR =>
     switch methodType {
     | Get =>
       switch id {
       | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-      | None => `/v2/profiles/${profileId}/connector-accounts`
+      | None => `v2/profiles/${profileId}/connector-accounts`
       }
     | Put =>
       switch id {
@@ -44,6 +49,20 @@ let getV2Url = (
         }
       }
     | _ => ""
+  | PAYMENT_METHOD_LIST =>
+    switch id {
+    | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
+    | None => ""
+    }
+  | RETRIEVE_PAYMENT_METHOD =>
+    switch id {
+    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
+    | None => ""
+    }
+  | SIMULATE_INTELLIGENT_ROUTING =>
+    switch queryParamerters {
+    | Some(queryParams) => `simulate?${queryParams}`
+    | None => `simulate`
     }
   }
 }
@@ -59,6 +78,7 @@ let useGetURL = () => {
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
+    ~hypersenseType: hypersenseType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
@@ -420,6 +440,37 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | ANALYTICS_AUTHENTICATION_V2 =>
+        switch methodType {
+        | Get =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/auth_events/info`
+          }
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/metrics/auth_events`
+          }
+
+        | _ => ""
+        }
+      | ANALYTICS_AUTHENTICATION_V2_FILTERS =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/filters/auth_events`
+          }
+
+        | _ => ""
+        }
       | ANALYTICS_FILTERS =>
         switch methodType {
         | Post =>
@@ -497,6 +548,7 @@ let useGetURL = () => {
 
       /* RECONCILIATION */
       | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
+      | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
       | PAYMENT_REPORT =>
@@ -629,6 +681,18 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        }
+
+      /* INTELLIGENT ROUTING */
+      | SIMULATE_INTELLIGENT_ROUTING =>
+        switch queryParamerters {
+        | Some(queryParams) => `simulate?${queryParams}`
+        | None => `simulate`
+        }
+      | INTELLIGENT_ROUTING_RECORDS =>
+        switch queryParamerters {
+        | Some(queryParams) => `simulate/get-records?${queryParams}`
+        | None => `simulate/get-records`
         }
 
       /* USERS */
@@ -790,6 +854,7 @@ let useGetURL = () => {
 let useHandleLogout = () => {
   open SessionStorage
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
@@ -798,6 +863,7 @@ let useHandleLogout = () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
+      mixpanelEvent(~eventName="user_sign_out")
       let _ =
         fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
         ->then(Fetch.Response.json)
@@ -966,7 +1032,7 @@ let useGetMethod = (~showErrorToast=true) => {
     })
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async url => {
+  async (url, ~headerType=AuthHooks.V1Headers) => {
     try {
       let res = await fetchApi(
         url,
@@ -975,6 +1041,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
+        ~headerType,
       )
       await responseHandler(
         ~url,
@@ -1027,6 +1094,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~bodyFormData=?,
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
+    ~headerType=AuthHooks.V1Headers,
   ) => {
     try {
       let res = await fetchApi(
@@ -1040,6 +1108,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
+        ~headerType,
       )
       await responseHandler(
         ~url,

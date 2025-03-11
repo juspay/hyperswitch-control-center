@@ -42,7 +42,7 @@ let make = (~connectorInfo) => {
         Dict.make()
       }
     }
-  }, [connectorInfodict.merchant_connector_id])
+  }, [connectorInfodict.id])
 
   <div className="flex flex-col px-10 gap-8">
     <div className="flex flex-col ">
@@ -59,7 +59,7 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col ">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.merchant_connector_id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
       </div>
     </div>
     <ACLButton
@@ -68,7 +68,7 @@ let make = (~connectorInfo) => {
         setShowSideBar(_ => true)
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(
-            ~url=`/v2/recovery/summary/${connectorInfodict.merchant_connector_id}?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.merchant_connector_id}`,
+            ~url=`/v2/recovery/summary/${connectorInfodict.id}?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.id}`,
           ),
         )
       }}

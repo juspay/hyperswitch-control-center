@@ -111,17 +111,25 @@ module SelectMerchantBody = {
 
 module CreateNewMerchantBody = {
   @react.component
-  let make = (~setShowModal, ~selectedProduct, ~setActiveProductValue) => {
+  let make = (~setShowModal, ~selectedProduct: productTypes, ~setActiveProductValue) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let fetchDetails = useGetMethod()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let setMerchantList = Recoil.useSetRecoilState(HyperswitchAtom.merchantListAtom)
     let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-
+    let initialValues = React.useMemo(() => {
+      let dict = Dict.make()
+      dict->Dict.set(
+        "product_type",
+        selectedProduct->ProductUtils.getStringFromVariant->JSON.Encode.string,
+      )
+      dict->JSON.Encode.object
+    }, [selectedProduct])
     let switchMerch = async merchantid => {
       try {
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
@@ -154,13 +162,13 @@ module CreateNewMerchantBody = {
         }
       }
     }
-
     let onSubmit = async (values, _) => {
       try {
         let dict = values->getDictFromJsonObject
         let trimmedData = dict->getString("company_name", "")->String.trim
         Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
         let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+        mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
         let res = await updateDetails(url, values, Post)
         let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
 
@@ -168,11 +176,18 @@ module CreateNewMerchantBody = {
         let merchantName = values->getDictFromJsonObject->getString("company_name", "")
         let merchantID = await findMerchantId(~merchantName)
 
-        switchMerch(merchantID)->ignore
+        let _ = await switchMerch(merchantID)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Merchant Created Successfully!",
           ~autoClose=true,
+        )
+        RescriptReactRouter.replace(
+          GlobalVars.appendDashboardPath(
+            ~url=`/v2/${selectedProduct
+              ->ProductUtils.getStringFromVariant
+              ->String.toLowerCase}/home`,
+          ),
         )
       } catch {
       | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
@@ -211,7 +226,7 @@ module CreateNewMerchantBody = {
         </div>
       </div>
       <hr />
-      <Form key="new-merchant-creation" onSubmit>
+      <Form key="new-merchant-creation" onSubmit initialValues>
         <div className="flex flex-col h-full w-full">
           <div className="py-10">
             <FormRenderer.DesktopRow>

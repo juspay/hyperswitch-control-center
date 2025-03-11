@@ -66,11 +66,13 @@ module NewOrgCreationModal = {
   let make = (~setShowModal, ~showModal, ~getOrgList) => {
     open APIUtils
     let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let createNewOrg = async values => {
       try {
         let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_ORG, ~methodType=Post)
+        mixpanelEvent(~eventName="create_new_org", ~metadata=values)
         let _ = await updateDetails(url, values, Post)
         getOrgList()->ignore
         showToast(~toastType=ToastSuccess, ~message="Org Created Successfully!", ~autoClose=true)

@@ -221,3 +221,18 @@ module BusinessProfileComponent = {
     </div>
   }
 }
+
+module ProfileNameComponent = {
+  @react.component
+  let make = (~profile_id: string, ~className="") => {
+    let {name} =
+      HyperswitchAtom.profileListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->Array.find(obj => obj.id == profile_id)
+      ->Option.getOr({
+        id: profile_id,
+        name: "NA",
+      })
+    <div className> {(name->LogicUtils.isNonEmptyString ? name : "")->React.string} </div>
+  }
+}

@@ -12,15 +12,21 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     goToLanding()
     None
-  })
+  }, [])
 
   {
     switch url.path->HSwitchUtils.urlPath {
     | list{"v2", "alt-payment-methods", "home"} => <AlternatePaymentMethodsHome />
-    | list{"v2", "alt-payment-methods", "onboarding", ..._} => <AlternatePaymentMethodsOnboarding />
+    | list{"v2", "alt-payment-methods", "onboarding", ...remainingPath} =>
+      <EntityScaffold
+        entityName="alt-payment-methods"
+        remainingPath
+        renderList={() => <AlternatePaymentMethodsOnboarding />}
+        renderNewForm={() => <AlternatePaymentMethodsSetup />}
+      />
     | _ => React.null
     }
   }

@@ -36,7 +36,7 @@ module DisplayKeyValueParams = {
     let description = heading.description->Option.getOr("")
 
     <AddDataAttributes attributes=[("data-label", heading.title)]>
-      <div className={`flex ${isHorizontal ? "flex-row gap-3" : "flex-col gap-1"} py-4`}>
+      <div className={`flex ${isHorizontal ? "flex-row gap-3" : "flex-col gap-1"}`}>
         <div
           className="flex flex-row text-fs-11 leading-3 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 items-center">
           <div className={`${overiddingHeadingStyles}`}>
@@ -75,9 +75,9 @@ module Details = {
     ~widthClass="w-1/4",
     ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
   ) => {
-    <FormRenderer.DesktopRow>
+    <FormRenderer.DesktopRow itemWrapperClass="mx-0">
       <div
-        className={`grid grid-cols-3 ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+        className={`grid grid-cols-3 ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border gap-y-8`}>
         {detailsFields
         ->Array.mapWithIndex((colType, i) => {
           <RenderIf condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>
@@ -104,13 +104,13 @@ module PaymentMethodDetails = {
   let make = (~data) => {
     open VaultPaymentMethodDetailsEntity
 
-    <>
+    <div className="flex flex-col gap-6">
       <div
-        className="font-semibold text-nd_gray-700 leading-6 text-fs-20 dark:text-white dark:text-opacity-75 mt-6 mb-4">
+        className="font-semibold text-nd_gray-700 leading-6 text-fs-18 dark:text-white dark:text-opacity-75">
         {"Payment Method Details"->React.string}
       </div>
       <Details data getHeading getCell detailsFields=allColumns widthClass="" />
-    </>
+    </div>
   }
 }
 
@@ -119,9 +119,9 @@ module PSPTokens = {
   let make = (~data) => {
     let (offset, setOffset) = React.useState(() => 0)
 
-    <>
+    <div className="flex flex-col gap-6">
       <div
-        className="font-semibold text-fs-20 text-nd_gray-700 leading-6 dark:text-white dark:text-opacity-75 mt-8 mb-4">
+        className="font-semibold text-fs-18 text-nd_gray-700 leading-6 dark:text-white dark:text-opacity-75">
         {"PSP Tokens"->React.string}
       </div>
       <LoadedTable
@@ -135,32 +135,22 @@ module PSPTokens = {
         setOffset
         currrentFetchCount={data->Array.length}
       />
-    </>
+    </div>
   }
 }
 
 module NetworkTokens = {
   @react.component
   let make = (~data) => {
-    let (offset, setOffset) = React.useState(() => 0)
+    open VaultNetworkTokensEntity
 
-    <>
+    <div className="flex flex-col gap-6">
       <div
-        className="font-semibold text-nd_gray-700 leading-6 text-fs-20 dark:text-white dark:text-opacity-75 mt-8 mb-4">
+        className="font-semibold text-nd_gray-700 leading-6 text-fs-18 dark:text-white dark:text-opacity-75">
         {"Network Tokens"->React.string}
       </div>
-      <LoadedTable
-        title=" "
-        hideTitle=true
-        resultsPerPage=7
-        entity={VaultNetworkTokensEntity.networkTokensEntity}
-        actualData={data->Array.map(Nullable.make)}
-        totalResults={data->Array.length}
-        offset
-        setOffset
-        currrentFetchCount={data->Array.length}
-      />
-    </>
+      <Details data getHeading getCell detailsFields=defaultColumns widthClass="" />
+    </div>
   }
 }
 
@@ -169,67 +159,22 @@ let make = (~paymentId, ~setShowModal) => {
   open APIUtils
   open VaultPaymentMethodDetailsTypes
   let getURL = useGetURL()
-  let _fetchDetails = useGetMethod()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (paymentsDetailsData, setPaymentsDetailsData) = React.useState(() => JSON.Encode.null)
+  let (paymentsDetailsData, setPaymentsDetailsData) = React.useState(() =>
+    JSON.Encode.null->VaultPaymentMethodDetailsUtils.itemToObjMapper
+  )
 
   let fetchPaymentMethodDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let _url = getURL(
-        ~entityName=V1(PAYMENT_METHODS_DETAILS),
+      let url = getURL(
+        ~entityName=V2(RETRIEVE_PAYMENT_METHOD),
         ~methodType=Get,
         ~id=Some(paymentId),
       )
-      // let _response = await fetchDetails(url)
-
-      //** TODO: replace DUMMY DATA with api response*/
-      let networkTokenData: VaultPaymentMethodDetailsTypes.network_tokens = {
-        enabled: false,
-        status: "ENABLED",
-        token: "token_uyrxuasytdfibausgf",
-        created: "",
-      }
-      let networkTokenData = Array.make(~length=5, networkTokenData)
-      let pspTokensData: VaultPaymentMethodDetailsTypes.psp_tokens = {
-        mca_id: "mca_12345678",
-        connector: "Stripe",
-        status: "ENABLED",
-        tokentype: "Single-use",
-        token: "token_gicksudfgoieu",
-        created: "",
-      }
-      let pspTokensData = Array.make(~length=5, pspTokensData)
-
-      let response = {
-        merchant: "merchant",
-        customer_id: Some("custid_12345678"),
-        payment_method_id: "payid_2345678",
-        payment_method_type: Some("card"),
-        payment_method: "credit",
-        card: {
-          card_holder_name: "git",
-          card_type: "visa",
-          card_network: "stripe",
-          last_four_digits: "1234",
-          card_expiry_month: "04",
-          card_expiry_year: "2040",
-          card_issuer: "stripe",
-          card_issuing_country: "usa",
-          card_is_in: "",
-          card_extended_bin: "",
-          payment_checks: "",
-          authentication_data: "",
-        },
-        recurring_enabled: true,
-        tokenization_type: JSON.Encode.string(""),
-        psp_tokensization: {psp_token: pspTokensData},
-        network_tokensization: {network_token: networkTokenData},
-        created: "",
-        last_used_at: "",
-        network_transaction_id: "network_transac_id",
-      }->Identity.genericTypeToJson
-      setPaymentsDetailsData(_ => response)
+      let response = await fetchDetails(url, ~headerType=V2Headers)
+      setPaymentsDetailsData(_ => response->VaultPaymentMethodDetailsUtils.itemToObjMapper)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -240,14 +185,6 @@ let make = (~paymentId, ~setShowModal) => {
     fetchPaymentMethodDetails()->ignore
     None
   }, [])
-
-  let cardDetails = (paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper).card
-  let networkData = (
-    paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
-  ).network_tokensization.network_token
-  let pspData = (
-    paymentsDetailsData->VaultPaymentMethodDetailsUtils.itemToObjMapper
-  ).psp_tokensization.psp_token
 
   <PageLoaderWrapper screenState>
     <div className="bg-white height-screen">
@@ -261,10 +198,12 @@ let make = (~paymentId, ~setShowModal) => {
         </div>
       </div>
       <hr />
-      <div className="px-8 pb-20">
-        <PaymentMethodDetails data={cardDetails} />
-        <NetworkTokens data={networkData} />
-        <PSPTokens data={pspData} />
+      <div className="px-8 py-6 flex flex-col gap-8 h-full">
+        <NetworkTokens data={paymentsDetailsData.network_tokens} />
+        <hr />
+        <PaymentMethodDetails data={paymentsDetailsData.payment_method_data.card} />
+        <hr />
+        <PSPTokens data={paymentsDetailsData.connector_tokens} />
       </div>
     </div>
   </PageLoaderWrapper>
