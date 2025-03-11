@@ -7,6 +7,10 @@ let make = () => {
   open PageLoaderWrapper
   let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
+  let (paymentConnectorInitialValues, setPaymentConnectorInitialValues) = React.useState(_ =>
+    Dict.make()->JSON.Encode.object
+  )
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -42,36 +46,68 @@ let make = () => {
     }
   }
 
+  let getPaymentConnectorDetails = async () => {
+    try {
+      setScreenState(_ => Loading)
+      let connectorUrl = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Get,
+        ~id=Some(paymentConnectorId),
+      )
+      let json = await fetchDetails(connectorUrl, ~version=V2)
+      setPaymentConnectorInitialValues(_ => json->removeFieldsFromRespose)
+      setScreenState(_ => Success)
+    } catch {
+    | _ => ()
+    }
+  }
+
   React.useEffect(() => {
     getConnectorDetails()->ignore
     None
   }, [])
 
-  let handleClick = (section: option<connectorSummarySection>) => {
-    if section->Option.isNone {
-      setInitialValues(_ => JSON.stringify(initialValues)->safeParse)
+  React.useEffect(() => {
+    if paymentConnectorId->isNonEmptyString {
+      getPaymentConnectorDetails()->ignore
     }
-    setCurrentActiveSection(_ => section)
-  }
-
-  let checkCurrentEditState = (section: connectorSummarySection) => {
-    switch currentActiveSection {
-    | Some(active) => active == section
-    | _ => false
-    }
-  }
+    None
+  }, [paymentConnectorId])
 
   let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
 
+  let paymentConnectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    paymentConnectorInitialValues->LogicUtils.getDictFromJsonObject,
+  )
+
   let {connector_name: connectorName} = connectorInfodict
+  let {connector_name: payment_connector_name} = paymentConnectorInfodict
 
   let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
         let dict = BillingProcessorsUtils.getConnectorConfig(connectorName)
+
+        let revenueRecovery =
+          connectorInfodict.feature_metadata
+          ->getDictFromJsonObject
+          ->getDictfromDict("revenue_recovery")
+        let paymentConnectors =
+          revenueRecovery->getObj("billing_account_reference", Dict.make())->Dict.toArray
+
+        let id = switch paymentConnectors->Array.get(0) {
+        | Some(val) => {
+            let (id, _) = val
+            id
+          }
+        | _ => ""
+        }
+
+        setPaymentConnectorId(_ => id)
 
         dict
       } else {
@@ -86,23 +122,44 @@ let make = () => {
     }
   }, [connectorInfodict.id])
 
+  let paymentConnectorDetails = React.useMemo(() => {
+    try {
+      if payment_connector_name->LogicUtils.isNonEmptyString {
+        let dict = Window.getConnectorConfig(payment_connector_name)
+        dict
+      } else {
+        JSON.Encode.null
+      }
+    } catch {
+    | Exn.Error(e) => {
+        Js.log2("FAILED TO LOAD PAYMENT CONNECTOR CONFIG", e)
+        let _ = Exn.message(e)->Option.getOr("Something went wrong")
+        JSON.Encode.null
+      }
+    }
+  }, [paymentConnectorInfodict.id])
+
+  let (_, connectorAccountFields, _, _, connectorWebHookDetails, _, _) = getConnectorFields(
+    connectorDetails,
+  )
+
   let (
     _,
-    connectorAccountFields,
-    connectorMetaDataFields,
+    paymentConnectorAccountFields,
+    paymentConnectorMetaDataFields,
     _,
-    connectorWebHookDetails,
-    connectorLabelDetailField,
+    paymentConnectorWebHookDetails,
+    paymentConnectorLabelDetailField,
     _,
-  ) = getConnectorFields(connectorDetails)
+  ) = getConnectorFields(paymentConnectorDetails)
 
-  let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+  let onSubmitPaymentConnector = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(
         ~entityName=V2(V2_CONNECTOR),
-        ~methodType=Post,
-        ~id=Some(connectorID),
+        ~methodType=Get,
+        ~id=Some(paymentConnectorId),
       )
       let dict = values->getDictFromJsonObject
       switch currentActiveSection {
@@ -121,7 +178,7 @@ let make = () => {
       dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
       let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
       setCurrentActiveSection(_ => None)
-      setInitialValues(_ => response->removeFieldsFromRespose)
+      setPaymentConnectorInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to update"))
@@ -129,22 +186,22 @@ let make = () => {
     Nullable.null
   }
 
-  let validateMandatoryField = values => {
+  let validatePaymentConnectorMandatoryField = values => {
     let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
     let profileId = valuesFlattenJson->getString("profile_id", "")
     if profileId->String.length === 0 {
       Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
     }
-    let connectorTypeFromName = connectorName->getConnectorNameTypeFromString
+    let paymentConnectorTypeFromName = payment_connector_name->getConnectorNameTypeFromString
 
     validateConnectorRequiredFields(
-      connectorTypeFromName,
+      paymentConnectorTypeFromName,
       valuesFlattenJson,
-      connectorAccountFields,
-      connectorMetaDataFields,
-      connectorWebHookDetails,
-      connectorLabelDetailField,
+      paymentConnectorAccountFields,
+      paymentConnectorMetaDataFields,
+      paymentConnectorWebHookDetails,
+      paymentConnectorLabelDetailField,
       errors->JSON.Encode.object,
     )
   }
@@ -154,50 +211,29 @@ let make = () => {
   let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
   let billing_connector_retry_threshold =
     revenueRecovery->getInt("billing_connector_retry_threshold", 0)
-  let paymentConnectors =
-    revenueRecovery->getObj("billing_account_reference", Dict.make())->Dict.toArray
-
-  let paymentConnectorName =
-    UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("payment_connector_name", "")
-  let paymentConnectorID = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("mca", "")
-
-  React.useEffect(() => {
-    if paymentConnectorName->isNonEmptyString && paymentConnectorID->isNonEmptyString {
-      handleClick(Some(PaymentConnectors))
-    }
-    None
-  }, [paymentConnectorName])
 
   <PageLoaderWrapper screenState>
-    <Form onSubmit initialValues validate=validateMandatoryField>
-      <div className="flex flex-col gap-10 p-6">
-        <div>
-          <div className="flex flex-row gap-4 items-center">
-            <GatewayIcon
-              gateway={connectorName->String.toUpperCase} className=" w-10 h-10 rounded-sm"
-            />
-            <p className={`text-2xl font-semibold break-all`}>
-              {`${connectorName} Summary`->React.string}
+    <div className="flex flex-col gap-7 p-6">
+      <BreadCrumbNavigation
+        path=[{title: "Recovery Overview", link: "/v2/recovery/overview"}]
+        currentPageTitle="View Details"
+        cursorStyle="cursor-pointer"
+        customTextClass="text-nd_gray-400"
+        titleTextClass="text-nd_gray-600 font-medium"
+        fontWeight="font-medium"
+        dividerVal=Slash
+        childGapClass="gap-2"
+      />
+      <div className="flex flex-col gap-20 -ml-2">
+        <div className="flex flex-col gap-7">
+          <div className="flex justify-between border-b pb-4 px-2 items-end">
+            <p className="text-lg font-semibold text-nd_gray-600">
+              {"Recovery Details"->React.string}
             </p>
           </div>
-        </div>
-        <div className="flex flex-col gap-12">
-          <div className="flex gap-10 max-w-3xl flex-wrap px-2">
-            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+          <div className="grid grid-cols-3 px-2">
             <div className="flex flex-col gap-0.5-rem ">
-              <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
-              {connectorInfodict.profile_id->React.string}
-            </div>
-            <div className="flex flex-col gap-0.5-rem ">
-              <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
-              <div className="flex flex-row gap-2 items-center ">
-                <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-10 max-w-3xl flex-wrap px-2">
-            <div className="flex flex-col gap-0.5-rem ">
-              <h4 className="text-nd_gray-400 "> {"Connector_retry_threshold"->React.string} </h4>
+              <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
               {billing_connector_retry_threshold->Int.toString->React.string}
             </div>
             <div className="flex flex-col gap-0.5-rem ">
@@ -205,140 +241,97 @@ let make = () => {
               {max_retry_count->Int.toString->React.string}
             </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between border-b pb-4 px-2 items-end">
-              <p className="text-lg font-semibold text-nd_gray-600">
-                {"Payment Connectors"->React.string}
-              </p>
-              <div className="flex gap-4">
-                <RenderIf condition={checkCurrentEditState(PaymentConnectors)}>
-                  {<>
-                    <Button
-                      text="Cancel"
-                      onClick={_ => handleClick(None)}
-                      buttonType={Secondary}
-                      buttonSize={Small}
-                      customButtonStyle="w-fit"
-                    />
-                    <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
-                    />
-                  </>}
-                </RenderIf>
-              </div>
-            </div>
-            <div className="flex gap-10 max-w-3xl flex-wrap px-2">
-              {paymentConnectors
-              ->Array.map(item => {
-                let (key, value) = item
-                <div>
-                  <h4 className="text-nd_gray-400 "> {key->React.string} </h4>
-                  <div> {value->JSON.Decode.string->Option.getOr("")->React.string} </div>
-                </div>
-              })
-              ->React.array}
-            </div>
-            <RenderIf condition={checkCurrentEditState(PaymentConnectors)}>
-              <div className="w-[540px]">
-                <BillingProcessorsConnectProcessor.ConnectorConnectSummary
-                  connector=paymentConnectorName
-                  connector_account_reference_id=paymentConnectorID
-                  autoFocus=true
+        </div>
+        <div className="flex flex-col gap-7">
+          <div className="flex justify-between border-b pb-4 px-2 items-end">
+            <p className="text-lg font-semibold text-nd_gray-600">
+              {"Billing Platform Details"->React.string}
+            </p>
+          </div>
+          <div className="grid grid-cols-3 px-2">
+            <div className="flex flex-col gap-0.5-rem ">
+              <h4 className="text-nd_gray-400 "> {"Biller Platform "->React.string} </h4>
+              <div className="flex gap-2 align-center">
+                <GatewayIcon
+                  gateway={connectorName->String.toUpperCase} className=" w-7 h-7 rounded-sm"
                 />
+                {connectorName->React.string}
               </div>
-            </RenderIf>
+            </div>
+            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
           </div>
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between border-b pb-4 px-2 items-end">
-              <p className="text-lg font-semibold text-nd_gray-600">
-                {"Authentication keys"->React.string}
-              </p>
-              <div className="flex gap-4">
-                {if checkCurrentEditState(AuthenticationKeys) {
-                  <>
-                    <Button
-                      text="Cancel"
-                      onClick={_ => handleClick(None)}
-                      buttonType={Secondary}
-                      buttonSize={Small}
-                      customButtonStyle="w-fit"
-                    />
-                    <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
-                    />
-                  </>
-                } else {
-                  <div
-                    className="flex gap-2 items-center cursor-pointer"
-                    onClick={_ => handleClick(Some(AuthenticationKeys))}>
-                    <Icon name="nd-edit" size=14 />
-                    <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
-                  </div>
-                }}
+          <ConnectorHelperV2.PreviewCreds
+            connectorInfo=connectorInfodict
+            connectorAccountFields
+            customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
+            customElementStyle="px-2 "
+          />
+          <div className="grid grid-cols-3 px-2">
+            {connectorWebHookDetails
+            ->Dict.toArray
+            ->Array.map(item => {
+              let (key, value) = item
+              <div className="flex flex-col gap-0.5-rem ">
+                <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
+                {value->JSON.Decode.string->Option.getOr("")->React.string}
               </div>
-            </div>
-            {if checkCurrentEditState(AuthenticationKeys) {
-              <ConnectorAuthKeys initialValues showVertically=false />
-            } else {
-              <ConnectorHelperV2.PreviewCreds
-                connectorInfo=connectorInfodict
-                connectorAccountFields
-                customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
-                customElementStyle="px-2 "
-              />
-            }}
-          </div>
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between border-b pb-4 px-2 items-end">
-              <p className="text-lg font-semibold text-nd_gray-600"> {"Metadata"->React.string} </p>
-              <div className="flex gap-4">
-                {if checkCurrentEditState(Metadata) {
-                  <>
-                    <Button
-                      text="Cancel"
-                      onClick={_ => handleClick(None)}
-                      buttonType={Secondary}
-                      buttonSize={Small}
-                      customButtonStyle="w-fit"
-                    />
-                    <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
-                    />
-                  </>
-                } else {
-                  <div
-                    className="flex gap-2 items-center cursor-pointer"
-                    onClick={_ => handleClick(Some(Metadata))}>
-                    <Icon name="nd-edit" size=14 />
-                    <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
-                  </div>
-                }}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-10 flex-wrap max-w-3xl">
-              <ConnectorLabelV2
-                labelClass="font-normal"
-                labelTextStyleClass="text-nd_gray-400"
-                isInEditState={checkCurrentEditState(Metadata)}
-                connectorInfo=connectorInfodict
-              />
-              <ConnectorMetadataV2
-                labelTextStyleClass="text-nd_gray-400"
-                labelClass="font-normal"
-                isInEditState={checkCurrentEditState(Metadata)}
-                connectorInfo=connectorInfodict
-              />
-              <ConnectorWebhookDetails
-                labelTextStyleClass="text-nd_gray-400"
-                labelClass="font-normal"
-                isInEditState={checkCurrentEditState(Metadata)}
-                connectorInfo=connectorInfodict
-              />
-            </div>
+            })
+            ->React.array}
           </div>
         </div>
+        <div className="flex flex-col gap-7">
+          <div className="flex justify-between border-b pb-4 px-2 items-end">
+            <p className="text-lg font-semibold text-nd_gray-600">
+              {"Payment Processor Details"->React.string}
+            </p>
+          </div>
+          <Form
+            onSubmit={onSubmitPaymentConnector}
+            initialValues={paymentConnectorInitialValues}
+            validate=validatePaymentConnectorMandatoryField>
+            <div className="grid grid-cols-3 px-2">
+              <div className="flex flex-col gap-0.5-rem ">
+                <h4 className="text-nd_gray-400 "> {"Payment Processor"->React.string} </h4>
+                <div className="flex gap-2 align-center">
+                  <GatewayIcon
+                    gateway={payment_connector_name->String.toUpperCase}
+                    className=" w-7 h-7 rounded-sm"
+                  />
+                  {payment_connector_name->React.string}
+                </div>
+              </div>
+              <div className="flex flex-col gap-0.5-rem ">
+                <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
+                <div className="flex flex-row gap-2 items-center ">
+                  <ConnectorHelperV2.ProcessorStatus connectorInfo=paymentConnectorInfodict />
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-12 mt-7">
+              <div className="grid grid-cols-3 px-2">
+                <div className="flex flex-col gap-0.5-rem ">
+                  <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
+                  {paymentConnectorInfodict.profile_id->React.string}
+                </div>
+                <ConnectorWebhookPreview merchantId connectorName=paymentConnectorInfodict.id />
+              </div>
+              <div className="flex flex-col gap-4">
+                <div className="flex justify-between border-b pb-4 px-2 items-end">
+                  <p className="text-lg font-semibold text-nd_gray-600">
+                    {"Authentication keys"->React.string}
+                  </p>
+                </div>
+                <ConnectorHelperV2.PreviewCreds
+                  connectorInfo=paymentConnectorInfodict
+                  connectorAccountFields={paymentConnectorAccountFields}
+                  customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
+                  customElementStyle="px-2 "
+                />
+              </div>
+            </div>
+          </Form>
+        </div>
       </div>
-      <FormValuesSpy />
-    </Form>
+    </div>
   </PageLoaderWrapper>
 }
