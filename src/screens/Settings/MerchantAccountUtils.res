@@ -24,6 +24,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     max_auto_retries_enabled,
     is_click_to_pay_enabled,
     authentication_product_ids,
+    force_3ds_challenge,
   } = profileRecord
 
   let profileInfo =
@@ -69,6 +70,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "three_ds_requestor_url",
     authentication_connector_details.three_ds_requestor_url,
   )
+  profileInfo->setOptionBool("force_3ds_challenge", force_3ds_challenge)
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
@@ -260,6 +262,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionBool(
     "is_connector_agnostic_mit_enabled",
     valuesDict->getOptionBool("is_connector_agnostic_mit_enabled"),
+  )
+  profileDetailsDict->setOptionBool(
+    "force_3ds_challenge",
+    valuesDict->getOptionBool("force_3ds_challenge"),
   )
 
   profileDetailsDict->setOptionDict(
@@ -562,6 +568,7 @@ let defaultValueForBusinessProfile = {
   max_auto_retries_enabled: None,
   is_click_to_pay_enabled: None,
   authentication_product_ids: None,
+  force_3ds_challenge: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

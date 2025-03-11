@@ -51,6 +51,7 @@ type featureFlag = {
   maintainenceAlert: string,
   forceCookies: bool,
   authenticationAnalytics: bool,
+  devIntelligentRoutingV2: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -104,6 +105,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     authenticationAnalytics: dict->getBool("authentication_analytics", false),
     devModularityV2: dict->getBool("dev_modularity_v2", false),
     devAltPaymentMethods: dict->getBool("dev_alt_payment_methods", false),
+    devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
   }
 }
 

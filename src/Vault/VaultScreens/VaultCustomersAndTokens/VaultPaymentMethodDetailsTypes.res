@@ -1,52 +1,49 @@
-type psp_tokens = {
-  mca_id: string,
-  connector: string,
-  status: string,
-  tokentype: string,
-  token: string,
-  created: string,
-}
-
-type psp_tokensization = {psp_token: array<psp_tokens>}
-
-type network_tokens = {
-  enabled: bool,
-  status: string,
-  token: string,
-  created: string,
-}
-
-type network_tokensization = {network_token: array<network_tokens>}
-
 type cardDetails = {
+  issuer_country: string,
+  last4_digits: string,
+  expiry_month: string,
+  expiry_year: string,
   card_holder_name: string,
-  card_type: string,
+  card_fingerprint: string,
+  nick_name: string,
   card_network: string,
-  last_four_digits: string,
-  card_expiry_month: string,
-  card_expiry_year: string,
+  card_isin: string,
   card_issuer: string,
-  card_issuing_country: string,
-  card_is_in: string,
-  card_extended_bin: string,
-  payment_checks: string,
-  authentication_data: string,
+  card_type: string,
+  saved_to_locker: bool,
+}
+
+type paymentMethodDataType = {card: cardDetails}
+
+type networkTokensData = {
+  token: string,
+  card_network: string,
+}
+
+type connectorTokenType = {
+  connector_id: string,
+  token_type: string,
+  status: string,
+  connector_token_request_reference_id: string,
+  original_payment_authorized_amount: int,
+  original_payment_authorized_currency: string,
+  metadata: Dict.t<JSON.t>,
+  token: string,
+  connector: string,
 }
 
 type paymentMethodDetails = {
-  merchant: string,
+  id: string,
+  merchant_id: string,
   customer_id: option<string>,
-  payment_method_id: string,
+  payment_method_subtype: option<string>,
   payment_method_type: option<string>,
-  payment_method: string,
-  card: cardDetails,
   recurring_enabled: bool,
-  tokenization_type: JSON.t,
-  psp_tokensization: psp_tokensization,
-  network_tokensization: network_tokensization,
   created: string,
   last_used_at: string,
-  network_transaction_id: string,
+  payment_method_data: paymentMethodDataType,
+  connector_tokens: array<connectorTokenType>,
+  network_tokens: networkTokensData,
 }
 
 type paymentMethodDetailsColsType =
@@ -59,6 +56,3 @@ type paymentMethodDetailsColsType =
   | CardIssuer
   | CardIssuingCountry
   | CardIsIn
-  | CardExtendedBin
-  | PaymentChecks
-  | AuthenticationData
