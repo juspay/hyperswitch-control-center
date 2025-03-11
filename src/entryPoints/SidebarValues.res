@@ -706,7 +706,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   if devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
-        name: "Home",
+        name: "Overview",
         icon: "nd-home",
         link: "/v2/home",
         access: Access,
