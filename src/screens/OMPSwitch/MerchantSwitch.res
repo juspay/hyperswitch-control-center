@@ -6,6 +6,7 @@ module NewMerchantCreationModal = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let createNewMerchant = async values => {
       try {
         let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
@@ -24,6 +25,15 @@ module NewMerchantCreationModal = {
       setShowModal(_ => false)
       Nullable.null
     }
+
+    let initialValues = React.useMemo(() => {
+      let dict = Dict.make()
+      dict->Dict.set(
+        "product_type",
+        activeProduct->ProductUtils.getStringFromVariant->JSON.Encode.string,
+      )
+      dict->JSON.Encode.object
+    }, [activeProduct])
 
     let onSubmit = (values, _) => {
       open LogicUtils
@@ -87,7 +97,7 @@ module NewMerchantCreationModal = {
           </div>
         </div>
         <hr />
-        <Form key="new-merchant-creation" onSubmit validate={validateForm}>
+        <Form key="new-merchant-creation" onSubmit validate={validateForm} initialValues>
           <div className="flex flex-col h-full w-full">
             <div className="py-10">
               <FormRenderer.DesktopRow>
