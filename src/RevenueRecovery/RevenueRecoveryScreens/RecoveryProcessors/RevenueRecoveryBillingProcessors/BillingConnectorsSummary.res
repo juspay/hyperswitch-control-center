@@ -119,7 +119,7 @@ let make = () => {
         }
       }
       dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
-      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put)
+      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
       setCurrentActiveSection(_ => None)
       setInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)
