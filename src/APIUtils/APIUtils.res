@@ -410,12 +410,31 @@ let useGetURL = () => {
         }
       | ANALYTICS_AUTHENTICATION_V2 =>
         switch methodType {
+        | Get =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/auth_events/info`
+          }
         | Post =>
           switch analyticsEntity {
           | #Tenant
           | #Organization
           | #Merchant
           | #Profile => `analytics/v1/metrics/auth_events`
+          }
+
+        | _ => ""
+        }
+      | ANALYTICS_AUTHENTICATION_V2_FILTERS =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/filters/auth_events`
           }
 
         | _ => ""

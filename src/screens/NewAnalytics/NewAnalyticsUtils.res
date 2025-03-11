@@ -21,6 +21,7 @@ let requestBody = (
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,
+  ~mode: option<string>=None,
 ) => {
   let metrics = metrics->Array.map(v => (v: metrics :> string))
 
@@ -34,6 +35,7 @@ let requestBody = (
       ~endDateTime=endTime,
       ~granularity,
       ~distributionValues,
+      ~mode,
     )->JSON.Encode.object,
   ]->JSON.Encode.array
 }
