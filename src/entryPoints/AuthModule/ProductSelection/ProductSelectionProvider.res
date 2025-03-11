@@ -131,6 +131,11 @@ module CreateNewMerchantBody = {
       }
     }
 
+    React.useEffect(() => {
+      setActiveProductValue(selectedProduct)
+      None
+    }, [selectedProduct])
+
     // TODO: remove after backend starts sendng merchant details from create merchant API
     let findMerchantId = async (~merchantName) => {
       try {
@@ -160,6 +165,11 @@ module CreateNewMerchantBody = {
         let dict = values->getDictFromJsonObject
         let trimmedData = dict->getString("company_name", "")->String.trim
         Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
+        Dict.set(
+          dict,
+          "product_type",
+          selectedProduct->ProductUtils.getStringFromVariant->JSON.Encode.string,
+        )
         let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let res = await updateDetails(url, values, Post)
         let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")

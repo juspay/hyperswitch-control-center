@@ -5,6 +5,9 @@ module NewMerchantCreationModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let {activeProduct, setActiveProductValue} = React.useContext(
+      ProductSelectionProvider.defaultContext,
+    )
     let createNewMerchant = async values => {
       try {
         let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
@@ -22,12 +25,22 @@ module NewMerchantCreationModal = {
       setShowModal(_ => false)
       Nullable.null
     }
+    React.useEffect(() => {
+      setActiveProductValue(activeProduct)
+      None
+    }, [activeProduct])
 
     let onSubmit = (values, _) => {
       open LogicUtils
       let dict = values->getDictFromJsonObject
+
       let trimmedData = dict->getString("company_name", "")->String.trim
       Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
+      Dict.set(
+        dict,
+        "product_type",
+        activeProduct->ProductUtils.getStringFromVariant->JSON.Encode.string,
+      )
       createNewMerchant(dict->JSON.Encode.object)
     }
 
