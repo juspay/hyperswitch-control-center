@@ -67,6 +67,17 @@ module SelectMerchantBody = {
         let merchantid = dict->getString("merchant_selected", "")->String.trim
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
         setActiveProductValue(selectedProduct)
+        switch selectedProduct {
+        | Orchestrator => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+        | _ =>
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(
+              ~url=`/v2/${selectedProduct
+                ->ProductUtils.getStringFromVariant
+                ->String.toLowerCase}/home`,
+            ),
+          )
+        }
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -174,13 +185,18 @@ module CreateNewMerchantBody = {
           ~message="Merchant Created Successfully!",
           ~autoClose=true,
         )
-        RescriptReactRouter.replace(
-          GlobalVars.appendDashboardPath(
-            ~url=`/v2/${selectedProduct
-              ->ProductUtils.getStringFromVariant
-              ->String.toLowerCase}/home`,
-          ),
-        )
+
+        switch selectedProduct {
+        | Orchestrator => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+        | _ =>
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(
+              ~url=`/v2/${selectedProduct
+                ->ProductUtils.getStringFromVariant
+                ->String.toLowerCase}/home`,
+            ),
+          )
+        }
       } catch {
       | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
       }

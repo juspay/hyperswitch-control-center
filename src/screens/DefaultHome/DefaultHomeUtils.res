@@ -13,6 +13,7 @@ module DefaultActionItem = {
             mixpanelEvent(~eventName=trackingEvent)
             url->Window._open
           }
+        | CustomAction => ()
         }
       }}>
       <div className="flex items-center gap-2">
@@ -30,6 +31,13 @@ module DefaultHomeCard = {
   @react.component
   let make = (~heading, ~description, ~img, ~action) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let merchantList: array<OMPSwitchTypes.ompListTypes> = Recoil.useRecoilValueFromAtom(
+      HyperswitchAtom.merchantListAtom,
+    )
+    let {activeProduct, setSelectMerchantToSwitch} = React.useContext(
+      ProductSelectionProvider.defaultContext,
+    )
+
     <div
       className="w-499-px p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
       <img className="w-full h-195-px object-cover rounded-xl" src={img} />
@@ -53,6 +61,11 @@ module DefaultHomeCard = {
           | ExternalLink({url, trackingEvent}) => {
               mixpanelEvent(~eventName=trackingEvent)
               url->Window._open
+            }
+          | CustomAction =>
+            switch activeProduct {
+            | Orchestrator => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/home"))
+            | _ => setSelectMerchantToSwitch(merchantList)
             }
           }
         }}
@@ -93,7 +106,7 @@ let defaultHomeCardsArray = {
       heading: "Orchestrator",
       description: "Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      action: InternalRoute("home"),
+      action: CustomAction,
     },
     {
       product: Vault,

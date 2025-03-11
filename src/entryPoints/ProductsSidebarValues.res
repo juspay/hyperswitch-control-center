@@ -35,7 +35,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     Link({
       name: Orchestrator->getStringFromVariant,
       icon: "orchestrator-home",
-      link: "/home",
+      link: "/v2/home",
       access: Access,
     }),
   ]
