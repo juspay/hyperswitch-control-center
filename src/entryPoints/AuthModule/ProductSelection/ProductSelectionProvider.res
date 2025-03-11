@@ -137,7 +137,7 @@ module CreateNewMerchantBody = {
       let dict = Dict.make()
       dict->Dict.set(
         "product_type",
-        selectedProduct->ProductUtils.getStringFromVariant->JSON.Encode.string,
+        selectedProduct->ProductUtils.getStringFromVariant->String.toLowerCase->JSON.Encode.string,
       )
       dict->JSON.Encode.object
     }, [selectedProduct])
