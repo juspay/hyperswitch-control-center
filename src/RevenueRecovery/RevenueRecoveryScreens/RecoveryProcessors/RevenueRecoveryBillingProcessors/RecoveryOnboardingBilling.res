@@ -194,7 +194,7 @@ let make = (
         <BillingProcessorsWebhooks
           initialValues merchantId onNextClick={_ => onNextClick(currentStep, setNextStep)->ignore}
         />
-      | (#reviewDetails, _) => <BillingProcessorsReviewDetails connectorInfo={initialValues} />
+      | (#reviewDetails, _) => <BillingProcessorsReviewDetails />
       | _ => React.null
       }}
     </Form>
