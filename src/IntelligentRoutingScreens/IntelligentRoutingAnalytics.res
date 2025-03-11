@@ -137,7 +137,6 @@ let make = () => {
               options={LineGraphUtils.getLineGraphOptions(lineGraphOptions)} className="mr-3"
             />
           </div>
-          // <BarGraph options={BarGraphUtils.getBarGraphOptions(barGraphOptions)} className="mr-3" />
           <div className="border rounded-lg p-4">
             <ColumnGraph options={ColumnGraphUtils.getColumnGraphOptions(columnGraphOptions)} />
           </div>

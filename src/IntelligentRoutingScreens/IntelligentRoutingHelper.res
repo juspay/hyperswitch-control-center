@@ -65,31 +65,6 @@ let columnGraphOptions: ColumnGraphTypes.columnGraphPayload = {
   ),
 }
 
-let barGraphOptions: BarGraphTypes.barGraphPayload = {
-  title: {
-    text: "Revenue Uplift",
-  },
-  categories: ["10:00", "11:00", "11:00"],
-  data: [
-    {
-      showInLegend: true,
-      name: "Actual",
-      data: [2.0, 8.0, 9.0],
-      color: "#B992DD",
-    },
-    {
-      showInLegend: true,
-      name: "Simulated",
-      data: [10.0, 20.0, 30.0],
-      color: "#1E90FF",
-    },
-  ],
-  tooltipFormatter: NewAnalyticsUtils.bargraphTooltipFormatter(
-    ~title="Revenue Uplift",
-    ~metricType=No_Type,
-  ),
-}
-
 let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
   title: {
     text: "Overall Authorization Rate",
