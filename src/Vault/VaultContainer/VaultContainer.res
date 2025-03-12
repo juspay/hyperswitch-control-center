@@ -31,8 +31,6 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     {switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "vault"} => <VaultHome />
-    | list{"v2", "vault", "home"} => <VaultDefaultHome />
     | list{"v2", "vault", "onboarding", ...remainingPath} =>
       <EntityScaffold
         entityName="VaultConnector"
