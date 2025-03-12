@@ -131,6 +131,17 @@ let payouts = userHasResourceAccess => {
   })
 }
 
+let alternatePaymentMethods = isApmEnabled =>
+  isApmEnabled
+    ? Link({
+        name: "Alt Payment Methods",
+        icon: "nd-apm",
+        link: "/apm",
+        access: Access,
+        selectedIcon: "nd-fill-apm",
+      })
+    : emptyComponent
+
 let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled, ~userEntity) => {
   let payments = payments(userHasResourceAccess)
   let refunds = refunds(userHasResourceAccess)
@@ -654,6 +665,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     taxProcessor,
     newAnalytics,
     authenticationAnalytics,
+    devAltPaymentMethods,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -686,6 +698,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isPayoutEnabled=payOut,
       ~userEntity,
     ),
+    devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
     default->developers(~userHasResourceAccess, ~checkUserEntity),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
@@ -723,7 +736,6 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
-  | AlternatePaymentMethods => AlternatePaymentMethodsSidebarValues.altPaymentMethodsSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentaRoutingSidebarValues.intelligentRoutingSidebars
   }
