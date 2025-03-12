@@ -180,6 +180,7 @@ type attemptColType =
   | Status
   | Amount
   | Connector
+  | AttemptedBy
   | PaymentMethodType
   | ErrorMessage
   | ConnectorReferenceID
@@ -209,6 +210,7 @@ type summaryColType =
 
 type aboutPaymentColType =
   | Connector
+  | Status
   | ProfileId
   | ProfileName
   | PaymentMethod

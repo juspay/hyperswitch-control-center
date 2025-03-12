@@ -44,6 +44,7 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
 
 let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.cell => {
   switch attemptColType {
+  | AttemptedBy => Text(attempt.attempt_by->snakeToTitle)
   | Amount =>
     CustomCell(
       <CurrencyCell amount={attempt.attempt_amount->Float.toString} currency={attempt.currency} />,
@@ -196,6 +197,8 @@ let getRefundHeading = (refundsColType: refundsColType) => {
 
 let getAttemptHeading = (attemptColType: attemptColType) => {
   switch attemptColType {
+  | AttemptedBy =>
+    Table.makeHeaderInfo(~key="attempt_triggered_by", ~title="Attempted By", ~description="")
   | AttemptId =>
     Table.makeHeaderInfo(
       ~key="id",
@@ -287,8 +290,11 @@ let attemptsItemToObjMapper = dict => {
   id: dict->getString("id", ""),
   status: dict->getString("status", ""),
   amount: dict->getFloat("amount", 0.0),
-  created: dict->getString("created", ""),
-  attempt_by: dict->getString("attempt_by", ""),
+  created: dict->getString("created_at", ""),
+  attempt_by: dict
+  ->getDictfromDict("feature_metadata")
+  ->getDictfromDict("revenue_recovery")
+  ->getString("attempt_triggered_by", ""),
   currency: dict
   ->getDictfromDict("amount")
   ->getString("currency", ""),
@@ -446,6 +452,7 @@ let getHeadingForSummary = summaryColType => {
 
 let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Recovery Status", ~dataType=DropDown)
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Preferred connector")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
@@ -549,7 +556,26 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
 
 let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): Table.cell => {
   open HelperComponents
+  let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch aboutPaymentColType {
+  | Status =>
+    Label({
+      title: order.status->String.toUpperCase,
+      color: switch orderStatus {
+      | Succeeded
+      | PartiallyCaptured =>
+        LabelGreen
+      | Failed
+      | Cancelled =>
+        LabelRed
+      | Processing
+      | RequiresCustomerAction
+      | RequiresConfirmation
+      | RequiresPaymentMethod =>
+        LabelLightBlue
+      | _ => LabelLightBlue
+      },
+    })
   | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
   | PaymentMethod => Text(order.payment_method)
   | PaymentMethodType => Text(order.payment_method_type)
@@ -755,7 +781,7 @@ let itemToObjMapper = dict => {
   }
 
   {
-    payment_id: dict->getString("connector_payment_id", ""),
+    payment_id: dict->getString("id", ""),
     invoice_id: dict->getString("id", ""),
     merchant_id: dict->getString("merchant_id", ""),
     net_amount: dict->getFloat("net_amount", 0.0),

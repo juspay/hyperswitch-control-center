@@ -46,14 +46,14 @@ module OrderInfo = {
         data=order
         getHeading=getHeadingForSummary
         getCell=getCellForSummary
-        detailsFields=[OrderAmount, Created, PaymentId, ProductName]
+        detailsFields=[PaymentId, OrderAmount, Created]
         isButtonEnabled=true
       />
       <ShowOrderDetails
         data=order
         getHeading=getHeadingForAboutPayment
         getCell=getCellForAboutPayment
-        detailsFields=[Connector, ProfileId, PaymentMethodType, CardNetwork, MandateId]
+        detailsFields=[Connector, Status, PaymentMethodType, CardNetwork]
       />
     </div>
   }
@@ -97,13 +97,13 @@ module Attempts = {
         ->Array.mapWithIndex((item, index) => {
           let (border, icon) = item.status->getStyle
 
-          <div className="grid grid-cols-10" key={index->Int.toString}>
+          <div className="grid grid-cols-10 gap-5" key={index->Int.toString}>
             <div className="flex flex-col gap-1">
               <div className="w-full flex justify-end font-semibold">
                 {`#${(order.attempts->Array.length - index)->Int.toString}`->React.string}
               </div>
               <div className="w-full flex justify-end text-xs opacity-50">
-                {item.created->React.string}
+                <Table.DateCell timestamp={item.created} isCard=true hideTime=true />
               </div>
             </div>
             <div className="relative ml-7">
@@ -120,7 +120,7 @@ module Attempts = {
                 data=item
                 getHeading=getAttemptHeading
                 getCell=getAttemptCell
-                detailsFields=[Connector, Status, ErrorMessage]
+                detailsFields=[AttemptedBy, Connector, Status]
               />
             </div>
           </div>
