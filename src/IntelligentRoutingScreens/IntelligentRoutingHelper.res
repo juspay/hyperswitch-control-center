@@ -15,142 +15,229 @@ let stepperHeading = (~title: string, ~subTitle: string) =>
     <p className="text-sm text-nd_gray-400 font-medium leading-5"> {subTitle->React.string} </p>
   </div>
 
-let columnGraphOptions: ColumnGraphTypes.columnGraphPayload = {
-  title: {
-    text: "Revenue Uplift",
-    align: "left",
-    x: 10,
-    y: 10,
-  },
-  data: [
-    {
-      showInLegend: true,
-      name: "Actual",
-      colorByPoint: false,
-      data: [
-        {
-          name: "10:00",
-          y: 2.0,
-          color: "#B992DD",
-        },
-        {
-          name: "11:00",
-          y: 8.0,
-          color: "#B992DD",
-        },
-        {
-          name: "12:00",
-          y: 9.0,
-          color: "#B992DD",
-        },
-      ],
-      color: "#B992DD",
-    },
-    {
-      showInLegend: true,
-      name: "Simulated",
-      colorByPoint: false,
-      data: [
-        {
-          name: "10:00",
-          y: 10.0,
-          color: "#1E90FF",
-        },
-        {
-          name: "11:00",
-          y: 20.0,
-          color: "#1E90FF",
-        },
-        {
-          name: "12:00",
-          y: 30.0,
-          color: "#1E90FF",
-        },
-      ],
-      color: "#1E90FF",
-    },
-  ],
-  tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
-    ~title="Revenue Uplift",
-    ~metricType=AmountWithSuffix,
-    ~reverse=true,
-  ),
-  yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
-    ~statType=AmountWithSuffix,
-    ~currency="$",
-    ~suffix="M",
-  ),
+let getDateTime = value => {
+  let dateObj = value->DayJs.getDayJsForString
+  let date = `${dateObj.month()->NewAnalyticsUtils.getMonthName} ${dateObj.format("DD")}`
+  let time = dateObj.format("HH:mm")->NewAnalyticsUtils.formatTime
+  `${date}, ${time}`
 }
 
-let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
-  title: {
-    text: "Overall Authorization Rate",
-    align: "left",
-    x: 10,
-    y: 10,
-  },
-  categories: ["10:00", "11:00", "12:00"],
-  data: [
-    {
-      showInLegend: true,
-      name: "Actual",
-      data: [2.0, 8.0, 9.0],
+let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload => {
+  let statsData = stats->IntelligentRoutingUtils.responseMapper
+  let timeSeriesData = statsData.time_series_data
+
+  let baseLineData = timeSeriesData->Array.map(item => {
+    let data: ColumnGraphTypes.dataObj = {
+      name: getDateTime(item.time_stamp),
+      y: item.revenue.baseline,
       color: "#B992DD",
-    },
-    {
-      showInLegend: true,
-      name: "Simulated",
-      data: [10.0, 20.0, 30.0],
+    }
+    data
+  })
+  let modelData = timeSeriesData->Array.map(item => {
+    let data: ColumnGraphTypes.dataObj = {
+      name: getDateTime(item.time_stamp),
+      y: item.revenue.model,
       color: "#1E90FF",
+    }
+    data
+  })
+
+  {
+    title: {
+      text: "Revenue Uplift",
+      align: "left",
+      x: 10,
+      y: 10,
     },
-  ],
-  tooltipFormatter: NewAnalyticsUtils.tooltipFormatter(
-    ~title="Authorization Rate",
-    ~metricType=Amount,
-    ~currency="",
-    ~comparison=Some(EnableComparison),
-    ~secondaryCategories=[],
-    ~reverse=true,
-  ),
-  yAxisMaxValue: None,
+    data: [
+      {
+        showInLegend: true,
+        name: "Actual",
+        colorByPoint: false,
+        data: baseLineData,
+        //  [
+        //   // [ {timestamp, revenue baseline value}]
+        //   {
+        //     name: "10:00",
+        //     y: 2.0,
+        //     color: "#B992DD",
+        //   },
+        //   {
+        //     name: "11:00",
+        //     y: 8.0,
+        //     color: "#B992DD",
+        //   },
+        //   {
+        //     name: "12:00",
+        //     y: 9.0,
+        //     color: "#B992DD",
+        //   },
+        // ],
+        color: "#B992DD",
+      },
+      {
+        showInLegend: true,
+        name: "Simulated",
+        colorByPoint: false,
+        data: modelData,
+        //  [
+        //   // [ {timestamp, revenue model value}]
+        //   {
+        //     name: "10:00",
+        //     y: 10.0,
+        //     color: "#1E90FF",
+        //   },
+        //   {
+        //     name: "11:00",
+        //     y: 20.0,
+        //     color: "#1E90FF",
+        //   },
+        //   {
+        //     name: "12:00",
+        //     y: 30.0,
+        //     color: "#1E90FF",
+        //   },
+        // ],
+        color: "#1E90FF",
+      },
+    ],
+    tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
+      ~title="Revenue Uplift",
+      ~metricType=AmountWithSuffix,
+      ~reverse=true,
+    ),
+    yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
+      ~statType=AmountWithSuffix,
+      ~currency="$",
+      ~suffix="",
+    ),
+  }
 }
 
-let lineColumnGraphOptions: LineAndColumnGraphTypes.lineColumnGraphPayload = {
-  title: {
-    text: "Processor wise transaction distribution with Auth Rate",
-    align: "left",
-    x: 10,
-    y: 10,
-  },
-  categories: ["10:00", "11:00", "12:00", "1:00", "2:00"],
-  data: [
-    {
-      showInLegend: true,
-      name: "Processor's Auth Rate",
-      \"type": "column",
-      data: [120, 100, 60, 90, 70],
-      color: "#B5B28E",
-      yAxis: 0,
+let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
+  let statsData = stats->IntelligentRoutingUtils.responseMapper
+  let timeSeriesData = statsData.time_series_data
+
+  let timeSeriesArray = timeSeriesData->Array.map(item => {
+    getDateTime(item.time_stamp)
+  })
+
+  let baselineSuccessRate = timeSeriesData->Array.map(item => item.success_rate.baseline)
+  let modelSuccessRate = timeSeriesData->Array.map(item => item.success_rate.model)
+
+  {
+    title: {
+      text: "Overall Authorization Rate",
+      align: "left",
+      x: 10,
+      y: 10,
     },
+    categories: timeSeriesArray, // ["10:00", "11:00", "12:00"], // time stamp array
+    data: [
+      {
+        showInLegend: true,
+        name: "Actual",
+        data: baselineSuccessRate, // [2.0, 8.0, 9.0], // success_rate baseline array
+        color: "#B992DD",
+      },
+      {
+        showInLegend: true,
+        name: "Simulated",
+        data: modelSuccessRate, // [10.0, 20.0, 30.0], // success_rate model array
+        color: "#1E90FF",
+      },
+    ],
+    tooltipFormatter: NewAnalyticsUtils.tooltipFormatter(
+      ~title="Authorization Rate",
+      ~metricType=Amount,
+      ~currency="",
+      ~comparison=Some(EnableComparison),
+      ~secondaryCategories=[],
+      ~reverse=true,
+    ),
+    yAxisMaxValue: None,
+  }
+}
+
+let lineColumnGraphOptions = (
+  stats,
+  ~processor="",
+): LineAndColumnGraphTypes.lineColumnGraphPayload => {
+  open LogicUtils
+  let statsData = stats->IntelligentRoutingUtils.responseMapper
+  let timeSeriesData = statsData.time_series_data
+
+  let timeStampArray = timeSeriesData->Array.map(item => {
+    getDateTime(item.time_stamp)
+  })
+
+  let mapPSPJson = (json): IntelligentRoutingTypes.volDist => {
+    let dict = json->getDictFromJsonObject
     {
-      showInLegend: true,
-      name: "Actual Transactions",
-      \"type": "line",
-      data: [80, 90, 95, 85, 92],
-      color: "#A785D8",
-      yAxis: 1,
+      baseline_volume: dict->getInt("baseline_volume", 0),
+      model_volume: dict->getInt("model_volume", 0),
+      success_rate: dict->getFloat("success_rate", 0.0),
+    }
+  }
+
+  let successData = timeSeriesData->Array.map(item => {
+    let val = item.volume_distribution_as_per_sr
+    let dict = val->getDictFromJsonObject
+    let pspData = dict->Dict.get(processor)
+
+    let data = switch pspData {
+    | Some(pspData) => pspData->mapPSPJson
+    | None => {
+        baseline_volume: 0,
+        model_volume: 0,
+        success_rate: 0.0,
+      }
+    }
+    data
+  })
+
+  let baseline = successData->Array.map(item => item.baseline_volume)
+  let model = successData->Array.map(item => item.model_volume)
+  let successRate = successData->Array.map(item => item.success_rate->Float.toInt)
+
+  {
+    title: {
+      text: "Processor wise transaction distribution with Auth Rate",
+      align: "left",
+      x: 10,
+      y: 10,
     },
-    {
-      showInLegend: true,
-      name: "Simulated Transactions",
-      \"type": "line",
-      data: [110, 100, 70, 90, 80],
-      color: "#4185F4",
-      yAxis: 1,
-    },
-  ],
-  tooltipFormatter: LineAndColumnGraphUtils.lineColumnGraphTooltipFormatter(
-    ~title="Metrics",
-    ~metricType=Amount,
-  ),
+    categories: timeStampArray, // ["10:00", "11:00", "12:00", "1:00", "2:00"], // time stamp array
+    data: [
+      {
+        showInLegend: true,
+        name: "Processor's Auth Rate",
+        \"type": "column",
+        data: [120, 100, 60, 90, 70], // volme psp success rate array
+        color: "#B5B28E",
+        yAxis: 0,
+      },
+      {
+        showInLegend: true,
+        name: "Actual Transactions",
+        \"type": "line",
+        data: [80, 90, 95, 85, 92], // volm psp baseline array
+        color: "#A785D8",
+        yAxis: 1,
+      },
+      {
+        showInLegend: true,
+        name: "Simulated Transactions",
+        \"type": "line",
+        data: [110, 100, 70, 90, 80], // volm psp model array
+        color: "#4185F4",
+        yAxis: 1,
+      },
+    ],
+    tooltipFormatter: LineAndColumnGraphUtils.lineColumnGraphTooltipFormatter(
+      ~title="Metrics",
+      ~metricType=Amount,
+    ),
+  }
 }

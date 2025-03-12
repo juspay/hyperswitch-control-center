@@ -93,3 +93,36 @@ module StepCard = {
     </div>
   }
 }
+
+open LogicUtils
+let getStats = json => {
+  let dict = json->getDictFromJsonObject
+  {
+    baseline: dict->getFloat("baseline", 0.0),
+    model: dict->getFloat("model", 0.0),
+  }
+}
+
+let mapTimeSeriesData = (arr: array<JSON.t>) => {
+  arr->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+    {
+      time_stamp: dict->getString("time_stamp", ""),
+      success_rate: dict->getJsonObjectFromDict("success_rate")->getStats,
+      revenue: dict->getJsonObjectFromDict("revenue")->getStats,
+      volume_distribution_as_per_sr: dict->getJsonObjectFromDict("volume_distribution_as_per_sr"),
+    }
+  })
+}
+
+let responseMapper = (response: JSON.t) => {
+  let dict = response->getDictFromJsonObject
+
+  {
+    overall_success_rate: dict->getJsonObjectFromDict("overall_success_rate")->getStats,
+    total_failed_payments: dict->getJsonObjectFromDict("total_failed_payments")->getStats,
+    total_revenue: dict->getJsonObjectFromDict("total_revenue")->getStats,
+    time_series_data: dict->getArrayFromDict("time_series_data", [])->mapTimeSeriesData,
+    overall_success_rate_improvement: dict->getFloat("overall_success_rate_improvement", 0.0),
+  }
+}
