@@ -56,10 +56,12 @@ type refunds = {
 
 type attempts = {
   id: string,
+  created: string,
   status: string,
   amount: float,
   currency: string,
   connector: string,
+  attempt_by: string,
   error_message: string,
   payment_method: string,
   connector_reference_id: string,
@@ -178,6 +180,7 @@ type attemptColType =
   | Status
   | Amount
   | Connector
+  | AttemptedBy
   | PaymentMethodType
   | ErrorMessage
   | ConnectorReferenceID
@@ -207,6 +210,7 @@ type summaryColType =
 
 type aboutPaymentColType =
   | Connector
+  | Status
   | ProfileId
   | ProfileName
   | PaymentMethod
