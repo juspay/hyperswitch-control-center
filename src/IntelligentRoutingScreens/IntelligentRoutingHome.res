@@ -2,7 +2,7 @@
 let make = () => {
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
   let onTryDemoClick = () => {
-    setCreateNewMerchant(ProductTypes.IntelligentRouting)
+    setCreateNewMerchant(ProductTypes.DynamicRouting)
   }
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">

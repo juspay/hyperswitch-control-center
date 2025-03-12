@@ -206,7 +206,7 @@ let make = () => {
                         | list{"v2", "cost-observability", ..._} => <HypersenseApp />
 
                         /* INTELLIGENT ROUTING PRODUCT */
-                        | list{"v2", "intelligent-routing", ..._} => <IntelligentRoutingApp />
+                        | list{"v2", "dynamic-routing", ..._} => <IntelligentRoutingApp />
 
                         /* ORCHESTRATOR PRODUCT */
                         | list{"home", ..._}

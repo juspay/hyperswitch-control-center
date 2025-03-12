@@ -7,7 +7,7 @@ module Review = {
 
     let handleNext = _ => {
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="v2/intelligent-routing/dashboard"),
+        GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
       )
     }
 
@@ -188,8 +188,13 @@ let make = () => {
     }
   }
 
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
+
   let backClick = () => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/intelligent-routing"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/dynamic-routing"))
     setShowSideBar(_ => true)
   }
 
