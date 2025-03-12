@@ -174,7 +174,8 @@ module PaymentConnectorDetails = {
         setInitialValues(_ => json->removeFieldsFromRespose)
         setScreenState(_ => Success)
       } catch {
-      | _ => ()
+      | _ =>
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch payment connector details"))
       }
     }
 

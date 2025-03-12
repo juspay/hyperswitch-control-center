@@ -18,10 +18,9 @@ module StepCard = {
     | _ => ""
     }
 
-    let disabledClass = switch isDisabled {
-    | true => "opacity-50 filter blur-xs pointer-events-none cursor-not-allowed"
-    | false => "cursor-pointer"
-    }
+    let disabledClass = isDisabled
+      ? "opacity-50 filter blur-xs pointer-events-none cursor-not-allowed"
+      : "cursor-pointer"
 
     <div
       key={stepName}
