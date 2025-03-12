@@ -85,7 +85,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: DynamicRouting->getProductDisplayName,
         icon: "intelligent-routing-home",
-        link: "/v2/intelligent-routing/home",
+        link: "/v2/dynamic-routing",
         access: Access,
       }),
     )
