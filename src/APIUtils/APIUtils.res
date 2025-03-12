@@ -579,9 +579,9 @@ let useGetURL = () => {
       | AUTHENTICATION_REPORT =>
         switch transactionEntity {
         | #Tenant
-        | #Organization => `analytics/org/report/authentications`
-        | #Merchant => `analytics/merchant/report/authentications`
-        | #Profile => `analytics/profile/report/authentications`
+        | #Organization => `analytics/v1/org/report/authentications`
+        | #Merchant => `analytics/v1/merchant/report/authentications`
+        | #Profile => `analytics/v1/profile/report/authentications`
         }
 
       /* EVENT LOGS */
