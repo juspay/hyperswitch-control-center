@@ -214,6 +214,11 @@ let make = () => {
     listItem
   })
 
+  let bottomComponent = switch version {
+  | V1 => <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
+  | V2 => React.null
+  }
+
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -230,7 +235,7 @@ let make = () => {
       baseComponent={<ListBaseComp
         user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
+      bottomComponent
       customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState

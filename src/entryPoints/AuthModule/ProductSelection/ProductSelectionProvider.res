@@ -189,10 +189,7 @@ module CreateNewMerchantBody = {
           ~autoClose=true,
         )
       } catch {
-      | err => {
-          Js.log(err)
-          showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
-        }
+      | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
       }
       setShowModal(_ => false)
       Nullable.null
