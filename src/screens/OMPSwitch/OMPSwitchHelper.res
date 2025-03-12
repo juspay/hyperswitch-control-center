@@ -218,7 +218,7 @@ module OMPViews = {
 
 module MerchantDropdownItem = {
   @react.component
-  let make = (~merchantName, ~index: int, ~currentId) => {
+  let make = (~merchantName, ~index: int, ~currentId, ~getMerchantList, ~switchMerch) => {
     open LogicUtils
     open APIUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
@@ -228,28 +228,14 @@ module MerchantDropdownItem = {
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
-    let (_, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
-    let getMerchantList = async () => {
-      try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
-        let response = await fetchDetails(url)
-        setMerchantList(_ => response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper))
-      } catch {
-      | _ => {
-          setMerchantList(_ => OMPSwitchUtils.ompDefaultValue(merchantId, ""))
-          showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
-        }
-      }
-    }
+
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
       let regexForMerchantName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
@@ -269,18 +255,6 @@ module MerchantDropdownItem = {
       errors
     }
 
-    let switchMerch = async value => {
-      try {
-        setShowSwitchingMerch(_ => true)
-        let _ = await internalSwitch(~expectedMerchantId=Some(value))
-        setShowSwitchingMerch(_ => false)
-      } catch {
-      | _ => {
-          showToast(~message="Failed to switch merchant", ~toastType=ToastError)
-          setShowSwitchingMerch(_ => false)
-        }
-      }
-    }
     let handleMerchantSwitch = id => {
       switchMerch(id)->ignore
     }
@@ -298,7 +272,7 @@ module MerchantDropdownItem = {
           ~id=Some(merchantId),
         )
         let _ = await updateDetails(accountUrl, body, Post)
-        let _ = await getMerchantList()
+        getMerchantList()->ignore
         showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
       } catch {
       | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
@@ -362,19 +336,27 @@ module ProfileDropdownItem = {
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let getProfileList = async () => {
       try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-        let response = await fetchDetails(url)
+        let response = switch version {
+        | V1 => {
+            let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+            await fetchDetails(url)
+          }
+        | V2 => {
+            let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+            await fetchDetails(url, ~version=V2)
+          }
+        }
         setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
       } catch {
       | _ => {
-          setProfileList(_ => OMPSwitchUtils.ompDefaultValue(profileId, ""))
+          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
           showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
         }
       }

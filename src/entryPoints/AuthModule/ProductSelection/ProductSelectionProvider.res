@@ -14,7 +14,8 @@ module SwitchMerchantBody = {
 
     let switchMerch = async () => {
       try {
-        let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id))
+        let version = UserUtils.getVersion(selectedProduct)
+        let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id), ~version)
         setActiveProductValue(selectedProduct)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
@@ -35,13 +36,24 @@ module SwitchMerchantBody = {
 
 module SelectMerchantBody = {
   @react.component
-  let make = (~setShowModal, ~merchantList, ~selectedProduct, ~setActiveProductValue) => {
+  let make = (
+    ~setShowModal,
+    ~merchantList: array<OMPSwitchTypes.ompListTypes>,
+    ~selectedProduct: ProductTypes.productTypes,
+    ~setActiveProductValue,
+  ) => {
     open LogicUtils
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let showToast = ToastState.useShowToast()
-
     let dropDownOptions =
-      merchantList->Array.map((item: OMPSwitchTypes.ompListTypes): SelectBox.dropdownOption => {
+      merchantList
+      ->Array.filter(item => {
+        switch item.productType {
+        | Some(prodType) => prodType == selectedProduct
+        | None => false
+        }
+      })
+      ->Array.map((item: OMPSwitchTypes.ompListTypes): SelectBox.dropdownOption => {
         {
           label: `${item.name->String.length > 0 ? item.name : item.id} - ${item.id}`,
           value: item.id,
@@ -65,8 +77,19 @@ module SelectMerchantBody = {
       try {
         let dict = values->getDictFromJsonObject
         let merchantid = dict->getString("merchant_selected", "")->String.trim
-        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
+        let version = UserUtils.getVersion(selectedProduct)
+
+        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
         setActiveProductValue(selectedProduct)
+        switch selectedProduct {
+        | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+        | _ =>
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(
+              ~url=`/v2/${(Obj.magic(selectedProduct) :> string)->String.toLowerCase}/home`,
+            ),
+          )
+        }
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -115,43 +138,27 @@ module CreateNewMerchantBody = {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let setMerchantList = Recoil.useSetRecoilState(HyperswitchAtom.merchantListAtom)
-    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+
+    let initialValues = React.useMemo(() => {
+      let dict = Dict.make()
+      dict->Dict.set("product_type", (Obj.magic(selectedProduct) :> string)->JSON.Encode.string)
+      dict->JSON.Encode.object
+    }, [selectedProduct])
 
     let switchMerch = async merchantid => {
       try {
-        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
+        let version = UserUtils.getVersion(selectedProduct)
+
+        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
         setActiveProductValue(selectedProduct)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~url="/home")
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=productUrl))
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
-      }
-    }
-
-    // TODO: remove after backend starts sendng merchant details from create merchant API
-    let findMerchantId = async (~merchantName) => {
-      try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
-        let response = await fetchDetails(url)
-        let merchantTypedValue =
-          response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper)
-        setMerchantList(_ => merchantTypedValue)
-
-        let filteredValue = merchantTypedValue->Array.find(value => value.name === merchantName)
-        let merchantID = switch filteredValue {
-        | Some(data) => data.id
-        | None => merchantId
-        }
-        merchantID
-      } catch {
-      | _ => {
-          setMerchantList(_ => OMPSwitchUtils.ompDefaultValue(merchantId, ""))
-          showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
-          Exn.raiseError("")
-        }
       }
     }
 
@@ -160,29 +167,32 @@ module CreateNewMerchantBody = {
         let dict = values->getDictFromJsonObject
         let trimmedData = dict->getString("company_name", "")->String.trim
         Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
-        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
-        let res = await updateDetails(url, values, Post)
-        let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
 
-        // TODO : remove after backend starts sendng merchant details from create merchant API
-        let merchantName = values->getDictFromJsonObject->getString("company_name", "")
-        let merchantID = await findMerchantId(~merchantName)
+        let res = switch selectedProduct {
+        | Orchestration
+        | CostObservability => {
+            let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            await updateDetails(url, values, Post)
+          }
+        | _ => {
+            let url = getURL(~entityName=V2(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            await updateDetails(url, values, Post, ~version=V2)
+          }
+        }
+        mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
 
+        let merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
         let _ = await switchMerch(merchantID)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Merchant Created Successfully!",
           ~autoClose=true,
         )
-        RescriptReactRouter.replace(
-          GlobalVars.appendDashboardPath(
-            ~url=`/v2/${selectedProduct
-              ->ProductUtils.getStringFromVariant
-              ->String.toLowerCase}/home`,
-          ),
-        )
       } catch {
-      | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
+      | err => {
+          Js.log(err)
+          showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
+        }
       }
       setShowModal(_ => false)
       Nullable.null
@@ -218,7 +228,7 @@ module CreateNewMerchantBody = {
         </div>
       </div>
       <hr />
-      <Form key="new-merchant-creation" onSubmit>
+      <Form key="new-merchant-creation" onSubmit initialValues>
         <div className="flex flex-col h-full w-full">
           <div className="py-10">
             <FormRenderer.DesktopRow>
@@ -276,7 +286,7 @@ open SessionStorage
 let currentProductValue =
   sessionStorage.getItem("product")
   ->Nullable.toOption
-  ->Option.getOr("Orchestrator")
+  ->Option.getOr("orchestration")
 
 let defaultContext = React.createContext(defaultValueOfProductProvider(~currentProductValue))
 
@@ -290,7 +300,7 @@ let make = (~children) => {
     HyperswitchAtom.merchantListAtom,
   )
   let (activeProduct, setActiveProduct) = React.useState(_ =>
-    currentProductValue->ProductUtils.getVariantFromString
+    currentProductValue->ProductUtils.getProductVariantFromString
   )
   let (action, setAction) = React.useState(_ => None)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -314,8 +324,8 @@ let make = (~children) => {
   }
 
   let onProductSelectClick = product => {
-    let productVariant = product->ProductUtils.getVariantFromString
-    setSelectedProduct(_ => Some(product->ProductUtils.getVariantFromString))
+    let productVariant = product->ProductUtils.getProductVariantFromDisplayName
+    setSelectedProduct(_ => Some(product->ProductUtils.getProductVariantFromDisplayName))
 
     let midsWithProductValue = merchantList->Array.filter(mid => {
       mid.productType->Option.mapOr(false, productVaule => productVaule === productVariant)
@@ -330,7 +340,7 @@ let make = (~children) => {
         ->Option.getOr({
           name: "",
           id: "",
-          productType: Orchestrator,
+          productType: Orchestration,
         })
 
       setSwitchToMerchant(merchantIdToSwitch, productVariant)
@@ -343,14 +353,14 @@ let make = (~children) => {
 
   let setActiveProductValue = product => {
     setActiveProduct(_ => product)
-    sessionStorage.setItem("product", product->ProductUtils.getStringFromVariant)
+    sessionStorage.setItem("product", (Obj.magic(product) :> string))
   }
 
   let setDefaultProductToSessionStorage = productType => {
     open ProductUtils
     let currentSessionData = sessionStorage.getItem("product")->Nullable.toOption
     let data = switch currentSessionData {
-    | Some(sessionData) => sessionData->getVariantFromString
+    | Some(sessionData) => sessionData->getProductVariantFromString
     | None => productType
     }
     setActiveProductValue(data)

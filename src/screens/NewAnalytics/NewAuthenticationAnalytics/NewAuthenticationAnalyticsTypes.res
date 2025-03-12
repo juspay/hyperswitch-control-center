@@ -12,11 +12,11 @@ type queryDataType = {
   challenge_success_count: int,
   frictionless_flow_count: int,
   frictionless_success_count: int,
-  error_message_count: option<int>,
-  authentication_funnel: option<string>,
+  error_message_count: int,
+  authentication_funnel: int,
   authentication_status: option<string>,
   trans_status: option<string>,
-  error_message: option<string>,
+  error_message: string,
   authentication_connector: option<string>,
   message_version: option<string>,
   time_range: timeRange,
@@ -25,31 +25,6 @@ type queryDataType = {
 type timeRangeType = {
   startTime: string,
   endTime: string,
-}
-
-type requestPayloadType = {
-  timeRange: timeRangeType,
-  mode: string,
-  source: string,
-  metrics: array<string>,
-  delta: bool,
-}
-
-type secondFunnelPayloadType = {
-  timeRange: timeRangeType,
-  source: string,
-  metrics: array<string>,
-  delta: bool,
-}
-
-type filters = {authentication_status: array<string>}
-
-type thirdFunnelPayloadType = {
-  timeRange: timeRangeType,
-  source: string,
-  filters: filters,
-  metrics: array<string>,
-  delta: bool,
 }
 
 type secondFunnelDataType = {
@@ -73,8 +48,22 @@ type secondFunnelDataType = {
 }
 
 type funnelDataType = {
-  payments_requiring_3ds_2_authentication: float,
-  authentication_initiated: float,
-  authentication_attemped: float,
-  authentication_successful: float,
+  mutable payments_requiring_3ds_2_authentication: int,
+  mutable authentication_initiated: int,
+  mutable authentication_attemped: int,
+  mutable authentication_successful: int,
+}
+
+type metaDataType = {total_error_message_count: int}
+
+type insightsDataType = {
+  queryData: array<queryDataType>,
+  metaData: array<metaDataType>,
+}
+
+type metricsData = {
+  title: string,
+  value: float,
+  valueType: LogicUtilsTypes.valueType,
+  tooltip_description: string,
 }

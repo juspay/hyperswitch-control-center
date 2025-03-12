@@ -44,10 +44,11 @@ module TransactionsTable = {
       None
     }, [])
 
-    <div>
+    <div className="flex flex-col gap-6">
+      <div className="text-nd_gray-600 font-semibold"> {"Transactions Details"->React.string} </div>
       <LoadedTable
-        title="Transactions Details"
-        hideTitle=false
+        title=" "
+        hideTitle=true
         actualData=tableData
         totalResults={tableData->Array.length}
         resultsPerPage=10
@@ -64,8 +65,53 @@ module TransactionsTable = {
   }
 }
 
+module Card = {
+  @react.component
+  let make = (~title: string, ~actualValue: string, ~simulatedValue: string) => {
+    <div
+      className="flex flex-col gap-4 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
+      <p className="text-nd_gray-600 text-lg leading-4 font-medium"> {title->React.string} </p>
+      <div className="w-full flex items-center justify-between">
+        <p className="text-nd_gray-400 text-sm leading-4 font-medium"> {"Actual"->React.string} </p>
+        <p className="text-nd_gray-800 font-semibold leading-8 text-lg">
+          {actualValue->React.string}
+        </p>
+      </div>
+      <div className="w-full flex items-center justify-between">
+        <p className="text-nd_gray-400 text-sm leading-4 font-medium">
+          {"Simulated"->React.string}
+        </p>
+        <p className="text-nd_gray-800 font-semibold leading-8 text-lg">
+          {simulatedValue->React.string}
+        </p>
+      </div>
+    </div>
+  }
+}
+
+module MetricCards = {
+  @react.component
+  let make = () => {
+    <div className="grid grid-cols-4 gap-6">
+      <Card title="Authentication Rate" actualValue="83.24%" simulatedValue="90.84%" />
+      <Card title="FAAR" actualValue="76.4%" simulatedValue="83.4%" />
+      <Card title="Failed Payments" actualValue="1100" simulatedValue="601" />
+      <Card title="Revenue" actualValue="$ 67,453,080" simulatedValue="$ 78,453,080" />
+    </div>
+  }
+}
+module Overview = {
+  @react.component
+  let make = () => {
+    <div className="mt-10">
+      <MetricCards />
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
+  open IntelligentRoutingHelper
   let (screenState, _setScreenState) = React.useState(() => PageLoaderWrapper.Success)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
@@ -75,11 +121,31 @@ let make = () => {
   }, [])
 
   <PageLoaderWrapper screenState={screenState}>
-    <HSwitchUtils.AlertBanner
-      bannerText="Demo Mode: You're viewing sample analytics to help you understand how the reports will look with real data"
-      bannerType={Info}
-    />
-    <PageUtils.PageHeading title="Intelligent Routing Overview" />
-    <TransactionsTable />
+    {IntelligentRoutingHelper.simulatorBanner}
+    <div className="mt-10">
+      <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
+      <div className="flex flex-col gap-12">
+        <Overview />
+        <div className="flex flex-col gap-6">
+          <div className="text-nd_gray-600 font-semibold"> {"Insights"->React.string} </div>
+          <div className="border rounded-lg p-4">
+            <LineAndColumnGraph
+              options={LineAndColumnGraphUtils.getLineColumnGraphOptions(lineColumnGraphOptions)}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border rounded-lg p-4">
+              <LineGraph
+                options={LineGraphUtils.getLineGraphOptions(lineGraphOptions)} className="mr-3"
+              />
+            </div>
+            <div className="border rounded-lg p-4">
+              <ColumnGraph options={ColumnGraphUtils.getColumnGraphOptions(columnGraphOptions)} />
+            </div>
+          </div>
+        </div>
+        <TransactionsTable />
+      </div>
+    </div>
   </PageLoaderWrapper>
 }
