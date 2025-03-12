@@ -188,7 +188,11 @@ let make = () => {
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="Revenue Recovery Payments" subTitle="" customTitleStyle />
+        <PageUtils.PageHeading
+          title="Revenue Recovery Payments"
+          subTitle="List of failed Invoices picked up for retry"
+          customTitleStyle
+        />
         <RenderIf
           condition={billingConnectorID->isNonEmptyString &&
             billingConnectorName->isNonEmptyString}>
