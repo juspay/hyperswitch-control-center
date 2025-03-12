@@ -1,3 +1,20 @@
+let simulatorBanner =
+  <div
+    className="absolute z-10 top-76-px left-0 w-full py-4 px-10 bg-orange-50 flex justify-between items-center">
+    <div className="flex gap-4 items-center">
+      <Icon name="nd-information-triangle" size=24 />
+      <p className="text-nd_gray-600 text-base leading-6 font-medium">
+        {"You are in demo environment and this is sample setup."->React.string}
+      </p>
+    </div>
+  </div>
+
+let stepperHeading = (~title: string, ~subTitle: string) =>
+  <div className="flex flex-col gap-y-1">
+    <p className="text-2xl font-semibold text-nd_gray-700 leading-9"> {title->React.string} </p>
+    <p className="text-sm text-nd_gray-400 font-medium leading-5"> {subTitle->React.string} </p>
+  </div>
+
 let columnGraphOptions: ColumnGraphTypes.columnGraphPayload = {
   title: {
     text: "Revenue Uplift",
@@ -95,7 +112,7 @@ let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
     ~secondaryCategories=[],
     ~reverse=true,
   ),
-  yAxisMaxValue: Some(100),
+  yAxisMaxValue: None,
 }
 
 let lineColumnGraphOptions: LineAndColumnGraphTypes.lineColumnGraphPayload = {
