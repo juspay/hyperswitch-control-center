@@ -221,15 +221,17 @@ let make = () => {
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
     <div>
       <PageUtils.PageHeading title />
-      <div className="flex justify-between items-center my-2">
+      <div className="flex justify-end mr-4">
+        <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
+      </div>
+      <Portal to="AuthenticationAnalyticsV2OMPView">
         <OMPSwitchHelper.OMPViews
           views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
           selectedEntity={transactionEntity}
           onChange={updateTransactionEntity}
           entityMapper=UserInfoUtils.transactionEntityMapper
         />
-        <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
-      </div>
+      </Portal>
       <div
         className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         {topFilterUi}
