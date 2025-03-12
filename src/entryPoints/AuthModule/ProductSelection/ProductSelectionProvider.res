@@ -97,12 +97,6 @@ module SelectMerchantBody = {
       Nullable.null
     }
 
-    let testFunc = (a, b) => {
-      Js.log3("safvdsdfs", a, b)
-    }
-
-    testFunc("value1", "value2")
-
     <div>
       <div className="pt-3 m-3 flex justify-between">
         <CardUtils.CardHeader

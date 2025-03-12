@@ -297,14 +297,14 @@ module Wrapper = {
         <RenderIf condition={!isFrom3ds && !isFromSurcharge}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
         </RenderIf>
-        // <RenderIf condition={isFrom3ds}>
-        //   <Add3DSCondition isFirst id isExpanded threeDsType />
-        // </RenderIf>
-        // <RenderIf condition={isFromSurcharge}>
-        //   <AddSurchargeCondition
-        //     isFirst id isExpanded surchargeType surchargeTypeValue surchargePercentage
-        //   />
-        // </RenderIf>
+        <RenderIf condition={isFrom3ds}>
+          <Add3DSCondition isFirst id isExpanded threeDsType />
+        </RenderIf>
+        <RenderIf condition={isFromSurcharge}>
+          <AddSurchargeCondition
+            isFirst id isExpanded surchargeType surchargeTypeValue surchargePercentage
+          />
+        </RenderIf>
       </div>
     </div>
   }
@@ -333,10 +333,9 @@ module RuleBasedUI = {
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = copy
-        ? existingRules[index]->Option.getOr(defaultRule(index + 1)->Identity.genericTypeToJson)
-        : defaultRule(index + 1)->Identity.genericTypeToJson
+        ? existingRules[index]->Option.getOr(defaultRule(index)->Identity.genericTypeToJson)
+        : defaultRule(index)->Identity.genericTypeToJson
       let newRules = existingRules->Array.concat([newRule])
-      Js.log2("newRulesnewRules", newRules->Identity.arrayOfGenericTypeToFormReactEvent)
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
@@ -379,9 +378,9 @@ module RuleBasedUI = {
             let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
 
             let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
-            let keyExtractor = (index, rule, isDragging) => {
+            let keyExtractor = (index, _rule, isDragging) => {
               let id = {`${rulesJsonPath}[${Int.toString(index)}]`}
-              Js.log2("isndie keyExtractor", rule)
+
               <Wrapper
                 key={index->Int.toString}
                 id
@@ -399,13 +398,9 @@ module RuleBasedUI = {
               <DragDropComponent
                 listItems=rule setListItems={v => setRules(_ => v)} keyExtractor isHorizontal=false
               />
-              // React.null
             } else {
-              // React.null
-              Js.log2("isndie array condition", rule)
               rule
               ->Array.mapWithIndex((rule, index) => {
-                Js.log2("inside rule mapper", rule)
                 keyExtractor(index, rule, false)
               })
               ->React.array
@@ -413,11 +408,11 @@ module RuleBasedUI = {
           }
         </>
 
-      | Preview => React.null
-      // switch initialRule {
-      // | Some(ruleInfo) => <RulePreviewer ruleInfo />
-      // | None => React.null
-      // }
+      | Preview =>
+        switch initialRule {
+        | Some(ruleInfo) => <RulePreviewer ruleInfo />
+        | None => React.null
+        }
       | _ => React.null
       }}
       <div className="bg-white rounded-md flex gap-2 p-4 border-2">

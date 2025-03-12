@@ -32,7 +32,6 @@ let make = (~isHorizontal=true, ~listItems, ~gap="", ~setListItems, ~keyExtracto
     | _ => ()
     }
   }
-  Js.log("isndie coming from drag drop component ")
   let directionClass = isHorizontal ? "flex-row" : "flex-col"
   let droppableDirection = isHorizontal ? "horizontal" : "vertical"
   <ReactBeautifulDND.DragDropContext onDragEnd={onDragEnd}>
