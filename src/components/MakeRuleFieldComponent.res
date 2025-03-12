@@ -66,10 +66,8 @@ module CompressedView = {
           dict->getDictfromDict("metadata")->getOptionString("key"),
         )
       })
-
     switch condition {
     | Some((logical, field, operator, value, key)) =>
-      Js.log2("valuevaluevaluevalue", value)
       <div className="flex flex-wrap items-center gap-4">
         {if !isFirst {
           <TextView

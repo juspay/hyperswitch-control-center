@@ -333,8 +333,8 @@ module RuleBasedUI = {
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = copy
-        ? existingRules[index]->Option.getOr(defaultRule(index)->Identity.genericTypeToJson)
-        : defaultRule(index)->Identity.genericTypeToJson
+        ? existingRules[index]->Option.getOr(defaultRule->Identity.genericTypeToJson)
+        : defaultRule->Identity.genericTypeToJson
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }

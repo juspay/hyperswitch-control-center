@@ -78,7 +78,6 @@ module SurchargeCompressedView = {
 let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) => {
   open LogicUtils
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-
   <div
     className=" bg-white border  flex flex-col divide-y  divide-jp-gray-600  border-jp-gray-600 ">
     <AddDataAttributes attributes=[("data-component", "rulePreviewer")]>

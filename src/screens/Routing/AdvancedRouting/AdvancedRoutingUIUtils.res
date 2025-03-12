@@ -437,7 +437,6 @@ module MakeRuleField = {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
     let fields = conditionsInput.value->JSON.Decode.array->Option.getOr([])
-
     let plusBtnEnabled = true
     //fields->Array.every(validateConditionJson)
     let onPlusClick = _ => {
