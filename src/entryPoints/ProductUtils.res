@@ -20,3 +20,13 @@ let getStringFromVariant = product =>
   | CostObservability => "Hypersense"
   | DynamicRouting => "Intelligent Routing"
   }
+
+let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
+  switch productType {
+  | Orchestration => url
+  | _ =>
+    `/v2/${productType
+      ->getStringFromVariant
+      ->String.toLowerCase}/home`
+  }
+}

@@ -4,7 +4,7 @@ let useFetchMerchantDetails = () => {
 
   let fetchDetails = APIUtils.useGetMethod()
 
-  async _ => {
+  async (~version: UserInfoTypes.version=V1) => {
     try {
       let accountUrl = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Get)
       let merchantDetailsJSON = await fetchDetails(accountUrl)

@@ -150,17 +150,8 @@ module CreateNewMerchantBody = {
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
         setActiveProductValue(selectedProduct)
-        switch selectedProduct {
-        | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
-        | _ =>
-          RescriptReactRouter.replace(
-            GlobalVars.appendDashboardPath(
-              ~url=`/v2/${selectedProduct
-                ->ProductUtils.getStringFromVariant
-                ->String.toLowerCase}/home`,
-            ),
-          )
-        }
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~url="/home")
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=productUrl))
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }

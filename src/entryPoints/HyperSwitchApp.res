@@ -31,7 +31,7 @@ let make = () => {
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {
-    userInfo: {orgId, merchantId, profileId, roleId, themeId},
+    userInfo: {orgId, merchantId, profileId, roleId, themeId, version},
     checkUserEntity,
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
@@ -57,22 +57,29 @@ let make = () => {
     }
   }
 
+  let setupProductUrl = (~productType: ProductTypes.productTypes) => {
+    let currentUrl = GlobalVars.extractModulePath(url)
+    let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=productUrl))
+    setDefaultProductToSessionStorage(productType)
+
+    switch url.path->urlPath {
+    | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
+    | _ => ()
+    }
+    setDashboardPageState(_ => #HOME)
+  }
+
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
-      let response = await fetchMerchantAccountDetails()
+      let response = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      setDefaultProductToSessionStorage(response.product_type)
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
-      switch url.path->urlPath {
-      | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
-      | _ => ()
-      }
-      setDashboardPageState(_ => #HOME)
+      setupProductUrl(~productType=response.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
