@@ -42,7 +42,7 @@ let getHeaders = (
     | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
     | Unknown => ()
     }
-    if xFeatureRoute && version == V1 {
+    if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
     }
     // headers for V2
