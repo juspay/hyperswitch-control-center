@@ -13,6 +13,10 @@ let make = () => {
   let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
 
   let title = "Authentication Analytics"
   let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
@@ -217,6 +221,15 @@ let make = () => {
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
     <div>
       <PageUtils.PageHeading title />
+      <div className="flex justify-between items-center my-2">
+        <OMPSwitchHelper.OMPViews
+          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+          selectedEntity={transactionEntity}
+          onChange={updateTransactionEntity}
+          entityMapper=UserInfoUtils.transactionEntityMapper
+        />
+        <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
+      </div>
       <div
         className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         {topFilterUi}
