@@ -85,6 +85,16 @@ let toCamelCase = str => {
   })
   ->Array.joinWith("")
 }
+
+let toKebabCase = str => {
+  let strArr = str->String.replaceRegExp(%re("/[-_]+/g"), " ")->String.split(" ")
+  strArr
+  ->Array.map(item => {
+    item->String.toLocaleLowerCase
+  })
+  ->Array.joinWith("-")
+}
+
 let getNameFromEmail = email => {
   email
   ->String.split("@")
