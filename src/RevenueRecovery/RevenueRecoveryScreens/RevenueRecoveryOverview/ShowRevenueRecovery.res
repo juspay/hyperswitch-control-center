@@ -41,27 +41,20 @@ module ShowOrderDetails = {
 module OrderInfo = {
   @react.component
   let make = (~order) => {
-    let headingStyles = "font-bold text-lg mb-5 px-4"
-
-    <div className="flex flex-col mb-10 ">
-      <div className="w-full mb-6 ">
-        <ShowOrderDetails
-          data=order
-          getHeading=getHeadingForSummary
-          getCell=getCellForSummary
-          detailsFields=[OrderAmount, Created, PaymentId, ProductName]
-          isButtonEnabled=true
-        />
-      </div>
-      <div className="w-full">
-        <div className={`${headingStyles}`}> {"Payment Details"->React.string} </div>
-        <ShowOrderDetails
-          data=order
-          getHeading=getHeadingForAboutPayment
-          getCell=getCellForAboutPayment
-          detailsFields=[Connector, ProfileId, PaymentMethodType, CardNetwork, MandateId]
-        />
-      </div>
+    <div className="flex flex-col mb-6  w-full">
+      <ShowOrderDetails
+        data=order
+        getHeading=getHeadingForSummary
+        getCell=getCellForSummary
+        detailsFields=[OrderAmount, Created, PaymentId, ProductName]
+        isButtonEnabled=true
+      />
+      <ShowOrderDetails
+        data=order
+        getHeading=getHeadingForAboutPayment
+        getCell=getCellForAboutPayment
+        detailsFields=[Connector, ProfileId, PaymentMethodType, CardNetwork, MandateId]
+      />
     </div>
   }
 }
@@ -83,74 +76,30 @@ module AttemptsSection = {
     </div>
   }
 }
+
 module Attempts = {
   @react.component
   let make = (~order) => {
-    let expand = -1
-    let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
-
-    React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
-      }
-      None
-    }, [expand])
-
-    let onExpandClick = idx => {
-      setExpandedRowIndexArray(_ => {
-        [idx]
-      })
-    }
-
-    let collapseClick = idx => {
-      let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
-      setExpandedRowIndexArray(_ => {
-        let array = expandedRowIndexArray->Array.map(item => item)
-        array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
-
-        array
-      })
-    }
-
-    let onExpandIconClick = (isCurrentRowExpanded, rowIndex) => {
-      if isCurrentRowExpanded {
-        collapseClick(rowIndex)
-      } else {
-        onExpandClick(rowIndex)
-      }
-    }
-
-    let attemptsData = order.attempts->Array.toSorted((a, b) => {
-      let rowValue_a = a.id
-      let rowValue_b = b.id
-
-      rowValue_a <= rowValue_b ? 1. : -1.
-    })
-
-    let heading = attemptsColumns->Array.map(getAttemptHeading)
-
-    let rows = attemptsData->Array.map(item => {
-      attemptsColumns->Array.map(colType => getAttemptCell(item, colType))
-    })
-
-    let getRowDetails = rowIndex => {
-      switch attemptsData[rowIndex] {
-      | Some(data) => <AttemptsSection data />
-      | None => React.null
-      }
-    }
-
-    <div className="flex flex-col gap-4">
-      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>
-      <CustomExpandableTable
-        title="Attempts"
-        heading
-        rows
-        onExpandIconClick
-        expandedRowIndexArray
-        getRowDetails
-        showSerial=true
-      />
+    <div className="border rounded-lg w-full h-fit p-5">
+      <div className="font-bold text-lg mb-5 px-4"> {"Attempts History"->React.string} </div>
+      <div className="p-5 flex flex-col gap-10">
+        {order.attempts
+        ->Array.mapWithIndex((item, index) => {
+          <div className="flex gap-5">
+            <div> {`#${index->Int.toString}`->React.string} </div>
+            <div className="border rounded-full w-10 h-10 border-[#D99530]" />
+            <div className="border rounded-lg w-full px-2">
+              <ShowOrderDetails
+                data=item
+                getHeading=getAttemptHeading
+                getCell=getAttemptCell
+                detailsFields=[Connector, Status, ErrorMessage]
+              />
+            </div>
+          </div>
+        })
+        ->React.array}
+      </div>
     </div>
   }
 }
@@ -171,8 +120,92 @@ let make = (~id) => {
     try {
       setScreenState(_ => Loading)
 
-      let ordersUrl = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
-      let res = await fetchDetails(ordersUrl)
+      let ordersUrl = `https://integ-api.hyperswitch.io/v2/payments/${id}` //getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+      //let res = await fetchDetails(ordersUrl)
+
+      let res = {
+        "invoice_id": "12345_pay_0195271cac557080822f14a168ff70f2",
+        "payment_id": "",
+        "merchant_id": "",
+        "net_amount": 0,
+        "order_amount": 100,
+        "status": "succeeded",
+        "amount": 0,
+        "amount_capturable": 0,
+        "amount_received": 0,
+        "created": "2025-02-21T06:05:45.445Z",
+        "last_updated": "",
+        "currency": "",
+        "customer_id": "",
+        "description": "",
+        "setup_future_usage": "",
+        "capture_method": "",
+        "payment_method": "",
+        "payment_method_type": "card",
+        "payment_token": "",
+        "shipping": "Karwar, Karnataka, 581301.",
+        "shippingEmail": "example@example.com",
+        "shippingPhone": " NA",
+        "email": "",
+        "name": "",
+        "phone": " NA",
+        "return_url": "https://google.com/success",
+        "authentication_type": "no_three_ds",
+        "statement_descriptor_name": "",
+        "statement_descriptor_suffix": "",
+        "next_action": "",
+        "cancellation_reason": "",
+        "error_code": "",
+        "error_message": "",
+        "connector": "stripe",
+        "order_quantity": "",
+        "product_name": "",
+        "card_brand": "",
+        "payment_experience": "",
+        "frm_message": {
+          "frm_name": "",
+          "frm_transaction_id": "",
+          "frm_transaction_type": "",
+          "frm_status": "",
+          "frm_score": 0,
+          "frm_reason": "",
+          "frm_error": "",
+        },
+        "connector_transaction_id": "pi_3QupMuD5R7gDAGff0pixKJm2",
+        "merchant_connector_id": "mca_Gj55f0UYrVIQUClz4fhG",
+        "merchant_decision": "",
+        "profile_id": "",
+        "disputes": [],
+        "attempts": [
+          {
+            "id": "",
+            "status": "charged",
+            "amount": 10000,
+            "currency": "",
+            "connector": "moneris",
+            "error_message": "",
+            "payment_method": "card",
+            "connector_reference_id": "",
+            "capture_method": "automatic",
+            "authentication_type": "no_three_ds",
+            "cancellation_reason": "",
+            "mandate_id": "",
+            "error_code": "",
+            "payment_token": "",
+            "connector_metadata": "",
+            "payment_experience": "",
+            "payment_method_type": "credit",
+            "reference_id": "pi0001JNQPNBESNE73J6J75NP55QKY",
+            "client_source": "Payment",
+            "client_version": "0.117.1",
+            "attempt_amount": 0,
+          },
+        ],
+        "merchant_order_reference_id": "",
+        "attempt_count": 0,
+        "connector_label": "NA",
+        "attempt_amount": 100,
+      }->Identity.genericTypeToJson
 
       let order = RevenueRecoveryEntity.itemToObjMapper(res->getDictFromJsonObject)
       setRevenueRecoveryData(_ => order)
@@ -197,7 +230,6 @@ let make = (~id) => {
     fetchOrderDetails()->ignore
     None
   }, [])
-  let statusUI = getStatus(revenueRecoveryData, primaryColor)
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
@@ -213,43 +245,24 @@ let make = (~id) => {
     <div className="flex flex-col gap-10">
       <div className="flex flex-row justify-between items-center">
         <div className="flex gap-2 items-center">
-          <PageUtils.PageHeading title={`${revenueRecoveryData.invoice_id}`} />
-          {statusUI}
+          <PageUtils.PageHeading title="Invoice summary" />
         </div>
-        //Todo: Enable Stop recovery and refund amount buttons when needed"
-        // <div className="flex gap-2 ">
-        //   <ACLButton text="Stop Recovery" customButtonStyle="!w-fit" buttonType={Secondary} />
-        //   <ACLButton text="Refund Amount" customButtonStyle="!w-fit" buttonType={Primary} />
-        // </div>
+        <div className="flex gap-2 ">
+          <ACLButton
+            text="Stop Recovery"
+            customButtonStyle="!w-fit"
+            buttonType={Primary}
+            buttonState={Disabled}
+          />
+        </div>
       </div>
       <PageLoaderWrapper
         screenState
         customUI={<NoDataFound
           message="Payment does not exists in out record" renderType=NotFound
         />}>
-        <div className="grid grid-cols-4  ">
-          <div className="col-span-3">
-            <OrderInfo order=revenueRecoveryData />
-          </div>
-          <div className="col-span-1">
-            <div className="border rounded-lg rounded-b-none bg-nd_gray-100 px-4 py-2">
-              <p className="text-nd_gray-700 text-base font-semibold px-2 ">
-                {"Amount Details"->React.string}
-              </p>
-            </div>
-            <div className="border border-t-none rounded-t-none rounded-lg bg-nd_gray-100 p-2">
-              <ShowOrderDetails
-                data=revenueRecoveryData
-                widthClass="w-full"
-                getHeading=getHeadingForAboutPayment
-                getCell=getCellForAboutPayment
-                detailsFields=[AmountCapturable, AmountReceived, AuthenticationType]
-                isButtonEnabled=true
-                customFlex="flex-col"
-                isHorizontal=true
-              />
-            </div>
-          </div>
+        <div className="w-full">
+          <OrderInfo order=revenueRecoveryData />
         </div>
       </PageLoaderWrapper>
     </div>
