@@ -19,6 +19,14 @@ let make = () => {
   let startTime = filterValueJson->getString("created.gte", "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
 
+  let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV2,
+    ~retainInList=BillingProcessor,
+  )
+
+  let (billingConnectorID, billingConnectorName) =
+    billingConnectorListFromRecoil->getBillingConnectorDetails
+
   let handleExtendDateButtonClick = _ => {
     let startDateObj = startTime->DayJs.getDayJsForString
     let prevStartdate = startDateObj.toDate()->Date.toISOString
@@ -180,7 +188,23 @@ let make = () => {
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="Recovery Overview" subTitle="" customTitleStyle />
+        <PageUtils.PageHeading title="Revenue Recovery Payments" subTitle="" customTitleStyle />
+        <RenderIf
+          condition={billingConnectorID->isNonEmptyString &&
+            billingConnectorName->isNonEmptyString}>
+          <Button
+            text="View Details"
+            buttonType={Secondary}
+            onClick={_ =>
+              RescriptReactRouter.replace(
+                GlobalVars.appendDashboardPath(
+                  ~url=`/v2/recovery/summary/${billingConnectorID}?name=${billingConnectorName}`,
+                ),
+              )}
+            buttonSize={Small}
+            customButtonStyle="w-fit"
+          />
+        </RenderIf>
       </div>
       <div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState customUI>
