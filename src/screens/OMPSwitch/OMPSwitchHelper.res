@@ -218,7 +218,7 @@ module OMPViews = {
 
 module MerchantDropdownItem = {
   @react.component
-  let make = (~merchantName, ~index: int, ~currentId, ~getMerchantList) => {
+  let make = (~merchantName, ~index: int, ~currentId, ~getMerchantList, ~switchMerch) => {
     open LogicUtils
     open APIUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
@@ -228,7 +228,6 @@ module MerchantDropdownItem = {
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -256,18 +255,6 @@ module MerchantDropdownItem = {
       errors
     }
 
-    let switchMerch = async value => {
-      try {
-        setShowSwitchingMerch(_ => true)
-        let _ = await internalSwitch(~expectedMerchantId=Some(value))
-        setShowSwitchingMerch(_ => false)
-      } catch {
-      | _ => {
-          showToast(~message="Failed to switch merchant", ~toastType=ToastError)
-          setShowSwitchingMerch(_ => false)
-        }
-      }
-    }
     let handleMerchantSwitch = id => {
       switchMerch(id)->ignore
     }
@@ -361,7 +348,7 @@ module ProfileDropdownItem = {
         setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
       } catch {
       | _ => {
-          setProfileList(_ => OMPSwitchUtils.ompDefaultValue(profileId, ""))
+          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
           showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
         }
       }

@@ -57,6 +57,7 @@ let getV2Url = (
       | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
     | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
+    | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
     | _ => ""
     }
   }

@@ -166,6 +166,9 @@ let make = () => {
   } = React.useContext(ThemeProvider.themeContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {devModularityV2} = featureFlagDetails
+  let {setDefaultProductToSessionStorage} = React.useContext(
+    ProductSelectionProvider.defaultContext,
+  )
 
   let getV2MerchantList = async () => {
     try {
@@ -202,7 +205,7 @@ let make = () => {
       setMerchantList(_ => concatMerchantList)
     } catch {
     | _ => {
-        setMerchantList(_ => ompDefaultValue(merchantId, ""))
+        setMerchantList(_ => [ompDefaultValue(merchantId, "")])
         showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
       }
     }
@@ -211,7 +214,15 @@ let make = () => {
   let switchMerch = async value => {
     try {
       setShowSwitchingMerch(_ => true)
-      let _ = await internalSwitch(~expectedMerchantId=Some(value))
+      let merchantData =
+        merchantList
+        ->Array.find(merchant => merchant.id == value)
+        ->Option.getOr(ompDefaultValue(merchantId, ""))
+      let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
+      let productType = merchantData.productType->Option.getOr(Orchestration)
+      let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version)
+      setDefaultProductToSessionStorage(productType)
+
       setShowSwitchingMerch(_ => false)
     } catch {
     | _ => {
@@ -258,7 +269,12 @@ let make = () => {
   > = merchantList->Array.mapWithIndex((item, i) => {
     let customComponent =
       <MerchantDropdownItem
-        key={Int.toString(i)} merchantName=item.name index=i currentId=item.id getMerchantList
+        key={Int.toString(i)}
+        merchantName=item.name
+        index=i
+        currentId=item.id
+        getMerchantList
+        switchMerch
       />
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,

@@ -1,10 +1,9 @@
 open OMPSwitchTypes
-let ompDefaultValue = (currUserId, currUserName) => [
-  {
-    id: currUserId,
-    name: {currUserName->LogicUtils.isEmptyString ? currUserId : currUserName},
-  },
-]
+
+let ompDefaultValue = (currUserId, currUserName) => {
+  id: currUserId,
+  name: {currUserName->LogicUtils.isEmptyString ? currUserId : currUserName},
+}
 
 let currentOMPName = (list: array<ompListTypes>, id: string) => {
   switch list->Array.find(user => user.id == id) {

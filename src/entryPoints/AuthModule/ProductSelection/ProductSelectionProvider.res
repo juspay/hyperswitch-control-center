@@ -14,7 +14,8 @@ module SwitchMerchantBody = {
 
     let switchMerch = async () => {
       try {
-        let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id))
+        let version = UserUtils.getVersion(selectedProduct)
+        let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id), ~version)
         setActiveProductValue(selectedProduct)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
@@ -65,7 +66,9 @@ module SelectMerchantBody = {
       try {
         let dict = values->getDictFromJsonObject
         let merchantid = dict->getString("merchant_selected", "")->String.trim
-        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
+        let version = UserUtils.getVersion(selectedProduct)
+
+        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
         setActiveProductValue(selectedProduct)
         switch selectedProduct {
         | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
@@ -135,10 +138,7 @@ module CreateNewMerchantBody = {
     let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
-      dict->Dict.set(
-        "product_type",
-        selectedProduct->ProductUtils.getStringFromVariant->JSON.Encode.string,
-      )
+      dict->Dict.set("product_type", (Obj.magic(selectedProduct) :> string)->JSON.Encode.string)
       dict->JSON.Encode.object
     }, [selectedProduct])
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -146,7 +146,9 @@ module CreateNewMerchantBody = {
 
     let switchMerch = async merchantid => {
       try {
-        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid))
+        let version = UserUtils.getVersion(selectedProduct)
+
+        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
         setActiveProductValue(selectedProduct)
         switch selectedProduct {
         | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
@@ -206,7 +208,7 @@ module CreateNewMerchantBody = {
         merchantID
       } catch {
       | _ => {
-          setMerchantList(_ => OMPSwitchUtils.ompDefaultValue(merchantId, ""))
+          setMerchantList(_ => [OMPSwitchUtils.ompDefaultValue(merchantId, "")])
           showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
           Exn.raiseError("")
         }

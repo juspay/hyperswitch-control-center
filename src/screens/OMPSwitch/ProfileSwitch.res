@@ -149,7 +149,7 @@ let make = () => {
       setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
     } catch {
     | _ => {
-        setProfileList(_ => ompDefaultValue(profileId, ""))
+        setProfileList(_ => [ompDefaultValue(profileId, "")])
         showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
       }
     }
