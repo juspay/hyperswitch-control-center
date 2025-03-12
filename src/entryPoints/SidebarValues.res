@@ -738,6 +738,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentaRoutingSidebarValues.intelligentRoutingSidebars
+  | AlternatePaymentMethods => []
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

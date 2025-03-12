@@ -17,6 +17,7 @@ let getStringFromVariant = product =>
   | Vault => "Vault"
   | CostObservability => "Hypersense"
   | DynamicRouting => "Intelligent Routing"
+  | AlternatePaymentMethods => "Alternate Payment Methods"
   }
 
 let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {

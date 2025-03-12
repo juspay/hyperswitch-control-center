@@ -95,6 +95,10 @@ let useMerchantSwitch = () => {
   async (~expectedMerchantId, ~currentMerchantId, ~defaultValue, ~version=UserInfoTypes.V1) => {
     try {
       if expectedMerchantId !== currentMerchantId {
+        let body =
+          [
+            ("merchant_id", expectedMerchantId->JSON.Encode.string),
+          ]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = switch version {
         | V1 => {
             let url = getURL(
@@ -102,14 +106,7 @@ let useMerchantSwitch = () => {
               ~userType=#SWITCH_MERCHANT_NEW,
               ~methodType=Post,
             )
-            let body =
-              [
-                ("merchant_id", expectedMerchantId->JSON.Encode.string),
-              ]->LogicUtils.getJsonFromArrayOfJson
-            mixpanelEvent(
-              ~eventName=`switch_merchant`,
-              ~metadata=expectedMerchantId->JSON.Encode.string,
-            )
+
             await updateDetails(url, body, Post)
           }
         | V2 => {
@@ -118,17 +115,13 @@ let useMerchantSwitch = () => {
               ~userType=#SWITCH_MERCHANT_NEW,
               ~methodType=Post,
             )
-            let body =
-              [
-                ("merchant_id", expectedMerchantId->JSON.Encode.string),
-              ]->LogicUtils.getJsonFromArrayOfJson
-            mixpanelEvent(
-              ~eventName=`switch_merchant`,
-              ~metadata=expectedMerchantId->JSON.Encode.string,
-            )
             await updateDetails(url, body, Post, ~version=V2)
           }
         }
+        mixpanelEvent(
+          ~eventName=`switch_merchant`,
+          ~metadata=expectedMerchantId->JSON.Encode.string,
+        )
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
         showToast(~message=`Your merchant has been switched successfully.`, ~toastType=ToastSuccess)

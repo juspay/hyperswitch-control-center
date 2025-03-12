@@ -33,7 +33,7 @@ let getMerchantDetails = (values: JSON.t) => {
     merchant_name: valuesDict->getOptionString("merchant_name"),
     api_key: valuesDict->getString("api_key", ""),
     publishable_key: valuesDict->getString("publishable_key", ""),
-    merchant_id: valuesDict->getString("merchant_id", ""),
+    merchant_id: valuesDict->getString("merchant_id", valuesDict->getString("id", "")), // this need to be removed, mapper need to be separated for v2
     locker_id: valuesDict->getString("locker_id", ""),
     primary_business_details,
     merchant_details: {

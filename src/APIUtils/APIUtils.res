@@ -51,7 +51,7 @@ let getV2Url = (
     | None => `simulate`
     }
   /* MERCHANT ACCOUNT DETAILS (Get and Post) */
-  | MERCHANT_ACCOUNT => `v2/accounts/${merchantId}`
+  | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
   | USERS =>
     let userUrl = `user`
     switch userType {
