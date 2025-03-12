@@ -56,24 +56,6 @@ let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload =>
         name: "Actual",
         colorByPoint: false,
         data: baseLineData,
-        //  [
-        //   // [ {timestamp, revenue baseline value}]
-        //   {
-        //     name: "10:00",
-        //     y: 2.0,
-        //     color: "#B992DD",
-        //   },
-        //   {
-        //     name: "11:00",
-        //     y: 8.0,
-        //     color: "#B992DD",
-        //   },
-        //   {
-        //     name: "12:00",
-        //     y: 9.0,
-        //     color: "#B992DD",
-        //   },
-        // ],
         color: "#B992DD",
       },
       {
@@ -81,24 +63,6 @@ let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload =>
         name: "Simulated",
         colorByPoint: false,
         data: modelData,
-        //  [
-        //   // [ {timestamp, revenue model value}]
-        //   {
-        //     name: "10:00",
-        //     y: 10.0,
-        //     color: "#1E90FF",
-        //   },
-        //   {
-        //     name: "11:00",
-        //     y: 20.0,
-        //     color: "#1E90FF",
-        //   },
-        //   {
-        //     name: "12:00",
-        //     y: 30.0,
-        //     color: "#1E90FF",
-        //   },
-        // ],
         color: "#1E90FF",
       },
     ],
@@ -133,18 +97,18 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
       x: 10,
       y: 10,
     },
-    categories: timeSeriesArray, // ["10:00", "11:00", "12:00"], // time stamp array
+    categories: timeSeriesArray,
     data: [
       {
         showInLegend: true,
         name: "Actual",
-        data: baselineSuccessRate, // [2.0, 8.0, 9.0], // success_rate baseline array
+        data: baselineSuccessRate,
         color: "#B992DD",
       },
       {
         showInLegend: true,
         name: "Simulated",
-        data: modelSuccessRate, // [10.0, 20.0, 30.0], // success_rate model array
+        data: modelSuccessRate,
         color: "#1E90FF",
       },
     ],
@@ -208,13 +172,13 @@ let lineColumnGraphOptions = (
       x: 10,
       y: 10,
     },
-    categories: timeStampArray, // ["10:00", "11:00", "12:00", "1:00", "2:00"], // time stamp array
+    categories: timeStampArray,
     data: [
       {
         showInLegend: true,
         name: "Processor's Auth Rate",
         \"type": "column",
-        data: [120, 100, 60, 90, 70], // volme psp success rate array
+        data: [120, 100, 60, 90, 70], //successRate,
         color: "#B5B28E",
         yAxis: 0,
       },
@@ -222,7 +186,7 @@ let lineColumnGraphOptions = (
         showInLegend: true,
         name: "Actual Transactions",
         \"type": "line",
-        data: [80, 90, 95, 85, 92], // volm psp baseline array
+        data: [80, 90, 95, 85, 92], // baseline,
         color: "#A785D8",
         yAxis: 1,
       },
@@ -230,7 +194,7 @@ let lineColumnGraphOptions = (
         showInLegend: true,
         name: "Simulated Transactions",
         \"type": "line",
-        data: [110, 100, 70, 90, 80], // volm psp model array
+        data: [110, 100, 70, 90, 80], // model,
         color: "#4185F4",
         yAxis: 1,
       },
