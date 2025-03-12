@@ -71,6 +71,7 @@ let make = (
             />
           </div>
         </div>
+        <FormValuesSpy />
       </Form>
     </div>
   </PageWrapper>

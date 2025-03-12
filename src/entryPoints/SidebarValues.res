@@ -53,7 +53,7 @@ module ProductHeaderComponent = {
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
     <div className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest`}>
-      {React.string(activeProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
+      {React.string(activeProduct->ProductUtils.getProductDisplayName->String.toUpperCase)}
     </div>
   }
 }
@@ -738,6 +738,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentaRoutingSidebarValues.intelligentRoutingSidebars
+  | AlternatePaymentMethods => []
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

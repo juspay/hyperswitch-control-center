@@ -224,7 +224,7 @@ let make = () => {
       setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
     } catch {
     | _ => {
-        setOrgList(_ => ompDefaultValue(orgId, ""))
+        setOrgList(_ => [ompDefaultValue(orgId, "")])
         showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
       }
     }
