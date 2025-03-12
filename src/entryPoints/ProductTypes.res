@@ -3,6 +3,5 @@ type productTypes =
   | Recon
   | Recovery
   | Vault
-  | AlternatePaymentMethods
   | CostObservability
   | DynamicRouting
