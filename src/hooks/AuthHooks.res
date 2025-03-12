@@ -35,7 +35,7 @@ let getHeaders = (
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
       }
-    | (Some(str), V2) => headers->Dict.set("authorization", `jwt=Bearer ${str}`)
+    | (Some(str), V2) => headers->Dict.set("authorization", `Bearer ${str}`)
     | _ => ()
     }
     switch contentType {

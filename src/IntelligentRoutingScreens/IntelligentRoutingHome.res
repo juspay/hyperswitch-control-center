@@ -14,13 +14,13 @@ let make = () => {
       </div>
       <PageUtils.PageHeading
         customHeadingStyle="gap-3 flex flex-col items-center"
-        title="Intelligent Routing"
+        title="Uplift your Payment Authorization Rate"
         customTitleStyle="text-2xl text-center font-bold text-nd_gray-700 font-500"
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
-        subTitle="Rule based and ML based algorithm to uplift auth rates."
+        subTitle="Real-time ML based algorithms and rule-based constraints to route payments optimally"
       />
       <Button
-        text="Try Demo"
+        text="Explore Simulator"
         onClick={_ => onTryDemoClick()}
         rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}
         customTextPaddingClass="pr-0"
