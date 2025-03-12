@@ -25,7 +25,6 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     devReconv2Product,
     devRecoveryV2Product,
     devVaultV2Product,
-    devAltPaymentMethods,
     devHypersenseV2Product,
     devIntelligentRoutingV2,
   } =
@@ -67,16 +66,6 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
         name: Vault->getStringFromVariant,
         icon: "vault-home",
         link: "/v2/vault",
-        access: Access,
-      }),
-    )
-  }
-  if devAltPaymentMethods {
-    sideBarValues->Array.push(
-      Link({
-        name: AlternatePaymentMethods->getStringFromVariant,
-        icon: "alt-payment-methods-home",
-        link: "/v2/alt-payment-methods/home",
         access: Access,
       }),
     )
