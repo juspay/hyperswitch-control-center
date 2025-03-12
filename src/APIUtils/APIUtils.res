@@ -7,12 +7,11 @@ let getV2Url = (
   ~userType: userType=#NONE,
   ~methodType: Fetch.requestMethod,
   ~id=None,
+  ~profileId,
+  ~merchantId,
   ~queryParamerters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
-
-  let {merchantId, profileId} = getUserInfoData()
 
   switch entityName {
   | CUSTOMERS =>
@@ -62,6 +61,8 @@ let getV2Url = (
       }
     | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
     | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
+
+    | #LIST_PROFILE => `v2/${userUrl}/list/profile`
     | _ => ""
     }
   }
@@ -81,7 +82,7 @@ let useGetURL = () => {
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity, merchantId} = getUserInfoData()
+    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -837,7 +838,15 @@ let useGetURL = () => {
       }
 
     | V2(entityNameForv2) =>
-      getV2Url(~entityName=entityNameForv2, ~userType, ~id, ~methodType, ~queryParamerters)
+      getV2Url(
+        ~entityName=entityNameForv2,
+        ~userType,
+        ~id,
+        ~methodType,
+        ~queryParamerters,
+        ~profileId,
+        ~merchantId,
+      )
     }
 
     `${Window.env.apiBaseUrl}/${endpoint}`

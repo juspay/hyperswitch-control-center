@@ -336,15 +336,23 @@ module ProfileDropdownItem = {
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let getProfileList = async () => {
       try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-        let response = await fetchDetails(url)
+        let response = switch version {
+        | V1 => {
+            let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+            await fetchDetails(url)
+          }
+        | V2 => {
+            let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+            await fetchDetails(url, ~version=V2)
+          }
+        }
         setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
       } catch {
       | _ => {

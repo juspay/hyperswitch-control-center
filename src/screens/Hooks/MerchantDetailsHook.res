@@ -13,7 +13,7 @@ let useFetchMerchantDetails = () => {
         }
       | V2 => {
           let accountUrl = getURL(~entityName=V2(MERCHANT_ACCOUNT), ~methodType=Get)
-          await fetchDetails(accountUrl)
+          await fetchDetails(accountUrl, ~version=V2)
         }
       }
       let jsonToTypedValue = merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails

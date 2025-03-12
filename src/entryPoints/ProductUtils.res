@@ -26,6 +26,6 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
   | _ =>
     `/v2/${productType
       ->getStringFromVariant
-      ->String.toLowerCase}/home`
+      ->LogicUtils.toKebabCase}/home`
   }
 }

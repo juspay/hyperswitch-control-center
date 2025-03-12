@@ -68,6 +68,7 @@ let make = () => {
     | _ => ()
     }
     setDashboardPageState(_ => #HOME)
+    setScreenState(_ => PageLoaderWrapper.Success)
   }
 
   let setUpDashboard = async () => {
@@ -103,12 +104,12 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  React.useEffect1(() => {
-    if userGroupACL->Option.isSome {
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-    None
-  }, [userGroupACL])
+  // React.useEffect1(() => {
+  //   if userGroupACL->Option.isSome {
+  //     setScreenState(_ => PageLoaderWrapper.Success)
+  //   }
+  //   None
+  // }, [userGroupACL])
 
   <>
     <div>

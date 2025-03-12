@@ -222,7 +222,7 @@ module CreateNewMerchantBody = {
             await updateDetails(url, values, Post, ~version=V2)
           }
         }
-        mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
+        // mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
 
         let _merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
 
@@ -237,7 +237,10 @@ module CreateNewMerchantBody = {
           ~autoClose=true,
         )
       } catch {
-      | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
+      | err => {
+          Js.log(err)
+          showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
+        }
       }
       setShowModal(_ => false)
       Nullable.null

@@ -35,14 +35,14 @@ let getHeaders = (
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
       }
-    | (Some(str), V2) => headers->Dict.set("authorization", `jwt=Bearer ${str}`)
+    | (Some(str), V2) => headers->Dict.set("authorization", `Bearer ${str}`)
     | _ => ()
     }
     switch contentType {
     | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
     | Unknown => ()
     }
-    if xFeatureRoute {
+    if xFeatureRoute && version == V1 {
       headersForXFeature(~headers, ~uri)
     }
     // headers for V2
