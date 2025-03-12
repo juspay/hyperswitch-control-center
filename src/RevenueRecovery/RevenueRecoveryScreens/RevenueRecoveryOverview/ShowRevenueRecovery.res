@@ -80,15 +80,42 @@ module AttemptsSection = {
 module Attempts = {
   @react.component
   let make = (~order) => {
+    let getStyle = status => {
+      let orderStatus = status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
+
+      switch orderStatus {
+      | #CHARGED => ("green-status", "nd-check")
+      | #FAILURE => ("red-status", "nd-alert-triangle-outline")
+      | _ => ("orange-status", "nd-calender")
+      }
+    }
+
     <div className="border rounded-lg w-full h-fit p-5">
       <div className="font-bold text-lg mb-5 px-4"> {"Attempts History"->React.string} </div>
-      <div className="p-5 flex flex-col gap-10">
+      <div className="p-5 flex flex-col gap-11 ">
         {order.attempts
         ->Array.mapWithIndex((item, index) => {
-          <div className="flex gap-5">
-            <div> {`#${index->Int.toString}`->React.string} </div>
-            <div className="border rounded-full w-10 h-10 border-[#D99530]" />
-            <div className="border rounded-lg w-full px-2">
+          let (border, icon) = item.status->getStyle
+
+          <div className="grid grid-cols-10" key={index->Int.toString}>
+            <div className="flex flex-col gap-1">
+              <div className="w-full flex justify-end font-semibold">
+                {`#${(order.attempts->Array.length - index)->Int.toString}`->React.string}
+              </div>
+              <div className="w-full flex justify-end text-xs opacity-50">
+                {item.created->React.string}
+              </div>
+            </div>
+            <div className="relative ml-7">
+              <div
+                className={`absolute left-0 -ml-0.5 top-0 border-1.5 p-2 rounded-full h-fit w-fit border-${border} bg-white z-10`}>
+                <Icon name=icon className={`w-5 h-5 text-${border}`} />
+              </div>
+              <RenderIf condition={index != order.attempts->Array.length - 1}>
+                <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
+              </RenderIf>
+            </div>
+            <div className="border col-span-8 rounded-lg px-2">
               <ShowOrderDetails
                 data=item
                 getHeading=getAttemptHeading
@@ -120,92 +147,8 @@ let make = (~id) => {
     try {
       setScreenState(_ => Loading)
 
-      let ordersUrl = `https://integ-api.hyperswitch.io/v2/payments/${id}` //getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
-      //let res = await fetchDetails(ordersUrl)
-
-      let res = {
-        "invoice_id": "12345_pay_0195271cac557080822f14a168ff70f2",
-        "payment_id": "",
-        "merchant_id": "",
-        "net_amount": 0,
-        "order_amount": 100,
-        "status": "succeeded",
-        "amount": 0,
-        "amount_capturable": 0,
-        "amount_received": 0,
-        "created": "2025-02-21T06:05:45.445Z",
-        "last_updated": "",
-        "currency": "",
-        "customer_id": "",
-        "description": "",
-        "setup_future_usage": "",
-        "capture_method": "",
-        "payment_method": "",
-        "payment_method_type": "card",
-        "payment_token": "",
-        "shipping": "Karwar, Karnataka, 581301.",
-        "shippingEmail": "example@example.com",
-        "shippingPhone": " NA",
-        "email": "",
-        "name": "",
-        "phone": " NA",
-        "return_url": "https://google.com/success",
-        "authentication_type": "no_three_ds",
-        "statement_descriptor_name": "",
-        "statement_descriptor_suffix": "",
-        "next_action": "",
-        "cancellation_reason": "",
-        "error_code": "",
-        "error_message": "",
-        "connector": "stripe",
-        "order_quantity": "",
-        "product_name": "",
-        "card_brand": "",
-        "payment_experience": "",
-        "frm_message": {
-          "frm_name": "",
-          "frm_transaction_id": "",
-          "frm_transaction_type": "",
-          "frm_status": "",
-          "frm_score": 0,
-          "frm_reason": "",
-          "frm_error": "",
-        },
-        "connector_transaction_id": "pi_3QupMuD5R7gDAGff0pixKJm2",
-        "merchant_connector_id": "mca_Gj55f0UYrVIQUClz4fhG",
-        "merchant_decision": "",
-        "profile_id": "",
-        "disputes": [],
-        "attempts": [
-          {
-            "id": "",
-            "status": "charged",
-            "amount": 10000,
-            "currency": "",
-            "connector": "moneris",
-            "error_message": "",
-            "payment_method": "card",
-            "connector_reference_id": "",
-            "capture_method": "automatic",
-            "authentication_type": "no_three_ds",
-            "cancellation_reason": "",
-            "mandate_id": "",
-            "error_code": "",
-            "payment_token": "",
-            "connector_metadata": "",
-            "payment_experience": "",
-            "payment_method_type": "credit",
-            "reference_id": "pi0001JNQPNBESNE73J6J75NP55QKY",
-            "client_source": "Payment",
-            "client_version": "0.117.1",
-            "attempt_amount": 0,
-          },
-        ],
-        "merchant_order_reference_id": "",
-        "attempt_count": 0,
-        "connector_label": "NA",
-        "attempt_amount": 100,
-      }->Identity.genericTypeToJson
+      let ordersUrl = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+      let res = await fetchDetails(ordersUrl)
 
       let order = RevenueRecoveryEntity.itemToObjMapper(res->getDictFromJsonObject)
       setRevenueRecoveryData(_ => order)

@@ -287,6 +287,8 @@ let attemptsItemToObjMapper = dict => {
   id: dict->getString("id", ""),
   status: dict->getString("status", ""),
   amount: dict->getFloat("amount", 0.0),
+  created: dict->getString("created", ""),
+  attempt_by: dict->getString("attempt_by", ""),
   currency: dict
   ->getDictfromDict("amount")
   ->getString("currency", ""),
