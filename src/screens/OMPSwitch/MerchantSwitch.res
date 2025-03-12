@@ -166,9 +166,7 @@ let make = () => {
   } = React.useContext(ThemeProvider.themeContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {devModularityV2} = featureFlagDetails
-  let {setDefaultProductToSessionStorage} = React.useContext(
-    ProductSelectionProvider.defaultContext,
-  )
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
 
   let getV2MerchantList = async () => {
     try {
@@ -221,7 +219,9 @@ let make = () => {
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
       let productType = merchantData.productType->Option.getOr(Orchestration)
       let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version)
-      setDefaultProductToSessionStorage(productType)
+      Js.log2("productType", productType)
+
+      setActiveProductValue(productType)
 
       setShowSwitchingMerch(_ => false)
     } catch {
