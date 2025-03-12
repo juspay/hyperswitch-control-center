@@ -8,6 +8,7 @@ let getV2Url = (
   ~methodType: Fetch.requestMethod,
   ~id=None,
   ~profileId,
+  ~merchantId,
   ~queryParamerters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
@@ -48,6 +49,8 @@ let getV2Url = (
     | Some(queryParams) => `simulate?${queryParams}`
     | None => `simulate`
     }
+  /* MERCHANT ACCOUNT DETAILS (Get and Post) */
+  | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
   | USERS =>
     let userUrl = `user`
     switch userType {
@@ -57,6 +60,9 @@ let getV2Url = (
       | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
     | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
+    | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
+
+    | #LIST_PROFILE => `v2/${userUrl}/list/profile`
     | _ => ""
     }
   }
@@ -573,9 +579,9 @@ let useGetURL = () => {
       | AUTHENTICATION_REPORT =>
         switch transactionEntity {
         | #Tenant
-        | #Organization => `analytics/org/report/authentications`
-        | #Merchant => `analytics/merchant/report/authentications`
-        | #Profile => `analytics/profile/report/authentications`
+        | #Organization => `analytics/v1/org/report/authentications`
+        | #Merchant => `analytics/v1/merchant/report/authentications`
+        | #Profile => `analytics/v1/profile/report/authentications`
         }
 
       /* EVENT LOGS */
@@ -844,9 +850,10 @@ let useGetURL = () => {
         ~entityName=entityNameForv2,
         ~userType,
         ~id,
-        ~profileId,
         ~methodType,
         ~queryParamerters,
+        ~profileId,
+        ~merchantId,
       )
     }
 
