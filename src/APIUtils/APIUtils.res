@@ -543,6 +543,14 @@ let useGetURL = () => {
         | #Profile => `analytics/v1/profile/report/dispute`
         }
 
+      | AUTHENTICATION_REPORT =>
+        switch transactionEntity {
+        | #Tenant
+        | #Organization => `analytics/org/report/authentications`
+        | #Merchant => `analytics/merchant/report/authentications`
+        | #Profile => `analytics/profile/report/authentications`
+        }
+
       /* EVENT LOGS */
       | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
 
