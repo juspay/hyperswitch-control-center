@@ -1,0 +1,39 @@
+{
+  "name": "Rule Based Routing-2025-2-12",
+  "description": "This is a rule based routing created at Wed, 12 Mar 2025 12:59:12 GMT",
+  "algorithm": {
+    "data": {
+      "defaultSelection": {
+        "type": "",
+        "data": []
+      },
+      "rules": [
+        {
+          "name": "rule_1",
+          "connectorSelection": {
+            "type": "priority",
+            "data": [
+              {
+                "connector": "aci",
+                "merchant_connector_id": "mca_GitQJZ33T6GWLWSKSDE3"
+              }
+            ]
+          },
+          "statements": [
+            {
+              "lhs": "billing_country",
+              "value": {
+                "type": "enum_variant",
+                "value": "Albania"
+              },
+              "comparison": "IS"
+            }
+          ]
+        }
+      ],
+      "metadata": {}
+    },
+    "type": ""
+  },
+  "profile_id": "pro_dTUgyQjO6ryjEgKxKGLd"
+}

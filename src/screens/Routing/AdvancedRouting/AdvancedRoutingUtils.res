@@ -390,8 +390,8 @@ let generateRule = rulesDict => {
   modifiedRules
 }
 
-let defaultRule: RoutingTypes.rule = {
-  name: "rule_1",
+let defaultRule: int => RoutingTypes.rule = index => {
+  name: `rule_${index->Int.toString}`,
   connectorSelection: {
     \"type": "priority",
   },
@@ -408,7 +408,7 @@ let defaultRule: RoutingTypes.rule = {
 }
 
 let defaultAlgorithmData: RoutingTypes.algorithmData = {
-  rules: [defaultRule],
+  rules: [defaultRule(1)],
   metadata: Dict.make()->JSON.Encode.object,
   defaultSelection: {
     \"type": "",

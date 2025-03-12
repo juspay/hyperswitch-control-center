@@ -4,8 +4,8 @@ let make = () => {
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "hypersense"} => <HypersenseConfigurationContainer />
-    | list{"v2", "hypersense", "home"} => <HypersenseHomeContainer />
+    | list{"v2", "cost-observability"} => <HypersenseConfigurationContainer />
+    | list{"v2", "cost-observability", "home"} => <HypersenseHomeContainer />
     | _ => React.null
     }
   }

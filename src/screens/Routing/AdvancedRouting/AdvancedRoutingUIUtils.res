@@ -425,6 +425,7 @@ module RuleFieldBase = {
           </RenderIf>
         </div>
       } else {
+        // React.null
         <MakeRuleFieldComponent.CompressedView isFirst id />
       }}
     </RenderIf>
@@ -437,6 +438,8 @@ module MakeRuleField = {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
     let fields = conditionsInput.value->JSON.Decode.array->Option.getOr([])
+
+    Js.log2("MakeRuleFieldMakeRuleField", fields)
     let plusBtnEnabled = true
     //fields->Array.every(validateConditionJson)
     let onPlusClick = _ => {

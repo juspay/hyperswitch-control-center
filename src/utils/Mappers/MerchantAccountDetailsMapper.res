@@ -65,7 +65,11 @@ let getMerchantDetails = (values: JSON.t) => {
       true,
     ),
     recon_status: getString(valuesDict, "recon_status", "")->reconStatusMapper,
-    product_type: getString(valuesDict, "product_type", "")->ProductUtils.getVariantFromString,
+    product_type: getString(
+      valuesDict,
+      "product_type",
+      "",
+    )->ProductUtils.getProductVariantFromString,
   }
   payload
 }
