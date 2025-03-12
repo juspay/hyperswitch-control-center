@@ -710,3 +710,7 @@ let retrievePMT = {
     },
   ],
 }->Identity.genericTypeToJson
+
+let pmCount = {
+  "total_count": 20,
+}->Identity.genericTypeToJson

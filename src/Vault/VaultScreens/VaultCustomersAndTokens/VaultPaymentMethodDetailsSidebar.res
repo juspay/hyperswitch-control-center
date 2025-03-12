@@ -188,7 +188,7 @@ let make = (~paymentId, ~setShowModal, ~sampleReport) => {
         setPaymentsDetailsData(_ => selectedDataObject)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
-        let response = await fetchDetails(url, ~headerType=V2Headers)
+        let response = await fetchDetails(url, ~version=V2)
         setPaymentsDetailsData(_ => response->VaultPaymentMethodDetailsUtils.itemToObjMapper)
         setScreenState(_ => PageLoaderWrapper.Success)
       }

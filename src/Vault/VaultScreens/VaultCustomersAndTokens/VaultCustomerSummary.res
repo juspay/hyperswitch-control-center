@@ -141,9 +141,7 @@ module VaultedPaymentMethodsTable = {
           ~methodType=Get,
           ~id=Some(customerIdFromUrl),
         )
-        let response = sampleReport
-          ? VaultSampleData.pmtList
-          : await fetchDetails(url, ~headerType=V2Headers)
+        let response = sampleReport ? VaultSampleData.pmtList : await fetchDetails(url, ~version=V2)
         let tableData =
           response
           ->getDictFromJsonObject
