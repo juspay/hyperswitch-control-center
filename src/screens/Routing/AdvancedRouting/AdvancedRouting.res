@@ -149,7 +149,6 @@ module Wrapper = {
     ~isFrom3ds=false,
     ~isFromSurcharge=false,
   ) => {
-    Js.log("isnide wrapper")
     let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
