@@ -149,7 +149,6 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
@@ -157,7 +156,6 @@ let make = () => {
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
   )
-  let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let {
     globalUIConfig: {
@@ -208,26 +206,10 @@ let make = () => {
     }
   }
 
-  let switchMerch = async value => {
-    try {
-      setShowSwitchingMerch(_ => true)
-      let _ = await internalSwitch(~expectedMerchantId=Some(value))
-      setShowSwitchingMerch(_ => false)
-    } catch {
-    | _ => {
-        showToast(~message="Failed to switch merchant", ~toastType=ToastError)
-        setShowSwitchingMerch(_ => false)
-      }
-    }
-  }
-
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
-    onChange: ev => {
-      let value = ev->Identity.formReactEventToString
-      switchMerch(value)->ignore
-    },
+    onChange: _ => (),
     onFocus: _ => (),
     value: merchantId->JSON.Encode.string,
     checked: true,
@@ -297,10 +279,5 @@ let make = () => {
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />
     </RenderIf>
-    <LoaderModal
-      showModal={showSwitchingMerch}
-      setShowModal={setShowSwitchingMerch}
-      text="Switching merchant..."
-    />
   </div>
 }
