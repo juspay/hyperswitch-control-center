@@ -5,7 +5,7 @@ let getVariantFromString = product =>
   | "recovery" => Recovery
   | "vault" => Vault
   | "hypersense" => CostObservability
-  | "intelligent Routing" => DynamicRouting
+  | "intelligent routing" => IntelligentRouting
   | _ => Orchestration
   }
 
@@ -16,5 +16,5 @@ let getStringFromVariant = product =>
   | Orchestration => "Orchestrator"
   | Vault => "Vault"
   | CostObservability => "Hypersense"
-  | DynamicRouting => "Intelligent Routing"
+  | IntelligentRouting => "Intelligent Routing"
   }

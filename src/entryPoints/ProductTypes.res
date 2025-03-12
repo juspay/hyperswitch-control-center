@@ -4,4 +4,4 @@ type productTypes =
   | Recovery
   | Vault
   | CostObservability
-  | DynamicRouting
+  | IntelligentRouting

@@ -3,7 +3,7 @@ open SidebarTypes
 let intelligentRoutingHome = {
   Link({
     name: "Configuration",
-    link: `/v2/intelligent-routing/home`,
+    link: `/v2/intelligent-routing`,
     icon: "nd-overview",
     access: Access,
     searchOptions: [("Intelligent Routing home", ""), ("Intelligent Routing configuration", "")],

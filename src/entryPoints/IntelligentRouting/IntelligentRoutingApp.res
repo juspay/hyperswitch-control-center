@@ -6,9 +6,7 @@ let make = () => {
 
   let goToLanding = () => {
     if showSideBar {
-      RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v2/intelligent-routing/home"),
-      )
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/intelligent-routing"))
     }
   }
 
@@ -19,8 +17,8 @@ let make = () => {
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "intelligent-routing", "home"} => <IntelligentRoutingHome />
-    | list{"v2", "intelligent-routing", "onboarding"} => <IntelligentRoutingConfiguration />
+    | list{"v2", "intelligent-routing"} => <IntelligentRoutingHome />
+    | list{"v2", "intelligent-routing", "home"} => <IntelligentRoutingConfiguration />
     | list{"v2", "intelligent-routing", "dashboard"} => <IntelligentRoutingAnalytics />
     | _ => React.null
     }

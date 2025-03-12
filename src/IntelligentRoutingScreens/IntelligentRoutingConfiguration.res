@@ -136,7 +136,7 @@ let make = () => {
   }
 
   let backClick = () => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/intelligent-routing/home"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/intelligent-routing"))
     setShowSideBar(_ => true)
   }
 
