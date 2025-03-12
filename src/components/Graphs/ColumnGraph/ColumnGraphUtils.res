@@ -93,24 +93,12 @@ let getColumnGraphOptions = (columnGraphOptions: columnGraphPayload) => {
   }
 }
 
-let columnGraphTooltipFormatter = (
-  ~title,
-  ~metricType: LogicUtilsTypes.valueType,
-  ~reverse=false,
-) => {
-  open LogicUtils
-
+let columnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueType) => {
   (
     @this
     (this: pointFormatter) => {
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
-
-      let primaryIndex = reverse ? 1 : 0
-      let secondaryIndex = reverse ? 0 : 1
-
-      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: ""}
-      let primartPoint = this.points->getValueFromArray(primaryIndex, defaultValue)
-      let secondaryPoint = this.points->getValueFromArray(secondaryIndex, defaultValue)
+      let _defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: ""}
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
         let formattedValue = LogicUtils.valueFormatter(value, metricType, ~currency="$")
@@ -123,14 +111,12 @@ let columnGraphTooltipFormatter = (
       }
 
       let tableItems =
-        [
-          getRowsHtml(~iconColor=primartPoint.color, ~date=primartPoint.key, ~value=primartPoint.y),
-          getRowsHtml(
-            ~iconColor=secondaryPoint.color,
-            ~date=secondaryPoint.key,
-            ~value=secondaryPoint.y,
-          ),
-        ]->Array.joinWith("")
+        this.points
+        ->Array.mapWithIndex((point, _index) => {
+          let {color, key, y} = point
+          getRowsHtml(~iconColor=color, ~date=key, ~value=y)
+        })
+        ->Array.joinWith("")
 
       let content = `
           <div style=" 
