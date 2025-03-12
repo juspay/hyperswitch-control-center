@@ -71,6 +71,7 @@ type v2entityNameType =
   | SIMULATE_INTELLIGENT_ROUTING
   | V2_ORDER_FILTERS
   | USERS
+  | MERCHANT_ACCOUNT
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 

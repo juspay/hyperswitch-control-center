@@ -8,7 +8,8 @@ let getV2Url = (
   ~methodType: Fetch.requestMethod,
   ~id=None,
   ~profileId,
-  ~queryParameters: option<string>=None,
+  ~merchantId,
+  ~queryParamerters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
   let peymantsBaseURL = "v2/payments"
@@ -39,12 +40,12 @@ let getV2Url = (
     | Get =>
       switch id {
       | Some(key_id) =>
-        switch queryParameters {
+        switch queryParamerters {
         | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
         | None => `${peymantsBaseURL}/${key_id}`
         }
       | None =>
-        switch queryParameters {
+        switch queryParamerters {
         | Some(queryParams) => `${peymantsBaseURL}/list?${queryParams}`
         | None => `${peymantsBaseURL}/list?limit=100`
         }
@@ -63,19 +64,24 @@ let getV2Url = (
     | None => ""
     }
   | SIMULATE_INTELLIGENT_ROUTING =>
-    switch queryParameters {
+    switch queryParamerters {
     | Some(queryParams) => `simulate?${queryParams}`
     | None => `simulate`
     }
+  /* MERCHANT ACCOUNT DETAILS (Get and Post) */
+  | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
   | USERS =>
     let userUrl = `user`
     switch userType {
     | #CREATE_MERCHANT =>
-      switch queryParameters {
+      switch queryParamerters {
       | Some(params) => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
       | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
     | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
+    | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
+
+    | #LIST_PROFILE => `v2/${userUrl}/list/profile`
     | _ => ""
     }
   }
@@ -592,9 +598,9 @@ let useGetURL = () => {
       | AUTHENTICATION_REPORT =>
         switch transactionEntity {
         | #Tenant
-        | #Organization => `analytics/org/report/authentications`
-        | #Merchant => `analytics/merchant/report/authentications`
-        | #Profile => `analytics/profile/report/authentications`
+        | #Organization => `analytics/v1/org/report/authentications`
+        | #Merchant => `analytics/v1/merchant/report/authentications`
+        | #Profile => `analytics/v1/profile/report/authentications`
         }
 
       /* EVENT LOGS */
@@ -863,9 +869,10 @@ let useGetURL = () => {
         ~entityName=entityNameForv2,
         ~userType,
         ~id,
-        ~profileId,
         ~methodType,
-        ~queryParameters=queryParamerters,
+        ~queryParamerters,
+        ~profileId,
+        ~merchantId,
       )
     }
 
