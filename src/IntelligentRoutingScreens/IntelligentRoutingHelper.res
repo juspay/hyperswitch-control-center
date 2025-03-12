@@ -88,7 +88,7 @@ let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
     },
   ],
   tooltipFormatter: NewAnalyticsUtils.tooltipFormatter(
-    ~title="Revenue Uplift",
+    ~title="Authorization Rate",
     ~metricType=Amount,
     ~currency="",
     ~comparison=Some(EnableComparison),
@@ -96,4 +96,44 @@ let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
     ~reverse=true,
   ),
   yAxisMaxValue: Some(100),
+}
+
+let lineColumnGraphOptions: LineAndColumnGraphTypes.lineColumnGraphPayload = {
+  title: {
+    text: "Processor wise transaction distribution with Auth Rate",
+    align: "left",
+    x: 10,
+    y: 10,
+  },
+  categories: ["10:00", "11:00", "12:00", "1:00", "2:00"],
+  data: [
+    {
+      showInLegend: true,
+      name: "Processor's Auth Rate",
+      \"type": "column",
+      data: [120, 100, 60, 90, 70],
+      color: "#B5B28E",
+      yAxis: 0,
+    },
+    {
+      showInLegend: true,
+      name: "Actual Transactions",
+      \"type": "line",
+      data: [80, 90, 95, 85, 92],
+      color: "#A785D8",
+      yAxis: 1,
+    },
+    {
+      showInLegend: true,
+      name: "Simulated Transactions",
+      \"type": "line",
+      data: [110, 100, 70, 90, 80],
+      color: "#4185F4",
+      yAxis: 1,
+    },
+  ],
+  tooltipFormatter: LineAndColumnGraphUtils.lineColumnGraphTooltipFormatter(
+    ~title="Metrics",
+    ~metricType=Amount,
+  ),
 }
