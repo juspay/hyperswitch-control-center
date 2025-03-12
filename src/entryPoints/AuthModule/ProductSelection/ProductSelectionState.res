@@ -16,7 +16,7 @@ type productSelectProviderTypes = {
 }
 
 let defaultValueOfProductProvider = (~currentProductValue) => {
-  activeProduct: currentProductValue->ProductUtils.getVariantFromString,
+  activeProduct: currentProductValue->ProductUtils.getProductVariantFromString,
   setActiveProductValue: _ => (),
   setCreateNewMerchant: _ => (),
   setSwitchToMerchant: (_, _) => (),

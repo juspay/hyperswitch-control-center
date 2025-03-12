@@ -60,7 +60,7 @@ let make = () => {
   let setupProductUrl = (~productType: ProductTypes.productTypes) => {
     let currentUrl = GlobalVars.extractModulePath(url)
     let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=productUrl))
+    RescriptReactRouter.replace(productUrl)
     setDefaultProductToSessionStorage(productType)
 
     switch url.path->urlPath {
@@ -203,7 +203,7 @@ let make = () => {
                         | list{"v2", "vault", ..._} => <VaultApp />
 
                         /* HYPERSENSE PRODUCT */
-                        | list{"v2", "hypersense", ..._} => <HypersenseApp />
+                        | list{"v2", "cost-observability", ..._} => <HypersenseApp />
 
                         /* INTELLIGENT ROUTING PRODUCT */
                         | list{"v2", "intelligent-routing", ..._} => <IntelligentRoutingApp />

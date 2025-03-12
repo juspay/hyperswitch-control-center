@@ -39,7 +39,7 @@ module NewMerchantCreationModal = {
       let dict = Dict.make()
       dict->Dict.set(
         "product_type",
-        activeProduct->ProductUtils.getStringFromVariant->String.toLowerCase->JSON.Encode.string,
+        (Obj.magic(activeProduct) :> string)->String.toLowerCase->JSON.Encode.string,
       )
       dict->JSON.Encode.object
     }, [activeProduct])

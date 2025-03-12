@@ -1,15 +1,16 @@
 open ProductTypes
-let getVariantFromString = product =>
+let getProductVariantFromString = product => {
   switch product->String.toLowerCase {
   | "recon" => Recon
   | "recovery" => Recovery
   | "vault" => Vault
-  | "hypersense" => CostObservability
-  | "intelligent Routing" => DynamicRouting
+  | "cost_observability" => CostObservability
+  | "dynamic_routing" => DynamicRouting
   | _ => Orchestration
   }
+}
 
-let getStringFromVariant = product =>
+let getProductDisplayName = product =>
   switch product {
   | Recon => "Recon"
   | Recovery => "Recovery"
@@ -23,9 +24,6 @@ let getStringFromVariant = product =>
 let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
   switch productType {
   | Orchestration => url
-  | _ =>
-    `/v2/${productType
-      ->getStringFromVariant
-      ->LogicUtils.toKebabCase}/home`
+  | _ => `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
   }
 }
