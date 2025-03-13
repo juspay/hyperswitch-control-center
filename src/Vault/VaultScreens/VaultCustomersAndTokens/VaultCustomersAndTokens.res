@@ -9,7 +9,9 @@ module NoDataFoundComponent = {
     ~total,
     ~fieldArray,
   ) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleSampleReportButtonClick = () => {
+      mixpanelEvent(~eventName="vault_get_sample_data")
       let response = VaultSampleData.customersList
       let data = response->JSON.Decode.array->Option.getOr([])
       let arr = Array.make(~length=offset, Dict.make())

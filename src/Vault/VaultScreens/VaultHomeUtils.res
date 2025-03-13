@@ -84,3 +84,19 @@ let stringToSectionVariantMapper = string => {
   | _ => #authenticateProcessor
   }
 }
+let getSectionVariant = ({sectionId}) => {
+  switch sectionId {
+  | "AuthenticateProcessor" => #AuthenticateProcessor
+  | "SetupPmts" => #SetupPmts
+  | "SetupWebhook" => #SetupWebhook
+  | "ReviewAndConnect" | _ => #ReviewAndConnect
+  }
+}
+let getVaultMixPanelEvent = currentStep => {
+  switch currentStep->getSectionVariant {
+  | #AuthenticateProcessor => "vault_onboarding_step1"
+  | #SetupPmts => "vault_onboarding_step2"
+  | #SetupWebhook => "vault_onboarding_step3"
+  | #ReviewAndConnect => "vault_onboarding_step4"
+  }
+}

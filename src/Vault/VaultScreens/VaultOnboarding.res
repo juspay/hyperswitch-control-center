@@ -18,6 +18,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => Success)
   let {profileId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
@@ -57,6 +58,7 @@ let make = () => {
   }, [connector, profileId])
 
   let onNextClick = () => {
+    mixpanelEvent(~eventName=currentStep->getVaultMixPanelEvent)
     switch getNextStep(currentStep) {
     | Some(nextStep) => setNextStep(_ => nextStep)
     | None => ()
