@@ -141,8 +141,7 @@ let make = (
     value: connector->JSON.Encode.string,
     checked: true,
   }
-
-  let options = (featureFlagDetails.isLiveMode ? connectorListForLive : connectorList)->getOptions
+  let options = RecoveryConnectorUtils.recoveryConnectorList->getOptions
 
   <div>
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {

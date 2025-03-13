@@ -59,7 +59,7 @@ module ActionButtons = {
               ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
             ),
           )
-          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`)
+          mixpanelEvent(~eventName=`${onRedirectBaseUrl}_setup_${routeType->routingTypeName}`)
         }}
       />
 

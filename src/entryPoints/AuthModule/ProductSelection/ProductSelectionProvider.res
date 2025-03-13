@@ -186,8 +186,7 @@ module CreateNewMerchantBody = {
           ~autoClose=true,
         )
       } catch {
-      | _err =>
-        showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
+      | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
       }
       setShowModal(_ => false)
       Nullable.null

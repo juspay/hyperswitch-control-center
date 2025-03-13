@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.13.0
+
+### Features
+
+- Recovery overview screen update and filters added ([#2435](https://github.com/juspay/hyperswitch-control-center/pull/2435)) ([`197ad9a`](https://github.com/juspay/hyperswitch-control-center/commit/197ad9a298ed2174ba606da6db70d2e7aa5b718a))
+
+### Bug Fixes
+
+- Add v1 - authentication analytics ([#2440](https://github.com/juspay/hyperswitch-control-center/pull/2440)) ([`2b4310e`](https://github.com/juspay/hyperswitch-control-center/commit/2b4310ed9cad6584717aa046269e8b9a272dcd43))
+- Smart routing values fix ([#2439](https://github.com/juspay/hyperswitch-control-center/pull/2439)) ([`5b97ebd`](https://github.com/juspay/hyperswitch-control-center/commit/5b97ebd4ca8eea92f5b1f5f2fdf3e575f9f4b814))
+
+### Miscellaneous Tasks
+
+- Added v2 merchant switch apis ([#2426](https://github.com/juspay/hyperswitch-control-center/pull/2426)) ([`ff63005`](https://github.com/juspay/hyperswitch-control-center/commit/ff630053cca84ef162d5a178a3be4b71ee2a4481))
+- Routing setup flow changes ([#2430](https://github.com/juspay/hyperswitch-control-center/pull/2430)) ([`38bedfe`](https://github.com/juspay/hyperswitch-control-center/commit/38bedfe4f6272c743bd0555337db5d140768b36d))
+- Recovery copy changes ([#2437](https://github.com/juspay/hyperswitch-control-center/pull/2437)) ([`ba0f656`](https://github.com/juspay/hyperswitch-control-center/commit/ba0f6564e39bd4ab296b243d5f08a1b525bf8598))
+- Disabled profile creation for v2 merchants ([#2441](https://github.com/juspay/hyperswitch-control-center/pull/2441)) ([`557d25e`](https://github.com/juspay/hyperswitch-control-center/commit/557d25ec1d7cad10b4d76172972874e063d53dc8))
+
+**Full Changelog:** [`2025.03.12.1...2025.03.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.12.1...2025.03.13.0)
+
+
+- - -
+
 ## 2025.03.12.1
 
 ### Features
