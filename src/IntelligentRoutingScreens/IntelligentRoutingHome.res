@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
-  let userHasCreateMerchantAccess = OMPCreateAccessHook.useCheckIfUserHasMerchantCreateAccess()
+  let userHasCreateMerchantAccess =  OMPCreateAccessHook.useOMPCreateAccessHook([#tenant_admin, #org_admin])
   let onTryDemoClick = () => {
     setCreateNewMerchant(ProductTypes.DynamicRouting)
   }

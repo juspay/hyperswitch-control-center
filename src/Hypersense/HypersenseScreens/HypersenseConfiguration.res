@@ -2,7 +2,7 @@
 let make = () => {
   open PageUtils
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
-  let userHasCreateMerchantAccess = OMPCreateAccessHook.useCheckIfUserHasMerchantCreateAccess()
+  let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([#tenant_admin, #org_admin])
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="hypersenseOnboarding" src="/assets/DefaultHomeHypersenseCard.svg" />
