@@ -7,7 +7,7 @@ let make = () => {
   ])
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let onTryDemoClick = () => {
-    mixpanelEvent(~eventName="intelligent_routing_try_demo")
+    mixpanelEvent(~eventName="intelligent_routing_explore_simulator")
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/dynamic-routing/home"))
   }
 
