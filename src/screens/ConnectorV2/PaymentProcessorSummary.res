@@ -119,6 +119,7 @@ let make = (~baseUrl) => {
       dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
       switch currentActiveSection {
       | Some(AuthenticationKeys) => {
+          dict->Dict.delete("id")
           dict->Dict.delete("profile_id")
           dict->Dict.delete("merchant_connector_id")
           dict->Dict.delete("connector_name")
