@@ -18,12 +18,10 @@ module GetProductionAccess = {
         buttonSize=Medium
         buttonState=Normal
         onClick={_ => {
-          isProdIntent
-            ? ()
-            : {
-                setShowProdIntentForm(_ => true)
-                mixpanelEvent(~eventName="get_production_access_dynamic_routing")
-              }
+          if !isProdIntent {
+            setShowProdIntentForm(_ => true)
+            mixpanelEvent(~eventName="get_production_access_dynamic_routing")
+          }
         }}
       />
     | None =>
