@@ -7,16 +7,16 @@ module Review = {
 
     let handleNext = _ => {
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="v2/intelligent-routing/dashboard"),
+        GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
       )
     }
 
-    <div>
-      <PageUtils.PageHeading
-        title="Review Data Summary"
-        subTitle="Review your configured order source, API’s and payment methods"
-      />
-      <div>
+    <div className="w-500-px">
+      {IntelligentRoutingHelper.stepperHeading(
+        ~title="Review Data Summary",
+        ~subTitle="Explore insights in the dashboard",
+      )}
+      <div className="mt-6">
         <VaultCustomerSummary.Details
           data=reviewFields
           getHeading
@@ -47,6 +47,7 @@ module Analyze = {
     let _fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let (selectedField, setSelectedField) = React.useState(() => IntelligentRoutingTypes.Sample)
+    let (text, setText) = React.useState(() => "Next")
 
     let getReviewData = async () => {
       try {
@@ -54,9 +55,12 @@ module Analyze = {
         // let _res = await Fetch.fetch(url)
         let response = {
           file_name: "random_data.csv",
-          number_of_transaction: 1000,
+          number_of_transaction: 19000,
           number_of_terminal_transactions: 1000,
           number_of_processors: 5,
+          total_amount: 10000,
+          most_used_processor: ["Stripe", "Paypal", "Razorpay"],
+          payment_method: ["Credit Card", "Debit Card", "UPI"],
         }->Identity.genericTypeToJson
         setReviewFields(_ => response)
       } catch {
@@ -68,42 +72,91 @@ module Analyze = {
       }
     }
 
-    let handleNext = _ => {
-      getReviewData()->ignore
-      onNextClick()
+    let loadButton = async () => {
+      Js.log2("added delay", "delay")
+      await HyperSwitchUtils.delay(800)
+      setText(_ => "Preparing sample data")
+      await HyperSwitchUtils.delay(800)
+      setText(_ => "Apply Rule-based Routing")
+      await HyperSwitchUtils.delay(800)
+      setText(_ => "Apply Debit Routing")
+      await HyperSwitchUtils.delay(800)
     }
 
-    <div className="">
-      <PageUtils.PageHeading
-        title="Analyze Your Transaction History"
-        subTitle="Link your order data source to streamline the reconciliation process"
-      />
-      <div className="flex flex-col gap-4 mt-4">
-        <p className="font-semibold text-nd_gray-700">
-          {"Where do you want to fetch your order data from?"->React.string}
-        </p>
-        {fileTypes
-        ->Array.map(item => {
-          let fileTypeHeading = item->getFileTypeHeading
-          let fileTypeDescription = item->getFileTypeDescription
-          let fileTypeIcon = item->getFileTypeIconName
-          let isSelected = selectedField === item
+    let handleNext = _ => {
+      open Promise
+      loadButton()
+      ->then(_ => {
+        getReviewData()->ignore
+        Js.Promise.resolve(onNextClick())
+      })
+      ->ignore
+    }
 
-          <StepCard
-            stepName={fileTypeHeading}
-            description={fileTypeDescription}
-            isSelected
-            onClick={_ => setSelectedField(_ => item)}
-            iconName=fileTypeIcon
-            isDisabled={item === Upload}
-          />
+    let dataSourceHeading = title =>
+      <div className="text-nd_gray-400 text-xs font-semibold tracking-wider">
+        {title->String.toUpperCase->React.string}
+      </div>
+
+    <div className="w-500-px">
+      {IntelligentRoutingHelper.stepperHeading(
+        ~title="Choose Your Data Source",
+        ~subTitle="Select a data source to begin your simulation",
+      )}
+      <div className="flex flex-col gap-4 mt-10">
+        {dataSource
+        ->Array.map(dataSource => {
+          switch dataSource {
+          | Historical =>
+            <>
+              {dataSourceHeading(dataSource->dataTypeVariantToString)}
+              {fileTypes
+              ->Array.map(item => {
+                let fileTypeHeading = item->getFileTypeHeading
+                let fileTypeDescription = item->getFileTypeDescription
+                let fileTypeIcon = item->getFileTypeIconName
+                let isSelected = selectedField === item
+
+                <StepCard
+                  stepName={fileTypeHeading}
+                  description={fileTypeDescription}
+                  isSelected
+                  onClick={_ => setSelectedField(_ => item)}
+                  iconName=fileTypeIcon
+                  isDisabled={item === Upload}
+                />
+              })
+              ->React.array}
+            </>
+          | Realtime =>
+            <>
+              {dataSourceHeading(dataSource->dataTypeVariantToString)}
+              {realtime
+              ->Array.map(item => {
+                let realtimeHeading = item->getRealtimeHeading
+                let realtimeDescription = item->getRealtimeDescription
+                let realtimeIcon = item->getRealtimeIconName
+
+                <StepCard
+                  stepName={realtimeHeading}
+                  description={realtimeDescription}
+                  isSelected=false
+                  onClick={_ => ()}
+                  iconName=realtimeIcon
+                  isDisabled={item === StreamLive}
+                />
+              })
+              ->React.array}
+            </>
+          }
         })
         ->React.array}
         <Button
-          text="Next"
-          customButtonStyle="w-full"
+          text
+          customButtonStyle={`w-full hover:opacity-80 ${text != "Next" ? "cursor-wait" : ""}`}
           buttonType={Primary}
           onClick={_ => handleNext()}
+          rightIcon={text != "Next" ? CustomIcon(<Icon name="spinner" size=16 />) : NoIcon}
           buttonState={Normal}
         />
       </div>
@@ -135,8 +188,13 @@ let make = () => {
     }
   }
 
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
+
   let backClick = () => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/intelligent-routing/home"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/dynamic-routing"))
     setShowSideBar(_ => true)
   }
 
@@ -147,16 +205,19 @@ let make = () => {
       </h1>
     </>
 
-  <div className="flex flex-row gap-x-6">
-    <VerticalStepIndicator
-      titleElement=intelligentRoutingTitleElement sections currentStep backClick
-    />
-    <div className=" ml-14">
-      {switch currentStep {
-      | {sectionId: "analyze"} => <Analyze onNextClick setReviewFields />
-      | {sectionId: "review"} => <Review reviewFields />
-      | _ => React.null
-      }}
+  <div className="h-full w-full">
+    {IntelligentRoutingHelper.simulatorBanner}
+    <div className="flex flex-row mt-10 py-10">
+      <VerticalStepIndicator
+        titleElement=intelligentRoutingTitleElement sections currentStep backClick
+      />
+      <div className="p-12">
+        {switch currentStep {
+        | {sectionId: "analyze"} => <Analyze onNextClick setReviewFields />
+        | {sectionId: "review"} => <Review reviewFields />
+        | _ => React.null
+        }}
+      </div>
     </div>
   </div>
 }

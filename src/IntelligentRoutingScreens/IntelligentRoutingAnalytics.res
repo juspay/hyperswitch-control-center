@@ -103,8 +103,7 @@ module MetricCards = {
 module Overview = {
   @react.component
   let make = () => {
-    <div className="flex flex-col gap-6">
-      <div className="text-nd_gray-600 font-semibold"> {"Overview"->React.string} </div>
+    <div className="mt-10">
       <MetricCards />
     </div>
   }
@@ -122,32 +121,31 @@ let make = () => {
   }, [])
 
   <PageLoaderWrapper screenState={screenState}>
-    <HSwitchUtils.AlertBanner
-      bannerText="Demo Mode: You're viewing sample analytics to help you understand how the reports will look with real data"
-      bannerType={Info}
-    />
-    <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
-    <div className="flex flex-col gap-12">
-      <Overview />
-      <div className="flex flex-col gap-6">
-        <div className="text-nd_gray-600 font-semibold"> {"Insights"->React.string} </div>
-        <div className="border rounded-lg p-4">
-          <LineAndColumnGraph
-            options={LineAndColumnGraphUtils.getLineColumnGraphOptions(lineColumnGraphOptions)}
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
+    {IntelligentRoutingHelper.simulatorBanner}
+    <div className="mt-10">
+      <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
+      <div className="flex flex-col gap-12">
+        <Overview />
+        <div className="flex flex-col gap-6">
+          <div className="text-nd_gray-600 font-semibold"> {"Insights"->React.string} </div>
           <div className="border rounded-lg p-4">
-            <LineGraph
-              options={LineGraphUtils.getLineGraphOptions(lineGraphOptions)} className="mr-3"
+            <LineAndColumnGraph
+              options={LineAndColumnGraphUtils.getLineColumnGraphOptions(lineColumnGraphOptions)}
             />
           </div>
-          <div className="border rounded-lg p-4">
-            <ColumnGraph options={ColumnGraphUtils.getColumnGraphOptions(columnGraphOptions)} />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border rounded-lg p-4">
+              <LineGraph
+                options={LineGraphUtils.getLineGraphOptions(lineGraphOptions)} className="mr-3"
+              />
+            </div>
+            <div className="border rounded-lg p-4">
+              <ColumnGraph options={ColumnGraphUtils.getColumnGraphOptions(columnGraphOptions)} />
+            </div>
           </div>
         </div>
+        <TransactionsTable />
       </div>
-      <TransactionsTable />
     </div>
   </PageLoaderWrapper>
 }

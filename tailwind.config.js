@@ -243,6 +243,7 @@ module.exports = {
           accepted_green_800: "#39934F",
           dark: "#12B76A",
           light: "#0E92551A",
+          status: "#2DA160",
         },
         orange: {
           100: "#FFFBE6",
@@ -253,6 +254,7 @@ module.exports = {
           border_orange: "#eea23640",
           warning_background_orange: "#eea2361a",
           warning_text_orange: "#EEA236",
+          status: "#D99530",
         },
         red: {
           DEFAULT: "#FF0000",
@@ -265,6 +267,7 @@ module.exports = {
           failed_page_bg: "#FDEDE8",
           dark: "#F04E42",
           light: "#FEEDEC",
+          status: "#DD2B0E",
         },
         "yellow-bg": "#F7D59B4D",
         "profile-sidebar-blue": "#16488F",

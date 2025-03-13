@@ -37,7 +37,7 @@ module OrgTile = {
         setOrgList(_ => orgData)
       } catch {
       | _ => {
-          setOrgList(_ => OMPSwitchUtils.ompDefaultValue(orgId, ""))
+          setOrgList(_ => [OMPSwitchUtils.ompDefaultValue(orgId, "")])
           showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
         }
       }
@@ -312,7 +312,7 @@ let make = () => {
       setOrgList(_ => orgData)
     } catch {
     | _ => {
-        setOrgList(_ => ompDefaultValue(orgId, ""))
+        setOrgList(_ => [ompDefaultValue(orgId, "")])
         showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
       }
     }

@@ -1,6 +1,9 @@
 @react.component
 let make = () => {
-  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+  let onTryDemoClick = () => {
+    setCreateNewMerchant(ProductTypes.DynamicRouting)
+  }
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
@@ -11,19 +14,16 @@ let make = () => {
       </div>
       <PageUtils.PageHeading
         customHeadingStyle="gap-3 flex flex-col items-center"
-        title="Intelligent Routing"
+        title="Uplift your Payment Authorization Rate"
         customTitleStyle="text-2xl text-center font-bold text-nd_gray-700 font-500"
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
-        subTitle="Rule based and ML based algorithm to uplift auth rates."
+        subTitle="Real-time ML based algorithms and rule-based constraints to route payments optimally"
       />
       <Button
-        text="Try Demo"
-        onClick={_ => {
-          setShowSideBar(_ => false)
-          RescriptReactRouter.replace(
-            GlobalVars.appendDashboardPath(~url="/v2/intelligent-routing/onboarding"),
-          )
-        }}
+        text="Explore Simulator"
+        onClick={_ => onTryDemoClick()}
+        rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}
+        customTextPaddingClass="pr-0"
         buttonType=Primary
         buttonSize=Large
         buttonState=Normal

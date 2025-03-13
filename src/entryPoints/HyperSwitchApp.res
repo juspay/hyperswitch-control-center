@@ -31,7 +31,7 @@ let make = () => {
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {
-    userInfo: {orgId, merchantId, profileId, roleId, themeId},
+    userInfo: {orgId, merchantId, profileId, roleId, themeId, version},
     checkUserEntity,
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
@@ -57,22 +57,30 @@ let make = () => {
     }
   }
 
+  let setupProductUrl = (~productType: ProductTypes.productTypes) => {
+    let currentUrl = GlobalVars.extractModulePath(url)
+    let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
+    RescriptReactRouter.replace(productUrl)
+    setDefaultProductToSessionStorage(productType)
+
+    switch url.path->urlPath {
+    | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
+    | _ => ()
+    }
+    setDashboardPageState(_ => #HOME)
+    setScreenState(_ => PageLoaderWrapper.Success)
+  }
+
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
-      let response = await fetchMerchantAccountDetails()
+      let response = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      setDefaultProductToSessionStorage(response.product_type)
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
-      switch url.path->urlPath {
-      | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
-      | _ => ()
-      }
-      setDashboardPageState(_ => #HOME)
+      setupProductUrl(~productType=response.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -96,12 +104,12 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  React.useEffect1(() => {
-    if userGroupACL->Option.isSome {
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-    None
-  }, [userGroupACL])
+  // React.useEffect1(() => {
+  //   if userGroupACL->Option.isSome {
+  //     setScreenState(_ => PageLoaderWrapper.Success)
+  //   }
+  //   None
+  // }, [userGroupACL])
 
   <>
     <div>
@@ -195,10 +203,10 @@ let make = () => {
                         | list{"v2", "vault", ..._} => <VaultApp />
 
                         /* HYPERSENSE PRODUCT */
-                        | list{"v2", "hypersense", ..._} => <HypersenseApp />
+                        | list{"v2", "cost-observability", ..._} => <HypersenseApp />
 
                         /* INTELLIGENT ROUTING PRODUCT */
-                        | list{"v2", "intelligent-routing", ..._} => <IntelligentRoutingApp />
+                        | list{"v2", "dynamic-routing", ..._} => <IntelligentRoutingApp />
 
                         /* ORCHESTRATOR PRODUCT */
                         | list{"home", ..._}

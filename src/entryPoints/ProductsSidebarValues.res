@@ -32,7 +32,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
 
   let sideBarValues = [
     Link({
-      name: Orchestration->getStringFromVariant,
+      name: Orchestration->getProductDisplayName,
       icon: "orchestrator-home",
       link: "/v2/home",
       access: Access,
@@ -42,7 +42,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devReconv2Product {
     sideBarValues->Array.push(
       Link({
-        name: Recon->getStringFromVariant,
+        name: Recon->getProductDisplayName,
         icon: "recon-home",
         link: "/v2/recon",
         access: Access,
@@ -53,7 +53,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devRecoveryV2Product {
     sideBarValues->Array.push(
       Link({
-        name: Recovery->getStringFromVariant,
+        name: Recovery->getProductDisplayName,
         icon: "recovery-home",
         link: "/v2/recovery",
         access: Access,
@@ -63,7 +63,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devVaultV2Product {
     sideBarValues->Array.push(
       Link({
-        name: Vault->getStringFromVariant,
+        name: Vault->getProductDisplayName,
         icon: "vault-home",
         link: "/v2/vault",
         access: Access,
@@ -73,9 +73,9 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devHypersenseV2Product {
     sideBarValues->Array.push(
       Link({
-        name: CostObservability->getStringFromVariant,
+        name: CostObservability->getProductDisplayName,
         icon: "nd-piggy-bank",
-        link: "/v2/hypersense",
+        link: "/v2/cost-observability",
         access: Access,
       }),
     )
@@ -83,15 +83,15 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devIntelligentRoutingV2 {
     sideBarValues->Array.push(
       Link({
-        name: DynamicRouting->getStringFromVariant,
+        name: DynamicRouting->getProductDisplayName,
         icon: "intelligent-routing-home",
-        link: "/v2/intelligent-routing/home",
+        link: "/v2/dynamic-routing",
         access: Access,
       }),
     )
   }
-
-  let productName = activeProduct->ProductUtils.getStringFromVariant
+  // Need to be refactored
+  let productName = activeProduct->getProductDisplayName
 
   sideBarValues->Array.filter(topLevelItem =>
     switch topLevelItem {

@@ -66,11 +66,6 @@ let make = (~connectorInfo) => {
       text="Done"
       onClick={_ => {
         setShowSideBar(_ => true)
-        RescriptReactRouter.replace(
-          GlobalVars.appendDashboardPath(
-            ~url=`/v2/recovery/summary/${connectorInfodict.id}?name=chargebee&payment_connector_name=${connectorInfodict.connector_name}&mca=${connectorInfodict.id}`,
-          ),
-        )
       }}
       buttonSize=Large
       buttonType=Primary
