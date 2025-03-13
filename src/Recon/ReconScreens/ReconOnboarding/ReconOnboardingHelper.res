@@ -4,8 +4,11 @@ module ReconOnboardingLanding = {
     open PageUtils
 
     let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+    let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
+      #tenant_admin,
+      #org_admin,
+    ])
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let onTryDemoClick = () => {
       setCreateNewMerchant(ProductTypes.Recon)
     }
@@ -25,7 +28,7 @@ module ReconOnboardingLanding = {
           subTitle="Built for 10x financial & transactional accuracy"
         />
         <ACLButton
-          authorization={userHasAccess(~groupAccess=OrganizationManage)}
+          authorization={userHasCreateMerchantAccess}
           text="Try Demo"
           onClick={_ => {
             mixpanelEvent(~eventName="recon_try_demo")
