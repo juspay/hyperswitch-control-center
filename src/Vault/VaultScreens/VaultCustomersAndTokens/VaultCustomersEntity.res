@@ -78,3 +78,16 @@ let customersEntity = EntityType.makeEntity(
       GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
   },
 )
+
+let colToStringMapper = val => {
+  switch val {
+  | CustomerId => "Customer Id"
+  | Name => "Customer Name"
+  | Email => "Email"
+  | Phone => "Phone"
+  | PhoneCountryCode => "Phone Country Code"
+  | Description => "Description"
+  | Address => "Address"
+  | CreatedAt => "Created"
+  }
+}

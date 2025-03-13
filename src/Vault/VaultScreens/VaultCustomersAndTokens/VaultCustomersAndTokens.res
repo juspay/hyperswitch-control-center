@@ -7,6 +7,7 @@ module NoDataFoundComponent = {
     ~offset,
     ~setOffset,
     ~total,
+    ~fieldArray,
   ) => {
     let handleSampleReportButtonClick = () => {
       let response = VaultSampleData.customersList
@@ -31,28 +32,14 @@ module NoDataFoundComponent = {
     }
 
     <div className="mt-7">
-      <div className="flex bg-nd_gray-50 h-11 gap-20 border rounded-t-lg overflow-clip ">
-        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
-          {"S.No"->React.string}
-        </p>
-        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
-          {"Customer Id"->React.string}
-        </p>
-        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
-          {"Customer Name"->React.string}
-        </p>
-        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
-          {"Email"->React.string}
-        </p>
-        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
-          {"Phone Country Code"->React.string}
-        </p>
-        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
-          {"Phone"->React.string}
-        </p>
-        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
-          {"Description"->React.string}
-        </p>
+      <div className="flex bg-nd_gray-50 h-11 gap-45-px border rounded-t-lg overflow-clip ">
+        {fieldArray
+        ->Array.map(item =>
+          <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
+            {`${item->VaultCustomersEntity.colToStringMapper}`->React.string}
+          </p>
+        )
+        ->React.array}
       </div>
       <div className="border border-t-0 h-1/2">
         <div className="flex flex-col  items-center gap-4 justify-center h-[65vh]">
@@ -132,6 +119,16 @@ let make = (~sampleReport, ~setSampleReport) => {
     None
   }, [offset])
 
+  let fieldArray: array<VaultCustomersType.customersColsType> = [
+    CustomerId,
+    Name,
+    Email,
+    Phone,
+    PhoneCountryCode,
+    Description,
+    Address,
+    CreatedAt,
+  ]
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
     let (searchText, arr) = ob
@@ -158,7 +155,7 @@ let make = (~sampleReport, ~setSampleReport) => {
     <VaultCustomersTotalDataView sampleReport custCount={customersData->Array.length} />
     <RenderIf condition={customersData->Array.length == 0}>
       <NoDataFoundComponent
-        setSampleReport setCustomersData setFilteredCustomersData offset setOffset total
+        setSampleReport setCustomersData setFilteredCustomersData offset setOffset total fieldArray
       />
     </RenderIf>
     <RenderIf condition={customersData->Array.length > 0}>
@@ -168,7 +165,6 @@ let make = (~sampleReport, ~setSampleReport) => {
         actualData=filteredCustomersData
         entity={customersEntity}
         resultsPerPage=10
-        showSerialNumber=true
         filters={<TableSearchFilter
           data={customersData}
           filterLogic
