@@ -6,6 +6,8 @@ let make = () => {
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
   )
+
+  let (sampleReport, setSampleReport) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let setUpVaultContainer = async () => {
@@ -44,8 +46,8 @@ let make = () => {
         entityName="Vault"
         remainingPath
         access=Access
-        renderList={() => <VaultCustomersAndTokens />}
-        renderShow={(id, _) => <VaultCustomerSummary id />}
+        renderList={() => <VaultCustomersAndTokens sampleReport setSampleReport />}
+        renderShow={(id, _) => <VaultCustomerSummary id sampleReport />}
       />
     | _ => React.null
     }}
