@@ -66,7 +66,7 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
+      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
@@ -146,6 +146,7 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
+
   let vaultTitleElement =
     <>
       <GatewayIcon gateway={`${connector}`->String.toUpperCase} />

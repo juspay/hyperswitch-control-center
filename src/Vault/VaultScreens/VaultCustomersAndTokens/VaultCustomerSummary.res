@@ -270,7 +270,6 @@ let make = (~id, ~sampleReport) => {
               cursorStyle="cursor-pointer"
             />
           </div>
-          <div />
         </div>
       </div>
       <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
