@@ -19,16 +19,16 @@ let make = () => {
     </div>
     <div className="flex gap-4 w-full justify-center">
       <Button
-        text="Configure connector"
+        text="Processor configuration"
         onClick={_ => {
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/vault/onboarding"))
         }}
-        buttonType={Secondary}
+        buttonType={Primary}
         buttonSize=Large
         buttonState=Normal
       />
       <Button
-        text="Customers and tokens"
+        text="Customers & tokens"
         onClick={_ => {
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/vault/customers-tokens"))
         }}
