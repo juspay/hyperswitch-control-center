@@ -125,6 +125,7 @@ module MetricCards = {
     let authorizationRate = dataTyped.overall_success_rate
     let failedPayments = dataTyped.total_failed_payments
     let revenue = dataTyped.total_revenue
+    let faar = dataTyped.faar
 
     <div className="grid grid-cols-2 xl:grid-cols-4 gap-6">
       <Card
@@ -132,7 +133,11 @@ module MetricCards = {
         actualValue={authorizationRate.baseline->valueFormatter(Rate)}
         simulatedValue={authorizationRate.model->valueFormatter(Rate)}
       />
-      <Card title="FAAR" actualValue="76.4%" simulatedValue="83.4%" />
+      <Card
+        title="FAAR"
+        actualValue={faar.baseline->valueFormatter(Rate)}
+        simulatedValue={faar.model->valueFormatter(Rate)}
+      />
       <Card
         title="Failed Payments"
         actualValue={failedPayments.baseline->Float.toInt->formatAmount("$")}

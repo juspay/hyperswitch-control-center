@@ -53,6 +53,7 @@ type statistics = {
   overall_success_rate: stats,
   total_failed_payments: stats,
   total_revenue: stats,
+  faar: stats,
   time_series_data: array<timeSeriesData>,
   overall_success_rate_improvement: float,
 }

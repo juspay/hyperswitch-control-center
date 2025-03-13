@@ -11,6 +11,10 @@ let response = {
     "baseline": 8359285.0,
     "model": 9621580.0,
   },
+  "faar": {
+    "baseline": 94.31,
+    "model": 99.94,
+  },
   "time_series_data": [
     {
       "time_stamp": "2025-03-05 16:29:18",
