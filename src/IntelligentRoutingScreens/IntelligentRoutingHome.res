@@ -7,8 +7,8 @@ let make = () => {
   ])
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let onTryDemoClick = () => {
-    setCreateNewMerchant(ProductTypes.DynamicRouting)
     mixpanelEvent(~eventName="intelligent_routing_try_demo")
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/dynamic-routing/home"))
   }
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
