@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.13.2
+
+### Bug Fixes
+
+- Added acl for get started in product home ([#2477](https://github.com/juspay/hyperswitch-control-center/pull/2477)) ([`fc8868a`](https://github.com/juspay/hyperswitch-control-center/commit/fc8868a9dab737bd4855f2aa20b972d5a209526a))
+- Added acl changes ([#2485](https://github.com/juspay/hyperswitch-control-center/pull/2485)) ([`b1a40d0`](https://github.com/juspay/hyperswitch-control-center/commit/b1a40d045495178cb95d03332f7f1184e9257c68))
+
+### Miscellaneous Tasks
+
+- Updated intelligent routing image ([#2481](https://github.com/juspay/hyperswitch-control-center/pull/2481)) ([`41236d6`](https://github.com/juspay/hyperswitch-control-center/commit/41236d6cef00d547d7c107e6917e881cf9d5581f))
+- Recon mixpanel events ([#2471](https://github.com/juspay/hyperswitch-control-center/pull/2471)) ([`6ae6898`](https://github.com/juspay/hyperswitch-control-center/commit/6ae6898a956013927bdbf9605ca19c87e1e06df7))
+- Api headers change for Dynamic Routing (Intelligent Routing) (Modularity) ([#2473](https://github.com/juspay/hyperswitch-control-center/pull/2473)) ([`6295490`](https://github.com/juspay/hyperswitch-control-center/commit/6295490cd98f2a075029c66c7b9eef08fa3a3532))
+- Enable apis for routing ([#2479](https://github.com/juspay/hyperswitch-control-center/pull/2479)) ([`ffe4951`](https://github.com/juspay/hyperswitch-control-center/commit/ffe49518cb347d7c46277ff401825295edb56e6f))
+- Intelligent routing mixpanel events ([#2484](https://github.com/juspay/hyperswitch-control-center/pull/2484)) ([`72248f2`](https://github.com/juspay/hyperswitch-control-center/commit/72248f2ffa782160054bb85664fa6e0292da4632))
+
+**Full Changelog:** [`2025.03.13.1...2025.03.13.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.13.1...2025.03.13.2)
+
+
+- - -
+
 ## 2025.03.13.1
 
 ### Features
