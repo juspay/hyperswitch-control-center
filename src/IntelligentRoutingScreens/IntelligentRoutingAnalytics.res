@@ -1,3 +1,39 @@
+module GetProductionAccess = {
+  @react.component
+  let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
+      GlobalProvider.defaultContext,
+    )
+    let isProdIntent = isProdIntentCompleted->Option.getOr(false)
+    let productionAccessString = isProdIntent
+      ? "Production Access Requested"
+      : "Get Production Access"
+
+    switch isProdIntentCompleted {
+    | Some(_) =>
+      <Button
+        text=productionAccessString
+        buttonType=Primary
+        buttonSize=Medium
+        buttonState=Normal
+        onClick={_ => {
+          isProdIntent
+            ? ()
+            : {
+                setShowProdIntentForm(_ => true)
+                mixpanelEvent(~eventName="get_production_access_dynamic_routing")
+              }
+        }}
+      />
+    | None =>
+      <Shimmer
+        styleClass="h-10 px-4 py-3 m-2 ml-2 mb-3 dark:bg-black bg-white rounded" shimmerType={Small}
+      />
+    }
+  }
+}
+
 module TransactionsTable = {
   @react.component
   let make = () => {
@@ -227,13 +263,7 @@ let make = () => {
           {"You are in demo environment and this is sample setup."->React.string}
         </p>
       </div>
-      <Button
-        text="Get Production Access"
-        buttonType=Primary
-        buttonSize=Medium
-        buttonState=Normal
-        onClick={_ => ()}
-      />
+      <GetProductionAccess />
     </div>
     <div className="mt-10">
       <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
