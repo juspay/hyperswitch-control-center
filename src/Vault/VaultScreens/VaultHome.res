@@ -2,10 +2,14 @@
 let make = () => {
   open PageUtils
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
     #tenant_admin,
     #org_admin,
   ])
+
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
@@ -25,6 +29,7 @@ let make = () => {
         authorization={userHasCreateMerchantAccess}
         text="Get Started"
         onClick={_ => {
+          mixpanelEvent(~eventName="vault_get_started_create_merchant")
           setCreateNewMerchant(ProductTypes.Vault)
         }}
         buttonType=Primary

@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.13.3
+
+### Bug Fixes
+
+- Modularity fixes ([#2490](https://github.com/juspay/hyperswitch-control-center/pull/2490)) ([`b05d7c1`](https://github.com/juspay/hyperswitch-control-center/commit/b05d7c1082d9b01eb108c4e89d0acfaf2248856e))
+
+### Miscellaneous Tasks
+
+- Vault mixpanel events ([#2488](https://github.com/juspay/hyperswitch-control-center/pull/2488)) ([`b8f1954`](https://github.com/juspay/hyperswitch-control-center/commit/b8f1954263875bd7434fe222cfa3cbcb37409590))
+
+**Full Changelog:** [`2025.03.13.2...2025.03.13.3`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.13.2...2025.03.13.3)
+
+
+- - -
+
 ## 2025.03.13.2
 
 ### Bug Fixes
