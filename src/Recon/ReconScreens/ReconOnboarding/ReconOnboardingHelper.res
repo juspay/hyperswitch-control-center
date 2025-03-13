@@ -4,7 +4,10 @@ module ReconOnboardingLanding = {
     open PageUtils
 
     let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
-    let userHasCreateMerchantAccess =  OMPCreateAccessHook.useOMPCreateAccessHook([#tenant_admin, #org_admin])
+    let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
+      #tenant_admin,
+      #org_admin,
+    ])
     let onTryDemoClick = () => {
       setCreateNewMerchant(ProductTypes.Recon)
     }
