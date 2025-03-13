@@ -51,6 +51,7 @@ let filterMultiSelectInput: (
   ~buttonText: string,
   ~buttonSize: Button.buttonSize=?,
   ~hideMultiSelectButtons: bool=?,
+  ~allowMultiSelect: bool=?,
   ~showSelectionAsChips: bool=?,
   ~showToggle: bool=?,
   ~isDropDown: bool=?,

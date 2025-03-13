@@ -65,6 +65,9 @@ module MerchantSelection = {
     | #Tenant | #Organization => false
     }
 
+    let v1MerchantList =
+      merchList->Array.filter(merchant => merchant.productType === Some(Orchestration))
+
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
         let selectedMerchantValue = event->Identity.formReactEventToString
@@ -88,7 +91,7 @@ module MerchantSelection = {
           ~options=getMerchantSelectBoxOption(
             ~label="All merchants",
             ~value="all_merchants",
-            ~dropdownList=merchList,
+            ~dropdownList=v1MerchantList,
             ~showAllSelection=true,
           ),
           ~deselectDisable=true,
