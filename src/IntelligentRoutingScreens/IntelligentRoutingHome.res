@@ -3,6 +3,7 @@ let make = () => {
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let onTryDemoClick = () => {
     setCreateNewMerchant(ProductTypes.DynamicRouting)
     mixpanelEvent(~eventName="intelligent_routing_try_demo")
@@ -22,7 +23,8 @@ let make = () => {
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
         subTitle="Real-time ML based algorithms and rule-based constraints to route payments optimally"
       />
-      <Button
+      <ACLButton
+        authorization={userHasAccess(~groupAccess=OrganizationManage)}
         text="Explore Simulator"
         onClick={_ => onTryDemoClick()}
         rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}

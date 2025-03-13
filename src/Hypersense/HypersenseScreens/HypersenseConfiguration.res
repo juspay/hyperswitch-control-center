@@ -2,6 +2,7 @@
 let make = () => {
   open PageUtils
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="hypersenseOnboarding" src="/assets/DefaultHomeHypersenseCard.svg" />
@@ -17,7 +18,8 @@ let make = () => {
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
         subTitle="Audit, Observe and Optimize payment costs to uncover cost-saving opportunities"
       />
-      <Button
+      <ACLButton
+        authorization={userHasAccess(~groupAccess=OrganizationManage)}
         text="Get Started"
         onClick={_ => {
           setCreateNewMerchant(ProductTypes.CostObservability)
