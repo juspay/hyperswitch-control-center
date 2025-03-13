@@ -6,7 +6,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
   open VerticalStepIndicatorUtils
 
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
@@ -64,7 +64,10 @@ let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
         customButtonStyle="rounded w-full"
         buttonType={Primary}
         buttonState={Normal}
-        onClick={_ => onNextClick()->ignore}
+        onClick={_ => {
+          mixpanelEvent(~eventName="recon_onboarding_step3")
+          onNextClick()->ignore
+        }}
       />
     </div>
   </div>

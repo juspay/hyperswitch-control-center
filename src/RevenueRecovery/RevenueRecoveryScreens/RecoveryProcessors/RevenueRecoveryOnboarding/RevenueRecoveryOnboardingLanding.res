@@ -1,6 +1,7 @@
 @react.component
 let make = (~default=true) => {
   open PageUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
 
@@ -20,11 +21,13 @@ let make = (~default=true) => {
       />
       <ACLButton
         authorization={userHasAccess(~groupAccess=OrganizationManage)}
-        text="Get Started"
+        text={default ? "Integrate Connectors" : "Get Started"}
         onClick={_ => {
           if default {
+            mixpanelEvent(~eventName="recovery_get_started_new_merchant")
             setCreateNewMerchant(ProductTypes.Recovery)
           } else {
+            mixpanelEvent(~eventName="recovery_integrate_connectors_")
             RescriptReactRouter.replace(
               GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding`),
             )

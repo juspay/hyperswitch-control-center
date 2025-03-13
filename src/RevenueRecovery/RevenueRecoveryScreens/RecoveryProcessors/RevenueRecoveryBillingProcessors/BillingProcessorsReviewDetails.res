@@ -50,6 +50,7 @@ module StepCard = {
 @react.component
 let make = () => {
   open RevenueRecoveryOnboardingUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
@@ -62,6 +63,7 @@ let make = () => {
     </>
 
   let handleClick = () => {
+    mixpanelEvent(~eventName="recovery_start_exploring")
     setShowSideBar(_ => true)
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/recovery/overview`))
   }

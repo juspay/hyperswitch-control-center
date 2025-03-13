@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open PageUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
@@ -22,6 +23,7 @@ let make = () => {
         authorization={userHasAccess(~groupAccess=OrganizationManage)}
         text="Get Started"
         onClick={_ => {
+          mixpanelEvent(~eventName="hypersense_get_started_new_merchant")
           setCreateNewMerchant(ProductTypes.CostObservability)
         }}
         customTextPaddingClass="pr-0"

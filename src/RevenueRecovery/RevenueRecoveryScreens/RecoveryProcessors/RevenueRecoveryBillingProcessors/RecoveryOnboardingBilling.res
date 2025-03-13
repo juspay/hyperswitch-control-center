@@ -17,6 +17,7 @@ let make = (
   open RevenueRecoveryOnboardingUtils
 
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
@@ -54,6 +55,7 @@ let make = (
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     let dict = values->getDictFromJsonObject
     let values = dict->JSON.Encode.object
 
