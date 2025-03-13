@@ -10,7 +10,6 @@ let make = () => {
     #org_admin,
   ])
 
-
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
     <div className="flex flex-col gap-8 items-center">

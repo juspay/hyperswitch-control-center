@@ -1,6 +1,8 @@
 @react.component
 let make = () => {
-  let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+  let {setCreateNewMerchant, activeProduct} = React.useContext(
+    ProductSelectionProvider.defaultContext,
+  )
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
     #tenant_admin,
     #org_admin,
@@ -8,7 +10,11 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let onTryDemoClick = () => {
     mixpanelEvent(~eventName="intelligent_routing_explore_simulator")
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/dynamic-routing/home"))
+    if activeProduct == DynamicRouting {
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/home"))
+    } else {
+      setCreateNewMerchant(ProductTypes.DynamicRouting)
+    }
   }
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
