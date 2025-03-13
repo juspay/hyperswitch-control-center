@@ -26,6 +26,12 @@ let make = () => {
     }
   }
 
+  let hasConfiguredBillingConnector =
+    ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV2,
+      ~retainInList=BillingProcessor,
+    )->Array.length > 0
+
   React.useEffect(() => {
     setUpConnectorContainer()->ignore
     None
@@ -33,6 +39,10 @@ let make = () => {
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
+    | list{"v2", "recovery", "home"} =>
+      hasConfiguredBillingConnector
+        ? <RevenueRecoveryOverview />
+        : <RevenueRecoveryOnboardingLanding default=false />
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold

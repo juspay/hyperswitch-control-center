@@ -27,15 +27,6 @@ let make = () => {
   let (billingConnectorID, billingConnectorName) =
     billingConnectorListFromRecoil->getBillingConnectorDetails
 
-  let handleExtendDateButtonClick = _ => {
-    let startDateObj = startTime->DayJs.getDayJsForString
-    let prevStartdate = startDateObj.toDate()->Date.toISOString
-    let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
-
-    updateExistingKeys(Dict.fromArray([("created.gte", {extendedStartDate})]))
-    updateExistingKeys(Dict.fromArray([("created.lte", {prevStartdate})]))
-  }
-
   let setData = (total, data) => {
     let arr = Array.make(~length=offset, Dict.make())
     if total <= offset {
@@ -158,13 +149,10 @@ let make = () => {
 
   let customTitleStyle = "py-0 !pt-0"
 
-  let customUI =
-    <NoDataFound
-      customCssClass="my-6"
-      message="No results found"
-      renderType=ExtendDateUI
-      handleClick=handleExtendDateButtonClick
-    />
+  // let customUI =
+  //   <NoDataFound
+  //     customCssClass="my-6" message="Recovery details will appear soon" renderType={ExtendDateUI}
+  //   />
 
   let (widthClass, heightClass) = ("w-full", "")
 
