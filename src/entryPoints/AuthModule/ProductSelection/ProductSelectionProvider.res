@@ -176,7 +176,7 @@ module CreateNewMerchantBody = {
             await updateDetails(url, values, Post, ~version=V2)
           }
         }
-        // mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
+        mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
 
         let merchantID = res->getDictFromJsonObject->getString("merchant_id", "")
         let _ = await switchMerch(merchantID)
