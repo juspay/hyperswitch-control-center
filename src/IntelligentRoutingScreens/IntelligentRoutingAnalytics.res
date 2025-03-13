@@ -37,7 +37,7 @@ module TransactionsTable = {
   let make = () => {
     open APIUtils
     let getURL = useGetURL()
-    let _fetchDetails = useGetMethod()
+    let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let (tableData, setTableData) = React.useState(() => [])
     let (offset, setOffset) = React.useState(() => 0)
@@ -45,30 +45,30 @@ module TransactionsTable = {
 
     let fetchTableData = async () => {
       try {
-        let _url = getURL(
+        let url = getURL(
           ~entityName=V1(INTELLIGENT_ROUTING_RECORDS),
           ~methodType=Get,
           ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
         )
-        // let res = await fetchDetails(url)
+        let res = await fetchDetails(url)
 
-        let response = {
-          "txn_no": 12,
-          "payment_intent_id": "AF575HMAG08321",
-          "payment_attempt_id": "merchant1-AF575HMAG08321-1",
-          "amount": 407.56,
-          "payment_gateway": "PSP11",
-          "payment_status": true,
-          "created_at": "2025-03-10T12:25:00Z",
-          "payment_method_type": "APPLEPAY",
-          "order_currency": "USD",
-          "model_connector": "PSP2",
-          "suggested_uplift": 5.9,
-        }
-        let arr = Array.make(~length=55, response)
+        // let response = {
+        //   "txn_no": 12,
+        //   "payment_intent_id": "AF575HMAG08321",
+        //   "payment_attempt_id": "merchant1-AF575HMAG08321-1",
+        //   "amount": 407.56,
+        //   "payment_gateway": "PSP11",
+        //   "payment_status": true,
+        //   "created_at": "2025-03-10T12:25:00Z",
+        //   "payment_method_type": "APPLEPAY",
+        //   "order_currency": "USD",
+        //   "model_connector": "PSP2",
+        //   "suggested_uplift": 5.9,
+        // }
+        // let arr = Array.make(~length=55, response)
+        // let json = arr->Identity.genericTypeToJson
 
-        let typedResponse =
-          arr->Identity.genericTypeToJson->IntelligentRoutingTransactionsEntity.getTransactionsData
+        let typedResponse = res->IntelligentRoutingTransactionsEntity.getTransactionsData
         setTableData(_ => typedResponse->Array.map(Nullable.make))
       } catch {
       | _ => showToast(~message="Failed to fetch transaction details", ~toastType=ToastError)
@@ -199,7 +199,7 @@ let make = () => {
   open IntelligentRoutingHelper
   open APIUtils
   let getURL = useGetURL()
-  let _fetchDetails = useGetMethod()
+  let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, _setScreenState) = React.useState(() => PageLoaderWrapper.Success)
@@ -209,9 +209,9 @@ let make = () => {
 
   let getStatistics = async () => {
     try {
-      let _url = getURL(~entityName=V1(INTELLIGENT_ROUTING_GET_STATISTICS), ~methodType=Get)
-      // let res = await fetchDetails(url)
-      let response = IntelligentRoutingStatsResponse.response
+      let url = getURL(~entityName=V1(INTELLIGENT_ROUTING_GET_STATISTICS), ~methodType=Get)
+      let response = await fetchDetails(url)
+      // let response = IntelligentRoutingStatsResponse.response
       setStats(_ => response)
       let statsData =
         (response->IntelligentRoutingUtils.responseMapper).time_series_data->Array.get(0)

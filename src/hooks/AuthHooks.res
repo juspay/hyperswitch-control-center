@@ -45,6 +45,10 @@ let getHeaders = (
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
     }
+    // this header is specific to Intelligent Routing (Dynamic Routing) 
+    if uri->String.includes("simulate") {
+      headers->Dict.set("x-feature", "dynamo-simulator")
+    }
     // headers for V2
     headers->Dict.set("X-Profile-Id", profileId)
     headers->Dict.set("X-Merchant-Id", merchantId)

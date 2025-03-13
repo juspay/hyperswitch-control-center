@@ -4,6 +4,7 @@ module ReconOnboardingLanding = {
     open PageUtils
 
     let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let onTryDemoClick = () => {
       setCreateNewMerchant(ProductTypes.Recon)
@@ -26,7 +27,10 @@ module ReconOnboardingLanding = {
         <ACLButton
           authorization={userHasAccess(~groupAccess=OrganizationManage)}
           text="Try Demo"
-          onClick={_ => onTryDemoClick()}
+          onClick={_ => {
+            mixpanelEvent(~eventName="recon_try_demo")
+            onTryDemoClick()
+          }}
           rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}
           customTextPaddingClass="pr-0"
           buttonType=Primary
@@ -416,6 +420,7 @@ module Exceptions = {
 module ReconOverviewContent = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     <div>
       <div
         className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
@@ -430,7 +435,10 @@ module ReconOverviewContent = {
           buttonType=Primary
           buttonSize=Medium
           buttonState=Normal
-          onClick={_ => ()}
+          onClick={_ => {
+            mixpanelEvent(~eventName="recon_send_an_email")
+            ()
+          }}
         />
       </div>
       <ReconciliationOverview />
