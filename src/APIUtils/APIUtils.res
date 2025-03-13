@@ -58,7 +58,7 @@ let getV2Url = (
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
     | None => ""
     }
-  | PAYMENT_METHOD_COUNT => `v2/customers/payment-methods`
+  | TOTAL_TOKEN_COUNT => `v2/customers/payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
     | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`

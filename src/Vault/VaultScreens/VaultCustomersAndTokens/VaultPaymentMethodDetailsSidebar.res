@@ -174,31 +174,34 @@ let make = (~paymentId, ~setShowModal, ~sampleReport) => {
         ~methodType=Get,
         ~id=Some(paymentId),
       )
-      if sampleReport {
-        let response = VaultSampleData.retrievePMT
-        let data =
-          response
-          ->getDictFromJsonObject
-          ->getArrayFromDict("data", [])
-          ->VaultPaymentMethodDetailsUtils.getArrayOfPaymentMethodListPayloadType
-        let selectedDataArray = data->Array.filter(item => {item.id == paymentId})
 
-        let selectedDataObject = selectedDataArray->getValueFromArray(0, defaultObject)
-
-        setPaymentsDetailsData(_ => selectedDataObject)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } else {
-        let response = await fetchDetails(url, ~version=V2)
-        setPaymentsDetailsData(_ => response->VaultPaymentMethodDetailsUtils.itemToObjMapper)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
+      let response = await fetchDetails(url, ~version=V2)
+      setPaymentsDetailsData(_ => response->VaultPaymentMethodDetailsUtils.itemToObjMapper)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
 
+  let fetchDummyData = () => {
+    let response = VaultSampleData.retrievePMT
+    let data =
+      response
+      ->getDictFromJsonObject
+      ->getArrayFromDict("data", [])
+      ->VaultPaymentMethodDetailsUtils.getArrayOfPaymentMethodListPayloadType
+    let selectedDataArray = data->Array.filter(item => {item.id == paymentId})
+
+    let selectedDataObject = selectedDataArray->getValueFromArray(0, defaultObject)
+
+    setPaymentsDetailsData(_ => selectedDataObject)
+  }
   React.useEffect(() => {
-    fetchPaymentMethodDetails()->ignore
+    if !sampleReport {
+      fetchPaymentMethodDetails()->ignore
+    } else {
+      fetchDummyData()->ignore
+    }
     None
   }, [])
 

@@ -14,17 +14,17 @@ module TotalNumbersViewCard = {
 @react.component
 let make = (~sampleReport, ~custCount) => {
   open LogicUtils
+  open APIUtils
   let custDisplaycount = ` ${custCount->Belt.Int.toString}`
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (tokenCount, setTokenCount) = React.useState(_ => 0)
   let getTokenCount = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      //To-do: Integrate api
-      // let customersUrl = getURL(~entityName=V2(PAYMENT_METHOD_COUNT), ~methodType=Get)
-      // let reponse = await fetchDetails(customersUrl)
-      let response = sampleReport ? VaultSampleData.pmCount : {""}->Identity.genericTypeToJson
-
+      let customersUrl = getURL(~entityName=V2(TOTAL_TOKEN_COUNT), ~methodType=Get)
+      let response = await fetchDetails(customersUrl)
       let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
       setTokenCount(_ => totalCount)
 
@@ -36,8 +36,18 @@ let make = (~sampleReport, ~custCount) => {
     }
   }
 
+  let fetchDummyData = () => {
+    let response = VaultSampleData.pmCount
+    let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
+    setTokenCount(_ => totalCount)
+  }
+
   React.useEffect(() => {
-    getTokenCount()->ignore
+    if !sampleReport {
+      getTokenCount()->ignore
+    } else {
+      fetchDummyData()->ignore
+    }
     None
   }, [sampleReport])
 

@@ -1,54 +1,77 @@
 module NoDataFoundComponent = {
   @react.component
-  let make = (~setSampleReport) => {
+  let make = (
+    ~setSampleReport,
+    ~setCustomersData,
+    ~setFilteredCustomersData,
+    ~offset,
+    ~setOffset,
+    ~total,
+  ) => {
     let handleSampleReportButtonClick = () => {
-      setSampleReport(_ => true)
+      let response = VaultSampleData.customersList
+      let data = response->JSON.Decode.array->Option.getOr([])
+      let arr = Array.make(~length=offset, Dict.make())
+      if total <= offset {
+        setOffset(_ => 0)
+      }
+
+      if total > 0 {
+        let dataArr = data->Belt.Array.keepMap(JSON.Decode.object)
+        let customersData =
+          arr
+          ->Array.concat(dataArr)
+          ->Array.map(VaultCustomersEntity.itemToObjMapper)
+          ->Array.map(Nullable.make)
+
+        setCustomersData(_ => customersData)
+        setFilteredCustomersData(_ => customersData)
+        setSampleReport(_ => true)
+      }
     }
 
-    <>
-      <div className="mt-7">
-        <div className="flex bg-nd_gray-50 h-11 gap-20 border rounded-t-lg overflow-clip ">
-          <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
-            {"S.No"->React.string}
-          </p>
-          <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
-            {"Customer Id"->React.string}
-          </p>
-          <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
-            {"Customer Name"->React.string}
-          </p>
-          <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
-            {"Email"->React.string}
-          </p>
-          <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
-            {"Phone Country Code"->React.string}
-          </p>
-          <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
-            {"Phone"->React.string}
-          </p>
-          <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
-            {"Description"->React.string}
-          </p>
-        </div>
-        <div className="border border-t-0 h-1/2">
-          <div className="flex flex-col  items-center gap-4 justify-center h-[65vh]">
-            <div className="flex flex-col items-center">
-              <p className=" text-nd_gray-700 font-semibold text-lg">
-                {"No Data Available"->React.string}
-              </p>
-              <p className="font-medium text-nd_gray-500">
-                {"You can generate sample data to gain a better understanding of the product."->React.string}
-              </p>
-            </div>
-            <Button
-              text="Generate Sample Data"
-              onClick={_ => handleSampleReportButtonClick()}
-              buttonType={Primary}
-            />
+    <div className="mt-7">
+      <div className="flex bg-nd_gray-50 h-11 gap-20 border rounded-t-lg overflow-clip ">
+        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
+          {"S.No"->React.string}
+        </p>
+        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
+          {"Customer Id"->React.string}
+        </p>
+        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3 w-fit">
+          {"Customer Name"->React.string}
+        </p>
+        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
+          {"Email"->React.string}
+        </p>
+        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
+          {"Phone Country Code"->React.string}
+        </p>
+        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
+          {"Phone"->React.string}
+        </p>
+        <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
+          {"Description"->React.string}
+        </p>
+      </div>
+      <div className="border border-t-0 h-1/2">
+        <div className="flex flex-col  items-center gap-4 justify-center h-[65vh]">
+          <div className="flex flex-col items-center">
+            <p className=" text-nd_gray-700 font-semibold text-lg">
+              {"No Data Available"->React.string}
+            </p>
+            <p className="font-medium text-nd_gray-500">
+              {"You can generate sample data to gain a better understanding of the product."->React.string}
+            </p>
           </div>
+          <Button
+            text="Generate Sample Data"
+            onClick={_ => handleSampleReportButtonClick()}
+            buttonType={Primary}
+          />
         </div>
       </div>
-    </>
+    </div>
   }
 }
 @react.component
@@ -71,16 +94,13 @@ let make = (~sampleReport, ~setSampleReport) => {
   let limit = 10 // each api calls will return 50 results
 
   let getCustomersList = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let customersUrl = getURL(
         ~entityName=V2(CUSTOMERS),
         ~methodType=Get,
         ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
       )
-
-
-      let response = sampleReport ? VaultSampleData.customersList : await fetchDetails(customersUrl)
+      let response = await fetchDetails(customersUrl)
       let data = response->JSON.Decode.array->Option.getOr([])
       let arr = Array.make(~length=offset, Dict.make())
       if total <= offset {
@@ -108,8 +128,9 @@ let make = (~sampleReport, ~setSampleReport) => {
 
   React.useEffect(() => {
     getCustomersList()->ignore
+    setSampleReport(_ => false)
     None
-  }, (sampleReport, offset))
+  }, [])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -136,7 +157,9 @@ let make = (~sampleReport, ~setSampleReport) => {
     />
     <VaultCustomersTotalDataView sampleReport custCount={customersData->Array.length} />
     <RenderIf condition={customersData->Array.length == 0}>
-      <NoDataFoundComponent setSampleReport />
+      <NoDataFoundComponent
+        setSampleReport setCustomersData setFilteredCustomersData offset setOffset total
+      />
     </RenderIf>
     <RenderIf condition={customersData->Array.length > 0}>
       <LoadedTable

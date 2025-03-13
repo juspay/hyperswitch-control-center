@@ -141,7 +141,7 @@ module VaultedPaymentMethodsTable = {
           ~methodType=Get,
           ~id=Some(customerIdFromUrl),
         )
-        let response = sampleReport ? VaultSampleData.pmtList : await fetchDetails(url, ~version=V2)
+        let response = await fetchDetails(url, ~version=V2)
         let tableData =
           response
           ->getDictFromJsonObject
@@ -153,39 +153,49 @@ module VaultedPaymentMethodsTable = {
       | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
       }
     }
-
+    let fetchDummyData = () => {
+      let response = VaultSampleData.pmtList
+      let tableData =
+        response
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("customer_payment_methods")
+        ->getArrayDataFromJson(VaultPaymentMethodsEntity.itemToObjMapper)
+      setTableData(_ => tableData)
+    }
     React.useEffect(() => {
-      fetchPaymentMethods()->ignore
+      if !sampleReport {
+        fetchPaymentMethods()->ignore
+      } else {
+        fetchDummyData()->ignore
+      }
       None
     }, [])
 
-    <>
-      <PageLoaderWrapper screenState>
-        <LoadedTable
-          title=" "
-          hideTitle=true
-          resultsPerPage=7
-          entity={VaultPaymentMethodsEntity.vaultPaymentMethodsEntity}
-          actualData={tableData->Array.map(Nullable.make)}
-          totalResults={tableData->Array.length}
-          offset
-          setOffset
-          onEntityClick={val => {
-            setPaymentId(_ => val.id)
-            setShowModal(_ => true)
-          }}
-          currrentFetchCount={tableData->Array.length}
-        />
-        <Modal
-          showModal
-          setShowModal
-          closeOnOutsideClick=true
-          modalClass="w-full md:w-1/2 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-          childClass="">
-          <VaultPaymentMethodDetailsSidebar paymentId setShowModal sampleReport />
-        </Modal>
-      </PageLoaderWrapper>
-    </>
+    <PageLoaderWrapper screenState>
+      <LoadedTable
+        title=" "
+        hideTitle=true
+        resultsPerPage=7
+        entity={VaultPaymentMethodsEntity.vaultPaymentMethodsEntity}
+        actualData={tableData->Array.map(Nullable.make)}
+        totalResults={tableData->Array.length}
+        offset
+        setOffset
+        onEntityClick={val => {
+          setPaymentId(_ => val.id)
+          setShowModal(_ => true)
+        }}
+        currrentFetchCount={tableData->Array.length}
+      />
+      <Modal
+        showModal
+        setShowModal
+        closeOnOutsideClick=true
+        modalClass="w-full md:w-1/2 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+        childClass="">
+        <VaultPaymentMethodDetailsSidebar paymentId setShowModal sampleReport />
+      </Modal>
+    </PageLoaderWrapper>
   }
 }
 
@@ -215,25 +225,10 @@ let make = (~id, ~sampleReport) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let customersUrl = getURL(~entityName=V2(CUSTOMERS), ~methodType=Get, ~id=Some(id))
-      if sampleReport {
-        let response = VaultSampleData.retrieveCustomer
-        let data =
-          response
-          ->getDictFromJsonObject
-          ->getArrayFromDict("data", [])
-          ->VaultCustomersEntity.getArrayOfCustomerListPayloadType
-        let selectedDataArray = data->Array.filter(item => {item.id == id})
 
-        let selectedDataObject =
-          selectedDataArray->getValueFromArray(0, defaultObject)->Identity.genericTypeToJson
-
-        setCustomersData(_ => selectedDataObject)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } else {
-        let response = await fetchDetails(customersUrl)
-        setCustomersData(_ => response)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
+      let response = await fetchDetails(customersUrl)
+      setCustomersData(_ => response)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -241,8 +236,27 @@ let make = (~id, ~sampleReport) => {
     }
   }
 
+  let fetchDummyData = () => {
+    let response = VaultSampleData.retrieveCustomer
+    let data =
+      response
+      ->getDictFromJsonObject
+      ->getArrayFromDict("data", [])
+      ->VaultCustomersEntity.getArrayOfCustomerListPayloadType
+    let selectedDataArray = data->Array.filter(item => {item.id == id})
+
+    let selectedDataObject =
+      selectedDataArray->getValueFromArray(0, defaultObject)->Identity.genericTypeToJson
+
+    setCustomersData(_ => selectedDataObject)
+    setScreenState(_ => PageLoaderWrapper.Success)
+  }
   React.useEffect(() => {
-    fetchCustomersData()->ignore
+    if !sampleReport {
+      fetchCustomersData()->ignore
+    } else {
+      fetchDummyData()->ignore
+    }
     None
   }, [])
   <PageLoaderWrapper screenState>
