@@ -6,6 +6,7 @@ module Review = {
     let getURL = useGetURL()
     let _updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let reviewFields = reviewFields->getReviewFields
     let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
@@ -28,6 +29,7 @@ module Review = {
       RescriptReactRouter.replace(
         GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
       )
+      mixpanelEvent(~eventName="intelligent_routing_upload_data")
     }
 
     <div className="w-500-px">
@@ -61,6 +63,7 @@ module Analyze = {
     open IntelligentRoutingUtils
     open IntelligentRoutingTypes
     let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (selectedField, setSelectedField) = React.useState(() => IntelligentRoutingTypes.Sample)
     let (text, setText) = React.useState(() => "Next")
 
@@ -112,6 +115,7 @@ module Analyze = {
       }
       getReviewData()->ignore
       onNextClick()
+      mixpanelEvent(~eventName="intelligent_routing_analyze_data")
     }
 
     let handleNext = _ => {
