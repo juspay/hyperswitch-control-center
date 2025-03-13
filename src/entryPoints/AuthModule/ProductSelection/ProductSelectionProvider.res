@@ -81,15 +81,6 @@ module SelectMerchantBody = {
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
         setActiveProductValue(selectedProduct)
-        switch selectedProduct {
-        | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
-        | _ =>
-          RescriptReactRouter.replace(
-            GlobalVars.appendDashboardPath(
-              ~url=`/v2/${(Obj.magic(selectedProduct) :> string)->String.toLowerCase}/home`,
-            ),
-          )
-        }
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }

@@ -33,6 +33,11 @@ let getV2Url = (
       | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
       | None => connectorBaseURL
       }
+    | Post =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => connectorBaseURL
+      }
     | _ => ""
     }
   | V2_ORDERS_LIST =>
