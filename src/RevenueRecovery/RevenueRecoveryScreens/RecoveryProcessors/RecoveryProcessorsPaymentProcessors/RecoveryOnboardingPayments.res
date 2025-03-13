@@ -17,8 +17,10 @@ let make = (
 
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+    ~version=UserInfoTypes.V2,
+  )
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
 
