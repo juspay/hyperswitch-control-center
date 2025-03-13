@@ -17,8 +17,12 @@ let make = (
   open RevenueRecoveryOnboardingUtils
 
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+    ~version=UserInfoTypes.V2,
+  )
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
@@ -39,7 +43,7 @@ let make = (
       "connector_label",
       `${connector}_${activeBusinessProfile}`->JSON.Encode.string,
     )
-    initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
+    initialValuesToDict->Dict.set("connector_type", "billing_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
@@ -51,13 +55,14 @@ let make = (
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     let dict = values->getDictFromJsonObject
     let values = dict->JSON.Encode.object
 
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Put, ~version=V2)
+      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
+      let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)

@@ -1,7 +1,12 @@
 @react.component
 let make = () => {
   open PageUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+  let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
+    #tenant_admin,
+    #org_admin,
+  ])
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="hypersenseOnboarding" src="/assets/DefaultHomeHypersenseCard.svg" />
@@ -17,9 +22,11 @@ let make = () => {
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
         subTitle="Audit, Observe and Optimize payment costs to uncover cost-saving opportunities"
       />
-      <Button
+      <ACLButton
+        authorization={userHasCreateMerchantAccess}
         text="Get Started"
         onClick={_ => {
+          mixpanelEvent(~eventName="hypersense_get_started_new_merchant")
           setCreateNewMerchant(ProductTypes.CostObservability)
         }}
         customTextPaddingClass="pr-0"

@@ -5,7 +5,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
   open ReconConfigurationUtils
   open OrderDataConnectionUtils
   open VerticalStepIndicatorUtils
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
@@ -53,7 +53,10 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
           customButtonStyle="rounded w-full"
           buttonType={Primary}
           buttonState={Normal}
-          onClick={_ => onNextClick()->ignore}
+          onClick={_ => {
+            mixpanelEvent(~eventName="recon_onboarding_step1")
+            onNextClick()->ignore
+          }}
         />
       </div>
     </div>

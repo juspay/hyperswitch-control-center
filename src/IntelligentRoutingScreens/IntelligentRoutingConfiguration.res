@@ -1,14 +1,40 @@
 module Review = {
   @react.component
-  let make = (~reviewFields) => {
+  let make = (~reviewFields, ~isUpload=false) => {
     open IntelligentRoutingReviewFieldsEntity
+    open APIUtils
+    open LogicUtils
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let reviewFields = reviewFields->getReviewFields
+    let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
+
+    let uploadData = async () => {
+      try {
+        let url = getURL(
+          ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
+          ~methodType=Post,
+          ~queryParamerters=Some(queryParamerters),
+        )
+        let response = await updateDetails(url, JSON.Encode.null, Post)
+
+        let msg = response->getDictFromJsonObject->getString("message", "")->String.toLowerCase
+        if msg === "simulation successful" {
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
+          )
+        }
+      } catch {
+      | _ => showToast(~message="Upload data failed", ~toastType=ToastError)
+      }
+    }
 
     let handleNext = _ => {
-      RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
-      )
+      uploadData()->ignore
+      mixpanelEvent(~eventName="intelligent_routing_upload_data")
     }
 
     <div className="w-500-px">
@@ -38,29 +64,42 @@ module Review = {
 
 module Analyze = {
   @react.component
-  let make = (~onNextClick, ~setReviewFields) => {
+  let make = (~onNextClick, ~setReviewFields, ~setIsUpload) => {
     open IntelligentRoutingUtils
     open IntelligentRoutingTypes
-    open APIUtils
-
-    let getURL = useGetURL()
-    let _fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (selectedField, setSelectedField) = React.useState(() => IntelligentRoutingTypes.Sample)
     let (text, setText) = React.useState(() => "Next")
 
+    React.useEffect(() => {
+      setIsUpload(_ => selectedField === Upload)
+      None
+    }, [selectedField])
+
+    //TODO: wasm function call to fetch review fields
     let getReviewData = async () => {
       try {
-        let _url = getURL(~entityName=V1(SIMULATE_INTELLIGENT_ROUTING), ~methodType=Get)
-        // let _res = await Fetch.fetch(url)
         let response = {
-          file_name: "random_data.csv",
-          number_of_transaction: 19000,
-          number_of_terminal_transactions: 1000,
-          number_of_processors: 5,
-          total_amount: 10000,
-          most_used_processor: ["Stripe", "Paypal", "Razorpay"],
-          payment_method: ["Credit Card", "Debit Card", "UPI"],
+          "total": 81735,
+          "total_amount": 27289187.399992384,
+          "file_name": "baseline_data.csv",
+          "processors": [
+            "PSP1",
+            "PSP2",
+            "PSP3",
+            "PSP4",
+            "PSP5",
+            "PSP6",
+            "PSP7",
+            "PSP8",
+            "PSP9",
+            "PSP10",
+            "PSP11",
+            "PSP12",
+            "PSP13",
+          ],
+          "payment_methods": ["APPLEPAY", "CARD", "WALLET"],
         }->Identity.genericTypeToJson
         setReviewFields(_ => response)
       } catch {
@@ -72,25 +111,20 @@ module Analyze = {
       }
     }
 
+    let steps = ["Preparing sample data", "Apply Rule-based Routing", "Apply Debit Routing"]
+
     let loadButton = async () => {
-      Js.log2("added delay", "delay")
-      await HyperSwitchUtils.delay(800)
-      setText(_ => "Preparing sample data")
-      await HyperSwitchUtils.delay(800)
-      setText(_ => "Apply Rule-based Routing")
-      await HyperSwitchUtils.delay(800)
-      setText(_ => "Apply Debit Routing")
-      await HyperSwitchUtils.delay(800)
+      for i in 0 to Array.length(steps) - 1 {
+        setText(_ => steps[i]->Option.getOr(""))
+        await HyperSwitchUtils.delay(800)
+      }
+      getReviewData()->ignore
+      onNextClick()
+      mixpanelEvent(~eventName="intelligent_routing_analyze_data")
     }
 
     let handleNext = _ => {
-      open Promise
-      loadButton()
-      ->then(_ => {
-        getReviewData()->ignore
-        Js.Promise.resolve(onNextClick())
-      })
-      ->ignore
+      loadButton()->ignore
     }
 
     let dataSourceHeading = title =>
@@ -171,6 +205,7 @@ let make = () => {
   open VerticalStepIndicatorUtils
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (reviewFields, setReviewFields) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (isUpload, setIsUpload) = React.useState(() => false)
 
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: "analyze",
@@ -213,8 +248,8 @@ let make = () => {
       />
       <div className="p-12">
         {switch currentStep {
-        | {sectionId: "analyze"} => <Analyze onNextClick setReviewFields />
-        | {sectionId: "review"} => <Review reviewFields />
+        | {sectionId: "analyze"} => <Analyze onNextClick setReviewFields setIsUpload />
+        | {sectionId: "review"} => <Review reviewFields isUpload />
         | _ => React.null
         }}
       </div>

@@ -128,7 +128,11 @@ let itemToObjMapper = dict => {
     payment_method_data: dict->getDictfromDict("payment_method_data")->paymentMethodDataTypeMapper,
   }
 }
-
+let getArrayOfPaymentMethodListPayloadType = json => {
+  json->Array.map(reportJson => {
+    reportJson->getDictFromJsonObject->itemToObjMapper
+  })
+}
 let getPaymentMethods: JSON.t => array<vaultPaymentMethods> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }

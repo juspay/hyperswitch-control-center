@@ -11,6 +11,7 @@ let make = () => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let (selectedReconId, setSelectedReconId) = React.useState(_ => "Recon_235")
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let (reconList, _) = React.useState(_ => [{id: "Recon_235", name: "Recon_235"}])
 
@@ -119,6 +120,13 @@ let make = () => {
     setReconArrow(prev => !prev)
   }
 
+  let tabValue = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("tab", "")
+
+  React.useEffect(() => {
+    mixpanelEvent(~eventName=tabValue)
+    None
+  }, [tabValue])
+
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
   <div>
@@ -173,6 +181,7 @@ let make = () => {
               buttonType={Secondary}
               leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=14 />)}
               onClick={_ => {
+                mixpanelEvent(~eventName="recon_generate_reports_download")
                 downloadReport()->ignore
               }}
               buttonSize={Medium}

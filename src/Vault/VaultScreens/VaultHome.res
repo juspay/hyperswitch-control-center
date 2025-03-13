@@ -2,6 +2,10 @@
 let make = () => {
   open PageUtils
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+  let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
+    #tenant_admin,
+    #org_admin,
+  ])
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
@@ -17,7 +21,8 @@ let make = () => {
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
         subTitle="Learn how to vault cards from your Server if you're PCI compliant and Learn how to vault cards using Hyperswitch's Checkout if you're non-PCI compliant"
       />
-      <Button
+      <ACLButton
+        authorization={userHasCreateMerchantAccess}
         text="Get Started"
         onClick={_ => {
           setCreateNewMerchant(ProductTypes.Vault)

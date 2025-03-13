@@ -1,63 +1,41 @@
 open IntelligentRoutingTypes
 open LogicUtils
 
-let defaultColumns = [
-  FileName,
-  NumberOfTransaction,
-  NumberOfTerminalTransactions,
-  NumberOfProcessors,
-]
+let defaultColumns = [FileName, TotalAmount, NumberOfTransaction, Processors, PaymentMethod]
 
-let allColumns = [
-  FileName,
-  NumberOfTransaction,
-  NumberOfTerminalTransactions,
-  NumberOfProcessors,
-  TotalAmount,
-  MostUsedProcessor,
-  PaymentMethod,
-]
+let allColumns = [FileName, TotalAmount, NumberOfTransaction, Processors, PaymentMethod]
 
 let getHeading = colType => {
   switch colType {
-  | FileName => Table.makeHeaderInfo(~key="file_name", ~title="File Name")
-  | NumberOfTransaction =>
-    Table.makeHeaderInfo(~key="number_of_transaction", ~title="Number of Transaction")
-  | NumberOfTerminalTransactions =>
-    Table.makeHeaderInfo(
-      ~key="number_of_terminal_transactions",
-      ~title="Number of Terminal Transactions",
-    )
-  | NumberOfProcessors =>
-    Table.makeHeaderInfo(~key="number_of_processors", ~title="Number of Processors")
+  | NumberOfTransaction => Table.makeHeaderInfo(~key="total", ~title="Number of Transactions")
   | TotalAmount => Table.makeHeaderInfo(~key="total_amount", ~title="Total Amount")
-  | MostUsedProcessor =>
-    Table.makeHeaderInfo(~key="most_used_processor", ~title="Most Used Processor")
-  | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
+  | FileName => Table.makeHeaderInfo(~key="file_name", ~title="File Name")
+  | Processors => Table.makeHeaderInfo(~key="processors", ~title="Processors")
+  | PaymentMethod => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
   }
+}
+
+let concatStringArray = arr => {
+  arr->Array.map(s => s->String.trim)->Array.joinWith(", ")
 }
 
 let getCell = (reviewFields, colType): Table.cell => {
   switch colType {
+  | NumberOfTransaction => Text(reviewFields.total->Int.toString)
+  | TotalAmount => Text(formatAmount(reviewFields.total_amount, "USD"))
   | FileName => Text(reviewFields.file_name)
-  | NumberOfTransaction => Text(reviewFields.number_of_transaction->Int.toString)
-  | NumberOfTerminalTransactions => Text(reviewFields.number_of_terminal_transactions->Int.toString)
-  | NumberOfProcessors => Text(reviewFields.number_of_processors->Int.toString)
-  | TotalAmount => Text(reviewFields.total_amount->Int.toString)
-  | MostUsedProcessor => Text(reviewFields.most_used_processor->Array.toString)
-  | PaymentMethod => Text(reviewFields.payment_method->Array.toString)
+  | Processors => Text(concatStringArray(reviewFields.processors))
+  | PaymentMethod => Text(concatStringArray(reviewFields.payment_methods))
   }
 }
 
 let itemToObjMapper = dict => {
   {
-    file_name: dict->getString("file_name", ""),
-    number_of_transaction: dict->getInt("number_of_transaction", 0),
-    number_of_terminal_transactions: dict->getInt("number_of_terminal_transactions", 0),
-    number_of_processors: dict->getInt("number_of_processors", 0),
-    most_used_processor: dict->getStrArray("most_used_processor"),
-    payment_method: dict->getStrArray("payment_method"),
+    total: dict->getInt("total", 0),
     total_amount: dict->getInt("total_amount", 0),
+    file_name: dict->getString("file_name", ""),
+    processors: dict->getStrArray("processors"),
+    payment_methods: dict->getStrArray("payment_methods"),
   }
 }
 

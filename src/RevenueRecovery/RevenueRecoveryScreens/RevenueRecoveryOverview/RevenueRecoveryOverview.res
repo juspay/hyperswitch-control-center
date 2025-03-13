@@ -2,7 +2,7 @@
 let make = () => {
   open APIUtils
   open LogicUtils
-  open HSwitchRemoteFilter
+  //open HSwitchRemoteFilter
   open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -18,6 +18,7 @@ let make = () => {
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString("created.gte", "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV2,
@@ -26,15 +27,6 @@ let make = () => {
 
   let (billingConnectorID, billingConnectorName) =
     billingConnectorListFromRecoil->getBillingConnectorDetails
-
-  let handleExtendDateButtonClick = _ => {
-    let startDateObj = startTime->DayJs.getDayJsForString
-    let prevStartdate = startDateObj.toDate()->Date.toISOString
-    let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
-
-    updateExistingKeys(Dict.fromArray([("created.gte", {extendedStartDate})]))
-    updateExistingKeys(Dict.fromArray([("created.lte", {prevStartdate})]))
-  }
 
   let setData = (total, data) => {
     let arr = Array.make(~length=offset, Dict.make())
@@ -55,7 +47,7 @@ let make = () => {
       setRevenueRecoveryData(_ => list)
       setScreenState(_ => PageLoaderWrapper.Success)
     } else {
-      setScreenState(_ => PageLoaderWrapper.Custom)
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
   }
 
@@ -106,7 +98,7 @@ let make = () => {
 
           setData(total, data)
         } else {
-          setScreenState(_ => PageLoaderWrapper.Custom)
+          setScreenState(_ => PageLoaderWrapper.Success)
         }
       } else {
         setData(total, data)
@@ -148,42 +140,40 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if filters->OrderUIUtils.isNonEmptyValue {
-      fetchOrders()
-    }
+    // if filters->OrderUIUtils.isNonEmptyValue {
+    //   fetchOrders()
+    // }
+    fetchOrders()
 
     None
   }, (offset, filters, searchText))
 
   let customTitleStyle = "py-0 !pt-0"
 
-  let customUI =
-    <NoDataFound
-      customCssClass="my-6"
-      message="No results found"
-      renderType=ExtendDateUI
-      handleClick=handleExtendDateButtonClick
-    />
+  // let customUI =
+  //   <NoDataFound
+  //     customCssClass="my-6" message="Recovery details will appear soon" renderType={ExtendDateUI}
+  //   />
 
   let (widthClass, heightClass) = ("w-full", "")
 
-  let filtersUI = React.useMemo(() => {
-    <RemoteTableFilters
-      title="Orders"
-      setFilters
-      endTimeFilterKey
-      startTimeFilterKey
-      initialFilters
-      initialFixedFilter
-      setOffset
-      submitInputOnEnter=true
-      customLeftView={<SearchBarFilter
-        placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
-      />}
-      entityName=V2(V2_ORDER_FILTERS)
-      version=V2
-    />
-  }, [searchText])
+  // let filtersUI = React.useMemo(() => {
+  //   <RemoteTableFilters
+  //     title="Orders"
+  //     setFilters
+  //     endTimeFilterKey
+  //     startTimeFilterKey
+  //     initialFilters
+  //     initialFixedFilter
+  //     setOffset
+  //     submitInputOnEnter=true
+  //     customLeftView={<SearchBarFilter
+  //       placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
+  //     />}
+  //     entityName=V2(V2_ORDER_FILTERS)
+  //     version=V2
+  //   />
+  // }, [searchText])
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
@@ -199,19 +189,21 @@ let make = () => {
           <Button
             text="View Details"
             buttonType={Secondary}
-            onClick={_ =>
+            onClick={_ => {
+              mixpanelEvent(~eventName="recovery_view_details")
               RescriptReactRouter.replace(
                 GlobalVars.appendDashboardPath(
                   ~url=`/v2/recovery/summary/${billingConnectorID}?name=${billingConnectorName}`,
                 ),
-              )}
+              )
+            }}
             buttonSize={Small}
             customButtonStyle="w-fit"
           />
         </RenderIf>
       </div>
-      <div className="flex"> {filtersUI} </div>
-      <PageLoaderWrapper screenState customUI>
+      //<div className="flex"> {filtersUI} </div>
+      <PageLoaderWrapper screenState>
         <LoadedTableWithCustomColumns
           title="Recovery"
           actualData=revenueRecoveryData
