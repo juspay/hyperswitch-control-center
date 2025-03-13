@@ -130,7 +130,7 @@ let make = (~sampleReport, ~setSampleReport) => {
     getCustomersList()->ignore
     setSampleReport(_ => false)
     None
-  }, [])
+  }, [offset])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
