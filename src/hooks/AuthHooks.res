@@ -7,8 +7,6 @@ let headersForXFeature = (~uri, ~headers) => {
     uri->String.includes("config/feature")
   ) {
     headers->Dict.set("Content-Type", `application/json`)
-  } else if uri->String.includes("simulate") {
-    headers->Dict.set("x-feature", "dynamo-simulator")
   } else {
     headers->Dict.set("x-feature", "integ-custom")
   }
@@ -46,6 +44,9 @@ let getHeaders = (
     }
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
+    }
+    if uri->String.includes("simulate") {
+      headers->Dict.set("x-feature", "dynamo-simulator")
     }
     // headers for V2
     headers->Dict.set("X-Profile-Id", profileId)
