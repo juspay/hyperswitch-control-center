@@ -583,7 +583,14 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
 let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): Table.cell => {
   open HelperComponents
   switch aboutPaymentColType {
-  | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
+  | Connector =>
+    CustomCell(
+      <ConnectorCustomCell
+        connectorName=order.connector
+        connectorType={ConnectorUtils.connectorTypeFromAuthentication(order.authentication_type)}
+      />,
+      "",
+    )
   | PaymentMethod => Text(order.payment_method)
   | PaymentMethodType => Text(order.payment_method_type)
   | Refunds => Text(order.refunds->Array.length > 0 ? "Yes" : "No")
@@ -670,7 +677,14 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       "",
     )
   | MerchantId => Text(order.merchant_id)
-  | Connector => CustomCell(<ConnectorCustomCell connectorName={order.connector} />, "")
+  | Connector =>
+    CustomCell(
+      <ConnectorCustomCell
+        connectorName={order.connector}
+        connectorType={ConnectorUtils.connectorTypeFromAuthentication(order.authentication_type)}
+      />,
+      "",
+    )
   | Status =>
     Label({
       title: order.status->String.toUpperCase,
