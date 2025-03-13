@@ -104,9 +104,6 @@ module SelectMerchantBody = {
           subHeading=""
           customSubHeadingStyle="w-full !max-w-none pr-10"
         />
-        <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
-          <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
-        </div>
       </div>
       <hr />
       <Form key="new-merchant-creation" onSubmit>
