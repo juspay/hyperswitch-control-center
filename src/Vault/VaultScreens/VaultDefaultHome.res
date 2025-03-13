@@ -17,13 +17,13 @@ let make = () => {
         subTitle="Learn how to vault cards from your Server if you're PCI compliant and Learn how to vault cards using Hyperswitch's Checkout if you're non-PCI compliant"
       />
     </div>
-    <div className="flex gap-4">
+    <div className="flex gap-4 w-full justify-center">
       <Button
         text="Configure connector"
         onClick={_ => {
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/vault/onboarding"))
         }}
-        buttonType=Primary
+        buttonType={Secondary}
         buttonSize=Large
         buttonState=Normal
       />
@@ -32,7 +32,7 @@ let make = () => {
         onClick={_ => {
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/vault/customers-tokens"))
         }}
-        buttonType=Primary
+        buttonType=Secondary
         buttonSize=Large
         buttonState=Normal
       />
