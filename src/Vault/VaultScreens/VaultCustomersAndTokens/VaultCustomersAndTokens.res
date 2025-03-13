@@ -100,7 +100,7 @@ let make = (~sampleReport, ~setSampleReport) => {
         ~methodType=Get,
         ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
       )
-      let response = await fetchDetails(customersUrl)
+      let response = await fetchDetails(customersUrl, ~version=V2)
       let data = response->JSON.Decode.array->Option.getOr([])
       let arr = Array.make(~length=offset, Dict.make())
       if total <= offset {

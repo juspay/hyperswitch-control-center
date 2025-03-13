@@ -24,7 +24,7 @@ let make = (~sampleReport, ~custCount) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let customersUrl = getURL(~entityName=V2(TOTAL_TOKEN_COUNT), ~methodType=Get)
-      let response = await fetchDetails(customersUrl)
+      let response = await fetchDetails(customersUrl, ~version=V2)
       let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
       setTokenCount(_ => totalCount)
 
