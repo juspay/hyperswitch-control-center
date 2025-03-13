@@ -118,20 +118,39 @@ module Card = {
 
 module MetricCards = {
   @react.component
-  let make = () => {
+  let make = (~data) => {
+    open LogicUtils
+
+    let dataTyped = data->IntelligentRoutingUtils.responseMapper
+    let authorizationRate = dataTyped.overall_success_rate
+    let failedPayments = dataTyped.total_failed_payments
+    let revenue = dataTyped.total_revenue
+
     <div className="grid grid-cols-2 xl:grid-cols-4 gap-6">
-      <Card title="Authorization Rate" actualValue="83.24%" simulatedValue="90.84%" />
+      <Card
+        title="Authorization Rate"
+        actualValue={authorizationRate.baseline->valueFormatter(Rate)}
+        simulatedValue={authorizationRate.model->valueFormatter(Rate)}
+      />
       <Card title="FAAR" actualValue="76.4%" simulatedValue="83.4%" />
-      <Card title="Failed Payments" actualValue="1100" simulatedValue="601" />
-      <Card title="Revenue" actualValue="$ 67,453,080" simulatedValue="$ 78,453,080" />
+      <Card
+        title="Failed Payments"
+        actualValue={failedPayments.baseline->Float.toInt->formatAmount("$")}
+        simulatedValue={failedPayments.model->Float.toInt->formatAmount("$")}
+      />
+      <Card
+        title="Revenue"
+        actualValue={revenue.baseline->Float.toInt->formatAmount("$")}
+        simulatedValue={revenue.model->Float.toInt->formatAmount("$")}
+      />
     </div>
   }
 }
 module Overview = {
   @react.component
-  let make = () => {
+  let make = (~data) => {
     <div className="mt-10">
-      <MetricCards />
+      <MetricCards data />
     </div>
   }
 }
@@ -147,6 +166,7 @@ let make = () => {
   let (screenState, _setScreenState) = React.useState(() => PageLoaderWrapper.Success)
   let (stats, setStats) = React.useState(_ => JSON.Encode.null)
   let (selectedPSP, setSelectedPSP) = React.useState(() => "")
+  let (keys, setKeys) = React.useState(() => [])
 
   let getStatistics = async () => {
     try {
@@ -154,6 +174,15 @@ let make = () => {
       // let res = await fetchDetails(url)
       let response = IntelligentRoutingStatsResponse.response
       setStats(_ => response)
+      let statsData =
+        (response->IntelligentRoutingUtils.responseMapper).time_series_data->Array.get(0)
+      let psps = switch statsData {
+      | Some(statsData) => statsData.volume_distribution_as_per_sr
+      | None => JSON.Encode.null
+      }
+      let keys = psps->LogicUtils.getDictFromJsonObject->Dict.keysToArray
+      setKeys(_ => keys)
+      setSelectedPSP(_ => keys->Array.get(0)->Option.getOr(""))
     } catch {
     | _ => showToast(~message="Failed to fetch statistics data", ~toastType=ToastError)
     }
@@ -164,13 +193,6 @@ let make = () => {
     getStatistics()->ignore
     None
   }, [])
-
-  let statsData = (stats->IntelligentRoutingUtils.responseMapper).time_series_data->Array.get(0)
-  let psps = switch statsData {
-  | Some(statsData) => statsData.volume_distribution_as_per_sr
-  | None => JSON.Encode.null
-  }
-  let keys = psps->LogicUtils.getDictFromJsonObject->Dict.keysToArray
 
   let makeOption = (keys): array<SelectBox.dropdownOption> => {
     keys->Array.map(key => {
@@ -211,11 +233,11 @@ let make = () => {
     <div className="mt-10">
       <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
       <div className="flex flex-col gap-12">
-        <Overview />
+        <Overview data=stats />
         <div className="flex flex-col gap-6">
           <div className="text-nd_gray-600 font-semibold"> {"Insights"->React.string} </div>
           <div className="border rounded-lg p-4 flex flex-col ">
-            <div className="w-24">
+            <div className="!w-full flex justify-end">
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
                 buttonText="Select PSP"

@@ -172,7 +172,11 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
   }
 }
 
-let lineColumnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueType) => {
+let lineColumnGraphTooltipFormatter = (
+  ~title,
+  ~metricType: LogicUtilsTypes.valueType,
+  ~currency="$",
+) => {
   open LogicUtils
 
   (
@@ -186,7 +190,7 @@ let lineColumnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valu
       let line2Point = this.points->getValueFromArray(2, defaultValue)
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        let formattedValue = LogicUtils.valueFormatter(value, metricType, ~currency="$")
+        let formattedValue = LogicUtils.valueFormatter(value, metricType, ~currency)
 
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>

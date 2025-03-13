@@ -161,9 +161,9 @@ let lineColumnGraphOptions = (
     data
   })
 
-  let baseline = successData->Array.map(item => item.baseline_volume)
-  let model = successData->Array.map(item => item.model_volume)
-  let successRate = successData->Array.map(item => item.success_rate->Float.toInt)
+  let baseline = successData->Array.map(item => item.baseline_volume->Int.toFloat)
+  let model = successData->Array.map(item => item.model_volume->Int.toFloat)
+  let successRate = successData->Array.map(item => item.success_rate)
 
   {
     title: {
@@ -178,7 +178,7 @@ let lineColumnGraphOptions = (
         showInLegend: true,
         name: "Processor's Auth Rate",
         \"type": "column",
-        data: [120, 100, 60, 90, 70], //successRate,
+        data: successRate,
         color: "#B5B28E",
         yAxis: 0,
       },
@@ -186,7 +186,7 @@ let lineColumnGraphOptions = (
         showInLegend: true,
         name: "Actual Transactions",
         \"type": "line",
-        data: [80, 90, 95, 85, 92], // baseline,
+        data: baseline,
         color: "#A785D8",
         yAxis: 1,
       },
@@ -194,7 +194,7 @@ let lineColumnGraphOptions = (
         showInLegend: true,
         name: "Simulated Transactions",
         \"type": "line",
-        data: [110, 100, 70, 90, 80], // model,
+        data: model,
         color: "#4185F4",
         yAxis: 1,
       },
@@ -202,6 +202,7 @@ let lineColumnGraphOptions = (
     tooltipFormatter: LineAndColumnGraphUtils.lineColumnGraphTooltipFormatter(
       ~title="Metrics",
       ~metricType=Amount,
+      ~currency="",
     ),
   }
 }
