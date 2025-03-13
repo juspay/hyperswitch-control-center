@@ -6,12 +6,12 @@ let make = () => {
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
   )
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+
   let (sampleReport, setSampleReport) = React.useState(_ => false)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let setUpVaultContainer = async () => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
       if (
         userHasAccess(~groupAccess=ConnectorsView) === Access ||
         userHasAccess(~groupAccess=WorkflowsView) === Access ||
@@ -32,8 +32,6 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     {switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "vault"} => <VaultHome />
-    | list{"v2", "vault", "home"} => <VaultDefaultHome />
     | list{"v2", "vault", "onboarding", ...remainingPath} =>
       <EntityScaffold
         entityName="VaultConnector"

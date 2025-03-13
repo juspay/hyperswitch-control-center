@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~default=true) => {
   open PageUtils
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
 
@@ -20,7 +20,13 @@ let make = () => {
       <Button
         text="Get Started"
         onClick={_ => {
-          setCreateNewMerchant(ProductTypes.Recovery)
+          if default {
+            setCreateNewMerchant(ProductTypes.Recovery)
+          } else {
+            RescriptReactRouter.replace(
+              GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding`),
+            )
+          }
         }}
         buttonType=Primary
         buttonSize=Large
