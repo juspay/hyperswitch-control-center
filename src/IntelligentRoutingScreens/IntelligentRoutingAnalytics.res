@@ -20,7 +20,7 @@ module GetProductionAccess = {
         onClick={_ => {
           if !isProdIntent {
             setShowProdIntentForm(_ => true)
-            mixpanelEvent(~eventName="get_production_access_dynamic_routing")
+            mixpanelEvent(~eventName="intelligent_routing_get_production_access")
           }
         }}
       />
