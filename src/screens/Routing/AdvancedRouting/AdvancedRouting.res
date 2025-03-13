@@ -321,6 +321,7 @@ module RuleBasedUI = {
   ) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let rulesJsonPath = `algorithm.data.rules`
+    let showToast = ToastState.useShowToast()
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
 
@@ -329,13 +330,39 @@ module RuleBasedUI = {
       None
     }, [rules])
 
+    let isEmptyRule = rule => {
+      defaultRule->Identity.genericTypeToJson->getDictFromJsonObject->Dict.delete("name")
+      rule->getDictFromJsonObject->Dict.delete("name")
+      defaultRule->Identity.genericTypeToJson == rule
+    }
+
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
-      let newRule = copy
-        ? existingRules[index]->Option.getOr(defaultRule->Identity.genericTypeToJson)
-        : defaultRule->Identity.genericTypeToJson
-      let newRules = existingRules->Array.concat([newRule])
-      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
+      if !copy && existingRules->Array.some(isEmptyRule) {
+        showToast(
+          ~message="Unable to add a new rule while an empty rule exists!",
+          ~toastType=ToastState.ToastError,
+        )
+        ()
+      } else if copy {
+        switch existingRules[index] {
+        | Some(rule) if isEmptyRule(rule) =>
+          showToast(
+            ~message="Unable to copy an empty rule configuration!",
+            ~toastType=ToastState.ToastError,
+          )
+          ()
+        | Some(rule) =>
+          let newRule = rule->Identity.genericTypeToJson
+          let newRules = existingRules->Array.concat([newRule])
+          ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
+        | None => ()
+        }
+      } else {
+        let newRule = defaultRule->Identity.genericTypeToJson
+        let newRules = existingRules->Array.concat([newRule])
+        ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
+      }
     }
 
     let removeRule = index => {

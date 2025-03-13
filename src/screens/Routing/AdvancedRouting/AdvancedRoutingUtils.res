@@ -400,7 +400,7 @@ let defaultRule: RoutingTypes.rule = {
       lhs: "",
       comparison: "",
       value: {
-        \"type": "",
+        \"type": "number",
         value: ""->JSON.Encode.string,
       },
     },
