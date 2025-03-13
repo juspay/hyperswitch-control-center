@@ -2,6 +2,8 @@
 let make = () => {
   open PageUtils
 
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+
   <div className="flex flex-1 flex-col w-full gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
     <div className="flex flex-col gap-8 items-center">
@@ -21,6 +23,7 @@ let make = () => {
       <Button
         text="Processor configuration"
         onClick={_ => {
+          mixpanelEvent(~eventName="vault_processor_configuration")
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/vault/onboarding"))
         }}
         buttonType={Primary}
@@ -30,6 +33,7 @@ let make = () => {
       <Button
         text="Customers & tokens"
         onClick={_ => {
+          mixpanelEvent(~eventName="vault_customers_and_tokens")
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/vault/customers-tokens"))
         }}
         buttonType=Secondary

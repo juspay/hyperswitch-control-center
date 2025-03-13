@@ -8,6 +8,7 @@ let make = (~connectorInfo) => {
     ConnectorInterface.connectorInterfaceV2,
     connectorInfo->LogicUtils.getDictFromJsonObject,
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let (processorType, _) =
     connectorInfodict.connector_type
@@ -46,6 +47,7 @@ let make = (~connectorInfo) => {
   }, [connectorInfodict.id])
 
   let handleClick = () => {
+    mixpanelEvent(~eventName="vault_onboarding_step4")
     setShowSideBar(_ => true)
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding`))
     showToast(~message="Connector Created Successfully!", ~toastType=ToastSuccess)
