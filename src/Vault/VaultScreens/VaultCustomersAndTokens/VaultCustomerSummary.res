@@ -226,7 +226,7 @@ let make = (~id, ~sampleReport) => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let customersUrl = getURL(~entityName=V2(CUSTOMERS), ~methodType=Get, ~id=Some(id))
 
-      let response = await fetchDetails(customersUrl)
+      let response = await fetchDetails(customersUrl, ~version=V2)
       setCustomersData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
