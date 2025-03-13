@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.13.4
+
+### Miscellaneous Tasks
+
+- Fix dynamic routing url ([`767805d`](https://github.com/juspay/hyperswitch-control-center/commit/767805dd2d8988f0c349e3d6fdbbe6855c393f6b))
+
+**Full Changelog:** [`2025.03.13.3...2025.03.13.4`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.13.3...2025.03.13.4)
+
+- - -
+
 ## 2025.03.13.3
 
 ### Bug Fixes
