@@ -372,6 +372,7 @@ module ProfileDropdownItem = {
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
     }
+
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -455,6 +456,7 @@ module ProfileDropdownItem = {
     let isActive = currentId == profileId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+
     <>
       <div
         className={`rounded-lg mb-1 ${isUnderEdit
@@ -466,7 +468,9 @@ module ProfileDropdownItem = {
           customStyle="w-full cursor-pointer !bg-transparent mb-0"
           handleEdit=handleIdUnderEdit
           isUnderEdit
-          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          showEditIcon={isActive &&
+          userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
+          version == V1}
           onSubmit
           labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
           validateInput

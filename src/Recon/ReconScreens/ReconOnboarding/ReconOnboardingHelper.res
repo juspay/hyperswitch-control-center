@@ -3,7 +3,9 @@ module ReconOnboardingLanding = {
   let make = () => {
     open PageUtils
 
-    let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+    let {setCreateNewMerchant, activeProduct} = React.useContext(
+      ProductSelectionProvider.defaultContext,
+    )
     let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
       #tenant_admin,
       #org_admin,
@@ -11,6 +13,14 @@ module ReconOnboardingLanding = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let onTryDemoClick = () => {
       setCreateNewMerchant(ProductTypes.Recon)
+    }
+
+    let handleClick = () => {
+      if activeProduct == Recon {
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recon/home"))
+      } else {
+        onTryDemoClick()
+      }
     }
 
     <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
@@ -32,7 +42,7 @@ module ReconOnboardingLanding = {
           text="Try Demo"
           onClick={_ => {
             mixpanelEvent(~eventName="recon_try_demo")
-            onTryDemoClick()
+            handleClick()
           }}
           rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}
           customTextPaddingClass="pr-0"
