@@ -274,7 +274,7 @@ module PaymentConnectorDetails = {
     }
 
     <RenderIf condition={connectorId->isNonEmptyString}>
-      <PageLoaderWrapper screenState>
+      <PageLoaderWrapper screenState sectionHeight="h-96">
         <div className="flex flex-col gap-7">
           <div className="flex justify-between border-b pb-4 px-2 items-end">
             <p className="text-lg font-semibold text-nd_gray-600">

@@ -1,18 +1,14 @@
 @react.component
 let make = () => {
-  // Need to be moved into vault container
-  let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let url = RescriptReactRouter.useUrl()
 
-  let goToLanding = () => {
-    if showSideBar {
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/vault/home"))
+  {
+    switch url.path->HSwitchUtils.urlPath {
+    | list{"v2", "vault"} => <VaultHome />
+    | list{"v2", "vault", "home"} => <VaultDefaultHome />
+    | list{"v2", "vault", "onboarding", ..._} | list{"v2", "vault", "customers-tokens", ..._} =>
+      <VaultContainer />
+    | _ => React.null
     }
   }
-
-  React.useEffect0(() => {
-    goToLanding()
-    None
-  })
-
-  <VaultContainer />
 }

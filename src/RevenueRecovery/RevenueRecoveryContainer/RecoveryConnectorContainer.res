@@ -7,7 +7,9 @@ let make = () => {
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
   )
-  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
+  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getUserInfoData()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let setUpConnectorContainer = async () => {
@@ -19,7 +21,6 @@ let make = () => {
         userHasAccess(~groupAccess=WorkflowsManage) === Access
       ) {
         let _ = await fetchConnectorListResponse()
-        let _ = await fetchBusinessProfiles()
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -27,13 +28,23 @@ let make = () => {
     }
   }
 
+  let hasConfiguredBillingConnector =
+    ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV2,
+      ~retainInList=BillingProcessor,
+    )->Array.length > 0
+
   React.useEffect(() => {
     setUpConnectorContainer()->ignore
     None
-  }, [])
+  }, [merchantId, profileId])
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
+    | list{"v2", "recovery", "home"} =>
+      hasConfiguredBillingConnector
+        ? <RevenueRecoveryOverview />
+        : <RevenueRecoveryOnboardingLanding default=false />
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold

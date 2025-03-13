@@ -100,7 +100,7 @@ module Details = {
 }
 
 module CustomerInfo = {
-  open CustomersEntity
+  open VaultCustomersEntity
 
   @react.component
   let make = (~dict) => {
@@ -117,7 +117,7 @@ module CustomerInfo = {
 
 module VaultedPaymentMethodsTable = {
   @react.component
-  let make = () => {
+  let make = (~sampleReport) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -153,67 +153,79 @@ module VaultedPaymentMethodsTable = {
       | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
       }
     }
-
+    let fetchDummyData = () => {
+      let response = VaultSampleData.pmtList
+      let tableData =
+        response
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("customer_payment_methods")
+        ->getArrayDataFromJson(VaultPaymentMethodsEntity.itemToObjMapper)
+      setTableData(_ => tableData)
+    }
     React.useEffect(() => {
-      fetchPaymentMethods()->ignore
+      if !sampleReport {
+        fetchPaymentMethods()->ignore
+      } else {
+        fetchDummyData()->ignore
+      }
       None
     }, [])
 
-    <>
-      <PageLoaderWrapper screenState>
-        <LoadedTable
-          title=" "
-          hideTitle=true
-          resultsPerPage=7
-          entity={VaultPaymentMethodsEntity.vaultPaymentMethodsEntity}
-          actualData={tableData->Array.map(Nullable.make)}
-          totalResults={tableData->Array.length}
-          offset
-          setOffset
-          onEntityClick={val => {
-            setPaymentId(_ => val.id)
-            setShowModal(_ => true)
-          }}
-          currrentFetchCount={tableData->Array.length}
-        />
-        <Modal
-          showModal
-          setShowModal
-          closeOnOutsideClick=true
-          modalClass="w-full md:w-1/2 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-          childClass="">
-          <VaultPaymentMethodDetailsSidebar paymentId setShowModal />
-        </Modal>
-      </PageLoaderWrapper>
-    </>
+    <PageLoaderWrapper screenState>
+      <LoadedTable
+        title=" "
+        hideTitle=true
+        resultsPerPage=7
+        entity={VaultPaymentMethodsEntity.vaultPaymentMethodsEntity}
+        actualData={tableData->Array.map(Nullable.make)}
+        totalResults={tableData->Array.length}
+        offset
+        setOffset
+        onEntityClick={val => {
+          setPaymentId(_ => val.id)
+          setShowModal(_ => true)
+        }}
+        currrentFetchCount={tableData->Array.length}
+      />
+      <Modal
+        showModal
+        setShowModal
+        closeOnOutsideClick=true
+        modalClass="w-full md:w-1/2 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+        childClass="">
+        <VaultPaymentMethodDetailsSidebar paymentId setShowModal sampleReport />
+      </Modal>
+    </PageLoaderWrapper>
   }
 }
 
 module VaultedPaymentMethods = {
   @react.component
-  let make = () => {
+  let make = (~sampleReport) => {
     <>
       <div
         className={`font-semibold text-nd_gray-600 text-fs-24 leading-6 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Vaulted Payment Methods"->React.string}
       </div>
-      <VaultedPaymentMethodsTable />
+      <VaultedPaymentMethodsTable sampleReport />
     </>
   }
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~sampleReport) => {
   open APIUtils
+  open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => JSON.Encode.null)
-
+  let defaultObject = Dict.make()->VaultCustomersEntity.itemToObjMapper
   let fetchCustomersData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let customersUrl = getURL(~entityName=V2(CUSTOMERS), ~methodType=Get, ~id=Some(id))
+
       let response = await fetchDetails(customersUrl, ~version=V2)
       setCustomersData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -224,8 +236,27 @@ let make = (~id) => {
     }
   }
 
+  let fetchDummyData = () => {
+    let response = VaultSampleData.retrieveCustomer
+    let data =
+      response
+      ->getDictFromJsonObject
+      ->getArrayFromDict("data", [])
+      ->VaultCustomersEntity.getArrayOfCustomerListPayloadType
+    let selectedDataArray = data->Array.filter(item => {item.id == id})
+
+    let selectedDataObject =
+      selectedDataArray->getValueFromArray(0, defaultObject)->Identity.genericTypeToJson
+
+    setCustomersData(_ => selectedDataObject)
+    setScreenState(_ => PageLoaderWrapper.Success)
+  }
   React.useEffect(() => {
-    fetchCustomersData()->ignore
+    if !sampleReport {
+      fetchCustomersData()->ignore
+    } else {
+      fetchDummyData()->ignore
+    }
     None
   }, [])
   <PageLoaderWrapper screenState>
@@ -239,11 +270,10 @@ let make = (~id) => {
               cursorStyle="cursor-pointer"
             />
           </div>
-          <div />
         </div>
       </div>
       <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
-      <VaultedPaymentMethods />
+      <VaultedPaymentMethods sampleReport />
     </div>
   </PageLoaderWrapper>
 }

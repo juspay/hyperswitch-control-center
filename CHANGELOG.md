@@ -3,6 +3,36 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.13.1
+
+### Features
+
+- Generate sample report data functionality for vault ([#2411](https://github.com/juspay/hyperswitch-control-center/pull/2411)) ([`caa973e`](https://github.com/juspay/hyperswitch-control-center/commit/caa973eaa519517266e632828a919f3d6cc4c74f))
+
+### Bug Fixes
+
+- Connector name - unknown issue ([#2453](https://github.com/juspay/hyperswitch-control-center/pull/2453)) ([`5b373d3`](https://github.com/juspay/hyperswitch-control-center/commit/5b373d3f6fe92db3a9fe69af50eb38d6086a7dd0))
+- Column graph tooltip formatter listing ([#2443](https://github.com/juspay/hyperswitch-control-center/pull/2443)) ([`c8af9b4`](https://github.com/juspay/hyperswitch-control-center/commit/c8af9b40e86ea0b072d0eaac8990b6475e3b6bfc))
+- Sort issue of insights ([#2463](https://github.com/juspay/hyperswitch-control-center/pull/2463)) ([`17ff375`](https://github.com/juspay/hyperswitch-control-center/commit/17ff375e5fa2263a1a515075dc6439730732a1ea))
+- Vault product minor fixes ([#2434](https://github.com/juspay/hyperswitch-control-center/pull/2434)) ([`e60ef39`](https://github.com/juspay/hyperswitch-control-center/commit/e60ef39c16abc2aef3f98ad2e707ef21193af5cb))
+- Vault landing and connector api call changes ([#2467](https://github.com/juspay/hyperswitch-control-center/pull/2467)) ([`2a2ff64`](https://github.com/juspay/hyperswitch-control-center/commit/2a2ff64ccb9915db98aa48a6fd1fe571f774fcc2))
+- Merchant switch home page fix ([#2474](https://github.com/juspay/hyperswitch-control-center/pull/2474)) ([`1761197`](https://github.com/juspay/hyperswitch-control-center/commit/1761197265e2cef16a67abf5c27ea6be814d0068))
+
+### Miscellaneous Tasks
+
+- Routing enhancements and api changes ([#2445](https://github.com/juspay/hyperswitch-control-center/pull/2445)) ([`4886bdf`](https://github.com/juspay/hyperswitch-control-center/commit/4886bdf53442c41f061d529087e04244c9f2b88f))
+- Recovery token testing fixes ([#2464](https://github.com/juspay/hyperswitch-control-center/pull/2464)) ([`95b990b`](https://github.com/juspay/hyperswitch-control-center/commit/95b990b57b3d4d4277e44cff90a48ff57793498c))
+- Get production access ([#2469](https://github.com/juspay/hyperswitch-control-center/pull/2469)) ([`6986068`](https://github.com/juspay/hyperswitch-control-center/commit/698606804e219c2b7049043146702f5a97801262))
+
+### Revert
+
+- Connector name - unknown issue ([#2461](https://github.com/juspay/hyperswitch-control-center/pull/2461)) ([`6252628`](https://github.com/juspay/hyperswitch-control-center/commit/62526283afbd536d89ca5caee4574ce3425a6a01))
+
+**Full Changelog:** [`2025.03.13.0...2025.03.13.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.13.0...2025.03.13.1)
+
+
+- - -
+
 ## 2025.03.13.0
 
 ### Features

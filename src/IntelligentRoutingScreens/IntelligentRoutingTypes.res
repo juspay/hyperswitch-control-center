@@ -1,36 +1,59 @@
-type file = Sample | Upload
-
 type dataType = Historical | Realtime
+type file = Sample | Upload
 type realtime = StreamLive
 
 type reviewFieldsColsType =
-  | FileName
   | NumberOfTransaction
-  | NumberOfTerminalTransactions
-  | NumberOfProcessors
   | TotalAmount
-  | MostUsedProcessor
+  | FileName
+  | Processors
   | PaymentMethod
 
 type reviewFields = {
-  file_name: string,
-  number_of_transaction: int,
-  number_of_terminal_transactions: int,
-  number_of_processors: int,
-  most_used_processor: array<string>,
-  payment_method: array<string>,
+  total: int,
   total_amount: int,
+  file_name: string,
+  processors: array<string>,
+  payment_methods: array<string>,
 }
 
 type transactionDetails = {
   txn_no: int,
-  order_id: string,
-  juspay_txn_id: string,
+  payment_intent_id: string,
+  payment_attempt_id: string,
   amount: float,
   payment_gateway: string,
   payment_status: bool,
+  created_at: string,
   payment_method_type: string,
   order_currency: string,
   model_connector: string,
   suggested_uplift: float,
+}
+
+type stats = {
+  baseline: float,
+  model: float,
+}
+
+type volDist = {
+  success_rate: float,
+  baseline_volume: int,
+  model_volume: int,
+}
+
+type timeSeriesData = {
+  time_stamp: string,
+  success_rate: stats,
+  revenue: stats,
+  volume_distribution_as_per_sr: JSON.t,
+}
+
+type statistics = {
+  overall_success_rate: stats,
+  total_failed_payments: stats,
+  total_revenue: stats,
+  faar: stats,
+  time_series_data: array<timeSeriesData>,
+  overall_success_rate_improvement: float,
 }

@@ -33,6 +33,11 @@ let getV2Url = (
       | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
       | None => connectorBaseURL
       }
+    | Post =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => connectorBaseURL
+      }
     | _ => ""
     }
   | V2_ORDERS_LIST =>
@@ -58,15 +63,11 @@ let getV2Url = (
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
     | None => ""
     }
+  | TOTAL_TOKEN_COUNT => `v2/customers/payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
     | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
     | None => ""
-    }
-  | SIMULATE_INTELLIGENT_ROUTING =>
-    switch queryParamerters {
-    | Some(queryParams) => `simulate?${queryParams}`
-    | None => `simulate`
     }
   /* MERCHANT ACCOUNT DETAILS (Get and Post) */
   | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
@@ -714,14 +715,15 @@ let useGetURL = () => {
       /* INTELLIGENT ROUTING */
       | SIMULATE_INTELLIGENT_ROUTING =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate?${queryParams}`
-        | None => `simulate`
+        | Some(queryParams) => `simulate/${merchantId}?${queryParams}`
+        | None => `simulate/${merchantId}`
         }
       | INTELLIGENT_ROUTING_RECORDS =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate/get-records?${queryParams}`
-        | None => `simulate/get-records`
+        | Some(queryParams) => `simulate/${merchantId}/get-records?${queryParams}`
+        | None => `simulate/${merchantId}/get-records`
         }
+      | INTELLIGENT_ROUTING_GET_STATISTICS => `simulate/${merchantId}/get-statistics`
 
       /* USERS */
       | USERS =>

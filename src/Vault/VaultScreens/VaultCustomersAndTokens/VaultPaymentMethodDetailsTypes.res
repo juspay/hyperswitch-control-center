@@ -13,7 +13,7 @@ type cardDetails = {
   saved_to_locker: bool,
 }
 
-type paymentMethodDataType = {card: cardDetails}
+type paymentMethodDataType = {card: JSON.t}
 
 type networkTokensData = {
   token: string,
@@ -43,7 +43,7 @@ type paymentMethodDetails = {
   last_used_at: string,
   payment_method_data: paymentMethodDataType,
   connector_tokens: array<connectorTokenType>,
-  network_tokens: networkTokensData,
+  network_tokens: JSON.t,
 }
 
 type paymentMethodDetailsColsType =

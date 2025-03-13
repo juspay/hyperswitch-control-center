@@ -17,7 +17,7 @@ let cardDetailsMapper = dict => {
 }
 
 let paymentMethodDataMapper = dict => {
-  card: dict->getDictfromDict("card")->cardDetailsMapper,
+  card: dict->getJsonObjectFromDict("card"),
 }
 
 let networkTokensData = dict => {
@@ -54,6 +54,12 @@ let itemToObjMapper: JSON.t => paymentMethodDetails = json => {
     connector_tokens: dict
     ->getJsonObjectFromDict("connector_tokens")
     ->getArrayDataFromJson(connectorTokensMapper),
-    network_tokens: dict->getDictfromDict("network_tokens")->networkTokensData,
+    network_tokens: dict->getJsonObjectFromDict("network_tokens"),
   }
+}
+
+let getArrayOfPaymentMethodListPayloadType = json => {
+  json->Array.map(reportJson => {
+    reportJson->itemToObjMapper
+  })
 }

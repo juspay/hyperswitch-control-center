@@ -146,6 +146,7 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
+
   let vaultTitleElement =
     <>
       <GatewayIcon gateway={`${connector}`->String.toUpperCase} />
