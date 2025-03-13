@@ -240,7 +240,15 @@ let make = () => {
   > = merchantList->Array.mapWithIndex((item, i) => {
     let customComponent =
       <MerchantDropdownItem
-        key={Int.toString(i)} merchantName=item.name index=i currentId=item.id getMerchantList
+        key={Int.toString(i)}
+        merchantName=item.name
+        productType={switch item.productType {
+        | Some(pt) => pt
+        | None => Orchestration
+        }}
+        index=i
+        currentId=item.id
+        getMerchantList
       />
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,

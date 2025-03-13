@@ -218,9 +218,11 @@ module OMPViews = {
 
 module MerchantDropdownItem = {
   @react.component
-  let make = (~merchantName, ~index: int, ~currentId, ~getMerchantList) => {
+  let make = (~merchantName, ~productType, ~index: int, ~currentId, ~getMerchantList) => {
     open LogicUtils
     open APIUtils
+    open ProductTypes
+    open ProductUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
@@ -236,6 +238,18 @@ module MerchantDropdownItem = {
     let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
+    Js.log2("producttype", productType)
+    let productTypeIconMapper = productType => {
+      switch productType {
+      | Orchestration => "orchestrator-home"
+      | Recon => "recon-home"
+      | Recovery => "recovery-home"
+      | Vault => "vault-home"
+      | CostObservability => "nd-piggy-bank"
+      | DynamicRouting => "intelligent-routing-home"
+      | _ => "orchestrator-home"
+      }
+    }
 
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
@@ -295,6 +309,24 @@ module MerchantDropdownItem = {
     let isActive = currentId == merchantId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let leftIcon = if isActive && !isUnderEdit {
+      <Icon name="nd-check" className={`${leftIconCss} ${secondaryTextColor}`} />
+    } else if isActive && isUnderEdit {
+      React.null // Show nothing in ReScript
+    } else if !isActive && !isUnderEdit {
+      <ToolTip
+        description={productType->getProductDisplayName}
+        customStyle="!whitespace-nowrap"
+        toolTipFor={<Icon
+          name={productType->productTypeIconMapper}
+          className={`${secondaryTextColor} opacity-50`}
+          size=14
+        />}
+        toolTipPosition=ToolTip.Top
+      />
+    } else {
+      React.null // Default case
+    }
     <>
       <div className={`rounded-lg mb-1`}>
         <InlineEditInput
@@ -323,7 +355,7 @@ module MerchantDropdownItem = {
           customIconStyle={isActive ? `${secondaryTextColor}` : ""}
           handleClick={_ => handleMerchantSwitch(currentId)}
           customWidth="min-w-56"
-          leftIcon={<Icon name="nd-check" className={`${leftIconCss} ${secondaryTextColor}`} />}
+          leftIcon={leftIcon}
         />
       </div>
       <LoaderModal
