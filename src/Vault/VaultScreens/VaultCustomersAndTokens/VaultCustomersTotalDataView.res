@@ -11,55 +11,65 @@ module TotalNumbersViewCard = {
   }
 }
 
-@react.component
-let make = (~sampleReport, ~custCount) => {
-  open LogicUtils
-  open APIUtils
-  let custDisplaycount = ` ${custCount->Belt.Int.toString}`
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  let (tokenCount, setTokenCount) = React.useState(_ => 0)
-  let getTokenCount = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
-    try {
-      let customersUrl = getURL(~entityName=V2(TOTAL_TOKEN_COUNT), ~methodType=Get)
-      let response = await fetchDetails(customersUrl, ~version=V2)
+module VaultTotalTokens = {
+  @react.component
+  let make = (~sampleReport) => {
+    open APIUtils
+    open LogicUtils
+
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let (tokenCount, setTokenCount) = React.useState(_ => 0)
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+
+    let getTokenCount = async () => {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      try {
+        let customersUrl = getURL(~entityName=V2(TOTAL_TOKEN_COUNT), ~methodType=Get)
+        let response = await fetchDetails(customersUrl, ~version=V2)
+        let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
+        setTokenCount(_ => totalCount)
+
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | Exn.Error(e) =>
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
+      }
+    }
+
+    let fetchDummyData = () => {
+      let response = VaultSampleData.pmCount
       let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
       setTokenCount(_ => totalCount)
-
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
     }
-  }
 
-  let fetchDummyData = () => {
-    let response = VaultSampleData.pmCount
-    let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
-    setTokenCount(_ => totalCount)
-  }
+    React.useEffect(() => {
+      if !sampleReport {
+        getTokenCount()->ignore
+      } else {
+        fetchDummyData()->ignore
+      }
+      None
+    }, [sampleReport])
 
-  React.useEffect(() => {
-    if !sampleReport {
-      getTokenCount()->ignore
-    } else {
-      fetchDummyData()->ignore
-    }
-    None
-  }, [sampleReport])
-
-  <PageLoaderWrapper screenState>
-    <div className="flex flex-row gap-2">
-      <TotalNumbersViewCard
-        title="Total Customers" count={`${custCount <= 0 ? "-" : custDisplaycount} `}
-      />
+    <PageLoaderWrapper screenState>
       <TotalNumbersViewCard
         title="Total Vaulted Payment Methods"
         count={`${tokenCount <= 0 ? "-" : tokenCount->Belt.Int.toString}`}
       />
-    </div>
-  </PageLoaderWrapper>
+    </PageLoaderWrapper>
+  }
+}
+
+@react.component
+let make = (~sampleReport, ~custCount) => {
+  let custDisplaycount = ` ${custCount->Belt.Int.toString}`
+
+  <div className="flex flex-row gap-2">
+    <TotalNumbersViewCard
+      title="Total Customers" count={`${custCount <= 0 ? "-" : custDisplaycount} `}
+    />
+    <VaultTotalTokens sampleReport />
+  </div>
 }

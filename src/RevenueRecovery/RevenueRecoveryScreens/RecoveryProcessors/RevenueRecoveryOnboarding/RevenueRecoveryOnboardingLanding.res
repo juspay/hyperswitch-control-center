@@ -2,6 +2,7 @@
 let make = (~default=true) => {
   open PageUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
@@ -18,7 +19,8 @@ let make = (~default=true) => {
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
         subTitle="Maximize retention and recover failed transactions with automated retry strategies."
       />
-      <Button
+      <ACLButton
+        authorization={userHasAccess(~groupAccess=OrganizationManage)}
         text={default ? "Integrate Connectors" : "Get Started"}
         onClick={_ => {
           if default {
