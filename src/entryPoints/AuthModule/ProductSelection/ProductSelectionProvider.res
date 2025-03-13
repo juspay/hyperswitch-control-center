@@ -60,6 +60,19 @@ module SelectMerchantBody = {
         }
       })
 
+    let getFirstValueForDropdown = dropDownOptions->getValueFromArray(
+      0,
+      {
+        label: "",
+        value: "",
+      },
+    )
+
+    let initialValues =
+      [
+        ("merchant_selected", getFirstValueForDropdown.value->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson
+
     let merchantName = FormRenderer.makeFieldInfo(
       ~label="Merchant to switch",
       ~name="merchant_selected",
@@ -88,6 +101,18 @@ module SelectMerchantBody = {
       Nullable.null
     }
 
+    let validateForm = (values: JSON.t) => {
+      let errors = Dict.make()
+      let merchant_selected =
+        values->getDictFromJsonObject->getString("merchant_selected", "")->String.trim
+
+      if merchant_selected->isEmptyString {
+        Dict.set(errors, "company_name", "Merchant cannot be emoty"->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
+    }
+
     <div>
       <div className="pt-3 m-3 flex justify-between">
         <CardUtils.CardHeader
@@ -97,7 +122,7 @@ module SelectMerchantBody = {
         />
       </div>
       <hr />
-      <Form key="new-merchant-creation" onSubmit>
+      <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>
         <div className="flex flex-col h-full w-full">
           <div className="py-10">
             <FormRenderer.DesktopRow>
