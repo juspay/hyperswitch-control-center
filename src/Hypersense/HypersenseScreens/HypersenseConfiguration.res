@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open PageUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
     #tenant_admin,
@@ -25,6 +26,7 @@ let make = () => {
         authorization={userHasCreateMerchantAccess}
         text="Get Started"
         onClick={_ => {
+          mixpanelEvent(~eventName="hypersense_get_started_new_merchant")
           setCreateNewMerchant(ProductTypes.CostObservability)
         }}
         customTextPaddingClass="pr-0"
