@@ -7,7 +7,7 @@ let make = () => {
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
   )
-  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let setUpConnectorContainer = async () => {
@@ -19,7 +19,6 @@ let make = () => {
         userHasAccess(~groupAccess=WorkflowsManage) === Access
       ) {
         let _ = await fetchConnectorListResponse()
-        let _ = await fetchBusinessProfiles()
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
