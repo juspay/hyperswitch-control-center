@@ -69,7 +69,6 @@ let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload =>
     tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
       ~title="Revenue Uplift",
       ~metricType=AmountWithSuffix,
-      ~reverse=true,
     ),
     yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
       ~statType=AmountWithSuffix,
