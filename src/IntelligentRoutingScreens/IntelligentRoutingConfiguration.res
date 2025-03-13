@@ -20,8 +20,8 @@ module Review = {
         )
         let response = await updateDetails(url, JSON.Encode.null, Post)
 
-        let msg = response->getDictFromJsonObject->getString("message", "")
-        if msg === "Simulation successful" {
+        let msg = response->getDictFromJsonObject->getString("message", "")->String.toLowerCase
+        if msg === "simulation successful" {
           RescriptReactRouter.replace(
             GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
           )
