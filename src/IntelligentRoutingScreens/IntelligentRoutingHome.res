@@ -6,7 +6,7 @@ let make = () => {
   }
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
-    <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
+    <img alt="intelligentRouting" src="/IntelligentRouting/IntelligentRoutingOnboarding.svg" />
     <div className="flex flex-col gap-8 items-center">
       <div
         className="border rounded-md text-nd_green-200 border-nd_green-200 font-semibold p-1.5 text-sm w-fit">
