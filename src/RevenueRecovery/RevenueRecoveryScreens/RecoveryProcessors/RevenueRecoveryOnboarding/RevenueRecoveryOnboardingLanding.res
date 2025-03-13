@@ -19,7 +19,7 @@ let make = (~default=true) => {
         subTitle="Maximize retention and recover failed transactions with automated retry strategies."
       />
       <ACLButton
-        authorization={userHasAccess(~groupAccess=AccountManage)}
+        authorization={userHasAccess(~groupAccess=OrganizationManage)}
         text="Get Started"
         onClick={_ => {
           if default {

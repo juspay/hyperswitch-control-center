@@ -24,7 +24,7 @@ module ReconOnboardingLanding = {
           subTitle="Built for 10x financial & transactional accuracy"
         />
         <ACLButton
-          authorization={userHasAccess(~groupAccess=AccountManage)}
+          authorization={userHasAccess(~groupAccess=OrganizationManage)}
           text="Try Demo"
           onClick={_ => onTryDemoClick()}
           rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}

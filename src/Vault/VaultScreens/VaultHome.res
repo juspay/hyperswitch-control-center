@@ -19,7 +19,7 @@ let make = () => {
         subTitle="Learn how to vault cards from your Server if you're PCI compliant and Learn how to vault cards using Hyperswitch's Checkout if you're non-PCI compliant"
       />
       <ACLButton
-        authorization={userHasAccess(~groupAccess=AccountManage)}
+        authorization={userHasAccess(~groupAccess=OrganizationManage)}
         text="Get Started"
         onClick={_ => {
           setCreateNewMerchant(ProductTypes.Vault)

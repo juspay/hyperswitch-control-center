@@ -19,7 +19,7 @@ let make = () => {
         subTitle="Audit, Observe and Optimize payment costs to uncover cost-saving opportunities"
       />
       <ACLButton
-        authorization={userHasAccess(~groupAccess=AccountManage)}
+        authorization={userHasAccess(~groupAccess=OrganizationManage)}
         text="Get Started"
         onClick={_ => {
           setCreateNewMerchant(ProductTypes.CostObservability)

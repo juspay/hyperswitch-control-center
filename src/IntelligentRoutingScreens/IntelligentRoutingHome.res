@@ -21,7 +21,7 @@ let make = () => {
         subTitle="Real-time ML based algorithms and rule-based constraints to route payments optimally"
       />
       <ACLButton
-        authorization={userHasAccess(~groupAccess=AccountManage)}
+        authorization={userHasAccess(~groupAccess=OrganizationManage)}
         text="Explore Simulator"
         onClick={_ => onTryDemoClick()}
         rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}
