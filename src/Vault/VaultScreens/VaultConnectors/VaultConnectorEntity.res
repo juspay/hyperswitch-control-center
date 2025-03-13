@@ -48,18 +48,6 @@ let connectorStatusStyle = connectorStatus =>
   | "active" => "text-green-700"
   | _ => "text-grey-800 opacity-50"
   }
-let getConnectorObjectFromListViaId = (
-  connectorList: array<ConnectorTypes.connectorPayloadV2>,
-  mca_id: string,
-) => {
-  let default = ConnectorInterface.mapDictToConnectorPayload(
-    ConnectorInterface.connectorInterfaceV2,
-    Dict.make(),
-  )
-  connectorList
-  ->Array.find(ele => {ele.id == mca_id})
-  ->Option.getOr(default)
-}
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeV2>) => {
   let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {

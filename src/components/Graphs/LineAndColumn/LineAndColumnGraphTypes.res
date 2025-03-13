@@ -65,7 +65,7 @@ type dataObj = {
   showInLegend: showInLegend,
   \"type": \"type",
   name: name,
-  data: array<int>,
+  data: array<float>,
   color: color,
   yAxis: int,
 }

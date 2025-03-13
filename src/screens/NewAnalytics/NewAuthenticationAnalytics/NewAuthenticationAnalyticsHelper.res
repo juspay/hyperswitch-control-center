@@ -74,6 +74,9 @@ module Insights = {
             {"Insights"->React.string}
           </p>
           {
+            data.queryData->Array.sort((a, b) => {
+              a.error_message_count <= b.error_message_count ? 1. : -1.
+            })
             let queryDataArray = data.queryData
             let metaDataObj = data.metaData->getValueFromArray(0, defaultMetaData)
             queryDataArray
