@@ -3,8 +3,9 @@ module Review = {
   let make = (~reviewFields, ~isUpload=false) => {
     open IntelligentRoutingReviewFieldsEntity
     open APIUtils
+    open LogicUtils
     let getURL = useGetURL()
-    let _updateDetails = useUpdateMethod()
+    let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
 
     let reviewFields = reviewFields->getReviewFields
@@ -12,22 +13,26 @@ module Review = {
 
     let uploadData = async () => {
       try {
-        let _url = getURL(
+        let url = getURL(
           ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
           ~methodType=Post,
           ~queryParamerters=Some(queryParamerters),
         )
-        // let _ = await updateDetails(url, JSON.Encode.null, Post)
+        let response = await updateDetails(url, JSON.Encode.null, Post)
+
+        let msg = response->getDictFromJsonObject->getString("message", "")->String.toLowerCase
+        if msg === "simulation successful" {
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
+          )
+        }
       } catch {
-      | _ => showToast(~message="Fetching the review data failed", ~toastType=ToastError)
+      | _ => showToast(~message="Upload data failed", ~toastType=ToastError)
       }
     }
 
     let handleNext = _ => {
       uploadData()->ignore
-      RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
-      )
     }
 
     <div className="w-500-px">
