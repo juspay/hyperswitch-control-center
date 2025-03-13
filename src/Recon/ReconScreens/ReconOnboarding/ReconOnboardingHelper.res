@@ -4,7 +4,7 @@ module ReconOnboardingLanding = {
     open PageUtils
 
     let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let userHasCreateMerchantAccess = OMPCreateAccessHook.useCheckIfUserHasMerchantCreateAccess()
     let onTryDemoClick = () => {
       setCreateNewMerchant(ProductTypes.Recon)
     }
@@ -24,7 +24,7 @@ module ReconOnboardingLanding = {
           subTitle="Built for 10x financial & transactional accuracy"
         />
         <ACLButton
-          authorization={userHasAccess(~groupAccess=OrganizationManage)}
+          authorization={userHasCreateMerchantAccess}
           text="Try Demo"
           onClick={_ => onTryDemoClick()}
           rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}

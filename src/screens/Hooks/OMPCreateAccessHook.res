@@ -15,3 +15,16 @@ let useOMPCreateAccessHook: array<adminType> => CommonAuthTypes.authorization = 
 
   allowedRoles->Array.includes(roleIdTypedValue) ? Access : NoAccess
 }
+
+let useCheckIfUserHasMerchantCreateAccess = () => {
+  let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+
+  [#Organization, #Tenant]->Array.includes(userEntity) &&
+    hasAnyGroupAccess(
+      userHasAccess(~groupAccess=AccountManage),
+      userHasAccess(~groupAccess=OrganizationManage),
+    ) == Access
+    ? CommonAuthTypes.Access
+    : CommonAuthTypes.NoAccess
+}

@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let userHasCreateMerchantAccess = OMPCreateAccessHook.useCheckIfUserHasMerchantCreateAccess()
   let onTryDemoClick = () => {
     setCreateNewMerchant(ProductTypes.DynamicRouting)
   }
@@ -21,7 +21,7 @@ let make = () => {
         subTitle="Real-time ML based algorithms and rule-based constraints to route payments optimally"
       />
       <ACLButton
-        authorization={userHasAccess(~groupAccess=OrganizationManage)}
+        authorization={userHasCreateMerchantAccess}
         text="Explore Simulator"
         onClick={_ => onTryDemoClick()}
         rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}

@@ -1,8 +1,8 @@
 @react.component
 let make = (~default=true) => {
   open PageUtils
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+  let userHasCreateMerchantAccess = OMPCreateAccessHook.useCheckIfUserHasMerchantCreateAccess()
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img className="h-56" alt="recoveryOnboarging" src="/assets/DefaultHomeRecoveryCard.svg" />
@@ -19,7 +19,7 @@ let make = (~default=true) => {
         subTitle="Maximize retention and recover failed transactions with automated retry strategies."
       />
       <ACLButton
-        authorization={userHasAccess(~groupAccess=OrganizationManage)}
+        authorization={userHasCreateMerchantAccess}
         text="Get Started"
         onClick={_ => {
           if default {
