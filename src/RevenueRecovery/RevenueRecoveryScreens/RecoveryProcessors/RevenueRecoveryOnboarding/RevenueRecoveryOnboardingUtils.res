@@ -165,3 +165,16 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
   })
   options
 }
+
+let getMixpanelEventName = currentStep => {
+  switch currentStep->getSectionVariant {
+  | (#connectProcessor, #selectProcessor) => "recovery_payment_processor_step1"
+  | (#connectProcessor, #activePaymentMethods) => "recovery_payment_processor_step2"
+  | (#connectProcessor, #setupWebhookProcessor) => "recovery_payment_processor_step3"
+  | (#addAPlatform, #selectAPlatform) => "recovery_billing_processor_step1"
+  | (#addAPlatform, #configureRetries) => "recovery_billing_processor_step2"
+  | (#addAPlatform, #connectProcessor) => "recovery_billing_processor_step3"
+  | (#addAPlatform, #setupWebhookPlatform) => "recovery_billing_processor_step4"
+  | _ => ""
+  }
+}

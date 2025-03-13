@@ -1,6 +1,7 @@
 @react.component
 let make = (~default=true) => {
   open PageUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
@@ -18,11 +19,13 @@ let make = (~default=true) => {
         subTitle="Maximize retention and recover failed transactions with automated retry strategies."
       />
       <Button
-        text="Get Started"
+        text={default ? "Integrate Connectors" : "Get Started"}
         onClick={_ => {
           if default {
+            mixpanelEvent(~eventName="recovery_get_started_new_merchant")
             setCreateNewMerchant(ProductTypes.Recovery)
           } else {
+            mixpanelEvent(~eventName="recovery_integrate_connectors_")
             RescriptReactRouter.replace(
               GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding`),
             )

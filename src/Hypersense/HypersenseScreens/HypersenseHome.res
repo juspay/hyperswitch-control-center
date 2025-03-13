@@ -38,6 +38,7 @@ let make = () => {
       <Button
         text="Explore Hypersense"
         onClick={_ => {
+          mixpanelEvent(~eventName="hypersense_explore")
           onExploreClick()->ignore
         }}
         customTextPaddingClass="pr-0"

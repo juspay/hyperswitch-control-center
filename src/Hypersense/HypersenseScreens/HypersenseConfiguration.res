@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open PageUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
@@ -20,6 +21,7 @@ let make = () => {
       <Button
         text="Get Started"
         onClick={_ => {
+          mixpanelEvent(~eventName="hypersense_get_started_new_merchant")
           setCreateNewMerchant(ProductTypes.CostObservability)
         }}
         customTextPaddingClass="pr-0"

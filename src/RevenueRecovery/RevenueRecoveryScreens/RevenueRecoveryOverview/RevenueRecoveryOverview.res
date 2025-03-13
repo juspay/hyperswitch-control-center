@@ -18,6 +18,7 @@ let make = () => {
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString("created.gte", "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV2,
@@ -188,12 +189,14 @@ let make = () => {
           <Button
             text="View Details"
             buttonType={Secondary}
-            onClick={_ =>
+            onClick={_ => {
+              mixpanelEvent(~eventName="recovery_view_details")
               RescriptReactRouter.replace(
                 GlobalVars.appendDashboardPath(
                   ~url=`/v2/recovery/summary/${billingConnectorID}?name=${billingConnectorName}`,
                 ),
-              )}
+              )
+            }}
             buttonSize={Small}
             customButtonStyle="w-fit"
           />

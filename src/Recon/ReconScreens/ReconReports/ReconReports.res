@@ -120,6 +120,13 @@ let make = () => {
     setReconArrow(prev => !prev)
   }
 
+  let tabValue = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("tab", "")
+
+  React.useEffect(() => {
+    mixpanelEvent(~eventName=tabValue)
+    None
+  }, [tabValue])
+
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
   <div>
