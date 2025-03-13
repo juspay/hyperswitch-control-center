@@ -8,7 +8,7 @@ let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
   let (selectedProcessor, setSelectedProcessor) = React.useState(_ => "")
   let (processorList, _) = React.useState(_ => [{id: "Stripe", name: "Stripe"}])
   let (arrow, setArrow) = React.useState(_ => false)
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let getNextStep = (currentStep: VerticalStepIndicatorTypes.step): option<
     VerticalStepIndicatorTypes.step,
   > => {
@@ -112,7 +112,10 @@ let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
             customButtonStyle="rounded w-full"
             buttonType={Primary}
             buttonState={selectedProcessor->String.length > 0 ? Normal : Disabled}
-            onClick={_ => onNextClick()->ignore}
+            onClick={_ => {
+              mixpanelEvent(~eventName="recon_onboarding_step2")
+              onNextClick()->ignore
+            }}
           />
         </div>
       </div>

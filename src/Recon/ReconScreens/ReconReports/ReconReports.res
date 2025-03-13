@@ -11,6 +11,7 @@ let make = () => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let (selectedReconId, setSelectedReconId) = React.useState(_ => "Recon_235")
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let (reconList, _) = React.useState(_ => [{id: "Recon_235", name: "Recon_235"}])
 
@@ -173,6 +174,7 @@ let make = () => {
               buttonType={Secondary}
               leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=14 />)}
               onClick={_ => {
+                mixpanelEvent(~eventName="recon_generate_reports_download")
                 downloadReport()->ignore
               }}
               buttonSize={Medium}
