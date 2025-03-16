@@ -8,12 +8,14 @@ module Review = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let (buttonState, setButtonState) = React.useState(() => Button.Normal)
 
     let reviewFields = reviewFields->getReviewFields
     let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
 
     let uploadData = async () => {
       try {
+        setButtonState(_ => Button.Loading)
         let url = getURL(
           ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
           ~methodType=Post,
@@ -27,8 +29,12 @@ module Review = {
             GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
           )
         }
+        setButtonState(_ => Button.Normal)
       } catch {
-      | _ => showToast(~message="Upload data failed", ~toastType=ToastError)
+      | _ => {
+          setButtonState(_ => Button.Normal)
+          showToast(~message="Upload data failed", ~toastType=ToastError)
+        }
       }
     }
 
@@ -54,9 +60,18 @@ module Review = {
       </div>
       <Button
         text="Explore Insights"
-        customButtonStyle="w-full"
-        buttonType={Primary}
+        customButtonStyle={`w-full hover:opacity-80 ${buttonState == Loading ? "cursor-wait" : ""}`}
+        buttonType=Primary
         onClick={_ => handleNext()}
+        rightIcon={buttonState === Button.Loading
+          ? CustomIcon(
+              <span className="px-3">
+                <span className={`flex items-center mx-2 animate-spin`}>
+                  <Loadericon size=14 iconColor="text-white" />
+                </span>
+              </span>,
+            )
+          : NoIcon}
       />
     </div>
   }
@@ -190,7 +205,15 @@ module Analyze = {
           customButtonStyle={`w-full hover:opacity-80 ${text != "Next" ? "cursor-wait" : ""}`}
           buttonType={Primary}
           onClick={_ => handleNext()}
-          rightIcon={text != "Next" ? CustomIcon(<Icon name="spinner" size=16 />) : NoIcon}
+          rightIcon={text != "Next"
+            ? CustomIcon(
+                <span className="px-3">
+                  <span className={`flex items-center mx-2 animate-spin`}>
+                    <Loadericon size=14 iconColor="text-white" />
+                  </span>
+                </span>,
+              )
+            : NoIcon}
           buttonState={Normal}
         />
       </div>

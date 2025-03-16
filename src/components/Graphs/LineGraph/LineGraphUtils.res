@@ -51,6 +51,10 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       \"type": "line",
       spacingLeft: 20,
       spacingRight: 20,
+      style: {
+        color: darkGray,
+        fontFamily,
+      },
     },
     title,
     xAxis: {
