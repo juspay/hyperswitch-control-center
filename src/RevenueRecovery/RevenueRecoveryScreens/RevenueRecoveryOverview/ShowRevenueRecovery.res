@@ -41,27 +41,20 @@ module ShowOrderDetails = {
 module OrderInfo = {
   @react.component
   let make = (~order) => {
-    let headingStyles = "font-bold text-lg mb-5 px-4"
-
-    <div className="flex flex-col mb-10 ">
-      <div className="w-full mb-6 ">
-        <ShowOrderDetails
-          data=order
-          getHeading=getHeadingForSummary
-          getCell=getCellForSummary
-          detailsFields=[OrderAmount, Created, LastUpdated, PaymentId, ProductName]
-          isButtonEnabled=true
-        />
-      </div>
-      <div className="w-full">
-        <div className={`${headingStyles}`}> {"Payment Details"->React.string} </div>
-        <ShowOrderDetails
-          data=order
-          getHeading=getHeadingForAboutPayment
-          getCell=getCellForAboutPayment
-          detailsFields=[Connector, ProfileId, PaymentMethodType, CardNetwork, MandateId]
-        />
-      </div>
+    <div className="flex flex-col mb-6  w-full">
+      <ShowOrderDetails
+        data=order
+        getHeading=getHeadingForSummary
+        getCell=getCellForSummary
+        detailsFields=[PaymentId, OrderAmount, Created]
+        isButtonEnabled=true
+      />
+      <ShowOrderDetails
+        data=order
+        getHeading=getHeadingForAboutPayment
+        getCell=getCellForAboutPayment
+        detailsFields=[Connector, Status, PaymentMethodType, CardNetwork]
+      />
     </div>
   }
 }
@@ -83,80 +76,66 @@ module AttemptsSection = {
     </div>
   }
 }
+
 module Attempts = {
   @react.component
   let make = (~order) => {
-    let expand = -1
-    let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
+    let getStyle = status => {
+      let orderStatus = status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
 
-    React.useEffect(() => {
-      if expand != -1 {
-        setExpandedRowIndexArray(_ => [expand])
-      }
-      None
-    }, [expand])
-
-    let onExpandClick = idx => {
-      setExpandedRowIndexArray(_ => {
-        [idx]
-      })
-    }
-
-    let collapseClick = idx => {
-      let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
-      setExpandedRowIndexArray(_ => {
-        let array = expandedRowIndexArray->Array.map(item => item)
-        array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
-
-        array
-      })
-    }
-
-    let onExpandIconClick = (isCurrentRowExpanded, rowIndex) => {
-      if isCurrentRowExpanded {
-        collapseClick(rowIndex)
-      } else {
-        onExpandClick(rowIndex)
+      switch orderStatus {
+      | #CHARGED => ("green-status", "nd-check")
+      | #FAILURE => ("red-status", "nd-alert-triangle-outline")
+      | _ => ("orange-status", "nd-calender")
       }
     }
 
-    let attemptsData = order.attempts->Array.toSorted((a, b) => {
-      let rowValue_a = a.id
-      let rowValue_b = b.id
+    <div className="border rounded-lg w-full h-fit p-5">
+      <div className="font-bold text-lg mb-5 px-4"> {"Attempts History"->React.string} </div>
+      <div className="p-5 flex flex-col gap-11 ">
+        {order.attempts
+        ->Array.mapWithIndex((item, index) => {
+          let (border, icon) = item.status->getStyle
 
-      rowValue_a <= rowValue_b ? 1. : -1.
-    })
-
-    let heading = attemptsColumns->Array.map(getAttemptHeading)
-
-    let rows = attemptsData->Array.map(item => {
-      attemptsColumns->Array.map(colType => getAttemptCell(item, colType))
-    })
-
-    let getRowDetails = rowIndex => {
-      switch attemptsData[rowIndex] {
-      | Some(data) => <AttemptsSection data />
-      | None => React.null
-      }
-    }
-
-    <div className="flex flex-col gap-4">
-      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>
-      <CustomExpandableTable
-        title="Attempts"
-        heading
-        rows
-        onExpandIconClick
-        expandedRowIndexArray
-        getRowDetails
-        showSerial=true
-      />
+          <div className="grid grid-cols-10 gap-5" key={index->Int.toString}>
+            <div className="flex flex-col gap-1">
+              <div className="w-full flex justify-end font-semibold">
+                {`#${(order.attempts->Array.length - index)->Int.toString}`->React.string}
+              </div>
+              <div className="w-full flex justify-end text-xs opacity-50">
+                <Table.DateCell timestamp={item.created} isCard=true hideTime=true />
+              </div>
+            </div>
+            <div className="relative ml-7">
+              <div
+                className={`absolute left-0 -ml-0.5 top-0 border-1.5 p-2 rounded-full h-fit w-fit border-${border} bg-white z-10`}>
+                <Icon name=icon className={`w-5 h-5 text-${border}`} />
+              </div>
+              <RenderIf condition={index != order.attempts->Array.length - 1}>
+                <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
+              </RenderIf>
+            </div>
+            <div className="border col-span-8 rounded-lg px-2">
+              <ShowOrderDetails
+                data=item
+                getHeading=getAttemptHeading
+                getCell=getAttemptCell
+                detailsFields=[AttemptedBy, Connector, Status]
+              />
+            </div>
+          </div>
+        })
+        ->React.array}
+      </div>
     </div>
   }
 }
 
 @react.component
 let make = (~id) => {
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ =>
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
@@ -168,185 +147,8 @@ let make = (~id) => {
     try {
       setScreenState(_ => Loading)
 
-      // let res = await fetchDetails(url)
-      let res = {
-        {
-          "id": "12345_pay_01926c58bc6e77c09e809964e72af8c8",
-          "status": "succeeded",
-          "amount": {
-            "order_amount": 6540,
-            "currency": "AED",
-            "shipping_cost": 123,
-            "order_tax_amount": 123,
-            "external_tax_calculation": "skip",
-            "surcharge_calculation": "skip",
-            "surcharge_amount": 123,
-            "tax_on_surcharge": 123,
-            "net_amount": 123,
-            "amount_to_capture": 123,
-            "amount_capturable": 123,
-            "amount_captured": 123,
-          },
-          "customer_id": "12345_cus_01926c58bc6e77c09e809964e72af8c8",
-          "connector": "stripe",
-          "client_secret": "<string>",
-          "created": "2022-09-10T10:11:12Z",
-          "payment_method_data": {
-            "card": {
-              "last4": "<string>",
-              "card_type": "<string>",
-              "card_network": "Visa",
-              "card_issuer": "<string>",
-              "card_issuing_country": "<string>",
-              "card_isin": "<string>",
-              "card_extended_bin": "<string>",
-              "card_exp_month": "<string>",
-              "card_exp_year": "<string>",
-              "card_holder_name": "<string>",
-              "payment_checks": "<any>",
-              "authentication_data": "<any>",
-            },
-            "billing": {
-              "address": {
-                "city": "New York",
-                "country": "AF",
-                "line1": "123, King Street",
-                "line2": "Powelson Avenue",
-                "line3": "Bridgewater",
-                "zip": "08807",
-                "state": "New York",
-                "first_name": "John",
-                "last_name": "Doe",
-              },
-              "phone": {
-                "number": "9123456789",
-                "country_code": "+1",
-              },
-              "email": "<string>",
-            },
-          },
-          "payment_method_type": "card",
-          "payment_method_subtype": "ach",
-          "connector_transaction_id": "993672945374576J",
-          "connector_reference_id": "993672945374576J",
-          "merchant_connector_id": "<string>",
-          "browser_info": {
-            "color_depth": 1,
-            "java_enabled": true,
-            "java_script_enabled": true,
-            "language": "<string>",
-            "screen_height": 1,
-            "screen_width": 1,
-            "time_zone": 123,
-            "ip_address": "<string>",
-            "accept_header": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-            "user_agent": "<string>",
-            "os_type": "<string>",
-            "os_version": "<string>",
-            "device_model": "<string>",
-            "accept_language": "<string>",
-          },
-          "error": {
-            "code": "<string>",
-            "message": "<string>",
-            "unified_code": "<string>",
-            "unified_message": "<string>",
-          },
-          "shipping": {
-            "address": {
-              "city": "New York",
-              "country": "AF",
-              "line1": "123, King Street",
-              "line2": "Powelson Avenue",
-              "line3": "Bridgewater",
-              "zip": "08807",
-              "state": "New York",
-              "first_name": "John",
-              "last_name": "Doe",
-            },
-            "phone": {
-              "number": "9123456789",
-              "country_code": "+1",
-            },
-            "email": "<string>",
-          },
-          "billing": {
-            "address": {
-              "city": "New York",
-              "country": "AF",
-              "line1": "123, King Street",
-              "line2": "Powelson Avenue",
-              "line3": "Bridgewater",
-              "zip": "08807",
-              "state": "New York",
-              "first_name": "John",
-              "last_name": "Doe",
-            },
-            "phone": {
-              "number": "9123456789",
-              "country_code": "+1",
-            },
-            "email": "<string>",
-          },
-          "attempts": [
-            {
-              "id": "<string>",
-              "status": "started",
-              "amount": {
-                "net_amount": 123,
-                "amount_to_capture": 123,
-                "surcharge_amount": 123,
-                "tax_on_surcharge": 123,
-                "amount_capturable": 123,
-                "shipping_cost": 123,
-                "order_tax_amount": 123,
-              },
-              "connector": "stripe",
-              "error": {
-                "code": "<string>",
-                "message": "<string>",
-                "unified_code": "<string>",
-                "unified_message": "<string>",
-              },
-              "authentication_type": "three_ds",
-              "created_at": "2023-11-07T05:31:56Z",
-              "modified_at": "2023-11-07T05:31:56Z",
-              "cancellation_reason": "<string>",
-              "payment_token": "187282ab-40ef-47a9-9206-5099ba31e432",
-              "connector_metadata": {
-                "apple_pay": {
-                  "session_token_data": {
-                    "payment_processing_certificate": "<string>",
-                    "payment_processing_certificate_key": "<string>",
-                    "payment_processing_details_at": "Hyperswitch",
-                    "certificate": "<string>",
-                    "certificate_keys": "<string>",
-                    "merchant_identifier": "<string>",
-                    "display_name": "<string>",
-                    "initiative": "web",
-                    "initiative_context": "<string>",
-                    "merchant_business_country": "AF",
-                  },
-                },
-                "airwallex": {
-                  "payload": "<string>",
-                },
-                "noon": {
-                  "order_category": "<string>",
-                },
-              },
-              "payment_experience": "redirect_to_url",
-              "payment_method_type": "card",
-              "connector_reference_id": "993672945374576J",
-              "payment_method_subtype": "ach",
-              "connector_payment_id": "993672945374576J",
-              "payment_method_id": "12345_pm_01926c58bc6e77c09e809964e72af8c8",
-              "client_source": "<string>",
-              "client_version": "<string>",
-            },
-          ],
-        }
-      }->Identity.genericTypeToJson
+      let ordersUrl = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+      let res = await fetchDetails(ordersUrl)
 
       let order = RevenueRecoveryEntity.itemToObjMapper(res->getDictFromJsonObject)
       setRevenueRecoveryData(_ => order)
@@ -371,7 +173,6 @@ let make = (~id) => {
     fetchOrderDetails()->ignore
     None
   }, [])
-  let statusUI = getStatus(revenueRecoveryData, primaryColor)
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
@@ -387,43 +188,24 @@ let make = (~id) => {
     <div className="flex flex-col gap-10">
       <div className="flex flex-row justify-between items-center">
         <div className="flex gap-2 items-center">
-          <PageUtils.PageHeading title={`${revenueRecoveryData.invoice_id}`} />
-          {statusUI}
+          <PageUtils.PageHeading title="Invoice summary" />
         </div>
-        //Todo: Enable Stop recovery and refund amount buttons when needed"
-        // <div className="flex gap-2 ">
-        //   <ACLButton text="Stop Recovery" customButtonStyle="!w-fit" buttonType={Secondary} />
-        //   <ACLButton text="Refund Amount" customButtonStyle="!w-fit" buttonType={Primary} />
-        // </div>
+        <div className="flex gap-2 ">
+          <ACLButton
+            text="Stop Recovery"
+            customButtonStyle="!w-fit"
+            buttonType={Primary}
+            buttonState={Disabled}
+          />
+        </div>
       </div>
       <PageLoaderWrapper
         screenState
         customUI={<NoDataFound
           message="Payment does not exists in out record" renderType=NotFound
         />}>
-        <div className="grid grid-cols-4  ">
-          <div className="col-span-3">
-            <OrderInfo order=revenueRecoveryData />
-          </div>
-          <div className="col-span-1">
-            <div className="border rounded-lg rounded-b-none bg-nd_gray-100 px-4 py-2">
-              <p className="text-nd_gray-700 text-base font-semibold px-2 ">
-                {"Amount Details"->React.string}
-              </p>
-            </div>
-            <div className="border border-t-none rounded-t-none rounded-lg bg-nd_gray-100 p-2">
-              <ShowOrderDetails
-                data=revenueRecoveryData
-                widthClass="w-full"
-                getHeading=getHeadingForAboutPayment
-                getCell=getCellForAboutPayment
-                detailsFields=[AmountCapturable, AmountReceived, AuthenticationType]
-                isButtonEnabled=true
-                customFlex="flex-col"
-                isHorizontal=true
-              />
-            </div>
-          </div>
+        <div className="w-full">
+          <OrderInfo order=revenueRecoveryData />
         </div>
       </PageLoaderWrapper>
     </div>

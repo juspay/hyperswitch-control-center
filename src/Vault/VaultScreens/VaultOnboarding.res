@@ -18,6 +18,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => Success)
   let {profileId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
@@ -28,7 +29,10 @@ let make = () => {
     sectionId: (#authenticateProcessor: VaultHomeTypes.vaultSections :> string),
     subSectionId: None,
   })
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+    ~version=V2,
+  )
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let selectedConnector = React.useMemo(() => {
@@ -39,7 +43,6 @@ let make = () => {
   }
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let activeBusinessProfile = getNameForId(#Profile)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
@@ -51,11 +54,11 @@ let make = () => {
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-    initialValuesToDict->Dict.set("test_mode", !featureFlagDetails.isLiveMode->JSON.Encode.bool)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
   let onNextClick = () => {
+    mixpanelEvent(~eventName=currentStep->getVaultMixPanelEvent)
     switch getNextStep(currentStep) {
     | Some(nextStep) => setNextStep(_ => nextStep)
     | None => ()
@@ -65,8 +68,8 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Post)
+      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
+      let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
@@ -145,6 +148,7 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
+
   let vaultTitleElement =
     <>
       <GatewayIcon gateway={`${connector}`->String.toUpperCase} />
@@ -214,7 +218,7 @@ let make = () => {
         />
         <ConnectorWebhookPreview
           merchantId
-          connectorName=connectorInfoDict.merchant_connector_id
+          connectorName=connectorInfoDict.id
           textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true

@@ -125,9 +125,9 @@ module ValueInp = {
     let form = ReactFinalForm.useForm()
 
     React.useEffect(() => {
-      form.change(`${id}.${valuePath}`, ""->JSON.Encode.string)
+      form.change(`${id}.${valuePath}`, valueField.value)
       None
-    }, [opField.value])
+    }, [valueField.value])
 
     React.useEffect(() => {
       typeField.onChange(

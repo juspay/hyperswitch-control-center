@@ -3,12 +3,24 @@ module NewMerchantCreationModal = {
   let make = (~setShowModal, ~showModal, ~getMerchantList) => {
     open APIUtils
     let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let createNewMerchant = async values => {
       try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
-        let _ = await updateDetails(url, values, Post)
+        switch activeProduct {
+        | Orchestration
+        | CostObservability => {
+            let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            let _ = await updateDetails(url, values, Post)
+          }
+        | _ => {
+            let url = getURL(~entityName=V2(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            let _ = await updateDetails(url, values, Post, ~version=V2)
+          }
+        }
+        mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
         getMerchantList()->ignore
         showToast(
           ~toastType=ToastSuccess,
@@ -22,6 +34,15 @@ module NewMerchantCreationModal = {
       setShowModal(_ => false)
       Nullable.null
     }
+
+    let initialValues = React.useMemo(() => {
+      let dict = Dict.make()
+      dict->Dict.set(
+        "product_type",
+        (Obj.magic(activeProduct) :> string)->String.toLowerCase->JSON.Encode.string,
+      )
+      dict->JSON.Encode.object
+    }, [activeProduct])
 
     let onSubmit = (values, _) => {
       open LogicUtils
@@ -85,7 +106,7 @@ module NewMerchantCreationModal = {
           </div>
         </div>
         <hr />
-        <Form key="new-merchant-creation" onSubmit validate={validateForm}>
+        <Form key="new-merchant-creation" onSubmit validate={validateForm} initialValues>
           <div className="flex flex-col h-full w-full">
             <div className="py-10">
               <FormRenderer.DesktopRow>
@@ -143,14 +164,46 @@ let make = () => {
       sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
     },
   } = React.useContext(ThemeProvider.themeContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devModularityV2} = featureFlagDetails
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+
+  let getV2MerchantList = async () => {
+    try {
+      let v2MerchantListUrl = getURL(
+        ~entityName=V2(USERS),
+        ~userType=#LIST_MERCHANT,
+        ~methodType=Get,
+      )
+      let v2MerchantResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
+      let v2MerchantList = v2MerchantResponse->getArrayDataFromJson(merchantItemToObjMapper)
+      v2MerchantList
+    } catch {
+    | _ => []
+    }
+  }
   let getMerchantList = async () => {
     try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
-      let response = await fetchDetails(url)
-      setMerchantList(_ => response->getArrayDataFromJson(merchantItemToObjMapper))
+      let v1MerchantListUrl = getURL(
+        ~entityName=V1(USERS),
+        ~userType=#LIST_MERCHANT,
+        ~methodType=Get,
+      )
+      let v1MerchantResponse = await fetchDetails(v1MerchantListUrl)
+
+      let v2MerchantList = if devModularityV2 {
+        await getV2MerchantList()
+      } else {
+        []
+      }
+
+      let v1MerchantList = v1MerchantResponse->getArrayDataFromJson(merchantItemToObjMapper)
+      let concatMerchantList = v1MerchantList->Array.concat(v2MerchantList)
+
+      setMerchantList(_ => concatMerchantList)
     } catch {
     | _ => {
-        setMerchantList(_ => ompDefaultValue(merchantId, ""))
+        setMerchantList(_ => [ompDefaultValue(merchantId, "")])
         showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
       }
     }
@@ -159,7 +212,14 @@ let make = () => {
   let switchMerch = async value => {
     try {
       setShowSwitchingMerch(_ => true)
-      let _ = await internalSwitch(~expectedMerchantId=Some(value))
+      let merchantData =
+        merchantList
+        ->Array.find(merchant => merchant.id == value)
+        ->Option.getOr(ompDefaultValue(merchantId, ""))
+      let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
+      let productType = merchantData.productType->Option.getOr(Orchestration)
+      let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version)
+      setActiveProductValue(productType)
       setShowSwitchingMerch(_ => false)
     } catch {
     | _ => {
@@ -206,7 +266,16 @@ let make = () => {
   > = merchantList->Array.mapWithIndex((item, i) => {
     let customComponent =
       <MerchantDropdownItem
-        key={Int.toString(i)} merchantName=item.name index=i currentId=item.id
+        key={Int.toString(i)}
+        merchantName=item.name
+        productType={switch item.productType {
+        | Some(product) => product
+        | None => Orchestration
+        }}
+        index=i
+        currentId=item.id
+        getMerchantList
+        switchMerch
       />
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,

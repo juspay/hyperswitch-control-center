@@ -16,9 +16,12 @@ let make = (
   open RevenueRecoveryOnboardingUtils
 
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+    ~version=UserInfoTypes.V2,
+  )
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
 
@@ -53,17 +56,18 @@ let make = (
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Post)
+      let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
 
       let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
         ConnectorInterface.connectorInterfaceV2,
         response->getDictFromJsonObject,
       )
-      setConnectorID(_ => connectorInfoDict.merchant_connector_id)
+      setConnectorID(_ => connectorInfoDict.id)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
       onNextClick(currentStep, setNextStep)
@@ -141,8 +145,7 @@ let make = (
     value: connector->JSON.Encode.string,
     checked: true,
   }
-
-  let options = (featureFlagDetails.isLiveMode ? connectorListForLive : connectorList)->getOptions
+  let options = RecoveryConnectorUtils.recoveryConnectorList->getOptions
 
   <div>
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
@@ -214,7 +217,7 @@ let make = (
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <ConnectorWebhookPreview
             merchantId
-            connectorName=connectorInfoDict.merchant_connector_id
+            connectorName=connectorInfoDict.id
             textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
             containerClass="flex flex-row items-center justify-between"
             displayTextLength=46

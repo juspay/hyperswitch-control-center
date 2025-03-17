@@ -138,6 +138,7 @@ let make = (
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+      mixpanelEvent(~eventName="create_new_profile", ~metadata=body)
       let response = await updateDetails(url, body, Post)
       setUpdatedProfileId(_ =>
         response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
@@ -158,7 +159,6 @@ let make = (
   }
 
   let onSubmit = async (values, _) => {
-    mixpanelEvent(~eventName="business_profiles_add")
     updateMerchantDetails(values)->ignore
     Nullable.null
   }

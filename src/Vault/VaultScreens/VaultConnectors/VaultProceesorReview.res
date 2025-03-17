@@ -8,6 +8,7 @@ let make = (~connectorInfo) => {
     ConnectorInterface.connectorInterfaceV2,
     connectorInfo->LogicUtils.getDictFromJsonObject,
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let (processorType, _) =
     connectorInfodict.connector_type
@@ -43,9 +44,10 @@ let make = (~connectorInfo) => {
         Dict.make()
       }
     }
-  }, [connectorInfodict.merchant_connector_id])
+  }, [connectorInfodict.id])
 
   let handleClick = () => {
+    mixpanelEvent(~eventName="vault_onboarding_step4")
     setShowSideBar(_ => true)
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding`))
     showToast(~message="Connector Created Successfully!", ~toastType=ToastSuccess)
@@ -66,7 +68,7 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col ">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.merchant_connector_id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
       </div>
     </div>
     <ACLButton

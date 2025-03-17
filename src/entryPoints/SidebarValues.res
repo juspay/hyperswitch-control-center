@@ -53,7 +53,7 @@ module ProductHeaderComponent = {
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
     <div className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest`}>
-      {React.string(activeProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
+      {React.string(activeProduct->ProductUtils.getProductDisplayName->String.toUpperCase)}
     </div>
   }
 }
@@ -130,6 +130,17 @@ let payouts = userHasResourceAccess => {
     searchOptions: [("View payouts operations", "")],
   })
 }
+
+let alternatePaymentMethods = isApmEnabled =>
+  isApmEnabled
+    ? Link({
+        name: "Alt Payment Methods",
+        icon: "nd-apm",
+        link: "/apm",
+        access: Access,
+        selectedIcon: "nd-fill-apm",
+      })
+    : emptyComponent
 
 let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled, ~userEntity) => {
   let payments = payments(userHasResourceAccess)
@@ -654,6 +665,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     taxProcessor,
     newAnalytics,
     authenticationAnalytics,
+    devAltPaymentMethods,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -686,6 +698,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isPayoutEnabled=payOut,
       ~userEntity,
     ),
+    devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
     default->developers(~userHasResourceAccess, ~checkUserEntity),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
@@ -706,7 +719,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   if devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
-        name: "Home",
+        name: "Overview",
         icon: "nd-home",
         link: "/v2/home",
         access: Access,
@@ -719,11 +732,13 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   }
 
   let sidebarValuesForProduct = switch activeProduct {
-  | Orchestrator => hsSidebars
-  | Recon => [ReconSidebarValues.reconSidebars]
+  | Orchestration => hsSidebars
+  | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
-  | AlternatePaymentMethods => AlternatePaymentMethodsSidebarValues.altPaymentMethodsSidebars
+  | CostObservability => HypersenseSidebarValues.hypersenseSidebars
+  | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
+  | AlternatePaymentMethods => []
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

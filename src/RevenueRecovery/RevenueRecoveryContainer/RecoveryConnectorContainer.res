@@ -5,8 +5,11 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
+    ~version=V2,
   )
-  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
+  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getUserInfoData()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let setUpConnectorContainer = async () => {
@@ -18,7 +21,6 @@ let make = () => {
         userHasAccess(~groupAccess=WorkflowsManage) === Access
       ) {
         let _ = await fetchConnectorListResponse()
-        let _ = await fetchBusinessProfiles()
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -26,23 +28,23 @@ let make = () => {
     }
   }
 
+  let hasConfiguredBillingConnector =
+    ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV2,
+      ~retainInList=BillingProcessor,
+    )->Array.length > 0
+
   React.useEffect(() => {
     setUpConnectorContainer()->ignore
     None
-  }, [])
+  }, [merchantId, profileId])
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
-    | list{"v2", "recovery", "connectors", ...remainingPath} =>
-      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
-        <EntityScaffold
-          entityName="connectors"
-          remainingPath
-          renderList={() => <RecoveryConnectorList />}
-          renderNewForm={() => <RecoveryConnectorHome />}
-          renderShow={(_, _) => <PaymentProcessorSummary />}
-        />
-      </AccessControl>
+    | list{"v2", "recovery", "home"} =>
+      hasConfiguredBillingConnector
+        ? <RevenueRecoveryOverview />
+        : <RevenueRecoveryOnboardingLanding default=false />
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold
@@ -53,6 +55,14 @@ let make = () => {
           renderShow={(_, _) => <RevenueRecoveryOnboarding />}
         />
       </AccessControl>
+    | list{"v2", "recovery", "overview", ...remainingPath} =>
+      <EntityScaffold
+        entityName="Payments"
+        remainingPath
+        access=Access
+        renderList={() => <RevenueRecoveryOverview />}
+        renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
+      />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
