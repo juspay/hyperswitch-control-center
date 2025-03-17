@@ -48,13 +48,17 @@ module CurrencyCell = {
 module UpliftCell = {
   @react.component
   let make = (~uplift: float) => {
-    let upliftClass = uplift > 0.0 ? "text-green-500" : "text-red-500"
+    let upliftClass = uplift > 0.0 ? "text-green-500" : ""
     let icon = uplift > 0.0 ? "nd-arrow-up-no-underline" : ""
+
+    let upliftAmount = uplift > 0.0 ? uplift->Float.toString : "-"
 
     <div className={`flex gap-1 ${upliftClass}`}>
       <Icon name={icon} size=10 />
-      <p> {uplift->Float.toString->React.string} </p>
-      <Icon name="percent" size=10 />
+      <p> {upliftAmount->React.string} </p>
+      <RenderIf condition={uplift > 0.0}>
+        <Icon name="percent" size=10 />
+      </RenderIf>
     </div>
   }
 }
