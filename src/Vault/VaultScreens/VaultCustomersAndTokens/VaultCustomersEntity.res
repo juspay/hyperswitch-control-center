@@ -54,6 +54,11 @@ let itemToObjMapper = dict => {
     metadata: dict->getJsonObjectFromDict("metadata"),
   }
 }
+let getArrayOfCustomerListPayloadType = json => {
+  json->Array.map(reportJson => {
+    reportJson->LogicUtils.getDictFromJsonObject->itemToObjMapper
+  })
+}
 
 let getCustomers: JSON.t => array<customers> = json => {
   open LogicUtils
@@ -73,3 +78,16 @@ let customersEntity = EntityType.makeEntity(
       GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
   },
 )
+
+let colToStringMapper = val => {
+  switch val {
+  | CustomerId => "Customer Id"
+  | Name => "Customer Name"
+  | Email => "Email"
+  | Phone => "Phone"
+  | PhoneCountryCode => "Phone Country Code"
+  | Description => "Description"
+  | Address => "Address"
+  | CreatedAt => "Created"
+  }
+}

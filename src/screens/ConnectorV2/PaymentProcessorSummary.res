@@ -110,11 +110,16 @@ let make = (~baseUrl) => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
+      let connectorUrl = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Put,
+        ~id=Some(connectorID),
+      )
       let dict = values->getDictFromJsonObject
       dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
       switch currentActiveSection {
       | Some(AuthenticationKeys) => {
+          dict->Dict.delete("id")
           dict->Dict.delete("profile_id")
           dict->Dict.delete("merchant_connector_id")
           dict->Dict.delete("connector_name")
@@ -126,7 +131,7 @@ let make = (~baseUrl) => {
           dict->Dict.delete("connector_account_details")
         }
       }
-      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put)
+      let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
       setCurrentActiveSection(_ => None)
       setInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)

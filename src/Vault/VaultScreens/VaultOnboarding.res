@@ -18,6 +18,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => Success)
   let {profileId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
@@ -57,6 +58,7 @@ let make = () => {
   }, [connector, profileId])
 
   let onNextClick = () => {
+    mixpanelEvent(~eventName=currentStep->getVaultMixPanelEvent)
     switch getNextStep(currentStep) {
     | Some(nextStep) => setNextStep(_ => nextStep)
     | None => ()
@@ -66,7 +68,7 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
+      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
       let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore

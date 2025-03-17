@@ -60,6 +60,19 @@ module SelectMerchantBody = {
         }
       })
 
+    let getFirstValueForDropdown = dropDownOptions->getValueFromArray(
+      0,
+      {
+        label: "",
+        value: "",
+      },
+    )
+
+    let initialValues =
+      [
+        ("merchant_selected", getFirstValueForDropdown.value->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson
+
     let merchantName = FormRenderer.makeFieldInfo(
       ~label="Merchant to switch",
       ~name="merchant_selected",
@@ -81,20 +94,23 @@ module SelectMerchantBody = {
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
         setActiveProductValue(selectedProduct)
-        switch selectedProduct {
-        | Orchestration => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
-        | _ =>
-          RescriptReactRouter.replace(
-            GlobalVars.appendDashboardPath(
-              ~url=`/v2/${(Obj.magic(selectedProduct) :> string)->String.toLowerCase}/home`,
-            ),
-          )
-        }
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
       setShowModal(_ => false)
       Nullable.null
+    }
+
+    let validateForm = (values: JSON.t) => {
+      let errors = Dict.make()
+      let merchant_selected =
+        values->getDictFromJsonObject->getString("merchant_selected", "")->String.trim
+
+      if merchant_selected->isEmptyString {
+        Dict.set(errors, "company_name", "Merchant cannot be emoty"->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
     }
 
     <div>
@@ -106,7 +122,7 @@ module SelectMerchantBody = {
         />
       </div>
       <hr />
-      <Form key="new-merchant-creation" onSubmit>
+      <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>
         <div className="flex flex-col h-full w-full">
           <div className="py-10">
             <FormRenderer.DesktopRow>
@@ -210,6 +226,28 @@ module CreateNewMerchantBody = {
       ~isRequired=true,
     )
 
+    let validateForm = (values: JSON.t) => {
+      let errors = Dict.make()
+      let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
+      let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+
+      let errorMessage = if companyName->isEmptyString {
+        "Merchant name cannot be empty"
+      } else if companyName->String.length > 64 {
+        "Merchant name cannot exceed 64 characters"
+      } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
+        "Merchant name should not contain special characters"
+      } else {
+        ""
+      }
+
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "company_name", errorMessage->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
+    }
+
     <div className="">
       <div className="pt-3 m-3 flex justify-between">
         <CardUtils.CardHeader
@@ -222,7 +260,7 @@ module CreateNewMerchantBody = {
         </div>
       </div>
       <hr />
-      <Form key="new-merchant-creation" onSubmit initialValues>
+      <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>
         <div className="flex flex-col h-full w-full">
           <div className="py-10">
             <FormRenderer.DesktopRow>
@@ -266,7 +304,7 @@ module ProductExistModal = {
   let make = (~showModal, ~setShowModal, ~action, ~selectedProduct, ~setActiveProductValue) => {
     <Modal
       showModal
-      closeOnOutsideClick=true
+      closeOnOutsideClick=false
       setShowModal
       childClass="p-0"
       borderBottom=true

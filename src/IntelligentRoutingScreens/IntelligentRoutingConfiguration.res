@@ -3,31 +3,38 @@ module Review = {
   let make = (~reviewFields, ~isUpload=false) => {
     open IntelligentRoutingReviewFieldsEntity
     open APIUtils
+    open LogicUtils
     let getURL = useGetURL()
-    let _updateDetails = useUpdateMethod()
+    let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let reviewFields = reviewFields->getReviewFields
     let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
 
     let uploadData = async () => {
       try {
-        let _url = getURL(
+        let url = getURL(
           ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
           ~methodType=Post,
           ~queryParamerters=Some(queryParamerters),
         )
-        // let _ = await updateDetails(url, JSON.Encode.null, Post)
+        let response = await updateDetails(url, JSON.Encode.null, Post)
+
+        let msg = response->getDictFromJsonObject->getString("message", "")->String.toLowerCase
+        if msg === "simulation successful" {
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
+          )
+        }
       } catch {
-      | _ => showToast(~message="Fetching the review data failed", ~toastType=ToastError)
+      | _ => showToast(~message="Upload data failed", ~toastType=ToastError)
       }
     }
 
     let handleNext = _ => {
       uploadData()->ignore
-      RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
-      )
+      mixpanelEvent(~eventName="intelligent_routing_upload_data")
     }
 
     <div className="w-500-px">
@@ -61,6 +68,7 @@ module Analyze = {
     open IntelligentRoutingUtils
     open IntelligentRoutingTypes
     let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (selectedField, setSelectedField) = React.useState(() => IntelligentRoutingTypes.Sample)
     let (text, setText) = React.useState(() => "Next")
 
@@ -112,6 +120,7 @@ module Analyze = {
       }
       getReviewData()->ignore
       onNextClick()
+      mixpanelEvent(~eventName="intelligent_routing_analyze_data")
     }
 
     let handleNext = _ => {

@@ -7,6 +7,8 @@ let make = () => {
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
   )
+  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getUserInfoData()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -35,7 +37,7 @@ let make = () => {
   React.useEffect(() => {
     setUpConnectorContainer()->ignore
     None
-  }, [])
+  }, [merchantId, profileId])
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {

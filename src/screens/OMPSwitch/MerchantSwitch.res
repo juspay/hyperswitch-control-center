@@ -268,6 +268,10 @@ let make = () => {
       <MerchantDropdownItem
         key={Int.toString(i)}
         merchantName=item.name
+        productType={switch item.productType {
+        | Some(product) => product
+        | None => Orchestration
+        }}
         index=i
         currentId=item.id
         getMerchantList

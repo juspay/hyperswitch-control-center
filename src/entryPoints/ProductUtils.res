@@ -37,7 +37,12 @@ let getProductVariantFromDisplayName = product => {
 
 let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
   switch productType {
-  | Orchestration => url
+  | Orchestration =>
+    if url->String.includes("v2") {
+      `/dashboard/home`
+    } else {
+      url
+    }
   | _ => `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
   }
 }

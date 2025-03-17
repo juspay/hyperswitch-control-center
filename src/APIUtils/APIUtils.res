@@ -33,6 +33,11 @@ let getV2Url = (
       | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
       | None => connectorBaseURL
       }
+    | Post =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => connectorBaseURL
+      }
     | _ => ""
     }
   | V2_ORDERS_LIST =>
@@ -58,6 +63,7 @@ let getV2Url = (
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
     | None => ""
     }
+  | TOTAL_TOKEN_COUNT => `v2/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
     | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
