@@ -315,7 +315,12 @@ let getCell = (payoutData, colType, merchantId, orgId): Table.cell => {
   | MerchantId => DisplayCopyCell(payoutData.merchant_id)
   | Currency => Text(payoutData.currency)
   | Connector =>
-    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=payoutData.connector />, "")
+    CustomCell(
+      <HelperComponents.ConnectorCustomCell
+        connectorName=payoutData.connector connectorType={PayoutProcessor}
+      />,
+      "",
+    )
   | Email => Text(payoutData.email)
   | Amount =>
     CustomCell(

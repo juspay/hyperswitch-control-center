@@ -59,6 +59,7 @@ type chart = {
   zoomType: zoomType,
   spacingLeft: spacingLeft,
   spacingRight: spacingRight,
+  style: style,
 }
 
 type dataObj = {
