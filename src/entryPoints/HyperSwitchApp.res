@@ -14,7 +14,7 @@ let make = () => {
     setDashboardPageState,
   } = React.useContext(GlobalProvider.defaultContext)
 
-  let {activeProduct, setDefaultProductToSessionStorage} = React.useContext(
+  let {activeProduct, setActiveProductValue} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -29,6 +29,7 @@ let make = () => {
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {
     userInfo: {orgId, merchantId, profileId, roleId, themeId, version},
@@ -61,7 +62,7 @@ let make = () => {
     let currentUrl = GlobalVars.extractModulePath(url)
     let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
     RescriptReactRouter.replace(productUrl)
-    setDefaultProductToSessionStorage(productType)
+    setActiveProductValue(productType)
 
     switch url.path->urlPath {
     | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
@@ -81,6 +82,7 @@ let make = () => {
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
       setupProductUrl(~productType=response.product_type)
+      setShowSideBar(_ => true)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
