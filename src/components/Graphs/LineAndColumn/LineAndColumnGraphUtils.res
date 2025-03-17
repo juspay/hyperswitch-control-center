@@ -91,6 +91,11 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       zoomType: "xy",
       spacingLeft: 20,
       spacingRight: 20,
+      style: {
+        color: darkGray,
+        fontFamily,
+        fontSize: "12px",
+      },
     },
     title,
     xAxis: {
