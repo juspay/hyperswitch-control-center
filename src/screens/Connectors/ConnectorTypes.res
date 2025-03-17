@@ -99,6 +99,7 @@ type processorTypes =
   | XENDIT
   | JPMORGAN
   | INESPAY
+  | MONERIS
 
 type payoutProcessorTypes =
   | ADYEN
@@ -109,7 +110,8 @@ type payoutProcessorTypes =
   | STRIPE
   | WISE
 
-type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD
+type threeDsAuthenticatorTypes =
+  THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER
 
 type frmTypes =
   | Signifyd
@@ -173,8 +175,7 @@ type advancedConfigurationList = {
 
 type advancedConfiguration = {options: advancedConfigurationList}
 
-type paymentMethodConfigType = {
-  payment_method_type: string,
+type paymentMethodConfigCommonType = {
   card_networks: array<string>,
   accepted_currencies: option<advancedConfigurationList>,
   accepted_countries: option<advancedConfigurationList>,
@@ -183,6 +184,16 @@ type paymentMethodConfigType = {
   recurring_enabled: option<bool>,
   installment_payment_enabled: option<bool>,
   payment_experience: option<string>,
+}
+
+type paymentMethodConfigType = {
+  payment_method_type: string,
+  ...paymentMethodConfigCommonType,
+}
+
+type paymentMethodConfigTypeV2 = {
+  payment_method_subtype: string,
+  ...paymentMethodConfigCommonType,
 }
 
 type paymentMethodEnabled = {
@@ -291,7 +302,7 @@ type paymentMethodEnabledType = {
 
 type paymentMethodEnabledTypeV2 = {
   payment_method_type: string,
-  payment_method_subtypes: array<paymentMethodConfigType>,
+  payment_method_subtypes: array<paymentMethodConfigTypeV2>,
 }
 
 type payment_methods_enabled = array<paymentMethodEnabledType>
@@ -336,16 +347,16 @@ type connectorPayloadV2 = {
   connector_name: string,
   connector_label: string,
   connector_account_details: connectorAuthTypeObj,
-  test_mode: bool,
   disabled: bool,
   payment_methods_enabled: payment_methods_enabledV2,
   profile_id: string,
   metadata: JSON.t,
-  merchant_connector_id: string,
+  id: string,
   frm_configs: array<frm_config>,
   status: string,
   connector_webhook_details: JSON.t,
   additional_merchant_data: JSON.t,
+  feature_metadata: JSON.t,
 }
 
 type connector =

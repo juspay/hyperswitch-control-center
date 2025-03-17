@@ -1,7 +1,8 @@
 @react.component
 let make = () => {
   open PageUtils
-  open VaultHomeUtils
+
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   <div className="flex flex-1 flex-col w-full gap-14 items-center justify-center w-full h-screen">
     <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
@@ -18,14 +19,27 @@ let make = () => {
         subTitle="Learn how to vault cards from your Server if you're PCI compliant and Learn how to vault cards using Hyperswitch's Checkout if you're non-PCI compliant"
       />
     </div>
-    <div className="flex gap-4 max-w-800">
-      {vaultActionArray
-      ->Array.map(item =>
-        <VaultActionItem
-          heading=item.heading description=item.description img=item.imgSrc action=item.action
-        />
-      )
-      ->React.array}
+    <div className="flex gap-4 w-full justify-center">
+      <Button
+        text="Processor configuration"
+        onClick={_ => {
+          mixpanelEvent(~eventName="vault_processor_configuration")
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/vault/onboarding"))
+        }}
+        buttonType={Primary}
+        buttonSize=Large
+        buttonState=Normal
+      />
+      <Button
+        text="Customers & tokens"
+        onClick={_ => {
+          mixpanelEvent(~eventName="vault_customers_and_tokens")
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/vault/customers-tokens"))
+        }}
+        buttonType=Secondary
+        buttonSize=Large
+        buttonState=Normal
+      />
     </div>
   </div>
 }

@@ -35,7 +35,7 @@ module PaymentMethodTypes = {
     <RenderIf key={index->Int.toString} condition={showCheckbox}>
       <AddDataAttributes key={index->Int.toString} attributes=[("data-testid", `${label}`)]>
         <div key={index->Int.toString} className={"flex gap-1.5 items-center"}>
-          <div onClick={_ => handleClick()}>
+          <div className="cursor-pointer" onClick={_ => handleClick()}>
             <FieldRenderer
               field={PMTSelection.valueInput(
                 ~pmtData,
@@ -56,7 +56,14 @@ module PaymentMethodTypes = {
 
 module HeadingSection = {
   @react.component
-  let make = (~index, ~pm, ~availablePM, ~pmIndex, ~pmt, ~showSelectAll) => {
+  let make = (
+    ~index,
+    ~pm,
+    ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeV2>,
+    ~pmIndex,
+    ~pmt,
+    ~showSelectAll,
+  ) => {
     open FormRenderer
 
     <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
@@ -83,7 +90,7 @@ module HeadingSection = {
 
 module SelectedPMT = {
   @react.component
-  let make = (~pmtData: array<ConnectorTypes.paymentMethodConfigType>, ~index, ~pm) => {
+  let make = (~pmtData: array<ConnectorTypes.paymentMethodConfigTypeV2>, ~index, ~pm) => {
     open LogicUtils
     open ConnectorPaymentMethodV2Utils
     <RenderIf condition={pmtData->Array.length > 0}>
@@ -98,7 +105,7 @@ module SelectedPMT = {
           ->Array.mapWithIndex((data, i) => {
             let label = switch pm->getPMTFromString {
             | Credit | Debit => data.card_networks->Array.joinWith(",")
-            | _ => data.payment_method_type->snakeToTitle
+            | _ => data.payment_method_subtype->snakeToTitle
             }
             <AddDataAttributes key={i->Int.toString} attributes=[("data-testid", `${label}`)]>
               <div key={i->Int.toString} className={"flex gap-1.5 items-center"}>

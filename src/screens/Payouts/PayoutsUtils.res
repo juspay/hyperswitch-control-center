@@ -7,6 +7,7 @@ let getPayoutsList = async (
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
+    ~version: UserInfoTypes.version=?,
   ) => promise<JSON.t>,
   ~setPayoutsData,
   ~setScreenState,

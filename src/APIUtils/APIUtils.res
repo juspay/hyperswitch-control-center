@@ -4,13 +4,87 @@ exception JsonException(JSON.t)
 
 let getV2Url = (
   ~entityName: v2entityNameType,
+  ~userType: userType=#NONE,
   ~methodType: Fetch.requestMethod,
   ~id=None,
+  ~profileId,
+  ~merchantId,
   ~queryParamerters: option<string>=None,
 ) => {
+  let connectorBaseURL = "v2/connector-accounts"
+  let peymantsBaseURL = "v2/payments"
+
   switch entityName {
-  | V2_CUSTOMERS_LIST => "/v2/customers/list"
-  | V2_CONNECTOR => "/v2/connector-accounts"
+  | CUSTOMERS =>
+    switch (methodType, id) {
+    | (Get, None) => "v2/customers/list"
+    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | _ => ""
+    }
+  | V2_CONNECTOR =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => `v2/profiles/${profileId}/connector-accounts`
+      }
+    | Put =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => connectorBaseURL
+      }
+    | Post =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => connectorBaseURL
+      }
+    | _ => ""
+    }
+  | V2_ORDERS_LIST =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) =>
+        switch queryParamerters {
+        | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
+        | None => `${peymantsBaseURL}/${key_id}`
+        }
+      | None =>
+        switch queryParamerters {
+        | Some(queryParams) => `${peymantsBaseURL}/list?${queryParams}`
+        | None => `${peymantsBaseURL}/list?limit=100`
+        }
+      }
+    | _ => ""
+    }
+  | V2_ORDER_FILTERS => "v2/payments/profile/filter"
+  | PAYMENT_METHOD_LIST =>
+    switch id {
+    | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
+    | None => ""
+    }
+  | TOTAL_TOKEN_COUNT => `v2/customers/total-payment-methods`
+  | RETRIEVE_PAYMENT_METHOD =>
+    switch id {
+    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
+    | None => ""
+    }
+  /* MERCHANT ACCOUNT DETAILS (Get and Post) */
+  | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
+  | USERS =>
+    let userUrl = `user`
+    switch userType {
+    | #CREATE_MERCHANT =>
+      switch queryParamerters {
+      | Some(params) => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+      | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
+      }
+    | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
+    | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
+
+    | #LIST_PROFILE => `v2/${userUrl}/list/profile`
+    | _ => ""
+    }
   }
 }
 
@@ -25,9 +99,10 @@ let useGetURL = () => {
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
+    ~hypersenseType: hypersenseType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity, merchantId} = getUserInfoData()
+    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -386,6 +461,37 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | ANALYTICS_AUTHENTICATION_V2 =>
+        switch methodType {
+        | Get =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/auth_events/info`
+          }
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/metrics/auth_events`
+          }
+
+        | _ => ""
+        }
+      | ANALYTICS_AUTHENTICATION_V2_FILTERS =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/filters/auth_events`
+          }
+
+        | _ => ""
+        }
       | ANALYTICS_FILTERS =>
         switch methodType {
         | Post =>
@@ -463,6 +569,7 @@ let useGetURL = () => {
 
       /* RECONCILIATION */
       | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
+      | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
       | PAYMENT_REPORT =>
@@ -487,6 +594,14 @@ let useGetURL = () => {
         | #Organization => `analytics/v1/org/report/dispute`
         | #Merchant => `analytics/v1/merchant/report/dispute`
         | #Profile => `analytics/v1/profile/report/dispute`
+        }
+
+      | AUTHENTICATION_REPORT =>
+        switch transactionEntity {
+        | #Tenant
+        | #Organization => `analytics/v1/org/report/authentications`
+        | #Merchant => `analytics/v1/merchant/report/authentications`
+        | #Profile => `analytics/v1/profile/report/authentications`
         }
 
       /* EVENT LOGS */
@@ -596,6 +711,19 @@ let useGetURL = () => {
           | _ => ""
           }
         }
+
+      /* INTELLIGENT ROUTING */
+      | SIMULATE_INTELLIGENT_ROUTING =>
+        switch queryParamerters {
+        | Some(queryParams) => `simulate/${merchantId}?${queryParams}`
+        | None => `simulate/${merchantId}`
+        }
+      | INTELLIGENT_ROUTING_RECORDS =>
+        switch queryParamerters {
+        | Some(queryParams) => `simulate/${merchantId}/get-records?${queryParams}`
+        | None => `simulate/${merchantId}/get-records`
+        }
+      | INTELLIGENT_ROUTING_GET_STATISTICS => `simulate/${merchantId}/get-statistics`
 
       /* USERS */
       | USERS =>
@@ -739,7 +867,15 @@ let useGetURL = () => {
       }
 
     | V2(entityNameForv2) =>
-      getV2Url(~entityName=entityNameForv2, ~id, ~methodType, ~queryParamerters)
+      getV2Url(
+        ~entityName=entityNameForv2,
+        ~userType,
+        ~id,
+        ~methodType,
+        ~queryParamerters,
+        ~profileId,
+        ~merchantId,
+      )
     }
 
     `${Window.env.apiBaseUrl}/${endpoint}`
@@ -750,6 +886,7 @@ let useGetURL = () => {
 let useHandleLogout = () => {
   open SessionStorage
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
@@ -758,6 +895,7 @@ let useHandleLogout = () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
+      mixpanelEvent(~eventName="user_sign_out")
       let _ =
         fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
         ->then(Fetch.Response.json)
@@ -926,7 +1064,7 @@ let useGetMethod = (~showErrorToast=true) => {
     })
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async url => {
+  async (url, ~version=UserInfoTypes.V1) => {
     try {
       let res = await fetchApi(
         url,
@@ -935,6 +1073,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
+        ~version,
       )
       await responseHandler(
         ~url,
@@ -987,6 +1126,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~bodyFormData=?,
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
+    ~version=UserInfoTypes.V1,
   ) => {
     try {
       let res = await fetchApi(
@@ -1000,6 +1140,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~forceCookies,
         ~merchantId,
         ~profileId,
+        ~version,
       )
       await responseHandler(
         ~url,

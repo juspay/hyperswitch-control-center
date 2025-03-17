@@ -1,4 +1,5 @@
 type entity = [#Tenant | #Organization | #Merchant | #Profile]
+type version = V1 | V2
 type userInfo = {
   email: string,
   isTwoFactorAuthSetup: bool,
@@ -13,6 +14,7 @@ type userInfo = {
   themeId: string,
   mutable transactionEntity: entity,
   mutable analyticsEntity: entity,
+  version: version,
 }
 
 type userInfoProviderTypes = {

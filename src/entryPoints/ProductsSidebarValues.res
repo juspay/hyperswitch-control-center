@@ -9,7 +9,7 @@ let useGetSideBarValues = () => {
   let sideBarValues = []
 
   if devReconv2Product {
-    sideBarValues->Array.push(ReconSidebarValues.reconSidebars)
+    sideBarValues->Array.pushMany(ReconSidebarValues.reconSidebars)
   }
 
   if devRecoveryV2Product {
@@ -21,14 +21,20 @@ let useGetSideBarValues = () => {
 
 let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => {
   open ProductUtils
-  let {devReconv2Product, devRecoveryV2Product, devVaultV2Product, devAltPaymentMethods} =
+  let {
+    devReconv2Product,
+    devRecoveryV2Product,
+    devVaultV2Product,
+    devHypersenseV2Product,
+    devIntelligentRoutingV2,
+  } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
     Link({
-      name: Orchestrator->getStringFromVariant,
+      name: Orchestration->getProductDisplayName,
       icon: "orchestrator-home",
-      link: "/home",
+      link: "/v2/home",
       access: Access,
     }),
   ]
@@ -36,9 +42,9 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devReconv2Product {
     sideBarValues->Array.push(
       Link({
-        name: Recon->getStringFromVariant,
+        name: Recon->getProductDisplayName,
         icon: "recon-home",
-        link: "/v2/recon/onboarding",
+        link: "/v2/recon",
         access: Access,
       }),
     )
@@ -47,7 +53,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devRecoveryV2Product {
     sideBarValues->Array.push(
       Link({
-        name: Recovery->getStringFromVariant,
+        name: Recovery->getProductDisplayName,
         icon: "recovery-home",
         link: "/v2/recovery",
         access: Access,
@@ -57,25 +63,35 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devVaultV2Product {
     sideBarValues->Array.push(
       Link({
-        name: Vault->getStringFromVariant,
+        name: Vault->getProductDisplayName,
         icon: "vault-home",
-        link: "/v2/vault/home",
+        link: "/v2/vault",
         access: Access,
       }),
     )
   }
-  if devAltPaymentMethods {
+  if devHypersenseV2Product {
     sideBarValues->Array.push(
       Link({
-        name: AlternatePaymentMethods->getStringFromVariant,
-        icon: "alt-payment-methods-home",
-        link: "/v2/alt-payment-methods/home",
+        name: CostObservability->getProductDisplayName,
+        icon: "nd-piggy-bank",
+        link: "/v2/cost-observability",
         access: Access,
       }),
     )
   }
-
-  let productName = activeProduct->ProductUtils.getStringFromVariant
+  if devIntelligentRoutingV2 {
+    sideBarValues->Array.push(
+      Link({
+        name: DynamicRouting->getProductDisplayName,
+        icon: "intelligent-routing-home",
+        link: "/v2/dynamic-routing",
+        access: Access,
+      }),
+    )
+  }
+  // Need to be refactored
+  let productName = activeProduct->getProductDisplayName
 
   sideBarValues->Array.filter(topLevelItem =>
     switch topLevelItem {

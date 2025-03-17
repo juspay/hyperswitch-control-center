@@ -3,7 +3,7 @@ module AdditionalDetailsSidebarComp = {
   open ConnectorUtils
   @react.component
   let make = (
-    ~method,
+    ~method: option<ConnectorTypes.paymentMethodConfigType>,
     ~setMetaData,
     ~setShowWalletConfigurationModal,
     ~updateDetails,
@@ -11,17 +11,24 @@ module AdditionalDetailsSidebarComp = {
     ~paymentMethod,
     ~onCloseClickCustomFun,
     ~setInitialValues,
+    ~pmtName: string,
   ) => {
     open LogicUtils
     let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
 
     let updateMetadata = json => {
       setMetaData(_ => json)
-      paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
+      switch method {
+      | Some(pmt) => paymentMethodsEnabled->addMethod(paymentMethod, pmt)->updateDetails
+      | _ => ()
+      }
     }
 
     let updatePaymentMethods = () => {
-      paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
+      switch method {
+      | Some(pmt) => paymentMethodsEnabled->addMethod(paymentMethod, pmt)->updateDetails
+      | _ => ()
+      }
     }
 
     <div>
@@ -31,13 +38,13 @@ module AdditionalDetailsSidebarComp = {
           setShowWalletConfigurationModal
           update=updatePaymentMethods
           paymentMethod
-          paymentMethodType=method.payment_method_type
+          paymentMethodType=pmtName
           setInitialValues
         />
       | _ => React.null
       }}
       <RenderIf condition={paymentMethod->getPaymentMethodFromString !== BankDebit}>
-        {switch method.payment_method_type->getPaymentMethodTypeFromString {
+        {switch pmtName->getPaymentMethodTypeFromString {
         | ApplePay =>
           <ApplePayIntegration
             connector setShowWalletConfigurationModal update=updateMetadata onCloseClickCustomFun

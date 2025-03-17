@@ -3,10 +3,10 @@ open VerticalStepIndicatorTypes
 
 module VaultActionItem = {
   @react.component
-  let make = (~heading, ~description, ~img, ~action) => {
+  let make = (~heading, ~img, ~action) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     <div
-      className="border rounded-xl p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer justify-between py-4"
+      className="border rounded-xl p-3 flex items-center gap-4 group cursor-pointer justify-between py-3"
       onClick={_ => {
         switch action {
         | InternalRoute(route) =>
@@ -21,7 +21,6 @@ module VaultActionItem = {
         <img alt={heading} src={img} />
         <div className="flex flex-col gap-1">
           <p className="text-sm text-nd_gray-600 font-semibold"> {{heading}->React.string} </p>
-          <p className="text-xs text-nd_gray-400 font-medium"> {{description}->React.string} </p>
         </div>
       </div>
       <Icon name="nd-angle-right" size={16} className="group-hover:scale-125" />
@@ -31,16 +30,20 @@ module VaultActionItem = {
 let vaultActionArray = {
   [
     {
-      heading: "Learn how to vault from your server",
-      description: "If you're PCI compliant, you can vault cards directly to Hyperswitch's Vault service from your server.",
-      imgSrc: "/assets/VaultServerImage.svg",
-      action: InternalRoute("v2/vault/home"), //TODO: TO be updated once routing is confirmed
+      heading: "If non PCI compliant, learn to tokenize using our Vault SDK",
+      imgSrc: "/assets/VaultSdkImage.svg",
+      action: ExternalLink({
+        url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault",
+        trackingEvent: "vault-sdk-redirect",
+      }),
     },
     {
-      heading: "Learn using Hyperswitch vault SDK",
-      description: "If you're not PCI compliant, securely store cards using our Vault SDK with Hyperswitch's Vault service.",
-      imgSrc: "/assets/VaultSdkImage.svg",
-      action: InternalRoute("v2/vault/home"), //TODO: TO be updated once routing is confirmed
+      heading: "If PCI compliant, learn to tokenize directly from your server",
+      imgSrc: "/assets/VaultServerImage.svg",
+      action: ExternalLink({
+        url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault",
+        trackingEvent: "vault-server-redirect",
+      }),
     },
   ]
 }
@@ -79,5 +82,21 @@ let stringToSectionVariantMapper = string => {
   | "setupWebhook" => #setupWebhook
   | "reviewAndConnect" => #reviewAndConnect
   | _ => #authenticateProcessor
+  }
+}
+let getSectionVariant = ({sectionId}) => {
+  switch sectionId {
+  | "AuthenticateProcessor" => #AuthenticateProcessor
+  | "SetupPmts" => #SetupPmts
+  | "SetupWebhook" => #SetupWebhook
+  | "ReviewAndConnect" | _ => #ReviewAndConnect
+  }
+}
+let getVaultMixPanelEvent = currentStep => {
+  switch currentStep->getSectionVariant {
+  | #AuthenticateProcessor => "vault_onboarding_step1"
+  | #SetupPmts => "vault_onboarding_step2"
+  | #SetupWebhook => "vault_onboarding_step3"
+  | #ReviewAndConnect => "vault_onboarding_step4"
   }
 }

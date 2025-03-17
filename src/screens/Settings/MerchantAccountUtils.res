@@ -15,6 +15,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     authentication_connector_details,
     collect_shipping_details_from_wallet_connector,
     outgoing_webhook_custom_http_headers,
+    metadata,
     is_connector_agnostic_mit_enabled,
     collect_billing_details_from_wallet_connector,
     always_collect_billing_details_from_wallet_connector,
@@ -23,6 +24,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     max_auto_retries_enabled,
     is_click_to_pay_enabled,
     authentication_product_ids,
+    force_3ds_challenge,
   } = profileRecord
 
   let profileInfo =
@@ -68,6 +70,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "three_ds_requestor_url",
     authentication_connector_details.three_ds_requestor_url,
   )
+  profileInfo->setOptionBool("force_3ds_challenge", force_3ds_challenge)
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
@@ -76,6 +79,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "outgoing_webhook_custom_http_headers",
     outgoing_webhook_custom_http_headers,
   )
+  profileInfo->setOptionDict("metadata", metadata)
   profileInfo
 }
 
@@ -152,6 +156,31 @@ let getCustomHeadersPayload = (values: JSON.t) => {
     "outgoing_webhook_custom_http_headers",
     Some(outGoingWebHookCustomHttpHeaders),
   )
+  customHeaderDict
+}
+
+let getMetdataKeyValuePayload = (values: JSON.t) => {
+  open LogicUtils
+  let customHeaderDict = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  let customMetadataVal = Dict.make()
+  let formValues = valuesDict->getDictfromDict("metadata")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("metadata")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      customMetadataVal->setOptionString(val, formValues->getString(val, "")->getNonEmptyString)
+    })
+  let _ =
+    valuesDict
+    ->getDictfromDict("metadata")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      customMetadataVal->setOptionString(val, formValues->getString(val, "")->getNonEmptyString)
+    })
+  customHeaderDict->setOptionDict("metadata", Some(customMetadataVal))
   customHeaderDict
 }
 
@@ -233,6 +262,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionBool(
     "is_connector_agnostic_mit_enabled",
     valuesDict->getOptionBool("is_connector_agnostic_mit_enabled"),
+  )
+  profileDetailsDict->setOptionBool(
+    "force_3ds_challenge",
+    valuesDict->getOptionBool("force_3ds_challenge"),
   )
 
   profileDetailsDict->setOptionDict(
@@ -361,6 +394,7 @@ let validationFieldsMapper = key => {
 }
 
 let checkValueChange = (~initialDict, ~valuesDict) => {
+  open LogicUtils
   let initialKeys = Dict.keysToArray(initialDict)
   let updatedKeys = Dict.keysToArray(valuesDict)
   let key =
@@ -376,17 +410,28 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
       | "outgoing_webhook_custom_http_headers" => {
           let initialDictLength =
             initialDict
-            ->LogicUtils.getDictfromDict("outgoing_webhook_custom_http_headers")
+            ->getDictfromDict("outgoing_webhook_custom_http_headers")
             ->Dict.keysToArray
           let updatedDictLength =
             valuesDict
-            ->LogicUtils.getDictfromDict("outgoing_webhook_custom_http_headers")
+            ->getDictfromDict("outgoing_webhook_custom_http_headers")
+            ->Dict.keysToArray
+          initialDictLength != updatedDictLength
+        }
+      | "metadata" => {
+          let initialDictLength =
+            initialDict
+            ->getDictfromDict("metadata")
+            ->Dict.keysToArray
+          let updatedDictLength =
+            valuesDict
+            ->getDictfromDict("metadata")
             ->Dict.keysToArray
           initialDictLength != updatedDictLength
         }
       | _ => {
-          let initialValue = initialDict->LogicUtils.getString(key, "")
-          let updatedValue = valuesDict->LogicUtils.getString(key, "")
+          let initialValue = initialDict->getString(key, "")
+          let updatedValue = valuesDict->getString(key, "")
           initialValue !== updatedValue
         }
       }
@@ -517,11 +562,13 @@ let defaultValueForBusinessProfile = {
   collect_billing_details_from_wallet_connector: None,
   always_collect_billing_details_from_wallet_connector: None,
   outgoing_webhook_custom_http_headers: None,
+  metadata: None,
   is_connector_agnostic_mit_enabled: None,
   is_auto_retries_enabled: None,
   max_auto_retries_enabled: None,
   is_click_to_pay_enabled: None,
   authentication_product_ids: None,
+  force_3ds_challenge: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
