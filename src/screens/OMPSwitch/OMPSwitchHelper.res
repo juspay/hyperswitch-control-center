@@ -218,9 +218,18 @@ module OMPViews = {
 
 module MerchantDropdownItem = {
   @react.component
-  let make = (~merchantName, ~index: int, ~currentId) => {
+  let make = (
+    ~merchantName,
+    ~productType,
+    ~index: int,
+    ~currentId,
+    ~getMerchantList,
+    ~switchMerch,
+  ) => {
     open LogicUtils
     open APIUtils
+    open ProductTypes
+    open ProductUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
@@ -228,28 +237,48 @@ module MerchantDropdownItem = {
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
-    let (_, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
-    let getMerchantList = async () => {
-      try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
-        let response = await fetchDetails(url)
-        setMerchantList(_ => response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper))
-      } catch {
-      | _ => {
-          setMerchantList(_ => OMPSwitchUtils.ompDefaultValue(merchantId, ""))
-          showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
-        }
+
+    let productTypeIconMapper = productType => {
+      switch productType {
+      | Orchestration => "orchestrator-home"
+      | Recon => "recon-home"
+      | Recovery => "recovery-home"
+      | Vault => "vault-home"
+      | CostObservability => "nd-piggy-bank"
+      | DynamicRouting => "intelligent-routing-home"
+      | _ => "orchestrator-home"
       }
     }
+
+    let isActive = currentId == merchantId
+    let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
+
+    let leftIcon = if isActive && !isUnderEdit {
+      <Icon name="nd-check" className={`${leftIconCss} ${secondaryTextColor}`} />
+    } else if isActive && isUnderEdit {
+      React.null
+    } else if !isActive && !isUnderEdit {
+      <ToolTip
+        description={productType->getProductDisplayName}
+        customStyle="!whitespace-nowrap"
+        toolTipFor={<Icon
+          name={productType->productTypeIconMapper}
+          className={`${secondaryTextColor} opacity-50`}
+          size=14
+        />}
+        toolTipPosition=ToolTip.Top
+      />
+    } else {
+      React.null // Default case
+    }
+
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
       let regexForMerchantName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
@@ -269,18 +298,6 @@ module MerchantDropdownItem = {
       errors
     }
 
-    let switchMerch = async value => {
-      try {
-        setShowSwitchingMerch(_ => true)
-        let _ = await internalSwitch(~expectedMerchantId=Some(value))
-        setShowSwitchingMerch(_ => false)
-      } catch {
-      | _ => {
-          showToast(~message="Failed to switch merchant", ~toastType=ToastError)
-          setShowSwitchingMerch(_ => false)
-        }
-      }
-    }
     let handleMerchantSwitch = id => {
       switchMerch(id)->ignore
     }
@@ -298,15 +315,13 @@ module MerchantDropdownItem = {
           ~id=Some(merchantId),
         )
         let _ = await updateDetails(accountUrl, body, Post)
-        let _ = await getMerchantList()
+        getMerchantList()->ignore
         showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
       } catch {
       | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
       }
     }
 
-    let isActive = currentId == merchantId
-    let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
       <div className={`rounded-lg`}>
@@ -336,7 +351,7 @@ module MerchantDropdownItem = {
           customIconStyle={isActive ? `${secondaryTextColor}` : ""}
           handleClick={_ => handleMerchantSwitch(currentId)}
           customWidth="min-w-56"
-          leftIcon={<Icon name="nd-check" className={`${leftIconCss} ${secondaryTextColor}`} />}
+          leftIcon
         />
       </div>
       <LoaderModal
@@ -357,24 +372,33 @@ module ProfileDropdownItem = {
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
     }
+
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let getProfileList = async () => {
       try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-        let response = await fetchDetails(url)
+        let response = switch version {
+        | V1 => {
+            let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+            await fetchDetails(url)
+          }
+        | V2 => {
+            let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+            await fetchDetails(url, ~version=V2)
+          }
+        }
         setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
       } catch {
       | _ => {
-          setProfileList(_ => OMPSwitchUtils.ompDefaultValue(profileId, ""))
+          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
           showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
         }
       }
@@ -432,6 +456,7 @@ module ProfileDropdownItem = {
     let isActive = currentId == profileId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+
     <>
       <div
         className={`rounded-lg mb-1 ${isUnderEdit
@@ -443,7 +468,9 @@ module ProfileDropdownItem = {
           customStyle="w-full cursor-pointer !bg-transparent mb-0"
           handleEdit=handleIdUnderEdit
           isUnderEdit
-          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          showEditIcon={isActive &&
+          userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
+          version == V1}
           onSubmit
           labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
           validateInput

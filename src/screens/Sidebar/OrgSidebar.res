@@ -37,7 +37,7 @@ module OrgTile = {
         setOrgList(_ => orgData)
       } catch {
       | _ => {
-          setOrgList(_ => OMPSwitchUtils.ompDefaultValue(orgId, ""))
+          setOrgList(_ => [OMPSwitchUtils.ompDefaultValue(orgId, "")])
           showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
         }
       }
@@ -151,10 +151,12 @@ module NewOrgCreationModal = {
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let showToast = ToastState.useShowToast()
     let createNewOrg = async values => {
       try {
         let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_ORG, ~methodType=Post)
+        mixpanelEvent(~eventName="create_new_org", ~metadata=values)
         let _ = await updateDetails(url, values, Post)
         getOrgList()->ignore
         showToast(~toastType=ToastSuccess, ~message="Org Created Successfully!", ~autoClose=true)
@@ -310,7 +312,7 @@ let make = () => {
       setOrgList(_ => orgData)
     } catch {
     | _ => {
-        setOrgList(_ => ompDefaultValue(orgId, ""))
+        setOrgList(_ => [ompDefaultValue(orgId, "")])
         showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
       }
     }

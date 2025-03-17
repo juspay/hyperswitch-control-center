@@ -18,6 +18,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => Success)
   let {profileId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
@@ -30,6 +31,7 @@ let make = () => {
   })
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
+    ~version=V2,
   )
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
@@ -56,6 +58,7 @@ let make = () => {
   }, [connector, profileId])
 
   let onNextClick = () => {
+    mixpanelEvent(~eventName=currentStep->getVaultMixPanelEvent)
     switch getNextStep(currentStep) {
     | Some(nextStep) => setNextStep(_ => nextStep)
     | None => ()
@@ -66,7 +69,7 @@ let make = () => {
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Post)
+      let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
@@ -145,6 +148,7 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
+
   let vaultTitleElement =
     <>
       <GatewayIcon gateway={`${connector}`->String.toUpperCase} />

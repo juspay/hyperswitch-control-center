@@ -3,6 +3,12 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 module RequestConnector = {
   @react.component
   let make = (~connectorList, ~setShowModal) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+
+    let handleClick = () => {
+      mixpanelEvent(~eventName="vault_request_processor")
+      setShowModal(_ => true)
+    }
     <RenderIf condition={connectorList->Array.length === 0}>
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
@@ -12,9 +18,7 @@ module RequestConnector = {
         <p className="jp-grey-700 opacity-50">
           {"Uh-oh! Looks like we couldn't find the processor you were searching for."->React.string}
         </p>
-        <Button
-          text={"Request a processor"} buttonType=Primary onClick={_ => setShowModal(_ => true)}
-        />
+        <Button text={"Request a processor"} buttonType=Primary onClick={_ => handleClick()} />
       </div>
     </RenderIf>
   }
@@ -65,7 +69,7 @@ let make = (
     </div>
 
   let handleClick = connectorName => {
-    mixpanelEvent(~eventName=`connect_processor_${connectorName}`)
+    mixpanelEvent(~eventName=`vault_connector_click_${connectorName}`)
     setShowSideBar(_ => false)
     RescriptReactRouter.push(
       GlobalVars.appendDashboardPath(~url=`v2/vault/onboarding/new?name=${connectorName}`),

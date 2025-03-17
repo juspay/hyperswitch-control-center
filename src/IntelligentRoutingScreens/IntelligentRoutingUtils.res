@@ -1,12 +1,21 @@
 open VerticalStepIndicatorTypes
 open IntelligentRoutingTypes
 
+let dataSource = [Historical, Realtime]
+
 let fileTypes = [Sample, Upload]
+let realtime = [StreamLive]
+
+let dataTypeVariantToString = dataType =>
+  switch dataType {
+  | Historical => "Historical Data"
+  | Realtime => "Realtime Data"
+  }
 
 let sections = [
   {
     id: "analyze",
-    name: "Analyze Your Transaction History",
+    name: "Choose Your Data Source",
     icon: "nd-shield",
     subSections: None,
   },
@@ -20,15 +29,15 @@ let sections = [
 
 let getFileTypeHeading = fileType => {
   switch fileType {
-  | Sample => "Try our sample file"
-  | Upload => "Upload File"
+  | Sample => "Try with Our Sample Data"
+  | Upload => "Upload Your Transaction Data"
   }
 }
 
 let getFileTypeDescription = fileType => {
   switch fileType {
-  | Sample => "Use our pre-generated sample file"
-  | Upload => "This feature is available in production only"
+  | Sample => "Explore how it works using our pre-loaded transaction data (anonymized) to see potential auth uplift"
+  | Upload => "Upload a day's transaction data to identify uplift opportunities by simulating payments via our router"
   }
 }
 
@@ -36,6 +45,24 @@ let getFileTypeIconName = fileType => {
   switch fileType {
   | Sample => "SAMPLEFILE"
   | Upload => "UPLOADFILE"
+  }
+}
+
+let getRealtimeHeading = realtime => {
+  switch realtime {
+  | StreamLive => "Stream Live Data via SDK"
+  }
+}
+
+let getRealtimeDescription = realtime => {
+  switch realtime {
+  | StreamLive => "Integrate our SDK to passively observe insights on auth uplift using our simulator"
+  }
+}
+
+let getRealtimeIconName = realtime => {
+  switch realtime {
+  | StreamLive => "STREAMLIVEDATA"
   }
 }
 
@@ -49,7 +76,7 @@ module StepCard = {
     <div
       key={stepName}
       className={`flex items-center gap-x-2.5 border ${ringClass} rounded-lg p-4 transition-shadow  ${isDisabled
-          ? "opacity-50"
+          ? " bg-nd_gray-50"
           : "cursor-pointer"} justify-between`}
       onClick={!isDisabled ? onClick : _ => ()}>
       <div className="flex items-center gap-x-2.5">
@@ -64,5 +91,39 @@ module StepCard = {
       | false => <Icon name="hollow-circle" customHeight="20" />
       }}
     </div>
+  }
+}
+
+open LogicUtils
+let getStats = json => {
+  let dict = json->getDictFromJsonObject
+  {
+    baseline: dict->getFloat("baseline", 0.0),
+    model: dict->getFloat("model", 0.0),
+  }
+}
+
+let mapTimeSeriesData = (arr: array<JSON.t>) => {
+  arr->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+    {
+      time_stamp: dict->getString("time_stamp", ""),
+      success_rate: dict->getJsonObjectFromDict("success_rate")->getStats,
+      revenue: dict->getJsonObjectFromDict("revenue")->getStats,
+      volume_distribution_as_per_sr: dict->getJsonObjectFromDict("volume_distribution_as_per_sr"),
+    }
+  })
+}
+
+let responseMapper = (response: JSON.t) => {
+  let dict = response->getDictFromJsonObject
+
+  {
+    overall_success_rate: dict->getJsonObjectFromDict("overall_success_rate")->getStats,
+    total_failed_payments: dict->getJsonObjectFromDict("total_failed_payments")->getStats,
+    total_revenue: dict->getJsonObjectFromDict("total_revenue")->getStats,
+    faar: dict->getJsonObjectFromDict("faar")->getStats,
+    time_series_data: dict->getArrayFromDict("time_series_data", [])->mapTimeSeriesData,
+    overall_success_rate_improvement: dict->getFloat("overall_success_rate_improvement", 0.0),
   }
 }

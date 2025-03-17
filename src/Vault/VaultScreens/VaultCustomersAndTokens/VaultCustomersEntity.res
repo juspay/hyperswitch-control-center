@@ -1,21 +1,12 @@
 open VaultCustomersType
 
-let defaultColumns = [
-  CustomerId,
-  Name,
-  Email,
-  PhoneCountryCode,
-  Phone,
-  Description,
-  Address,
-  CreatedAt,
-]
+let defaultColumns = [CustomerId, Name, Email, PhoneCountryCode, Phone, Description, CreatedAt]
 
 let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Description, Address, CreatedAt]
 
 let getHeading = colType => {
   switch colType {
-  | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer Id")
+  | CustomerId => Table.makeHeaderInfo(~key="id", ~title="Customer Id")
   | Name => Table.makeHeaderInfo(~key="name", ~title="Customer Name")
   | Email => Table.makeHeaderInfo(~key="email", ~title="Email")
   | PhoneCountryCode => Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code")
@@ -31,9 +22,9 @@ let getCell = (customersData, colType): Table.cell => {
   | CustomerId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/customers/${customersData.customer_id}`}
-        displayValue={customersData.customer_id}
-        copyValue={Some(customersData.customer_id)}
+        url={`/customers/${customersData.id}`}
+        displayValue={customersData.id}
+        copyValue={Some(customersData.id)}
       />,
       "",
     )
@@ -52,7 +43,7 @@ let vaultCustomersMapDefaultCols = Recoil.atom("vaultCustomersMapDefaultCols", d
 let itemToObjMapper = dict => {
   open LogicUtils
   {
-    customer_id: dict->getString("customer_id", ""),
+    id: dict->getString("id", ""),
     name: dict->getString("name", ""),
     email: dict->getString("email", ""),
     phone: dict->getString("phone", ""),
@@ -62,6 +53,11 @@ let itemToObjMapper = dict => {
     created_at: dict->getString("created_at", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
   }
+}
+let getArrayOfCustomerListPayloadType = json => {
+  json->Array.map(reportJson => {
+    reportJson->LogicUtils.getDictFromJsonObject->itemToObjMapper
+  })
 }
 
 let getCustomers: JSON.t => array<customers> = json => {
@@ -79,6 +75,19 @@ let customersEntity = EntityType.makeEntity(
   ~dataKey="",
   ~getShowLink={
     customerData =>
-      GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.customer_id}`)
+      GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
   },
 )
+
+let colToStringMapper = val => {
+  switch val {
+  | CustomerId => "Customer Id"
+  | Name => "Customer Name"
+  | Email => "Email"
+  | Phone => "Phone"
+  | PhoneCountryCode => "Phone Country Code"
+  | Description => "Description"
+  | Address => "Address"
+  | CreatedAt => "Created"
+  }
+}

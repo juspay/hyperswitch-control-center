@@ -9,15 +9,6 @@ let revenueRecoveryHome = {
   })
 }
 
-let revenueRecoveryPaymentProcessors = {
-  Link({
-    name: "Connectors",
-    link: `/v2/recovery/connectors`,
-    access: Access,
-    icon: "nd-connectors",
-  })
-}
-
 let revenueRecoveryPayments = {
   Link({
     name: "Overview",
@@ -28,7 +19,7 @@ let revenueRecoveryPayments = {
 }
 
 let recoverySidebars = {
-  let links = [revenueRecoveryPayments, revenueRecoveryPaymentProcessors]
+  let links = [revenueRecoveryPayments]
 
   links
 }

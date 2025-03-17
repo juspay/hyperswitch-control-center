@@ -1,22 +1,48 @@
 module Review = {
   @react.component
-  let make = (~reviewFields) => {
+  let make = (~reviewFields, ~isUpload=false) => {
     open IntelligentRoutingReviewFieldsEntity
+    open APIUtils
+    open LogicUtils
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let reviewFields = reviewFields->getReviewFields
+    let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
 
-    let handleNext = _ => {
-      RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="v2/intelligent-routing/dashboard"),
-      )
+    let uploadData = async () => {
+      try {
+        let url = getURL(
+          ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
+          ~methodType=Post,
+          ~queryParamerters=Some(queryParamerters),
+        )
+        let response = await updateDetails(url, JSON.Encode.null, Post)
+
+        let msg = response->getDictFromJsonObject->getString("message", "")->String.toLowerCase
+        if msg === "simulation successful" {
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
+          )
+        }
+      } catch {
+      | _ => showToast(~message="Upload data failed", ~toastType=ToastError)
+      }
     }
 
-    <div>
-      <PageUtils.PageHeading
-        title="Review Data Summary"
-        subTitle="Review your configured order source, API’s and payment methods"
-      />
-      <div>
+    let handleNext = _ => {
+      uploadData()->ignore
+      mixpanelEvent(~eventName="intelligent_routing_upload_data")
+    }
+
+    <div className="w-500-px">
+      {IntelligentRoutingHelper.stepperHeading(
+        ~title="Review Data Summary",
+        ~subTitle="Explore insights in the dashboard",
+      )}
+      <div className="mt-6">
         <VaultCustomerSummary.Details
           data=reviewFields
           getHeading
@@ -38,25 +64,42 @@ module Review = {
 
 module Analyze = {
   @react.component
-  let make = (~onNextClick, ~setReviewFields) => {
+  let make = (~onNextClick, ~setReviewFields, ~setIsUpload) => {
     open IntelligentRoutingUtils
     open IntelligentRoutingTypes
-    open APIUtils
-
-    let getURL = useGetURL()
-    let _fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (selectedField, setSelectedField) = React.useState(() => IntelligentRoutingTypes.Sample)
+    let (text, setText) = React.useState(() => "Next")
 
+    React.useEffect(() => {
+      setIsUpload(_ => selectedField === Upload)
+      None
+    }, [selectedField])
+
+    //TODO: wasm function call to fetch review fields
     let getReviewData = async () => {
       try {
-        let _url = getURL(~entityName=V2(SIMULATE_INTELLIGENT_ROUTING), ~methodType=Get)
-        // let _res = await Fetch.fetch(url)
         let response = {
-          file_name: "random_data.csv",
-          number_of_transaction: 1000,
-          number_of_terminal_transactions: 1000,
-          number_of_processors: 5,
+          "total": 81735,
+          "total_amount": 27289187.399992384,
+          "file_name": "baseline_data.csv",
+          "processors": [
+            "PSP1",
+            "PSP2",
+            "PSP3",
+            "PSP4",
+            "PSP5",
+            "PSP6",
+            "PSP7",
+            "PSP8",
+            "PSP9",
+            "PSP10",
+            "PSP11",
+            "PSP12",
+            "PSP13",
+          ],
+          "payment_methods": ["APPLEPAY", "CARD", "WALLET"],
         }->Identity.genericTypeToJson
         setReviewFields(_ => response)
       } catch {
@@ -68,42 +111,86 @@ module Analyze = {
       }
     }
 
-    let handleNext = _ => {
+    let steps = ["Preparing sample data", "Apply Rule-based Routing", "Apply Debit Routing"]
+
+    let loadButton = async () => {
+      for i in 0 to Array.length(steps) - 1 {
+        setText(_ => steps[i]->Option.getOr(""))
+        await HyperSwitchUtils.delay(800)
+      }
       getReviewData()->ignore
       onNextClick()
+      mixpanelEvent(~eventName="intelligent_routing_analyze_data")
     }
 
-    <div className="">
-      <PageUtils.PageHeading
-        title="Analyze Your Transaction History"
-        subTitle="Link your order data source to streamline the reconciliation process"
-      />
-      <div className="flex flex-col gap-4 mt-4">
-        <p className="font-semibold text-nd_gray-700">
-          {"Where do you want to fetch your order data from?"->React.string}
-        </p>
-        {fileTypes
-        ->Array.map(item => {
-          let fileTypeHeading = item->getFileTypeHeading
-          let fileTypeDescription = item->getFileTypeDescription
-          let fileTypeIcon = item->getFileTypeIconName
-          let isSelected = selectedField === item
+    let handleNext = _ => {
+      loadButton()->ignore
+    }
 
-          <StepCard
-            stepName={fileTypeHeading}
-            description={fileTypeDescription}
-            isSelected
-            onClick={_ => setSelectedField(_ => item)}
-            iconName=fileTypeIcon
-            isDisabled={item === Upload}
-          />
+    let dataSourceHeading = title =>
+      <div className="text-nd_gray-400 text-xs font-semibold tracking-wider">
+        {title->String.toUpperCase->React.string}
+      </div>
+
+    <div className="w-500-px">
+      {IntelligentRoutingHelper.stepperHeading(
+        ~title="Choose Your Data Source",
+        ~subTitle="Select a data source to begin your simulation",
+      )}
+      <div className="flex flex-col gap-4 mt-10">
+        {dataSource
+        ->Array.map(dataSource => {
+          switch dataSource {
+          | Historical =>
+            <>
+              {dataSourceHeading(dataSource->dataTypeVariantToString)}
+              {fileTypes
+              ->Array.map(item => {
+                let fileTypeHeading = item->getFileTypeHeading
+                let fileTypeDescription = item->getFileTypeDescription
+                let fileTypeIcon = item->getFileTypeIconName
+                let isSelected = selectedField === item
+
+                <StepCard
+                  stepName={fileTypeHeading}
+                  description={fileTypeDescription}
+                  isSelected
+                  onClick={_ => setSelectedField(_ => item)}
+                  iconName=fileTypeIcon
+                  isDisabled={item === Upload}
+                />
+              })
+              ->React.array}
+            </>
+          | Realtime =>
+            <>
+              {dataSourceHeading(dataSource->dataTypeVariantToString)}
+              {realtime
+              ->Array.map(item => {
+                let realtimeHeading = item->getRealtimeHeading
+                let realtimeDescription = item->getRealtimeDescription
+                let realtimeIcon = item->getRealtimeIconName
+
+                <StepCard
+                  stepName={realtimeHeading}
+                  description={realtimeDescription}
+                  isSelected=false
+                  onClick={_ => ()}
+                  iconName=realtimeIcon
+                  isDisabled={item === StreamLive}
+                />
+              })
+              ->React.array}
+            </>
+          }
         })
         ->React.array}
         <Button
-          text="Next"
-          customButtonStyle="w-full"
+          text
+          customButtonStyle={`w-full hover:opacity-80 ${text != "Next" ? "cursor-wait" : ""}`}
           buttonType={Primary}
           onClick={_ => handleNext()}
+          rightIcon={text != "Next" ? CustomIcon(<Icon name="spinner" size=16 />) : NoIcon}
           buttonState={Normal}
         />
       </div>
@@ -118,6 +205,7 @@ let make = () => {
   open VerticalStepIndicatorUtils
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (reviewFields, setReviewFields) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (isUpload, setIsUpload) = React.useState(() => false)
 
   let (currentStep, setNextStep) = React.useState(() => {
     sectionId: "analyze",
@@ -135,8 +223,13 @@ let make = () => {
     }
   }
 
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
+
   let backClick = () => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/intelligent-routing/home"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/dynamic-routing"))
     setShowSideBar(_ => true)
   }
 
@@ -147,16 +240,19 @@ let make = () => {
       </h1>
     </>
 
-  <div className="flex flex-row gap-x-6">
-    <VerticalStepIndicator
-      titleElement=intelligentRoutingTitleElement sections currentStep backClick
-    />
-    <div className=" ml-14">
-      {switch currentStep {
-      | {sectionId: "analyze"} => <Analyze onNextClick setReviewFields />
-      | {sectionId: "review"} => <Review reviewFields />
-      | _ => React.null
-      }}
+  <div className="h-full w-full">
+    {IntelligentRoutingHelper.simulatorBanner}
+    <div className="flex flex-row mt-10 py-10">
+      <VerticalStepIndicator
+        titleElement=intelligentRoutingTitleElement sections currentStep backClick
+      />
+      <div className="p-12">
+        {switch currentStep {
+        | {sectionId: "analyze"} => <Analyze onNextClick setReviewFields setIsUpload />
+        | {sectionId: "review"} => <Review reviewFields isUpload />
+        | _ => React.null
+        }}
+      </div>
     </div>
   </div>
 }

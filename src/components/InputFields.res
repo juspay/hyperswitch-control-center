@@ -104,6 +104,7 @@ let filterMultiSelectInput = (
   ~buttonText,
   ~buttonSize=?,
   ~hideMultiSelectButtons=false,
+  ~allowMultiSelect=true,
   ~showSelectionAsChips=true,
   ~showToggle=false,
   ~isDropDown=true,
@@ -154,7 +155,7 @@ let filterMultiSelectInput = (
     optionSize
     buttonText
     ?buttonSize
-    allowMultiSelect=true
+    allowMultiSelect
     hideMultiSelectButtons
     showSelectionAsChips
     isDropDown
