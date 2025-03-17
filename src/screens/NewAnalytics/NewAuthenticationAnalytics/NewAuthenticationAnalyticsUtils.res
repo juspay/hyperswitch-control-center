@@ -226,7 +226,7 @@ let getMetricsData = (queryData: queryDataType) => {
     },
     {
       title: "Frictionless Flow Rate",
-      value: queryData.challenge_flow_count->Int.toFloat /.
+      value: queryData.frictionless_flow_count->Int.toFloat /.
       queryData.authentication_count->Int.toFloat *. 100.0,
       valueType: Rate,
       tooltip_description: "Frictionless flow requests over total authentication requests",
