@@ -73,7 +73,8 @@ let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload =>
     yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
       ~statType=AmountWithSuffix,
       ~currency="$",
-      ~suffix="",
+      ~suffix="M",
+      ~scaleFactor=1000000.0,
     ),
   }
 }
