@@ -54,6 +54,7 @@ type chart = {
   \"type": \"type",
   spacingLeft: spacingLeft,
   spacingRight: spacingRight,
+  style: style,
 }
 
 type dataObj = {
