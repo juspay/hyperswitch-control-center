@@ -84,6 +84,7 @@ module AuthenticationInput = {
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, JSON.Encode.null)
         }
+        //Not allow users to enter just integers
         switch (value->getOptionIntFromString->Option.isNone, isValid) {
         | (true, true) => setKey(_ => value)
         | _ => ()

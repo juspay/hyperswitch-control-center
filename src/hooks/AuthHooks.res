@@ -1,4 +1,5 @@
 type contentType = Headers(string) | Unknown
+
 let headersForXFeature = (~uri, ~headers) => {
   if (
     uri->String.includes("lottie-files") ||
@@ -19,6 +20,7 @@ let getHeaders = (
   ~token,
   ~merchantId,
   ~profileId,
+  ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
 
@@ -28,12 +30,13 @@ let getHeaders = (
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    switch token {
-    | Some(str) => {
+    switch (token, version) {
+    | (Some(str), V1) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
       }
-    | None => ()
+    | (Some(str), V2) => headers->Dict.set("authorization", `Bearer ${str}`)
+    | _ => ()
     }
     switch contentType {
     | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
@@ -41,6 +44,11 @@ let getHeaders = (
     }
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
+    }
+
+    // this header is specific to Intelligent Routing (Dynamic Routing)
+    if uri->String.includes("simulate") {
+      headers->Dict.set("x-feature", "dynamo-simulator")
     }
     // headers for V2
     headers->Dict.set("X-Profile-Id", profileId)
@@ -74,6 +82,7 @@ let useApiFetcher = () => {
       ~forceCookies,
       ~merchantId="",
       ~profileId="",
+      ~version=UserInfoTypes.V1,
     ) => {
       let token = {
         switch authStatus {
@@ -115,6 +124,7 @@ let useApiFetcher = () => {
               ~xFeatureRoute,
               ~merchantId,
               ~profileId,
+              ~version,
             ),
           ),
         )

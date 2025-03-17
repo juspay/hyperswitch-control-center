@@ -3,8 +3,19 @@ let fontFamily = "Arial, sans-serif"
 let darkGray = "#525866"
 
 open ColumnGraphTypes
-let getColumnGraphOptions = (barGraphOptions: columnGraphPayload) => {
-  let {data, title, tooltipFormatter, yAxisFormatter} = barGraphOptions
+
+let labelFormatter = (
+  @this
+  (this: legendPoint) => {
+    `<div style="display: flex; align-items: center;">
+        <div style="width: 13px; height: 13px; background-color:${this.color}; border-radius:3px;"></div>
+        <div style="margin-left: 5px;">${this.name}</div>
+    </div>`
+  }
+)->asLegendsFormatter
+
+let getColumnGraphOptions = (columnGraphOptions: columnGraphPayload) => {
+  let {data, title, tooltipFormatter, yAxisFormatter} = columnGraphOptions
 
   let style = {
     fontFamily,
@@ -32,6 +43,7 @@ let getColumnGraphOptions = (barGraphOptions: columnGraphPayload) => {
       title: {
         text: "",
       },
+      gridLineDashStyle: "Dash",
     },
     tooltip: {
       style: {
@@ -49,13 +61,28 @@ let getColumnGraphOptions = (barGraphOptions: columnGraphPayload) => {
       shared: true,
     },
     legend: {
-      enabled: false,
+      useHTML: false,
+      labelFormatter,
+      symbolPadding: 12,
+      symbolWidth: 0,
+      symbolHeight: 0,
+      symbolRadius: 3,
+      itemStyle: {
+        fontFamily,
+        fontSize: "12px",
+        color: darkGray,
+      },
+      align: "right",
+      verticalAlign: "top",
+      x: 0,
+      y: 0,
     },
     plotOptions: {
       series: {
         borderWidth: 0,
         borderRadius: 5,
-        stacking: "normal",
+        stacking: "",
+        grouping: true,
         pointWidth: 30,
       },
     },
@@ -67,15 +94,11 @@ let getColumnGraphOptions = (barGraphOptions: columnGraphPayload) => {
 }
 
 let columnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueType) => {
-  open LogicUtils
-
   (
     @this
     (this: pointFormatter) => {
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
-
-      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: ""}
-      let primartPoint = this.points->getValueFromArray(0, defaultValue)
+      let _defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: ""}
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
         let formattedValue = LogicUtils.valueFormatter(value, metricType, ~currency="$")
@@ -88,9 +111,12 @@ let columnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueTyp
       }
 
       let tableItems =
-        [
-          getRowsHtml(~iconColor=primartPoint.color, ~date=primartPoint.key, ~value=primartPoint.y),
-        ]->Array.joinWith("")
+        this.points
+        ->Array.mapWithIndex((point, _index) => {
+          let {color, key, y} = point
+          getRowsHtml(~iconColor=color, ~date=key, ~value=y)
+        })
+        ->Array.joinWith("")
 
       let content = `
           <div style=" 
@@ -124,12 +150,17 @@ let columnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueTyp
   )->asTooltipPointFormatter
 }
 
-let columnGraphYAxisFormatter = (~statType: LogicUtilsTypes.valueType, ~currency="") => {
+let columnGraphYAxisFormatter = (
+  ~statType: LogicUtilsTypes.valueType,
+  ~currency="",
+  ~suffix="",
+  ~scaleFactor=1.0,
+) => {
   (
     @this
     (this: yAxisFormatter) => {
-      let value = this.value->Int.toFloat
-      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency)
+      let value = this.value->Int.toFloat /. scaleFactor
+      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
 
       formattedValue
     }

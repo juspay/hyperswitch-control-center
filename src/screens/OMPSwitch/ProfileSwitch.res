@@ -3,6 +3,7 @@ module NewProfileCreationModal = {
   let make = (~setShowModal, ~showModal, ~getProfileList) => {
     open APIUtils
     let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
 
@@ -10,6 +11,7 @@ module NewProfileCreationModal = {
       try {
         let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
         let body = values
+        mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
         let _ = await updateDetails(url, body, Post)
         getProfileList()->ignore
         showToast(
@@ -130,7 +132,7 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
@@ -142,12 +144,21 @@ let make = () => {
 
   let getProfileList = async () => {
     try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-      let response = await fetchDetails(url)
+      let response = switch version {
+      | V1 => {
+          let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+          await fetchDetails(url)
+        }
+      | V2 => {
+          let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+          await fetchDetails(url, ~version=V2)
+        }
+      }
+
       setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
     } catch {
     | _ => {
-        setProfileList(_ => ompDefaultValue(profileId, ""))
+        setProfileList(_ => [ompDefaultValue(profileId, "")])
         showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
       }
     }
@@ -189,6 +200,7 @@ let make = () => {
   let toggleChevronState = () => {
     setArrow(prev => !prev)
   }
+
   let updatedProfileList: array<
     OMPSwitchTypes.ompListTypesCustom,
   > = profileList->Array.mapWithIndex((item, i) => {
@@ -201,6 +213,12 @@ let make = () => {
     }
     listItem
   })
+
+  let bottomComponent = switch version {
+  | V1 => <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
+  | V2 => React.null
+  }
+
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -217,7 +235,7 @@ let make = () => {
       baseComponent={<ListBaseComp
         user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
+      bottomComponent
       customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState

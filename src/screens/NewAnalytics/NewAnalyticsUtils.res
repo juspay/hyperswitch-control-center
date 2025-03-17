@@ -21,6 +21,7 @@ let requestBody = (
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,
+  ~mode: option<string>=None,
 ) => {
   let metrics = metrics->Array.map(v => (v: metrics :> string))
 
@@ -34,6 +35,7 @@ let requestBody = (
       ~endDateTime=endTime,
       ~granularity,
       ~distributionValues,
+      ~mode,
     )->JSON.Encode.object,
   ]->JSON.Encode.array
 }
@@ -345,6 +347,7 @@ let tooltipFormatter = (
   ~metricType,
   ~comparison: option<DateRangeUtils.comparison>=None,
   ~currency="",
+  ~reverse=false,
 ) => {
   open LineGraphTypes
 
@@ -354,8 +357,12 @@ let tooltipFormatter = (
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
 
       let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}}
-      let primartPoint = this.points->getValueFromArray(0, defaultValue)
-      let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
+
+      let primaryIndex = reverse ? 1 : 0
+      let secondaryIndex = reverse ? 0 : 1
+
+      let primartPoint = this.points->getValueFromArray(primaryIndex, defaultValue)
+      let secondaryPoint = this.points->getValueFromArray(secondaryIndex, defaultValue)
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
         let valueString = valueFormatter(value, metricType, ~currency)

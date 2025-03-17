@@ -35,7 +35,7 @@ module PaymentMethodTypes = {
     <RenderIf key={index->Int.toString} condition={showCheckbox}>
       <AddDataAttributes key={index->Int.toString} attributes=[("data-testid", `${label}`)]>
         <div key={index->Int.toString} className={"flex gap-1.5 items-center"}>
-          <div onClick={_ => handleClick()}>
+          <div className="cursor-pointer" onClick={_ => handleClick()}>
             <FieldRenderer
               field={PMTSelection.valueInput(
                 ~pmtData,

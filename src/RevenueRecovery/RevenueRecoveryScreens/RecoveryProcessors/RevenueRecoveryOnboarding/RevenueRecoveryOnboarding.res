@@ -48,7 +48,7 @@ let make = () => {
       sections
       currentStep
       backClick={() => {
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
       }}
     />
     <div className="flex flex-row ml-14 mt-16 w-540-px">

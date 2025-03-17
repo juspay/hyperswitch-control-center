@@ -31,7 +31,27 @@ module MetadataAuthenticationInput = {
     let form = ReactFinalForm.useForm()
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ => (),
+      onBlur: _ => {
+        let (metadataKey, customMetadataVal) = getMetadatKeyValues()
+
+        //When we try to change just key field.
+        if metadataKey->String.length > 0 {
+          let name = `metadata.${metadataKey}`
+          let newKey = `metadata.${key}`
+          form.change(name, JSON.Encode.null)
+          if key->String.length > 0 {
+            form.change(newKey, customMetadataVal->JSON.Encode.string)
+          }
+        }
+
+        //When we empty the key field , then just put a new key field name, keeping the value field the same.
+        if (
+          metadataKey->String.length <= 0 && metaValue->String.length > 0 && key->String.length > 0
+        ) {
+          let field = `metadata.${key}`
+          form.change(field, metaValue->JSON.Encode.string)
+        }
+      },
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|-)+$"
@@ -50,6 +70,7 @@ module MetadataAuthenticationInput = {
           let name = `metadata.${key}`
           form.change(name, JSON.Encode.null)
         }
+        //Not allow users to enter just integers
         switch (value->getOptionIntFromString->Option.isNone, isValid) {
         | (true, true) => setKey(_ => value)
         | _ => ()

@@ -3,9 +3,24 @@ module ReconOnboardingLanding = {
   let make = () => {
     open PageUtils
 
-    let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+    let {setCreateNewMerchant, activeProduct} = React.useContext(
+      ProductSelectionProvider.defaultContext,
+    )
+    let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
+      #tenant_admin,
+      #org_admin,
+    ])
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let onTryDemoClick = () => {
       setCreateNewMerchant(ProductTypes.Recon)
+    }
+
+    let handleClick = () => {
+      if activeProduct == Recon {
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recon/home"))
+      } else {
+        onTryDemoClick()
+      }
     }
 
     <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
@@ -22,9 +37,13 @@ module ReconOnboardingLanding = {
           customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
           subTitle="Built for 10x financial & transactional accuracy"
         />
-        <Button
+        <ACLButton
+          authorization={userHasCreateMerchantAccess}
           text="Try Demo"
-          onClick={_ => onTryDemoClick()}
+          onClick={_ => {
+            mixpanelEvent(~eventName="recon_try_demo")
+            handleClick()
+          }}
           rightIcon={CustomIcon(<Icon name="nd-angle-right" size=15 />)}
           customTextPaddingClass="pr-0"
           buttonType=Primary
@@ -308,6 +327,7 @@ module Exceptions = {
       },
       data: [
         {
+          showInLegend: false,
           name: "Exceptions Aging",
           colorByPoint: true,
           data: [
@@ -327,6 +347,7 @@ module Exceptions = {
               color: "#B3596E",
             },
           ],
+          color: "",
         },
       ],
       tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
@@ -345,6 +366,7 @@ module Exceptions = {
       },
       data: [
         {
+          showInLegend: false,
           name: "Unmatched Transactions",
           colorByPoint: true,
           data: [
@@ -364,6 +386,7 @@ module Exceptions = {
               color: "#B6D198",
             },
           ],
+          color: "",
         },
       ],
       tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
@@ -410,6 +433,7 @@ module Exceptions = {
 module ReconOverviewContent = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     <div>
       <div
         className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
@@ -424,7 +448,10 @@ module ReconOverviewContent = {
           buttonType=Primary
           buttonSize=Medium
           buttonState=Normal
-          onClick={_ => ()}
+          onClick={_ => {
+            mixpanelEvent(~eventName="recon_send_an_email")
+            ()
+          }}
         />
       </div>
       <ReconciliationOverview />

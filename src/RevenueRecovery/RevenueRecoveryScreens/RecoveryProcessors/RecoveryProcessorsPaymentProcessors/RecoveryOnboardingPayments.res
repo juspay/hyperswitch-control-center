@@ -16,9 +16,12 @@ let make = (
   open RevenueRecoveryOnboardingUtils
 
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+    ~version=UserInfoTypes.V2,
+  )
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
 
@@ -53,10 +56,11 @@ let make = (
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Post)
+      let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
 
       let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
@@ -141,8 +145,7 @@ let make = (
     value: connector->JSON.Encode.string,
     checked: true,
   }
-
-  let options = (featureFlagDetails.isLiveMode ? connectorListForLive : connectorList)->getOptions
+  let options = RecoveryConnectorUtils.recoveryConnectorList->getOptions
 
   <div>
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {

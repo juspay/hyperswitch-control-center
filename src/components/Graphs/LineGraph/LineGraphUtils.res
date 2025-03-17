@@ -51,10 +51,12 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       \"type": "line",
       spacingLeft: 20,
       spacingRight: 20,
+      style: {
+        color: darkGray,
+        fontFamily,
+      },
     },
-    title: {
-      text: "",
-    },
+    title,
     xAxis: {
       categories,
       crosshair: true,
@@ -105,10 +107,14 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       symbolPadding: 0,
       symbolWidth: 0,
       itemStyle: {
-        fontFamily, // Set font family for legend items
-        fontSize: "12px", // Set font size
-        color: darkGray, // Set font color
+        fontFamily,
+        fontSize: "12px",
+        color: darkGray,
       },
+      align: "right",
+      verticalAlign: "top",
+      x: 0,
+      y: 0,
     },
     plotOptions: {
       line: {
