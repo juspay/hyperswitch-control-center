@@ -135,13 +135,7 @@ let make = () => {
           {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
         </p>
       </div>
-      <Button
-        text="Get Production Access"
-        buttonType=Primary
-        buttonSize=Medium
-        buttonState=Normal
-        onClick={_ => ()}
-      />
+      <ReconHelper.GetProductionAccess />
     </div>
     <div className="flex flex-col space-y-2 justify-center relative gap-4 mt-16">
       <div>
