@@ -154,11 +154,12 @@ let columnGraphYAxisFormatter = (
   ~statType: LogicUtilsTypes.valueType,
   ~currency="",
   ~suffix="",
+  ~scaleFactor=1.0,
 ) => {
   (
     @this
     (this: yAxisFormatter) => {
-      let value = this.value->Int.toFloat
+      let value = this.value->Int.toFloat /. scaleFactor
       let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
 
       formattedValue

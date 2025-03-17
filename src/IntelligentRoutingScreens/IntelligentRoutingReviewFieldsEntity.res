@@ -25,7 +25,8 @@ let getCell = (reviewFields, colType): Table.cell => {
   | TotalAmount => Text(formatAmount(reviewFields.total_amount, "USD"))
   | FileName => Text(reviewFields.file_name)
   | Processors => Text(concatStringArray(reviewFields.processors))
-  | PaymentMethod => Text(concatStringArray(reviewFields.payment_methods))
+  | PaymentMethod =>
+    Text(concatStringArray(reviewFields.payment_methods->Array.map(LogicUtils.getTitle)))
   }
 }
 
