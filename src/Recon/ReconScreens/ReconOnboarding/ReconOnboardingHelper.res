@@ -433,7 +433,27 @@ module Exceptions = {
 module ReconOverviewContent = {
   @react.component
   let make = () => {
+    open APIUtils
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
+    let showToast = ToastState.useShowToast()
+
+    let onClickForReconRequest = async () => {
+      try {
+        let url = getURL(~entityName=V1(RECON), ~reconType=#REQUEST, ~methodType=Get)
+        let _ = await updateDetails(url, JSON.Encode.null, Post)
+        let _ = await fetchMerchantAccountDetails()
+        showToast(
+          ~message=`Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps.`,
+          ~toastType=ToastSuccess,
+        )
+      } catch {
+      | _ => showToast(~message=`Something went wrong. Please try again.`, ~toastType=ToastError)
+      }
+    }
+
     <div>
       <div
         className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
@@ -449,20 +469,13 @@ module ReconOverviewContent = {
           buttonSize=Medium
           buttonState=Normal
           onClick={_ => {
-            mixpanelEvent(~eventName="recon_send_an_email")
-            ()
+            mixpanelEvent(~eventName="recon_send_an_email_v2")
+            onClickForReconRequest()->ignore
           }}
         />
       </div>
       <ReconciliationOverview />
       <Exceptions />
     </div>
-  }
-}
-
-module ReconOverview = {
-  @react.component
-  let make = () => {
-    <ReconOverviewContent />
   }
 }
