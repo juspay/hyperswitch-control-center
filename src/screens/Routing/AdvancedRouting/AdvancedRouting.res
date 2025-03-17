@@ -343,19 +343,19 @@ module RuleBasedUI = {
           ~message="Unable to add a new rule while an empty rule exists!",
           ~toastType=ToastState.ToastError,
         )
-        ()
       } else if copy {
         switch existingRules[index] {
-        | Some(rule) if isEmptyRule(rule) =>
-          showToast(
-            ~message="Unable to copy an empty rule configuration!",
-            ~toastType=ToastState.ToastError,
-          )
-          ()
         | Some(rule) =>
-          let newRule = rule->Identity.genericTypeToJson
-          let newRules = existingRules->Array.concat([newRule])
-          ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
+          if isEmptyRule(rule) {
+            showToast(
+              ~message="Unable to copy an empty rule configuration!",
+              ~toastType=ToastState.ToastError,
+            )
+          } else {
+            let newRule = rule->Identity.genericTypeToJson
+            let newRules = existingRules->Array.concat([newRule])
+            ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
+          }
         | None => ()
         }
       } else {
