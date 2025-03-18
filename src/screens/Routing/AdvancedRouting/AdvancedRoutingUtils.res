@@ -322,7 +322,7 @@ let getRoutingTypesFromJson: JSON.t => RoutingTypes.advancedRouting = values => 
   }
 }
 
-let getRulesFromJsonObject: JSON.t => array<AdvancedRoutingTypes.rule> = values => {
+let getRulesFromJsonObject: JSON.t => array<RoutingTypes.rule> = values => {
   open LogicUtils
   let rulesArray =
     values
@@ -343,7 +343,7 @@ let getRulesFromJsonObject: JSON.t => array<AdvancedRoutingTypes.rule> = values 
       statementDict->statementTypeMapper
     })
 
-    let eachRule: AdvancedRoutingTypes.rule = {
+    let eachRule: RoutingTypes.rule = {
       name: ruleName,
       connectorSelection,
       statements,
