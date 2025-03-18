@@ -3,6 +3,48 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.18.0
+
+### Bug Fixes
+
+- Metrics - frictionless flow count ([#2504](https://github.com/juspay/hyperswitch-control-center/pull/2504)) ([`d906152`](https://github.com/juspay/hyperswitch-control-center/commit/d9061527dfc3762fabedcc887529522111c36ea4))
+- Ui issue for insights ([#2510](https://github.com/juspay/hyperswitch-control-center/pull/2510)) ([`216618a`](https://github.com/juspay/hyperswitch-control-center/commit/216618a0f0d6f02af69ad7a26c3becec425515ad))
+
+### Miscellaneous Tasks
+
+- Remove tax identification number field from get production acc… ([#2507](https://github.com/juspay/hyperswitch-control-center/pull/2507)) ([`33045a3`](https://github.com/juspay/hyperswitch-control-center/commit/33045a399ad7850e7443e9b1a0b713a2a40e560d))
+
+**Full Changelog:** [`2025.03.17.0...2025.03.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.17.0...2025.03.18.0)
+
+
+- - -
+
+## 2025.03.17.0
+
+### Bug Fixes
+
+- Dropdown issues in payment processors ([#2347](https://github.com/juspay/hyperswitch-control-center/pull/2347)) ([`2372d34`](https://github.com/juspay/hyperswitch-control-center/commit/2372d345f8c400018c0c7634cd700eade5f63ae8))
+- Payout processor unknown issue ([#2497](https://github.com/juspay/hyperswitch-control-center/pull/2497)) ([`de16a25`](https://github.com/juspay/hyperswitch-control-center/commit/de16a252c4e52c40a03acb2cedabf70c9b534dd7))
+
+### Miscellaneous Tasks
+
+- Routing minor ui fixes ([#2492](https://github.com/juspay/hyperswitch-control-center/pull/2492)) ([`53663bb`](https://github.com/juspay/hyperswitch-control-center/commit/53663bb8c87f5f48381b76bf717d0ddfd85a2e0b))
+
+**Full Changelog:** [`2025.03.13.4...2025.03.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.13.4...2025.03.17.0)
+
+
+- - -
+
+## 2025.03.13.4
+
+### Miscellaneous Tasks
+
+- Fix dynamic routing url ([`767805d`](https://github.com/juspay/hyperswitch-control-center/commit/767805dd2d8988f0c349e3d6fdbbe6855c393f6b))
+
+**Full Changelog:** [`2025.03.13.3...2025.03.13.4`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.13.3...2025.03.13.4)
+
+- - -
+
 ## 2025.03.13.3
 
 ### Bug Fixes

@@ -13,7 +13,7 @@ let reconOnBoarding = {
 let reconReports = {
   Link({
     name: "Reconciliation Report",
-    link: `/v2/recon/reports?tab=all`,
+    link: `/v2/recon/reports`,
     access: Access,
     icon: "nd-reports",
     selectedIcon: "nd-reports-fill",

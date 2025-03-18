@@ -146,6 +146,7 @@ let make = (~children) => {
       <Button
         text={`Continue with ${(authMethodName :> string)}`}
         buttonType={PrimaryOutline}
+        customButtonStyle="!w-full"
         onClick={_ => handleLoginWithSso(method.id)}
       />
     | (_, _) => React.null

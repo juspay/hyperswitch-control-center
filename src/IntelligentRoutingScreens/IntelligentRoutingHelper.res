@@ -68,12 +68,13 @@ let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload =>
     ],
     tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
       ~title="Revenue Uplift",
-      ~metricType=AmountWithSuffix,
+      ~metricType=FormattedAmount,
     ),
     yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
       ~statType=AmountWithSuffix,
       ~currency="$",
-      ~suffix="",
+      ~suffix="M",
+      ~scaleFactor=1000000.0,
     ),
   }
 }
@@ -116,7 +117,7 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
       ~metricType=Amount,
       ~currency="",
       ~comparison=Some(EnableComparison),
-      ~secondaryCategories=[],
+      ~secondaryCategories=timeSeriesArray,
       ~reverse=true,
     ),
     yAxisMaxValue: None,

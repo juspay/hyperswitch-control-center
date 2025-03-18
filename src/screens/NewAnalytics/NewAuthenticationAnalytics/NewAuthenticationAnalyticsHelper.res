@@ -99,7 +99,7 @@ module Insights = {
                     className="inline-flex justify-center items-center bg-blue-200 text-blue-500 text-xs font-medium mr-3 w-6 h-6 rounded">
                     {(index + 1)->Int.toString->React.string}
                   </span>
-                  {item.error_message->React.string}
+                  <span className="max-w-2xl"> {item.error_message->React.string} </span>
                 </div>
                 <div className="px-6 py-4 font-medium"> {formattedPercentage->React.string} </div>
               </div>
