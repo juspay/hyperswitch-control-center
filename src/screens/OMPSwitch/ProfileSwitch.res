@@ -192,6 +192,7 @@ let make = () => {
     checked: true,
   }
 
+  // TODO : remove businessProfiles as dependancy in remove-business-profile-add-as-a-section pr
   React.useEffect(() => {
     getProfileList()->ignore
     None

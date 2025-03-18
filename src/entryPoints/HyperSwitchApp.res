@@ -67,6 +67,8 @@ let make = () => {
     | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
     | _ => ()
     }
+    setDashboardPageState(_ => #HOME)
+    setScreenState(_ => PageLoaderWrapper.Success)
   }
 
   let setUpDashboard = async () => {
@@ -78,7 +80,6 @@ let make = () => {
       let response = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      setupProductUrl(~productType=response.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -102,13 +103,12 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  React.useEffect1(() => {
+  React.useEffect2(() => {
     if userGroupACL->Option.isSome {
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      setupProductUrl(~productType=merchantDetailsTypedValue.product_type)
     }
     None
-  }, [userGroupACL])
+  }, (userGroupACL, merchantDetailsTypedValue.product_type))
 
   <>
     <div>
