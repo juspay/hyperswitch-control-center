@@ -77,10 +77,9 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
-      let response = await fetchMerchantAccountDetails(~version)
+      let _ = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      setupProductUrl(~productType=response.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -104,12 +103,12 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  // React.useEffect1(() => {
-  //   if userGroupACL->Option.isSome {
-  //     setScreenState(_ => PageLoaderWrapper.Success)
-  //   }
-  //   None
-  // }, [userGroupACL])
+  React.useEffect2(() => {
+    if userGroupACL->Option.isSome {
+      setupProductUrl(~productType=merchantDetailsTypedValue.product_type)
+    }
+    None
+  }, (userGroupACL, merchantDetailsTypedValue.product_type))
 
   <>
     <div>
