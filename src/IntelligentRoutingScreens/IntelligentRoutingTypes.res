@@ -17,7 +17,7 @@ type reviewFields = {
   payment_methods: array<string>,
 }
 
-type transactionDetails = {
+type transactionObj = {
   txn_no: int,
   payment_intent_id: string,
   payment_attempt_id: string,
@@ -29,6 +29,11 @@ type transactionDetails = {
   order_currency: string,
   model_connector: string,
   suggested_uplift: float,
+}
+
+type transactionDetails = {
+  total_payment_count: string,
+  simulation_outcome_of_each_txn: array<transactionObj>,
 }
 
 type stats = {

@@ -63,7 +63,7 @@ module UpliftCell = {
   }
 }
 
-let getCell = (~transactionsData: transactionDetails, colType): Table.cell => {
+let getCell = (~transactionsData: transactionObj, colType): Table.cell => {
   switch colType {
   | PaymentID => Text(transactionsData.payment_intent_id)
   | PaymentMethodType => Text(transactionsData.payment_method_type->LogicUtils.getTitle)
@@ -102,8 +102,10 @@ let itemToObjectMapper = dict => {
   }
 }
 
-let getTransactionsData: JSON.t => array<transactionDetails> = json => {
-  getArrayDataFromJson(json, itemToObjectMapper)
+let getTransactionsData: JSON.t => array<transactionObj> = json => {
+  let dict = json->getDictFromJsonObject
+  let simulatorOutcome = dict->getArrayFromDict("simulation_outcome_of_each_txn", [])
+  getArrayDataFromJson(simulatorOutcome->JSON.Encode.array, itemToObjectMapper)
 }
 
 let transactionDetailsEntity = () => {
