@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.18.0
+
+### Bug Fixes
+
+- Metrics - frictionless flow count ([#2504](https://github.com/juspay/hyperswitch-control-center/pull/2504)) ([`d906152`](https://github.com/juspay/hyperswitch-control-center/commit/d9061527dfc3762fabedcc887529522111c36ea4))
+- Ui issue for insights ([#2510](https://github.com/juspay/hyperswitch-control-center/pull/2510)) ([`216618a`](https://github.com/juspay/hyperswitch-control-center/commit/216618a0f0d6f02af69ad7a26c3becec425515ad))
+
+### Miscellaneous Tasks
+
+- Remove tax identification number field from get production acc… ([#2507](https://github.com/juspay/hyperswitch-control-center/pull/2507)) ([`33045a3`](https://github.com/juspay/hyperswitch-control-center/commit/33045a399ad7850e7443e9b1a0b713a2a40e560d))
+
+**Full Changelog:** [`2025.03.17.0...2025.03.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.17.0...2025.03.18.0)
+
+
+- - -
+
 ## 2025.03.17.0
 
 ### Bug Fixes
