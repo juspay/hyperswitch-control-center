@@ -34,8 +34,14 @@ let make = () => {
 
   React.useEffect(() => {
     switch url.search->ReconReportUtils.getTabFromUrl {
-    | Exceptions => setTabIndex(_ => 1)
-    | All => setTabIndex(_ => 0)
+    | Exceptions => {
+        mixpanelEvent(~eventName="recon_exceptions_reports")
+        setTabIndex(_ => 1)
+      }
+    | All => {
+        mixpanelEvent(~eventName="recon_all_reports")
+        setTabIndex(_ => 0)
+      }
     }
     setScreenState(_ => PageLoaderWrapper.Success)
     getReportsList()->ignore
@@ -87,9 +93,7 @@ let make = () => {
         renderContent: () =>
           <ReconReportsList configuredReports filteredReportsData setFilteredReports />,
         onTabSelection: () => {
-          RescriptReactRouter.replace(
-            GlobalVars.appendDashboardPath(~url="/v2/recon/reports?tab=all"),
-          )
+          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/reports"))
         },
       },
       {
@@ -120,13 +124,6 @@ let make = () => {
     setReconArrow(prev => !prev)
   }
 
-  let tabValue = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("tab", "")
-
-  React.useEffect(() => {
-    mixpanelEvent(~eventName=tabValue)
-    None
-  }, [tabValue])
-
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
   <div>
@@ -138,13 +135,7 @@ let make = () => {
           {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
         </p>
       </div>
-      <Button
-        text="Get Production Access"
-        buttonType=Primary
-        buttonSize=Medium
-        buttonState=Normal
-        onClick={_ => ()}
-      />
+      <ReconHelper.GetProductionAccess />
     </div>
     <div className="flex flex-col space-y-2 justify-center relative gap-4 mt-16">
       <div>
