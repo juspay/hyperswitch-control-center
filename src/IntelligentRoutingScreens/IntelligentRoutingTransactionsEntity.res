@@ -29,12 +29,12 @@ let getHeading = colType => {
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
   | CardNetwork => Table.makeHeaderInfo(~key="card_network", ~title="Card Network")
-  | TxnAmount => Table.makeHeaderInfo(~key="tax_amount", ~title="Txn Amount")
+  | TxnAmount => Table.makeHeaderInfo(~key="tax_amount", ~title="Txn Amount ($)")
   | Status => Table.makeHeaderInfo(~key="payment_status", ~title="Status")
   | ActualGateway => Table.makeHeaderInfo(~key="payment_gateway", ~title="Actual Gateway")
   | SuggestedGateway => Table.makeHeaderInfo(~key="model_connector", ~title="Suggested Gateway")
-  | SuccessRateUplift => Table.makeHeaderInfo(~key="suggested_uplift", ~title="Success Rate Uplift")
-  | CreatedAt => Table.makeHeaderInfo(~key="last_updated", ~title="Created At")
+  | SuccessRateUplift => Table.makeHeaderInfo(~key="suggested_uplift", ~title="Auth Rate Uplift")
+  | CreatedAt => Table.makeHeaderInfo(~key="last_updated", ~title="Timestamp")
   }
 }
 
@@ -68,13 +68,7 @@ let getCell = (~transactionsData: transactionDetails, colType): Table.cell => {
   | PaymentID => Text(transactionsData.payment_intent_id)
   | PaymentMethodType => Text(transactionsData.payment_method_type->LogicUtils.getTitle)
   | CardNetwork => Text(transactionsData.payment_gateway)
-  | TxnAmount =>
-    CustomCell(
-      <CurrencyCell
-        amount={transactionsData.amount->Float.toString} currency=transactionsData.order_currency
-      />,
-      "",
-    )
+  | TxnAmount => Text(transactionsData.amount->Float.toString)
   | Status =>
     transactionsData.payment_status
       ? Label({

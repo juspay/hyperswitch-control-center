@@ -11,7 +11,7 @@ let getHeading = colType => {
   | TotalAmount => Table.makeHeaderInfo(~key="total_amount", ~title="Total Amount")
   | FileName => Table.makeHeaderInfo(~key="file_name", ~title="File Name")
   | Processors => Table.makeHeaderInfo(~key="processors", ~title="Processors")
-  | PaymentMethod => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
+  | PaymentMethod => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Method Types")
   }
 }
 

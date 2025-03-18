@@ -182,7 +182,7 @@ module MetricCards = {
         statType=Rate
       />
       <Card
-        title="FAAR"
+        title="First Attempt Auth Rate"
         actualValue={faar.baseline}
         simulatedValue={faar.model}
         valueFormat=true

@@ -172,6 +172,7 @@ module Analyze = {
                   onClick={_ => setSelectedField(_ => item)}
                   iconName=fileTypeIcon
                   isDisabled={item === Upload}
+                  showDemoLabel={item === Sample ? true : false}
                 />
               })
               ->React.array}
