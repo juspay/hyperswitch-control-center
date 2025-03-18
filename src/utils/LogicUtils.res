@@ -748,3 +748,15 @@ let removeTrailingSlash = str => {
     str
   }
 }
+
+let getMappedValueFromArrayOfJson = (array, itemToObjMapper) =>
+  array->Belt.Array.keepMap(JSON.Decode.object)->Array.map(itemToObjMapper)
+
+let uniqueObjectFromArrayOfObjects = (arr, keyExtractor) => {
+  let uniqueDict = Dict.make()
+  arr->Array.forEach(item => {
+    let key = keyExtractor(item)
+    Dict.set(uniqueDict, key, item)
+  })
+  Dict.valuesToArray(uniqueDict)
+}
