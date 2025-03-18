@@ -10,7 +10,7 @@ type cols =
   | ActualGateway
   | SuggestedGateway
   | SuccessRateUplift
-  | LastUpdated
+  | CreatedAt
 
 let defaultColumns = [
   PaymentID,
@@ -20,7 +20,7 @@ let defaultColumns = [
   ActualGateway,
   SuggestedGateway,
   SuccessRateUplift,
-  LastUpdated,
+  CreatedAt,
 ]
 
 let getHeading = colType => {
@@ -34,7 +34,7 @@ let getHeading = colType => {
   | ActualGateway => Table.makeHeaderInfo(~key="payment_gateway", ~title="Actual Gateway")
   | SuggestedGateway => Table.makeHeaderInfo(~key="model_connector", ~title="Suggested Gateway")
   | SuccessRateUplift => Table.makeHeaderInfo(~key="suggested_uplift", ~title="Success Rate Uplift")
-  | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
+  | CreatedAt => Table.makeHeaderInfo(~key="last_updated", ~title="Created At")
   }
 }
 
@@ -66,7 +66,7 @@ module UpliftCell = {
 let getCell = (~transactionsData: transactionDetails, colType): Table.cell => {
   switch colType {
   | PaymentID => Text(transactionsData.payment_intent_id)
-  | PaymentMethodType => Text(transactionsData.payment_method_type)
+  | PaymentMethodType => Text(transactionsData.payment_method_type->LogicUtils.getTitle)
   | CardNetwork => Text(transactionsData.payment_gateway)
   | TxnAmount =>
     CustomCell(
@@ -88,7 +88,7 @@ let getCell = (~transactionsData: transactionDetails, colType): Table.cell => {
   | ActualGateway => Text(transactionsData.payment_gateway)
   | SuggestedGateway => Text(transactionsData.model_connector)
   | SuccessRateUplift => CustomCell(<UpliftCell uplift=transactionsData.suggested_uplift />, "")
-  | LastUpdated => Date(transactionsData.created_at)
+  | CreatedAt => Date(transactionsData.created_at)
   }
 }
 

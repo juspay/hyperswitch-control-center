@@ -8,14 +8,13 @@ module Review = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let (buttonState, setButtonState) = React.useState(() => Button.Normal)
-
+    let (showLoading, setShowLoading) = React.useState(() => false)
     let reviewFields = reviewFields->getReviewFields
     let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
 
     let uploadData = async () => {
       try {
-        setButtonState(_ => Button.Loading)
+        setShowLoading(_ => true)
         let url = getURL(
           ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
           ~methodType=Post,
@@ -29,10 +28,10 @@ module Review = {
             GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
           )
         }
-        setButtonState(_ => Button.Normal)
+        setShowLoading(_ => false)
       } catch {
       | _ => {
-          setButtonState(_ => Button.Normal)
+          setShowLoading(_ => false)
           showToast(~message="Upload data failed", ~toastType=ToastError)
         }
       }
@@ -60,10 +59,10 @@ module Review = {
       </div>
       <Button
         text="Explore Insights"
-        customButtonStyle={`w-full hover:opacity-80 ${buttonState == Loading ? "cursor-wait" : ""}`}
+        customButtonStyle={`w-full hover:opacity-80 ${showLoading ? "cursor-wait" : ""}`}
         buttonType=Primary
         onClick={_ => handleNext()}
-        rightIcon={buttonState === Button.Loading
+        rightIcon={showLoading
           ? CustomIcon(
               <span className="px-3">
                 <span className={`flex items-center mx-2 animate-spin`}>
