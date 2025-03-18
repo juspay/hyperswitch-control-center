@@ -1,9 +1,9 @@
 open IntelligentRoutingTypes
 open LogicUtils
 
-let defaultColumns = [FileName, TotalAmount, NumberOfTransaction, Processors, PaymentMethod]
+let defaultColumns = [FileName, TotalAmount, NumberOfTransaction, Processors, PaymentMethodTypes]
 
-let allColumns = [FileName, TotalAmount, NumberOfTransaction, Processors, PaymentMethod]
+let allColumns = [FileName, TotalAmount, NumberOfTransaction, Processors, PaymentMethodTypes]
 
 let getHeading = colType => {
   switch colType {
@@ -11,7 +11,7 @@ let getHeading = colType => {
   | TotalAmount => Table.makeHeaderInfo(~key="total_amount", ~title="Total Amount")
   | FileName => Table.makeHeaderInfo(~key="file_name", ~title="File Name")
   | Processors => Table.makeHeaderInfo(~key="processors", ~title="Processors")
-  | PaymentMethod =>
+  | PaymentMethodTypes =>
     Table.makeHeaderInfo(~key="payment_method_types", ~title="Payment Method Types")
   }
 }
@@ -26,7 +26,7 @@ let getCell = (reviewFields, colType): Table.cell => {
   | TotalAmount => Text(formatAmount(reviewFields.total_amount, "USD"))
   | FileName => Text(reviewFields.file_name)
   | Processors => Text(concatStringArray(reviewFields.processors))
-  | PaymentMethod =>
+  | PaymentMethodTypes =>
     Text(concatStringArray(reviewFields.payment_method_types->Array.map(LogicUtils.getTitle)))
   }
 }

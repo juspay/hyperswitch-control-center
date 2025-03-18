@@ -7,7 +7,7 @@ type reviewFieldsColsType =
   | TotalAmount
   | FileName
   | Processors
-  | PaymentMethod
+  | PaymentMethodTypes
 
 type reviewFields = {
   total: int,
