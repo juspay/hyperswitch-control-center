@@ -1,7 +1,5 @@
 @react.component
 let make = () => {
-  open ConnectorUtils
-
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
@@ -37,11 +35,7 @@ let make = () => {
     None
   }, [connectorListFromRecoil])
 
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-  let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? connectorListForLive
-    : connectorList
+  let connectorsAvailableForIntegration = VaultConnectorUtils.connectorListForVault
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
