@@ -125,6 +125,53 @@ let initialFilterFields = json => {
 
   dropdownValue
 }
+
+let initialFilterFieldsForAuthenticationAnalytics = json => {
+  open LogicUtils
+
+  json
+  ->getDictFromJsonObject
+  ->getOptionalArrayFromDict("queryData")
+  ->Option.flatMap(arr => {
+    arr
+    ->Belt.Array.keepMap(item => {
+      let dimensionObject = item->getDictFromJsonObject
+      let dimensionValue = getString(dimensionObject, "dimension", "")
+
+      let dimensionLabel = switch dimensionValue {
+      | "acs_reference_number" => "issuer"
+      | _ => dimensionValue
+      }
+
+      let dimensionTitleCase = `Select ${snakeToTitle(dimensionLabel)}`
+      let value = getArrayFromDict(dimensionObject, "values", [])->getStrArrayFromJsonArray
+
+      Some(
+        (
+          {
+            field: FormRenderer.makeFieldInfo(
+              ~label=dimensionLabel,
+              ~name=dimensionValue,
+              ~customInput=InputFields.filterMultiSelectInput(
+                ~options=value->FilterSelectBox.makeOptions,
+                ~buttonText=dimensionTitleCase,
+                ~showSelectionAsChips=false,
+                ~searchable=true,
+                ~showToolTip=true,
+                ~showNameAsToolTip=true,
+                ~customButtonStyle="bg-none",
+                (),
+              ),
+            ),
+            localFilter: Some(filterByData),
+          }: EntityType.initialFilters<'t>
+        ),
+      )
+    })
+    ->Some
+  })
+  ->Option.getOr([])
+}
 let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTime", "opt")
 
 let initialFixedFilterFields = _json => {
