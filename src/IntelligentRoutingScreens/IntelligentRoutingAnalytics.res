@@ -52,22 +52,6 @@ module TransactionsTable = {
         )
         let res = await fetchDetails(url)
 
-        // let response = {
-        //   "txn_no": 12,
-        //   "payment_intent_id": "AF575HMAG08321",
-        //   "payment_attempt_id": "merchant1-AF575HMAG08321-1",
-        //   "amount": 407.56,
-        //   "payment_gateway": "PSP11",
-        //   "payment_status": true,
-        //   "created_at": "2025-03-10T12:25:00Z",
-        //   "payment_method_type": "APPLEPAY",
-        //   "order_currency": "USD",
-        //   "model_connector": "PSP2",
-        //   "suggested_uplift": 5.9,
-        // }
-        // let arr = Array.make(~length=55, response)
-        // let json = arr->Identity.genericTypeToJson
-
         let typedResponse = res->IntelligentRoutingTransactionsEntity.getTransactionsData
         setTableData(_ => typedResponse->Array.map(Nullable.make))
       } catch {
@@ -230,7 +214,6 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=V1(INTELLIGENT_ROUTING_GET_STATISTICS), ~methodType=Get)
       let response = await fetchDetails(url)
-      // let response = IntelligentRoutingStatsResponse.response
       setStats(_ => response)
       let statsData =
         (response->IntelligentRoutingUtils.responseMapper).time_series_data->Array.get(0)
