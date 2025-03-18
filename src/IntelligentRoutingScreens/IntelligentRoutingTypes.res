@@ -14,7 +14,7 @@ type reviewFields = {
   total_amount: int,
   file_name: string,
   processors: array<string>,
-  payment_methods: array<string>,
+  payment_method_types: array<string>,
 }
 
 type transactionObj = {
@@ -24,6 +24,7 @@ type transactionObj = {
   amount: float,
   payment_gateway: string,
   payment_status: bool,
+  card_network: string,
   created_at: string,
   payment_method_type: string,
   order_currency: string,

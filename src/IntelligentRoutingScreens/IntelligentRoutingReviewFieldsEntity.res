@@ -11,7 +11,8 @@ let getHeading = colType => {
   | TotalAmount => Table.makeHeaderInfo(~key="total_amount", ~title="Total Amount")
   | FileName => Table.makeHeaderInfo(~key="file_name", ~title="File Name")
   | Processors => Table.makeHeaderInfo(~key="processors", ~title="Processors")
-  | PaymentMethod => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Method Types")
+  | PaymentMethod =>
+    Table.makeHeaderInfo(~key="payment_method_types", ~title="Payment Method Types")
   }
 }
 
@@ -26,7 +27,7 @@ let getCell = (reviewFields, colType): Table.cell => {
   | FileName => Text(reviewFields.file_name)
   | Processors => Text(concatStringArray(reviewFields.processors))
   | PaymentMethod =>
-    Text(concatStringArray(reviewFields.payment_methods->Array.map(LogicUtils.getTitle)))
+    Text(concatStringArray(reviewFields.payment_method_types->Array.map(LogicUtils.getTitle)))
   }
 }
 
@@ -36,7 +37,7 @@ let itemToObjMapper = dict => {
     total_amount: dict->getInt("total_amount", 0),
     file_name: dict->getString("file_name", ""),
     processors: dict->getStrArray("processors"),
-    payment_methods: dict->getStrArray("payment_methods"),
+    payment_method_types: dict->getStrArray("payment_method_types"),
   }
 }
 

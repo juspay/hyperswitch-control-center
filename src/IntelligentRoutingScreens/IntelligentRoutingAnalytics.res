@@ -36,15 +36,19 @@ module TransactionsTable = {
   @react.component
   let make = () => {
     open APIUtils
+    open LogicUtils
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let (tableData, setTableData) = React.useState(() => [])
     let (offset, setOffset) = React.useState(() => 0)
+    let (totalCount, setTotalCount) = React.useState(_ => 0)
+    let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Loading)
     let limit = 50
 
     let fetchTableData = async () => {
       try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(
           ~entityName=V1(INTELLIGENT_ROUTING_RECORDS),
           ~methodType=Get,
@@ -52,36 +56,62 @@ module TransactionsTable = {
         )
         let res = await fetchDetails(url)
 
-        let typedResponse = res->IntelligentRoutingTransactionsEntity.getTransactionsData
-        setTableData(_ => typedResponse->Array.map(Nullable.make))
+        let total = res->getDictFromJsonObject->getInt("total_payment_count", 0)
+        let arr = res->getDictFromJsonObject->getArrayFromDict("simulation_outcome_of_each_txn", [])
+
+        if total <= offset {
+          setOffset(_ => 0)
+        }
+        if total > 0 {
+          let dataDictArr = arr->Belt.Array.keepMap(JSON.Decode.object)
+
+          let arr = Array.make(~length=offset, Dict.make())
+          let txnData =
+            arr
+            ->Array.concat(dataDictArr)
+            ->Array.map(IntelligentRoutingTransactionsEntity.itemToObjectMapper)
+
+          let list = txnData->Array.map(Nullable.make)
+          setTotalCount(_ => total)
+          setTableData(_ => list)
+        }
+
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => showToast(~message="Failed to fetch transaction details", ~toastType=ToastError)
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Loading)
+          showToast(~message="Failed to fetch transaction details", ~toastType=ToastError)
+        }
       }
     }
 
     React.useEffect(() => {
       fetchTableData()->ignore
       None
-    }, [])
+    }, [offset])
 
-    <div className="flex flex-col gap-6">
-      <div className="text-nd_gray-600 font-semibold"> {"Transactions Details"->React.string} </div>
-      <LoadedTable
-        title=" "
-        hideTitle=true
-        actualData=tableData
-        totalResults={tableData->Array.length}
-        resultsPerPage=10
-        offset
-        setOffset
-        entity={IntelligentRoutingTransactionsEntity.transactionDetailsEntity()}
-        currrentFetchCount={tableData->Array.length}
-        tableheadingClass="h-12"
-        tableHeadingTextClass="!font-normal"
-        nonFrozenTableParentClass="!rounded-lg"
-        loadedTableParentClass="flex flex-col"
-      />
-    </div>
+    <PageLoaderWrapper screenState={screenState}>
+      <div className="flex flex-col gap-6">
+        <div className="text-nd_gray-600 font-semibold">
+          {"Transactions Details"->React.string}
+        </div>
+        <LoadedTable
+          title=" "
+          hideTitle=true
+          actualData=tableData
+          totalResults=totalCount
+          resultsPerPage=10
+          offset
+          setOffset
+          entity={IntelligentRoutingTransactionsEntity.transactionDetailsEntity()}
+          currrentFetchCount={tableData->Array.length}
+          tableheadingClass="h-12"
+          tableHeadingTextClass="!font-normal"
+          nonFrozenTableParentClass="!rounded-lg"
+          loadedTableParentClass="flex flex-col"
+        />
+      </div>
+    </PageLoaderWrapper>
   }
 }
 
@@ -206,8 +236,8 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
   let (stats, setStats) = React.useState(_ => JSON.Encode.null)
-  let (selectedPSP, setSelectedPSP) = React.useState(() => "")
-  let (keys, setKeys) = React.useState(() => [])
+  let (selectedGateway, setSelectedGateway) = React.useState(() => "")
+  let (gateways, setGateways) = React.useState(() => [])
 
   let getStatistics = async () => {
     try {
@@ -217,13 +247,19 @@ let make = () => {
       setStats(_ => response)
       let statsData =
         (response->IntelligentRoutingUtils.responseMapper).time_series_data->Array.get(0)
-      let psps = switch statsData {
+      let gatewayData = switch statsData {
       | Some(statsData) => statsData.volume_distribution_as_per_sr
       | None => JSON.Encode.null
       }
-      let keys = psps->LogicUtils.getDictFromJsonObject->Dict.keysToArray
-      setKeys(_ => keys)
-      setSelectedPSP(_ => keys->Array.get(0)->Option.getOr(""))
+      let gatewayKeys =
+        gatewayData
+        ->LogicUtils.getDictFromJsonObject
+        ->Dict.keysToArray
+      gatewayKeys->Array.sort((key1, key2) => {
+        key1 <= key2 ? -1. : 1.
+      })
+      setGateways(_ => gatewayKeys)
+      setSelectedGateway(_ => gatewayKeys->Array.get(0)->Option.getOr(""))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
@@ -251,10 +287,10 @@ let make = () => {
     onBlur: _ => (),
     onChange: ev => {
       let value = ev->Identity.formReactEventToString
-      setSelectedPSP(_ => value)
+      setSelectedGateway(_ => value)
     },
     onFocus: _ => (),
-    value: selectedPSP->JSON.Encode.string,
+    value: selectedGateway->JSON.Encode.string,
     checked: true,
   }
 
@@ -283,7 +319,7 @@ let make = () => {
                 input
                 deselectDisable=true
                 customButtonStyle="!rounded-lg"
-                options={makeOption(keys)}
+                options={makeOption(gateways)}
                 marginTop="mt-10"
                 hideMultiSelectButtons=true
                 addButton=false
@@ -294,7 +330,7 @@ let make = () => {
             </div>
             <LineAndColumnGraph
               options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
-                lineColumnGraphOptions(stats, ~processor=selectedPSP),
+                lineColumnGraphOptions(stats, ~processor=selectedGateway),
               )}
             />
           </div>

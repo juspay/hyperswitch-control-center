@@ -95,25 +95,11 @@ module Analyze = {
     let getReviewData = async () => {
       try {
         let response = {
-          "total": 81735,
-          "total_amount": 27289187.399992384,
+          "total": 74894,
+          "total_amount": 26317180.359999552,
           "file_name": "baseline_data.csv",
-          "processors": [
-            "PSP1",
-            "PSP2",
-            "PSP3",
-            "PSP4",
-            "PSP5",
-            "PSP6",
-            "PSP7",
-            "PSP8",
-            "PSP9",
-            "PSP10",
-            "PSP11",
-            "PSP12",
-            "PSP13",
-          ],
-          "payment_methods": ["APPLEPAY", "CARD", "WALLET"],
+          "processors": ["PSP1", "PSP2", "PSP3", "PSP4", "PSP5"],
+          "payment_method_types": ["APPLEPAY", "CARD", "AMAZONPAY"],
         }->Identity.genericTypeToJson
         setReviewFields(_ => response)
       } catch {

@@ -4,9 +4,9 @@ open IntelligentRoutingTypes
 type cols =
   | PaymentID
   | PaymentMethodType
-  | CardNetwork
   | TxnAmount
   | Status
+  | CardNetwork
   | ActualGateway
   | SuggestedGateway
   | SuccessRateUplift
@@ -15,6 +15,7 @@ type cols =
 let defaultColumns = [
   PaymentID,
   PaymentMethodType,
+  CardNetwork,
   TxnAmount,
   Status,
   ActualGateway,
@@ -67,7 +68,7 @@ let getCell = (~transactionsData: transactionObj, colType): Table.cell => {
   switch colType {
   | PaymentID => Text(transactionsData.payment_intent_id)
   | PaymentMethodType => Text(transactionsData.payment_method_type->LogicUtils.getTitle)
-  | CardNetwork => Text(transactionsData.payment_gateway)
+  | CardNetwork => Text(transactionsData.card_network)
   | TxnAmount => Text(transactionsData.amount->Float.toString)
   | Status =>
     transactionsData.payment_status
@@ -94,6 +95,7 @@ let itemToObjectMapper = dict => {
     amount: dict->getFloat("amount", 0.0),
     payment_gateway: dict->getString("payment_gateway", ""),
     payment_status: dict->getBool("payment_status", false),
+    card_network: dict->getString("card_network", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
     order_currency: dict->getString("order_currency", ""),
     model_connector: dict->getString("model_connector", ""),
