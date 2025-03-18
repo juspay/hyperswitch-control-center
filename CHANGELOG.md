@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.18.1
+
+### Bug Fixes
+
+- Resolved issues when applying filters ([#2511](https://github.com/juspay/hyperswitch-control-center/pull/2511)) ([`1838845`](https://github.com/juspay/hyperswitch-control-center/commit/1838845e8fb233e3b56bf5bf7de4ad4924e9dc4a))
+- Recon tabs and mixpanel event changes ([#2502](https://github.com/juspay/hyperswitch-control-center/pull/2502)) ([`c5619f1`](https://github.com/juspay/hyperswitch-control-center/commit/c5619f1a94d6322e51fa722e0d2a0072c37b96ee))
+
+### Refactors
+
+- Add constraints in smart routing rule configuration ([#2466](https://github.com/juspay/hyperswitch-control-center/pull/2466)) ([`825be17`](https://github.com/juspay/hyperswitch-control-center/commit/825be17fd322213b5f0aa018db186e75c8074a6d))
+
+### Miscellaneous Tasks
+
+- Changed links in vault config page ([#2516](https://github.com/juspay/hyperswitch-control-center/pull/2516)) ([`630822b`](https://github.com/juspay/hyperswitch-control-center/commit/630822be8f7615e40fd29115326be41c2d992df0))
+
+**Full Changelog:** [`2025.03.18.0...2025.03.18.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.18.0...2025.03.18.1)
+
+
+- - -
+
 ## 2025.03.18.0
 
 ### Bug Fixes
