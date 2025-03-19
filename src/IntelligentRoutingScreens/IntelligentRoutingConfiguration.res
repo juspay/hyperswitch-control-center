@@ -8,14 +8,13 @@ module Review = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let (buttonState, setButtonState) = React.useState(() => Button.Normal)
-
+    let (showLoading, setShowLoading) = React.useState(() => false)
     let reviewFields = reviewFields->getReviewFields
     let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
 
     let uploadData = async () => {
       try {
-        setButtonState(_ => Button.Loading)
+        setShowLoading(_ => true)
         let url = getURL(
           ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
           ~methodType=Post,
@@ -29,10 +28,10 @@ module Review = {
             GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
           )
         }
-        setButtonState(_ => Button.Normal)
+        setShowLoading(_ => false)
       } catch {
       | _ => {
-          setButtonState(_ => Button.Normal)
+          setShowLoading(_ => false)
           showToast(~message="Upload data failed", ~toastType=ToastError)
         }
       }
@@ -60,10 +59,10 @@ module Review = {
       </div>
       <Button
         text="Explore Insights"
-        customButtonStyle={`w-full hover:opacity-80 ${buttonState == Loading ? "cursor-wait" : ""}`}
+        customButtonStyle={`w-full hover:opacity-80 ${showLoading ? "cursor-wait" : ""}`}
         buttonType=Primary
         onClick={_ => handleNext()}
-        rightIcon={buttonState === Button.Loading
+        rightIcon={showLoading
           ? CustomIcon(
               <span className="px-3">
                 <span className={`flex items-center mx-2 animate-spin`}>
@@ -96,25 +95,11 @@ module Analyze = {
     let getReviewData = async () => {
       try {
         let response = {
-          "total": 81735,
-          "total_amount": 27289187.399992384,
+          "total": 74894,
+          "total_amount": 26317180.359999552,
           "file_name": "baseline_data.csv",
-          "processors": [
-            "PSP1",
-            "PSP2",
-            "PSP3",
-            "PSP4",
-            "PSP5",
-            "PSP6",
-            "PSP7",
-            "PSP8",
-            "PSP9",
-            "PSP10",
-            "PSP11",
-            "PSP12",
-            "PSP13",
-          ],
-          "payment_methods": ["APPLEPAY", "CARD", "WALLET"],
+          "processors": ["PSP1", "PSP2", "PSP3", "PSP4", "PSP5"],
+          "payment_method_types": ["APPLEPAY", "CARD", "AMAZONPAY"],
         }->Identity.genericTypeToJson
         setReviewFields(_ => response)
       } catch {
@@ -173,6 +158,7 @@ module Analyze = {
                   onClick={_ => setSelectedField(_ => item)}
                   iconName=fileTypeIcon
                   isDisabled={item === Upload}
+                  showDemoLabel={item === Sample ? true : false}
                 />
               })
               ->React.array}
