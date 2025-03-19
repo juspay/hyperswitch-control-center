@@ -99,7 +99,7 @@ let initialFilterFields = json => {
         | "acs_reference_number" => "issuer"
         | _ => dimensionValue
         }
-        let dimensionTitleCase = `Select ${snakeToTitle(dimensionValue)}`
+        let dimensionTitleCase = `Select ${snakeToTitle(dimensionLabel)}`
         let value = getArrayFromDict(dimensionObject, "values", [])->getStrArrayFromJsonArray
 
         Some(
