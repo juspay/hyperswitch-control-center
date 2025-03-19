@@ -36,7 +36,8 @@ let extractModulePath = (url: RescriptReactRouter.url) => {
     url.search
     ->LogicUtils.getDictFromUrlSearchParams
     ->Dict.get("fullPath")
-    ->Option.getOr("") == "true"
+    ->Option.getOr("")
+    ->LogicUtils.getBoolFromString(false)
   /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
   let modulePath = if currentPathList->Array.includes("v2") {
     currentPathList->Array.slice(~start=0, ~end=4)->Array.joinWith("/")->appendTrailingSlash
