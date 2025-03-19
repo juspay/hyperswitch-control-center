@@ -84,3 +84,9 @@ let analyticsViewList = (~checkUserEntity): ompViews => {
     []
   }
 }
+
+let keyExtractorForMerchantid = item => {
+  open LogicUtils
+  let dict = item->getDictFromJsonObject
+  dict->getString("merchant_id", "")
+}

@@ -244,6 +244,7 @@ module MerchantDropdownItem = {
     let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
+    let isMobileView = MatchMedia.useMobileChecker()
 
     let productTypeIconMapper = productType => {
       switch productType {
@@ -332,6 +333,7 @@ module MerchantDropdownItem = {
           handleEdit=handleIdUnderEdit
           isUnderEdit
           showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          showEditIconOnHover={!isMobileView}
           onSubmit
           labelTextCustomStyle={` truncate max-w-28 ${isActive
               ? `${secondaryTextColor}`
@@ -383,6 +385,8 @@ module ProfileDropdownItem = {
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+    let isMobileView = MatchMedia.useMobileChecker()
+
     let getProfileList = async () => {
       try {
         let response = switch version {
@@ -471,6 +475,7 @@ module ProfileDropdownItem = {
           showEditIcon={isActive &&
           userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
           version == V1}
+          showEditIconOnHover={!isMobileView}
           onSubmit
           labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
           validateInput

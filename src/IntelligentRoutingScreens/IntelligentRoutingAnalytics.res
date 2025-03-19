@@ -36,15 +36,19 @@ module TransactionsTable = {
   @react.component
   let make = () => {
     open APIUtils
+    open LogicUtils
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let (tableData, setTableData) = React.useState(() => [])
     let (offset, setOffset) = React.useState(() => 0)
+    let (totalCount, setTotalCount) = React.useState(_ => 0)
+    let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Loading)
     let limit = 50
 
     let fetchTableData = async () => {
       try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(
           ~entityName=V1(INTELLIGENT_ROUTING_RECORDS),
           ~methodType=Get,
@@ -52,58 +56,85 @@ module TransactionsTable = {
         )
         let res = await fetchDetails(url)
 
-        // let response = {
-        //   "txn_no": 12,
-        //   "payment_intent_id": "AF575HMAG08321",
-        //   "payment_attempt_id": "merchant1-AF575HMAG08321-1",
-        //   "amount": 407.56,
-        //   "payment_gateway": "PSP11",
-        //   "payment_status": true,
-        //   "created_at": "2025-03-10T12:25:00Z",
-        //   "payment_method_type": "APPLEPAY",
-        //   "order_currency": "USD",
-        //   "model_connector": "PSP2",
-        //   "suggested_uplift": 5.9,
-        // }
-        // let arr = Array.make(~length=55, response)
-        // let json = arr->Identity.genericTypeToJson
+        let total = res->getDictFromJsonObject->getInt("total_payment_count", 0)
+        let arr = res->getDictFromJsonObject->getArrayFromDict("simulation_outcome_of_each_txn", [])
 
-        let typedResponse = res->IntelligentRoutingTransactionsEntity.getTransactionsData
-        setTableData(_ => typedResponse->Array.map(Nullable.make))
+        if total <= offset {
+          setOffset(_ => 0)
+        }
+        if total > 0 {
+          let dataDictArr = arr->Belt.Array.keepMap(JSON.Decode.object)
+
+          let arr = Array.make(~length=offset, Dict.make())
+          let txnData =
+            arr
+            ->Array.concat(dataDictArr)
+            ->Array.map(IntelligentRoutingTransactionsEntity.itemToObjectMapper)
+
+          let list = txnData->Array.map(Nullable.make)
+          setTotalCount(_ => total)
+          setTableData(_ => list)
+        }
+
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => showToast(~message="Failed to fetch transaction details", ~toastType=ToastError)
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Loading)
+          showToast(~message="Failed to fetch transaction details", ~toastType=ToastError)
+        }
       }
     }
 
     React.useEffect(() => {
       fetchTableData()->ignore
       None
-    }, [])
+    }, [offset])
 
-    <div className="flex flex-col gap-6">
-      <div className="text-nd_gray-600 font-semibold"> {"Transactions Details"->React.string} </div>
-      <LoadedTable
-        title=" "
-        hideTitle=true
-        actualData=tableData
-        totalResults={tableData->Array.length}
-        resultsPerPage=10
-        offset
-        setOffset
-        entity={IntelligentRoutingTransactionsEntity.transactionDetailsEntity()}
-        currrentFetchCount={tableData->Array.length}
-        tableheadingClass="h-12"
-        tableHeadingTextClass="!font-normal"
-        nonFrozenTableParentClass="!rounded-lg"
-        loadedTableParentClass="flex flex-col"
-      />
-    </div>
+    <PageLoaderWrapper screenState={screenState}>
+      <div className="flex flex-col gap-6">
+        <div className="text-nd_gray-600 font-semibold">
+          {"Transactions Details"->React.string}
+        </div>
+        <LoadedTable
+          title=" "
+          hideTitle=true
+          actualData=tableData
+          totalResults=totalCount
+          resultsPerPage=10
+          offset
+          setOffset
+          entity={IntelligentRoutingTransactionsEntity.transactionDetailsEntity()}
+          currrentFetchCount={tableData->Array.length}
+          tableheadingClass="h-12"
+          tableHeadingTextClass="!font-normal"
+          nonFrozenTableParentClass="!rounded-lg"
+          loadedTableParentClass="flex flex-col"
+        />
+      </div>
+    </PageLoaderWrapper>
   }
 }
 
 module Card = {
   @react.component
-  let make = (~title: string, ~actualValue: string, ~simulatedValue: string) => {
+  let make = (
+    ~title: string,
+    ~actualValue: float,
+    ~simulatedValue: float,
+    ~valueFormat=false,
+    ~statType=LogicUtilsTypes.No_Type,
+    ~currency="",
+    ~amountFormat=false,
+  ) => {
+    open LogicUtils
+
+    let displayValue = value =>
+      switch (amountFormat, valueFormat) {
+      | (true, false) => value->Float.toInt->formatAmount(currency)
+      | (false, true) => value->valueFormatter(statType, ~currency)
+      | (_, _) => value->valueFormatter(statType, ~currency)
+      }
+
     let getPercentageChange = (~primaryValue, ~secondaryValue) => {
       let (value, direction) = NewAnalyticsUtils.calculatePercentageChange(
         ~primaryValue,
@@ -118,7 +149,7 @@ module Card = {
 
       <div className={`flex gap-2`}>
         <Icon name={icon} size=12 />
-        <p className={textColor}> {value->LogicUtils.valueFormatter(Rate)->React.string} </p>
+        <p className={textColor}> {value->valueFormatter(Rate)->React.string} </p>
       </div>
     }
 
@@ -126,16 +157,13 @@ module Card = {
       <div className="w-full flex items-center justify-between">
         <p className="text-nd_gray-500 text-md leading-4 font-medium"> {title->React.string} </p>
         <div className="flex gap-1 text-green-800 bg-green-200 rounded-md px-2">
-          {getPercentageChange(
-            ~primaryValue=simulatedValue->Float.fromString->Option.getOr(0.0),
-            ~secondaryValue=actualValue->Float.fromString->Option.getOr(0.0),
-          )}
+          {getPercentageChange(~primaryValue=simulatedValue, ~secondaryValue=actualValue)}
         </div>
       </div>
       <div className="w-full flex items-center justify-between">
         <p className="text-nd_gray-400 text-sm leading-4 font-medium"> {"Actual"->React.string} </p>
         <p className="text-nd_gray-500 font-semibold leading-8 text-lg text-nowrap">
-          {actualValue->React.string}
+          {displayValue(actualValue)->React.string}
         </p>
       </div>
       <div className="w-full flex items-center justify-between">
@@ -143,7 +171,7 @@ module Card = {
           {"Simulated"->React.string}
         </p>
         <p className="text-nd_gray-700 font-semibold leading-8 text-lg text-nowrap">
-          {simulatedValue->React.string}
+          {displayValue(simulatedValue)->React.string}
         </p>
       </div>
     </div>
@@ -153,8 +181,6 @@ module Card = {
 module MetricCards = {
   @react.component
   let make = (~data) => {
-    open LogicUtils
-
     let dataTyped = data->IntelligentRoutingUtils.responseMapper
     let authorizationRate = dataTyped.overall_success_rate
     let failedPayments = dataTyped.total_failed_payments
@@ -164,23 +190,29 @@ module MetricCards = {
     <div className="grid grid-cols-2 xl:grid-cols-4 gap-6">
       <Card
         title="Authorization Rate"
-        actualValue={authorizationRate.baseline->valueFormatter(Rate)}
-        simulatedValue={authorizationRate.model->valueFormatter(Rate)}
+        actualValue={authorizationRate.baseline}
+        simulatedValue={authorizationRate.model}
+        valueFormat=true
+        statType=Rate
       />
       <Card
-        title="FAAR"
-        actualValue={faar.baseline->valueFormatter(Rate)}
-        simulatedValue={faar.model->valueFormatter(Rate)}
+        title="First Attempt Auth Rate"
+        actualValue={faar.baseline}
+        simulatedValue={faar.model}
+        valueFormat=true
+        statType=Rate
       />
       <Card
         title="Failed Payments"
-        actualValue={failedPayments.baseline->Float.toInt->formatAmount("$")}
-        simulatedValue={failedPayments.model->Float.toInt->formatAmount("$")}
+        actualValue={failedPayments.baseline}
+        simulatedValue={failedPayments.model}
       />
       <Card
         title="Revenue"
-        actualValue={revenue.baseline->Float.toInt->formatAmount("$")}
-        simulatedValue={revenue.model->Float.toInt->formatAmount("$")}
+        actualValue={revenue.baseline}
+        simulatedValue={revenue.model}
+        currency="$"
+        amountFormat=true
       />
     </div>
   }
@@ -202,28 +234,38 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let (screenState, _setScreenState) = React.useState(() => PageLoaderWrapper.Success)
+  let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
   let (stats, setStats) = React.useState(_ => JSON.Encode.null)
-  let (selectedPSP, setSelectedPSP) = React.useState(() => "")
-  let (keys, setKeys) = React.useState(() => [])
+  let (selectedGateway, setSelectedGateway) = React.useState(() => "")
+  let (gateways, setGateways) = React.useState(() => [])
 
   let getStatistics = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=V1(INTELLIGENT_ROUTING_GET_STATISTICS), ~methodType=Get)
       let response = await fetchDetails(url)
-      // let response = IntelligentRoutingStatsResponse.response
       setStats(_ => response)
       let statsData =
         (response->IntelligentRoutingUtils.responseMapper).time_series_data->Array.get(0)
-      let psps = switch statsData {
+      let gatewayData = switch statsData {
       | Some(statsData) => statsData.volume_distribution_as_per_sr
       | None => JSON.Encode.null
       }
-      let keys = psps->LogicUtils.getDictFromJsonObject->Dict.keysToArray
-      setKeys(_ => keys)
-      setSelectedPSP(_ => keys->Array.get(0)->Option.getOr(""))
+      let gatewayKeys =
+        gatewayData
+        ->LogicUtils.getDictFromJsonObject
+        ->Dict.keysToArray
+      gatewayKeys->Array.sort((key1, key2) => {
+        key1 <= key2 ? -1. : 1.
+      })
+      setGateways(_ => gatewayKeys)
+      setSelectedGateway(_ => gatewayKeys->Array.get(0)->Option.getOr(""))
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => showToast(~message="Failed to fetch statistics data", ~toastType=ToastError)
+    | _ => {
+        setScreenState(_ => PageLoaderWrapper.Success)
+        showToast(~message="Failed to fetch statistics data", ~toastType=ToastError)
+      }
     }
   }
 
@@ -245,10 +287,10 @@ let make = () => {
     onBlur: _ => (),
     onChange: ev => {
       let value = ev->Identity.formReactEventToString
-      setSelectedPSP(_ => value)
+      setSelectedGateway(_ => value)
     },
     onFocus: _ => (),
-    value: selectedPSP->JSON.Encode.string,
+    value: selectedGateway->JSON.Encode.string,
     checked: true,
   }
 
@@ -277,7 +319,7 @@ let make = () => {
                 input
                 deselectDisable=true
                 customButtonStyle="!rounded-lg"
-                options={makeOption(keys)}
+                options={makeOption(gateways)}
                 marginTop="mt-10"
                 hideMultiSelectButtons=true
                 addButton=false
@@ -288,7 +330,7 @@ let make = () => {
             </div>
             <LineAndColumnGraph
               options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
-                lineColumnGraphOptions(stats, ~processor=selectedPSP),
+                lineColumnGraphOptions(stats, ~processor=selectedGateway),
               )}
             />
           </div>
