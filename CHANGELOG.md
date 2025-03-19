@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.19.0
+
+### Bug Fixes
+
+- Connector list not updated on profile switch fix ([#2519](https://github.com/juspay/hyperswitch-control-center/pull/2519)) ([`6b0648e`](https://github.com/juspay/hyperswitch-control-center/commit/6b0648e102c7e3bcf6eef38f117f622ef705ad54))
+
+**Full Changelog:** [`2025.03.18.1...2025.03.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.18.1...2025.03.19.0)
+
+
+- - -
+
 ## 2025.03.18.1
 
 ### Bug Fixes
