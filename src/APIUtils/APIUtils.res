@@ -884,7 +884,6 @@ let useGetURL = () => {
 }
 
 let useHandleLogout = () => {
-  open SessionStorage
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -907,7 +906,6 @@ let useHandleLogout = () => {
         })
       setAuthStateToLogout()
       clearRecoilValue()
-      sessionStorage.removeItem("product")
       LocalStorage.clear()
     } catch {
     | _ => LocalStorage.clear()

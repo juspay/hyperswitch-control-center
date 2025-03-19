@@ -383,20 +383,8 @@ let make = (~children) => {
       setAction(_ => None)
     }
   }
-
   let setActiveProductValue = product => {
     setActiveProduct(_ => product)
-    sessionStorage.setItem("product", (Obj.magic(product) :> string))
-  }
-
-  let setDefaultProductToSessionStorage = productType => {
-    open ProductUtils
-    let currentSessionData = sessionStorage.getItem("product")->Nullable.toOption
-    let data = switch currentSessionData {
-    | Some(sessionData) => sessionData->getProductVariantFromString
-    | None => productType
-    }
-    setActiveProductValue(data)
   }
 
   let merchantHandle = React.useMemo(() => {
@@ -421,7 +409,6 @@ let make = (~children) => {
       onProductSelectClick,
       activeProduct,
       setActiveProductValue,
-      setDefaultProductToSessionStorage,
     }>
     children
     {merchantHandle}
