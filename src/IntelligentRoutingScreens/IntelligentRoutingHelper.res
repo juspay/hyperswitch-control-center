@@ -120,7 +120,7 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
       ~secondaryCategories=timeSeriesArray,
       ~reverse=true,
     ),
-    yAxisMaxValue: None,
+    yAxisMaxValue: Some(100),
   }
 }
 
@@ -203,6 +203,11 @@ let lineColumnGraphOptions = (
       ~title="Metrics",
       ~metricType=Amount,
       ~currency="",
+    ),
+    yAxisFormatter: LineAndColumnGraphUtils.lineColumnGraphYAxisFormatter(
+      ~statType=AmountWithSuffix,
+      ~currency="",
+      ~suffix="%",
     ),
   }
 }
