@@ -188,7 +188,7 @@ let make = () => {
     <div className="flex flex-row">
       <DynamicFilter
         title="AuthenticationAnalyticsV2"
-        initialFilters={HSAnalyticsUtils.initialFilterFieldsForAuthenticationAnalytics(filterData)}
+        initialFilters={HSAnalyticsUtils.initialFilterFields(filterData)}
         options=[]
         popupFilterFields={HSAnalyticsUtils.options(filterData)}
         initialFixedFilters={initialFixedFilterFields()}
