@@ -21,7 +21,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
   let domain = HyperSwitchEntryUtils.getSessionData(~key="domain")
-
+  let themeId = HyperSwitchEntryUtils.getSessionData(~key="theme_id")
   let {
     isMagicLinkEnabled,
     isSignUpAllowed,
@@ -48,7 +48,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#CONNECT_ACCOUNT,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}`), // todo: domain shall be removed from query params later
+        ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`), // todo: domain shall be removed from query params later
       )
       let res = await updateDetails(url, body, Post)
       let valuesDict = res->getDictFromJsonObject
@@ -104,7 +104,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#FORGOT_PASSWORD,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}`),
+        ~queryParamerters=Some(`auth_id=${authId}&theme_id=${themeId}`),
       )
       let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ForgetPasswordEmailSent)
@@ -122,7 +122,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#VERIFY_EMAIL_REQUEST,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}`),
+        ~queryParamerters=Some(`auth_id=${authId}&theme_id=${themeId}`),
       )
       let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ResendVerifyEmailSent)
