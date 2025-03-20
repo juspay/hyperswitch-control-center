@@ -20,9 +20,12 @@ let getConditionValye = (conditionArray, manipulatedStatementsArray, statementIn
       ->JSON.Encode.string,
     )
 
+    // If two sub-rules are joined using "OR" in the API call, they will appear as separate objects, one after another, in the 'statement' array.
     if statementIndex > 0 {
       manipulatedConditionDict->Dict.set("logical", "OR"->JSON.Encode.string)
     }
+
+    // If two sub-rules are joined using "AND" in the API call, they will appear as separate objects, one after another, in the 'condition' array.
     if conditionIndex > 0 {
       manipulatedConditionDict->Dict.set("logical", "AND"->JSON.Encode.string)
     }
