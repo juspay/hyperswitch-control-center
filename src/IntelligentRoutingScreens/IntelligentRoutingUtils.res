@@ -68,7 +68,15 @@ let getRealtimeIconName = realtime => {
 
 module StepCard = {
   @react.component
-  let make = (~stepName, ~description, ~isSelected, ~onClick, ~iconName, ~isDisabled=false) => {
+  let make = (
+    ~stepName,
+    ~description,
+    ~isSelected,
+    ~onClick,
+    ~iconName,
+    ~isDisabled=false,
+    ~showDemoLabel=false,
+  ) => {
     let ringClass = switch isSelected {
     | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
     | false => "ring-grey-outline"
@@ -82,7 +90,16 @@ module StepCard = {
       <div className="flex items-center gap-x-2.5">
         <img alt={iconName} src={`/IntelligentRouting/${iconName}.svg`} className="w-8 h-8" />
         <div className="flex flex-col gap-1">
-          <h3 className="text-medium font-medium text-grey-900"> {stepName->React.string} </h3>
+          <div className="flex items-center gap-1">
+            <h3 className="text-medium font-medium text-grey-900"> {stepName->React.string} </h3>
+            <RenderIf condition={showDemoLabel}>
+              <span className="bg-nd_green-100 rounded-md">
+                <p className="text-nd_green-500 text-sm font-semibold px-2 py-0.5">
+                  {"Demo"->React.string}
+                </p>
+              </span>
+            </RenderIf>
+          </div>
           <p className="text-sm text-gray-500"> {description->React.string} </p>
         </div>
       </div>

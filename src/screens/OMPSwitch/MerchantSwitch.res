@@ -11,6 +11,7 @@ module NewMerchantCreationModal = {
       try {
         switch activeProduct {
         | Orchestration
+        | DynamicRouting
         | CostObservability => {
             let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
             let _ = await updateDetails(url, values, Post)
@@ -176,8 +177,7 @@ let make = () => {
         ~methodType=Get,
       )
       let v2MerchantResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
-      let v2MerchantList = v2MerchantResponse->getArrayDataFromJson(merchantItemToObjMapper)
-      v2MerchantList
+      v2MerchantResponse->getArrayFromJson([])
     } catch {
     | _ => []
     }
@@ -196,11 +196,11 @@ let make = () => {
       } else {
         []
       }
-
-      let v1MerchantList = v1MerchantResponse->getArrayDataFromJson(merchantItemToObjMapper)
-      let concatMerchantList = v1MerchantList->Array.concat(v2MerchantList)
-
-      setMerchantList(_ => concatMerchantList)
+      let concatenatedList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
+      let response =
+        concatenatedList->LogicUtils.uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
+      let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
+      setMerchantList(_ => concatenatedListTyped)
     } catch {
     | _ => {
         setMerchantList(_ => [ompDefaultValue(merchantId, "")])
@@ -284,6 +284,7 @@ let make = () => {
     }
     listItem
   })
+
   <div className="w-fit">
     <SelectBox.BaseDropdown
       allowMultiSelect=false

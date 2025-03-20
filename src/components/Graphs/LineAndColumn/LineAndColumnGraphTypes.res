@@ -54,6 +54,7 @@ type labels = {
   style: style,
   y?: y,
   x?: int,
+  formatter?: pointFormatter => string,
 }
 type chart = {
   zoomType: zoomType,
@@ -164,4 +165,5 @@ type lineColumnGraphPayload = {
   data: data,
   title: title,
   tooltipFormatter: pointFormatter => string,
+  yAxisFormatter: pointFormatter => string,
 }

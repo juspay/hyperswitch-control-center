@@ -10,7 +10,9 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (queryData, setQueryData) = React.useState(_ => Dict.make()->itemToObjMapperForQueryData)
   let (funnelData, setFunnelData) = React.useState(_ => Dict.make()->itemToObjMapperForFunnelData)
-  let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
+  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+    FilterContext.filterContext,
+  )
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
@@ -179,7 +181,7 @@ let make = () => {
       getMetricsDetails()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, filterValueJson))
+  }, (startTimeVal, endTimeVal, filterValue))
 
   let topFilterUi = switch filterDataJson {
   | Some(filterData) =>
@@ -233,7 +235,7 @@ let make = () => {
         />
       </Portal>
       <div
-        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
+        className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         {topFilterUi}
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
