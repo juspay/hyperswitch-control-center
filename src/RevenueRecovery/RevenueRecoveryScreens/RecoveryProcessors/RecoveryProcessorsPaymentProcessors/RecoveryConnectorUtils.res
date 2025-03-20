@@ -78,7 +78,9 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
 }
 
 open ConnectorTypes
-let recoveryConnectorList: array<connectorTypes> = [
+let recoveryConnectorList: array<connectorTypes> = [Processors(STRIPE_TEST)]
+
+let recoveryConnectorListProd: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(ADYEN),
   Processors(CYBERSOURCE),

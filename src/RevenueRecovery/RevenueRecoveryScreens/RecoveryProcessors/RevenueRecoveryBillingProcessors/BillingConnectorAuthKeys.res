@@ -10,6 +10,9 @@ let make = (
   ~screenState,
 ) => {
   open LogicUtils
+  open ConnectProcessorsHelper
+
+  let (arrow, setArrow) = React.useState(_ => false)
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
@@ -23,8 +26,15 @@ let make = (
     checked: true,
   }
 
+  let toggleChevronState = () => {
+    setArrow(prev => !prev)
+  }
+
   let options =
     RevenueRecoveryOnboardingUtils.billingConnectorList->RevenueRecoveryOnboardingUtils.getOptions
+
+  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
+  let dropdownContainerStyle = "rounded-md border border-1 !w-full"
 
   open RevenueRecoveryOnboardingUtils
   <PageWrapper
@@ -33,16 +43,25 @@ let make = (
     <div className="-m-1 mb-10 flex flex-col gap-7">
       <PageLoaderWrapper screenState>
         <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+          <p className="text-sm text-gray-700 font-semibold mb-1">
+            {"Select a Platform"->React.string}
+          </p>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
-            buttonText="Select Platform"
+            buttonText="Choose a platform"
             input
             deselectDisable=true
             customButtonStyle="!rounded-xl h-[45px] pr-2"
             options
             hideMultiSelectButtons=true
+            baseComponent={<ListBaseComp
+              placeHolder="Choose a platform" heading="platform" subHeading=connector arrow
+            />}
             addButton=false
-            searchable=true
+            customScrollStyle
+            dropdownContainerStyle
+            toggleChevronState
+            searchable=false
             customStyle="!w-full"
             customDropdownOuterClass="!border-none"
             fullLength=true

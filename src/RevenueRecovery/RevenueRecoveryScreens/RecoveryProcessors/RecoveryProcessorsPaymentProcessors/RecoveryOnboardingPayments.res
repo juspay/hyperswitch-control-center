@@ -14,6 +14,7 @@ let make = (
   open ConnectorUtils
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
+  open ConnectProcessorsHelper
 
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -24,6 +25,11 @@ let make = (
   )
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
+  let (arrow, setArrow) = React.useState(_ => false)
+
+  let toggleChevronState = () => {
+    setArrow(prev => !prev)
+  }
 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
@@ -147,6 +153,10 @@ let make = (
   }
   let options = RecoveryConnectorUtils.recoveryConnectorList->getOptions
 
+  let addItemBtnStyle = "border border-t-0 !w-full"
+  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
+  let dropdownContainerStyle = "rounded-md border border-1 !w-full"
+
   <div>
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
     | (#connectProcessor, #selectProcessor) =>
@@ -156,17 +166,32 @@ let make = (
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+              <p className="text-sm text-gray-700 font-semibold mb-1">
+                {"Select a Processor"->React.string}
+              </p>
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
-                buttonText="Select Processor"
+                buttonText="Choose a processor"
                 input
                 deselectDisable=true
                 customButtonStyle="!rounded-xl h-[45px] pr-2"
                 options
+                baseComponent={<ListBaseComp
+                  placeHolder="Choose a processor" heading="Profile" subHeading=connector arrow
+                />}
+                bottomComponent={<AddNewOMPButton
+                  filterConnector=None
+                  prodConnectorList=RecoveryConnectorUtils.recoveryConnectorListProd
+                  user=#Profile
+                  addItemBtnStyle
+                />}
                 hideMultiSelectButtons=true
                 addButton=false
                 searchable=true
                 customStyle="!w-full"
+                customScrollStyle
+                dropdownContainerStyle
+                toggleChevronState
                 customDropdownOuterClass="!border-none"
                 fullLength=true
                 shouldDisplaySelectedOnTop=true
