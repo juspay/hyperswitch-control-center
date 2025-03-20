@@ -69,6 +69,7 @@ let smartRetryPaymentsProcessedMapper = (
       ~comparison,
       ~currency,
     ),
+    yAxisFormatter: None,
   }
 }
 

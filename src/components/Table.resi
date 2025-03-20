@@ -54,6 +54,7 @@ type cell = TableUtils.cell =
   | Currency(float, currency)
   | Date(string)
   | DateWithoutTime(string)
+  | DateWithCustomDateStyle(string, string)
   | StartEndDate(string, string)
   | InputField(React.element)
   | Link(string)

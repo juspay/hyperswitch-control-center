@@ -16,7 +16,7 @@ let labelFormatter = (
 )->asLegendsFormatter
 
 let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload) => {
-  let {categories, data, title, tooltipFormatter, yAxisFormatter} = lineColumnGraphOptions
+  let {categories, data, tooltipFormatter, yAxisFormatter, titleObj} = lineColumnGraphOptions
 
   let stepInterval = Js.Math.max_int(
     Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 10.0),
@@ -25,13 +25,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
 
   let yAxis: LineAndColumnGraphTypes.yAxis = [
     {
-      title: {
-        text: "Authorization Rate",
-        style: {
-          color: darkGray,
-          fontFamily,
-        },
-      },
+      title: titleObj.oppositeYAxisTitle,
       opposite: true,
       gridLineWidth: 1,
       gridLineColor,
@@ -49,13 +43,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       max: Some(100),
     },
     {
-      title: {
-        text: "Transaction Count",
-        style: {
-          color: darkGray,
-          fontFamily,
-        },
-      },
+      title: titleObj.yAxisTitle,
       opposite: false,
       gridLineWidth: 1,
       gridLineColor,
@@ -83,15 +71,9 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
         fontSize: "12px",
       },
     },
-    title,
+    title: titleObj.chartTitle,
     xAxis: {
-      title: {
-        text: "Time Range",
-        style: {
-          color: darkGray,
-          fontFamily,
-        },
-      },
+      title: titleObj.xAxisTitle,
       categories,
       crosshair: true,
       lineWidth: 1,

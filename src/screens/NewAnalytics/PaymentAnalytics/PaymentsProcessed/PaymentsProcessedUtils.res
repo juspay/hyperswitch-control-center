@@ -69,6 +69,7 @@ let paymentsProcessedMapper = (
     title,
     yAxisMaxValue: None,
     tooltipFormatter,
+    yAxisFormatter: None,
   }
 }
 
