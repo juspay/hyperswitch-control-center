@@ -1,85 +1,35 @@
-type colType = PaymentId
+type colType =
+  | Id
+  | Status
+  | OrderAmount
+  | Connector
+  | Created
+  | PaymentMethodType
 
-type attemptColType = AttemptId
+type attemptColType =
+  | Id
+  | Status
+  | Error
+  | AttemptTriggeredBy
+  | Created
 
 type attempts = {
   id: string,
-  created: string,
   status: string,
-  amount: float,
-  currency: string,
-  connector: string,
-  attempt_by: string,
-  error_message: string,
-  payment_method: string,
-  connector_reference_id: string,
-  capture_method: string,
-  authentication_type: string,
-  cancellation_reason: string,
-  mandate_id: string,
-  error_code: string,
-  payment_token: string,
-  connector_metadata: string,
-  payment_experience: string,
-  payment_method_type: string,
-  reference_id: string,
-  client_source: string,
-  client_version: string,
-  attempt_amount: float,
+  error: string,
+  attempt_triggered_by: string,
+  created: string,
 }
 
 type order = {
-  invoice_id: string,
-  payment_id: string,
-  merchant_id: string,
-  net_amount: float,
-  order_amount: float,
+  id: string,
   status: string,
-  amount: float,
-  amount_capturable: float,
-  amount_received: float,
-  created: string,
-  last_updated: string,
-  currency: string,
-  customer_id: string,
-  description: string,
-  setup_future_usage: string,
-  capture_method: string,
-  payment_method: string,
-  payment_method_type: string,
-  payment_method_data: option<JSON.t>,
-  external_authentication_details: option<JSON.t>,
-  payment_token: string,
-  shipping: string,
-  shippingEmail: string,
-  shippingPhone: string,
-  metadata: Dict.t<JSON.t>,
-  email: string,
-  name: string,
-  phone: string,
-  return_url: string,
-  authentication_type: string,
-  statement_descriptor_name: string,
-  statement_descriptor_suffix: string,
-  next_action: string,
-  cancellation_reason: string,
-  error_code: string,
-  error_message: string,
+  order_amount: float,
   connector: string,
-  order_quantity: string,
-  product_name: string,
-  card_brand: string,
-  payment_experience: string,
-  connector_transaction_id: string,
-  merchant_connector_id: string,
-  merchant_decision: string,
-  profile_id: string,
-  disputes: array<DisputeTypes.disputes>,
+  created: string,
+  payment_method_type: string,
+  payment_method_subtype: string,
   attempts: array<attempts>,
-  merchant_order_reference_id: string,
-  attempt_count: int,
-  connector_label: string,
-  attempt_amount: float,
 }
 
 type optionObj = {
