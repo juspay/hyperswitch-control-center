@@ -15,24 +15,8 @@ let labelFormatter = (
   }
 )->asLegendsFormatter
 
-let lineColumnGraphYAxisFormatter = (
-  ~statType: LogicUtilsTypes.valueType,
-  ~currency="",
-  ~suffix="",
-) => {
-  (
-    @this
-    (this: yAxisFormatter) => {
-      let value = this.value->Int.toFloat
-      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
-
-      formattedValue
-    }
-  )->asTooltipPointFormatter
-}
-
 let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload) => {
-  let {categories, data, title, tooltipFormatter} = lineColumnGraphOptions
+  let {categories, data, title, tooltipFormatter, yAxisFormatter} = lineColumnGraphOptions
 
   let stepInterval = Js.Math.max_int(
     Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 10.0),
@@ -42,13 +26,13 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
   let yAxis: LineAndColumnGraphTypes.yAxis = [
     {
       title: {
-        text: "Transaction Count",
+        text: "Authorization Rate",
         style: {
           color: darkGray,
           fontFamily,
         },
       },
-      opposite: false,
+      opposite: true,
       gridLineWidth: 1,
       gridLineColor,
       gridLineDashStyle: "Dash",
@@ -59,18 +43,20 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
           fontFamily,
         },
         x: 5,
+        formatter: yAxisFormatter,
       },
       min: 0,
+      max: Some(100),
     },
     {
       title: {
-        text: "Authorization Rate",
+        text: "Transaction Count",
         style: {
           color: darkGray,
           fontFamily,
         },
       },
-      opposite: true,
+      opposite: false,
       gridLineWidth: 1,
       gridLineColor,
       gridLineDashStyle: "Dash",
@@ -239,6 +225,23 @@ let lineColumnGraphTooltipFormatter = (
     position:relative;">
         ${content}
     </div>`
+    }
+  )->asTooltipPointFormatter
+}
+
+let lineColumnGraphYAxisFormatter = (
+  ~statType: LogicUtilsTypes.valueType,
+  ~currency="",
+  ~suffix="",
+  ~scaleFactor=1.0,
+) => {
+  (
+    @this
+    (this: yAxisFormatter) => {
+      let value = this.value->Int.toFloat /. scaleFactor
+      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
+
+      formattedValue
     }
   )->asTooltipPointFormatter
 }
