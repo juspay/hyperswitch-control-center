@@ -66,7 +66,7 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let urlPathArray = url.path->List.toArray
   let connectorTypeName = switch urlPathArray[1] {
-  | Some(val) => val->LogicUtils.toSnakeCase
+  | Some(val) => val->LogicUtils.kebabToSnakeCase
   | _ => ""
   }
 

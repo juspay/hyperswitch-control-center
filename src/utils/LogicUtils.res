@@ -95,7 +95,7 @@ let toKebabCase = str => {
   ->Array.joinWith("-")
 }
 
-let toSnakeCase = str => {
+let kebabToSnakeCase = str => {
   let strArr = str->String.replaceRegExp(%re("/[-_]+/g"), " ")->String.split(" ")
   strArr
   ->Array.map(item => {

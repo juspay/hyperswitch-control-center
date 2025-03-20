@@ -508,7 +508,7 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let urlArray = url.path->List.toArray
   let analyticsTypeName = switch urlArray[1] {
-  | Some(val) => val->toSnakeCase
+  | Some(val) => val->kebabToSnakeCase
   | _ => ""
   }
 
