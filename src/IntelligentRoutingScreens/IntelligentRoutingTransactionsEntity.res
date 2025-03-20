@@ -66,7 +66,11 @@ module UpliftCell = {
 
 let getCell = (~transactionsData: transactionObj, colType): Table.cell => {
   switch colType {
-  | PaymentID => Text(transactionsData.payment_attempt_id)
+  | PaymentID =>
+    CustomCell(
+      <HelperComponents.EllipsisText displayValue={transactionsData.payment_attempt_id} />,
+      "",
+    )
   | PaymentMethodType => Text(transactionsData.payment_method_type->LogicUtils.getTitle)
   | CardNetwork => Text(transactionsData.card_network)
   | TxnAmount => Text(transactionsData.amount->Float.toString)

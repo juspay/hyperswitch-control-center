@@ -54,6 +54,7 @@ type labels = {
 }
 type chart = {
   \"type": \"type",
+  height: int,
   spacingLeft: spacingLeft,
   spacingRight: spacingRight,
   style: style,

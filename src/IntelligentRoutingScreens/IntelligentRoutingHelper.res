@@ -69,6 +69,7 @@ let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload =>
     tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
       ~title="Revenue Uplift",
       ~metricType=FormattedAmount,
+      ~comparison=Some(EnableComparison),
     ),
     yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
       ~statType=AmountWithSuffix,
@@ -114,11 +115,12 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
     ],
     tooltipFormatter: NewAnalyticsUtils.tooltipFormatter(
       ~title="Authorization Rate",
-      ~metricType=Amount,
+      ~metricType=Rate,
       ~currency="",
       ~comparison=Some(EnableComparison),
       ~secondaryCategories=timeSeriesArray,
       ~reverse=true,
+      ~suffix="%",
     ),
     yAxisMaxValue: Some(100),
     yAxisFormatter: Some(

@@ -66,6 +66,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   {
     chart: {
       \"type": "line",
+      height: 300,
       spacingLeft: 20,
       spacingRight: 20,
       style: {
@@ -80,7 +81,6 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       lineWidth: 1,
       tickWidth: 1,
       labels: {
-        formatter: yAxisFormatter,
         align: "center",
         style: {
           color: lightGray,
