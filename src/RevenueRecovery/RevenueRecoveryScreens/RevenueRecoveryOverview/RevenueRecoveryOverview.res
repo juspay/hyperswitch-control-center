@@ -20,6 +20,16 @@ let make = () => {
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
+  let url = RescriptReactRouter.useUrl()
+
+  React.useEffect(() => {
+    if url.path->List.reverse->List.head->Option.getOr("") == "home" {
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/recovery/overview`))
+    }
+
+    None
+  }, [])
+
   let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV2,
     ~retainInList=BillingProcessor,
