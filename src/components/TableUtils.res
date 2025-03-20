@@ -119,6 +119,7 @@ type cell =
   | Currency(float, currency)
   | Date(string)
   | DateWithoutTime(string)
+  | DateWithCustomDateStyle(string, string)
   | StartEndDate(string, string)
   | InputField(React.element)
   | Link(string)
@@ -474,10 +475,15 @@ module DateCell = {
     ~textAlign=Right,
     ~customDateStyle="",
     ~hideTime=false,
+    ~hideTimeZone=false,
   ) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let dateFormat = React.useContext(DateFormatProvider.dateFormatContext)
-    let dateFormat = isMobileView ? "DD MMM HH:mm" : dateFormat
+    let dateFormat = isMobileView
+      ? "DD MMM HH:mm"
+      : customDateStyle->LogicUtils.isNonEmptyString
+      ? customDateStyle
+      : dateFormat
 
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
     let getFormattedDate = dateStr => {
@@ -508,7 +514,9 @@ module DateCell = {
       <div className={`${wrapperClass} whitespace-nowrap`}>
         {hideTime
           ? React.string(timestamp->getFormattedDate->String.slice(~start=0, ~end=12))
-          : {React.string(`${timestamp->getFormattedDate} ${selectedTimeZoneAlias}`)}}
+          : hideTimeZone
+          ? React.string(`${timestamp->getFormattedDate}`)
+          : React.string(`${timestamp->getFormattedDate} ${selectedTimeZoneAlias}`)}
       </div>
     </AddDataAttributes>
   }
@@ -708,6 +716,12 @@ module TableCell = {
       timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
+    | DateWithCustomDateStyle(timestamp, dateFormat) =>
+      timestamp->isNonEmptyString
+        ? <DateCell
+            timestamp textAlign=Left hideTime=false hideTimeZone=true customDateStyle=dateFormat
+          />
+        : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
     | InputField(fieldElement) => fieldElement
     | Link(ele) => <LinkCell data=ele trimLength=55 />
@@ -758,6 +772,12 @@ module NewTableCell = {
     | DateWithoutTime(timestamp) =>
       timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
+        : <div> {React.string("-")} </div>
+    | DateWithCustomDateStyle(timestamp, dateFormat) =>
+      timestamp->isNonEmptyString
+        ? <DateCell
+            timestamp textAlign=Left hideTime=false hideTimeZone=true customDateStyle=dateFormat
+          />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
     | InputField(fieldElement) => fieldElement

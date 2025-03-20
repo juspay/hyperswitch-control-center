@@ -16,8 +16,24 @@ let valueFormatter = (
   }
 )->asLegendsFormatter
 
+let lineGraphYAxisFormatter = (
+  ~statType: LogicUtilsTypes.valueType,
+  ~currency="",
+  ~suffix="",
+  ~scaleFactor=1.0,
+) => {
+  (
+    @this
+    (this: yAxisFormatter) => {
+      let value = this.value->Int.toFloat /. scaleFactor
+      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
+      formattedValue
+    }
+  )->asTooltipPointFormatter
+}
+
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
-  let {categories, data, title, tooltipFormatter, yAxisMaxValue} = lineGraphOptions
+  let {categories, data, title, tooltipFormatter, yAxisMaxValue, yAxisFormatter} = lineGraphOptions
 
   let stepInterval = Js.Math.max_int(
     Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 10.0),
@@ -36,6 +52,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     gridLineColor,
     gridLineDashStyle: "Dash",
     labels: {
+      formatter: yAxisFormatter,
       align: "center",
       style: {
         color: lightGray,
@@ -63,6 +80,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       lineWidth: 1,
       tickWidth: 1,
       labels: {
+        formatter: yAxisFormatter,
         align: "center",
         style: {
           color: lightGray,

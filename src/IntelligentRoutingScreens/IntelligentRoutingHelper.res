@@ -121,6 +121,9 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
       ~reverse=true,
     ),
     yAxisMaxValue: Some(100),
+    yAxisFormatter: Some(
+      LineGraphUtils.lineGraphYAxisFormatter(~statType=AmountWithSuffix, ~currency="", ~suffix="%"),
+    ),
   }
 }
 
@@ -165,12 +168,31 @@ let lineColumnGraphOptions = (
   let model = successData->Array.map(item => item.model_volume->Int.toFloat)
   let successRate = successData->Array.map(item => item.success_rate)
 
+  let style: LineAndColumnGraphTypes.style = {
+    fontFamily: LineAndColumnGraphUtils.fontFamily,
+    color: LineAndColumnGraphUtils.darkGray,
+  }
+
   {
-    title: {
-      text: "Processor wise transaction distribution with Auth Rate",
-      align: "left",
-      x: 10,
-      y: 10,
+    titleObj: {
+      chartTitle: {
+        text: "Processor wise transaction distribution with Auth Rate",
+        align: "left",
+        x: 10,
+        y: 10,
+      },
+      xAxisTitle: {
+        text: "Time Range",
+        style,
+      },
+      yAxisTitle: {
+        text: "Transaction Count",
+        style,
+      },
+      oppositeYAxisTitle: {
+        text: "Authorization Rate",
+        style,
+      },
     },
     categories: timeStampArray,
     data: [

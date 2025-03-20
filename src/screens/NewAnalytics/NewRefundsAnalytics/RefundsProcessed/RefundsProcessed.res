@@ -1,6 +1,5 @@
 open NewAnalyticsTypes
 open NewAnalyticsHelper
-open LineGraphTypes
 open NewRefundsAnalyticsEntity
 open RefundsProcessedUtils
 open RefundsProcessedTypes
@@ -144,7 +143,11 @@ module RefundsProcessedHeader = {
 @react.component
 let make = (
   ~entity: moduleEntity,
-  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions, JSON.t>,
+  ~chartEntity: chartEntity<
+    LineGraphTypes.lineGraphPayload,
+    LineGraphTypes.lineGraphOptions,
+    JSON.t,
+  >,
 ) => {
   open LogicUtils
   open APIUtils

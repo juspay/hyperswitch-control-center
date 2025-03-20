@@ -71,6 +71,7 @@ let refundsProcessedMapper = (
     title,
     yAxisMaxValue: None,
     tooltipFormatter,
+    yAxisFormatter: None,
   }
 }
 
