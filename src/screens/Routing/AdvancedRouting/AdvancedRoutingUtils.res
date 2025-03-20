@@ -294,9 +294,15 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
 
 let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   open LogicUtils
+
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
   | String(str) => str->isNonEmptyString
+  | Object(objectValue) => {
+      let key = objectValue->getString("key", "")
+      let value = objectValue->getString("value", "")
+      key->isNonEmptyString && value->isNonEmptyString
+    }
   | _ => false
   }
 
