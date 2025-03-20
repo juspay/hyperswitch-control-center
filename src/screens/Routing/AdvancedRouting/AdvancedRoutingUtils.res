@@ -322,6 +322,38 @@ let getRoutingTypesFromJson: JSON.t => RoutingTypes.advancedRouting = values => 
   }
 }
 
+let getRulesFromJsonObject: JSON.t => array<RoutingTypes.rule> = values => {
+  open LogicUtils
+  let rulesArray =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("algorithm")
+    ->getDictfromDict("data")
+    ->getArrayFromDict("rules", [])
+
+  let rulesModifiedArray = rulesArray->Array.map(rule => {
+    let ruleDict = rule->getDictFromJsonObject
+    let connectorsDict = ruleDict->getDictfromDict("connectorSelection")
+    let connectorSelection = getDefaultSelection(connectorsDict)
+    let ruleName = ruleDict->getString("name", "")
+    let statementsArr = ruleDict->getArrayFromDict("statements", [])
+
+    let statements = statementsArr->Array.map(statement => {
+      let statementDict = statement->getDictFromJsonObject
+      statementDict->statementTypeMapper
+    })
+
+    let eachRule: RoutingTypes.rule = {
+      name: ruleName,
+      connectorSelection,
+      statements,
+    }
+    eachRule
+  })
+
+  rulesModifiedArray
+}
+
 let validateStatements = statementsArray => {
   statementsArray->Array.every(isStatementMandatoryFieldsPresent)
 }
