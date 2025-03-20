@@ -42,19 +42,14 @@ module OrderInfo = {
   @react.component
   let make = (~order) => {
     <div className="flex flex-col mb-6  w-full">
-      <ShowOrderDetails
-        data=order
-        getHeading=getHeadingForSummary
-        getCell=getCellForSummary
-        detailsFields=[PaymentId, OrderAmount, Created]
-        isButtonEnabled=true
-      />
-      <ShowOrderDetails
-        data=order
-        getHeading=getHeadingForAboutPayment
-        getCell=getCellForAboutPayment
-        detailsFields=[Connector, Status, PaymentMethodType, CardNetwork]
-      />
+      {"helo"->React.string}
+      // <ShowOrderDetails
+      //   data=order
+      //   getHeading
+      //   getCell
+      //   detailsFields=[PaymentId, OrderAmount, Created]
+      //   isButtonEnabled=true
+      // />
     </div>
   }
 }
@@ -120,7 +115,7 @@ module Attempts = {
                 data=item
                 getHeading=getAttemptHeading
                 getCell=getAttemptCell
-                detailsFields=[AttemptedBy, Connector, Status]
+                detailsFields=[AttemptId]
               />
             </div>
           </div>
