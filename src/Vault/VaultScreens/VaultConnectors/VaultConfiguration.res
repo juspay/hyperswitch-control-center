@@ -16,12 +16,18 @@ let make = () => {
     [
       {
         title: "PSP Tokenisation",
+        tabElement: <ToolTip
+          description="Hyperswitch securely converts card details into tokens from your existing PSP accounts (Stripe, Adyen, Worldpay, etc.), allowing you to process payments through these providers using these tokens rather than raw card data."
+        />,
         renderContent: () => {
           <VaultProcessorList />
         },
       },
       {
         title: "Network Tokenisation",
+        tabElement: <ToolTip
+          description="Hyperswitch securely replaces card details with network tokens from card networks (Visa, Mastercard, Amex, etc.), allowing you to process payments with enhanced security and authorization rates while reducing processing costs, fraud risk and compliance requirements."
+        />,
         renderContent: () => <VaultNetworkTokenisation />,
       },
     ]

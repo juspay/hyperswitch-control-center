@@ -117,6 +117,10 @@ type frmTypes =
   | Signifyd
   | Riskifyed
 
+type cardNetworkTypes =
+  | Visa
+  | Mastercard
+
 type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
