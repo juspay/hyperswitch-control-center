@@ -504,6 +504,13 @@ let make = (
   }
 
   let filterValueDict = filterValueJson
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  let url = RescriptReactRouter.useUrl()
+  let urlArray = url.path->List.toArray
+  let analyticsTypeName = switch urlArray[1] {
+  | Some(val) => val->toSnakeCase
+  | _ => ""
+  }
 
   let (activeTav, setActiveTab) = React.useState(_ =>
     filterValueDict->getStrArrayFromDict(`${moduleName}.tabName`, filteredTabKeys)
@@ -600,6 +607,14 @@ let make = (
     None
   }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
   let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
+
+  //This is to trigger the mixpanel event to see active analytics users
+  React.useEffect(() => {
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      mixpanelEvent(~eventName=`${analyticsTypeName}_date_filter`)
+    }
+    None
+  }, (startTimeVal, endTimeVal))
 
   let activeTab = React.useMemo(() => {
     Some(
