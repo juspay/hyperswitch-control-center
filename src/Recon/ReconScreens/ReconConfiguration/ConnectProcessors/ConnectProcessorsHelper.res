@@ -50,7 +50,7 @@ module ListBaseComp = {
       className={`flex flex-row cursor-pointer items-center py-5 px-4 gap-2 min-w-44 justify-between h-8 ${bgClass} border rounded-lg border-nd_gray-100 shadow-sm`}>
       <div className="flex flex-row items-center gap-2">
         <RenderIf condition={subHeading->String.length > 0}>
-          <GatewayIcon gateway={subHeading->String.toUpperCase} className="w-4 h-4" />
+          <GatewayIcon gateway={subHeading->String.toUpperCase} className="w-6 h-6" />
           <p
             className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
             {subHeading->React.string}
@@ -77,6 +77,8 @@ module AddNewOMPButton = {
     ~customPadding="",
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
+    ~prodConnectorList=ConnectorUtils.connectorListForLive,
+    ~filterConnector=ConnectorTypes.Processors(STRIPE)->Some,
   ) => {
     open ConnectorUtils
 
@@ -88,10 +90,10 @@ module AddNewOMPButton = {
     }
     let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
     let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
-    let connectorsList =
-      ConnectorUtils.connectorListForLive->Array.filter(connector =>
-        connector != Processors(STRIPE)
-      )
+    let connectorsList = switch filterConnector {
+    | Some(connector) => prodConnectorList->Array.filter(item => item != connector)
+    | _ => prodConnectorList
+    }
 
     <ACLDiv
       authorization={hasOMPCreateAccess}

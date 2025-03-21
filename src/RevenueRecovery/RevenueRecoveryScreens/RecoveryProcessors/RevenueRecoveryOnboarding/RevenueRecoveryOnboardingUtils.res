@@ -160,7 +160,11 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
 
     {
       label: connectorName,
+      customRowClass: "my-1",
       value: connectorValue,
+      icon: Button.CustomIcon(
+        <GatewayIcon gateway={connectorValue->String.toUpperCase} className="mr-2 w-5 h-5" />,
+      ),
     }
   })
   options
