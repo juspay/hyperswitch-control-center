@@ -47,6 +47,7 @@ type cell =
   | Currency(float, currency)
   | Date(string)
   | DateWithoutTime(string)
+  | DateWithCustomDateStyle(string, string)
   | StartEndDate(string, string)
   | InputField(React.element)
   | Link(string)
@@ -153,6 +154,7 @@ module DateCell: {
     ~textAlign: textAlign=?,
     ~customDateStyle: string=?,
     ~hideTime: bool=?,
+    ~hideTimeZone: bool=?,
   ) => React.element
 }
 module StartEndDateCell: {

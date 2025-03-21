@@ -55,6 +55,7 @@ let paymentsSuccessRateMapper = (
       ~metricType=Rate,
       ~comparison,
     ),
+    yAxisFormatter: None,
   }
 }
 
