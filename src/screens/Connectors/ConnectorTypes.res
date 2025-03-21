@@ -117,7 +117,6 @@ type frmTypes =
   | Signifyd
   | Riskifyed
 
-
 type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
