@@ -95,7 +95,7 @@ module TabInfo = {
     let tab =
       <div className={"flex flex-col cursor-pointer w-max"}>
         <div
-          className={`${defaultClasses} ${selectionClasses} select-none pb-2 gap-2`}
+          className={`${defaultClasses} ${selectionClasses} select-none pb-2 `}
           onClick={handleClick}>
           {displayElement}
         </div>
