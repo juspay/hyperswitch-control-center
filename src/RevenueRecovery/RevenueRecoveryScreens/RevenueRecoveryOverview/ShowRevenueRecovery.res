@@ -45,8 +45,7 @@ module OrderInfo = {
       <ShowOrderDetails
         data=order
         getHeading
-        getCell={(order, colType) =>
-          getCell(order, colType, merchantId, orgId, ~showRedirect=false)}
+        getCell
         detailsFields=[Id, Status, OrderAmount, Connector, Created, PaymentMethodType]
         isButtonEnabled=true
       />

@@ -9,7 +9,7 @@ let make = () => {
   let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
-  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
+  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("recovery-orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -211,7 +211,7 @@ let make = () => {
           title="Recovery"
           actualData=revenueRecoveryData
           entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId, profileId)}
-          resultsPerPage=20
+          resultsPerPage=10
           showSerialNumber=true
           totalResults={totalCount}
           offset

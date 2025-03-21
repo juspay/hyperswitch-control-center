@@ -113,6 +113,10 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
+    initialValuesToDict->Dict.set(
+      "connector_webhook_details",
+      RevenueRecoveryData.payment_connector_webhook_details,
+    )
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 

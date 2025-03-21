@@ -99,20 +99,14 @@ let getStatus = (order, primaryColor) => {
   }
 }
 
-let getCell = (order, colType: colType, merchantId, orgId, ~showRedirect=true): Table.cell => {
+let getCell = (order, colType: colType): Table.cell => {
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Id =>
     CustomCell(
-      showRedirect
-        ? <HSwitchOrderUtils.CopyLinkTableCell
-            url={`/payments/${order.id}/${merchantId}/${orgId}`}
-            displayValue={order.id}
-            copyValue={Some(order.id)}
-          />
-        : <HelperComponents.CopyTextCustomComp
-            customTextCss="w-36 truncate whitespace-nowrap" displayValue=order.id
-          />,
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=order.id
+      />,
       "",
     )
 
@@ -204,7 +198,7 @@ let revenueRecoveryEntity = (merchantId, orgId, profile_id) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
+    ~getCell,
     ~dataKey="",
     ~getShowLink={
       order =>
