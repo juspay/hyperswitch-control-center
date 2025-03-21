@@ -46,6 +46,7 @@ let refundsSuccessRateMapper = (
       ~metricType=Rate,
       ~comparison,
     ),
+    yAxisFormatter: None,
   }
 }
 

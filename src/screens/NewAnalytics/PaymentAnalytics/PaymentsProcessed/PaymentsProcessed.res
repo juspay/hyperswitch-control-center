@@ -1,6 +1,5 @@
 open NewAnalyticsTypes
 open NewAnalyticsHelper
-open LineGraphTypes
 open NewPaymentAnalyticsEntity
 open PaymentsProcessedUtils
 open NewPaymentAnalyticsUtils
@@ -150,7 +149,11 @@ module PaymentsProcessedHeader = {
 @react.component
 let make = (
   ~entity: moduleEntity,
-  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions, JSON.t>,
+  ~chartEntity: chartEntity<
+    LineGraphTypes.lineGraphPayload,
+    LineGraphTypes.lineGraphOptions,
+    JSON.t,
+  >,
 ) => {
   open LogicUtils
   open APIUtils
