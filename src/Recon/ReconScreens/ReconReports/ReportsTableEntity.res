@@ -10,7 +10,6 @@ let defaultColumns: array<allColtype> = [
   SettlementAmount,
   ReconStatus,
   TransactionDate,
-  Actions,
 ]
 let allColumns: array<allColtype> = [
   TransactionId,
@@ -21,7 +20,6 @@ let allColumns: array<allColtype> = [
   SettlementAmount,
   ReconStatus,
   TransactionDate,
-  Actions,
 ]
 type reconStatus =
   | Reconciled
@@ -64,9 +62,8 @@ let getHeading = (colType: allColtype) => {
   | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
   | SettlementAmount =>
     Table.makeHeaderInfo(~key="settlement_amount", ~title="Settlement Amount ($)")
-  | TxnAmount => Table.makeHeaderInfo(~key="txn_amount", ~title="Txn Amount ($)")
+  | TxnAmount => Table.makeHeaderInfo(~key="txn_amount", ~title="Transaction Amount ($)")
   | TransactionDate => Table.makeHeaderInfo(~key="transaction_date", ~title="Transaction Date")
-  | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }
 }
 
@@ -111,10 +108,9 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
       )
     }
 
-  | TransactionDate => Date(report.transaction_date)
+  | TransactionDate => EllipsisText(report.transaction_date, "")
   | SettlementAmount => Text(Float.toString(report.settlement_amount))
   | TxnAmount => Text(Float.toString(report.txn_amount))
-  | Actions => CustomCell(<Icon name="nd-external-link-square" size=16 />, "")
   }
 }
 
@@ -128,7 +124,6 @@ let getAllReportPayloadType = dict => {
     settlement_amount: dict->getFloat("settlement_amount", 0.0),
     recon_status: dict->getString("recon_status", ""),
     transaction_date: dict->getString("transaction_date", ""),
-    actions: dict->getString("actions", ""),
   }
 }
 
