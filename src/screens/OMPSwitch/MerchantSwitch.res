@@ -218,7 +218,7 @@ let make = () => {
         ->Option.getOr(ompDefaultValue(merchantId, ""))
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
       let productType = merchantData.productType->Option.getOr(Orchestration)
-      let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version)
+      let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version, ~changePath=true)
       setActiveProductValue(productType)
       setShowSwitchingMerch(_ => false)
     } catch {
