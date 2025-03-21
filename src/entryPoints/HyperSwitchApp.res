@@ -59,17 +59,16 @@ let make = () => {
   }
 
   let setupProductUrl = (~productType: ProductTypes.productTypes) => {
-    let currentUrl = GlobalVars.extractModulePath(url)
+    let currentUrl = GlobalVars.extractModulePath(url, ~end=url.path->List.toArray->Array.length)
     let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
+    // set the product url
     RescriptReactRouter.replace(productUrl)
+    Js.log2(productUrl, "productUrl")
     setActiveProductValue(productType)
-
     switch url.path->urlPath {
     | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
     | _ => ()
     }
-    setDashboardPageState(_ => #HOME)
-    setScreenState(_ => PageLoaderWrapper.Success)
   }
 
   let setUpDashboard = async () => {
@@ -105,12 +104,18 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if userGroupACL->Option.isSome {
-      setupProductUrl(~productType=merchantDetailsTypedValue.product_type)
+      setDashboardPageState(_ => #HOME)
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, (userGroupACL, merchantDetailsTypedValue.product_type))
+  }, userGroupACL)
+
+  React.useEffect(() => {
+    setupProductUrl(~productType=merchantDetailsTypedValue.product_type)
+    None
+  }, [merchantDetailsTypedValue.product_type])
 
   <>
     <div>
@@ -343,10 +348,11 @@ let make = () => {
                         | _ =>
                           // SPECIAL CASE FOR ORCHESTRATOR
                           if activeProduct === Orchestration {
+                            Js.log("LOG ED")
                             RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                             <MerchantAccountContainer setAppScreenState=setScreenState />
                           } else {
-                            RescriptReactRouter.replace(appendDashboardPath(~url="/v2/home"))
+                            // RescriptReactRouter.replace(appendDashboardPath(~url="/v2/home"))
                             React.null
                           }
                         }}

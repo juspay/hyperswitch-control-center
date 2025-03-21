@@ -178,12 +178,13 @@ let useInternalSwitch = () => {
   let profileSwitch = useProfileSwitch()
 
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
-
+  let url = RescriptReactRouter.useUrl()
   async (
     ~expectedOrgId=None,
     ~expectedMerchantId=None,
     ~expectedProfileId=None,
     ~version=UserInfoTypes.V1,
+    ~changePath=false,
   ) => {
     try {
       let userInfoResFromSwitchOrg = await orgSwitch(
@@ -207,6 +208,11 @@ let useInternalSwitch = () => {
         ~version,
       )
       setUserInfoData(userInfoFromProfile)
+      if changePath {
+        // set the default url
+        let currentUrl = GlobalVars.extractModulePath(url, ~end=2)
+        RescriptReactRouter.replace(currentUrl)
+      }
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to switch!")
