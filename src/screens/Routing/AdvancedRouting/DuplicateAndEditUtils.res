@@ -1,6 +1,6 @@
 let getIsDistributed = distributedType => distributedType === "volume_split"
 
-let getConditionValye = (conditionArray, manipulatedStatementsArray, statementIndex) => {
+let getConditionValue = (conditionArray, manipulatedStatementsArray, statementIndex) => {
   open LogicUtils
 
   let manipuatedConditionArray = conditionArray->Array.mapWithIndex((
@@ -20,13 +20,11 @@ let getConditionValye = (conditionArray, manipulatedStatementsArray, statementIn
       ->JSON.Encode.string,
     )
 
-    // If two sub-rules are joined using "OR" in the API call, they will appear as separate objects, one after another, in the 'statement' array.
-    if statementIndex > 0 {
+    if statementIndex > 0 && conditionIndex == 0 {
+      // If two sub-rules are joined using "OR" in the API call, they will appear as separate objects, one after another, in the 'statement' array.
       manipulatedConditionDict->Dict.set("logical", "OR"->JSON.Encode.string)
-    }
-
-    // If two sub-rules are joined using "AND" in the API call, they will appear as separate objects, one after another, in the 'condition' array.
-    if conditionIndex > 0 {
+    } else if conditionIndex > 0 {
+      // If two sub-rules are joined using "AND" in the API call, they will appear as separate objects, one after another, in the 'condition' array.
       manipulatedConditionDict->Dict.set("logical", "AND"->JSON.Encode.string)
     }
 
@@ -48,7 +46,7 @@ let getStatementsArray = statementsArray => {
     let conditionValue =
       statementDict
       ->getArrayFromDict("condition", [])
-      ->getConditionValye(manipulatedStatementsArrayCustom, statementIndex)
+      ->getConditionValue(manipulatedStatementsArrayCustom, statementIndex)
 
     conditionValue
   })
