@@ -13,7 +13,7 @@ let make = (~initialValues, ~merchantId, ~onNextClick) => {
         <ConnectorWebhookPreview
           merchantId
           connectorName=connectorInfoDict.id
-          textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
+          textCss="border border-nd_gray-400 font-medium rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full !font-jetbrain-mono"
           containerClass="flex flex-row items-center justify-between"
           displayTextLength=46
           hideLabel=true

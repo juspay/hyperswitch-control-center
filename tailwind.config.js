@@ -20,6 +20,7 @@ module.exports = {
   theme: {
     fontFamily: {
       "inter-style": '"InterDisplay"',
+      "jetbrain-mono": '"JetBrains Mono"',
     },
     extend: {
       screens: {
