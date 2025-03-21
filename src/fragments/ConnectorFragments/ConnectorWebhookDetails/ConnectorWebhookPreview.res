@@ -33,11 +33,13 @@ let make = (
     showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
   }
   let valueOfWebhookEndPoint = {
-    showFullText
-      ? copyValueOfWebhookEndpoint
-      : truncateDisplayValue
-      ? shortDisplayValueofWebhookEndpoint
-      : displayValueOfWebhookEndpoint
+    if showFullText {
+      copyValueOfWebhookEndpoint
+    } else if truncateDisplayValue {
+      shortDisplayValueofWebhookEndpoint
+    } else {
+      displayValueOfWebhookEndpoint
+    }
   }
 
   <div className="flex flex-col gap-2">

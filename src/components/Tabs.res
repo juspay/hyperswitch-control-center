@@ -52,9 +52,9 @@ module TabInfo = {
     let tabDisabledStyle = "from-white to-white dark:from-jp-gray-950 dark:to-jp-gray-950 border-b-0 border-jp-gray-500 dark:border-jp-gray-960"
 
     let roundedClass = "rounded-t-md"
-    let tabElement = switch tabElement {
+    let displayElement = switch tabElement {
     | Some(ele) => ele
-    | None => React.null
+    | None => React.string(title)
     }
 
     let defaultClasses = if isDisabled && disabledTab->Array.includes(title) {
@@ -97,8 +97,7 @@ module TabInfo = {
         <div
           className={`${defaultClasses} ${selectionClasses} select-none pb-2 gap-2`}
           onClick={handleClick}>
-          {React.string(title)}
-          {tabElement}
+          {displayElement}
         </div>
         {if isSelected {
           <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />

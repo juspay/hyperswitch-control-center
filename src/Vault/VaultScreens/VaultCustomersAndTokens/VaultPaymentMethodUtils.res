@@ -11,7 +11,7 @@ let statusToVariantMapper = (status: string) => {
 }
 
 let connectrTokensStatusToVariantMapper = (connectorTokenStatus: string) => {
-  switch connectorTokenStatus {
+  switch connectorTokenStatus->String.toLowerCase {
   | "active" => Active
   | "inactive" => Inactive
   | _ => Inactive
