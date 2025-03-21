@@ -151,8 +151,8 @@ let make = (
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
     | (#connectProcessor, #selectProcessor) =>
       <PageWrapper
-        title="Authenticate Processor"
-        subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
+        title="Where do you process your payments"
+        subTitle="Link the payment processor you use for handling subscription transactions.">
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
@@ -212,8 +212,8 @@ let make = (
       </PageWrapper>
     | (#connectProcessor, #setupWebhookProcessor) =>
       <PageWrapper
-        title="Setup Webhook"
-        subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor">
+        title="Setup Payments Webhook"
+        subTitle="Configure this endpoint in the payment processors dashboard under webhook settings for us to receive events from the processor.">
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <ConnectorWebhookPreview
             merchantId
