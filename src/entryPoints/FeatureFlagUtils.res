@@ -1,7 +1,7 @@
 type config = {
-  orgIds: array<string>,
-  merchantIds: array<string>,
-  profileIds: array<string>,
+  orgId: option<string>,
+  merchantId: option<string>,
+  profileId: option<string>,
 }
 type merchantSpecificConfig = {newAnalytics: config}
 type featureFlag = {
@@ -114,9 +114,9 @@ let featureFlagType = (featureFlags: JSON.t) => {
 let configMapper = dict => {
   open LogicUtils
   {
-    orgIds: dict->getStrArrayFromDict("org_ids", []),
-    merchantIds: dict->getStrArrayFromDict("merchant_ids", []),
-    profileIds: dict->getStrArrayFromDict("profile_ids", []),
+    orgId: dict->getOptionString("org_id"),
+    merchantId: dict->getOptionString("merchant_id"),
+    profileId: dict->getOptionString("profile_id"),
   }
 }
 
