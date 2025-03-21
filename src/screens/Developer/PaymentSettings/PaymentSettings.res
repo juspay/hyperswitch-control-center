@@ -680,7 +680,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 <ClickToPaySection />
                 <AutoRetries setCheckMaxAutoRetry />
                 <RenderIf condition={isBusinessProfileHasThreeds}>
-                  <DesktopRow>
+                  <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4">
                     <FieldRenderer
                       field={threedsConnectorList
                       ->Array.map(item => item.connector_name)
@@ -691,6 +691,12 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                     <FieldRenderer
                       field={threeDsRequestorUrl}
+                      errorClass
+                      labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                      fieldWrapperClass="max-w-xl"
+                    />
+                    <FieldRenderer
+                      field={threeDsRequestoApprUrl}
                       errorClass
                       labelClass="!text-fs-15 !text-grey-700 font-semibold"
                       fieldWrapperClass="max-w-xl"
