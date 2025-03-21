@@ -1,5 +1,6 @@
 open GooglePayIntegrationTypes
 open LogicUtils
+let allowedAuthMethod = ["PAN_ONLY", "CRYPTOGRAM_3DS"] // need to be removed after wasm support
 let allowedCardNetworks = ["AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"]
 
 let getCustomGateWayName = connector => {
@@ -20,7 +21,7 @@ let allowedAuthMethodsArray = dict => {
   let authMethodsArray =
     dict
     ->getDictfromDict("parameters")
-    ->getStrArrayFromDict("allowed_auth_methods", [])
+    ->getStrArrayFromDict("allowed_auth_methods", allowedAuthMethod)
   authMethodsArray
 }
 
