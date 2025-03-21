@@ -124,7 +124,7 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
           <div className="flex flex-col gap-2 my-6">
             <p className="text-nd_gray-400  text-sm font-medium"> {"Reason"->React.string} </p>
             <p className="text-base font-medium text-nd_gray-600">
-              {"Missing (PG processed payment, but no bank settlement found."->React.string}
+              {"Missing (Payment Gateway processed payment, but no bank settlement found."->React.string}
             </p>
           </div>
         </div>
