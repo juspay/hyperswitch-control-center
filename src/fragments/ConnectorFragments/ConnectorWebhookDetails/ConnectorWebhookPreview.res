@@ -14,7 +14,10 @@ let make = (
   let displayValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}...${connectorName}`
 
   let displayValueOfWebhookEndpoint = switch displayTextLength {
-  | Some(end) => displayValueOfWebhookEndpoint->String.slice(~start=0, ~end)->String.concat("...")
+  | Some(end) =>
+    `${Window.env.apiBaseUrl}/../${connectorName}`
+    ->String.slice(~start=0, ~end)
+    ->String.concat("...")
   | _ =>
     displayValueOfWebhookEndpoint->String.slice(
       ~start=0,
