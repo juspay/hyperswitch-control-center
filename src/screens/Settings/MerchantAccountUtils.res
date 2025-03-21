@@ -226,6 +226,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "three_ds_requestor_url",
     valuesDict->getString("three_ds_requestor_url", "")->getNonEmptyString,
   )
+  authenticationConnectorDetails->setOptionString(
+    "three_ds_requestor_app_url",
+    valuesDict->getString("three_ds_requestor_app_url", "")->getNonEmptyString,
+  )
 
   let profileDetailsDict = Dict.make()
   profileDetailsDict->setDictNull(
