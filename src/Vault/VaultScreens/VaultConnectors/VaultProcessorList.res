@@ -33,7 +33,7 @@ let make = () => {
   React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
     None
-  }, [])
+  }, [connectorListFromRecoil->Array.length])
 
   let connectorsAvailableForIntegration = VaultConnectorUtils.connectorListForVault
 
