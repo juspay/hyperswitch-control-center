@@ -348,6 +348,7 @@ let tooltipFormatter = (
   ~comparison: option<DateRangeUtils.comparison>=None,
   ~currency="",
   ~reverse=false,
+  ~suffix="",
 ) => {
   open LineGraphTypes
 
@@ -365,7 +366,7 @@ let tooltipFormatter = (
       let secondaryPoint = this.points->getValueFromArray(secondaryIndex, defaultValue)
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType, ~currency)
+        let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
             <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
