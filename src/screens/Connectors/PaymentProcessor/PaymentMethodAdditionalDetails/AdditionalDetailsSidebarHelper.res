@@ -1,14 +1,12 @@
 module Heading = {
   @react.component
-  let make = () => {
+  let make = (~title: string, ~iconName: string) => {
     <>
       <div className="flex gap-3 p-2 m-2">
-        <Icon name={"applepay"} size=56 />
+        <Icon name=iconName size=56 />
         <div>
           <div className="flex items-center gap-4">
-            <div className="leading-tight   font-semibold text-fs-18">
-              {"Apple Pay"->React.string}
-            </div>
+            <div className="leading-tight   font-semibold text-fs-18"> {title->React.string} </div>
             <div
               className={`flex items-center gap-1 text-sm text-grey-700 font-semibold border  rounded-full px-2 py-1 bg-orange-600/80 border-orange-500`}>
               <div>
