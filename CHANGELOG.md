@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.21.0
+
+### Miscellaneous Tasks
+
+- Custom date style cell ([#2630](https://github.com/juspay/hyperswitch-control-center/pull/2630)) ([`18ffb71`](https://github.com/juspay/hyperswitch-control-center/commit/18ffb71e08380b6b370467bc56eab17cfb00a74e))
+
+**Full Changelog:** [`2025.03.20.0...2025.03.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.20.0...2025.03.21.0)
+
+
+- - -
+
 ## 2025.03.20.0
 
 ### Bug Fixes

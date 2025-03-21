@@ -1,6 +1,5 @@
 open NewAnalyticsTypes
 open NewAnalyticsHelper
-open LineGraphTypes
 open SmartRetryPaymentsProcessedUtils
 open NewSmartRetryAnalyticsEntity
 open PaymentsProcessedTypes
@@ -142,7 +141,11 @@ module SmartRetryPaymentsProcessedHeader = {
 @react.component
 let make = (
   ~entity: moduleEntity,
-  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions, JSON.t>,
+  ~chartEntity: chartEntity<
+    LineGraphTypes.lineGraphPayload,
+    LineGraphTypes.lineGraphOptions,
+    JSON.t,
+  >,
 ) => {
   open LogicUtils
   open APIUtils
