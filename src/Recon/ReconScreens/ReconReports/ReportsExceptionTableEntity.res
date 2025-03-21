@@ -10,7 +10,6 @@ let defaultColumns: array<exceptionColtype> = [
   SettlementAmount,
   ExceptionType,
   TransactionDate,
-  Actions,
 ]
 let exceptionMatrixColumns: array<exceptionMatrixColType> = [
   Source,
@@ -27,12 +26,11 @@ let getHeading = (colType: exceptionColtype) => {
   | OrderId => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   | PaymentGateway => Table.makeHeaderInfo(~key="payment_gateway", ~title="Payment Gateway")
   | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
-  | TxnAmount => Table.makeHeaderInfo(~key="txn_amount", ~title="Txn Amount ($)")
+  | TxnAmount => Table.makeHeaderInfo(~key="txn_amount", ~title="Transaction Amount ($)")
   | SettlementAmount =>
     Table.makeHeaderInfo(~key="settlement_amount", ~title="Settlement Amount ($)")
   | TransactionDate => Table.makeHeaderInfo(~key="transaction_date", ~title="Transaction Date")
   | ExceptionType => Table.makeHeaderInfo(~key="exception_type", ~title="Exception Type")
-  | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }
 }
 let getCell = (report: reportExceptionsPayload, colType: exceptionColtype): Table.cell => {
@@ -52,10 +50,9 @@ let getCell = (report: reportExceptionsPayload, colType: exceptionColtype): Tabl
       <HelperComponents.EllipsisText showCopy=false displayValue={report.exception_type} />,
       "",
     )
-  | TransactionDate => Date(report.transaction_date)
+  | TransactionDate => EllipsisText(report.transaction_date, "")
   | TxnAmount => Text(Float.toString(report.txn_amount))
   | SettlementAmount => Text(Float.toString(report.settlement_amount))
-  | Actions => CustomCell(<Icon name="nd-external-link-square" size=16 />, "")
   }
 }
 
@@ -83,7 +80,7 @@ let getExceptionMatrixHeading = (colType: exceptionMatrixColType) => {
   | Source => Table.makeHeaderInfo(~key="transaction_id", ~title="Source")
   | OrderId => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   | PaymentGateway => Table.makeHeaderInfo(~key="payment_gateway", ~title="Payment Gateway")
-  | TxnAmount => Table.makeHeaderInfo(~key="txn_amount", ~title="Txn Amount ($)")
+  | TxnAmount => Table.makeHeaderInfo(~key="txn_amount", ~title="Transaction Amount ($)")
   | SettlementDate => Table.makeHeaderInfo(~key="settlement_date", ~title="Settlement Date")
   | FeeAmount => Table.makeHeaderInfo(~key="fee_amount", ~title="Fee Amount ($)")
   }
@@ -144,7 +141,6 @@ let getExceptionReportPayloadType = dict => {
     recon_status: dict->getString("recon_status", ""),
     txn_amount: dict->getFloat("txn_amount", 0.0),
     exception_type: dict->getString("exception_type", ""),
-    actions: dict->getString("actions", ""),
     transaction_date: dict->getString("transaction_date", ""),
     settlement_amount: dict->getFloat("settlement_amount", 0.0),
     exception_matrix: dict
