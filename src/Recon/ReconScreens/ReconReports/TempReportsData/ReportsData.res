@@ -8,7 +8,7 @@ let reportsResponse = {
       "txn_amount": 324.0,
       "settlement_amount": 324.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -19,7 +19,7 @@ let reportsResponse = {
       "txn_amount": 221.0,
       "settlement_amount": 180.0,
       "recon_status": "Unreconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -30,7 +30,7 @@ let reportsResponse = {
       "txn_amount": 801.0,
       "settlement_amount": 801.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -41,7 +41,7 @@ let reportsResponse = {
       "txn_amount": 831.0,
       "settlement_amount": 820.0,
       "recon_status": "Unreconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -52,7 +52,7 @@ let reportsResponse = {
       "txn_amount": 218.0,
       "settlement_amount": 218.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -63,7 +63,7 @@ let reportsResponse = {
       "txn_amount": 916.0,
       "settlement_amount": 910.0,
       "recon_status": "Unreconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -74,7 +74,7 @@ let reportsResponse = {
       "txn_amount": 507.0,
       "settlement_amount": 507.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -85,7 +85,7 @@ let reportsResponse = {
       "txn_amount": 137.0,
       "settlement_amount": 137.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -96,7 +96,7 @@ let reportsResponse = {
       "txn_amount": 808.0,
       "settlement_amount": 808.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -107,7 +107,7 @@ let reportsResponse = {
       "txn_amount": 807.0,
       "settlement_amount": 720.0,
       "recon_status": "Unreconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -118,7 +118,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -129,7 +129,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -140,7 +140,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -151,7 +151,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -162,7 +162,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -173,7 +173,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -184,7 +184,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -195,7 +195,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -206,7 +206,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
     {
@@ -217,7 +217,7 @@ let reportsResponse = {
       "txn_amount": 100.0,
       "settlement_amount": 100.0,
       "recon_status": "Reconciled",
-      "transaction_date": "Jan 22, 2025 03:25PM",
+      "transaction_date": "Jan 22 2025 03:25PM",
       "actions": "",
     },
   ],
@@ -237,7 +237,7 @@ let reportsExceptionResponse = {
         "recon_status": "Unreconciled",
         "exception_status": "Under Review",
         "exception_type": "Amount Mismatch",
-        "transaction_date": "Jan 22, 2025 03:25PM",
+        "transaction_date": "Jan 22 2025 03:25PM",
         "exception_matrix": [
           {
             "source": "Order Source",
@@ -245,7 +245,7 @@ let reportsExceptionResponse = {
             "txn_amount": 221.0,
             "settlement_amount": 180.0,
             "payment_gateway": "Stripe",
-            "settlement_date": "Jan 24, 2025 03:25PM",
+            "settlement_date": "Jan 24 2025 07:24PM",
             "fee_amount": 0,
           },
         ],
@@ -262,7 +262,7 @@ let reportsExceptionResponse = {
         "recon_status": "Unreconciled",
         "exception_status": "Under Review",
         "exception_type": "Amount Mismatch",
-        "transaction_date": "Jan 22, 2025 03:25PM",
+        "transaction_date": "Jan 22 2025 03:25PM",
         "exception_matrix": [
           {
             "source": "Order Source",
@@ -270,7 +270,7 @@ let reportsExceptionResponse = {
             "txn_amount": 831.0,
             "settlement_amount": 820.0,
             "payment_gateway": "Stripe",
-            "settlement_date": "Jan 24, 2025 03:25PM",
+            "settlement_date": "Jan 24 2025 07:24PM",
             "fee_amount": 0,
           },
         ],
@@ -287,7 +287,7 @@ let reportsExceptionResponse = {
         "recon_status": "Unreconciled",
         "exception_status": "Under Review",
         "exception_type": "Amount Mismatch",
-        "transaction_date": "Jan 22, 2025 03:25PM",
+        "transaction_date": "Jan 22 2025 03:25PM",
         "exception_matrix": [
           {
             "source": "Order Source",
@@ -295,7 +295,7 @@ let reportsExceptionResponse = {
             "txn_amount": 916.0,
             "settlement_amount": 910.0,
             "payment_gateway": "Stripe",
-            "settlement_date": "Jan 24, 2025 03:25PM",
+            "settlement_date": "Jan 24 2025 07:24PM",
             "fee_amount": 0,
           },
         ],
@@ -312,7 +312,7 @@ let reportsExceptionResponse = {
         "recon_status": "Unreconciled",
         "exception_status": "Under Review",
         "exception_type": "Amount Mismatch",
-        "transaction_date": "Jan 22, 2025 03:25PM",
+        "transaction_date": "Jan 22 2025 03:25PM",
         "exception_matrix": [
           {
             "source": "Order Source",
@@ -320,7 +320,7 @@ let reportsExceptionResponse = {
             "txn_amount": 807.0,
             "settlement_amount": 720.0,
             "payment_gateway": "Stripe",
-            "settlement_date": "Jan 24, 2025 03:25PM",
+            "settlement_date": "Jan 24 2025 07:24PM",
             "fee_amount": 0,
           },
         ],
