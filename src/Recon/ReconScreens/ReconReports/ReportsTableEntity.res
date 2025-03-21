@@ -108,7 +108,7 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
       )
     }
 
-  | TransactionDate => Text(report.transaction_date)
+  | TransactionDate => EllipsisText(report.transaction_date, "")
   | SettlementAmount => Text(Float.toString(report.settlement_amount))
   | TxnAmount => Text(Float.toString(report.txn_amount))
   }

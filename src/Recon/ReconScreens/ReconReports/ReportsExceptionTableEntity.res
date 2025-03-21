@@ -50,7 +50,7 @@ let getCell = (report: reportExceptionsPayload, colType: exceptionColtype): Tabl
       <HelperComponents.EllipsisText showCopy=false displayValue={report.exception_type} />,
       "",
     )
-  | TransactionDate => Text(report.transaction_date)
+  | TransactionDate => EllipsisText(report.transaction_date, "")
   | TxnAmount => Text(Float.toString(report.txn_amount))
   | SettlementAmount => Text(Float.toString(report.settlement_amount))
   }
