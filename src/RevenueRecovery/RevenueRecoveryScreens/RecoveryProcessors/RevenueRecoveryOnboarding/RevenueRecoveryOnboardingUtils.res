@@ -40,10 +40,6 @@ let sections = [
         name: #selectProcessor->getStepName,
       },
       {
-        id: (#activePaymentMethods: revenueRecoverySubsections :> string),
-        name: #activePaymentMethods->getStepName,
-      },
-      {
         id: (#setupWebhookProcessor: revenueRecoverySubsections :> string),
         name: #setupWebhookProcessor->getStepName,
       },
@@ -83,6 +79,11 @@ let sections = [
 let defaultStep = {
   sectionId: (#connectProcessor: revenueRecoverySections :> string),
   subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
+}
+
+let defaultStepBilling = {
+  sectionId: (#addAPlatform: revenueRecoverySections :> string),
+  subSectionId: Some((#selectAPlatform: revenueRecoverySubsections :> string)),
 }
 
 open VerticalStepIndicatorUtils

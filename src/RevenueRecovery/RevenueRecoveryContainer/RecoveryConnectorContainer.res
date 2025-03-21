@@ -44,7 +44,7 @@ let make = () => {
     | list{"v2", "recovery", "home"} =>
       hasConfiguredBillingConnector
         ? <RevenueRecoveryOverview />
-        : <RevenueRecoveryOnboardingLanding default=false />
+        : <RevenueRecoveryOnboardingLanding createMerchant=false />
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold

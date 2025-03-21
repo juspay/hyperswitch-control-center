@@ -16,7 +16,6 @@ let make = (
   open RevenueRecoveryOnboardingUtils
 
   let getURL = useGetURL()
-  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
@@ -50,13 +49,7 @@ let make = (
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
-  let handleAuthKeySubmit = async (_, _) => {
-    onNextClick(currentStep, setNextStep)
-    Nullable.null
-  }
-
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
@@ -155,7 +148,7 @@ let make = (
         subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
-            <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+            <Form onSubmit initialValues validate=validateMandatoryField>
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
                 buttonText="Select Processor"

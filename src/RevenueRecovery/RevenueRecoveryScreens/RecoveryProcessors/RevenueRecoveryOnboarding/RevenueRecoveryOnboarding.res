@@ -17,20 +17,24 @@ let make = () => {
   let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
 
   React.useEffect(() => {
-    if paymentConnectorName->isNonEmptyString {
-      RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${paymentConnectorName}`),
-      )
+    let (mainSection, _) = currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant
+
+    let url = switch mainSection {
+    | #connectProcessor =>
+      paymentConnectorName->isNonEmptyString
+        ? `/v2/recovery/onboarding?name=${paymentConnectorName}`
+        : `/v2/recovery/onboarding`
+    | #addAPlatform =>
+      billingConnectorName->isNonEmptyString
+        ? `/v2/recovery/onboarding?name=${billingConnectorName}`
+        : `/v2/recovery/onboarding`
+    | #reviewDetails => `/v2/recovery/onboarding`
     }
 
-    if billingConnectorName->isNonEmptyString {
-      RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${billingConnectorName}`),
-      )
-    }
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
 
     None
-  }, [paymentConnectorName, billingConnectorName])
+  }, (paymentConnectorName, billingConnectorName, currentStep))
 
   React.useEffect(() => {
     setShowSideBar(_ => false)
