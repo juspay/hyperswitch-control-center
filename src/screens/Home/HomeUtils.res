@@ -212,6 +212,7 @@ module ControlCenter = {
   let make = () => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let isLiveModeEnabledStyles = isLiveMode
       ? "flex flex-col md:flex-row gap-5 w-full"
@@ -259,6 +260,7 @@ module ControlCenter = {
                 buttonType={Secondary}
                 buttonSize={Medium}
                 onClick={_ => {
+                  mixpanelEvent(~eventName="redirect_to_api_keys")
                   RescriptReactRouter.push(
                     GlobalVars.appendDashboardPath(~url="/developer-api-keys"),
                   )

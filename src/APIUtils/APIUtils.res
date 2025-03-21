@@ -883,7 +883,7 @@ let useGetURL = () => {
   getUrl
 }
 
-let useHandleLogout = () => {
+let useHandleLogout = (~eventName="user_sign_out") => {
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -894,7 +894,7 @@ let useHandleLogout = () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
-      mixpanelEvent(~eventName="user_sign_out")
+      mixpanelEvent(~eventName)
       let _ =
         fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
         ->then(Fetch.Response.json)
