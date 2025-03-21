@@ -48,12 +48,10 @@ let useMerchantSpecificConfig = () => {
     }
   }
   let useIsFeatureEnabledForMerchant = (config: FeatureFlagUtils.config) => {
-    let {userInfo: {orgId, merchantId, profileId}} = React.useContext(
-      UserInfoProvider.defaultContext,
-    )
-    !(config.orgIds->Array.includes(orgId)) &&
-    !(config.merchantIds->Array.includes(merchantId)) &&
-    !(config.profileIds->Array.includes(profileId))
+    // check if the merchant has access to the config
+    config.orgId->Option.isNone &&
+    config.merchantId->Option.isNone &&
+    config.profileId->Option.isNone
   }
 
   {fetchMerchantSpecificConfig, useIsFeatureEnabledForMerchant, merchantSpecificConfig}
