@@ -60,11 +60,11 @@ function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
     const merchantIds = checkEnvValues(
       envMerchantIds,
       tomlConfig[key].merchant_ids,
-    ).filter((id) => body.org_id === id);
+    ).filter((id) => body.merchant_id === id);
     const profileIds = checkEnvValues(
       envProfileIds,
       tomlConfig[key].profile_ids,
-    ).filter((id) => body.org_id === id);
+    ).filter((id) => body.profile_id === id);
 
     modifiedConfig[key] = {
       org_ids: orgIds,

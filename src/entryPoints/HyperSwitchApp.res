@@ -61,9 +61,7 @@ let make = () => {
   let setupProductUrl = (~productType: ProductTypes.productTypes) => {
     let currentUrl = GlobalVars.extractModulePath(url, ~end=url.path->List.toArray->Array.length)
     let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
-    // set the product url
     RescriptReactRouter.replace(productUrl)
-    Js.log2(productUrl, "productUrl")
     setActiveProductValue(productType)
     switch url.path->urlPath {
     | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
@@ -113,6 +111,7 @@ let make = () => {
   }, userGroupACL)
 
   React.useEffect(() => {
+    // set the product url
     setupProductUrl(~productType=merchantDetailsTypedValue.product_type)
     None
   }, [merchantDetailsTypedValue.product_type])
@@ -348,11 +347,9 @@ let make = () => {
                         | _ =>
                           // SPECIAL CASE FOR ORCHESTRATOR
                           if activeProduct === Orchestration {
-                            Js.log("LOG ED")
                             RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                             <MerchantAccountContainer setAppScreenState=setScreenState />
                           } else {
-                            // RescriptReactRouter.replace(appendDashboardPath(~url="/v2/home"))
                             React.null
                           }
                         }}
