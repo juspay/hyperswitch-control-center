@@ -74,7 +74,7 @@ let make = () => {
       })
       let csvContent = arr->convertArrayToCSV
       DownloadUtils.download(
-        ~fileName=`reconciliation_report.csv`,
+        ~fileName=`${selectedReconId}_reconciliation_report.csv`,
         ~content=csvContent,
         ~fileType="text/csv",
       )

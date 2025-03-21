@@ -48,9 +48,10 @@ let useMerchantSpecificConfig = () => {
     }
   }
   let useIsFeatureEnabledForMerchant = (config: FeatureFlagUtils.config) => {
-    config.orgIds->Array.length > 0 ||
-    config.merchantIds->Array.length > 0 ||
-    config.profileIds->Array.length > 0
+    // check if the merchant has access to the config
+    config.orgId->Option.isNone &&
+    config.merchantId->Option.isNone &&
+    config.profileId->Option.isNone
   }
 
   {fetchMerchantSpecificConfig, useIsFeatureEnabledForMerchant, merchantSpecificConfig}
