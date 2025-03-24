@@ -1,6 +1,6 @@
 type pageState = NEW | LANDING
 
-let statementObject: array<AdvancedRoutingTypes.statement> = [
+let statementObject: array<RoutingTypes.statement> = [
   {
     lhs: "amount",
     value: {
@@ -23,10 +23,10 @@ let statementObject: array<AdvancedRoutingTypes.statement> = [
 type threeDsRoutingType = {
   name: string,
   description: string,
-  algorithm: AdvancedRoutingTypes.algorithmData,
+  algorithm: RoutingTypes.algorithmData,
 }
 
-let rules: AdvancedRoutingTypes.rule = {
+let rules: RoutingTypes.rule = {
   name: "rule_1",
   connectorSelection: {
     override_3ds: "three_ds",

@@ -70,7 +70,13 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       "",
     )
   | ConnectorLabel => Text(connector.connector_label)
-  | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
+  | MerchantConnectorId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=connector.merchant_connector_id
+      />,
+      "",
+    )
   }
 }
 
@@ -83,7 +89,12 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
+    ConnectorInterface.connectorInterfaceV1,
+    json,
+    PMAuthProcessor,
+  )
+  data
 }
 
 let pmAuthenticationEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

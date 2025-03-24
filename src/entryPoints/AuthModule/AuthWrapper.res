@@ -74,7 +74,7 @@ let make = (~children) => {
     open LogicUtils
     try {
       let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
-      let url = getURL(~entityName=USERS, ~userType=#FROM_EMAIL, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#FROM_EMAIL, ~methodType=Post)
       switch tokenFromUrl {
       | Some(token) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post)
@@ -146,6 +146,7 @@ let make = (~children) => {
       <Button
         text={`Continue with ${(authMethodName :> string)}`}
         buttonType={PrimaryOutline}
+        customButtonStyle="!w-full"
         onClick={_ => handleLoginWithSso(method.id)}
       />
     | (_, _) => React.null

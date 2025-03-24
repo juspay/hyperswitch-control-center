@@ -1,6 +1,5 @@
 open NewAnalyticsTypes
 open NewAnalyticsHelper
-open LineGraphTypes
 open SmartRetryPaymentsProcessedUtils
 open NewSmartRetryAnalyticsEntity
 open PaymentsProcessedTypes
@@ -142,13 +141,18 @@ module SmartRetryPaymentsProcessedHeader = {
 @react.component
 let make = (
   ~entity: moduleEntity,
-  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions, JSON.t>,
+  ~chartEntity: chartEntity<
+    LineGraphTypes.lineGraphPayload,
+    LineGraphTypes.lineGraphOptions,
+    JSON.t,
+  >,
 ) => {
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (smartRetryPaymentsProcessedData, setSmartRetryPaymentsProcessedData) = React.useState(_ =>
@@ -190,7 +194,7 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS_V2,
+        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -253,6 +257,7 @@ let make = (
                 "payment_processed_amount": 0,
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
+              ~isoStringToCustomTimeZone,
               ~granularity=granularity.value,
               ~granularityEnabled=featureFlag.granularity,
             )
@@ -274,6 +279,7 @@ let make = (
               "payment_processed_amount": 0,
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
+            ~isoStringToCustomTimeZone,
             ~granularity=granularity.value,
             ~granularityEnabled=featureFlag.granularity,
           )

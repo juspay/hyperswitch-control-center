@@ -104,6 +104,7 @@ let filterMultiSelectInput = (
   ~buttonText,
   ~buttonSize=?,
   ~hideMultiSelectButtons=false,
+  ~allowMultiSelect=true,
   ~showSelectionAsChips=true,
   ~showToggle=false,
   ~isDropDown=true,
@@ -154,7 +155,7 @@ let filterMultiSelectInput = (
     optionSize
     buttonText
     ?buttonSize
-    allowMultiSelect=true
+    allowMultiSelect
     hideMultiSelectButtons
     showSelectionAsChips
     isDropDown
@@ -405,6 +406,10 @@ let textTagInput = (
   <MultipleTextInput
     input name disabled seperateByComma seperateBySpace ?customStyle ?customButtonStyle placeholder
   />
+}
+
+let fileInput = () => (~input: ReactFinalForm.fieldRenderPropsInput) => {
+  <MultipleFileUpload input />
 }
 
 let numericTextInput = (

@@ -17,7 +17,7 @@ module CustomerInfo = {
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
         <FormRenderer.DesktopRow>
           <div
-            className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+            className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               <RenderIf
@@ -69,7 +69,7 @@ module CustomerDetails = {
     let getSearchResults = async () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       try {
-        let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
+        let url = getURL(~entityName=V1(GLOBAL_SEARCH), ~methodType=Post)
 
         let body = [("query", id->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
 
@@ -116,7 +116,7 @@ let make = (~id) => {
   let fetchCustomersData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let customersUrl = getURL(~entityName=CUSTOMERS, ~methodType=Get, ~id=Some(id))
+      let customersUrl = getURL(~entityName=V1(CUSTOMERS), ~methodType=Get, ~id=Some(id))
       let response = await fetchDetails(customersUrl)
       setCustomersData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

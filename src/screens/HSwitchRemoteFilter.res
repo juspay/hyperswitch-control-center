@@ -163,7 +163,8 @@ module RemoteTableFilters = {
     ~customLeftView,
     ~title="",
     ~submitInputOnEnter=false,
-    ~entityName: APIUtilsTypes.entityName,
+    ~entityName: APIUtilsTypes.entityTypeWithVersion,
+    ~version=UserInfoTypes.V1,
     (),
   ) => {
     open LogicUtils
@@ -211,7 +212,7 @@ module RemoteTableFilters = {
                 (startTimeFilterKey, start_time->JSON.Encode.string),
                 (endTimeFilterKey, end_time->JSON.Encode.string),
               ]->getJsonFromArrayOfJson
-            await updateDetails(filterUrl, body, Post)
+            await updateDetails(filterUrl, body, Post, ~version)
           }
         | _ => await fetchDetails(filterUrl)
         }

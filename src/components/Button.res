@@ -123,7 +123,7 @@ let useGetBgColor = (
     | Normal =>
       showBorder ? buttonConfig.secondaryNormal : buttonConfig.secondaryNoBorder
     | Loading => showBorder ? buttonConfig.secondaryLoading : buttonConfig.secondaryNoBorder
-    | Disabled => showBorder ? "bg-jp-gray-300 dark:bg-gray-800 dark:bg-opacity-10" : "px-4"
+    | Disabled => showBorder ? buttonConfig.secondaryDisabled : buttonConfig.secondaryNoBorder
     | NoHover => buttonConfig.secondaryNoHover
     }
   | Pill =>
@@ -406,10 +406,10 @@ let make = (
   let strokeColor = ""
 
   let iconPadding = switch buttonSize {
-  | XSmall
-  | Small => "pl-1"
-  | Medium
-  | Large => ""
+  | XSmall => "px-1"
+  | Small => "px-2"
+  | Medium => "pr-3"
+  | Large => "px-3"
   }
 
   let iconMargin = customIconMargin->Option.getOr(

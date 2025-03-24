@@ -48,12 +48,10 @@ module CardRenderer = {
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 
-    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-
-    let pmAuthProcessorList =
-      connectorList->getProcessorsListFromJson(
-        ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
-      )
+    let pmAuthProcessorList = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV1,
+      ~retainInList=PMAuthProcessor,
+    )
 
     let isPMAuthConnector = pmAuthProcessorList->Array.length > 0
 
@@ -377,7 +375,7 @@ module CardRenderer = {
             modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
             childClass={""}>
             <AdditionalDetailsSidebarComp
-              method={selectedWallet}
+              method={Some(selectedWallet)}
               setMetaData
               setShowWalletConfigurationModal
               updateDetails
@@ -385,6 +383,7 @@ module CardRenderer = {
               paymentMethod
               onCloseClickCustomFun={removeSelectedWallet}
               setInitialValues
+              pmtName={selectedWallet.payment_method_type}
             />
           </Modal>
         </RenderIf>

@@ -30,18 +30,9 @@ let appendDashboardPath = (~url) => {
   }
 }
 
-let extractModulePath = (url: RescriptReactRouter.url) => {
+let extractModulePath = (url: RescriptReactRouter.url, ~end) => {
   let currentPathList = url.path->List.toArray
-
-  /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
-  let modulePath = if currentPathList->Array.includes("v2") {
-    currentPathList->Array.slice(~start=0, ~end=4)->Array.joinWith("/")->appendTrailingSlash
-  } else if currentPathList->Array.includes(dashboardPrefix) {
-    currentPathList->Array.slice(~start=0, ~end=2)->Array.joinWith("/")->appendTrailingSlash
-  } else {
-    currentPathList->Array.slice(~start=0, ~end=1)->Array.joinWith("/")->appendTrailingSlash
-  }
-  modulePath
+  currentPathList->Array.slice(~start=0, ~end)->Array.joinWith("/")->appendTrailingSlash
 }
 
 type hostType = Live | Sandbox | Local | Integ

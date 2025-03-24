@@ -504,6 +504,13 @@ let make = (
   }
 
   let filterValueDict = filterValueJson
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  let url = RescriptReactRouter.useUrl()
+  let urlArray = url.path->List.toArray
+  let analyticsTypeName = switch urlArray[1] {
+  | Some(val) => val->kebabToSnakeCase
+  | _ => ""
+  }
 
   let (activeTav, setActiveTab) = React.useState(_ =>
     filterValueDict->getStrArrayFromDict(`${moduleName}.tabName`, filteredTabKeys)
@@ -601,6 +608,14 @@ let make = (
   }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
   let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
+  //This is to trigger the mixpanel event to see active analytics users
+  React.useEffect(() => {
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      mixpanelEvent(~eventName=`${analyticsTypeName}_date_filter`)
+    }
+    None
+  }, (startTimeVal, endTimeVal))
+
   let activeTab = React.useMemo(() => {
     Some(
       filterValueDict
@@ -673,14 +688,16 @@ let make = (
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle />
           // Refactor required
-          <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
-            <OMPSwitchHelper.OMPViews
-              views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
-              selectedEntity={analyticsEntity}
-              onChange={updateAnalytcisEntity}
-              entityMapper=UserInfoUtils.analyticsEntityMapper
-            />
-          </RenderIf>
+          <div className="mr-4">
+            <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
+              <OMPSwitchHelper.OMPViews
+                views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+                selectedEntity={analyticsEntity}
+                onChange={updateAnalytcisEntity}
+                entityMapper=UserInfoUtils.analyticsEntityMapper
+              />
+            </RenderIf>
+          </div>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>
         <div>

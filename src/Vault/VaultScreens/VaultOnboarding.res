@@ -18,19 +18,26 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => Success)
   let {profileId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
-  let connectorInfoDict =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+
+  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
+
   let (currentStep, setNextStep) = React.useState(() => {
-    sectionId: "authenticate-processor",
+    sectionId: (#authenticateProcessor: VaultHomeTypes.vaultSections :> string),
     subSectionId: None,
   })
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+    ~version=V2,
+  )
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->getConnectorInfo
   }, [connector])
-  let connectorName = connectorInfoDict.connector_name->getDisplayNameForConnector
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
@@ -47,11 +54,11 @@ let make = () => {
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
   let onNextClick = () => {
+    mixpanelEvent(~eventName=currentStep->getVaultMixPanelEvent)
     switch getNextStep(currentStep) {
     | Some(nextStep) => setNextStep(_ => nextStep)
     | None => ()
@@ -61,8 +68,8 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Post)
+      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
+      let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
@@ -85,6 +92,11 @@ let make = () => {
         }
       }
     }
+    Nullable.null
+  }
+
+  let handleAuthKeySubmit = async (_, _) => {
+    onNextClick()
     Nullable.null
   }
 
@@ -136,18 +148,19 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
+
   let vaultTitleElement =
     <>
-      <GatewayIcon gateway={`${connectorInfoDict.connector_name}`->String.toUpperCase} />
+      <GatewayIcon gateway={`${connector}`->String.toUpperCase} />
       <h1 className="text-medium font-semibold text-gray-600">
-        {`Setup ${connectorName}`->React.string}
+        {`Setup ${connector->capitalizeString}`->React.string}
       </h1>
     </>
 
   <div className="flex flex-row gap-x-6">
     <VerticalStepIndicator titleElement=vaultTitleElement sections currentStep backClick />
-    {switch currentStep {
-    | {sectionId: "authenticate-processor"} =>
+    {switch currentStep.sectionId->stringToSectionVariantMapper {
+    | #authenticateProcessor =>
       <div className="flex flex-col w-1/2 px-10 ">
         <PageUtils.PageHeading
           title="Authenticate Processor"
@@ -155,14 +168,12 @@ let make = () => {
           customSubTitleStyle="font-500 font-normal text-nd_gray-700"
         />
         <PageLoaderWrapper screenState>
-          <Form onSubmit initialValues validate=validateMandatoryField>
+          <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
             <div className="flex flex-col mb-5 gap-3 ">
-              <ConnectorAuthKeys
-                initialValues={updatedInitialVal} setInitialValues showVertically=true
-              />
-              <ConnectorLabelV2 />
-              <ConnectorMetadataV2 />
-              <ConnectorWebhookDetails />
+              <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
+              <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
+              <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
+              <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
               <FormRenderer.SubmitButton
                 text="Next"
                 buttonSize={Small}
@@ -175,7 +186,30 @@ let make = () => {
         </PageLoaderWrapper>
       </div>
 
-    | {sectionId: "setup-webhook"} =>
+    | #setupPMTS =>
+      <div className="flex flex-col w-1/2 px-10 ">
+        <PageUtils.PageHeading
+          title="Payment Methods"
+          subTitle="Configure your PaymentMethods."
+          customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+        />
+        <PageLoaderWrapper screenState>
+          <Form onSubmit initialValues validate=validateMandatoryField>
+            <div className="flex flex-col mb-5 gap-3 ">
+              <ConnectorPaymentMethodV2 initialValues isInEditState=true />
+              <FormRenderer.SubmitButton
+                text="Next"
+                buttonSize={Small}
+                customSumbitButtonStyle="!w-full mt-8"
+                tooltipForWidthClass="w-full"
+              />
+            </div>
+            <FormValuesSpy />
+          </Form>
+        </PageLoaderWrapper>
+      </div>
+
+    | #setupWebhook =>
       <div className="flex flex-col w-1/2 px-10">
         <PageUtils.PageHeading
           title="Setup Webhook"
@@ -184,7 +218,7 @@ let make = () => {
         />
         <ConnectorWebhookPreview
           merchantId
-          connectorName=connectorInfoDict.merchant_connector_id
+          connectorName=connectorInfoDict.id
           textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true
@@ -197,7 +231,7 @@ let make = () => {
           customButtonStyle="w-full mt-8"
         />
       </div>
-    | {sectionId: "review-and-connect"} => <VaultProceesorReview connectorInfo=initialValues />
+    | #reviewAndConnect => <VaultProceesorReview connectorInfo=initialValues />
     | _ => React.null
     }}
   </div>

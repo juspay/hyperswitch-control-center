@@ -4,7 +4,7 @@ module CopyTextCustomComp = {
     ~displayValue,
     ~copyValue=None,
     ~customTextCss="",
-    ~customParentClass="flex items-center justify-between",
+    ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
     ~customIconCss="h-7 opacity-70",
   ) => {
@@ -29,7 +29,7 @@ module CopyTextCustomComp = {
           onClick={ev => {
             onCopyClick(ev)
           }}
-          className={`${customIconCss}`}
+          className={`${customIconCss} cursor-pointer`}
         />
       </div>
     } else {
@@ -73,7 +73,7 @@ module EllipsisText = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
-    <div className="flex text-nowrap">
+    <div className="flex text-nowrap gap-2">
       <RenderIf condition={isTextVisible}>
         <div className={customTextStyle}> {displayValue->React.string} </div>
       </RenderIf>
@@ -219,5 +219,20 @@ module BusinessProfileComponent = {
     <div className>
       {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
     </div>
+  }
+}
+
+module ProfileNameComponent = {
+  @react.component
+  let make = (~profile_id: string, ~className="") => {
+    let {name} =
+      HyperswitchAtom.profileListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->Array.find(obj => obj.id == profile_id)
+      ->Option.getOr({
+        id: profile_id,
+        name: "NA",
+      })
+    <div className> {(name->LogicUtils.isNonEmptyString ? name : "")->React.string} </div>
   }
 }

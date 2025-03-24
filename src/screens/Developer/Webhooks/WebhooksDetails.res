@@ -144,7 +144,7 @@ let make = (~id) => {
   let fetchWebhooksEventDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let url = getURL(~entityName=WEBHOOK_EVENTS_ATTEMPTS, ~methodType=Get, ~id=Some(id))
+      let url = getURL(~entityName=V1(WEBHOOK_EVENTS_ATTEMPTS), ~methodType=Get, ~id=Some(id))
       let response = await fetchDetails(url)
       setData(_ => response)
       setScreenState(_ => Success)
@@ -173,7 +173,7 @@ let make = (~id) => {
   let retryWebhook = async () => {
     try {
       let url = getURL(
-        ~entityName=WEBHOOKS_EVENTS_RETRY,
+        ~entityName=V1(WEBHOOKS_EVENTS_RETRY),
         ~methodType=Post,
         ~id=Some(selectedEvent.eventId),
       )

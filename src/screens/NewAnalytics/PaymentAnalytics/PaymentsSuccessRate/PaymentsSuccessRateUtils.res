@@ -55,6 +55,11 @@ let paymentsSuccessRateMapper = (
       ~metricType=Rate,
       ~comparison,
     ),
+    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
+      ~statType=Default,
+      ~currency="",
+      ~suffix="",
+    ),
   }
 }
 

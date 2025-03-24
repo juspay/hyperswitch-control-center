@@ -1,6 +1,12 @@
+/*
+PM - PaymentMethod
+PMT - PaymentMethodType
+PME - PaymentMethodExperience
+PMIndex - PaymentMethod Index
+PMTIndex - PaymentMethodType Index
+ */
 @react.component
-let make = (~initialValues, ~setInitialValues) => {
-  open ConnectorUtils
+let make = (~initialValues, ~isInEditState) => {
   open LogicUtils
   open ConnectorPaymentMethodV2Utils
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
@@ -12,215 +18,136 @@ let make = (~initialValues, ~setInitialValues) => {
     }
   }, [connector])
 
-  let keys = React.useMemo(() => {
-    pmts
-    ->Dict.keysToArray
-    ->Array.filter(val => !Array.includes(configKeysToIgnore, val))
-  }, [connector])
+  let initialValue = React.useMemo(() => {
+    let val = initialValues->getDictFromJsonObject
 
-  let connData = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
-  let isPMSelected = (~pm, ~pmt) => {
-    let selctPM = getSelectedPM(~pmEnabled=connData.payment_methods_enabled, ~pm)
-    isPMTSelectedUtils(~selctPM, ~pm, ~pmt)
-  }
-  let removePM = (~pm, ~pmt) => {
-    connData.payment_methods_enabled = removePMTUtil(
-      ~pmEnabled=connData.payment_methods_enabled,
-      ~pm,
-      ~pmt,
-    )
-    let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
-    let _ =
-      updatedValues->Dict.set(
-        "payment_methods_enabled",
-        connData.payment_methods_enabled->Identity.genericTypeToJson,
+    ConnectorInterface.mapDictToConnectorPayload(ConnectorInterface.connectorInterfaceV2, val)
+  }, [initialValues])
+
+  let paymentMethodValues = React.useMemo(() => {
+    let newDict = Dict.make()
+    let keys =
+      pmts
+      ->Dict.keysToArray
+      ->Array.filter(val => !Array.includes(ConnectorUtils.configKeysToIgnore, val))
+
+    keys->Array.forEach(key => {
+      let pm = if key->getPMTFromString == Credit || key->getPMTFromString == Debit {
+        "card"
+      } else {
+        key
+      }
+      let paymentMethodType = pmts->getArrayFromDict(key, [])
+      let updatedData = paymentMethodType->Array.map(
+        val => {
+          let paymemtMethodType = val->getDictFromJsonObject->getString("payment_method_type", "")
+          let paymemtMethodExperience =
+            val->getDictFromJsonObject->getString("payment_experience", "")
+
+          let wasmDict = val->getDictFromJsonObject
+          let exisitngData = switch initialValue.payment_methods_enabled->Array.find(
+            ele => {
+              ele.payment_method_type == pm
+            },
+          ) {
+          | Some(data) => {
+              let filterData = data.payment_method_subtypes->Array.filter(
+                available => {
+                  // explicit check for card (for card we need to check the card network rather than the payment method type)
+                  if (
+                    available.payment_method_subtype == key &&
+                      available.card_networks->getValueFromArray(0, "") == paymemtMethodType
+                  ) {
+                    true
+                  } // explicit check for klarna (for klarna we need to check the payment experience rather than the payment method type)
+                  else if (
+                    connector->ConnectorUtils.getConnectorNameTypeFromString ==
+                      Processors(KLARNA) &&
+                      available.payment_method_subtype->getPMTFromString == Klarna
+                  ) {
+                    switch available.payment_experience {
+                    | Some(str) => str == paymemtMethodExperience
+                    | None => false
+                    }
+                  } else if (
+                    available.payment_method_subtype == paymemtMethodType &&
+                    available.payment_method_subtype->getPMTFromString != Credit &&
+                    available.payment_method_subtype->getPMTFromString != Debit
+                  ) {
+                    true
+                  } else {
+                    false
+                  }
+                },
+              )
+
+              filterData->getValueFromArray(0, wasmDict->getPaymentMethodDictV2(key, connector))
+            }
+          | None => wasmDict->getPaymentMethodDictV2(key, connector)
+          }
+
+          exisitngData
+        },
       )
-    setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
-  }
-
-  let addPM = (~pm, ~pmt) => {
-    let newPaymentMenthodType = getPaymentMethodTypeDict(~pm, ~pmt)
-    let data = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
-    if getSelectedPM(~pmEnabled=connData.payment_methods_enabled, ~pm)->Array.length > 0 {
-      let _ = data.payment_methods_enabled->Array.forEach(methods => {
-        if methods.payment_method->String.toLowerCase === pm->String.toLowerCase {
-          methods.payment_method_types->Array.push(
-            newPaymentMenthodType->ConnectorListMapper.getPaymentMethodTypes,
-          )
-        }
-      })
-    } else {
-      let newPaymentMethod =
-        [
-          ("payment_method", pm->JSON.Encode.string),
-          ("payment_method_types", [newPaymentMenthodType->JSON.Encode.object]->JSON.Encode.array),
-        ]
-        ->Dict.fromArray
-        ->ConnectorListMapper.getPaymentMethodsEnabled
-      let _ = data.payment_methods_enabled->Array.push(newPaymentMethod)
-    }
-    let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
-    let _ =
-      updatedValues->Dict.set(
-        "payment_methods_enabled",
-        data.payment_methods_enabled->Identity.genericTypeToJson,
+      let existingDataInDict =
+        newDict->getArrayFromDict(pm, [])->getPaymentMethodMapper(connector, pm)
+      newDict->Dict.set(
+        pm,
+        existingDataInDict->Array.concat(updatedData)->Identity.genericTypeToJson,
       )
-    setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
-  }
-
-  let isAllPMChecked = (~pm) => {
-    let provider = pmts->getArrayFromDict(pm, [])
-    let methods = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
-    let selectedMethod = getSelectedPM(~pmEnabled=methods.payment_methods_enabled, ~pm)
-    selectedMethod->Array.length == provider->Array.length
-  }
-
-  let removeAllPM = (~pm) => {
-    let data = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
-    data.payment_methods_enabled = removeEnabledPM(~pmEnabled=data.payment_methods_enabled, ~pm)
-    let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
-    let _ =
-      updatedValues->Dict.set(
-        "payment_methods_enabled",
-        data.payment_methods_enabled->Identity.genericTypeToJson,
-      )
-    setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
-  }
-
-  let selectAllPM = (~pm) => {
-    if isAllPMChecked(~pm) {
-      removeAllPM(~pm)
-    } else {
-      let provider = pmts->getArrayFromDict(pm, [])
-      let dict = Dict.make()
-      dict->Dict.set(
-        "payment_methods_enabled",
-        connData.payment_methods_enabled->Identity.genericTypeToJson,
-      )
-      provider->Array.forEach(pmt => {
-        let label = pmt->getDictFromJsonObject->getString("payment_method_type", "")
-        let newPaymentMenthodType = getPaymentMethodTypeDict(~pm, ~pmt=label)
-        let data = dict->ConnectorListMapper.getProcessorPayloadType
-        if !isPMSelected(~pm, ~pmt=label) {
-          let newPaymentMethod =
-            [
-              ("payment_method", pm->JSON.Encode.string),
-              (
-                "payment_method_types",
-                [newPaymentMenthodType->JSON.Encode.object]->JSON.Encode.array,
-              ),
-            ]
-            ->Dict.fromArray
-            ->ConnectorListMapper.getPaymentMethodsEnabled
-          let _ = data.payment_methods_enabled->Array.push(newPaymentMethod)
-        }
-        let _ =
-          dict->Dict.set(
-            "payment_methods_enabled",
-            data.payment_methods_enabled->Identity.genericTypeToJson,
-          )
-      })
-      let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
-      let _ =
-        updatedValues->Dict.set(
-          "payment_methods_enabled",
-          dict->getArrayFromDict("payment_methods_enabled", [])->Identity.genericTypeToJson,
-        )
-      setInitialValues(_ => updatedValues->Identity.genericTypeToJson)
-    }
-  }
-
-  let onClick = (~pm, ~pmt) => {
-    if isPMSelected(~pm, ~pmt) {
-      removePM(~pm, ~pmt)
-    } else {
-      addPM(~pm, ~pmt)
-    }
-  }
+    })
+    newDict
+  }, (initialValue, connector))
+  let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+  )
+  let data = formState.values->getDictFromJsonObject
+  let connData = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    data,
+  )
 
   <div className="flex flex-col gap-6 col-span-3">
-    // <HSwitchUtils.AlertBanner
-    //   bannerText="Please verify if the payment methods are turned on at the processor end as well."
-    //   bannerType=Warning
-    // />
     <div className="max-w-3xl flex flex-col gap-8">
-      {keys
-      ->Array.mapWithIndex((pm, i) => {
-        let provider = pmts->getArrayFromDict(pm, [])
-        switch pm->getPaymentMethodTypeFromString {
-        | Credit | Debit =>
-          <div
-            key={i->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
-            <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
-              <div className="flex gap-2.5 items-center">
-                <div className="p-2 bg-white border rounded-md">
-                  <Icon name={pm->pmIcon} />
-                </div>
-                <p className="font-semibold"> {pm->LogicUtils.capitalizeString->React.string} </p>
-              </div>
-              <div className="flex gap-2 items-center">
-                <p className="font-normal"> {"Select All"->React.string} </p>
-                <BoolInput.BaseComponent
-                  isSelected={isAllPMChecked(~pm)}
-                  setIsSelected={_ => selectAllPM(~pm)}
-                  isDisabled={false}
-                  boolCustomClass="rounded-lg"
-                />
-              </div>
-            </div>
-            <div className="flex gap-8 p-6 flex-wrap">
-              {provider
-              ->Array.mapWithIndex((pmt, index) => {
-                let lable = pmt->getDictFromJsonObject->getString("payment_method_type", "")
-                <div
-                  key={index->Int.toString}
-                  onClick={_ => onClick(~pm, ~pmt=lable)}
-                  className={"flex items-center gap-1.5"}>
-                  <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable)} />
-                  <p className={`cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
-                </div>
-              })
-              ->React.array}
-            </div>
-          </div>
+      {paymentMethodValues
+      ->Dict.keysToArray
+      ->Array.mapWithIndex((pmValue, index) => {
+        // determine the index of the payment method from the form state
+        let isPMEnabled =
+          connData.payment_methods_enabled->Array.findIndex(ele =>
+            ele.payment_method_type == pmValue
+          )
+        let pmIndex =
+          isPMEnabled == -1
+            ? connData.payment_methods_enabled->Array.length > 0
+                ? connData.payment_methods_enabled->Array.length
+                : 0
+            : isPMEnabled
+        switch pmValue->getPMFromString {
+        | Card =>
+          <Card
+            key={index->Int.toString}
+            index
+            pm=pmValue
+            pmIndex
+            paymentMethodValues
+            connector
+            isInEditState
+            initialValues
+            formValues=connData
+          />
         | _ =>
-          <div
-            key={i->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
-            <div className="flex justify-between bg-nd_gray-50 p-4 border-b">
-              <div className="flex gap-2.5 items-center">
-                <div className="p-2 bg-white border rounded-md">
-                  <Icon name={pm->pmIcon} />
-                </div>
-                <p className="font-semibold"> {pm->LogicUtils.snakeToTitle->React.string} </p>
-              </div>
-              <div className="flex gap-2 items-center">
-                <p className="font-normal"> {"Select all"->React.string} </p>
-                <BoolInput.BaseComponent
-                  isSelected={isAllPMChecked(~pm)}
-                  setIsSelected={_ => selectAllPM(~pm)}
-                  isDisabled={false}
-                  boolCustomClass="rounded-lg"
-                />
-              </div>
-            </div>
-            <div className="flex gap-8  p-6 flex-wrap">
-              {provider
-              ->Array.mapWithIndex((pmt, index) => {
-                let lable =
-                  pmt
-                  ->getDictFromJsonObject
-                  ->getString("payment_method_type", "")
-                <div
-                  key={index->Int.toString}
-                  onClick={_ => onClick(~pm, ~pmt=lable)}
-                  className={`flex items-center gap-1.5`}>
-                  <CheckBoxIcon isSelected={isPMSelected(~pm, ~pmt=lable)} />
-                  <p className={` cursor-pointer`}> {React.string({lable}->snakeToTitle)} </p>
-                </div>
-              })
-              ->React.array}
-            </div>
-          </div>
+          <OtherPaymentMethod
+            key={index->Int.toString}
+            index
+            pm=pmValue
+            pmIndex
+            paymentMethodValues
+            connector
+            isInEditState
+            initialValues
+            formValues=connData
+          />
         }
       })
       ->React.array}

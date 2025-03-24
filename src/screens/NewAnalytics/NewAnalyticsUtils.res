@@ -21,6 +21,7 @@ let requestBody = (
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,
+  ~mode: option<string>=None,
 ) => {
   let metrics = metrics->Array.map(v => (v: metrics :> string))
 
@@ -34,6 +35,7 @@ let requestBody = (
       ~endDateTime=endTime,
       ~granularity,
       ~distributionValues,
+      ~mode,
     )->JSON.Encode.object,
   ]->JSON.Encode.array
 }
@@ -345,6 +347,8 @@ let tooltipFormatter = (
   ~metricType,
   ~comparison: option<DateRangeUtils.comparison>=None,
   ~currency="",
+  ~reverse=false,
+  ~suffix="",
 ) => {
   open LineGraphTypes
 
@@ -354,11 +358,15 @@ let tooltipFormatter = (
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
 
       let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}}
-      let primartPoint = this.points->getValueFromArray(0, defaultValue)
-      let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
+
+      let primaryIndex = reverse ? 1 : 0
+      let secondaryIndex = reverse ? 0 : 1
+
+      let primartPoint = this.points->getValueFromArray(primaryIndex, defaultValue)
+      let secondaryPoint = this.points->getValueFromArray(secondaryIndex, defaultValue)
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType, ~currency)
+        let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
             <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
@@ -533,18 +541,14 @@ let fillMissingDataPoints = (
   ~timeKey="time_bucket",
   ~defaultValue: JSON.t,
   ~granularity: string,
-  ~isoStringToCustomTimeZone: option<string => TimeZoneHook.dateTimeString>=?,
+  ~isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
   ~granularityEnabled,
 ) => {
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
-    let time = switch (
-      isoStringToCustomTimeZone,
-      granularityEnabled,
-      granularity != (#G_ONEDAY: granularity :> string),
-    ) {
-    | (Some(timeConvert), true, true) => {
+    let time = switch (granularityEnabled, granularity != (#G_ONEDAY: granularity :> string)) {
+    | (true, true) => {
         let value =
           item
           ->getDictFromJsonObject
@@ -552,7 +556,7 @@ let fillMissingDataPoints = (
 
         let time = value->getString("start_time", "")
 
-        let {year, month, date, hour, minute} = timeConvert(time)
+        let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
 
         if (
           granularity == (#G_THIRTYMIN: granularity :> string) ||

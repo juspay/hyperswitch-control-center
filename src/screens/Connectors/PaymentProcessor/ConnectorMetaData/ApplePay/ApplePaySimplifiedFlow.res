@@ -41,7 +41,7 @@ let make = (
   let onSubmit = async () => {
     try {
       let body = formState.values->constructVerifyApplePayReq(connectorID)
-      let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post)
+      let verifyAppleUrl = getURL(~entityName=V1(VERIFY_APPLE_PAY), ~methodType=Post)
       let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post)
 
       let data =

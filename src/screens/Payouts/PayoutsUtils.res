@@ -7,6 +7,7 @@ let getPayoutsList = async (
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
+    ~version: UserInfoTypes.version=?,
   ) => promise<JSON.t>,
   ~setPayoutsData,
   ~setScreenState,
@@ -19,7 +20,7 @@ let getPayoutsList = async (
 
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
-    let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Post)
+    let payoutsUrl = getURL(~entityName=V1(PAYOUTS), ~methodType=Post)
     let res = await updateDetails(payoutsUrl, filterValueJson->JSON.Encode.object, Post)
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)

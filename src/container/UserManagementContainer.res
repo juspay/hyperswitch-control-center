@@ -22,7 +22,7 @@ let make = () => {
     try {
       if userHasAccess(~groupAccess=UsersManage) === Access {
         let url = getURL(
-          ~entityName=USERS,
+          ~entityName=V1(USERS),
           ~userType=#ROLE_INFO,
           ~methodType=Get,
           ~queryParamerters=Some(`groups=true`),

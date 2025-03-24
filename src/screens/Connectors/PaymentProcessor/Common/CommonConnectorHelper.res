@@ -14,6 +14,7 @@ let selectInput = (
   ~formName,
   ~opt=None,
   ~onItemChange: option<ReactEvent.Form.t => unit>=?,
+  ~fixedDropDownDirection=SelectBox.BottomRight,
 ) => {
   let {label, required} = field
   let options = switch opt {
@@ -29,6 +30,8 @@ let selectInput = (
       ~customStyle="max-h-48",
       ~options={options},
       ~buttonText="Select Value",
+      ~dropdownCustomWidth="",
+      ~fixedDropDownDirection,
     )(
       ~input={
         ...input,
@@ -130,5 +133,7 @@ let currencyField = (
       ~customStyle="max-h-48",
       ~options=options->Array.map(getCurrencyOption),
       ~buttonText="Select Currency",
+      ~fixedDropDownDirection=TopLeft,
+      ~dropdownCustomWidth="",
     ),
   )

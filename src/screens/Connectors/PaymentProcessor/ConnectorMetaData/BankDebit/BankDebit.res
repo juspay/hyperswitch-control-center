@@ -61,6 +61,7 @@ module PMAuthProcessorInput = {
       showSelectionAsChips=true
       customButtonStyle="w-full"
       fullLength=true
+      dropdownCustomWidth="w-full"
       dropdownClassName={`${options->PaymentMethodConfigUtils.dropdownClassName}`}
     />
   }
@@ -76,16 +77,15 @@ let make = (
 ) => {
   open LogicUtils
   open BankDebitUtils
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let connectorsListPMAuth = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PMAuthProcessor,
+  )
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let form = ReactFinalForm.useForm()
 
-  let connectorsListPMAuth =
-    connectorList->ConnectorUtils.getProcessorsListFromJson(
-      ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
-    )
   let pmAuthConnectorOptions =
     connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate->dropdownOptions
 

@@ -10,10 +10,11 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let updateProdDetails = async values => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let bodyValues = values->getBody->JSON.Encode.object
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
@@ -32,6 +33,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   }
 
   let onSubmit = (values, _) => {
+    mixpanelEvent(~eventName="create_get_production_access_request")
     setScreenState(_ => PageLoaderWrapper.Loading)
     updateProdDetails(values)
   }

@@ -50,10 +50,10 @@ module GetProductionAccess = {
 module ProductHeaderComponent = {
   @react.component
   let make = () => {
-    let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
+    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
     <div className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest`}>
-      {React.string(currentProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
+      {React.string(activeProduct->ProductUtils.getProductDisplayName->String.toUpperCase)}
     </div>
   }
 }
@@ -130,6 +130,17 @@ let payouts = userHasResourceAccess => {
     searchOptions: [("View payouts operations", "")],
   })
 }
+
+let alternatePaymentMethods = isApmEnabled =>
+  isApmEnabled
+    ? Link({
+        name: "Alt Payment Methods",
+        icon: "nd-apm",
+        link: "/apm",
+        access: Access,
+        selectedIcon: "nd-fill-apm",
+      })
+    : emptyComponent
 
 let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled, ~userEntity) => {
   let payments = payments(userHasResourceAccess)
@@ -672,6 +683,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     taxProcessor,
     newAnalytics,
     authenticationAnalytics,
+    devAltPaymentMethods,
     devWebhooks,
   } = featureFlagDetails
   let {
@@ -705,6 +717,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isPayoutEnabled=payOut,
       ~userEntity,
     ),
+    devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
     default->developers(~isWebhooksEnabled=devWebhooks, ~userHasResourceAccess, ~checkUserEntity),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
@@ -714,7 +727,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
 }
 
 let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
-  let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {isLiveMode, devModularityV2} = featureFlagDetails
@@ -725,7 +738,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   if devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
-        name: "Home",
+        name: "Overview",
         icon: "nd-home",
         link: "/v2/home",
         access: Access,
@@ -737,11 +750,14 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
     ])
   }
 
-  let sidebarValuesForProduct = switch currentProduct {
-  | Orchestrator => hsSidebars
-  | Recon => [ReconSidebarValues.reconSidebars]
+  let sidebarValuesForProduct = switch activeProduct {
+  | Orchestration => hsSidebars
+  | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
+  | CostObservability => HypersenseSidebarValues.hypersenseSidebars
+  | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
+  | AlternatePaymentMethods => []
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

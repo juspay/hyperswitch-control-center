@@ -3,13 +3,15 @@ module NewProfileCreationModal = {
   let make = (~setShowModal, ~showModal, ~getProfileList) => {
     open APIUtils
     let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
 
     let createNewProfile = async values => {
       try {
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
+        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
         let body = values
+        mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
         let _ = await updateDetails(url, body, Post)
         getProfileList()->ignore
         showToast(
@@ -129,22 +131,34 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let url = RescriptReactRouter.useUrl()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+  let isMobileView = MatchMedia.useMobileChecker()
+
+  let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
+  let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
 
   let getProfileList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
-      let response = await fetchDetails(url)
+      let response = switch version {
+      | V1 => {
+          let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+          await fetchDetails(url)
+        }
+      | V2 => {
+          let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+          await fetchDetails(url, ~version=V2)
+        }
+      }
+
       setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
     } catch {
     | _ => {
-        setProfileList(_ => ompDefaultValue(profileId, ""))
+        setProfileList(_ => [ompDefaultValue(profileId, "")])
         showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
       }
     }
@@ -152,12 +166,11 @@ let make = () => {
   let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
   let addItemBtnStyle = "border border-t-0 w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
-  let dropdownContainerStyle = "rounded-md border border-1 w-[14rem] max-w-[20rem]"
+  let dropdownContainerStyle = `${roundedClass} border border-1 ${widthClass}`
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)
       let _ = await internalSwitch(~expectedProfileId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {
@@ -179,6 +192,7 @@ let make = () => {
     checked: true,
   }
 
+  // TODO : remove businessProfiles as dependancy in remove-business-profile-add-as-a-section pr
   React.useEffect(() => {
     getProfileList()->ignore
     None
@@ -187,6 +201,7 @@ let make = () => {
   let toggleChevronState = () => {
     setArrow(prev => !prev)
   }
+
   let updatedProfileList: array<
     OMPSwitchTypes.ompListTypesCustom,
   > = profileList->Array.mapWithIndex((item, i) => {
@@ -199,6 +214,12 @@ let make = () => {
     }
     listItem
   })
+
+  let bottomComponent = switch version {
+  | V1 => <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
+  | V2 => React.null
+  }
+
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -215,7 +236,7 @@ let make = () => {
       baseComponent={<ListBaseComp
         user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
+      bottomComponent
       customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState

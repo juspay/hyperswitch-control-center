@@ -107,7 +107,7 @@ module PayoutInfo = {
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
         <FormRenderer.DesktopRow>
           <div
-            className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+            className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               <RenderIf
@@ -156,7 +156,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let fetchPayoutsData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some(id))
+      let payoutsUrl = getURL(~entityName=V1(PAYOUTS), ~methodType=Get, ~id=Some(id))
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,

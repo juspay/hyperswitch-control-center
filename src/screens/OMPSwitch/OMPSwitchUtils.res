@@ -1,10 +1,9 @@
 open OMPSwitchTypes
-let ompDefaultValue = (currUserId, currUserName) => [
-  {
-    id: currUserId,
-    name: {currUserName->LogicUtils.isEmptyString ? currUserId : currUserName},
-  },
-]
+
+let ompDefaultValue = (currUserId, currUserName) => {
+  id: currUserId,
+  name: {currUserName->LogicUtils.isEmptyString ? currUserId : currUserName},
+}
 
 let currentOMPName = (list: array<ompListTypes>, id: string) => {
   switch list->Array.find(user => user.id == id) {
@@ -25,7 +24,7 @@ let orgItemToObjMapper = dict => {
   }
 }
 
-let merchantItemToObjMapper = dict => {
+let merchantItemToObjMapper: Dict.t<'t> => OMPSwitchTypes.ompListTypes = dict => {
   open LogicUtils
   {
     id: dict->getString("merchant_id", ""),
@@ -34,6 +33,8 @@ let merchantItemToObjMapper = dict => {
         ? dict->getString("merchant_id", "")
         : dict->getString("merchant_name", "")
     },
+    productType: dict->getString("product_type", "")->ProductUtils.getProductVariantFromString,
+    version: dict->getString("version", "v1")->UserInfoUtils.versionMapper,
   }
 }
 
@@ -82,4 +83,10 @@ let analyticsViewList = (~checkUserEntity): ompViews => {
   } else {
     []
   }
+}
+
+let keyExtractorForMerchantid = item => {
+  open LogicUtils
+  let dict = item->getDictFromJsonObject
+  dict->getString("merchant_id", "")
 }

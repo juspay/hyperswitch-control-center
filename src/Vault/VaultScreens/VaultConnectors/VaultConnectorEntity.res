@@ -1,10 +1,14 @@
 open ConnectorTypes
-let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+let getPreviouslyConnectedList: JSON.t => array<connectorPayloadV2> = json => {
+  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
+    ConnectorInterface.connectorInterfaceV2,
+    json,
+    PaymentProcessor,
+  )
+  data
 }
 type colType =
   | Name
-  | TestMode
   | Status
   | Disabled
   | Actions
@@ -20,16 +24,12 @@ let defaultColumns = [
   ProfileId,
   ProfileName,
   ConnectorLabel,
-  Status,
-  Disabled,
-  TestMode,
   Actions,
   PaymentMethods,
 ]
 let getHeading = colType => {
   switch colType {
   | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
-  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
@@ -46,23 +46,15 @@ let connectorStatusStyle = connectorStatus =>
   | "active" => "text-green-700"
   | _ => "text-grey-800 opacity-50"
   }
-let getConnectorObjectFromListViaId = (
-  connectorList: array<ConnectorTypes.connectorPayload>,
-  mca_id: string,
-) => {
-  connectorList
-  ->Array.find(ele => {ele.merchant_connector_id == mca_id})
-  ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
-}
 
-let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>) => {
+let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeV2>) => {
   let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {
-    acc->Array.concat([item.payment_method->LogicUtils.capitalizeString])
+    acc->Array.concat([item.payment_method_type->LogicUtils.capitalizeString])
   })
   paymentMethods
 }
 let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
-  let getCell = (connector: connectorPayload, colType): Table.cell => {
+  let getCell = (connector: connectorPayloadV2, colType): Table.cell => {
     switch colType {
     | Name =>
       CustomCell(
@@ -71,7 +63,6 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         />,
         "",
       )
-    | TestMode => Text(connector.test_mode ? "True" : "False")
     | Disabled =>
       Label({
         title: connector.disabled ? "DISABLED" : "ENABLED",
@@ -88,7 +79,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
     | ProfileId => DisplayCopyCell(connector.profile_id)
     | ProfileName =>
       Table.CustomCell(
-        <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
+        <HelperComponents.ProfileNameComponent profile_id={connector.profile_id} />,
         "",
       )
     | ConnectorLabel => Text(connector.connector_label)
@@ -103,7 +94,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         </div>,
         "",
       )
-    | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
+    | MerchantConnectorId => DisplayCopyCell(connector.id)
     }
   }
   getCell
@@ -121,7 +112,7 @@ let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorizati
       connec =>
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
           ),
           ~authorization,
         )

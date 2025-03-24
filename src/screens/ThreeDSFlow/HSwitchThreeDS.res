@@ -23,7 +23,7 @@ module ActiveRulePreview = {
 
     let deleteCurrentThreedsRule = async () => {
       try {
-        let url = getURL(~entityName=THREE_DS, ~methodType=Delete)
+        let url = getURL(~entityName=V1(THREE_DS), ~methodType=Delete)
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
         showToast(~message="Successfully deleted current active 3ds rule", ~toastType=ToastSuccess)
         setInitialRule(_ => None)
@@ -165,7 +165,7 @@ let make = () => {
   let activeRoutingDetails = async () => {
     open LogicUtils
     try {
-      let threeDsUrl = getURL(~entityName=THREE_DS, ~methodType=Get)
+      let threeDsUrl = getURL(~entityName=V1(THREE_DS), ~methodType=Get)
       let threeDsRuleDetail = await fetchDetails(threeDsUrl)
       let responseDict = threeDsRuleDetail->getDictFromJsonObject
       let programValue = responseDict->getObj("program", Dict.make())
@@ -226,7 +226,7 @@ let make = () => {
       setScreenState(_ => Loading)
       let threeDsPayload = values->buildThreeDsPayloadBody
 
-      let getActivateUrl = getURL(~entityName=THREE_DS, ~methodType=Put)
+      let getActivateUrl = getURL(~entityName=V1(THREE_DS), ~methodType=Put)
       let _ = await updateDetails(getActivateUrl, threeDsPayload->Identity.genericTypeToJson, Put)
       fetchDetails()->ignore
       setShowWarning(_ => true)
@@ -247,7 +247,11 @@ let make = () => {
 
     let errors = Dict.make()
 
-    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(
+      ~dict,
+      ~errors,
+      ~validateFields=["name", "description"],
+    )
 
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {

@@ -233,3 +233,13 @@ let stringToVariantForAllSelection = formStringValue =>
   | "all_profiles" => Some(#All_Profiles)
   | _ => None
   }
+
+let getVersion = (product: ProductTypes.productTypes) => {
+  switch product {
+  | Orchestration
+  | DynamicRouting
+  | CostObservability =>
+    UserInfoTypes.V1
+  | _ => UserInfoTypes.V2
+  }
+}

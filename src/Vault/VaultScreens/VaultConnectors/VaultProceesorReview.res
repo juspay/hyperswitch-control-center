@@ -1,18 +1,24 @@
 @react.component
 let make = (~connectorInfo) => {
   open CommonAuthHooks
-
+  open LogicUtils
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let connectorInfodict =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+
+  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
+    connectorInfo->LogicUtils.getDictFromJsonObject,
+  )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+
   let (processorType, _) =
     connectorInfodict.connector_type
     ->ConnectorUtils.connectorTypeTypedValueToStringMapper
     ->ConnectorUtils.connectorTypeTuple
   let {connector_name: connectorName} = connectorInfodict
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let showToast = ToastState.useShowToast()
 
-  let connectorDetails = React.useMemo(() => {
+  let connectorAccountFields = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
         let dict = switch processorType {
@@ -21,31 +27,33 @@ let make = (~connectorInfo) => {
         | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
+        | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
-        dict
+        let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
+        let bodyType = connectorAccountDict->Dict.keysToArray->getValueFromArray(0, "")
+        let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
+        connectorAccountFields
       } else {
-        JSON.Encode.null
+        Dict.make()
       }
     } catch {
     | Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
         let _ = Exn.message(e)->Option.getOr("Something went wrong")
-        JSON.Encode.null
+        Dict.make()
       }
     }
-  }, [connectorInfodict.merchant_connector_id])
+  }, [connectorInfodict.id])
 
   let handleClick = () => {
+    mixpanelEvent(~eventName="vault_onboarding_step4")
     setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding/`))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/vault/onboarding`))
+    showToast(~message="Connector Created Successfully!", ~toastType=ToastSuccess)
   }
 
-  let (_, connectorAccountFields, _, _, _, _, _) = ConnectorFragmentUtils.getConnectorFields(
-    connectorDetails,
-  )
-
-  <div className="flex flex-col px-10 gap-8">
+  <div className="flex flex-col w-1/2 px-10 gap-8">
     <div className="flex flex-col ">
       <PageUtils.PageHeading
         title="Review and Connect"
@@ -60,7 +68,7 @@ let make = (~connectorInfo) => {
         <div className="flex flex-col ">
           <ConnectorHelperV2.PreviewCreds connectorInfo=connectorInfodict connectorAccountFields />
         </div>
-        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.merchant_connector_id />
+        <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
       </div>
     </div>
     <ACLButton

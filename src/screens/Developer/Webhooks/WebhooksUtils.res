@@ -118,7 +118,7 @@ let setData = (
 
 let fetchWebhooks = async (
   ~getURL: APIUtilsTypes.getUrlTypes,
-  ~fetchDetails,
+  ~fetchDetails: (string, ~version: UserInfoTypes.version=?) => promise<JSON.t>,
   ~filterValueJson,
   ~offset,
   ~setOffset,
@@ -138,7 +138,7 @@ let fetchWebhooks = async (
     let queryParam = searchText->isEmptyString ? queryParamerters : `&object_id=${searchText}`
 
     let url = getURL(
-      ~entityName=WEBHOOK_EVENTS,
+      ~entityName=V1(WEBHOOK_EVENTS),
       ~methodType=Get,
       ~queryParamerters=Some(queryParam),
     )

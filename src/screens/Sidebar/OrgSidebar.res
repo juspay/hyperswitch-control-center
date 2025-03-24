@@ -23,22 +23,30 @@ module OrgTile = {
         sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
       },
     } = React.useContext(ThemeProvider.themeContext)
+
+    let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
+      compareLogic(org2.name->String.toLowerCase, org1.name->String.toLowerCase)
+    }
+
     let getOrgList = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
+        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
         let response = await fetchDetails(url)
-        setOrgList(_ => response->getArrayDataFromJson(OMPSwitchUtils.orgItemToObjMapper))
+        let orgData = response->getArrayDataFromJson(OMPSwitchUtils.orgItemToObjMapper)
+        orgData->Array.sort(sortByOrgName)
+        setOrgList(_ => orgData)
       } catch {
       | _ => {
-          setOrgList(_ => OMPSwitchUtils.ompDefaultValue(orgId, ""))
+          setOrgList(_ => [OMPSwitchUtils.ompDefaultValue(orgId, "")])
           showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
         }
       }
     }
+
     let onSubmit = async (newOrgName: string) => {
       try {
         let values = {"organization_name": newOrgName}->Identity.genericTypeToJson
-        let url = getURL(~entityName=UPDATE_ORGANIZATION, ~methodType=Put, ~id=Some(orgID))
+        let url = getURL(~entityName=V1(UPDATE_ORGANIZATION), ~methodType=Put, ~id=Some(orgID))
         let _ = await updateDetails(url, values, Put)
         let _ = await getOrgList()
 
@@ -143,10 +151,12 @@ module NewOrgCreationModal = {
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let showToast = ToastState.useShowToast()
     let createNewOrg = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_ORG, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_ORG, ~methodType=Post)
+        mixpanelEvent(~eventName="create_new_org", ~metadata=values)
         let _ = await updateDetails(url, values, Post)
         getOrgList()->ignore
         showToast(~toastType=ToastSuccess, ~message="Org Created Successfully!", ~autoClose=true)
@@ -276,7 +286,6 @@ let make = () => {
   open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let url = RescriptReactRouter.useUrl()
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let (showEditOrgModal, setShowEditOrgModal) = React.useState(_ => false)
@@ -287,17 +296,23 @@ let make = () => {
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
   let showToast = ToastState.useShowToast()
 
+  let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
+    compareLogic(org2.name->String.toLowerCase, org1.name->String.toLowerCase)
+  }
+
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let getOrgList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
-      setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
+      let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
+      orgData->Array.sort(sortByOrgName)
+      setOrgList(_ => orgData)
     } catch {
     | _ => {
-        setOrgList(_ => ompDefaultValue(orgId, ""))
+        setOrgList(_ => [ompDefaultValue(orgId, "")])
         showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
       }
     }
@@ -310,8 +325,7 @@ let make = () => {
   let orgSwitch = async value => {
     try {
       setShowSwitchingOrg(_ => true)
-      let _ = await internalSwitch(~expectedOrgId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
+      let _ = await internalSwitch(~expectedOrgId=Some(value), ~changePath=true)
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {
@@ -329,15 +343,6 @@ let make = () => {
     // the org tiles
     <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
       {orgList
-      ->Array.toSorted((org1, org2) => {
-        if org1.id === orgId {
-          -1.
-        } else if org2.id === orgId {
-          1.
-        } else {
-          0.
-        }
-      })
       ->Array.mapWithIndex((org, i) => {
         <OrgTile
           key={Int.toString(i)}
