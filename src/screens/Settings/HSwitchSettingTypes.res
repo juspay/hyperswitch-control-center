@@ -33,6 +33,7 @@ type webhookDetails = {
 type authConnectorDetailsType = {
   authentication_connectors: option<array<JSON.t>>,
   three_ds_requestor_url: option<string>,
+  three_ds_requestor_app_url: option<string>,
 }
 
 type profileSetting = {

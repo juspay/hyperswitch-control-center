@@ -25,12 +25,20 @@ let getHeading = colType => {
   }
 }
 
-let paymentMethodData = (last4Digits, cardNetwork) => {
-  <div className="flex gap-2 items-center">
-    <p> {`***${last4Digits}`->React.string} </p>
-    <p> {`${cardNetwork}`->React.string} </p>
-  </div>
+let paymentMethodData = (last4_digits, cardNetwork) => {
+  <>
+    <div> {`${last4_digits}`->React.string} </div>
+    <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-6">
+      <GatewayIcon gateway={cardNetwork->String.toUpperCase} className="w-6 h-6 mr-2" />
+      <div className="capitalize">
+        {cardNetwork
+        ->capitalizeString
+        ->React.string}
+      </div>
+    </div>
+  </>
 }
+
 let getCell = (paymentMethodsData, colType): Table.cell => {
   switch colType {
   | PaymentMethodId => Text(paymentMethodsData.id)
