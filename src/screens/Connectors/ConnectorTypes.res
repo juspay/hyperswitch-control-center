@@ -100,6 +100,7 @@ type processorTypes =
   | JPMORGAN
   | INESPAY
   | MONERIS
+  | REDSYS
 
 type payoutProcessorTypes =
   | ADYEN

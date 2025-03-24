@@ -152,7 +152,7 @@ let make = () => {
                       headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
                       | Some(url) =>
                         <div className="flex md:gap-4 gap-2 items-center">
-                          <img className="w-40 h-16" alt="image" src={`${url}`} />
+                          <img className="h-8 w-auto object-contain" alt="image" src={`${url}`} />
                           <ProfileSwitch />
                           <div
                             className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
@@ -168,7 +168,7 @@ let make = () => {
                           </div>
                         </div>
                       | None =>
-                        <div className="flex md:gap-4 gap-2 items-center ">
+                        <div className="flex md:gap-4 gap-2 items-center">
                           <ProfileSwitch />
                           <div
                             className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
