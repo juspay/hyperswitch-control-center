@@ -69,7 +69,11 @@ let smartRetryPaymentsProcessedMapper = (
       ~comparison,
       ~currency,
     ),
-    yAxisFormatter: None,
+    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
+      ~statType=Default,
+      ~currency="",
+      ~suffix="",
+    ),
   }
 }
 
