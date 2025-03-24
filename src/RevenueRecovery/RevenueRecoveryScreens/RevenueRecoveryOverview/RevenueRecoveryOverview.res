@@ -3,7 +3,6 @@ let make = () => {
   open APIUtils
   open LogicUtils
   //open HSwitchRemoteFilter
-  open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -19,14 +18,6 @@ let make = () => {
   let startTime = filterValueJson->getString("created.gte", "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV2,
-    ~retainInList=BillingProcessor,
-  )
-
-  let (billingConnectorID, billingConnectorName) =
-    billingConnectorListFromRecoil->getBillingConnectorDetails
 
   let setData = (total, data) => {
     let arr = Array.make(~length=offset, Dict.make())
@@ -183,24 +174,6 @@ let make = () => {
           subTitle="List of failed Invoices picked up for retry"
           customTitleStyle
         />
-        <RenderIf
-          condition={billingConnectorID->isNonEmptyString &&
-            billingConnectorName->isNonEmptyString}>
-          <Button
-            text="View Details"
-            buttonType={Secondary}
-            onClick={_ => {
-              mixpanelEvent(~eventName="recovery_view_details")
-              RescriptReactRouter.replace(
-                GlobalVars.appendDashboardPath(
-                  ~url=`/v2/recovery/summary/${billingConnectorID}?name=${billingConnectorName}`,
-                ),
-              )
-            }}
-            buttonSize={Small}
-            customButtonStyle="w-fit"
-          />
-        </RenderIf>
       </div>
       //<div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState>

@@ -12,8 +12,13 @@ module BillingConnectorDetails = {
     let (screenState, setScreenState) = React.useState(_ => Loading)
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-    let url = RescriptReactRouter.useUrl()
-    let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
+    let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV2,
+      ~retainInList=BillingProcessor,
+    )
+
+    let (connectorID, _) =
+      billingConnectorListFromRecoil->BillingProcessorsUtils.getBillingConnectorDetails
 
     let getConnectorDetails = async () => {
       try {
