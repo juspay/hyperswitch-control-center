@@ -123,8 +123,10 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
       ~suffix="%",
     ),
     yAxisMaxValue: Some(100),
-    yAxisFormatter: Some(
-      LineGraphUtils.lineGraphYAxisFormatter(~statType=AmountWithSuffix, ~currency="", ~suffix="%"),
+    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
+      ~statType=AmountWithSuffix,
+      ~currency="",
+      ~suffix="%",
     ),
   }
 }

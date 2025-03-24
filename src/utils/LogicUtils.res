@@ -609,7 +609,7 @@ let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="", 
   | Latency => latencyShortNum(~labelValue=value)
   | LatencyMs => latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
   | FormattedAmount => formatAmount(value->Float.toInt, currency)
-  | No_Type => value->Float.toString
+  | Default => value->Float.toString
   }
 }
 
