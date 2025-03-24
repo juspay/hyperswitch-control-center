@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.24.0
+
+### Features
+
+- Added checkbox for allowed auth methods in google pay ([#2359](https://github.com/juspay/hyperswitch-control-center/pull/2359)) ([`3c5c123`](https://github.com/juspay/hyperswitch-control-center/commit/3c5c1231cd27ace0caa4415e9f6006f9b3d14cda))
+
+### Bug Fixes
+
+- Removed actions, text changes, date changes ([#2641](https://github.com/juspay/hyperswitch-control-center/pull/2641)) ([`09442a8`](https://github.com/juspay/hyperswitch-control-center/commit/09442a854cdb9c2e78d7ada6e7bd638c14c113c6))
+- Switch url redirection issue ([#2640](https://github.com/juspay/hyperswitch-control-center/pull/2640)) ([`e0ce9c5`](https://github.com/juspay/hyperswitch-control-center/commit/e0ce9c5ea5d7ee3fc042f1c3c616499ed1a0ebbd))
+
+### Miscellaneous Tasks
+
+- Billing connector metadata update ([#2606](https://github.com/juspay/hyperswitch-control-center/pull/2606)) ([`5c06c88`](https://github.com/juspay/hyperswitch-control-center/commit/5c06c8830e574658e7f1ef35a21f906bc996bff2))
+- Configure retry tooltip text ([#2629](https://github.com/juspay/hyperswitch-control-center/pull/2629)) ([`aad4793`](https://github.com/juspay/hyperswitch-control-center/commit/aad47932600bf2e7fe1c94b3aabbae721c28b0f3))
+- Added general mixpanel events ([#2607](https://github.com/juspay/hyperswitch-control-center/pull/2607)) ([`26d2d33`](https://github.com/juspay/hyperswitch-control-center/commit/26d2d33d8d0edac881938eb9678a1f11da0a3eb9))
+- Made chargebee webhooks details field as required ([#2643](https://github.com/juspay/hyperswitch-control-center/pull/2643)) ([`2f9f344`](https://github.com/juspay/hyperswitch-control-center/commit/2f9f34480173c35882588d1c85886b1e6f43eb0b))
+- Vault ui changes ([#2637](https://github.com/juspay/hyperswitch-control-center/pull/2637)) ([`3660da7`](https://github.com/juspay/hyperswitch-control-center/commit/3660da7d3ef883a1b3368ad07308630696f9a265))
+
+**Full Changelog:** [`2025.03.21.0...2025.03.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.21.0...2025.03.24.0)
+
+
+- - -
+
 ## 2025.03.21.0
 
 ### Miscellaneous Tasks
