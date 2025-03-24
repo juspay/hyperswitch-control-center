@@ -86,7 +86,7 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [orgId, merchantId, profileId, themeId])
+  }, [orgId, merchantId, profileId])
 
   React.useEffect(() => {
     applyTheme()->ignore
