@@ -23,6 +23,7 @@ let make = (~domain="payments") => {
   let {checkUserEntity, userInfo: {analyticsEntity}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let filterBody = (~groupBy) => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
@@ -69,6 +70,7 @@ let make = (~domain="payments") => {
   }, [])
   React.useEffect(() => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      mixpanelEvent(~eventName="performance_monitor_date_filter")
       loadInfo()->ignore
     }
     None

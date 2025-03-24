@@ -22,7 +22,7 @@ let make = () => {
         title="Securely store your users's sensitive data"
         customTitleStyle="text-2xl text-center font-bold text-nd_gray-700 font-500"
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
-        subTitle="Learn how to vault cards from your Server if you're PCI compliant and Learn how to vault cards using Hyperswitch's Checkout if you're non-PCI compliant"
+        subTitle="Learn how to vault cards from your Server if you're PCI compliant and learn how to vault cards using Hyperswitch's Checkout if you're non-PCI compliant"
       />
       <ACLButton
         authorization={userHasCreateMerchantAccess}
