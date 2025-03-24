@@ -18,7 +18,7 @@ let stepperHeading = (~title: string, ~subTitle: string) =>
     <p className="text-sm text-nd_gray-400 font-medium leading-5"> {subTitle->React.string} </p>
   </div>
 
-let displayDateRange = (minDate, maxDate) => {
+let displayDateRange = (~minDate, ~maxDate) => {
   let getDateObj = value => value->DayJs.getDayJsForString
   let date = value => {
     NewAnalyticsUtils.formatDateValue(value, ~includeYear=true)

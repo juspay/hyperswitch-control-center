@@ -347,7 +347,7 @@ let make = () => {
     checked: true,
   }
 
-  let dateRange = displayDateRange(timeRange.minDate, timeRange.maxDate)
+  let dateRange = displayDateRange(~minDate=timeRange.minDate, ~maxDate=timeRange.maxDate)
 
   <PageLoaderWrapper screenState={screenState}>
     <div
