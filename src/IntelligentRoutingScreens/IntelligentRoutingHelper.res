@@ -18,15 +18,28 @@ let stepperHeading = (~title: string, ~subTitle: string) =>
     <p className="text-sm text-nd_gray-400 font-medium leading-5"> {subTitle->React.string} </p>
   </div>
 
-let getDateTimeFormatted = value => {
-  let dateObj = value->DayJs.getDayJsForString
-  let date = NewAnalyticsUtils.formatDateValue(value, ~includeYear=true)
-  let time = dateObj.format("HH:mm")->NewAnalyticsUtils.formatTime
-  `${time} ${date}`
-}
-
 let displayDateRange = (minDate, maxDate) => {
-  `${minDate->getDateTimeFormatted} - ${maxDate->getDateTimeFormatted}`
+  let getDateObj = value => value->DayJs.getDayJsForString
+  let date = value => {
+    NewAnalyticsUtils.formatDateValue(value, ~includeYear=true)
+  }
+
+  let time = value => {
+    let dateObj = getDateObj(value)
+    dateObj.format("HH:mm")->NewAnalyticsUtils.formatTime
+  }
+
+  let diff = DateRangeUtils.getStartEndDiff(minDate, maxDate)
+
+  let dateResult = if date(minDate) == date(maxDate) {
+    `${time(minDate)} - ${time(maxDate)} ${date(minDate)}`
+  } else if diff < (2->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
+    `${time(minDate)}  ${date(minDate)} - ${time(maxDate)} ${date(maxDate)}`
+  } else {
+    `${date(minDate)} - ${date(maxDate)}`
+  }
+
+  dateResult
 }
 
 let getDateTime = value => {
