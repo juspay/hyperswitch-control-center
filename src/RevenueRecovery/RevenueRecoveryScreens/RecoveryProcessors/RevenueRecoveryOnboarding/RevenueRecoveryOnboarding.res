@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
   open RevenueRecoveryOnboardingUtils
-  open LogicUtils
 
   let connectorList = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV2,
@@ -23,26 +22,6 @@ let make = () => {
   let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => connectorName)
   let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => connectorID)
   let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
-
-  React.useEffect(() => {
-    let (mainSection, _) = currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant
-
-    let url = switch mainSection {
-    | #connectProcessor =>
-      paymentConnectorName->isNonEmptyString
-        ? `/v2/recovery/onboarding?name=${paymentConnectorName}`
-        : `/v2/recovery/onboarding`
-    | #addAPlatform =>
-      billingConnectorName->isNonEmptyString
-        ? `/v2/recovery/onboarding?name=${billingConnectorName}`
-        : `/v2/recovery/onboarding`
-    | #reviewDetails => `/v2/recovery/onboarding`
-    }
-
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
-
-    None
-  }, (paymentConnectorName, billingConnectorName, currentStep))
 
   React.useEffect(() => {
     setShowSideBar(_ => false)
