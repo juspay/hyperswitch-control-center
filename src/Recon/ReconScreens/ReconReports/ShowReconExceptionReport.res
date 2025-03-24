@@ -80,7 +80,7 @@ let make = (~id) => {
       setScreenState(_ => Loading)
       let url = `${GlobalVars.getHostUrl}/test-data/recon/reconExceptions.json`
       let exceptionsResponse = await fetchApi(
-        `${url}`,
+        url,
         ~method_=Get,
         ~xFeatureRoute=false,
         ~forceCookies=false,

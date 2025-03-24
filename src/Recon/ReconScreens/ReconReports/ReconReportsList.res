@@ -19,7 +19,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = `${GlobalVars.getHostUrl}/test-data/recon/reconAllReports.json`
       let allReportsResponse = await fetchApi(
-        `${url}`,
+        url,
         ~method_=Get,
         ~xFeatureRoute=false,
         ~forceCookies=false,
@@ -75,57 +75,59 @@ let make = () => {
     None
   }, [])
 
-  <div className="mt-9">
-    <RenderIf condition={screenState == Success && configuredReports->Array.length === 0}>
-      <div className="my-4">
-        <NoDataFound message={"No data available"} renderType={Painting} />
-      </div>
-    </RenderIf>
-    <Modal
-      setShowModal
-      showModal
-      closeOnOutsideClick=true
-      modalClass="w-1/3 h-screen float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
-      childClass="m-2 h-full"
-      customModalHeading=modalHeading>
-      <ShowAllReports isModal=true setShowModal selectedId />
-    </Modal>
-    <div className="flex flex-col mx-auto w-full h-full">
-      <RenderIf condition={configuredReports->Array.length > 0}>
-        <LoadedTableWithCustomColumns
-          title="All Reports"
-          actualData={filteredReportsData}
-          entity={ReportsTableEntity.reportsEntity(
-            `v2/recon/reports`,
-            ~authorization=userHasAccess(~groupAccess=UsersManage),
-          )}
-          resultsPerPage=10
-          filters={<TableSearchFilter
-            data={configuredReports->Array.map(Nullable.make)}
-            filterLogic
-            placeholder="Search Transaction Id or Order Id or Recon Status"
-            customSearchBarWrapperWidth="w-1/3"
-            searchVal=searchText
-            setSearchVal=setSearchText
-          />}
-          totalResults={filteredReportsData->Array.length}
-          offset
-          setOffset
-          currrentFetchCount={configuredReports->Array.map(Nullable.make)->Array.length}
-          customColumnMapper=TableAtoms.reconReportsDefaultCols
-          defaultColumns={ReportsTableEntity.defaultColumns}
-          showSerialNumberInCustomizeColumns=false
-          sortingBasedOnDisabled=false
-          hideTitle=true
-          remoteSortEnabled=true
-          onEntityClick={val => {
-            setSelectedId(_ => val)
-            setShowModal(_ => true)
-          }}
-          customizeColumnButtonIcon="nd-filter-horizontal"
-          hideRightTitleElement=true
-        />
+  <PageLoaderWrapper screenState>
+    <div className="mt-9">
+      <RenderIf condition={configuredReports->Array.length === 0}>
+        <div className="my-4">
+          <NoDataFound message={"No data available"} renderType={Painting} />
+        </div>
       </RenderIf>
+      <Modal
+        setShowModal
+        showModal
+        closeOnOutsideClick=true
+        modalClass="w-1/3 h-screen float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
+        childClass="m-2 h-full"
+        customModalHeading=modalHeading>
+        <ShowAllReports isModal=true setShowModal selectedId />
+      </Modal>
+      <div className="flex flex-col mx-auto w-full h-full">
+        <RenderIf condition={configuredReports->Array.length > 0}>
+          <LoadedTableWithCustomColumns
+            title="All Reports"
+            actualData={filteredReportsData}
+            entity={ReportsTableEntity.reportsEntity(
+              `v2/recon/reports`,
+              ~authorization=userHasAccess(~groupAccess=UsersManage),
+            )}
+            resultsPerPage=10
+            filters={<TableSearchFilter
+              data={configuredReports->Array.map(Nullable.make)}
+              filterLogic
+              placeholder="Search Transaction Id or Order Id or Recon Status"
+              customSearchBarWrapperWidth="w-1/3"
+              searchVal=searchText
+              setSearchVal=setSearchText
+            />}
+            totalResults={filteredReportsData->Array.length}
+            offset
+            setOffset
+            currrentFetchCount={configuredReports->Array.map(Nullable.make)->Array.length}
+            customColumnMapper=TableAtoms.reconReportsDefaultCols
+            defaultColumns={ReportsTableEntity.defaultColumns}
+            showSerialNumberInCustomizeColumns=false
+            sortingBasedOnDisabled=false
+            hideTitle=true
+            remoteSortEnabled=true
+            onEntityClick={val => {
+              setSelectedId(_ => val)
+              setShowModal(_ => true)
+            }}
+            customizeColumnButtonIcon="nd-filter-horizontal"
+            hideRightTitleElement=true
+          />
+        </RenderIf>
+      </div>
     </div>
-  </div>
+  </PageLoaderWrapper>
 }
