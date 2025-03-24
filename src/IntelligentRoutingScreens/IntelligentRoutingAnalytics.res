@@ -43,6 +43,7 @@ module TransactionsTable = {
     let (tableData, setTableData) = React.useState(() => [])
     let (offset, setOffset) = React.useState(() => 0)
     let (totalCount, setTotalCount) = React.useState(_ => 0)
+    let (tabIndex, setTabIndex) = React.useState(_ => 0)
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Loading)
     let limit = 50
 
@@ -90,25 +91,60 @@ module TransactionsTable = {
       None
     }, [offset])
 
+    let table = data =>
+      <LoadedTable
+        title=" "
+        hideTitle=true
+        actualData=data
+        totalResults=totalCount
+        resultsPerPage=10
+        offset
+        setOffset
+        entity={IntelligentRoutingTransactionsEntity.transactionDetailsEntity()}
+        currrentFetchCount={data->Array.length}
+        tableheadingClass="h-12"
+        tableHeadingTextClass="!font-normal"
+        nonFrozenTableParentClass="!rounded-lg"
+        loadedTableParentClass="flex flex-col pt-6"
+      />
+
+    let failedTxnTableData = tableData->Array.filter(txn =>
+      switch txn->Nullable.toOption {
+      | Some(validTxn) => validTxn.payment_status === false
+      | None => false
+      }
+    )
+
+    let tabs: array<Tabs.tab> = React.useMemo(() => {
+      open Tabs
+      [
+        {
+          title: "All",
+          renderContent: () => {table(tableData)},
+        },
+        {
+          title: "Failed",
+          renderContent: () => {table(failedTxnTableData)},
+        },
+      ]
+    }, [tableData])
+
     <PageLoaderWrapper screenState={screenState}>
       <div className="flex flex-col gap-6">
         <div className="text-nd_gray-600 font-semibold">
           {"Transactions Details"->React.string}
         </div>
-        <LoadedTable
-          title=" "
-          hideTitle=true
-          actualData=tableData
-          totalResults=totalCount
-          resultsPerPage=10
-          offset
-          setOffset
-          entity={IntelligentRoutingTransactionsEntity.transactionDetailsEntity()}
-          currrentFetchCount={tableData->Array.length}
-          tableheadingClass="h-12"
-          tableHeadingTextClass="!font-normal"
-          nonFrozenTableParentClass="!rounded-lg"
-          loadedTableParentClass="flex flex-col"
+        <Tabs
+          initialIndex={tabIndex >= 0 ? tabIndex : 0}
+          tabs
+          showBorder=true
+          includeMargin=false
+          defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+          onTitleClick={index => {
+            setTabIndex(_ => index)
+          }}
+          selectTabBottomBorderColor="bg-primary"
+          customBottomBorderColor="bg-nd_gray-150"
         />
       </div>
     </PageLoaderWrapper>
@@ -238,6 +274,7 @@ let make = () => {
   let (stats, setStats) = React.useState(_ => JSON.Encode.null)
   let (selectedGateway, setSelectedGateway) = React.useState(() => "")
   let (gateways, setGateways) = React.useState(() => [])
+  let (timeRange, setTimeRange) = React.useState(() => defaultTimeRange)
 
   let getStatistics = async () => {
     try {
@@ -245,12 +282,28 @@ let make = () => {
       let url = getURL(~entityName=V1(INTELLIGENT_ROUTING_GET_STATISTICS), ~methodType=Get)
       let response = await fetchDetails(url)
       setStats(_ => response)
-      let statsData =
-        (response->IntelligentRoutingUtils.responseMapper).time_series_data->Array.get(0)
-      let gatewayData = switch statsData {
+      let statsData = (response->IntelligentRoutingUtils.responseMapper).time_series_data
+      let gatewayData = switch statsData->Array.get(0) {
       | Some(statsData) => statsData.volume_distribution_as_per_sr
       | None => JSON.Encode.null
       }
+
+      statsData->Array.sort((t1, t2) => {
+        let t1 = t1.time_stamp
+        let t2 = t2.time_stamp
+
+        t1 <= t2 ? -1. : 1.
+      })
+      let minDate = switch statsData->Array.get(0) {
+      | Some(txn) => txn.time_stamp
+      | None => ""
+      }
+      let maxDate = switch statsData->Array.get(statsData->Array.length - 1) {
+      | Some(txn) => txn.time_stamp
+      | None => ""
+      }
+      setTimeRange(_ => {minDate, maxDate})
+
       let gatewayKeys =
         gatewayData
         ->LogicUtils.getDictFromJsonObject
@@ -294,6 +347,8 @@ let make = () => {
     checked: true,
   }
 
+  let dateRange = displayDateRange(timeRange.minDate, timeRange.maxDate)
+
   <PageLoaderWrapper screenState={screenState}>
     <div
       className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
@@ -306,7 +361,10 @@ let make = () => {
       <GetProductionAccess />
     </div>
     <div className="mt-10">
-      <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
+      <div className="flex items-center justify-between">
+        <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
+        <p className="text-nd_gray-500 font-medium"> {dateRange->React.string} </p>
+      </div>
       <div className="flex flex-col gap-12">
         <Overview data=stats />
         <div className="flex flex-col gap-6">

@@ -177,12 +177,12 @@ let formatTime = time => {
   let newHour = Int.mod(hour, 12)
   let newHour = newHour == 0 ? 12 : newHour
 
-  let period = hour >= 12 ? "pm" : "am"
+  let period = hour >= 12 ? "PM" : "AM"
 
   if mimute > 0 {
-    `${newHour->Int.toString}:${mimute->Int.toString}${period}`
+    `${newHour->Int.toString}:${mimute->Int.toString} ${period}`
   } else {
-    `${newHour->Int.toString}${period}`
+    `${newHour->Int.toString} ${period}`
   }
 }
 

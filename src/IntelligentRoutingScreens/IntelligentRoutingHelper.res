@@ -1,3 +1,6 @@
+open IntelligentRoutingTypes
+let defaultTimeRange = {minDate: "", maxDate: ""}
+
 let simulatorBanner =
   <div
     className="absolute z-10 top-76-px left-0 w-full py-4 px-10 bg-orange-50 flex justify-between items-center">
@@ -14,6 +17,17 @@ let stepperHeading = (~title: string, ~subTitle: string) =>
     <p className="text-2xl font-semibold text-nd_gray-700 leading-9"> {title->React.string} </p>
     <p className="text-sm text-nd_gray-400 font-medium leading-5"> {subTitle->React.string} </p>
   </div>
+
+let getDateTimeFormatted = value => {
+  let dateObj = value->DayJs.getDayJsForString
+  let date = NewAnalyticsUtils.formatDateValue(value, ~includeYear=true)
+  let time = dateObj.format("HH:mm")->NewAnalyticsUtils.formatTime
+  `${time} ${date}`
+}
+
+let displayDateRange = (minDate, maxDate) => {
+  `${minDate->getDateTimeFormatted} - ${maxDate->getDateTimeFormatted}`
+}
 
 let getDateTime = value => {
   let dateObj = value->DayJs.getDayJsForString
@@ -141,7 +155,7 @@ let lineColumnGraphOptions = (
     getDateTime(item.time_stamp)
   })
 
-  let mapPSPJson = (json): IntelligentRoutingTypes.volDist => {
+  let mapPSPJson = (json): volDist => {
     let dict = json->getDictFromJsonObject
     {
       baseline_volume: dict->getInt("baseline_volume", 0),
