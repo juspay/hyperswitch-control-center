@@ -4,6 +4,22 @@ let make = () => {
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
+  let vaultPspTokenizationTabElement = {
+    <div className="flex gap-2 items-center">
+      {"PSP Tokenisation"->React.string}
+      <ToolTip
+        description="Hyperswitch securely converts card details into tokens from your existing PSP accounts (Stripe, Adyen, Worldpay, etc.), allowing you to process payments through these providers using these tokens rather than raw card data."
+      />
+    </div>
+  }
+  let vaultNetworkTokenizationTabElement = {
+    <div className="flex gap-2 items-center">
+      {"Network Tokenisation"->React.string}
+      <ToolTip
+        description="Hyperswitch securely replaces card details with network tokens from card networks (Visa, Mastercard, Amex, etc.), allowing you to process payments with enhanced security and authorization rates while reducing processing costs, fraud risk and compliance requirements."
+      />
+    </div>
+  }
   React.useEffect(() => {
     setShowSideBar(_ => true)
     None
@@ -15,13 +31,15 @@ let make = () => {
     open Tabs
     [
       {
-        title: "PSP Tokenisation",
+        title: "",
+        tabElement: vaultPspTokenizationTabElement,
         renderContent: () => {
           <VaultProcessorList />
         },
       },
       {
-        title: "Network Tokenisation",
+        title: "",
+        tabElement: vaultNetworkTokenizationTabElement,
         renderContent: () => <VaultNetworkTokenisation />,
       },
     ]

@@ -80,5 +80,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         buttonType={Primary}
       />
     </div>
+    <FormValuesSpy />
   </>
 }

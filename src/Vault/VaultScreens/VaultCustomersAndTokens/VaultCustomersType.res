@@ -16,6 +16,5 @@ type customersColsType =
   | Email
   | Phone
   | PhoneCountryCode
-  | Description
   | Address
   | CreatedAt

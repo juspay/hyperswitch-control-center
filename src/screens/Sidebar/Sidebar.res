@@ -493,7 +493,7 @@ let make = (
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
-  let handleLogout = APIUtils.useHandleLogout()
+  let handleLogout = APIUtils.useHandleLogout(~eventName="user_signout_manual")
   let isMobileView = MatchMedia.useMobileChecker()
   let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
   let sideBarRef = React.useRef(Nullable.null)
@@ -778,7 +778,12 @@ let make = (
                             }}
                             text="Profile"
                           />
-                          <MenuOption onClick={_ => handleLogout()->ignore} text="Sign out" />
+                          <MenuOption
+                            onClick={_ => {
+                              handleLogout()->ignore
+                            }}
+                            text="Sign out"
+                          />
                         </div>
                       }}
                     </Popover.Panel>

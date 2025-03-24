@@ -33,7 +33,8 @@ let make = (
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString
+  let connectorTypeFromName =
+    connector->getConnectorNameTypeFromString(~connectorType=ConnectorTypes.BillingProcessor)
 
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
