@@ -104,6 +104,7 @@ module.exports = {
       },
       gap: {
         "0.5-rem": "0.5rem",
+        "72-px": "72px",
       },
       maxWidth: {
         fixedPageWidth: "82.75rem",

@@ -8,10 +8,16 @@ let make = (
   ~containerClass="flex",
   ~hideLabel=false,
   ~displayTextLength=?,
+  ~truncateDisplayValue=false,
 ) => {
   let showToast = ToastState.useShowToast()
   let copyValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
   let displayValueOfWebhookEndpoint = `${Window.env.apiBaseUrl}...${connectorName}`
+  let baseurl = `${Window.env.apiBaseUrl}`
+  let shortDisplayValueofWebhookEndpoint = `${baseurl->String.slice(
+      ~start=0,
+      ~end=9,
+    )}...${connectorName}`
 
   let displayValueOfWebhookEndpoint = switch displayTextLength {
   | Some(end) =>
@@ -30,7 +36,13 @@ let make = (
     showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
   }
   let valueOfWebhookEndPoint = {
-    showFullText ? copyValueOfWebhookEndpoint : displayValueOfWebhookEndpoint
+    if showFullText {
+      copyValueOfWebhookEndpoint
+    } else if truncateDisplayValue {
+      shortDisplayValueofWebhookEndpoint
+    } else {
+      displayValueOfWebhookEndpoint
+    }
   }
 
   <div className="flex flex-col gap-2">
