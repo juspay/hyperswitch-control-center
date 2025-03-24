@@ -110,7 +110,7 @@ module TransactionsTable = {
 
     let failedTxnTableData = tableData->Array.filter(txn =>
       switch txn->Nullable.toOption {
-      | Some(validTxn) => validTxn.payment_status === false
+      | Some(transaction) => transaction.payment_status === false
       | None => false
       }
     )

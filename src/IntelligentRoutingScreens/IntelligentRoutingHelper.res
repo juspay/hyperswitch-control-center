@@ -31,15 +31,13 @@ let displayDateRange = (~minDate, ~maxDate) => {
 
   let diff = DateRangeUtils.getStartEndDiff(minDate, maxDate)
 
-  let dateResult = if date(minDate) == date(maxDate) {
+  if date(minDate) == date(maxDate) {
     `${time(minDate)} - ${time(maxDate)} ${date(minDate)}`
   } else if diff < (2->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
     `${time(minDate)}  ${date(minDate)} - ${time(maxDate)} ${date(maxDate)}`
   } else {
     `${date(minDate)} - ${date(maxDate)}`
   }
-
-  dateResult
 }
 
 let getDateTime = value => {

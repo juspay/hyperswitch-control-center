@@ -84,6 +84,8 @@ module StepCard = {
 
     let tooltipText = isDisabled ? "Feature available only in production" : ""
 
+    let iconName = isSelected ? "blue-circle" : "hollow-circle"
+
     let stepComponent =
       <div
         key={stepName}
@@ -107,10 +109,7 @@ module StepCard = {
             <p className="text-sm text-gray-500"> {description->React.string} </p>
           </div>
         </div>
-        {switch isSelected {
-        | true => <Icon name="blue-circle" customHeight="20" />
-        | false => <Icon name="hollow-circle" customHeight="20" />
-        }}
+        <Icon name=iconName customHeight="20" />
       </div>
 
     <>
