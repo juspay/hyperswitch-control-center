@@ -15,10 +15,6 @@ let make = () => {
   )
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
-  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
 
   let title = "Authentication Analytics"
   let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
@@ -226,14 +222,6 @@ let make = () => {
       <div className="flex justify-end mr-4">
         <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
       </div>
-      <Portal to="AuthenticationAnalyticsV2OMPView">
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-          selectedEntity={transactionEntity}
-          onChange={updateTransactionEntity}
-          entityMapper=UserInfoUtils.transactionEntityMapper
-        />
-      </Portal>
       <div
         className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         {topFilterUi}
