@@ -4,7 +4,7 @@ module DefaultActionItem = {
   let make = (~heading, ~description, ~img, ~action) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     <div
-      className="border rounded-xl p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer w-334-px justify-between py-4"
+      className="border rounded-xl p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer w-full justify-between py-4"
       onClick={_ => {
         switch action {
         | InternalRoute(route) =>
@@ -78,16 +78,13 @@ module DefaultHomeCard = {
 let defaultHomeActionArray = {
   [
     {
-      heading: "Set up API Keys",
-      description: "Configure API keys and start integrating.",
-      imgSrc: "/assets/VaultServerImage.svg",
-      action: InternalRoute("developer-api-keys"),
-    },
-    {
-      heading: "Invite your team",
-      description: "Invite your team to collaborate.",
+      heading: "Product and tech blog",
+      description: "Learn about payments, payment orchestration and all the tech behind it.",
       imgSrc: "/assets/DefaultHomeTeam.svg",
-      action: InternalRoute("users"),
+      action: ExternalLink({
+        url: "https://hyperswitch.io/blog",
+        trackingEvent: "dev_docs",
+      }),
     },
     {
       heading: "Developer Docs",
