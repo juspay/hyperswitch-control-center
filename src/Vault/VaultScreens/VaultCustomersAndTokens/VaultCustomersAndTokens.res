@@ -34,7 +34,7 @@ module NoDataFoundComponent = {
     }
 
     <div className="mt-7">
-      <div className="flex bg-nd_gray-50 h-11 gap-45-px border rounded-t-lg overflow-clip ">
+      <div className="flex bg-nd_gray-50 h-11 gap-72-px border rounded-t-lg overflow-clip ">
         {fieldArray
         ->Array.map(item =>
           <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
@@ -127,7 +127,6 @@ let make = (~sampleReport, ~setSampleReport) => {
     Email,
     Phone,
     PhoneCountryCode,
-    Description,
     Address,
     CreatedAt,
   ]
@@ -166,7 +165,7 @@ let make = (~sampleReport, ~setSampleReport) => {
         hideTitle=true
         actualData=filteredCustomersData
         entity={customersEntity}
-        resultsPerPage=10
+        resultsPerPage=20
         filters={<TableSearchFilter
           data={customersData}
           filterLogic
@@ -174,12 +173,13 @@ let make = (~sampleReport, ~setSampleReport) => {
           searchVal
           setSearchVal
         />}
-        totalResults=total
+        totalResults={filteredCustomersData->Array.length}
         offset
         setOffset
-        currrentFetchCount={customersData->Array.length}
+        currrentFetchCount={filteredCustomersData->Array.length}
         showResultsPerPageSelector=false
         showAutoScroll=true
+        collapseTableRow=false
       />
     </RenderIf>
   </PageLoaderWrapper>

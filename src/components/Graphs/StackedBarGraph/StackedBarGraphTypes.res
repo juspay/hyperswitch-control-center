@@ -102,7 +102,6 @@ type legend = {
   itemDistance: int,
   reversed: bool,
   labelFormatter: labelFormatter => string,
-  width: int,
 }
 
 type stackedBarGraphOptions = {
