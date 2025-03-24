@@ -6,7 +6,7 @@ PMIndex - PaymentMethod Index
 PMTIndex - PaymentMethodType Index
  */
 @react.component
-let make = (~initialValues, ~isInEditState) => {
+let make = (~initialValues, ~isInEditState, ~ignoreKeys=[]) => {
   open LogicUtils
   open ConnectorPaymentMethodV2Utils
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
@@ -23,13 +23,14 @@ let make = (~initialValues, ~isInEditState) => {
 
     ConnectorInterface.mapDictToConnectorPayload(ConnectorInterface.connectorInterfaceV2, val)
   }, [initialValues])
+  let defaultIgnoreKeys = ConnectorUtils.configKeysToIgnore->Array.concat(ignoreKeys)
 
   let paymentMethodValues = React.useMemo(() => {
     let newDict = Dict.make()
     let keys =
       pmts
       ->Dict.keysToArray
-      ->Array.filter(val => !Array.includes(ConnectorUtils.configKeysToIgnore, val))
+      ->Array.filter(val => !Array.includes(defaultIgnoreKeys, val))
 
     keys->Array.forEach(key => {
       let pm = if key->getPMTFromString == Credit || key->getPMTFromString == Debit {
