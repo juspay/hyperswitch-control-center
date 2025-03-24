@@ -31,7 +31,7 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {
-    userInfo: {orgId, merchantId, profileId, roleId, themeId, version},
+    userInfo: {orgId, merchantId, profileId, roleId, version},
     checkUserEntity,
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
@@ -47,11 +47,10 @@ let make = () => {
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
   sessionExpired := false
 
-  let _ = HyperSwitchEntryUtils.updateSessionData(~key="theme_id", ~value=themeId)
-  let sessionThemeId = HyperSwitchEntryUtils.getSessionData(~key="theme_id", ~defaultValue="")
+  let themeId = HyperSwitchEntryUtils.getSessionData(~key="theme_id", ~defaultValue="")
   let applyTheme = async () => {
     try {
-      let _ = await getThemesJson(sessionThemeId)
+      let _ = await getThemesJson(themeId)
     } catch {
     | _ => ()
     }
