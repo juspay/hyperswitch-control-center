@@ -40,7 +40,7 @@ module ShowOrderDetails = {
 }
 module OrderInfo = {
   @react.component
-  let make = (~order, ~merchantId="", ~orgId="") => {
+  let make = (~order) => {
     <div className="flex flex-col mb-6  w-full">
       <ShowOrderDetails
         data=order

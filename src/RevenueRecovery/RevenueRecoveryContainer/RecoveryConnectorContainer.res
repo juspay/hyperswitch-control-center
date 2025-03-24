@@ -52,7 +52,7 @@ let make = () => {
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         {<div className="mt-14">
-          {RevenueRecoveryOnboardingUtils.sampleDataBanner}
+          {sampleDataBanner}
           <EntityScaffold
             entityName="onboarding"
             remainingPath
