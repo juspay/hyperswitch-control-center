@@ -8,7 +8,7 @@ let getConditionValue = (conditionArray, manipulatedStatementsArray, statementIn
     conditionIndex,
   ) => {
     let conditionDIct = eachContent->getDictFromJsonObject
-    let getValueType = conditionDIct->getDictfromDict("value")->getString("type", "")
+    let valueType = conditionDIct->getDictfromDict("value")->getString("type", "")
 
     let manipulatedConditionDict = conditionDIct->Dict.copy
 
@@ -16,7 +16,7 @@ let getConditionValue = (conditionArray, manipulatedStatementsArray, statementIn
       "comparison",
       conditionDIct
       ->getString("comparison", "")
-      ->AdvancedRoutingUtils.getOperatorFromComparisonType(getValueType)
+      ->AdvancedRoutingUtils.getOperatorFromComparisonType(valueType)
       ->JSON.Encode.string,
     )
 
