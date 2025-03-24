@@ -47,6 +47,10 @@ let make = (
     initialValuesToDict->Dict.set("connector_type", "billing_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
     initialValuesToDict->Dict.set(
+      "connector_account_details",
+      RevenueRecoveryData.connector_account_details,
+    )
+    initialValuesToDict->Dict.set(
       "connector_webhook_details",
       RevenueRecoveryData.connector_webhook_details,
     )
@@ -54,6 +58,7 @@ let make = (
       "feature_metadata",
       RevenueRecoveryData.feature_metadata(~id=connectorID),
     )
+    initialValuesToDict->Dict.set("metadata", RevenueRecoveryData.metadata)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 

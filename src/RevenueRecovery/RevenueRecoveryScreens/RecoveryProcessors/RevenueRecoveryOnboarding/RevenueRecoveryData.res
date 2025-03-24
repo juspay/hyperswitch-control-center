@@ -8,6 +8,10 @@ let payment_connector_webhook_details = {
   "merchant_secret": "secret_9FvX2YtL7KqW4",
 }->Identity.genericTypeToJson
 
+let metadata = {
+  "site": "site_9FvX2YtL7KqW4",
+}->Identity.genericTypeToJson
+
 let connector_webhook_details = {
   "merchant_secret": "secret_9FvX2YtL7KqW4",
   "additional_secret": "secret_A7XgT5L2Yt9F",

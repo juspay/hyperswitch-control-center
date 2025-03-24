@@ -70,10 +70,11 @@ let make = (
           />
           <RenderIf condition={connector->isNonEmptyString}>
             <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
-              <RecoveryOnboardingPayments.DummyConnectorAuthKeys
+              <ConnectorAuthKeys
                 initialValues={updatedInitialVal}
                 showVertically=true
                 processorType=ConnectorTypes.BillingProcessor
+                updateAccountDetails=false
               />
               <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
               <ConnectorMetadataV2

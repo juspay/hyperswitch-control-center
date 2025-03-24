@@ -1,63 +1,3 @@
-module DummyConnectorAuthKeys = {
-  @react.component
-  let make = (~initialValues, ~showVertically=true, ~processorType=ConnectorTypes.Processor) => {
-    open LogicUtils
-    open ConnectorAuthKeysHelper
-    let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-    let form = ReactFinalForm.useForm()
-    let connectorTypeFromName =
-      connector->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=processorType)
-
-    let selectedConnector = React.useMemo(() => {
-      connectorTypeFromName->ConnectorUtils.getConnectorInfo
-    }, [connector])
-
-    let (_, connectorAccountFields) = React.useMemo(() => {
-      try {
-        if connector->isNonEmptyString {
-          let dict = switch processorType {
-          | Processor => Window.getConnectorConfig(connector)
-          | PayoutProcessor => Window.getPayoutConnectorConfig(connector)
-          | ThreeDsAuthenticator => Window.getAuthenticationConnectorConfig(connector)
-          | PMAuthenticationProcessor => Window.getPMAuthenticationProcessorConfig(connector)
-          | TaxProcessor => Window.getTaxProcessorConfig(connector)
-          | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connector)
-          | FRMPlayer => JSON.Encode.null
-          }
-          let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")
-          let bodyType = connectorAccountDict->Dict.keysToArray->getValueFromArray(0, "")
-          let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
-          (bodyType, connectorAccountFields)
-        } else {
-          ("", Dict.make())
-        }
-      } catch {
-      | Exn.Error(e) => {
-          Js.log2("FAILED TO LOAD CONNECTOR AUTH KEYS CONFIG", e)
-          ("", Dict.make())
-        }
-      }
-    }, [selectedConnector])
-
-    React.useEffect(() => {
-      let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
-
-      let _ =
-        updatedValues->Dict.set(
-          "connector_account_details",
-          RevenueRecoveryData.connector_account_details,
-        )
-      form.reset(updatedValues->JSON.Encode.object->Nullable.make)
-
-      None
-    }, [connector])
-
-    <ConnectorConfigurationFields
-      connector={connectorTypeFromName} connectorAccountFields selectedConnector showVertically
-    />
-  }
-}
-
 @react.component
 let make = (
   ~currentStep,
@@ -116,6 +56,10 @@ let make = (
     initialValuesToDict->Dict.set(
       "connector_webhook_details",
       RevenueRecoveryData.payment_connector_webhook_details,
+    )
+    initialValuesToDict->Dict.set(
+      "connector_account_details",
+      RevenueRecoveryData.connector_account_details,
     )
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
@@ -263,7 +207,9 @@ let make = (
               />
               <RenderIf condition={connector->isNonEmptyString}>
                 <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
-                  <DummyConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
+                  <ConnectorAuthKeys
+                    initialValues={updatedInitialVal} showVertically=true updateAccountDetails=false
+                  />
                   <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
                   <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
                   <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
