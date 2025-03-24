@@ -12,7 +12,10 @@ type webhookObject = {
   created: string,
 }
 
-type webhook = array<webhookObject>
+type webhook = {
+  events: array<webhookObject>,
+  total_count: int,
+}
 
 type request = {
   body: string,

@@ -54,7 +54,7 @@ let getCell = (webhook: webhookObject, colType): Table.cell => {
   }
 }
 
-let getPreviouslyConnectedList: JSON.t => webhook = json => {
+let getPreviouslyConnectedList: JSON.t => array<webhookObject> = json => {
   LogicUtils.getArrayDataFromJson(json, WebhooksUtils.itemToObjectMapper)
 }
 

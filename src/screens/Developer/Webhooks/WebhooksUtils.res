@@ -102,9 +102,10 @@ let setData = (
   }
 
   if total > 0 {
+    let webhookDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
     let webhookData =
       arr
-      ->Array.concat(data)
+      ->Array.concat(webhookDictArr)
       ->Array.map(itemToObjectMapper)
 
     let list = webhookData
@@ -143,25 +144,23 @@ let fetchWebhooks = async (
       ~queryParamerters=Some(queryParam),
     )
     let response = await fetchDetails(url)
-    switch JSON.Classify.classify(response) {
-    | Array(arr) =>
-      if arr != [] {
-        let _data = response->getArrayDataFromJson(itemToObjectMapper)
-        let totalCount = 100 //data->Array.length
-        setData(
-          ~offset,
-          ~setOffset,
-          ~total=totalCount,
-          ~data=response->getObjectArrayFromJson,
-          ~setTotalCount,
-          ~setWebhooksData,
-          ~setScreenState,
-        )
-        setScreenState(_ => Success)
-      } else {
-        setScreenState(_ => Custom)
-      }
-    | _ => setScreenState(_ => Custom)
+
+    let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
+    let events = response->getDictFromJsonObject->getArrayFromDict("events", [])
+
+    if events->Array.length > 0 {
+      setData(
+        ~offset,
+        ~setOffset,
+        ~total=totalCount,
+        ~data=events,
+        ~setTotalCount,
+        ~setWebhooksData,
+        ~setScreenState,
+      )
+      setScreenState(_ => Success)
+    } else {
+      setScreenState(_ => Custom)
     }
   } catch {
   | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
