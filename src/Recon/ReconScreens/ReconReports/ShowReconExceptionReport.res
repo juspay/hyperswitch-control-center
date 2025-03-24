@@ -73,11 +73,19 @@ let make = (~id) => {
   let (attemptData, setAttemptData) = React.useState(_ => [])
   let (showModal, setShowModal) = React.useState(_ => false)
   let defaultObject = Dict.make()->ReconExceptionsUtils.getExceptionReportPayloadType
+  let fetchApi = AuthHooks.useApiFetcher()
 
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
-      let res = ReportsData.reportsExceptionResponse
+      let url = `${GlobalVars.getHostUrl}/test-data/recon/reconExceptions.json`
+      let exceptionsResponse = await fetchApi(
+        `${url}`,
+        ~method_=Get,
+        ~xFeatureRoute=false,
+        ~forceCookies=false,
+      )
+      let res = await exceptionsResponse->(res => res->Fetch.Response.json)
       let data =
         res
         ->getDictFromJsonObject

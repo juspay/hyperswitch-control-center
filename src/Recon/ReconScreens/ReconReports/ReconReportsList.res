@@ -1,5 +1,5 @@
 @react.component
-let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
+let make = () => {
   open LogicUtils
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -9,6 +9,31 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
   let statusUI = ReportStatus.useGetAllReportStatus(selectedId)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let fetchApi = AuthHooks.useApiFetcher()
+  let (configuredReports, setConfiguredReports) = React.useState(_ => [])
+  let (filteredReportsData, setFilteredReports) = React.useState(_ => [])
+
+  let getReportsList = async _ => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let url = `${GlobalVars.getHostUrl}/test-data/recon/reconAllReports.json`
+      let allReportsResponse = await fetchApi(
+        `${url}`,
+        ~method_=Get,
+        ~xFeatureRoute=false,
+        ~forceCookies=false,
+      )
+      let response = await allReportsResponse->(res => res->Fetch.Response.json)
+      let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
+      let reportsList = data->ReconReportUtils.getArrayOfReportsListPayloadType
+      setConfiguredReports(_ => reportsList)
+      setFilteredReports(_ => reportsList->Array.map(Nullable.make))
+      setScreenState(_ => Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
 
   let modalHeading = {
     <div className="flex justify-between border-b">
@@ -45,8 +70,13 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
     setFilteredReports(_ => filteredList)
   }, ~wait=200)
 
+  React.useEffect(() => {
+    getReportsList()->ignore
+    None
+  }, [])
+
   <div className="mt-9">
-    <RenderIf condition={configuredReports->Array.length === 0}>
+    <RenderIf condition={screenState == Success && configuredReports->Array.length === 0}>
       <div className="my-4">
         <NoDataFound message={"No data available"} renderType={Painting} />
       </div>

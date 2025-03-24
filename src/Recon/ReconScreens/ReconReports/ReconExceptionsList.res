@@ -7,11 +7,19 @@ let make = () => {
   let (filteredReportsData, setFilteredReports) = React.useState(_ => [])
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
+  let fetchApi = AuthHooks.useApiFetcher()
 
   let getReportsList = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = ReportsData.reportsExceptionResponse
+      let url = `${GlobalVars.getHostUrl}/test-data/recon/reconExceptions.json`
+      let exceptionsResponse = await fetchApi(
+        `${url}`,
+        ~method_=Get,
+        ~xFeatureRoute=true,
+        ~forceCookies=false,
+      )
+      let response = await exceptionsResponse->(res => res->Fetch.Response.json)
       let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
 
       let reportsList = data->ReconExceptionsUtils.getArrayOfReportsListPayloadType
