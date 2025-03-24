@@ -20,6 +20,7 @@ let constructAuthConnectorObject = authConnectorDict => {
       "authentication_connectors",
     ),
     three_ds_requestor_url: authConnectorDict->getOptionString("three_ds_requestor_url"),
+    three_ds_requestor_app_url: authConnectorDict->getOptionString("three_ds_requestor_app_url"),
   }
   authConnectorDetails
 }
