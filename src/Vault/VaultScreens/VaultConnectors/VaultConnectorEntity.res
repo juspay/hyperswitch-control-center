@@ -24,8 +24,6 @@ let defaultColumns = [
   ProfileId,
   ProfileName,
   ConnectorLabel,
-  Status,
-  Disabled,
   Actions,
   PaymentMethods,
 ]
