@@ -19,6 +19,7 @@ let make = () => {
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let loadInfo = async () => {
     try {
@@ -206,6 +207,15 @@ let make = () => {
     }
     None
   }, (startTimeVal, endTimeVal, body->JSON.stringify))
+
+  //This is to trigger the mixpanel event to see active analytics users
+
+  React.useEffect(() => {
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      mixpanelEvent(~eventName="analytics_payment_date_filter")
+    }
+    None
+  }, (startTimeVal, endTimeVal))
 
   let topFilterUi = switch filterDataJson {
   | Some(filterData) =>

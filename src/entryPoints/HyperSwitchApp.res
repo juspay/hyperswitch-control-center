@@ -57,17 +57,14 @@ let make = () => {
   }
 
   let setupProductUrl = (~productType: ProductTypes.productTypes) => {
-    let currentUrl = GlobalVars.extractModulePath(url)
+    let currentUrl = GlobalVars.extractModulePath(url, ~end=url.path->List.toArray->Array.length)
     let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
     RescriptReactRouter.replace(productUrl)
     setActiveProductValue(productType)
-
     switch url.path->urlPath {
     | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
     | _ => ()
     }
-    setDashboardPageState(_ => #HOME)
-    setScreenState(_ => PageLoaderWrapper.Success)
   }
 
   let setUpDashboard = async () => {
@@ -103,12 +100,19 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if userGroupACL->Option.isSome {
-      setupProductUrl(~productType=merchantDetailsTypedValue.product_type)
+      setDashboardPageState(_ => #HOME)
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, (userGroupACL, merchantDetailsTypedValue.product_type))
+  }, userGroupACL)
+
+  React.useEffect(() => {
+    // set the product url
+    setupProductUrl(~productType=merchantDetailsTypedValue.product_type)
+    None
+  }, [merchantDetailsTypedValue.product_type])
 
   <>
     <div>
@@ -146,7 +150,7 @@ let make = () => {
                       headerLeftActions={switch logoURL {
                       | Some(url) if url->LogicUtils.isNonEmptyString =>
                         <div className="flex md:gap-4 gap-2 items-center">
-                          <img className="w-fit h-12" alt="image" src={`${url}`} />
+                          <img className="h-8 w-auto object-contain" alt="image" src={`${url}`} />
                           <ProfileSwitch />
                           <div
                             className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
@@ -161,8 +165,8 @@ let make = () => {
                             <span className="font-semibold"> {modeText->React.string} </span>
                           </div>
                         </div>
-                      | _ =>
-                        <div className="flex md:gap-4 gap-2 items-center ">
+                      | None =>
+                        <div className="flex md:gap-4 gap-2 items-center">
                           <ProfileSwitch />
                           <div
                             className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
@@ -344,7 +348,6 @@ let make = () => {
                             RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                             <MerchantAccountContainer setAppScreenState=setScreenState />
                           } else {
-                            RescriptReactRouter.replace(appendDashboardPath(~url="/v2/home"))
                             React.null
                           }
                         }}

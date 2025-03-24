@@ -428,7 +428,7 @@ module ProfileDropdownItem = {
     let profileSwitch = async value => {
       try {
         setShowSwitchingProfile(_ => true)
-        let _ = await internalSwitch(~expectedProfileId=Some(value))
+        let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true)
         setShowSwitchingProfile(_ => false)
       } catch {
       | _ => {

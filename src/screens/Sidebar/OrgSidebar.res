@@ -325,7 +325,7 @@ let make = () => {
   let orgSwitch = async value => {
     try {
       setShowSwitchingOrg(_ => true)
-      let _ = await internalSwitch(~expectedOrgId=Some(value))
+      let _ = await internalSwitch(~expectedOrgId=Some(value), ~changePath=true)
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {

@@ -21,6 +21,15 @@ let getConnectorConfig = connector => {
         "merchant_secret": "Username",
         "additional_secret": "Password",
       },
+      "metadata": {
+        "site": [
+          ("name", "site"),
+          ("label", "Site"),
+          ("placeholder", "Enter chargebee site"),
+          ("required", "true"),
+          ("type", "Text"),
+        ]->Map.fromArray,
+      },
     }->Identity.genericTypeToJson
   | _ => JSON.Encode.null
   }

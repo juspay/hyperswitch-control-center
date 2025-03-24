@@ -6,7 +6,6 @@ type reportCommonPayload = {
   payment_gateway: string,
   payment_method: string,
   txn_amount: float,
-  actions: string,
   recon_status: string,
   transaction_date: string,
   settlement_amount: float,
@@ -36,7 +35,6 @@ type commonColType =
   | PaymentMethod
   | TxnAmount
   | SettlementAmount
-  | Actions
   | TransactionDate
 
 type allColtype = ReconStatus | ...commonColType
