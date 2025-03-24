@@ -158,7 +158,7 @@ module Card = {
     ~actualValue: float,
     ~simulatedValue: float,
     ~valueFormat=false,
-    ~statType=LogicUtilsTypes.No_Type,
+    ~statType=LogicUtilsTypes.Default,
     ~currency="",
     ~amountFormat=false,
   ) => {
