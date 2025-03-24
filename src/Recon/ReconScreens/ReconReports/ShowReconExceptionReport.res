@@ -157,7 +157,7 @@ let make = (~id) => {
         <div className="flex gap-4 items-center">
           <Icon name="nd-hour-glass" size=16 />
           <p className="text-nd_gray-600 text-base leading-6 font-medium">
-            {"PG processed the payment, but no matching record exists in the bank statement (Settlement Missing)."->React.string}
+            {"Payment Gateway processed the payment, but no matching record exists in the bank statement (Settlement Missing)."->React.string}
           </p>
         </div>
       </div>
