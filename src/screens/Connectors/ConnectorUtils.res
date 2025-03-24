@@ -110,6 +110,7 @@ let connectorList: array<connectorTypes> = [
   Processors(XENDIT),
   Processors(INESPAY),
   Processors(MONERIS),
+  Processors(REDSYS),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -418,6 +419,10 @@ let monerisInfo = {
   description: "Unify your retail operations with the combined power of Moneris and Wix, in an all-in-one omnichannel POS solution.",
 }
 
+let redsysInfo = {
+  description: "Redsys is a Spanish payment gateway offering secure and innovative payment solutions for merchants and banks.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -658,6 +663,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | XENDIT => "xendit"
   | INESPAY => "inespay"
   | MONERIS => "moneris"
+  | REDSYS => "redsys"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -798,6 +804,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "xendit" => Processors(XENDIT)
     | "inespay" => Processors(INESPAY)
     | "moneris" => Processors(MONERIS)
+    | "redsys" => Processors(REDSYS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -918,6 +925,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | XENDIT => xenditInfo
   | INESPAY => inespayInfo
   | MONERIS => monerisInfo
+  | REDSYS => redsysInfo
   }
 }
 
@@ -1248,6 +1256,8 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
+  | (BillingProcessor(CHARGEBEE), "merchant_secret") => true
+  | (BillingProcessor(CHARGEBEE), "additional_secret") => true
   | _ => false
   }
 }
@@ -1749,6 +1759,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | XENDIT => "Xendit"
   | INESPAY => "Inespay"
   | MONERIS => "Moneris"
+  | REDSYS => "Redsys"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
