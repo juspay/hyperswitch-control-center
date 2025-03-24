@@ -14,7 +14,7 @@ let make = () => {
       let response = ReportsData.reportsExceptionResponse
       let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
 
-      let reportsList = data->ReportsExceptionTableEntity.getArrayOfReportsListPayloadType
+      let reportsList = data->ReconExceptionsUtils.getArrayOfReportsListPayloadType
 
       setConfiguredReports(_ => reportsList)
       setFilteredReports(_ => reportsList->Array.map(Nullable.make))
@@ -56,9 +56,9 @@ let make = () => {
     <div className="flex flex-col mx-auto w-full h-full mt-5 ">
       <RenderIf condition={configuredReports->Array.length > 0}>
         <LoadedTableWithCustomColumns
-          title="All Recon Reports"
+          title="Exception Reports"
           actualData={filteredReportsData}
-          entity={ReportsExceptionTableEntity.reportsEntity(
+          entity={ReportsExceptionTableEntity.exceptionReportsEntity(
             `v2/recon/reports`,
             ~authorization=userHasAccess(~groupAccess=UsersManage),
           )}
@@ -66,7 +66,7 @@ let make = () => {
           filters={<TableSearchFilter
             data={configuredReports->Array.map(Nullable.make)}
             filterLogic
-            placeholder="Search Transaction Id or Order Id or Status"
+            placeholder="Search Transaction Id or Order Id or Exception Type"
             customSearchBarWrapperWidth="w-full lg:w-1/2"
             searchVal=searchText
             setSearchVal=setSearchText
@@ -83,6 +83,7 @@ let make = () => {
           hideTitle=true
           remoteSortEnabled=true
           customizeColumnButtonIcon="nd-filter-horizontal"
+          hideRightTitleElement=true
         />
       </RenderIf>
     </div>
