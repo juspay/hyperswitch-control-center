@@ -16,7 +16,7 @@ let make = () => {
       let exceptionsResponse = await fetchApi(
         `${url}`,
         ~method_=Get,
-        ~xFeatureRoute=true,
+        ~xFeatureRoute=false,
         ~forceCookies=false,
       )
       let response = await exceptionsResponse->(res => res->Fetch.Response.json)
