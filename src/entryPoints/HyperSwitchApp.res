@@ -165,7 +165,7 @@ let make = () => {
                             <span className="font-semibold"> {modeText->React.string} </span>
                           </div>
                         </div>
-                      | None =>
+                      | _ =>
                         <div className="flex md:gap-4 gap-2 items-center">
                           <ProfileSwitch />
                           <div
