@@ -305,12 +305,6 @@ module ReconciliationOverview = {
               {"150 Exceptions Found"->React.string}
             </p>
           </div>
-          // <p className="text-nd_gray-700 font-semibold leading-5 text-center text-sm">
-          //   {"12 "->React.string}
-          //   <span className="text-nd_gray-500 font-medium leading-4 text-xs">
-          //     {"Critical Issues"->React.string}
-          //   </span>
-          // </p>
         </div>
         <div
           className="flex items-center gap-1.5 cursor-pointer"
