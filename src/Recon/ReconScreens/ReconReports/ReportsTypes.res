@@ -1,4 +1,6 @@
 type url = All | Exceptions
+type reconStatus = Reconciled | Unreconciled | Missing
+type exceptionType = AmountMismatch | StatusMismatch | Both | Resolved
 
 type reportCommonPayload = {
   transaction_id: string,

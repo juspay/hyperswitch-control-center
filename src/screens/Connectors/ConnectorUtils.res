@@ -111,6 +111,7 @@ let connectorList: array<connectorTypes> = [
   Processors(INESPAY),
   Processors(MONERIS),
   Processors(REDSYS),
+  Processors(HIPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -422,6 +423,9 @@ let monerisInfo = {
 let redsysInfo = {
   description: "Redsys is a Spanish payment gateway offering secure and innovative payment solutions for merchants and banks.",
 }
+let hipayInfo = {
+  description: "HiPay is a global payment service provider offering a range of solutions for online, mobile, and in-store payments. It supports multiple payment methods, including credit cards, e-wallets, and local payment options, with a focus on fraud prevention and data-driven insights.",
+}
 
 // Dummy Connector Info
 let pretendpayInfo = {
@@ -664,6 +668,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | INESPAY => "inespay"
   | MONERIS => "moneris"
   | REDSYS => "redsys"
+  | HIPAY => "hipay"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -805,6 +810,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "inespay" => Processors(INESPAY)
     | "moneris" => Processors(MONERIS)
     | "redsys" => Processors(REDSYS)
+    | "hipay" => Processors(HIPAY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -926,6 +932,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | INESPAY => inespayInfo
   | MONERIS => monerisInfo
   | REDSYS => redsysInfo
+  | HIPAY => hipayInfo
   }
 }
 
@@ -1760,6 +1767,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | INESPAY => "Inespay"
   | MONERIS => "Moneris"
   | REDSYS => "Redsys"
+  | HIPAY => "HiPay"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

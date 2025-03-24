@@ -101,6 +101,7 @@ type processorTypes =
   | INESPAY
   | MONERIS
   | REDSYS
+  | HIPAY
 
 type payoutProcessorTypes =
   | ADYEN
