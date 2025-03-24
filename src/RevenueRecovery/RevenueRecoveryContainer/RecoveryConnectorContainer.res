@@ -41,10 +41,7 @@ let make = () => {
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
-    | list{"v2", "recovery", "home"} =>
-      hasConfiguredBillingConnector
-        ? <RevenueRecoveryOverview />
-        : <RevenueRecoveryOnboardingLanding createMerchant=false />
+    | list{"v2", "recovery", "home"} => <RevenueRecoveryOnboardingLanding createMerchant=false />
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold
@@ -63,6 +60,7 @@ let make = () => {
         renderList={() => <RevenueRecoveryOverview />}
         renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
       />
+    | list{"v2", "recovery", "summary", ..._} => <BillingConnectorsSummary />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
