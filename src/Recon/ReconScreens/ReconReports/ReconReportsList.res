@@ -4,12 +4,11 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (selectedId, setSelectedId) = React.useState(_ =>
-    Dict.make()->ReportsTableEntity.getAllReportPayloadType
+    Dict.make()->ReconReportUtils.getAllReportPayloadType
   )
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
-
-  let statusUI = ReportsTableEntity.useGetAllReportStatus(selectedId)
+  let statusUI = ReportStatus.useGetAllReportStatus(selectedId)
 
   let modalHeading = {
     <div className="flex justify-between border-b">
@@ -36,7 +35,7 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
           isContainingStringLowercase(obj.order_id, searchText) ||
-          isContainingStringLowercase(obj.recon_status, searchText)
+          obj.recon_status->String.toLowerCase->String.startsWith(searchText)
         | None => false
         }
       })
@@ -67,18 +66,18 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
           title="All Reports"
           actualData={filteredReportsData}
           entity={ReportsTableEntity.reportsEntity(
-            `v2/recon/reports?tab=all`,
+            `v2/recon/reports`,
             ~authorization=userHasAccess(~groupAccess=UsersManage),
           )}
+          resultsPerPage=10
           filters={<TableSearchFilter
             data={configuredReports->Array.map(Nullable.make)}
             filterLogic
-            placeholder="Search Transaction Id or Order Id or Status"
+            placeholder="Search Transaction Id or Order Id or Recon Status"
             customSearchBarWrapperWidth="w-1/3"
             searchVal=searchText
             setSearchVal=setSearchText
           />}
-          resultsPerPage=10
           totalResults={filteredReportsData->Array.length}
           offset
           setOffset
@@ -94,6 +93,7 @@ let make = (~configuredReports, ~filteredReportsData, ~setFilteredReports) => {
             setShowModal(_ => true)
           }}
           customizeColumnButtonIcon="nd-filter-horizontal"
+          hideRightTitleElement=true
         />
       </RenderIf>
     </div>

@@ -1,11 +1,7 @@
 open GooglePayIntegrationTypes
 open LogicUtils
-let allowedAuthMethod = ["PAN_ONLY", "CRYPTOGRAM_3DS"]
+let allowedAuthMethod = ["PAN_ONLY", "CRYPTOGRAM_3DS"] // need to be removed after wasm support
 let allowedCardNetworks = ["AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"]
-let allowedPaymentMethodparameters = {
-  allowed_auth_methods: allowedAuthMethod,
-  allowed_card_networks: allowedCardNetworks,
-}
 
 let getCustomGateWayName = connector => {
   open ConnectorUtils
@@ -19,6 +15,19 @@ let getCustomGateWayName = connector => {
   | Processors(FIUU) => "molpay"
   | _ => connector
   }
+}
+
+let allowedAuthMethodsArray = dict => {
+  let authMethodsArray =
+    dict
+    ->getDictfromDict("parameters")
+    ->getStrArrayFromDict("allowed_auth_methods", allowedAuthMethod)
+  authMethodsArray
+}
+
+let allowedPaymentMethodparameters = dict => {
+  allowed_auth_methods: dict->allowedAuthMethodsArray,
+  allowed_card_networks: allowedCardNetworks,
 }
 
 let tokenizationSpecificationParameters = (dict, connector) => {
@@ -54,7 +63,7 @@ let tokenizationSpecification = (dict, connector) => {
 
 let allowedPaymentMethod = (dict, connector) => {
   \"type": "CARD",
-  parameters: allowedPaymentMethodparameters,
+  parameters: dict->allowedPaymentMethodparameters,
   tokenization_specification: dict->tokenizationSpecification(connector),
 }
 
@@ -89,6 +98,7 @@ let googlePayNameMapper = name => {
   switch name {
   | "merchant_id" => `metadata.google_pay.merchant_info.${name}`
   | "merchant_name" => `metadata.google_pay.merchant_info.${name}`
+  | "allowed_auth_methods" => `metadata.google_pay.allowed_payment_methods[0].parameters.${name}`
   | "terminal_uuid" => `metadata.google_pay.${name}`
   | "pay_wall_secret" => `metadata.google_pay.${name}`
   | _ =>

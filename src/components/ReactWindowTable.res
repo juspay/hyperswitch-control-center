@@ -770,6 +770,7 @@ let make = (
                     | Link(str)
                     | Date(str)
                     | DateWithoutTime(str)
+                    | DateWithCustomDateStyle(_, str)
                     | Text(str) =>
                       convertStrCellToFloat(dataType, str)
                     | Label(x)

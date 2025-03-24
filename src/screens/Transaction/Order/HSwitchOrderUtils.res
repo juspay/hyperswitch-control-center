@@ -130,7 +130,6 @@ module CopyLinkTableCell = {
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let showToast = ToastState.useShowToast()
-    let externalURL = `${url}?fullPath=true`
     let handleClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       setIsTextVisible(_ => true)
@@ -177,7 +176,7 @@ module CopyLinkTableCell = {
           />
           <a
             className="opacity-70 py-1"
-            href={GlobalVars.appendDashboardPath(~url=externalURL)}
+            href={GlobalVars.appendDashboardPath(~url)}
             onClick={ev => ev->ReactEvent.Mouse.stopPropagation}
             target="_blank">
             <Icon size={14} name="external-link-alt" />

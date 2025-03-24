@@ -23,7 +23,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let response = ReportsData.reportsResponse
       let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
-      let reportsList = data->ReportsTableEntity.getArrayOfReportsListPayloadType
+      let reportsList = data->ReconReportUtils.getArrayOfReportsListPayloadType
       setConfiguredReports(_ => reportsList)
       setFilteredReports(_ => reportsList->Array.map(Nullable.make))
       setScreenState(_ => Success)
@@ -61,10 +61,10 @@ let make = () => {
     try {
       let arr = configuredReports->Array.map((obj: ReportsTypes.allReportPayload) => {
         let row = [
-          obj.transaction_id,
           obj.order_id,
+          obj.transaction_id,
           obj.payment_gateway,
-          obj.payment_gateway,
+          obj.payment_method,
           obj.txn_amount->Float.toString,
           obj.settlement_amount->Float.toString,
           obj.recon_status,
@@ -74,7 +74,7 @@ let make = () => {
       })
       let csvContent = arr->convertArrayToCSV
       DownloadUtils.download(
-        ~fileName=`reconciliation_report.csv`,
+        ~fileName=`${selectedReconId}_Reconciliation_Report.csv`,
         ~content=csvContent,
         ~fileType="text/csv",
       )

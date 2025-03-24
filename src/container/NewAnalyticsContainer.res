@@ -18,6 +18,8 @@ let make = () => {
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+
   let tempRecallAmountMetrics = async () => {
     try {
       //Currency Conversion is failing in Backend for the first time so to fix that we are the calling the api for one time and ignoring the error
@@ -73,6 +75,14 @@ let make = () => {
     setInitialFilters()
     None
   }, [])
+
+  //This is to trigger the mixpanel event to see active analytics users
+  React.useEffect(() => {
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      mixpanelEvent(~eventName="new_analytics_payment_date_filter")
+    }
+    None
+  }, (startTimeVal, endTimeVal))
 
   let tabs: array<Tabs.tab> = [
     {

@@ -160,10 +160,17 @@ type lineColumnGraphOptions = {
   tooltip: tooltip,
 }
 
+type titleObj = {
+  chartTitle: title,
+  xAxisTitle: title,
+  yAxisTitle: title,
+  oppositeYAxisTitle: title,
+}
+
 type lineColumnGraphPayload = {
   categories: categories,
   data: data,
-  title: title,
+  titleObj: titleObj,
   tooltipFormatter: pointFormatter => string,
   yAxisFormatter: pointFormatter => string,
 }
