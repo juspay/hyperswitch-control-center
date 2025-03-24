@@ -3,7 +3,15 @@ let make = () => {
   open RevenueRecoveryOnboardingUtils
   open LogicUtils
 
-  let (currentStep, setNextStep) = React.useState(() => defaultStep)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV2,
+    ~retainInList=PaymentProcessor,
+  )
+  let hasConfiguredPaymentConnector = connectorList->Array.length > 0
+  let (connectorID, connectorName) = connectorList->BillingProcessorsUtils.getConnectorDetails
+  let (currentStep, setNextStep) = React.useState(() =>
+    hasConfiguredPaymentConnector ? defaultStepBilling : defaultStep
+  )
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -12,8 +20,8 @@ let make = () => {
 
   let activeBusinessProfile = getNameForId(#Profile)
 
-  let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => "")
-  let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => "")
+  let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => connectorName)
+  let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => connectorID)
   let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
 
   React.useEffect(() => {

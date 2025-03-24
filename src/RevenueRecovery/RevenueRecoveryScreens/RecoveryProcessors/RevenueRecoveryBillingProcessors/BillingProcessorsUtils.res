@@ -8,7 +8,7 @@ module SubHeading = {
   }
 }
 
-let getBillingConnectorDetails = (connectorList: array<ConnectorTypes.connectorPayloadV2>) => {
+let getConnectorDetails = (connectorList: array<ConnectorTypes.connectorPayloadV2>) => {
   let (mca, name) = switch connectorList->Array.get(0) {
   | Some(connectorDetails) => (connectorDetails.id, connectorDetails.connector_name)
   | _ => ("", "")

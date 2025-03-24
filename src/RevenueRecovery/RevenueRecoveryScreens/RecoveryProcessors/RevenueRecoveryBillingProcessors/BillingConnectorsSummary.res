@@ -18,7 +18,7 @@ module BillingConnectorDetails = {
     )
 
     let (connectorID, _) =
-      billingConnectorListFromRecoil->BillingProcessorsUtils.getBillingConnectorDetails
+      billingConnectorListFromRecoil->BillingProcessorsUtils.getConnectorDetails
 
     let getConnectorDetails = async () => {
       try {
