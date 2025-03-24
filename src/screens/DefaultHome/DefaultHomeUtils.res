@@ -39,8 +39,8 @@ module DefaultHomeCard = {
     )
 
     <div
-      className="w-499-px p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
-      <img className="w-full h-195-px object-cover rounded-xl" src={img} />
+      className="w-full p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
+      <img className="w-full h-auto aspect-video object-cover rounded-xl" src={img} />
       <div className="flex flex-col p-2 gap-1">
         <span className="text-fs-16 text-nd_gray-600 font-semibold leading-24">
           {heading->React.string}
