@@ -12,6 +12,21 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
+  let navigate = hasConfiguredBillingConnector => {
+    switch url.path->urlPath {
+    | list{"v2", "recovery", "home"} =>
+      if hasConfiguredBillingConnector {
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/overview"))
+      }
+    | list{"v2", "recovery", "overview", ..._}
+    | list{"v2", "recovery", "summary", ..._} =>
+      if !hasConfiguredBillingConnector {
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
+      }
+    | _ => ()
+    }
+  }
+
   let setUpConnectorContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -28,11 +43,16 @@ let make = () => {
     }
   }
 
-  let hasConfiguredBillingConnector =
-    ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV2,
-      ~retainInList=BillingProcessor,
-    )->Array.length > 0
+  let connectors = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV2,
+    ~retainInList=BillingProcessor,
+  )
+
+  React.useEffect(() => {
+    let hasConfiguredBillingConnector = connectors->Array.length > 0
+    navigate(hasConfiguredBillingConnector)
+    None
+  }, (url, connectors))
 
   React.useEffect(() => {
     setUpConnectorContainer()->ignore
