@@ -23,13 +23,6 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if filterValueJson->Dict.keysToArray->Array.length === 0 {
-      setOffset(_ => 0)
-    }
-    None
-  }, [])
-
-  React.useEffect(() => {
     if filterValueJson->Dict.keysToArray->Array.length != 0 {
       setOffset(_ => 0)
     }
