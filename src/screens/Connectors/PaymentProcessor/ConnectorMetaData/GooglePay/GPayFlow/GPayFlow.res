@@ -1,14 +1,21 @@
 @react.component
 let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
-  open GooglePayDecryptionFlowTypes
+  open GPayFlowTypes
   open LogicUtils
-  open GooglePayDecryptionFlowHelper
+  open GPayFlowHelper
+  open GPayFlowUtils
 
   let (googlePayIntegrationType, setGooglePayIntegrationType) = React.useState(_ =>
     #payment_gateway
   )
   let (googlePayIntegrationStep, setGooglePayIntegrationStep) = React.useState(_ => Landing)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+  )
+  let integrationType = React.useMemo(() => {
+    formState.values->getDictFromJsonObject->getDictfromDict("connector_wallets_details")
+  }, [])->getIntegrationTypeFromConnectorWalletDetailsGooglePay
 
   let googlePayFields = React.useMemo(() => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -35,6 +42,17 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     }
   }, [connector])
 
+  let setIntegrationType = () => {
+    if connector->isNonEmptyString {
+      setGooglePayIntegrationType(_ => integrationType->getGooglePayIntegrationTypeFromName)
+    }
+  }
+
+  React.useEffect(() => {
+    setIntegrationType()
+    None
+  }, [connector])
+
   let closeModal = () => {
     onCloseClickCustomFun()
     setShowWalletConfigurationModal(_ => false)
@@ -57,7 +75,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       <>
         {switch googlePayIntegrationType {
         | #payment_gateway =>
-          <GooglePayDecryptionFlowPaymentGateway
+          <GPayPaymentGatewayFlow
             googlePayFields
             googlePayIntegrationType
             closeModal
@@ -66,7 +84,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
             update
           />
         | #direct =>
-          <GooglePayDecryptionFlowDirect
+          <GPayDirectFlow
             googlePayFields
             googlePayIntegrationType
             closeModal

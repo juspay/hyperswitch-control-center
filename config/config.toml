@@ -65,6 +65,7 @@ dev_intelligent_routing_v2=false
 dev_modularity_v2=false
 dev_alt_payment_methods=false
 dev_hypersense_v2_product=false
+google_pay_decryption_flow=true
 maintainence_alert=""
 [default.merchant_config]
 [default.merchant_config.new_analytics]

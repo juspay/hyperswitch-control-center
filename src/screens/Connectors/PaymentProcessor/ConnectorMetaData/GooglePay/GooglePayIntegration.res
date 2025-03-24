@@ -15,9 +15,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
           <GooglePayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
         </RenderIf>
         <RenderIf condition={featureFlag.googlePayDecryptionFlow}>
-          <GooglePayDecryptionFlow
-            connector setShowWalletConfigurationModal update onCloseClickCustomFun
-          />
+          <GPayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
         </RenderIf>
       </>
     }}

@@ -1,4 +1,4 @@
-open GooglePayDecryptionFlowTypes
+open GPayFlowTypes
 open LogicUtils
 
 let allowedCardNetworks = ["AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"]
@@ -75,7 +75,7 @@ let merchantInfo = (dict, connector, ~googlePayIntegrationType: googlePayIntegra
 let googlePay = (
   dict,
   connector: string,
-  ~googlePayIntegrationType: GooglePayDecryptionFlowTypes.googlePayIntegrationType,
+  ~googlePayIntegrationType: GPayFlowTypes.googlePayIntegrationType,
 ) => {
   {
     provider_details: {
@@ -138,11 +138,7 @@ let directFields = [
   "allowed_auth_methods",
 ]
 
-let getMetadataGooglePayFromConnectorWalletDetailsGooglePay = (
-  dict,
-  connector,
-  ~googlePayIntegrationType: googlePayIntegrationType,
-) => {
+let getMetadataFromConnectorWalletDetailsGooglePay = (dict, connector) => {
   open ConnectorUtils
   let googlePayDict = dict->getDictfromDict("google_pay")
   let merchantInfoDict =
@@ -150,7 +146,7 @@ let getMetadataGooglePayFromConnectorWalletDetailsGooglePay = (
   let tokenSpecificationParametersDict =
     merchantInfoDict->getDictfromDict("tokenization_specification")->getDictfromDict("parameters")
 
-  let tokenSpecificationParameters: GooglePayDecryptionFlowTypes.tokenizationSpecificationParametersMetadata = switch connector->getConnectorNameTypeFromString {
+  let tokenSpecificationParameters: GPayFlowTypes.tokenizationSpecificationParametersMetadata = switch connector->getConnectorNameTypeFromString {
   | Processors(STRIPE) => {
       gateway: tokenSpecificationParametersDict->getString("gateway", ""),
       \"stripe:version": tokenSpecificationParametersDict->getString(
@@ -168,65 +164,34 @@ let getMetadataGooglePayFromConnectorWalletDetailsGooglePay = (
     }
   }
 
-  switch googlePayIntegrationType {
-  | #payment_gateway =>
-    {
-      merchant_info: {
-        merchant_id: merchantInfoDict->getOptionString("merchant_id"),
-        merchant_name: merchantInfoDict->getOptionString("merchant_name"),
-      },
-      allowed_payment_methods: [
-        {
-          \"type": "CARD",
-          parameters: {
-            allowed_auth_methods: googlePayDict
-            ->getDictfromDict("cards")
-            ->getStrArrayFromDict("allowed_auth_methods", []),
-            allowed_card_networks: googlePayDict
-            ->getDictfromDict("cards")
-            ->getStrArrayFromDict("allowed_card_networks", []),
-          },
-          tokenization_specification: {
-            \"type": (googlePayIntegrationType :> string)->String.toUpperCase,
-            parameters: tokenSpecificationParameters,
-          },
+  {
+    merchant_info: {
+      merchant_id: merchantInfoDict->getOptionString("merchant_id"),
+      merchant_name: merchantInfoDict->getOptionString("merchant_name"),
+    },
+    allowed_payment_methods: [
+      {
+        \"type": "CARD",
+        parameters: {
+          allowed_auth_methods: googlePayDict
+          ->getDictfromDict("cards")
+          ->getStrArrayFromDict("allowed_auth_methods", []),
+          allowed_card_networks: googlePayDict
+          ->getDictfromDict("cards")
+          ->getStrArrayFromDict("allowed_card_networks", []),
         },
-      ],
-    }->Identity.genericTypeToDictOfJson
-  | #direct =>
-    {
-      merchant_info: {
-        merchant_id: merchantInfoDict->getOptionString("merchant_id"),
-        merchant_name: merchantInfoDict->getOptionString("merchant_name"),
-      },
-      allowed_payment_methods: [
-        {
-          \"type": "CARD",
-          parameters: {
-            allowed_auth_methods: googlePayDict
-            ->getDictfromDict("cards")
-            ->getStrArrayFromDict("allowed_auth_methods", []),
-            allowed_card_networks: googlePayDict
-            ->getDictfromDict("cards")
-            ->getStrArrayFromDict("allowed_card_networks", []),
-          },
-          tokenization_specification: {
-            \"type": (googlePayIntegrationType :> string)->String.toUpperCase,
-            parameters: {
-              public_key: tokenSpecificationParametersDict->getString("public_key", ""),
-              private_key: tokenSpecificationParametersDict->getString("private_key", ""),
-              recipient_id: tokenSpecificationParametersDict->getString("recipient_id", ""),
-            },
-          },
+        tokenization_specification: {
+          \"type": "PAYMENT_GATEWAY",
+          parameters: tokenSpecificationParameters,
         },
-      ],
-    }->Identity.genericTypeToDictOfJson
+      },
+    ],
   }
 }
 
 let googlePayNameMapper = (
   ~name,
-  ~googlePayIntegrationType: GooglePayDecryptionFlowTypes.googlePayIntegrationType,
+  ~googlePayIntegrationType: GPayFlowTypes.googlePayIntegrationType,
 ) => {
   switch googlePayIntegrationType {
   | #payment_gateway =>
@@ -253,7 +218,7 @@ let googlePayNameMapper = (
 
 let googlePayValueInput = (
   ~googlePayField: CommonConnectorTypes.inputField,
-  ~googlePayIntegrationType: GooglePayDecryptionFlowTypes.googlePayIntegrationType,
+  ~googlePayIntegrationType: GPayFlowTypes.googlePayIntegrationType,
 ) => {
   open CommonConnectorHelper
   let {\"type", name} = googlePayField
@@ -266,5 +231,22 @@ let googlePayValueInput = (
     | MultiSelect => multiSelectInput(~field={googlePayField}, ~formName)
     | _ => textInput(~field={googlePayField}, ~formName)
     }
+  }
+}
+
+let getIntegrationTypeFromConnectorWalletDetailsGooglePay = dict => {
+  dict
+  ->getDictfromDict("google_pay")
+  ->getDictfromDict("provider_details")
+  ->getDictfromDict("merchant_info")
+  ->getDictfromDict("tokenization_specification")
+  ->getString("type", "PAYMENT_GATEWAY")
+}
+
+let getGooglePayIntegrationTypeFromName = (name: string) => {
+  switch name {
+  | "PAYMENT_GATEWAY" => #payment_gateway
+  | "DIRECT" => #direct
+  | _ => #payment_gateway
   }
 }
