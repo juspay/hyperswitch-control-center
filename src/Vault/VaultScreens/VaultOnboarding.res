@@ -90,8 +90,8 @@ let make = () => {
     let pmSubTypeDict = Dict.make()
     let _ = pmSubTypeDict->Dict.set("payment_method_type", "card"->JSON.Encode.string)
     let _ = pmSubTypeDict->Dict.set("payment_method_subtypes", pmtype->Identity.genericTypeToJson)
-    let arr = [pmSubTypeDict]
-    initialValuesToDict->Dict.set("payment_methods_enabled", arr->Identity.genericTypeToJson)
+    let pmArr = [pmSubTypeDict]
+    initialValuesToDict->Dict.set("payment_methods_enabled", pmArr->Identity.genericTypeToJson)
 
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
