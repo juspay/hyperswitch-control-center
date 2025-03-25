@@ -19,6 +19,10 @@ let proxy = {
     target: "",
     changeOrigin: true,
   },
+  "/test-data/recon": {
+    target: "",
+    changeOrigin: true,
+  },
 };
 
 let configMiddleware = (req, res, next) => {

@@ -187,6 +187,14 @@ let threeDsRequestorUrl = FormRenderer.makeFieldInfo(
   ~isRequired=false,
 )
 
+let threeDsRequestoApprUrl = FormRenderer.makeFieldInfo(
+  ~label="3DS Requestor App URL",
+  ~name="three_ds_requestor_app_url",
+  ~placeholder="Enter 3DS Requestor App URL",
+  ~customInput=InputFields.textInput(~autoComplete="off"),
+  ~isRequired=false,
+)
+
 let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~label="Max Auto Retries",
   ~name="max_auto_retries_enabled",

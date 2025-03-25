@@ -4,6 +4,24 @@ let make = () => {
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
+  let vaultPspTokenizationTabElement = {
+    <div className="flex gap-2 items-center">
+      <ToolTip
+        description="Hyperswitch securely converts card details into tokens from your existing PSP accounts (Stripe, Adyen, Worldpay, etc.), allowing you to process payments through these providers using these tokens rather than raw card data."
+        iconOpacityVal="100"
+      />
+      {"PSP Tokenisation"->React.string}
+    </div>
+  }
+  let vaultNetworkTokenizationTabElement = {
+    <div className="flex gap-2 items-center">
+      <ToolTip
+        description="Hyperswitch securely replaces card details with network tokens from card networks (Visa, Mastercard, Amex, etc.), allowing you to process payments with enhanced security and authorization rates while reducing processing costs, fraud risk and compliance requirements."
+        iconOpacityVal="100"
+      />
+      {"Network Tokenisation"->React.string}
+    </div>
+  }
   React.useEffect(() => {
     setShowSideBar(_ => true)
     None
@@ -15,13 +33,15 @@ let make = () => {
     open Tabs
     [
       {
-        title: "PSP Tokenisation",
+        title: "",
+        tabElement: vaultPspTokenizationTabElement,
         renderContent: () => {
           <VaultProcessorList />
         },
       },
       {
-        title: "Network Tokenisation",
+        title: "",
+        tabElement: vaultNetworkTokenizationTabElement,
         renderContent: () => <VaultNetworkTokenisation />,
       },
     ]
@@ -46,7 +66,7 @@ let make = () => {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <p className="text-xl font-semibold"> {"Advanced Vault configuration"->React.string} </p>
-        <p className="text-base text-nd_gray-400">
+        <p className="text-base font-medium text-nd_gray-400">
           {"Apart from storing cards in our PCI vault, you can also tokenize across PSPs and networks:"->React.string}
         </p>
       </div>

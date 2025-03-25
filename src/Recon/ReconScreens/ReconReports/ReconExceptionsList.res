@@ -7,14 +7,22 @@ let make = () => {
   let (filteredReportsData, setFilteredReports) = React.useState(_ => [])
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
+  let fetchApi = AuthHooks.useApiFetcher()
 
   let getReportsList = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = ReportsData.reportsExceptionResponse
+      let url = `${GlobalVars.getHostUrl}/test-data/recon/reconExceptions.json`
+      let exceptionsResponse = await fetchApi(
+        url,
+        ~method_=Get,
+        ~xFeatureRoute=false,
+        ~forceCookies=false,
+      )
+      let response = await exceptionsResponse->(res => res->Fetch.Response.json)
       let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
 
-      let reportsList = data->ReportsExceptionTableEntity.getArrayOfReportsListPayloadType
+      let reportsList = data->ReconExceptionsUtils.getArrayOfReportsListPayloadType
 
       setConfiguredReports(_ => reportsList)
       setFilteredReports(_ => reportsList->Array.map(Nullable.make))
@@ -47,44 +55,48 @@ let make = () => {
     None
   }, [])
 
-  <div className="mt-8">
-    <RenderIf condition={screenState == Success && configuredReports->Array.length === 0}>
-      <div className="my-4">
-        <NoDataFound message={"No data available"} renderType={Painting} />
-      </div>
-    </RenderIf>
-    <div className="flex flex-col mx-auto w-full h-full mt-5 ">
-      <RenderIf condition={configuredReports->Array.length > 0}>
-        <LoadedTableWithCustomColumns
-          title="All Recon Reports"
-          actualData={filteredReportsData}
-          entity={ReportsExceptionTableEntity.reportsEntity(
-            `v2/recon/reports`,
-            ~authorization=userHasAccess(~groupAccess=UsersManage),
-          )}
-          resultsPerPage=10
-          filters={<TableSearchFilter
-            data={configuredReports->Array.map(Nullable.make)}
-            filterLogic
-            placeholder="Search Transaction Id or Order Id or Status"
-            customSearchBarWrapperWidth="w-full lg:w-1/2"
-            searchVal=searchText
-            setSearchVal=setSearchText
-          />}
-          showSerialNumber=false
-          totalResults={filteredReportsData->Array.length}
-          offset
-          setOffset
-          currrentFetchCount={configuredReports->Array.length}
-          customColumnMapper=TableAtoms.reconExceptionReportsDefaultCols
-          defaultColumns={ReportsExceptionTableEntity.defaultColumns}
-          showSerialNumberInCustomizeColumns=false
-          sortingBasedOnDisabled=false
-          hideTitle=true
-          remoteSortEnabled=true
-          customizeColumnButtonIcon="nd-filter-horizontal"
-        />
+  <PageLoaderWrapper screenState>
+    <div className="mt-8">
+      <RenderIf condition={configuredReports->Array.length === 0}>
+        <div className="my-4">
+          <NoDataFound message={"No data available"} renderType={Painting} />
+        </div>
       </RenderIf>
+      <div className="flex flex-col mx-auto w-full h-full mt-5 ">
+        <RenderIf condition={configuredReports->Array.length > 0}>
+          <LoadedTableWithCustomColumns
+            title="Exception Reports"
+            actualData={filteredReportsData}
+            entity={ReportsExceptionTableEntity.exceptionReportsEntity(
+              `v2/recon/reports`,
+              ~authorization=userHasAccess(~groupAccess=UsersManage),
+            )}
+            resultsPerPage=10
+            filters={<TableSearchFilter
+              data={configuredReports->Array.map(Nullable.make)}
+              filterLogic
+              placeholder="Search Transaction Id or Order Id or Exception Type"
+              customSearchBarWrapperWidth="w-full lg:w-1/2"
+              searchVal=searchText
+              setSearchVal=setSearchText
+            />}
+            showSerialNumber=false
+            totalResults={filteredReportsData->Array.length}
+            offset
+            setOffset
+            currrentFetchCount={configuredReports->Array.length}
+            customColumnMapper=TableAtoms.reconExceptionReportsDefaultCols
+            defaultColumns={ReportsExceptionTableEntity.defaultColumns}
+            showSerialNumberInCustomizeColumns=false
+            sortingBasedOnDisabled=false
+            hideTitle=true
+            remoteSortEnabled=true
+            customizeColumnButtonIcon="nd-filter-horizontal"
+            hideRightTitleElement=true
+            showAutoScroll=true
+          />
+        </RenderIf>
+      </div>
     </div>
-  </div>
+  </PageLoaderWrapper>
 }

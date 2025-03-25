@@ -24,8 +24,6 @@ let defaultColumns = [
   ProfileId,
   ProfileName,
   ConnectorLabel,
-  Status,
-  Disabled,
   Actions,
   PaymentMethods,
 ]
@@ -102,7 +100,11 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
   getCell
 }
 
-let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
+let connectorEntity = (
+  path: string,
+  ~authorization: CommonAuthTypes.authorization,
+  callMixpanel,
+) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
@@ -111,13 +113,15 @@ let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorizati
     ~getCell=getTableCell(~connectorType=Processor),
     ~dataKey="",
     ~getShowLink={
-      connec =>
+      connec => {
+        callMixpanel("vault_view_connector_details")
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
             ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
           ),
           ~authorization,
         )
+      }
     },
   )
 }

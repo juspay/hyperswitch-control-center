@@ -2,7 +2,7 @@ open APIUtils
 open MerchantAccountUtils
 
 @react.component
-let make = (~urlEntityName, ~baseUrlForRedirection) => {
+let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -18,7 +18,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
   let typedConnectorValue = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PaymentProcessor,
+    ~retainInList=connectorVariant,
   )
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 

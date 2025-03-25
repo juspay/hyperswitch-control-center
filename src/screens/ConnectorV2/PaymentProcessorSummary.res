@@ -1,6 +1,6 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs
 @react.component
-let make = (~baseUrl) => {
+let make = (~baseUrl, ~showProcessorStatus=true) => {
   open ConnectorUtils
   open LogicUtils
   open APIUtils
@@ -159,6 +159,11 @@ let make = (~baseUrl) => {
       errors->JSON.Encode.object,
     )
   }
+  let ignoreKeys =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->Dict.keysToArray
+    ->Array.filter(val => !Array.includes(["credit", "debit"], val))
 
   <PageLoaderWrapper screenState>
     <BreadCrumbNavigation
@@ -188,17 +193,21 @@ let make = (~baseUrl) => {
         </div>
         <div className="flex flex-col gap-12">
           <div className="flex gap-10 max-w-3xl flex-wrap px-2">
-            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+            <ConnectorWebhookPreview
+              merchantId connectorName=connectorInfodict.id truncateDisplayValue=true
+            />
             <div className="flex flex-col gap-0.5-rem ">
               <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
               {connectorInfodict.profile_id->React.string}
             </div>
-            <div className="flex flex-col gap-0.5-rem ">
-              <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
-              <div className="flex flex-row gap-2 items-center ">
-                <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
+            <RenderIf condition=showProcessorStatus>
+              <div className="flex flex-col gap-0.5-rem ">
+                <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
+                <div className="flex flex-row gap-2 items-center ">
+                  <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
+                </div>
               </div>
-            </div>
+            </RenderIf>
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between border-b pb-4 px-2 items-end">
@@ -314,7 +323,9 @@ let make = (~baseUrl) => {
               }}
             </div>
           </div>
-          <ConnectorPaymentMethodV2 initialValues isInEditState={checkCurrentEditState(PMTs)} />
+          <ConnectorPaymentMethodV2
+            initialValues isInEditState={checkCurrentEditState(PMTs)} ignoreKeys
+          />
         </div>
       </div>
       <FormValuesSpy />
