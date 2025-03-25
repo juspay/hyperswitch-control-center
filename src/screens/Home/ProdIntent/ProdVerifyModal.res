@@ -20,7 +20,13 @@ let make = (
 
   let updateProdDetails = async values => {
     try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let url = switch productType {
+      | Orchestration
+      | CostObservability
+      | DynamicRouting =>
+        getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      | _ => getURL(~entityName=V2(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      }
       let bodyValues = values->getBody->JSON.Encode.object
       bodyValues
       ->LogicUtils.getDictFromJsonObject
