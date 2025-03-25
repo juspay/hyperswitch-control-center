@@ -1,7 +1,7 @@
 @val @scope("process")
 external env: Dict.t<string> = "env"
 
-let appName = env->Dict.get("appName")
+let appName = None
 
 let serverPath = "dist/hyperswitch"
 let port = 9000
