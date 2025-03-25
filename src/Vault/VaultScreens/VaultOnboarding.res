@@ -188,57 +188,60 @@ let make = () => {
       </h1>
     </>
 
-  <div className="flex flex-row gap-x-6">
-    <VerticalStepIndicator titleElement=vaultTitleElement sections currentStep backClick />
-    {switch currentStep.sectionId->stringToSectionVariantMapper {
-    | #authenticateProcessor =>
-      <div className="flex flex-col w-1/2 px-10 ">
-        <PageUtils.PageHeading
-          title="Authenticate Processor"
-          subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
-          customSubTitleStyle="font-500 font-normal text-nd_gray-700"
-        />
-        <PageLoaderWrapper screenState>
-          <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
-            <div className="flex flex-col mt-4 mb-5 gap-3 ">
-              <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
-              <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
-              <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
-              <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
-              <FormRenderer.SubmitButton
-                text="Next"
-                buttonSize={Small}
-                customSumbitButtonStyle="!w-full mt-8"
-                tooltipForWidthClass="w-full"
-              />
-            </div>
-            <FormValuesSpy />
-          </Form>
-        </PageLoaderWrapper>
+  <div className="flex flex-col gap-10 h-774-px">
+    <div className="flex h-full">
+      <div className="flex flex-col">
+        <VerticalStepIndicator titleElement=vaultTitleElement sections currentStep backClick />
       </div>
+      {switch currentStep.sectionId->stringToSectionVariantMapper {
+      | #authenticateProcessor =>
+        <div className="flex flex-col w-1/2 px-10 mt-20 overflow-y-auto">
+          <PageUtils.PageHeading
+            title="Authenticate Processor"
+            subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
+            customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+          />
+          <PageLoaderWrapper screenState>
+            <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+              <div className="flex flex-col mb-5 gap-3 ">
+                <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
+                <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
+                <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
+                <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
+                <FormRenderer.SubmitButton
+                  text="Next"
+                  buttonSize={Small}
+                  customSumbitButtonStyle="!w-full mt-8"
+                  tooltipForWidthClass="w-full"
+                />
+              </div>
+              <FormValuesSpy />
+            </Form>
+          </PageLoaderWrapper>
+        </div>
 
-    | #setupPMTS =>
-      <div className="flex flex-col w-1/2 px-10 ">
-        <PageUtils.PageHeading
-          title="Payment Methods"
-          subTitle="Configure your PaymentMethods."
-          customSubTitleStyle="font-500 font-normal text-nd_gray-700"
-        />
-        <PageLoaderWrapper screenState>
-          <Form onSubmit initialValues=updatedInitialVal validate=validateMandatoryField>
-            <div className="flex flex-col mb-5 gap-3 ">
-              <ConnectorPaymentMethodV2 initialValues isInEditState=true ignoreKeys />
-              <FormRenderer.SubmitButton
-                text="Next"
-                buttonSize={Small}
-                customSumbitButtonStyle="!w-full mt-8"
-                tooltipForWidthClass="w-full"
-              />
-            </div>
-            <FormValuesSpy />
-          </Form>
-        </PageLoaderWrapper>
-      </div>
+      | #setupPMTS =>
+        <div className="flex flex-col w-1/2 px-10 mt-20 overflow-y-auto">
+          <PageUtils.PageHeading
+            title="Payment Methods"
+            subTitle="Configure your PaymentMethods."
+            customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+          />
+          <PageLoaderWrapper screenState>
+            <Form onSubmit initialValues validate=validateMandatoryField>
+              <div className="flex flex-col mb-5 gap-3 ">
+                <ConnectorPaymentMethodV2 initialValues isInEditState=true />
+                <FormRenderer.SubmitButton
+                  text="Next"
+                  buttonSize={Small}
+                  customSumbitButtonStyle="!w-full mt-8"
+                  tooltipForWidthClass="w-full"
+                />
+              </div>
+              <FormValuesSpy />
+            </Form>
+          </PageLoaderWrapper>
+        </div>
 
     | #setupWebhook =>
       <div className="flex flex-col w-1/2 px-10">

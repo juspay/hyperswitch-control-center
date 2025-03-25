@@ -263,6 +263,8 @@ module.exports = {
         red: {
           DEFAULT: "#FF0000",
           100: "#FFF1F0",
+          200: "#FEECEB",
+          700: "#C0362D",
           800: "#C04141",
           900: "#DA0E0F",
           950: "#F04849",
