@@ -159,6 +159,11 @@ let make = (~baseUrl, ~showProcessorStatus=true) => {
       errors->JSON.Encode.object,
     )
   }
+  let ignoreKeys =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->Dict.keysToArray
+    ->Array.filter(val => !Array.includes(["credit", "debit"], val))
 
   <PageLoaderWrapper screenState>
     <BreadCrumbNavigation
@@ -318,7 +323,9 @@ let make = (~baseUrl, ~showProcessorStatus=true) => {
               }}
             </div>
           </div>
-          <ConnectorPaymentMethodV2 initialValues isInEditState={checkCurrentEditState(PMTs)} />
+          <ConnectorPaymentMethodV2
+            initialValues isInEditState={checkCurrentEditState(PMTs)} ignoreKeys
+          />
         </div>
       </div>
       <FormValuesSpy />

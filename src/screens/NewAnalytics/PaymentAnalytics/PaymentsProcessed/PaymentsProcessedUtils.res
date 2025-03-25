@@ -69,7 +69,11 @@ let paymentsProcessedMapper = (
     title,
     yAxisMaxValue: None,
     tooltipFormatter,
-    yAxisFormatter: None,
+    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
+      ~statType=Default,
+      ~currency="",
+      ~suffix="",
+    ),
   }
 }
 

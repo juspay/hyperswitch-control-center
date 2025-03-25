@@ -165,7 +165,7 @@ module StackedBarGraphs = {
                   },
                 ],
                 labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(
-                  ~statType=No_Type,
+                  ~statType=Default,
                 ),
               },
               ~yMax=2000,
@@ -414,9 +414,9 @@ module Exceptions = {
       ],
       tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
         ~title="Unmatched Transactions",
-        ~metricType=No_Type,
+        ~metricType=Default,
       ),
-      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=No_Type),
+      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=Default),
     }
 
     <div className="flex flex-col gap-6 w-full">

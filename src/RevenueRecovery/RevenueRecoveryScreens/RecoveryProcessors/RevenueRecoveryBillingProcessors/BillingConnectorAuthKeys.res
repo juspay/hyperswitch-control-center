@@ -33,7 +33,7 @@ let make = (
   <PageWrapper
     title="Choose your Billing Platform"
     subTitle="Choose one processor for now. You can connect more processors later">
-    <div className="-m-1 mb-10 flex flex-col gap-7">
+    <div className="mb-10 flex flex-col gap-7">
       <PageLoaderWrapper screenState>
         <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
           <SelectBox.BaseDropdown
