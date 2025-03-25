@@ -249,13 +249,13 @@ let make = () => {
       </h1>
     </>
 
-  <div className="h-full w-full">
+  <div className="h-774-px w-full">
     {IntelligentRoutingHelper.simulatorBanner}
-    <div className="flex flex-row mt-10 py-10">
+    <div className="flex flex-row mt-5 py-10 h-774-px">
       <VerticalStepIndicator
         titleElement=intelligentRoutingTitleElement sections currentStep backClick
       />
-      <div className="p-12">
+      <div className="mx-12 mt-16 overflow-y-auto">
         {switch currentStep {
         | {sectionId: "analyze"} => <Analyze onNextClick setReviewFields setIsUpload />
         | {sectionId: "review"} => <Review reviewFields isUpload />
