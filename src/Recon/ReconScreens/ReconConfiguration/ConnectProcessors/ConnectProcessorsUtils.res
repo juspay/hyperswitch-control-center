@@ -9,12 +9,22 @@ let processorFieldsConfig = dict => {
   }
 }
 
-let validateProcessorFields = values => {
+let validateProcessorFields = (values: JSON.t) => {
   let data = values->getDictFromJsonObject->processorFieldsConfig
+  let errors = Dict.make()
 
-  data.processor_type->isNonEmptyString &&
-  data.secret_key->isNonEmptyString &&
-  data.client_verification_key->isNonEmptyString
-    ? Button.Normal
-    : Button.Disabled
+  let errorMessage = if data.processor_type->isEmptyString {
+    "Processor type cannot be empty!"
+  } else if data.secret_key->isEmptyString {
+    "Secret key cannot be empty!"
+  } else if data.client_verification_key->isEmptyString {
+    "Client verification key cannot be empty!"
+  } else {
+    ""
+  }
+  if errorMessage->isNonEmptyString {
+    Dict.set(errors, "Error", errorMessage->JSON.Encode.string)
+  }
+
+  errors->JSON.Encode.object
 }

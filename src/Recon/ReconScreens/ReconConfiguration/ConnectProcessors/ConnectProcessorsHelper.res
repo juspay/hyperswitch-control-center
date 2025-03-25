@@ -134,23 +134,16 @@ module AddNewOMPButton = {
 
 module ConnectProcessorsFields = {
   @react.component
-  let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
+  let make = () => {
     open OMPSwitchTypes
-    open VerticalStepIndicatorUtils
-    open ReconConfigurationUtils
-    open ConnectProcessorsUtils
 
     let form = ReactFinalForm.useForm()
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
     let (selectedProcessor, setSelectedProcessor) = React.useState(_ => "")
     let (processorList, _) = React.useState(_ => [{id: "Stripe", name: "Stripe"}])
     let (arrow, setArrow) = React.useState(_ => false)
     let toggleChevronState = () => {
       setArrow(prev => !prev)
     }
-    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "name",
@@ -168,19 +161,6 @@ module ConnectProcessorsFields = {
     let addItemBtnStyle = "border border-t-0 !w-full"
     let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
     let dropdownContainerStyle = "rounded-md border border-1 !w-full"
-
-    let getNextStep = (currentStep: VerticalStepIndicatorTypes.step): option<
-      VerticalStepIndicatorTypes.step,
-    > => {
-      findNextStep(sections, currentStep)
-    }
-
-    let onNextClick = () => {
-      switch getNextStep(currentStep) {
-      | Some(nextStep) => setCurrentStep(_ => nextStep)
-      | None => ()
-      }
-    }
 
     <>
       <SelectBox.BaseDropdown
@@ -231,17 +211,15 @@ module ConnectProcessorsFields = {
             )}
           />
         </div>
-        <div className="mt-10">
-          <Button
-            text="Next"
-            customButtonStyle="rounded w-full"
-            buttonType={Primary}
-            buttonState={formState.values->validateProcessorFields}
-            onClick={_ => {
-              mixpanelEvent(~eventName="recon_onboarding_step2")
-              onNextClick()->ignore
-            }}
-          />
+        <div className="mt-10 w-full">
+          <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
+            <FormRenderer.SubmitButton
+              text="Next"
+              customSumbitButtonStyle="rounded !w-full"
+              buttonType={Primary}
+              tooltipForWidthClass="w-full"
+            />
+          </FormRenderer.DesktopRow>
         </div>
       </RenderIf>
       <FormValuesSpy />
