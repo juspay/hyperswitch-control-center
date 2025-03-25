@@ -12,21 +12,6 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-  let navigate = hasConfiguredBillingConnector => {
-    switch url.path->urlPath {
-    | list{"v2", "recovery", "home"} =>
-      if hasConfiguredBillingConnector {
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/overview"))
-      }
-    | list{"v2", "recovery", "overview", ..._}
-    | list{"v2", "recovery", "summary", ..._} =>
-      if !hasConfiguredBillingConnector {
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
-      }
-    | _ => ()
-    }
-  }
-
   let setUpConnectorContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -48,11 +33,7 @@ let make = () => {
     ~retainInList=BillingProcessor,
   )
 
-  React.useEffect(() => {
-    let hasConfiguredBillingConnector = connectors->Array.length > 0
-    navigate(hasConfiguredBillingConnector)
-    None
-  }, (url, connectors))
+  let hasConfiguredBillingConnector = connectors->Array.length > 0
 
   React.useEffect(() => {
     setUpConnectorContainer()->ignore
@@ -61,7 +42,6 @@ let make = () => {
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
-    | list{"v2", "recovery", "home"} => <RevenueRecoveryOnboardingLanding createMerchant=false />
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold
@@ -73,14 +53,23 @@ let make = () => {
         />
       </AccessControl>
     | list{"v2", "recovery", "overview", ...remainingPath} =>
-      <EntityScaffold
-        entityName="Payments"
-        remainingPath
-        access=Access
-        renderList={() => <RevenueRecoveryOverview />}
-        renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
-      />
-    | list{"v2", "recovery", "summary", ..._} => <BillingConnectorsSummary />
+      if hasConfiguredBillingConnector {
+        <EntityScaffold
+          entityName="Payments"
+          remainingPath
+          access=Access
+          renderList={() => <RevenueRecoveryOverview />}
+          renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
+        />
+      } else {
+        <RevenueRecoveryOnboardingLanding createMerchant=false />
+      }
+    | list{"v2", "recovery", "summary", ..._} =>
+      if hasConfiguredBillingConnector {
+        <BillingConnectorsSummary />
+      } else {
+        <RevenueRecoveryOnboardingLanding createMerchant=false />
+      }
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
