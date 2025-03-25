@@ -42,7 +42,7 @@ let make = (
     initialValuesToDict->Dict.set("connector_name", `${connector}`->JSON.Encode.string)
     initialValuesToDict->Dict.set(
       "connector_label",
-      `${connector}_${activeBusinessProfile}_${Math.random()->Float.toString}`->JSON.Encode.string,
+      `${connector}_${activeBusinessProfile}`->JSON.Encode.string,
     )
     initialValuesToDict->Dict.set("connector_type", "billing_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
