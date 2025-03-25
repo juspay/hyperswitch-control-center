@@ -42,7 +42,7 @@ let make = () => {
     )->Some
   }, [])
 
-  <div className="flex flex-col gap-10 h-774-px">
+  <div className="flex flex-col gap-10 h-923-px">
     <div className="flex h-full">
       <div className="flex flex-col">
         <VerticalStepIndicator

@@ -228,7 +228,7 @@ let make = (
       </PageWrapper>
     | (#connectProcessor, #activePaymentMethods) =>
       <PageWrapper title="Payment Methods" subTitle="Configure your PaymentMethods.">
-        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+        <div className="mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <div className="flex flex-col mb-5 gap-3 ">
