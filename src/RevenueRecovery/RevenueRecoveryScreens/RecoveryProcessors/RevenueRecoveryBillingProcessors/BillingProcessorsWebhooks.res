@@ -9,7 +9,7 @@ let make = (~initialValues, ~merchantId, ~onNextClick) => {
     title="Setup Webhook"
     subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor">
     <div className="mb-10 flex flex-col gap-7">
-      <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+      <div className="mb-10 flex flex-col gap-7 w-540-px">
         <ConnectorWebhookPreview
           merchantId
           connectorName=connectorInfoDict.id
