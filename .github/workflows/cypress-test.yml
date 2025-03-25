@@ -21,7 +21,7 @@ jobs:
       - name: Execute Shell Script
         run: |
           chmod +x cypress/start_hyperswitch.sh
-          bash cypress/start_hyperswitch.sh
+          sh cypress/start_hyperswitch.sh
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
