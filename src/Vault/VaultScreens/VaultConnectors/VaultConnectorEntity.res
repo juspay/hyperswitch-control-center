@@ -100,7 +100,12 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
   getCell
 }
 
-let connectorEntity = () => {
+let connectorEntity = (
+  path: string,
+  ~authorization: CommonAuthTypes.authorization,
+  ~eventName: string,
+) => {
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
@@ -108,5 +113,16 @@ let connectorEntity = () => {
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),
     ~dataKey="",
+    ~getShowLink={
+      connec => {
+        mixpanelEvent(~eventName)
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
+          ~url=GlobalVars.appendDashboardPath(
+            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
+          ),
+          ~authorization,
+        )
+      }
+    },
   )
 }

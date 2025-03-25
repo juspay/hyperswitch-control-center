@@ -178,7 +178,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           title=" "
           hideTitle=true
           actualData=filteredCustomersData
-          entity={customersEntity}
+          entity={customersEntity(~eventName="vault_view_customer_details")}
           resultsPerPage=20
           filters={<TableSearchFilter
             data={customersData}
@@ -194,12 +194,6 @@ let make = (~sampleReport, ~setSampleReport) => {
           showResultsPerPageSelector=false
           showAutoScroll=true
           collapseTableRow=false
-          onEntityClick={val => {
-            RescriptReactRouter.push(
-              GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${val.id}`),
-            )
-            mixpanelEvent(~eventName="vault_view_customer_details")
-          }}
         />
       </RenderIf>
     </div>

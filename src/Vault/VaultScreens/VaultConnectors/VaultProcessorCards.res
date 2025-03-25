@@ -77,16 +77,9 @@ let make = (
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
 
-  let handleSearch = event => {
-    let val = ref(ReactEvent.Form.currentTarget(event)["value"])
-    setSearchedConnector(_ => val.contents)
-  }
-
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     ~heading: string,
-    ~showRequestConnectorBtn,
-    ~showSearch=true,
     ~showDummyConnectorButton=false,
     (),
   ) => {
@@ -172,7 +165,6 @@ let make = (
       <div className="flex flex-col gap-4">
         {connectorListFiltered->descriptedConnectors(
           ~heading="",
-          ~showRequestConnectorBtn=true,
           ~showDummyConnectorButton=false,
           (),
         )}
@@ -189,13 +181,7 @@ let make = (
     <RenderIf condition={showTestProcessor}>
       {showTestProcessor
       ->dummyConnectorList
-      ->descriptedConnectors(
-        ~heading="",
-        ~showRequestConnectorBtn=false,
-        ~showSearch=false,
-        ~showDummyConnectorButton=false,
-        (),
-      )}
+      ->descriptedConnectors(~heading="", ~showDummyConnectorButton=false, ())}
     </RenderIf>
   </RenderIf>
 }

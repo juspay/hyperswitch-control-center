@@ -7,7 +7,7 @@ let make = () => {
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let mixpanelEvent = MixpanelHook.useSendEvent()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (offset, setOffset) = React.useState(_ => 0)
 
@@ -34,6 +34,7 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
+
   React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
     None
@@ -51,21 +52,14 @@ let make = () => {
           resultsPerPage=20
           offset
           setOffset
-          entity={VaultConnectorEntity.connectorEntity()}
+          entity={VaultConnectorEntity.connectorEntity(
+            "v2/vault/onboarding",
+            ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
+            ~eventName="vault_view_connector_details",
+          )}
           currrentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false
           rightTitleElement={requestAProcessorComponent}
-          onEntityClick={val => {
-            mixpanelEvent(~eventName="vault_view_connector_details")
-            RescriptReactRouter.push(
-              GroupAccessUtils.linkForGetShowLinkViaAccess(
-                ~url=GlobalVars.appendDashboardPath(
-                  ~url=`/v2/vault/onboarding/${val.id}?name=${val.connector_name}`,
-                ),
-                ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
-              ),
-            )
-          }}
         />
       </div>
     </RenderIf>
