@@ -1,3 +1,8 @@
+type timeRange = {
+  minDate: string,
+  maxDate: string,
+}
+
 type dataType = Historical | Realtime
 type file = Sample | Upload
 type realtime = StreamLive

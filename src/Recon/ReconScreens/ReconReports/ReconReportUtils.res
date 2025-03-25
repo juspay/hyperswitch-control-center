@@ -1,10 +1,11 @@
 open ReportsTypes
+open LogicUtils
+
 let getArrayDictFromRes = res => {
-  open LogicUtils
   res->getDictFromJsonObject->getArrayFromDict("data", [])
 }
+
 let getSizeofRes = res => {
-  open LogicUtils
   res->getDictFromJsonObject->getInt("size", 0)
 }
 
@@ -15,8 +16,17 @@ let getTabFromUrl = search => {
   }
 }
 
+let getReconStatusTypeFromString = (reconStatus: string) => {
+  switch reconStatus {
+  | "Reconciled" => Reconciled
+  | "Unreconciled" => Unreconciled
+  | "Missing" => Missing
+  | _ => Missing
+  }
+}
+
 let getHeadersForCSV = () => {
-  "Transaction ID,Order ID,Payment Gateway,Payment Method,Txn Amount,Settlement Amount,Recon Status,Transaction Date"
+  "Order ID,Transaction ID,Payment Gateway,Payment Method,Txn Amount,Settlement Amount,Recon Status,Transaction Date"
 }
 
 let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypes> => array<
@@ -34,51 +44,25 @@ let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypes> =
   options
 }
 
-module ListBaseComp = {
-  @react.component
-  let make = (
-    ~heading="",
-    ~subHeading,
-    ~arrow,
-    ~showEditIcon=false,
-    ~onEditClick=_ => (),
-    ~isDarkBg=false,
-    ~showDropdownArrow=true,
-    ~placeHolder="Filters",
-  ) => {
-    let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
-
-    let arrowClassName = isDarkBg
-      ? `${arrow
-            ? "rotate-180"
-            : "-rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
-      : `${arrow
-            ? "rotate-0"
-            : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
-
-    <div
-      className={`flex flex-row cursor-pointer items-center py-5 px-4 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm`}>
-      <div className="flex flex-row items-center gap-2">
-        <RenderIf condition={subHeading->String.length > 0}>
-          <GatewayIcon gateway={subHeading->String.toUpperCase} className="w-4 h-4" />
-          <p
-            className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
-            {subHeading->React.string}
-          </p>
-        </RenderIf>
-        <RenderIf condition={subHeading->String.length == 0}>
-          <Icon name="nd-filter-lines" size=15 />
-          <p
-            className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
-            {placeHolder->React.string}
-          </p>
-        </RenderIf>
-      </div>
-      <RenderIf condition={showDropdownArrow}>
-        <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
-      </RenderIf>
-    </div>
+let getAllReportPayloadType = dict => {
+  {
+    transaction_id: dict->getString("transaction_id", ""),
+    order_id: dict->getString("order_id", ""),
+    payment_gateway: dict->getString("payment_gateway", ""),
+    payment_method: dict->getString("payment_method", ""),
+    txn_amount: dict->getFloat("txn_amount", 0.0),
+    settlement_amount: dict->getFloat("settlement_amount", 0.0),
+    recon_status: dict->getString("recon_status", ""),
+    transaction_date: dict->getString("transaction_date", ""),
   }
+}
+
+let getArrayOfReportsListPayloadType = json => {
+  json->Array.map(reportJson => {
+    reportJson->getDictFromJsonObject->getAllReportPayloadType
+  })
+}
+
+let getReportsList: JSON.t => array<allReportPayload> = json => {
+  LogicUtils.getArrayDataFromJson(json, getAllReportPayloadType)
 }

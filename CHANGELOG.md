@@ -3,6 +3,47 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.24.2
+
+### Features
+
+- HiPay Connector addition ([#2661](https://github.com/juspay/hyperswitch-control-center/pull/2661)) ([`c491938`](https://github.com/juspay/hyperswitch-control-center/commit/c491938ee3397125203f34022cec73a8087c8894))
+
+### Bug Fixes
+
+- Analytics insights breaking fix ([#2672](https://github.com/juspay/hyperswitch-control-center/pull/2672)) ([`1c77c3d`](https://github.com/juspay/hyperswitch-control-center/commit/1c77c3d3a038409fbf2d55fda26b0ff7b8f8996f))
+
+### Refactors
+
+- Recon ui changes in analytics ([#2664](https://github.com/juspay/hyperswitch-control-center/pull/2664)) ([`bfc1182`](https://github.com/juspay/hyperswitch-control-center/commit/bfc118268f897bd0018467caa30f6b9746f040d5))
+
+### Miscellaneous Tasks
+
+- Remove profile level report - auth analytics ([#2633](https://github.com/juspay/hyperswitch-control-center/pull/2633)) ([`a45d922`](https://github.com/juspay/hyperswitch-control-center/commit/a45d922793cfa8986ce569c1314afc7f3ba28b01))
+
+**Full Changelog:** [`2025.03.24.1...2025.03.24.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.24.1...2025.03.24.2)
+
+
+- - -
+
+## 2025.03.24.1
+
+### Features
+
+- Added new connector redsys ([#2658](https://github.com/juspay/hyperswitch-control-center/pull/2658)) ([`eb29310`](https://github.com/juspay/hyperswitch-control-center/commit/eb2931079d1ef39fe2dbd62c8cd41ef24e2cf9af))
+- Wasm update for redsys ([#2659](https://github.com/juspay/hyperswitch-control-center/pull/2659)) ([`4465a60`](https://github.com/juspay/hyperswitch-control-center/commit/4465a60ac1a105928c23166edbbf888bc5ddfe1d))
+- Added threeds requestor app url in payment settings ([#2650](https://github.com/juspay/hyperswitch-control-center/pull/2650)) ([`9b76b1d`](https://github.com/juspay/hyperswitch-control-center/commit/9b76b1d42581860de6d8f696117f5463b7154457))
+
+### Bug Fixes
+
+- Logo aspect ratio ([#2655](https://github.com/juspay/hyperswitch-control-center/pull/2655)) ([`3625158`](https://github.com/juspay/hyperswitch-control-center/commit/3625158ff53e48623cceb77c428526f40b798883))
+- Default home changes ([#2657](https://github.com/juspay/hyperswitch-control-center/pull/2657)) ([`824b0dc`](https://github.com/juspay/hyperswitch-control-center/commit/824b0dc31a7bcd5bb32afddfc91126a1b9ffe567))
+
+**Full Changelog:** [`2025.03.24.0...2025.03.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.24.0...2025.03.24.1)
+
+
+- - -
+
 ## 2025.03.24.0
 
 ### Features
