@@ -30,9 +30,16 @@ let appendDashboardPath = (~url) => {
   }
 }
 
-let extractModulePath = (url: RescriptReactRouter.url, ~end) => {
-  let currentPathList = url.path->List.toArray
-  currentPathList->Array.slice(~start=0, ~end)->Array.joinWith("/")->appendTrailingSlash
+let extractModulePath = (~path: list<string>, ~query="", ~end) => {
+  open LogicUtils
+  let currentPathList = path->List.toArray
+  let slicedPath = currentPathList->Array.slice(~start=0, ~end)
+  let pathString = slicedPath->Array.joinWith("/")->appendTrailingSlash
+
+  switch query->getNonEmptyString {
+  | Some(q) => `${pathString}?${q}`
+  | None => pathString
+  }
 }
 
 type hostType = Live | Sandbox | Local | Integ
