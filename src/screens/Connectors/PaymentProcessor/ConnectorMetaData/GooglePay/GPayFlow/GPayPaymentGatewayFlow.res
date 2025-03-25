@@ -48,8 +48,7 @@ let make = (
     let metadataDetails =
       connectorWalletDetails
       ->getMetadataFromConnectorWalletDetailsGooglePay(connector)
-      ->Identity.genericTypeToDictOfJson
-      ->JSON.Encode.object
+      ->Identity.genericTypeToJson
     form.change("metadata.google_pay", metadataDetails)
     setShowWalletConfigurationModal(_ => false)
     let _ = update(metadataDetails)
