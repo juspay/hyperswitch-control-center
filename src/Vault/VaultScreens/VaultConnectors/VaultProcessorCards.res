@@ -59,15 +59,6 @@ let make = (
       configuredConnectors->Array.find(item => item === total)->Option.isNone
     )
 
-  let (showModal, setShowModal) = React.useState(_ => false)
-  let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
-  let searchRef = React.useRef(Nullable.null)
-
-  let leftIcon =
-    <div id="leftIcon" className="self-center py-3 pl-5 pr-4">
-      <Icon size=18 name="search" />
-    </div>
-
   let handleClick = connectorName => {
     mixpanelEvent(~eventName=`vault_connector_click_${connectorName}`)
     setShowSideBar(_ => false)
@@ -150,33 +141,15 @@ let make = (
     </>
   }
 
-  let connectorListFiltered = {
-    if searchedConnector->LogicUtils.isNonEmptyString {
-      connectorsAvailableForIntegration->Array.filter(item =>
-        item->getConnectorNameString->String.includes(searchedConnector->String.toLowerCase)
-      )
-    } else {
-      connectorsAvailableForIntegration
-    }
-  }
-
   <RenderIf condition={unConfiguredConnectorsCount > 0}>
     <RenderIf condition={showAllConnectors}>
       <div className="flex flex-col gap-4">
-        {connectorListFiltered->descriptedConnectors(
+        {connectorsAvailableForIntegration->descriptedConnectors(
           ~heading="",
           ~showDummyConnectorButton=false,
           (),
         )}
       </div>
-      <RenderIf condition={showModal}>
-        <HSwitchFeedBackModal
-          modalHeading="Request a processor"
-          setShowModal
-          showModal
-          modalType={RequestConnectorModal}
-        />
-      </RenderIf>
     </RenderIf>
     <RenderIf condition={showTestProcessor}>
       {showTestProcessor

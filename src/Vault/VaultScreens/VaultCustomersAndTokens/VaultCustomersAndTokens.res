@@ -81,7 +81,6 @@ let make = (~sampleReport, ~setSampleReport) => {
   let (searchVal, setSearchVal) = React.useState(_ => "")
   let total = 100 // TODO: take this value from API response [currenctly set to 5 pages]
   let limit = 10 // each api calls will return 50 results
-  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let getCustomersList = async () => {
     try {

@@ -63,7 +63,7 @@ let make = () => {
         />
       </div>
     </RenderIf>
-    <RenderIf condition={configuredConnectors->Array.length <= 0}>
+    <RenderIf condition={configuredConnectors->Array.length == 0}>
       <div className="-mt-4">
         <VaultProcessorCards configuredConnectors connectorsAvailableForIntegration />
       </div>
