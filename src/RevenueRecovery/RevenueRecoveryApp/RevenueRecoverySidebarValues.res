@@ -20,7 +20,7 @@ let revenueRecoveryPayments = {
 
 let revenueRecoverySummary = {
   Link({
-    name: "View Configuration",
+    name: "Configuration Details",
     link: `/v2/recovery/summary`,
     access: Access,
     icon: "nd-connectors",

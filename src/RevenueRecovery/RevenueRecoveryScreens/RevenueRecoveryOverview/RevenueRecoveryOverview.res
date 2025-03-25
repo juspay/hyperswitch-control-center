@@ -5,10 +5,10 @@ let make = () => {
   //open HSwitchRemoteFilter
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
-  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
+  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("recovery-orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -66,7 +66,8 @@ let make = () => {
         ~methodType=Get,
         ~queryParamerters=Some(filter->FilterUtils.parseFilterDict),
       )
-      let res = await fetchDetails(ordersUrl, ~version=V2)
+      //let res = await fetchDetails(ordersUrl, ~version=V2)
+      let res = RevenueRecoveryData.orderData
 
       let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
       let total = res->getDictFromJsonObject->getInt("total_count", 0)
@@ -83,7 +84,9 @@ let make = () => {
           let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
           filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-          let res = await fetchDetails(ordersUrl, ~version=V2)
+          //let res = await fetchDetails(ordersUrl, ~version=V2)
+          let res = RevenueRecoveryData.orderData
+
           let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
           let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -180,8 +183,8 @@ let make = () => {
         <LoadedTableWithCustomColumns
           title="Recovery"
           actualData=revenueRecoveryData
-          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId)}
-          resultsPerPage=20
+          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId, profileId)}
+          resultsPerPage=10
           showSerialNumber=true
           totalResults={totalCount}
           offset

@@ -14,6 +14,7 @@ let make = (
   open ConnectorUtils
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
+  open ConnectProcessorsHelper
 
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
@@ -23,6 +24,11 @@ let make = (
   )
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
+  let (arrow, setArrow) = React.useState(_ => false)
+
+  let toggleChevronState = () => {
+    setArrow(prev => !prev)
+  }
 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
@@ -46,6 +52,14 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
+    initialValuesToDict->Dict.set(
+      "connector_webhook_details",
+      RevenueRecoveryData.payment_connector_webhook_details,
+    )
+    initialValuesToDict->Dict.set(
+      "connector_account_details",
+      RevenueRecoveryData.connector_account_details,
+    )
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
@@ -143,26 +157,42 @@ let make = (
   }
   let options = RecoveryConnectorUtils.recoveryConnectorList->getOptions
 
+  let addItemBtnStyle = "border border-t-0 !w-full"
+  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
+  let dropdownContainerStyle = "rounded-md border border-1 !w-full"
+
   <div>
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
     | (#connectProcessor, #selectProcessor) =>
       <PageWrapper
         title="Authenticate Processor"
         subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
-        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+        <div className="mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
-                buttonText="Select Processor"
+                buttonText="Choose a processor"
                 input
                 deselectDisable=true
                 customButtonStyle="!rounded-xl h-[45px] pr-2"
                 options
+                baseComponent={<ListBaseComp
+                  placeHolder="Choose a processor" heading="Profile" subHeading=connector arrow
+                />}
+                bottomComponent={<AddNewOMPButton
+                  filterConnector=None
+                  prodConnectorList=RecoveryConnectorUtils.recoveryConnectorListProd
+                  user=#Profile
+                  addItemBtnStyle
+                />}
                 hideMultiSelectButtons=true
                 addButton=false
                 searchable=true
                 customStyle="!w-full"
+                customScrollStyle
+                dropdownContainerStyle
+                toggleChevronState
                 customDropdownOuterClass="!border-none"
                 fullLength=true
                 shouldDisplaySelectedOnTop=true
@@ -170,7 +200,9 @@ let make = (
               />
               <RenderIf condition={connector->isNonEmptyString}>
                 <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
-                  <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
+                  <ConnectorAuthKeys
+                    initialValues={updatedInitialVal} showVertically=true updateAccountDetails=false
+                  />
                   <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
                   <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
                   <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
@@ -210,7 +242,7 @@ let make = (
       <PageWrapper
         title="Setup Webhook"
         subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor">
-        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+        <div className="mb-10 flex flex-col gap-7 w-540-px">
           <ConnectorWebhookPreview
             merchantId
             connectorName=connectorInfoDict.id
