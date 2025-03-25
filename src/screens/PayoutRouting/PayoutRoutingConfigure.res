@@ -3,6 +3,7 @@ let make = (~routingType) => {
   open LogicUtils
   open RoutingTypes
   open RoutingUtils
+
   let url = RescriptReactRouter.useUrl()
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
