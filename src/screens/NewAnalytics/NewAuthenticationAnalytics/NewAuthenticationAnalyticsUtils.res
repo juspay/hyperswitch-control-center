@@ -207,7 +207,7 @@ let getMetricsData = (queryData: queryDataType) => {
     {
       title: "Payments Requiring 3DS authentication",
       value: queryData.authentication_count->Int.toFloat,
-      valueType: No_Type,
+      valueType: Default,
       tooltip_description: "Total number of payments which requires 3DS 2.0 authentication",
     },
     {
