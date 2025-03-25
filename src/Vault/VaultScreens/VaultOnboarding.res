@@ -250,7 +250,7 @@ let make = () => {
         <ConnectorWebhookPreview
           merchantId
           connectorName=connectorInfoDict.id
-          textCss="border border-nd_gray-300 font-bold rounded-xl px-4 py-2 mb-6 mt-6 text-sm text-nd_gray-400 "
+          textCss="border border-nd_gray-300 font-bold rounded-xl px-4 py-2 mb-6 mt-6 text-sm text-nd_gray-400"
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true
           showFullCopy=true

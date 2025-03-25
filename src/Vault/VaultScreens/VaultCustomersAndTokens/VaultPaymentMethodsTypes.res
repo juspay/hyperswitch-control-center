@@ -8,8 +8,6 @@ type psp_tokens = {
 
 type psp_tokensization = {psp_token: array<psp_tokens>}
 
-
-
 type paymentMethodCardType = {
   issuer_country: string,
   last4_digits: string,

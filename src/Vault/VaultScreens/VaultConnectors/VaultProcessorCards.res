@@ -137,7 +137,7 @@ let make = (
               authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               onClick={_ => handleClick(connectorName)}
               key={i->Int.toString}
-              className="border p-4 gap-2 bg-white rounded-lg flex flex-col  justify-between h-[9.5rem] hover:bg-gray-50 hover:cursor-pointer"
+              className="border p-4 gap-2 bg-white rounded-lg flex flex-col  justify-between h-9.5-rem hover:bg-gray-50 hover:cursor-pointer"
               dataAttrStr=connectorName>
               <div className="flex flex-row gap-3 items-center">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
