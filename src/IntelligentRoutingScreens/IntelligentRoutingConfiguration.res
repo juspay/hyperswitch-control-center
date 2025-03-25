@@ -59,7 +59,7 @@ module Review = {
       </div>
       <Button
         text="Explore Insights"
-        customButtonStyle={`w-full hover:opacity-80 ${showLoading ? "cursor-wait" : ""}`}
+        customButtonStyle={`w-full mt-6 hover:opacity-80 ${showLoading ? "cursor-wait" : ""}`}
         buttonType=Primary
         onClick={_ => handleNext()}
         rightIcon={showLoading
@@ -188,7 +188,7 @@ module Analyze = {
         ->React.array}
         <Button
           text
-          customButtonStyle={`w-full hover:opacity-80 ${text != "Next" ? "cursor-wait" : ""}`}
+          customButtonStyle={`w-full mt-6 hover:opacity-80 ${text != "Next" ? "cursor-wait" : ""}`}
           buttonType={Primary}
           onClick={_ => handleNext()}
           rightIcon={text != "Next"
