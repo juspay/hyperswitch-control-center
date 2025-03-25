@@ -46,7 +46,13 @@ type marker = {
 type line = {marker: marker}
 type plotOptions = {line: line}
 type labels = {
-  formatter?: option<pointFormatter => string>,
+  formatter: pointFormatter => string,
+  align: align,
+  style: style,
+  y?: y,
+  x?: int,
+}
+type xAxisLabels = {
   align: align,
   style: style,
   y?: y,
@@ -84,7 +90,7 @@ type xAxis = {
   crosshair: crosshair,
   lineWidth: lineWidth,
   tickWidth: tickWidth,
-  labels: labels,
+  labels: xAxisLabels,
   tickInterval: int,
   gridLineWidth: gridLineWidth,
   gridLineColor: gridLineColor,
@@ -154,5 +160,5 @@ type lineGraphPayload = {
   title: title,
   yAxisMaxValue: option<int>,
   tooltipFormatter: pointFormatter => string,
-  yAxisFormatter: option<pointFormatter => string>,
+  yAxisFormatter: pointFormatter => string,
 }
