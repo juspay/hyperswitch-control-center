@@ -46,7 +46,11 @@ let refundsSuccessRateMapper = (
       ~metricType=Rate,
       ~comparison,
     ),
-    yAxisFormatter: None,
+    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
+      ~statType=Default,
+      ~currency="",
+      ~suffix="",
+    ),
   }
 }
 
