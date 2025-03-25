@@ -41,7 +41,7 @@ module BillingConnectorDetails = {
       initialValues->LogicUtils.getDictFromJsonObject,
     )
 
-    let {connector_name: connectorName} = connectorInfodict
+    let {connector_name: connectorName, connector_webhook_details} = connectorInfodict
 
     let connectorDetails = React.useMemo(() => {
       try {
@@ -131,10 +131,12 @@ module BillingConnectorDetails = {
           customElementStyle="px-2 "
         />
         <div className="grid grid-cols-3 px-2">
-          {connectorWebHookDetails
+          {connector_webhook_details
+          ->getDictFromJsonObject
           ->Dict.toArray
           ->Array.map(item => {
             let (key, value) = item
+
             <div className="flex flex-col gap-0.5-rem ">
               <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
               {value->JSON.Decode.string->Option.getOr("")->React.string}
