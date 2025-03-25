@@ -6,8 +6,6 @@ type appName = [
 
 type appEnv = [#production | #sandbox | #integration | #development]
 
-@val external dashboardAppName: appName = "dashboardAppName"
-
 let isLocalhost =
   Window.Location.hostname === "localhost" || Window.Location.hostname === "127.0.0.1"
 
@@ -57,8 +55,6 @@ let getEnvironment = hostType =>
 let getHostUrlWithBasePath = `${Window.Location.origin}${appendDashboardPath(~url="")}`
 
 let getHostUrl = Window.Location.origin
-
-let isHyperSwitchDashboard = dashboardAppName === #hyperswitch
 
 let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"

@@ -72,7 +72,6 @@ let customBuild = () => {
         ].filter(Boolean),
       }),
       new webpack.DefinePlugin({
-        dashboardAppName: JSON.stringify("hyperswitch"),
         dashboardAppEnv: JSON.stringify(process.env.APP_ENV || "sandbox"),
         GIT_COMMIT_HASH: JSON.stringify(process.env.GIT_COMMIT_HASH || ""),
         appVersion: JSON.stringify(process.env.APP_VERSION || ""),
