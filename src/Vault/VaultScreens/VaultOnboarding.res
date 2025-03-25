@@ -87,10 +87,12 @@ let make = () => {
       )
       updatedData
     })
-    let pmSubTypeDict = Dict.make()
-    let _ = pmSubTypeDict->Dict.set("payment_method_type", "card"->JSON.Encode.string)
-    let _ = pmSubTypeDict->Dict.set("payment_method_subtypes", pmtype->Identity.genericTypeToJson)
-    let pmArr = [pmSubTypeDict]
+    let pmSubTypeDict =
+      [
+        ("payment_method_type", "card"->JSON.Encode.string),
+        ("payment_method_subtypes", pmtype->Identity.genericTypeToJson),
+      ]->Dict.fromArray
+    let pmArr = Array.make(~length=1, pmSubTypeDict)
     initialValuesToDict->Dict.set("payment_methods_enabled", pmArr->Identity.genericTypeToJson)
 
     initialValuesToDict->JSON.Encode.object
