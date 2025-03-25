@@ -212,7 +212,7 @@ let useInternalSwitch = () => {
         // When the internal switch is triggered from the dropdown,
         // and the current path is "/dashboard/payment/id",
         // update the path to "/dashboard/payment" by removing the "id" part.
-        let currentUrl = GlobalVars.extractModulePath(url, ~end=2)
+        let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
         RescriptReactRouter.replace(currentUrl)
       }
     } catch {
