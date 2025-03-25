@@ -50,7 +50,11 @@ let make = (~routingType) => {
           baseUrlForRedirection
         />
       | DEFAULTFALLBACK =>
-        <DefaultRouting urlEntityName=V1(DEFAULT_FALLBACK) baseUrlForRedirection />
+        <DefaultRouting
+          urlEntityName=V1(DEFAULT_FALLBACK)
+          baseUrlForRedirection
+          connectorVariant=ConnectorTypes.PaymentProcessor
+        />
       | _ => <> </>
       }}
     </History.BreadCrumbWrapper>

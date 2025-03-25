@@ -74,8 +74,9 @@ module Details = {
     ~justifyClassName="justify-start",
     ~widthClass="w-1/4",
     ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+    ~itemWrapperClass="",
   ) => {
-    <FormRenderer.DesktopRow>
+    <FormRenderer.DesktopRow itemWrapperClass>
       <div
         className={`grid grid-cols-3 ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
         {detailsFields
@@ -87,8 +88,8 @@ module Details = {
                 value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
-                overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
-                textColor="!text-nd_gray-600 font-medium leading-6"
+                overiddingHeadingStyles="text-nd_gray-400 !text-sm font-medium"
+                textColor="!text-nd_gray-600 leading-6 !text-fs-16 !font-medium"
               />
             </div>
           </RenderIf>
