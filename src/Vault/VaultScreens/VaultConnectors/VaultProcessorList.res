@@ -10,7 +10,7 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (offset, setOffset) = React.useState(_ => 0)
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let requestAProcessorComponent = {
     <div className="-mt-8">
       <VaultProcessorCards.CantFindProcessor showRequestConnectorBtn=true />
@@ -40,6 +40,10 @@ let make = () => {
     None
   }, [connectorListFromRecoil->Array.length])
 
+  let callMixpanel = eventName => {
+    mixpanelEvent(~eventName)
+  }
+
   let connectorsAvailableForIntegration = VaultConnectorUtils.connectorListForVault
 
   <PageLoaderWrapper screenState>
@@ -55,7 +59,7 @@ let make = () => {
           entity={VaultConnectorEntity.connectorEntity(
             "v2/vault/onboarding",
             ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
-            ~eventName="vault_view_connector_details",
+            callMixpanel,
           )}
           currrentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false

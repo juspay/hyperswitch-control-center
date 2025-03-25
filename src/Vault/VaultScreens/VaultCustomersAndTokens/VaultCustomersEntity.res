@@ -61,8 +61,7 @@ let getCustomers: JSON.t => array<customers> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let customersEntity = (~eventName) => {
-  let mixpanelEvent = MixpanelHook.useSendEvent()
+let customersEntity = callMixpanel => {
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=getCustomers,
@@ -73,7 +72,7 @@ let customersEntity = (~eventName) => {
     ~dataKey="",
     ~getShowLink={
       customerData => {
-        mixpanelEvent(~eventName)
+        callMixpanel("vault_view_customer_details")
         GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
       }
     },
