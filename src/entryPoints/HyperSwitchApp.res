@@ -59,12 +59,12 @@ let make = () => {
   }
   // set the product url based on the product type
   let setupProductUrl = (~productType: ProductTypes.productTypes) => {
-    let currentUrl = GlobalVars.extractModulePath(url, ~end=url.path->List.toArray->Array.length)
-    let queryParam = url.search->String.trim
-    let productUrl = switch queryParam->LogicUtils.getNonEmptyString {
-    | Some(query) => `${ProductUtils.getProductUrl(~productType, ~url=currentUrl)}?${query}`
-    | None => ProductUtils.getProductUrl(~productType, ~url=currentUrl)
-    }
+    let currentUrl = GlobalVars.extractModulePath(
+      ~path=url.path,
+      ~query=url.search,
+      ~end=url.path->List.toArray->Array.length,
+    )
+    let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
     RescriptReactRouter.replace(productUrl)
     switch url.path->urlPath {
     | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
