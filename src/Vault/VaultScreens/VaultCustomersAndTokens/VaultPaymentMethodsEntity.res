@@ -25,48 +25,49 @@ let getHeading = colType => {
   }
 }
 
-let paymentMethodData = (last4_digits, cardNetwork) => {
-  <>
-    <div> {`${last4_digits}`->React.string} </div>
-    <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-6">
-      <GatewayIcon gateway={cardNetwork->String.toUpperCase} className="w-6 h-6 mr-2" />
+let paymentMethodDataCell = (last4_digits, cardNetwork) => {
+  <div className="flex gap-4 ">
+    <div className="w-9"> {`${last4_digits}`->React.string} </div>
+    <div className="flex items-center  mr-6">
+      <GatewayIcon gateway={cardNetwork->String.toUpperCase} className="w-6 h-6 mr-1" />
       <div className="capitalize">
         {cardNetwork
         ->capitalizeString
         ->React.string}
       </div>
     </div>
-  </>
+  </div>
+}
+let labelCell = status => {
+  let textColor = status ? "text-green-800" : "text-red-700"
+  let bgColor = status ? "bg-green-200" : "bg-nd_red-50"
+  let text = status ? "Enabled" : "Disabled"
+
+  <div className={`flex justify-center gap-1 px-2 py-0.5 rounded ${bgColor} ${textColor} w-fit`}>
+    <p className="text-xs font-semibold"> {text->React.string} </p>
+  </div>
 }
 
 let getCell = (paymentMethodsData, colType): Table.cell => {
   switch colType {
   | PaymentMethodId => Text(paymentMethodsData.id)
-  | PaymentMethodType => Text(paymentMethodsData.payment_method_type->Option.getOr(""))
+  | PaymentMethodType =>
+    Text(paymentMethodsData.payment_method_type->Option.getOr("")->capitalizeString)
   | PaymentMethodData =>
     CustomCell(
-      paymentMethodData(
+      paymentMethodDataCell(
         paymentMethodsData.payment_method_data.card.last4_digits,
         paymentMethodsData.payment_method_data.card.card_network,
       ),
       "",
     )
-  | PSPTokensization =>
-    Label({
-      title: "ENABLED"->String.toUpperCase, // use from paymentMethodsData
-      color: switch "ENABLED"->VaultPaymentMethodUtils.statusToVariantMapper {
-      | Enabled => LabelGreen
-      | Disabled => LabelRed
-      },
-    })
-  | NetworkTokenization =>
-    Label({
-      title: "ENABLED"->String.toUpperCase, // use from paymentMethodsData
-      color: switch "ENABLED"->VaultPaymentMethodUtils.statusToVariantMapper {
-      | Enabled => LabelGreen
-      | Disabled => LabelRed
-      },
-    })
+  | PSPTokensization => CustomCell(labelCell(paymentMethodsData.psp_tokenization_enabled), "")
+
+  | NetworkTokenization => {
+      let isEnabled =
+        paymentMethodsData.network_tokensization.payment_method_data->LogicUtils.checkEmptyJson
+      CustomCell(labelCell(isEnabled), "")
+    }
   | CreatedAt => Date(paymentMethodsData.created)
   | LastUsed => Date(paymentMethodsData.last_used_at)
   }
@@ -84,14 +85,6 @@ let pspTokenMapper = dict => {
 
 let pspTokensizationMapper = json => {
   psp_token: json->getArrayDataFromJson(pspTokenMapper),
-}
-
-let networkTokenizationMapper = dict => {
-  {
-    enabled: dict->getBool("enabled", false),
-    status: dict->getString("status", ""),
-    token: dict->getString("token", ""),
-  }
 }
 
 let cardTypeMapper = dict => {
@@ -114,10 +107,12 @@ let paymentMethodDataTypeMapper = dict => {
     card: cardDict->cardTypeMapper,
   }
 }
+let networkTokenizationMapper = dict => {
+  payment_method_data: dict->getJsonObjectFromDict("payment_method_data"),
+}
 
 let itemToObjMapper = dict => {
   {
-    merchant: dict->getString("merchant", ""),
     customer_id: dict->getOptionString("customer_id"),
     id: dict->getString("id", ""),
     payment_method_type: dict->getOptionString("payment_method_type"),
@@ -125,15 +120,14 @@ let itemToObjMapper = dict => {
     metadata: dict->getJsonObjectFromDict("metadata"),
     tokenization_type: dict->getJsonObjectFromDict("tokenization_type"),
     psp_tokensization: dict->getJsonObjectFromDict("psp_tokensization")->pspTokensizationMapper,
-    network_tokensization: dict
-    ->getDictfromDict("newtork_tokensization")
-    ->networkTokenizationMapper,
+    network_tokensization: dict->getDictfromDict("network_tokenization")->networkTokenizationMapper,
     bank_transfer: dict->getString("bank_transfer", ""),
     created: dict->getString("created", ""),
     last_used_at: dict->getString("last_used_at", ""),
     recurring_enabled: dict->getBool("recurring_enabled", false),
     network_transaction_id: dict->getString("network_transaction_id", ""),
     payment_method_data: dict->getDictfromDict("payment_method_data")->paymentMethodDataTypeMapper,
+    psp_tokenization_enabled: dict->getBool("psp_tokenization_enabled", false),
   }
 }
 let getArrayOfPaymentMethodListPayloadType = json => {

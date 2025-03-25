@@ -100,7 +100,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
   getCell
 }
 
-let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
+let connectorEntity = () => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
@@ -108,14 +108,5 @@ let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorizati
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),
     ~dataKey="",
-    ~getShowLink={
-      connec =>
-        GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
-          ),
-          ~authorization,
-        )
-    },
   )
 }

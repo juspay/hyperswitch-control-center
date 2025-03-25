@@ -109,7 +109,7 @@ let defaultHomeCardsArray = {
     {
       product: Vault,
       heading: "Vault",
-      description: "A modular solution designed to unify various abstractions, seamlessly connecting with payment processors, payout processors, fraud management, tax automation, identity solutions, and reporting systems.",
+      description: "A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data—without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
       action: InternalRoute("v2/vault"),
     },

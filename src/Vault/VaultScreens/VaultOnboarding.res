@@ -182,8 +182,8 @@ let make = () => {
 
   let vaultTitleElement =
     <>
-      <GatewayIcon gateway={`${connector}`->String.toUpperCase} />
-      <h1 className="text-medium font-semibold text-gray-600">
+      <GatewayIcon gateway={`${connector}`->String.toUpperCase} className="w-6 h-6" />
+      <h1 className="text-medium font-semibold text-gray-600 ">
         {`Setup ${connector->capitalizeString}`->React.string}
       </h1>
     </>
@@ -200,7 +200,7 @@ let make = () => {
         />
         <PageLoaderWrapper screenState>
           <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
-            <div className="flex flex-col mb-5 gap-3 ">
+            <div className="flex flex-col mt-4 mb-5 gap-3 ">
               <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
               <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
               <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
@@ -250,7 +250,7 @@ let make = () => {
         <ConnectorWebhookPreview
           merchantId
           connectorName=connectorInfoDict.id
-          textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
+          textCss="border border-nd_gray-300 font-bold rounded-xl px-4 py-2 mb-6 mt-6 text-sm text-nd_gray-400 "
           containerClass="flex flex-row items-center justify-between"
           hideLabel=true
           showFullCopy=true

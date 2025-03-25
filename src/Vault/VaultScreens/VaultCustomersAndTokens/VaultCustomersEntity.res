@@ -69,10 +69,6 @@ let customersEntity = EntityType.makeEntity(
   ~getHeading,
   ~getCell,
   ~dataKey="",
-  ~getShowLink={
-    customerData =>
-      GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
-  },
 )
 
 let colToStringMapper = val => {

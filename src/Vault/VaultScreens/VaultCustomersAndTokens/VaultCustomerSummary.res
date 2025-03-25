@@ -132,6 +132,7 @@ module VaultedPaymentMethodsTable = {
     let (showModal, setShowModal) = React.useState(_ => false)
     let (paymentId, setPaymentId) = React.useState(_ => "")
     let customerIdFromUrl = url.path->List.toArray->Array.get(4)->Option.getOr("")
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let fetchPaymentMethods = async () => {
       try {
@@ -184,6 +185,7 @@ module VaultedPaymentMethodsTable = {
         onEntityClick={val => {
           setPaymentId(_ => val.id)
           setShowModal(_ => true)
+          mixpanelEvent(~eventName="vault_view_vaulted_payment_method_details")
         }}
         currrentFetchCount={tableData->Array.length}
       />
@@ -203,9 +205,11 @@ module VaultedPaymentMethods = {
   @react.component
   let make = (~sampleReport) => {
     <>
-      <div
-        className={`font-semibold text-nd_gray-600 text-fs-24 leading-6 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
-        {"Vaulted Payment Methods"->React.string}
+      <div className="flex flex-col gap-1 mb-6">
+        <p className="text-xl font-semibold"> {"Vaulted Payment Method"->React.string} </p>
+        <p className="text-base text-nd_gray-400">
+          {"Click on an entry to view detailed information about a vaulted payment method."->React.string}
+        </p>
       </div>
       <VaultedPaymentMethodsTable sampleReport />
     </>
@@ -272,7 +276,9 @@ let make = (~id, ~sampleReport) => {
           </div>
         </div>
       </div>
-      <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
+      <div className="mb-8">
+        <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
+      </div>
       <VaultedPaymentMethods sampleReport />
     </div>
   </PageLoaderWrapper>
