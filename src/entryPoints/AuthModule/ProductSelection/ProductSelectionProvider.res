@@ -43,8 +43,12 @@ module SelectMerchantBody = {
     ~setActiveProductValue,
   ) => {
     open LogicUtils
+    let url = RescriptReactRouter.useUrl()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let showToast = ToastState.useShowToast()
+    let merchantDetailsTypedValue =
+      HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
+
     let dropDownOptions =
       merchantList
       ->Array.filter(item => {
@@ -120,6 +124,22 @@ module SelectMerchantBody = {
           subHeading=""
           customSubHeadingStyle="w-full !max-w-none pr-10"
         />
+        <div
+          className="h-fit"
+          onClick={_ => {
+            let currentUrl = GlobalVars.extractModulePath(
+              ~path=url.path,
+              ~end=url.path->List.toArray->Array.length,
+            )
+            setShowModal(_ => false)
+            let productUrl = ProductUtils.getProductUrl(
+              ~productType=merchantDetailsTypedValue.product_type,
+              ~url=currentUrl,
+            )
+            RescriptReactRouter.replace(productUrl)
+          }}>
+          <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
+        </div>
       </div>
       <hr />
       <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>

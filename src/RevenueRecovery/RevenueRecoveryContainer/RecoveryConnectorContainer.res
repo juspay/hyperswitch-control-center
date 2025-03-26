@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open HSwitchUtils
+  open RevenueRecoveryOnboardingUtils
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
@@ -43,26 +44,36 @@ let make = () => {
     {switch url.path->urlPath {
     | list{"v2", "recovery", "home"} =>
       hasConfiguredBillingConnector
-        ? <RevenueRecoveryOverview />
+        ? <div className="mt-10">
+            {sampleDataBanner}
+            <RevenueRecoveryOverview />
+          </div>
         : <RevenueRecoveryOnboardingLanding default=false />
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
-        <EntityScaffold
-          entityName="onboarding"
-          remainingPath
-          renderList={() => <RevenueRecoveryOnboarding />}
-          renderNewForm={() => <RevenueRecoveryOnboarding />}
-          renderShow={(_, _) => <RevenueRecoveryOnboarding />}
-        />
+        {<div className="mt-14">
+          {sampleDataBanner}
+          <EntityScaffold
+            entityName="onboarding"
+            remainingPath
+            renderList={() => <RevenueRecoveryOnboarding />}
+            renderNewForm={() => <RevenueRecoveryOnboarding />}
+            renderShow={(_, _) => <RevenueRecoveryOnboarding />}
+          />
+        </div>}
       </AccessControl>
     | list{"v2", "recovery", "overview", ...remainingPath} =>
-      <EntityScaffold
-        entityName="Payments"
-        remainingPath
-        access=Access
-        renderList={() => <RevenueRecoveryOverview />}
-        renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
-      />
+      <div className="mt-10">
+        {sampleDataBanner}
+        <EntityScaffold
+          entityName="Payments"
+          remainingPath
+          access=Access
+          renderList={() => <RevenueRecoveryOverview />}
+          renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
+        />
+      </div>
+
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

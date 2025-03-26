@@ -165,7 +165,7 @@ module StackedBarGraphs = {
                   },
                 ],
                 labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(
-                  ~statType=No_Type,
+                  ~statType=Default,
                 ),
               },
               ~yMax=2000,
@@ -414,9 +414,9 @@ module Exceptions = {
       ],
       tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
         ~title="Unmatched Transactions",
-        ~metricType=No_Type,
+        ~metricType=Default,
       ),
-      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=No_Type),
+      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=Default),
     }
 
     <div className="flex flex-col gap-6 w-full">
@@ -456,6 +456,11 @@ module Exceptions = {
 module ReconOverviewContent = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    React.useEffect(() => {
+      mixpanelEvent(~eventName="recon_analytics_overview")
+      None
+    }, [])
     <div>
       <div
         className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">

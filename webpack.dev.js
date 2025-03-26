@@ -4,9 +4,6 @@ const { merge } = require("webpack-merge");
 const common = require("./webpack.common.js");
 const config = import("./src/server/config.mjs");
 
-const appName = process.env.appName;
-const integ = process.env.integ;
-
 let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
 let proxy = {
@@ -16,6 +13,10 @@ let proxy = {
     changeOrigin: true,
   },
   "/themes": {
+    target: "",
+    changeOrigin: true,
+  },
+  "/test-data/recon": {
     target: "",
     changeOrigin: true,
   },
@@ -54,7 +55,7 @@ let configMiddleware = (req, res, next) => {
 
 let devServer = {
   static: {
-    directory: path.resolve(__dirname, "dist", appName),
+    directory: path.resolve(__dirname, "dist", "hyperswitch"),
   },
   compress: true,
   hot: true,
@@ -71,7 +72,7 @@ let devServer = {
 
 console.log(devServer);
 module.exports = merge([
-  common(appName),
+  common("hyperswitch"),
   {
     mode: "development",
     devServer: devServer,
