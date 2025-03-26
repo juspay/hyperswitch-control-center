@@ -235,14 +235,11 @@ let make = (~children) => {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
       let existingEnv = DOMUtils.window._env_
       let getUrl = (key, defaultVal, existingVal) => {
-        if urlsDict->isEmptyDict {
+        let value = urlsDict->getJsonObjectFromDict(key)
+        if isNullJson(value) {
           Some(defaultVal)
         } else {
-          let value = urlsDict->getJsonObjectFromDict(key)
-          switch value {
-          | value if isNullJson(value) => Some(defaultVal)
-          | _ => urlsDict->getString(key, existingVal->Option.getOr(defaultVal))->getNonEmptyString
-          }
+          urlsDict->getString(key, existingVal->Option.getOr(defaultVal))->getNonEmptyString
         }
       }
       let val = {
@@ -257,7 +254,6 @@ let make = (~children) => {
       DOMUtils.window._env_ = updatedUrlConfig
       configureFavIcon(val.faviconUrl)->ignore
       setContextLogoUrl(_ => val.logoUrl)
-      val.faviconUrl
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
