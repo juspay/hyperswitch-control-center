@@ -26,8 +26,11 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
-          <div className="text-left flex gap-2 w-52">
+          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
+          <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+            {"Merchant Account"->React.string}
+          </span>
+          <div className="text-left flex gap-2">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
               {subHeading->React.string}
@@ -39,17 +42,22 @@ module ListBaseComp = {
         </div>
 
       | #Profile =>
-        <div
-          className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
-          <div className="md:max-w-40 max-w-16">
-            <p
-              className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
-              {subHeading->React.string}
-            </p>
+        <div className="flex flex-row gap-0.5 items-center">
+          <span className={`text-xs opacity-50 font-medium w-12`}>
+            {"Profile: "->React.string}
+          </span>
+          <div
+            className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
+            <div className="md:max-w-40 max-w-16">
+              <p
+                className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
+                {subHeading->React.string}
+              </p>
+            </div>
+            {showDropdownArrow
+              ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+              : React.null}
           </div>
-          {showDropdownArrow
-            ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
-            : React.null}
         </div>
       | _ => React.null
       }}
