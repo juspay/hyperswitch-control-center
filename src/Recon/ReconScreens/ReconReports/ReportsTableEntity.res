@@ -65,27 +65,24 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
     | Reconciled =>
       CustomCell(
         <div
-          className={`text-sm  font-bold px-2 py-1 rounded-lg  bg-nd_green-50 dark:bg-opacity-50 flex items-center gap-1 w-fit`}>
+          className={`text-sm  font-bold py-1 rounded-lg  bg-nd_green-50 dark:bg-opacity-50 flex items-center justify-center w-[100px]`}>
           <p className="text-nd_green-400"> {report.recon_status->React.string} </p>
-          <Icon name="nd-tick" size=12 customIconColor="text-nd_green-400" />
         </div>,
         "",
       )
     | Unreconciled =>
       CustomCell(
         <div
-          className={`text-sm font-bold px-2 py-1 rounded-lg bg-nd_red-50 dark:bg-opacity-50 flex gap-1 items-center w-fit`}>
+          className={`text-sm font-bold py-1 rounded-lg bg-nd_red-50 dark:bg-opacity-50 flex justify-center items-center w-[100px]`}>
           <p className="text-nd_red-400"> {report.recon_status->React.string} </p>
-          <Icon name="nd-alert-circle" size=12 customIconColor="text-nd_red-400" />
         </div>,
         "",
       )
     | Missing =>
       CustomCell(
         <div
-          className={`text-sm font-bold px-2 py-1 rounded-lg bg-orange-50 dark:bg-opacity-50 flex gap-1 items-center w-fit`}>
+          className={`text-sm font-bold py-1 rounded-lg bg-orange-50 dark:bg-opacity-50 flex justify-center items-center w-[100px]`}>
           <p className="text-orange-400"> {report.recon_status->React.string} </p>
-          <Icon name="nd-alert-circle" size=12 customIconColor="text-orange-400" />
         </div>,
         "",
       )

@@ -1,11 +1,14 @@
 @react.component
 let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
+  open APIUtils
   open ConnectProcessorsHelper
   open ConnectProcessorsUtils
   open ReconConfigurationUtils
   open VerticalStepIndicatorUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let updateDetails = useUpdateMethod()
+  let getURL = useGetURL()
 
   let getNextStep = (currentStep: VerticalStepIndicatorTypes.step): option<
     VerticalStepIndicatorTypes.step,
@@ -13,7 +16,11 @@ let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
     findNextStep(sections, currentStep)
   }
 
-  let onNextClick = () => {
+  let onNextClick = async () => {
+    let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+    let body = getRequestBody(~isOrderDataSet=true, ~isProcessorDataSet=true)
+    let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
+
     switch getNextStep(currentStep) {
     | Some(nextStep) => setCurrentStep(_ => nextStep)
     | None => ()
@@ -22,7 +29,7 @@ let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
 
   let onSubmit = async (_values, _form: ReactFinalForm.formApi) => {
     mixpanelEvent(~eventName="recon_onboarding_step2")
-    onNextClick()
+    onNextClick()->ignore
     Nullable.null
   }
 
