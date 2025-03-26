@@ -9,6 +9,7 @@ let make = (~isFromMilestoneCard=false, ~productType: ProductTypes.productTypes)
   let {showProdIntentForm, setShowProdIntentForm, setIsProdIntentCompleted} = React.useContext(
     GlobalProvider.defaultContext,
   )
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
 
   let getProdVerifyDetails = async () => {
@@ -50,7 +51,7 @@ let make = (~isFromMilestoneCard=false, ~productType: ProductTypes.productTypes)
   React.useEffect(() => {
     getProdVerifyDetails()->ignore
     None
-  }, [])
+  }, [merchantId])
 
   <ProdVerifyModal
     showModal={showProdIntentForm}
