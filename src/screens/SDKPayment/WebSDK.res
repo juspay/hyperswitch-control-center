@@ -296,7 +296,10 @@ let make = (
     None
   }, [])
   let hyperPromise = React.useCallback(async () => {
-    Window.loadHyper(publishableKey)
+    Window.loadHyper(
+      publishableKey,
+      [("isForceInit", true->JSON.Encode.bool)]->LogicUtils.getJsonFromArrayOfJson,
+    )
   }, [publishableKey])
   <PageLoaderWrapper
     screenState={screenState}

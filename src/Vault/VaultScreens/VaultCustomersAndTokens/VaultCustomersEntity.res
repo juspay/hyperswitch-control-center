@@ -61,19 +61,23 @@ let getCustomers: JSON.t => array<customers> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let customersEntity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=getCustomers,
-  ~defaultColumns,
-  ~allColumns,
-  ~getHeading,
-  ~getCell,
-  ~dataKey="",
-  ~getShowLink={
-    customerData =>
-      GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
-  },
-)
+let customersEntity = callMixpanel => {
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=getCustomers,
+    ~defaultColumns,
+    ~allColumns,
+    ~getHeading,
+    ~getCell,
+    ~dataKey="",
+    ~getShowLink={
+      customerData => {
+        callMixpanel("vault_view_customer_details")
+        GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
+      }
+    },
+  )
+}
 
 let colToStringMapper = val => {
   switch val {

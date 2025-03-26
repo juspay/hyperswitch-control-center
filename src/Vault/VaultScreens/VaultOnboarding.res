@@ -182,20 +182,20 @@ let make = () => {
 
   let vaultTitleElement =
     <>
-      <GatewayIcon gateway={`${connector}`->String.toUpperCase} />
-      <h1 className="text-medium font-semibold text-gray-600">
+      <GatewayIcon gateway={`${connector}`->String.toUpperCase} className="w-6 h-6" />
+      <h1 className="text-medium font-semibold text-gray-600 ">
         {`Setup ${connector->capitalizeString}`->React.string}
       </h1>
     </>
 
-  <div className="flex flex-col gap-10 h-774-px">
+  <div className="flex flex-col gap-10 h-923-px">
     <div className="flex h-full">
-      <div className="flex flex-col">
+      <div className="flex flex-col ">
         <VerticalStepIndicator titleElement=vaultTitleElement sections currentStep backClick />
       </div>
       {switch currentStep.sectionId->stringToSectionVariantMapper {
       | #authenticateProcessor =>
-        <div className="flex flex-col w-1/2 px-10 mt-20 overflow-y-auto">
+        <div className="flex flex-col w-1/2 px-10 mt-8 overflow-y-auto">
           <PageUtils.PageHeading
             title="Authenticate Processor"
             subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
@@ -221,7 +221,7 @@ let make = () => {
         </div>
 
       | #setupPMTS =>
-        <div className="flex flex-col w-1/2 px-10 mt-20 overflow-y-auto">
+        <div className="flex flex-col w-1/2 px-10 mt-8 overflow-y-auto">
           <PageUtils.PageHeading
             title="Payment Methods"
             subTitle="Configure your PaymentMethods."
@@ -230,7 +230,7 @@ let make = () => {
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <div className="flex flex-col mb-5 gap-3 ">
-                <ConnectorPaymentMethodV2 initialValues isInEditState=true />
+                <ConnectorPaymentMethodV2 initialValues isInEditState=true ignoreKeys />
                 <FormRenderer.SubmitButton
                   text="Next"
                   buttonSize={Small}
@@ -244,7 +244,7 @@ let make = () => {
         </div>
 
       | #setupWebhook =>
-        <div className="flex flex-col w-1/2 px-10 mt-20 overflow-y-auto">
+        <div className="flex flex-col w-1/2 px-10 mt-8 overflow-y-auto">
           <PageUtils.PageHeading
             title="Setup Webhook"
             subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"

@@ -52,7 +52,7 @@ module Copy = {
       writeText([data]->Array.joinWithUnsafe("\n"))
     }
 
-    let iconClass = GlobalVars.isHyperSwitchDashboard ? "text-gray-600" : "text-jp-gray-900"
+    let iconClass = "text-gray-600"
 
     <div
       className={`flex justify-end ${outerPadding}`}

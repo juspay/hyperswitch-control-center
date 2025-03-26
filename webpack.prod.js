@@ -9,12 +9,12 @@ process.env["NODE_ENV"] = "production";
 
 var currentBranch = "hyperswitch";
 
-const mergeProd = (dashboardAppName, env) => {
-  console.log("Building", dashboardAppName);
+const mergeProd = () => {
+  console.log("Building hyperswitch");
   const publicPath = "auto";
   let isProduction = process.env["APP_ENV"] === "production";
   return merge([
-    common(dashboardAppName, publicPath),
+    common(),
     {
       mode: "production",
       output: {
