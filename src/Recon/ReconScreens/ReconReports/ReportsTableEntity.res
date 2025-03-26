@@ -65,7 +65,7 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
     | Reconciled =>
       CustomCell(
         <div
-          className={`text-sm  font-bold py-1 rounded-lg  bg-nd_green-50 dark:bg-opacity-50 flex items-center justify-center w-[100px]`}>
+          className={`text-xs font-bold py-1 rounded-lg  bg-nd_green-50 dark:bg-opacity-50 flex items-center justify-center w-90-px`}>
           <p className="text-nd_green-400"> {report.recon_status->React.string} </p>
         </div>,
         "",
@@ -73,7 +73,7 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
     | Unreconciled =>
       CustomCell(
         <div
-          className={`text-sm font-bold py-1 rounded-lg bg-nd_red-50 dark:bg-opacity-50 flex justify-center items-center w-[100px]`}>
+          className={`text-xs font-bold py-1 rounded-lg bg-nd_red-50 dark:bg-opacity-50 flex justify-center items-center w-90-px`}>
           <p className="text-nd_red-400"> {report.recon_status->React.string} </p>
         </div>,
         "",
@@ -81,7 +81,7 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
     | Missing =>
       CustomCell(
         <div
-          className={`text-sm font-bold py-1 rounded-lg bg-orange-50 dark:bg-opacity-50 flex justify-center items-center w-[100px]`}>
+          className={`text-xs font-bold py-1 rounded-lg bg-orange-50 dark:bg-opacity-50 flex justify-center items-center w-90-px`}>
           <p className="text-orange-400"> {report.recon_status->React.string} </p>
         </div>,
         "",
