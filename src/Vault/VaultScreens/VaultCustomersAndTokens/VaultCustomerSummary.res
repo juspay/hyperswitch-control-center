@@ -189,6 +189,7 @@ module VaultedPaymentMethodsTable = {
           mixpanelEvent(~eventName="vault_view_vaulted_payment_method_details")
         }}
         currrentFetchCount={tableData->Array.length}
+        showAutoScroll=true
       />
       <Modal
         showModal
