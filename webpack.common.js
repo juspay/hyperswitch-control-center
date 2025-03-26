@@ -6,7 +6,7 @@ const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin"
 const tailwindcss = require("tailwindcss");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
-module.exports = (appName = "hyperswitch", publicPath = "auto") => {
+module.exports = () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
   let entryObj = {
     app: `./src/entryPoints/HyperSwitchEntry.res.js`,
@@ -14,7 +14,7 @@ module.exports = (appName = "hyperswitch", publicPath = "auto") => {
   return {
     entry: entryObj,
     output: {
-      path: path.resolve(__dirname, "dist", appName),
+      path: path.resolve(__dirname, "dist", "hyperswitch"),
       clean: true,
       publicPath: "/",
     },
@@ -67,12 +67,11 @@ module.exports = (appName = "hyperswitch", publicPath = "auto") => {
       new CopyPlugin({
         patterns: [
           { from: "public/common" },
-          { from: `public/${appName}` },
+          { from: `public/hyperswitch` },
         ].filter(Boolean),
       }),
       new MonacoWebpackPlugin(),
       new webpack.DefinePlugin({
-        dashboardAppName: JSON.stringify(appName),
         dashboardAppEnv: JSON.stringify(process.env.APP_ENV || "sandbox"),
         GIT_COMMIT_HASH: JSON.stringify(process.env.GIT_COMMIT_HASH || ""),
         appVersion: JSON.stringify(process.env.APP_VERSION || ""),

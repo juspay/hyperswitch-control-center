@@ -53,7 +53,7 @@ let make = (~connectorInfo) => {
     showToast(~message="Connector Created Successfully!", ~toastType=ToastSuccess)
   }
 
-  <div className="flex flex-col w-1/2 px-10 gap-8 mt-20 overflow-y-auto">
+  <div className="flex flex-col w-1/2 px-10 gap-8 mt-8 overflow-y-auto">
     <div className="flex flex-col ">
       <PageUtils.PageHeading
         title="Review and Connect"
