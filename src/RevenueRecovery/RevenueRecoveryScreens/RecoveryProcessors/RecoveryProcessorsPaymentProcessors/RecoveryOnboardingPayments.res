@@ -42,6 +42,22 @@ let make = (
     connectorTypeFromName->getConnectorInfo
   }, [connector])
 
+  let connectorDetails = React.useMemo(() => {
+    try {
+      if connector->isNonEmptyString {
+        let dict = Window.getConnectorConfig(connector)
+        dict
+      } else {
+        Dict.make()->JSON.Encode.object
+      }
+    } catch {
+    | Exn.Error(e) => {
+        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
+        Dict.make()->JSON.Encode.object
+      }
+    }
+  }, [selectedConnector])
+
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     // TODO: Refactor for generic case
@@ -60,6 +76,31 @@ let make = (
       "connector_account_details",
       RevenueRecoveryData.connector_account_details,
     )
+    let keys =
+      connectorDetails
+      ->getDictFromJsonObject
+      ->Dict.keysToArray
+      ->Array.filter(val => Array.includes(["credit", "debit"], val))
+
+    let pmtype = keys->Array.flatMap(key => {
+      let paymentMethodType = connectorDetails->getDictFromJsonObject->getArrayFromDict(key, [])
+      let updatedData = paymentMethodType->Array.map(
+        val => {
+          let wasmDict = val->getDictFromJsonObject
+          let exisitngData =
+            wasmDict->ConnectorPaymentMethodV2Utils.getPaymentMethodDictV2(key, connector)
+          exisitngData
+        },
+      )
+      updatedData
+    })
+    let pmSubTypeDict =
+      [
+        ("payment_method_type", "card"->JSON.Encode.string),
+        ("payment_method_subtypes", pmtype->Identity.genericTypeToJson),
+      ]->Dict.fromArray
+    let pmArr = Array.make(~length=1, pmSubTypeDict)
+    initialValuesToDict->Dict.set("payment_methods_enabled", pmArr->Identity.genericTypeToJson)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
@@ -95,22 +136,6 @@ let make = (
     }
     Nullable.null
   }
-
-  let connectorDetails = React.useMemo(() => {
-    try {
-      if connector->isNonEmptyString {
-        let dict = Window.getConnectorConfig(connector)
-        dict
-      } else {
-        Dict.make()->JSON.Encode.object
-      }
-    } catch {
-    | Exn.Error(e) => {
-        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        Dict.make()->JSON.Encode.object
-      }
-    }
-  }, [selectedConnector])
 
   let (
     _,
