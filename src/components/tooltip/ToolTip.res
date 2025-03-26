@@ -298,7 +298,7 @@ module DescriptionSection = {
 
 module TooltipFor = {
   @react.component
-  let make = (~toolTipFor, ~tooltipForWidthClass, ~componentRef) => {
+  let make = (~toolTipFor, ~tooltipForWidthClass, ~componentRef, ~opacityVal="50") => {
     let tooltipInfoIcon = "tooltip_info"
     let tooltipInfoIconSize = 16
     let iconStrokeColor = ""
@@ -312,7 +312,7 @@ module TooltipFor = {
         <Icon
           name=tooltipInfoIcon
           size=tooltipInfoIconSize
-          className={`opacity-50 hover:opacity-100 dark:brightness-50 dark:opacity-35 dark:invert dark:hover:opacity-70 ${iconStrokeColor}`}
+          className={`opacity-${opacityVal} hover:opacity-100 dark:brightness-50 dark:opacity-35 dark:invert dark:hover:opacity-70 ${iconStrokeColor}`}
         />
       }}
     </div>
@@ -634,6 +634,7 @@ let make = (
   ~isRelative=true,
   ~dismissable=false,
   ~newDesign=false,
+  ~iconOpacityVal="50",
   (),
 ) => {
   let (isToolTipVisible, setIsToolTipVisible) = React.useState(_ => false)
@@ -691,7 +692,7 @@ let make = (
     height
     contentAlign
     justifyClass>
-    <TooltipFor toolTipFor tooltipForWidthClass componentRef />
+    <TooltipFor toolTipFor tooltipForWidthClass componentRef opacityVal=iconOpacityVal />
     <TooltipWrapper
       isToolTipVisible
       descriptionComponent

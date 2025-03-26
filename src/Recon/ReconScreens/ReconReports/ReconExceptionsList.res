@@ -93,6 +93,7 @@ let make = () => {
             remoteSortEnabled=true
             customizeColumnButtonIcon="nd-filter-horizontal"
             hideRightTitleElement=true
+            showAutoScroll=true
           />
         </RenderIf>
       </div>
