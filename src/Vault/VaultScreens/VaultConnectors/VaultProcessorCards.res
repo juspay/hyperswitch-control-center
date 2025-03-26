@@ -27,10 +27,15 @@ module RequestConnector = {
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let handleClick = () => {
+      mixpanelEvent(~eventName="vault_request_processor")
+      "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"->Window._open
+    }
     <RenderIf condition={showRequestConnectorBtn}>
       <div
         className="flex flex-row items-center gap-2 text-primary cursor-pointer font-semibold"
-        onClick={_ => "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"->Window._open}>
+        onClick={_ => handleClick()}>
         <ToolTip iconOpacityVal="100" />
         {"Request a processor"->React.string}
       </div>
