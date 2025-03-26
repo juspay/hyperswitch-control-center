@@ -69,7 +69,7 @@ let make = () => {
   }
 
   <PageWrapper
-    title="Connection Successful" subTitle="Explore the all the Recovery metrics in the dashboard">
+    title="Connection Successful" subTitle="Recovery for failed invoices will begin shortly.">
     <div className="flex flex-col h-full gap-y-10">
       <div className="flex flex-col gap-6">
         <StepCard
