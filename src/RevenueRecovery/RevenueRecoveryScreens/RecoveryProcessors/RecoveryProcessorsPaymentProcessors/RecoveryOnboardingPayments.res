@@ -165,9 +165,9 @@ let make = (
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
     | (#connectProcessor, #selectProcessor) =>
       <PageWrapper
-        title="Authenticate Processor"
-        subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
-        <div className="mb-10 flex flex-col gap-7 w-540-px">
+        title="Where do you process your payments"
+        subTitle="Link the payment processor you use for handling subscription transactions.">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <SelectBox.BaseDropdown
@@ -221,7 +221,7 @@ let make = (
       </PageWrapper>
     | (#connectProcessor, #activePaymentMethods) =>
       <PageWrapper title="Payment Methods" subTitle="Configure your PaymentMethods.">
-        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+        <div className="mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <div className="flex flex-col mb-5 gap-3 ">
@@ -240,15 +240,15 @@ let make = (
       </PageWrapper>
     | (#connectProcessor, #setupWebhookProcessor) =>
       <PageWrapper
-        title="Setup Webhook"
-        subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor">
-        <div className="mb-10 flex flex-col gap-7 w-540-px">
+        title="Setup Payments Webhook"
+        subTitle="Configure this endpoint in the payment processors dashboard under webhook settings for us to receive events from the processor.">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <ConnectorWebhookPreview
             merchantId
             connectorName=connectorInfoDict.id
-            textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
+            textCss="border border-nd_gray-400 font-medium rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full !font-jetbrain-mono"
             containerClass="flex flex-row items-center justify-between"
-            displayTextLength=46
+            displayTextLength=38
             hideLabel=true
             showFullCopy=true
           />

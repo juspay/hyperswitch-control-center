@@ -4,7 +4,7 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
 
   <PageWrapper
     title="Configure Recovery Plan"
-    subTitle="Choose one processor for now. You can connect more processors later">
+    subTitle="Set up how invoices should be selected and processed for recovery.">
     <div className="mb-10 flex flex-col gap-8">
       <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
         <div>

@@ -44,8 +44,8 @@ let make = (
   let connectorName = connector->ConnectorUtils.getDisplayNameForConnector
 
   <PageWrapper
-    title="Connect Your Processor"
-    subTitle="Choose one processor for now. You can connect more processors later">
+    title="Configure your Processor"
+    subTitle="Provide the reference ID of your payment processor as configured in the subscription management platform.">
     <div className="mb-10 flex flex-col gap-8">
       <div>
         <div className="text-nd_gray-700 font-medium mb-3">
@@ -60,7 +60,9 @@ let make = (
       </div>
       <Form onSubmit initialValues validate=validateMandatoryField>
         <div>
-          <div className="text-nd_gray-700 font-medium"> {"Account ID"->React.string} </div>
+          <div className="text-nd_gray-700 font-medium">
+            {"Processor Reference ID"->React.string}
+          </div>
           <div className="-m-1 -mt-3">
             <ConnectorConnect connector_account_reference_id />
             <FormRenderer.SubmitButton

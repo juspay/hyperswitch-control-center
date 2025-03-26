@@ -133,3 +133,98 @@ module AddNewOMPButton = {
     </ACLDiv>
   }
 }
+
+module ConnectProcessorsFields = {
+  @react.component
+  let make = () => {
+    open OMPSwitchTypes
+
+    let form = ReactFinalForm.useForm()
+    let (selectedProcessor, setSelectedProcessor) = React.useState(_ => "")
+    let (processorList, _) = React.useState(_ => [{id: "Stripe", name: "Stripe"}])
+    let (arrow, setArrow) = React.useState(_ => false)
+    let toggleChevronState = () => {
+      setArrow(prev => !prev)
+    }
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "name",
+      onBlur: _ => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToString
+        form.change("processor_type", value->JSON.Encode.string)
+        setSelectedProcessor(_ => value)
+      },
+      onFocus: _ => (),
+      value: selectedProcessor->JSON.Encode.string,
+      checked: true,
+    }
+
+    let addItemBtnStyle = "border border-t-0 !w-full"
+    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
+    let dropdownContainerStyle = "rounded-md border border-1 !w-full"
+
+    <>
+      <SelectBox.BaseDropdown
+        allowMultiSelect=false
+        buttonText=""
+        input
+        deselectDisable=true
+        customButtonStyle="!rounded-lg"
+        options={processorList->generateDropdownOptionsCustomComponent}
+        hideMultiSelectButtons=true
+        addButton=false
+        searchable=true
+        baseComponent={<ListBaseComp heading="Profile" subHeading=selectedProcessor arrow />}
+        bottomComponent={<AddNewOMPButton user=#Profile addItemBtnStyle />}
+        customDropdownOuterClass="!border-none !w-full"
+        fullLength=true
+        toggleChevronState
+        customScrollStyle
+        dropdownContainerStyle
+        shouldDisplaySelectedOnTop=true
+        customSelectionIcon={CustomIcon(<Icon name="nd-checkbox-base" />)}
+        searchInputPlaceHolder="Search"
+        showSearchIcon=true
+      />
+      <RenderIf condition={selectedProcessor->String.length > 0}>
+        <div className="flex flex-col gap-y-3 mt-10">
+          <p className="font-semibold leading-5 text-nd_gray-700 text-sm">
+            {"Provide authentication details"->React.string}
+          </p>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold"
+            field={FormRenderer.makeFieldInfo(
+              ~label="Secret Key",
+              ~name="secret_key",
+              ~placeholder="**************",
+              ~customInput=InputFields.textInput(~customStyle="rounded-xl bg-nd_gray-50"),
+              ~isRequired=true,
+            )}
+          />
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold"
+            field={FormRenderer.makeFieldInfo(
+              ~label="Client Verification Key",
+              ~name="client_verification_key",
+              ~placeholder="**************",
+              ~customInput=InputFields.textInput(~customStyle="rounded-xl bg-nd_gray-50"),
+              ~isRequired=true,
+            )}
+          />
+        </div>
+        <div className="mt-10 w-full">
+          <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
+            <FormRenderer.SubmitButton
+              text="Next"
+              customSumbitButtonStyle="rounded !w-full"
+              buttonType={Primary}
+              tooltipForWidthClass="w-full"
+            />
+          </FormRenderer.DesktopRow>
+        </div>
+      </RenderIf>
+      <FormValuesSpy />
+    </>
+  }
+}
