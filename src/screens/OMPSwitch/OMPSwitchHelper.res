@@ -57,7 +57,6 @@ module ListBaseComp = {
             ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
             : React.null}
         </div>
-
       | _ => React.null
       }}
     </>
