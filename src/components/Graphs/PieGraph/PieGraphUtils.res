@@ -15,7 +15,7 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
     ...title,
     align: "center",
     verticalAlign: "bottom", // Centered vertically within the chart
-    y: 15, // Adjust this value to fine-tune vertical position
+    y: 9, // Adjust this value to fine-tune vertical position
     x: 0,
     style: {
       fontSize: "14px",
@@ -28,7 +28,7 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
   {
     chart: {
       \"type": "pie",
-      height: 220,
+      height: 250,
       width: 250,
       spacing: [0, 0, 0, 0],
       margin: [0, 0, 0, 0],

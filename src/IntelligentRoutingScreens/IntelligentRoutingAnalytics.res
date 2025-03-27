@@ -372,9 +372,9 @@ let make = () => {
         <Icon name="nd-warning" />
         <div className="text-nd_gray-600 text-base !leading-6 font-medium">
           <span> {"Our Intelligent system made "->React.string} </span>
-          <span className="font-bold"> {"37847"->React.string} </span>
+          <span className="font-bold"> {"6890"->React.string} </span>
           <span>
-            {" (8.5%) switches from primary processor to an alternate processor."->React.string}
+            {" (9.2%) switches from primary processor to an alternate processor."->React.string}
           </span>
         </div>
       </div>
