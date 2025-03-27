@@ -1,7 +1,7 @@
 open LineGraphTypes
 
 // colors
-let darkGray = "#666666"
+let darkGray = "#525866"
 let lightGray = "#999999"
 let gridLineColor = "#e6e6e6"
 let fontFamily = "InterDisplay"
@@ -46,6 +46,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       style: {
         color: darkGray,
         fontFamily, // Set the desired font family
+        fontSize: "12px", // Set the font size
       },
     },
     gridLineWidth: 1,
@@ -128,6 +129,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
         fontFamily,
         fontSize: "12px",
         color: darkGray,
+        fontWeight: "400",
       },
       align: "right",
       verticalAlign: "top",

@@ -23,7 +23,7 @@ let displayLegend = {
         className="w-3 h-3 rounded-sm"
         style={ReactDOM.Style.make(~backgroundColor=legendColor(index), ())}
       />
-      <p className="text-grey-100 font-semibold leading-3 !text-fs-13 text-nowrap">
+      <p className="text-grey-100 font-normal leading-3 !text-fs-13 text-nowrap">
         {key->React.string}
       </p>
     </div>
@@ -140,6 +140,10 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
       align: "left",
       x: 10,
       y: 10,
+      style: {
+        fontSize: "14px",
+        color: "#525866",
+      },
     },
     categories: timeSeriesArray,
     data: [
@@ -218,6 +222,7 @@ let lineColumnGraphOptions = (
   let style: LineAndColumnGraphTypes.style = {
     fontFamily: LineAndColumnGraphUtils.fontFamily,
     color: LineAndColumnGraphUtils.darkGray,
+    fontSize: "14px",
   }
 
   {
@@ -227,6 +232,10 @@ let lineColumnGraphOptions = (
         align: "left",
         x: 10,
         y: 10,
+        style: {
+          fontSize: "14px",
+          color: "#525866",
+        },
       },
       xAxisTitle: {
         text: "Time Range",

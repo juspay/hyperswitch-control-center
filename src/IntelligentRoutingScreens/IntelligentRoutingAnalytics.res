@@ -404,8 +404,10 @@ let make = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col border rounded-lg p-4">
               <div className="flex justify-between">
-                <p className="text-fs-18"> {"Overall Transaction Distribution"->React.string} </p>
-                <div className="flex flex-col xl:flex-row gap-2">
+                <p className="text-fs-14 text-nd_gray-600">
+                  {"Overall Transaction Distribution"->React.string}
+                </p>
+                <div className="flex flex-col xl:flex-row gap-4">
                   {displayLegend->React.array}
                 </div>
               </div>

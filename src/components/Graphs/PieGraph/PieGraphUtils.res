@@ -21,7 +21,7 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
       fontSize: "14px",
       fontWeight: "400",
       color: "#797979",
-      fontStyle: "Inter Display",
+      fontStyle: "InterDisplay",
     },
     useHTML: true,
   }
