@@ -629,7 +629,7 @@ let make = (
             className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
             style={height: `calc(100vh - ${verticalOffset})`}>
             <style> {React.string(sidebarScrollbarCss)} </style>
-            <div className="p-2.5">
+            <div className="p-2.5 pt-0">
               {sidebars
               ->Array.mapWithIndex((tabInfo, index) => {
                 switch tabInfo {
