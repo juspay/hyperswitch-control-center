@@ -10,7 +10,7 @@ module TotalNumbersViewCard = {
     </div>
   }
 }
-type networkTokenSTatetypes =
+type networkTokenStateTypes =
   | Loading
   | Success
   | Error
@@ -36,10 +36,7 @@ module VaultTotalTokens = {
 
         setComponentState(_ => Success)
       } catch {
-      | Exn.Error(_) =>
-        let totalCount = 0
-        setTokenCount(_ => totalCount)
-        setComponentState(_ => Error)
+      | Exn.Error(_) => setComponentState(_ => Error)
       }
     }
     let totalTokenComponent = {
@@ -89,6 +86,7 @@ module VaultTotalTokens = {
 @react.component
 let make = (~sampleReport, ~custCount) => {
   let custDisplaycount = ` ${custCount->Belt.Int.toString}`
+
   <div className="flex flex-row gap-2">
     <TotalNumbersViewCard
       title="Total Customers" count={`${custCount <= 0 ? "-" : custDisplaycount} `}
