@@ -124,8 +124,9 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       },
       align: "right",
       verticalAlign: "top",
-      x: 0,
-      y: 0,
+      floating: true,
+      x: -80,
+      y: -8,
     },
     plotOptions: {
       line: {

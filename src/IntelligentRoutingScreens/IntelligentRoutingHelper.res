@@ -12,6 +12,18 @@ let simulatorBanner =
     </div>
   </div>
 
+let displayLegend = {
+  let keys = ["PSP 1", "PSP 2", "PSP 3", "PSP 4", "PSP 5"]
+  let colors = ["#BCBD22", "#CB80DC", "#72BEF4", "#7856FF", "#4B6D8C"]
+
+  keys->Array.mapWithIndex((key, index) => {
+    <div className="flex gap-1 items-center">
+      <div className={`w-3 h-3 rounded-sm bg-[${colors->Array.get(index)->Option.getOr("")}]`} />
+      <p className="text-grey-100 font-semibold leading-3 !text-fs-13"> {key->React.string} </p>
+    </div>
+  })
+}
+
 let stepperHeading = (~title: string, ~subTitle: string) =>
   <div className="flex flex-col gap-y-1">
     <p className="text-2xl font-semibold text-nd_gray-700 leading-9"> {title->React.string} </p>
@@ -259,6 +271,175 @@ let lineColumnGraphOptions = (
       ~statType=AmountWithSuffix,
       ~currency="",
       ~suffix="%",
+    ),
+  }
+}
+
+let pieGraphOptionsActual = (stats: JSON.t): PieGraphTypes.pieGraphPayload<int> => {
+  let statsData = stats->IntelligentRoutingUtils.responseMapper
+  let timeSeriesData = statsData.time_series_data
+
+  let gatewayData = switch timeSeriesData->Array.get(0) {
+  | Some(statsData) => statsData.volume_distribution_as_per_sr
+  | None => JSON.Encode.null
+  }
+  let gatewayKeys =
+    gatewayData
+    ->LogicUtils.getDictFromJsonObject
+    ->Dict.keysToArray
+  gatewayKeys->Array.sort((key1, key2) => {
+    key1 <= key2 ? -1. : 1.
+  })
+
+  let distribution = [60.0, 30.0, 10.0, 30.0, 10.0]
+  let colors = ["#BCBD22", "#CB80DC", "#72BEF4", "#7856FF", "#4B6D8C"]
+
+  let data: array<PieGraphTypes.pieGraphDataType> = gatewayKeys->Array.mapWithIndex((
+    key,
+    index,
+  ) => {
+    let dataObj: PieGraphTypes.pieGraphDataType = {
+      name: key,
+      y: distribution->Array.get(index)->Option.getOr(0.0),
+      color: colors->Array.get(index)->Option.getOr(""),
+    }
+    dataObj
+  })
+
+  let data: PieGraphTypes.pieCartData<int> = [
+    {
+      \"type": "",
+      name: "",
+      showInLegend: false,
+      data,
+      innerSize: "70%",
+    },
+  ]
+
+  {
+    chartSize: "80%",
+    title: {
+      text: "Actual",
+    },
+    data,
+    tooltipFormatter: PieGraphUtils.pieGraphTooltipFormatter(
+      ~title="Transactions",
+      ~valueFormatterType=AmountWithSuffix,
+      ~currency="$",
+      ~suffix="M",
+    ),
+    legendFormatter: PieGraphUtils.pieGraphLegendFormatter(),
+    startAngle: 0,
+    endAngle: 360,
+    legend: {
+      enabled: false,
+    },
+  }
+}
+
+let pieGraphOptionsSimulated = (stats: JSON.t): PieGraphTypes.pieGraphPayload<int> => {
+  let statsData = stats->IntelligentRoutingUtils.responseMapper
+  let timeSeriesData = statsData.time_series_data
+
+  let gatewayData = switch timeSeriesData->Array.get(0) {
+  | Some(statsData) => statsData.volume_distribution_as_per_sr
+  | None => JSON.Encode.null
+  }
+  let gatewayKeys =
+    gatewayData
+    ->LogicUtils.getDictFromJsonObject
+    ->Dict.keysToArray
+  gatewayKeys->Array.sort((key1, key2) => {
+    key1 <= key2 ? -1. : 1.
+  })
+
+  let distribution = [20.0, 10.0, 70.0, 10.0, 30.0]
+  let colors = ["#BCBD22", "#CB80DC", "#72BEF4", "#7856FF", "#4B6D8C"]
+
+  let data: array<PieGraphTypes.pieGraphDataType> = gatewayKeys->Array.mapWithIndex((
+    key,
+    index,
+  ) => {
+    let dataObj: PieGraphTypes.pieGraphDataType = {
+      name: key,
+      y: distribution->Array.get(index)->Option.getOr(0.0),
+      color: colors->Array.get(index)->Option.getOr(""),
+    }
+    dataObj
+  })
+
+  let data: PieGraphTypes.pieCartData<int> = [
+    {
+      \"type": "",
+      name: "",
+      showInLegend: false,
+      data,
+      innerSize: "70%",
+    },
+  ]
+
+  {
+    chartSize: "80%",
+    title: {
+      text: "Simulated",
+    },
+    data,
+    tooltipFormatter: PieGraphUtils.pieGraphTooltipFormatter(
+      ~title="Transactions",
+      ~valueFormatterType=AmountWithSuffix,
+      ~currency="$",
+      ~suffix="M",
+    ),
+    legendFormatter: PieGraphUtils.pieGraphLegendFormatter(),
+    startAngle: 0,
+    endAngle: 360,
+    legend: {
+      enabled: false,
+    },
+  }
+}
+
+let columnGraphOptionsAuthRate = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload => {
+  let statsData = stats->IntelligentRoutingUtils.responseMapper
+  let timeSeriesData = statsData.time_series_data
+
+  let colors = ["#CFB430", "#D9A3E6", "#97CFF7", "#A18AFF", "#4B6C8B"]
+
+  let baseLineData = timeSeriesData->Array.mapWithIndex((item, index) => {
+    let data: ColumnGraphTypes.dataObj = {
+      name: getDateTime(item.time_stamp),
+      y: item.revenue.baseline,
+      color: colors->Array.get(index)->Option.getOr(""),
+    }
+    data
+  })
+
+  {
+    title: {
+      text: "Auth Rate based on Acquirers",
+      align: "left",
+      x: 10,
+      y: 10,
+    },
+    data: [
+      {
+        showInLegend: false,
+        name: "Actual",
+        colorByPoint: false,
+        data: baseLineData,
+        color: "#B992DD",
+      },
+    ],
+    tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
+      ~title="Revenue Uplift",
+      ~metricType=FormattedAmount,
+      ~comparison=Some(EnableComparison),
+    ),
+    yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
+      ~statType=AmountWithSuffix,
+      ~currency="$",
+      ~suffix="M",
+      ~scaleFactor=1000000.0,
     ),
   }
 }

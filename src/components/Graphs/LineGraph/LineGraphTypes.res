@@ -138,6 +138,7 @@ type legend = {
   symbolWidth: int,
   align: string,
   verticalAlign: string,
+  floating: bool,
   x: int,
   y: int,
 }

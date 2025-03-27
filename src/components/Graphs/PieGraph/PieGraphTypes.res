@@ -63,6 +63,7 @@ type legend = {
   x?: int, // Adjust for fine-tuning the position
   y?: int,
   itemMarginBottom?: int,
+  floating?: bool,
   labelFormatter?: legendLabelFormatter => string,
 }
 type dataLabels = {
@@ -118,6 +119,9 @@ type dataObj<'t> = {
 type chart = {
   \"type": string,
   height: int,
+  width: int,
+  spacing: array<int>,
+  margin: array<int>,
 }
 
 type pieCartData<'t> = array<dataObj<'t>>
@@ -140,6 +144,7 @@ type pieGraphPayload<'t> = {
   chartSize: string,
   startAngle: int,
   endAngle: int,
+  legend: legend,
 }
 
 type categoryWiseBreakDown = {

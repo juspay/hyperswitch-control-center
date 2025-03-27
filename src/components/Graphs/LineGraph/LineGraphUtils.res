@@ -67,8 +67,8 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     chart: {
       \"type": "line",
       height: 300,
-      spacingLeft: 20,
-      spacingRight: 20,
+      spacingLeft: 0,
+      spacingRight: 0,
       style: {
         color: darkGray,
         fontFamily,
@@ -131,8 +131,9 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       },
       align: "right",
       verticalAlign: "top",
-      x: 0,
-      y: 0,
+      floating: true,
+      x: -20,
+      y: -10,
     },
     plotOptions: {
       line: {
