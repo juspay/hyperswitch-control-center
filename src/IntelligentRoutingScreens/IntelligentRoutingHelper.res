@@ -1,3 +1,6 @@
+open IntelligentRoutingTypes
+let defaultTimeRange = {minDate: "", maxDate: ""}
+
 let simulatorBanner =
   <div
     className="absolute z-10 top-76-px left-0 w-full py-4 px-10 bg-orange-50 flex justify-between items-center">
@@ -14,6 +17,28 @@ let stepperHeading = (~title: string, ~subTitle: string) =>
     <p className="text-2xl font-semibold text-nd_gray-700 leading-9"> {title->React.string} </p>
     <p className="text-sm text-nd_gray-400 font-medium leading-5"> {subTitle->React.string} </p>
   </div>
+
+let displayDateRange = (~minDate, ~maxDate) => {
+  let getDateObj = value => value->DayJs.getDayJsForString
+  let date = value => {
+    NewAnalyticsUtils.formatDateValue(value, ~includeYear=true)
+  }
+
+  let time = value => {
+    let dateObj = getDateObj(value)
+    dateObj.format("HH:mm")->NewAnalyticsUtils.formatTime
+  }
+
+  let diff = DateRangeUtils.getStartEndDiff(minDate, maxDate)
+
+  if date(minDate) == date(maxDate) {
+    `${time(minDate)} - ${time(maxDate)} ${date(minDate)}`
+  } else if diff < (2->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
+    `${time(minDate)}  ${date(minDate)} - ${time(maxDate)} ${date(maxDate)}`
+  } else {
+    `${date(minDate)} - ${date(maxDate)}`
+  }
+}
 
 let getDateTime = value => {
   let dateObj = value->DayJs.getDayJsForString
@@ -69,6 +94,7 @@ let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload =>
     tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
       ~title="Revenue Uplift",
       ~metricType=FormattedAmount,
+      ~comparison=Some(EnableComparison),
     ),
     yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
       ~statType=AmountWithSuffix,
@@ -114,13 +140,19 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
     ],
     tooltipFormatter: NewAnalyticsUtils.tooltipFormatter(
       ~title="Authorization Rate",
-      ~metricType=Amount,
+      ~metricType=Rate,
       ~currency="",
       ~comparison=Some(EnableComparison),
       ~secondaryCategories=timeSeriesArray,
       ~reverse=true,
+      ~suffix="%",
     ),
     yAxisMaxValue: Some(100),
+    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
+      ~statType=AmountWithSuffix,
+      ~currency="",
+      ~suffix="%",
+    ),
   }
 }
 
@@ -136,7 +168,7 @@ let lineColumnGraphOptions = (
     getDateTime(item.time_stamp)
   })
 
-  let mapPSPJson = (json): IntelligentRoutingTypes.volDist => {
+  let mapPSPJson = (json): volDist => {
     let dict = json->getDictFromJsonObject
     {
       baseline_volume: dict->getInt("baseline_volume", 0),
@@ -165,12 +197,31 @@ let lineColumnGraphOptions = (
   let model = successData->Array.map(item => item.model_volume->Int.toFloat)
   let successRate = successData->Array.map(item => item.success_rate)
 
+  let style: LineAndColumnGraphTypes.style = {
+    fontFamily: LineAndColumnGraphUtils.fontFamily,
+    color: LineAndColumnGraphUtils.darkGray,
+  }
+
   {
-    title: {
-      text: "Processor wise transaction distribution with Auth Rate",
-      align: "left",
-      x: 10,
-      y: 10,
+    titleObj: {
+      chartTitle: {
+        text: "Processor wise transaction distribution with Auth Rate",
+        align: "left",
+        x: 10,
+        y: 10,
+      },
+      xAxisTitle: {
+        text: "Time Range",
+        style,
+      },
+      yAxisTitle: {
+        text: "Transaction Count",
+        style,
+      },
+      oppositeYAxisTitle: {
+        text: "Authorization Rate",
+        style,
+      },
     },
     categories: timeStampArray,
     data: [

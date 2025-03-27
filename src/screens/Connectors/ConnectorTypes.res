@@ -100,6 +100,8 @@ type processorTypes =
   | JPMORGAN
   | INESPAY
   | MONERIS
+  | REDSYS
+  | HIPAY
 
 type payoutProcessorTypes =
   | ADYEN
@@ -109,6 +111,7 @@ type payoutProcessorTypes =
   | PAYPAL
   | STRIPE
   | WISE
+  | NOMUPAY
 
 type threeDsAuthenticatorTypes =
   THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER

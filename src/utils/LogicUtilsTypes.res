@@ -6,4 +6,4 @@ type valueType =
   | LatencyMs
   | FormattedAmount
   | AmountWithSuffix
-  | No_Type
+  | Default

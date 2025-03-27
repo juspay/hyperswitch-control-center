@@ -9,7 +9,11 @@ let make = () => {
     | list{"v2", "recovery", "onboarding", ..._}
     | list{"v2", "recovery", "overview", ..._} =>
       <RecoveryConnectorContainer />
-    | list{"v2", "recovery", "summary", ..._} => <BillingConnectorsSummary />
+    | list{"v2", "recovery", "summary", ..._} =>
+      <div className="mt-10">
+        {RevenueRecoveryOnboardingUtils.sampleDataBanner}
+        <BillingConnectorsSummary />
+      </div>
     | _ => React.null
     }
   }

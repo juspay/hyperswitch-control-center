@@ -798,7 +798,29 @@ let make = (
                     />
                     {switch pageState {
                     | Preview =>
-                      <div className="flex flex-col md:flex-row gap-4 my-5">
+                      <div className="flex flex-col md:flex-row gap-4 p-1">
+                        <Button
+                          text={"Duplicate and Edit Configuration"}
+                          buttonType={isActive ? Primary : Secondary}
+                          onClick={_ => {
+                            setPageState(_ => Create)
+                            let manipualtedJSONValue =
+                              initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
+
+                            let rulesValue =
+                              manipualtedJSONValue
+                              ->getDictFromJsonObject
+                              ->getObj("algorithm", Dict.make())
+                              ->getDictfromDict("data")
+
+                            setInitialValues(_ =>
+                              initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
+                            )
+                            setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
+                          }}
+                          customButtonStyle="w-1/5"
+                          buttonState=Normal
+                        />
                         <RenderIf condition={!isActive}>
                           <Button
                             text={"Activate Configuration"}
@@ -813,7 +835,7 @@ let make = (
                         <RenderIf condition={isActive}>
                           <Button
                             text={"Deactivate Configuration"}
-                            buttonType={Primary}
+                            buttonType={Secondary}
                             onClick={_ => {
                               handleDeactivateConfiguration()->ignore
                             }}

@@ -20,10 +20,11 @@ let make = () => {
       />
     </div>
     <div className="font-medium text-nd_gray-400 w-3/4">
-      {"Network Tokenization is enabled for your merchant account with Juspay as the token requestor, providing secure and seamless card storage for future transactions. To enable this feature, please contact us on "->React.string}
+      {"Network Tokenization is enabled for your merchant account with Juspay as Token Requestor Token Service Provider (TR-TSP), providing secure and seamless card storage for future transactions. To enable this feature, please contact us on "->React.string}
       <a
         href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-        className="text-primary hover:cursor-pointer hover:underline">
+        className="text-primary hover:cursor-pointer hover:underline"
+        target="_blank">
         {"Slack"->React.string}
       </a>
     </div>

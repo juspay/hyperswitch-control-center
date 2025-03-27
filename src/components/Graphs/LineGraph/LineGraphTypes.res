@@ -5,6 +5,7 @@ type spacingRight = int
 type info = {index: int}
 type point = {color: string, x: string, y: float, point: info}
 type pointFormatter = {points: array<point>}
+type yAxisFormatter = {value: int}
 
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =
   "%identity"
@@ -45,6 +46,13 @@ type marker = {
 type line = {marker: marker}
 type plotOptions = {line: line}
 type labels = {
+  formatter: pointFormatter => string,
+  align: align,
+  style: style,
+  y?: y,
+  x?: int,
+}
+type xAxisLabels = {
   align: align,
   style: style,
   y?: y,
@@ -52,6 +60,7 @@ type labels = {
 }
 type chart = {
   \"type": \"type",
+  height: int,
   spacingLeft: spacingLeft,
   spacingRight: spacingRight,
   style: style,
@@ -81,7 +90,7 @@ type xAxis = {
   crosshair: crosshair,
   lineWidth: lineWidth,
   tickWidth: tickWidth,
-  labels: labels,
+  labels: xAxisLabels,
   tickInterval: int,
   gridLineWidth: gridLineWidth,
   gridLineColor: gridLineColor,
@@ -151,4 +160,5 @@ type lineGraphPayload = {
   title: title,
   yAxisMaxValue: option<int>,
   tooltipFormatter: pointFormatter => string,
+  yAxisFormatter: pointFormatter => string,
 }

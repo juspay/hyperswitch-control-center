@@ -62,25 +62,35 @@ module OrderInfo = {
 @react.component
 let make = (~id) => {
   open LogicUtils
+  open ReconExceptionsUtils
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let showToast = ToastState.useShowToast()
   let (offset, setOffset) = React.useState(_ => 0)
   let (reconExceptionReport, setReconExceptionReport) = React.useState(_ =>
-    Dict.make()->ReportsExceptionTableEntity.getExceptionReportPayloadType
+    Dict.make()->ReconExceptionsUtils.getExceptionReportPayloadType
   )
   let (attemptData, setAttemptData) = React.useState(_ => [])
   let (showModal, setShowModal) = React.useState(_ => false)
-  let defaultObject = Dict.make()->ReportsExceptionTableEntity.getExceptionReportPayloadType
+  let defaultObject = Dict.make()->ReconExceptionsUtils.getExceptionReportPayloadType
+  let fetchApi = AuthHooks.useApiFetcher()
 
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
-      let res = ReportsData.reportsExceptionResponse
+      let url = `${GlobalVars.getHostUrl}/test-data/recon/reconExceptions.json`
+      let exceptionsResponse = await fetchApi(
+        url,
+        ~method_=Get,
+        ~xFeatureRoute=false,
+        ~forceCookies=false,
+      )
+      let res = await exceptionsResponse->(res => res->Fetch.Response.json)
       let data =
         res
         ->getDictFromJsonObject
         ->getArrayFromDict("data", [])
-        ->ReportsExceptionTableEntity.getArrayOfReportsListPayloadType
+        ->ReconExceptionsUtils.getArrayOfReportsListPayloadType
       let selectedDataArray = data->Array.filter(item => {item.transaction_id == id})
       let selectedDataObject = selectedDataArray->getValueFromArray(0, defaultObject)
       let exceptionMatrixArray = selectedDataObject.exception_matrix
@@ -125,6 +135,12 @@ let make = (~id) => {
     </div>
   }
 
+  let handleResolveIssue = () => {
+    showToast(~message="Resolved Successfully!", ~toastType=ToastState.ToastSuccess)
+    setReconExceptionReport(_ => {...reconExceptionReport, exception_type: "Resolved"})
+    setShowModal(_ => false)
+  }
+
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
       path=[{title: "Recon", link: `/v2/recon/reports?tab=exceptions`}]
@@ -140,11 +156,27 @@ let make = (~id) => {
       <div className="flex flex-row justify-between items-center">
         <div className="flex gap-2 items-center">
           <PageUtils.PageHeading title={`Transaction ID: ${reconExceptionReport.transaction_id}`} />
-          <div
-            className="text-sm text-white font-semibold px-3  py-1 rounded-md bg-nd_red-50 dark:bg-opacity-50 flex gap-2">
-            <p className="text-nd_red-400"> {reconExceptionReport.exception_type->React.string} </p>
-            <Icon name="nd-alert-circle" customIconColor="text-nd_red-400" />
-          </div>
+          {switch reconExceptionReport.exception_type->getExceptionsStatusTypeFromString {
+          | AmountMismatch
+          | StatusMismatch
+          | Both =>
+            <div
+              className="text-sm text-white font-semibold px-3  py-1 rounded-md bg-nd_red-50 dark:bg-opacity-50 flex gap-2">
+              <p className="text-nd_red-400">
+                {reconExceptionReport.exception_type
+                ->getExceptionsStatusTypeFromString
+                ->getExceptionStringFromStatus
+                ->React.string}
+              </p>
+              <Icon name="nd-alert-circle" customIconColor="text-nd_red-400" />
+            </div>
+          | Resolved =>
+            <div
+              className="text-sm text-white font-semibold px-3  py-1 rounded-md bg-nd_green-50 dark:bg-opacity-50 flex gap-2">
+              <p className="text-nd_green-400"> {"Resolved"->React.string} </p>
+              <Icon name="nd-tick" customIconColor="text-nd_green-400" />
+            </div>
+          }}
         </div>
         <ACLButton
           text="Resolve Issue"
@@ -157,7 +189,7 @@ let make = (~id) => {
         <div className="flex gap-4 items-center">
           <Icon name="nd-hour-glass" size=16 />
           <p className="text-nd_gray-600 text-base leading-6 font-medium">
-            {"PG processed the payment, but no matching record exists in the bank statement (Settlement Missing)."->React.string}
+            {"Payment Gateway processed the payment, but no matching record exists in the bank statement (Settlement Missing)."->React.string}
           </p>
         </div>
       </div>
@@ -202,7 +234,7 @@ let make = (~id) => {
           text="Done"
           buttonType={Primary}
           customButtonStyle="w-full mt-4"
-          onClick={_ => setShowModal(_ => false)}
+          onClick={_ => handleResolveIssue()}
         />
       </div>
     </Modal>

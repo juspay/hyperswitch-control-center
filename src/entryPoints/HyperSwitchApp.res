@@ -57,19 +57,19 @@ let make = () => {
     | _ => ()
     }
   }
-
+  // set the product url based on the product type
   let setupProductUrl = (~productType: ProductTypes.productTypes) => {
-    let currentUrl = GlobalVars.extractModulePath(url)
+    let currentUrl = GlobalVars.extractModulePath(
+      ~path=url.path,
+      ~query=url.search,
+      ~end=url.path->List.toArray->Array.length,
+    )
     let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
     RescriptReactRouter.replace(productUrl)
-    setActiveProductValue(productType)
-
     switch url.path->urlPath {
     | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
     | _ => ()
     }
-    setDashboardPageState(_ => #HOME)
-    setScreenState(_ => PageLoaderWrapper.Success)
   }
 
   let setUpDashboard = async () => {
@@ -78,10 +78,12 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
-      let _ = await fetchMerchantAccountDetails(~version)
+      let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
+      setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
+      setupProductUrl(~productType=merchantResponse.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -105,12 +107,13 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if userGroupACL->Option.isSome {
-      setupProductUrl(~productType=merchantDetailsTypedValue.product_type)
+      setDashboardPageState(_ => #HOME)
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, (userGroupACL, merchantDetailsTypedValue.product_type))
+  }, userGroupACL)
 
   <>
     <div>
@@ -148,7 +151,7 @@ let make = () => {
                       headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
                       | Some(url) =>
                         <div className="flex md:gap-4 gap-2 items-center">
-                          <img className="w-40 h-16" alt="image" src={`${url}`} />
+                          <img className="h-8 w-auto object-contain" alt="image" src={`${url}`} />
                           <ProfileSwitch />
                           <div
                             className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
@@ -164,7 +167,7 @@ let make = () => {
                           </div>
                         </div>
                       | None =>
-                        <div className="flex md:gap-4 gap-2 items-center ">
+                        <div className="flex md:gap-4 gap-2 items-center">
                           <ProfileSwitch />
                           <div
                             className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
@@ -346,7 +349,6 @@ let make = () => {
                             RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                             <MerchantAccountContainer setAppScreenState=setScreenState />
                           } else {
-                            RescriptReactRouter.replace(appendDashboardPath(~url="/v2/home"))
                             React.null
                           }
                         }}

@@ -1,4 +1,6 @@
 type url = All | Exceptions
+type reconStatus = Reconciled | Unreconciled | Missing
+type exceptionType = AmountMismatch | StatusMismatch | Both | Resolved
 
 type reportCommonPayload = {
   transaction_id: string,
@@ -6,7 +8,6 @@ type reportCommonPayload = {
   payment_gateway: string,
   payment_method: string,
   txn_amount: float,
-  actions: string,
   recon_status: string,
   transaction_date: string,
   settlement_amount: float,
@@ -36,7 +37,6 @@ type commonColType =
   | PaymentMethod
   | TxnAmount
   | SettlementAmount
-  | Actions
   | TransactionDate
 
 type allColtype = ReconStatus | ...commonColType

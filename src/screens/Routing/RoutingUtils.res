@@ -10,8 +10,8 @@ let getCurrentUTCTime = () => {
   let currentDate = Date.now()->Js.Date.fromFloat
   let month = currentDate->Js.Date.getUTCMonth +. 1.0
   let day = currentDate->Js.Date.getUTCDate
-  let currMonth = month < 10.0 ? `0${month->Float.toString}` : month->Float.toString
-  let currDay = day < 10.0 ? `0${day->Float.toString}` : day->Float.toString
+  let currMonth = month->Float.toString->String.padStart(2, "0")
+  let currDay = day->Float.toString->String.padStart(2, "0")
   let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString
 
   `${currYear}-${currMonth}-${currDay}`
