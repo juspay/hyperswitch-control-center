@@ -64,6 +64,7 @@ let make = () => {
           currrentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false
           rightTitleElement={requestAProcessorComponent}
+          showAutoScroll=true
         />
       </div>
     </RenderIf>

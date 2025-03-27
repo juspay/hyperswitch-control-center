@@ -39,8 +39,8 @@ let make = (
   open RevenueRecoveryOnboardingUtils
   <PageWrapper
     title="Choose your Billing Platform"
-    subTitle="Choose one processor for now. You can connect more processors later">
-    <div className="mb-10 flex flex-col gap-7">
+    subTitle="Select your subscription management platform to get started.">
+    <div className="-m-1 mb-10 flex flex-col gap-7">
       <PageLoaderWrapper screenState>
         <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
           <p className="text-sm text-gray-700 font-semibold mb-1">
