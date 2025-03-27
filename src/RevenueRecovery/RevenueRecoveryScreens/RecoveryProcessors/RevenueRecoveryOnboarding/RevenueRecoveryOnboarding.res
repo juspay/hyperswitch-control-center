@@ -42,37 +42,41 @@ let make = () => {
     )->Some
   }, [])
 
-  <div className="flex flex-row">
-    <VerticalStepIndicator
-      titleElement={"Setup Recovery"->React.string}
-      sections
-      currentStep
-      backClick={() => {
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
-      }}
-    />
-    <div className="flex flex-row ml-14 mt-16 w-540-px">
-      <RecoveryOnboardingPayments
-        currentStep
-        setConnectorID={setPaymentConnectorID}
-        connector={paymentConnectorName}
-        setConnectorName={setPaymentConnectorName}
-        setNextStep
-        profileId
-        merchantId
-        activeBusinessProfile
-      />
-      <RecoveryOnboardingBilling
-        currentStep
-        connectorID={paymentConnectorID}
-        connector=billingConnectorName
-        paymentConnectorName={paymentConnectorName}
-        setConnectorName=setBillingConnectorName
-        setNextStep
-        profileId
-        merchantId
-        activeBusinessProfile
-      />
+  <div className="flex flex-col gap-10 h-923-px">
+    <div className="flex h-full">
+      <div className="flex flex-col">
+        <VerticalStepIndicator
+          titleElement={"Setup Recovery"->React.string}
+          sections
+          currentStep
+          backClick={() => {
+            RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/home"))
+          }}
+        />
+      </div>
+      <div className="flex flex-row ml-14 mt-16 w-540-px overflow-y-auto">
+        <RecoveryOnboardingPayments
+          currentStep
+          setConnectorID={setPaymentConnectorID}
+          connector={paymentConnectorName}
+          setConnectorName={setPaymentConnectorName}
+          setNextStep
+          profileId
+          merchantId
+          activeBusinessProfile
+        />
+        <RecoveryOnboardingBilling
+          currentStep
+          connectorID={paymentConnectorID}
+          connector=billingConnectorName
+          paymentConnectorName={paymentConnectorName}
+          setConnectorName=setBillingConnectorName
+          setNextStep
+          profileId
+          merchantId
+          activeBusinessProfile
+        />
+      </div>
     </div>
   </div>
 }

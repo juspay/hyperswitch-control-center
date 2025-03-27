@@ -10,7 +10,7 @@ let make = (
 
   let rows = sections->Array.length->Int.toString
   let currIndex = sections->findSectionIndex(currentStep.sectionId)
-  <div className="flex flex-col gap-y-6 border-r h-774-px w-334-px">
+  <div className="flex flex-col gap-y-6 h-774-px w-334-px sticky overflow-y-auto py-5">
     <div className="flex items-center gap-x-3 px-6">
       <Icon
         name="nd-arrow-left"
@@ -20,7 +20,7 @@ let make = (
       />
       {titleElement}
     </div>
-    <div className="w-full p-2 md:p-6">
+    <div className="w-full h-full p-2 md:p-6 border-r">
       <div className={`grid grid-rows-${rows} relative gap-y-3.5`}>
         {sections
         ->Array.mapWithIndex((section, sectionIndex) => {

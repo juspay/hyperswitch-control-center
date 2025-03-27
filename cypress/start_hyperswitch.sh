@@ -1,16 +1,16 @@
+#!/bin/bash
+
 git clone --depth 1 https://github.com/juspay/hyperswitch
 
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
 # Navigate to the cloned directory
 cd hyperswitch
-sed 's|juspaydotin/hyperswitch-router:standalone|juspaydotin/hyperswitch-router:latest|g' docker-compose.yml > docker-compose.tmp
+sed 's|juspaydotin/hyperswitch-router:standalone|juspaydotin/hyperswitch-router:nightly|g' docker-compose.yml > docker-compose.tmp
 mv docker-compose.tmp docker-compose.yml
 
-#!/bin/bash
 
 # Specify the correct file path to the TOML file
-#!/bin/bash
-
 # File path of the TOML file
 toml_file="config/docker_compose.toml"  # Adjust the path if necessary
 
@@ -25,7 +25,6 @@ sed '/^\[network_tokenization_service\]/,/^\[.*\]/d' "$toml_file" > temp.toml
 mv temp.toml "$toml_file"
 echo "[network_tokenization_service] section removed from $toml_file."
 
-
-chmod +x /usr/local/bin/docker-compose
 # Start Docker Compose services in detached mode
+chmod +x /usr/local/bin/docker-compose
 docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog

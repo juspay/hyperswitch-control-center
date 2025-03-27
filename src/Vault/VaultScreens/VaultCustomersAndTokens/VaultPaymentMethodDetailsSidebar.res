@@ -50,6 +50,7 @@ module PSPTokens = {
         offset
         setOffset
         currrentFetchCount={data->Array.length}
+        showAutoScroll=true
       />
     </div>
   }
