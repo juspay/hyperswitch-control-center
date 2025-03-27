@@ -365,7 +365,7 @@ let make = () => {
 
   let dateRange = displayDateRange(~minDate=timeRange.minDate, ~maxDate=timeRange.maxDate)
 
-  let infoBanner =
+  let _infoBanner =
     <div
       className=" top-76-px left-0 w-full py-3 px-4 bg-nd_primary_blue-50 flex justify-between items-center rounded-md">
       <div className="flex gap-4 items-center">
@@ -398,7 +398,7 @@ let make = () => {
       </div>
       <div className="flex flex-col gap-12">
         <Overview data=stats />
-        {infoBanner}
+        // {infoBanner}
         <div className="flex flex-col gap-6">
           <div className="text-nd_gray-600 font-semibold"> {"Insights"->React.string} </div>
           <div className="grid grid-cols-2 gap-4">
