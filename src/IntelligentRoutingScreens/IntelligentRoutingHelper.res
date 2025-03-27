@@ -12,12 +12,11 @@ let simulatorBanner =
     </div>
   </div>
 
-let displayLegend = {
-  let keys = ["PSP 1", "PSP 2", "PSP 3", "PSP 4", "PSP 5"]
+let displayLegend = gatewayKeys => {
   let colors = ["#BCBD22", "#CB80DC", "#72BEF4", "#7856FF", "#4B6D8C"]
   let legendColor = index => colors->Array.get(index)->Option.getOr("")
 
-  keys->Array.mapWithIndex((key, index) => {
+  gatewayKeys->Array.mapWithIndex((key, index) => {
     <div className="flex gap-1 items-center" key={key}>
       <div
         className="w-3 h-3 rounded-sm"

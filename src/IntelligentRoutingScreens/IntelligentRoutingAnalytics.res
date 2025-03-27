@@ -408,7 +408,7 @@ let make = () => {
                   {"Overall Transaction Distribution"->React.string}
                 </p>
                 <div className="flex flex-col xl:flex-row gap-4">
-                  {displayLegend->React.array}
+                  {displayLegend(gateways)->React.array}
                 </div>
               </div>
               <div className="h-full flex flex-col xl:flex-row items-center justify-between gap-1">
