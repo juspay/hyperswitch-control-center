@@ -42,23 +42,22 @@ module ListBaseComp = {
         </div>
 
       | #Profile =>
-        <div className="flex flex-row gap-0.5 items-center">
-          <div
-            className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
-            <div className="md:max-w-40 max-w-16">
-              <p
-                className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre">
-                <span className={`text-xs text-nd_gray-400 font-medium`}>
-                  {"Profile :   "->React.string}
-                </span>
-                {React.string(subHeading)}
-              </p>
-            </div>
-            {showDropdownArrow
-              ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
-              : React.null}
+        <div
+          className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
+          <div className="md:max-w-40 max-w-16">
+            <p
+              className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre">
+              <span className={`text-xs text-nd_gray-400 font-medium`}>
+                {"Profile :   "->React.string}
+              </span>
+              {React.string(subHeading)}
+            </p>
           </div>
+          {showDropdownArrow
+            ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+            : React.null}
         </div>
+
       | _ => React.null
       }}
     </>
