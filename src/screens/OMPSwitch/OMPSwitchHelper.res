@@ -30,7 +30,7 @@ module ListBaseComp = {
           <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
             {"Merchant Account"->React.string}
           </span>
-          <div className="text-left flex gap-2 w-56 justify-between">
+          <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
               {subHeading->React.string}
