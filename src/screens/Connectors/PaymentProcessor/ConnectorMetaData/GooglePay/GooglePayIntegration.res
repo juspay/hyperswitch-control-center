@@ -9,7 +9,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
     | Processors(ZEN) =>
       <GooglePayZen connector update onCloseClickCustomFun setShowWalletConfigurationModal />
-    | _ =>
+    | Processors(CYBERSOURCE) =>
       <>
         <RenderIf condition={!featureFlag.googlePayDecryptionFlow}>
           <GooglePayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
@@ -18,6 +18,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
           <GPayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
         </RenderIf>
       </>
+    | _ => <GooglePayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
     }}
   </>
 }
