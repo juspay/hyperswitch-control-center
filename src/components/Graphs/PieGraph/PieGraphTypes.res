@@ -41,7 +41,7 @@ type style = {
   fontWeight?: string,
   fontSize?: string,
   fontStyle?: string,
-  width?: int,
+  width?: string,
   dashStyle?: string,
 }
 type title = {

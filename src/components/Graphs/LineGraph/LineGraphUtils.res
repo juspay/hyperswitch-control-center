@@ -4,7 +4,7 @@ open LineGraphTypes
 let darkGray = "#666666"
 let lightGray = "#999999"
 let gridLineColor = "#e6e6e6"
-let fontFamily = "Arial, sans-serif"
+let fontFamily = "InterDisplay"
 
 let valueFormatter = (
   @this

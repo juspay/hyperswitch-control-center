@@ -144,6 +144,7 @@ type legend = {
   symbolRadius: int,
   align: string,
   verticalAlign: string,
+  itemDistance: int,
   floating: bool,
   x: int,
   y: int,

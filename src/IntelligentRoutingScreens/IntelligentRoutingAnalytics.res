@@ -34,9 +34,10 @@ module GetProductionAccess = {
 
 module TransactionsTable = {
   @react.component
-  let make = () => {
+  let make = (~setTimeRange) => {
     open APIUtils
     open LogicUtils
+    open IntelligentRoutingTypes
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
@@ -59,6 +60,28 @@ module TransactionsTable = {
 
         let total = res->getDictFromJsonObject->getInt("total_payment_count", 0)
         let arr = res->getDictFromJsonObject->getArrayFromDict("simulation_outcome_of_each_txn", [])
+
+        let data =
+          arr
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(IntelligentRoutingTransactionsEntity.itemToObjectMapper)
+
+        data->Array.sort((t1, t2) => {
+          let t1 = t1.created_at
+          let t2 = t2.created_at
+
+          t1 <= t2 ? -1. : 1.
+        })
+
+        let minDate = switch data->Array.get(0) {
+        | Some(txn) => txn.created_at
+        | None => ""
+        }
+        let _maxDate = switch data->Array.get(data->Array.length - 1) {
+        | Some(txn) => txn.created_at
+        | None => ""
+        }
+        setTimeRange(prev => {...prev, minDate})
 
         if total <= offset {
           setOffset(_ => 0)
@@ -189,29 +212,32 @@ module Card = {
       </div>
     }
 
-    <div className="flex flex-col gap-4 items-start border rounded-xl border-nd_gray-150 p-4">
+    <div className="flex flex-col gap-6 items-start border rounded-xl border-nd_gray-150 p-4">
       <div className="w-full flex items-center justify-between">
         <p className="text-nd_gray-500 text-md leading-4 font-medium"> {title->React.string} </p>
-        <div className="flex gap-1 text-green-800 bg-green-200 rounded-md px-2">
-          {getPercentageChange(~primaryValue=simulatedValue, ~secondaryValue=actualValue)}
-        </div>
       </div>
       <div className="w-full flex gap-6">
-        <div className="w-full flex items-center justify-between">
+        <div className="w-full flex flex-col gap-2 items-start justify-between">
           <p className="text-nd_gray-400 text-sm leading-4 font-medium">
-            {"With Intelligence"->React.string}
+            {"Without Intelligence"->React.string}
           </p>
           <p className="text-nd_gray-500 font-semibold leading-8 text-lg text-nowrap">
             {displayValue(actualValue)->React.string}
           </p>
         </div>
-        <div className="w-full flex items-center justify-between">
+        <div className="w-full flex flex-col gap-2 items-start justify-between">
           <p className="text-nd_gray-400 text-sm leading-4 font-medium">
-            {"Without Intelligence"->React.string}
+            {"With Intelligence"->React.string}
           </p>
-          <p className="text-nd_gray-700 font-semibold leading-8 text-lg text-nowrap">
-            {displayValue(simulatedValue)->React.string}
-          </p>
+          <div className="flex gap-4">
+            <p className="text-nd_gray-700 font-semibold leading-8 text-lg text-nowrap">
+              {displayValue(simulatedValue)->React.string}
+            </p>
+            <div
+              className="flex items-center gap-1 text-green-800 bg-green-200 rounded-md px-2 text-sm leading-1">
+              {getPercentageChange(~primaryValue=simulatedValue, ~secondaryValue=actualValue)}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -341,13 +367,15 @@ let make = () => {
 
   let infoBanner =
     <div
-      className=" top-76-px left-0 w-full py-4 px-10 bg-nd_primary_blue-50 flex justify-between items-center rounded-md">
+      className=" top-76-px left-0 w-full py-3 px-4 bg-nd_primary_blue-50 flex justify-between items-center rounded-md">
       <div className="flex gap-4 items-center">
         <Icon name="nd-warning" />
         <div className="text-nd_gray-600 text-base !leading-6 font-medium">
-          <span> {"Number of intelligent PSP switches made "->React.string} </span>
+          <span> {"Our Intelligent system made "->React.string} </span>
           <span className="font-bold"> {"37847"->React.string} </span>
-          <span> {" (22% Uplift)"->React.string} </span>
+          <span>
+            {" (8.5%) switches from primary processor to an alternate processor."->React.string}
+          </span>
         </div>
       </div>
     </div>
@@ -395,34 +423,32 @@ let make = () => {
             </div>
           </div>
           <div className="border rounded-lg p-4 flex flex-col ">
-            <div className="border rounded-lg p-4">
-              <div className="relative">
-                <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
-                  <SelectBox.BaseDropdown
-                    allowMultiSelect=false
-                    buttonText="Select PSP"
-                    input
-                    deselectDisable=true
-                    customButtonStyle="!rounded-lg"
-                    options={makeOption(gateways)}
-                    marginTop="mt-10"
-                    hideMultiSelectButtons=true
-                    addButton=false
-                    fullLength=true
-                    shouldDisplaySelectedOnTop=true
-                    customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
-                  />
-                </div>
+            <div className="relative">
+              <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
+                <SelectBox.BaseDropdown
+                  allowMultiSelect=false
+                  buttonText="Select PSP"
+                  input
+                  deselectDisable=true
+                  customButtonStyle="!rounded-lg"
+                  options={makeOption(gateways)}
+                  marginTop="mt-10"
+                  hideMultiSelectButtons=true
+                  addButton=false
+                  fullLength=true
+                  shouldDisplaySelectedOnTop=true
+                  customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
+                />
               </div>
-              <LineAndColumnGraph
-                options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
-                  lineColumnGraphOptions(stats, ~processor=selectedGateway),
-                )}
-              />
             </div>
+            <LineAndColumnGraph
+              options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
+                lineColumnGraphOptions(stats, ~processor=selectedGateway),
+              )}
+            />
           </div>
         </div>
-        <TransactionsTable />
+        <TransactionsTable setTimeRange />
       </div>
     </div>
   </PageLoaderWrapper>

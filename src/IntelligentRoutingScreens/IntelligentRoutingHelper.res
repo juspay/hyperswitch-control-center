@@ -15,11 +15,17 @@ let simulatorBanner =
 let displayLegend = {
   let keys = ["PSP 1", "PSP 2", "PSP 3", "PSP 4", "PSP 5"]
   let colors = ["#BCBD22", "#CB80DC", "#72BEF4", "#7856FF", "#4B6D8C"]
+  let legendColor = index => colors->Array.get(index)->Option.getOr("")
 
   keys->Array.mapWithIndex((key, index) => {
-    <div className="flex gap-1 items-center">
-      <div className={`w-3 h-3 rounded-sm bg-[${colors->Array.get(index)->Option.getOr("")}]`} />
-      <p className="text-grey-100 font-semibold leading-3 !text-fs-13"> {key->React.string} </p>
+    <div className="flex gap-1 items-center" key={key}>
+      <div
+        className="w-3 h-3 rounded-sm"
+        style={ReactDOM.Style.make(~backgroundColor=legendColor(index), ())}
+      />
+      <p className="text-grey-100 font-semibold leading-3 !text-fs-13 text-nowrap">
+        {key->React.string}
+      </p>
     </div>
   })
 }
@@ -54,9 +60,9 @@ let displayDateRange = (~minDate, ~maxDate) => {
 
 let getDateTime = value => {
   let dateObj = value->DayJs.getDayJsForString
-  let date = `${dateObj.month()->NewAnalyticsUtils.getMonthName} ${dateObj.format("DD")}`
+  let _date = `${dateObj.month()->NewAnalyticsUtils.getMonthName} ${dateObj.format("DD")}`
   let time = dateObj.format("HH:mm")->NewAnalyticsUtils.formatTime
-  `${date}, ${time}`
+  `${time}`
 }
 
 let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload => {
@@ -90,14 +96,14 @@ let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload =>
     data: [
       {
         showInLegend: true,
-        name: "Actual",
+        name: "Without Intelligence",
         colorByPoint: false,
         data: baseLineData,
         color: "#B992DD",
       },
       {
         showInLegend: true,
-        name: "Simulated",
+        name: "With Intelligence",
         colorByPoint: false,
         data: modelData,
         color: "#1E90FF",
@@ -139,13 +145,13 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
     data: [
       {
         showInLegend: true,
-        name: "Actual",
+        name: "Without Intelligence",
         data: baselineSuccessRate,
         color: "#B992DD",
       },
       {
         showInLegend: true,
-        name: "Simulated",
+        name: "With Intelligence",
         data: modelSuccessRate,
         color: "#1E90FF",
       },
@@ -242,12 +248,12 @@ let lineColumnGraphOptions = (
         name: "Processor's Auth Rate",
         \"type": "column",
         data: successRate,
-        color: "#B5B28E",
+        color: "#93AACD",
         yAxis: 0,
       },
       {
         showInLegend: true,
-        name: "Actual Transactions",
+        name: "Without Intelligence Transactions",
         \"type": "line",
         data: baseline,
         color: "#A785D8",
@@ -255,7 +261,7 @@ let lineColumnGraphOptions = (
       },
       {
         showInLegend: true,
-        name: "Simulated Transactions",
+        name: "With Intelligence Transactions",
         \"type": "line",
         data: model,
         color: "#4185F4",
@@ -275,7 +281,8 @@ let lineColumnGraphOptions = (
   }
 }
 
-let pieGraphOptionsActual = (stats: JSON.t): PieGraphTypes.pieGraphPayload<int> => {
+let getTypedData = (stats: JSON.t) => {
+  open LogicUtils
   let statsData = stats->IntelligentRoutingUtils.responseMapper
   let timeSeriesData = statsData.time_series_data
 
@@ -291,8 +298,67 @@ let pieGraphOptionsActual = (stats: JSON.t): PieGraphTypes.pieGraphPayload<int> 
     key1 <= key2 ? -1. : 1.
   })
 
-  let distribution = [60.0, 30.0, 10.0, 30.0, 10.0]
-  let colors = ["#BCBD22", "#CB80DC", "#72BEF4", "#7856FF", "#4B6D8C"]
+  let mapPSPJson = (json): volDist => {
+    let dict = json->getDictFromJsonObject
+    {
+      baseline_volume: dict->getInt("baseline_volume", 0),
+      model_volume: dict->getInt("model_volume", 0),
+      success_rate: dict->getFloat("success_rate", 0.0),
+    }
+  }
+
+  let successData = processor =>
+    timeSeriesData->Array.map(item => {
+      let val = item.volume_distribution_as_per_sr
+      let dict = val->getDictFromJsonObject
+      let pspData = dict->Dict.get(processor)
+
+      let data = switch pspData {
+      | Some(pspData) => pspData->mapPSPJson
+      | None => {
+          baseline_volume: 0,
+          model_volume: 0,
+          success_rate: 0.0,
+        }
+      }
+      data
+    })
+
+  successData
+}
+
+let getKeys = (stats: JSON.t) => {
+  let statsData = stats->IntelligentRoutingUtils.responseMapper
+  let timeSeriesData = statsData.time_series_data
+
+  let gatewayData = switch timeSeriesData->Array.get(0) {
+  | Some(statsData) => statsData.volume_distribution_as_per_sr
+  | None => JSON.Encode.null
+  }
+  let gatewayKeys =
+    gatewayData
+    ->LogicUtils.getDictFromJsonObject
+    ->Dict.keysToArray
+  gatewayKeys->Array.sort((key1, key2) => {
+    key1 <= key2 ? -1. : 1.
+  })
+  gatewayKeys
+}
+
+let pieGraphOptionsActual = (stats: JSON.t): PieGraphTypes.pieGraphPayload<int> => {
+  let gatewayKeys = getKeys(stats)
+  let successData = getTypedData(stats)
+  let distribution = gatewayKeys->Array.map(processor =>
+    successData(processor)
+    ->Array.map(item => {
+      item.baseline_volume
+    })
+    ->Array.reduce(0, (acc, val) => {
+      acc + val
+    })
+  )
+
+  let colors = ["#D9DA98", "#EAB9F5", "#6BBDF6", "#AC9EE7", "#498FD0"]
 
   let data: array<PieGraphTypes.pieGraphDataType> = gatewayKeys->Array.mapWithIndex((
     key,
@@ -300,7 +366,7 @@ let pieGraphOptionsActual = (stats: JSON.t): PieGraphTypes.pieGraphPayload<int> 
   ) => {
     let dataObj: PieGraphTypes.pieGraphDataType = {
       name: key,
-      y: distribution->Array.get(index)->Option.getOr(0.0),
+      y: distribution->Array.get(index)->Option.getOr(0)->Int.toFloat,
       color: colors->Array.get(index)->Option.getOr(""),
     }
     dataObj
@@ -319,14 +385,12 @@ let pieGraphOptionsActual = (stats: JSON.t): PieGraphTypes.pieGraphPayload<int> 
   {
     chartSize: "80%",
     title: {
-      text: "Actual",
+      text: "Without Intelligence",
     },
     data,
     tooltipFormatter: PieGraphUtils.pieGraphTooltipFormatter(
       ~title="Transactions",
-      ~valueFormatterType=AmountWithSuffix,
-      ~currency="$",
-      ~suffix="M",
+      ~valueFormatterType=Amount,
     ),
     legendFormatter: PieGraphUtils.pieGraphLegendFormatter(),
     startAngle: 0,
@@ -338,23 +402,17 @@ let pieGraphOptionsActual = (stats: JSON.t): PieGraphTypes.pieGraphPayload<int> 
 }
 
 let pieGraphOptionsSimulated = (stats: JSON.t): PieGraphTypes.pieGraphPayload<int> => {
-  let statsData = stats->IntelligentRoutingUtils.responseMapper
-  let timeSeriesData = statsData.time_series_data
+  let gatewayKeys = getKeys(stats)
+  let successData = getTypedData(stats)
+  let distribution = gatewayKeys->Array.map(processor =>
+    successData(processor)
+    ->Array.map(item => item.model_volume)
+    ->Array.reduce(0, (acc, val) => {
+      acc + val
+    })
+  )
 
-  let gatewayData = switch timeSeriesData->Array.get(0) {
-  | Some(statsData) => statsData.volume_distribution_as_per_sr
-  | None => JSON.Encode.null
-  }
-  let gatewayKeys =
-    gatewayData
-    ->LogicUtils.getDictFromJsonObject
-    ->Dict.keysToArray
-  gatewayKeys->Array.sort((key1, key2) => {
-    key1 <= key2 ? -1. : 1.
-  })
-
-  let distribution = [20.0, 10.0, 70.0, 10.0, 30.0]
-  let colors = ["#BCBD22", "#CB80DC", "#72BEF4", "#7856FF", "#4B6D8C"]
+  let colors = ["#D9DA98", "#EAB9F5", "#6BBDF6", "#AC9EE7", "#498FD0"]
 
   let data: array<PieGraphTypes.pieGraphDataType> = gatewayKeys->Array.mapWithIndex((
     key,
@@ -362,7 +420,7 @@ let pieGraphOptionsSimulated = (stats: JSON.t): PieGraphTypes.pieGraphPayload<in
   ) => {
     let dataObj: PieGraphTypes.pieGraphDataType = {
       name: key,
-      y: distribution->Array.get(index)->Option.getOr(0.0),
+      y: distribution->Array.get(index)->Option.getOr(0)->Int.toFloat,
       color: colors->Array.get(index)->Option.getOr(""),
     }
     dataObj
@@ -381,14 +439,12 @@ let pieGraphOptionsSimulated = (stats: JSON.t): PieGraphTypes.pieGraphPayload<in
   {
     chartSize: "80%",
     title: {
-      text: "Simulated",
+      text: "With Intelligence",
     },
     data,
     tooltipFormatter: PieGraphUtils.pieGraphTooltipFormatter(
       ~title="Transactions",
-      ~valueFormatterType=AmountWithSuffix,
-      ~currency="$",
-      ~suffix="M",
+      ~valueFormatterType=Amount,
     ),
     legendFormatter: PieGraphUtils.pieGraphLegendFormatter(),
     startAngle: 0,

@@ -3,7 +3,7 @@ open LineAndColumnGraphTypes
 let darkGray = "#525866"
 let lightGray = "#999999"
 let gridLineColor = "#e6e6e6"
-let fontFamily = "Arial, sans-serif"
+let fontFamily = "InterDisplay"
 
 let labelFormatter = (
   @this
@@ -111,12 +111,12 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
     },
     yAxis,
     legend: {
-      useHTML: false,
+      useHTML: true,
       labelFormatter,
-      symbolPadding: 10,
-      symbolWidth: 10,
-      symbolHeight: 10,
-      symbolRadius: 3,
+      symbolPadding: -7,
+      symbolWidth: 0,
+      symbolHeight: 0,
+      symbolRadius: 4,
       itemStyle: {
         fontFamily,
         fontSize: "12px",
@@ -125,6 +125,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       align: "right",
       verticalAlign: "top",
       floating: true,
+      itemDistance: 10,
       x: -80,
       y: -8,
     },
@@ -135,7 +136,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
         },
       },
       column: {
-        pointWidth: 30, // Adjust width of bars
+        pointWidth: 10, // Adjust width of bars
         borderRadius: 3, // Rounds the top corners
       },
     },

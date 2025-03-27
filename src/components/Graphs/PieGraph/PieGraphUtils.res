@@ -14,8 +14,8 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
   let pieGraphTitle = {
     ...title,
     align: "center",
-    verticalAlign: "middle", // Centered vertically within the chart
-    y: 10, // Adjust this value to fine-tune vertical position
+    verticalAlign: "bottom", // Centered vertically within the chart
+    y: 15, // Adjust this value to fine-tune vertical position
     x: 0,
     style: {
       fontSize: "14px",
