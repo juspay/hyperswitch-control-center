@@ -10,10 +10,6 @@ module TotalNumbersViewCard = {
     </div>
   }
 }
-type networkTokenStateTypes =
-  | Loading
-  | Success
-  | Error
 
 module VaultTotalTokens = {
   @react.component
@@ -24,7 +20,7 @@ module VaultTotalTokens = {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let (tokenCount, setTokenCount) = React.useState(_ => 0)
-    let (componentState, setComponentState) = React.useState(_ => Error)
+    let (componentState, setComponentState) = React.useState(_ => VaultCustomersType.Error)
 
     let getTokenCount = async () => {
       setComponentState(_ => Loading)
@@ -52,7 +48,7 @@ module VaultTotalTokens = {
       | Success =>
         <TotalNumbersViewCard
           title="Total Vaulted Payment Methods"
-          count={`${tokenCount <= 0 ? "-" : tokenCount->Belt.Int.toString}`}
+          count={`${tokenCount <= 0 ? "-" : tokenCount->Int.toString}`}
         />
       | Error =>
         <TotalNumbersViewCard
@@ -85,7 +81,7 @@ module VaultTotalTokens = {
 
 @react.component
 let make = (~sampleReport, ~custCount) => {
-  let custDisplaycount = ` ${custCount->Belt.Int.toString}`
+  let custDisplaycount = ` ${custCount->Int.toString}`
 
   <div className="flex flex-row gap-2">
     <TotalNumbersViewCard
