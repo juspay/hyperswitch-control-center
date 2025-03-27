@@ -243,7 +243,6 @@ let make = () => {
       customScrollStyle
       dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
-      searchInputPlaceHolder="Search Profile or ID..."
       placeholderCss="text-fs-13"
     />
     <RenderIf condition={showModal}>

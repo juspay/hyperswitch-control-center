@@ -26,11 +26,11 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
+          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
           <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
             {"Merchant Account"->React.string}
           </span>
-          <div className="text-left flex gap-2">
+          <div className="text-left flex gap-2 w-52">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
               {subHeading->React.string}
@@ -43,15 +43,15 @@ module ListBaseComp = {
 
       | #Profile =>
         <div className="flex flex-row gap-0.5 items-center">
-          <span className={`text-xs opacity-50 font-medium w-12`}>
-            {"Profile: "->React.string}
-          </span>
           <div
             className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
             <div className="md:max-w-40 max-w-16">
               <p
-                className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
-                {subHeading->React.string}
+                className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre">
+                <span className={`text-xs text-nd_gray-400 font-medium`}>
+                  {"Profile :   "->React.string}
+                </span>
+                {React.string(subHeading)}
               </p>
             </div>
             {showDropdownArrow
