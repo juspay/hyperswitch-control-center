@@ -152,6 +152,7 @@ let lineColumnGraphTooltipFormatter = (
   ~title,
   ~metricType: LogicUtilsTypes.valueType,
   ~currency="$",
+  ~showNameInTooltip=false,
 ) => {
   open LogicUtils
 
@@ -160,26 +161,41 @@ let lineColumnGraphTooltipFormatter = (
     (this: pointFormatter) => {
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
 
-      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: ""}
+      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: "", series: {name: ""}}
       let primartPoint = this.points->getValueFromArray(0, defaultValue)
       let line1Point = this.points->getValueFromArray(1, defaultValue)
       let line2Point = this.points->getValueFromArray(2, defaultValue)
 
-      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
+      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="", ~name="") => {
         let formattedValue = LogicUtils.valueFormatter(value, metricType, ~currency)
-
+        let key = showNameInTooltip ? name : date
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
+            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${formattedValue}</div>
         </div>`
       }
 
       let tableItems =
         [
-          getRowsHtml(~iconColor=primartPoint.color, ~date=primartPoint.key, ~value=primartPoint.y),
-          getRowsHtml(~iconColor=line1Point.color, ~date=line1Point.key, ~value=line1Point.y),
-          getRowsHtml(~iconColor=line2Point.color, ~date=line2Point.key, ~value=line2Point.y),
+          getRowsHtml(
+            ~iconColor=primartPoint.color,
+            ~date=primartPoint.key,
+            ~value=primartPoint.y,
+            ~name=primartPoint.series.name,
+          ),
+          getRowsHtml(
+            ~iconColor=line1Point.color,
+            ~date=line1Point.key,
+            ~value=line1Point.y,
+            ~name=line1Point.series.name,
+          ),
+          getRowsHtml(
+            ~iconColor=line2Point.color,
+            ~date=line2Point.key,
+            ~value=line2Point.y,
+            ~name=line2Point.series.name,
+          ),
         ]->Array.joinWith("")
 
       let content = `

@@ -167,6 +167,7 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
       ~secondaryCategories=timeSeriesArray,
       ~reverse=true,
       ~suffix="%",
+      ~showNameInTooltip=true,
     ),
     yAxisMaxValue: Some(100),
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
@@ -280,6 +281,7 @@ let lineColumnGraphOptions = (
       ~title="Metrics",
       ~metricType=Amount,
       ~currency="",
+      ~showNameInTooltip=true,
     ),
     yAxisFormatter: LineAndColumnGraphUtils.lineColumnGraphYAxisFormatter(
       ~statType=AmountWithSuffix,

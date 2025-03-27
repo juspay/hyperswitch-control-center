@@ -3,7 +3,8 @@ type spacingLeft = int
 type spacingRight = int
 
 type info = {index: int}
-type point = {color: string, x: string, y: float, point: info}
+type series = {name: string}
+type point = {color: string, x: string, y: float, point: info, series: series}
 type pointFormatter = {points: array<point>}
 type yAxisFormatter = {value: int}
 
