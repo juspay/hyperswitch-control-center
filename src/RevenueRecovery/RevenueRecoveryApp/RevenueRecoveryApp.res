@@ -1,10 +1,11 @@
 @react.component
 let make = () => {
-  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+  let url = RescriptReactRouter.useUrl()
 
-  if activeProduct == Recovery {
-    <RecoveryConnectorContainer />
-  } else {
-    <RevenueRecoveryOnboardingLanding createMerchant=true />
+  {
+    switch url.path->HSwitchUtils.urlPath {
+    | list{"v2", "recovery"} => <RevenueRecoveryOnboardingLanding createMerchant=true />
+    | _ => <RecoveryConnectorContainer />
+    }
   }
 }
