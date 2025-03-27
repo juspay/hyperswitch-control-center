@@ -26,17 +26,17 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
+          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
           <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
             {"Merchant Account"->React.string}
           </span>
-          <div className="text-left flex gap-2 w-52">
+          <div className="text-left flex gap-2 w-56 justify-between">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
               {subHeading->React.string}
             </p>
             {showDropdownArrow
-              ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+              ? <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
               : React.null}
           </div>
         </div>
@@ -54,7 +54,7 @@ module ListBaseComp = {
             </p>
           </div>
           {showDropdownArrow
-            ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+            ? <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
             : React.null}
         </div>
       | _ => React.null
