@@ -135,10 +135,11 @@ let make = (~id) => {
     </div>
   }
 
-  let handleResolveIssue = () => {
+  let onSubmit = async (_values, _form: ReactFinalForm.formApi) => {
     showToast(~message="Resolved Successfully!", ~toastType=ToastState.ToastSuccess)
     setReconExceptionReport(_ => {...reconExceptionReport, exception_type: "Resolved"})
     setShowModal(_ => false)
+    Nullable.null
   }
 
   <div className="flex flex-col gap-8">
@@ -178,12 +179,16 @@ let make = (~id) => {
             </div>
           }}
         </div>
-        <ACLButton
-          text="Resolve Issue"
-          customButtonStyle="!w-fit"
-          buttonType={Primary}
-          onClick={_ => setShowModal(_ => true)}
-        />
+        <RenderIf
+          condition={reconExceptionReport.exception_type->getExceptionsStatusTypeFromString !=
+            Resolved}>
+          <ACLButton
+            text="Resolve Issue"
+            customButtonStyle="!w-fit"
+            buttonType={Primary}
+            onClick={_ => setShowModal(_ => true)}
+          />
+        </RenderIf>
       </div>
       <div className="w-full py-3 px-4 bg-orange-50 flex justify-between items-center rounded-lg">
         <div className="flex gap-4 items-center">
@@ -216,26 +221,35 @@ let make = (~id) => {
       showModal
       closeOnOutsideClick=true
       modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background"
-      childClass="m-6 h-full"
+      childClass="m-4 h-full"
       customModalHeading=modalHeading>
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3">
-          <p className="font-medium text-nd_gray-600 text-sm leading-5">
-            {"Add Note"->React.string}
-          </p>
-          <div className="border rounded-xl h-120-px p-4">
-            <input
-              className="w-full border-none focus:outline-none text-nd_gray-400 text-sm leading-5 font-medium"
-              placeholder="You can log comments"
+        <Form onSubmit validate={validateNoteField} initialValues={Dict.make()->JSON.Encode.object}>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold"
+            field={FormRenderer.makeFieldInfo(
+              ~label="Add a Note",
+              ~name="note",
+              ~placeholder="You can log comments",
+              ~customInput=InputFields.multiLineTextInput(
+                ~isDisabled=false,
+                ~rows=Some(4),
+                ~cols=Some(50),
+                ~maxLength=500,
+                ~customClass="!h-28 !rounded-xl",
+              ),
+              ~isRequired=true,
+            )}
+          />
+          <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0.5">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Done"
+              buttonType={Primary}
+              customSumbitButtonStyle="!w-full mt-4"
             />
-          </div>
-        </div>
-        <Button
-          text="Done"
-          buttonType={Primary}
-          customButtonStyle="w-full mt-4"
-          onClick={_ => handleResolveIssue()}
-        />
+          </FormRenderer.DesktopRow>
+        </Form>
       </div>
     </Modal>
   </div>
