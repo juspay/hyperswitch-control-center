@@ -66,6 +66,7 @@ dev_modularity_v2=false
 dev_alt_payment_methods=false
 dev_hypersense_v2_product=false
 maintainence_alert=""
+dev_webhooks=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
