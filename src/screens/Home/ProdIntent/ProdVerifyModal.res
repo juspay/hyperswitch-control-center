@@ -2,13 +2,7 @@ open ProdVerifyModalUtils
 open CardUtils
 
 @react.component
-let make = (
-  ~showModal,
-  ~setShowModal,
-  ~initialValues=Dict.make(),
-  ~getProdVerifyDetails,
-  ~productType: ProductTypes.productTypes,
-) => {
+let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerifyDetails) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -17,20 +11,15 @@ let make = (
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let updateProdDetails = async values => {
     try {
-      let url = switch productType {
-      | Orchestration
-      | CostObservability
-      | DynamicRouting =>
-        getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      | _ => getURL(~entityName=V2(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let url = switch version {
+      | V1 => getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      | V2 => getURL(~entityName=V2(USERS), ~userType=#USER_DATA, ~methodType=Post)
       }
       let bodyValues = values->getBody->JSON.Encode.object
-      bodyValues
-      ->LogicUtils.getDictFromJsonObject
-      ->Dict.set("product_type", (Obj.magic(productType) :> string)->JSON.Encode.string)
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(

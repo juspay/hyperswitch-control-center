@@ -1,5 +1,5 @@
 @react.component
-let make = (~isFromMilestoneCard=false, ~productType: ProductTypes.productTypes) => {
+let make = (~isFromMilestoneCard=false) => {
   open APIUtils
   open ProdVerifyModalUtils
   open CommonAuthHooks
@@ -9,23 +9,21 @@ let make = (~isFromMilestoneCard=false, ~productType: ProductTypes.productTypes)
   let {showProdIntentForm, setShowProdIntentForm, setIsProdIntentCompleted} = React.useContext(
     GlobalProvider.defaultContext,
   )
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {version, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
 
   let getProdVerifyDetails = async () => {
     open LogicUtils
     try {
-      let url = switch productType {
-      | Orchestration
-      | DynamicRouting
-      | CostObservability =>
+      let url = switch version {
+      | V1 =>
         getURL(
           ~entityName=V1(USERS),
           ~userType=#USER_DATA,
           ~methodType=Get,
           ~queryParamerters=Some(`keys=ProdIntent`),
         )
-      | _ =>
+      | V2 =>
         getURL(
           ~entityName=V2(USERS),
           ~userType=#USER_DATA,
@@ -58,6 +56,5 @@ let make = (~isFromMilestoneCard=false, ~productType: ProductTypes.productTypes)
     setShowModal={setShowProdIntentForm}
     initialValues
     getProdVerifyDetails
-    productType
   />
 }
