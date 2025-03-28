@@ -14,9 +14,9 @@ let make = (
   open ConnectorUtils
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
+  open ConnectProcessorsHelper
 
   let getURL = useGetURL()
-  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
@@ -24,6 +24,11 @@ let make = (
   )
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
+  let (arrow, setArrow) = React.useState(_ => false)
+
+  let toggleChevronState = () => {
+    setArrow(prev => !prev)
+  }
 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
@@ -37,6 +42,22 @@ let make = (
     connectorTypeFromName->getConnectorInfo
   }, [connector])
 
+  let connectorDetails = React.useMemo(() => {
+    try {
+      if connector->isNonEmptyString {
+        let dict = Window.getConnectorConfig(connector)
+        dict
+      } else {
+        Dict.make()->JSON.Encode.object
+      }
+    } catch {
+    | Exn.Error(e) => {
+        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
+        Dict.make()->JSON.Encode.object
+      }
+    }
+  }, [selectedConnector])
+
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     // TODO: Refactor for generic case
@@ -47,16 +68,43 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
+    initialValuesToDict->Dict.set(
+      "connector_webhook_details",
+      RevenueRecoveryData.payment_connector_webhook_details,
+    )
+    initialValuesToDict->Dict.set(
+      "connector_account_details",
+      RevenueRecoveryData.connector_account_details,
+    )
+    let keys =
+      connectorDetails
+      ->getDictFromJsonObject
+      ->Dict.keysToArray
+      ->Array.filter(val => Array.includes(["credit", "debit"], val))
+
+    let pmtype = keys->Array.flatMap(key => {
+      let paymentMethodType = connectorDetails->getDictFromJsonObject->getArrayFromDict(key, [])
+      let updatedData = paymentMethodType->Array.map(
+        val => {
+          let wasmDict = val->getDictFromJsonObject
+          let exisitngData =
+            wasmDict->ConnectorPaymentMethodV2Utils.getPaymentMethodDictV2(key, connector)
+          exisitngData
+        },
+      )
+      updatedData
+    })
+    let pmSubTypeDict =
+      [
+        ("payment_method_type", "card"->JSON.Encode.string),
+        ("payment_method_subtypes", pmtype->Identity.genericTypeToJson),
+      ]->Dict.fromArray
+    let pmArr = Array.make(~length=1, pmSubTypeDict)
+    initialValuesToDict->Dict.set("payment_methods_enabled", pmArr->Identity.genericTypeToJson)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
-  let handleAuthKeySubmit = async (_, _) => {
-    onNextClick(currentStep, setNextStep)
-    Nullable.null
-  }
-
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
@@ -88,22 +136,6 @@ let make = (
     }
     Nullable.null
   }
-
-  let connectorDetails = React.useMemo(() => {
-    try {
-      if connector->isNonEmptyString {
-        let dict = Window.getConnectorConfig(connector)
-        dict
-      } else {
-        Dict.make()->JSON.Encode.object
-      }
-    } catch {
-    | Exn.Error(e) => {
-        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        Dict.make()->JSON.Encode.object
-      }
-    }
-  }, [selectedConnector])
 
   let (
     _,
@@ -140,6 +172,9 @@ let make = (
     onChange: ev => {
       let value = ev->Identity.formReactEventToString
       setConnectorName(_ => value)
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${value}`),
+      )
     },
     onFocus: _ => (),
     value: connector->JSON.Encode.string,
@@ -147,26 +182,42 @@ let make = (
   }
   let options = RecoveryConnectorUtils.recoveryConnectorList->getOptions
 
+  let addItemBtnStyle = "border border-t-0 !w-full"
+  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
+  let dropdownContainerStyle = "rounded-md border border-1 !w-full"
+
   <div>
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
     | (#connectProcessor, #selectProcessor) =>
       <PageWrapper
-        title="Authenticate Processor"
-        subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
+        title="Where do you process your payments"
+        subTitle="Link the payment processor you use for handling subscription transactions.">
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
-            <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+            <Form onSubmit initialValues validate=validateMandatoryField>
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
-                buttonText="Select Processor"
+                buttonText="Choose a processor"
                 input
                 deselectDisable=true
                 customButtonStyle="!rounded-xl h-[45px] pr-2"
                 options
+                baseComponent={<ListBaseComp
+                  placeHolder="Choose a processor" heading="Profile" subHeading=connector arrow
+                />}
+                bottomComponent={<AddNewOMPButton
+                  filterConnector=None
+                  prodConnectorList=RecoveryConnectorUtils.recoveryConnectorListProd
+                  user=#Profile
+                  addItemBtnStyle
+                />}
                 hideMultiSelectButtons=true
                 addButton=false
                 searchable=true
                 customStyle="!w-full"
+                customScrollStyle
+                dropdownContainerStyle
+                toggleChevronState
                 customDropdownOuterClass="!border-none"
                 fullLength=true
                 shouldDisplaySelectedOnTop=true
@@ -174,7 +225,9 @@ let make = (
               />
               <RenderIf condition={connector->isNonEmptyString}>
                 <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
-                  <ConnectorAuthKeys initialValues={updatedInitialVal} showVertically=true />
+                  <ConnectorAuthKeys
+                    initialValues={updatedInitialVal} showVertically=true updateAccountDetails=false
+                  />
                   <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
                   <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
                   <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
@@ -193,7 +246,7 @@ let make = (
       </PageWrapper>
     | (#connectProcessor, #activePaymentMethods) =>
       <PageWrapper title="Payment Methods" subTitle="Configure your PaymentMethods.">
-        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+        <div className="mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
               <div className="flex flex-col mb-5 gap-3 ">
@@ -212,15 +265,15 @@ let make = (
       </PageWrapper>
     | (#connectProcessor, #setupWebhookProcessor) =>
       <PageWrapper
-        title="Setup Webhook"
-        subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor">
+        title="Setup Payments Webhook"
+        subTitle="Configure this endpoint in the payment processors dashboard under webhook settings for us to receive events from the processor.">
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <ConnectorWebhookPreview
             merchantId
             connectorName=connectorInfoDict.id
-            textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full"
+            textCss="border border-nd_gray-400 font-medium rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full !font-jetbrain-mono"
             containerClass="flex flex-row items-center justify-between"
-            displayTextLength=46
+            displayTextLength=38
             hideLabel=true
             showFullCopy=true
           />

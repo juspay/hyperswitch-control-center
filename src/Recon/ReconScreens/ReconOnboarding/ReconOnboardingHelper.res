@@ -98,7 +98,7 @@ module ListBaseComp = {
         </RenderIf>
       </div>
       <RenderIf condition={showDropdownArrow}>
-        <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+        <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
       </RenderIf>
     </div>
   }
@@ -456,6 +456,11 @@ module Exceptions = {
 module ReconOverviewContent = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    React.useEffect(() => {
+      mixpanelEvent(~eventName="recon_analytics_overview")
+      None
+    }, [])
     <div>
       <div
         className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">

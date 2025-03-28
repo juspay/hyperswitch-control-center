@@ -20,6 +20,7 @@ module.exports = {
   theme: {
     fontFamily: {
       "inter-style": '"InterDisplay"',
+      "jetbrain-mono": '"JetBrains Mono"',
     },
     extend: {
       screens: {
@@ -37,6 +38,7 @@ module.exports = {
         "6-rem": "6rem",
         "7-rem": "7rem",
         "8-rem": "8rem",
+        "9.5-rem": "9.5rem",
         "12.5-rem": "12.5rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
@@ -79,6 +81,7 @@ module.exports = {
         200: "58rem",
         150: "9.375rem",
         "1.1-rem": "1.125rem",
+        "13.5-rem": "13.5rem",
         "18-rem": "18rem",
         "22-rem": "22rem",
         "77-rem": "77rem",
@@ -262,6 +265,8 @@ module.exports = {
         red: {
           DEFAULT: "#FF0000",
           100: "#FFF1F0",
+          200: "#FEECEB",
+          700: "#C0362D",
           800: "#C04141",
           900: "#DA0E0F",
           950: "#F04849",

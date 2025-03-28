@@ -29,7 +29,7 @@ external postMessage: (JSON.t, string) => unit = "postMessage"
 external checkLoadHyper: option<ReactHyperJs.hyperloader> = "Hyper"
 
 @val @scope("window")
-external loadHyper: string => ReactHyperJs.hyperloader = "Hyper"
+external loadHyper: (string, JSON.t) => ReactHyperJs.hyperloader = "Hyper"
 
 type rec selectionObj = {\"type": string}
 @val @scope("window") external getSelection: unit => selectionObj = "getSelection"

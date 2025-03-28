@@ -18,8 +18,17 @@ let revenueRecoveryPayments = {
   })
 }
 
+let revenueRecoverySummary = {
+  Link({
+    name: "Configuration Details",
+    link: `/v2/recovery/summary`,
+    access: Access,
+    icon: "nd-connectors",
+  })
+}
+
 let recoverySidebars = {
-  let links = [revenueRecoveryPayments]
+  let links = [revenueRecoveryPayments, revenueRecoverySummary]
 
   links
 }

@@ -40,7 +40,6 @@ module ModalHeading = {
     ~customIcon,
     ~modalHeaderIconSize,
   ) => {
-    let isHyperSwitchDashboard = GlobalVars.isHyperSwitchDashboard
     let borderClass = showBorderBottom
       ? "border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75"
       : ""
@@ -50,13 +49,9 @@ module ModalHeading = {
     let justifyClass = centerHeading ? "justify-center" : "justify-between"
     let headerTextClass = isMobileView ? "text-fs-18 font-semibold" : headerTextClass
 
-    let descriptionStyle = isHyperSwitchDashboard
-      ? "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-sm "
-      : "text-sm mt-1 w-10/12 empty:hidden"
+    let descriptionStyle = "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-sm "
 
-    let subInfoStyle = isHyperSwitchDashboard
-      ? "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-sm empty:hidden"
-      : "text-sm empty:hidden"
+    let subInfoStyle = "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-sm empty:hidden"
 
     <div
       className={`!p-4 ${headBgClass->LogicUtils.isNonEmptyString
@@ -145,7 +140,6 @@ module ModalOverlay = {
     ~children,
     ~paddingClass,
     ~modalHeading,
-    ~overlayBG,
     ~modalPosition="",
     ~noBackDrop=false,
     ~isBackdropBlurReq=true,
@@ -155,9 +149,7 @@ module ModalOverlay = {
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")
     let mobileClass = isMobileView ? "flex flex-col " : ""
     let displayClass = showModal ? "block" : "hidden"
-    let overlayBgStyle = GlobalVars.isHyperSwitchDashboard
-      ? isBackdropBlurReq ? `bg-grey-700 bg-opacity-50` : ""
-      : overlayBG
+    let overlayBgStyle = isBackdropBlurReq ? `bg-grey-700 bg-opacity-50` : ""
     let backgroundDropStyles = isBackdropBlurReq ? "backdrop-blur-sm" : ""
 
     let attributeId =
@@ -287,7 +279,6 @@ let make = (
     handleOverlayClick
     paddingClass
     modalHeading
-    overlayBG
     modalPosition
     noBackDrop
     isBackdropBlurReq

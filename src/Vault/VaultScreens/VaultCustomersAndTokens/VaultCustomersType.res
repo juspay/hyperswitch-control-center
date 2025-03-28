@@ -18,3 +18,8 @@ type customersColsType =
   | PhoneCountryCode
   | Address
   | CreatedAt
+
+type totalTokenCountComponentStateTypes =
+  | Loading
+  | Success
+  | Error
