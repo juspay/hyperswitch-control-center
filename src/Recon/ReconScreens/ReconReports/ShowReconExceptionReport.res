@@ -178,12 +178,16 @@ let make = (~id) => {
             </div>
           }}
         </div>
-        <ACLButton
-          text="Resolve Issue"
-          customButtonStyle="!w-fit"
-          buttonType={Primary}
-          onClick={_ => setShowModal(_ => true)}
-        />
+        <RenderIf
+          condition={reconExceptionReport.exception_type->getExceptionsStatusTypeFromString !=
+            Resolved}>
+          <ACLButton
+            text="Resolve Issue"
+            customButtonStyle="!w-fit"
+            buttonType={Primary}
+            onClick={_ => setShowModal(_ => true)}
+          />
+        </RenderIf>
       </div>
       <div className="w-full py-3 px-4 bg-orange-50 flex justify-between items-center rounded-lg">
         <div className="flex gap-4 items-center">

@@ -198,7 +198,7 @@ module ConnectProcessorsFields = {
               ~label="Secret Key",
               ~name="secret_key",
               ~placeholder="**************",
-              ~customInput=InputFields.textInput(~customStyle="rounded-xl bg-nd_gray-50"),
+              ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
               ~isRequired=true,
             )}
           />
@@ -208,22 +208,22 @@ module ConnectProcessorsFields = {
               ~label="Client Verification Key",
               ~name="client_verification_key",
               ~placeholder="**************",
-              ~customInput=InputFields.textInput(~customStyle="rounded-xl bg-nd_gray-50"),
+              ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
               ~isRequired=true,
             )}
           />
         </div>
-        <div className="mt-10 w-full">
-          <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
-            <FormRenderer.SubmitButton
-              text="Next"
-              customSumbitButtonStyle="rounded !w-full"
-              buttonType={Primary}
-              tooltipForWidthClass="w-full"
-            />
-          </FormRenderer.DesktopRow>
-        </div>
       </RenderIf>
+      <div className="mt-10 w-full">
+        <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0.5">
+          <FormRenderer.SubmitButton
+            text="Next"
+            customSumbitButtonStyle="rounded !w-full"
+            buttonType={Primary}
+            tooltipForWidthClass="w-full"
+          />
+        </FormRenderer.DesktopRow>
+      </div>
       <FormValuesSpy />
     </>
   }
