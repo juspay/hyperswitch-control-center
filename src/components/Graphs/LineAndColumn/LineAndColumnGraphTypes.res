@@ -177,4 +177,6 @@ type lineColumnGraphPayload = {
   titleObj: titleObj,
   tooltipFormatter: pointFormatter => string,
   yAxisFormatter: pointFormatter => string,
+  minValY2: int,
+  maxValY2: int,
 }
