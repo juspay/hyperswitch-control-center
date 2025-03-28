@@ -219,15 +219,14 @@ let lineColumnGraphOptions = (
   let model = []
   let successRate = []
 
-  let _ = switch data {
+  switch data {
   | Some(data) => {
-      let val = data.volume_distribution_as_per_sr // vol dist
+      let val = data.volume_distribution_as_per_sr
       let dict = val->getDictFromJsonObject
 
-      let _ = gatewayKeys->Array.map(item => {
-        Js.log2("item", item)
+      gatewayKeys->Array.forEach(item => {
         let pspData = dict->Dict.get(item)
-        Js.log2("pspData", pspData)
+
         let data = switch pspData {
         | Some(pspData) => pspData->mapPSPJson
         | None => {
@@ -240,9 +239,8 @@ let lineColumnGraphOptions = (
         model->Array.push(data.model_volume->Int.toFloat)
         successRate->Array.push(data.success_rate)
       })
-      ""
     }
-  | None => ""
+  | None => ()
   }
 
   let _successData = timeSeriesData->Array.map(item => {

@@ -129,6 +129,7 @@ module TransactionsTable = {
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"
         loadedTableParentClass="flex flex-col pt-6"
+        showAutoScroll=true
       />
 
     let failedTxnTableData = tableData->Array.filter(txn =>
