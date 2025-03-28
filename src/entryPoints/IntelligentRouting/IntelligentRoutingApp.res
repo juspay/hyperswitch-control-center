@@ -7,7 +7,10 @@ let make = () => {
     | list{"v2", "dynamic-routing"} => <IntelligentRoutingHome />
     | list{"v2", "dynamic-routing", "home"} => <IntelligentRoutingConfiguration />
     | list{"v2", "dynamic-routing", "dashboard"} => <IntelligentRoutingAnalytics />
-    | _ => React.null
+    | _ => {
+        RescriptReactRouter.replace(`/dashboard/v2/dynamic-routing/home`)
+        React.null
+      }
     }
   }
 }

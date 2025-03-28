@@ -6,7 +6,7 @@ let getProductVariantFromString = product => {
   | "vault" => Vault
   | "cost_observability" => CostObservability
   | "dynamic_routing" => DynamicRouting
-  | "alternate_payment_methods" => AlternatePaymentMethods
+  // | "alternate_payment_methods" => AlternatePaymentMethods
   | _ => Orchestration
   }
 }
@@ -19,7 +19,7 @@ let getProductDisplayName = product =>
   | Vault => "Vault"
   | CostObservability => "Hypersense"
   | DynamicRouting => "Intelligent Routing"
-  | AlternatePaymentMethods => "Alternate Payment Methods"
+  // | AlternatePaymentMethods => "Alternate Payment Methods"
   }
 
 let getProductVariantFromDisplayName = product => {
@@ -30,7 +30,7 @@ let getProductVariantFromDisplayName = product => {
   | "Vault" => Vault
   | "Hypersense" => CostObservability
   | "Intelligent Routing" => DynamicRouting
-  | "Alternate Payment Methods" => AlternatePaymentMethods
+  // | "Alternate Payment Methods" => AlternatePaymentMethods
   | _ => Orchestration
   }
 }

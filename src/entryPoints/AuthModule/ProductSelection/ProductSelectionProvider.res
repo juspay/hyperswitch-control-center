@@ -385,7 +385,8 @@ let make = (~children) => {
     })
 
     if midsWithProductValue->Array.length == 0 {
-      setAction(_ => None)
+      // setAction(_ => None)
+      setCreateNewMerchant(productVariant)
     } else if midsWithProductValue->Array.length == 1 {
       let merchantIdToSwitch =
         midsWithProductValue

@@ -8,7 +8,10 @@ let make = () => {
     | list{"v2", "recon"} => <ReconOnBoardingContainer showOnBoarding />
     | list{"v2", "recon", "home"} => <ReconConfigurationContainer setShowOnBoarding />
     | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer />
-    | _ => React.null
+    | _ => {
+        RescriptReactRouter.replace(`/dashboard/v2/recon/home`)
+        React.null
+      }
     }
   }
 }
