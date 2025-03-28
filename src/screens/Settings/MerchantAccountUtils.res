@@ -25,6 +25,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     is_click_to_pay_enabled,
     authentication_product_ids,
     force_3ds_challenge,
+    is_debit_routing_enabled,
   } = profileRecord
 
   let profileInfo =
@@ -75,6 +76,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     authentication_connector_details.three_ds_requestor_app_url,
   )
   profileInfo->setOptionBool("force_3ds_challenge", force_3ds_challenge)
+  profileInfo->setOptionBool("is_debit_routing_enabled", is_debit_routing_enabled)
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
@@ -274,6 +276,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionBool(
     "force_3ds_challenge",
     valuesDict->getOptionBool("force_3ds_challenge"),
+  )
+  profileDetailsDict->setOptionBool(
+    "is_debit_routing_enabled",
+    valuesDict->getOptionBool("is_debit_routing_enabled"),
   )
 
   profileDetailsDict->setOptionDict(
@@ -578,6 +584,7 @@ let defaultValueForBusinessProfile = {
   is_click_to_pay_enabled: None,
   authentication_product_ids: None,
   force_3ds_challenge: None,
+  is_debit_routing_enabled: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

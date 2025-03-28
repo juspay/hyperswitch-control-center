@@ -55,6 +55,7 @@ let businessProfileTypeMapper = values => {
     ),
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
     force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
+    is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,
