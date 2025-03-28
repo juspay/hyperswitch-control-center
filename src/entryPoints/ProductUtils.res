@@ -43,6 +43,7 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
     } else {
       url
     }
+  | Recovery => `/dashboard/v2/recovery/overview`
   | _ => `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
   }
 }
