@@ -18,6 +18,8 @@ let make = (~children) => {
       let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute, ~forceCookies)
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
+      let themeId = userInfo.themeId
+      let _ = HyperSwitchEntryUtils.updateSessionData(~key="theme_id", ~value=themeId)
       setUserInfo(_ => userInfo)
       setScreenState(_ => Success)
     } catch {
