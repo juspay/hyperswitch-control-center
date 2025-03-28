@@ -81,6 +81,7 @@ module.exports = {
         200: "58rem",
         150: "9.375rem",
         "1.1-rem": "1.125rem",
+        "13.5-rem": "13.5rem",
         "18-rem": "18rem",
         "22-rem": "22rem",
         "77-rem": "77rem",

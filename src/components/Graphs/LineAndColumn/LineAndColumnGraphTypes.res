@@ -4,7 +4,8 @@ type spacingLeft = int
 type spacingRight = int
 
 type info = {index: int}
-type point = {color: string, x: string, y: float, point: info, key: string}
+type series = {name: string}
+type point = {color: string, x: string, y: float, point: info, key: string, series: series}
 type pointFormatter = {points: array<point>}
 type yAxisFormatter = {value: int}
 
@@ -125,6 +126,7 @@ type itemStyle = {
   fontFamily: string,
   fontSize: string,
   color: string,
+  fontWeight?: string,
 }
 
 type legendPoint = {
@@ -144,6 +146,8 @@ type legend = {
   symbolRadius: int,
   align: string,
   verticalAlign: string,
+  itemDistance: int,
+  floating: bool,
   x: int,
   y: int,
 }

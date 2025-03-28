@@ -14,10 +14,11 @@ module OrgMerchantSwitchCollapsed = {
 @react.component
 let make = (~isSidebarExpanded=false) => {
   let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {globalUIConfig: {sidebarColor: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let expandedContent = {
     <RenderIf condition={!isInternalUser}>
-      <div className="flex justify-start items-center px-6 mt-8">
+      <div className={`flex justify-start items-center px-6 mt-7 border-b pb-4 ${borderColor}`}>
         <MerchantSwitch />
       </div>
     </RenderIf>
