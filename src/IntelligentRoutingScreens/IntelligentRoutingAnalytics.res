@@ -234,7 +234,7 @@ module Card = {
               {displayValue(simulatedValue)->React.string}
             </p>
             <div
-              className="flex items-center gap-1 text-green-800 bg-green-200 rounded-md px-2 text-sm leading-1">
+              className="flex items-center gap-1 text-green-800 bg-green-200 rounded-md px-2 text-sm leading-1 font-semibold">
               {getPercentageChange(~primaryValue=simulatedValue, ~secondaryValue=actualValue)}
             </div>
           </div>
@@ -288,7 +288,8 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
   let (stats, setStats) = React.useState(_ => JSON.Encode.null)
-  let (selectedGateway, setSelectedGateway) = React.useState(() => "")
+  let (selectedTimeStamp, setSelectedTimeStamp) = React.useState(() => "")
+  let (timeStampOptions, setTimeStampOptions) = React.useState(() => [])
   let (gateways, setGateways) = React.useState(() => [])
   let (timeRange, setTimeRange) = React.useState(() => defaultTimeRange)
 
@@ -320,6 +321,13 @@ let make = () => {
       }
       setTimeRange(_ => {minDate, maxDate})
 
+      let timeStampArray = statsData->Array.map(item => {
+        item.time_stamp
+      })
+
+      setTimeStampOptions(_ => timeStampArray)
+      setSelectedTimeStamp(_ => timeStampArray->Array.get(0)->Option.getOr(""))
+
       let gatewayKeys =
         gatewayData
         ->LogicUtils.getDictFromJsonObject
@@ -328,7 +336,6 @@ let make = () => {
         key1 <= key2 ? -1. : 1.
       })
       setGateways(_ => gatewayKeys)
-      setSelectedGateway(_ => gatewayKeys->Array.get(0)->Option.getOr(""))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
@@ -346,7 +353,7 @@ let make = () => {
 
   let makeOption = (keys): array<SelectBox.dropdownOption> => {
     keys->Array.map(key => {
-      let options: SelectBox.dropdownOption = {label: key, value: key}
+      let options: SelectBox.dropdownOption = {label: getDateTime(key), value: key}
       options
     })
   }
@@ -356,10 +363,10 @@ let make = () => {
     onBlur: _ => (),
     onChange: ev => {
       let value = ev->Identity.formReactEventToString
-      setSelectedGateway(_ => value)
+      setSelectedTimeStamp(_ => value)
     },
     onFocus: _ => (),
-    value: selectedGateway->JSON.Encode.string,
+    value: selectedTimeStamp->JSON.Encode.string,
     checked: true,
   }
 
@@ -380,9 +387,12 @@ let make = () => {
       </div>
     </div>
 
+  let customScrollStyle = `max-h-40 overflow-scroll px-1 pt-1 border-pink-400`
+  let dropdownContainerStyle = `rounded-md border border-1 border md:w-40 md:max-w-50`
+
   <PageLoaderWrapper screenState={screenState}>
     <div
-      className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
+      className="absolute z-50 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
       <div className="flex gap-4 items-center">
         <Icon name="nd-information-triangle" size=24 />
         <p className="text-nd_gray-600 text-base leading-6 font-medium">
@@ -429,23 +439,26 @@ let make = () => {
               <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
                 <SelectBox.BaseDropdown
                   allowMultiSelect=false
-                  buttonText="Select PSP"
+                  buttonText="Select timestamp"
                   input
+                  searchable=false
                   deselectDisable=true
                   customButtonStyle="!rounded-lg"
-                  options={makeOption(gateways)}
+                  options={makeOption(timeStampOptions)}
                   marginTop="mt-10"
                   hideMultiSelectButtons=true
                   addButton=false
                   fullLength=true
                   shouldDisplaySelectedOnTop=true
                   customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
+                  customScrollStyle
+                  dropdownContainerStyle
                 />
               </div>
             </div>
             <LineAndColumnGraph
               options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
-                lineColumnGraphOptions(stats, ~processor=selectedGateway),
+                lineColumnGraphOptions(stats, ~timeStamp=selectedTimeStamp),
               )}
             />
           </div>

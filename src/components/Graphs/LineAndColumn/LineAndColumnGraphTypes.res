@@ -84,6 +84,8 @@ type yAxisObj = {
   gridLineDashStyle: gridLineDashStyle,
   min: min,
   max?: option<int>,
+  endOnTick: endOnTick,
+  startOnTick: startOnTick,
 }
 
 type yAxis = array<yAxisObj>
@@ -177,4 +179,6 @@ type lineColumnGraphPayload = {
   titleObj: titleObj,
   tooltipFormatter: pointFormatter => string,
   yAxisFormatter: pointFormatter => string,
+  minValY2: int,
+  maxValY2: int,
 }

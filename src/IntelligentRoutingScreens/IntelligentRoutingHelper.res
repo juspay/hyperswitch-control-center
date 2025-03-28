@@ -180,14 +180,23 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
 
 let lineColumnGraphOptions = (
   stats,
-  ~processor="",
+  ~timeStamp,
 ): LineAndColumnGraphTypes.lineColumnGraphPayload => {
   open LogicUtils
   let statsData = stats->IntelligentRoutingUtils.responseMapper
   let timeSeriesData = statsData.time_series_data
 
-  let timeStampArray = timeSeriesData->Array.map(item => {
-    getDateTime(item.time_stamp)
+  let gatewayData = switch timeSeriesData->Array.get(0) {
+  | Some(statsData) => statsData.volume_distribution_as_per_sr
+  | None => JSON.Encode.null
+  }
+
+  let gatewayKeys =
+    gatewayData
+    ->LogicUtils.getDictFromJsonObject
+    ->Dict.keysToArray
+  gatewayKeys->Array.sort((key1, key2) => {
+    key1 <= key2 ? -1. : 1.
   })
 
   let mapPSPJson = (json): volDist => {
@@ -199,10 +208,47 @@ let lineColumnGraphOptions = (
     }
   }
 
-  let successData = timeSeriesData->Array.map(item => {
+  let data =
+    timeSeriesData
+    ->Array.filter(item => {
+      item.time_stamp == timeStamp
+    })
+    ->Array.get(0)
+
+  let baseline = []
+  let model = []
+  let successRate = []
+
+  let _ = switch data {
+  | Some(data) => {
+      let val = data.volume_distribution_as_per_sr // vol dist
+      let dict = val->getDictFromJsonObject
+
+      let _ = gatewayKeys->Array.map(item => {
+        Js.log2("item", item)
+        let pspData = dict->Dict.get(item)
+        Js.log2("pspData", pspData)
+        let data = switch pspData {
+        | Some(pspData) => pspData->mapPSPJson
+        | None => {
+            baseline_volume: 0,
+            model_volume: 0,
+            success_rate: 0.0,
+          }
+        }
+        baseline->Array.push(data.baseline_volume->Int.toFloat)
+        model->Array.push(data.model_volume->Int.toFloat)
+        successRate->Array.push(data.success_rate)
+      })
+      ""
+    }
+  | None => ""
+  }
+
+  let _successData = timeSeriesData->Array.map(item => {
     let val = item.volume_distribution_as_per_sr
     let dict = val->getDictFromJsonObject
-    let pspData = dict->Dict.get(processor)
+    let pspData = dict->Dict.get(timeStamp)
 
     let data = switch pspData {
     | Some(pspData) => pspData->mapPSPJson
@@ -215,9 +261,11 @@ let lineColumnGraphOptions = (
     data
   })
 
-  let baseline = successData->Array.map(item => item.baseline_volume->Int.toFloat)
-  let model = successData->Array.map(item => item.model_volume->Int.toFloat)
-  let successRate = successData->Array.map(item => item.success_rate)
+  let minAuthRate = successRate->Array.reduce(100.0, (acc, val) => {
+    let min = Js.Math.min_float(acc, val)
+    min
+  })
+  let minAuthRate = (minAuthRate /. 10.0)->Float.toInt * 10
 
   let style: LineAndColumnGraphTypes.style = {
     fontFamily: LineAndColumnGraphUtils.fontFamily,
@@ -238,7 +286,7 @@ let lineColumnGraphOptions = (
         },
       },
       xAxisTitle: {
-        text: "Time Range",
+        text: "Processor",
         style,
       },
       yAxisTitle: {
@@ -250,7 +298,7 @@ let lineColumnGraphOptions = (
         style,
       },
     },
-    categories: timeStampArray,
+    categories: gatewayKeys,
     data: [
       {
         showInLegend: true,
@@ -288,6 +336,8 @@ let lineColumnGraphOptions = (
       ~currency="",
       ~suffix="%",
     ),
+    minValY2: minAuthRate,
+    maxValY2: 100,
   }
 }
 
