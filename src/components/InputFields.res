@@ -492,6 +492,7 @@ let filterDateRangeField = (
   ~hideDate=false,
   ~selectStandardTime=false,
   ~isTooltipVisible=true,
+  ~events=?,
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeField
@@ -511,6 +512,7 @@ let filterDateRangeField = (
       hideDate
       selectStandardTime
       isTooltipVisible
+      ?events
     />
   }
 

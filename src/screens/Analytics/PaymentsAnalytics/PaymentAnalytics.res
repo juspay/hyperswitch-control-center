@@ -161,7 +161,9 @@ let make = () => {
     ~origin="analytics",
     (),
   )
-
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="analytics_payments_date_dropdown_triggered")
+  }
   React.useEffect(() => {
     setInitialFilters()
     None
@@ -225,7 +227,10 @@ let make = () => {
         initialFilters={initialFilterFields(filterData)}
         options=[]
         popupFilterFields={options(filterData)}
-        initialFixedFilters={initialFixedFilterFields(filterData)}
+        initialFixedFilters={initialFixedFilterFields(
+          filterData,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=defaultFilters
         tabNames=tabKeys
         updateUrlWith=updateExistingKeys
@@ -242,7 +247,10 @@ let make = () => {
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(filterData)}
+        initialFixedFilters={initialFixedFilterFields(
+          filterData,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=defaultFilters
         tabNames=tabKeys
         updateUrlWith=updateExistingKeys //
