@@ -2,15 +2,24 @@ open VerticalStepIndicatorTypes
 
 @react.component
 let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelectedOrderSource) => {
+  open APIUtils
   open ReconConfigurationUtils
   open OrderDataConnectionUtils
   open VerticalStepIndicatorUtils
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let updateDetails = useUpdateMethod()
+  let getURL = useGetURL()
+
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
 
-  let onNextClick = () => {
+  let onNextClick = async () => {
+    let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+    let body = getRequestBody(~isOrderDataSet=true, ~isProcessorDataSet=false)
+
+    let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
     switch getNextStep(currentStep) {
     | Some(nextStep) => setCurrentStep(_ => nextStep)
     | None => ()

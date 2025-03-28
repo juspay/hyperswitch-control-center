@@ -213,17 +213,17 @@ module ConnectProcessorsFields = {
             )}
           />
         </div>
-        <div className="mt-10 w-full">
-          <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
-            <FormRenderer.SubmitButton
-              text="Next"
-              customSumbitButtonStyle="rounded !w-full"
-              buttonType={Primary}
-              tooltipForWidthClass="w-full"
-            />
-          </FormRenderer.DesktopRow>
-        </div>
       </RenderIf>
+      <div className="mt-10 w-full">
+        <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
+          <FormRenderer.SubmitButton
+            text="Next"
+            customSumbitButtonStyle="rounded !w-full"
+            buttonType={Primary}
+            tooltipForWidthClass="w-full"
+          />
+        </FormRenderer.DesktopRow>
+      </div>
       <FormValuesSpy />
     </>
   }
