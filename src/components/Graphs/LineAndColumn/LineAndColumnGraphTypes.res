@@ -84,8 +84,6 @@ type yAxisObj = {
   gridLineDashStyle: gridLineDashStyle,
   min: min,
   max?: option<int>,
-  endOnTick: endOnTick,
-  startOnTick: startOnTick,
 }
 
 type yAxis = array<yAxisObj>

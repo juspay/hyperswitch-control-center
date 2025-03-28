@@ -336,7 +336,7 @@ let lineColumnGraphOptions = (
       ~currency="",
       ~suffix="%",
     ),
-    minValY2: minAuthRate,
+    minValY2: 0,
     maxValY2: 100,
   }
 }

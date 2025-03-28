@@ -4,7 +4,7 @@ let make = () => {
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "dynamic-routing"} => <IntelligentRoutingAnalytics />
+    | list{"v2", "dynamic-routing"} => <IntelligentRoutingHome />
     | list{"v2", "dynamic-routing", "home"} => <IntelligentRoutingConfiguration />
     | list{"v2", "dynamic-routing", "dashboard"} => <IntelligentRoutingAnalytics />
     | _ => React.null

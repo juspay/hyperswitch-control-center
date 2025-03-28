@@ -9,12 +9,15 @@ module Review = {
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (showLoading, setShowLoading) = React.useState(() => false)
+    let (showModal, setShowModal) = React.useState(() => false)
     let reviewFields = reviewFields->getReviewFields
     let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
+    let loaderLottieFile = LottieFiles.useLottieJson("spinner.json")
 
     let uploadData = async () => {
       try {
         setShowLoading(_ => true)
+        setShowModal(_ => true)
         let url = getURL(
           ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
           ~methodType=Post,
@@ -29,6 +32,7 @@ module Review = {
           )
         }
         setShowLoading(_ => false)
+        setShowModal(_ => false)
       } catch {
       | _ => {
           setShowLoading(_ => false)
@@ -42,36 +46,69 @@ module Review = {
       mixpanelEvent(~eventName="intelligent_routing_upload_data")
     }
 
-    <div className="w-500-px">
-      {IntelligentRoutingHelper.stepperHeading(
-        ~title="Review Data Summary",
-        ~subTitle="Explore insights in the dashboard",
-      )}
-      <div className="mt-6">
-        <VaultCustomerSummary.Details
-          data=reviewFields
-          getHeading
-          getCell
-          detailsFields=allColumns
-          widthClass=""
-          justifyClassName="grid grid-cols-none"
+    let modalBody =
+      <div className="">
+        <div className="text-xl p-3 m-3 font-semibold text-nd_gray-700">
+          {"Running Intelligence Routing "->React.string}
+        </div>
+        <hr />
+        <div className="flex flex-col gap-12 items-center pt-10 pb-6 px-6">
+          <div className="w-8">
+            <span className="px-3">
+              <span className={`flex items-center`}>
+                <div className="scale-400 pt-px">
+                  <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
+                </div>
+              </span>
+            </span>
+          </div>
+          <p className="text-center text-nd_gray-600">
+            {"Please wait while we are analyzing data. Our intelligent models are working to determine the potential authentication rate uplift."->React.string}
+          </p>
+        </div>
+      </div>
+
+    <div>
+      <div className="w-500-px">
+        {IntelligentRoutingHelper.stepperHeading(
+          ~title="Review Data Summary",
+          ~subTitle="Explore insights in the dashboard",
+        )}
+        <div className="mt-6">
+          <VaultCustomerSummary.Details
+            data=reviewFields
+            getHeading
+            getCell
+            detailsFields=allColumns
+            widthClass=""
+            justifyClassName="grid grid-cols-none"
+          />
+        </div>
+        <Button
+          text="Explore Insights"
+          customButtonStyle={`w-full mt-6 hover:opacity-80 ${showLoading ? "cursor-wait" : ""}`}
+          buttonType=Primary
+          onClick={_ => handleNext()}
+          rightIcon={showLoading
+            ? CustomIcon(
+                <span className="px-3">
+                  <span className={`flex items-center mx-2 animate-spin`}>
+                    <Loadericon size=14 iconColor="text-white" />
+                  </span>
+                </span>,
+              )
+            : NoIcon}
         />
       </div>
-      <Button
-        text="Explore Insights"
-        customButtonStyle={`w-full mt-6 hover:opacity-80 ${showLoading ? "cursor-wait" : ""}`}
-        buttonType=Primary
-        onClick={_ => handleNext()}
-        rightIcon={showLoading
-          ? CustomIcon(
-              <span className="px-3">
-                <span className={`flex items-center mx-2 animate-spin`}>
-                  <Loadericon size=14 iconColor="text-white" />
-                </span>
-              </span>,
-            )
-          : NoIcon}
-      />
+      <Modal
+        showModal
+        closeOnOutsideClick=false
+        setShowModal
+        childClass="p-0"
+        borderBottom=true
+        modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+        {modalBody}
+      </Modal>
     </div>
   }
 }
@@ -111,7 +148,7 @@ module Analyze = {
       }
     }
 
-    let steps = ["Preparing sample data", "Apply Rule-based Routing", "Apply Debit Routing"]
+    let steps = ["Preparing sample data"]
 
     let loadButton = async () => {
       for i in 0 to Array.length(steps) - 1 {

@@ -49,8 +49,6 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       },
       min: minValY2,
       max: Some(maxValY2),
-      endOnTick: false,
-      startOnTick: false,
     },
     {
       title: titleObj.yAxisTitle,
@@ -67,8 +65,6 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
         x: 5,
       },
       min: 0,
-      endOnTick: false,
-      startOnTick: false,
     },
   ]
 
