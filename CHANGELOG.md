@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.31.0
+
+### Bug Fixes
+
+- Remove resolve button after resolving ([#2714](https://github.com/juspay/hyperswitch-control-center/pull/2714)) ([`16b6510`](https://github.com/juspay/hyperswitch-control-center/commit/16b65105b32043072130a3fd45afe0e599385cdc))
+- Webhook step horizontally scrollable ([#2719](https://github.com/juspay/hyperswitch-control-center/pull/2719)) ([`a3fcc6c`](https://github.com/juspay/hyperswitch-control-center/commit/a3fcc6ccd9edfac17ad3ecad1c9d94cf40efec03))
+
+**Full Changelog:** [`2025.03.28.1...2025.03.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.28.1...2025.03.31.0)
+
+
+- - -
+
 ## 2025.03.28.1
 
 ### Bug Fixes
