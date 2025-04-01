@@ -162,7 +162,7 @@ let make = () => {
     (),
   )
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="analytics_payments_date_dropdown_opened")
+    mixpanelEvent(~eventName="analytics_payments_date_filter_opened")
   }
   React.useEffect(() => {
     setInitialFilters()
