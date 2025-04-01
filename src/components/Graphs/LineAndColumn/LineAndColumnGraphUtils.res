@@ -24,6 +24,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
     titleObj,
     minValY2,
     maxValY2,
+    legend,
   } = lineColumnGraphOptions
 
   let stepInterval = Js.Math.max_int(
@@ -119,6 +120,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
     },
     yAxis,
     legend: {
+      ...legend,
       useHTML: true,
       labelFormatter,
       symbolPadding: -7,
@@ -133,10 +135,6 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       },
       align: "right",
       verticalAlign: "top",
-      floating: true,
-      itemDistance: 30,
-      x: -100, // get from payload
-      y: -8,
     },
     plotOptions: {
       line: {

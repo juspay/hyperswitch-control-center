@@ -146,10 +146,10 @@ type legend = {
   symbolRadius: int,
   align: string,
   verticalAlign: string,
-  itemDistance: int,
-  floating: bool,
-  x: int,
-  y: int,
+  itemDistance?: int,
+  floating?: bool,
+  x?: int,
+  y?: int,
 }
 
 type lineColumnGraphOptions = {
@@ -179,4 +179,5 @@ type lineColumnGraphPayload = {
   yAxisFormatter: pointFormatter => string,
   minValY2: int,
   maxValY2: int,
+  legend: legend,
 }

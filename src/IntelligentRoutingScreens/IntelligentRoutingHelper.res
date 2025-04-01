@@ -259,12 +259,6 @@ let lineColumnGraphOptions = (
     data
   })
 
-  let minAuthRate = successRate->Array.reduce(100.0, (acc, val) => {
-    let min = Js.Math.min_float(acc, val)
-    min
-  })
-  let minAuthRate = (minAuthRate /. 10.0)->Float.toInt * 10
-
   let style: LineAndColumnGraphTypes.style = {
     fontFamily: LineAndColumnGraphUtils.fontFamily,
     color: LineAndColumnGraphUtils.darkGray,
@@ -336,6 +330,26 @@ let lineColumnGraphOptions = (
     ),
     minValY2: 0,
     maxValY2: 100,
+    legend: {
+      useHTML: true,
+      labelFormatter: LineAndColumnGraphUtils.labelFormatter,
+      symbolPadding: -7,
+      symbolWidth: 0,
+      symbolHeight: 0,
+      symbolRadius: 4,
+      itemStyle: {
+        fontFamily: "InterDisplay",
+        fontSize: "12px",
+        color: "#525866",
+        fontWeight: "400",
+      },
+      align: "right",
+      verticalAlign: "top",
+      floating: true,
+      itemDistance: 30,
+      x: -100,
+      y: -8,
+    },
   }
 }
 
