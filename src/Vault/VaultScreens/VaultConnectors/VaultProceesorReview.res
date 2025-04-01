@@ -54,11 +54,11 @@ let make = (~connectorInfo) => {
   }
 
   <div className="flex flex-col w-1/2 px-10 gap-8 mt-8 overflow-y-auto">
-    <div className="flex flex-col ">
+    <div className="flex flex-col">
       <PageUtils.PageHeading
         title="Review and Connect"
         subTitle="Review your configured processor details, enabled payment methods and associated settings."
-        customSubTitleStyle="font-500 font-normal text-nd_gray-400"
+        customSubTitleStyle="font-500 font-normal text-nd_gray-700"
       />
       <div className=" flex flex-col py-4 gap-6">
         <div className="flex flex-col gap-0.5-rem ">
