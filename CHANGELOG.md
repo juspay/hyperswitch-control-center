@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.03.31.0
+
+### Bug Fixes
+
+- Remove resolve button after resolving ([#2714](https://github.com/juspay/hyperswitch-control-center/pull/2714)) ([`16b6510`](https://github.com/juspay/hyperswitch-control-center/commit/16b65105b32043072130a3fd45afe0e599385cdc))
+- Webhook step horizontally scrollable ([#2719](https://github.com/juspay/hyperswitch-control-center/pull/2719)) ([`a3fcc6c`](https://github.com/juspay/hyperswitch-control-center/commit/a3fcc6ccd9edfac17ad3ecad1c9d94cf40efec03))
+
+**Full Changelog:** [`2025.03.28.1...2025.03.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.28.1...2025.03.31.0)
+
+
+- - -
+
+## 2025.03.28.1
+
+### Bug Fixes
+
+- Recovery module bug fixes ([#2605](https://github.com/juspay/hyperswitch-control-center/pull/2605)) ([`0115ec5`](https://github.com/juspay/hyperswitch-control-center/commit/0115ec51847f13ca84e1929d19d0c1d83ebb114e))
+
+### Refactors
+
+- Profile Merchant Labels ([#2709](https://github.com/juspay/hyperswitch-control-center/pull/2709)) ([`1efc43f`](https://github.com/juspay/hyperswitch-control-center/commit/1efc43f0028889a19984a0926d98b46f67e0b155))
+
+### Miscellaneous Tasks
+
+- New design changes in intelligent routing ([#2707](https://github.com/juspay/hyperswitch-control-center/pull/2707)) ([`4ee6e79`](https://github.com/juspay/hyperswitch-control-center/commit/4ee6e7967ad71cb5ed1de5a25e658af7aa81679e))
+
+**Full Changelog:** [`2025.03.28.0...2025.03.28.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.28.0...2025.03.28.1)
+
+
+- - -
+
 ## 2025.03.28.0
 
 ### Features
