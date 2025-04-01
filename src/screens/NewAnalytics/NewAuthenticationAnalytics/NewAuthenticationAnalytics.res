@@ -22,12 +22,12 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   React.useEffect(() => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
-      mixpanelEvent(~eventName="authentication_anatlytics_payment_date_filter")
+      mixpanelEvent(~eventName="authentication_analytics_date_filter")
     }
     None
   }, (startTimeVal, endTimeVal))
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="authentication_anatlytics_payment_date_filter_opened")
+    mixpanelEvent(~eventName="authentication_analytics_date_filter_opened")
   }
 
   let loadInfo = async () => {

@@ -214,7 +214,7 @@ let make = () => {
 
   React.useEffect(() => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
-      mixpanelEvent(~eventName="analytics_payment_date_filter")
+      mixpanelEvent(~eventName="analytics_payments_date_filter")
     }
     None
   }, [startTimeVal, endTimeVal])
