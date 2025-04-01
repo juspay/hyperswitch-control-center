@@ -9,7 +9,6 @@ module Review = {
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (showLoading, setShowLoading) = React.useState(() => false)
-    let (showModal, setShowModal) = React.useState(() => false)
     let reviewFields = reviewFields->getReviewFields
     let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
     let loaderLottieFile = LottieFiles.useLottieJson("spinner.json")
@@ -17,7 +16,6 @@ module Review = {
     let uploadData = async () => {
       try {
         setShowLoading(_ => true)
-        setShowModal(_ => true)
         let url = getURL(
           ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
           ~methodType=Post,
@@ -32,12 +30,10 @@ module Review = {
           )
         }
         setShowLoading(_ => false)
-        setShowModal(_ => false)
       } catch {
-      | _ => {
-          setShowLoading(_ => false)
-          showToast(~message="Upload data failed", ~toastType=ToastError)
-        }
+      | _ =>
+        setShowLoading(_ => false)
+        showToast(~message="Upload data failed", ~toastType=ToastError)
       }
     }
 
@@ -101,9 +97,9 @@ module Review = {
         />
       </div>
       <Modal
-        showModal
+        showModal=showLoading
         closeOnOutsideClick=false
-        setShowModal
+        setShowModal=setShowLoading
         childClass="p-0"
         borderBottom=true
         modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
