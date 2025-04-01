@@ -290,7 +290,7 @@ let (startTimeFilterKey, endTimeFilterKey) = ("startTime", "endTime")
 
 let initialFixedFilterFields = (~events=?) => {
   let events = switch events {
-  | Some(fn) => () => fn()
+  | Some(fn) => fn
   | _ => () => ()
   }
   let newArr = [

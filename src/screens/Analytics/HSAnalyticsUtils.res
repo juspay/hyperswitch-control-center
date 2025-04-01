@@ -135,9 +135,10 @@ let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTim
 
 let initialFixedFilterFields = (_json, ~events=?) => {
   let events = switch events {
-  | Some(fn) => () => fn()
-  | _ => () => ()
+  | Some(fn) => fn
+  | None => _ => ()
   }
+ 
 
   let newArr = [
     (

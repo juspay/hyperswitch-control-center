@@ -182,10 +182,12 @@ module Base = {
       setLocalEndDate(_ => "")
       setLocalOpt(_ => "")
     }
-    let event = switch events {
-    | Some(fn) => fn
-    | None => _ => ()
-    }
+    let handleEvent = React.useCallback(() => {
+      switch events {
+      | Some(fn) => fn()
+      | _ => ()
+      }
+    }, [events])
 
     React.useEffect(() => {
       switch dateRangeLimit {
@@ -203,7 +205,7 @@ module Base = {
 
     React.useEffect(() => {
       if isDropdownExpanded == true {
-        let _ = event()
+        let _ = handleEvent()
       }
 
       None

@@ -58,7 +58,7 @@ let (
 
 let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime, ~events=?) => {
   let events = switch events {
-  | Some(fn) => () => fn()
+  | Some(fn) => fn
   | _ => () => ()
   }
   let newArr = [
