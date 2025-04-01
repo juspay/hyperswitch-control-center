@@ -205,7 +205,7 @@ module Base = {
 
     React.useEffect(() => {
       if isDropdownExpanded == true {
-        let _ = handleEvent()
+        handleEvent()
       }
 
       None
