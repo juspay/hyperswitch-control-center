@@ -258,11 +258,24 @@ let make = (~children) => {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
   }
-
+  let url = RescriptReactRouter.useUrl()
   let getThemesJson = async themesID => {
+    let searchParams = url.search
+    let domain =
+      LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("domain")->Option.getOr("")
     try {
       let themeJson = if themesID->LogicUtils.isNonEmptyString {
         let url = `${GlobalVars.getHostUrl}/themes/${themesID}/theme.json`
+        let themeResponse = await fetchApi(
+          `${url}`,
+          ~method_=Get,
+          ~xFeatureRoute=true,
+          ~forceCookies=false,
+        )
+        let themesData = await themeResponse->(res => res->Fetch.Response.json)
+        themesData
+      } else if domain->LogicUtils.isNonEmptyString {
+        let url = `${GlobalVars.getHostUrl}/themes?domain=${domain}`
         let themeResponse = await fetchApi(
           `${url}`,
           ~method_=Get,

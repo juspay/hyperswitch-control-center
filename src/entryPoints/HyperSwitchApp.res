@@ -47,7 +47,7 @@ let make = () => {
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
   sessionExpired := false
 
-  let themeId = HyperSwitchEntryUtils.getSessionData(~key="theme_id", ~defaultValue="")
+  let themeId = LocalStorage.getItem("theme_id")->Nullable.toOption->Option.getOr("")
   let applyTheme = async () => {
     try {
       let _ = await getThemesJson(themeId)
@@ -91,12 +91,12 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [orgId, merchantId, profileId])
+  }, [orgId, merchantId, profileId, themeId])
 
-  React.useEffect(() => {
+  React.useEffect0(() => {
     applyTheme()->ignore
     None
-  }, [themeId])
+  })
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {

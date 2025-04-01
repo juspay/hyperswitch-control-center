@@ -23,7 +23,7 @@ let useUserInfo = () => {
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       let themeId = userInfo.themeId
-      let _ = HyperSwitchEntryUtils.updateSessionData(~key="theme_id", ~value=themeId)
+      let _ = HyperSwitchEntryUtils.updateSessionAndLocalData(~key="theme_id", ~value=themeId)
       userInfo
     } catch {
     | Exn.Error(e) => {
