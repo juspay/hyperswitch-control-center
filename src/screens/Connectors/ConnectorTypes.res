@@ -103,6 +103,7 @@ type processorTypes =
   | REDSYS
   | HIPAY
   | PAYSTACK
+  | ARCHIPEL
 
 type payoutProcessorTypes =
   | ADYEN
@@ -279,7 +280,7 @@ type certificateAuth = {
   certificate: string,
   private_key: string,
 }
-type noKeyAuth = {auth_type: string}
+type noKey = {auth_type: string}
 
 type connectorAuthType =
   | HeaderKey
@@ -298,7 +299,7 @@ type connectorAuthTypeObj =
   | MultiAuthKey(multiAuthKey)
   | CurrencyAuthKey(currencyAuthKey)
   | CertificateAuth(certificateAuth)
-  | NoKey(noKeyAuth)
+  | NoKey(noKey)
   | UnKnownAuthType(JSON.t)
 
 type paymentMethodEnabledType = {

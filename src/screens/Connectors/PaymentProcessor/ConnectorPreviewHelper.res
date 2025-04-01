@@ -92,7 +92,7 @@ module PreviewCreds = {
     | CertificateAuth(certificateAuth) =>
       <CredsInfoField authKeys=certificateAuth connectorAccountFields connectorInfo />
     | CurrencyAuthKey(currencyAuthKey) => <CashtoCodeCredsInfo authKeys=currencyAuthKey />
-    | NoKey(noKeyAuth) => <CredsInfoField authKeys=noKeyAuth connectorAccountFields connectorInfo />
+    | NoKey(noKey) => <CredsInfoField authKeys=noKey connectorAccountFields />
     | UnKnownAuthType(_) => React.null
     }
   }

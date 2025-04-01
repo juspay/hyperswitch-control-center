@@ -115,6 +115,7 @@ let connectorList: array<connectorTypes> = [
   Processors(REDSYS),
   Processors(HIPAY),
   Processors(PAYSTACK),
+  Processors(ARCHIPEL),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -606,6 +607,10 @@ let riskifyedInfo = {
     },
   ],
 }
+let archipelInfo = {
+  description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
+}
+
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -685,6 +690,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | REDSYS => "redsys"
   | HIPAY => "hipay"
   | PAYSTACK => "paystack"
+  | ARCHIPEL => "archipel"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -830,6 +836,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "redsys" => Processors(REDSYS)
     | "hipay" => Processors(HIPAY)
     | "paystack" => Processors(PAYSTACK)
+    | "archipel" => Processors(ARCHIPEL)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -955,6 +962,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | REDSYS => redsysInfo
   | HIPAY => hipayInfo
   | PAYSTACK => paystackInfo
+  | ARCHIPEL => archipelInfo
   }
 }
 
@@ -1437,16 +1445,9 @@ let connectorLabelDetailField = Dict.fromArray([
 let getConnectorFields = connectorDetails => {
   open LogicUtils
   let connectorAccountDict =
-    connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
-  let bodyType = switch connectorAccountDict->JSON.Classify.classify {
-  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "")
-  | String(_) => "NoKey"
-  | _ => ""
-  }
-  let connectorAccountFields = switch bodyType {
-  | "NoKey" => Dict.make()
-  | _ => connectorAccountDict->getDictFromJsonObject->getDictfromDict(bodyType)
-  }
+    connectorDetails->getDictFromJsonObject->getDictfromDict("connector_auth")
+  let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("NoKey")
+  let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
   let connectorMetaDataFields = connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
@@ -1806,6 +1807,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | REDSYS => "Redsys"
   | HIPAY => "HiPay"
   | PAYSTACK => "Paystack"
+  | ARCHIPEL => "ArchiPEL"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
