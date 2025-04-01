@@ -60,6 +60,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
     | MultiAuthKey(multiAuthKey) => multiAuthKey.auth_type
     | CertificateAuth(certificateAuth) => certificateAuth.auth_type
     | CurrencyAuthKey(currencyAuthKey) => currencyAuthKey.auth_type
+    | NoKey(noKey) => noKey.auth_type
     | UnKnownAuthType(_) => ""
     }
     [
