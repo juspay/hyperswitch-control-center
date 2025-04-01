@@ -625,7 +625,7 @@ let make = (
   }, [filterValueDict])
   let isMobileView = MatchMedia.useMobileChecker()
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName=`${analyticsTypeName}_date_filter_triggered`)
+    mixpanelEvent(~eventName=`${analyticsTypeName}_date_filter_opened`)
   }
 
   let tabDetailsClass = React.useMemo(() => {

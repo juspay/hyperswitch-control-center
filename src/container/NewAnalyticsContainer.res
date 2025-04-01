@@ -84,7 +84,7 @@ let make = () => {
     None
   }, (startTimeVal, endTimeVal))
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="new_analytics_payment_date_filter_trigerred")
+    mixpanelEvent(~eventName="new_analytics_payment_date_filter_opened")
   }
   let tabs: array<Tabs.tab> = [
     {

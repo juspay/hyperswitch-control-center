@@ -27,7 +27,7 @@ let make = () => {
     None
   }, (startTimeVal, endTimeVal))
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="authentication_anatlytics_payment_date_filter_trigerred")
+    mixpanelEvent(~eventName="authentication_anatlytics_payment_date_filter_opened")
   }
 
   let loadInfo = async () => {

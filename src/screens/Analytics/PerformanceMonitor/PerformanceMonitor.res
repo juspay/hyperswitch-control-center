@@ -69,7 +69,7 @@ let make = (~domain="payments") => {
     None
   }, [])
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="performance_monitor_date_filter_triggered")
+    mixpanelEvent(~eventName="performance_monitor_date_filter_opened")
   }
   React.useEffect(() => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
