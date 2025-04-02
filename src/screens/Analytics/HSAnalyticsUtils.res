@@ -133,7 +133,13 @@ let initialFilterFields = json => {
 
 let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTime", "opt")
 
-let initialFixedFilterFields = _json => {
+let initialFixedFilterFields = (_json, ~events=?) => {
+  let events = switch events {
+  | Some(fn) => fn
+  | None => _ => ()
+  }
+ 
+
   let newArr = [
     (
       {
@@ -163,6 +169,7 @@ let initialFixedFilterFields = _json => {
             ~disableApply=false,
             ~dateRangeLimit=180,
             ~optFieldKey=optFilterKey,
+            ~events,
           ),
           ~inputFields=[],
           ~isRequired=false,

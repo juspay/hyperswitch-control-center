@@ -288,7 +288,11 @@ let compareToInput = (~comparisonKey) => {
 
 let (startTimeFilterKey, endTimeFilterKey) = ("startTime", "endTime")
 
-let initialFixedFilterFields = () => {
+let initialFixedFilterFields = (~events=?) => {
+  let events = switch events {
+  | Some(fn) => fn
+  | _ => () => ()
+  }
   let newArr = [
     (
       {
@@ -317,6 +321,7 @@ let initialFixedFilterFields = () => {
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
+            ~events,
           ),
           ~inputFields=[],
           ~isRequired=false,
