@@ -114,13 +114,17 @@ let validateGooglePay = (values, connector) => {
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("google_pay")
-  let merchantInfoDict = googlePayData->getDictfromDict("merchant_info")
+  let merchantId = googlePayData->getDictfromDict("merchant_info")->getString("merchant_id", "")
+  let merchantName = googlePayData->getDictfromDict("merchant_info")->getString("merchant_name", "")
   let allowedPaymentMethodDict =
     googlePayData
     ->getArrayFromDict("allowed_payment_methods", [])
-    ->Array.get(0)
-    ->Option.getOr(Dict.make()->JSON.Encode.object)
+    ->getValueFromArray(0, JSON.Encode.null)
     ->getDictFromJsonObject
+  let allowedAuthMethodsArray =
+    allowedPaymentMethodDict
+    ->getDictfromDict("parameters")
+    ->getArrayFromDict("allowed_auth_methods", [])
   let tokenizationSpecificationDict =
     allowedPaymentMethodDict
     ->getDictfromDict("tokenization_specification")
@@ -133,23 +137,17 @@ let validateGooglePay = (values, connector) => {
       ? Button.Normal
       : Button.Disabled
   | Processors(STRIPE) =>
-    merchantInfoDict->getString("merchant_id", "")->isNonEmptyString &&
-    merchantInfoDict->getString("merchant_name", "")->isNonEmptyString &&
+    merchantId->isNonEmptyString &&
+    merchantName->isNonEmptyString &&
     tokenizationSpecificationDict->getString("stripe:publishableKey", "")->isNonEmptyString &&
-    allowedPaymentMethodDict
-    ->getDictfromDict("parameters")
-    ->getArrayFromDict("allowed_auth_methods", [])
-    ->Array.length > 0
+    allowedAuthMethodsArray->Array.length > 0
       ? Button.Normal
       : Button.Disabled
   | _ =>
-    merchantInfoDict->getString("merchant_id", "")->isNonEmptyString &&
-    merchantInfoDict->getString("merchant_name", "")->isNonEmptyString &&
+    merchantId->isNonEmptyString &&
+    merchantName->isNonEmptyString &&
     tokenizationSpecificationDict->getString("gateway_merchant_id", "")->isNonEmptyString &&
-    allowedPaymentMethodDict
-    ->getDictfromDict("parameters")
-    ->getArrayFromDict("allowed_auth_methods", [])
-    ->Array.length > 0
+    allowedAuthMethodsArray->Array.length > 0
       ? Button.Normal
       : Button.Disabled
   }
