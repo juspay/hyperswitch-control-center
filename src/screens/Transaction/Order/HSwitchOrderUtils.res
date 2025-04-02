@@ -113,7 +113,7 @@ let reasonField = FormRenderer.makeFieldInfo(
 
 let refundAddressField = FormRenderer.makeFieldInfo(
   ~name="metadata.address",
-  ~label="Cryptocurrency address",
+  ~label="Cryptocurrency Address",
   ~customInput=InputFields.textInput(),
   ~placeholder="Enter Address",
   ~isRequired=true,
