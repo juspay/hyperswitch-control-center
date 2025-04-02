@@ -97,6 +97,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       startOnTick: false,
     },
     tooltip: {
+      enabled: true,
       style: {
         padding: "0px",
         fontFamily, // Set the desired font family
@@ -141,6 +142,14 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       line: {
         marker: {
           enabled: false,
+        },
+      },
+      series: {
+        states: {
+          inactive: {
+            enabled: false,
+            opacity: 0.2,
+          },
         },
       },
     },
