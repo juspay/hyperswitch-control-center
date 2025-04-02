@@ -1602,6 +1602,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
         ? JSON.Encode.null
         : dict->getDictfromDict("connector_wallets_details")->JSON.Encode.object,
     ),
+    (
+      "metadata",
+      dict->getDictfromDict("metadata")->isEmptyDict
+        ? JSON.Encode.null
+        : dict->getDictfromDict("metadata")->JSON.Encode.object,
+    ),
   ])
 
   values
@@ -1676,7 +1682,7 @@ let getConnectorPaymentMethodDetails = async (
   open LogicUtils
   try {
     let json = Window.getResponsePayload(initialValues)
-    let metaData = json->getDictFromJsonObject->getJsonObjectFromDict("metadata")
+    let metaData = initialValues->getDictFromJsonObject->getJsonObjectFromDict("metadata")
     let paymentMethodEnabled =
       json
       ->getDictFromJsonObject

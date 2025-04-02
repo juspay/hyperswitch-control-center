@@ -3,6 +3,32 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.02.0
+
+### Bug Fixes
+
+- Connector metadata ([#2732](https://github.com/juspay/hyperswitch-control-center/pull/2732)) ([`ae0a3c0`](https://github.com/juspay/hyperswitch-control-center/commit/ae0a3c0e0726c77a010924cefea896d96d9ea98c))
+
+### Refactors
+
+- Enable all feature flags by default ([#2733](https://github.com/juspay/hyperswitch-control-center/pull/2733)) ([`808dbaa`](https://github.com/juspay/hyperswitch-control-center/commit/808dbaa653cf06138d5f3ace0e3bfecff18d3ec0))
+
+**Full Changelog:** [`2025.04.01.0...2025.04.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.01.0...2025.04.02.0)
+
+
+- - -
+
+## 2025.04.01.0
+
+### Miscellaneous Tasks
+
+- Updating graph ([#2721](https://github.com/juspay/hyperswitch-control-center/pull/2721)) ([`3981aa1`](https://github.com/juspay/hyperswitch-control-center/commit/3981aa1b3195f213b7e361a8746347de9aa5ce6b))
+
+**Full Changelog:** [`2025.03.31.0...2025.04.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.03.31.0...2025.04.01.0)
+
+
+- - -
+
 ## 2025.03.31.0
 
 ### Bug Fixes
