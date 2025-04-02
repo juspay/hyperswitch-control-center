@@ -48,21 +48,11 @@ module TabDetails = {
       <div> {headerDataItem->React.array} </div>
     }
 
-    let labelColor: TableUtils.labelColor = switch statusCode {
-    | 200 => LabelDarkGreen
-    | 400
-    | 404
-    | 422 =>
-      LabelRed
-    | 500 => LabelGray
-    | _ => LabelLightGreen
-    }
-
     <div className="h-[44rem] !max-h-[72rem] overflow-scroll mt-4">
       {switch activeTab {
       | Request =>
         <div className="flex flex-col w-[98%] pl-3">
-          <div className=""> {"Headers"->React.string} </div>
+          <div> {"Headers"->React.string} </div>
           <div className="m-3 p-3 border border-grey-300 rounded-md max-w-[90%]">
             {headersValues(requestHeaders)}
           </div>
@@ -82,10 +72,12 @@ module TabDetails = {
       | Response =>
         <div className="pl-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className=""> {"Status Code: "->React.string} </div>
-            <TableUtils.LabelCell labelColor text={statusCode->Int.toString} />
+            <div> {"Status Code: "->React.string} </div>
+            <TableUtils.LabelCell
+              labelColor={WebhooksUtils.labelColor(statusCode)} text={statusCode->Int.toString}
+            />
           </div>
-          <div className=""> {"Headers"->React.string} </div>
+          <div> {"Headers"->React.string} </div>
           <div className="m-3 p-3 border border-grey-300 rounded-md max-w-[40rem]">
             {headersValues(responseHeaders)}
           </div>

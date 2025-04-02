@@ -3,6 +3,18 @@ open LogicUtils
 
 let tabkeys: array<tabs> = [Request, Response]
 
+let labelColor = (statusCode): TableUtils.labelColor => {
+  switch statusCode {
+  | 200 => LabelDarkGreen
+  | 400
+  | 404
+  | 422 =>
+    LabelRed
+  | 500 => LabelGray
+  | _ => LabelLightGreen
+  }
+}
+
 let itemToObjectMapper: dict<JSON.t> => webhookObject = dict => {
   eventId: dict->getString("event_id", ""),
   eventClass: dict->getString("event_class", ""),
