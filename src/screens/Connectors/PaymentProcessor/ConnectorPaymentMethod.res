@@ -89,7 +89,6 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     }
     Nullable.null
   }
-  Js.log2(initialValues, "initialValues")
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues={initialValues}>
       <div className="flex flex-col">
