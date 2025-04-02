@@ -233,7 +233,6 @@ type pmAuthPaymentMethods = {
 type wasmRequest = {
   payment_methods_enabled: array<paymentMethodEnabled>,
   connector: string,
-  metadata: JSON.t,
 }
 
 type wasmExtraPayload = {
