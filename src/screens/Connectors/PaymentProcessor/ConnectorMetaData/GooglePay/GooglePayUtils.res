@@ -1,5 +1,6 @@
 open GooglePayIntegrationTypes
 open LogicUtils
+let allowedAuthMethod = ["PAN_ONLY"]
 let allowedCardNetworks = ["AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"]
 
 let getCustomGateWayName = connector => {
@@ -20,7 +21,7 @@ let allowedAuthMethodsArray = dict => {
   let authMethodsArray =
     dict
     ->getDictfromDict("parameters")
-    ->getStrArrayFromDict("allowed_auth_methods", [])
+    ->getStrArrayFromDict("allowed_auth_methods", allowedAuthMethod)
   authMethodsArray
 }
 
@@ -102,6 +103,55 @@ let googlePayNameMapper = name => {
   | "pay_wall_secret" => `metadata.google_pay.${name}`
   | _ =>
     `metadata.google_pay.allowed_payment_methods[0].tokenization_specification.parameters.${name}`
+  }
+}
+
+let validateGooglePay = (values, connector) => {
+  open ConnectorUtils
+  open ConnectorTypes
+  let googlePayData =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("google_pay")
+  let merchantInfoDict = googlePayData->getDictfromDict("merchant_info")
+  let allowedPaymentMethodDict =
+    googlePayData
+    ->getArrayFromDict("allowed_payment_methods", [])
+    ->Array.get(0)
+    ->Option.getOr(Dict.make()->JSON.Encode.object)
+    ->getDictFromJsonObject
+  let tokenizationSpecificationDict =
+    allowedPaymentMethodDict
+    ->getDictfromDict("tokenization_specification")
+    ->getDictfromDict("parameters")
+
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(ZEN) =>
+    googlePayData->getString("terminal_uuid", "")->isNonEmptyString &&
+      googlePayData->getString("pay_wall_secret", "")->isNonEmptyString
+      ? Button.Normal
+      : Button.Disabled
+  | Processors(STRIPE) =>
+    merchantInfoDict->getString("merchant_id", "")->isNonEmptyString &&
+    merchantInfoDict->getString("merchant_name", "")->isNonEmptyString &&
+    tokenizationSpecificationDict->getString("stripe:publishableKey", "")->isNonEmptyString &&
+    allowedPaymentMethodDict
+    ->getDictfromDict("parameters")
+    ->getArrayFromDict("allowed_auth_methods", [])
+    ->Array.length > 0
+      ? Button.Normal
+      : Button.Disabled
+  | _ =>
+    merchantInfoDict->getString("merchant_id", "")->isNonEmptyString &&
+    merchantInfoDict->getString("merchant_name", "")->isNonEmptyString &&
+    tokenizationSpecificationDict->getString("gateway_merchant_id", "")->isNonEmptyString &&
+    allowedPaymentMethodDict
+    ->getDictfromDict("parameters")
+    ->getArrayFromDict("allowed_auth_methods", [])
+    ->Array.length > 0
+      ? Button.Normal
+      : Button.Disabled
   }
 }
 
