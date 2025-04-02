@@ -57,11 +57,11 @@ let displayDateRange = (~minDate, ~maxDate) => {
   }
 }
 
-let getDateTime = value => {
+let getDateTime = (value, ~showDate=false) => {
   let dateObj = value->DayJs.getDayJsForString
-  let _date = `${dateObj.month()->NewAnalyticsUtils.getMonthName} ${dateObj.format("DD")}`
+  let date = `${dateObj.month()->NewAnalyticsUtils.getMonthName} ${dateObj.format("DD")}`
   let time = dateObj.format("HH:mm")->NewAnalyticsUtils.formatTime
-  `${time}`
+  showDate ? `${date} ${time}` : `${time}`
 }
 
 let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload => {
@@ -243,22 +243,6 @@ let lineColumnGraphOptions = (
   | None => ()
   }
 
-  let _successData = timeSeriesData->Array.map(item => {
-    let val = item.volume_distribution_as_per_sr
-    let dict = val->getDictFromJsonObject
-    let pspData = dict->Dict.get(timeStamp)
-
-    let data = switch pspData {
-    | Some(pspData) => pspData->mapPSPJson
-    | None => {
-        baseline_volume: 0,
-        model_volume: 0,
-        success_rate: 0.0,
-      }
-    }
-    data
-  })
-
   let style: LineAndColumnGraphTypes.style = {
     fontFamily: LineAndColumnGraphUtils.fontFamily,
     color: LineAndColumnGraphUtils.darkGray,
@@ -347,7 +331,7 @@ let lineColumnGraphOptions = (
       verticalAlign: "top",
       floating: true,
       itemDistance: 30,
-      x: -100,
+      x: -180,
       y: -8,
     },
   }

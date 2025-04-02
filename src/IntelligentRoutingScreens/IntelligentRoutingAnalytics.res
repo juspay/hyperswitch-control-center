@@ -352,9 +352,15 @@ let make = () => {
     None
   }, [])
 
+  let getDateRange = index => {
+    let startDate = (timeRange.minDate->DayJs.getDayJsForString).add(15 * index, "minutes")
+    let endDate = startDate.add(15, "minutes")
+    `${getDateTime(startDate.toString())} - ${getDateTime(endDate.toString())}`
+  }
+
   let makeOption = (keys): array<SelectBox.dropdownOption> => {
-    keys->Array.map(key => {
-      let options: SelectBox.dropdownOption = {label: getDateTime(key), value: key}
+    keys->Array.mapWithIndex((key, index) => {
+      let options: SelectBox.dropdownOption = {label: getDateRange(index), value: key}
       options
     })
   }
@@ -389,7 +395,7 @@ let make = () => {
     </div>
 
   let customScrollStyle = `max-h-40 overflow-scroll px-1 pt-1 border-pink-400`
-  let dropdownContainerStyle = `rounded-md border border-1 border md:w-40 md:max-w-50`
+  let dropdownContainerStyle = `rounded-md border border-1 border md:w-fit`
 
   <PageLoaderWrapper screenState={screenState}>
     <div
