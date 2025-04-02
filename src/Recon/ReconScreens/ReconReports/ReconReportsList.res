@@ -60,7 +60,7 @@ let make = () => {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
           isContainingStringLowercase(obj.order_id, searchText) ||
-          obj.recon_status->String.toLowerCase->String.startsWith(searchText)
+          isContainingStringLowercase(obj.recon_status, searchText)
         | None => false
         }
       })
@@ -125,6 +125,7 @@ let make = () => {
             }}
             customizeColumnButtonIcon="nd-filter-horizontal"
             hideRightTitleElement=true
+            showAutoScroll=true
           />
         </RenderIf>
       </div>

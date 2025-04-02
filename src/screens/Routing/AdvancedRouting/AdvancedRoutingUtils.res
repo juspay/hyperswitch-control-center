@@ -1,16 +1,3 @@
-let getCurrentDetailedUTCTime = () => {
-  Js.Date.fromFloat(Date.now())->Js.Date.toUTCString
-}
-
-let getCurrentShortUTCTime = () => {
-  let currentDate = Date.now()->Js.Date.fromFloat
-  let currMonth = currentDate->Js.Date.getUTCMonth->Float.toString
-  let currDay = currentDate->Js.Date.getUTCDate->Float.toString
-  let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString
-
-  `${currYear}-${currMonth}-${currDay}`
-}
-
 let operatorTypeToStringMapper = (operator: RoutingTypes.operator) => {
   switch operator {
   | CONTAINS => "CONTAINS"
@@ -55,12 +42,12 @@ let getRoutingTypeName = (routingType: RoutingTypes.routingType) => {
 let getRoutingNameString = (~routingType) => {
   open LogicUtils
   let routingText = routingType->getRoutingTypeName
-  `${routingText->capitalizeString} Based Routing-${getCurrentShortUTCTime()}`
+  `${routingText->capitalizeString} Based Routing-${RoutingUtils.getCurrentUTCTime()}`
 }
 
 let getRoutingDescriptionString = (~routingType) => {
   let routingText = routingType->getRoutingTypeName
-  `This is a ${routingText} based routing created at ${getCurrentDetailedUTCTime()}`
+  `This is a ${routingText} based routing created at ${RoutingUtils.currentTimeInUTC}`
 }
 
 let getWasmKeyType = (wasm, value) => {

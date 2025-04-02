@@ -26,6 +26,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(PAYPAL),
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
+  PayoutProcessor(NOMUPAY),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -559,6 +560,10 @@ let chargebeeInfo = {
 let nexixpayInfo = {
   description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
 }
+let nomupayInfo = {
+  description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -680,6 +685,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | PAYPAL => "paypal"
   | STRIPE => "stripe"
   | WISE => "wise"
+  | NOMUPAY => "nomupay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -822,6 +828,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paypal" => PayoutProcessor(PAYPAL)
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
+    | "nomupay" => PayoutProcessor(NOMUPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -945,6 +952,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | PAYPAL => paypalInfo
   | STRIPE => stripeInfo
   | WISE => wiseInfo
+  | NOMUPAY => nomupayInfo
   }
 }
 
@@ -1779,6 +1787,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | PAYPAL => "PayPal"
   | STRIPE => "Stripe"
   | WISE => "Wise"
+  | NOMUPAY => "Nomupay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

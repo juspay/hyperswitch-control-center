@@ -332,11 +332,11 @@ module NestedSectionItem = {
           </div>
           <RenderIf condition={isSideBarExpanded}>
             <Icon
-              name={"Nested_arrow_down"}
+              name={"nd-angle-down"}
               className={isSectionExpanded
-                ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor}  `
-                : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor}  `}
-              size=16
+                ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`
+                : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`}
+              size=12
             />
           </RenderIf>
         </div>
@@ -629,7 +629,7 @@ let make = (
             className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
             style={height: `calc(100vh - ${verticalOffset})`}>
             <style> {React.string(sidebarScrollbarCss)} </style>
-            <div className="p-2.5">
+            <div className="p-2.5 pt-0">
               {sidebars
               ->Array.mapWithIndex((tabInfo, index) => {
                 switch tabInfo {

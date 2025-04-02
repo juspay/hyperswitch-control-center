@@ -46,6 +46,19 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "billing_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
+    initialValuesToDict->Dict.set(
+      "connector_account_details",
+      RevenueRecoveryData.connector_account_details,
+    )
+    initialValuesToDict->Dict.set(
+      "connector_webhook_details",
+      RevenueRecoveryData.connector_webhook_details,
+    )
+    initialValuesToDict->Dict.set(
+      "feature_metadata",
+      RevenueRecoveryData.feature_metadata(~id=connectorID),
+    )
+    initialValuesToDict->Dict.set("metadata", RevenueRecoveryData.metadata)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
@@ -75,7 +88,7 @@ let make = (
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
-          setNextStep(_ => RevenueRecoveryOnboardingUtils.defaultStep)
+          setNextStep(_ => RevenueRecoveryOnboardingUtils.defaultStepBilling)
           setScreenState(_ => Success)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
