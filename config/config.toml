@@ -58,6 +58,7 @@ force_cookies=false
 x_feature_route=false
 tenant_user=false
 dev_click_to_pay=true
+dev_debit_routing=false
 dev_recon_v2_product=false
 dev_recovery_v2_product=false
 dev_vault_v2_product=false
