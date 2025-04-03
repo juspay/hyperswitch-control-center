@@ -295,7 +295,7 @@ let make = () => {
       marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true
       addButton=false
-      customStyle={`!border-none w-fit !${backgroundColor.sidebarSecondary} !${borderColor} `}
+      customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
       searchable=true
       baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
       baseComponentCustomStyle={`!border-none`}
