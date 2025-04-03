@@ -11,10 +11,14 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let updateProdDetails = async values => {
     try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let url = switch version {
+      | V1 => getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      | V2 => getURL(~entityName=V2(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      }
       let bodyValues = values->getBody->JSON.Encode.object
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
