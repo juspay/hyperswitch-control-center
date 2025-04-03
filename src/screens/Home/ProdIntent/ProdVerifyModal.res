@@ -2,7 +2,13 @@ open ProdVerifyModalUtils
 open CardUtils
 
 @react.component
-let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerifyDetails) => {
+let make = (
+  ~showModal,
+  ~setShowModal,
+  ~initialValues=Dict.make(),
+  ~getProdVerifyDetails,
+  ~productType: ProductTypes.productTypes,
+) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -20,6 +26,9 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
       | V2 => getURL(~entityName=V2(USERS), ~userType=#USER_DATA, ~methodType=Post)
       }
       let bodyValues = values->getBody->JSON.Encode.object
+      bodyValues
+      ->LogicUtils.getDictFromJsonObject
+      ->Dict.set("product_type", (Obj.magic(productType) :> string)->JSON.Encode.string)
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(

@@ -366,7 +366,7 @@ let make = () => {
               />
             </RenderIf>
             <RenderIf condition={!featureFlagDetails.isLiveMode}>
-              <ProdIntentForm />
+              <ProdIntentForm productType={activeProduct} />
             </RenderIf>
           </div>
         </div>

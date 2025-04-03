@@ -1,5 +1,5 @@
 @react.component
-let make = (~isFromMilestoneCard=false) => {
+let make = (~isFromMilestoneCard=false, ~productType: ProductTypes.productTypes) => {
   open APIUtils
   open ProdVerifyModalUtils
   open CommonAuthHooks
@@ -56,5 +56,6 @@ let make = (~isFromMilestoneCard=false) => {
     setShowModal={setShowProdIntentForm}
     initialValues
     getProdVerifyDetails
+    productType
   />
 }
