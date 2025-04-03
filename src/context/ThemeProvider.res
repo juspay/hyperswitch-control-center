@@ -252,7 +252,11 @@ let make = (~children) => {
           "/HyperswitchFavicon.png",
           existingEnv.urlThemeConfig.faviconUrl,
         ),
-        logoUrl: getUrl("logoUrl", "", existingEnv.urlThemeConfig.logoUrl),
+        logoUrl: getUrl(
+          "logoUrl",
+          "/assets/Dark/hyperswitchLogoIconWithText.svg",
+          existingEnv.urlThemeConfig.logoUrl,
+        ),
       }
       let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
       DOMUtils.window._env_ = updatedUrlConfig

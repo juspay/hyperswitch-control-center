@@ -5,7 +5,8 @@ module AuthHeaderWrapper = {
     open CommonAuthTypes
 
     let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let (logoVariant, iconUrl) = switch (Window.env.urlThemeConfig.logoUrl, branding) {
+    let {logoURL} = React.useContext(ThemeProvider.themeContext)
+    let (logoVariant, iconUrl) = switch (logoURL, branding) {
     | (Some(url), true) => (IconWithURL, Some(url))
     | (Some(url), false) => (IconWithURL, Some(url))
     | _ => (IconWithText, None)
