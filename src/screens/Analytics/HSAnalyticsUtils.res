@@ -138,7 +138,6 @@ let initialFixedFilterFields = (_json, ~events=?) => {
   | Some(fn) => fn
   | None => _ => ()
   }
- 
 
   let newArr = [
     (
