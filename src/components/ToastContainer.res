@@ -28,7 +28,7 @@ module ToastHeading = {
 
     let toastIconName = switch toastProps.toastType {
     | ToastSuccess => "nd-toast-success"
-    | ToastError => "nd-toast-warning"
+    | ToastError
     | ToastWarning => "nd-toast-warning"
     | ToastInfo => "nd-toast-info"
     }
