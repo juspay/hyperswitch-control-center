@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.03.1
+
+### Miscellaneous Tasks
+
+- Removed production access for v2 products ([#2761](https://github.com/juspay/hyperswitch-control-center/pull/2761)) ([`4a7646d`](https://github.com/juspay/hyperswitch-control-center/commit/4a7646d3bb11feb7fd82f82cd37560e1172ddb82))
+
+**Full Changelog:** [`2025.04.03.0...2025.04.03.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.03.0...2025.04.03.1)
+
+
+- - -
+
 ## 2025.04.03.0
 
 ### Features
