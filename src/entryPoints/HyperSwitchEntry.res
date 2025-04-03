@@ -52,14 +52,22 @@ module HyperSwitchEntryComponent = {
     }
 
     let fetchThemeAndDomainFromUrl = () => {
-      let themeId = url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("theme_id")
-      let domainUrl = url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("domain")
-      if themeId->Option.isSome {
-        setThemeIdtoStore(themeId->Option.getOr(""))
+      let params = url.search->LogicUtils.getDictFromUrlSearchParams
+      let themeID = params->Dict.get("theme_id")
+      let domainUrl = params->Dict.get("domain")
+
+      if themeID->Option.isSome {
+        setThemeIdtoStore(themeID->Option.getOr(""))
+      } else {
+        let storeThemeId = getThemeIdfromStore()
+        if storeThemeId->Option.isSome {
+          setThemeIdtoStore(storeThemeId->Option.getOr(""))
+        }
       }
       if domainUrl->Option.isSome {
         sessionStorage.setItem("domain", domainUrl->Option.getOr(""))
       }
+      let themeId = getThemeIdfromStore()
       (themeId, domainUrl)
     }
 
