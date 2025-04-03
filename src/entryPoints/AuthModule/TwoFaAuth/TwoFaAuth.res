@@ -87,7 +87,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       // Need to check this
       let url = getURL(~entityName=V1(USERS), ~userType=#RESET_PASSWORD, ~methodType=Post)
       let _ = await updateDetails(url, body, Post)
-      let _ = CommonAuthUtils.clearLocalStorage
+      let _ = CommonAuthUtils.clearLocalStorage()
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
       setAuthType(_ => LoginWithEmail)
     } catch {
