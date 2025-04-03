@@ -105,7 +105,7 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      <div className="flex flex-col h-[82vh] px-6">
+      <div className="flex flex-col px-6">
         <OrderInfo reportDetails=reconReport isModal />
       </div>
       <Button
@@ -121,7 +121,7 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      <div className="flex flex-col h-[82vh] px-6">
+      <div className="flex flex-col px-6">
         <OrderInfo reportDetails=reconReport isModal />
         <div className="gap-6 border-t">
           <div className="flex flex-col gap-2 my-6">
@@ -145,7 +145,7 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      <div className="flex flex-col h-[82vh] px-6">
+      <div className="flex flex-col px-6">
         <OrderInfo reportDetails=reconReport isModal />
         <div className="gap-6 border-t">
           <div className="flex flex-col gap-2 my-6">
