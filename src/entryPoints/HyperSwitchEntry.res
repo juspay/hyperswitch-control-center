@@ -1,6 +1,8 @@
 module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
+    open HyperSwitchEntryUtils
+    open SessionStorage
     let fetchDetails = APIUtils.useGetMethod()
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
@@ -20,7 +22,6 @@ module HyperSwitchEntryComponent = {
       }
     }
 
-    let themeId = LocalStorage.getItem("theme_id")->Nullable.toOption->Option.getOr("")
     let configEnv = (urlConfig: JSON.t) => {
       open LogicUtils
       open HyperSwitchConfigTypes
@@ -50,15 +51,29 @@ module HyperSwitchEntryComponent = {
       }
     }
 
+    let fetchThemeAndDomainFromUrl = () => {
+      let themeId = url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("theme_id")
+      let domainUrl = url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("domain")
+      if themeId->Option.isSome {
+        setThemeIdtoStore(themeId->Option.getOr(""))
+      }
+      if domainUrl->Option.isSome {
+        sessionStorage.setItem("domain", domainUrl->Option.getOr(""))
+      }
+      (themeId, domainUrl)
+    }
+
     let fetchConfig = async () => {
       try {
-        let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="")
-        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}` // todo: domain shall be removed from query params later
+        let (themeId, domain) = fetchThemeAndDomainFromUrl()
+        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain->Option.getOr(
+            "",
+          )}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
         let _ = configEnv(res) // to set initial env
-        let _ = await getThemesJson(themeId)
+        let _ = await getThemesJson(~themesID=themeId, ~domain)
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -68,14 +83,11 @@ module HyperSwitchEntryComponent = {
     }
 
     React.useEffect(() => {
-      HyperSwitchEntryUtils.setMultipleSessionData(
-        ~keys=["auth_id", "domain"],
-        ~searchParams=url.search,
-      )
-      HyperSwitchEntryUtils.setSessionAndLocalData(~key="theme_id", ~searchParams=url.search)
+      let _ = setSessionData(~key="auth_id", ~searchParams=url.search)
       let _ = fetchConfig()->ignore
       None
     }, [])
+
     React.useEffect(() => {
       TimeZoneUtils.getUserTimeZone()->setZone
       None

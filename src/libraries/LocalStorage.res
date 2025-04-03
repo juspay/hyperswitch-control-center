@@ -35,11 +35,6 @@ let setItem = (key, val) => {
   InternalStorage.sendEvents()
 }
 
-let updateItem = (key, val) => {
-  setItemOrig(key, val)
-  InternalStorage.sendEvents()
-}
-
 let useStorageValue = key => {
   let (value, setValue) = React.useState(() => getItem(key))
 

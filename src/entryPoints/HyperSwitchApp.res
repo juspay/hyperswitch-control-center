@@ -46,11 +46,10 @@ let make = () => {
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
   sessionExpired := false
-
-  let themeId = LocalStorage.getItem("theme_id")->Nullable.toOption->Option.getOr("")
+  let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
     try {
-      let _ = await getThemesJson(themeId)
+      let _ = await getThemesJson(~themesID=themeId)
     } catch {
     | _ => ()
     }
@@ -91,12 +90,12 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [orgId, merchantId, profileId, themeId])
+  }, [orgId, merchantId, profileId])
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     applyTheme()->ignore
     None
-  })
+  }, [themeId])
 
   React.useEffect(() => {
     if featureFlagDetails.mixpanel {

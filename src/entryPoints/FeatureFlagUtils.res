@@ -42,7 +42,6 @@ type featureFlag = {
   tenantUser: bool,
   clickToPay: bool,
   debitRouting: bool,
-  devThemeFeature: bool,
   devReconv2Product: bool,
   devRecoveryV2Product: bool,
   devVaultV2Product: bool,

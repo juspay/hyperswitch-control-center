@@ -79,18 +79,16 @@ let redirectToLogin = () => {
   open LogicUtils
 
   let params = [
-    ("auth_id", getSessionData(~key="auth_id")),
-    ("domain", getSessionData(~key="domain")), // todo: setting domain in session storage shall be removed later
-    ("theme_id", getSessionData(~key="theme_id")),
+    ("auth_id", getSessionData(~key="auth_id")->getNonEmptyString),
+    ("theme_id", HyperSwitchEntryUtils.getThemeIdfromStore()),
   ]
 
   let queryString =
     params
     ->Array.filterMap(((key, value)) =>
-      if value->isNonEmptyString {
-        Some(`${key}=${value}`)
-      } else {
-        None
+      switch value {
+      | Some(value) if value->isNonEmptyString => Some(`${key}=${value}`)
+      | _ => None
       }
     )
     ->Array.joinWith("&")

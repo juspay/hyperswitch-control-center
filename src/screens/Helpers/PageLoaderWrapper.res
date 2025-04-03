@@ -6,9 +6,9 @@ module ScreenLoader = {
   let make = (~sectionHeight="h-80-vh") => {
     let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
     let loader = LottieFiles.useLottieJson("loader-circle.json")
-    let sessionThemeId = HyperSwitchEntryUtils.getSessionData(~key="theme_id", ~defaultValue="")
+    let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
     let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let showLoader = sessionThemeId->LogicUtils.isNonEmptyString
+    let showLoader = themeId->Option.getOr("")->LogicUtils.isNonEmptyString
     <div className={`${sectionHeight} w-scrren flex flex-col justify-center items-center`}>
       <RenderIf condition={!branding}>
         <div className="w-20 h-16">

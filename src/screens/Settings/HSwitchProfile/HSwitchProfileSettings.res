@@ -108,7 +108,7 @@ module ResetPassword = {
     let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
     let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
-    let themeId = HyperSwitchEntryUtils.getSessionData(~key="theme_id")
+    let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
 

@@ -11,7 +11,7 @@ type customUIConfig = {
   theme: theme,
   themeSetter: theme => unit,
   configCustomDomainTheme: JSON.t => unit,
-  getThemesJson: string => promise<JSON.t>,
+  getThemesJson: (~themesID: option<string>, ~domain: option<string>=?) => promise<JSON.t>,
   logoURL: option<string>,
 }
 
@@ -67,7 +67,11 @@ let themeContext = {
   theme: Light,
   themeSetter: defaultSetter,
   configCustomDomainTheme: _ => (),
-  getThemesJson: _ => JSON.Encode.null->Promise.resolve,
+  getThemesJson: (~themesID, ~domain=None) => {
+    switch (themesID, domain) {
+    | _ => JSON.Encode.null->Promise.resolve
+    }
+  },
   logoURL: Some(""),
 }
 
@@ -258,48 +262,48 @@ let make = (~children) => {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
   }
-  let url = RescriptReactRouter.useUrl()
-  let getThemesJson = async themesID => {
-    let searchParams = url.search
-    let domain =
-      LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("domain")->Option.getOr("")
+
+  let getDefaultStyle = () => {
+    let defaultStyle = {
+      "settings": newDefaultConfig.settings,
+      "urls": newDefaultConfig.urls,
+    }->Identity.genericTypeToJson
+    defaultStyle
+  }
+
+  let getThemesJson = async (~themesID, ~domain=None) => {
     try {
-      let themeJson = if themesID->LogicUtils.isNonEmptyString {
-        let url = `${GlobalVars.getHostUrl}/themes/${themesID}/theme.json`
-        let themeResponse = await fetchApi(
-          `${url}`,
-          ~method_=Get,
-          ~xFeatureRoute=true,
-          ~forceCookies=false,
-        )
-        let themesData = await themeResponse->(res => res->Fetch.Response.json)
-        themesData
-      } else if domain->LogicUtils.isNonEmptyString {
-        let url = `${GlobalVars.getHostUrl}/themes?domain=${domain}`
-        let themeResponse = await fetchApi(
-          `${url}`,
-          ~method_=Get,
-          ~xFeatureRoute=true,
-          ~forceCookies=false,
-        )
-        let themesData = await themeResponse->(res => res->Fetch.Response.json)
-        themesData
-      } else {
-        let defaultStyle = {
-          "settings": newDefaultConfig.settings,
-          "urls": newDefaultConfig.urls,
-        }->Identity.genericTypeToJson
-        defaultStyle
+      let themeJson = {
+        if themesID->Option.isSome && themesID->Option.getOr("")->LogicUtils.isNonEmptyString {
+          let id = themesID->Option.getOr("")
+          let url = `${GlobalVars.getHostUrl}/themes/${id}/theme.json`
+          let themeResponse = await fetchApi(
+            url,
+            ~method_=Get,
+            ~xFeatureRoute=true,
+            ~forceCookies=false,
+          )
+          await themeResponse->(res => res->Fetch.Response.json)
+        } else if domain->Option.isSome && domain->Option.getOr("")->LogicUtils.isNonEmptyString {
+          let domainValue = domain->Option.getOr("")
+          let url = `${GlobalVars.getHostUrl}/themes?domain=${domainValue}`
+          let themeResponse = await fetchApi(
+            url,
+            ~method_=Get,
+            ~xFeatureRoute=true,
+            ~forceCookies=false,
+          )
+          await themeResponse->(res => res->Fetch.Response.json)
+        } else {
+          getDefaultStyle()
+        }
       }
       updateThemeURLs(themeJson)->ignore
       configCustomDomainTheme(themeJson)->ignore
       themeJson
     } catch {
     | _ => {
-        let defaultStyle = {
-          "settings": newDefaultConfig.settings,
-          "urls": newDefaultConfig.urls,
-        }->Identity.genericTypeToJson
+        let defaultStyle = getDefaultStyle()
         updateThemeURLs(defaultStyle)->ignore
         configCustomDomainTheme(defaultStyle)->ignore
         defaultStyle
