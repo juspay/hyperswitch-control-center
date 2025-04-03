@@ -353,18 +353,18 @@ let make = () => {
                     </div>
                   </div>
                 </div>
+                <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
+                  <HSwitchFeedBackModal
+                    modalHeading="We'd love to hear from you!"
+                    showModal={showFeedbackModal}
+                    setShowModal={setShowFeedbackModal}
+                  />
+                </RenderIf>
+                <RenderIf condition={!featureFlagDetails.isLiveMode}>
+                  <ProdIntentForm />
+                </RenderIf>
               </PageLoaderWrapper>
             </div>
-            <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
-              <HSwitchFeedBackModal
-                modalHeading="We'd love to hear from you!"
-                showModal={showFeedbackModal}
-                setShowModal={setShowFeedbackModal}
-              />
-            </RenderIf>
-            <RenderIf condition={!featureFlagDetails.isLiveMode}>
-              <ProdIntentForm />
-            </RenderIf>
           </div>
         </div>
       | #DEFAULT =>
