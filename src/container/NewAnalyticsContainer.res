@@ -83,7 +83,9 @@ let make = () => {
     }
     None
   }, (startTimeVal, endTimeVal))
-
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="new_analytics_payment_date_filter_opened")
+  }
   let tabs: array<Tabs.tab> = [
     {
       title: "Payments",
@@ -121,6 +123,7 @@ let make = () => {
           initialFixedFilters={initialFixedFilterFields(
             ~compareWithStartTime=startTimeVal,
             ~compareWithEndTime=endTimeVal,
+            ~events=dateDropDownTriggerMixpanelCallback,
           )}
           defaultFilterKeys=[
             startTimeFilterKey,

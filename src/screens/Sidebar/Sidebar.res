@@ -604,7 +604,7 @@ let make = (
       }
     />
     <div
-      className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
+      className={`absolute z-30 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
       <OrgSidebar />
       <RenderIf condition={showSideBar}>
         <div
