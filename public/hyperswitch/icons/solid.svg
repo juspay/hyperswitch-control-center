@@ -7902,12 +7902,6 @@ License)
       stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
 
-  <svg id="nd-toast-error" viewBox="0 0 16 14" fill="none">
-    <path
-      d="M8 7.66673V5.00006M8 9.91673V9.91748M7.07337 1.18915C7.66595 0.936949 8.33405 0.936949 8.92662 1.18915C10.6942 1.94145 14.8697 8.61453 14.7474 10.3981C14.6994 11.0973 14.3529 11.7408 13.7982 12.1614C12.323 13.2795 3.67698 13.2795 2.20186 12.1614C1.64705 11.7408 1.3006 11.0973 1.25263 10.3981C1.13026 8.61453 5.30575 1.94145 7.07337 1.18915Z"
-      stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
-  </svg>
-
   <symbol id="nd-toast-info" viewBox="0 0 14 14" fill="none">
     <path
       d="M7 6.99994V9.6666M7 4.74994V4.74919M13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z"
