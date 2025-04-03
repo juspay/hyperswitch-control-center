@@ -3,8 +3,8 @@ type spacingLeft = int
 type spacingRight = int
 
 type info = {index: int}
-type series = {name: string}
-type point = {color: string, x: string, y: float, point: info, series: series}
+type pointSeries = {name: string}
+type point = {color: string, x: string, y: float, point: info, series: pointSeries}
 type pointFormatter = {points: array<point>}
 type yAxisFormatter = {value: int}
 
@@ -41,11 +41,18 @@ type credits = {
 type exporting = {
   ...enabled,
 }
+
+type inactive = {...enabled, opacity: float}
+
+type states = {inactive: inactive}
+
+type plotSeries = {states: states}
+
 type marker = {
   ...enabled,
 }
 type line = {marker: marker}
-type plotOptions = {line: line}
+type plotOptions = {line: line, series: plotSeries}
 type labels = {
   formatter: pointFormatter => string,
   align: align,
@@ -107,6 +114,7 @@ type cssStyle = {
 }
 
 type tooltip = {
+  ...enabled,
   shape: string,
   backgroundColor: string,
   borderColor: string,
