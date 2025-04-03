@@ -2,7 +2,7 @@ import * as helper from "../../support/helper";
 import HomePage from "../../support/pages/homepage/HomePage";
 import PaymentRouting from "../../support/pages/workflow/paymentRouting/PaymentRouting";
 import DefaultFallback from "../../support/pages/workflow/paymentRouting/DefaultFallback";
-import DefaultFallback from "../../support/pages/workflow/paymentRouting/VolumeBasedConfiguration";
+import VolumeBasedConfiguration from "../../support/pages/workflow/paymentRouting/VolumeBasedConfiguration";
 
 const homePage = new HomePage();
 const paymentRouting = new PaymentRouting();
