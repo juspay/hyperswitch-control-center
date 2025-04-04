@@ -533,12 +533,30 @@ let paymentSettings = userHasResourceAccess => {
   })
 }
 
-let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity) => {
+let webhooks = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Webhooks",
+    link: `/webhooks`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("Webhooks", ""), ("Retry webhooks", "")],
+  })
+}
+
+let developers = (
+  isDevelopersEnabled,
+  ~isWebhooksEnabled,
+  ~userHasResourceAccess,
+  ~checkUserEntity,
+) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
+  if isWebhooksEnabled {
+    defaultDevelopersOptions->Array.push(webhooks)
+  }
 
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
@@ -672,6 +690,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     newAnalytics,
     authenticationAnalytics,
     devAltPaymentMethods,
+    devWebhooks,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -706,7 +725,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     ),
     devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(~userHasResourceAccess, ~checkUserEntity),
+    default->developers(~isWebhooksEnabled=devWebhooks, ~userHasResourceAccess, ~checkUserEntity),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
