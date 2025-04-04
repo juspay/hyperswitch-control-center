@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.04.0
+
+### Features
+
+- Addition of new connector - paystack ([#2306](https://github.com/juspay/hyperswitch-control-center/pull/2306)) ([`d7099ef`](https://github.com/juspay/hyperswitch-control-center/commit/d7099ef840c4f198e3adde688586dffe4508f7b0))
+
+### Bug Fixes
+
+- Recon ui issues in 13 inch screen ([#2767](https://github.com/juspay/hyperswitch-control-center/pull/2767)) ([`4726941`](https://github.com/juspay/hyperswitch-control-center/commit/4726941f67e7187065e2ee662ec4e700c35eafc7))
+- Demo data banner issues ([#2768](https://github.com/juspay/hyperswitch-control-center/pull/2768)) ([`880dd75`](https://github.com/juspay/hyperswitch-control-center/commit/880dd75d461c4ea089891e150c769e5f3172aec7))
+
+### Refactors
+
+- Hyperswitch app refactor ([#2748](https://github.com/juspay/hyperswitch-control-center/pull/2748)) ([`65b9004`](https://github.com/juspay/hyperswitch-control-center/commit/65b9004512235feb2df9158a20d23160a85fbcd5))
+
+### Miscellaneous Tasks
+
+- Restructuring intelligent routing files ([#2758](https://github.com/juspay/hyperswitch-control-center/pull/2758)) ([`f13e1ee`](https://github.com/juspay/hyperswitch-control-center/commit/f13e1ee45f0f7a08153a925b15bb8b0682955c29))
+
+**Full Changelog:** [`2025.04.03.1...2025.04.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.03.1...2025.04.04.0)
+
+
+- - -
+
 ## 2025.04.03.1
 
 ### Miscellaneous Tasks
