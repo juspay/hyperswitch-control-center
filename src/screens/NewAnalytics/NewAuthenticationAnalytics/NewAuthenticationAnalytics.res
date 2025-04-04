@@ -19,6 +19,16 @@ let make = () => {
   let title = "Authentication Analytics"
   let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
   let (dimensions, setDimensions) = React.useState(_ => [])
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  React.useEffect(() => {
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      mixpanelEvent(~eventName="authentication_analytics_date_filter")
+    }
+    None
+  }, (startTimeVal, endTimeVal))
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="authentication_analytics_date_filter_opened")
+  }
 
   let loadInfo = async () => {
     try {
@@ -187,7 +197,7 @@ let make = () => {
         initialFilters={HSAnalyticsUtils.initialFilterFields(filterData)}
         options=[]
         popupFilterFields={HSAnalyticsUtils.options(filterData)}
-        initialFixedFilters={initialFixedFilterFields()}
+        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
         key="0"
@@ -204,7 +214,7 @@ let make = () => {
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields()}
+        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
         key="0"

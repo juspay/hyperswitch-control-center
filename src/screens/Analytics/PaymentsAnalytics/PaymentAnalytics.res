@@ -161,7 +161,9 @@ let make = () => {
     ~origin="analytics",
     (),
   )
-
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="analytics_payments_date_filter_opened")
+  }
   React.useEffect(() => {
     setInitialFilters()
     None
@@ -212,10 +214,10 @@ let make = () => {
 
   React.useEffect(() => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
-      mixpanelEvent(~eventName="analytics_payment_date_filter")
+      mixpanelEvent(~eventName="analytics_payments_date_filter")
     }
     None
-  }, (startTimeVal, endTimeVal))
+  }, [startTimeVal, endTimeVal])
 
   let topFilterUi = switch filterDataJson {
   | Some(filterData) =>
@@ -225,7 +227,10 @@ let make = () => {
         initialFilters={initialFilterFields(filterData)}
         options=[]
         popupFilterFields={options(filterData)}
-        initialFixedFilters={initialFixedFilterFields(filterData)}
+        initialFixedFilters={initialFixedFilterFields(
+          filterData,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=defaultFilters
         tabNames=tabKeys
         updateUrlWith=updateExistingKeys
@@ -242,7 +247,10 @@ let make = () => {
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(filterData)}
+        initialFixedFilters={initialFixedFilterFields(
+          filterData,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=defaultFilters
         tabNames=tabKeys
         updateUrlWith=updateExistingKeys //
