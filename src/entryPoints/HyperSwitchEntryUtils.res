@@ -15,3 +15,23 @@ let getSessionData = (~key, ~defaultValue="") => {
   | None => defaultValue
   }
 }
+
+let getThemeIdfromStore = () => {
+  let themeId = LocalStorage.getItem("theme_id")->Nullable.toOption
+  themeId
+}
+
+let setThemeIdtoStore = themeId => {
+  let themeID = themeId->LogicUtils.getNonEmptyString
+  if themeID->Option.isSome {
+    LocalStorage.setItem("theme_id", themeID->Option.getOr(""))
+    sessionStorage.removeItem("domain")
+  } else {
+    LocalStorage.setItem("theme_id", "")
+  }
+}
+
+let getDomainfromSession = () => {
+  let domain = getSessionData(~key="domain")->LogicUtils.getNonEmptyString
+  domain
+}
