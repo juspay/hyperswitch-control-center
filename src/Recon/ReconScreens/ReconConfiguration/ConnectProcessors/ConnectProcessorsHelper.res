@@ -198,8 +198,11 @@ module ConnectProcessorsFields = {
               ~label="Secret Key",
               ~name="secret_key",
               ~placeholder="**************",
-              ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-              ~isRequired=true,
+              ~customInput=InputFields.textInput(
+                ~customStyle="rounded-xl bg-nd_gray-50",
+                ~isDisabled=true,
+              ),
+              ~isRequired=false,
             )}
           />
           <FormRenderer.FieldRenderer
@@ -208,8 +211,11 @@ module ConnectProcessorsFields = {
               ~label="Client Verification Key",
               ~name="client_verification_key",
               ~placeholder="**************",
-              ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-              ~isRequired=true,
+              ~customInput=InputFields.textInput(
+                ~customStyle="rounded-xl bg-nd_gray-50",
+                ~isDisabled=true,
+              ),
+              ~isRequired=false,
             )}
           />
         </div>
