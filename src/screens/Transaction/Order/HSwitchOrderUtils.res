@@ -111,6 +111,22 @@ let reasonField = FormRenderer.makeFieldInfo(
   ~isRequired=false,
 )
 
+let refundAddressField = FormRenderer.makeFieldInfo(
+  ~name="metadata.address",
+  ~label="Cryptocurrency Address",
+  ~customInput=InputFields.textInput(),
+  ~placeholder="Enter Address",
+  ~isRequired=true,
+)
+
+let refundEmailField = FormRenderer.makeFieldInfo(
+  ~name="metadata.email",
+  ~label="Email",
+  ~customInput=InputFields.textInput(),
+  ~placeholder="Enter Email",
+  ~isRequired=true,
+)
+
 let nonRefundConnectors = ["braintree", "klarna", "airwallex"]
 
 let isNonRefundConnector = connector => {
