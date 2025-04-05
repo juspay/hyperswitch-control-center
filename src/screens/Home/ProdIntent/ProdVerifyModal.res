@@ -58,11 +58,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
             <Form
               key="prod-request-form"
               initialValues={initialValues->JSON.Encode.object}
-              validate={values =>
-                values->validateForm(
-                  ~fieldsToValidate=formFields,
-                  ~setIsDisabled=setIsSubmitBtnDisabled,
-                )}
+              validate={values => values->validateForm(~fieldsToValidate=formFields)}
               onSubmit>
               <div className="flex flex-col gap-12 h-full w-full">
                 <FormRenderer.DesktopRow>
@@ -81,9 +77,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
                   </div>
                 </FormRenderer.DesktopRow>
                 <div className="flex justify-end w-full pr-5 pb-3">
-                  <FormRenderer.SubmitButton
-                    disabledParamter=isSubmitBtnDisabled text="Book a call" buttonSize={Small}
-                  />
+                  <FormRenderer.SubmitButton text="Book a call" buttonSize={Small} />
                 </div>
               </div>
             </Form>

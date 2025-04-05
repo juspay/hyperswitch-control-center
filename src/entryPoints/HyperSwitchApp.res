@@ -113,7 +113,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, userGroupACL)
+  }, [userGroupACL])
 
   <>
     <div>
