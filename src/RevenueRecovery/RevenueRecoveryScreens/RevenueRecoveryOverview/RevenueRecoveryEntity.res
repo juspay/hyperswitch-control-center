@@ -23,7 +23,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       | #VOID_FAILED
       | #FAILURE =>
         LabelRed
-      | _ => LabelLightBlue
+      | _ => LabelLightGray
       },
     })
   | Id => DisplayCopyCell(attempt.id)
@@ -124,8 +124,8 @@ let getCell = (order, colType: colType): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelLightBlue
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | OrderAmount =>
