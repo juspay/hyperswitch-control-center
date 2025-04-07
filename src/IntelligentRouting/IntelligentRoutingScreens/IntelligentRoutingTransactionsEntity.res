@@ -88,7 +88,11 @@ let getCell = (~transactionsData: transactionObj, colType): Table.cell => {
   | PaymentMethodType => Text(transactionsData.payment_method_type->LogicUtils.getTitle)
   | CardNetwork => Text(transactionsData.card_network)
   | TxnAmount => Text(transactionsData.amount->Float.toString)
-  | Status => CustomCell(<LabelCell status=transactionsData.payment_status />, "")
+  | Status =>
+    Label({
+      title: transactionsData.payment_status ? "Success" : "Failed",
+      color: transactionsData.payment_status ? LabelGreen : LabelRed,
+    })
   | ActualGateway => Text(transactionsData.payment_gateway)
   | SuggestedGateway => Text(transactionsData.model_connector)
   | SuccessRateUplift => CustomCell(<UpliftCell uplift=transactionsData.suggested_uplift />, "")
