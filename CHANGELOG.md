@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.07.0
+
+### Bug Fixes
+
+- Toast notification redesign ([#2771](https://github.com/juspay/hyperswitch-control-center/pull/2771)) ([`f7378f8`](https://github.com/juspay/hyperswitch-control-center/commit/f7378f8378790776f8f999b114b72ff8a724a0e9))
+- Disabled the recon onboarding input fields ([#2776](https://github.com/juspay/hyperswitch-control-center/pull/2776)) ([`79024a9`](https://github.com/juspay/hyperswitch-control-center/commit/79024a95aba487ec104b4f256fd4e02e2db7c9fc))
+- Hypersense product name change to cost observability ([#2780](https://github.com/juspay/hyperswitch-control-center/pull/2780)) ([`10ebe1f`](https://github.com/juspay/hyperswitch-control-center/commit/10ebe1f696a9d74740fb8eaba03091e05f0c1542))
+
+### Miscellaneous Tasks
+
+- Number type input for connector metadata ([#2770](https://github.com/juspay/hyperswitch-control-center/pull/2770)) ([`5fd329e`](https://github.com/juspay/hyperswitch-control-center/commit/5fd329e10c2f3aa0bd962bfbab01a16eba0af9b6))
+
+**Full Changelog:** [`2025.04.04.0...2025.04.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.04.0...2025.04.07.0)
+
+
+- - -
+
 ## 2025.04.04.0
 
 ### Features

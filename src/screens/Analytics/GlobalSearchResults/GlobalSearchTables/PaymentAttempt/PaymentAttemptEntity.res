@@ -355,8 +355,8 @@ let getCell = (paymentObj, colType): Table.cell => {
       | #VOID_INITIATED
       | #CAPTURE_INITIATED
       | #PENDING =>
-        LabelYellow
-      | _ => LabelLightBlue
+        LabelOrange
+      | _ => LabelLightGray
       },
     })
   | Amount =>
