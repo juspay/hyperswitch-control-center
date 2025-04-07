@@ -189,8 +189,8 @@ let getCell = (disputeObj, colType): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelLightBlue
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | PaymentId => Text(disputeObj.payment_id)

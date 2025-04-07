@@ -154,8 +154,8 @@ let getAttemptCell = (attemptData, colType): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelWhite
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | Amount =>
@@ -343,8 +343,8 @@ let getCell = (payoutData, colType, merchantId, orgId): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelWhite
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | CustomerId => DisplayCopyCell(payoutData.customer_id)
@@ -371,7 +371,7 @@ let getCell = (payoutData, colType, merchantId, orgId): Table.cell => {
         title: payoutData.priority->String.toUpperCase,
         color: switch priorityVariants {
         | Instant => LabelBlue
-        | _ => LabelOrange
+        | _ => LabelLightGray
         },
       })
     }
