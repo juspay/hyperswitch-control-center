@@ -33,7 +33,17 @@ let lineGraphYAxisFormatter = (
 }
 
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
-  let {categories, data, title, tooltipFormatter, yAxisMaxValue, yAxisFormatter} = lineGraphOptions
+  let {
+    chartHeight,
+    categories,
+    data,
+    title,
+    tooltipFormatter,
+    yAxisMaxValue,
+    yAxisMinValue,
+    yAxisFormatter,
+    legend,
+  } = lineGraphOptions
 
   let stepInterval = Js.Math.max_int(
     Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 10.0),
@@ -61,13 +71,15 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       },
       x: 5,
     },
-    min: 0,
   }
 
   {
     chart: {
       \"type": "line",
-      height: 300,
+      height: switch chartHeight {
+      | Custom(chartHeight) => chartHeight
+      | DefaultHeight => 400
+      },
       spacingLeft: 0,
       spacingRight: 0,
       style: {
@@ -113,15 +125,25 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       shared: true, // Allows multiple series' data to be shown in a single tooltip
     },
     yAxis: {
-      switch yAxisMaxValue {
-      | Some(val) => {
+      switch (yAxisMaxValue, yAxisMinValue) {
+      | (Some(maxVal), Some(minVal)) => {
           ...yAxis,
-          max: val->Some,
+          max: Some(maxVal),
+          min: Some(minVal),
         }
-      | _ => yAxis
+      | (Some(maxVal), None) => {
+          ...yAxis,
+          max: Some(maxVal),
+        }
+      | (None, Some(minVal)) => {
+          ...yAxis,
+          min: Some(minVal),
+        }
+      | (None, None) => yAxis
       }
     },
     legend: {
+      ...legend,
       useHTML: true,
       labelFormatter: valueFormatter,
       symbolPadding: 0,
@@ -132,11 +154,6 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
         color: darkGray,
         fontWeight: "400",
       },
-      align: "right",
-      verticalAlign: "top",
-      floating: true,
-      x: -20,
-      y: -10,
     },
     plotOptions: {
       line: {

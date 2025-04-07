@@ -155,7 +155,7 @@ module TransactionsTable = {
 
     <PageLoaderWrapper screenState={screenState}>
       <div className="flex flex-col gap-2">
-        <div className="text-nd_gray-600 font-semibold">
+        <div className="text-nd_gray-600 font-semibold text-fs-18">
           {"Transactions Details"->React.string}
         </div>
         <Tabs
@@ -373,23 +373,10 @@ let make = () => {
 
   let dateRange = displayDateRange(~minDate=timeRange.minDate, ~maxDate=timeRange.maxDate)
 
-  let _infoBanner =
-    <div
-      className=" top-76-px left-0 w-full py-3 px-4 bg-nd_primary_blue-50 flex justify-between items-center rounded-md">
-      <div className="flex gap-4 items-center">
-        <Icon name="nd-warning" />
-        <div className="text-nd_gray-600 text-base !leading-6 font-medium">
-          <span> {"Our Intelligent system made "->React.string} </span>
-          <span className="font-bold"> {"6890"->React.string} </span>
-          <span>
-            {" (9.2%) switches from primary processor to an alternate processor."->React.string}
-          </span>
-        </div>
-      </div>
-    </div>
-
   let customScrollStyle = `max-h-40 overflow-scroll px-1 pt-1 border-pink-400`
   let dropdownContainerStyle = `rounded-md border border-1 border md:w-40 md:max-w-50`
+
+  let isSmallScreen = MatchMedia.useScreenSizeChecker(~screenSize="1535")
 
   <PageLoaderWrapper screenState={screenState}>
     <div
@@ -410,20 +397,23 @@ let make = () => {
       </div>
       <div className="flex flex-col gap-12">
         <Overview data=stats />
-        // {infoBanner}
         <div className="flex flex-col gap-6">
-          <div className="text-nd_gray-600 font-semibold"> {"Insights"->React.string} </div>
+          <div className="text-nd_gray-600 font-semibold text-fs-18">
+            {"Insights"->React.string}
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col border rounded-lg p-4">
               <div className="flex justify-between">
-                <p className="text-fs-14 text-nd_gray-600">
+                <p className="text-fs-14 text-nd_gray-600 font-semibold leading-17">
                   {"Overall Transaction Distribution"->React.string}
                 </p>
-                <div className="flex flex-col xl:flex-row gap-4">
+              </div>
+              <div className="w-full flex justify-center my-8">
+                <div className="flex flex-col lg:flex-row gap-3 ">
                   {displayLegend(gateways)->React.array}
                 </div>
               </div>
-              <div className="h-full flex flex-col xl:flex-row items-center justify-between gap-1">
+              <div className="h-full flex flex-col 2xl:flex-row items-center justify-between gap-1">
                 <PieGraph
                   options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
                 />
@@ -433,10 +423,14 @@ let make = () => {
               </div>
             </div>
             <div className="border rounded-lg p-4">
-              <LineGraph options={LineGraphUtils.getLineGraphOptions(lineGraphOptions(stats))} />
+              <LineGraph
+                options={LineGraphUtils.getLineGraphOptions(
+                  lineGraphOptions(stats, ~isSmallScreen),
+                )}
+              />
             </div>
           </div>
-          <div className="border rounded-lg p-4 flex flex-col ">
+          <div className="border rounded-lg p-4 flex flex-col">
             <div className="relative">
               <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
                 <SelectBox.BaseDropdown
