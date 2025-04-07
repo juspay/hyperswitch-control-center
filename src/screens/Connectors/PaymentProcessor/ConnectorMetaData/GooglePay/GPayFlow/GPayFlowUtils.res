@@ -103,28 +103,42 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
 
   switch googlePayIntegrationType {
   | #payment_gateway =>
-    data.provider_details.merchant_info.merchant_name->Option.isSome &&
-    data.provider_details.merchant_info.merchant_id->Option.isSome &&
+    data.provider_details.merchant_info.merchant_name
+    ->Option.getOr("")
+    ->String.trim
+    ->isNonEmptyString &&
+    data.provider_details.merchant_info.merchant_id
+    ->Option.getOr("")
+    ->String.trim
+    ->isNonEmptyString &&
     data.cards.allowed_auth_methods->Array.length > 0 &&
     (data.provider_details.merchant_info.tokenization_specification.parameters.\"stripe:publishableKey"
     ->Option.getOr("")
+    ->String.trim
     ->isNonEmptyString ||
       data.provider_details.merchant_info.tokenization_specification.parameters.gateway_merchant_id
       ->Option.getOr("")
+      ->String.trim
       ->isNonEmptyString)
       ? Button.Normal
       : Button.Disabled
   | #direct =>
-    data.provider_details.merchant_info.merchant_name->Option.isSome &&
+    data.provider_details.merchant_info.merchant_name
+    ->Option.getOr("")
+    ->String.trim
+    ->isNonEmptyString &&
     data.cards.allowed_auth_methods->Array.length > 0 &&
     data.provider_details.merchant_info.tokenization_specification.parameters.public_key
     ->Option.getOr("")
+    ->String.trim
     ->isNonEmptyString &&
     data.provider_details.merchant_info.tokenization_specification.parameters.private_key
     ->Option.getOr("")
+    ->String.trim
     ->isNonEmptyString &&
     data.provider_details.merchant_info.tokenization_specification.parameters.recipient_id
     ->Option.getOr("")
+    ->String.trim
     ->isNonEmptyString
       ? Button.Normal
       : Button.Disabled
