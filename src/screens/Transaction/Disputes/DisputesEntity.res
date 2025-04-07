@@ -114,14 +114,14 @@ let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
     Label({
       title: disputesData.dispute_status->String.toUpperCase,
       color: switch disputesData.dispute_status->disputeStatusVariantMapper {
-      | DisputeOpened => LabelLightBlue
+      | DisputeOpened => LabelBlue
       | DisputeExpired => LabelRed
       | DisputeAccepted => LabelGreen
       | DisputeCancelled => LabelOrange
       | DisputeChallenged => LabelYellow
       | DisputeWon => LabelGreen
       | DisputeLost => LabelRed
-      | _ => LabelWhite
+      | _ => LabelLightGray
       },
     })
   | Connector => CustomCell(<ConnectorCustomCell connectorName={disputesData.connector} />, "")
