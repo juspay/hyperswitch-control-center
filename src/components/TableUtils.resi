@@ -7,14 +7,7 @@ type labelColor =
   | LabelGray
   | LabelOrange
   | LabelYellow
-  | LabelDarkGreen
-  | LabelDarkRed
-  | LabelBrown
-  | LabelLightBlue
-  | LabelWhite
-  | LabelViolet
-  | LabelLightGreen
-  | LabelLightRed
+  | LabelLightGray
 type filterDataType = Float(float, float) | String | DateTime
 type disableField = {key: string, values: array<string>}
 type customiseColumnConfig = {showDropDown: bool, customizeColumnUi: React.element}

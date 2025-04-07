@@ -9,6 +9,17 @@ let textInput = (~field: CommonConnectorTypes.inputField, ~formName) => {
   )
 }
 
+let numberInput = (~field: CommonConnectorTypes.inputField, ~formName) => {
+  let {placeholder, label, required} = field
+  FormRenderer.makeFieldInfo(
+    ~label,
+    ~name={formName},
+    ~placeholder,
+    ~customInput=InputFields.numericTextInput(),
+    ~isRequired=required,
+  )
+}
+
 let selectInput = (
   ~field: CommonConnectorTypes.inputField,
   ~formName,

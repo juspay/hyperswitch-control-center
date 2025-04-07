@@ -3,12 +3,7 @@ open ProductTypes
 
 module SwitchMerchantBody = {
   @react.component
-  let make = (
-    ~merchantDetails: OMPSwitchTypes.ompListTypes,
-    ~setShowModal,
-    ~selectedProduct,
-    ~setActiveProductValue,
-  ) => {
+  let make = (~merchantDetails: OMPSwitchTypes.ompListTypes, ~setShowModal, ~selectedProduct) => {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let showToast = ToastState.useShowToast()
 
@@ -16,7 +11,6 @@ module SwitchMerchantBody = {
       try {
         let version = UserUtils.getVersion(selectedProduct)
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id), ~version)
-        setActiveProductValue(selectedProduct)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -40,7 +34,6 @@ module SelectMerchantBody = {
     ~setShowModal,
     ~merchantList: array<OMPSwitchTypes.ompListTypes>,
     ~selectedProduct: ProductTypes.productTypes,
-    ~setActiveProductValue,
   ) => {
     open LogicUtils
     let url = RescriptReactRouter.useUrl()
@@ -97,7 +90,6 @@ module SelectMerchantBody = {
         let version = UserUtils.getVersion(selectedProduct)
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
-        setActiveProductValue(selectedProduct)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -167,7 +159,7 @@ module SelectMerchantBody = {
 
 module CreateNewMerchantBody = {
   @react.component
-  let make = (~setShowModal, ~selectedProduct: productTypes, ~setActiveProductValue) => {
+  let make = (~setShowModal, ~selectedProduct: productTypes) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -187,9 +179,6 @@ module CreateNewMerchantBody = {
         let version = UserUtils.getVersion(selectedProduct)
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
-        setActiveProductValue(selectedProduct)
-        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~url="/home")
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=productUrl))
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -307,23 +296,20 @@ module CreateNewMerchantBody = {
 
 module ModalBody = {
   @react.component
-  let make = (~action, ~setShowModal, ~selectedProduct, ~setActiveProductValue) => {
+  let make = (~action, ~setShowModal, ~selectedProduct) => {
     switch action {
-    | CreateNewMerchant =>
-      <CreateNewMerchantBody setShowModal selectedProduct setActiveProductValue />
+    | CreateNewMerchant => <CreateNewMerchantBody setShowModal selectedProduct />
     | SwitchToMerchant(merchantDetails) =>
-      <SwitchMerchantBody merchantDetails setShowModal selectedProduct setActiveProductValue />
+      <SwitchMerchantBody merchantDetails setShowModal selectedProduct />
     | SelectMerchantToSwitch(merchantDetails) =>
-      <SelectMerchantBody
-        setShowModal merchantList={merchantDetails} selectedProduct setActiveProductValue
-      />
+      <SelectMerchantBody setShowModal merchantList={merchantDetails} selectedProduct />
     }
   }
 }
 
 module ProductExistModal = {
   @react.component
-  let make = (~showModal, ~setShowModal, ~action, ~selectedProduct, ~setActiveProductValue) => {
+  let make = (~showModal, ~setShowModal, ~action, ~selectedProduct) => {
     <Modal
       showModal
       closeOnOutsideClick=false
@@ -331,7 +317,7 @@ module ProductExistModal = {
       childClass="p-0"
       borderBottom=true
       modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
-      <ModalBody setShowModal action selectedProduct setActiveProductValue />
+      <ModalBody setShowModal action selectedProduct />
     </Modal>
   }
 }
@@ -416,7 +402,6 @@ let make = (~children) => {
         setShowModal
         action={actionVariant}
         selectedProduct={selectedProduct->Option.getOr(Vault)}
-        setActiveProductValue
       />
     | None => React.null
     }

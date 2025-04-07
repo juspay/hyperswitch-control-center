@@ -195,6 +195,7 @@ let textTagInput: (
   ~seperateBySpace: bool=?,
   ~customButtonStyle: string=?,
 ) => React.element
+let fileInput: unit => (~input: ReactFinalForm.fieldRenderPropsInput) => React.element
 let numericTextInput: (
   ~isDisabled: bool=?,
   ~customStyle: string=?,
@@ -240,8 +241,8 @@ let filterDateRangeField: (
   ~hideDate: bool=?,
   ~selectStandardTime: bool=?,
   ~isTooltipVisible: bool=?,
+  ~events: unit => unit=?,
 ) => comboCustomInputRecord
-
 let filterCompareDateRangeField: (
   ~startKey: string,
   ~endKey: string,
@@ -263,7 +264,6 @@ let filterCompareDateRangeField: (
   ~compareWithStartTime: string,
   ~compareWithEndTime: string,
 ) => comboCustomInputRecord
-
 let dateRangeField: (
   ~startKey: string,
   ~endKey: string,
@@ -283,7 +283,6 @@ let dateRangeField: (
   ~customButtonStyle: string=?,
   ~isTooltipVisible: bool=?,
 ) => comboCustomInputRecord
-
 let multiLineTextInput: (
   ~isDisabled: bool,
   ~rows: option<int>,
@@ -292,9 +291,6 @@ let multiLineTextInput: (
   ~leftIcon: React.element=?,
   ~maxLength: int=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
-
-let fileInput: unit => (~input: ReactFinalForm.fieldRenderPropsInput) => React.element
-
 let iconFieldWithMessageDes: (
   (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element,
   ~description: string=?,

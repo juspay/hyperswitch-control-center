@@ -244,7 +244,7 @@ let make = () => {
         </div>
 
       | #setupWebhook =>
-        <div className="flex flex-col w-1/2 px-10 mt-8 overflow-y-auto">
+        <div className="flex flex-col w-[35vw] px-10 mt-8 overflow-y-auto">
           <PageUtils.PageHeading
             title="Setup Webhook"
             subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
@@ -253,10 +253,11 @@ let make = () => {
           <ConnectorWebhookPreview
             merchantId
             connectorName=connectorInfoDict.id
-            textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400"
-            containerClass="flex flex-row items-center justify-between"
+            textCss="border border-nd_gray-300 font-[700] rounded-xl px-4 py-2 mb-6 mt-6 text-nd_gray-400 font-jetbrain-mono text-sm"
+            containerClass="flex flex-row items-center "
             hideLabel=true
             showFullCopy=true
+            displayTextLength=42
           />
           <Button
             text="Next"

@@ -81,6 +81,7 @@ module.exports = {
         200: "58rem",
         150: "9.375rem",
         "1.1-rem": "1.125rem",
+        "13.5-rem": "13.5rem",
         "18-rem": "18rem",
         "22-rem": "22rem",
         "77-rem": "77rem",
@@ -252,6 +253,7 @@ module.exports = {
         },
         orange: {
           100: "#FFFBE6",
+          400: "#C17D10",
           500: "#E07E41",
           600: "#FDD4B6",
           950: "#D88B54",
@@ -363,6 +365,7 @@ module.exports = {
           300: "#6AA1F2",
           400: "#4287EF",
           500: "#1C6DEA",
+          600: "#0561E2",
         },
         //borders gray
         nd_br_gray: {
@@ -384,7 +387,16 @@ module.exports = {
         },
         nd_red: {
           50: "#FCF1EF",
+          600: "#C91C00",
           400: "#EC5941",
+        },
+        nd_orange: {
+          50: "#FDF1DD",
+          600: "#9E5400",
+        },
+        nd_yellow: {
+          100: "#FFFBEE",
+          800: "#998335",
         },
       },
       borderRadius: {

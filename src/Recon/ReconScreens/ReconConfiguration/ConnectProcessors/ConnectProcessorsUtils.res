@@ -14,11 +14,7 @@ let validateProcessorFields = (values: JSON.t) => {
   let errors = Dict.make()
 
   let errorMessage = if data.processor_type->isEmptyString {
-    "Processor type cannot be empty!"
-  } else if data.secret_key->isEmptyString {
-    "Secret key cannot be empty!"
-  } else if data.client_verification_key->isEmptyString {
-    "Client verification key cannot be empty!"
+    "Processor cannot be empty!"
   } else {
     ""
   }
