@@ -85,6 +85,80 @@ describe("Volume based routing", () => {
     volumeBasedConfiguration.connectorDropdown.click();
     cy.get(`[value="stripe_test_1"]`).should("contain", "stripe_test_1");
   });
+
+  it("should save new Volume based configuration", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+      });
+
+    homePage.workflow.click();
+    homePage.routing.click();
+    paymentRouting.volumeBasedRoutingSetupButton.click();
+
+    cy.url().should("include", "/routing/volume");
+
+    cy.get(`[placeholder="Enter Configuration Name"]`).type(
+      "Test volume based config",
+    );
+
+    volumeBasedConfiguration.connectorDropdown.click();
+    cy.get(`[value="stripe_test_1"]`).click();
+    cy.get(`[data-button-for="configureRule"]`).click();
+    cy.get(`[data-button-for="saveRule"]`).click();
+
+    cy.get(`[data-toast="Successfully Created a new Configuration !"]`).should(
+      "contain",
+      "Successfully Created a new Configuration !",
+    );
+
+    cy.get(`[data-table-location="History_tr1_td2"]`).should(
+      "contain",
+      "Test volume based config",
+    );
+    cy.get(`[data-label="INACTIVE"]`).should("contain", "INACTIVE");
+  });
+
+  it("should save and activate Volume based configuration", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+      });
+
+    homePage.workflow.click();
+    homePage.routing.click();
+    paymentRouting.volumeBasedRoutingSetupButton.click();
+
+    cy.url().should("include", "/routing/volume");
+
+    cy.get(`[placeholder="Enter Configuration Name"]`).type(
+      "Test volume based config",
+    );
+
+    volumeBasedConfiguration.connectorDropdown.click();
+    cy.get(`[value="stripe_test_1"]`).click();
+    cy.get(`[data-button-for="configureRule"]`).click();
+    cy.get(`[data-button-for="saveAndActivateRule"]`).click();
+
+    cy.get(`[data-toast="Successfully Activated !"]`).should(
+      "contain",
+      "Successfully Activated !",
+    );
+
+    cy.get(`[data-table-location="History_tr1_td2"]`).should(
+      "contain",
+      "Test volume based config",
+    );
+    cy.get(`[data-label="ACTIVE"]`).should("contain", "ACTIVE");
+  });
 });
 
 describe("Rule based routing", () => {
