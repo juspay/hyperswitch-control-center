@@ -20,6 +20,9 @@ let make = (
     onChange: ev => {
       let value = ev->Identity.formReactEventToString
       setConnectorName(_ => value)
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${value}`),
+      )
     },
     onFocus: _ => (),
     value: connector->JSON.Encode.string,

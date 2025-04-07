@@ -1329,6 +1329,7 @@ module BaseRadio = {
     ~shouldDisplaySelectedOnTop=false,
     ~labelDescriptionClass="",
     ~customSelectionIcon=Button.NoIcon,
+    ~placeholderCss="",
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1473,6 +1474,7 @@ module BaseRadio = {
               ? "Search name or ID..."
               : searchInputPlaceHolder}
             showSearchIcon
+            placeholderCss
           />
         </div>
       </div>
@@ -1652,6 +1654,7 @@ module BaseDropdown = {
     ~shouldDisplaySelectedOnTop=false,
     ~labelDescriptionClass="",
     ~customSelectionIcon=Button.NoIcon,
+    ~placeholderCss="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1925,6 +1928,7 @@ module BaseDropdown = {
         labelDescriptionClass
         customSelectionIcon
         customSearchStyle
+        placeholderCss
       />
     }
 
@@ -2337,6 +2341,7 @@ let make = (
   ~wrapBasis="",
   ~customScrollStyle=?,
   ~shouldDisplaySelectedOnTop=false,
+  ~placeholderCss="",
   (),
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
@@ -2410,6 +2415,7 @@ let make = (
       showSearchIcon
       ?customScrollStyle
       shouldDisplaySelectedOnTop
+      placeholderCss
     />
   } else if allowMultiSelect {
     <BaseSelect
@@ -2481,6 +2487,7 @@ let make = (
       showToolTipOptions
       ?customScrollStyle
       shouldDisplaySelectedOnTop
+      placeholderCss
     />
   }
 }

@@ -81,6 +81,7 @@ module.exports = {
         200: "58rem",
         150: "9.375rem",
         "1.1-rem": "1.125rem",
+        "13.5-rem": "13.5rem",
         "18-rem": "18rem",
         "22-rem": "22rem",
         "77-rem": "77rem",
@@ -252,6 +253,7 @@ module.exports = {
         },
         orange: {
           100: "#FFFBE6",
+          400: "#C17D10",
           500: "#E07E41",
           600: "#FDD4B6",
           950: "#D88B54",

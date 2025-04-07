@@ -17,7 +17,7 @@ let getProductDisplayName = product =>
   | Recovery => "Recovery"
   | Orchestration => "Orchestrator"
   | Vault => "Vault"
-  | CostObservability => "Hypersense"
+  | CostObservability => "Cost Observability"
   | DynamicRouting => "Intelligent Routing"
   | AlternatePaymentMethods => "Alternate Payment Methods"
   }
@@ -28,7 +28,7 @@ let getProductVariantFromDisplayName = product => {
   | "Recovery" => Recovery
   | "Orchestrator" => Orchestration
   | "Vault" => Vault
-  | "Hypersense" => CostObservability
+  | "Cost Observability" => CostObservability
   | "Intelligent Routing" => DynamicRouting
   | "Alternate Payment Methods" => AlternatePaymentMethods
   | _ => Orchestration
@@ -43,6 +43,7 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
     } else {
       url
     }
+  | Recovery => `/dashboard/v2/recovery/overview`
   | _ => `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
   }
 }
