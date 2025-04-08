@@ -211,7 +211,7 @@ let getCell = (refundsObj, colType): Table.cell => {
       | Success => LabelGreen
       | Failure => LabelRed
       | Pending => LabelYellow
-      | _ => LabelLightBlue
+      | _ => LabelLightGray
       },
     })
   | SentToGateway => Text(refundsObj.sent_to_gateway->LogicUtils.getStringFromBool)

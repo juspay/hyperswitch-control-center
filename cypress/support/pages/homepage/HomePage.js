@@ -26,6 +26,10 @@ class HomePage {
     );
   }
 
+  get merchantID() {
+    return cy.get('[style="overflow-wrap: anywhere;"]');
+  }
+
   //Sidebar
 
   //Connectors

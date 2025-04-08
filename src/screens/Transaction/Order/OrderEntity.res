@@ -32,8 +32,8 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
       | Cancelled => LabelRed
       | RequiresCustomerAction
       | RequiresPaymentMethod =>
-        LabelWhite
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | PaymentId => Text(refunds.payment_id)
@@ -74,7 +74,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       | #VOID_FAILED
       | #FAILURE =>
         LabelRed
-      | _ => LabelLightBlue
+      | _ => LabelLightGray
       },
     })
   | PaymentMethod => Text(attempt.payment_method)
@@ -699,8 +699,8 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelLightBlue
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | Amount =>
