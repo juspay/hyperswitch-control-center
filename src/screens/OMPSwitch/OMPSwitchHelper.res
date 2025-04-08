@@ -260,7 +260,6 @@ module MerchantDropdownItem = {
       | Vault => "vault-home"
       | CostObservability => "nd-piggy-bank"
       | DynamicRouting => "intelligent-routing-home"
-      | _ => "orchestrator-home"
       }
     }
 
@@ -387,6 +386,7 @@ module ProfileDropdownItem = {
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
+    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
@@ -431,10 +431,10 @@ module ProfileDropdownItem = {
       errors
     }
 
-    let profileSwitch = async value => {
+    let profileSwitch = async (value, ~changePath) => {
       try {
         setShowSwitchingProfile(_ => true)
-        let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true)
+        let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath)
         setShowSwitchingProfile(_ => false)
       } catch {
       | _ => {
@@ -444,7 +444,11 @@ module ProfileDropdownItem = {
       }
     }
     let handleProfileSwitch = id => {
-      profileSwitch(id)->ignore
+      if activeProduct == Orchestration {
+        profileSwitch(id, ~changePath=true)->ignore
+      } else {
+        profileSwitch(id, ~changePath=false)->ignore
+      }
     }
 
     let onSubmit = async (newProfileName: string) => {
