@@ -97,7 +97,7 @@ module BillingConnectorDetails = {
       <div className="flex flex-col gap-7">
         <div className="flex justify-between border-b pb-4 px-2 items-end">
           <p className="text-lg font-semibold text-nd_gray-600">
-            {"Recovery Details"->React.string}
+            {"Revenue Recovery Details"->React.string}
           </p>
         </div>
         <div className="grid grid-cols-3 px-2">

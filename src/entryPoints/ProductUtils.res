@@ -13,7 +13,7 @@ let getProductVariantFromString = product => {
 let getProductDisplayName = product =>
   switch product {
   | Recon => "Recon"
-  | Recovery => "Recovery"
+  | Recovery => "Revenue Recovery"
   | Orchestration => "Orchestrator"
   | Vault => "Vault"
   | CostObservability => "Cost Observability"
@@ -23,7 +23,7 @@ let getProductDisplayName = product =>
 let getProductVariantFromDisplayName = product => {
   switch product {
   | "Recon" => Recon
-  | "Recovery" => Recovery
+  | "Revenue Recovery" => Recovery
   | "Orchestrator" => Orchestration
   | "Vault" => Vault
   | "Cost Observability" => CostObservability
