@@ -413,7 +413,7 @@ let make = () => {
               </div>
               <div className="flex justify-center">
                 <div
-                  className="flex flex-col xl:flex-row items-center justify-around xl:gap-2 tablet:gap-16">
+                  className="flex flex-col xl:flex-row items-center justify-around gap-8 xl:gap-2 tablet:gap-16">
                   <PieGraph
                     options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
                   />
