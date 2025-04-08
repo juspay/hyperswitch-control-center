@@ -1,12 +1,8 @@
 
-FROM node:18 as base
+FROM node:18 AS base
 WORKDIR /usr/src/app
-# COPY package*.json ./
 COPY . .
 
-ARG BRANCH_NAME=hyperswitch
-ARG RUN_TEST=false
-RUN echo git branch is $BRANCH_NAME
 RUN npm i
 RUN npm run build:prod
 
@@ -19,6 +15,14 @@ WORKDIR /usr/src/app
 COPY --from=base /usr/src/app/dist /usr/src/app/dist
 COPY --from=base /usr/src/app/package*.json ./
 RUN apk add --no-cache bash
-RUN ls -l /usr/src/app/dist
+
+# Create non-root user and switch to it
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Give ownership of /usr/src/app to appuser
+RUN chown -R appuser:appgroup /usr/src/app
+
+USER appuser
+
 EXPOSE 8080 9000
 CMD [ "/bin/bash", "-c", "npm run serve" ]

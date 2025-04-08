@@ -13,8 +13,8 @@ module.exports = defineConfig({
     chromeWebSecurity: false,
   },
   env: {
-    CYPRESS_USERNAME: process.env.CYPRESS_USERNAME || "cypress@gmail.com",
-    CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD || "Cypress98#",
+    CYPRESS_USERNAME: process.env.CYPRESS_USERNAME,
+    CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD,
     RBAC: "", //"profile,admin"
   },
   viewportWidth: 1440,
