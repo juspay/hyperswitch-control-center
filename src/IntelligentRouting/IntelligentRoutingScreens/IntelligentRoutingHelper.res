@@ -142,7 +142,7 @@ let lineGraphOptions = (stats: JSON.t, ~isSmallScreen=false): LineGraphTypes.lin
     Some(dataArray->Array.get(0)->Option.getOr(0.0)->Float.toInt)
   }
 
-  let chartHeight = isSmallScreen ? 600 : 400
+  let chartHeight = isSmallScreen ? 600 : 350
 
   {
     chartHeight: Custom(chartHeight),
@@ -274,7 +274,7 @@ let lineColumnGraphOptions = (
   {
     titleObj: {
       chartTitle: {
-        text: "Processor wise transaction distribution with Auth Rate",
+        text: "Processor Wise Transaction Distribution With Auth Rate",
         align: "left",
         x: 10,
         y: 10,

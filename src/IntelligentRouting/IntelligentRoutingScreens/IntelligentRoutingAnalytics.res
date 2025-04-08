@@ -376,8 +376,6 @@ let make = () => {
   let customScrollStyle = `max-h-40 overflow-scroll px-1 pt-1 border-pink-400`
   let dropdownContainerStyle = `rounded-md border border-1 border md:w-40 md:max-w-50`
 
-  let isSmallScreen = MatchMedia.useScreenSizeChecker(~screenSize="1535")
-
   <PageLoaderWrapper screenState={screenState}>
     <div
       className="absolute z-20 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
@@ -413,19 +411,25 @@ let make = () => {
                   {displayLegend(gateways)->React.array}
                 </div>
               </div>
-              <div className="h-full flex flex-col 2xl:flex-row items-center justify-between gap-1">
-                <PieGraph
-                  options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
-                />
-                <PieGraph
-                  options={PieGraphUtils.getPieChartOptions(pieGraphOptionsSimulated(stats))}
-                />
+              <div className="flex justify-center">
+                <div
+                  className="flex flex-col xl:flex-row items-center justify-around xl:gap-2 tablet:gap-16">
+                  <PieGraph
+                    options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
+                  />
+                  <PieGraph
+                    options={PieGraphUtils.getPieChartOptions(pieGraphOptionsSimulated(stats))}
+                  />
+                </div>
               </div>
             </div>
             <div className="border rounded-lg p-4">
               <LineGraph
                 options={LineGraphUtils.getLineGraphOptions(
-                  lineGraphOptions(stats, ~isSmallScreen),
+                  lineGraphOptions(
+                    stats,
+                    ~isSmallScreen=MatchMedia.useScreenSizeChecker(~screenSize="1279"),
+                  ),
                 )}
               />
             </div>
