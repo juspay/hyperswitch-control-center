@@ -168,9 +168,11 @@ type lineGraphOptions = {
 }
 
 type chartHeight = DefaultHeight | Custom(int)
+type chartLeftSpacing = DefaultLeftSpacing | Custom(int)
 
 type lineGraphPayload = {
   chartHeight: chartHeight,
+  chartLeftSpacing: chartLeftSpacing,
   categories: categories,
   data: data,
   title: title,

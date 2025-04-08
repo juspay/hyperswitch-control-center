@@ -63,6 +63,7 @@ let refundsProcessedMapper = (
 
   {
     chartHeight: DefaultHeight,
+    chartLeftSpacing: DefaultLeftSpacing,
     categories: primaryCategories,
     data: lineGraphData,
     title: {

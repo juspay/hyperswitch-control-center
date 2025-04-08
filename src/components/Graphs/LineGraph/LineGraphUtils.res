@@ -35,6 +35,7 @@ let lineGraphYAxisFormatter = (
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   let {
     chartHeight,
+    chartLeftSpacing,
     categories,
     data,
     title,
@@ -80,8 +81,11 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       | Custom(chartHeight) => chartHeight
       | DefaultHeight => 400
       },
-      spacingLeft: 0,
-      spacingRight: 0,
+      spacingLeft: switch chartLeftSpacing {
+      | Custom(chartLeftSpacing) => chartLeftSpacing
+      | DefaultLeftSpacing => 20
+      },
+      spacingRight: 20,
       style: {
         color: darkGray,
         fontFamily,

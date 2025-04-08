@@ -146,6 +146,7 @@ let lineGraphOptions = (stats: JSON.t, ~isSmallScreen=false): LineGraphTypes.lin
 
   {
     chartHeight: Custom(chartHeight),
+    chartLeftSpacing: Custom(0),
     title: {
       text: "Overall Authorization Rate",
       align: "left",

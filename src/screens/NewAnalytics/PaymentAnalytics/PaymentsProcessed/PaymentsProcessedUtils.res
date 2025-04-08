@@ -62,6 +62,7 @@ let paymentsProcessedMapper = (
 
   {
     chartHeight: DefaultHeight,
+    chartLeftSpacing: DefaultLeftSpacing,
     categories: primaryCategories,
     data: lineGraphData,
     title: {
