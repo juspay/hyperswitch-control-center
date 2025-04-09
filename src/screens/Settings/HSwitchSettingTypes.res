@@ -103,8 +103,9 @@ type validationFields =
   | Website
   | WebhookUrl
   | ReturnUrl
-  | AuthetnticationConnectors(array<JSON.t>)
+  | AuthenticationConnectors(array<JSON.t>)
   | ThreeDsRequestorUrl
+  | ThreeDsRequestorAppUrl
   | UnknownValidateFields(string)
   | MaxAutoRetries
 
