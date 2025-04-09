@@ -5,13 +5,13 @@ let tabkeys: array<tabs> = [Request, Response]
 
 let labelColor = (statusCode): TableUtils.labelColor => {
   switch statusCode {
-  | 200 => LabelDarkGreen
+  | 200 => LabelGreen
   | 400
   | 404
   | 422 =>
     LabelRed
   | 500 => LabelGray
-  | _ => LabelLightGreen
+  | _ => LabelGreen
   }
 }
 

@@ -263,8 +263,7 @@ let make = (~id) => {
           <RenderIf condition={!(selectedEvent.deliveryAttempt->LogicUtils.isEmptyString)}>
             <div className="flex justify-between items-center mx-5 mt-5">
               <TableUtils.LabelCell
-                labelColor=LabelDarkGreen
-                text={selectedEvent.deliveryAttempt->LogicUtils.snakeToTitle}
+                labelColor=LabelGreen text={selectedEvent.deliveryAttempt->LogicUtils.snakeToTitle}
               />
               <Button
                 text="Retry Webhook" onClick={_ => retryWebhook()->ignore} buttonSize=XSmall

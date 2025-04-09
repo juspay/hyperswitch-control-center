@@ -43,7 +43,7 @@ let getCell = (webhook: webhookObject, colType): Table.cell => {
   | EventType =>
     Label({
       title: webhook.eventType->String.toUpperCase,
-      color: LabelLightBlue,
+      color: LabelBlue,
     })
   | MerchantId => Text(webhook.merchantId)
   | ProfileId => Text(webhook.profileId)
