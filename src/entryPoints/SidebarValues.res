@@ -213,7 +213,7 @@ let fraudAndRisk = (~userHasResourceAccess) => {
 
 let threeDsConnector = (~userHasResourceAccess) => {
   SubLevelLink({
-    name: "3DS Authenticator",
+    name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: [

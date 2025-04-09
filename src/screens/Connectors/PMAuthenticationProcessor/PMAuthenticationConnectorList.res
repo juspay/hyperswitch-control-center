@@ -51,7 +51,7 @@ let make = () => {
 
   <div>
     <PageUtils.PageHeading
-      title={"PM Authentication Processors"}
+      title={"PM Authentication Processor"}
       subTitle={"Connect and configure open banking providers to verify customer bank accounts"}
     />
     <PageLoaderWrapper screenState>

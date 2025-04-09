@@ -20,10 +20,10 @@ module ToastHeading = {
     }, (hideToast, toastProps))
 
     let toastColorClasses = switch toastProps.toastType {
-    | ToastError => "bg-white border border-l-4 border-l-red-status rounded shadow-sm"
-    | ToastWarning => "bg-white border border-l-4 border-l-orange-500 rounded shadow-sm"
-    | ToastInfo => "bg-white border border-l-4 border-l-blue-600 rounded shadow-sm"
-    | ToastSuccess => "bg-white border border border-l-4 border-l-green-status rounded shadow-sm"
+    | ToastError => "bg-white border border-l-4 border-l-red-status rounded-lg shadow-sm"
+    | ToastWarning => "bg-white border border-l-4 border-l-orange-500 rounded-lg shadow-sm"
+    | ToastInfo => "bg-white border border-l-4 border-l-blue-600 rounded-lg shadow-sm"
+    | ToastSuccess => "bg-white border border border-l-4 border-l-green-status rounded-lg shadow-sm"
     }
 
     let toastIconName = switch toastProps.toastType {
@@ -79,7 +79,7 @@ module Toast = {
     let stopPropagation = React.useCallback(ev => {
       ev->convertToWebapiEvent->Webapi.Dom.Event.stopPropagation
     }, [])
-    <div className="m-2 shadow-lg pointer-events-auto z-50" onClick=stopPropagation>
+    <div className="m-2 shadow-lg rounded-lg pointer-events-auto z-50" onClick=stopPropagation>
       <ToastHeading toastProps hideToast toastDuration />
     </div>
   }
@@ -104,7 +104,7 @@ let make = (~children) => {
     {children}
     <div>
       <div
-        className="fixed top-4 left-1/2 transform -translate-x-1/2 rounded flex flex-col gap-2 pointer-events-none max-w-md z-50">
+        className="fixed top-4 left-1/2 transform -translate-x-1/2 flex flex-col gap-2 pointer-events-none max-w-md z-50">
         {openToasts
         ->Array.map(toastProps => {
           if toastProps.toastElement != React.null {

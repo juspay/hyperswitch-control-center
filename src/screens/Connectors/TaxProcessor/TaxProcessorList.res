@@ -51,7 +51,7 @@ let make = () => {
 
   <div>
     <PageUtils.PageHeading
-      title={"Tax Processors"} subTitle={"Connect and configure Tax Processor"}
+      title={"Tax Processor"} subTitle={"Connect and configure Tax Processor"}
     />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">
