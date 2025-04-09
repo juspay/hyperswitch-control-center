@@ -214,10 +214,25 @@ module ConnectorCustomCell = {
 
 module BusinessProfileComponent = {
   @react.component
-  let make = (~profile_id: string, ~className="") => {
+  let make = (~profile_id: string, ~className="", ~getFromProfilelist=false) => {
+    let {name} =
+      HyperswitchAtom.profileListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->Array.find(profile => profile.id == profile_id)
+      ->Option.getOr({
+        id: "",
+        name: "",
+      })
     let {profile_name} = BusinessProfileHook.useGetBusinessProflile(profile_id)
+
     <div className>
-      {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
+      {(
+        getFromProfilelist
+          ? name
+          : profile_name->LogicUtils.isNonEmptyString
+          ? getFromProfilelist ? name : profile_name
+          : "NA"
+      )->React.string}
     </div>
   }
 }
