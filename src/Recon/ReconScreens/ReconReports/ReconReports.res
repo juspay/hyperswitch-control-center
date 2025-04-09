@@ -132,7 +132,7 @@ let make = () => {
       </div>
       // <ReconHelper.GetProductionAccess />
     </div>
-    <div className="flex flex-col space-y-2 justify-center relative gap-4 mt-16">
+    <div className="flex flex-col space-y-2 justify-center relative gap-4 mt-12">
       <div>
         <div className="flex justify-between items-center">
           <p className="text-2xl font-semibold text-nd_gray-700">
