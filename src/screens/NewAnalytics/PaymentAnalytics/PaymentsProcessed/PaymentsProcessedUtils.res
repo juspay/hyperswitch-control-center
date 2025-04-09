@@ -45,9 +45,6 @@ let paymentsProcessedMapper = (
   let secondaryCategories = data->getCategories(1, yKey)
 
   let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric)
-  let title = {
-    text: "Payments Processed",
-  }
 
   open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
@@ -64,16 +61,25 @@ let paymentsProcessedMapper = (
   )
 
   {
+    chartHeight: DefaultHeight,
+    chartLeftSpacing: DefaultLeftSpacing,
     categories: primaryCategories,
     data: lineGraphData,
-    title,
+    title: {
+      text: "",
+    },
     yAxisMaxValue: None,
+    yAxisMinValue: Some(0),
     tooltipFormatter,
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
       ~statType=Default,
       ~currency="",
       ~suffix="",
     ),
+    legend: {
+      useHTML: true,
+      labelFormatter: LineGraphUtils.valueFormatter,
+    },
   }
 }
 
