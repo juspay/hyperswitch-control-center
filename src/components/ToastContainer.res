@@ -20,10 +20,10 @@ module ToastHeading = {
     }, (hideToast, toastProps))
 
     let toastColorClasses = switch toastProps.toastType {
-    | ToastError => "bg-white border border-l-4 border-l-red-status rounded-lg shadow-sm"
-    | ToastWarning => "bg-white border border-l-4 border-l-orange-500 rounded-lg shadow-sm"
-    | ToastInfo => "bg-white border border-l-4 border-l-blue-600 rounded-lg shadow-sm"
-    | ToastSuccess => "bg-white border border border-l-4 border-l-green-status rounded-lg shadow-sm"
+    | ToastError => "border-l-red-status"
+    | ToastWarning => "border-l-orange-500"
+    | ToastInfo => "border-l-blue-600"
+    | ToastSuccess => "border-l-green-status"
     }
 
     let toastIconName = switch toastProps.toastType {
@@ -49,7 +49,8 @@ module ToastHeading = {
       )
     }
 
-    <div className={`${toastColorClasses} p-4 flex items-center justify-between`}>
+    <div
+      className={`${toastColorClasses} rounded-lg shadow-sm bg-white border border-l-4 p-4 flex items-center justify-between`}>
       <div className="flex items-center">
         <Icon className={`${toastIconColorClass} mr-3`} name=toastIconName />
         <AddDataAttributes attributes=[("data-toast", toastProps.message)]>
