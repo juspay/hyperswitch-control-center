@@ -604,7 +604,8 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   | ConnectorLabel => Text(order.connector_label)
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)
-  | ProfileName => Table.CustomCell(<BusinessProfileComponent profile_id={order.profile_id} />, "")
+  | ProfileName =>
+    Table.CustomCell(<HelperComponents.ProfileNameComponent profile_id=order.profile_id />, "")
   | CaptureMethod => Text(order.capture_method)
   | CardNetwork => {
       let dict = switch order.payment_method_data {
