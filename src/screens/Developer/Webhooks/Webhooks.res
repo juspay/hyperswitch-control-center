@@ -22,6 +22,25 @@ let make = () => {
   | None => ""
   }
 
+  let isWebhookUrlConfigured = webhookURL->LogicUtils.isNonEmptyString
+
+  let message = isWebhookUrlConfigured
+    ? "No data found, try searching with different filters or try refreshing using the button below"
+    : "Webhook UI is not configured please do it from payment settings"
+
+  let refreshPage = () => {
+    reset()
+  }
+
+  let customUI =
+    <NoDataFound message renderType=Painting>
+      <RenderIf condition={isWebhookUrlConfigured}>
+        <div className="m-2">
+          <Button text="Refresh" buttonType=Primary onClick={_ => refreshPage()} />
+        </div>
+      </RenderIf>
+    </NoDataFound>
+
   React.useEffect(() => {
     if filterValueJson->Dict.keysToArray->Array.length != 0 {
       setOffset(_ => 0)
@@ -43,6 +62,87 @@ let make = () => {
     ~origin="orders",
     (),
   )
+
+  let setData = (
+    ~offset,
+    ~setOffset,
+    ~total,
+    ~data,
+    ~setTotalCount,
+    ~setWebhooksData,
+    ~setScreenState,
+  ) => {
+    let arr = Array.make(~length=offset, Dict.make())
+    if total <= offset {
+      setOffset(_ => 0)
+    }
+
+    if total > 0 {
+      let webhookDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
+      let webhookData =
+        arr
+        ->Array.concat(webhookDictArr)
+        ->Array.map(itemToObjectMapper)
+
+      let list = webhookData
+      setTotalCount(_ => total)
+      setWebhooksData(_ => list)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } else {
+      setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  }
+
+  let fetchWebhooks = async (
+    ~getURL: APIUtilsTypes.getUrlTypes,
+    ~fetchDetails: (string, ~version: UserInfoTypes.version=?) => promise<JSON.t>,
+    ~filterValueJson,
+    ~offset,
+    ~setOffset,
+    ~searchText,
+    ~setScreenState,
+    ~setWebhooksData,
+    ~setTotalCount,
+  ) => {
+    open LogicUtils
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    try {
+      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+      let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
+      let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
+
+      let queryParamerters = `limit=50&offset=${offset->Int.toString}&created_after=${start_time}&created_before=${end_time}`
+
+      let queryParam = searchText->isEmptyString ? queryParamerters : `&object_id=${searchText}`
+
+      let url = getURL(
+        ~entityName=V1(WEBHOOK_EVENTS),
+        ~methodType=Get,
+        ~queryParamerters=Some(queryParam),
+      )
+      let response = await fetchDetails(url)
+
+      let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
+      let events = response->getDictFromJsonObject->getArrayFromDict("events", [])
+
+      if !isWebhookUrlConfigured || events->Array.length <= 0 {
+        setScreenState(_ => Custom)
+      } else {
+        setData(
+          ~offset,
+          ~setOffset,
+          ~total=totalCount,
+          ~data=events,
+          ~setTotalCount,
+          ~setWebhooksData,
+          ~setScreenState,
+        )
+        setScreenState(_ => Success)
+      }
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
 
   React.useEffect(() => {
     fetchWebhooks(
@@ -83,26 +183,6 @@ let make = () => {
       clearFilters={() => reset()}
     />
   }, [])
-
-  let refreshPage = () => {
-    reset()
-    Window.Location.reload()
-  }
-
-  let isWebhookUrlConfigured = webhookURL !== ""
-
-  let message = isWebhookUrlConfigured
-    ? "No data found, try searching with different filters or try refreshing using the button below"
-    : "Webhook UI is not configured please do it from payment settings"
-
-  let customUI =
-    <NoDataFound message renderType=Painting>
-      <RenderIf condition={isWebhookUrlConfigured}>
-        <div className="m-2">
-          <Button text="Refresh" buttonType=Primary onClick={_ => refreshPage()} />
-        </div>
-      </RenderIf>
-    </NoDataFound>
 
   <>
     <PageUtils.PageHeading title="Webhooks" subTitle="" />

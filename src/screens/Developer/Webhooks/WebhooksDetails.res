@@ -13,14 +13,11 @@ module TabDetails = {
     let statusCode = selectedEvent.response.statusCode
     let errorMessage = selectedEvent.response.errorMessage
 
-    let showErrorMsg = switch errorMessage {
-    | Some(_) => true
-    | None => false
-    }
+    let noResponse = statusCode === 404
 
     let headerKeyValUI = header => {
       let item = index => {
-        let val = header->Array.get(index)->Option.getOr("")
+        let val = header->getValueFromArray(index, "")
         if val->String.length > 30 {
           <HelperComponents.EllipsisText displayValue=val endValue=20 expandText=false />
         } else {
@@ -37,7 +34,7 @@ module TabDetails = {
     }
 
     let headersValues = headers => {
-      let headersArray = headers->JSON.Decode.array->Option.getOr([])
+      let headersArray = headers->getArrayFromJson([])
 
       let headerDataItem = headersArray->Array.map(header => {
         header
@@ -81,35 +78,30 @@ module TabDetails = {
           <div className="m-3 p-3 border border-grey-300 rounded-md max-w-[40rem]">
             {headersValues(responseHeaders)}
           </div>
-          <RenderIf condition={showErrorMsg}>
+          <RenderIf condition={errorMessage->Option.isSome}>
             <div className="flex gap-2">
               <div> {"Error Message:"->React.string} </div>
-              <div>
-                {switch errorMessage {
-                | Some(err) => err->React.string
-                | None => ""->React.string
-                }}
-              </div>
+              <div> {errorMessage->Option.getOr("")->React.string} </div>
             </div>
           </RenderIf>
           <div className="flex justify-between mr-2">
             <div className="mt-2"> {"Body"->React.string} </div>
-            <RenderIf condition={!(responseBody->String.includes("404"))}>
+            <RenderIf condition={!noResponse}>
               <HelperComponents.CopyTextCustomComp
                 displayValue=" " copyValue={Some(responseBody)} customTextCss="text-nowrap"
               />
             </RenderIf>
           </div>
-          <RenderIf condition={responseBody->isNonEmptyString}>
-            <RenderIf condition={responseBody->String.includes("404")}>
-              <div className="text-center"> {"No Response"->React.string} </div>
-            </RenderIf>
-            <RenderIf condition={!(responseBody->String.includes("404"))}>
-              <PrettyPrintJson jsonToDisplay=responseBody />
-            </RenderIf>
-          </RenderIf>
           <RenderIf condition={responseBody->isEmptyString}>
             <div> {"No Response"->React.string} </div>
+          </RenderIf>
+          <RenderIf condition={responseBody->isNonEmptyString}>
+            <RenderIf condition={noResponse}>
+              <div className="text-center"> {"No Response"->React.string} </div>
+            </RenderIf>
+            <RenderIf condition={!noResponse}>
+              <PrettyPrintJson jsonToDisplay=responseBody />
+            </RenderIf>
           </RenderIf>
         </div>
       }}
@@ -128,16 +120,26 @@ let make = (~id) => {
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => JSON.Encode.null)
-  let (retryData, setRetryData) = React.useState(_ => JSON.Encode.null)
   let (offset, setOffset) = React.useState(_ => 0)
   let (selectedEvent, setSelectedEvent) = React.useState(_ =>
     Dict.make()->itemToObjectMapperAttempts
   )
+
   let fetchWebhooksEventDetails = async () => {
     try {
       setScreenState(_ => Loading)
       let url = getURL(~entityName=V1(WEBHOOK_EVENTS_ATTEMPTS), ~methodType=Get, ~id=Some(id))
       let response = await fetchDetails(url)
+      let item =
+        response
+        ->getArrayDataFromJson(itemToObjectMapperAttempts)
+        ->Array.find(field => {
+          field.eventId == id
+        })
+      switch item {
+      | Some(item) => setSelectedEvent(_ => item)
+      | None => ()
+      }
       setData(_ => response)
       setScreenState(_ => Success)
     } catch {
@@ -147,9 +149,9 @@ let make = (~id) => {
           let errorCode = message->safeParse->getDictFromJsonObject->getString("code", "")
           let errorMessage = message->safeParse->getDictFromJsonObject->getString("message", "")
 
-          if errorCode == "HE_02" {
-            showToast(~message=errorMessage, ~toastType=ToastError)
-          } else {
+          switch errorCode->CommonAuthUtils.errorSubCodeMapper {
+          | HE_02 => showToast(~message=errorMessage, ~toastType=ToastError)
+          | _ =>
             showToast(~message="Failed to fetch data", ~toastType=ToastError)
             setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch data"))
           }
@@ -169,8 +171,8 @@ let make = (~id) => {
         ~methodType=Post,
         ~id=Some(selectedEvent.eventId),
       )
-      let response = await updateDetails(url, Dict.make()->JSON.Encode.object, Post)
-      setRetryData(_ => response)
+      let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Post)
+      fetchWebhooksEventDetails()->ignore
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to retry webhook", ~toastType=ToastError)
     }
@@ -190,21 +192,7 @@ let make = (~id) => {
   React.useEffect(() => {
     fetchWebhooksEventDetails()->ignore
     None
-  }, [retryData])
-
-  React.useEffect(() => {
-    let item =
-      data
-      ->getArrayDataFromJson(itemToObjectMapperAttempts)
-      ->Array.find(field => {
-        field.eventId == id
-      })
-    switch item {
-    | Some(item) => setSelectedEvent(_ => item)
-    | None => ()
-    }
-    None
-  }, (id, data))
+  }, [])
 
   let attemptTableArr = data->getArrayDataFromJson(itemToObjectMapperAttemptsTable)
 
@@ -237,17 +225,15 @@ let make = (~id) => {
   ]
 
   let details =
-    <div className="flex flex-col">
-      <Tabs
-        tabs=tabList
-        showBorder=false
-        includeMargin=false
-        lightThemeColor="black"
-        defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-        textStyle="text-blue-600"
-        selectTabBottomBorderColor="bg-blue-600"
-      />
-    </div>
+    <Tabs
+      tabs=tabList
+      showBorder=false
+      includeMargin=false
+      lightThemeColor="black"
+      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+      textStyle="text-blue-600"
+      selectTabBottomBorderColor="bg-blue-600"
+    />
 
   <div className="flex flex-col gap-4">
     <PageUtils.PageHeading title="Webhooks" subTitle="" />

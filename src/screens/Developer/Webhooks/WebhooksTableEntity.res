@@ -40,15 +40,12 @@ let getCell = (webhook: webhookObject, colType): Table.cell => {
   switch colType {
   | EventId => DisplayCopyCell(webhook.eventId)
   | EventClass => Text(webhook.eventClass)
-  | EventType =>
-    Label({
-      title: webhook.eventType->String.toUpperCase,
-      color: LabelBlue,
-    })
+  | EventType => Text(webhook.eventType)
   | MerchantId => Text(webhook.merchantId)
   | ProfileId => Text(webhook.profileId)
   | ObjectId => DisplayCopyCell(webhook.objectId)
-  | IsDeliverySuccessful => Text(webhook.isDeliverySuccessful ? "True" : "False")
+  | IsDeliverySuccessful =>
+    Text(webhook.isDeliverySuccessful->LogicUtils.getStringFromBool->LogicUtils.capitalizeString)
   | InitialAttemptId => DisplayCopyCell(webhook.initialAttemptId)
   | Created => Date(webhook.created)
   }

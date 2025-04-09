@@ -20,7 +20,8 @@ let getHeading = colType => {
 
 let getCell = (webhook: attemptTable, colType): Table.cell => {
   switch colType {
-  | IsDeliverySuccessful => Text(webhook.isDeliverySuccessful ? "True" : "False")
+  | IsDeliverySuccessful =>
+    Text(webhook.isDeliverySuccessful->LogicUtils.getStringFromBool->LogicUtils.capitalizeString)
   | DeliveryAttempt => Text(webhook.deliveryAttempt)
   | EventId => DisplayCopyCell(webhook.eventId)
   | Created => Date(webhook.created)
