@@ -57,12 +57,15 @@ let make = () => {
     | _ => ()
     }
   }
-
+  // set the product url based on the product type
   let setupProductUrl = (~productType: ProductTypes.productTypes) => {
-    let currentUrl = GlobalVars.extractModulePath(url, ~end=url.path->List.toArray->Array.length)
+    let currentUrl = GlobalVars.extractModulePath(
+      ~path=url.path,
+      ~query=url.search,
+      ~end=url.path->List.toArray->Array.length,
+    )
     let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
     RescriptReactRouter.replace(productUrl)
-    setActiveProductValue(productType)
     switch url.path->urlPath {
     | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
     | _ => ()
@@ -75,10 +78,12 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
-      let _ = await fetchMerchantAccountDetails(~version)
+      let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
+      setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
+      setupProductUrl(~productType=merchantResponse.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -108,13 +113,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, userGroupACL)
-
-  React.useEffect(() => {
-    // set the product url
-    setupProductUrl(~productType=merchantDetailsTypedValue.product_type)
-    None
-  }, [merchantDetailsTypedValue.product_type])
+  }, [userGroupACL])
 
   <>
     <div>
@@ -358,18 +357,18 @@ let make = () => {
                     </div>
                   </div>
                 </div>
+                <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
+                  <HSwitchFeedBackModal
+                    modalHeading="We'd love to hear from you!"
+                    showModal={showFeedbackModal}
+                    setShowModal={setShowFeedbackModal}
+                  />
+                </RenderIf>
+                <RenderIf condition={!featureFlagDetails.isLiveMode}>
+                  <ProdIntentForm />
+                </RenderIf>
               </PageLoaderWrapper>
             </div>
-            <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
-              <HSwitchFeedBackModal
-                modalHeading="We'd love to hear from you!"
-                showModal={showFeedbackModal}
-                setShowModal={setShowFeedbackModal}
-              />
-            </RenderIf>
-            <RenderIf condition={!featureFlagDetails.isLiveMode}>
-              <ProdIntentForm />
-            </RenderIf>
           </div>
         </div>
       | #DEFAULT =>

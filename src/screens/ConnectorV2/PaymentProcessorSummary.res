@@ -1,6 +1,6 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs
 @react.component
-let make = (~baseUrl, ~showProcessorStatus=true) => {
+let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
   open ConnectorUtils
   open LogicUtils
   open APIUtils
@@ -13,6 +13,10 @@ let make = (~baseUrl, ~showProcessorStatus=true) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+    ~version=V2,
+  )
 
   let url = RescriptReactRouter.useUrl()
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
@@ -132,6 +136,7 @@ let make = (~baseUrl, ~showProcessorStatus=true) => {
         }
       }
       let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
+      let _ = await fetchConnectorListResponse()
       setCurrentActiveSection(_ => None)
       setInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)
@@ -159,6 +164,11 @@ let make = (~baseUrl, ~showProcessorStatus=true) => {
       errors->JSON.Encode.object,
     )
   }
+  let ignoreKeys =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->Dict.keysToArray
+    ->Array.filter(val => !Array.includes(["credit", "debit"], val))
 
   <PageLoaderWrapper screenState>
     <BreadCrumbNavigation
@@ -175,7 +185,7 @@ let make = (~baseUrl, ~showProcessorStatus=true) => {
       titleTextClass="text-ng_gray-600 font-medium"
     />
     <Form onSubmit initialValues validate=validateMandatoryField>
-      <div className="flex flex-col gap-10 p-6">
+      <div className={`flex flex-col gap-10 ${topPadding} `}>
         <div>
           <div className="flex flex-row gap-4 items-center">
             <GatewayIcon
@@ -318,7 +328,9 @@ let make = (~baseUrl, ~showProcessorStatus=true) => {
               }}
             </div>
           </div>
-          <ConnectorPaymentMethodV2 initialValues isInEditState={checkCurrentEditState(PMTs)} />
+          <ConnectorPaymentMethodV2
+            initialValues isInEditState={checkCurrentEditState(PMTs)} ignoreKeys
+          />
         </div>
       </div>
       <FormValuesSpy />

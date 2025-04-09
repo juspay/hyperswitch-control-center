@@ -75,15 +75,10 @@ let getCell = (~transactionsData: transactionObj, colType): Table.cell => {
   | CardNetwork => Text(transactionsData.card_network)
   | TxnAmount => Text(transactionsData.amount->Float.toString)
   | Status =>
-    transactionsData.payment_status
-      ? Label({
-          title: "Success"->String.toUpperCase,
-          color: LabelGreen,
-        })
-      : Label({
-          title: "Failed"->String.toUpperCase,
-          color: LabelRed,
-        })
+    Label({
+      title: transactionsData.payment_status ? "Success" : "Failed",
+      color: transactionsData.payment_status ? LabelGreen : LabelRed,
+    })
   | ActualGateway => Text(transactionsData.payment_gateway)
   | SuggestedGateway => Text(transactionsData.model_connector)
   | SuccessRateUplift => CustomCell(<UpliftCell uplift=transactionsData.suggested_uplift />, "")

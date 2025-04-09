@@ -1,10 +1,10 @@
 open LineGraphTypes
 
 // colors
-let darkGray = "#666666"
+let darkGray = "#525866"
 let lightGray = "#999999"
 let gridLineColor = "#e6e6e6"
-let fontFamily = "Arial, sans-serif"
+let fontFamily = "InterDisplay"
 
 let valueFormatter = (
   @this
@@ -46,6 +46,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       style: {
         color: darkGray,
         fontFamily, // Set the desired font family
+        fontSize: "12px", // Set the font size
       },
     },
     gridLineWidth: 1,
@@ -67,8 +68,8 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     chart: {
       \"type": "line",
       height: 300,
-      spacingLeft: 20,
-      spacingRight: 20,
+      spacingLeft: 0,
+      spacingRight: 0,
       style: {
         color: darkGray,
         fontFamily,
@@ -96,6 +97,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       startOnTick: false,
     },
     tooltip: {
+      enabled: true,
       style: {
         padding: "0px",
         fontFamily, // Set the desired font family
@@ -128,16 +130,26 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
         fontFamily,
         fontSize: "12px",
         color: darkGray,
+        fontWeight: "400",
       },
       align: "right",
       verticalAlign: "top",
-      x: 0,
-      y: 0,
+      floating: true,
+      x: -20,
+      y: -10,
     },
     plotOptions: {
       line: {
         marker: {
           enabled: false,
+        },
+      },
+      series: {
+        states: {
+          inactive: {
+            enabled: false,
+            opacity: 0.2,
+          },
         },
       },
     },

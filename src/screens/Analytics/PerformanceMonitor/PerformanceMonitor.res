@@ -68,6 +68,9 @@ let make = (~domain="payments") => {
     setInitialFilters()
     None
   }, [])
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="performance_monitor_date_filter_opened")
+  }
   React.useEffect(() => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       mixpanelEvent(~eventName="performance_monitor_date_filter")
@@ -81,7 +84,10 @@ let make = (~domain="payments") => {
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(Dict.make()->JSON.Encode.object)}
+        initialFixedFilters={initialFixedFilterFields(
+          Dict.make()->JSON.Encode.object,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=defaultFilters
         tabNames=[]
         key="1"

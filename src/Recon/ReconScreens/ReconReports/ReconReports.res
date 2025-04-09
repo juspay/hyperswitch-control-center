@@ -4,33 +4,16 @@ let make = () => {
   open OMPSwitchTypes
   open ReconOnboardingUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (configuredReports, setConfiguredReports) = React.useState(_ => [])
-  let (filteredReportsData, setFilteredReports) = React.useState(_ => [])
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let (selectedReconId, setSelectedReconId) = React.useState(_ => "Recon_235")
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
+  let fetchApi = AuthHooks.useApiFetcher()
   let (reconList, _) = React.useState(_ => [{id: "Recon_235", name: "Recon_235"}])
-
   let (reconArrow, setReconArrow) = React.useState(_ => false)
   let getTabName = index => index == 0 ? "All" : "Exceptions"
-
-  let getReportsList = async _ => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = ReportsData.reportsResponse
-      let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
-      let reportsList = data->ReconReportUtils.getArrayOfReportsListPayloadType
-      setConfiguredReports(_ => reportsList)
-      setFilteredReports(_ => reportsList->Array.map(Nullable.make))
-      setScreenState(_ => Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
-  }
 
   React.useEffect(() => {
     switch url.search->ReconReportUtils.getTabFromUrl {
@@ -44,7 +27,6 @@ let make = () => {
       }
     }
     setScreenState(_ => PageLoaderWrapper.Success)
-    getReportsList()->ignore
     None
   }, [url.search])
 
@@ -59,7 +41,21 @@ let make = () => {
 
   let downloadReport = async () => {
     try {
-      let arr = configuredReports->Array.map((obj: ReportsTypes.allReportPayload) => {
+      let url = `${GlobalVars.getHostUrl}/test-data/recon/reconAllReports.json`
+      let allReportsResponse = await fetchApi(
+        `${url}`,
+        ~method_=Get,
+        ~xFeatureRoute=false,
+        ~forceCookies=false,
+      )
+      let response = await allReportsResponse->(res => res->Fetch.Response.json)
+      let reportsList =
+        response
+        ->getDictFromJsonObject
+        ->getArrayFromDict("data", [])
+        ->ReconReportUtils.getArrayOfReportsListPayloadType
+
+      let arr = reportsList->Array.map((obj: ReportsTypes.allReportPayload) => {
         let row = [
           obj.order_id,
           obj.transaction_id,
@@ -90,8 +86,7 @@ let make = () => {
     [
       {
         title: "All",
-        renderContent: () =>
-          <ReconReportsList configuredReports filteredReportsData setFilteredReports />,
+        renderContent: () => <ReconReportsList />,
         onTabSelection: () => {
           RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/reports"))
         },
@@ -106,7 +101,7 @@ let make = () => {
         },
       },
     ]
-  }, (configuredReports, filteredReportsData))
+  }, [])
 
   let reconInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
@@ -135,9 +130,9 @@ let make = () => {
           {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
         </p>
       </div>
-      <ReconHelper.GetProductionAccess />
+      // <ReconHelper.GetProductionAccess />
     </div>
-    <div className="flex flex-col space-y-2 justify-center relative gap-4 mt-16">
+    <div className="flex flex-col space-y-2 justify-center relative gap-4 mt-12">
       <div>
         <div className="flex justify-between items-center">
           <p className="text-2xl font-semibold text-nd_gray-700">

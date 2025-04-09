@@ -229,20 +229,78 @@ Cypress.Commands.add("login_UI", (name = "", pass = "") => {
   cy.get("[data-testid=skip-now]").click({ force: true });
 });
 
-Cypress.Commands.add("deleteConnector", (mca_id) => {
-  let token = window.localStorage.getItem("login");
-  let { merchant_id = "" } = JSON.parse(
-    window.localStorage.getItem("merchant"),
-  );
-  cy.request({
-    method: "DELETE",
-    url: `http://localhost:9000/api/account/${merchant_id}/connectors/${mca_id}`,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
+Cypress.Commands.add("createAPIKey", (merchant_id) => {
+  return cy
+    .request({
+      method: "POST",
+      url: `http://localhost:8080/api_keys/${merchant_id}`,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": "test_admin",
+      },
+      body: {
+        name: "API Key 1",
+        description: null,
+        expiration: "2060-09-23T01:02:03.000Z",
+      },
+    })
+    .then((response) => {
+      const apiKey = response.body.api_key;
+      return apiKey;
+    });
 });
+
+Cypress.Commands.add(
+  "createDummyConnectorAPI",
+  (merchant_id, connector_label) => {
+    cy.createAPIKey(merchant_id).then((apiKey) => {
+      cy.request({
+        method: "POST",
+        url: `http://localhost:8080/account/${merchant_id}/connectors`,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "api-key": apiKey, // Pass the apiKey here
+        },
+        body: {
+          connector_type: "payment_processor",
+          connector_name: "stripe_test",
+          connector_label: `${connector_label}`,
+          connector_account_details: {
+            api_key: "test_key",
+            auth_type: "HeaderKey",
+          },
+          status: "active",
+          test_mode: true,
+          payment_methods_enabled: [
+            {
+              payment_method: "card",
+              payment_method_types: [
+                {
+                  payment_method_type: "debit",
+                  card_networks: ["Mastercard"],
+                  minimum_amount: 0,
+                  maximum_amount: 68607706,
+                  recurring_enabled: true,
+                  installment_payment_enabled: false,
+                },
+                {
+                  payment_method_type: "debit",
+                  card_networks: ["Visa"],
+                  minimum_amount: 0,
+                  maximum_amount: 68607706,
+                  recurring_enabled: true,
+                  installment_payment_enabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      });
+    });
+  },
+);
 
 Cypress.Commands.add("create_connector_UI", () => {
   cy.get("[data-testid=connectors]").click();
@@ -280,6 +338,21 @@ Cypress.Commands.add("create_connector_UI", () => {
   cy.contains("stripe_test_default_label")
     .scrollIntoView()
     .should("be.visible");
+});
+
+Cypress.Commands.add("deleteConnector", (mca_id) => {
+  let token = window.localStorage.getItem("login");
+  let { merchant_id = "" } = JSON.parse(
+    window.localStorage.getItem("merchant"),
+  );
+  cy.request({
+    method: "DELETE",
+    url: `http://localhost:9000/api/account/${merchant_id}/connectors/${mca_id}`,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
 });
 
 Cypress.Commands.add("process_payment_sdk_UI", () => {
