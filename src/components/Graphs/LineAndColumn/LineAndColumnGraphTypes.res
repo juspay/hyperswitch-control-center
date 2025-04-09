@@ -35,6 +35,7 @@ type style = {
   color: color,
   fontFamily?: string,
   fontSize?: string,
+  fontWeight?: string,
 }
 type title = {text: string, style?: style, align?: align, x?: int, y?: int}
 type enabled = {enabled: bool}
@@ -48,7 +49,10 @@ type marker = {
   ...enabled,
 }
 type line = {marker: marker}
-type column = {pointWidth: pointWidth, borderRadius: borderRadius}
+type column = {
+  pointWidth: pointWidth,
+  borderRadius: borderRadius,
+}
 type plotOptions = {line: line, column: column}
 type labels = {
   align: align,
@@ -137,19 +141,20 @@ type legendPoint = {
 external asLegendsFormatter: Js_OO.Callback.arity1<'a> => legendPoint => string = "%identity"
 
 type legend = {
-  itemStyle: itemStyle,
   useHTML: bool,
   labelFormatter: legendPoint => string,
-  symbolPadding: int,
-  symbolWidth: int,
-  symbolHeight: int,
-  symbolRadius: int,
-  align: string,
-  verticalAlign: string,
+  symbolPadding?: int,
+  symbolWidth?: int,
+  symbolHeight?: int,
+  symbolRadius?: int,
+  align?: string,
+  verticalAlign?: string,
+  itemStyle?: itemStyle,
   itemDistance?: int,
   floating?: bool,
   x?: int,
   y?: int,
+  margin?: int,
 }
 
 type lineColumnGraphOptions = {

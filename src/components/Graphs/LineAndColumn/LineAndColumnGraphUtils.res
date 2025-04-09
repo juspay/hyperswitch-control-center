@@ -133,8 +133,6 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
         color: darkGray,
         fontWeight: "400",
       },
-      align: "right",
-      verticalAlign: "top",
     },
     plotOptions: {
       line: {

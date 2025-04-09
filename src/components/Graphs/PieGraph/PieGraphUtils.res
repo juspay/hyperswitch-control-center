@@ -28,8 +28,8 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
   {
     chart: {
       \"type": "pie",
-      height: 250,
-      width: 250,
+      height: 200,
+      width: 200,
       spacing: [0, 0, 0, 0],
       margin: [0, 0, 0, 0],
     },
