@@ -63,15 +63,7 @@ let make = () => {
     (),
   )
 
-  let setData = (
-    ~offset,
-    ~setOffset,
-    ~total,
-    ~data,
-    ~setTotalCount,
-    ~setWebhooksData,
-    ~setScreenState,
-  ) => {
+  let setData = (~total, ~data) => {
     let arr = Array.make(~length=offset, Dict.make())
     if total <= offset {
       setOffset(_ => 0)
@@ -93,17 +85,7 @@ let make = () => {
     }
   }
 
-  let fetchWebhooks = async (
-    ~getURL: APIUtilsTypes.getUrlTypes,
-    ~fetchDetails: (string, ~version: UserInfoTypes.version=?) => promise<JSON.t>,
-    ~filterValueJson,
-    ~offset,
-    ~setOffset,
-    ~searchText,
-    ~setScreenState,
-    ~setWebhooksData,
-    ~setTotalCount,
-  ) => {
+  let fetchWebhooks = async () => {
     open LogicUtils
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -128,15 +110,7 @@ let make = () => {
       if !isWebhookUrlConfigured || events->Array.length <= 0 {
         setScreenState(_ => Custom)
       } else {
-        setData(
-          ~offset,
-          ~setOffset,
-          ~total=totalCount,
-          ~data=events,
-          ~setTotalCount,
-          ~setWebhooksData,
-          ~setScreenState,
-        )
+        setData(~total=totalCount, ~data=events)
         setScreenState(_ => Success)
       }
     } catch {
@@ -145,17 +119,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchWebhooks(
-      ~getURL,
-      ~fetchDetails,
-      ~filterValueJson,
-      ~offset,
-      ~setOffset,
-      ~searchText,
-      ~setScreenState,
-      ~setWebhooksData,
-      ~setTotalCount,
-    )->ignore
+    fetchWebhooks()->ignore
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       setInitialFilters()
     }
