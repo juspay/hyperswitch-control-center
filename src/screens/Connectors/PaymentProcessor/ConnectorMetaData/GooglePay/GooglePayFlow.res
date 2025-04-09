@@ -6,13 +6,10 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   let googlePayFields = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict =
-          Window.getConnectorConfig(connector)
-          ->getDictFromJsonObject
-          ->getDictfromDict("metadata")
-          ->getArrayFromDict("google_pay", [])
-
-        dict
+        Window.getConnectorConfig(connector)
+        ->getDictFromJsonObject
+        ->getDictfromDict("metadata")
+        ->getArrayFromDict("google_pay", [])
       } else {
         []
       }
