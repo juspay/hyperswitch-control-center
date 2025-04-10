@@ -124,7 +124,9 @@ module OrgTile = {
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
-                  customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
+                  customIconCss={`${secondaryTextColor}`}
+                  displayValue=Some("")
+                  copyValue=Some({orgID})
                 />
               </div>}
               toolTipPosition=ToolTip.Right

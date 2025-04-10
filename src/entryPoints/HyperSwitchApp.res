@@ -142,7 +142,10 @@ let make = () => {
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
-                          <GlobalSearchBar />
+                          <RenderIf
+                            condition={merchantDetailsTypedValue.product_type == Orchestration}>
+                            <GlobalSearchBar />
+                          </RenderIf>
                           <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
