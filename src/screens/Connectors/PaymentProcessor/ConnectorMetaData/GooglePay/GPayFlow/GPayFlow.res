@@ -4,6 +4,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   open LogicUtils
   open GPayFlowHelper
   open GPayFlowUtils
+  open AdditionalDetailsSidebarHelper
 
   let (googlePayIntegrationType, setGooglePayIntegrationType) = React.useState(_ =>
     #payment_gateway
@@ -66,6 +67,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       </div>
     </div>}
     sectionHeight="!h-screen">
+    <Heading title="Google Pay" iconName="google_pay" />
     {switch googlePayIntegrationStep {
     | Landing =>
       <Landing
