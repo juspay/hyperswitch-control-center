@@ -13,7 +13,17 @@ Hyperswitch control center is an open source dashboard to easily view, manage an
 
 ## Standard Installation
 
-1. https://github.com/juspay/hyperswitch
+1. You can run Hyperswitch on your system using Docker compose after cloning this repository.
+   ```bash
+   git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
+   cd hyperswitch
+   docker compose up -d
+   ```
+### Accessing the Application
+
+Once the containers are up and running, you can access the application by navigating to http://localhost:9000 in your web browser.
+
+---
 
 ## Standard Process for Local Development
 
@@ -43,53 +53,38 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    npm install
    ```
 
-4. Update the config.toml file
-
-   ```bash
-   api_url = your-backend-url
-   sdk_url = your-sdk-url
-   # To view Mixpanel events on the Mixpanel dashboard, you must add your Mixpanel token; otherwise, you can ignore this requirement.
-   ```
-
-5. Start the ReScript compiler:
+4. Start the ReScript compiler:
 
    ```bash
    npm run re:start
    ```
 
-6. In another terminal window, start the development server:
+5. In another terminal window, start the backend development server:
+
+   ```
+   git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
+   cd hyperswitch
+   docker compose up -d --scale hyperswitch-control-center=0
+   ```
+
+6. Update the config.toml file
+
+   ```bash
+   api_url = your-backend-url #e.g: http://localhost:8080 
+   sdk_url = your-sdk-url  #e.g: http://localhost:9050/HyperLoader.js
+   ```
+
+7. In another terminal window, start the development server:
 
    ```bash
    npm run start
    ```
-8. In another terminal window, start the backend development server:
 
-   ```
-   git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
-   cd hyperswitch
-   docker compose up -d --scale hyperswitch-control-center=0
-   ```
 
-7. Access the application in your browser at http://localhost:9000.
+8. Access the application in your browser at http://localhost:9000.
 
 ---
 
-### Running with Docker
-
-1. `docker run -p 9000:9000  -e default__endpoints__api_url=your-backend-url -e default__endpoints__sdk_url=your-sdk-url juspaydotin/hyperswitch-control-center:latest`
-2. In another terminal window, start the backend development server:
-
-   ```
-   git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
-   cd hyperswitch
-   docker compose up -d --scale hyperswitch-control-center=0
-   ```
-
-### Accessing the Application
-
-Once the containers are up and running, you can access the application by navigating to http://localhost:9000 in your web browser.
-
----
 
 ## Feature Flags
 

@@ -57,7 +57,7 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
     <LoadedTableWithCustomColumns
-      title=" "
+      title="Customers"
       hideTitle=true
       actualData=customersData
       entity={customersEntity}
