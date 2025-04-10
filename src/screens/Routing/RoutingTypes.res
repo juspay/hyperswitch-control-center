@@ -9,8 +9,6 @@ type val = StringArray(array<string>) | String(string) | Int(int)
 type historyColType =
   | Name
   | Type
-  | ProfileId
-  | ProfileName
   | Description
   | Created
   | LastUpdated
