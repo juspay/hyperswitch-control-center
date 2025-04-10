@@ -15,22 +15,12 @@ let make = (~isFromMilestoneCard=false, ~productType: ProductTypes.productTypes)
   let getProdVerifyDetails = async () => {
     open LogicUtils
     try {
-      let url = switch version {
-      | V1 =>
-        getURL(
-          ~entityName=V1(USERS),
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          ~queryParamerters=Some(`keys=ProdIntent`),
-        )
-      | V2 =>
-        getURL(
-          ~entityName=V2(USERS),
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          ~queryParamerters=Some(`keys=ProdIntent`),
-        )
-      }
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~userType=#USER_DATA,
+        ~methodType=Get,
+        ~queryParamerters=Some(`keys=ProdIntent`),
+      )
       let res = await fetchDetails(url)
       let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
       let valueForProdIntent =

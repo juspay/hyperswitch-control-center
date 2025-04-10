@@ -385,8 +385,7 @@ let make = () => {
           {"You are in demo environment and this is sample setup."->React.string}
         </p>
       </div>
-
-      // <GetProductionAccess />
+      <GetProductionAccess />
     </div>
     <div className="mt-10">
       <div className="flex items-center justify-between">

@@ -83,7 +83,6 @@ let getV2Url = (
     | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
 
     | #LIST_PROFILE => `v2/${userUrl}/list/profile`
-    | #USER_DATA => `v2/${userUrl}/data`
     | _ => ""
     }
   }

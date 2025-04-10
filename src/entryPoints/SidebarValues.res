@@ -61,19 +61,13 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
-let productionAccessComponent = (
-  isProductionAccessEnabled,
-  userHasAccess,
-  hasAnyGroupAccess,
-  version,
-) =>
+let productionAccessComponent = (isProductionAccessEnabled, userHasAccess, hasAnyGroupAccess) =>
   isProductionAccessEnabled &&
   // TODO: Remove `MerchantDetailsManage` permission in future
   hasAnyGroupAccess(
     userHasAccess(~groupAccess=MerchantDetailsManage),
     userHasAccess(~groupAccess=AccountManage),
-  ) === CommonAuthTypes.Access &&
-  version === UserInfoTypes.V1
+  ) === CommonAuthTypes.Access
     ? CustomComponent({
         component: <GetProductionAccess />,
       })
@@ -718,11 +712,8 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {isLiveMode, devModularityV2} = featureFlagDetails
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let defaultSidebar = [
-    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess, version),
-  ]
+  let defaultSidebar = [productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess)]
 
   if devModularityV2 {
     defaultSidebar->Array.pushMany([

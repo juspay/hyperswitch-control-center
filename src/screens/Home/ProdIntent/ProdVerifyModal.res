@@ -21,10 +21,7 @@ let make = (
 
   let updateProdDetails = async values => {
     try {
-      let url = switch version {
-      | V1 => getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      | V2 => getURL(~entityName=V2(USERS), ~userType=#USER_DATA, ~methodType=Post)
-      }
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let bodyValues = values->getBody->JSON.Encode.object
       bodyValues
       ->LogicUtils.getDictFromJsonObject
