@@ -1,6 +1,6 @@
-let isEmptyString = str => str->String.trim->String.length == 0
+let isEmptyString = str => str->String.length === 0
 
-let isNonEmptyString = str => str->String.trim->String.length > 0
+let isNonEmptyString = str => str->String.length > 0
 
 let methodStr = (method: Fetch.requestMethod) => {
   switch method {
