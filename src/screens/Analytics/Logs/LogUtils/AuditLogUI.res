@@ -73,7 +73,9 @@ module TabDetails = {
                 selectedOption.optionType !== WEBHOOKS}>
               <div className="flex justify-end">
                 <HelperComponents.CopyTextCustomComp
-                  displayValue=" " copyValue={Some(logDetails.request)} customTextCss="text-nowrap"
+                  displayValue=Some("")
+                  copyValue={Some(logDetails.request)}
+                  customTextCss="text-nowrap"
                 />
               </div>
               <PrettyPrintJson jsonToDisplay=logDetails.request />
@@ -92,7 +94,9 @@ module TabDetails = {
             <RenderIf condition={logDetails.response->isNonEmptyString}>
               <div className="flex justify-end">
                 <HelperComponents.CopyTextCustomComp
-                  displayValue=" " copyValue={Some(logDetails.response)} customTextCss="text-nowrap"
+                  displayValue=Some("")
+                  copyValue={Some(logDetails.response)}
+                  customTextCss="text-nowrap"
                 />
               </div>
               <PrettyPrintJson jsonToDisplay={logDetails.response} />
