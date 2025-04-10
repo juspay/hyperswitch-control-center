@@ -13,6 +13,10 @@ Hyperswitch control center is an open source dashboard to easily view, manage an
 
 ## Standard Installation
 
+1. https://github.com/juspay/hyperswitch
+
+## Standard Process for Local Development
+
 ### Prerequisites
 
 1. Node.js and npm installed on your machine.
@@ -58,6 +62,13 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    ```bash
    npm run start
    ```
+8. In another terminal window, start the backend development server:
+
+   ```
+   git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
+   cd hyperswitch
+   docker compose up -d --scale hyperswitch-control-center=0
+   ```
 
 7. Access the application in your browser at http://localhost:9000.
 
@@ -66,6 +77,13 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 ### Running with Docker
 
 1. `docker run -p 9000:9000  -e default__endpoints__api_url=your-backend-url -e default__endpoints__sdk_url=your-sdk-url juspaydotin/hyperswitch-control-center:latest`
+2. In another terminal window, start the backend development server:
+
+   ```
+   git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
+   cd hyperswitch
+   docker compose up -d --scale hyperswitch-control-center=0
+   ```
 
 ### Accessing the Application
 

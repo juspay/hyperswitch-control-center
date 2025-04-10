@@ -34,7 +34,8 @@ module NoDataFoundComponent = {
     }
 
     <div className="mt-7">
-      <div className="flex bg-nd_gray-50 h-11 gap-72-px border rounded-t-lg overflow-clip ">
+      <div
+        className="flex bg-nd_gray-50 h-11 gap-72-px border rounded-t-lg overflow-x-auto whitespace-nowrap">
         {fieldArray
         ->Array.map(item =>
           <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
