@@ -116,7 +116,7 @@ module TransactionsTable = {
 
     let table = data =>
       <LoadedTable
-        title=" "
+        title="Intelligent Routing Transactions"
         hideTitle=true
         actualData=data
         totalResults=totalCount
@@ -385,8 +385,7 @@ let make = () => {
           {"You are in demo environment and this is sample setup."->React.string}
         </p>
       </div>
-
-      // <GetProductionAccess />
+      <GetProductionAccess />
     </div>
     <div className="mt-10">
       <div className="flex items-center justify-between">

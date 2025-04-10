@@ -101,7 +101,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
       CustomCell(
         <HelperComponents.CopyTextCustomComp
           customTextCss="w-36 truncate whitespace-nowrap"
-          displayValue=connector.merchant_connector_id
+          displayValue=Some(connector.merchant_connector_id)
         />,
         "",
       )

@@ -105,7 +105,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | Id =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=order.id
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(order.id)
       />,
       "",
     )

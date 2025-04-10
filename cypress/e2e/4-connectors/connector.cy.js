@@ -1,5 +1,5 @@
 describe("connector", () => {
-  const password = "Cypress98#";
+  const password = Cypress.env("CYPRESS_PASSWORD");
   const username = `cypress${Math.round(+new Date() / 1000)}@gmail.com`;
 
   const getIframeBody = () => {
