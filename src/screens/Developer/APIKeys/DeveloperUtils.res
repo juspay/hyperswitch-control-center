@@ -235,7 +235,7 @@ module SuccessUI = {
           </div>
           <div className="bg-gray-100 p-3 m-2">
             <HelperComponents.CopyTextCustomComp
-              displayValue={apiKey}
+              displayValue={Some(apiKey)}
               copyValue={Some(apiKey)}
               customTextCss="break-all text-sm font-semibold text-jp-gray-800 text-opacity-75"
               customParentClass="flex items-center gap-5"
