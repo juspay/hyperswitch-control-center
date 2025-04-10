@@ -20,7 +20,7 @@ module TableModule = {
     <div className>
       <LoadedTable
         visibleColumns
-        title=" "
+        title="Failed Refunds Distribution"
         hideTitle=true
         actualData={tableData}
         entity=failedRefundsDistributionTableEntity

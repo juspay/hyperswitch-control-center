@@ -116,7 +116,7 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
       modalClass="w-full max-w-xl mx-auto md:mt-44 ">
       <LoadedTable
         visibleColumns
-        title=" "
+        title="Analytics Error Reasons"
         hideTitle=true
         actualData={tableData}
         entity=tableEntity
