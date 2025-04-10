@@ -71,7 +71,7 @@ module SelectMerchantBody = {
       ]->getJsonFromArrayOfJson
 
     let merchantName = FormRenderer.makeFieldInfo(
-      ~label="Merchant to switch",
+      ~label="Merchant ID",
       ~name="merchant_selected",
       ~customInput=InputFields.selectInput(
         ~options=dropDownOptions,
@@ -110,11 +110,12 @@ module SelectMerchantBody = {
     }
 
     <div>
-      <div className="pt-3 m-3 flex justify-between">
+      <div className="pt-2 mx-4 my-2  flex justify-between">
         <CardUtils.CardHeader
-          heading="Merchant Selection"
+          heading={`Merchant Selection for ${selectedProduct->ProductUtils.getProductDisplayName}`}
           subHeading=""
-          customSubHeadingStyle="w-full !max-w-none pr-10"
+          customHeadingStyle="!text-lg font-semibold"
+          customSubHeadingStyle="w-full !max-w-none "
         />
         <div
           className="h-fit"
@@ -130,13 +131,16 @@ module SelectMerchantBody = {
             )
             RescriptReactRouter.replace(productUrl)
           }}>
-          <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
+          <Icon name="modal-close-icon" className="cursor-pointer text-gray-500" size=30 />
         </div>
       </div>
       <hr />
       <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>
         <div className="flex flex-col h-full w-full">
-          <div className="py-10">
+          <span className="text-sm text-gray-400 font-medium mx-4 mt-4">
+            {"Select the appropriate Merchant from the list of ID's created for this module."->React.string}
+          </span>
+          <div className="py-4">
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer
                 fieldWrapperClass="w-full"
@@ -147,9 +151,10 @@ module SelectMerchantBody = {
               />
             </FormRenderer.DesktopRow>
           </div>
-          <hr className="mt-4" />
           <div className="flex justify-end w-full p-3">
-            <FormRenderer.SubmitButton text="Switch to merchant" buttonSize=Small />
+            <FormRenderer.SubmitButton
+              text="Select Merchant" buttonSize=Small customSumbitButtonStyle="w-full mb-2"
+            />
           </div>
         </div>
       </Form>
@@ -315,7 +320,7 @@ module ProductExistModal = {
       setShowModal
       childClass="p-0"
       borderBottom=true
-      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+      modalClass="w-full !max-w-lg mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
       <ModalBody setShowModal action selectedProduct />
     </Modal>
   }

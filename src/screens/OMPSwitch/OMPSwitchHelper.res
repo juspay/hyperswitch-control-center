@@ -350,7 +350,9 @@ module MerchantDropdownItem = {
             customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
-                customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({currentId})
+                customIconCss={`${secondaryTextColor}`}
+                displayValue=Some("")
+                copyValue=Some({currentId})
               />
             </div>}
             toolTipPosition=ToolTip.Right
@@ -495,7 +497,7 @@ module ProfileDropdownItem = {
             customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
-                displayValue=" " copyValue=Some(currentId) customIconCss="text-nd_gray-600"
+                displayValue=Some("") copyValue=Some(currentId) customIconCss="text-nd_gray-600"
               />
             </div>}
             toolTipPosition=ToolTip.Right
@@ -531,7 +533,7 @@ let generateDropdownOptions: (
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp
-              displayValue=" " copyValue=Some({item.id}) customIconCss
+              displayValue=Some("") copyValue=Some({item.id}) customIconCss
             />
           </div>}
           toolTipPosition=ToolTip.TopRight
@@ -557,7 +559,7 @@ let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCus
           description={item.id}
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
-            <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+            <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
           </div>}
           toolTipPosition=ToolTip.TopRight
         />,
