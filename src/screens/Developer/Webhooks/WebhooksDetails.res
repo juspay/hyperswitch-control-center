@@ -56,7 +56,7 @@ module TabDetails = {
           <div className="flex justify-between">
             <div className=" mt-2"> {"Body"->React.string} </div>
             <HelperComponents.CopyTextCustomComp
-              displayValue=" " copyValue={Some(requestBody)} customTextCss="text-nowrap"
+              displayValue=Some("") copyValue={Some(requestBody)} customTextCss="text-nowrap"
             />
           </div>
           <RenderIf condition={requestBody->isNonEmptyString}>
@@ -88,7 +88,7 @@ module TabDetails = {
             <div className="mt-2"> {"Body"->React.string} </div>
             <RenderIf condition={!noResponse}>
               <HelperComponents.CopyTextCustomComp
-                displayValue=" " copyValue={Some(responseBody)} customTextCss="text-nowrap"
+                displayValue=Some("") copyValue={Some(responseBody)} customTextCss="text-nowrap"
               />
             </RenderIf>
           </div>
