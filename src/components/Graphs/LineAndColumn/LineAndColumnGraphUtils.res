@@ -16,7 +16,16 @@ let labelFormatter = (
 )->asLegendsFormatter
 
 let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload) => {
-  let {categories, data, tooltipFormatter, yAxisFormatter, titleObj} = lineColumnGraphOptions
+  let {
+    categories,
+    data,
+    tooltipFormatter,
+    yAxisFormatter,
+    titleObj,
+    minValY2,
+    maxValY2,
+    legend,
+  } = lineColumnGraphOptions
 
   let stepInterval = Js.Math.max_int(
     Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 10.0),
@@ -39,8 +48,8 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
         x: 5,
         formatter: yAxisFormatter,
       },
-      min: 0,
-      max: Some(100),
+      min: minValY2,
+      max: Some(maxValY2),
     },
     {
       title: titleObj.yAxisTitle,
@@ -111,6 +120,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
     },
     yAxis,
     legend: {
+      ...legend,
       useHTML: true,
       labelFormatter,
       symbolPadding: -7,
@@ -123,12 +133,6 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
         color: darkGray,
         fontWeight: "400",
       },
-      align: "right",
-      verticalAlign: "top",
-      floating: true,
-      itemDistance: 30,
-      x: -80,
-      y: -8,
     },
     plotOptions: {
       line: {

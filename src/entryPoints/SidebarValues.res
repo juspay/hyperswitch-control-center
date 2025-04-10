@@ -61,13 +61,19 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
-let productionAccessComponent = (isProductionAccessEnabled, userHasAccess, hasAnyGroupAccess) =>
+let productionAccessComponent = (
+  isProductionAccessEnabled,
+  userHasAccess,
+  hasAnyGroupAccess,
+  version,
+) =>
   isProductionAccessEnabled &&
   // TODO: Remove `MerchantDetailsManage` permission in future
   hasAnyGroupAccess(
     userHasAccess(~groupAccess=MerchantDetailsManage),
     userHasAccess(~groupAccess=AccountManage),
-  ) === CommonAuthTypes.Access
+  ) === CommonAuthTypes.Access &&
+  version === UserInfoTypes.V1
     ? CustomComponent({
         component: <GetProductionAccess />,
       })
@@ -207,7 +213,7 @@ let fraudAndRisk = (~userHasResourceAccess) => {
 
 let threeDsConnector = (~userHasResourceAccess) => {
   SubLevelLink({
-    name: "3DS Authenticator",
+    name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: [
@@ -712,9 +718,11 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {isLiveMode, devModularityV2} = featureFlagDetails
-
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let defaultSidebar = [productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess)]
+  let defaultSidebar = [
+    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess, version),
+  ]
 
   if devModularityV2 {
     defaultSidebar->Array.pushMany([
@@ -738,7 +746,6 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
-  | AlternatePaymentMethods => []
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

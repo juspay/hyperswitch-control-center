@@ -86,8 +86,8 @@ let make = () => {
         setShowModal
         showModal
         closeOnOutsideClick=true
-        modalClass="w-1/3 h-screen float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
-        childClass="m-2 h-full"
+        modalClass="flex flex-col w-1/3 h-screen float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
+        childClass="my-6 mx-2 h-full flex flex-col justify-between"
         customModalHeading=modalHeading>
         <ShowAllReports isModal=true setShowModal selectedId />
       </Modal>

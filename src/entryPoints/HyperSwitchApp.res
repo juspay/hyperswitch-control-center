@@ -113,7 +113,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, userGroupACL)
+  }, [userGroupACL])
 
   <>
     <div>
@@ -142,7 +142,10 @@ let make = () => {
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
-                          <GlobalSearchBar />
+                          <RenderIf
+                            condition={merchantDetailsTypedValue.product_type == Orchestration}>
+                            <GlobalSearchBar />
+                          </RenderIf>
                           <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
@@ -356,18 +359,18 @@ let make = () => {
                     </div>
                   </div>
                 </div>
+                <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
+                  <HSwitchFeedBackModal
+                    modalHeading="We'd love to hear from you!"
+                    showModal={showFeedbackModal}
+                    setShowModal={setShowFeedbackModal}
+                  />
+                </RenderIf>
+                <RenderIf condition={!featureFlagDetails.isLiveMode}>
+                  <ProdIntentForm productType={activeProduct} />
+                </RenderIf>
               </PageLoaderWrapper>
             </div>
-            <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
-              <HSwitchFeedBackModal
-                modalHeading="We'd love to hear from you!"
-                showModal={showFeedbackModal}
-                setShowModal={setShowFeedbackModal}
-              />
-            </RenderIf>
-            <RenderIf condition={!featureFlagDetails.isLiveMode}>
-              <ProdIntentForm productType={activeProduct} />
-            </RenderIf>
           </div>
         </div>
       | #DEFAULT =>

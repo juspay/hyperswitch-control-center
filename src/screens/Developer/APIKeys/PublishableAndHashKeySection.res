@@ -58,7 +58,7 @@ let make = () => {
               </div>
             </div>
             <HelperComponents.CopyTextCustomComp
-              displayValue={merchantInfo.publishable_key}
+              displayValue={Some(merchantInfo.publishable_key)}
               customTextCss="break-all text-sm truncate md:whitespace-normal font-semibold text-jp-gray-800 text-opacity-75"
               customParentClass="flex items-center gap-5"
               customIconCss="text-jp-gray-700"
@@ -70,7 +70,7 @@ let make = () => {
                 {"Payment Response Hash Key"->React.string}
               </div>
               <HelperComponents.CopyTextCustomComp
-                displayValue={paymentResponsHashKey}
+                displayValue={Some(paymentResponsHashKey)}
                 customTextCss="break-all truncate md:whitespace-normal text-sm font-semibold text-jp-gray-800 text-opacity-75"
                 customParentClass="flex items-center gap-5"
                 customIconCss="text-jp-gray-700"

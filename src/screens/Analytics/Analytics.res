@@ -468,7 +468,7 @@ let make = (
   ~tabKeys: array<string>,
   ~tabValues: array<DynamicTabs.tab>,
   ~initialFilters: JSON.t => array<EntityType.initialFilters<'t>>,
-  ~initialFixedFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  ~initialFixedFilters: (JSON.t, ~events: unit => unit=?) => array<EntityType.initialFilters<'t>>,
   ~options: JSON.t => array<EntityType.optionType<'t>>,
   ~getTable: JSON.t => array<'a>,
   ~colMapper: 'colType => string,
@@ -624,6 +624,9 @@ let make = (
     )
   }, [filterValueDict])
   let isMobileView = MatchMedia.useMobileChecker()
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName=`${analyticsTypeName}_date_filter_opened`)
+  }
 
   let tabDetailsClass = React.useMemo(() => {
     isMobileView ? "flex flex-col gap-4 my-4" : "flex flex-row gap-4 my-4"
@@ -652,7 +655,10 @@ let make = (
           initialFilters={initialFilters(filterData)}
           options=[]
           popupFilterFields={options(filterData)}
-          initialFixedFilters={initialFixedFilters(filterData)}
+          initialFixedFilters={initialFixedFilters(
+            filterData,
+            ~events=dateDropDownTriggerMixpanelCallback,
+          )}
           defaultFilterKeys=defaultFilters
           tabNames=tabKeys
           updateUrlWith=updateExistingKeys
@@ -669,7 +675,10 @@ let make = (
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilters(filterData)}
+        initialFixedFilters={initialFixedFilters(
+          filterData,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=defaultFilters
         tabNames=tabKeys
         updateUrlWith=updateExistingKeys //

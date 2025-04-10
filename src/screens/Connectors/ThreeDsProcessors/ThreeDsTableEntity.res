@@ -53,7 +53,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   | Disabled =>
     Label({
       title: connector.disabled ? "DISABLED" : "ENABLED",
-      color: connector.disabled ? LabelRed : LabelGreen,
+      color: connector.disabled ? LabelGray : LabelGreen,
     })
 
   | Status =>

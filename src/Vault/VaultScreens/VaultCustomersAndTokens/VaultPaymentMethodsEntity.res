@@ -38,15 +38,6 @@ let paymentMethodDataCell = (last4_digits, cardNetwork) => {
     </div>
   </div>
 }
-let labelCell = status => {
-  let textColor = status ? "text-green-800" : "text-red-700"
-  let bgColor = status ? "bg-green-200" : "bg-nd_red-50"
-  let text = status ? "Enabled" : "Disabled"
-
-  <div className={`flex justify-center gap-1 px-2 py-0.5 rounded ${bgColor} ${textColor} w-fit`}>
-    <p className="text-xs font-semibold"> {text->React.string} </p>
-  </div>
-}
 
 let getCell = (paymentMethodsData, colType): Table.cell => {
   switch colType {
@@ -61,12 +52,19 @@ let getCell = (paymentMethodsData, colType): Table.cell => {
       ),
       "",
     )
-  | PSPTokensization => CustomCell(labelCell(paymentMethodsData.psp_tokenization_enabled), "")
+  | PSPTokensization =>
+    Label({
+      title: paymentMethodsData.psp_tokenization_enabled ? "Enabled" : "Disabled",
+      color: paymentMethodsData.psp_tokenization_enabled ? LabelGreen : LabelGray,
+    })
 
   | NetworkTokenization => {
       let isEnabled =
         paymentMethodsData.network_tokensization.payment_method_data->LogicUtils.checkEmptyJson
-      CustomCell(labelCell(isEnabled), "")
+      Label({
+        title: isEnabled ? "Enabled" : "Disabled",
+        color: isEnabled ? LabelGreen : LabelGray,
+      })
     }
   | CreatedAt => Date(paymentMethodsData.created)
   | LastUsed => Date(paymentMethodsData.last_used_at)

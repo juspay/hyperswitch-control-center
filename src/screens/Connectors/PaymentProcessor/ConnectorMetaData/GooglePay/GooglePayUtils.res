@@ -1,6 +1,6 @@
 open GooglePayIntegrationTypes
 open LogicUtils
-let allowedAuthMethod = ["PAN_ONLY", "CRYPTOGRAM_3DS"] // need to be removed after wasm support
+let allowedAuthMethod = ["PAN_ONLY"]
 let allowedCardNetworks = ["AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"]
 
 let getCustomGateWayName = connector => {
@@ -74,6 +74,18 @@ let zenGooglePayConfig = dict => {
   }
 }
 
+let validateZenFlow = values => {
+  let data =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("google_pay")
+    ->zenGooglePayConfig
+  data.terminal_uuid->isNonEmptyString && data.pay_wall_secret->isNonEmptyString
+    ? Button.Normal
+    : Button.Disabled
+}
+
 let googlePay = (dict, connector: string) => {
   open ConnectorUtils
   open ConnectorTypes
@@ -103,6 +115,53 @@ let googlePayNameMapper = name => {
   | "pay_wall_secret" => `metadata.google_pay.${name}`
   | _ =>
     `metadata.google_pay.allowed_payment_methods[0].tokenization_specification.parameters.${name}`
+  }
+}
+
+let validateGooglePay = (values, connector) => {
+  open ConnectorUtils
+  open ConnectorTypes
+  let googlePayData =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("google_pay")
+  let merchantId = googlePayData->getDictfromDict("merchant_info")->getString("merchant_id", "")
+  let merchantName = googlePayData->getDictfromDict("merchant_info")->getString("merchant_name", "")
+  let allowedPaymentMethodDict =
+    googlePayData
+    ->getArrayFromDict("allowed_payment_methods", [])
+    ->getValueFromArray(0, JSON.Encode.null)
+    ->getDictFromJsonObject
+  let allowedAuthMethodsArray =
+    allowedPaymentMethodDict
+    ->getDictfromDict("parameters")
+    ->getArrayFromDict("allowed_auth_methods", [])
+  let tokenizationSpecificationDict =
+    allowedPaymentMethodDict
+    ->getDictfromDict("tokenization_specification")
+    ->getDictfromDict("parameters")
+
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(ZEN) =>
+    googlePayData->getString("terminal_uuid", "")->isNonEmptyString &&
+      googlePayData->getString("pay_wall_secret", "")->isNonEmptyString
+      ? Button.Normal
+      : Button.Disabled
+  | Processors(STRIPE) =>
+    merchantId->isNonEmptyString &&
+    merchantName->isNonEmptyString &&
+    tokenizationSpecificationDict->getString("stripe:publishableKey", "")->isNonEmptyString &&
+    allowedAuthMethodsArray->Array.length > 0
+      ? Button.Normal
+      : Button.Disabled
+  | _ =>
+    merchantId->isNonEmptyString &&
+    merchantName->isNonEmptyString &&
+    tokenizationSpecificationDict->getString("gateway_merchant_id", "")->isNonEmptyString &&
+    allowedAuthMethodsArray->Array.length > 0
+      ? Button.Normal
+      : Button.Disabled
   }
 }
 

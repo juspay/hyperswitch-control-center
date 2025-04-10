@@ -3,8 +3,8 @@ type spacingLeft = int
 type spacingRight = int
 
 type info = {index: int}
-type series = {name: string}
-type point = {color: string, x: string, y: float, point: info, series: series}
+type pointSeries = {name: string}
+type point = {color: string, x: string, y: float, point: info, series: pointSeries}
 type pointFormatter = {points: array<point>}
 type yAxisFormatter = {value: int}
 
@@ -32,6 +32,7 @@ type style = {
   color: color,
   fontFamily?: string,
   fontSize?: string,
+  fontWeight?: string,
 }
 type title = {text: string, style?: style, align?: align, x?: int, y?: int}
 type enabled = {enabled: bool}
@@ -41,11 +42,18 @@ type credits = {
 type exporting = {
   ...enabled,
 }
+
+type inactive = {...enabled, opacity: float}
+
+type states = {inactive: inactive}
+
+type plotSeries = {states: states}
+
 type marker = {
   ...enabled,
 }
 type line = {marker: marker}
-type plotOptions = {line: line}
+type plotOptions = {line: line, series: plotSeries}
 type labels = {
   formatter: pointFormatter => string,
   align: align,
@@ -82,7 +90,7 @@ type yAxis = {
   gridLineWidth: gridLineWidth,
   gridLineColor: gridLineColor,
   gridLineDashStyle: gridLineDashStyle,
-  min: min,
+  min?: option<int>,
   max?: option<int>,
 }
 
@@ -107,6 +115,7 @@ type cssStyle = {
 }
 
 type tooltip = {
+  ...enabled,
   shape: string,
   backgroundColor: string,
   borderColor: string,
@@ -133,16 +142,17 @@ type legendPoint = {
 external asLegendsFormatter: Js_OO.Callback.arity1<'a> => legendPoint => string = "%identity"
 
 type legend = {
-  itemStyle: itemStyle,
   useHTML: bool,
   labelFormatter: legendPoint => string,
-  symbolPadding: int,
-  symbolWidth: int,
-  align: string,
-  verticalAlign: string,
-  floating: bool,
-  x: int,
-  y: int,
+  symbolPadding?: int,
+  symbolWidth?: int,
+  itemStyle?: itemStyle,
+  align?: string,
+  verticalAlign?: string,
+  floating?: bool,
+  x?: int,
+  y?: int,
+  margin?: int,
 }
 
 type lineGraphOptions = {
@@ -157,11 +167,18 @@ type lineGraphOptions = {
   tooltip: tooltip,
 }
 
+type chartHeight = DefaultHeight | Custom(int)
+type chartLeftSpacing = DefaultLeftSpacing | Custom(int)
+
 type lineGraphPayload = {
+  chartHeight: chartHeight,
+  chartLeftSpacing: chartLeftSpacing,
   categories: categories,
   data: data,
   title: title,
   yAxisMaxValue: option<int>,
+  yAxisMinValue: option<int>,
   tooltipFormatter: pointFormatter => string,
   yAxisFormatter: pointFormatter => string,
+  legend: legend,
 }

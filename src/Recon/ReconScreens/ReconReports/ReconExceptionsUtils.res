@@ -67,3 +67,19 @@ let getExceptionStringFromStatus = status => {
   | Resolved => "Resolved"
   }
 }
+
+let validateNoteField = (values: JSON.t) => {
+  let data = values->getDictFromJsonObject
+  let errors = Dict.make()
+
+  let errorMessage = if data->getString("note", "")->isEmptyString {
+    "Note cannot be empty!"
+  } else {
+    ""
+  }
+  if errorMessage->isNonEmptyString {
+    Dict.set(errors, "Error", errorMessage->JSON.Encode.string)
+  }
+
+  errors->JSON.Encode.object
+}

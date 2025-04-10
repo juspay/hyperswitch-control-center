@@ -66,7 +66,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   | Disabled =>
     Label({
       title: connector.disabled ? "DISABLED" : "ENABLED",
-      color: connector.disabled ? LabelRed : LabelGreen,
+      color: connector.disabled ? LabelGray : LabelGreen,
     })
 
   | Status =>
@@ -79,7 +79,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   | ProfileId =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=connector.profile_id
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(connector.profile_id)
       />,
       "",
     )
@@ -106,7 +106,8 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   | MerchantConnectorId =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=connector.merchant_connector_id
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(connector.merchant_connector_id)
       />,
       "",
     )

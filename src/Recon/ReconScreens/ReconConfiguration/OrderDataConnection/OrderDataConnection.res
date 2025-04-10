@@ -47,7 +47,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
           ->React.array}
         </div>
       </div>
-      <div className="flex justify-end items-center">
+      <div className="flex justify-end items-center mx-0.5">
         <Button
           text="Next"
           customButtonStyle="rounded w-full"

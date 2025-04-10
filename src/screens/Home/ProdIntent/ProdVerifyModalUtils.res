@@ -123,7 +123,7 @@ let validateCustom = (key, errors, value) => {
   }
 }
 
-let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>, ~setIsDisabled) => {
+let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>) => {
   open LogicUtils
   let errors = Dict.make()
   let valuesDict = values->getDictFromJsonObject
@@ -133,8 +133,6 @@ let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>, ~setIs
 
     value->String.length < 1 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value)
   })
-
-  errors->Dict.keysToArray->Array.length > 0 ? setIsDisabled(_ => true) : setIsDisabled(_ => false)
 
   errors->JSON.Encode.object
 }

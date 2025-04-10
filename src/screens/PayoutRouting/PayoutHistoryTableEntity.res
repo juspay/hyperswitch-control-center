@@ -66,10 +66,7 @@ let getTableCell = activeRoutingIds => {
         title: activeRoutingIds->Array.includes(historyData.id)
           ? "ACTIVE"
           : "INACTIVE"->String.toUpperCase,
-        color: switch activeRoutingIds->Array.includes(historyData.id) {
-        | true => LabelGreen
-        | false => LabelWhite
-        },
+        color: activeRoutingIds->Array.includes(historyData.id) ? LabelGreen : LabelGray,
       })
     }
   }

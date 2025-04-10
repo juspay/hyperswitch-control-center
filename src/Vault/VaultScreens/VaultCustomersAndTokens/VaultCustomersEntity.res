@@ -21,7 +21,7 @@ let getCell = (customersData, colType): Table.cell => {
   | CustomerId =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        displayValue={customersData.id} copyValue={Some(customersData.id)}
+        displayValue={Some(customersData.id)} copyValue={Some(customersData.id)}
       />,
       "",
     )

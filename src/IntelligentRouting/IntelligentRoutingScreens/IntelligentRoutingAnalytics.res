@@ -129,6 +129,7 @@ module TransactionsTable = {
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"
         loadedTableParentClass="flex flex-col pt-6"
+        showAutoScroll=true
       />
 
     let failedTxnTableData = tableData->Array.filter(txn =>
@@ -154,7 +155,7 @@ module TransactionsTable = {
 
     <PageLoaderWrapper screenState={screenState}>
       <div className="flex flex-col gap-2">
-        <div className="text-nd_gray-600 font-semibold">
+        <div className="text-nd_gray-600 font-semibold text-fs-18">
           {"Transactions Details"->React.string}
         </div>
         <Tabs
@@ -234,7 +235,7 @@ module Card = {
               {displayValue(simulatedValue)->React.string}
             </p>
             <div
-              className="flex items-center gap-1 text-green-800 bg-green-200 rounded-md px-2 text-sm leading-1">
+              className="flex items-center gap-1 text-green-800 bg-green-200 rounded-md px-2 text-sm leading-1 font-semibold">
               {getPercentageChange(~primaryValue=simulatedValue, ~secondaryValue=actualValue)}
             </div>
           </div>
@@ -288,7 +289,8 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
   let (stats, setStats) = React.useState(_ => JSON.Encode.null)
-  let (selectedGateway, setSelectedGateway) = React.useState(() => "")
+  let (selectedTimeStamp, setSelectedTimeStamp) = React.useState(() => "")
+  let (timeStampOptions, setTimeStampOptions) = React.useState(() => [])
   let (gateways, setGateways) = React.useState(() => [])
   let (timeRange, setTimeRange) = React.useState(() => defaultTimeRange)
 
@@ -320,6 +322,13 @@ let make = () => {
       }
       setTimeRange(_ => {minDate, maxDate})
 
+      let timeStampArray = statsData->Array.map(item => {
+        item.time_stamp
+      })
+
+      setTimeStampOptions(_ => timeStampArray)
+      setSelectedTimeStamp(_ => timeStampArray->Array.get(0)->Option.getOr(""))
+
       let gatewayKeys =
         gatewayData
         ->LogicUtils.getDictFromJsonObject
@@ -328,7 +337,6 @@ let make = () => {
         key1 <= key2 ? -1. : 1.
       })
       setGateways(_ => gatewayKeys)
-      setSelectedGateway(_ => gatewayKeys->Array.get(0)->Option.getOr(""))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
@@ -346,7 +354,7 @@ let make = () => {
 
   let makeOption = (keys): array<SelectBox.dropdownOption> => {
     keys->Array.map(key => {
-      let options: SelectBox.dropdownOption = {label: key, value: key}
+      let options: SelectBox.dropdownOption = {label: getDateTime(key), value: key}
       options
     })
   }
@@ -356,40 +364,29 @@ let make = () => {
     onBlur: _ => (),
     onChange: ev => {
       let value = ev->Identity.formReactEventToString
-      setSelectedGateway(_ => value)
+      setSelectedTimeStamp(_ => value)
     },
     onFocus: _ => (),
-    value: selectedGateway->JSON.Encode.string,
+    value: selectedTimeStamp->JSON.Encode.string,
     checked: true,
   }
 
   let dateRange = displayDateRange(~minDate=timeRange.minDate, ~maxDate=timeRange.maxDate)
 
-  let _infoBanner =
-    <div
-      className=" top-76-px left-0 w-full py-3 px-4 bg-nd_primary_blue-50 flex justify-between items-center rounded-md">
-      <div className="flex gap-4 items-center">
-        <Icon name="nd-warning" />
-        <div className="text-nd_gray-600 text-base !leading-6 font-medium">
-          <span> {"Our Intelligent system made "->React.string} </span>
-          <span className="font-bold"> {"6890"->React.string} </span>
-          <span>
-            {" (9.2%) switches from primary processor to an alternate processor."->React.string}
-          </span>
-        </div>
-      </div>
-    </div>
+  let customScrollStyle = `max-h-40 overflow-scroll px-1 pt-1 border-pink-400`
+  let dropdownContainerStyle = `rounded-md border border-1 border md:w-40 md:max-w-50`
 
   <PageLoaderWrapper screenState={screenState}>
     <div
-      className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
+      className="absolute z-20 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
       <div className="flex gap-4 items-center">
         <Icon name="nd-information-triangle" size=24 />
         <p className="text-nd_gray-600 text-base leading-6 font-medium">
           {"You are in demo environment and this is sample setup."->React.string}
         </p>
       </div>
-      <GetProductionAccess />
+
+      // <GetProductionAccess />
     </div>
     <div className="mt-10">
       <div className="flex items-center justify-between">
@@ -398,54 +395,70 @@ let make = () => {
       </div>
       <div className="flex flex-col gap-12">
         <Overview data=stats />
-        // {infoBanner}
         <div className="flex flex-col gap-6">
-          <div className="text-nd_gray-600 font-semibold"> {"Insights"->React.string} </div>
+          <div className="text-nd_gray-600 font-semibold text-fs-18">
+            {"Insights"->React.string}
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col border rounded-lg p-4">
               <div className="flex justify-between">
-                <p className="text-fs-14 text-nd_gray-600">
+                <p className="text-fs-14 text-nd_gray-600 font-semibold leading-17">
                   {"Overall Transaction Distribution"->React.string}
                 </p>
-                <div className="flex flex-col xl:flex-row gap-4">
+              </div>
+              <div className="w-full flex justify-center my-8">
+                <div className="flex flex-col lg:flex-row gap-3 ">
                   {displayLegend(gateways)->React.array}
                 </div>
               </div>
-              <div className="h-full flex flex-col xl:flex-row items-center justify-between gap-1">
-                <PieGraph
-                  options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
-                />
-                <PieGraph
-                  options={PieGraphUtils.getPieChartOptions(pieGraphOptionsSimulated(stats))}
-                />
+              <div className="flex justify-center">
+                <div
+                  className="flex flex-col xl:flex-row items-center justify-around gap-8 xl:gap-2 tablet:gap-16">
+                  <PieGraph
+                    options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
+                  />
+                  <PieGraph
+                    options={PieGraphUtils.getPieChartOptions(pieGraphOptionsSimulated(stats))}
+                  />
+                </div>
               </div>
             </div>
             <div className="border rounded-lg p-4">
-              <LineGraph options={LineGraphUtils.getLineGraphOptions(lineGraphOptions(stats))} />
+              <LineGraph
+                options={LineGraphUtils.getLineGraphOptions(
+                  lineGraphOptions(
+                    stats,
+                    ~isSmallScreen=MatchMedia.useScreenSizeChecker(~screenSize="1279"),
+                  ),
+                )}
+              />
             </div>
           </div>
-          <div className="border rounded-lg p-4 flex flex-col ">
+          <div className="border rounded-lg p-4 flex flex-col">
             <div className="relative">
               <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
                 <SelectBox.BaseDropdown
                   allowMultiSelect=false
-                  buttonText="Select PSP"
+                  buttonText="Select timestamp"
                   input
+                  searchable=false
                   deselectDisable=true
                   customButtonStyle="!rounded-lg"
-                  options={makeOption(gateways)}
+                  options={makeOption(timeStampOptions)}
                   marginTop="mt-10"
                   hideMultiSelectButtons=true
                   addButton=false
                   fullLength=true
                   shouldDisplaySelectedOnTop=true
                   customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
+                  customScrollStyle
+                  dropdownContainerStyle
                 />
               </div>
             </div>
             <LineAndColumnGraph
               options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
-                lineColumnGraphOptions(stats, ~processor=selectedGateway),
+                lineColumnGraphOptions(stats, ~timeStamp=selectedTimeStamp),
               )}
             />
           </div>

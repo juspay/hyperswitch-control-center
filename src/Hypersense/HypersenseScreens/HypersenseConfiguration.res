@@ -13,7 +13,7 @@ let make = () => {
     <div className="flex flex-col gap-8 items-center">
       <div
         className="border rounded-md text-nd_green-200 border-nd_green-200 font-semibold p-1.5 text-sm w-fit">
-        {"Hypersense"->React.string}
+        {"Cost Observability"->React.string}
       </div>
       <PageHeading
         customHeadingStyle="gap-3 flex flex-col items-center"
@@ -26,7 +26,7 @@ let make = () => {
         authorization={userHasCreateMerchantAccess}
         text="Get Started"
         onClick={_ => {
-          mixpanelEvent(~eventName="hypersense_get_started_new_merchant")
+          mixpanelEvent(~eventName="cost_observability_get_started_new_merchant")
           setCreateNewMerchant(ProductTypes.CostObservability)
         }}
         customTextPaddingClass="pr-0"

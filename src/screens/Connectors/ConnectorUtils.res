@@ -113,6 +113,7 @@ let connectorList: array<connectorTypes> = [
   Processors(MONERIS),
   Processors(REDSYS),
   Processors(HIPAY),
+  Processors(PAYSTACK),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -428,6 +429,10 @@ let hipayInfo = {
   description: "HiPay is a global payment service provider offering a range of solutions for online, mobile, and in-store payments. It supports multiple payment methods, including credit cards, e-wallets, and local payment options, with a focus on fraud prevention and data-driven insights.",
 }
 
+let paystackInfo = {
+  description: "Paystack is a technology company solving payments problems for ambitious businesses. Paystack builds technology to help Africa's best businesses grow - from new startups, to market leaders launching new business models.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -674,6 +679,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | MONERIS => "moneris"
   | REDSYS => "redsys"
   | HIPAY => "hipay"
+  | PAYSTACK => "paystack"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -817,6 +823,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "moneris" => Processors(MONERIS)
     | "redsys" => Processors(REDSYS)
     | "hipay" => Processors(HIPAY)
+    | "paystack" => Processors(PAYSTACK)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -940,6 +947,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | MONERIS => monerisInfo
   | REDSYS => redsysInfo
   | HIPAY => hipayInfo
+  | PAYSTACK => paystackInfo
   }
 }
 
@@ -1602,6 +1610,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
         ? JSON.Encode.null
         : dict->getDictfromDict("connector_wallets_details")->JSON.Encode.object,
     ),
+    (
+      "metadata",
+      dict->getDictfromDict("metadata")->isEmptyDict
+        ? JSON.Encode.null
+        : dict->getDictfromDict("metadata")->JSON.Encode.object,
+    ),
   ])
 
   values
@@ -1676,7 +1690,7 @@ let getConnectorPaymentMethodDetails = async (
   open LogicUtils
   try {
     let json = Window.getResponsePayload(initialValues)
-    let metaData = json->getDictFromJsonObject->getJsonObjectFromDict("metadata")
+    let metaData = initialValues->getDictFromJsonObject->getJsonObjectFromDict("metadata")
     let paymentMethodEnabled =
       json
       ->getDictFromJsonObject
@@ -1776,6 +1790,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | MONERIS => "Moneris"
   | REDSYS => "Redsys"
   | HIPAY => "HiPay"
+  | PAYSTACK => "Paystack"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

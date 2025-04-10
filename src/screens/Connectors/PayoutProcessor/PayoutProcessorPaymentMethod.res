@@ -56,7 +56,6 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       let obj: ConnectorTypes.wasmRequest = {
         connector,
         payment_methods_enabled: paymentMethodsEnabled,
-        metadata: metaData,
       }
       let body =
         constructConnectorRequestBody(obj, values)->ignoreFields(
