@@ -93,6 +93,10 @@ let googlePay = (
   }
 }
 
+let isNonEmptyStringWithoutSpaces = str => {
+  str->String.trim->isNonEmptyString
+}
+
 let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
   let data =
     values
@@ -105,33 +109,33 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
   | #payment_gateway =>
     data.provider_details.merchant_info.merchant_name
     ->Option.getOr("")
-    ->isNonEmptyString &&
+    ->isNonEmptyStringWithoutSpaces &&
     data.provider_details.merchant_info.merchant_id
     ->Option.getOr("")
-    ->isNonEmptyString &&
+    ->isNonEmptyStringWithoutSpaces &&
     data.cards.allowed_auth_methods->Array.length > 0 &&
     (data.provider_details.merchant_info.tokenization_specification.parameters.\"stripe:publishableKey"
     ->Option.getOr("")
-    ->isNonEmptyString ||
+    ->isNonEmptyStringWithoutSpaces ||
       data.provider_details.merchant_info.tokenization_specification.parameters.gateway_merchant_id
       ->Option.getOr("")
-      ->isNonEmptyString)
+      ->isNonEmptyStringWithoutSpaces)
       ? Button.Normal
       : Button.Disabled
   | #direct =>
     data.provider_details.merchant_info.merchant_name
     ->Option.getOr("")
-    ->isNonEmptyString &&
+    ->isNonEmptyStringWithoutSpaces &&
     data.cards.allowed_auth_methods->Array.length > 0 &&
     data.provider_details.merchant_info.tokenization_specification.parameters.public_key
     ->Option.getOr("")
-    ->isNonEmptyString &&
+    ->isNonEmptyStringWithoutSpaces &&
     data.provider_details.merchant_info.tokenization_specification.parameters.private_key
     ->Option.getOr("")
-    ->isNonEmptyString &&
+    ->isNonEmptyStringWithoutSpaces &&
     data.provider_details.merchant_info.tokenization_specification.parameters.recipient_id
     ->Option.getOr("")
-    ->isNonEmptyString
+    ->isNonEmptyStringWithoutSpaces
       ? Button.Normal
       : Button.Disabled
   }

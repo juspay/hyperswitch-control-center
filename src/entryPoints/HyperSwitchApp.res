@@ -229,7 +229,8 @@ let make = () => {
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}
                         | list{"payoutrouting", ..._}
-                        | list{"payment-settings", ..._} =>
+                        | list{"payment-settings", ..._}
+                        | list{"webhooks", ..._} =>
                           <ConnectorContainer />
                         | list{"apm"} => <APMContainer />
                         | list{"business-details", ..._}
@@ -359,7 +360,7 @@ let make = () => {
                   />
                 </RenderIf>
                 <RenderIf condition={!featureFlagDetails.isLiveMode}>
-                  <ProdIntentForm />
+                  <ProdIntentForm productType={activeProduct} />
                 </RenderIf>
               </PageLoaderWrapper>
             </div>

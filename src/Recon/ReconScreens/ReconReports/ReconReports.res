@@ -130,7 +130,7 @@ let make = () => {
           {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
         </p>
       </div>
-      // <ReconHelper.GetProductionAccess />
+      <ReconHelper.GetProductionAccess />
     </div>
     <div className="flex flex-col space-y-2 justify-center relative gap-4 mt-12">
       <div>
