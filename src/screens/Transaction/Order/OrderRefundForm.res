@@ -92,15 +92,18 @@ let make = (
     let amountValue = Dict.get(valuesDict, "amount")
     let metadata = getDictFromJsonObject(values)->getDictfromDict("metadata")
 
-    let emailValue =
-      metadata
-      ->Dict.get("email")
-      ->Option.getOr(JSON.Encode.null)
-      ->getStringFromJson("")
-
+    let emailValue = metadata->LogicUtils.getString("email", "")
     let cryptoAddress = metadata->Dict.get("address")
     let metadataErrors = Dict.make()
-    if cryptoAddress->Option.isNone {
+
+    if (
+      cryptoAddress->Option.isNone ||
+        cryptoAddress
+        ->Option.getOr(JSON.Encode.null)
+        ->LogicUtils.getStringFromJson("")
+        ->String.trim
+        ->LogicUtils.isEmptyString
+    ) {
       Dict.set(metadataErrors, "address", `Required`->JSON.Encode.string)
     }
     if emailValue->CommonAuthUtils.isValidEmail {
