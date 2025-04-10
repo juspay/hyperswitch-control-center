@@ -28,7 +28,7 @@ module TableModule = {
     <div className>
       <LoadedTable
         visibleColumns
-        title=" "
+        title="Payments Processed"
         hideTitle=true
         actualData={paymentsProcessed}
         entity=paymentsProcessedTableEntity

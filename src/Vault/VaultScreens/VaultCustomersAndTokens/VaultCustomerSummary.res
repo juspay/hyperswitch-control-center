@@ -175,7 +175,7 @@ module VaultedPaymentMethodsTable = {
 
     <PageLoaderWrapper screenState>
       <LoadedTable
-        title=" "
+        title="Vaulted Payment Methods"
         hideTitle=true
         resultsPerPage=7
         entity={VaultPaymentMethodsEntity.vaultPaymentMethodsEntity}

@@ -116,7 +116,7 @@ module TransactionsTable = {
 
     let table = data =>
       <LoadedTable
-        title=" "
+        title="Intelligent Routing Transactions"
         hideTitle=true
         actualData=data
         totalResults=totalCount
