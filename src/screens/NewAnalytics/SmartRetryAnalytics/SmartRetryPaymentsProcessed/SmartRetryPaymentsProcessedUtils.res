@@ -47,10 +47,6 @@ let smartRetryPaymentsProcessedMapper = (
 
   let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric)
 
-  let title = {
-    text: "Smart Retry Payments Processed",
-  }
-
   open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
   | Payment_Processed_Amount => Amount
@@ -58,10 +54,15 @@ let smartRetryPaymentsProcessedMapper = (
   }
 
   {
+    chartHeight: DefaultHeight,
+    chartLeftSpacing: DefaultLeftSpacing,
     categories: primaryCategories,
     data: lineGraphData,
-    title,
+    title: {
+      text: "",
+    },
     yAxisMaxValue: data->isEmptyGraph(xKey) ? Some(1) : None,
+    yAxisMinValue: Some(0),
     tooltipFormatter: tooltipFormatter(
       ~secondaryCategories,
       ~title="Smart Retry Payments Processed",
@@ -74,6 +75,10 @@ let smartRetryPaymentsProcessedMapper = (
       ~currency="",
       ~suffix="",
     ),
+    legend: {
+      useHTML: true,
+      labelFormatter: LineGraphUtils.valueFormatter,
+    },
   }
 }
 

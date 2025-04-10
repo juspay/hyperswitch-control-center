@@ -32,6 +32,7 @@ type style = {
   color: color,
   fontFamily?: string,
   fontSize?: string,
+  fontWeight?: string,
 }
 type title = {text: string, style?: style, align?: align, x?: int, y?: int}
 type enabled = {enabled: bool}
@@ -89,7 +90,7 @@ type yAxis = {
   gridLineWidth: gridLineWidth,
   gridLineColor: gridLineColor,
   gridLineDashStyle: gridLineDashStyle,
-  min: min,
+  min?: option<int>,
   max?: option<int>,
 }
 
@@ -141,16 +142,17 @@ type legendPoint = {
 external asLegendsFormatter: Js_OO.Callback.arity1<'a> => legendPoint => string = "%identity"
 
 type legend = {
-  itemStyle: itemStyle,
   useHTML: bool,
   labelFormatter: legendPoint => string,
-  symbolPadding: int,
-  symbolWidth: int,
-  align: string,
-  verticalAlign: string,
-  floating: bool,
-  x: int,
-  y: int,
+  symbolPadding?: int,
+  symbolWidth?: int,
+  itemStyle?: itemStyle,
+  align?: string,
+  verticalAlign?: string,
+  floating?: bool,
+  x?: int,
+  y?: int,
+  margin?: int,
 }
 
 type lineGraphOptions = {
@@ -165,11 +167,18 @@ type lineGraphOptions = {
   tooltip: tooltip,
 }
 
+type chartHeight = DefaultHeight | Custom(int)
+type chartLeftSpacing = DefaultLeftSpacing | Custom(int)
+
 type lineGraphPayload = {
+  chartHeight: chartHeight,
+  chartLeftSpacing: chartLeftSpacing,
   categories: categories,
   data: data,
   title: title,
   yAxisMaxValue: option<int>,
+  yAxisMinValue: option<int>,
   tooltipFormatter: pointFormatter => string,
   yAxisFormatter: pointFormatter => string,
+  legend: legend,
 }

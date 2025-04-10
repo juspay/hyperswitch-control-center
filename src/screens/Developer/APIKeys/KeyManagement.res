@@ -373,7 +373,8 @@ module ApiKeysTable = {
           {"API Keys"->React.string}
         </h2>
         <LoadedTable
-          title=" "
+          title="Keys"
+          hideTitle=true
           resultsPerPage=7
           visibleColumns
           entity=apiKeysTableEntity
