@@ -233,6 +233,6 @@ module ProfileNameComponent = {
         id: profile_id,
         name: "NA",
       })
-    <div className> {(name->LogicUtils.isNonEmptyString ? name : "")->React.string} </div>
+    <div className> {(name->LogicUtils.isNonEmptyString ? name : "NA")->React.string} </div>
   }
 }

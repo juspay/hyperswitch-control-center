@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.10.0
+
+### Bug Fixes
+
+- Threeds app url validation ([#2795](https://github.com/juspay/hyperswitch-control-center/pull/2795)) ([`0206390`](https://github.com/juspay/hyperswitch-control-center/commit/020639081fce641472b4cbc2560c073b6b32c023))
+- Profile name not showing in about payment section ([#2803](https://github.com/juspay/hyperswitch-control-center/pull/2803)) ([`d54afc9`](https://github.com/juspay/hyperswitch-control-center/commit/d54afc91b9c97c4d18e9e89e9e594c293aa26ad7))
+
+### Miscellaneous Tasks
+
+- Made charts responsive ([#2786](https://github.com/juspay/hyperswitch-control-center/pull/2786)) ([`5f3b144`](https://github.com/juspay/hyperswitch-control-center/commit/5f3b1447b4333ca3eec751c3090302515bfe120c))
+- Show global search bar only for orchestrator ([#2801](https://github.com/juspay/hyperswitch-control-center/pull/2801)) ([`e3a5872`](https://github.com/juspay/hyperswitch-control-center/commit/e3a5872e5ab369e0095ff830d74ac7b60816ad5a))
+- Recovery product name change ([#2798](https://github.com/juspay/hyperswitch-control-center/pull/2798)) ([`df5d052`](https://github.com/juspay/hyperswitch-control-center/commit/df5d052ffb0d877371b78df5cbcd8fba16c9e217))
+
+**Full Changelog:** [`2025.04.09.0...2025.04.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.09.0...2025.04.10.0)
+
+
+- - -
+
 ## 2025.04.09.0
 
 ### Bug Fixes
