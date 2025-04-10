@@ -32,7 +32,7 @@ let getCell = (customersData, colType): Table.cell => {
     CustomCell(
       <HelperComponents.CopyTextCustomComp
         customTextCss="w-36 truncate whitespace-nowrap"
-        displayValue={customersData.customer_id}
+        displayValue={Some(customersData.customer_id)}
         copyValue={Some(customersData.customer_id)}
       />,
       "",

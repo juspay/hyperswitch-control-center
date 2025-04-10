@@ -108,7 +108,7 @@ let getCell = (refundData, colType, merchantId, orgId): Table.cell => {
   | PaymentId =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue={refundData.payment_id}
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(refundData.payment_id)
       />,
       "",
     )
