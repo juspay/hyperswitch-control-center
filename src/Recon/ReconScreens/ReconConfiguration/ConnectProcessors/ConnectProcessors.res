@@ -35,7 +35,7 @@ let make = (~currentStep: VerticalStepIndicatorTypes.step, ~setCurrentStep) => {
 
   let onSubmit = async (_values, _form: ReactFinalForm.formApi) => {
     mixpanelEvent(~eventName="recon_onboarding_step2")
-    onNextClick()->ignore
+    let _ = await onNextClick()
     Nullable.null
   }
 

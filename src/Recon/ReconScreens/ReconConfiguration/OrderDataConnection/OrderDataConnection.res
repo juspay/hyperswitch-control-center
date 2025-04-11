@@ -32,6 +32,11 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
     }
   }
 
+  let onSubmit = async () => {
+    mixpanelEvent(~eventName="recon_onboarding_step1")
+    let _ = await onNextClick()
+  }
+
   <div className="flex flex-col h-full gap-y-10">
     <ReconConfigurationHelper.SubHeading
       title="Connect Order Data Source"
@@ -68,10 +73,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
           customButtonStyle="rounded w-full"
           buttonType={Primary}
           buttonState={Normal}
-          onClick={_ => {
-            mixpanelEvent(~eventName="recon_onboarding_step1")
-            onNextClick()->ignore
-          }}
+          onClick={_ => onSubmit()->ignore}
         />
       </div>
     </div>
