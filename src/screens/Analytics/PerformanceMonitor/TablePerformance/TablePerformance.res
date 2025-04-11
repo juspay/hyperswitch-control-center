@@ -79,7 +79,7 @@ let make = (
     <PerformanceUtils.Card title="Payment Failures">
       <LoadedTable
         visibleColumns
-        title=" "
+        title="Performance Monitor"
         hideTitle=true
         actualData={tableData}
         entity=tableEntity

@@ -122,7 +122,7 @@ let columnGraphOptions = (stats: JSON.t): ColumnGraphTypes.columnGraphPayload =>
   }
 }
 
-let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
+let lineGraphOptions = (stats: JSON.t, ~isSmallScreen=false): LineGraphTypes.lineGraphPayload => {
   let statsData = stats->IntelligentRoutingUtils.responseMapper
   let timeSeriesData = statsData.time_series_data
 
@@ -133,7 +133,20 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
   let baselineSuccessRate = timeSeriesData->Array.map(item => item.success_rate.baseline)
   let modelSuccessRate = timeSeriesData->Array.map(item => item.success_rate.model)
 
+  let calculateYAxisMinValue = {
+    let dataArray = baselineSuccessRate->Array.copy
+    dataArray->Array.sort((val1, val2) => {
+      val1 <= val2 ? -1. : 1.
+    })
+
+    Some(dataArray->Array.get(0)->Option.getOr(0.0)->Float.toInt)
+  }
+
+  let chartHeight = isSmallScreen ? 600 : 350
+
   {
+    chartHeight: Custom(chartHeight),
+    chartLeftSpacing: Custom(0),
     title: {
       text: "Overall Authorization Rate",
       align: "left",
@@ -142,6 +155,7 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
       style: {
         fontSize: "14px",
         color: "#525866",
+        fontWeight: "600",
       },
     },
     categories: timeSeriesArray,
@@ -170,11 +184,20 @@ let lineGraphOptions = (stats: JSON.t): LineGraphTypes.lineGraphPayload => {
       ~showNameInTooltip=true,
     ),
     yAxisMaxValue: Some(100),
+    yAxisMinValue: calculateYAxisMinValue,
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
       ~statType=AmountWithSuffix,
       ~currency="",
       ~suffix="%",
     ),
+    legend: {
+      useHTML: true,
+      labelFormatter: LineGraphUtils.valueFormatter,
+      align: "center",
+      verticalAlign: "top",
+      floating: false,
+      margin: 30,
+    },
   }
 }
 
@@ -243,22 +266,6 @@ let lineColumnGraphOptions = (
   | None => ()
   }
 
-  let _successData = timeSeriesData->Array.map(item => {
-    let val = item.volume_distribution_as_per_sr
-    let dict = val->getDictFromJsonObject
-    let pspData = dict->Dict.get(timeStamp)
-
-    let data = switch pspData {
-    | Some(pspData) => pspData->mapPSPJson
-    | None => {
-        baseline_volume: 0,
-        model_volume: 0,
-        success_rate: 0.0,
-      }
-    }
-    data
-  })
-
   let style: LineAndColumnGraphTypes.style = {
     fontFamily: LineAndColumnGraphUtils.fontFamily,
     color: LineAndColumnGraphUtils.darkGray,
@@ -268,17 +275,18 @@ let lineColumnGraphOptions = (
   {
     titleObj: {
       chartTitle: {
-        text: "Processor wise transaction distribution with Auth Rate",
+        text: "Processor Wise Transaction Distribution With Auth Rate",
         align: "left",
         x: 10,
         y: 10,
         style: {
           fontSize: "14px",
           color: "#525866",
+          fontWeight: "600",
         },
       },
       xAxisTitle: {
-        text: "Processor",
+        text: "",
         style,
       },
       yAxisTitle: {
@@ -337,18 +345,11 @@ let lineColumnGraphOptions = (
       symbolWidth: 0,
       symbolHeight: 0,
       symbolRadius: 4,
-      itemStyle: {
-        fontFamily: "InterDisplay",
-        fontSize: "12px",
-        color: "#525866",
-        fontWeight: "400",
-      },
-      align: "right",
+      align: "center",
       verticalAlign: "top",
-      floating: true,
+      floating: false,
       itemDistance: 30,
-      x: -100,
-      y: -8,
+      margin: 30,
     },
   }
 }

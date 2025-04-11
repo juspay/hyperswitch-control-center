@@ -241,6 +241,7 @@ let filterDateRangeField: (
   ~hideDate: bool=?,
   ~selectStandardTime: bool=?,
   ~isTooltipVisible: bool=?,
+  ~allowedDateRange: Calendar.dateObj=?,
   ~events: unit => unit=?,
 ) => comboCustomInputRecord
 let filterCompareDateRangeField: (

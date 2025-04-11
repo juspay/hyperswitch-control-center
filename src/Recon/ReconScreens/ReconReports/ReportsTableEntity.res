@@ -26,13 +26,6 @@ type reconStatus =
   | Unreconciled
   | Missing
   | None
-let reconStatusVariantMapper: string => reconStatus = statusLabel =>
-  switch statusLabel->String.toUpperCase {
-  | "RECONCILED" => Reconciled
-  | "UNRECONCILED" => Unreconciled
-  | "MISSING" => Missing
-  | _ => None
-  }
 
 let getHeading = (colType: allColtype) => {
   switch colType {
@@ -61,33 +54,14 @@ let getCell = (report: allReportPayload, colType: allColtype): Table.cell => {
     )
   | PaymentMethod => Text(report.payment_method)
   | ReconStatus =>
-    switch report.recon_status->getReconStatusTypeFromString {
-    | Reconciled =>
-      CustomCell(
-        <div
-          className={`text-xs font-bold py-1 rounded-lg  bg-nd_green-50 dark:bg-opacity-50 flex items-center justify-center w-90-px`}>
-          <p className="text-nd_green-400"> {report.recon_status->React.string} </p>
-        </div>,
-        "",
-      )
-    | Unreconciled =>
-      CustomCell(
-        <div
-          className={`text-xs font-bold py-1 rounded-lg bg-nd_red-50 dark:bg-opacity-50 flex justify-center items-center w-90-px`}>
-          <p className="text-nd_red-400"> {report.recon_status->React.string} </p>
-        </div>,
-        "",
-      )
-    | Missing =>
-      CustomCell(
-        <div
-          className={`text-xs font-bold py-1 rounded-lg bg-orange-50 dark:bg-opacity-50 flex justify-center items-center w-90-px`}>
-          <p className="text-orange-400"> {report.recon_status->React.string} </p>
-        </div>,
-        "",
-      )
-    }
-
+    Label({
+      title: {report.recon_status->String.toUpperCase},
+      color: switch report.recon_status->getReconStatusTypeFromString {
+      | Reconciled => LabelGreen
+      | Unreconciled => LabelRed
+      | Missing => LabelOrange
+      },
+    })
   | TransactionDate => EllipsisText(report.transaction_date, "")
   | SettlementAmount => Text(Float.toString(report.settlement_amount))
   | TxnAmount => Text(Float.toString(report.txn_amount))
