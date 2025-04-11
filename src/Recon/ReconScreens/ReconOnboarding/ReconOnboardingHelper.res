@@ -470,7 +470,7 @@ module ReconOverviewContent = {
             {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
           </p>
         </div>
-        <ReconHelper.GetProductionAccess />
+        // <ReconHelper.GetProductionAccess />
       </div>
       <ReconciliationOverview />
       <Exceptions />
