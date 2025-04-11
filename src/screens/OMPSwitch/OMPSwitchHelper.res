@@ -246,7 +246,7 @@ module MerchantDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {merchantId, version}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
@@ -311,17 +311,28 @@ module MerchantDropdownItem = {
 
     let onSubmit = async (newMerchantName: string) => {
       try {
-        let body =
-          [
-            ("merchant_id", merchantId->JSON.Encode.string),
-            ("merchant_name", newMerchantName->JSON.Encode.string),
-          ]->getJsonFromArrayOfJson
-        let accountUrl = getURL(
-          ~entityName=V1(MERCHANT_ACCOUNT),
-          ~methodType=Post,
-          ~id=Some(merchantId),
-        )
-        let _ = await updateDetails(accountUrl, body, Post)
+        if version == V2 {
+          let body =
+            [("merchant_name", newMerchantName->JSON.Encode.string)]->getJsonFromArrayOfJson
+          let accountUrl = getURL(
+            ~entityName=V2(MERCHANT_ACCOUNT),
+            ~methodType=Put,
+            ~id=Some(merchantId),
+          )
+          let _ = await updateDetails(accountUrl, body, Put)
+        } else {
+          let body =
+            [
+              ("merchant_id", merchantId->JSON.Encode.string),
+              ("merchant_name", newMerchantName->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson
+          let accountUrl = getURL(
+            ~entityName=V1(MERCHANT_ACCOUNT),
+            ~methodType=Post,
+            ~id=Some(merchantId),
+          )
+          let _ = await updateDetails(accountUrl, body, Post)
+        }
         getMerchantList()->ignore
         showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
       } catch {
