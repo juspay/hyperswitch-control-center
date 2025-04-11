@@ -198,7 +198,6 @@ module CreateNewMerchantBody = {
         let res = switch selectedProduct {
         | Orchestration
         | DynamicRouting
-        | Recon
         | CostObservability => {
             let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
             await updateDetails(url, values, Post)

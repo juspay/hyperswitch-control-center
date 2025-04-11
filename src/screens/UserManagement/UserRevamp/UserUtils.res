@@ -238,7 +238,6 @@ let getVersion = (product: ProductTypes.productTypes) => {
   switch product {
   | Orchestration
   | DynamicRouting
-  | Recon
   | CostObservability =>
     UserInfoTypes.V1
   | _ => UserInfoTypes.V2
