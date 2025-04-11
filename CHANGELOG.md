@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.11.1
+
+### Bug Fixes
+
+- Merchant name update failing for v2 ([#2815](https://github.com/juspay/hyperswitch-control-center/pull/2815)) ([`07df36c`](https://github.com/juspay/hyperswitch-control-center/commit/07df36c446ef66baf34514fd1b3d11b2f7f4adc7))
+- Safari dashboard ui fixes ([#2809](https://github.com/juspay/hyperswitch-control-center/pull/2809)) ([`5fa8dbd`](https://github.com/juspay/hyperswitch-control-center/commit/5fa8dbd8d52b62c67e4b130c1a4f99cc0c3e1338))
+- Recovery minor fixes ([#2813](https://github.com/juspay/hyperswitch-control-center/pull/2813)) ([`288eafe`](https://github.com/juspay/hyperswitch-control-center/commit/288eafec6526f4aed4ed9df77c44ac175e4b478b))
+
+**Full Changelog:** [`2025.04.11.0...2025.04.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.11.0...2025.04.11.1)
+
+
+- - -
+
 ## 2025.04.11.0
 
 ### Features
