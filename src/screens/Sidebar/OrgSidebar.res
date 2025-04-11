@@ -296,6 +296,7 @@ let make = () => {
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let showToast = ToastState.useShowToast()
 
   let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
@@ -320,7 +321,11 @@ let make = () => {
     }
   }
   React.useEffect(() => {
-    getOrgList()->ignore
+    if !isInternalUser {
+      getOrgList()->ignore
+    } else {
+      setOrgList(_ => [ompDefaultValue(orgId, "")])
+    }
     None
   }, [])
 

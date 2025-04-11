@@ -179,7 +179,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           </p>
         </div>
         <LoadedTable
-          title=" "
+          title="Vault Customers And tokens"
           hideTitle=true
           actualData=filteredCustomersData
           entity={customersEntity(callMixpanel)}

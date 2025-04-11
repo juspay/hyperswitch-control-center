@@ -164,6 +164,9 @@ module TableRow: {
     ~fixLastCol: bool=?,
     ~alignCellContent: string=?,
     ~customCellColor: string=?,
+    ~highlightSelectedRow: bool=?,
+    ~selectedIndex: int,
+    ~setSelectedIndex: ('a => int) => unit,
   ) => React.element
 }
 module SortAction: {
@@ -302,4 +305,5 @@ let make: (
   ~showAutoScroll: bool=?,
   ~showVerticalScroll: bool=?,
   ~showPagination: bool=?,
+  ~highlightSelectedRow: bool=?,
 ) => React.element
