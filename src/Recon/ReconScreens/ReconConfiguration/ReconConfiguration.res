@@ -12,6 +12,15 @@ let make = (~setShowOnBoarding, ~currentStep, ~setCurrentStep) => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon"))
   }
 
+  let removeSidebar = () => {
+    setShowSideBar(_ => false)
+  }
+
+  React.useEffect(() => {
+    removeSidebar()
+    None
+  }, [])
+
   let reconTitleElement =
     <>
       <h1 className="text-medium font-semibold text-gray-600">

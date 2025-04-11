@@ -5,6 +5,7 @@ let make = () => {
   open ReconConfigurationUtils
   open VerticalStepIndicatorTypes
   open ReconConfigurationTypes
+  open ReconOnboardingHelper
 
   let url = RescriptReactRouter.useUrl()
   let (showOnBoarding, setShowOnBoarding) = React.useState(_ => true)
@@ -56,9 +57,9 @@ let make = () => {
 
   <PageLoaderWrapper screenState sectionHeight="!h-screen">
     {switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "recon"} => <ReconOnBoardingContainer showOnBoarding />
+    | list{"v2", "recon"} => <ReconOnboardingLanding />
     | list{"v2", "recon", "home"} =>
-      <ReconConfigurationContainer setShowOnBoarding currentStep setCurrentStep />
+      <ReconConfigurationContainer showOnBoarding setShowOnBoarding currentStep setCurrentStep />
     | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer showOnBoarding />
     | _ => React.null
     }}

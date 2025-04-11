@@ -1,15 +1,11 @@
 @react.component
-let make = (~setShowOnBoarding, ~currentStep, ~setCurrentStep) => {
-  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+let make = (~showOnBoarding, ~setShowOnBoarding, ~currentStep, ~setCurrentStep) => {
+  open ReconOnboardingHelper
 
-  let removeSidebar = () => {
-    setShowSideBar(_ => false)
+  {
+    switch showOnBoarding {
+    | false => <ReconOverviewContent />
+    | true => <ReconConfiguration setShowOnBoarding currentStep setCurrentStep />
+    }
   }
-
-  React.useEffect(() => {
-    removeSidebar()
-    None
-  }, [])
-
-  <ReconConfiguration setShowOnBoarding currentStep setCurrentStep />
 }
