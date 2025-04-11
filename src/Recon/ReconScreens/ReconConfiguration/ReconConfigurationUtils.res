@@ -1,5 +1,6 @@
 open VerticalStepIndicatorTypes
 open ReconConfigurationTypes
+open LogicUtils
 
 let sections = [
   {
@@ -29,3 +30,27 @@ let getSectionVariantFromString = (section: string): sections =>
   | "finish" => #finish
   | _ => #orderDataConnection
   }
+
+let itemToObjMapperForReconStatusData: Dict.t<JSON.t> => reconDataType = dict => {
+  let reconStatusDict = dict->getDictfromDict("ReconStatus")
+  {
+    is_order_data_set: reconStatusDict->getBool("is_order_data_set", false),
+    is_processor_data_set: reconStatusDict->getBool("is_processor_data_set", false),
+  }
+}
+
+let defaultReconStatusData: reconDataType = {
+  {
+    is_order_data_set: false,
+    is_processor_data_set: false,
+  }
+}
+
+let getRequestBody = (~isOrderDataSet: bool, ~isProcessorDataSet: bool) => {
+  {
+    "ReconStatus": {
+      is_order_data_set: isOrderDataSet,
+      is_processor_data_set: isProcessorDataSet,
+    },
+  }
+}

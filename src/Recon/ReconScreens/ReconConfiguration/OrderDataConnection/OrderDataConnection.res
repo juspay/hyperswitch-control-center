@@ -2,19 +2,39 @@ open VerticalStepIndicatorTypes
 
 @react.component
 let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelectedOrderSource) => {
+  open APIUtils
   open ReconConfigurationUtils
   open OrderDataConnectionUtils
   open VerticalStepIndicatorUtils
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let updateDetails = useUpdateMethod()
+  let getURL = useGetURL()
+  let showToast = ToastState.useShowToast()
+
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
 
-  let onNextClick = () => {
-    switch getNextStep(currentStep) {
-    | Some(nextStep) => setCurrentStep(_ => nextStep)
-    | None => ()
+  let onNextClick = async () => {
+    try {
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let body = getRequestBody(~isOrderDataSet=true, ~isProcessorDataSet=false)
+
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
+      switch getNextStep(currentStep) {
+      | Some(nextStep) => setCurrentStep(_ => nextStep)
+      | None => ()
+      }
+    } catch {
+    | Exn.Error(_err) =>
+      showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
     }
+  }
+
+  let onSubmit = async () => {
+    mixpanelEvent(~eventName="recon_onboarding_step1")
+    let _ = await onNextClick()
   }
 
   <div className="flex flex-col h-full gap-y-10">
@@ -53,10 +73,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
           customButtonStyle="rounded w-full"
           buttonType={Primary}
           buttonState={Normal}
-          onClick={_ => {
-            mixpanelEvent(~eventName="recon_onboarding_step1")
-            onNextClick()->ignore
-          }}
+          onClick={_ => onSubmit()->ignore}
         />
       </div>
     </div>

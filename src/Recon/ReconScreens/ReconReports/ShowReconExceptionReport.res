@@ -60,7 +60,7 @@ module OrderInfo = {
   }
 }
 @react.component
-let make = (~id) => {
+let make = (~showOnBoarding, ~id) => {
   open LogicUtils
   open ReconExceptionsUtils
 
@@ -76,40 +76,44 @@ let make = (~id) => {
   let fetchApi = AuthHooks.useApiFetcher()
 
   let fetchOrderDetails = async _ => {
-    try {
-      setScreenState(_ => Loading)
-      let url = `${GlobalVars.getHostUrl}/test-data/recon/reconExceptions.json`
-      let exceptionsResponse = await fetchApi(
-        url,
-        ~method_=Get,
-        ~xFeatureRoute=false,
-        ~forceCookies=false,
-      )
-      let res = await exceptionsResponse->(res => res->Fetch.Response.json)
-      let data =
-        res
-        ->getDictFromJsonObject
-        ->getArrayFromDict("data", [])
-        ->ReconExceptionsUtils.getArrayOfReportsListPayloadType
-      let selectedDataArray = data->Array.filter(item => {item.transaction_id == id})
-      let selectedDataObject = selectedDataArray->getValueFromArray(0, defaultObject)
-      let exceptionMatrixArray = selectedDataObject.exception_matrix
+    if showOnBoarding {
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon"))
+    } else {
+      try {
+        setScreenState(_ => Loading)
+        let url = `${GlobalVars.getHostUrl}/test-data/recon/reconExceptions.json`
+        let exceptionsResponse = await fetchApi(
+          url,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let res = await exceptionsResponse->(res => res->Fetch.Response.json)
+        let data =
+          res
+          ->getDictFromJsonObject
+          ->getArrayFromDict("data", [])
+          ->ReconExceptionsUtils.getArrayOfReportsListPayloadType
+        let selectedDataArray = data->Array.filter(item => {item.transaction_id == id})
+        let selectedDataObject = selectedDataArray->getValueFromArray(0, defaultObject)
+        let exceptionMatrixArray = selectedDataObject.exception_matrix
 
-      setAttemptData(_ => exceptionMatrixArray)
-      setReconExceptionReport(_ => selectedDataObject)
-      setScreenState(_ => Success)
-    } catch {
-    | Exn.Error(e) =>
-      switch Exn.message(e) {
-      | Some(message) =>
-        if message->String.includes("HE_02") {
-          setScreenState(_ => Custom)
-        } else {
-          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
-          setScreenState(_ => Error("Failed to Fetch!"))
+        setAttemptData(_ => exceptionMatrixArray)
+        setReconExceptionReport(_ => selectedDataObject)
+        setScreenState(_ => Success)
+      } catch {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
+        | Some(message) =>
+          if message->String.includes("HE_02") {
+            setScreenState(_ => Custom)
+          } else {
+            showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
+            setScreenState(_ => Error("Failed to Fetch!"))
+          }
+
+        | None => setScreenState(_ => Error("Failed to Fetch!"))
         }
-
-      | None => setScreenState(_ => Error("Failed to Fetch!"))
       }
     }
   }
@@ -155,7 +159,7 @@ let make = (~id) => {
     />
     <div className="flex flex-col gap-4">
       <div className="flex flex-row justify-between items-center">
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-6 items-center">
           <PageUtils.PageHeading title={`Transaction ID: ${reconExceptionReport.transaction_id}`} />
           {switch reconExceptionReport.exception_type->getExceptionsStatusTypeFromString {
           | AmountMismatch
@@ -169,13 +173,11 @@ let make = (~id) => {
                 ->getExceptionStringFromStatus
                 ->React.string}
               </p>
-              <Icon name="nd-alert-circle" customIconColor="text-nd_red-400" />
             </div>
           | Resolved =>
             <div
               className="text-sm text-white font-semibold px-3  py-1 rounded-md bg-nd_green-50 dark:bg-opacity-50 flex gap-2">
               <p className="text-nd_green-400"> {"Resolved"->React.string} </p>
-              <Icon name="nd-tick" customIconColor="text-nd_green-400" />
             </div>
           }}
         </div>

@@ -217,10 +217,10 @@ module ConnectProcessorsFields = {
         </div>
       </RenderIf>
       <div className="mt-10 w-full">
-        <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0.5">
+        <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
           <FormRenderer.SubmitButton
             text="Next"
-            customSumbitButtonStyle="!w-full"
+            customSumbitButtonStyle="rounded !w-full"
             buttonType={Primary}
             tooltipForWidthClass="w-full"
           />
