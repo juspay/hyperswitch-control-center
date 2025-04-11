@@ -1429,9 +1429,16 @@ let connectorLabelDetailField = Dict.fromArray([
 let getConnectorFields = connectorDetails => {
   open LogicUtils
   let connectorAccountDict =
-    connectorDetails->getDictFromJsonObject->getDictfromDict("connector_auth")
-  let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
-  let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
+    connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
+  let bodyType = switch connectorAccountDict->JSON.Classify.classify {
+  | Object(dict) => dict->Dict.keysToArray->Array.get(0)->Option.getOr("")
+  | String(_) => "NoKey"
+  | _ => ""
+  }
+  let connectorAccountFields = switch bodyType {
+  | "NoKey" => Dict.make()
+  | _ => connectorAccountDict->getDictFromJsonObject->getDictfromDict(bodyType)
+  }
   let connectorMetaDataFields = connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
