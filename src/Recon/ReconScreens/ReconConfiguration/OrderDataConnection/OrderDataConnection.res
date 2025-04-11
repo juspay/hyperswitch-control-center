@@ -10,19 +10,25 @@ let make = (~currentStep: step, ~setCurrentStep, ~selectedOrderSource, ~setSelec
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateDetails = useUpdateMethod()
   let getURL = useGetURL()
+  let showToast = ToastState.useShowToast()
 
   let getNextStep = (currentStep: step): option<step> => {
     findNextStep(sections, currentStep)
   }
 
   let onNextClick = async () => {
-    let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
-    let body = getRequestBody(~isOrderDataSet=true, ~isProcessorDataSet=false)
+    try {
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
+      let body = getRequestBody(~isOrderDataSet=true, ~isProcessorDataSet=false)
 
-    let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
-    switch getNextStep(currentStep) {
-    | Some(nextStep) => setCurrentStep(_ => nextStep)
-    | None => ()
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
+      switch getNextStep(currentStep) {
+      | Some(nextStep) => setCurrentStep(_ => nextStep)
+      | None => ()
+      }
+    } catch {
+    | Exn.Error(_err) =>
+      showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
     }
   }
 

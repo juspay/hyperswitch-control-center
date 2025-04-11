@@ -14,27 +14,38 @@ let make = () => {
   })
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let getReconStatus = async () => {
-    let url = getURL(
-      ~entityName=V1(USERS),
-      ~userType=#USER_DATA,
-      ~methodType=Post,
-      ~queryParamerters=Some("keys=ReconStatus"),
-    )
-    let res = await fetchDetails(url)
-    let reconStatusData =
-      res
-      ->getArrayDataFromJson(itemToObjMapperForReconStatusData)
-      ->getValueFromArray(0, defaultReconStatusData)
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~userType=#USER_DATA,
+        ~methodType=Post,
+        ~queryParamerters=Some("keys=ReconStatus"),
+      )
+      let res = await fetchDetails(url)
+      let reconStatusData =
+        res
+        ->getArrayDataFromJson(itemToObjMapperForReconStatusData)
+        ->getValueFromArray(0, defaultReconStatusData)
 
-    if reconStatusData.is_order_data_set && !reconStatusData.is_processor_data_set {
-      setCurrentStep(_ => {sectionId: (#connectProcessors: sections :> string), subSectionId: None})
-    }
+      if reconStatusData.is_order_data_set && !reconStatusData.is_processor_data_set {
+        setCurrentStep(_ => {
+          sectionId: (#connectProcessors: sections :> string),
+          subSectionId: None,
+        })
+      }
 
-    if reconStatusData.is_processor_data_set && reconStatusData.is_order_data_set {
-      setCurrentStep(_ => {sectionId: (#finish: sections :> string), subSectionId: None})
-      setShowOnBoarding(_ => false)
+      if reconStatusData.is_processor_data_set && reconStatusData.is_order_data_set {
+        setCurrentStep(_ => {sectionId: (#finish: sections :> string), subSectionId: None})
+        setShowOnBoarding(_ => false)
+      }
+
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | Exn.Error(_e) => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch Recon Status!"))
     }
   }
 
@@ -43,13 +54,13 @@ let make = () => {
     None
   }, [])
 
-  {
-    switch url.path->HSwitchUtils.urlPath {
+  <PageLoaderWrapper screenState sectionHeight="!h-screen">
+    {switch url.path->HSwitchUtils.urlPath {
     | list{"v2", "recon"} => <ReconOnBoardingContainer showOnBoarding />
     | list{"v2", "recon", "home"} =>
       <ReconConfigurationContainer setShowOnBoarding currentStep setCurrentStep />
     | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer showOnBoarding />
     | _ => React.null
-    }
-  }
+    }}
+  </PageLoaderWrapper>
 }
