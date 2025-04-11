@@ -74,6 +74,18 @@ let zenGooglePayConfig = dict => {
   }
 }
 
+let validateZenFlow = values => {
+  let data =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("google_pay")
+    ->zenGooglePayConfig
+  data.terminal_uuid->isNonEmptyString && data.pay_wall_secret->isNonEmptyString
+    ? Button.Normal
+    : Button.Disabled
+}
+
 let googlePay = (dict, connector: string) => {
   open ConnectorUtils
   open ConnectorTypes
