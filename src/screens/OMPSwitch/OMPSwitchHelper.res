@@ -306,7 +306,9 @@ module MerchantDropdownItem = {
     }
 
     let handleMerchantSwitch = id => {
-      switchMerch(id)->ignore
+      if !isActive {
+        switchMerch(id)->ignore
+      }
     }
 
     let onSubmit = async (newMerchantName: string) => {
@@ -405,6 +407,7 @@ module ProfileDropdownItem = {
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let isMobileView = MatchMedia.useMobileChecker()
+    let isActive = currentId == profileId
 
     let getProfileList = async () => {
       try {
@@ -457,7 +460,9 @@ module ProfileDropdownItem = {
       }
     }
     let handleProfileSwitch = id => {
-      profileSwitch(id)->ignore
+      if !isActive {
+        profileSwitch(id)->ignore
+      }
     }
 
     let onSubmit = async (newProfileName: string) => {
@@ -476,7 +481,6 @@ module ProfileDropdownItem = {
       }
     }
 
-    let isActive = currentId == profileId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 

@@ -102,8 +102,15 @@ module OrgTile = {
     | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
     | false => "ring-grey-outline"
     }
+
+    let handleClick = () => {
+      if !isActive {
+        orgSwitch(orgID)->ignore
+      }
+    }
+
     <div
-      onClick={_ => orgSwitch(orgID)->ignore}
+      onClick={_ => handleClick()}
       className={`w-10 h-10 rounded-lg  flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
       <div
         className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md ${ringClass} ${isActive
