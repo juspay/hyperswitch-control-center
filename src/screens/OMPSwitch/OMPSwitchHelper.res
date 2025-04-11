@@ -305,7 +305,7 @@ module MerchantDropdownItem = {
     }
 
     let handleMerchantSwitch = id => {
-      switchMerch(id)->ignore
+      currentId != id ? switchMerch(id)->ignore : ()
     }
 
     let onSubmit = async (newMerchantName: string) => {
@@ -399,7 +399,6 @@ module ProfileDropdownItem = {
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
-    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
@@ -444,10 +443,10 @@ module ProfileDropdownItem = {
       errors
     }
 
-    let profileSwitch = async (value, ~changePath) => {
+    let profileSwitch = async value => {
       try {
         setShowSwitchingProfile(_ => true)
-        let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath)
+        let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true)
         setShowSwitchingProfile(_ => false)
       } catch {
       | _ => {
@@ -457,11 +456,7 @@ module ProfileDropdownItem = {
       }
     }
     let handleProfileSwitch = id => {
-      if activeProduct == Orchestration {
-        profileSwitch(id, ~changePath=true)->ignore
-      } else {
-        profileSwitch(id, ~changePath=false)->ignore
-      }
+      currentId != id ? profileSwitch(id)->ignore : ()
     }
 
     let onSubmit = async (newProfileName: string) => {
