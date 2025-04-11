@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.11.2
+
+### Bug Fixes
+
+- Empty page issue on omp dropdown item click ([#2818](https://github.com/juspay/hyperswitch-control-center/pull/2818)) ([`12ca0a7`](https://github.com/juspay/hyperswitch-control-center/commit/12ca0a7ad3755e6ee0cfcd8e54205202ec241556))
+
+**Full Changelog:** [`2025.04.11.1...2025.04.11.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.11.1...2025.04.11.2)
+
+
+- - -
+
 ## 2025.04.11.1
 
 ### Bug Fixes
