@@ -36,14 +36,26 @@ describe("Users - UI", () => {
       );
     });
 
-    it("Verify the 'Users' tab UI", () => {
+    it("Verify the UI of 'Users' tab", () => {
       cy.get(
         "div.font-semibold.text-black.dark\\:text-primary.text-blue-600",
       ).contains("Users");
     });
 
-    it("Verify the 'Roles' tab UI", () => {
+    it("Verify the UI of 'Roles' tab", () => {
       cy.get("div.text-jp-gray-900.text-opacity-50").contains("Roles");
+    });
+
+    it("Verify the UI of Data Filter Dropdown", () => {
+      cy.get('div[data-icon="settings-new"]').should("exist");
+      cy.get("p.text-jp-gray-900").contains("View data for:");
+      cy.get('div[data-icon="arrow-without-tail"]').should("exist");
+    });
+
+    it("Verify the UI Functionality of Data Filter Dropdown", () => {
+      // Click on any of the trigger elements to open the dropdown
+      cy.get('div[data-icon="settings-new"]').click({ force: true });
+      cy.get("div.data-dropdown-value").contains("All");
     });
 
     it("Verify the page has a table with id 'table'", () => {
