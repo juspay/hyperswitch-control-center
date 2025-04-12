@@ -27,7 +27,40 @@ beforeEach(function () {
   cy.get('[data-testid="users"]').click();
 });
 
-describe("Users", () => {
+describe("Users - UI", () => {
+  context("verify the UI of the Users page", () => {
+    it("Verify the page title is Team management", () => {
+      cy.get("div.text-fs-28.font-semibold.leading-10").should(
+        "have.text",
+        "Team management",
+      );
+    });
+
+    it("Verify the 'Users' tab UI", () => {
+      cy.get(
+        "div.font-semibold.text-black.dark\\:text-primary.text-blue-600",
+      ).contains("Users");
+    });
+
+    it("Verify the 'Roles' tab UI", () => {
+      cy.get("div.text-jp-gray-900.text-opacity-50").contains("Roles");
+    });
+
+    it("Verify the page has a table with id 'table'", () => {
+      cy.get("table#table").should("exist");
+    });
+
+    it("Verify the table has a header with id 'header'", () => {
+      cy.get("table#table thead").should("exist");
+    });
+
+    it("Verify the table has a body with id 'body'", () => {
+      cy.get("table#table tbody").should("exist");
+    });
+  });
+});
+
+describe("Users - Listings", () => {
   context(
     "verify Organization Admin is the only user before inviting any user",
     () => {
