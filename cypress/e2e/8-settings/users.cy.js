@@ -185,7 +185,7 @@ describe("Users - Details", () => {
         });
     });
 
-    it.only("Verify the styling of the status indicator", () => {
+    it("Verify the styling of the status indicator", () => {
       cy.get("table tr")
         .eq(1)
         .within(() => {
