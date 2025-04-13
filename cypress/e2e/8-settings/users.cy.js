@@ -158,5 +158,20 @@ describe("Users - Details", () => {
         .and("have.class", "text-grey-600")
         .and("have.class", "opacity-40");
     });
+
+    it("Verify the existence of access details table", () => {
+      cy.get("table").should("exist");
+    });
+
+    it("Verify the number of columns in the access details table", () => {
+      cy.get("table th").should("have.length", 5); // There should be 4 columns
+    });
+
+    it("Verify the table headers", () => {
+      cy.get("table th").eq(0).should("have.text", "Merchants");
+      cy.get("table th").eq(1).should("have.text", "Profile Name"); // This should be Profiles
+      cy.get("table th").eq(2).should("have.text", "Role");
+      cy.get("table th").eq(3).should("have.text", "Status");
+    });
   });
 });
