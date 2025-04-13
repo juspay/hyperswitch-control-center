@@ -60,7 +60,7 @@ describe("Volume based routing", () => {
       .invoke("text")
       .then((text) => {
         profileID = text;
-        let convertedStr = profileID.replace(" ", " (") + ")";
+        let convertedStr = profileID.replace("default", "default (") + ")";
         cy.get(`[data-button-text="${convertedStr}"]`).should(
           "contain",
           convertedStr,
