@@ -173,5 +173,30 @@ describe("Users - Details", () => {
       cy.get("table th").eq(2).should("have.text", "Role");
       cy.get("table th").eq(3).should("have.text", "Status");
     });
+
+    it("Verify the content of table rows", () => {
+      cy.get("table tr")
+        .eq(1)
+        .within(() => {
+          cy.get("td").eq(0).should("have.text", "All_merchants"); // This should be All Merchants
+          cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
+          cy.get("td").eq(2).should("have.text", "Organization Admin");
+          cy.get("td").eq(3).should("have.text", "Active");
+        });
+    });
+
+    it.only("Verify the styling of the status indicator", () => {
+      cy.get("table tr")
+        .eq(1)
+        .within(() => {
+          cy.get("td")
+            .eq(3)
+            .find("p")
+            .should("have.class", "text-green-700")
+            .should("have.class", "bg-green-700")
+            .should("have.class", "bg-opacity-20")
+            .should("have.class", "rounded-full");
+        });
+    });
   });
 });
