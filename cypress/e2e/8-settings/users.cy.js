@@ -151,7 +151,7 @@ describe("Users - Details", () => {
         .and("have.text", username);
     });
 
-    it.only("Verify the user's email is displayed", () => {
+    it("Verify the user's email is displayed", () => {
       cy.get("p")
         .contains(email)
         .should("exist")
