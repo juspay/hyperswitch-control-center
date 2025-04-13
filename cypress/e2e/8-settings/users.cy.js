@@ -118,3 +118,18 @@ describe("Users - Listings", () => {
     },
   );
 });
+
+describe("Users - Details", () => {
+  before(function () {
+    cy.get("table#table tbody tr").click();
+  });
+
+  context("verify the UI of the Users page", () => {
+    it("Verify the page title is Team management", () => {
+      cy.get("div.text-fs-28.font-semibold.leading-10").should(
+        "have.text",
+        "Team management",
+      );
+    });
+  });
+});
