@@ -141,5 +141,22 @@ describe("Users - Details", () => {
         .should("have.text", "Team management");
       cy.get("div[data-breadcrumb]").eq(1).should("have.text", email);
     });
+
+    it("Verify the user's username is displayed", () => {
+      const username =
+        email.split("@")[0].charAt(0).toUpperCase() +
+        email.split("@")[0].slice(1);
+      cy.get("p.text-2xl.font-semibold.leading-8")
+        .should("exist")
+        .and("have.text", username);
+    });
+
+    it.only("Verify the user's email is displayed", () => {
+      cy.get("p")
+        .contains(email)
+        .should("exist")
+        .and("have.class", "text-grey-600")
+        .and("have.class", "opacity-40");
+    });
   });
 });
