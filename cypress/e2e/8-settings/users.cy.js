@@ -46,6 +46,10 @@ describe("Users - UI", () => {
       cy.get("div.text-jp-gray-900.text-opacity-50").contains("Roles");
     });
 
+    it("Verify the UI of search input", () => {
+      cy.get('input[placeholder="Search by name or email.."]').should("exist");
+    });
+
     it("Verify the UI of Data Filter Dropdown", () => {
       cy.get('div[data-icon="settings-new"]').should("exist");
       cy.get("p.text-jp-gray-900").contains("View data for:");
@@ -76,17 +80,9 @@ describe("Users - UI", () => {
       cy.get('div[data-dropdown-value="default"]').contains("(Profile)");
     });
 
-    // it("Verify the page has a table with id 'table'", () => {
-    //   cy.get("table#table").should("exist");
-    // });
-
-    // it("Verify the table has a header with id 'header'", () => {
-    //   cy.get("table#table thead").should("exist");
-    // });
-
-    // it("Verify the table has a body with id 'body'", () => {
-    //   cy.get("table#table tbody").should("exist");
-    // });
+    it('Verify the page has a "Invite users" button', () => {
+      cy.get('button[data-button-for="inviteUsers"').should("exist");
+    });
   });
 });
 
