@@ -2,10 +2,11 @@ import * as helper from "../../support/helper";
 import HomePage from "../../support/pages/homepage/HomePage";
 
 const homePage = new HomePage();
+let email;
 
 beforeEach(function () {
   // Generate a unique email for the test
-  const email = helper.generateUniqueEmail();
+  email = helper.generateUniqueEmail();
 
   // Visit the signup page
   cy.visit_signupPage();
@@ -120,7 +121,7 @@ describe("Users - Listings", () => {
 });
 
 describe("Users - Details", () => {
-  before(function () {
+  beforeEach(function () {
     cy.get("table#table tbody tr").click();
   });
 
@@ -130,6 +131,15 @@ describe("Users - Details", () => {
         "have.text",
         "Team management",
       );
+    });
+
+    it("Verify the breadcrumb has the user's email", () => {
+      cy.get("div[data-breadcrumb]").should("exist");
+      cy.get("div[data-breadcrumb]").should("have.length", 2);
+      cy.get("div[data-breadcrumb]")
+        .eq(0)
+        .should("have.text", "Team management");
+      cy.get("div[data-breadcrumb]").eq(1).should("have.text", email);
     });
   });
 });
