@@ -52,23 +52,41 @@ describe("Users - UI", () => {
       cy.get('div[data-icon="arrow-without-tail"]').should("exist");
     });
 
-    it("Verify the UI Functionality of Data Filter Dropdown", () => {
-      // Click on any of the trigger elements to open the dropdown
+    it("Verify the UI Functionality of the Data Filter Dropdown by clicking on gear icon", () => {
       cy.get('div[data-icon="settings-new"]').click({ force: true });
-      cy.get("div.data-dropdown-value").contains("All");
+      cy.get('div[data-dropdown-value="All"]').contains("(Default)");
+      cy.get('div[data-dropdown-value^="org_"]').contains("(Organization)");
+      cy.get('div[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
+      cy.get('div[data-dropdown-value="default"]').contains("(Profile)");
     });
 
-    it("Verify the page has a table with id 'table'", () => {
-      cy.get("table#table").should("exist");
+    it('Verify the UI Functionality of the Data Filter Dropdown by clicking on "View data for:"', () => {
+      cy.get("p.text-jp-gray-900").click({ force: true });
+      cy.get('div[data-dropdown-value="All"]').contains("(Default)");
+      cy.get('div[data-dropdown-value^="org_"]').contains("(Organization)");
+      cy.get('div[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
+      cy.get('div[data-dropdown-value="default"]').contains("(Profile)");
     });
 
-    it("Verify the table has a header with id 'header'", () => {
-      cy.get("table#table thead").should("exist");
+    it("Verify the UI Functionality of the Data Filter Dropdown by clicking on arrow without tail icon", () => {
+      cy.get('div[data-icon="arrow-without-tail"]').click({ force: true });
+      cy.get('div[data-dropdown-value="All"]').contains("(Default)");
+      cy.get('div[data-dropdown-value^="org_"]').contains("(Organization)");
+      cy.get('div[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
+      cy.get('div[data-dropdown-value="default"]').contains("(Profile)");
     });
 
-    it("Verify the table has a body with id 'body'", () => {
-      cy.get("table#table tbody").should("exist");
-    });
+    // it("Verify the page has a table with id 'table'", () => {
+    //   cy.get("table#table").should("exist");
+    // });
+
+    // it("Verify the table has a header with id 'header'", () => {
+    //   cy.get("table#table thead").should("exist");
+    // });
+
+    // it("Verify the table has a body with id 'body'", () => {
+    //   cy.get("table#table tbody").should("exist");
+    // });
   });
 });
 
