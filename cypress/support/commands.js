@@ -176,7 +176,7 @@ Cypress.Commands.add("mock_magic_link_signin_success", (user_email = "") => {
   }).as("getMagicLinkSuccess");
 });
 
-Cypress.Commands.add("signup_curl", (name = "", pass = "") => {
+Cypress.Commands.add("signup_API", (name = "", pass = "") => {
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
 
@@ -205,7 +205,7 @@ Cypress.Commands.add("signup_curl", (name = "", pass = "") => {
     });
 });
 
-Cypress.Commands.add("login_curl", (name = "", pass = "") => {
+Cypress.Commands.add("login_API", (name = "", pass = "") => {
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
   // /user/signin
@@ -223,10 +223,10 @@ Cypress.Commands.add("login_UI", (name = "", pass = "") => {
   cy.visit("/");
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
-  cy.get("[data-testid=email]").type(username);
-  cy.get("[data-testid=password]").type(password);
-  cy.get('button[type="submit"]').click({ force: true });
-  cy.get("[data-testid=skip-now]").click({ force: true });
+  signinPage.emailInput.type(username);
+  signinPage.passwordInput.type(password);
+  signinPage.signinButton.click();
+  signinPage.skip2FAButton.click();
 });
 
 Cypress.Commands.add("createAPIKey", (merchant_id) => {
@@ -355,6 +355,24 @@ Cypress.Commands.add("deleteConnector", (mca_id) => {
   });
 });
 
+Cypress.Commands.add("createPaymentAPI", (merchant_id) => {
+  cy.createAPIKey(merchant_id).then((apiKey) => {
+    cy.request({
+      method: "POST",
+      url: `http://localhost:8080/payments`,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey, // Pass the apiKey here
+      },
+      body: {
+        amount: 3540,
+        currency: "USD",
+      },
+    });
+  });
+});
+
 Cypress.Commands.add("process_payment_sdk_UI", () => {
   cy.clearCookies("login_token");
   cy.get("[data-testid=connectors]").click();
@@ -389,7 +407,6 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
 });
 
 Cypress.Commands.add("sign_up_with_email", (username, password) => {
-  const MAIL_URL = "http://localhost:8025";
   cy.url().should("include", "/register");
   signupPage.emailInput.type(username);
   signupPage.signUpButton.click();
@@ -397,7 +414,7 @@ Cypress.Commands.add("sign_up_with_email", (username, password) => {
     "contain",
     "Please check your inbox",
   );
-  cy.visit(`${MAIL_URL}`);
+  cy.visit(Cypress.env("MAIL_URL"));
   cy.get("div.messages > div:nth-child(2)").click();
   cy.wait(1000);
   cy.get("iframe").then(($iframe) => {
@@ -416,6 +433,18 @@ Cypress.Commands.add("sign_up_with_email", (username, password) => {
     signinPage.signinButton.click();
     // Skip 2FA
     signinPage.skip2FAButton.click();
+  });
+});
+
+Cypress.Commands.add("redirect_from_mail_inbox", () => {
+  cy.visit(Cypress.env("MAIL_URL"));
+  cy.get("div.messages > div:nth-child(2)").click();
+  cy.wait(1000);
+  cy.get("iframe").then(($iframe) => {
+    // Verify email
+    const doc = $iframe.contents();
+    const verifyEmail = doc.find("a").get(0);
+    cy.visit(verifyEmail.href);
   });
 });
 

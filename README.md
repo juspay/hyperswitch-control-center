@@ -62,7 +62,8 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    ```bash
    npm run start
    ```
-8. In another terminal window, start the backend development server:
+
+7. In another terminal window, start the backend development server:
 
    ```
    git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
@@ -70,7 +71,7 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    docker compose up -d --scale hyperswitch-control-center=0
    ```
 
-7. Access the application in your browser at http://localhost:9000.
+8. Access the application in your browser at http://localhost:9000.
 
 ---
 

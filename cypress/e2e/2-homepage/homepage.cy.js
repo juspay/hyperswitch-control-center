@@ -12,7 +12,7 @@ describe("Sign up", () => {
   beforeEach(function () {
     if (Cypress.env("RBAC") == "") {
       email = helper.generateUniqueEmail();
-      cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+      cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
     }
     // add valid param check
     else {
@@ -33,7 +33,7 @@ describe("Sign up", () => {
 
             // Create user with role passed from env            // TODO: create a function to pass role and access level to create the user
             email = helper.generateUniqueEmail();
-            cy.signup_curl(email, Cypress.env("CYPRESS_PASSWORD"));
+            cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
           },
         );
       } else {
@@ -63,4 +63,7 @@ describe("Sign up", () => {
   it("should only for org user", () => {
     cy.visit("/");
   });
+
+  // it("should process a payment using the SDK", () => {
+  // });
 });
