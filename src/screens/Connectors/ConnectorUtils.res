@@ -1438,7 +1438,7 @@ let getConnectorFields = connectorDetails => {
   let connectorAccountDict =
     connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
   let bodyType = switch connectorAccountDict->JSON.Classify.classify {
-  | Object(dict) => dict->Dict.keysToArray->Array.get(0)->Option.getOr("")
+  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "")
   | String(_) => "NoKey"
   | _ => ""
   }
