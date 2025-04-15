@@ -95,13 +95,6 @@ let getPreviousStep = (currentStep: step): option<step> => {
   findPreviousStep(sections, currentStep)
 }
 
-let onNextClick = (currentStep, setNextStep) => {
-  switch getNextStep(currentStep) {
-  | Some(nextStep) => setNextStep(_ => nextStep)
-  | None => ()
-  }
-}
-
 let onPreviousClick = (currentStep, setNextStep) => {
   switch getPreviousStep(currentStep) {
   | Some(previousStep) => setNextStep(_ => previousStep)
@@ -127,6 +120,39 @@ let getSectionVariant = ({sectionId, subSectionId}) => {
   }
 
   (mainSection, subSection)
+}
+
+let getMixpanelEventName = currentStep => {
+  switch currentStep->getSectionVariant {
+  | (#connectProcessor, #selectProcessor) => "recovery_payment_processor_step1"
+  | (#connectProcessor, #activePaymentMethods)
+  | (#connectProcessor, #setupWebhookProcessor) => "recovery_payment_processor_step2"
+  | (#addAPlatform, #selectAPlatform) => "recovery_billing_processor_step1"
+  | (#addAPlatform, #configureRetries) => "recovery_billing_processor_step2"
+  | (#addAPlatform, #connectProcessor) => "recovery_billing_processor_step3"
+  | (#addAPlatform, #setupWebhookPlatform) => "recovery_billing_processor_step4"
+  | _ => ""
+  }
+}
+
+let onNextClick = (
+  currentStep,
+  setNextStep,
+  ~mixpanelEvent: (
+    ~eventName: string,
+    ~email: string=?,
+    ~description: option<'a>=?,
+    ~section: string=?,
+    ~metadata: Core__JSON.t=?,
+  ) => unit,
+) => {
+  switch getNextStep(currentStep) {
+  | Some(nextStep) => {
+      mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
+      setNextStep(_ => nextStep)
+    }
+  | None => ()
+  }
 }
 
 let sampleDataBanner =
@@ -180,17 +206,4 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
     }
   })
   options
-}
-
-let getMixpanelEventName = currentStep => {
-  switch currentStep->getSectionVariant {
-  | (#connectProcessor, #selectProcessor) => "recovery_payment_processor_step1"
-  | (#connectProcessor, #activePaymentMethods) => "recovery_payment_processor_step2"
-  | (#connectProcessor, #setupWebhookProcessor) => "recovery_payment_processor_step3"
-  | (#addAPlatform, #selectAPlatform) => "recovery_billing_processor_step1"
-  | (#addAPlatform, #configureRetries) => "recovery_billing_processor_step2"
-  | (#addAPlatform, #connectProcessor) => "recovery_billing_processor_step3"
-  | (#addAPlatform, #setupWebhookPlatform) => "recovery_billing_processor_step4"
-  | _ => ""
-  }
 }
