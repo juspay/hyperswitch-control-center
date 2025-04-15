@@ -34,6 +34,7 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(NETCETERA),
   ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD),
   ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
+  ThreeDsAuthenticator(CLICK_TO_PAY_VISA),
 ]
 
 let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
@@ -483,6 +484,9 @@ let netceteraInfo = {
 let clickToPayInfo = {
   description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
 }
+let clickToPayVisaInfo = {
+  description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
+}
 
 let juspayThreeDsServerInfo = {
   description: "Juspay's cost-effective 3DS platform, ensures security, compliance, and seamless checkout—reducing fraud, boosting conversions, and enhancing customer trust with frictionless authentication.",
@@ -700,6 +704,7 @@ let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthentica
   | NETCETERA => "netcetera"
   | CLICK_TO_PAY_MASTERCARD => "ctp_mastercard"
   | JUSPAYTHREEDSSERVER => "juspaythreedsserver"
+  | CLICK_TO_PAY_VISA => "ctp_visa"
   }
 
 let getFRMNameString = (frm: frmTypes) => {
@@ -844,6 +849,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "netcetera" => ThreeDsAuthenticator(NETCETERA)
     | "ctp_mastercard" => ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD)
     | "juspaythreedsserver" => ThreeDsAuthenticator(JUSPAYTHREEDSSERVER)
+    | "ctp_visa" => ThreeDsAuthenticator(CLICK_TO_PAY_VISA)
     | _ => UnknownConnector("Not known")
     }
   | FRMPlayer =>
@@ -970,6 +976,7 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   | NETCETERA => netceteraInfo
   | CLICK_TO_PAY_MASTERCARD => clickToPayInfo
   | JUSPAYTHREEDSSERVER => juspayThreeDsServerInfo
+  | CLICK_TO_PAY_VISA => clickToPayVisaInfo
   }
 let getFrmInfo = frm =>
   switch frm {
@@ -1816,8 +1823,9 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
   | NETCETERA => "Netcetera"
-  | CLICK_TO_PAY_MASTERCARD => "Unified Click to Pay"
+  | CLICK_TO_PAY_MASTERCARD => "Mastercard Unified Click to Pay"
   | JUSPAYTHREEDSSERVER => "Juspay 3DS Server"
+  | CLICK_TO_PAY_VISA => "Visa Unified Click to Pay"
   }
 
 let getDisplayNameForFRMConnector = frmConnector =>
