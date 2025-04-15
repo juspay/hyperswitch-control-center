@@ -457,10 +457,14 @@ module ReconOverviewContent = {
   @react.component
   let make = () => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+
     React.useEffect(() => {
       mixpanelEvent(~eventName="recon_analytics_overview")
+      setShowSideBar(_ => true)
       None
     }, [])
+
     <div>
       <div
         className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
