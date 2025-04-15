@@ -58,8 +58,9 @@ let make = () => {
   <PageLoaderWrapper screenState sectionHeight="!h-screen">
     {switch url.path->HSwitchUtils.urlPath {
     | list{"v2", "recon"} => <ReconOnboardingLanding />
-    | list{"v2", "recon", "home"} =>
-      <ReconConfigurationContainer showOnBoarding setShowOnBoarding currentStep setCurrentStep />
+    | list{"v2", "recon", "overview"} => <ReconOverviewContainer showOnBoarding />
+    | list{"v2", "recon", "configuration"} =>
+      <ReconConfigurationContainer setShowOnBoarding currentStep setCurrentStep />
     | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer showOnBoarding />
     | _ => React.null
     }}
