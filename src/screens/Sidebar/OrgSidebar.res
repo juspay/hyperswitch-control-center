@@ -102,8 +102,15 @@ module OrgTile = {
     | true => "border-primary ring-primary/20 ring-offset-0 ring-2"
     | false => "ring-grey-outline"
     }
+
+    let handleClick = () => {
+      if !isActive {
+        orgSwitch(orgID)->ignore
+      }
+    }
+
     <div
-      onClick={_ => orgSwitch(orgID)->ignore}
+      onClick={_ => handleClick()}
       className={`w-10 h-10 rounded-lg  flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
       <div
         className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md ${ringClass} ${isActive
@@ -124,7 +131,9 @@ module OrgTile = {
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
-                  customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
+                  customIconCss={`${secondaryTextColor}`}
+                  displayValue=Some("")
+                  copyValue=Some({orgID})
                 />
               </div>}
               toolTipPosition=ToolTip.Right
@@ -294,6 +303,7 @@ let make = () => {
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let showToast = ToastState.useShowToast()
 
   let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
@@ -318,7 +328,11 @@ let make = () => {
     }
   }
   React.useEffect(() => {
-    getOrgList()->ignore
+    if !isInternalUser {
+      getOrgList()->ignore
+    } else {
+      setOrgList(_ => [ompDefaultValue(orgId, "")])
+    }
     None
   }, [])
 

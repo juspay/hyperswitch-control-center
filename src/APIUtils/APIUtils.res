@@ -69,7 +69,7 @@ let getV2Url = (
     | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
     | None => ""
     }
-  /* MERCHANT ACCOUNT DETAILS (Get and Post) */
+  /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
   | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
   | USERS =>
     let userUrl = `user`
@@ -607,6 +607,21 @@ let useGetURL = () => {
       /* EVENT LOGS */
       | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
 
+      | WEBHOOK_EVENTS =>
+        switch queryParamerters {
+        | Some(param) => `events/${merchantId}?${param}`
+        | None => `events/${merchantId}`
+        }
+      | WEBHOOK_EVENTS_ATTEMPTS =>
+        switch id {
+        | Some(id) => `events/${merchantId}/${id}/attempts`
+        | None => `events/${merchantId}/attempts`
+        }
+      | WEBHOOKS_EVENTS_RETRY =>
+        switch id {
+        | Some(id) => `events/${merchantId}/${id}/retry`
+        | None => `events/${merchantId}/retry`
+        }
       | WEBHOOKS_EVENT_LOGS =>
         switch methodType {
         | Get =>

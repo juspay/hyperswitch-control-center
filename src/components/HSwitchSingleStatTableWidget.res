@@ -119,7 +119,7 @@ module ShowMore = {
         modalClass="w-full max-w-lg mx-auto md:mt-44 ">
         <LoadedTable
           visibleColumns
-          title=" "
+          title="HSwitch Single Stat Table"
           hideTitle=true
           actualData={tableData}
           entity=tableEntity

@@ -5,7 +5,7 @@ let make = () => {
   open APIUtils
 
   open HyperswitchAtom
-  let pageViewEvent = MixpanelHook.usePageView()
+
   let url = RescriptReactRouter.useUrl()
   let {
     showFeedbackModal,
@@ -85,7 +85,6 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
   }
-  let path = url.path->List.toArray->Array.joinWith("/")
 
   React.useEffect(() => {
     setUpDashboard()->ignore
@@ -96,13 +95,6 @@ let make = () => {
     applyTheme()->ignore
     None
   }, [themeId])
-
-  React.useEffect(() => {
-    if featureFlagDetails.mixpanel {
-      pageViewEvent(~path)->ignore
-    }
-    None
-  }, (featureFlagDetails.mixpanel, path))
 
   React.useEffect(() => {
     if userGroupACL->Option.isSome {
@@ -139,7 +131,10 @@ let make = () => {
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
-                          <GlobalSearchBar />
+                          <RenderIf
+                            condition={merchantDetailsTypedValue.product_type == Orchestration}>
+                            <GlobalSearchBar />
+                          </RenderIf>
                           <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
@@ -231,7 +226,8 @@ let make = () => {
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}
                         | list{"payoutrouting", ..._}
-                        | list{"payment-settings", ..._} =>
+                        | list{"payment-settings", ..._}
+                        | list{"webhooks", ..._} =>
                           <ConnectorContainer />
                         | list{"apm"} => <APMContainer />
                         | list{"business-details", ..._}
@@ -361,7 +357,7 @@ let make = () => {
                   />
                 </RenderIf>
                 <RenderIf condition={!featureFlagDetails.isLiveMode}>
-                  <ProdIntentForm />
+                  <ProdIntentForm productType={activeProduct} />
                 </RenderIf>
               </PageLoaderWrapper>
             </div>

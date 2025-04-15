@@ -246,7 +246,7 @@ module MerchantDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {merchantId, version}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
@@ -306,22 +306,35 @@ module MerchantDropdownItem = {
     }
 
     let handleMerchantSwitch = id => {
-      switchMerch(id)->ignore
+      if !isActive {
+        switchMerch(id)->ignore
+      }
     }
 
     let onSubmit = async (newMerchantName: string) => {
       try {
-        let body =
-          [
-            ("merchant_id", merchantId->JSON.Encode.string),
-            ("merchant_name", newMerchantName->JSON.Encode.string),
-          ]->getJsonFromArrayOfJson
-        let accountUrl = getURL(
-          ~entityName=V1(MERCHANT_ACCOUNT),
-          ~methodType=Post,
-          ~id=Some(merchantId),
-        )
-        let _ = await updateDetails(accountUrl, body, Post)
+        if version == V2 {
+          let body =
+            [("merchant_name", newMerchantName->JSON.Encode.string)]->getJsonFromArrayOfJson
+          let accountUrl = getURL(
+            ~entityName=V2(MERCHANT_ACCOUNT),
+            ~methodType=Put,
+            ~id=Some(merchantId),
+          )
+          let _ = await updateDetails(accountUrl, body, Put)
+        } else {
+          let body =
+            [
+              ("merchant_id", merchantId->JSON.Encode.string),
+              ("merchant_name", newMerchantName->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson
+          let accountUrl = getURL(
+            ~entityName=V1(MERCHANT_ACCOUNT),
+            ~methodType=Post,
+            ~id=Some(merchantId),
+          )
+          let _ = await updateDetails(accountUrl, body, Post)
+        }
         getMerchantList()->ignore
         showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
       } catch {
@@ -351,7 +364,9 @@ module MerchantDropdownItem = {
             customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
-                customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({currentId})
+                customIconCss={`${secondaryTextColor}`}
+                displayValue=Some("")
+                copyValue=Some({currentId})
               />
             </div>}
             toolTipPosition=ToolTip.Right
@@ -392,6 +407,7 @@ module ProfileDropdownItem = {
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let isMobileView = MatchMedia.useMobileChecker()
+    let isActive = currentId == profileId
 
     let getProfileList = async () => {
       try {
@@ -444,7 +460,9 @@ module ProfileDropdownItem = {
       }
     }
     let handleProfileSwitch = id => {
-      profileSwitch(id)->ignore
+      if !isActive {
+        profileSwitch(id)->ignore
+      }
     }
 
     let onSubmit = async (newProfileName: string) => {
@@ -463,7 +481,6 @@ module ProfileDropdownItem = {
       }
     }
 
-    let isActive = currentId == profileId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
@@ -491,7 +508,7 @@ module ProfileDropdownItem = {
             customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
-                displayValue=" " copyValue=Some(currentId) customIconCss="text-nd_gray-600"
+                displayValue=Some("") copyValue=Some(currentId) customIconCss="text-nd_gray-600"
               />
             </div>}
             toolTipPosition=ToolTip.Right
@@ -527,7 +544,7 @@ let generateDropdownOptions: (
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp
-              displayValue=" " copyValue=Some({item.id}) customIconCss
+              displayValue=Some("") copyValue=Some({item.id}) customIconCss
             />
           </div>}
           toolTipPosition=ToolTip.TopRight
@@ -553,7 +570,7 @@ let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCus
           description={item.id}
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
-            <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+            <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
           </div>}
           toolTipPosition=ToolTip.TopRight
         />,

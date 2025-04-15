@@ -85,7 +85,8 @@ let make = (~isPayoutFlow=false) => {
         clearFilters={() => handleClearFilter()->ignore}
       />
       <LoadedTable
-        title=" "
+        title="Payment Methods"
+        hideTitle=true
         actualData={filteredConnectors->Array.map(Nullable.make)}
         totalResults={filteredConnectors->Array.length}
         resultsPerPage=20

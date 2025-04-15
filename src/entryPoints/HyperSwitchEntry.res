@@ -1,4 +1,5 @@
 module HyperSwitchEntryComponent = {
+  open HyperswitchAtom
   @react.component
   let make = () => {
     open HyperSwitchEntryUtils
@@ -6,9 +7,11 @@ module HyperSwitchEntryComponent = {
     let fetchDetails = APIUtils.useGetMethod()
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
-    let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
+    let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
+    let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
+    let pageViewEvent = MixpanelHook.usePageView()
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
@@ -101,6 +104,14 @@ module HyperSwitchEntryComponent = {
       None
     }, [])
 
+    React.useEffect(() => {
+      let path = url.path->List.toArray->Array.joinWith("/")
+      if featureFlagDetails.mixpanel {
+        pageViewEvent(~path)->ignore
+      }
+      None
+    }, (featureFlagDetails.mixpanel, url.path))
+
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
       let title = `${page} - Dashboard`
@@ -125,6 +136,7 @@ module HyperSwitchEntryComponent = {
       }
       None
     }, [url.path])
+
     <PageLoaderWrapper
       screenState
       sectionHeight="h-screen"

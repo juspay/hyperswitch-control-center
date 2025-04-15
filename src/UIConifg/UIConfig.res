@@ -131,7 +131,7 @@ let defaultUIConfig: t = {
       borderSecondaryBorderStyleClass: "border-border_gray border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100",
     },
     backgroundColor: {
-      primaryNormal: "border-1.5 border-double border-transparent text-button-primary-text primary-gradient-button focus:outline-none",
+      primaryNormal: "border-1.5 border-double border-transparent bg-button-primary-bg text-button-primary-text primary-gradient-button focus:outline-none",
       primaryDisabled: "bg-button-primary-bg primary-gradient-button opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 dark:border-jp-gray-disabled_border dark:border-opacity-50 focus:outline-none",
       primaryNoHover: "bg-button-primary-bg  hover:bg-button-primary-hoverbg focus:outline-none dark:text-opacity-50 text-opacity-50",
       primaryLoading: "bg-button-primary-bg focus:outline-none",
