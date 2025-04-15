@@ -154,6 +154,12 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     a
   })
 
+  React.useEffect(_ => {
+    setActiveTab(_ => ["Log Details"])
+    setCollapseTab(prev => !prev)
+    None
+  }, [logDetails])
+
   let activeTab = React.useMemo(() => {
     Some(activeTab)
   }, [activeTab])
@@ -163,11 +169,6 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       setActiveTab(_ => str->String.split(","))
     }
   }, [setActiveTab])
-
-  React.useEffect(_ => {
-    setCollapseTab(prev => !prev)
-    None
-  }, [logDetails])
 
   let getDetails = async () => {
     let logs = []
