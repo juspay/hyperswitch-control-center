@@ -41,7 +41,7 @@ module PSPTokens = {
         {"PSP Tokens"->React.string}
       </div>
       <LoadedTable
-        title=" "
+        title="PSP Tokens"
         hideTitle=true
         resultsPerPage=7
         entity={VaultPSPTokensEntity.pspTokensEntity}

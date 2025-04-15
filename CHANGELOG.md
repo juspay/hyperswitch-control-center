@@ -3,6 +3,59 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.11.2
+
+### Bug Fixes
+
+- Empty page issue on omp dropdown item click ([#2818](https://github.com/juspay/hyperswitch-control-center/pull/2818)) ([`12ca0a7`](https://github.com/juspay/hyperswitch-control-center/commit/12ca0a7ad3755e6ee0cfcd8e54205202ec241556))
+
+**Full Changelog:** [`2025.04.11.1...2025.04.11.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.11.1...2025.04.11.2)
+
+
+- - -
+
+## 2025.04.11.1
+
+### Bug Fixes
+
+- Merchant name update failing for v2 ([#2815](https://github.com/juspay/hyperswitch-control-center/pull/2815)) ([`07df36c`](https://github.com/juspay/hyperswitch-control-center/commit/07df36c446ef66baf34514fd1b3d11b2f7f4adc7))
+- Safari dashboard ui fixes ([#2809](https://github.com/juspay/hyperswitch-control-center/pull/2809)) ([`5fa8dbd`](https://github.com/juspay/hyperswitch-control-center/commit/5fa8dbd8d52b62c67e4b130c1a4f99cc0c3e1338))
+- Recovery minor fixes ([#2813](https://github.com/juspay/hyperswitch-control-center/pull/2813)) ([`288eafe`](https://github.com/juspay/hyperswitch-control-center/commit/288eafec6526f4aed4ed9df77c44ac175e4b478b))
+
+**Full Changelog:** [`2025.04.11.0...2025.04.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.11.0...2025.04.11.1)
+
+
+- - -
+
+## 2025.04.11.0
+
+### Features
+
+- Google pay decryption flow for cybersource ([#2652](https://github.com/juspay/hyperswitch-control-center/pull/2652)) ([`e1e9248`](https://github.com/juspay/hyperswitch-control-center/commit/e1e92484f7d07377ede90dae140d709e43187717))
+- Field addition for create refund for coingate connector ([#2731](https://github.com/juspay/hyperswitch-control-center/pull/2731)) ([`3d47bfb`](https://github.com/juspay/hyperswitch-control-center/commit/3d47bfb2b7cf602e49bca853184fb9698abe4ad9))
+- Webhook list and details introduced ([#2224](https://github.com/juspay/hyperswitch-control-center/pull/2224)) ([`79aff4b`](https://github.com/juspay/hyperswitch-control-center/commit/79aff4b749545eec118292fd614269155842c309))
+
+### Bug Fixes
+
+- Show payment details issue on new tab open ([#2805](https://github.com/juspay/hyperswitch-control-center/pull/2805)) ([`9f3d326`](https://github.com/juspay/hyperswitch-control-center/commit/9f3d326f25699274b3a3b1e97124a7eafebee97e))
+- Pci security issues in docker and cypress ([#2794](https://github.com/juspay/hyperswitch-control-center/pull/2794)) ([`454757d`](https://github.com/juspay/hyperswitch-control-center/commit/454757dd74aa00ae6392e0fc18255489b38173aa))
+
+### Refactors
+
+- Copy text custom component displayValue type change ([#2808](https://github.com/juspay/hyperswitch-control-center/pull/2808)) ([`b722495`](https://github.com/juspay/hyperswitch-control-center/commit/b722495554ff0a5d3740fda94495610d6bb5262a))
+
+### Miscellaneous Tasks
+
+- Frontend Improvements ([#2802](https://github.com/juspay/hyperswitch-control-center/pull/2802)) ([`f141a66`](https://github.com/juspay/hyperswitch-control-center/commit/f141a66c953f4d4da4e71f5fd8dcf44d2aa19eeb))
+- Added titles to the table instead of empty string ([#2811](https://github.com/juspay/hyperswitch-control-center/pull/2811)) ([`a242eb1`](https://github.com/juspay/hyperswitch-control-center/commit/a242eb11ad8493f5a3d8eaac4e7a65e6bb2c4813))
+- Product type added in get production api payload ([#2683](https://github.com/juspay/hyperswitch-control-center/pull/2683)) ([`80113a2`](https://github.com/juspay/hyperswitch-control-center/commit/80113a24f34638365779e3571114a193dd2014aa))
+- Login and signup page view count ([#2793](https://github.com/juspay/hyperswitch-control-center/pull/2793)) ([`8105d4c`](https://github.com/juspay/hyperswitch-control-center/commit/8105d4ca68d18e4c05e805ea6cf247f6c881217f))
+
+**Full Changelog:** [`2025.04.10.0...2025.04.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.10.0...2025.04.11.0)
+
+
+- - -
+
 ## 2025.04.10.0
 
 ### Bug Fixes

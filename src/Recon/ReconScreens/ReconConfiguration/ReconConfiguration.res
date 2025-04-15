@@ -1,14 +1,8 @@
 @react.component
-let make = (~setShowOnBoarding) => {
-  open ReconConfigurationTypes
+let make = (~setShowOnBoarding, ~currentStep, ~setCurrentStep) => {
   open OrderDataConnectionTypes
   open VerticalStepIndicatorTypes
   open ReconConfigurationUtils
-
-  let (currentStep, setCurrentStep) = React.useState(() => {
-    sectionId: (#orderDataConnection: sections :> string),
-    subSectionId: None,
-  })
 
   let (selectedOrderSource, setSelectedOrderSource) = React.useState(_ => UploadFile)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
@@ -17,6 +11,15 @@ let make = (~setShowOnBoarding) => {
     setShowSideBar(_ => true)
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon"))
   }
+
+  let removeSidebar = () => {
+    setShowSideBar(_ => false)
+  }
+
+  React.useEffect(() => {
+    removeSidebar()
+    None
+  }, [])
 
   let reconTitleElement =
     <>

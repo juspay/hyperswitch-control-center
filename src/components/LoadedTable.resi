@@ -118,4 +118,5 @@ let make: (
   ~loadedTableParentClass: string=?,
   ~remoteSortEnabled: bool=?,
   ~showAutoScroll: bool=?,
+  ~highlightSelectedRow: bool=?,
 ) => React.element
