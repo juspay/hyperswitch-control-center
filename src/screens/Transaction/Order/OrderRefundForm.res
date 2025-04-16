@@ -90,27 +90,28 @@ let make = (
       }
     })
     let amountValue = Dict.get(valuesDict, "amount")
-    let metadata = getDictFromJsonObject(values)->getDictfromDict("metadata")
 
-    let emailValue = metadata->LogicUtils.getString("email", "")
-    let cryptoAddress = metadata->Dict.get("address")
-    let metadataErrors = Dict.make()
-
-    if (
-      cryptoAddress->Option.isNone ||
-        cryptoAddress
-        ->Option.getOr(JSON.Encode.null)
-        ->LogicUtils.getStringFromJson("")
-        ->String.trim
-        ->LogicUtils.isEmptyString
-    ) {
-      Dict.set(metadataErrors, "address", `Required`->JSON.Encode.string)
-    }
-    if emailValue->CommonAuthUtils.isValidEmail {
-      Dict.set(metadataErrors, "email", `Please Enter Valid Email`->JSON.Encode.string)
-    }
-    if !(metadataErrors->isEmptyDict) {
-      Dict.set(errors, "metadata", metadataErrors->JSON.Encode.object)
+    if showRefundAddressEmail {
+      let metadata = getDictFromJsonObject(values)->getDictfromDict("metadata")
+      let emailValue = metadata->LogicUtils.getString("email", "")
+      let cryptoAddress = metadata->Dict.get("address")
+      let metadataErrors = Dict.make()
+      if (
+        cryptoAddress->Option.isNone ||
+          cryptoAddress
+          ->Option.getOr(JSON.Encode.null)
+          ->LogicUtils.getStringFromJson("")
+          ->String.trim
+          ->LogicUtils.isEmptyString
+      ) {
+        Dict.set(metadataErrors, "address", `Required`->JSON.Encode.string)
+      }
+      if emailValue->CommonAuthUtils.isValidEmail {
+        Dict.set(metadataErrors, "email", `Please Enter Valid Email`->JSON.Encode.string)
+      }
+      if !(metadataErrors->isEmptyDict) {
+        Dict.set(errors, "metadata", metadataErrors->JSON.Encode.object)
+      }
     }
 
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
