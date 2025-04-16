@@ -19,6 +19,7 @@ Hyperswitch control center is an open source dashboard to easily view, manage an
    cd hyperswitch
    docker compose up -d
    ```
+
 ### Accessing the Application
 
 Once the containers are up and running, you can access the application by navigating to http://localhost:9000 in your web browser.
@@ -70,7 +71,7 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 6. Update the config.toml file
 
    ```bash
-   api_url = your-backend-url #e.g: http://localhost:8080 
+   api_url = your-backend-url #e.g: http://localhost:8080
    sdk_url = your-sdk-url  #e.g: http://localhost:9050/HyperLoader.js
    ```
 
@@ -80,11 +81,9 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    npm run start
    ```
 
-
 8. Access the application in your browser at http://localhost:9000.
 
 ---
-
 
 ## Feature Flags
 

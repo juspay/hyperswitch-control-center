@@ -295,6 +295,27 @@ Cypress.Commands.add(
                 },
               ],
             },
+            {
+              payment_method: "card",
+              payment_method_types: [
+                {
+                  payment_method_type: "credit",
+                  card_networks: ["Mastercard"],
+                  minimum_amount: 0,
+                  maximum_amount: 68607706,
+                  recurring_enabled: true,
+                  installment_payment_enabled: false,
+                },
+                {
+                  payment_method_type: "credit",
+                  card_networks: ["Visa"],
+                  minimum_amount: 0,
+                  maximum_amount: 68607706,
+                  recurring_enabled: true,
+                  installment_payment_enabled: false,
+                },
+              ],
+            },
           ],
         },
       });
@@ -366,8 +387,72 @@ Cypress.Commands.add("createPaymentAPI", (merchant_id) => {
         "api-key": apiKey, // Pass the apiKey here
       },
       body: {
-        amount: 3540,
+        amount: 10000,
         currency: "USD",
+        confirm: true,
+        capture_method: "automatic",
+        customer_id: "test_customer",
+        authentication_type: "no_three_ds",
+        return_url: "https://google.com",
+        email: "abc@test.com",
+        name: "Joseph Doe",
+        phone: "999999999",
+        phone_country_code: "+65",
+        merchant_order_reference_id: "abcd",
+        description: "Its my first payment",
+        statement_descriptor_name: "Juspay",
+        statement_descriptor_suffix: "Router",
+        payment_method: "card",
+        payment_method_type: "credit",
+        payment_method_data: {
+          card: {
+            card_number: "4242424242424242",
+            card_exp_month: "01",
+            card_exp_year: "2027",
+            card_holder_name: "joseph Doe",
+            card_cvc: "100",
+            nick_name: "hehe",
+          },
+        },
+        billing: {
+          address: {
+            city: "Toronto",
+            country: "CA",
+            line1: "1562",
+            line2: "HarrisonStreet",
+            line3: "HarrisonStreet",
+            zip: "M3C 0C1",
+            state: "ON",
+            first_name: "Joseph",
+            last_name: "Doe",
+          },
+          phone: {
+            number: "8056594427",
+            country_code: "+91",
+          },
+          email: "abc@test.com",
+        },
+        shipping: {
+          address: {
+            city: "Toronto",
+            country: "CA",
+            line1: "1562",
+            line2: "HarrisonStreet",
+            line3: "HarrisonStreet",
+            zip: "M3C 0C1",
+            state: "ON",
+            first_name: "Joseph",
+            last_name: "Doe",
+          },
+          phone: {
+            number: "8056594427",
+            country_code: "+91",
+          },
+          email: "abc@test.com",
+        },
+        metadata: {
+          key: "value",
+        },
       },
     });
   });

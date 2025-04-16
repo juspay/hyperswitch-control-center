@@ -207,7 +207,7 @@ describe("Sign in", () => {
     cy.visit("/");
     cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
 
-    signinPage.signin(` ${email} `, Cypress.env("CYPRESS_PASSWORD"));
+    cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
 
     cy.url().should("include", "/dashboard/home");
   });

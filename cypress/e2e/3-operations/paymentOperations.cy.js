@@ -1,10 +1,7 @@
-import { v4 as uuidv4 } from "uuid";
 import * as helper from "../../support/helper";
-import SignInPage from "../../support/pages/auth/SignInPage";
 import HomePage from "../../support/pages/homepage/HomePage";
 import PaymentOperations from "../../support/pages/operations/PaymentOperations";
 
-const signinPage = new SignInPage();
 const homePage = new HomePage();
 const paymentOperations = new PaymentOperations();
 
@@ -50,12 +47,14 @@ describe("Payment Operations", () => {
       .eq(4)
       .should("have.text", "Cancelled0");
 
-    // Search box, dropdowns, date selector
+    // Search box
     paymentOperations.searchBox.should(
       "have.attr",
       "placeholder",
       "Search for payment ID",
     );
+
+    //Date selector, View dropdown, Add filters
     paymentOperations.dateSelector.should("be.visible");
     paymentOperations.viewDropdown.should("be.visible");
     paymentOperations.addFilters.should("be.visible");
@@ -74,7 +73,7 @@ describe("Payment Operations", () => {
     );
   });
 
-  it("should verify all components in Payment Operations page when payments exists", () => {
+  it("should verify all components in Payment Operations page when a payment exists", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
@@ -82,39 +81,80 @@ describe("Payment Operations", () => {
       .then((text) => {
         merchant_id = text;
         cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
-        cy.createPaymentAPI(merchant_id);
+        cy.createPaymentAPI(merchant_id).then((response) => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
+
+          // cy.get(`[class="flex gap-6 justify-around"]`).children().eq(0).should("have.text", "All1");
+          // cy.get(`[class="flex gap-6 justify-around"]`).children().eq(3).should("have.text", "Dropoffs1");
+
+          paymentOperations.columnButton.should("be.visible");
+
+          const expectedHeaders = [
+            "S.No",
+            "Payment ID",
+            "Connector",
+            "Profile Id",
+            "Amount",
+            "Payment Status",
+            "Payment Method",
+            "Payment Method Type",
+            "Card Network",
+            "Connector Transaction ID",
+            "Customer Email",
+            "Merchant Order Reference Id",
+            "Description",
+            "Metadata",
+            "Created",
+          ];
+          cy.get("table thead tr th").each(($el, index) => {
+            cy.wrap($el).should("have.text", expectedHeaders[index]);
+          });
+
+          cy.get(`[data-table-location="Orders_tr1_td1"]`).contains("1");
+          cy.get(`[data-table-location="Orders_tr1_td2"]`)
+            .contains("...")
+            .click();
+          cy.get(`[data-table-location="Orders_tr1_td2"]`).contains(
+            response.body.payment_id,
+          );
+          cy.get(`[data-table-location="Orders_tr1_td3"]`).contains(
+            "Stripe Dummy",
+          );
+          cy.get(`[data-table-location="Orders_tr1_td4"]`).contains(
+            response.body.profile_id,
+          );
+          cy.get(`[data-table-location="Orders_tr1_td5"]`).contains(
+            `${response.body.amount / 100}` + " " + `${response.body.currency}`,
+          );
+          cy.get(`[data-table-location="Orders_tr1_td6"]`).contains(
+            response.body.status.toUpperCase(),
+          );
+          cy.get(`[data-table-location="Orders_tr1_td7"]`).contains(
+            response.body.payment_method,
+          );
+          cy.get(`[data-table-location="Orders_tr1_td8"]`).contains(
+            response.body.payment_method_type,
+          );
+          cy.get(`[data-table-location="Orders_tr1_td9"]`).contains("NA");
+          cy.get(`[data-table-location="Orders_tr1_td10"]`).contains(
+            response.body.connector_transaction_id,
+          );
+          cy.get(`[data-table-location="Orders_tr1_td11"]`).contains(
+            response.body.email,
+          );
+          cy.get(`[data-table-location="Orders_tr1_td12"]`).contains(
+            response.body.merchant_order_reference_id,
+          );
+          cy.get(`[class="text-sm font-extrabold cursor-pointer"]`).click();
+          cy.get(`[data-table-location="Orders_tr1_td13"]`).contains(
+            response.body.description,
+          );
+          cy.get(`[data-table-location="Orders_tr1_td14"]`).contains(
+            JSON.stringify(response.body.metadata),
+          );
+        });
       });
-
-    homePage.operations.click();
-    homePage.paymentOperations.click();
-
-    // TODO:
-    //cy.get(`[class="flex gap-6 justify-around"]`).children().eq(0).should("have.text", "All1");
-    //cy.get(`[class="flex gap-6 justify-around"]`).children().eq(3).should("have.text", "Dropoffs1");
-
-    paymentOperations.columnButton.should("be.visible");
-
-    const expectedHeaders = [
-      "S.No",
-      "Payment ID",
-      "Connector",
-      "Profile Id",
-      "Amount",
-      "Payment Status",
-      "Payment Method",
-      "Payment Method Type",
-      "Card Network",
-      "Connector Transaction ID",
-      "Customer Email",
-      "Merchant Order Reference Id",
-      "Description",
-      "Metadata",
-      "Created",
-    ];
-    cy.get("table thead tr th").each(($el, index) => {
-      cy.wrap($el).should("have.text", expectedHeaders[index]);
-    });
-    // TODO: Payment details
   });
 
   //Columns
@@ -281,4 +321,9 @@ describe("Payment Operations", () => {
       '[data-component="modal:Table Columns"] [data-dropdown-numeric]',
     ).should("have.length", columnSize);
   });
+
+  // Filters
+  // Views
+  // Date Selector
+  // Payment details page
 });
