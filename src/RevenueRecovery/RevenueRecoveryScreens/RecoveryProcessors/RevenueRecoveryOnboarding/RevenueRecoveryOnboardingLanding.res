@@ -30,7 +30,7 @@ let make = (~createMerchant) => {
             mixpanelEvent(~eventName="recovery_get_started_new_merchant")
             setCreateNewMerchant(ProductTypes.Recovery)
           } else {
-            mixpanelEvent(~eventName="recovery_integrate_connectors_")
+            mixpanelEvent(~eventName="recovery_integrate_connectors")
             RescriptReactRouter.replace(
               GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding`),
             )

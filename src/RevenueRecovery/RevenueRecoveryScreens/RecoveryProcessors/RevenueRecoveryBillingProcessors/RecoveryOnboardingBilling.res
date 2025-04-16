@@ -64,12 +64,11 @@ let make = (
 
   let handleAuthKeySubmit = async (values, _) => {
     setInitialValues(_ => values)
-    onNextClick(currentStep, setNextStep)
+    onNextClick(currentStep, setNextStep, ~mixpanelEvent)
     Nullable.null
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     let dict = values->getDictFromJsonObject
     let values = dict->JSON.Encode.object
 
@@ -80,7 +79,7 @@ let make = (
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
-      onNextClick(currentStep, setNextStep)
+      onNextClick(currentStep, setNextStep, ~mixpanelEvent)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -211,7 +210,9 @@ let make = (
         />
       | (#addAPlatform, #setupWebhookPlatform) =>
         <BillingProcessorsWebhooks
-          initialValues merchantId onNextClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+          initialValues
+          merchantId
+          onNextClick={_ => onNextClick(currentStep, setNextStep, ~mixpanelEvent)->ignore}
         />
       | (#reviewDetails, _) => <BillingProcessorsReviewDetails />
       | _ => React.null

@@ -15,7 +15,7 @@ let make = (
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
   open ConnectProcessorsHelper
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
@@ -118,7 +118,7 @@ let make = (
       setConnectorID(_ => connectorInfoDict.id)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
-      onNextClick(currentStep, setNextStep)
+      onNextClick(currentStep, setNextStep, ~mixpanelEvent)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -280,7 +280,7 @@ let make = (
           <Button
             text="Next"
             buttonType=Primary
-            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            onClick={_ => onNextClick(currentStep, setNextStep, ~mixpanelEvent)->ignore}
             customButtonStyle="w-full mt-8"
           />
         </div>
