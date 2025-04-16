@@ -89,8 +89,6 @@ let make = (
         Dict.set(errors, key, "Required"->JSON.Encode.string)
       }
     })
-    let amountValue = Dict.get(valuesDict, "amount")
-
     if showRefundAddressEmail {
       let metadata = getDictFromJsonObject(values)->getDictfromDict("metadata")
       let emailValue = metadata->LogicUtils.getString("email", "")
@@ -113,7 +111,7 @@ let make = (
         Dict.set(errors, "metadata", metadataErrors->JSON.Encode.object)
       }
     }
-
+    let amountValue = Dict.get(valuesDict, "amount")
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
       if floatVal > amoutAvailableToRefund {
