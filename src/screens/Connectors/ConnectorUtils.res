@@ -142,6 +142,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
+  Processors(WORLDPAY),
   Processors(ZSL),
   Processors(ZEN),
 ]

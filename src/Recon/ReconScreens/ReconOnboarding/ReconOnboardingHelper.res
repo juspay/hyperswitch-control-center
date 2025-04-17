@@ -17,7 +17,7 @@ module ReconOnboardingLanding = {
 
     let handleClick = () => {
       if activeProduct == Recon {
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recon/home"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recon/configuration"))
       } else {
         onTryDemoClick()
       }
