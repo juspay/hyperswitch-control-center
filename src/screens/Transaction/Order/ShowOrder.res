@@ -414,7 +414,7 @@ module OrderActions = {
     })
     React.useEffect(_ => {
       setAmoutAvailableToRefund(_ =>
-        orderData.amount /. 100.0 -.
+        orderData.amount_received /. 100.0 -.
         amountRefunded.contents /. 100.0 -.
         requestedRefundAmount.contents /. 100.0
       )

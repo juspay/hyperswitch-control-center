@@ -317,7 +317,7 @@ let make = () => {
           colMapper
           distributionArray={Some([distribution])}
           tableEntity={Some(paymentTableEntity(~uri=paymentAnalyticsUrl))}
-          deltaMetrics={getStringListFromArrayDict(metrics)}
+          deltaMetrics=["payment_success_rate", "payment_count", "payment_success_count"]
           deltaArray=[]
           tableGlobalFilter=filterByData
           weeklyTableMetricsCols
