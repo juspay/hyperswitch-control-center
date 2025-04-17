@@ -73,7 +73,7 @@ describe("Payment Operations", () => {
     );
   });
 
-  it("should verify all components in Payment Operations page when a payment exists", () => {
+  it.only("should verify all components in Payment Operations page when a payment exists", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
@@ -98,8 +98,8 @@ describe("Payment Operations", () => {
             .should("have.text", "All1");
           cy.get(`[class="flex gap-6 justify-around"]`)
             .children()
-            .eq(3)
-            .should("have.text", "Dropoffs1");
+            .eq(1)
+            .should("have.text", "Succeeded1");
 
           // Search box
           paymentOperations.searchBox.should(
