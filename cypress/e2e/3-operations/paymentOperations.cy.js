@@ -85,11 +85,36 @@ describe("Payment Operations", () => {
           homePage.operations.click();
           homePage.paymentOperations.click();
 
-          // cy.get(`[class="flex gap-6 justify-around"]`).children().eq(0).should("have.text", "All1");
-          // cy.get(`[class="flex gap-6 justify-around"]`).children().eq(3).should("have.text", "Dropoffs1");
+          //Header
+          cy.get(`[class="text-fs-28 font-semibold leading-10 "]`).should(
+            "contain",
+            "Payment Operations",
+          );
 
+          // Transaction view
+          cy.get(`[class="flex gap-6 justify-around"]`)
+            .children()
+            .eq(0)
+            .should("have.text", "All1");
+          cy.get(`[class="flex gap-6 justify-around"]`)
+            .children()
+            .eq(3)
+            .should("have.text", "Dropoffs1");
+
+          // Search box
+          paymentOperations.searchBox.should(
+            "have.attr",
+            "placeholder",
+            "Search for payment ID",
+          );
+
+          // Add filters, Date selector, View dropdown, Column button
+          paymentOperations.addFilters.should("be.visible");
+          paymentOperations.dateSelector.should("be.visible");
+          paymentOperations.viewDropdown.should("be.visible");
           paymentOperations.columnButton.should("be.visible");
 
+          // Table headers
           const expectedHeaders = [
             "S.No",
             "Payment ID",
@@ -111,6 +136,7 @@ describe("Payment Operations", () => {
             cy.wrap($el).should("have.text", expectedHeaders[index]);
           });
 
+          // Payment details in table row
           cy.get(`[data-table-location="Orders_tr1_td1"]`).contains("1");
           cy.get(`[data-table-location="Orders_tr1_td2"]`)
             .contains("...")
@@ -322,6 +348,7 @@ describe("Payment Operations", () => {
     ).should("have.length", columnSize);
   });
 
+  //Search bar
   // Filters
   // Views
   // Date Selector

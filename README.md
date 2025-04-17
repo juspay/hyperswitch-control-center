@@ -421,35 +421,61 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 
 ## Cypress Test Suite
 
-### Running Tests
+This guide walks you through running Cypress tests locally for the [Hyperswitch Control Center](https://github.com/juspay/hyperswitch-control-center) project. The tests simulate real user workflows on the dashboard UI and require a working Hyperswitch backend environment.
 
-1.
+---
+
+## Local Testing Setup
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/)
+- [npm](https://www.npmjs.com/)
+- [Cypress](https://docs.cypress.io/app/get-started/install-cypress)
+
+---
+
+### 1. Clone the repository and navigate to the project directory
+
+```bash
+git clone https://github.com/juspay/hyperswitch-control-center.git
+cd hyperswitch-control-center
+```
+
+### 2. Install project dependencies:
+
+```bash
+npm install
+```
+
+### 3. Start the local dashboard server
 
 ```
-npm run build:test
-npm run test:start
+npm run build:test && npm run test:start
 ```
 
-2. To run tests interactively in Cypress Test Runner:
+### 4. Running Cypress Tests
 
-   ```
-   npm run cy:open
+Open a second terminal and run the following commands
 
-   ```
+#### Set environment variables for cypress
 
-3. To run tests in headless mode (CI/CD):
+```
+export CYPRESS_USERNAME="cypress@test.com"
+export CYPRESS_PASSWORD="Cypress00#"
+```
 
-   ```
-   npm run cy:run
+#### To run tests interactively in Cypress Test Runner:
 
-   ```
+```
+npm run cy:open
+```
 
-### Running Tests Locally
+#### To run tests in headless mode (CI/CD):
 
-## Prerequisite
-
-1. Make sure to run the Hyperswitch backend locally by following the instructions at https://github.com/juspay/hyperswitch.
-2. Once the backend is running, follow the steps in Running Tests to execute the Cypress test suite.
+```
+npm run cy:run
+```
 
 ## License
 
