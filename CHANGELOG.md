@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.17.0
+
+### Bug Fixes
+
+- Refunds disable/enable in operations ([#2833](https://github.com/juspay/hyperswitch-control-center/pull/2833)) ([`93fe0ec`](https://github.com/juspay/hyperswitch-control-center/commit/93fe0ec58b67574c8ff4886be1e524062fbfe6cd))
+
+### Miscellaneous Tasks
+
+- Added worldpay connector in prod ([#2832](https://github.com/juspay/hyperswitch-control-center/pull/2832)) ([`35e660e`](https://github.com/juspay/hyperswitch-control-center/commit/35e660e8f37fda6861c6776b277fef1183e0c71d))
+- Recon navigation and url changes ([#2826](https://github.com/juspay/hyperswitch-control-center/pull/2826)) ([`bd467b9`](https://github.com/juspay/hyperswitch-control-center/commit/bd467b91b44bf5fe4474f761cff4dafb138be172))
+
+**Full Changelog:** [`2025.04.16.0...2025.04.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.16.0...2025.04.17.0)
+
+
+- - -
+
 ## 2025.04.16.0
 
 ### Features
