@@ -4,7 +4,7 @@ type filterBody = {
 }
 
 let formateDateString = date => {
-  date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
+  date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
 }
 
 let getDateFilteredObject = (~range=7) => {
