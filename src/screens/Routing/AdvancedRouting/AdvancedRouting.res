@@ -471,7 +471,7 @@ let make = (
 ) => {
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-    let businessProfileRecoilVal =
+  let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
   let (initialValues, setInitialValues) = React.useState(_ =>
