@@ -138,7 +138,9 @@ let errorSubCodeMapper = (subCode: string) => {
 }
 
 let clearLocalStorage = () => {
+  let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
   LocalStorage.clear()
+  HyperSwitchEntryUtils.setThemeIdtoStore(themeId)
 }
 
 module ToggleLiveTestMode = {

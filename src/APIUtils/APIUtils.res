@@ -917,9 +917,9 @@ let useHandleLogout = (~eventName="user_sign_out") => {
         })
       setAuthStateToLogout()
       clearRecoilValue()
-      LocalStorage.clear()
+      CommonAuthUtils.clearLocalStorage()
     } catch {
-    | _ => LocalStorage.clear()
+    | _ => CommonAuthUtils.clearLocalStorage()
     }
   }
 }

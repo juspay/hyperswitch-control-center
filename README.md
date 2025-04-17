@@ -154,19 +154,9 @@ Enabling `branding` feature flag enables customization of branding elements like
 
 ---
 
-## Customize the Color and Logo
+## Themes
 
-Priamry color,logo and favicon can customizied by setting the values in the config.toml
-
-```
-[default.theme]
-primary_color="#006DF9"
-primary_hover_color="#005ED6"
-sidebar_color="#242F48"
-[default.endpoints]
-logo_url=""
-favicon_url=""
-```
+Themes can now be customized in `ThemesProvider.res` by overriding the values in `newDefaultConfig`. This allows you to update default colors, sidebar styles, button designs, and URLs for the logo and favicon.
 
 ## Enable the features on Run time by overriding the default value
 
