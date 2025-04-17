@@ -9,7 +9,7 @@ let make = (~setShowOnBoarding, ~currentStep, ~setCurrentStep) => {
 
   let backClick = () => {
     setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/overview"))
   }
 
   let removeSidebar = () => {
