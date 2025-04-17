@@ -136,7 +136,8 @@ let make = () => {
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let isMobileView = MatchMedia.useMobileChecker()
 
   let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
@@ -196,7 +197,7 @@ let make = () => {
   React.useEffect(() => {
     getProfileList()->ignore
     None
-  }, [businessProfiles])
+  }, [businessProfileRecoilVal])
 
   let toggleChevronState = () => {
     setArrow(prev => !prev)

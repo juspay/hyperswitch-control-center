@@ -21,10 +21,9 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let connectorTypeFromName =
     connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
 
-  let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-
-  let activeBusinessProfile =
-    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
+  
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
   let connectorDetails = React.useMemo(() => {
     try {
@@ -65,11 +64,11 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
       if connector->isNonEmptyString {
         initialValuesToDict->Dict.set(
           "connector_label",
-          `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+          `${connector}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
         )
         initialValuesToDict->Dict.set(
           "profile_id",
-          activeBusinessProfile.profile_id->JSON.Encode.string,
+          businessProfileRecoilVal.profile_id->JSON.Encode.string,
         )
       }
     }
@@ -84,7 +83,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     } else {
       initialValues
     }
-  }, [connector, activeBusinessProfile.profile_id])
+  }, [connector, businessProfileRecoilVal.profile_id])
 
   let onSubmitMain = async values => {
     open ConnectorTypes

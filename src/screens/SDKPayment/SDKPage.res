@@ -4,8 +4,10 @@ module SDKConfiguarationFields = {
   open MerchantAccountUtils
   @react.component
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
-    let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let disableSelectionForProfile = businessProfiles->HomeUtils.isDefaultBusinessProfile
+    let businessProfileRecoilVal =
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    let businessProfileArray = Array.make(~length=1, businessProfileRecoilVal)
+    let disableSelectionForProfile = businessProfileArray->HomeUtils.isDefaultBusinessProfile
     let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
       ~interface=ConnectorInterface.connectorInterfaceV1,
       ~retainInList=PaymentProcessor,
@@ -23,7 +25,7 @@ module SDKConfiguarationFields = {
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~deselectDisable=true,
-        ~options={businessProfiles->businessProfileNameDropDownOption},
+        ~options={businessProfileArray->businessProfileNameDropDownOption},
         ~buttonText="Select Profile",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,
@@ -79,16 +81,15 @@ module SDKConfiguarationFields = {
 
 @react.component
 let make = () => {
-  open MerchantAccountUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
   let (key, setKey) = React.useState(_ => "")
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (initialValues, setInitialValues) = React.useState(_ =>
-    defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
+    businessProfileRecoilVal->SDKPaymentUtils.initialValueForForm
   )
   let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV1,
@@ -97,7 +98,10 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
+    ~profileId=Some(profileId),
+  )
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {userInfo: {profileId, merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -111,16 +115,16 @@ let make = () => {
   }, [filtersFromUrl])
 
   React.useEffect(() => {
-    setInitialValues(_ => defaultBusinessProfile->SDKPaymentUtils.initialValueForForm)
+    setInitialValues(_ => businessProfileRecoilVal->SDKPaymentUtils.initialValueForForm)
     None
-  }, [defaultBusinessProfile.profile_id])
+  }, [businessProfileRecoilVal.profile_id])
 
   let setUpConnectoreContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       if userHasAccess(~groupAccess=ConnectorsView) === Access {
         if !featureFlagDetails.isLiveMode {
-          let _ = await fetchBusinessProfiles()
+          let _ = await fetchBusinessProfileFromId()
           let _ = await fetchConnectorListResponse()
         }
       }

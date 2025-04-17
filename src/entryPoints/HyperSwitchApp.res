@@ -233,9 +233,10 @@ let make = () => {
                         | list{"webhooks", ..._} =>
                           <ConnectorContainer />
                         | list{"apm"} => <APMContainer />
-                        | list{"business-details", ..._}
-                        | list{"business-profiles", ..._} =>
-                          <BusinessProfileContainer />
+                        //Commented as not required now
+                        // | list{"business-details", ..._}
+                        // | list{"business-profiles", ..._} =>
+                        //   <BusinessProfileContainer />
                         | list{"payments", ..._}
                         | list{"refunds", ..._}
                         | list{"disputes", ..._}

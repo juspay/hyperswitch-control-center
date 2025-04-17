@@ -471,9 +471,9 @@ let make = (
 ) => {
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-  let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
   let (initialValues, setInitialValues) = React.useState(_ =>
     initialValues->Identity.genericTypeToJson
   )
@@ -504,7 +504,7 @@ let make = (
 
       setInitialValues(_ => routingJson)
       setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
-      setProfile(_ => schemaValue->getString("profile_id", defaultBusinessProfile.profile_id))
+      setProfile(_ => schemaValue->getString("profile_id", businessProfileRecoilVal.profile_id))
       setFormState(_ => ViewConfig)
     } catch {
     | Exn.Error(e) =>

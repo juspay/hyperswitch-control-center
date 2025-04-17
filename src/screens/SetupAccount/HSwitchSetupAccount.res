@@ -9,9 +9,7 @@ let make = () => {
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let getURL = useGetURL()
   let activeBusinessProfile =
-    HyperswitchAtom.businessProfilesAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->MerchantAccountUtils.getValueFromBusinessProfile
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
   let indexOfStepCounterVal = listOfStepCounter->Array.indexOf(stepCounter)
   let {

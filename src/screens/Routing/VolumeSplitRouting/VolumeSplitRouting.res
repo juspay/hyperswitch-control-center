@@ -209,9 +209,9 @@ let make = (
 ) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-  let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
   let (formState, setFormState) = React.useState(_ => RoutingTypes.EditReplica)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let fetchDetails = useGetMethod()
@@ -230,7 +230,7 @@ let make = (
     let routingJsonToDict = routingJson->getDictFromJsonObject
     setFormState(_ => ViewConfig)
     setInitialValues(_ => routingJsonToDict)
-    setProfile(_ => routingJsonToDict->getString("profile_id", defaultBusinessProfile.profile_id))
+    setProfile(_ => routingJsonToDict->getString("profile_id", businessProfileRecoilVal.profile_id))
   }
 
   let getDetails = async _ => {
