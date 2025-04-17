@@ -73,7 +73,7 @@ describe("Payment Operations", () => {
     );
   });
 
-  it.only("should verify all components in Payment Operations page when a payment exists", () => {
+  it("should verify all components in Payment Operations page when a payment exists", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
