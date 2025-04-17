@@ -661,13 +661,18 @@ let useGetURL = () => {
       | BUSINESS_PROFILE =>
         switch methodType {
         | Get =>
-          switch userEntity {
-          | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile =>
-            `account/${merchantId}/profile`
+          switch id {
+          | Some(id) => `account/${merchantId}/business_profile/${id}`
+          | None =>
+            switch userEntity {
+            | #Tenant
+            | #Organization
+            | #Merchant
+            | #Profile =>
+              `account/${merchantId}/profile`
+            }
           }
+
         | Post =>
           switch id {
           | Some(id) => `account/${merchantId}/business_profile/${id}`

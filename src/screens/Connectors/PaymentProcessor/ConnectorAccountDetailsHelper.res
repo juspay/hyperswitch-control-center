@@ -340,8 +340,9 @@ module BusinessProfileRender = {
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-    let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
+    let businessProfileRecoilVal =
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    let businessProfileArray = Array.make(~length=1, businessProfileRecoilVal)
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
@@ -360,10 +361,12 @@ module BusinessProfileRender = {
           ~customInput=(~input, ~placeholder as _) =>
             InputFields.selectInput(
               ~deselectDisable=true,
-              ~disableSelect={isUpdateFlow || businessProfiles->HomeUtils.isDefaultBusinessProfile},
+              ~disableSelect={
+                isUpdateFlow || businessProfileArray->HomeUtils.isDefaultBusinessProfile
+              },
               ~customStyle="max-h-48",
               ~options={
-                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
+                businessProfileArray->MerchantAccountUtils.businessProfileNameDropDownOption
               },
               ~buttonText="Select Profile",
             )(
@@ -372,11 +375,11 @@ module BusinessProfileRender = {
                 onChange: {
                   ev => {
                     let profileName = (
-                      businessProfiles
+                      businessProfileArray
                       ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
                         ele.profile_id === ev->Identity.formReactEventToString
                       )
-                      ->Option.getOr(defaultBusinessProfile)
+                      ->Option.getOr(businessProfileRecoilVal)
                     ).profile_name
                     connectorLabelOnChange(
                       `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,

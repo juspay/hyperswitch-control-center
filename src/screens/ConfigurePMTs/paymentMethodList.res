@@ -3,7 +3,10 @@ let make = (~isPayoutFlow=false) => {
   open PaymentMethodConfigUtils
   open PaymentMethodEntity
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtom,
+  )
+  let businessProfileArray = Array.make(~length=1, businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (connectorResponse, setConnectorResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
@@ -76,10 +79,10 @@ let make = (~isPayoutFlow=false) => {
         defaultFilters={Dict.make()->JSON.Encode.object}
         fixedFilters=[]
         requiredSearchFieldsList=[]
-        localFilters={configuredConnectors->initialFilters(businessProfiles)}
+        localFilters={configuredConnectors->initialFilters(businessProfileArray)}
         localOptions=[]
         remoteOptions=[]
-        remoteFilters={configuredConnectors->initialFilters(businessProfiles)}
+        remoteFilters={configuredConnectors->initialFilters(businessProfileArray)}
         defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => handleClearFilter()->ignore}

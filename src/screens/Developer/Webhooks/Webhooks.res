@@ -14,10 +14,12 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateExistingKeys, filterValueJson, reset, filterValue} =
     FilterContext.filterContext->React.useContext
-  let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileArray = Array.make(~length=1, businessProfileRecoilVal)
   let (searchText, setSearchText) = React.useState(_ => "")
 
-  let webhookURL = switch businessProfileValues->Array.get(0) {
+  let webhookURL = switch businessProfileArray->Array.get(0) {
   | Some(val) => val.webhook_details.webhook_url->Option.getOr("")
   | None => ""
   }

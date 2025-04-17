@@ -486,8 +486,8 @@ let complianceCertificateSection = {
 
 let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
   let settingsLinkArray = [
-    businessDetails(userHasResourceAccess),
-    businessProfiles(userHasResourceAccess),
+    // businessDetails(userHasResourceAccess),
+    // businessProfiles(userHasResourceAccess),
   ]
 
   if isConfigurePmtsEnabled {

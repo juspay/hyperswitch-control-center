@@ -8,9 +8,10 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
-  let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
-  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-  let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileArray = Array.make(~length=1, businessProfileRecoilVal)
+  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
@@ -111,7 +112,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}
           profile={profile}
-          options={businessProfiles->businessProfileNameDropDownOption}
+          options={businessProfileArray->businessProfileNameDropDownOption}
           label="Profile"
         />
       </div>
