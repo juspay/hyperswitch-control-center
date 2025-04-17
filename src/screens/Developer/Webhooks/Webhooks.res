@@ -103,7 +103,7 @@ let make = () => {
         payload->Dict.set("created_before", end_time->JSON.Encode.string)
       }
 
-      let url = getURL(~entityName=V1(WEBHOOK_EVENTS), ~methodType=Get)
+      let url = getURL(~entityName=V1(WEBHOOK_EVENTS), ~methodType=Post)
       let response = await updateDetails(url, payload->JSON.Encode.object, Post)
 
       let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
