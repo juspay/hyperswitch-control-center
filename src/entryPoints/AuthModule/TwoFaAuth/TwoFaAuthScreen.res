@@ -44,20 +44,18 @@ let make = (~setAuthStatus) => {
   }, [actualAuthType])
 
   React.useEffect(() => {
-    switch (authType, url.path) {
+    switch (authType, url.path->HSwitchUtils.urlPath) {
     | (
         LoginWithEmail | LoginWithPassword,
         list{"user", "verify_email"}
         | list{"user", "accept_invite_from_email"}
-        | list{"user", "login"}
+        | list{"login", ..._}
         | list{"user", "set_password"}
         | list{"register", ..._},
       ) => () // to prevent duplicate push
     | (LoginWithPassword | LoginWithEmail, _) => AuthUtils.redirectToLogin()
-
     | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
     | (SignUP, _) => GlobalVars.appendDashboardPath(~url="/register")->RescriptReactRouter.push
-
     | (ForgetPassword | ForgetPasswordEmailSent, list{"forget-password", ..._}) => () // to prevent duplicate push
     | (ForgetPassword | ForgetPasswordEmailSent, _) =>
       GlobalVars.appendDashboardPath(~url="/forget-password")->RescriptReactRouter.push
