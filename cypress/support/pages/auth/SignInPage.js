@@ -76,13 +76,6 @@ class SignInPage {
   get cancelForgetPassword() {
     return cy.get('[data-testid="card-foot-text"]');
   }
-
-  signin(email, password) {
-    this.emailInput.type(email);
-    this.passwordInput.type(password);
-    this.signinButton.click();
-    this.skip2FAButton.click();
-  }
 }
 
 export default SignInPage;

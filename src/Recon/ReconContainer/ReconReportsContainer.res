@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~showOnBoarding) => {
   let url = RescriptReactRouter.useUrl()
 
   switch url.path->HSwitchUtils.urlPath {
@@ -8,8 +8,8 @@ let make = () => {
       entityName="Payments"
       remainingPath
       access=Access
-      renderList={() => <ReconReports />}
-      renderShow={(id, _) => <ShowReconExceptionReport id />}
+      renderList={() => <ReconReports showOnBoarding />}
+      renderShow={(id, _) => <ShowReconExceptionReport showOnBoarding id />}
     />
   | _ => React.null
   }
