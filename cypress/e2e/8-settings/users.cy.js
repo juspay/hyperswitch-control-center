@@ -199,6 +199,22 @@ describe("Users - Invite Users", () => {
   it("verify whether invalid users with invalid email address can be invited", () => {
     // Navigate to Invite Users page
     usersList.navigateInviteUsers;
+
+    // Get invalid emails
+    const invalidEmails = helper.getInvalidEmails();
+
+    // Enter invalid emails
+    invalidEmails.forEach((email) => {
+      cy.get('[class="w-full cursor-text"]').type(email);
+      // Check if role dropdown exists
+      cy.get(
+        '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+      ).should("not.exist");
+      // Verify Send Invite button is disabled
+      cy.get('[data-button-for="sendInvite"]').should("be.disabled");
+      // Clear the email input field by pressing Ctrl+A and Delete
+      cy.get('[class="w-full cursor-text"]').type("{selectall}{backspace}");
+    });
   });
 
   it("verify successfully inviting an user and verify invitation email reception", () => {
