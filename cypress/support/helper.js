@@ -28,13 +28,13 @@ function getInvalidEmails() {
     ".starts.with.dot@test.com", // Starts with dot
     "ends.with.dot.@test.com", // Ends with dot
     "special#chars@test.com", // Invalid special characters
-    "!user@test.com", // Invalid special characters
+    "!username@test.com", // Invalid special characters
     "", // Empty string
     " ", // Only whitespace
     " @test.com", // Only whitespace in username
-    "email@.com", // Missing domain part
-    "email@test..com", // Consecutive dots in domain
-    "email@-test.com", // Domain starts with hyphen
-    "email@test-.com", // Domain ends with hyphen
+    "username@.com", // Missing domain part
+    "username@test..com", // Consecutive dots in domain
+    "username@-test.com", // Domain starts with hyphen
+    "username@test-.com", // Domain ends with hyphen
   ];
 }
