@@ -29,7 +29,7 @@ beforeEach(function () {
 });
 
 describe("Users - UI", () => {
-  it.only("Verify the UI of the Users page", () => {
+  it("Verify the UI of the Users page", () => {
     console.log(email);
     cy.get("div.text-fs-28.font-semibold.leading-10").should(
       "have.text",
