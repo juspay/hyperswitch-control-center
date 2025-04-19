@@ -1,7 +1,9 @@
 import * as helper from "../../support/helper";
 import HomePage from "../../support/pages/homepage/HomePage";
+import UsersList from "../../support/pages/settings/users/UsersList";
 
 const homePage = new HomePage();
+const usersList = new UsersList();
 let email;
 
 beforeEach(function () {
@@ -24,17 +26,13 @@ beforeEach(function () {
   homePage.onboardingSubmitButton.click();
 
   // Navigate to the Users section in Settings
-  cy.get('[data-testid="settings"]').click();
-  cy.get('[data-testid="users"]').click();
+  usersList.navigate;
 });
 
 describe("Users - UI", () => {
   it("Verify the UI of the Users page", () => {
     // Verify the page title
-    cy.get("div.text-fs-28.font-semibold.leading-10").should(
-      "have.text",
-      "Team management",
-    );
+    usersList.verifyPageTitle;
 
     // Verify the UI of 'Users' tab
     cy.get(
@@ -137,10 +135,7 @@ describe("Users - Details", () => {
 
   it("Verify the UI of the Users page", () => {
     // Verify the page title is Team management
-    cy.get("div.text-fs-28.font-semibold.leading-10").should(
-      "have.text",
-      "Team management",
-    );
+    usersList.verifyPageTitle;
 
     // Verify the breadcrumb has the user's email
     cy.get("div[data-breadcrumb]").should("exist");
@@ -203,8 +198,7 @@ describe("Users - Details", () => {
 describe("Users - Invite Users", () => {
   it("should successfully invite a user and verify received invite", () => {
     // Navigate to Users page through Settings
-    cy.get('[data-testid="settings"]').click();
-    cy.get('[data-testid="users"]').click();
+    usersList.navigate;
 
     // Click invite users button
     cy.get('[data-button-for="inviteUsers"]').click();
@@ -244,5 +238,8 @@ describe("Users - Invite Users", () => {
         "You have been invited to join Hyperswitch Community",
       );
     });
+
+    // Navigate back to Users page
+    usersList.visit;
   });
 });
