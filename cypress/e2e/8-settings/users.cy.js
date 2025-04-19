@@ -30,7 +30,7 @@ beforeEach(function () {
 
 describe("Users - UI", () => {
   it("Verify the UI of the Users page", () => {
-    console.log(email);
+    // Verify the page title
     cy.get("div.text-fs-28.font-semibold.leading-10").should(
       "have.text",
       "Team management",
