@@ -29,7 +29,8 @@ beforeEach(function () {
 });
 
 describe("Users - UI", () => {
-  it("Verify the UI of the Users page", () => {
+  it.only("Verify the UI of the Users page", () => {
+    console.log(email);
     cy.get("div.text-fs-28.font-semibold.leading-10").should(
       "have.text",
       "Team management",
@@ -45,6 +46,31 @@ describe("Users - UI", () => {
 
     // Verify the UI of search input
     cy.get('input[placeholder="Search by name or email.."]').should("exist");
+
+    // Verify the functionality of the search input
+    cy.get('input[placeholder="Search by name or email.."]').type(email);
+    cy.get('input[placeholder="Search by name or email.."]').should(
+      "have.value",
+      email,
+    );
+    // Verify table exists and has exactly one row
+    cy.get("table#table tbody tr").should("have.length", 1);
+    // Verify the email in the first cell of the only row
+    cy.get("table#table tbody tr")
+      .first()
+      .find("td")
+      .first()
+      .should("contain.text", email);
+    // Clear the search input
+    cy.get('input[placeholder="Search by name or email.."]').clear();
+    cy.get('input[placeholder="Search by name or email.."]').type(
+      "cypress+org_admin@test.com",
+    );
+    cy.get('input[placeholder="Search by name or email.."]').should(
+      "have.value",
+      "cypress+org_admin@test.com",
+    );
+    cy.get("div").contains("No Data Available").should("exist");
 
     // Verify the UI of Data Filter Dropdown
     cy.get('div[data-icon="settings-new"]').should("exist");
@@ -72,42 +98,36 @@ describe("Users - UI", () => {
     cy.get('div[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
     cy.get('div[data-dropdown-value="default"]').contains("(Profile)");
 
-    // Verify the page has a "Invite users" button
-    cy.get('button[data-button-for="inviteUsers"').should("exist");
+    // Verify the page has a clickable "Invite users" button
+    cy.get('button[data-button-for="inviteUsers"]')
+      .should("exist")
+      .should("be.enabled")
+      .should("not.be.disabled");
   });
 });
 
 describe("Users - Listings", () => {
-  context(
-    "verify Organization Admin is the only user before inviting any user",
-    () => {
-      it("Verify the number of columns and table headers", () => {
-        cy.get("table#table thead tr th").should("have.length", 2);
-      });
+  it("Verify User's Listing before inviting any user", () => {
+    cy.get("table#table thead tr th").should("have.length", 2);
 
-      it("Verify table headers are Email and Role", () => {
-        cy.get("table#table thead tr th").eq(0).should("have.text", "Email");
-        cy.get("table#table thead tr th").eq(1).should("have.text", "Role");
-      });
+    // Verify table headers are Email and Role
+    cy.get("table#table thead tr th").eq(0).should("have.text", "Email");
+    cy.get("table#table thead tr th").eq(1).should("have.text", "Role");
 
-      it("Verify the users list table has only one row", () => {
-        cy.get("table#table tbody tr").should("have.length", 1);
-      });
+    // Verify the users list table has only one row
+    cy.get("table#table tbody tr").should("have.length", 1);
 
-      it("Verify the first cell of the row contains an email", () => {
-        cy.get("table#table tbody tr td")
-          .eq(0)
-          .invoke("text")
-          .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
-      });
+    // Verify the first cell of the row contains an email
+    cy.get("table#table tbody tr td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
 
-      it("Verify the second cell contains Organization Admin", () => {
-        cy.get("table#table tbody tr td")
-          .eq(1)
-          .should("have.text", "Organization Admin");
-      });
-    },
-  );
+    // Verify the second cell contains Organization Admin
+    cy.get("table#table tbody tr td")
+      .eq(1)
+      .should("have.text", "Organization Admin");
+  });
 });
 
 describe("Users - Details", () => {
