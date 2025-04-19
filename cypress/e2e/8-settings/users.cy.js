@@ -135,78 +135,67 @@ describe("Users - Details", () => {
     cy.get("table#table tbody tr").click();
   });
 
-  context("verify the UI of the Users page", () => {
-    it("Verify the page title is Team management", () => {
-      cy.get("div.text-fs-28.font-semibold.leading-10").should(
-        "have.text",
-        "Team management",
-      );
-    });
+  it("Verify the UI of the Users page", () => {
+    // Verify the page title is Team management
+    cy.get("div.text-fs-28.font-semibold.leading-10").should(
+      "have.text",
+      "Team management",
+    );
 
-    it("Verify the breadcrumb has the user's email", () => {
-      cy.get("div[data-breadcrumb]").should("exist");
-      cy.get("div[data-breadcrumb]").should("have.length", 2);
-      cy.get("div[data-breadcrumb]")
-        .eq(0)
-        .should("have.text", "Team management");
-      cy.get("div[data-breadcrumb]").eq(1).should("have.text", email);
-    });
+    // Verify the breadcrumb has the user's email
+    cy.get("div[data-breadcrumb]").should("exist");
+    cy.get("div[data-breadcrumb]").should("have.length", 2);
+    cy.get("div[data-breadcrumb]").eq(0).should("have.text", "Team management");
+    cy.get("div[data-breadcrumb]").eq(1).should("have.text", email);
 
-    it("Verify the user's username is displayed", () => {
-      const username =
-        email.split("@")[0].charAt(0).toUpperCase() +
-        email.split("@")[0].slice(1);
-      cy.get("p.text-2xl.font-semibold.leading-8")
-        .should("exist")
-        .and("have.text", username);
-    });
+    // Verify the user's username is displayed
+    const username =
+      email.split("@")[0].charAt(0).toUpperCase() +
+      email.split("@")[0].slice(1);
+    cy.get("p.text-2xl.font-semibold.leading-8")
+      .should("exist")
+      .and("have.text", username);
 
-    it("Verify the user's email is displayed", () => {
-      cy.get("p")
-        .contains(email)
-        .should("exist")
-        .and("have.class", "text-grey-600")
-        .and("have.class", "opacity-40");
-    });
+    // Verify the user's email is displayed
+    cy.get("p")
+      .contains(email)
+      .should("exist")
+      .and("have.class", "text-grey-600")
+      .and("have.class", "opacity-40");
 
-    it("Verify the existence of access details table", () => {
-      cy.get("table").should("exist");
-    });
+    // Verify the existence of access details table
+    cy.get("table").should("exist");
 
-    it("Verify the number of columns in the access details table", () => {
-      cy.get("table th").should("have.length", 5); // There should be 4 columns
-    });
+    // Verify the number of columns in the access details table
+    cy.get("table th").should("have.length", 5); // There should be 4 columns
 
-    it("Verify the table headers", () => {
-      cy.get("table th").eq(0).should("have.text", "Merchants");
-      cy.get("table th").eq(1).should("have.text", "Profile Name"); // This should be Profiles
-      cy.get("table th").eq(2).should("have.text", "Role");
-      cy.get("table th").eq(3).should("have.text", "Status");
-    });
+    // Verify the table headers
+    cy.get("table th").eq(0).should("have.text", "Merchants");
+    cy.get("table th").eq(1).should("have.text", "Profile Name"); // This should be Profiles
+    cy.get("table th").eq(2).should("have.text", "Role");
+    cy.get("table th").eq(3).should("have.text", "Status");
 
-    it("Verify the content of table rows", () => {
-      cy.get("table tr")
-        .eq(1)
-        .within(() => {
-          cy.get("td").eq(0).should("have.text", "All_merchants"); // This should be All Merchants
-          cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
-          cy.get("td").eq(2).should("have.text", "Organization Admin");
-          cy.get("td").eq(3).should("have.text", "Active");
-        });
-    });
+    // Verify the content of table rows
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td").eq(0).should("have.text", "All_merchants"); // This should be All Merchants
+        cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
+        cy.get("td").eq(2).should("have.text", "Organization Admin");
+        cy.get("td").eq(3).should("have.text", "Active");
+      });
 
-    it("Verify the styling of the status indicator", () => {
-      cy.get("table tr")
-        .eq(1)
-        .within(() => {
-          cy.get("td")
-            .eq(3)
-            .find("p")
-            .should("have.class", "text-green-700")
-            .should("have.class", "bg-green-700")
-            .should("have.class", "bg-opacity-20")
-            .should("have.class", "rounded-full");
-        });
-    });
+    // Verify the styling of the status indicator
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td")
+          .eq(3)
+          .find("p")
+          .should("have.class", "text-green-700")
+          .should("have.class", "bg-green-700")
+          .should("have.class", "bg-opacity-20")
+          .should("have.class", "rounded-full");
+      });
   });
 });
