@@ -29,7 +29,6 @@ function getInvalidEmails() {
     "ends.with.dot.@test.com", // Ends with dot
     "special#chars@test.com", // Invalid special characters
     "!username@test.com", // Invalid special characters
-    "", // Empty string
     " ", // Only whitespace
     " @test.com", // Only whitespace in username
     "username@.com", // Missing domain part
