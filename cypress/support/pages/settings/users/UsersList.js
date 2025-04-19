@@ -11,6 +11,17 @@ class UsersList {
 
   get navigate() {
     // Navigate to the Users section in Settings
+    this.navigateToUsers();
+  }
+
+  get navigateInviteUsers() {
+    // Navigate to the Users section in Settings and click Invite Users button
+    this.navigateToUsers();
+    cy.get('[data-button-for="inviteUsers"]').click();
+  }
+
+  navigateToUsers() {
+    // Helper method to navigate to Users section in Settings
     cy.get('[data-testid="settings"]').click();
     cy.get('[data-testid="users"]').click();
   }

@@ -196,12 +196,14 @@ describe("Users - Details", () => {
 });
 
 describe("Users - Invite Users", () => {
-  it("should successfully invite a user and verify received invite", () => {
-    // Navigate to Users page through Settings
-    usersList.navigate;
+  it("verify whether invalid users with invalid email address can be invited", () => {
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
+  });
 
-    // Click invite users button
-    cy.get('[data-button-for="inviteUsers"]').click();
+  it("verify successfully inviting an user and verify invitation email reception", () => {
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
 
     // Enter email address for the new user
     cy.get('[class="w-full cursor-text"]').type(helper.generateUniqueEmail());
