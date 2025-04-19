@@ -28,23 +28,7 @@ describe("Sign up", () => {
   });
 
   it("should display an error message for an invalid email", () => {
-    const invalidEmails = [
-      "@#$%",
-      "plainaddress",
-      "missing@domain",
-      "user@.com",
-      "user@domain..com",
-      "user@domain,com",
-      "user@domain.123",
-      "user@domain.c",
-      "user@domain.",
-      "user@.com",
-      "12345678",
-      "abc@@xy.zi",
-      "@com.in",
-      "abc.in",
-      "abc..xyz@abc.com",
-    ];
+    const invalidEmails = helper.getInvalidEmails();
 
     cy.visit_signupPage();
 

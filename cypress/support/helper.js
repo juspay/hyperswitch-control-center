@@ -23,6 +23,7 @@ function getInvalidEmails() {
     "@test.com", // Missing username part
     "missing@test", // Incomplete domain
     "multiple@domains@test.com", // Multiple @ symbols
+    "abc@@xy.zi", // Multiple @ symbols
     "spaces in@test.com", // Contains spaces
     "dots..in@test.com", // Consecutive dots
     ".starts.with.dot@test.com", // Starts with dot
@@ -35,5 +36,12 @@ function getInvalidEmails() {
     "username@test..com", // Consecutive dots in domain
     "username@-test.com", // Domain starts with hyphen
     "username@test-.com", // Domain ends with hyphen
+    "@#$%", // Invalid characters
+    "user@domain,com", // Invalid comma
+    "user@domain.123", // Invalid TLD
+    "user@domain.c", // Invalid TLD length
+    "user@domain.", // Missing TLD
+    "12345678", // Only numbers
+    "abc.in", // Missing @ symbol
   ];
 }
