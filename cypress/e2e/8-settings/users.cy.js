@@ -71,30 +71,30 @@ describe("Users - UI", () => {
     cy.get("div").contains("No Data Available").should("exist");
 
     // Verify the UI of Data Filter Dropdown
-    cy.get('div[data-icon="settings-new"]').should("exist");
+    cy.get('[data-icon="settings-new"]').should("exist");
     cy.get("p.text-jp-gray-900").contains("View data for:");
-    cy.get('div[data-icon="arrow-without-tail"]').should("exist");
+    cy.get('[data-icon="arrow-without-tail"]').should("exist");
 
     // Verify the UI Functionality of the Data Filter Dropdown by clicking on gear icon
-    cy.get('div[data-icon="settings-new"]').click({ force: true });
-    cy.get('div[data-dropdown-value="All"]').contains("(Default)");
-    cy.get('div[data-dropdown-value^="org_"]').contains("(Organization)");
-    cy.get('div[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
-    cy.get('div[data-dropdown-value="default"]').contains("(Profile)");
+    cy.get('[data-icon="settings-new"]').click({ force: true });
+    cy.get('[data-dropdown-value="All"]').contains("(Default)");
+    cy.get('[data-dropdown-value^="org_"]').contains("(Organization)");
+    cy.get('[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
+    cy.get('[data-dropdown-value="default"]').contains("(Profile)");
 
     //Verify the UI Functionality of the Data Filter Dropdown by clicking on "View data for:
     cy.get("p.text-jp-gray-900").click({ force: true });
-    cy.get('div[data-dropdown-value="All"]').contains("(Default)");
-    cy.get('div[data-dropdown-value^="org_"]').contains("(Organization)");
-    cy.get('div[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
-    cy.get('div[data-dropdown-value="default"]').contains("(Profile)");
+    cy.get('[data-dropdown-value="All"]').contains("(Default)");
+    cy.get('[data-dropdown-value^="org_"]').contains("(Organization)");
+    cy.get('[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
+    cy.get('[data-dropdown-value="default"]').contains("(Profile)");
 
     // Verify the UI Functionality of the Data Filter Dropdown by clicking on arrow without tail icon
-    cy.get('div[data-icon="arrow-without-tail"]').click({ force: true });
-    cy.get('div[data-dropdown-value="All"]').contains("(Default)");
-    cy.get('div[data-dropdown-value^="org_"]').contains("(Organization)");
-    cy.get('div[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
-    cy.get('div[data-dropdown-value="default"]').contains("(Profile)");
+    cy.get('[data-icon="arrow-without-tail"]').click({ force: true });
+    cy.get('[data-dropdown-value="All"]').contains("(Default)");
+    cy.get('[data-dropdown-value^="org_"]').contains("(Organization)");
+    cy.get('[data-dropdown-value="Test_merchant"]').contains("(Merchant)");
+    cy.get('[data-dropdown-value="default"]').contains("(Profile)");
 
     // Verify the page has a clickable "Invite users" button
     cy.get('button[data-button-for="inviteUsers"]')
@@ -138,10 +138,10 @@ describe("Users - Details", () => {
     usersList.verifyPageTitle;
 
     // Verify the breadcrumb has the user's email
-    cy.get("div[data-breadcrumb]").should("exist");
-    cy.get("div[data-breadcrumb]").should("have.length", 2);
-    cy.get("div[data-breadcrumb]").eq(0).should("have.text", "Team management");
-    cy.get("div[data-breadcrumb]").eq(1).should("have.text", email);
+    cy.get("[data-breadcrumb]").should("exist");
+    cy.get("[data-breadcrumb]").should("have.length", 2);
+    cy.get("[data-breadcrumb]").eq(0).should("have.text", "Team management");
+    cy.get("[data-breadcrumb]").eq(1).should("have.text", email);
 
     // Verify the user's username is displayed
     const username =
