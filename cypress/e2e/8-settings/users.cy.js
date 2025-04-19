@@ -199,3 +199,50 @@ describe("Users - Details", () => {
       });
   });
 });
+
+describe("Users - Invite Users", () => {
+  it("should successfully invite a user and verify received invite", () => {
+    // Navigate to Users page through Settings
+    cy.get('[data-testid="settings"]').click();
+    cy.get('[data-testid="users"]').click();
+
+    // Click invite users button
+    cy.get('[data-button-for="inviteUsers"]').click();
+
+    // Enter email address for the new user
+    cy.get('[class="w-full cursor-text"]').type(helper.generateUniqueEmail());
+
+    // Select role dropdown
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+
+    // Select role option
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+
+    // Select first merchant option
+    cy.get('[class="mr-5"]').eq(0).click();
+
+    // Click send invite button
+    cy.get('[data-button-for="sendInvite"').click();
+
+    // Navigate to mail server to verify invite email
+    cy.visit(Cypress.env("MAIL_URL"));
+
+    // Click on the first email in inbox
+    cy.get("div.messages > div:nth-child(1)").click();
+
+    // Wait for email content to load
+    cy.wait(1000);
+
+    // Verify invite email content
+    cy.get("iframe").then(($iframe) => {
+      cy.get('[class="ng-binding"]').should(
+        "contain",
+        "You have been invited to join Hyperswitch Community",
+      );
+    });
+  });
+});
