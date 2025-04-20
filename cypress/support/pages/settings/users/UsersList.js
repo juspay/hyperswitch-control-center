@@ -57,6 +57,35 @@ class UsersList {
       );
     });
   }
+
+  get verifyInviteStatus() {
+    // Verify the styling of the status indicator
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td")
+          .eq(3)
+          .find("p")
+          .should("have.text", "InviteSent") // This should be Invite Sent
+          .should("have.class", "text-orange-950")
+          .should("have.class", "bg-orange-950")
+          .should("have.class", "bg-opacity-20")
+          .should("have.class", "rounded-full");
+      });
+  }
+
+  get verifyManageUserButton() {
+    // Verify there is a button to Manage the Invited User
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td")
+          .eq(4)
+          .find('[data-button-for="manageUser"]')
+          .should("exist")
+          .and("have.text", "Manage user");
+      });
+  }
 }
 
 export default UsersList;

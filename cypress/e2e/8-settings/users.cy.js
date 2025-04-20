@@ -312,16 +312,7 @@ describe("Users - Invite Users", () => {
           .should("have.class", "rounded-full");
       });
 
-    // Verify there is a button to Manage the Invited User
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td")
-          .eq(4)
-          .find('[data-button-for="manageUser"]')
-          .should("exist")
-          .and("have.text", "Manage user");
-      });
+    usersList.verifyManageUserButton;
   });
 
   it("Verify inviting an Merchant Admin successfully", () => {
@@ -397,32 +388,12 @@ describe("Users - Invite Users", () => {
         cy.get("td").eq(0).should("have.text", "Test_merchant"); // This should be All Merchants
         cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
         cy.get("td").eq(2).should("have.text", role);
-        cy.get("td").eq(3).should("have.text", "InviteSent"); // This should be Invite Sent
       });
 
     // Verify the styling of the status indicator
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td")
-          .eq(3)
-          .find("p")
-          .should("have.class", "text-orange-950")
-          .should("have.class", "bg-orange-950")
-          .should("have.class", "bg-opacity-20")
-          .should("have.class", "rounded-full");
-      });
+    usersList.verifyInviteStatus;
 
-    // Verify there is a button to Manage the Invited User
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td")
-          .eq(4)
-          .find('[data-button-for="manageUser"]')
-          .should("exist")
-          .and("have.text", "Manage user");
-      });
+    usersList.verifyManageUserButton;
   });
 
   it("Verify inviting an Merchant Developer successfully", () => {
@@ -498,31 +469,12 @@ describe("Users - Invite Users", () => {
         cy.get("td").eq(0).should("have.text", "Test_merchant"); // This should be All Merchants
         cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
         cy.get("td").eq(2).should("have.text", role);
-        cy.get("td").eq(3).should("have.text", "InviteSent"); // This should be Invite Sent
       });
 
     // Verify the styling of the status indicator
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td")
-          .eq(3)
-          .find("p")
-          .should("have.class", "text-orange-950")
-          .should("have.class", "bg-orange-950")
-          .should("have.class", "bg-opacity-20")
-          .should("have.class", "rounded-full");
-      });
+    usersList.verifyInviteStatus;
 
     // Verify there is a button to Manage the Invited User
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td")
-          .eq(4)
-          .find('[data-button-for="manageUser"]')
-          .should("exist")
-          .and("have.text", "Manage user");
-      });
+    usersList.verifyManageUserButton;
   });
 });
