@@ -255,7 +255,7 @@ describe("Users - Invite Users", () => {
     usersList.visit;
 
     // Verify the new user is listed in the Users page
-    cy.get("table#table tbody tr").should("have.length", 2);
+    usersList.verifyElementLength("table#table tbody tr", 2);
 
     // Verify the first cell of the last row contains an email
     cy.get("table#table tbody tr:last-child td")
@@ -354,7 +354,7 @@ describe("Users - Invite Users", () => {
     usersList.visit;
 
     // Verify the new user is listed in the Users page
-    cy.get("table#table tbody tr").should("have.length", 2);
+    usersList.verifyElementLength("table#table tbody tr", 2);
 
     // Verify the first cell of the last row contains an email
     cy.get("table#table tbody tr:last-child td")
@@ -453,7 +453,7 @@ describe("Users - Invite Users", () => {
     usersList.visit;
 
     // Verify the new user is listed in the Users page
-    cy.get("table#table tbody tr").should("have.length", 2);
+    usersList.verifyElementLength("table#table tbody tr", 2);
 
     // Verify the first cell of the last row contains an email
     cy.get("table#table tbody tr:last-child td")
