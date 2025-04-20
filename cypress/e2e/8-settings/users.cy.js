@@ -420,7 +420,7 @@ describe("Users - Invite Users", () => {
       });
   });
 
-  it("Verify inviting an Merchant Developer successfully", () => {
+  it.only("Verify inviting an Merchant Developer successfully", () => {
     // Navigate to Invite Users page
     usersList.navigateInviteUsers;
 
@@ -461,9 +461,61 @@ describe("Users - Invite Users", () => {
       .invoke("text")
       .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
 
-    // Verify the second cell of the last row contains Merchant Admin
+    // Verify the second cell of the last row contains Merchant Developer
     cy.get("table#table tbody tr:last-child td")
       .eq(1)
       .should("have.text", "Merchant Developer");
+
+    // Verify User Details
+    cy.get("table#table tbody tr").last().click();
+
+    // Verify the user's username is displayed
+    const username =
+      invitedUserEmail.split("@")[0].charAt(0).toUpperCase() +
+      invitedUserEmail.split("@")[0].slice(1);
+    cy.get("p.text-2xl.font-semibold.leading-8")
+      .should("exist")
+      .and("have.text", username);
+
+    // Verify the user's email is displayed
+    cy.get("p")
+      .contains(invitedUserEmail)
+      .should("exist")
+      .and("have.class", "text-grey-600")
+      .and("have.class", "opacity-40");
+
+    // Verify the content of table rows
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td").eq(0).should("have.text", "Test_merchant"); // This should be All Merchants
+        cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
+        cy.get("td").eq(2).should("have.text", "Merchant Developer");
+        cy.get("td").eq(3).should("have.text", "InviteSent"); // This should be Invite Sent
+      });
+
+    // Verify the styling of the status indicator
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td")
+          .eq(3)
+          .find("p")
+          .should("have.class", "text-orange-950")
+          .should("have.class", "bg-orange-950")
+          .should("have.class", "bg-opacity-20")
+          .should("have.class", "rounded-full");
+      });
+
+    // Verify there is a button to Manage the Invited User
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td")
+          .eq(4)
+          .find('[data-button-for="manageUser"]')
+          .should("exist")
+          .and("have.text", "Manage user");
+      });
   });
 });
