@@ -268,4 +268,98 @@ describe("Users - Invite Users", () => {
       .eq(1)
       .should("have.text", "Organization Admin");
   });
+
+  it("Verify inviting an Merchant Admin successfully", () => {
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
+
+    // Generate a unique email for the test
+    invitedUserEmail = helper.generateUniqueEmail();
+
+    // Enter email address for the new user
+    cy.get('[class="w-full cursor-text"]').type(invitedUserEmail);
+
+    // Select role dropdown
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+
+    // Select role option
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+
+    // Select option i.e., Merchant Admin
+    cy.get('[class="mr-5"]').eq(2).click();
+
+    // Click send invite button
+    usersList.sendInvite;
+
+    // Verify invite email was received and contains correct content
+    usersList.verifyInviteEmail;
+
+    // Navigate back to Users page
+    usersList.visit;
+
+    // Verify the new user is listed in the Users page
+    cy.get("table#table tbody tr").should("have.length", 2);
+
+    // Verify the first cell of the last row contains an email
+    cy.get("table#table tbody tr:last-child td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+    // Verify the second cell of the last row contains Merchant Admin
+    cy.get("table#table tbody tr:last-child td")
+      .eq(1)
+      .should("have.text", "Merchant Admin");
+  });
+
+  it("Verify inviting an Merchant Developer successfully", () => {
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
+
+    // Generate a unique email for the test
+    invitedUserEmail = helper.generateUniqueEmail();
+
+    // Enter email address for the new user
+    cy.get('[class="w-full cursor-text"]').type(invitedUserEmail);
+
+    // Select role dropdown
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+
+    // Select role option
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+
+    // Select option i.e., Merchant Developer
+    cy.get('[class="mr-5"]').eq(4).click();
+
+    // Click send invite button
+    usersList.sendInvite;
+
+    // Verify invite email was received and contains correct content
+    usersList.verifyInviteEmail;
+
+    // Navigate back to Users page
+    usersList.visit;
+
+    // Verify the new user is listed in the Users page
+    cy.get("table#table tbody tr").should("have.length", 2);
+
+    // Verify the first cell of the last row contains an email
+    cy.get("table#table tbody tr:last-child td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+    // Verify the second cell of the last row contains Merchant Admin
+    cy.get("table#table tbody tr:last-child td")
+      .eq(1)
+      .should("have.text", "Merchant Developer");
+  });
 });
