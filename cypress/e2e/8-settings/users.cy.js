@@ -242,8 +242,8 @@ describe("Users - Invite Users", () => {
       '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
     ).click();
 
-    // Select first option i.e., Organization Admin
-    cy.get('[class="mr-5"]').eq(0).click();
+    // Select option Organization Admin
+    cy.get('[class="mr-5"]').contains("Organization Admin").click();
 
     // Click send invite button
     usersList.sendInvite;
@@ -289,8 +289,8 @@ describe("Users - Invite Users", () => {
       '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
     ).click();
 
-    // Select option i.e., Merchant Admin
-    cy.get('[class="mr-5"]').eq(2).click();
+    // Select option Merchant Admin
+    cy.get('[class="mr-5"]').contains("Merchant Admin").click();
 
     // Click send invite button
     usersList.sendInvite;
@@ -336,8 +336,8 @@ describe("Users - Invite Users", () => {
       '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
     ).click();
 
-    // Select option i.e., Merchant Developer
-    cy.get('[class="mr-5"]').eq(4).click();
+    // Select option Merchant Developer
+    cy.get('[class="mr-5"]').contains("Merchant Developer").click();
 
     // Click send invite button
     usersList.sendInvite;
