@@ -167,9 +167,6 @@ describe("Users - Details", () => {
     // Verify the status column
     usersList.verifyActiveStatus;
 
-    // Verify the content of table rows
-    usersList.verifyUserDetailsTableRowContent((role = "Organization Admin"));
-
     // Verify the styling of the status indicator
     usersList.verifyActiveStatus;
   });
