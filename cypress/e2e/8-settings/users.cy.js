@@ -146,19 +146,10 @@ describe("Users - Details", () => {
     cy.get("[data-breadcrumb]").eq(1).should("have.text", email);
 
     // Verify the user's username is displayed
-    const username =
-      email.split("@")[0].charAt(0).toUpperCase() +
-      email.split("@")[0].slice(1);
-    cy.get("p.text-2xl.font-semibold.leading-8")
-      .should("exist")
-      .and("have.text", username);
+    usersList.verifyUserDetailsUsernameDisplay(email);
 
     // Verify the user's email is displayed
-    cy.get("p")
-      .contains(email)
-      .should("exist")
-      .and("have.class", "text-grey-600")
-      .and("have.class", "opacity-40");
+    usersList.verifyUserDetailsEmailDisplay(email);
 
     // Verify the existence of access details table
     cy.get("table").should("exist");
@@ -262,19 +253,10 @@ describe("Users - Invite Users", () => {
     cy.get("table#table tbody tr").last().click();
 
     // Verify the user's username is displayed
-    const username =
-      invitedUserEmail.split("@")[0].charAt(0).toUpperCase() +
-      invitedUserEmail.split("@")[0].slice(1);
-    cy.get("p.text-2xl.font-semibold.leading-8")
-      .should("exist")
-      .and("have.text", username);
+    usersList.verifyUserDetailsUsernameDisplay(invitedUserEmail);
 
     // Verify the user's email is displayed
-    cy.get("p")
-      .contains(invitedUserEmail)
-      .should("exist")
-      .and("have.class", "text-grey-600")
-      .and("have.class", "opacity-40");
+    usersList.verifyUserDetailsEmailDisplay(invitedUserEmail);
 
     // Verify the content of table rows
     usersList.verifyUserDetailsTableRowContent(
@@ -351,19 +333,10 @@ describe("Users - Invite Users", () => {
     cy.get("table#table tbody tr").last().click();
 
     // Verify the user's username is displayed
-    const username =
-      invitedUserEmail.split("@")[0].charAt(0).toUpperCase() +
-      invitedUserEmail.split("@")[0].slice(1);
-    cy.get("p.text-2xl.font-semibold.leading-8")
-      .should("exist")
-      .and("have.text", username);
+    usersList.verifyUserDetailsUsernameDisplay(invitedUserEmail);
 
     // Verify the user's email is displayed
-    cy.get("p")
-      .contains(invitedUserEmail)
-      .should("exist")
-      .and("have.class", "text-grey-600")
-      .and("have.class", "opacity-40");
+    usersList.verifyUserDetailsEmailDisplay(invitedUserEmail);
 
     // Verify the content of table rows
     usersList.verifyUserDetailsTableRowContent(
@@ -430,19 +403,10 @@ describe("Users - Invite Users", () => {
     cy.get("table#table tbody tr").last().click();
 
     // Verify the user's username is displayed
-    const username =
-      invitedUserEmail.split("@")[0].charAt(0).toUpperCase() +
-      invitedUserEmail.split("@")[0].slice(1);
-    cy.get("p.text-2xl.font-semibold.leading-8")
-      .should("exist")
-      .and("have.text", username);
+    usersList.verifyUserDetailsUsernameDisplay(invitedUserEmail);
 
     // Verify the user's email is displayed
-    cy.get("p")
-      .contains(invitedUserEmail)
-      .should("exist")
-      .and("have.class", "text-grey-600")
-      .and("have.class", "opacity-40");
+    usersList.verifyUserDetailsEmailDisplay(invitedUserEmail);
 
     // Verify the content of table rows
     usersList.verifyUserDetailsTableRowContent(

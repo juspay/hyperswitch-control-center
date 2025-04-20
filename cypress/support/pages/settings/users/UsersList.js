@@ -58,6 +58,24 @@ class UsersList {
     });
   }
 
+  verifyUserDetailsUsernameDisplay(email) {
+    const username =
+      email.split("@")[0].charAt(0).toUpperCase() +
+      email.split("@")[0].slice(1);
+    cy.get("p.text-2xl.font-semibold.leading-8")
+      .should("exist")
+      .and("have.text", username);
+  }
+
+  verifyUserDetailsEmailDisplay(email) {
+    // Verify the email is displayed in the user details table
+    cy.get("p")
+      .contains(email)
+      .should("exist")
+      .and("have.class", "text-grey-600")
+      .and("have.class", "opacity-40");
+  }
+
   verifyUserDetailsTableRowContent(merchants, profiles, role) {
     cy.get("table tr")
       .eq(1)
