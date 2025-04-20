@@ -6,6 +6,7 @@ const homePage = new HomePage();
 const usersList = new UsersList();
 let email;
 let invitedUserEmail;
+let role;
 
 beforeEach(function () {
   // Generate a unique email for the test
@@ -219,6 +220,8 @@ describe("Users - Invite Users", () => {
   });
 
   it("Verify inviting an Organization Admin successfully", () => {
+    role = "Organization Admin";
+
     // Navigate to Invite Users page
     usersList.navigateInviteUsers;
 
@@ -243,7 +246,7 @@ describe("Users - Invite Users", () => {
     ).click();
 
     // Select option Organization Admin
-    cy.get('[class="mr-5"]').contains("Organization Admin").click();
+    cy.get('[class="mr-5"]').contains(role).click();
 
     // Click send invite button
     usersList.sendInvite;
@@ -255,7 +258,7 @@ describe("Users - Invite Users", () => {
     usersList.visit;
 
     // Verify the new user is listed in the Users page
-    usersList.verifyElementLength("table#table tbody tr", 2);
+    cy.get("table#table tbody tr").should("have.length", 2);
 
     // Verify the first cell of the last row contains an email
     cy.get("table#table tbody tr:last-child td")
@@ -266,7 +269,7 @@ describe("Users - Invite Users", () => {
     // Verify the second cell of the last row contains Organization Admin
     cy.get("table#table tbody tr:last-child td")
       .eq(1)
-      .should("have.text", "Organization Admin");
+      .should("have.text", role);
 
     // Verify User Details
     cy.get("table#table tbody tr").last().click();
@@ -292,7 +295,7 @@ describe("Users - Invite Users", () => {
       .within(() => {
         cy.get("td").eq(0).should("have.text", "All_merchants"); // This should be All Merchants
         cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
-        cy.get("td").eq(2).should("have.text", "Organization Admin");
+        cy.get("td").eq(2).should("have.text", role);
         cy.get("td").eq(3).should("have.text", "InviteSent"); // This should be Invite Sent
       });
 
@@ -322,6 +325,8 @@ describe("Users - Invite Users", () => {
   });
 
   it("Verify inviting an Merchant Admin successfully", () => {
+    role = "Merchant Admin";
+
     // Navigate to Invite Users page
     usersList.navigateInviteUsers;
 
@@ -342,7 +347,7 @@ describe("Users - Invite Users", () => {
     ).click();
 
     // Select option Merchant Admin
-    cy.get('[class="mr-5"]').contains("Merchant Admin").click();
+    cy.get('[class="mr-5"]').contains(role).click();
 
     // Click send invite button
     usersList.sendInvite;
@@ -354,7 +359,7 @@ describe("Users - Invite Users", () => {
     usersList.visit;
 
     // Verify the new user is listed in the Users page
-    usersList.verifyElementLength("table#table tbody tr", 2);
+    cy.get("table#table tbody tr").should("have.length", 2);
 
     // Verify the first cell of the last row contains an email
     cy.get("table#table tbody tr:last-child td")
@@ -365,7 +370,7 @@ describe("Users - Invite Users", () => {
     // Verify the second cell of the last row contains Merchant Admin
     cy.get("table#table tbody tr:last-child td")
       .eq(1)
-      .should("have.text", "Merchant Admin");
+      .should("have.text", role);
 
     // Verify User Details
     cy.get("table#table tbody tr").last().click();
@@ -391,7 +396,7 @@ describe("Users - Invite Users", () => {
       .within(() => {
         cy.get("td").eq(0).should("have.text", "Test_merchant"); // This should be All Merchants
         cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
-        cy.get("td").eq(2).should("have.text", "Merchant Admin");
+        cy.get("td").eq(2).should("have.text", role);
         cy.get("td").eq(3).should("have.text", "InviteSent"); // This should be Invite Sent
       });
 
@@ -421,6 +426,8 @@ describe("Users - Invite Users", () => {
   });
 
   it("Verify inviting an Merchant Developer successfully", () => {
+    role = "Merchant Developer";
+
     // Navigate to Invite Users page
     usersList.navigateInviteUsers;
 
@@ -441,7 +448,7 @@ describe("Users - Invite Users", () => {
     ).click();
 
     // Select option Merchant Developer
-    cy.get('[class="mr-5"]').contains("Merchant Developer").click();
+    cy.get('[class="mr-5"]').contains(role).click();
 
     // Click send invite button
     usersList.sendInvite;
@@ -453,7 +460,7 @@ describe("Users - Invite Users", () => {
     usersList.visit;
 
     // Verify the new user is listed in the Users page
-    usersList.verifyElementLength("table#table tbody tr", 2);
+    cy.get("table#table tbody tr").should("have.length", 2);
 
     // Verify the first cell of the last row contains an email
     cy.get("table#table tbody tr:last-child td")
@@ -464,7 +471,7 @@ describe("Users - Invite Users", () => {
     // Verify the second cell of the last row contains Merchant Developer
     cy.get("table#table tbody tr:last-child td")
       .eq(1)
-      .should("have.text", "Merchant Developer");
+      .should("have.text", role);
 
     // Verify User Details
     cy.get("table#table tbody tr").last().click();
@@ -490,7 +497,7 @@ describe("Users - Invite Users", () => {
       .within(() => {
         cy.get("td").eq(0).should("have.text", "Test_merchant"); // This should be All Merchants
         cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
-        cy.get("td").eq(2).should("have.text", "Merchant Developer");
+        cy.get("td").eq(2).should("have.text", role);
         cy.get("td").eq(3).should("have.text", "InviteSent"); // This should be Invite Sent
       });
 

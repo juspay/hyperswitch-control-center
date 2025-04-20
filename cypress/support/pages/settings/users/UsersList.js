@@ -57,10 +57,6 @@ class UsersList {
       );
     });
   }
-
-  verifyElementLength(element, length) {
-    cy.get(element).should("have.length", length);
-  }
 }
 
 export default UsersList;
