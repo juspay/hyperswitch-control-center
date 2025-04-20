@@ -308,6 +308,17 @@ describe("Users - Invite Users", () => {
           .should("have.class", "bg-opacity-20")
           .should("have.class", "rounded-full");
       });
+
+    // Verify there is a button to Manage the Invited User
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td")
+          .eq(4)
+          .find('[data-button-for="manageUser"]')
+          .should("exist")
+          .and("have.text", "Manage user");
+      });
   });
 
   it("Verify inviting an Merchant Admin successfully", () => {
