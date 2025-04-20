@@ -702,4 +702,448 @@ describe("Users - Invite Users", () => {
     // Verify there is a button to Manage the Invited User
     usersList.verifyManageUserButton;
   });
+
+  it("Verify inviting an Profile Admin successfully", () => {
+    role = "Profile Admin";
+
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
+
+    // Generate a unique email for the test
+    invitedUserEmail = helper.generateUniqueEmail();
+
+    // Enter email address for the new user
+    cy.get('[class="w-full cursor-text"]').type(invitedUserEmail);
+
+    // Select role dropdown
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+
+    // Select default profile option
+    cy.get('[data-value="allProfiles"]').click();
+    cy.get('[data-dropdown-value="default"]').click();
+
+    // Select role option
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+
+    // Select option Profile Admin
+    cy.get('[class="mr-5"]').contains(role).click();
+
+    // Click send invite button
+    usersList.sendInvite;
+
+    // Verify invite email was received and contains correct content
+    usersList.verifyInviteEmail;
+
+    // Navigate back to Users page
+    usersList.visit;
+
+    // Verify the new user is listed in the Users page
+    cy.get("table#table tbody tr").should("have.length", 2);
+
+    // Verify the first cell of the last row contains an email
+    cy.get("table#table tbody tr:last-child td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+    // Verify the second cell of the last row contains Profile Admin
+    cy.get("table#table tbody tr:last-child td")
+      .eq(1)
+      .should("have.text", role);
+
+    // Verify User Details
+    cy.get("table#table tbody tr").last().click();
+
+    // Verify the user's username is displayed
+    usersList.verifyUserDetailsUsernameDisplay(invitedUserEmail);
+
+    // Verify the user's email is displayed
+    usersList.verifyUserDetailsEmailDisplay(invitedUserEmail);
+
+    // Verify the content of table rows
+    usersList.verifyUserDetailsTableRowContent(
+      "Test_merchant",
+      "default",
+      role,
+    );
+
+    // Verify the styling of the status indicator
+    usersList.verifyInviteStatus;
+
+    usersList.verifyManageUserButton;
+  });
+
+  it("Verify inviting an Profile Developer successfully", () => {
+    role = "Profile Developer";
+
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
+
+    // Generate a unique email for the test
+    invitedUserEmail = helper.generateUniqueEmail();
+
+    // Enter email address for the new user
+    cy.get('[class="w-full cursor-text"]').type(invitedUserEmail);
+
+    // Select role dropdown
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+
+    // Select default profile option
+    cy.get('[data-value="allProfiles"]').click();
+    cy.get('[data-dropdown-value="default"]').click();
+
+    // Select role option
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+
+    // Select option Profile Developer
+    cy.get('[class="mr-5"]').contains(role).click();
+
+    // Click send invite button
+    usersList.sendInvite;
+
+    // Verify invite email was received and contains correct content
+    usersList.verifyInviteEmail;
+
+    // Navigate back to Users page
+    usersList.visit;
+
+    // Verify the new user is listed in the Users page
+    cy.get("table#table tbody tr").should("have.length", 2);
+
+    // Verify the first cell of the last row contains an email
+    cy.get("table#table tbody tr:last-child td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+    // Verify the second cell of the last row contains Profile Developer
+    cy.get("table#table tbody tr:last-child td")
+      .eq(1)
+      .should("have.text", role);
+
+    // Verify User Details
+    cy.get("table#table tbody tr").last().click();
+
+    // Verify the user's username is displayed
+    usersList.verifyUserDetailsUsernameDisplay(invitedUserEmail);
+
+    // Verify the user's email is displayed
+    usersList.verifyUserDetailsEmailDisplay(invitedUserEmail);
+
+    // Verify the content of table rows
+    usersList.verifyUserDetailsTableRowContent(
+      "Test_merchant",
+      "default",
+      role,
+    );
+
+    // Verify the styling of the status indicator
+    usersList.verifyInviteStatus;
+
+    usersList.verifyManageUserButton;
+  });
+
+  it("Verify inviting an Profile Operator successfully", () => {
+    role = "Profile Operator";
+
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
+
+    // Generate a unique email for the test
+    invitedUserEmail = helper.generateUniqueEmail();
+
+    // Enter email address for the new user
+    cy.get('[class="w-full cursor-text"]').type(invitedUserEmail);
+
+    // Select role dropdown
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+
+    // Select default profile option
+    cy.get('[data-value="allProfiles"]').click();
+    cy.get('[data-dropdown-value="default"]').click();
+
+    // Select role option
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+
+    // Select option Profile Operator
+    cy.get('[class="mr-5"]').contains(role).click();
+
+    // Click send invite button
+    usersList.sendInvite;
+
+    // Verify invite email was received and contains correct content
+    usersList.verifyInviteEmail;
+
+    // Navigate back to Users page
+    usersList.visit;
+
+    // Verify the new user is listed in the Users page
+    cy.get("table#table tbody tr").should("have.length", 2);
+
+    // Verify the first cell of the last row contains an email
+    cy.get("table#table tbody tr:last-child td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+    // Verify the second cell of the last row contains Profile Operator
+    cy.get("table#table tbody tr:last-child td")
+      .eq(1)
+      .should("have.text", role);
+
+    // Verify User Details
+    cy.get("table#table tbody tr").last().click();
+
+    // Verify the user's username is displayed
+    usersList.verifyUserDetailsUsernameDisplay(invitedUserEmail);
+
+    // Verify the user's email is displayed
+    usersList.verifyUserDetailsEmailDisplay(invitedUserEmail);
+
+    // Verify the content of table rows
+    usersList.verifyUserDetailsTableRowContent(
+      "Test_merchant",
+      "default",
+      role,
+    );
+
+    // Verify the styling of the status indicator
+    usersList.verifyInviteStatus;
+
+    usersList.verifyManageUserButton;
+  });
+
+  it("Verify inviting an Profile View Only successfully", () => {
+    role = "Profile View Only";
+
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
+
+    // Generate a unique email for the test
+    invitedUserEmail = helper.generateUniqueEmail();
+
+    // Enter email address for the new user
+    cy.get('[class="w-full cursor-text"]').type(invitedUserEmail);
+
+    // Select role dropdown
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+
+    // Select default profile option
+    cy.get('[data-value="allProfiles"]').click();
+    cy.get('[data-dropdown-value="default"]').click();
+
+    // Select role option
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+
+    // Select option Profile View Only
+    cy.get('[class="mr-5"]').contains(role).click();
+
+    // Click send invite button
+    usersList.sendInvite;
+
+    // Verify invite email was received and contains correct content
+    usersList.verifyInviteEmail;
+
+    // Navigate back to Users page
+    usersList.visit;
+
+    // Verify the new user is listed in the Users page
+    cy.get("table#table tbody tr").should("have.length", 2);
+
+    // Verify the first cell of the last row contains an email
+    cy.get("table#table tbody tr:last-child td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+    // Verify the second cell of the last row contains Profile View Only
+    cy.get("table#table tbody tr:last-child td")
+      .eq(1)
+      .should("have.text", role);
+
+    // Verify User Details
+    cy.get("table#table tbody tr").last().click();
+
+    // Verify the user's username is displayed
+    usersList.verifyUserDetailsUsernameDisplay(invitedUserEmail);
+
+    // Verify the user's email is displayed
+    usersList.verifyUserDetailsEmailDisplay(invitedUserEmail);
+
+    // Verify the content of table rows
+    usersList.verifyUserDetailsTableRowContent(
+      "Test_merchant",
+      "default",
+      role,
+    );
+
+    // Verify the styling of the status indicator
+    usersList.verifyInviteStatus;
+
+    usersList.verifyManageUserButton;
+  });
+
+  it("Verify inviting an Profile Iam successfully", () => {
+    role = "Profile Iam";
+
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
+
+    // Generate a unique email for the test
+    invitedUserEmail = helper.generateUniqueEmail();
+
+    // Enter email address for the new user
+    cy.get('[class="w-full cursor-text"]').type(invitedUserEmail);
+
+    // Select role dropdown
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+
+    // Select default profile option
+    cy.get('[data-value="allProfiles"]').click();
+    cy.get('[data-dropdown-value="default"]').click();
+
+    // Select role option
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+
+    // Select option Profile Iam
+    cy.get('[class="mr-5"]').contains(role).click();
+
+    // Click send invite button
+    usersList.sendInvite;
+
+    // Verify invite email was received and contains correct content
+    usersList.verifyInviteEmail;
+
+    // Navigate back to Users page
+    usersList.visit;
+
+    // Verify the new user is listed in the Users page
+    cy.get("table#table tbody tr").should("have.length", 2);
+
+    // Verify the first cell of the last row contains an email
+    cy.get("table#table tbody tr:last-child td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+    // Verify the second cell of the last row contains Profile Iam
+    cy.get("table#table tbody tr:last-child td")
+      .eq(1)
+      .should("have.text", role);
+
+    // Verify User Details
+    cy.get("table#table tbody tr").last().click();
+
+    // Verify the user's username is displayed
+    usersList.verifyUserDetailsUsernameDisplay(invitedUserEmail);
+
+    // Verify the user's email is displayed
+    usersList.verifyUserDetailsEmailDisplay(invitedUserEmail);
+
+    // Verify the content of table rows
+    usersList.verifyUserDetailsTableRowContent(
+      "Test_merchant",
+      "default",
+      role,
+    );
+
+    // Verify the styling of the status indicator
+    usersList.verifyInviteStatus;
+
+    usersList.verifyManageUserButton;
+  });
+
+  it("Verify inviting an Customer Support successfully", () => {
+    role = "Customer Support";
+
+    // Navigate to Invite Users page
+    usersList.navigateInviteUsers;
+
+    // Generate a unique email for the test
+    invitedUserEmail = helper.generateUniqueEmail();
+
+    // Enter email address for the new user
+    cy.get('[class="w-full cursor-text"]').type(invitedUserEmail);
+
+    // Select role dropdown
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+
+    // Select default profile option
+    cy.get('[data-value="allProfiles"]').click();
+    cy.get('[data-dropdown-value="default"]').click();
+
+    // Select role option
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+
+    // Select option Customer Support
+    cy.get('[class="mr-5"]').contains(role).click();
+
+    // Click send invite button
+    usersList.sendInvite;
+
+    // Verify invite email was received and contains correct content
+    usersList.verifyInviteEmail;
+
+    // Navigate back to Users page
+    usersList.visit;
+
+    // Verify the new user is listed in the Users page
+    cy.get("table#table tbody tr").should("have.length", 2);
+
+    // Verify the first cell of the last row contains an email
+    cy.get("table#table tbody tr:last-child td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+    // Verify the second cell of the last row contains Customer Support
+    cy.get("table#table tbody tr:last-child td")
+      .eq(1)
+      .should("have.text", "Profile " + role);
+
+    // Verify User Details
+    cy.get("table#table tbody tr").last().click();
+
+    // Verify the user's username is displayed
+    usersList.verifyUserDetailsUsernameDisplay(invitedUserEmail);
+
+    // Verify the user's email is displayed
+    usersList.verifyUserDetailsEmailDisplay(invitedUserEmail);
+
+    // Verify the content of table rows
+    usersList.verifyUserDetailsTableRowContent(
+      "Test_merchant",
+      "default",
+      "Profile " + role,
+    );
+
+    // Verify the styling of the status indicator
+    usersList.verifyInviteStatus;
+
+    usersList.verifyManageUserButton;
+  });
 });
