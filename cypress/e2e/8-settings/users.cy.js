@@ -5,6 +5,7 @@ import UsersList from "../../support/pages/settings/users/UsersList";
 const homePage = new HomePage();
 const usersList = new UsersList();
 let email;
+let invitedUserEmail;
 
 beforeEach(function () {
   // Generate a unique email for the test
@@ -43,11 +44,11 @@ describe("Users - UI", () => {
     cy.get("div.text-jp-gray-900.text-opacity-50").contains("Roles");
 
     // Verify the UI of search input
-    cy.get('input[placeholder="Search by name or email.."]').should("exist");
+    cy.get('[placeholder="Search by name or email.."]').should("exist");
 
     // Verify the functionality of the search input
-    cy.get('input[placeholder="Search by name or email.."]').type(email);
-    cy.get('input[placeholder="Search by name or email.."]').should(
+    cy.get('[placeholder="Search by name or email.."]').type(email);
+    cy.get('[placeholder="Search by name or email.."]').should(
       "have.value",
       email,
     );
@@ -60,11 +61,11 @@ describe("Users - UI", () => {
       .first()
       .should("contain.text", email);
     // Clear the search input
-    cy.get('input[placeholder="Search by name or email.."]').clear();
-    cy.get('input[placeholder="Search by name or email.."]').type(
+    cy.get('[placeholder="Search by name or email.."]').clear();
+    cy.get('[placeholder="Search by name or email.."]').type(
       "cypress+org_admin@test.com",
     );
-    cy.get('input[placeholder="Search by name or email.."]').should(
+    cy.get('[placeholder="Search by name or email.."]').should(
       "have.value",
       "cypress+org_admin@test.com",
     );
@@ -97,7 +98,7 @@ describe("Users - UI", () => {
     cy.get('[data-dropdown-value="default"]').contains("(Profile)");
 
     // Verify the page has a clickable "Invite users" button
-    cy.get('button[data-button-for="inviteUsers"]')
+    cy.get('[data-button-for="inviteUsers"]')
       .should("exist")
       .should("be.enabled")
       .should("not.be.disabled");
@@ -221,8 +222,11 @@ describe("Users - Invite Users", () => {
     // Navigate to Invite Users page
     usersList.navigateInviteUsers;
 
+    // Generate a unique email for the test
+    invitedUserEmail = helper.generateUniqueEmail();
+
     // Enter email address for the new user
-    cy.get('[class="w-full cursor-text"]').type(helper.generateUniqueEmail());
+    cy.get('[class="w-full cursor-text"]').type(invitedUserEmail);
 
     // Select role dropdown
     cy.get(
@@ -249,5 +253,19 @@ describe("Users - Invite Users", () => {
 
     // Navigate back to Users page
     usersList.visit;
+
+    // Verify the new user is listed in the Users page
+    cy.get("table#table tbody tr").should("have.length", 2);
+
+    // Verify the first cell of the last row contains an email
+    cy.get("table#table tbody tr:last-child td")
+      .eq(0)
+      .invoke("text")
+      .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
+    // Verify the second cell of the last row contains Organization Admin
+    cy.get("table#table tbody tr:last-child td")
+      .eq(1)
+      .should("have.text", "Organization Admin");
   });
 });
