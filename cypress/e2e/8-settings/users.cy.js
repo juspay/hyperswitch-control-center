@@ -420,7 +420,7 @@ describe("Users - Invite Users", () => {
       });
   });
 
-  it.only("Verify inviting an Merchant Developer successfully", () => {
+  it("Verify inviting an Merchant Developer successfully", () => {
     // Navigate to Invite Users page
     usersList.navigateInviteUsers;
 
