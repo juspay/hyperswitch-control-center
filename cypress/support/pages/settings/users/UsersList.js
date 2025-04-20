@@ -58,7 +58,17 @@ class UsersList {
     });
   }
 
-  get verifyInviteStatus() {
+  verifyUserDetailsTableRowContent(merchants, profiles, role) {
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td").eq(0).should("have.text", merchants);
+        cy.get("td").eq(1).should("have.text", profiles);
+        cy.get("td").eq(2).should("have.text", role);
+      });
+  }
+
+  verifyStatus(status, textColor, bgColor) {
     // Verify the styling of the status indicator
     cy.get("table tr")
       .eq(1)
@@ -66,12 +76,20 @@ class UsersList {
         cy.get("td")
           .eq(3)
           .find("p")
-          .should("have.text", "InviteSent") // This should be Invite Sent
-          .should("have.class", "text-orange-950")
-          .should("have.class", "bg-orange-950")
+          .should("have.text", status)
+          .should("have.class", `text-${textColor}`)
+          .should("have.class", `bg-${bgColor}`)
           .should("have.class", "bg-opacity-20")
           .should("have.class", "rounded-full");
       });
+  }
+
+  get verifyActiveStatus() {
+    this.verifyStatus("Active", "green-700", "green-700");
+  }
+
+  get verifyInviteStatus() {
+    this.verifyStatus("InviteSent", "orange-950", "orange-950"); // This should be Invite Sent
   }
 
   get verifyManageUserButton() {

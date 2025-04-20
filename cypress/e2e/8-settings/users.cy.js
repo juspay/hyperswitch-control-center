@@ -167,33 +167,20 @@ describe("Users - Details", () => {
     cy.get("table th").should("have.length", 5);
 
     // Verify the table headers
-    cy.get("table th").eq(0).should("have.text", "Merchants");
-    cy.get("table th").eq(1).should("have.text", "Profile Name"); // This should be Profiles
-    cy.get("table th").eq(2).should("have.text", "Role");
-    cy.get("table th").eq(3).should("have.text", "Status");
+    usersList.verifyUserDetailsTableRowContent(
+      "All_merchants",
+      "all_profiles",
+      "Organization Admin",
+    );
+
+    // Verify the status column
+    usersList.verifyActiveStatus;
 
     // Verify the content of table rows
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td").eq(0).should("have.text", "All_merchants"); // This should be All Merchants
-        cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
-        cy.get("td").eq(2).should("have.text", "Organization Admin");
-        cy.get("td").eq(3).should("have.text", "Active");
-      });
+    usersList.verifyUserDetailsTableRowContent((role = "Organization Admin"));
 
     // Verify the styling of the status indicator
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td")
-          .eq(3)
-          .find("p")
-          .should("have.class", "text-green-700")
-          .should("have.class", "bg-green-700")
-          .should("have.class", "bg-opacity-20")
-          .should("have.class", "rounded-full");
-      });
+    usersList.verifyActiveStatus;
   });
 });
 
@@ -290,14 +277,11 @@ describe("Users - Invite Users", () => {
       .and("have.class", "opacity-40");
 
     // Verify the content of table rows
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td").eq(0).should("have.text", "All_merchants"); // This should be All Merchants
-        cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
-        cy.get("td").eq(2).should("have.text", role);
-        cy.get("td").eq(3).should("have.text", "InviteSent"); // This should be Invite Sent
-      });
+    usersList.verifyUserDetailsTableRowContent(
+      "All_merchants",
+      "all_profiles",
+      role,
+    );
 
     // Verify the styling of the status indicator
     cy.get("table tr")
@@ -382,13 +366,11 @@ describe("Users - Invite Users", () => {
       .and("have.class", "opacity-40");
 
     // Verify the content of table rows
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td").eq(0).should("have.text", "Test_merchant"); // This should be All Merchants
-        cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
-        cy.get("td").eq(2).should("have.text", role);
-      });
+    usersList.verifyUserDetailsTableRowContent(
+      "Test_merchant",
+      "all_profiles",
+      role,
+    );
 
     // Verify the styling of the status indicator
     usersList.verifyInviteStatus;
@@ -463,13 +445,11 @@ describe("Users - Invite Users", () => {
       .and("have.class", "opacity-40");
 
     // Verify the content of table rows
-    cy.get("table tr")
-      .eq(1)
-      .within(() => {
-        cy.get("td").eq(0).should("have.text", "Test_merchant"); // This should be All Merchants
-        cy.get("td").eq(1).should("have.text", "all_profiles"); // This should be All Profiles
-        cy.get("td").eq(2).should("have.text", role);
-      });
+    usersList.verifyUserDetailsTableRowContent(
+      "Test_merchant",
+      "all_profiles",
+      role,
+    );
 
     // Verify the styling of the status indicator
     usersList.verifyInviteStatus;
