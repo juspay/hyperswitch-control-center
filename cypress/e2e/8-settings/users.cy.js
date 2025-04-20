@@ -196,7 +196,7 @@ describe("Users - Details", () => {
 });
 
 describe("Users - Invite Users", () => {
-  it("verify whether invalid users with invalid email address can be invited", () => {
+  it("Verify whether invalid users with invalid email address can be invited", () => {
     // Navigate to Invite Users page
     usersList.navigateInviteUsers;
 
@@ -217,7 +217,7 @@ describe("Users - Invite Users", () => {
     });
   });
 
-  it("verify successfully inviting an user and verify invitation email reception", () => {
+  it("Verify inviting an Organization Admin successfully", () => {
     // Navigate to Invite Users page
     usersList.navigateInviteUsers;
 
@@ -229,33 +229,23 @@ describe("Users - Invite Users", () => {
       '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
     ).click();
 
+    // Select Merchants that are supposed to be accessed by the new user
+    cy.get('[data-value="testMerchant"]').click();
+    cy.get('[data-dropdown-value="All merchants"]').click();
+
     // Select role option
     cy.get(
       '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
     ).click();
 
-    // Select first merchant option
+    // Select first option i.e., Organization Admin
     cy.get('[class="mr-5"]').eq(0).click();
 
     // Click send invite button
-    cy.get('[data-button-for="sendInvite"').click();
+    usersList.sendInvite;
 
-    // Navigate to mail server to verify invite email
-    cy.visit(Cypress.env("MAIL_URL"));
-
-    // Click on the first email in inbox
-    cy.get("div.messages > div:nth-child(1)").click();
-
-    // Wait for email content to load
-    cy.wait(1000);
-
-    // Verify invite email content
-    cy.get("iframe").then(($iframe) => {
-      cy.get('[class="ng-binding"]').should(
-        "contain",
-        "You have been invited to join Hyperswitch Community",
-      );
-    });
+    // Verify invite email was received and contains correct content
+    usersList.verifyInviteEmail;
 
     // Navigate back to Users page
     usersList.visit;

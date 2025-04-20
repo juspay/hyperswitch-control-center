@@ -33,6 +33,30 @@ class UsersList {
       "Team management",
     );
   }
+
+  get sendInvite() {
+    // Click on the Send Invite button
+    cy.get('[data-button-for="sendInvite"').click();
+  }
+
+  get verifyInviteEmail() {
+    // Navigate to mail server to verify invite email
+    cy.visit(Cypress.env("MAIL_URL"));
+
+    // Click on the first email in inbox
+    cy.get("div.messages > div:nth-child(1)").click();
+
+    // Wait for email content to load
+    cy.wait(1000);
+
+    // Verify invite email content
+    cy.get("iframe").then(($iframe) => {
+      cy.get('[class="ng-binding"]').should(
+        "contain",
+        "You have been invited to join Hyperswitch Community",
+      );
+    });
+  }
 }
 
 export default UsersList;
