@@ -505,6 +505,4 @@ let getNameFromList = countryCode => {
     }
   | None => "Other countries"
   }
-
-  
 }
