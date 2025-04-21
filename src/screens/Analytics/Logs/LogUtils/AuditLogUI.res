@@ -68,9 +68,7 @@ module TabDetails = {
         | Event
         | Request =>
           <div className="px-5 py-3">
-            <RenderIf
-              condition={logDetails.request->isNonEmptyString &&
-                selectedOption.optionType !== WEBHOOKS}>
+            <RenderIf condition={logDetails.request->isNonEmptyString}>
               <div className="flex justify-end">
                 <HelperComponents.CopyTextCustomComp
                   displayValue=Some("")
@@ -80,9 +78,7 @@ module TabDetails = {
               </div>
               <PrettyPrintJson jsonToDisplay=logDetails.request />
             </RenderIf>
-            <RenderIf
-              condition={logDetails.request->isEmptyString &&
-                selectedOption.optionType !== WEBHOOKS}>
+            <RenderIf condition={logDetails.request->isEmptyString}>
               <NoDataFound
                 customCssClass={"my-6"} message="No Data Available" renderType=Painting
               />
@@ -91,7 +87,9 @@ module TabDetails = {
         | Metadata
         | Response =>
           <div className="px-5 py-3">
-            <RenderIf condition={logDetails.response->isNonEmptyString}>
+            <RenderIf
+              condition={logDetails.response->isNonEmptyString &&
+                selectedOption.optionType !== WEBHOOKS}>
               <div className="flex justify-end">
                 <HelperComponents.CopyTextCustomComp
                   displayValue=Some("")
@@ -101,7 +99,9 @@ module TabDetails = {
               </div>
               <PrettyPrintJson jsonToDisplay={logDetails.response} />
             </RenderIf>
-            <RenderIf condition={logDetails.response->isEmptyString}>
+            <RenderIf
+              condition={logDetails.response->isEmptyString ||
+                selectedOption.optionType === WEBHOOKS}>
               <NoDataFound
                 customCssClass={"my-6"} message="No Data Available" renderType=Painting
               />
