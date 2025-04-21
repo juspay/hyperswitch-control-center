@@ -6,10 +6,8 @@ module HyperSwitchEntryComponent = {
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
-    let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-    let pageViewEvent = MixpanelHook.usePageView()
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
@@ -84,8 +82,6 @@ module HyperSwitchEntryComponent = {
       TimeZoneUtils.getUserTimeZone()->setZone
       None
     }, [])
-
-
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
