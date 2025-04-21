@@ -48,8 +48,7 @@ module CredsInfoField = {
     let connectorLabelField = {
       <LabelInfoField label="Connector Label" str=connectorInfo.connector_label />
     }
-
-    React.array(Array.concat(authFields, [connectorLabelField]))
+    Array.concat(authFields, [connectorLabelField])->React.array
   }
 }
 
