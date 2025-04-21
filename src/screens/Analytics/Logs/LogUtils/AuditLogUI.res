@@ -10,11 +10,11 @@ module LogDetailsSection = {
       }
     }
 
-    let sidebarScrollbarCss = `
+    let auditLogScrollbar = `
   @supports (-webkit-appearance: none){
     pre {
         scrollbar-width: auto;
-        scrollbar-color: #8a8c8f;
+        scrollbar-color: #CACFD8;
       }
       
       pre::-webkit-scrollbar {
@@ -25,7 +25,7 @@ module LogDetailsSection = {
       }
       
       pre::-webkit-scrollbar-thumb {
-        background-color: #8a8c8f;
+        background-color: #CACFD8;
         border-radius: 3px;
       }
       
@@ -48,7 +48,7 @@ module LogDetailsSection = {
           <span className="w-2/5"> {key->snakeToTitle->React.string} </span>
           <span
             className="w-3/5 overflow-scroll cursor-pointer relative hover:bg-gray-50 p-1 rounded">
-            <style> {React.string(sidebarScrollbarCss)} </style>
+            <style> {React.string(auditLogScrollbar)} </style>
             <ReactSyntaxHighlighter.SyntaxHighlighter
               wrapLines={true}
               wrapLongLines=true
