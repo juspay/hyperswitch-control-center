@@ -10,6 +10,31 @@ module LogDetailsSection = {
       }
     }
 
+    let sidebarScrollbarCss = `
+  @supports (-webkit-appearance: none){
+    pre {
+        scrollbar-width: auto;
+        scrollbar-color: #8a8c8f;
+      }
+      
+      pre::-webkit-scrollbar {
+        display: block;
+        overflow: scroll;
+        height: 4px;
+        width: 5px;
+      }
+      
+      pre::-webkit-scrollbar-thumb {
+        background-color: #8a8c8f;
+        border-radius: 3px;
+      }
+      
+      pre::-webkit-scrollbar-track {
+        display: none;
+      }
+}
+  `
+
     <div className="pb-3 px-5 py-3">
       {logDetails.data
       ->Dict.toArray
@@ -23,6 +48,7 @@ module LogDetailsSection = {
           <span className="w-2/5"> {key->snakeToTitle->React.string} </span>
           <span
             className="w-3/5 overflow-scroll cursor-pointer relative hover:bg-gray-50 p-1 rounded">
+            <style> {React.string(sidebarScrollbarCss)} </style>
             <ReactSyntaxHighlighter.SyntaxHighlighter
               wrapLines={true}
               wrapLongLines=true
@@ -37,7 +63,7 @@ module LogDetailsSection = {
               customStyle={{
                 backgroundColor: "transparent",
                 fontSize: "0.875rem",
-                padding: "0px",
+                padding: "0px 0px 6px 0px",
               }}>
               {value->JSON.stringify}
             </ReactSyntaxHighlighter.SyntaxHighlighter>
