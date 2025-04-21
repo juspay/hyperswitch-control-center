@@ -3,7 +3,6 @@ module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
     open HyperSwitchEntryUtils
-    open SessionStorage
     let fetchDetails = APIUtils.useGetMethod()
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
@@ -61,14 +60,10 @@ module HyperSwitchEntryComponent = {
 
       if themeID->Option.isSome {
         setThemeIdtoStore(themeID->Option.getOr(""))
-      } else {
-        let storeThemeId = getThemeIdfromStore()
-        if storeThemeId->Option.isSome {
-          setThemeIdtoStore(storeThemeId->Option.getOr(""))
-        }
       }
+
       if domainUrl->Option.isSome {
-        sessionStorage.setItem("domain", domainUrl->Option.getOr(""))
+        setDomaintoStore(domainUrl->Option.getOr(""))
       }
       let themeId = getThemeIdfromStore()
       (themeId, domainUrl)

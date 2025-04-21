@@ -21,6 +21,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
+  let domain = HyperSwitchEntryUtils.getDomainfromStore()->Option.getOr("")
   let {
     isMagicLinkEnabled,
     isSignUpAllowed,
@@ -47,7 +48,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#CONNECT_ACCOUNT,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}&theme_id=${themeId}`), // todo: domain shall be removed from query params later
+        ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`), // todo: domain shall be removed from query params later
       )
       let res = await updateDetails(url, body, Post)
       let valuesDict = res->getDictFromJsonObject

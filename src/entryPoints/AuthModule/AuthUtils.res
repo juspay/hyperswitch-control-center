@@ -81,7 +81,7 @@ let redirectToLogin = () => {
   let params = [
     ("auth_id", getSessionData(~key="auth_id")->getNonEmptyString),
     ("theme_id", HyperSwitchEntryUtils.getThemeIdfromStore()),
-    ("domain", getSessionData(~key="domain")->getNonEmptyString),
+    ("domain", HyperSwitchEntryUtils.getDomainfromStore()),
   ]
 
   let queryString =

@@ -25,13 +25,19 @@ let setThemeIdtoStore = themeId => {
   let themeID = themeId->LogicUtils.getNonEmptyString
   if themeID->Option.isSome {
     LocalStorage.setItem("theme_id", themeID->Option.getOr(""))
-    sessionStorage.removeItem("domain")
   } else {
-    LocalStorage.setItem("theme_id", "")
+    LocalStorage.setItem("theme_id", "") //to change back to default if no theme present on switch
   }
 }
 
-let getDomainfromSession = () => {
-  let domain = getSessionData(~key="domain")->LogicUtils.getNonEmptyString
+let setDomaintoStore = domain => {
+  let domain = domain->LogicUtils.getNonEmptyString
+  if domain->Option.isSome {
+    LocalStorage.setItem("domain", domain->Option.getOr(""))
+  }
+}
+
+let getDomainfromStore = () => {
+  let domain = LocalStorage.getItem("domain")->Nullable.toOption
   domain
 }
