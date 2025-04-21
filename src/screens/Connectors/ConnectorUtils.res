@@ -1628,7 +1628,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
     (
       "metadata",
       dict->getDictfromDict("metadata")->isEmptyDict
-        ? JSON.Encode.null
+        ? Dict.make()->JSON.Encode.object
         : dict->getDictfromDict("metadata")->JSON.Encode.object,
     ),
   ])
