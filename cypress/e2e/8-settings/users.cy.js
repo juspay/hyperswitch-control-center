@@ -27,8 +27,7 @@ describe("Users", () => {
     cy.get('[class="mr-5"]').eq(0).click();
     cy.get('[data-button-for="sendInvite"').click();
 
-    const MAIL_URL = "http://localhost:8025";
-    cy.visit(`${MAIL_URL}`);
+    cy.visit(Cypress.env("MAIL_URL"));
     cy.get("div.messages > div:nth-child(1)").click();
     cy.wait(1000);
     cy.get("iframe").then(($iframe) => {

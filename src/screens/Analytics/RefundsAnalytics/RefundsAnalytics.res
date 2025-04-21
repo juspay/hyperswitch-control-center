@@ -87,7 +87,7 @@ let make = () => {
       filterUri=Some(analyticsfilterUrl)
       key="RefundsAnalytics"
       moduleName="Refunds"
-      deltaMetrics={getStringListFromArrayDict(metrics)}
+      deltaMetrics=["refund_success_rate", "refund_count", "refund_success_count"]
       chartEntity={default: chartEntity(tabKeys, ~uri=refundAnalyticsUrl)}
       tabKeys
       tabValues
