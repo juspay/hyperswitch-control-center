@@ -85,13 +85,7 @@ module HyperSwitchEntryComponent = {
       None
     }, [])
 
-    React.useEffect(() => {
-      let path = url.path->List.toArray->Array.joinWith("/")
-      if featureFlagDetails.mixpanel {
-        pageViewEvent(~path)->ignore
-      }
-      None
-    }, (featureFlagDetails.mixpanel, url.path))
+
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
