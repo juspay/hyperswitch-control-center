@@ -122,10 +122,10 @@ let defaultHomeCardsArray = {
     },
     {
       product: Recovery,
-      heading: "Recovery",
+      heading: "Revenue Recovery",
       description: "A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.",
       imgSrc: "/assets/DefaultHomeRecoveryCard.svg",
-      action: InternalRoute("v2/recovery/home"),
+      action: InternalRoute("v2/recovery"),
     },
   ]
 }

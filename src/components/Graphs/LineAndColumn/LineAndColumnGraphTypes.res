@@ -4,7 +4,8 @@ type spacingLeft = int
 type spacingRight = int
 
 type info = {index: int}
-type point = {color: string, x: string, y: float, point: info, key: string}
+type series = {name: string}
+type point = {color: string, x: string, y: float, point: info, key: string, series: series}
 type pointFormatter = {points: array<point>}
 type yAxisFormatter = {value: int}
 
@@ -34,6 +35,7 @@ type style = {
   color: color,
   fontFamily?: string,
   fontSize?: string,
+  fontWeight?: string,
 }
 type title = {text: string, style?: style, align?: align, x?: int, y?: int}
 type enabled = {enabled: bool}
@@ -47,7 +49,10 @@ type marker = {
   ...enabled,
 }
 type line = {marker: marker}
-type column = {pointWidth: pointWidth, borderRadius: borderRadius}
+type column = {
+  pointWidth: pointWidth,
+  borderRadius: borderRadius,
+}
 type plotOptions = {line: line, column: column}
 type labels = {
   align: align,
@@ -125,6 +130,7 @@ type itemStyle = {
   fontFamily: string,
   fontSize: string,
   color: string,
+  fontWeight?: string,
 }
 
 type legendPoint = {
@@ -135,17 +141,20 @@ type legendPoint = {
 external asLegendsFormatter: Js_OO.Callback.arity1<'a> => legendPoint => string = "%identity"
 
 type legend = {
-  itemStyle: itemStyle,
   useHTML: bool,
   labelFormatter: legendPoint => string,
-  symbolPadding: int,
-  symbolWidth: int,
-  symbolHeight: int,
-  symbolRadius: int,
-  align: string,
-  verticalAlign: string,
-  x: int,
-  y: int,
+  symbolPadding?: int,
+  symbolWidth?: int,
+  symbolHeight?: int,
+  symbolRadius?: int,
+  align?: string,
+  verticalAlign?: string,
+  itemStyle?: itemStyle,
+  itemDistance?: int,
+  floating?: bool,
+  x?: int,
+  y?: int,
+  margin?: int,
 }
 
 type lineColumnGraphOptions = {
@@ -173,4 +182,7 @@ type lineColumnGraphPayload = {
   titleObj: titleObj,
   tooltipFormatter: pointFormatter => string,
   yAxisFormatter: pointFormatter => string,
+  minValY2: int,
+  maxValY2: int,
+  legend: legend,
 }

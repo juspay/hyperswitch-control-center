@@ -17,7 +17,6 @@ let make = (
   open ConnectProcessorsHelper
 
   let getURL = useGetURL()
-  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
@@ -43,6 +42,22 @@ let make = (
     connectorTypeFromName->getConnectorInfo
   }, [connector])
 
+  let connectorDetails = React.useMemo(() => {
+    try {
+      if connector->isNonEmptyString {
+        let dict = Window.getConnectorConfig(connector)
+        dict
+      } else {
+        Dict.make()->JSON.Encode.object
+      }
+    } catch {
+    | Exn.Error(e) => {
+        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
+        Dict.make()->JSON.Encode.object
+      }
+    }
+  }, [selectedConnector])
+
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     // TODO: Refactor for generic case
@@ -61,16 +76,35 @@ let make = (
       "connector_account_details",
       RevenueRecoveryData.connector_account_details,
     )
+    let keys =
+      connectorDetails
+      ->getDictFromJsonObject
+      ->Dict.keysToArray
+      ->Array.filter(val => Array.includes(["credit", "debit"], val))
+
+    let pmtype = keys->Array.flatMap(key => {
+      let paymentMethodType = connectorDetails->getDictFromJsonObject->getArrayFromDict(key, [])
+      let updatedData = paymentMethodType->Array.map(
+        val => {
+          let wasmDict = val->getDictFromJsonObject
+          let exisitngData =
+            wasmDict->ConnectorPaymentMethodV2Utils.getPaymentMethodDictV2(key, connector)
+          exisitngData
+        },
+      )
+      updatedData
+    })
+    let pmSubTypeDict =
+      [
+        ("payment_method_type", "card"->JSON.Encode.string),
+        ("payment_method_subtypes", pmtype->Identity.genericTypeToJson),
+      ]->Dict.fromArray
+    let pmArr = Array.make(~length=1, pmSubTypeDict)
+    initialValuesToDict->Dict.set("payment_methods_enabled", pmArr->Identity.genericTypeToJson)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
-  let handleAuthKeySubmit = async (_, _) => {
-    onNextClick(currentStep, setNextStep)
-    Nullable.null
-  }
-
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
@@ -102,22 +136,6 @@ let make = (
     }
     Nullable.null
   }
-
-  let connectorDetails = React.useMemo(() => {
-    try {
-      if connector->isNonEmptyString {
-        let dict = Window.getConnectorConfig(connector)
-        dict
-      } else {
-        Dict.make()->JSON.Encode.object
-      }
-    } catch {
-    | Exn.Error(e) => {
-        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        Dict.make()->JSON.Encode.object
-      }
-    }
-  }, [selectedConnector])
 
   let (
     _,
@@ -154,6 +172,9 @@ let make = (
     onChange: ev => {
       let value = ev->Identity.formReactEventToString
       setConnectorName(_ => value)
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${value}`),
+      )
     },
     onFocus: _ => (),
     value: connector->JSON.Encode.string,
@@ -173,10 +194,7 @@ let make = (
         subTitle="Link the payment processor you use for handling subscription transactions.">
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
-            <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
-              <p className="text-sm text-gray-700 font-semibold mb-1">
-                {"Select a Processor"->React.string}
-              </p>
+            <Form onSubmit initialValues validate=validateMandatoryField>
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
                 buttonText="Choose a processor"

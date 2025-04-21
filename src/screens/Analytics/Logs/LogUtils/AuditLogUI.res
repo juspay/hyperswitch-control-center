@@ -73,7 +73,9 @@ module TabDetails = {
                 selectedOption.optionType !== WEBHOOKS}>
               <div className="flex justify-end">
                 <HelperComponents.CopyTextCustomComp
-                  displayValue=" " copyValue={Some(logDetails.request)} customTextCss="text-nowrap"
+                  displayValue=Some("")
+                  copyValue={Some(logDetails.request)}
+                  customTextCss="text-nowrap"
                 />
               </div>
               <PrettyPrintJson jsonToDisplay=logDetails.request />
@@ -92,7 +94,9 @@ module TabDetails = {
             <RenderIf condition={logDetails.response->isNonEmptyString}>
               <div className="flex justify-end">
                 <HelperComponents.CopyTextCustomComp
-                  displayValue=" " copyValue={Some(logDetails.response)} customTextCss="text-nowrap"
+                  displayValue=Some("")
+                  copyValue={Some(logDetails.response)}
+                  customTextCss="text-nowrap"
                 />
               </div>
               <PrettyPrintJson jsonToDisplay={logDetails.response} />
@@ -150,6 +154,12 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     a
   })
 
+  React.useEffect(_ => {
+    setActiveTab(_ => ["Log Details"])
+    setCollapseTab(prev => !prev)
+    None
+  }, [logDetails])
+
   let activeTab = React.useMemo(() => {
     Some(activeTab)
   }, [activeTab])
@@ -159,11 +169,6 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       setActiveTab(_ => str->String.split(","))
     }
   }, [setActiveTab])
-
-  React.useEffect(_ => {
-    setCollapseTab(prev => !prev)
-    None
-  }, [logDetails])
 
   let getDetails = async () => {
     let logs = []

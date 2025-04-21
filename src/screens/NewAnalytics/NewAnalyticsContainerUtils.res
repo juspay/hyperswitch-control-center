@@ -56,7 +56,11 @@ let (
   "comparison",
 )
 
-let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
+let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime, ~events=?) => {
+  let events = switch events {
+  | Some(fn) => fn
+  | _ => () => ()
+  }
   let newArr = [
     (
       {
@@ -85,6 +89,7 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
+            ~events,
           ),
           ~inputFields=[],
           ~isRequired=false,

@@ -292,7 +292,7 @@ let make = () => {
       input
       deselectDisable=true
       options={updatedMerchantList->generateDropdownOptionsCustomComponent}
-      marginTop={`mt-8 ${borderColor} shadow-generic_shadow`}
+      marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true
       addButton=false
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
@@ -311,6 +311,8 @@ let make = () => {
       dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
       customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
+      searchInputPlaceHolder="Search Merchant Account or ID"
+      placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />

@@ -207,7 +207,7 @@ let fraudAndRisk = (~userHasResourceAccess) => {
 
 let threeDsConnector = (~userHasResourceAccess) => {
   SubLevelLink({
-    name: "3DS Authenticator",
+    name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: [
@@ -527,12 +527,30 @@ let paymentSettings = userHasResourceAccess => {
   })
 }
 
-let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity) => {
+let webhooks = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Webhooks",
+    link: `/webhooks`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("Webhooks", ""), ("Retry webhooks", "")],
+  })
+}
+
+let developers = (
+  isDevelopersEnabled,
+  ~isWebhooksEnabled,
+  ~userHasResourceAccess,
+  ~checkUserEntity,
+) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
+  if isWebhooksEnabled {
+    defaultDevelopersOptions->Array.push(webhooks)
+  }
 
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
@@ -666,6 +684,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     newAnalytics,
     authenticationAnalytics,
     devAltPaymentMethods,
+    devWebhooks,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -700,7 +719,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     ),
     devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(~userHasResourceAccess, ~checkUserEntity),
+    default->developers(~isWebhooksEnabled=devWebhooks, ~userHasResourceAccess, ~checkUserEntity),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
@@ -712,7 +731,6 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {isLiveMode, devModularityV2} = featureFlagDetails
-
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let defaultSidebar = [productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess)]
 
@@ -738,7 +756,6 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
-  | AlternatePaymentMethods => []
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

@@ -3,7 +3,7 @@ open APIUtils
 open OrderUtils
 open HSwitchOrderUtils
 open OrderTypes
-
+open LogicUtils
 @react.component
 let make = (
   ~order,
@@ -17,9 +17,13 @@ let make = (
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let notShowRefundReasonList = ["adyen"]
+  let showRefundAddressEmailList = ["coingate"]
   let showRefundReason = !(
     notShowRefundReasonList->Array.includes(order.connector->String.toLowerCase)
   )
+  let showRefundAddressEmail =
+    showRefundAddressEmailList->Array.includes(order.connector->String.toLowerCase)
+
   let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let initiateValue = Dict.make()
   let initiateValueJson = initiateValue->JSON.Encode.object
@@ -85,8 +89,29 @@ let make = (
         Dict.set(errors, key, "Required"->JSON.Encode.string)
       }
     })
+    if showRefundAddressEmail {
+      let metadata = getDictFromJsonObject(values)->getDictfromDict("metadata")
+      let emailValue = metadata->LogicUtils.getString("email", "")
+      let cryptoAddress = metadata->Dict.get("address")
+      let metadataErrors = Dict.make()
+      if (
+        cryptoAddress->Option.isNone ||
+          cryptoAddress
+          ->Option.getOr(JSON.Encode.null)
+          ->LogicUtils.getStringFromJson("")
+          ->String.trim
+          ->LogicUtils.isEmptyString
+      ) {
+        Dict.set(metadataErrors, "address", `Required`->JSON.Encode.string)
+      }
+      if emailValue->CommonAuthUtils.isValidEmail {
+        Dict.set(metadataErrors, "email", `Please Enter Valid Email`->JSON.Encode.string)
+      }
+      if !(metadataErrors->isEmptyDict) {
+        Dict.set(errors, "metadata", metadataErrors->JSON.Encode.object)
+      }
+    }
     let amountValue = Dict.get(valuesDict, "amount")
-
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
       if floatVal > amoutAvailableToRefund {
@@ -188,6 +213,14 @@ let make = (
           <RenderIf condition={showRefundReason}>
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer field={reasonField} labelClass="text-fs-11" />
+            </FormRenderer.DesktopRow>
+          </RenderIf>
+          <RenderIf condition={showRefundAddressEmail}>
+            <FormRenderer.DesktopRow>
+              <FormRenderer.FieldRenderer field={refundAddressField} labelClass="text-fs-11" />
+            </FormRenderer.DesktopRow>
+            <FormRenderer.DesktopRow>
+              <FormRenderer.FieldRenderer field={refundEmailField} labelClass="text-fs-11" />
             </FormRenderer.DesktopRow>
           </RenderIf>
         </div>

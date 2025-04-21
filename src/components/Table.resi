@@ -7,14 +7,7 @@ type labelColor = TableUtils.labelColor =
   | LabelGray
   | LabelOrange
   | LabelYellow
-  | LabelDarkGreen
-  | LabelDarkRed
-  | LabelBrown
-  | LabelLightBlue
-  | LabelWhite
-  | LabelViolet
-  | LabelLightGreen
-  | LabelLightRed
+  | LabelLightGray
 type filterDataType = TableUtils.filterDataType = Float(float, float) | String | DateTime
 type disableField = TableUtils.disableField = {key: string, values: array<string>}
 type customiseColumnConfig = TableUtils.customiseColumnConfig = {
@@ -171,6 +164,9 @@ module TableRow: {
     ~fixLastCol: bool=?,
     ~alignCellContent: string=?,
     ~customCellColor: string=?,
+    ~highlightSelectedRow: bool=?,
+    ~selectedIndex: int,
+    ~setSelectedIndex: ('a => int) => unit,
   ) => React.element
 }
 module SortAction: {
@@ -309,4 +305,5 @@ let make: (
   ~showAutoScroll: bool=?,
   ~showVerticalScroll: bool=?,
   ~showPagination: bool=?,
+  ~highlightSelectedRow: bool=?,
 ) => React.element

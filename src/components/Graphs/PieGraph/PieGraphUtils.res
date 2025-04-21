@@ -9,25 +9,29 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
     chartSize,
     startAngle,
     endAngle,
+    legend,
   } = pieGraphOptions
   let pieGraphTitle = {
     ...title,
     align: "center",
-    verticalAlign: "middle", // Centered vertically within the chart
-    y: 10, // Adjust this value to fine-tune vertical position
-    x: 55,
+    verticalAlign: "bottom", // Centered vertically within the chart
+    y: 9, // Adjust this value to fine-tune vertical position
+    x: 0,
     style: {
       fontSize: "14px",
       fontWeight: "400",
       color: "#797979",
-      fontStyle: "Inter Display",
+      fontStyle: "InterDisplay",
     },
     useHTML: true,
   }
   {
     chart: {
       \"type": "pie",
-      height: 270,
+      height: 200,
+      width: 200,
+      spacing: [0, 0, 0, 0],
+      margin: [0, 0, 0, 0],
     },
     accessibility: {
       enabled: false, // Disables accessibility features
@@ -64,12 +68,7 @@ let getPieChartOptions = (pieGraphOptions: pieGraphPayload<'t>) => {
       enabled: false,
     },
     legend: {
-      enabled: true, // Ensures the legend is enabled
-      align: "left",
-      verticalAlign: "middle",
-      layout: "vertical",
-      itemMarginBottom: 30,
-      symbolRadius: 2,
+      ...legend,
       labelFormatter: legendFormatter,
     },
   }
@@ -85,13 +84,18 @@ let pieGraphColorSeries = [
   "#7F7F7F",
 ]
 
-let pieGraphTooltipFormatter = (~title: string, ~valueFormatterType: LogicUtilsTypes.valueType) => {
+let pieGraphTooltipFormatter = (
+  ~title: string,
+  ~valueFormatterType: LogicUtilsTypes.valueType,
+  ~currency="",
+  ~suffix="",
+) => {
   (
     @this
     (this: PieGraphTypes.pointFormatter) => {
       let value = this.y < 0.0 ? this.y *. -1.0 : this.y
 
-      let valueString = value->LogicUtils.valueFormatter(valueFormatterType)
+      let valueString = value->LogicUtils.valueFormatter(valueFormatterType, ~currency, ~suffix)
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
 
       let tableItems = `
@@ -149,6 +153,7 @@ let getCategoryWisePieChartPayload = (
   ~chartSize,
   ~toolTipStyle: toolTipStyle,
   ~showInLegend: bool=true,
+  ~legend: legend,
 ) => {
   let totalAmount = data->Array.reduce(0.0, (acc, item) => {
     acc +. item.total
@@ -200,6 +205,7 @@ let getCategoryWisePieChartPayload = (
     chartSize,
     startAngle: 0,
     endAngle: 360,
+    legend,
   }
   payLoad
 }

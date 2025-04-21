@@ -349,6 +349,7 @@ let tooltipFormatter = (
   ~currency="",
   ~reverse=false,
   ~suffix="",
+  ~showNameInTooltip=false,
 ) => {
   open LineGraphTypes
 
@@ -357,7 +358,7 @@ let tooltipFormatter = (
     (this: pointFormatter) => {
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
 
-      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}}
+      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, series: {name: ""}}
 
       let primaryIndex = reverse ? 1 : 0
       let secondaryIndex = reverse ? 0 : 1
@@ -365,11 +366,12 @@ let tooltipFormatter = (
       let primartPoint = this.points->getValueFromArray(primaryIndex, defaultValue)
       let secondaryPoint = this.points->getValueFromArray(secondaryIndex, defaultValue)
 
-      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
+      let getRowsHtml = (~iconColor, ~date, ~name="", ~value, ~comparisionComponent="") => {
         let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
+        let key = showNameInTooltip ? name : date
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
+            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
         </div>`
       }
@@ -378,6 +380,7 @@ let tooltipFormatter = (
         getRowsHtml(
           ~iconColor=primartPoint.color,
           ~date=primartPoint.x,
+          ~name=primartPoint.series.name,
           ~value=primartPoint.y,
           ~comparisionComponent={
             switch comparison {
@@ -400,6 +403,7 @@ let tooltipFormatter = (
                   ~iconColor=secondaryPoint.color,
                   ~date=secondaryCategories->getValueFromArray(secondaryPoint.point.index, ""),
                   ~value=secondaryPoint.y,
+                  ~name=secondaryPoint.series.name,
                 )
               : ""
           | None => ""

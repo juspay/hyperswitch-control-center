@@ -88,7 +88,7 @@ let make = (
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
-          setNextStep(_ => RevenueRecoveryOnboardingUtils.defaultStep)
+          setNextStep(_ => RevenueRecoveryOnboardingUtils.defaultStepBilling)
           setScreenState(_ => Success)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)

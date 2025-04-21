@@ -37,8 +37,8 @@ let make = () => {
 
   let modalHeading = {
     <div className="flex justify-between border-b">
-      <div className="flex gap-4 items-center my-8">
-        <p className="font-semibold text-nd_gray-600 px-8 text-lg leading-6">
+      <div className="flex gap-4 items-center m-8">
+        <p className="font-semibold text-nd_gray-600 text-lg leading-6">
           {`Transaction ID: ${selectedId.transaction_id}`->React.string}
         </p>
         <div> {statusUI} </div>
@@ -86,8 +86,8 @@ let make = () => {
         setShowModal
         showModal
         closeOnOutsideClick=true
-        modalClass="w-1/3 h-screen float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
-        childClass="m-2 h-full"
+        modalClass="flex flex-col w-1/3 h-screen float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
+        childClass="my-6 mx-2 h-full flex flex-col justify-between"
         customModalHeading=modalHeading>
         <ShowAllReports isModal=true setShowModal selectedId />
       </Modal>

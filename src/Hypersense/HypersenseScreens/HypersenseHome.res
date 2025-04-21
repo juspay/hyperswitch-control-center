@@ -16,7 +16,7 @@ let make = () => {
     )
     let res = await fetchDetails(hypersenseTokenUrl)
     let token = res->getDictFromJsonObject->getString("token", "")
-    mixpanelEvent(~eventName="hypersense-redirect")
+    mixpanelEvent(~eventName="cost_observability-redirect")
     let url = `${Window.env.hypersenseUrl}/login?auth_token=${token}`
     url->Window._open
   }
@@ -26,7 +26,7 @@ let make = () => {
     <div className="flex flex-col gap-8 items-center">
       <div
         className="border rounded-md text-nd_green-200 border-nd_green-200 font-semibold p-1.5 text-sm w-fit">
-        {"Hypersense"->React.string}
+        {"Cost Observability"->React.string}
       </div>
       <PageHeading
         customHeadingStyle="gap-3 flex flex-col items-center"
@@ -36,9 +36,9 @@ let make = () => {
         subTitle="Audit, Observe and Optimize payment costs to uncover cost-saving opportunities"
       />
       <Button
-        text="Explore Hypersense"
+        text="Explore Cost Observability"
         onClick={_ => {
-          mixpanelEvent(~eventName="hypersense_explore")
+          mixpanelEvent(~eventName="cost_observability_explore")
           onExploreClick()->ignore
         }}
         customTextPaddingClass="pr-0"

@@ -1,5 +1,5 @@
 // constants
-let fontFamily = "Arial, sans-serif"
+let fontFamily = "InterDisplay"
 let darkGray = "#525866"
 
 open ColumnGraphTypes

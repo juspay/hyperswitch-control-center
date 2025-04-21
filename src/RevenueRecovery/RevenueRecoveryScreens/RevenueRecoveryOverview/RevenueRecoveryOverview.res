@@ -3,7 +3,6 @@ let make = () => {
   open APIUtils
   open LogicUtils
   //open HSwitchRemoteFilter
-  open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -11,7 +10,7 @@ let make = () => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get("recovery-orders")->Option.getOr(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get("recovery_orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (filters, setFilters) = React.useState(_ => None)
   let (searchText, setSearchText) = React.useState(_ => "")
@@ -19,14 +18,6 @@ let make = () => {
   let startTime = filterValueJson->getString("created.gte", "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV2,
-    ~retainInList=BillingProcessor,
-  )
-
-  let (billingConnectorID, billingConnectorName) =
-    billingConnectorListFromRecoil->getBillingConnectorDetails
 
   let setData = (total, data) => {
     let arr = Array.make(~length=offset, Dict.make())
@@ -37,10 +28,7 @@ let make = () => {
     if total > 0 {
       let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
-      let orderData =
-        arr
-        ->Array.concat(orderDataDictArr)
-        ->Array.map(RevenueRecoveryEntity.itemToObjMapper)
+      let orderData = orderDataDictArr->Array.map(RevenueRecoveryEntity.itemToObjMapper)
 
       let list = orderData->Array.map(Nullable.make)
       setTotalCount(_ => total)
@@ -186,24 +174,6 @@ let make = () => {
           subTitle="List of failed Invoices picked up for retry"
           customTitleStyle
         />
-        <RenderIf
-          condition={billingConnectorID->isNonEmptyString &&
-            billingConnectorName->isNonEmptyString}>
-          <Button
-            text="View Details"
-            buttonType={Secondary}
-            onClick={_ => {
-              mixpanelEvent(~eventName="recovery_view_details")
-              RescriptReactRouter.replace(
-                GlobalVars.appendDashboardPath(
-                  ~url=`/v2/recovery/summary/${billingConnectorID}?name=${billingConnectorName}`,
-                ),
-              )
-            }}
-            buttonSize={Small}
-            customButtonStyle="w-fit"
-          />
-        </RenderIf>
       </div>
       //<div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState>

@@ -102,6 +102,7 @@ type processorTypes =
   | MONERIS
   | REDSYS
   | HIPAY
+  | PAYSTACK
 
 type payoutProcessorTypes =
   | ADYEN
@@ -114,7 +115,7 @@ type payoutProcessorTypes =
   | NOMUPAY
 
 type threeDsAuthenticatorTypes =
-  THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER
+  THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER | CLICK_TO_PAY_VISA
 
 type frmTypes =
   | Signifyd
@@ -233,7 +234,6 @@ type pmAuthPaymentMethods = {
 type wasmRequest = {
   payment_methods_enabled: array<paymentMethodEnabled>,
   connector: string,
-  metadata: JSON.t,
 }
 
 type wasmExtraPayload = {

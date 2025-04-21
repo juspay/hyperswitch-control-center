@@ -4,7 +4,7 @@ class ResetPasswordPage {
   }
 
   get confirmPassword() {
-    return cy.get('[data-testid="comfirm_password"]');
+    return cy.get('[data-testid="comfirm_password"]').children().eq(1);
   }
 
   get eyeIcon() {
@@ -13,6 +13,14 @@ class ResetPasswordPage {
 
   get confirmButton() {
     return cy.get('[data-button-for="confirm"]');
+  }
+
+  get newPasswordField() {
+    return cy.get(`[data-testid="create_password"]`);
+  }
+
+  get confirmPasswordField() {
+    return cy.get(`[data-testid="comfirm_password"]`);
   }
 }
 export default ResetPasswordPage;

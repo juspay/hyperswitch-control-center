@@ -26,14 +26,17 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80`}>
-          <div className="text-left flex gap-2 w-52">
+          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
+          <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+            {"Merchant Account"->React.string}
+          </span>
+          <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
               {subHeading->React.string}
             </p>
             {showDropdownArrow
-              ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+              ? <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
               : React.null}
           </div>
         </div>
@@ -43,12 +46,15 @@ module ListBaseComp = {
           className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
           <div className="md:max-w-40 max-w-16">
             <p
-              className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre  ">
-              {subHeading->React.string}
+              className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre">
+              <span className={`text-xs text-nd_gray-400 font-medium`}>
+                {"Profile :   "->React.string}
+              </span>
+              {React.string(subHeading)}
             </p>
           </div>
           {showDropdownArrow
-            ? <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+            ? <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
             : React.null}
         </div>
       | _ => React.null
@@ -240,7 +246,7 @@ module MerchantDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {merchantId, version}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
@@ -300,22 +306,35 @@ module MerchantDropdownItem = {
     }
 
     let handleMerchantSwitch = id => {
-      switchMerch(id)->ignore
+      if !isActive {
+        switchMerch(id)->ignore
+      }
     }
 
     let onSubmit = async (newMerchantName: string) => {
       try {
-        let body =
-          [
-            ("merchant_id", merchantId->JSON.Encode.string),
-            ("merchant_name", newMerchantName->JSON.Encode.string),
-          ]->getJsonFromArrayOfJson
-        let accountUrl = getURL(
-          ~entityName=V1(MERCHANT_ACCOUNT),
-          ~methodType=Post,
-          ~id=Some(merchantId),
-        )
-        let _ = await updateDetails(accountUrl, body, Post)
+        if version == V2 {
+          let body =
+            [("merchant_name", newMerchantName->JSON.Encode.string)]->getJsonFromArrayOfJson
+          let accountUrl = getURL(
+            ~entityName=V2(MERCHANT_ACCOUNT),
+            ~methodType=Put,
+            ~id=Some(merchantId),
+          )
+          let _ = await updateDetails(accountUrl, body, Put)
+        } else {
+          let body =
+            [
+              ("merchant_id", merchantId->JSON.Encode.string),
+              ("merchant_name", newMerchantName->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson
+          let accountUrl = getURL(
+            ~entityName=V1(MERCHANT_ACCOUNT),
+            ~methodType=Post,
+            ~id=Some(merchantId),
+          )
+          let _ = await updateDetails(accountUrl, body, Post)
+        }
         getMerchantList()->ignore
         showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
       } catch {
@@ -345,7 +364,9 @@ module MerchantDropdownItem = {
             customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
-                customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({currentId})
+                customIconCss={`${secondaryTextColor}`}
+                displayValue=Some("")
+                copyValue=Some({currentId})
               />
             </div>}
             toolTipPosition=ToolTip.Right
@@ -386,6 +407,7 @@ module ProfileDropdownItem = {
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let isMobileView = MatchMedia.useMobileChecker()
+    let isActive = currentId == profileId
 
     let getProfileList = async () => {
       try {
@@ -438,7 +460,9 @@ module ProfileDropdownItem = {
       }
     }
     let handleProfileSwitch = id => {
-      profileSwitch(id)->ignore
+      if !isActive {
+        profileSwitch(id)->ignore
+      }
     }
 
     let onSubmit = async (newProfileName: string) => {
@@ -457,7 +481,6 @@ module ProfileDropdownItem = {
       }
     }
 
-    let isActive = currentId == profileId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
@@ -485,7 +508,7 @@ module ProfileDropdownItem = {
             customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
-                displayValue=" " copyValue=Some(currentId) customIconCss="text-nd_gray-600"
+                displayValue=Some("") copyValue=Some(currentId) customIconCss="text-nd_gray-600"
               />
             </div>}
             toolTipPosition=ToolTip.Right
@@ -521,7 +544,7 @@ let generateDropdownOptions: (
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp
-              displayValue=" " copyValue=Some({item.id}) customIconCss
+              displayValue=Some("") copyValue=Some({item.id}) customIconCss
             />
           </div>}
           toolTipPosition=ToolTip.TopRight
@@ -547,7 +570,7 @@ let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCus
           description={item.id}
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
-            <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+            <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
           </div>}
           toolTipPosition=ToolTip.TopRight
         />,

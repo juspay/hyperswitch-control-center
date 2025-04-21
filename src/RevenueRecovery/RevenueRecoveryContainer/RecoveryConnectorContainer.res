@@ -29,11 +29,12 @@ let make = () => {
     }
   }
 
-  let hasConfiguredBillingConnector =
-    ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV2,
-      ~retainInList=BillingProcessor,
-    )->Array.length > 0
+  let connectors = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV2,
+    ~retainInList=BillingProcessor,
+  )
+
+  let hasConfiguredBillingConnector = connectors->Array.length > 0
 
   React.useEffect(() => {
     setUpConnectorContainer()->ignore
@@ -42,13 +43,6 @@ let make = () => {
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
-    | list{"v2", "recovery", "home"} =>
-      hasConfiguredBillingConnector
-        ? <div className="mt-10">
-            {sampleDataBanner}
-            <RevenueRecoveryOverview />
-          </div>
-        : <RevenueRecoveryOnboardingLanding default=false />
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         {<div className="mt-14">
@@ -63,8 +57,7 @@ let make = () => {
         </div>}
       </AccessControl>
     | list{"v2", "recovery", "overview", ...remainingPath} =>
-      <div className="mt-10">
-        {sampleDataBanner}
+      if hasConfiguredBillingConnector {
         <EntityScaffold
           entityName="Payments"
           remainingPath
@@ -72,8 +65,15 @@ let make = () => {
           renderList={() => <RevenueRecoveryOverview />}
           renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
         />
-      </div>
-
+      } else {
+        <RevenueRecoveryOnboardingLanding createMerchant=false />
+      }
+    | list{"v2", "recovery", "summary", ..._} =>
+      if hasConfiguredBillingConnector {
+        <BillingConnectorsSummary />
+      } else {
+        <RevenueRecoveryOnboardingLanding createMerchant=false />
+      }
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

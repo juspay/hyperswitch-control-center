@@ -41,6 +41,7 @@ type featureFlag = {
   xFeatureRoute: bool,
   tenantUser: bool,
   clickToPay: bool,
+  debitRouting: bool,
   devThemeFeature: bool,
   devReconv2Product: bool,
   devRecoveryV2Product: bool,
@@ -52,6 +53,8 @@ type featureFlag = {
   forceCookies: bool,
   authenticationAnalytics: bool,
   devIntelligentRoutingV2: bool,
+  googlePayDecryptionFlow: bool,
+  devWebhooks: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -70,6 +73,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     recon: dict->getBool("recon", false),
     testProcessors: dict->getBool("test_processors", false),
     clickToPay: dict->getBool("dev_click_to_pay", false),
+    debitRouting: dict->getBool("dev_debit_routing", false),
     feedback: dict->getBool("feedback", false),
     generateReport: dict->getBool("generate_report", false),
     mixpanel: dict->getBool("mixpanel", false),
@@ -106,6 +110,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devModularityV2: dict->getBool("dev_modularity_v2", false),
     devAltPaymentMethods: dict->getBool("dev_alt_payment_methods", false),
     devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
+    googlePayDecryptionFlow: dict->getBool("google_pay_decryption_flow", false),
+    devWebhooks: dict->getBool("dev_webhooks", false),
   }
 }
 

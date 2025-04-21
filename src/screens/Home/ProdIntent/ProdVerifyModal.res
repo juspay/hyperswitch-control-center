@@ -2,7 +2,13 @@ open ProdVerifyModalUtils
 open CardUtils
 
 @react.component
-let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerifyDetails) => {
+let make = (
+  ~showModal,
+  ~setShowModal,
+  ~initialValues=Dict.make(),
+  ~getProdVerifyDetails,
+  ~productType: ProductTypes.productTypes,
+) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -11,11 +17,15 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let updateProdDetails = async values => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let bodyValues = values->getBody->JSON.Encode.object
+      bodyValues
+      ->LogicUtils.getDictFromJsonObject
+      ->Dict.set("product_type", (Obj.magic(productType) :> string)->JSON.Encode.string)
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(
@@ -58,11 +68,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
             <Form
               key="prod-request-form"
               initialValues={initialValues->JSON.Encode.object}
-              validate={values =>
-                values->validateForm(
-                  ~fieldsToValidate=formFields,
-                  ~setIsDisabled=setIsSubmitBtnDisabled,
-                )}
+              validate={values => values->validateForm(~fieldsToValidate=formFields)}
               onSubmit>
               <div className="flex flex-col gap-12 h-full w-full">
                 <FormRenderer.DesktopRow>
@@ -81,9 +87,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
                   </div>
                 </FormRenderer.DesktopRow>
                 <div className="flex justify-end w-full pr-5 pb-3">
-                  <FormRenderer.SubmitButton
-                    disabledParamter=isSubmitBtnDisabled text="Book a call" buttonSize={Small}
-                  />
+                  <FormRenderer.SubmitButton text="Book a call" buttonSize={Small} />
                 </div>
               </div>
             </Form>

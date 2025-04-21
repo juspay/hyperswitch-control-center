@@ -1,7 +1,7 @@
 module CopyTextCustomComp = {
   @react.component
   let make = (
-    ~displayValue,
+    ~displayValue=None,
     ~copyValue=None,
     ~customTextCss="",
     ~customParentClass="flex items-center gap-2",
@@ -12,7 +12,11 @@ module CopyTextCustomComp = {
 
     let copyVal = switch copyValue {
     | Some(val) => val
-    | None => displayValue
+    | None =>
+      switch displayValue {
+      | Some(val) => val
+      | None => ""
+      }
     }
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
@@ -21,9 +25,10 @@ module CopyTextCustomComp = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
-    if displayValue->LogicUtils.isNonEmptyString {
+    switch displayValue {
+    | Some(val) =>
       <div className=customParentClass>
-        <div className=customTextCss> {displayValue->React.string} </div>
+        <div className=customTextCss> {val->React.string} </div>
         <Icon
           name="nd-copy"
           onClick={ev => {
@@ -32,8 +37,7 @@ module CopyTextCustomComp = {
           className={`${customIconCss} cursor-pointer`}
         />
       </div>
-    } else {
-      "NA"->React.string
+    | None => "NA"->React.string
     }
   }
 }
@@ -216,7 +220,7 @@ module BusinessProfileComponent = {
   @react.component
   let make = (~profile_id: string, ~className="") => {
     let {profile_name} = BusinessProfileHook.useGetBusinessProflile(profile_id)
-    <div className>
+    <div className="truncate whitespace-nowrap overflow-hidden">
       {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
     </div>
   }
@@ -233,6 +237,6 @@ module ProfileNameComponent = {
         id: profile_id,
         name: "NA",
       })
-    <div className> {(name->LogicUtils.isNonEmptyString ? name : "")->React.string} </div>
+    <div className> {(name->LogicUtils.isNonEmptyString ? name : "NA")->React.string} </div>
   }
 }
