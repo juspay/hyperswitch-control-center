@@ -32,8 +32,8 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
       | Cancelled => LabelRed
       | RequiresCustomerAction
       | RequiresPaymentMethod =>
-        LabelWhite
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | PaymentId => Text(refunds.payment_id)
@@ -74,7 +74,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       | #VOID_FAILED
       | #FAILURE =>
         LabelRed
-      | _ => LabelLightBlue
+      | _ => LabelLightGray
       },
     })
   | PaymentMethod => Text(attempt.payment_method)
@@ -579,7 +579,8 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | ConnectorTransactionID =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(order.connector_transaction_id)
       />,
       "",
     )
@@ -604,7 +605,8 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   | ConnectorLabel => Text(order.connector_label)
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)
-  | ProfileName => Table.CustomCell(<BusinessProfileComponent profile_id={order.profile_id} />, "")
+  | ProfileName =>
+    Table.CustomCell(<HelperComponents.ProfileNameComponent profile_id=order.profile_id />, "")
   | CaptureMethod => Text(order.capture_method)
   | CardNetwork => {
       let dict = switch order.payment_method_data {
@@ -699,8 +701,8 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelLightBlue
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | Amount =>
@@ -741,7 +743,8 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | ConnectorTransactionID =>
     CustomCell(
       <CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=order.connector_transaction_id
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(order.connector_transaction_id)
       />,
       "",
     )

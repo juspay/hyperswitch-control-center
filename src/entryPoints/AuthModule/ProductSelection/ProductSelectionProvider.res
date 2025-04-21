@@ -3,12 +3,7 @@ open ProductTypes
 
 module SwitchMerchantBody = {
   @react.component
-  let make = (
-    ~merchantDetails: OMPSwitchTypes.ompListTypes,
-    ~setShowModal,
-    ~selectedProduct,
-    ~setActiveProductValue,
-  ) => {
+  let make = (~merchantDetails: OMPSwitchTypes.ompListTypes, ~setShowModal, ~selectedProduct) => {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let showToast = ToastState.useShowToast()
 
@@ -16,7 +11,6 @@ module SwitchMerchantBody = {
       try {
         let version = UserUtils.getVersion(selectedProduct)
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id), ~version)
-        setActiveProductValue(selectedProduct)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -40,7 +34,6 @@ module SelectMerchantBody = {
     ~setShowModal,
     ~merchantList: array<OMPSwitchTypes.ompListTypes>,
     ~selectedProduct: ProductTypes.productTypes,
-    ~setActiveProductValue,
   ) => {
     open LogicUtils
     let url = RescriptReactRouter.useUrl()
@@ -78,7 +71,7 @@ module SelectMerchantBody = {
       ]->getJsonFromArrayOfJson
 
     let merchantName = FormRenderer.makeFieldInfo(
-      ~label="Merchant to switch",
+      ~label="Merchant ID",
       ~name="merchant_selected",
       ~customInput=InputFields.selectInput(
         ~options=dropDownOptions,
@@ -97,7 +90,6 @@ module SelectMerchantBody = {
         let version = UserUtils.getVersion(selectedProduct)
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
-        setActiveProductValue(selectedProduct)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -118,11 +110,12 @@ module SelectMerchantBody = {
     }
 
     <div>
-      <div className="pt-3 m-3 flex justify-between">
+      <div className="pt-2 mx-4 my-2  flex justify-between">
         <CardUtils.CardHeader
-          heading="Merchant Selection"
+          heading={`Merchant Selection for ${selectedProduct->ProductUtils.getProductDisplayName}`}
           subHeading=""
-          customSubHeadingStyle="w-full !max-w-none pr-10"
+          customHeadingStyle="!text-lg font-semibold"
+          customSubHeadingStyle="w-full !max-w-none "
         />
         <div
           className="h-fit"
@@ -138,13 +131,16 @@ module SelectMerchantBody = {
             )
             RescriptReactRouter.replace(productUrl)
           }}>
-          <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
+          <Icon name="modal-close-icon" className="cursor-pointer text-gray-500" size=30 />
         </div>
       </div>
       <hr />
       <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>
         <div className="flex flex-col h-full w-full">
-          <div className="py-10">
+          <span className="text-sm text-gray-400 font-medium mx-4 mt-4">
+            {"Select the appropriate Merchant from the list of ID's created for this module."->React.string}
+          </span>
+          <div className="py-4">
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer
                 fieldWrapperClass="w-full"
@@ -155,9 +151,10 @@ module SelectMerchantBody = {
               />
             </FormRenderer.DesktopRow>
           </div>
-          <hr className="mt-4" />
           <div className="flex justify-end w-full p-3">
-            <FormRenderer.SubmitButton text="Switch to merchant" buttonSize=Small />
+            <FormRenderer.SubmitButton
+              text="Select Merchant" buttonSize=Small customSumbitButtonStyle="w-full mb-2"
+            />
           </div>
         </div>
       </Form>
@@ -167,7 +164,7 @@ module SelectMerchantBody = {
 
 module CreateNewMerchantBody = {
   @react.component
-  let make = (~setShowModal, ~selectedProduct: productTypes, ~setActiveProductValue) => {
+  let make = (~setShowModal, ~selectedProduct: productTypes) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -187,9 +184,6 @@ module CreateNewMerchantBody = {
         let version = UserUtils.getVersion(selectedProduct)
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
-        setActiveProductValue(selectedProduct)
-        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~url="/home")
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=productUrl))
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -306,31 +300,28 @@ module CreateNewMerchantBody = {
 
 module ModalBody = {
   @react.component
-  let make = (~action, ~setShowModal, ~selectedProduct, ~setActiveProductValue) => {
+  let make = (~action, ~setShowModal, ~selectedProduct) => {
     switch action {
-    | CreateNewMerchant =>
-      <CreateNewMerchantBody setShowModal selectedProduct setActiveProductValue />
+    | CreateNewMerchant => <CreateNewMerchantBody setShowModal selectedProduct />
     | SwitchToMerchant(merchantDetails) =>
-      <SwitchMerchantBody merchantDetails setShowModal selectedProduct setActiveProductValue />
+      <SwitchMerchantBody merchantDetails setShowModal selectedProduct />
     | SelectMerchantToSwitch(merchantDetails) =>
-      <SelectMerchantBody
-        setShowModal merchantList={merchantDetails} selectedProduct setActiveProductValue
-      />
+      <SelectMerchantBody setShowModal merchantList={merchantDetails} selectedProduct />
     }
   }
 }
 
 module ProductExistModal = {
   @react.component
-  let make = (~showModal, ~setShowModal, ~action, ~selectedProduct, ~setActiveProductValue) => {
+  let make = (~showModal, ~setShowModal, ~action, ~selectedProduct) => {
     <Modal
       showModal
       closeOnOutsideClick=false
       setShowModal
       childClass="p-0"
       borderBottom=true
-      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
-      <ModalBody setShowModal action selectedProduct setActiveProductValue />
+      modalClass="w-full !max-w-lg mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+      <ModalBody setShowModal action selectedProduct />
     </Modal>
   }
 }
@@ -415,7 +406,6 @@ let make = (~children) => {
         setShowModal
         action={actionVariant}
         selectedProduct={selectedProduct->Option.getOr(Vault)}
-        setActiveProductValue
       />
     | None => React.null
     }

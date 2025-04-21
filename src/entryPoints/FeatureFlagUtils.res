@@ -53,6 +53,8 @@ type featureFlag = {
   forceCookies: bool,
   authenticationAnalytics: bool,
   devIntelligentRoutingV2: bool,
+  googlePayDecryptionFlow: bool,
+  devWebhooks: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -108,6 +110,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devModularityV2: dict->getBool("dev_modularity_v2", false),
     devAltPaymentMethods: dict->getBool("dev_alt_payment_methods", false),
     devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
+    googlePayDecryptionFlow: dict->getBool("google_pay_decryption_flow", false),
+    devWebhooks: dict->getBool("dev_webhooks", false),
   }
 }
 

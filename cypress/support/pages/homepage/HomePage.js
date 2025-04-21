@@ -26,7 +26,20 @@ class HomePage {
     );
   }
 
+  get merchantID() {
+    return cy.get('[style="overflow-wrap: anywhere;"]');
+  }
+
   //Sidebar
+
+  //Operations
+  get operations() {
+    return cy.get("[data-testid=operations]");
+  }
+
+  get paymentOperations() {
+    return cy.get("[data-testid=payments]");
+  }
 
   //Connectors
   get connectors() {

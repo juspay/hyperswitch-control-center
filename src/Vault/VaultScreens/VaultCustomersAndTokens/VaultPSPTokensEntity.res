@@ -34,7 +34,7 @@ let getCell = (
       title: pspTokens.status->String.toUpperCase,
       color: switch pspTokens.status->VaultPaymentMethodUtils.connectrTokensStatusToVariantMapper {
       | Active => LabelGreen
-      | Inactive => LabelRed
+      | Inactive => LabelGray
       },
     })
   }

@@ -28,7 +28,7 @@ module TableModule = {
     <div className>
       <LoadedTable
         visibleColumns
-        title=" "
+        title="Smart Retry Payments Processed"
         hideTitle=true
         actualData={smartRetryPaymentsProcessed}
         entity=smartRetryPaymentsProcessedTableEntity

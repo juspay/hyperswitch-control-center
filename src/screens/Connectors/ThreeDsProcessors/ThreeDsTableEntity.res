@@ -6,20 +6,9 @@ type colType =
   | Status
   | Disabled
   | MerchantConnectorId
-  | ProfileId
-  | ProfileName
   | ConnectorLabel
 
-let defaultColumns = [
-  Name,
-  MerchantConnectorId,
-  ProfileId,
-  ProfileName,
-  ConnectorLabel,
-  Status,
-  Disabled,
-  TestMode,
-]
+let defaultColumns = [Name, MerchantConnectorId, ConnectorLabel, Status, Disabled, TestMode]
 
 let getHeading = colType => {
   switch colType {
@@ -27,8 +16,6 @@ let getHeading = colType => {
   | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
-  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | MerchantConnectorId =>
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
@@ -53,7 +40,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   | Disabled =>
     Label({
       title: connector.disabled ? "DISABLED" : "ENABLED",
-      color: connector.disabled ? LabelRed : LabelGreen,
+      color: connector.disabled ? LabelGray : LabelGreen,
     })
 
   | Status =>
@@ -61,12 +48,6 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
         {connector.status->String.toUpperCase->React.string}
       </div>,
-      "",
-    )
-  | ProfileId => Text(connector.profile_id)
-  | ProfileName =>
-    Table.CustomCell(
-      <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
       "",
     )
   | ConnectorLabel => Text(connector.connector_label)

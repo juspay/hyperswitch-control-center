@@ -44,10 +44,8 @@ module ListBaseComp = {
             ? "rotate-0"
             : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
-    let bgClass = subHeading->String.length > 0 ? "bg-white" : "bg-nd_gray-50"
-
     <div
-      className={`flex flex-row cursor-pointer items-center py-5 px-4 gap-2 min-w-44 justify-between h-8 ${bgClass} border rounded-lg border-nd_gray-100 shadow-sm`}>
+      className={`flex flex-row cursor-pointer items-center py-5 px-4 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm`}>
       <div className="flex flex-row items-center gap-2">
         <RenderIf condition={subHeading->String.length > 0}>
           <GatewayIcon gateway={subHeading->String.toUpperCase} className="w-6 h-6" />
@@ -174,7 +172,7 @@ module ConnectProcessorsFields = {
         options={processorList->generateDropdownOptionsCustomComponent}
         hideMultiSelectButtons=true
         addButton=false
-        searchable=true
+        searchable=false
         baseComponent={<ListBaseComp heading="Profile" subHeading=selectedProcessor arrow />}
         bottomComponent={<AddNewOMPButton user=#Profile addItemBtnStyle />}
         customDropdownOuterClass="!border-none !w-full"
@@ -184,8 +182,6 @@ module ConnectProcessorsFields = {
         dropdownContainerStyle
         shouldDisplaySelectedOnTop=true
         customSelectionIcon={CustomIcon(<Icon name="nd-checkbox-base" />)}
-        searchInputPlaceHolder="Search"
-        showSearchIcon=true
       />
       <RenderIf condition={selectedProcessor->String.length > 0}>
         <div className="flex flex-col gap-y-3 mt-10">
@@ -197,9 +193,12 @@ module ConnectProcessorsFields = {
             field={FormRenderer.makeFieldInfo(
               ~label="Secret Key",
               ~name="secret_key",
-              ~placeholder="**************",
-              ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-              ~isRequired=true,
+              ~placeholder="sk_test_1234AbCDeFghijtT1zdp7dc",
+              ~customInput=InputFields.textInput(
+                ~customStyle="rounded-xl bg-nd_gray-50",
+                ~isDisabled=true,
+              ),
+              ~isRequired=false,
             )}
           />
           <FormRenderer.FieldRenderer
@@ -207,18 +206,21 @@ module ConnectProcessorsFields = {
             field={FormRenderer.makeFieldInfo(
               ~label="Client Verification Key",
               ~name="client_verification_key",
-              ~placeholder="**************",
-              ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
-              ~isRequired=true,
+              ~placeholder="hs_1234567890abcdef1234567890abcdef",
+              ~customInput=InputFields.textInput(
+                ~customStyle="rounded-xl bg-nd_gray-50",
+                ~isDisabled=true,
+              ),
+              ~isRequired=false,
             )}
           />
         </div>
       </RenderIf>
       <div className="mt-10 w-full">
-        <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0.5">
+        <FormRenderer.DesktopRow wrapperClass="!w-full" itemWrapperClass="!mx-0">
           <FormRenderer.SubmitButton
             text="Next"
-            customSumbitButtonStyle="!w-full"
+            customSumbitButtonStyle="rounded !w-full"
             buttonType={Primary}
             tooltipForWidthClass="w-full"
           />

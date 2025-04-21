@@ -425,7 +425,6 @@ module VerifyConnectorModal = {
       childClass="p-0 m-0 -mt-8"
       customHeight="border-0 h-fit"
       showCloseIcon=false
-      modalHeading=" "
       headingClass="h-2 bg-orange-960 rounded-t-xl"
       onCloseClickCustomFun={_ => {
         setVerifyDone(_ => NoAttempt)

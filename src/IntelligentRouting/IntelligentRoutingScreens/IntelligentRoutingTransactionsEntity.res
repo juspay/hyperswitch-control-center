@@ -64,20 +64,6 @@ module UpliftCell = {
   }
 }
 
-module LabelCell = {
-  @react.component
-  let make = (~status) => {
-    let textColor = status ? "text-green-800" : "text-red-700"
-    let bgColor = status ? "bg-green-200" : "bg-red-200"
-    let text = status ? "Success" : "Failed"
-
-    <div
-      className={`flex justify-center gap-1 px-2 py-0.5 rounded-md ${bgColor} ${textColor} w-fit`}>
-      <p className="text-xs font-semibold"> {text->React.string} </p>
-    </div>
-  }
-}
-
 let getCell = (~transactionsData: transactionObj, colType): Table.cell => {
   switch colType {
   | PaymentID =>
@@ -88,7 +74,11 @@ let getCell = (~transactionsData: transactionObj, colType): Table.cell => {
   | PaymentMethodType => Text(transactionsData.payment_method_type->LogicUtils.getTitle)
   | CardNetwork => Text(transactionsData.card_network)
   | TxnAmount => Text(transactionsData.amount->Float.toString)
-  | Status => CustomCell(<LabelCell status=transactionsData.payment_status />, "")
+  | Status =>
+    Label({
+      title: transactionsData.payment_status ? "Success" : "Failed",
+      color: transactionsData.payment_status ? LabelGreen : LabelRed,
+    })
   | ActualGateway => Text(transactionsData.payment_gateway)
   | SuggestedGateway => Text(transactionsData.model_connector)
   | SuccessRateUplift => CustomCell(<UpliftCell uplift=transactionsData.suggested_uplift />, "")
