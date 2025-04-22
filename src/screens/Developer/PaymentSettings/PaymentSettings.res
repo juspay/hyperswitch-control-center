@@ -562,8 +562,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   React.useEffect(() => {
     if businessProfileRecoilVal.profile_id->LogicUtils.isNonEmptyString {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       setBusinessProfile(_ => businessProfileRecoilVal)
-      setScreenState(_ => Success)
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
   }, [businessProfileRecoilVal.profile_id, businessProfileRecoilVal.profile_name])
