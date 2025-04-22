@@ -195,7 +195,7 @@ module MetadataHeaders = {
 }
 
 @react.component
-let make = (~busiProfileDetails, ~setBusiProfile, ~setScreenState, ~profileId="") => {
+let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~profileId="") => {
   open APIUtils
   open LogicUtils
   open FormRenderer
@@ -218,7 +218,7 @@ let make = (~busiProfileDetails, ~setBusiProfile, ~setScreenState, ~profileId=""
       let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       fetchBusinessProfileFromId()->ignore
-      setBusiProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+      setBusinessProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
       setAllowEdit(_ => false)
@@ -232,7 +232,7 @@ let make = (~busiProfileDetails, ~setBusiProfile, ~setScreenState, ~profileId=""
   }
   <ReactFinalForm.Form
     key="auth"
-    initialValues={busiProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+    initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
     subscription=ReactFinalForm.subscribeToValues
     onSubmit
     render={({handleSubmit}) => {

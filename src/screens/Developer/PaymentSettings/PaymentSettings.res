@@ -212,7 +212,7 @@ module WebHookAuthenticationHeaders = {
 
 module WebHookSection = {
   @react.component
-  let make = (~busiProfileDetails, ~setBusiProfile, ~setScreenState, ~profileId="") => {
+  let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~profileId="") => {
     open APIUtils
     open LogicUtils
     open FormRenderer
@@ -233,7 +233,7 @@ module WebHookSection = {
         let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
         let body = valuesDict->JSON.Encode.object->getCustomHeadersPayload->JSON.Encode.object
         let res = await updateDetails(url, body, Post)
-        setBusiProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+        setBusinessProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
         fetchBusinessProfileFromId()->ignore
         showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
         setAllowEdit(_ => false)
@@ -249,7 +249,7 @@ module WebHookSection = {
 
     <ReactFinalForm.Form
       key="auth"
-      initialValues={busiProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       render={({handleSubmit}) => {
@@ -514,7 +514,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (busiProfileDetails, setBusiProfile) = React.useState(_ => businessProfileRecoilVal)
+  let (businessProfileDetails, setBusinessProfile) = React.useState(_ => businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (checkMaxAutoRetry, setCheckMaxAutoRetry) = React.useState(_ => true)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -548,7 +548,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       fetchBusinessProfileFromId()->ignore
-      setBusiProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+      setBusinessProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -562,11 +562,11 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   React.useEffect(() => {
     if businessProfileRecoilVal.profile_id->LogicUtils.isNonEmptyString {
-      setBusiProfile(_ => businessProfileRecoilVal)
+      setBusinessProfile(_ => businessProfileRecoilVal)
       setScreenState(_ => Success)
     }
     None
-  }, [businessProfileRecoilVal])
+  }, [businessProfileRecoilVal.profile_id, businessProfileRecoilVal.profile_name])
 
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading
@@ -581,7 +581,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={busiProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+            initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               MerchantAccountUtils.validateMerchantAccountForm(
@@ -599,19 +599,21 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     : "px-2 py-4"} flex flex-col gap-7 overflow-hidden`}>
                 <div className="flex items-center">
                   <InfoViewForWebhooks
-                    heading="Profile Name" subHeading=busiProfileDetails.profile_name
+                    heading="Profile Name" subHeading=businessProfileDetails.profile_name
                   />
                   <InfoViewForWebhooks
-                    heading="Profile ID" subHeading=busiProfileDetails.profile_id isCopy=true
+                    heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
                   />
                 </div>
                 <div className="flex items-center">
                   <InfoViewForWebhooks
-                    heading="Merchant ID" subHeading={busiProfileDetails.merchant_id}
+                    heading="Merchant ID" subHeading={businessProfileDetails.merchant_id}
                   />
                   <InfoViewForWebhooks
                     heading="Payment Response Hash Key"
-                    subHeading={busiProfileDetails.payment_response_hash_key->Option.getOr("NA")}
+                    subHeading={businessProfileDetails.payment_response_hash_key->Option.getOr(
+                      "NA",
+                    )}
                     isCopy=true
                   />
                 </div>
@@ -738,13 +740,15 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <div className={` py-4 md:py-10 h-full flex flex-col `}>
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
-            <WebHookSection busiProfileDetails setBusiProfile setScreenState profileId />
+            <WebHookSection businessProfileDetails setBusinessProfile setScreenState profileId />
           </div>
         </div>
         <div className="py-4 md:py-10 h-full flex flex-col">
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
-            <PaymentSettingsMetadata busiProfileDetails setBusiProfile setScreenState profileId />
+            <PaymentSettingsMetadata
+              businessProfileDetails setBusinessProfile setScreenState profileId
+            />
           </div>
         </div>
       </div>
