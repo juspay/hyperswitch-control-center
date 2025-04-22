@@ -911,17 +911,17 @@ let make = (
   @supports (-webkit-appearance: none) {
     .table-scrollbar {
       scrollbar-width: auto;
-      scrollbar-color: #99a0ae; 
+      scrollbar-color: #CACFD8; 
     }
 
     .table-scrollbar::-webkit-scrollbar {
       display: block;
-      height: 4px;
+      height: 6px;
       width: 5px;
     }
 
     .table-scrollbar::-webkit-scrollbar-thumb {
-      background-color: #99a0ae; 
+      background-color: #CACFD8; 
       border-radius: 3px;
     }
 
