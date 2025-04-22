@@ -242,7 +242,7 @@ let make = () => {
                         | list{"webhooks", ..._} =>
                           <ConnectorContainer />
                         | list{"apm"} => <APMContainer />
-                        //Commented as not required now
+                        //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
                         // | list{"business-details", ..._}
                         // | list{"business-profiles", ..._} =>
                         //   <BusinessProfileContainer />

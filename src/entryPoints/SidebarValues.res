@@ -486,6 +486,7 @@ let complianceCertificateSection = {
 
 let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
   let settingsLinkArray = [
+    //TODO:This code needs to be removed after PR removing these pages is merged
     // businessDetails(userHasResourceAccess),
     // businessProfiles(userHasResourceAccess),
   ]

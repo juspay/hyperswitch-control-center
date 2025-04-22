@@ -217,7 +217,7 @@ let make = (~busiProfileDetails, ~setBusiProfile, ~setScreenState, ~profileId=""
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
       let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
-      let _ = await fetchBusinessProfileFromId()
+      fetchBusinessProfileFromId()->ignore
       setBusiProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)

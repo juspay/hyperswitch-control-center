@@ -234,7 +234,7 @@ module WebHookSection = {
         let body = valuesDict->JSON.Encode.object->getCustomHeadersPayload->JSON.Encode.object
         let res = await updateDetails(url, body, Post)
         setBusiProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
-        let _ = await fetchBusinessProfileFromId()
+        fetchBusinessProfileFromId()->ignore
         showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
         setAllowEdit(_ => false)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -547,7 +547,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
-      let _ = await fetchBusinessProfileFromId()
+      fetchBusinessProfileFromId()->ignore
       setBusiProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -566,7 +566,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       setScreenState(_ => Success)
     }
     None
-  }, [businessProfileRecoilVal.profile_id])
+  }, [businessProfileRecoilVal])
 
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading
