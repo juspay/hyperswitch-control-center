@@ -45,6 +45,7 @@ type country = {
   currency: string,
   countryName: string,
   isoAlpha2: string,
+  icon: string,
 }
 type variables = {
   fontFamily: string,
