@@ -121,7 +121,7 @@ module OMPViewBaseComp = {
       <div className="flex flex-col items-start">
         <div className="text-left flex items-center gap-1 p-2">
           <Icon name="settings-new" size=18 />
-          <p className="text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
+          <p className="sm:block hidden text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
             {`View data for:`->React.string}
           </p>
           <span className="text-primary text-nowrap"> {truncatedDisplayName} </span>

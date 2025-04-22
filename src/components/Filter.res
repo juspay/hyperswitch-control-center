@@ -370,7 +370,7 @@ let make = (
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys submitInputOnEnter />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
-        <div className="flex gap-2 justify-between my-2">
+        <div className="flex lg:flex-row flex-col justify-between gap-4 my-2">
           <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
             {customLeftView}
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
