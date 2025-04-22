@@ -98,8 +98,8 @@ describe("Payment Operations", () => {
             .should("have.text", "All1");
           cy.get(`[class="flex gap-6 justify-around"]`)
             .children()
-            .eq(3)
-            .should("have.text", "Dropoffs1");
+            .eq(1)
+            .should("have.text", "Succeeded1");
 
           // Search box
           paymentOperations.searchBox.should(

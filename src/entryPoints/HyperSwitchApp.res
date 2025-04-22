@@ -106,6 +106,15 @@ let make = () => {
     }
     None
   }, [userGroupACL])
+  let pageViewEvent = MixpanelHook.usePageView()
+  let path = url.path->List.toArray->Array.joinWith("/")
+
+  React.useEffect(() => {
+    if featureFlagDetails.mixpanel {
+      pageViewEvent(~path)->ignore
+    }
+    None
+  }, (featureFlagDetails.mixpanel, path))
 
   <>
     <div>
