@@ -84,15 +84,18 @@ let make = () => {
 
   let disableConnector = async isConnectorDisabled => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let connectorID = connectorInfo.merchant_connector_id
       let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
         connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      setInitialValues(_ => res)
+      let _ = await fetchConnectorListResponse()
+      setScreenState(_ => PageLoaderWrapper.Success)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/pm-authentication-processor"))
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
     }

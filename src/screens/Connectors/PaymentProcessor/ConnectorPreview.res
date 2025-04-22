@@ -362,6 +362,7 @@ let make = (
   let isConnectorDisabled = connectorInfo.disabled
   let disableConnector = async isConnectorDisabled => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let connectorID = connectorInfo.merchant_connector_id
       let disableConnectorPayload = getDisableConnectorPayload(
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
@@ -369,8 +370,9 @@ let make = (
       )
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
       let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
-      fetchConnectorListResponse()->ignore
+      let _ = await fetchConnectorListResponse()
       setInitialValues(_ => res)
+      setScreenState(_ => PageLoaderWrapper.Success)
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
