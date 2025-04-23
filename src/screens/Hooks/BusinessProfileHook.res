@@ -28,12 +28,11 @@ let useGetBusinessProflile = profileId => {
 
 open APIUtils
 open APIUtilsTypes
-let useFetchBusinessProfileFromId = (~profileId=None) => {
+let useFetchBusinessProfileFromId = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
-
-  async _ => {
+  async (~profileId=None) => {
     try {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Get, ~id=profileId)
       let res = await fetchDetails(url, ~version=UserInfoTypes.V1)

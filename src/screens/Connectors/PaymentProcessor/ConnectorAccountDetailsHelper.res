@@ -342,7 +342,6 @@ module BusinessProfileRender = {
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-    let businessProfileArray = Array.make(~length=1, businessProfileRecoilVal)
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
@@ -362,11 +361,11 @@ module BusinessProfileRender = {
             InputFields.selectInput(
               ~deselectDisable=true,
               ~disableSelect={
-                isUpdateFlow || businessProfileArray->HomeUtils.isDefaultBusinessProfile
+                isUpdateFlow || [businessProfileRecoilVal]->HomeUtils.isDefaultBusinessProfile
               },
               ~customStyle="max-h-48",
               ~options={
-                businessProfileArray->MerchantAccountUtils.businessProfileNameDropDownOption
+                [businessProfileRecoilVal]->MerchantAccountUtils.businessProfileNameDropDownOption
               },
               ~buttonText="Select Profile",
             )(
@@ -375,7 +374,7 @@ module BusinessProfileRender = {
                 onChange: {
                   ev => {
                     let profileName = (
-                      businessProfileArray
+                      [businessProfileRecoilVal]
                       ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
                         ele.profile_id === ev->Identity.formReactEventToString
                       )

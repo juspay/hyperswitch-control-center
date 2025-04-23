@@ -11,9 +11,7 @@ let make = () => {
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
-    ~profileId=Some(profileId),
-  )
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
   let setUpConnectoreContainer = async () => {
     try {
@@ -24,7 +22,7 @@ let make = () => {
         userHasAccess(~groupAccess=WorkflowsManage) === Access
       ) {
         let _ = await fetchConnectorListResponse()
-        let _ = await fetchBusinessProfileFromId()
+        let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

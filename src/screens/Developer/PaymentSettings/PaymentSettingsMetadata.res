@@ -206,9 +206,7 @@ let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~prof
   let id = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, profileId)
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
-    ~profileId=Some(profileId),
-  )
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
   let onSubmit = async (values, _) => {
     try {
@@ -217,7 +215,7 @@ let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~prof
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
       let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
-      fetchBusinessProfileFromId()->ignore
+      fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
       setBusinessProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)

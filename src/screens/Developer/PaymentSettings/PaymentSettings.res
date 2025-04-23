@@ -222,9 +222,7 @@ module WebHookSection = {
     let showToast = ToastState.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-    let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
-      ~profileId=Some(profileId),
-    )
+    let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
     let onSubmit = async (values, _) => {
       try {
@@ -234,7 +232,7 @@ module WebHookSection = {
         let body = valuesDict->JSON.Encode.object->getCustomHeadersPayload->JSON.Encode.object
         let res = await updateDetails(url, body, Post)
         setBusinessProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
-        fetchBusinessProfileFromId()->ignore
+        fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
         showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
         setAllowEdit(_ => false)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -526,9 +524,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   )
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
-    ~profileId=Some(profileId),
-  )
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
@@ -547,7 +543,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
-      fetchBusinessProfileFromId()->ignore
+      fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
       setBusinessProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)

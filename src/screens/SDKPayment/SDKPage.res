@@ -6,8 +6,7 @@ module SDKConfiguarationFields = {
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-    let businessProfileArray = Array.make(~length=1, businessProfileRecoilVal)
-    let disableSelectionForProfile = businessProfileArray->HomeUtils.isDefaultBusinessProfile
+    let disableSelectionForProfile = [businessProfileRecoilVal]->HomeUtils.isDefaultBusinessProfile
     let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
       ~interface=ConnectorInterface.connectorInterfaceV1,
       ~retainInList=PaymentProcessor,
@@ -25,7 +24,7 @@ module SDKConfiguarationFields = {
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~deselectDisable=true,
-        ~options={businessProfileArray->businessProfileNameDropDownOption},
+        ~options={[businessProfileRecoilVal]->businessProfileNameDropDownOption},
         ~buttonText="Select Profile",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,
@@ -98,10 +97,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
-    ~profileId=Some(profileId),
-  )
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {userInfo: {profileId, merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -124,7 +120,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       if userHasAccess(~groupAccess=ConnectorsView) === Access {
         if !featureFlagDetails.isLiveMode {
-          let _ = await fetchBusinessProfileFromId()
+          let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
           let _ = await fetchConnectorListResponse()
         }
       }

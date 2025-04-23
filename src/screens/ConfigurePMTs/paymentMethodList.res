@@ -6,7 +6,6 @@ let make = (~isPayoutFlow=false) => {
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtom,
   )
-  let businessProfileArray = Array.make(~length=1, businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (connectorResponse, setConnectorResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
@@ -79,10 +78,10 @@ let make = (~isPayoutFlow=false) => {
         defaultFilters={Dict.make()->JSON.Encode.object}
         fixedFilters=[]
         requiredSearchFieldsList=[]
-        localFilters={configuredConnectors->initialFilters(businessProfileArray)}
+        localFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])}
         localOptions=[]
         remoteOptions=[]
-        remoteFilters={configuredConnectors->initialFilters(businessProfileArray)}
+        remoteFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])}
         defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => handleClearFilter()->ignore}
