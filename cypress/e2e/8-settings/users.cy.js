@@ -200,24 +200,30 @@ describe("Users - Invite Users", () => {
 
   roles.forEach(({ name, profileType, merchantType, expectedRole }) => {
     it(`Verify inviting a ${name} successfully`, () => {
+      // Generate unique email for the invited user
       invitedUserEmail = helper.generateUniqueEmail();
       role = name;
 
+      // Navigate to invite users page and send invite
       usersOperations.navigateInviteUsers;
       cy.inviteUser(invitedUserEmail, role, profileType, merchantType);
 
+      // Visit users page and verify new user appears in table
       usersOperations.visit;
       cy.get("table#table tbody tr").should("have.length", 2);
 
+      // Verify email format in first column
       cy.get("table#table tbody tr:last-child td")
         .eq(0)
         .invoke("text")
         .should("match", /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
 
+      // Verify role in second column matches expected role
       cy.get("table#table tbody tr:last-child td")
         .eq(1)
         .should("have.text", expectedRole || role);
 
+      // Click into user details and verify all fields
       cy.get("table#table tbody tr").last().click();
       cy.verifyUserDetails(
         invitedUserEmail,
@@ -228,9 +234,14 @@ describe("Users - Invite Users", () => {
 
       // Verify the Manage User button
       usersOperations.verifyManageUserButton;
+
+      // Verify updating user role
       cy.updateUserRole(expectedRole || role);
 
-      // cy.deleteUser();
+      // Verify resending the user invite
+
+      // Verify deleting the user invite
+      cy.deleteUser();
     });
   });
 });

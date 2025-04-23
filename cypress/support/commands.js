@@ -617,6 +617,22 @@ Cypress.Commands.add("updateUserRole", (currentRole) => {
     .invoke("text")
     .then((newRole) => {
       cy.get(`[data-dropdown-value="${newRole}"]`).click();
+      cy.get('[data-button-for="update"]').click();
+
+      // Click into user details and verify updated role
+      cy.get("table#table tbody tr").last().click();
+      cy.get("td")
+        .eq(2)
+        .should(
+          "have.text",
+          newRole
+            .split("_")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" "),
+        );
     });
-  cy.get('[data-button-for="update"]').click();
+});
+
+Cypress.Commands.add("deleteUser", () => {
+  console.log("Deleting user");
 });
