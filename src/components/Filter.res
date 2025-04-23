@@ -169,12 +169,6 @@ let make = (
   let searchParams = query->decodeURI
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
-  React.useEffect(_ => {
-    let updatedAllFilters = remoteFilters->Array.map(item => item.field)
-    setAllFilters(_ => updatedAllFilters)
-    None
-  }, [remoteFilters])
-
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
     ~initialFilters={Array.concat(localFilters, fixedFilters)},
@@ -397,6 +391,6 @@ let make = (
         </div>
       </>}
     </AddDataAttributes>}
-    <FormValuesSpy />
+    // <FormValuesSpy />
   </Form>
 }
