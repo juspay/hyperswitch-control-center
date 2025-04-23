@@ -228,7 +228,7 @@ describe("Users - Invite Users", () => {
 
       // Verify the Manage User button
       usersOperations.verifyManageUserButton;
-      cy.updateUserRole(role);
+      cy.updateUserRole(expectedRole || role);
 
       // cy.deleteUser();
     });
