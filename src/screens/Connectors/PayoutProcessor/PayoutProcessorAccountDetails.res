@@ -44,7 +44,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     }
   }, [connector])
 
-  let (
+  let {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
@@ -52,7 +52,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let (showModal, setShowModal) = React.useState(_ => false)
 

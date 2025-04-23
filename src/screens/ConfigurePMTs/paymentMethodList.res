@@ -16,7 +16,8 @@ let make = (~isPayoutFlow=false) => {
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getConnectedList
   )
-  let {updateExistingKeys, reset, filterValueJson} = FilterContext.filterContext->React.useContext
+  let {updateExistingKeys, reset, filterValueJson, filterValue} =
+    FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
   let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo(() => {
     filterValueJson->pmtConfigFilter
@@ -39,7 +40,7 @@ let make = (~isPayoutFlow=false) => {
   React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
     None
-  }, (isPayoutFlow, filterValueJson))
+  }, (isPayoutFlow, filterValue))
 
   let applyFilter = async () => {
     let res = connectorResponse->getFilterdConnectorList(allFilters)
@@ -85,22 +86,25 @@ let make = (~isPayoutFlow=false) => {
         defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => handleClearFilter()->ignore}
-      />
-      <LoadedTable
-        title="Payment Methods"
-        hideTitle=true
-        actualData={filteredConnectors->Array.map(Nullable.make)}
-        totalResults={filteredConnectors->Array.length}
-        resultsPerPage=20
-        showSerialNumber=true
-        offset
         setOffset
-        entity={PaymentMethodEntity.paymentMethodEntity(
-          ~setReferesh=getConnectorListAndUpdateState,
-        )}
-        currrentFetchCount={filteredConnectors->Array.length}
-        collapseTableRow=false
       />
+      <div className="mt-4">
+        <LoadedTable
+          title="Payment Methods"
+          hideTitle=true
+          actualData={filteredConnectors->Array.map(Nullable.make)}
+          totalResults={filteredConnectors->Array.length}
+          resultsPerPage=20
+          showSerialNumber=true
+          offset
+          setOffset
+          entity={PaymentMethodEntity.paymentMethodEntity(
+            ~setReferesh=getConnectorListAndUpdateState,
+          )}
+          currrentFetchCount={filteredConnectors->Array.length}
+          collapseTableRow=false
+        />
+      </div>
     </PageLoaderWrapper>
   </div>
 }
