@@ -12,11 +12,11 @@ module SDKConfiguarationFields = {
       ~interface=ConnectorInterface.connectorInterfaceV1,
       ~retainInList=PaymentProcessor,
     )
-    let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
-      {
-        label: `${item.countryName} (${item.currency})`,
-        value: `${item.isoAlpha2}-${item.currency}`,
-      }
+    let dropDownOptionsForCountryCurrency = HomeUtils.countries->Array.map((
+      item
+    ): SelectBox.dropdownOption => {
+      label: `${item.icon} ${item.countryName} - (${item.currency})`,
+      value: `${item.isoAlpha2}-${item.currency}`,
     })
 
     let selectProfileField = FormRenderer.makeFieldInfo(
@@ -37,7 +37,7 @@ module SDKConfiguarationFields = {
       ~name="country_currency",
       ~placeholder="",
       ~customInput=InputFields.selectInput(
-        ~options=dropDownOptions,
+        ~options=dropDownOptionsForCountryCurrency,
         ~buttonText="Select Currency",
         ~deselectDisable=true,
         ~fullLength=true,
