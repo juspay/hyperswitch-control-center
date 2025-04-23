@@ -35,7 +35,6 @@ import {
   hasPermission,
   hasAccessLevelPermission,
 } from "../support/permissions";
-import { warning } from "framer-motion";
 
 const signinPage = new SignInPage();
 const signupPage = new SignUpPage();
