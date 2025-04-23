@@ -45,8 +45,8 @@ let getCertificateAuth = (dict): certificateAuth => {
   certificate: dict->getString("certificate", ""),
   private_key: dict->getString("private_key", ""),
 }
-let getNoKeyAuth = (dict): noKey => {
-  auth_type: dict->getString("auth_type", "NoKey"),
+let getNoKeyAuth = dict => {
+  auth_type: dict->getString("auth_type", ""),
 }
 
 let getAccountDetails = (dict): connectorAuthTypeObj => {

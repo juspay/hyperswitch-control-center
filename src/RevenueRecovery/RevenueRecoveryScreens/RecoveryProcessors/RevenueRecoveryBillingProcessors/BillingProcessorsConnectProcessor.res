@@ -62,6 +62,7 @@ let make = (
         <div>
           <div className="text-nd_gray-700 font-medium">
             {"Processor Reference ID"->React.string}
+            <span className="text-red-900 ml-0.5 mb-0.5"> {"*"->React.string} </span>
           </div>
           <div className="-m-1 -mt-3">
             <ConnectorConnect connector_account_reference_id />

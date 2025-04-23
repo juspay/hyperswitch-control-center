@@ -8,12 +8,18 @@ type timeRange = {timeRange: startAndEndTime}
 @react.component
 let make = (~reportModal, ~setReportModal, ~entityName) => {
   open APIUtils
+  open HSwitchRemoteFilter
+  open LogicUtils
+  open OrderUIUtils
+
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+  let defaultDate = getDateFilteredObject(~range=30)
+  let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   let downloadReport = async body => {
     try {
@@ -33,17 +39,14 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     downloadReport(values->Identity.genericTypeToJson)
   }
 
-  let getPreviousDate = () => {
-    let currentDate = Date.getTime(Date.make())
-    let previousDateMilliseconds = currentDate -. 86400000.0
-    let previousDate = Js.Date.fromFloat(previousDateMilliseconds)->Date.toISOString
-    previousDate->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
-  }
-
   let initialValues = {
     timeRange: {
-      startTime: getPreviousDate()->JSON.Encode.string,
-      endTime: Date.now()->Js.Date.fromFloat->Date.toISOString->JSON.Encode.string,
+      startTime: filterValueJson
+      ->getString(startTimeFilterKey, defaultDate.start_time)
+      ->JSON.Encode.string,
+      endTime: filterValueJson
+      ->getString(endTimeFilterKey, defaultDate.end_time)
+      ->JSON.Encode.string,
     },
   }->Identity.genericTypeToJson
 
@@ -79,7 +82,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
             ~startKey="timeRange.startTime",
             ~endKey="timeRange.endTime",
             ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-            ~showTime=false,
+            ~showTime=true,
             ~disablePastDates={false},
             ~disableFutureDates={true},
             ~predefinedDays=[Today, Yesterday, ThisMonth, LastMonth],
@@ -109,6 +112,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
         )}
       />
       <FormRenderer.SubmitButton text="Generate" customSumbitButtonStyle="mt-5 mb-3  " />
+      <FormValuesSpy />
     </Form>
   </Modal>
 }

@@ -1,9 +1,11 @@
 import * as helper from "../../support/helper";
+import SignInPage from "../../support/pages/auth/SignInPage";
 import HomePage from "../../support/pages/homepage/HomePage";
 import PaymentRouting from "../../support/pages/workflow/paymentRouting/PaymentRouting";
 import DefaultFallback from "../../support/pages/workflow/paymentRouting/DefaultFallback";
 import VolumeBasedConfiguration from "../../support/pages/workflow/paymentRouting/VolumeBasedConfiguration";
 
+const signinPage = new SignInPage();
 const homePage = new HomePage();
 const paymentRouting = new PaymentRouting();
 const defaultFallback = new DefaultFallback();
@@ -11,11 +13,8 @@ const volumeBasedConfiguration = new VolumeBasedConfiguration();
 
 beforeEach(function () {
   const email = helper.generateUniqueEmail();
-  cy.visit_signupPage();
-  cy.sign_up_with_email(email, Cypress.env("CYPRESS_PASSWORD"));
-  cy.url().should("include", "/dashboard/home");
-  homePage.enterMerchantName.type("Test_merchant");
-  homePage.onboardingSubmitButton.click();
+  cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
+  cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
 });
 
 describe("Volume based routing", () => {
@@ -60,7 +59,7 @@ describe("Volume based routing", () => {
       .invoke("text")
       .then((text) => {
         profileID = text;
-        let convertedStr = profileID.replace(" ", " (") + ")";
+        let convertedStr = profileID.replace("pro", " (pro") + ")";
         cy.get(`[data-button-text="${convertedStr}"]`).should(
           "contain",
           convertedStr,
