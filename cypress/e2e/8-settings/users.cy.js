@@ -206,7 +206,12 @@ describe("Users - Invite Users", () => {
 
       // Navigate to invite users page and send invite
       usersOperations.navigateInviteUsers;
-      cy.inviteUser(invitedUserEmail, role, profileType, merchantType);
+      usersOperations.inviteUser(
+        invitedUserEmail,
+        role,
+        profileType,
+        merchantType,
+      );
 
       // Visit users page and verify new user appears in table
       usersOperations.visit;
@@ -225,7 +230,7 @@ describe("Users - Invite Users", () => {
 
       // Click into user details and verify all fields
       cy.get("table#table tbody tr").last().click();
-      cy.verifyUserDetails(
+      usersOperations.verifyUserDetails(
         invitedUserEmail,
         expectedRole || role,
         merchantType,
@@ -236,12 +241,12 @@ describe("Users - Invite Users", () => {
       usersOperations.verifyManageUserButton;
 
       // Verify updating user role
-      cy.updateUserRole(expectedRole || role);
+      usersOperations.updateUserRole(expectedRole || role);
 
       // Verify resending the user invite
 
       // Verify deleting the user invite
-      cy.deleteUser();
+      usersOperations.deleteUser;
       cy.get("table#table tbody tr").should("have.length", 1);
       cy.get("table#table tbody tr").eq(0).contains(email);
     });

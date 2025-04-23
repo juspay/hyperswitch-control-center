@@ -129,6 +129,95 @@ class UsersOperations {
     cy.get('[data-button-for="resend"]').click();
     cy.get('[data-button-for="delete"]').should("exist");
   }
+
+  inviteUser(
+    userEmail,
+    userRole,
+    profileType = "all_profiles",
+    merchantType = "All_merchants",
+  ) {
+    cy.get('[class="w-full cursor-text"]').type(userEmail);
+
+    // Wait for the email input to be populated and verify it exists
+    if (userRole === "Organization Admin") {
+      cy.get('[data-value="testMerchant"]').click();
+      cy.get('[data-dropdown-value="All merchants"]').click();
+    }
+
+    // Select merchant/profile if needed
+    if (profileType === "default") {
+      cy.get('[data-value="allProfiles"]').click();
+      cy.get('[data-dropdown-value="default"]').click();
+    }
+
+    // Select role
+    cy.get(
+      '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
+    ).click();
+    cy.get(
+      '[class="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"]',
+    ).click();
+    cy.get('[class="mr-5"]').contains(userRole).click();
+
+    cy.get('[data-button-for="sendInvite"]').click();
+    cy.get('[data-button-for="sendInvite"]').should("not.exist");
+  }
+
+  verifyUserDetails(
+    userEmail,
+    expectedRole,
+    merchantType = "Test_merchant",
+    profileType = "all_profiles",
+  ) {
+    cy.get("[data-breadcrumb]").eq(1).should("have.text", userEmail);
+    cy.get("table tr")
+      .eq(1)
+      .within(() => {
+        cy.get("td").eq(0).should("have.text", merchantType);
+        cy.get("td").eq(1).should("have.text", profileType);
+        cy.get("td").eq(2).should("have.text", expectedRole);
+        cy.get("td").eq(3).find("p").should("have.class", "text-orange-950");
+      });
+    cy.get('[data-button-for="manageUser"]').should("exist");
+  }
+
+  updateUserRole(currentRole) {
+    cy.get(
+      `[data-value="${currentRole.toLowerCase().replace(/\s+(.)/g, (match, group) => group.toUpperCase())}"]`,
+    ).click();
+    cy.get("[data-dropdown-value]")
+      .filter((i, el) => {
+        const $el = Cypress.$(el);
+        return (
+          !/[A-Z]/.test($el.text()) &&
+          $el.attr("data-dropdown-value-selected") !== "true"
+        );
+      })
+      .first()
+      .invoke("text")
+      .then((newRole) => {
+        cy.get(`[data-dropdown-value="${newRole}"]`).click();
+        cy.get('[data-button-for="update"]').click();
+
+        // Click into user details and verify updated role
+        cy.get("table#table tbody tr").last().click();
+        cy.get("td")
+          .eq(2)
+          .should(
+            "have.text",
+            newRole
+              .split("_")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" "),
+          );
+      });
+  }
+
+  get deleteUser() {
+    cy.get('[data-button-for="manageUser"]').click();
+    cy.get('[data-button-for="delete"]').click();
+    cy.get('[data-button-for="confirm"]').click();
+  }
 }
 
 export default UsersOperations;
