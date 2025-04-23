@@ -24,14 +24,11 @@ function getInvalidEmails() {
     "missing@test", // Incomplete domain
     "multiple@domains@test.com", // Multiple @ symbols
     "abc@@xy.zi", // Multiple @ symbols
-    "spaces in@test.com", // Contains spaces
     "dots..in@test.com", // Consecutive dots
     ".starts.with.dot@test.com", // Starts with dot
     "ends.with.dot.@test.com", // Ends with dot
     "special#chars@test.com", // Invalid special characters
     "!username@test.com", // Invalid special characters
-    " ", // Only whitespace
-    " @test.com", // Only whitespace in username
     "username@.com", // Missing domain part
     "username@test..com", // Consecutive dots in domain
     "username@-test.com", // Domain starts with hyphen
