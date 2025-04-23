@@ -279,6 +279,7 @@ type certificateAuth = {
   certificate: string,
   private_key: string,
 }
+type noKeyAuth = {auth_type: string}
 
 type connectorAuthType =
   | HeaderKey
@@ -287,6 +288,7 @@ type connectorAuthType =
   | MultiAuthKey
   | CurrencyAuthKey
   | CertificateAuth
+  | NoKey
   | UnKnownAuthType
 
 type connectorAuthTypeObj =
@@ -296,6 +298,7 @@ type connectorAuthTypeObj =
   | MultiAuthKey(multiAuthKey)
   | CurrencyAuthKey(currencyAuthKey)
   | CertificateAuth(certificateAuth)
+  | NoKey(noKeyAuth)
   | UnKnownAuthType(JSON.t)
 
 type paymentMethodEnabledType = {
