@@ -634,5 +634,7 @@ Cypress.Commands.add("updateUserRole", (currentRole) => {
 });
 
 Cypress.Commands.add("deleteUser", () => {
-  console.log("Deleting user");
+  cy.get('[data-button-for="manageUser"]').click();
+  cy.get('[data-button-for="delete"]').click();
+  cy.get('[data-button-for="confirm"]').click();
 });

@@ -242,6 +242,8 @@ describe("Users - Invite Users", () => {
 
       // Verify deleting the user invite
       cy.deleteUser();
+      cy.get("table#table tbody tr").should("have.length", 1);
+      cy.get("table#table tbody tr").eq(0).contains(email);
     });
   });
 });
