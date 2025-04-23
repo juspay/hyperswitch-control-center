@@ -373,13 +373,7 @@ module BusinessProfileRender = {
                 ...input,
                 onChange: {
                   ev => {
-                    let profileName = (
-                      [businessProfileRecoilVal]
-                      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
-                        ele.profile_id === ev->Identity.formReactEventToString
-                      )
-                      ->Option.getOr(businessProfileRecoilVal)
-                    ).profile_name
+                    let profileName = businessProfileRecoilVal.profile_name
                     connectorLabelOnChange(
                       `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,
                     )
