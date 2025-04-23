@@ -18,10 +18,7 @@ let make = () => {
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
 
-  let webhookURL = switch [businessProfileRecoilVal]->Array.get(0) {
-  | Some(val) => val.webhook_details.webhook_url->Option.getOr("")
-  | None => ""
-  }
+  let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
 
   let isWebhookUrlConfigured = webhookURL->LogicUtils.isNonEmptyString
 
