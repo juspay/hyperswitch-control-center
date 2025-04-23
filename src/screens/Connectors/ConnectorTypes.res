@@ -373,3 +373,13 @@ type connector =
   | PMAuthenticationProcessor
   | TaxProcessor
   | BillingProcessor
+
+type connectorFieldTypes = {
+  bodyType: string,
+  connectorAccountFields: RescriptCore.Dict.t<Core__JSON.t>,
+  connectorMetaDataFields: Core__Dict.t<Core__JSON.t>,
+  isVerifyConnector: bool,
+  connectorWebHookDetails: Core__Dict.t<Core__JSON.t>,
+  connectorLabelDetailField: RescriptCore.Dict.t<Core__JSON.t>,
+  connectorAdditionalMerchantData: Core__Dict.t<Core__JSON.t>,
+}
