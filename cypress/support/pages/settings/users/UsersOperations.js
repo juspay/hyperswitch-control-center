@@ -1,4 +1,4 @@
-class UsersList {
+class UsersOperations {
   get visit() {
     // Visit the users page directly
     return cy.visit("/dashboard/users");
@@ -122,6 +122,13 @@ class UsersList {
           .and("have.text", "Manage user");
       });
   }
+
+  get verifyManageUserButton() {
+    cy.get('[data-button-for="manageUser"]').click();
+    cy.get('[data-button-for="update"]').should("exist");
+    cy.get('[data-button-for="resend"]').click();
+    cy.get('[data-button-for="delete"]').should("exist");
+  }
 }
 
-export default UsersList;
+export default UsersOperations;

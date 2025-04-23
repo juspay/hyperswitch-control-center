@@ -1,9 +1,9 @@
 import * as helper from "../../support/helper";
 import HomePage from "../../support/pages/homepage/HomePage";
-import UsersList from "../../support/pages/settings/users/UsersList";
+import UsersOperations from "../../support/pages/settings/users/UsersOperations";
 
 const homePage = new HomePage();
-const usersList = new UsersList();
+const usersOperations = new UsersOperations();
 let email;
 let invitedUserEmail;
 let role;
@@ -15,12 +15,12 @@ beforeEach(function () {
   cy.url().should("include", "/dashboard/home");
   homePage.enterMerchantName.type("Test_merchant");
   homePage.onboardingSubmitButton.click();
-  usersList.navigate;
+  usersOperations.navigate;
 });
 
 describe("Users - UI", () => {
   it("Verify the UI of the Users page", () => {
-    usersList.verifyPageTitle;
+    usersOperations.verifyPageTitle;
 
     // Verify tabs
     cy.get(
@@ -93,24 +93,24 @@ describe("Users - Details", () => {
   });
 
   it("Verify the UI of the Users page", () => {
-    usersList.verifyPageTitle;
+    usersOperations.verifyPageTitle;
 
     cy.get("[data-breadcrumb]").should("exist").should("have.length", 2);
     cy.get("[data-breadcrumb]").eq(0).should("have.text", "Team management");
     cy.get("[data-breadcrumb]").eq(1).should("have.text", email);
 
-    usersList.verifyUserDetailsUsernameDisplay(email);
-    usersList.verifyUserDetailsEmailDisplay(email);
+    usersOperations.verifyUserDetailsUsernameDisplay(email);
+    usersOperations.verifyUserDetailsEmailDisplay(email);
 
     cy.get("table").should("exist");
     cy.get("table th").should("have.length", 5);
 
-    usersList.verifyUserDetailsTableRowContent(
+    usersOperations.verifyUserDetailsTableRowContent(
       "All_merchants",
       "all_profiles",
       "Organization Admin",
     );
-    usersList.verifyActiveStatus;
+    usersOperations.verifyActiveStatus;
   });
 });
 
@@ -185,7 +185,7 @@ describe("Users - Invite Users", () => {
   ];
 
   it("Verify whether invalid users with invalid email address can be invited", () => {
-    usersList.navigateInviteUsers;
+    usersOperations.navigateInviteUsers;
     const invalidEmails = helper.getInvalidEmails();
 
     invalidEmails.forEach((email) => {
@@ -203,10 +203,10 @@ describe("Users - Invite Users", () => {
       invitedUserEmail = helper.generateUniqueEmail();
       role = name;
 
-      usersList.navigateInviteUsers;
+      usersOperations.navigateInviteUsers;
       cy.inviteUser(invitedUserEmail, role, profileType, merchantType);
 
-      usersList.visit;
+      usersOperations.visit;
       cy.get("table#table tbody tr").should("have.length", 2);
 
       cy.get("table#table tbody tr:last-child td")
@@ -225,6 +225,12 @@ describe("Users - Invite Users", () => {
         merchantType,
         profileType,
       );
+
+      // Verify the Manage User button
+      usersOperations.verifyManageUserButton;
+      cy.updateUserRole(role);
+
+      // cy.deleteUser();
     });
   });
 });

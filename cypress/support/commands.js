@@ -35,6 +35,7 @@ import {
   hasPermission,
   hasAccessLevelPermission,
 } from "../support/permissions";
+import { warning } from "framer-motion";
 
 const signinPage = new SignInPage();
 const signupPage = new SignUpPage();
@@ -599,3 +600,23 @@ Cypress.Commands.add(
     cy.get('[data-button-for="manageUser"]').should("exist");
   },
 );
+
+Cypress.Commands.add("updateUserRole", (currentRole) => {
+  cy.get(
+    `[data-value="${currentRole.toLowerCase().replace(/\s+(.)/g, (match, group) => group.toUpperCase())}"]`,
+  ).click();
+  cy.get("[data-dropdown-value]")
+    .filter((i, el) => {
+      const $el = Cypress.$(el);
+      return (
+        !/[A-Z]/.test($el.text()) &&
+        $el.attr("data-dropdown-value-selected") !== "true"
+      );
+    })
+    .first()
+    .invoke("text")
+    .then((newRole) => {
+      cy.get(`[data-dropdown-value="${newRole}"]`).click();
+    });
+  cy.get('[data-button-for="update"]').click();
+});
