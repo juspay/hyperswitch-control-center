@@ -17,7 +17,7 @@ let make = () => {
     let res = await fetchDetails(hypersenseTokenUrl)
     let token = res->getDictFromJsonObject->getString("token", "")
     mixpanelEvent(~eventName="cost_observability-redirect")
-    let url = `${Window.env.hypersenseUrl}/login?auth_token=${token}`
+    let url = `${Window.env.hypersenseUrl}?auth_token=${token}`
     url->Window._open
   }
 
