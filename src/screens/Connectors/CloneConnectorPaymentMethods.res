@@ -95,7 +95,7 @@ let make = (~connectorID, ~connectorName) => {
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
       let response = await fetchDetails(connectorUrl)
       let json = Window.getResponsePayload(response)
       let metaData = json->getDictFromJsonObject->getJsonObjectFromDict("metadata")
