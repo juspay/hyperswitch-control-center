@@ -175,7 +175,7 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connectorInfo.merchant_connector_id])
-    let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
+    let {connectorAccountFields} = getConnectorFields(connectorDetails)
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
     | _ => true

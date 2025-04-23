@@ -1455,7 +1455,8 @@ let getConnectorFields = connectorDetails => {
     connectorDetails
     ->getDictFromJsonObject
     ->getDictfromDict("additional_merchant_data")
-  (
+
+  {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
@@ -1463,7 +1464,7 @@ let getConnectorFields = connectorDetails => {
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  )
+  }
 }
 
 let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {

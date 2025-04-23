@@ -146,15 +146,14 @@ let make = () => {
     }
   }, [connectorName])
 
-  let (
+  let {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
