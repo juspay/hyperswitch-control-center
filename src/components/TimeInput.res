@@ -39,6 +39,8 @@ let make = (
   | Some(str) => str
   | None => ""
   }
+  let (zone, _setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
+
   let arr = value->String.split(":")
   let hourVal = arr->Array.get(0)->Option.flatMap(val => val->Belt.Int.fromString)->Option.getOr(0)
   let minuteVal =
@@ -81,5 +83,6 @@ let make = (
     } else {
       React.null
     }}
+    <div className="font-semibold ml-1"> {(zone :> string)->React.string} </div>
   </div>
 }

@@ -5,7 +5,8 @@ let make = (~setAuthStatus) => {
   let (_mode, setMode) = React.useState(_ => TestButtonMode)
   let {isMagicLinkEnabled, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
   let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
+  let pageViewEvent = MixpanelHook.usePageView()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let authInitState = LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
 
@@ -70,6 +71,15 @@ let make = (~setAuthStatus) => {
     }
     None
   }, [authType])
+
+  React.useEffect(() => {
+    let path = url.path->List.toArray->Array.joinWith("/")
+    if featureFlagDetails.mixpanel {
+      pageViewEvent(~path)->ignore
+    }
+
+    None
+  }, (featureFlagDetails.mixpanel, authType))
 
   <TwoFaAuth setAuthStatus authType setAuthType />
 }

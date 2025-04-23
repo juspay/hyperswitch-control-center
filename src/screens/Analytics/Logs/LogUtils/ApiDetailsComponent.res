@@ -35,7 +35,7 @@ let make = (
     })
     ->getJsonFromArrayOfJson
     ->JSON.stringify
-  | WEBHOOKS => dataDict->getString("outgoing_webhook_event_type", "")
+  | WEBHOOKS => dataDict->getString("content", "")
   }
 
   let responseObject = switch logType {
@@ -45,7 +45,7 @@ let make = (
       let isErrorLog = dataDict->getString("log_type", "") === "ERROR"
       isErrorLog ? dataDict->getString("value", "") : ""
     }
-  | WEBHOOKS => dataDict->getString("content", "")
+  | WEBHOOKS => dataDict->getString("outgoing_webhook_event_type", "")
   }
 
   let statusCode = switch logType {
