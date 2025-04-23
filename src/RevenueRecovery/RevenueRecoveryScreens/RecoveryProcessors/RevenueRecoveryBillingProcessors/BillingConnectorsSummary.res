@@ -83,9 +83,7 @@ module BillingConnectorDetails = {
       }
     }, [connectorInfodict.id])
 
-    let (_, connectorAccountFields, _, _, connectorWebHookDetails, _, _) = getConnectorFields(
-      connectorDetails,
-    )
+    let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
 
     let revenueRecovery =
       connectorInfodict.feature_metadata->getDictFromJsonObject->getDictfromDict("revenue_recovery")

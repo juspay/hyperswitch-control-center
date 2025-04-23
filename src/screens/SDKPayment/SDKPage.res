@@ -1,12 +1,8 @@
 let h3Leading2Style = HSwitchUtils.getTextClass((H3, Leading_2))
 
 module SDKConfiguarationFields = {
-  open MerchantAccountUtils
   @react.component
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
-    let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-    let disableSelectionForProfile = [businessProfileRecoilVal]->HomeUtils.isDefaultBusinessProfile
     let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
       ~interface=ConnectorInterface.connectorInterfaceV1,
       ~retainInList=PaymentProcessor,
@@ -18,19 +14,6 @@ module SDKConfiguarationFields = {
       value: `${item.isoAlpha2}-${item.currency}`,
     })
 
-    let selectProfileField = FormRenderer.makeFieldInfo(
-      ~label="Profile",
-      ~name="profile_id",
-      ~placeholder="",
-      ~customInput=InputFields.selectInput(
-        ~deselectDisable=true,
-        ~options={[businessProfileRecoilVal]->businessProfileNameDropDownOption},
-        ~buttonText="Select Profile",
-        ~disableSelect=disableSelectionForProfile,
-        ~fullLength=true,
-        ~textStyle="w-56 truncate",
-      ),
-    )
     let selectCurrencyField = FormRenderer.makeFieldInfo(
       ~label="Currency",
       ~name="country_currency",
@@ -65,7 +48,6 @@ module SDKConfiguarationFields = {
     )
 
     <div className="w-full">
-      <FormRenderer.FieldRenderer field=selectProfileField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormRenderer.SubmitButton

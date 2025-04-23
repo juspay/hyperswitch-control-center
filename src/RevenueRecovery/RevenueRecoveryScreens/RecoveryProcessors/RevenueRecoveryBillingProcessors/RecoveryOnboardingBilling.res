@@ -23,7 +23,7 @@ let make = (
     ~entityName=V2(V2_CONNECTOR),
     ~version=UserInfoTypes.V2,
   )
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
 
