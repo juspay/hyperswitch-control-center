@@ -376,10 +376,10 @@ type connector =
 
 type connectorFieldTypes = {
   bodyType: string,
-  connectorAccountFields: RescriptCore.Dict.t<Core__JSON.t>,
-  connectorMetaDataFields: Core__Dict.t<Core__JSON.t>,
+  connectorAccountFields: Dict.t<JSON.t>,
+  connectorMetaDataFields: Dict.t<JSON.t>,
   isVerifyConnector: bool,
-  connectorWebHookDetails: Core__Dict.t<Core__JSON.t>,
-  connectorLabelDetailField: RescriptCore.Dict.t<Core__JSON.t>,
-  connectorAdditionalMerchantData: Core__Dict.t<Core__JSON.t>,
+  connectorWebHookDetails: Dict.t<JSON.t>,
+  connectorLabelDetailField: Dict.t<JSON.t>,
+  connectorAdditionalMerchantData: Dict.t<JSON.t>,
 }
