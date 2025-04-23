@@ -115,15 +115,12 @@ let make = (
     }
   }, [connector])
 
-  let (
-    _,
+  let {
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
-    _,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let validateMandatoryField = values => {
     let errors = Dict.make()
