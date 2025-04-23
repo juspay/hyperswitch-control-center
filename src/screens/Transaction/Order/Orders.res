@@ -163,7 +163,7 @@ let make = (~previewOnly=false) => {
           </RenderIf>
         </div>
       </div>
-      <div className="flex gap-6 justify-around">
+      <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 my-8">
         <TransactionView entity=TransactionViewTypes.Orders />
       </div>
       <div className="flex">
