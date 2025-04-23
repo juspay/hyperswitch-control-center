@@ -17,7 +17,7 @@ let make = () => {
 
   let getListOfMerchantIds = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_INVITATION, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_INVITATION, ~methodType=Get)
       let listOfMerchants = await fetchDetails(url)
       setPendingInvites(_ =>
         listOfMerchants->getArrayDataFromJson(PreLoginUtils.itemToObjectMapper)
@@ -42,7 +42,11 @@ let make = () => {
   let onClickLoginToDashboard = async () => {
     open AuthUtils
     try {
-      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITATION_PRE_LOGIN, ~methodType=Post)
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~userType=#ACCEPT_INVITATION_PRE_LOGIN,
+        ~methodType=Post,
+      )
 
       let body =
         acceptedInvites

@@ -142,7 +142,7 @@ let mapPaymentMethodValues = (
 ) => {
   let pm =
     connectorPayload.payment_methods_enabled[pmIndex]->Option.getOr(
-      Dict.make()->ConnectorListMapper.getPaymentMethodsEnabled,
+      Dict.make()->ConnectorInterfaceUtils.getPaymentMethodsEnabled,
     )
   pm.payment_method_types->Array.forEachWithIndex((data, pmtIndex) => {
     let paymentMethod = pm.payment_method
@@ -197,8 +197,10 @@ let filterItemObjMapper = (
   mappedArr,
   filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
 ) => {
-  open ConnectorListMapper
-  let connectorPayload = dict->getProcessorPayloadType
+  let connectorPayload = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    dict,
+  )
   let {profile_id, connector_type} = connectorPayload
 
   if connector_type === PaymentProcessor {

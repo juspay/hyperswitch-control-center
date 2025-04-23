@@ -6,7 +6,7 @@ let make = () => {
   <div className="flex flex-col gap-14 mt-5 pt-7">
     <RenderIf condition={newAnalyticsFilters}>
       <div className="flex gap-2">
-        <NewAnalyticsFilters domain={#refunds} entityName={ANALYTICS_REFUNDS} />
+        <NewAnalyticsFilters domain={#refunds} entityName={V1(ANALYTICS_REFUNDS)} />
       </div>
     </RenderIf>
     <RefundsOverviewSection entity={overviewSectionEntity} />

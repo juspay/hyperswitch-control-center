@@ -94,22 +94,34 @@ let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
       />,
       "",
     )
-  | PaymentId => DisplayCopyCell(disputesData.payment_id)
-  | AttemptId => DisplayCopyCell(disputesData.attempt_id)
+  | PaymentId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(disputesData.payment_id)
+      />,
+      "",
+    )
+  | AttemptId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(disputesData.attempt_id)
+      />,
+      "",
+    )
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
   | DisputeStatus =>
     Label({
       title: disputesData.dispute_status->String.toUpperCase,
       color: switch disputesData.dispute_status->disputeStatusVariantMapper {
-      | DisputeOpened => LabelLightBlue
+      | DisputeOpened => LabelBlue
       | DisputeExpired => LabelRed
       | DisputeAccepted => LabelGreen
       | DisputeCancelled => LabelOrange
       | DisputeChallenged => LabelYellow
       | DisputeWon => LabelGreen
       | DisputeLost => LabelRed
-      | _ => LabelWhite
+      | _ => LabelLightGray
       },
     })
   | Connector => CustomCell(<ConnectorCustomCell connectorName={disputesData.connector} />, "")

@@ -32,8 +32,8 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
       | Cancelled => LabelRed
       | RequiresCustomerAction
       | RequiresPaymentMethod =>
-        LabelWhite
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | PaymentId => Text(refunds.payment_id)
@@ -54,7 +54,13 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
     )
   | Currency => Text(attempt.currency)
   | Connector =>
-    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=attempt.connector />, "")
+    CustomCell(
+      <HelperComponents.ConnectorCustomCell
+        connectorName=attempt.connector
+        connectorType={ConnectorUtils.connectorTypeFromConnectorName(attempt.connector)}
+      />,
+      "",
+    )
   | Status =>
     Label({
       title: attempt.status->String.toUpperCase,
@@ -68,7 +74,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       | #VOID_FAILED
       | #FAILURE =>
         LabelRed
-      | _ => LabelLightBlue
+      | _ => LabelLightGray
       },
     })
   | PaymentMethod => Text(attempt.payment_method)
@@ -573,8 +579,8 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | ConnectorTransactionID =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
-        customTextCss="max-w-xs truncate whitespace-nowrap"
-        displayValue=order.connector_transaction_id
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(order.connector_transaction_id)
       />,
       "",
     )
@@ -584,7 +590,14 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
 let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): Table.cell => {
   open HelperComponents
   switch aboutPaymentColType {
-  | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
+  | Connector =>
+    CustomCell(
+      <ConnectorCustomCell
+        connectorName=order.connector
+        connectorType={ConnectorUtils.connectorTypeFromConnectorName(order.connector)}
+      />,
+      "",
+    )
   | PaymentMethod => Text(order.payment_method)
   | PaymentMethodType => Text(order.payment_method_type)
   | Refunds => Text(order.refunds->Array.length > 0 ? "Yes" : "No")
@@ -593,10 +606,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)
   | ProfileName =>
-    Table.CustomCell(
-      <HelperComponents.BusinessProfileComponent profile_id={order.profile_id} />,
-      "",
-    )
+    Table.CustomCell(<HelperComponents.ProfileNameComponent profile_id=order.profile_id />, "")
   | CaptureMethod => Text(order.capture_method)
   | CardNetwork => {
       let dict = switch order.payment_method_data {
@@ -656,9 +666,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   switch colType {
   | Metadata =>
     CustomCell(
-      <HelperComponents.EllipsisText
-        displayValue={order.metadata->JSON.Encode.object->JSON.stringify}
-      />,
+      <EllipsisText displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />,
       "",
     )
   | PaymentId =>
@@ -671,7 +679,14 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       "",
     )
   | MerchantId => Text(order.merchant_id)
-  | Connector => CustomCell(<ConnectorCustomCell connectorName={order.connector} />, "")
+  | Connector =>
+    CustomCell(
+      <ConnectorCustomCell
+        connectorName=order.connector
+        connectorType={ConnectorUtils.connectorTypeFromConnectorName(order.connector)}
+      />,
+      "",
+    )
   | Status =>
     Label({
       title: order.status->String.toUpperCase,
@@ -686,8 +701,8 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelLightBlue
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | Amount =>
@@ -701,8 +716,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | Created => Date(order.created)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
-  | Description =>
-    CustomCell(<HelperComponents.EllipsisText displayValue={order.description} endValue={5} />, "")
+  | Description => CustomCell(<EllipsisText displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)
@@ -728,9 +742,9 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | ErrorMessage => Text(order.error_message)
   | ConnectorTransactionID =>
     CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="max-w-xs truncate whitespace-nowrap"
-        displayValue=order.connector_transaction_id
+      <CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(order.connector_transaction_id)
       />,
       "",
     )

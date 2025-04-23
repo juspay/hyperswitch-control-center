@@ -184,7 +184,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | PaymentId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/payments/${paymentObj.payment_id}/${paymentObj.profile_id}`}
+        url={`/payments/${paymentObj.payment_id}/${paymentObj.profile_id}/${paymentObj.merchant_id}/${paymentObj.organization_id}`}
         displayValue={paymentObj.payment_id}
         copyValue={Some(paymentObj.payment_id)}
       />,
@@ -205,8 +205,8 @@ let getCell = (paymentObj, colType): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelLightBlue
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | Amount =>

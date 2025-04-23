@@ -104,6 +104,7 @@ let filterMultiSelectInput = (
   ~buttonText,
   ~buttonSize=?,
   ~hideMultiSelectButtons=false,
+  ~allowMultiSelect=true,
   ~showSelectionAsChips=true,
   ~showToggle=false,
   ~isDropDown=true,
@@ -154,7 +155,7 @@ let filterMultiSelectInput = (
     optionSize
     buttonText
     ?buttonSize
-    allowMultiSelect=true
+    allowMultiSelect
     hideMultiSelectButtons
     showSelectionAsChips
     isDropDown
@@ -407,6 +408,10 @@ let textTagInput = (
   />
 }
 
+let fileInput = () => (~input: ReactFinalForm.fieldRenderPropsInput) => {
+  <MultipleFileUpload input />
+}
+
 let numericTextInput = (
   ~isDisabled=false,
   ~customStyle="",
@@ -487,6 +492,8 @@ let filterDateRangeField = (
   ~hideDate=false,
   ~selectStandardTime=false,
   ~isTooltipVisible=true,
+  ~allowedDateRange=?,
+  ~events=?,
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeField
@@ -506,6 +513,8 @@ let filterDateRangeField = (
       hideDate
       selectStandardTime
       isTooltipVisible
+      ?allowedDateRange
+      ?events
     />
   }
 

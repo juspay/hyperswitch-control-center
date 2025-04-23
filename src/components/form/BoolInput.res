@@ -12,6 +12,11 @@ module BaseComponent = {
     ~boolCustomClass="",
     ~addAttributeId="",
     ~toggleBorder="border-green-950",
+    ~toggleEnableColor="bg-green-950",
+    ~customToggleHeight="16px",
+    ~customToggleWidth="30px",
+    ~customInnerCircleHeight="12px",
+    ~transformValue="14px",
   ) => {
     let toggleSelect = React.useCallback(_ => {
       if !isDisabled {
@@ -20,7 +25,7 @@ module BaseComponent = {
     }, (isDisabled, isSelected, setIsSelected))
     let isMobileView = MatchMedia.useMobileChecker()
 
-    let toggleEnableColor = "bg-green-950  border dark:bg-green-950"
+    let toggleEnableColor = ` ${toggleEnableColor} border dark:bg-green-950 `
 
     let toggleBorder = `border ${toggleBorder}`
     let toggleColor = "bg-gradient-to-t from-jp-gray-200 to-jp-gray-250 dark:from-jp-gray-darkgray_background dark:to-jp-gray-darkgray_background"
@@ -53,7 +58,7 @@ module BaseComponent = {
     let shadowClass = ""
 
     let transformValue = if isSelected {
-      "translateX(14px)"
+      `translateX(${transformValue})`
     } else {
       "translateX(0px)"
     }
@@ -74,9 +79,9 @@ module BaseComponent = {
 
     let innerShadow = ""
     let roundedClass = "rounded-2.5"
-    let toggleHeight = "16px"
-    let toggleWidth = "30px"
-    let innerCircleHeight = "12px"
+    let toggleHeight = `${customToggleHeight}`
+    let toggleWidth = `${customToggleWidth}`
+    let innerCircleHeight = `${customInnerCircleHeight}`
     let innerCircleWidth = innerCircleHeight
 
     <AddDataAttributes
@@ -98,7 +103,7 @@ module BaseComponent = {
             height: innerCircleHeight,
             transform: transformValue,
           }
-          className={`m-0.25 transition rounded-full ${circleColor} ${innerShadow}`}
+          className={`transition rounded-full ${circleColor} ${innerShadow}`}
         />
       </div>
     </AddDataAttributes>

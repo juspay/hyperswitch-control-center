@@ -84,7 +84,7 @@ module UploadDisputeEvidenceModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let acceptFile = (keyValue, fileValue) => {
-      let url = getURL(~entityName=DISPUTES_ATTACH_EVIDENCE, ~methodType=Put)
+      let url = getURL(~entityName=V1(DISPUTES_ATTACH_EVIDENCE), ~methodType=Put)
       let formData = formData()
       append(formData, "dispute_id", disputeId)
       append(formData, "evidence_type", keyValue)
@@ -218,7 +218,7 @@ module DisputesInfoBarComponent = {
 
     let onEvidenceSubmit = async () => {
       try {
-        let url = getURL(~entityName=DISPUTES_ATTACH_EVIDENCE, ~methodType=Post)
+        let url = getURL(~entityName=V1(DISPUTES_ATTACH_EVIDENCE), ~methodType=Post)
         let body = constructDisputesBody(fileUploadedDict, disputeId)
         let response = await updateDetails(url, body->JSON.Encode.object, Post)
         setDisputeData(_ => response)
@@ -231,7 +231,11 @@ module DisputesInfoBarComponent = {
     let retrieveEvidence = async () => {
       try {
         setScreenState(_ => Loading)
-        let url = getURL(~entityName=DISPUTES_ATTACH_EVIDENCE, ~methodType=Get, ~id=Some(disputeId))
+        let url = getURL(
+          ~entityName=V1(DISPUTES_ATTACH_EVIDENCE),
+          ~methodType=Get,
+          ~id=Some(disputeId),
+        )
         let response = await url->fetchDetails
         let reponseArray = response->getArrayFromJson([])
         if reponseArray->Array.length > 0 {
@@ -382,7 +386,7 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
 
   let handleAcceptDispute = async () => {
     try {
-      let url = getURL(~entityName=ACCEPT_DISPUTE, ~methodType=Post, ~id=Some(disputeID))
+      let url = getURL(~entityName=V1(ACCEPT_DISPUTE), ~methodType=Post, ~id=Some(disputeID))
       let response = await updateDetails(url, Dict.make()->JSON.Encode.object, Post)
       setDisputeData(_ => response)
     } catch {

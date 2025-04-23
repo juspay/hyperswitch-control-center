@@ -21,6 +21,7 @@ let requestBody = (
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,
+  ~mode: option<string>=None,
 ) => {
   let metrics = metrics->Array.map(v => (v: metrics :> string))
 
@@ -34,6 +35,7 @@ let requestBody = (
       ~endDateTime=endTime,
       ~granularity,
       ~distributionValues,
+      ~mode,
     )->JSON.Encode.object,
   ]->JSON.Encode.array
 }
@@ -175,12 +177,12 @@ let formatTime = time => {
   let newHour = Int.mod(hour, 12)
   let newHour = newHour == 0 ? 12 : newHour
 
-  let period = hour >= 12 ? "pm" : "am"
+  let period = hour >= 12 ? "PM" : "AM"
 
   if mimute > 0 {
-    `${newHour->Int.toString}:${mimute->Int.toString}${period}`
+    `${newHour->Int.toString}:${mimute->Int.toString} ${period}`
   } else {
-    `${newHour->Int.toString}${period}`
+    `${newHour->Int.toString} ${period}`
   }
 }
 
@@ -345,6 +347,9 @@ let tooltipFormatter = (
   ~metricType,
   ~comparison: option<DateRangeUtils.comparison>=None,
   ~currency="",
+  ~reverse=false,
+  ~suffix="",
+  ~showNameInTooltip=false,
 ) => {
   open LineGraphTypes
 
@@ -353,15 +358,20 @@ let tooltipFormatter = (
     (this: pointFormatter) => {
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
 
-      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}}
-      let primartPoint = this.points->getValueFromArray(0, defaultValue)
-      let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
+      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, series: {name: ""}}
 
-      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType, ~currency)
+      let primaryIndex = reverse ? 1 : 0
+      let secondaryIndex = reverse ? 0 : 1
+
+      let primartPoint = this.points->getValueFromArray(primaryIndex, defaultValue)
+      let secondaryPoint = this.points->getValueFromArray(secondaryIndex, defaultValue)
+
+      let getRowsHtml = (~iconColor, ~date, ~name="", ~value, ~comparisionComponent="") => {
+        let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
+        let key = showNameInTooltip ? name : date
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
+            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
         </div>`
       }
@@ -370,6 +380,7 @@ let tooltipFormatter = (
         getRowsHtml(
           ~iconColor=primartPoint.color,
           ~date=primartPoint.x,
+          ~name=primartPoint.series.name,
           ~value=primartPoint.y,
           ~comparisionComponent={
             switch comparison {
@@ -392,6 +403,7 @@ let tooltipFormatter = (
                   ~iconColor=secondaryPoint.color,
                   ~date=secondaryCategories->getValueFromArray(secondaryPoint.point.index, ""),
                   ~value=secondaryPoint.y,
+                  ~name=secondaryPoint.series.name,
                 )
               : ""
           | None => ""
@@ -508,9 +520,13 @@ let getGranularityOptions = (~startTime, ~endTime) => {
   })
 }
 
-let getDefaultGranularity = (~startTime, ~endTime) => {
+let getDefaultGranularity = (~startTime, ~endTime, ~granularity) => {
   let options = getGranularityOptions(~startTime, ~endTime)
-  options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
+  if granularity {
+    options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
+  } else {
+    defaulGranularity
+  }
 }
 
 let getGranularityGap = option => {
@@ -529,13 +545,14 @@ let fillMissingDataPoints = (
   ~timeKey="time_bucket",
   ~defaultValue: JSON.t,
   ~granularity: string,
-  ~isoStringToCustomTimeZone: option<string => TimeZoneHook.dateTimeString>=?,
+  ~isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
+  ~granularityEnabled,
 ) => {
   let dataDict = Dict.make()
 
   data->Array.forEach(item => {
-    let time = switch isoStringToCustomTimeZone {
-    | Some(timeConvert) => {
+    let time = switch (granularityEnabled, granularity != (#G_ONEDAY: granularity :> string)) {
+    | (true, true) => {
         let value =
           item
           ->getDictFromJsonObject
@@ -543,7 +560,7 @@ let fillMissingDataPoints = (
 
         let time = value->getString("start_time", "")
 
-        let {year, month, date, hour, minute} = timeConvert(time)
+        let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
 
         if (
           granularity == (#G_THIRTYMIN: granularity :> string) ||
@@ -581,9 +598,14 @@ let fillMissingDataPoints = (
     ->Math.floor
     ->Float.toInt
 
+  let format =
+    granularity != (#G_ONEDAY: granularity :> string)
+      ? "YYYY-MM-DD HH:mm:ss"
+      : "YYYY-MM-DD 00:00:00"
+
   for x in 0 to limit {
     let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-    let timeVal = startingPoint.add(x * devider, gap).format("YYYY-MM-DD HH:mm:ss")
+    let timeVal = startingPoint.add(x * devider, gap).format(format)
     switch dataDict->Dict.get(timeVal) {
     | Some(val) => {
         newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)

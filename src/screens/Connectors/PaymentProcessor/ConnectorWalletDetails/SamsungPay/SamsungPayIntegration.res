@@ -50,7 +50,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   let getProcessorDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get)
+      let paymentMethoConfigUrl = getURL(~entityName=V1(PAYMENT_METHOD_CONFIG), ~methodType=Get)
       let res = await fetchDetails(
         `${paymentMethoConfigUrl}?connector=${connector}&paymentMethodType=samsung_pay`,
       )

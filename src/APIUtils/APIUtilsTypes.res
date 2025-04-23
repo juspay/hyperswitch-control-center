@@ -14,6 +14,8 @@ type entityName =
   | ANALYTICS_DISPUTES
   | ANALYTICS_REFUNDS
   | ANALYTICS_AUTHENTICATION
+  | ANALYTICS_AUTHENTICATION_V2
+  | ANALYTICS_AUTHENTICATION_V2_FILTERS
   | API_KEYS
   | ORDERS
   | ORDER_FILTERS
@@ -22,6 +24,9 @@ type entityName =
   | DISPUTES_AGGREGATE
   | DEFAULT_FALLBACK
   | SDK_EVENT_LOGS
+  | WEBHOOK_EVENTS
+  | WEBHOOK_EVENTS_ATTEMPTS
+  | WEBHOOKS_EVENTS_RETRY
   | WEBHOOKS_EVENT_LOGS
   | CONNECTOR_EVENT_LOGS
   | GENERATE_SAMPLE_DATA
@@ -36,12 +41,15 @@ type entityName =
   | PAYMENT_REPORT
   | REFUND_REPORT
   | DISPUTE_REPORT
+  | AUTHENTICATION_REPORT
   | PAYPAL_ONBOARDING
   | PAYPAL_ONBOARDING_SYNC
   | ACTION_URL
   | RESET_TRACKING_ID
   | SURCHARGE
   | CUSTOMERS
+  | PAYMENT_METHODS
+  | PAYMENT_METHODS_DETAILS
   | ACCEPT_DISPUTE
   | DISPUTES_ATTACH_EVIDENCE
   | PAYOUT_DEFAULT_FALLBACK
@@ -53,10 +61,26 @@ type entityName =
   | API_EVENT_LOGS
   | ANALYTICS_PAYMENTS_V2
   | ANALYTICS_SANKEY
+  | HYPERSENSE
+  | SIMULATE_INTELLIGENT_ROUTING
+  | INTELLIGENT_ROUTING_RECORDS
+  | INTELLIGENT_ROUTING_GET_STATISTICS
+
+type v2entityNameType =
+  | CUSTOMERS
+  | V2_CONNECTOR
+  | V2_ORDERS_LIST
+  | PAYMENT_METHOD_LIST
+  | RETRIEVE_PAYMENT_METHOD
+  | V2_ORDER_FILTERS
+  | USERS
+  | TOTAL_TOKEN_COUNT
+  | MERCHANT_ACCOUNT
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
 type reconType = [#TOKEN | #REQUEST | #NONE]
+type hypersenseType = [#TOKEN | #HOME | #NONE]
 
 type userType = [
   | #CONNECT_ACCOUNT
@@ -115,13 +139,16 @@ type userType = [
   | #NONE
 ]
 
+type entityTypeWithVersion = V1(entityName) | V2(v2entityNameType)
+
 type getUrlTypes = (
-  ~entityName: entityName,
+  ~entityName: entityTypeWithVersion,
   ~methodType: Fetch.requestMethod,
   ~id: option<string>=?,
   ~connector: option<string>=?,
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
   ~reconType: reconType=?,
+  ~hypersenseType: hypersenseType=?,
   ~queryParamerters: option<string>=?,
 ) => string

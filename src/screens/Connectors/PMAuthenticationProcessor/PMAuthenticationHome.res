@@ -75,8 +75,10 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo =
-    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
 
   let isConnectorDisabled = connectorInfo.disabled
 
@@ -87,7 +89,7 @@ let make = () => {
         connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
       let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/pm-authentication-processor"))
@@ -98,7 +100,7 @@ let make = () => {
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -194,7 +196,7 @@ let make = () => {
           ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(
-        ~entityName=CONNECTOR,
+        ~entityName=V1(CONNECTOR),
         ~methodType=Post,
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )

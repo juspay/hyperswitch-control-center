@@ -7,19 +7,19 @@ module PaymentsSuccessRateHeader = {
   open NewAnalyticsUtils
   open LogicUtils
   @react.component
-  let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
+  let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~granularityOptions) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue)
     let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue)
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-    <div className="w-full px-7 py-8 grid grid-cols-2">
-      // will enable it in future
+    <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
           {primaryValue->valueFormatter(Rate)->React.string}
@@ -28,11 +28,16 @@ module PaymentsSuccessRateHeader = {
           <StatisticsCard value direction tooltipValue={secondaryValue->valueFormatter(Rate)} />
         </RenderIf>
       </div>
-      <RenderIf condition={false}>
-        <div className="flex justify-center">
-          <Tabs option={granularity} setOption={setGranularity} options={tabs} />
-        </div>
-      </RenderIf>
+      <div className="flex justify-center">
+        <RenderIf condition={featureFlag.granularity}>
+          <Tabs
+            option={granularity}
+            setOption={setGranularity}
+            options={granularityOptions}
+            showSingleTab=false
+          />
+        </RenderIf>
+      </div>
       <div />
     </div>
   }
@@ -48,6 +53,7 @@ let make = (
   open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let (paymentsSuccessRateData, setPaymentsSuccessRateData) = React.useState(_ =>
@@ -64,16 +70,27 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
-  let (granularity, setGranularity) = React.useState(_ =>
-    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let defaulGranularity = getDefaultGranularity(
+    ~startTime=startTimeVal,
+    ~endTime=endTimeVal,
+    ~granularity=featureFlag.granularity,
   )
+  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
+
+  React.useEffect(() => {
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      setGranularity(_ => defaulGranularity)
+    }
+    None
+  }, (startTimeVal, endTimeVal))
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_REFUNDS,
+        ~entityName=V1(ANALYTICS_REFUNDS),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -118,7 +135,9 @@ let make = (
                 "payment_processed_amount": 0,
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
+              ~isoStringToCustomTimeZone,
               ~granularity=granularity.value,
+              ~granularityEnabled=featureFlag.granularity,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -137,7 +156,9 @@ let make = (
               "payment_success_rate": 0,
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
+            ~isoStringToCustomTimeZone,
             ~granularity=granularity.value,
+            ~granularityEnabled=featureFlag.granularity,
           )
         })
 
@@ -161,7 +182,15 @@ let make = (
       getPaymentsSuccessRate()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    granularity.value,
+  ))
 
   let params = {
     data: paymentsSuccessRateData,
@@ -182,6 +211,7 @@ let make = (
           keyValue={Total_Refund_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
+          granularityOptions
         />
         <div className="mb-5">
           <LineGraph options className="mr-3" />

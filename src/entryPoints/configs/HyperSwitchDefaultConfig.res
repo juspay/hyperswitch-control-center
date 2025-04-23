@@ -40,6 +40,7 @@ let config: UIConfig.t = {
       paginationNoHover: "bg-white border-left-1 border-right-1 font-normal text-jp-gray-900 text-opacity-75 hover:text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75",
       dropdownDisabled: "bg-gray-200 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
       secondaryNormal: "bg-button-secondary-bg hover:bg-button-secondary-hoverbg dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none",
+      secondaryDisabled: "bg-button-secondary-bg secondary-gradient-button focus:outline-none",
       secondaryNoBorder: "hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-40 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme dark:text-opacity-50 dark:hover:bg-jp-gray-950 focus:outline-none",
       secondaryLoading: "bg-button-secondary-bg  dark:bg-jp-gray-darkgray_background",
       secondaryNoHover: "bg-button-secondary-bg text-opacity-50 hover:bg-button-secondary-hoverbg dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme focus:outline-none dark:text-opacity-50 ",

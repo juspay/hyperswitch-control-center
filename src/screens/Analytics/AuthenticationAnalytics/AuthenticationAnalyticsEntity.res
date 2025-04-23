@@ -5,7 +5,7 @@ open HSAnalyticsUtils
 open AnalyticsTypes
 
 let singleStatInitialValue = {
-  three_ds_sdk_count: 0,
+  authentication_count: 0,
   authentication_success_count: 0,
   authentication_attempt_count: 0,
   challenge_flow_count: 0,
@@ -16,7 +16,7 @@ let singleStatInitialValue = {
 }
 
 let singleStatSeriesInitialValue = {
-  three_ds_sdk_count: 0,
+  authentication_count: 0,
   authentication_success_count: 0,
   authentication_attempt_count: 0,
   challenge_flow_count: 0,
@@ -31,7 +31,7 @@ let singleStatItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    three_ds_sdk_count: dict->getInt("three_ds_sdk_count", 0),
+    authentication_count: dict->getInt("authentication_count", 0),
     authentication_success_count: dict->getInt("authentication_success_count", 0),
     authentication_attempt_count: dict->getInt("authentication_attempt_count", 0),
     challenge_flow_count: dict->getInt("challenge_flow_count", 0),
@@ -50,7 +50,7 @@ let singleStatSeriesItemToObjMapper = json => {
   ->JSON.Decode.object
   ->Option.map(dict => {
     time_series: dict->getString("time_bucket", ""),
-    three_ds_sdk_count: dict->getInt("three_ds_sdk_count", 0),
+    authentication_count: dict->getInt("authentication_count", 0),
     authentication_success_count: dict->getInt("authentication_success_count", 0),
     authentication_attempt_count: dict->getInt("authentication_attempt_count", 0),
     challenge_flow_count: dict->getInt("challenge_flow_count", 0),
@@ -72,7 +72,7 @@ let timeSeriesObjMapper = json =>
   json->getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
 
 type colT =
-  | ThreeDsCount
+  | AuthenticationCount
   | AuthenticationSuccessRate
   | ChallengeFlowRate
   | FrictionlessFlowRate
@@ -84,7 +84,7 @@ let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
     columns: [
-      ThreeDsCount,
+      AuthenticationCount,
       AuthenticationSuccessRate,
       ChallengeFlowRate,
       FrictionlessFlowRate,
@@ -109,9 +109,9 @@ let compareLogic = (firstValue, secondValue) => {
 
 let constructData = (key, singlestatTimeseriesData: array<authenticationSingleStatSeries>) => {
   switch key {
-  | ThreeDsCount =>
+  | AuthenticationCount =>
     singlestatTimeseriesData->Array.map(ob => {
-      (ob.time_series->DateTimeUtils.parseAsFloat, ob.three_ds_sdk_count->Int.toFloat)
+      (ob.time_series->DateTimeUtils.parseAsFloat, ob.authentication_count->Int.toFloat)
     })
   | AuthenticationSuccessRate =>
     singlestatTimeseriesData->Array.map(ob => {
@@ -127,14 +127,14 @@ let constructData = (key, singlestatTimeseriesData: array<authenticationSingleSt
     singlestatTimeseriesData->Array.map(ob => {
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.challenge_flow_count->Int.toFloat *. 100. /. ob.three_ds_sdk_count->Int.toFloat,
+        ob.challenge_flow_count->Int.toFloat *. 100. /. ob.authentication_count->Int.toFloat,
       )
     })
   | FrictionlessFlowRate =>
     singlestatTimeseriesData->Array.map(ob => {
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.frictionless_flow_count->Int.toFloat *. 100. /. ob.three_ds_sdk_count->Int.toFloat,
+        ob.frictionless_flow_count->Int.toFloat *. 100. /. ob.authentication_count->Int.toFloat,
       )
     })
   | ChallengeAttemptRate =>
@@ -171,13 +171,13 @@ let getStatData = (
   _mode,
 ) => {
   switch colType {
-  | ThreeDsCount => {
+  | AuthenticationCount => {
       title: "Payments requiring 3DS Authentication",
       tooltipText: "Total number of payments which require 3DS 2.0 Authentication.",
       deltaTooltipComponent: _ => React.null,
-      value: singleStatData.three_ds_sdk_count->Int.toFloat,
+      value: singleStatData.authentication_count->Int.toFloat,
       delta: 0.0,
-      data: constructData(ThreeDsCount, timeSeriesData),
+      data: constructData(AuthenticationCount, timeSeriesData),
       statType: "Volume",
       showDelta: false,
     }
@@ -187,7 +187,7 @@ let getStatData = (
       deltaTooltipComponent: _ => React.null,
       value: singleStatData.authentication_success_count->Int.toFloat *.
       100.0 /.
-      singleStatData.authentication_attempt_count->Int.toFloat,
+      singleStatData.authentication_count->Int.toFloat,
       delta: 0.0,
       data: constructData(AuthenticationSuccessRate, timeSeriesData),
       statType: "Rate",
@@ -199,7 +199,7 @@ let getStatData = (
       deltaTooltipComponent: _ => React.null,
       value: singleStatData.challenge_flow_count->Int.toFloat *.
       100.0 /.
-      singleStatData.three_ds_sdk_count->Int.toFloat,
+      singleStatData.authentication_count->Int.toFloat,
       delta: 0.0,
       data: constructData(ChallengeFlowRate, timeSeriesData),
       statType: "Rate",
@@ -211,7 +211,7 @@ let getStatData = (
       deltaTooltipComponent: _ => React.null,
       value: singleStatData.frictionless_flow_count->Int.toFloat *.
       100.0 /.
-      singleStatData.three_ds_sdk_count->Int.toFloat,
+      singleStatData.authentication_count->Int.toFloat,
       delta: 0.0,
       data: constructData(FrictionlessFlowRate, timeSeriesData),
       statType: "Rate",
@@ -275,7 +275,7 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
 
 let paymentMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
-    metric_name_db: "three_ds_sdk_count",
+    metric_name_db: "authentication_count",
     metric_label: "Volume",
     metric_type: Volume,
     thresholdVal: None,
@@ -286,7 +286,7 @@ let paymentMetricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let authenticationMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
-    metric_name_db: "three_ds_sdk_count",
+    metric_name_db: "authentication_count",
     metric_label: "Volume",
     metric_type: Volume,
     thresholdVal: None,
@@ -297,7 +297,7 @@ let authenticationMetricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let authenticationFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
-    metric_name_db: "three_ds_sdk_count",
+    metric_name_db: "authentication_count",
     metric_label: "Payments requiring 3DS 2.0 Authentication",
     metric_type: Volume,
     thresholdVal: None,

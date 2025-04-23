@@ -89,13 +89,13 @@ let useGetBgColor = (
   | Pagination =>
     switch buttonState {
     | Focused
-    | Normal => "border-left-1 opacity-80 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 focus:outline-none"
+    | Normal => "font-medium border-transparent text-nd_gray-500  focus:outline-none"
 
     | Loading => "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10"
 
-    | Disabled => "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
+    | Disabled => "border-left-1 border-right-1 font-normal border-left-1 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
 
-    | NoHover => "bg-white border-left-1 border-right-1 font-normal text-jp-gray-900 text-opacity-75 hover:text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
+    | NoHover => "bg-primary bg-opacity-10 border-transparent font-medium  dark:text-jp-gray-text_darktheme dark:text-opacity-75"
     }
   | Dropdown => {
       let hoverCss = isPhoneDropdown ? "" : "hover:bg-jp-2-light-gray-100"
@@ -123,7 +123,7 @@ let useGetBgColor = (
     | Normal =>
       showBorder ? buttonConfig.secondaryNormal : buttonConfig.secondaryNoBorder
     | Loading => showBorder ? buttonConfig.secondaryLoading : buttonConfig.secondaryNoBorder
-    | Disabled => showBorder ? "bg-jp-gray-300 dark:bg-gray-800 dark:bg-opacity-10" : "px-4"
+    | Disabled => showBorder ? buttonConfig.secondaryDisabled : buttonConfig.secondaryNoBorder
     | NoHover => buttonConfig.secondaryNoHover
     }
   | Pill =>
@@ -225,6 +225,12 @@ let useGetTextColor = (
     }
 
   | DarkPurple => "text-white"
+  | Pagination =>
+    switch buttonState {
+    | Disabled => "font-medium text-nd_gray-300"
+    | NoHover => "font-medium text-primary text-opacity-1 hover:text-opacity-70"
+    | _ => "text-nd_gray-500 hover:bg-nd_gray-150"
+    }
 
   | _ =>
     switch buttonState {
@@ -400,10 +406,10 @@ let make = (
   let strokeColor = ""
 
   let iconPadding = switch buttonSize {
-  | XSmall
-  | Small => "pl-1"
-  | Medium
-  | Large => ""
+  | XSmall => "px-1"
+  | Small => "px-2"
+  | Medium => "pr-3"
+  | Large => "px-3"
   }
 
   let iconMargin = customIconMargin->Option.getOr(
@@ -469,7 +475,7 @@ let make = (
     } else if isLast {
       "rounded-r-md"
     } else if buttonType == Pagination {
-      "rounded-md"
+      "rounded-lg"
     } else {
       ""
     }

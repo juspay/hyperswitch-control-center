@@ -87,7 +87,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
   let generateNewSecret = async () => {
     try {
       setButtonState(_ => Button.Loading)
-      let url = getURL(~entityName=USERS, ~userType=#RESET_TOTP, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#RESET_TOTP, ~methodType=Get)
       let res = await fetchDetails(url)
       setTotpSecret(_ => ShowNewTotp(
         res->getDictFromJsonObject->getDictfromDict("secret")->getString("totp_url", ""),

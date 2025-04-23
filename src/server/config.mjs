@@ -54,22 +54,22 @@ function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
     const envProfileIds =
       process.env[`${domain}__merchant_config__${key}__profile_ids`];
 
-    const orgIds = checkEnvValues(envOrgIds, tomlConfig[key].org_ids).filter(
+    const orgId = checkEnvValues(envOrgIds, tomlConfig[key].org_ids).find(
       (id) => body.org_id === id,
     );
-    const merchantIds = checkEnvValues(
+    const merchantId = checkEnvValues(
       envMerchantIds,
       tomlConfig[key].merchant_ids,
-    ).filter((id) => body.org_id === id);
-    const profileIds = checkEnvValues(
+    ).find((id) => body.merchant_id === id);
+    const profileId = checkEnvValues(
       envProfileIds,
       tomlConfig[key].profile_ids,
-    ).filter((id) => body.org_id === id);
+    ).find((id) => body.profile_id === id);
 
     modifiedConfig[key] = {
-      org_ids: orgIds,
-      merchant_ids: merchantIds,
-      profile_ids: profileIds,
+      org_id: orgId,
+      merchant_id: merchantId,
+      profile_id: profileId,
     };
   }
   return modifiedConfig;
@@ -166,7 +166,9 @@ const merchantConfigHandler = async (
     });
     res.end(JSON.stringify(data));
   } catch (error) {
-    console.log(error);
+    if (process.env.NODE_ENV === "development") {
+      console.log(error); //
+    }
     errorHandler(res, "Server Error");
   }
 };

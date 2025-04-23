@@ -34,7 +34,7 @@ module ChangeRoleSection = {
 
     let updateRole = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#UPDATE_ROLE})
+        let url = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType={#UPDATE_ROLE})
         let body =
           [
             ("email", userEmail->JSON.Encode.string),
@@ -64,6 +64,7 @@ module ChangeRoleSection = {
           deselectDisable=true
           allowMultiSelect=false
           buttonText="Select role"
+          fullLength=true
         />
         <Button
           text="Update"
@@ -97,7 +98,7 @@ module ResendInviteSection = {
     let resendInvite = async () => {
       try {
         let url = getURL(
-          ~entityName=USERS,
+          ~entityName=V1(USERS),
           ~userType=#RESEND_INVITE,
           ~methodType=Post,
           ~queryParamerters=Some(`auth_id=${authId}`),
@@ -147,7 +148,7 @@ module DeleteUserRole = {
 
     let deleteUser = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#USER_DELETE})
+        let url = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType={#USER_DELETE})
         let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Delete)
         showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess)
@@ -217,7 +218,7 @@ module ManageUserModal = {
     let fetchListOfRoles = async () => {
       try {
         let url = getURL(
-          ~entityName=USERS,
+          ~entityName=V1(USERS),
           ~userType=#LIST_ROLES_FOR_ROLE_UPDATE,
           ~methodType=Get,
           ~queryParamerters=Some(`entity_type=${userInfoValue.entityType}`),

@@ -1,6 +1,5 @@
 open PaymentMethodConfigTypes
 type colType =
-  | Profile
   | Processor
   | PaymentMethodType
   | PaymentMethod
@@ -9,7 +8,6 @@ type colType =
   | CurrenciesAllowed
 
 let defaultColumns = [
-  Profile,
   Processor,
   PaymentMethodType,
   PaymentMethod,
@@ -20,7 +18,6 @@ let defaultColumns = [
 
 let getHeading = colType => {
   switch colType {
-  | Profile => Table.makeHeaderInfo(~key="profile_id", ~title="Profile")
   | Processor => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
   | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
   | PaymentMethodType =>
@@ -39,17 +36,6 @@ let getCell = (~setReferesh) => {
   ): Table.cell => {
     open PaymentMethodConfigUtils
     switch colType {
-    | Profile =>
-      Table.CustomCell(
-        <PaymentMethodConfig
-          paymentMethodConfig
-          element={<HelperComponents.BusinessProfileComponent
-            profile_id={paymentMethodConfig.profile_id}
-          />}
-          setReferesh
-        />,
-        "",
-      )
     | Processor =>
       Table.CustomCell(
         <PaymentMethodConfig
@@ -103,14 +89,16 @@ let getCell = (~setReferesh) => {
 }
 
 let itemObjMapper = (dict, mappedArr) => {
-  open ConnectorListMapper
   open LogicUtils
-  let connectorPayload = dict->getProcessorPayloadType
+  let connectorPayload = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    dict,
+  )
   let paymentMethod =
     dict
     ->Dict.get("payment_methods_enabled")
     ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->getArrayDataFromJson(getPaymentMethodsEnabled)
+    ->getArrayDataFromJson(ConnectorInterfaceUtils.getPaymentMethodsEnabled)
   if dict->getString("connector_type", "") === "payment_processor" {
     paymentMethod->Array.forEachWithIndex((_, pmIndex) => {
       PaymentMethodConfigUtils.mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex)

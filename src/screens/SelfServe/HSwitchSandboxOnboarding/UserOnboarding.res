@@ -108,7 +108,7 @@ let make = () => {
 
   let skipAndContinue = async () => {
     try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
+      let url = getURL(~entityName=V1(INTEGRATION_DETAILS), ~methodType=Post)
       let metaDataDict = Dict.fromArray([("is_skip", true->JSON.Encode.bool)])->JSON.Encode.object
       let body = HSwitchUtils.constructOnboardingBody(
         ~dashboardPageState,
@@ -126,7 +126,7 @@ let make = () => {
 
   let markAsDone = async () => {
     try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
+      let url = getURL(~entityName=V1(INTEGRATION_DETAILS), ~methodType=Post)
       let body = HSwitchUtils.constructOnboardingBody(
         ~dashboardPageState,
         ~integrationDetails,

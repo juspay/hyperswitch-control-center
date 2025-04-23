@@ -27,7 +27,7 @@ let make = (
   let getPaymentLieCycleData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(~entityName=ANALYTICS_SANKEY, ~methodType=Post)
+      let url = getURL(~entityName=V1(ANALYTICS_SANKEY), ~methodType=Post)
       let paymentLifeCycleBody =
         [
           ("startTime", startTimeVal->JSON.Encode.string),

@@ -75,6 +75,18 @@ let parseAsFloat = (dateStr: string) => {
   )->Js.Date.valueOf
 }
 
+let toUnixTimestamp = (dateStr: string) => {
+  let date = (dateStr->DayJs.getDayJsForString).toDate()
+  Date.UTC.makeWithYMDHMS(
+    ~year=date->Js.Date.getFullYear->Int.fromFloat,
+    ~month=date->Js.Date.getMonth->Int.fromFloat,
+    ~date=date->Js.Date.getDate->Int.fromFloat,
+    ~hours=date->Js.Date.getHours->Int.fromFloat,
+    ~minutes=date->Js.Date.getMinutes->Int.fromFloat,
+    ~seconds=date->Js.Date.getSeconds->Int.fromFloat,
+  )
+}
+
 let toUtc = (datetime: Date.t) => {
   let offset = Js.Date.getTimezoneOffset(Date.now()->Js.Date.fromFloat)->Int.fromFloat
   (datetime->DayJs.getDayJsForJsDate).add(offset, "minute").toDate()

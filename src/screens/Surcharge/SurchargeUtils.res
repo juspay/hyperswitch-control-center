@@ -1,6 +1,6 @@
 open ThreeDSUtils
 
-let defaultSurcharge: AdvancedRoutingTypes.surchargeDetailsType = {
+let defaultSurcharge: RoutingTypes.surchargeDetailsType = {
   surcharge: {
     \"type": "rate",
     value: {
@@ -12,7 +12,7 @@ let defaultSurcharge: AdvancedRoutingTypes.surchargeDetailsType = {
   },
 }
 
-let surchargeRules: AdvancedRoutingTypes.rule = {
+let surchargeRules: RoutingTypes.rule = {
   name: "rule_1",
   connectorSelection: {
     surcharge_details: defaultSurcharge->Nullable.make,
@@ -59,7 +59,7 @@ let getTypedSurchargeConnectorSelection = ruleDict => {
   AdvancedRoutingUtils.getDefaultSelection(connectorsDict)
 }
 
-let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithmData = json => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 
@@ -71,7 +71,7 @@ let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = j
     let connectorSelection = getTypedSurchargeConnectorSelection(ruleDict)
     let ruleName = ruleDict->getString("name", "")
 
-    let eachRule: AdvancedRoutingTypes.rule = {
+    let eachRule: RoutingTypes.rule = {
       name: ruleName,
       connectorSelection,
       statements: AdvancedRoutingUtils.conditionTypeMapper(
@@ -113,4 +113,95 @@ let validateConditionsForSurcharge = dict => {
   conditionsArray->Array.every(value => {
     value->RoutingUtils.validateConditionJson(["comparison", "lhs"])
   }) && validateSurchargeRate(dict)
+}
+
+open AdvancedRoutingUtils
+let connectorSelectionMapper = dict => {
+  open RoutingTypes
+  open LogicUtils
+
+  let surchargeDetails = dict->getDictfromDict("surcharge_details")
+  let surcharge = surchargeDetails->getDictfromDict("surcharge")
+  let taxOnSurcharge = surchargeDetails->getDictfromDict("tax_on_surcharge")
+  let connectorSelectionData = {
+    surcharge_details: {
+      surcharge: {
+        \"type": surcharge->getString("type", ""),
+        value: {
+          percentage: surcharge->getDictfromDict("value")->getFloat("percentage", 0.0),
+          amount: surcharge->getDictfromDict("value")->getFloat("amount", 0.0),
+        },
+      },
+      tax_on_surcharge: {
+        percentage: taxOnSurcharge->getFloat("percentage", 0.0),
+      },
+    }->Nullable.make,
+  }
+  connectorSelectionData
+}
+
+let conditionTypeMapper = (statementArr: array<JSON.t>) => {
+  open LogicUtils
+  let statements = statementArr->Array.reduce([], (acc, statementJson) => {
+    let conditionArray = statementJson->getDictFromJsonObject->getArrayFromDict("condition", [])
+
+    let arr = conditionArray->Array.mapWithIndex((conditionJson, index) => {
+      let statementDict = conditionJson->getDictFromJsonObject
+
+      let variantType = getStatementValue(statementDict->getDictfromDict("value")).\"type"
+      let comparision =
+        statementDict
+        ->getString("comparison", "")
+        ->getOperatorFromComparisonType(variantType)
+
+      let returnValue: RoutingTypes.statement = {
+        lhs: statementDict->getString("lhs", ""),
+        comparison: comparision,
+        logical: index === 0 ? "OR" : "AND",
+        value: getStatementValue(statementDict->getDictfromDict("value")),
+      }
+      returnValue
+    })
+    acc->Array.concat(arr)
+  })
+
+  statements
+}
+
+let mapResponseToFormValues = response => {
+  open LogicUtils
+  let surchargeConfig = response
+  let name = surchargeConfig->getString("name", "")
+  let algorithm = surchargeConfig->getDictfromDict("algorithm")
+
+  let rules = algorithm->getArrayFromDict("rules", [])
+
+  let defaultSelection = algorithm->getDictfromDict("defaultSelection")
+
+  let metadata = algorithm->getJsonObjectFromDict("metadata")
+
+  let rulesData = rules->Array.map(rule => {
+    let ruleDict = rule->getDictFromJsonObject
+    let connectorSelection = ruleDict->getDictfromDict("connectorSelection")
+    let ruleName = ruleDict->getString("name", "")
+    let statements = ruleDict->getArrayFromDict("statements", [])
+
+    let eachRule: RoutingTypes.rule = {
+      name: ruleName,
+      connectorSelection: connectorSelection->connectorSelectionMapper,
+      statements: conditionTypeMapper(statements),
+    }
+    eachRule
+  })
+
+  let formValues: RoutingTypes.advancedRoutingType = {
+    name,
+    description: "",
+    algorithm: {
+      defaultSelection: getDefaultSelection(defaultSelection),
+      rules: rulesData,
+      metadata,
+    },
+  }
+  formValues
 }

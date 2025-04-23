@@ -9,26 +9,32 @@ let useGetSideBarValues = () => {
   let sideBarValues = []
 
   if devReconv2Product {
-    sideBarValues->Array.push(ReconSidebarValues.reconSidebars)
+    sideBarValues->Array.pushMany(ReconSidebarValues.reconSidebars)
   }
 
   if devRecoveryV2Product {
-    sideBarValues->Array.push(RevenueRecoverySidebarValues.recoverySidebars)
+    sideBarValues->Array.pushMany(RevenueRecoverySidebarValues.recoverySidebars)
   }
 
   sideBarValues
 }
 
-let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) => {
+let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => {
   open ProductUtils
-  let {devReconv2Product, devRecoveryV2Product} =
+  let {
+    devReconv2Product,
+    devRecoveryV2Product,
+    devVaultV2Product,
+    devHypersenseV2Product,
+    devIntelligentRoutingV2,
+  } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
     Link({
-      name: Orchestrator->getStringFromVariant,
-      icon: "home",
-      link: "/home",
+      name: Orchestration->getProductDisplayName,
+      icon: "orchestrator-home",
+      link: "/v2/home",
       access: Access,
     }),
   ]
@@ -36,9 +42,9 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
   if devReconv2Product {
     sideBarValues->Array.push(
       Link({
-        name: Recon->getStringFromVariant,
+        name: Recon->getProductDisplayName,
         icon: "recon-home",
-        link: "/v2/recon/onboarding",
+        link: "/v2/recon",
         access: Access,
       }),
     )
@@ -47,20 +53,49 @@ let useGetProductSideBarValues = (~currentProduct: ProductTypes.productTypes) =>
   if devRecoveryV2Product {
     sideBarValues->Array.push(
       Link({
-        name: Recovery->getStringFromVariant,
+        name: Recovery->getProductDisplayName,
         icon: "recovery-home",
         link: "/v2/recovery",
         access: Access,
       }),
     )
   }
-
-  let productName = currentProduct->ProductUtils.getStringFromVariant
+  if devVaultV2Product {
+    sideBarValues->Array.push(
+      Link({
+        name: Vault->getProductDisplayName,
+        icon: "vault-home",
+        link: "/v2/vault",
+        access: Access,
+      }),
+    )
+  }
+  if devHypersenseV2Product {
+    sideBarValues->Array.push(
+      Link({
+        name: CostObservability->getProductDisplayName,
+        icon: "nd-piggy-bank",
+        link: "/v2/cost-observability",
+        access: Access,
+      }),
+    )
+  }
+  if devIntelligentRoutingV2 {
+    sideBarValues->Array.push(
+      Link({
+        name: DynamicRouting->getProductDisplayName,
+        icon: "intelligent-routing-home",
+        link: "/v2/dynamic-routing",
+        access: Access,
+      }),
+    )
+  }
+  // Need to be refactored
+  let productName = activeProduct->getProductDisplayName
 
   sideBarValues->Array.filter(topLevelItem =>
     switch topLevelItem {
     | Link(optionType) => optionType.name != productName
-
     | _ => true
     }
   )

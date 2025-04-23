@@ -1,729 +1,911 @@
 open LogicUtils
 open APIUtilsTypes
-open CommonAuthHooks
 exception JsonException(JSON.t)
 
+let getV2Url = (
+  ~entityName: v2entityNameType,
+  ~userType: userType=#NONE,
+  ~methodType: Fetch.requestMethod,
+  ~id=None,
+  ~profileId,
+  ~merchantId,
+  ~queryParamerters: option<string>=None,
+) => {
+  let connectorBaseURL = "v2/connector-accounts"
+  let peymantsBaseURL = "v2/payments"
+
+  switch entityName {
+  | CUSTOMERS =>
+    switch (methodType, id) {
+    | (Get, None) => "v2/customers/list"
+    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | _ => ""
+    }
+  | V2_CONNECTOR =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => `v2/profiles/${profileId}/connector-accounts`
+      }
+    | Put =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => connectorBaseURL
+      }
+    | Post =>
+      switch id {
+      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+      | None => connectorBaseURL
+      }
+    | _ => ""
+    }
+  | V2_ORDERS_LIST =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) =>
+        switch queryParamerters {
+        | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
+        | None => `${peymantsBaseURL}/${key_id}`
+        }
+      | None =>
+        switch queryParamerters {
+        | Some(queryParams) => `${peymantsBaseURL}/list?${queryParams}`
+        | None => `${peymantsBaseURL}/list?limit=100`
+        }
+      }
+    | _ => ""
+    }
+  | V2_ORDER_FILTERS => "v2/payments/profile/filter"
+  | PAYMENT_METHOD_LIST =>
+    switch id {
+    | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
+    | None => ""
+    }
+  | TOTAL_TOKEN_COUNT => `v2/customers/total-payment-methods`
+  | RETRIEVE_PAYMENT_METHOD =>
+    switch id {
+    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
+    | None => ""
+    }
+  /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
+  | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
+  | USERS =>
+    let userUrl = `user`
+    switch userType {
+    | #CREATE_MERCHANT =>
+      switch queryParamerters {
+      | Some(params) => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+      | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
+      }
+    | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
+    | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
+
+    | #LIST_PROFILE => `v2/${userUrl}/list/profile`
+    | _ => ""
+    }
+  }
+}
+
 let useGetURL = () => {
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+
   let getUrl = (
-    ~entityName: entityName,
+    ~entityName: entityTypeWithVersion,
     ~methodType: Fetch.requestMethod,
     ~id=None,
     ~connector=None,
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
+    ~hypersenseType: hypersenseType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity} = getUserInfoData()
+    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
-    /* GLOBAL SEARCH */
-    | GLOBAL_SEARCH =>
-      switch methodType {
-      | Post =>
-        switch id {
-        | Some(topic) => `analytics/v1/search/${topic}`
-        | None => `analytics/v1/search`
-        }
-      | _ => ""
-      }
-
-    /* MERCHANT ACCOUNT DETAILS (Get and Post) */
-    | MERCHANT_ACCOUNT => `accounts/${merchantId}`
-
-    /* ORGANIZATION UPDATE */
-    | UPDATE_ORGANIZATION =>
-      switch methodType {
-      | Put =>
-        switch id {
-        | Some(id) => `organization/${id}`
-        | None => `organization`
-        }
-      | _ => ""
-      }
-
-    /* CUSTOMERS DETAILS */
-    | CUSTOMERS =>
-      switch methodType {
-      | Get =>
-        switch id {
-        | Some(customerId) => `customers/${customerId}`
-        | None =>
-          switch queryParamerters {
-          | Some(queryParams) => `customers/list?${queryParams}`
-          | None => `customers/list?limit=500`
+    | V1(entityNameType) =>
+      switch entityNameType {
+      /* GLOBAL SEARCH */
+      | GLOBAL_SEARCH =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(topic) => `analytics/v1/search/${topic}`
+          | None => `analytics/v1/search`
           }
+        | _ => ""
         }
-      | _ => ""
-      }
 
-    /* CONNECTORS & FRAUD AND RISK MANAGEMENT */
-    | FRAUD_RISK_MANAGEMENT | CONNECTOR =>
-      switch methodType {
-      | Get =>
+      /* MERCHANT ACCOUNT DETAILS (Get and Post) */
+      | MERCHANT_ACCOUNT => `accounts/${merchantId}`
+
+      /* ORGANIZATION UPDATE */
+      | UPDATE_ORGANIZATION =>
+        switch methodType {
+        | Put =>
+          switch id {
+          | Some(id) => `organization/${id}`
+          | None => `organization`
+          }
+        | _ => ""
+        }
+
+      /* CUSTOMERS DETAILS */
+      | CUSTOMERS =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(customerId) => `customers/${customerId}`
+          | None =>
+            switch queryParamerters {
+            | Some(queryParams) => `customers/list?${queryParams}`
+            | None => `customers/list?limit=500`
+            }
+          }
+        | _ => ""
+        }
+      | PAYMENT_METHODS =>
+        switch methodType {
+        | Get => "payemnt_methods"
+        | _ => ""
+        }
+      | PAYMENT_METHODS_DETAILS =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(id) => `payemnt_methods/${id}`
+          | None => `payemnt_methods`
+          }
+        | _ => ""
+        }
+
+      /* CONNECTORS & FRAUD AND RISK MANAGEMENT */
+      | FRAUD_RISK_MANAGEMENT | CONNECTOR =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+          | None =>
+            switch userEntity {
+            | #Tenant
+            | #Organization
+            | #Merchant
+            | #Profile =>
+              `account/${merchantId}/profile/connectors`
+            }
+          }
+        | Post | Delete =>
+          switch connector {
+          | Some(_con) => `account/connectors/verify`
+          | None =>
+            switch id {
+            | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
+            | None => connectorBaseURL
+            }
+          }
+        | _ => ""
+        }
+
+      /* OPERATIONS */
+      | REFUND_FILTERS =>
+        switch methodType {
+        | Get =>
+          switch transactionEntity {
+          | #Merchant => `refunds/v2/filter`
+          | #Profile => `refunds/v2/profile/filter`
+          | _ => `refunds/v2/filter`
+          }
+
+        | _ => ""
+        }
+      | ORDER_FILTERS =>
+        switch methodType {
+        | Get =>
+          switch transactionEntity {
+          | #Merchant => `payments/v2/filter`
+          | #Profile => `payments/v2/profile/filter`
+          | _ => `payments/v2/filter`
+          }
+
+        | _ => ""
+        }
+      | DISPUTE_FILTERS =>
+        switch methodType {
+        | Get =>
+          switch transactionEntity {
+          | #Profile => `disputes/profile/filter`
+          | #Merchant
+          | _ => `disputes/filter`
+          }
+
+        | _ => ""
+        }
+      | PAYOUTS_FILTERS =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `payouts/filter`
+          | #Profile => `payouts/profile/filter`
+          | _ => `payouts/filter`
+          }
+
+        | _ => ""
+        }
+      | ORDERS =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(key_id) =>
+            switch queryParamerters {
+            | Some(queryParams) => `payments/${key_id}?${queryParams}`
+            | None => `payments/${key_id}`
+            }
+
+          | None =>
+            switch transactionEntity {
+            | #Merchant => `payments/list?limit=100`
+            | #Profile => `payments/profile/list?limit=100`
+            | _ => `payments/list?limit=100`
+            }
+          }
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `payments/list`
+          | #Profile => `payments/profile/list`
+          | _ => `payments/list`
+          }
+
+        | _ => ""
+        }
+      | ORDERS_AGGREGATE =>
+        switch methodType {
+        | Get =>
+          switch queryParamerters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Merchant => `payments/aggregate?${queryParams}`
+            | #Profile => `payments/profile/aggregate?${queryParams}`
+            | _ => `payments/aggregate?${queryParams}`
+            }
+          | None => `payments/aggregate`
+          }
+        | _ => `payments/aggregate`
+        }
+      | REFUNDS =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(key_id) =>
+            switch queryParamerters {
+            | Some(queryParams) => `refunds/${key_id}?${queryParams}`
+            | None => `refunds/${key_id}`
+            }
+
+          | None =>
+            switch queryParamerters {
+            | Some(queryParams) =>
+              switch transactionEntity {
+              | #Merchant => `refunds/list?${queryParams}`
+              | #Profile => `refunds/profile/list?limit=100`
+              | _ => `refunds/list?limit=100`
+              }
+            | None => `refunds/list?limit=100`
+            }
+          }
+        | Post =>
+          switch id {
+          | Some(_keyid) =>
+            switch transactionEntity {
+            | #Merchant => `refunds/list`
+            | #Profile => `refunds/profile/list`
+            | _ => `refunds/list`
+            }
+          | None => `refunds`
+          }
+        | _ => ""
+        }
+      | REFUNDS_AGGREGATE =>
+        switch methodType {
+        | Get =>
+          switch queryParamerters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `refunds/profile/aggregate?${queryParams}`
+            | #Merchant
+            | _ =>
+              `refunds/aggregate?${queryParams}`
+            }
+          | None => `refunds/aggregate`
+          }
+        | _ => `refunds/aggregate`
+        }
+      | DISPUTES =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(dispute_id) => `disputes/${dispute_id}`
+          | None =>
+            switch queryParamerters {
+            | Some(queryParams) =>
+              switch transactionEntity {
+              | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
+              | #Merchant
+              | _ =>
+                `disputes/list?${queryParams}&limit=10000`
+              }
+            | None =>
+              switch transactionEntity {
+              | #Profile => `disputes/profile/list?limit=10000`
+              | #Merchant
+              | _ => `disputes/list?limit=10000`
+              }
+            }
+          }
+        | _ => ""
+        }
+      | DISPUTES_AGGREGATE =>
+        switch methodType {
+        | Get =>
+          switch queryParamerters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/aggregate?${queryParams}`
+            | #Merchant
+            | _ =>
+              `disputes/aggregate?${queryParams}`
+            }
+          | None => `disputes/aggregate`
+          }
+        | _ => `disputes/aggregate`
+        }
+      | PAYOUTS =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(payout_id) => `payouts/${payout_id}`
+          | None =>
+            switch transactionEntity {
+            | #Merchant => `payouts/list?limit=100`
+            | #Profile => `payouts/profile/list?limit=10000`
+            | _ => `payouts/list?limit=100`
+            }
+          }
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `payouts/list`
+          | #Profile => `payouts/profile/list`
+          | _ => `payouts/list`
+          }
+
+        | _ => ""
+        }
+
+      /* ROUTING */
+      | DEFAULT_FALLBACK => `routing/default`
+      | ROUTING =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(routingId) => `routing/${routingId}`
+          | None =>
+            switch userEntity {
+            | #Tenant
+            | #Organization
+            | #Merchant
+            | #Profile => `routing/list/profile`
+            }
+          }
+        | Post =>
+          switch id {
+          | Some(routing_id) => `routing/${routing_id}/activate`
+          | _ => `routing`
+          }
+        | _ => ""
+        }
+      | ACTIVE_ROUTING => `routing/active`
+      /* ANALYTICS V2 */
+
+      | ANALYTICS_PAYMENTS_V2 =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(domain) =>
+            switch analyticsEntity {
+            | #Tenant
+            | #Organization =>
+              `analytics/v2/org/metrics/${domain}`
+            | #Merchant => `analytics/v2/merchant/metrics/${domain}`
+            | #Profile => `analytics/v2/profile/metrics/${domain}`
+            }
+
+          | _ => ""
+          }
+        | _ => ""
+        }
+
+      /* ANALYTICS */
+      | ANALYTICS_REFUNDS
+      | ANALYTICS_PAYMENTS
+      | ANALYTICS_DISPUTES
+      | ANALYTICS_AUTHENTICATION =>
+        switch methodType {
+        | Get =>
+          switch id {
+          // Need to write seperate enum for info api
+          | Some(domain) =>
+            switch analyticsEntity {
+            | #Tenant
+            | #Organization =>
+              `analytics/v1/org/${domain}/info`
+            | #Merchant => `analytics/v1/merchant/${domain}/info`
+            | #Profile => `analytics/v1/profile/${domain}/info`
+            }
+
+          | _ => ""
+          }
+        | Post =>
+          switch id {
+          | Some(domain) =>
+            switch analyticsEntity {
+            | #Tenant
+            | #Organization =>
+              `analytics/v1/org/metrics/${domain}`
+            | #Merchant => `analytics/v1/merchant/metrics/${domain}`
+            | #Profile => `analytics/v1/profile/metrics/${domain}`
+            }
+
+          | _ => ""
+          }
+        | _ => ""
+        }
+      | ANALYTICS_AUTHENTICATION_V2 =>
+        switch methodType {
+        | Get =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/auth_events/info`
+          }
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/metrics/auth_events`
+          }
+
+        | _ => ""
+        }
+      | ANALYTICS_AUTHENTICATION_V2_FILTERS =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization
+          | #Merchant
+          | #Profile => `analytics/v1/filters/auth_events`
+          }
+
+        | _ => ""
+        }
+      | ANALYTICS_FILTERS =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(domain) =>
+            switch analyticsEntity {
+            | #Tenant
+            | #Organization =>
+              `analytics/v1/org/filters/${domain}`
+            | #Merchant => `analytics/v1/merchant/filters/${domain}`
+            | #Profile => `analytics/v1/profile/filters/${domain}`
+            }
+
+          | _ => ""
+          }
+        | _ => ""
+        }
+
+      | API_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParamerters {
+          | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
+          | None => ``
+          }
+        | _ => ""
+        }
+      | ANALYTICS_SANKEY =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization => `analytics/v1/org/metrics/sankey`
+          | #Merchant => `analytics/v1/merchant/metrics/sankey`
+          | #Profile => `analytics/v1/profile/metrics/sankey`
+          }
+
+        | _ => ""
+        }
+      /* PAYOUTS ROUTING */
+      | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
+      | PAYOUT_ROUTING =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(routingId) => `routing/${routingId}`
+          | _ =>
+            switch userEntity {
+            | #Tenant
+            | #Organization
+            | #Merchant
+            | #Profile => `routing/payouts/list/profile`
+            }
+          }
+
+        | Put =>
+          switch id {
+          | Some(routingId) => `routing/${routingId}`
+          | _ => `routing/payouts`
+          }
+        | Post =>
+          switch id {
+          | Some(routing_id) => `routing/payouts/${routing_id}/activate`
+          | _ => `routing/payouts`
+          }
+        | _ => ""
+        }
+      | ACTIVE_PAYOUT_ROUTING => `routing/payouts/active`
+
+      /* THREE DS ROUTING */
+      | THREE_DS => `routing/decision`
+
+      /* SURCHARGE ROUTING */
+      | SURCHARGE => `routing/decision/surcharge`
+
+      /* RECONCILIATION */
+      | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
+      | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
+
+      /* REPORTS */
+      | PAYMENT_REPORT =>
+        switch transactionEntity {
+        | #Tenant
+        | #Organization => `analytics/v1/org/report/payments`
+        | #Merchant => `analytics/v1/merchant/report/payments`
+        | #Profile => `analytics/v1/profile/report/payments`
+        }
+
+      | REFUND_REPORT =>
+        switch transactionEntity {
+        | #Tenant
+        | #Organization => `analytics/v1/org/report/refunds`
+        | #Merchant => `analytics/v1/merchant/report/refunds`
+        | #Profile => `analytics/v1/profile/report/refunds`
+        }
+
+      | DISPUTE_REPORT =>
+        switch transactionEntity {
+        | #Tenant
+        | #Organization => `analytics/v1/org/report/dispute`
+        | #Merchant => `analytics/v1/merchant/report/dispute`
+        | #Profile => `analytics/v1/profile/report/dispute`
+        }
+
+      | AUTHENTICATION_REPORT =>
+        switch transactionEntity {
+        | #Tenant
+        | #Organization => `analytics/v1/org/report/authentications`
+        | #Merchant => `analytics/v1/merchant/report/authentications`
+        | #Profile => `analytics/v1/profile/report/authentications`
+        }
+
+      /* EVENT LOGS */
+      | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
+
+      | WEBHOOK_EVENTS => `events/profile/list`
+      | WEBHOOK_EVENTS_ATTEMPTS =>
         switch id {
-        | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-        | None =>
+        | Some(id) => `events/${merchantId}/${id}/attempts`
+        | None => `events/${merchantId}/attempts`
+        }
+      | WEBHOOKS_EVENTS_RETRY =>
+        switch id {
+        | Some(id) => `events/${merchantId}/${id}/retry`
+        | None => `events/${merchantId}/retry`
+        }
+      | WEBHOOKS_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParamerters {
+          | Some(params) => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
+          | None => `analytics/v1/outgoing_webhook_event_logs`
+          }
+        | _ => ""
+        }
+      | CONNECTOR_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParamerters {
+          | Some(params) => `analytics/v1/profile/connector_event_logs?${params}`
+          | None => `analytics/v1/connector_event_logs`
+          }
+        | _ => ""
+        }
+
+      /* SAMPLE DATA */
+      | GENERATE_SAMPLE_DATA => `user/sample_data`
+
+      /* VERIFY APPLE PAY */
+      | VERIFY_APPLE_PAY =>
+        switch id {
+        | Some(merchant_id) => `verify/apple_pay/${merchant_id}`
+        | None => `verify/apple_pay`
+        }
+
+      /* PAYPAL ONBOARDING */
+      | PAYPAL_ONBOARDING => `connector_onboarding`
+      | PAYPAL_ONBOARDING_SYNC => `connector_onboarding/sync`
+      | ACTION_URL => `connector_onboarding/action_url`
+      | RESET_TRACKING_ID => `connector_onboarding/reset_tracking_id`
+
+      /* BUSINESS PROFILE */
+      | BUSINESS_PROFILE =>
+        switch methodType {
+        | Get =>
           switch userEntity {
           | #Tenant
           | #Organization
           | #Merchant
           | #Profile =>
-            `account/${merchantId}/profile/connectors`
+            `account/${merchantId}/profile`
           }
-        }
-      | Post | Delete =>
-        switch connector {
-        | Some(_con) => `account/connectors/verify`
-        | None =>
+        | Post =>
           switch id {
-          | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-          | None => connectorBaseURL
+          | Some(id) => `account/${merchantId}/business_profile/${id}`
+          | None => `account/${merchantId}/business_profile`
           }
-        }
-      | _ => ""
-      }
-
-    /* OPERATIONS */
-    | REFUND_FILTERS =>
-      switch methodType {
-      | Get =>
-        switch transactionEntity {
-        | #Merchant => `refunds/v2/filter`
-        | #Profile => `refunds/v2/profile/filter`
-        | _ => `refunds/v2/filter`
+        | _ => `account/${merchantId}/business_profile`
         }
 
-      | _ => ""
-      }
-    | ORDER_FILTERS =>
-      switch methodType {
-      | Get =>
-        switch transactionEntity {
-        | #Merchant => `payments/v2/filter`
-        | #Profile => `payments/v2/profile/filter`
-        | _ => `payments/v2/filter`
+      /* API KEYS */
+      | API_KEYS =>
+        switch methodType {
+        | Get => `api_keys/${merchantId}/list`
+        | Post =>
+          switch id {
+          | Some(key_id) => `api_keys/${merchantId}/${key_id}`
+          | None => `api_keys/${merchantId}`
+          }
+        | Delete => `api_keys/${merchantId}/${id->Option.getOr("")}`
+        | _ => ""
         }
 
-      | _ => ""
-      }
-    | DISPUTE_FILTERS =>
-      switch methodType {
-      | Get =>
-        switch transactionEntity {
-        | #Profile => `disputes/profile/filter`
-        | #Merchant
-        | _ => `disputes/filter`
-        }
-
-      | _ => ""
-      }
-    | PAYOUTS_FILTERS =>
-      switch methodType {
-      | Post =>
-        switch transactionEntity {
-        | #Merchant => `payouts/filter`
-        | #Profile => `payouts/profile/filter`
-        | _ => `payouts/filter`
-        }
-
-      | _ => ""
-      }
-    | ORDERS =>
-      switch methodType {
-      | Get =>
+      /* DISPUTES EVIDENCE */
+      | ACCEPT_DISPUTE =>
         switch id {
-        | Some(key_id) =>
-          switch queryParamerters {
-          | Some(queryParams) => `payments/${key_id}?${queryParams}`
-          | None => `payments/${key_id}`
-          }
-
-        | None =>
-          switch transactionEntity {
-          | #Merchant => `payments/list?limit=100`
-          | #Profile => `payments/profile/list?limit=100`
-          | _ => `payments/list?limit=100`
-          }
+        | Some(id) => `disputes/accept/${id}`
+        | None => `disputes`
         }
-      | Post =>
-        switch transactionEntity {
-        | #Merchant => `payments/list`
-        | #Profile => `payments/profile/list`
-        | _ => `payments/list`
-        }
-
-      | _ => ""
-      }
-    | ORDERS_AGGREGATE =>
-      switch methodType {
-      | Get =>
-        switch queryParamerters {
-        | Some(queryParams) =>
-          switch transactionEntity {
-          | #Merchant => `payments/aggregate?${queryParams}`
-          | #Profile => `payments/profile/aggregate?${queryParams}`
-          | _ => `payments/aggregate?${queryParams}`
-          }
-        | None => `payments/aggregate`
-        }
-      | _ => `payments/aggregate`
-      }
-    | REFUNDS =>
-      switch methodType {
-      | Get =>
+      | DISPUTES_ATTACH_EVIDENCE =>
         switch id {
-        | Some(key_id) =>
-          switch queryParamerters {
-          | Some(queryParams) => `refunds/${key_id}?${queryParams}`
-          | None => `refunds/${key_id}`
-          }
+        | Some(id) => `disputes/evidence/${id}`
+        | _ => `disputes/evidence`
+        }
 
-        | None =>
-          switch queryParamerters {
-          | Some(queryParams) =>
-            switch transactionEntity {
-            | #Merchant => `refunds/list?${queryParams}`
-            | #Profile => `refunds/profile/list?limit=100`
-            | _ => `refunds/list?limit=100`
+      /* PMTS COUNTRY-CURRENCY DETAILS */
+      | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
+
+      /* USER MANGEMENT REVAMP */
+      | USER_MANAGEMENT => {
+          let userUrl = `user`
+          switch userRoleTypes {
+          | USER_LIST =>
+            switch queryParamerters {
+            | Some(queryParams) => `${userUrl}/user/list?${queryParams}`
+            | None => `${userUrl}/user/list`
             }
-          | None => `refunds/list?limit=100`
-          }
-        }
-      | Post =>
-        switch id {
-        | Some(_keyid) =>
-          switch transactionEntity {
-          | #Merchant => `refunds/list`
-          | #Profile => `refunds/profile/list`
-          | _ => `refunds/list`
-          }
-        | None => `refunds`
-        }
-      | _ => ""
-      }
-    | REFUNDS_AGGREGATE =>
-      switch methodType {
-      | Get =>
-        switch queryParamerters {
-        | Some(queryParams) =>
-          switch transactionEntity {
-          | #Profile => `refunds/profile/aggregate?${queryParams}`
-          | #Merchant
-          | _ =>
-            `refunds/aggregate?${queryParams}`
-          }
-        | None => `refunds/aggregate`
-        }
-      | _ => `refunds/aggregate`
-      }
-    | DISPUTES =>
-      switch methodType {
-      | Get =>
-        switch id {
-        | Some(dispute_id) => `disputes/${dispute_id}`
-        | None =>
-          switch queryParamerters {
-          | Some(queryParams) =>
-            switch transactionEntity {
-            | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
-            | #Merchant
-            | _ =>
-              `disputes/list?${queryParams}&limit=10000`
+          | ROLE_LIST =>
+            switch queryParamerters {
+            | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
+            | None => `${userUrl}/role/list`
             }
-          | None =>
-            switch transactionEntity {
-            | #Profile => `disputes/profile/list?limit=10000`
-            | #Merchant
-            | _ => `disputes/list?limit=10000`
+          | ROLE_ID =>
+            switch id {
+            | Some(key_id) => `${userUrl}/role/${key_id}/v2`
+            | None => ""
             }
+          | _ => ""
           }
         }
-      | _ => ""
-      }
-    | DISPUTES_AGGREGATE =>
-      switch methodType {
-      | Get =>
+
+      /* INTELLIGENT ROUTING */
+      | SIMULATE_INTELLIGENT_ROUTING =>
         switch queryParamerters {
-        | Some(queryParams) =>
-          switch transactionEntity {
-          | #Profile => `disputes/profile/aggregate?${queryParams}`
-          | #Merchant
-          | _ =>
-            `disputes/aggregate?${queryParams}`
-          }
-        | None => `disputes/aggregate`
+        | Some(queryParams) => `simulate/${merchantId}?${queryParams}`
+        | None => `simulate/${merchantId}`
         }
-      | _ => `disputes/aggregate`
-      }
-    | PAYOUTS =>
-      switch methodType {
-      | Get =>
-        switch id {
-        | Some(payout_id) => `payouts/${payout_id}`
-        | None =>
-          switch transactionEntity {
-          | #Merchant => `payouts/list?limit=100`
-          | #Profile => `payouts/profile/list?limit=10000`
-          | _ => `payouts/list?limit=100`
-          }
-        }
-      | Post =>
-        switch transactionEntity {
-        | #Merchant => `payouts/list`
-        | #Profile => `payouts/profile/list`
-        | _ => `payouts/list`
-        }
-
-      | _ => ""
-      }
-
-    /* ROUTING */
-    | DEFAULT_FALLBACK => `routing/default`
-    | ROUTING =>
-      switch methodType {
-      | Get =>
-        switch id {
-        | Some(routingId) => `routing/${routingId}`
-        | None =>
-          switch userEntity {
-          | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile => `routing/list/profile`
-          }
-        }
-      | Post =>
-        switch id {
-        | Some(routing_id) => `routing/${routing_id}/activate`
-        | _ => `routing`
-        }
-      | _ => ""
-      }
-    | ACTIVE_ROUTING => `routing/active`
-    /* ANALYTICS V2 */
-
-    | ANALYTICS_PAYMENTS_V2 =>
-      switch methodType {
-      | Post =>
-        switch id {
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Tenant
-          | #Organization =>
-            `analytics/v2/org/metrics/${domain}`
-          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
-          | #Profile => `analytics/v2/profile/metrics/${domain}`
-          }
-
-        | _ => ""
-        }
-      | _ => ""
-      }
-
-    /* ANALYTICS */
-    | ANALYTICS_REFUNDS
-    | ANALYTICS_PAYMENTS
-    | ANALYTICS_DISPUTES
-    | ANALYTICS_AUTHENTICATION =>
-      switch methodType {
-      | Get =>
-        switch id {
-        // Need to write seperate enum for info api
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Tenant
-          | #Organization =>
-            `analytics/v1/org/${domain}/info`
-          | #Merchant => `analytics/v1/merchant/${domain}/info`
-          | #Profile => `analytics/v1/profile/${domain}/info`
-          }
-
-        | _ => ""
-        }
-      | Post =>
-        switch id {
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Tenant
-          | #Organization =>
-            `analytics/v1/org/metrics/${domain}`
-          | #Merchant => `analytics/v1/merchant/metrics/${domain}`
-          | #Profile => `analytics/v1/profile/metrics/${domain}`
-          }
-
-        | _ => ""
-        }
-      | _ => ""
-      }
-    | ANALYTICS_FILTERS =>
-      switch methodType {
-      | Post =>
-        switch id {
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Tenant
-          | #Organization =>
-            `analytics/v1/org/filters/${domain}`
-          | #Merchant => `analytics/v1/merchant/filters/${domain}`
-          | #Profile => `analytics/v1/profile/filters/${domain}`
-          }
-
-        | _ => ""
-        }
-      | _ => ""
-      }
-
-    | API_EVENT_LOGS =>
-      switch methodType {
-      | Get =>
+      | INTELLIGENT_ROUTING_RECORDS =>
         switch queryParamerters {
-        | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
-        | None => ``
+        | Some(queryParams) => `simulate/${merchantId}/get-records?${queryParams}`
+        | None => `simulate/${merchantId}/get-records`
         }
-      | _ => ""
-      }
-    | ANALYTICS_SANKEY =>
-      switch methodType {
-      | Post =>
-        switch analyticsEntity {
-        | #Tenant
-        | #Organization => `analytics/v1/org/metrics/sankey`
-        | #Merchant => `analytics/v1/merchant/metrics/sankey`
-        | #Profile => `analytics/v1/profile/metrics/sankey`
-        }
+      | INTELLIGENT_ROUTING_GET_STATISTICS => `simulate/${merchantId}/get-statistics`
 
-      | _ => ""
-      }
-    /* PAYOUTS ROUTING */
-    | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
-    | PAYOUT_ROUTING =>
-      switch methodType {
-      | Get =>
-        switch id {
-        | Some(routingId) => `routing/${routingId}`
-        | _ =>
-          switch userEntity {
-          | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile => `routing/payouts/list/profile`
-          }
-        }
-
-      | Put =>
-        switch id {
-        | Some(routingId) => `routing/${routingId}`
-        | _ => `routing/payouts`
-        }
-      | Post =>
-        switch id {
-        | Some(routing_id) => `routing/payouts/${routing_id}/activate`
-        | _ => `routing/payouts`
-        }
-      | _ => ""
-      }
-    | ACTIVE_PAYOUT_ROUTING => `routing/payouts/active`
-
-    /* THREE DS ROUTING */
-    | THREE_DS => `routing/decision`
-
-    /* SURCHARGE ROUTING */
-    | SURCHARGE => `routing/decision/surcharge`
-
-    /* RECONCILIATION */
-    | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
-
-    /* REPORTS */
-    | PAYMENT_REPORT =>
-      switch transactionEntity {
-      | #Tenant
-      | #Organization => `analytics/v1/org/report/payments`
-      | #Merchant => `analytics/v1/merchant/report/payments`
-      | #Profile => `analytics/v1/profile/report/payments`
-      }
-
-    | REFUND_REPORT =>
-      switch transactionEntity {
-      | #Tenant
-      | #Organization => `analytics/v1/org/report/refunds`
-      | #Merchant => `analytics/v1/merchant/report/refunds`
-      | #Profile => `analytics/v1/profile/report/refunds`
-      }
-
-    | DISPUTE_REPORT =>
-      switch transactionEntity {
-      | #Tenant
-      | #Organization => `analytics/v1/org/report/dispute`
-      | #Merchant => `analytics/v1/merchant/report/dispute`
-      | #Profile => `analytics/v1/profile/report/dispute`
-      }
-
-    /* EVENT LOGS */
-    | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
-
-    | WEBHOOKS_EVENT_LOGS =>
-      switch methodType {
-      | Get =>
-        switch queryParamerters {
-        | Some(params) => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
-        | None => `analytics/v1/outgoing_webhook_event_logs`
-        }
-      | _ => ""
-      }
-    | CONNECTOR_EVENT_LOGS =>
-      switch methodType {
-      | Get =>
-        switch queryParamerters {
-        | Some(params) => `analytics/v1/profile/connector_event_logs?${params}`
-        | None => `analytics/v1/connector_event_logs`
-        }
-      | _ => ""
-      }
-
-    /* SAMPLE DATA */
-    | GENERATE_SAMPLE_DATA => `user/sample_data`
-
-    /* VERIFY APPLE PAY */
-    | VERIFY_APPLE_PAY =>
-      switch id {
-      | Some(merchant_id) => `verify/apple_pay/${merchant_id}`
-      | None => `verify/apple_pay`
-      }
-
-    /* PAYPAL ONBOARDING */
-    | PAYPAL_ONBOARDING => `connector_onboarding`
-    | PAYPAL_ONBOARDING_SYNC => `connector_onboarding/sync`
-    | ACTION_URL => `connector_onboarding/action_url`
-    | RESET_TRACKING_ID => `connector_onboarding/reset_tracking_id`
-
-    /* BUSINESS PROFILE */
-    | BUSINESS_PROFILE =>
-      switch methodType {
-      | Get =>
-        switch userEntity {
-        | #Tenant
-        | #Organization
-        | #Merchant
-        | #Profile =>
-          `account/${merchantId}/profile`
-        }
-      | Post =>
-        switch id {
-        | Some(id) => `account/${merchantId}/business_profile/${id}`
-        | None => `account/${merchantId}/business_profile`
-        }
-      | _ => `account/${merchantId}/business_profile`
-      }
-
-    /* API KEYS */
-    | API_KEYS =>
-      switch methodType {
-      | Get => `api_keys/${merchantId}/list`
-      | Post =>
-        switch id {
-        | Some(key_id) => `api_keys/${merchantId}/${key_id}`
-        | None => `api_keys/${merchantId}`
-        }
-      | Delete => `api_keys/${merchantId}/${id->Option.getOr("")}`
-      | _ => ""
-      }
-
-    /* DISPUTES EVIDENCE */
-    | ACCEPT_DISPUTE =>
-      switch id {
-      | Some(id) => `disputes/accept/${id}`
-      | None => `disputes`
-      }
-    | DISPUTES_ATTACH_EVIDENCE =>
-      switch id {
-      | Some(id) => `disputes/evidence/${id}`
-      | _ => `disputes/evidence`
-      }
-
-    /* PMTS COUNTRY-CURRENCY DETAILS */
-    | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
-
-    /* USER MANGEMENT REVAMP */
-    | USER_MANAGEMENT => {
+      /* USERS */
+      | USERS =>
         let userUrl = `user`
-        switch userRoleTypes {
-        | USER_LIST =>
+
+        switch userType {
+        // DASHBOARD LOGIN / SIGNUP
+        | #CONNECT_ACCOUNT =>
           switch queryParamerters {
-          | Some(queryParams) => `${userUrl}/user/list?${queryParams}`
-          | None => `${userUrl}/user/list`
+          | Some(params) => `${userUrl}/connect_account?${params}`
+          | None => `${userUrl}/connect_account`
           }
-        | ROLE_LIST =>
+        | #SIGNINV2 => `${userUrl}/v2/signin`
+        | #CHANGE_PASSWORD => `${userUrl}/change_password`
+        | #SIGNUP
+        | #SIGNOUT
+        | #RESET_PASSWORD
+        | #VERIFY_EMAIL_REQUEST
+        | #FORGOT_PASSWORD
+        | #ROTATE_PASSWORD =>
           switch queryParamerters {
-          | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
-          | None => `${userUrl}/role/list`
+          | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+          | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
-        | ROLE_ID =>
-          switch id {
-          | Some(key_id) => `${userUrl}/role/${key_id}/v2`
+
+        // POST LOGIN QUESTIONARE
+        | #SET_METADATA =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+          | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+          }
+
+        // USER DATA
+        | #USER_DATA =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/data?${params}`
+          | None => `${userUrl}/data`
+          }
+        | #MERCHANT_DATA => `${userUrl}/data`
+        | #USER_INFO => userUrl
+
+        // USER GROUP ACCESS
+        | #GET_GROUP_ACL => `${userUrl}/role/v2`
+        | #ROLE_INFO => `${userUrl}/parent/list`
+
+        | #GROUP_ACCESS_INFO =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/permission_info?${params}`
+          | None => `${userUrl}/permission_info`
+          }
+
+        // USER ACTIONS
+        | #USER_DELETE => `${userUrl}/user/delete`
+        | #USER_UPDATE => `${userUrl}/update`
+        | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+
+        // INVITATION INSIDE DASHBOARD
+        | #RESEND_INVITE => `${userUrl}/user/resend_invite`
+        | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept`
+        | #INVITE_MULTIPLE =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
+          | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+          }
+
+        // ACCEPT INVITE PRE_LOGIN
+        | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/pre_auth`
+
+        // CREATE_ORG
+        | #CREATE_ORG => `user/create_org`
+        // CREATE MERCHANT
+        | #CREATE_MERCHANT =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+          | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+          }
+        | #SWITCH_ORG => `${userUrl}/switch/org`
+        | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
+        | #SWITCH_PROFILE => `${userUrl}/switch/profile`
+
+        // Org-Merchant-Profile List
+        | #LIST_ORG => `${userUrl}/list/org`
+        | #LIST_MERCHANT => `${userUrl}/list/merchant`
+        | #LIST_PROFILE => `${userUrl}/list/profile`
+
+        // CREATE ROLES
+        | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
+
+        // EMAIL FLOWS
+        | #FROM_EMAIL => `${userUrl}/from_email`
+        | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
+        | #ACCEPT_INVITE_FROM_EMAIL =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+          | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+          }
+
+        // SPT FLOWS (Totp)
+        | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
+        | #CHECK_TWO_FACTOR_AUTH_STATUS_V2 => `${userUrl}/2fa/v2`
+        | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
+        | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
+        | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
+        | #TERMINATE_TWO_FACTOR_AUTH =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/2fa/terminate?${params}`
+          | None => `${userUrl}/2fa/terminate`
+          }
+
+        | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
+        | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
+
+        // SPT FLOWS (SSO)
+        | #GET_AUTH_LIST =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/auth/list?${params}`
+          | None => `${userUrl}/auth/list`
+          }
+        | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
+        | #AUTH_SELECT => `${userUrl}/auth/select`
+
+        // user-management revamp
+        | #LIST_ROLES_FOR_INVITE =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/role/list/invite?${params}`
           | None => ""
           }
-        | _ => ""
+        | #LIST_INVITATION => `${userUrl}/list/invitation`
+        | #USER_DETAILS => `${userUrl}/user`
+        | #LIST_ROLES_FOR_ROLE_UPDATE =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/role/list/update?${params}`
+          | None => ""
+          }
+
+        | #NONE => ""
         }
+
+      /* TO BE CHECKED */
+      | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       }
 
-    /* USERS */
-    | USERS =>
-      let userUrl = `user`
-
-      switch userType {
-      // DASHBOARD LOGIN / SIGNUP
-      | #CONNECT_ACCOUNT =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/connect_account?${params}`
-        | None => `${userUrl}/connect_account`
-        }
-      | #SIGNINV2 => `${userUrl}/v2/signin`
-      | #CHANGE_PASSWORD => `${userUrl}/change_password`
-      | #SIGNUP
-      | #SIGNOUT
-      | #RESET_PASSWORD
-      | #VERIFY_EMAIL_REQUEST
-      | #FORGOT_PASSWORD
-      | #ROTATE_PASSWORD =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
-        }
-
-      // POST LOGIN QUESTIONARE
-      | #SET_METADATA =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
-        }
-
-      // USER DATA
-      | #USER_DATA =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/data?${params}`
-        | None => `${userUrl}/data`
-        }
-      | #MERCHANT_DATA => `${userUrl}/data`
-      | #USER_INFO => userUrl
-
-      // USER GROUP ACCESS
-      | #GET_GROUP_ACL => `${userUrl}/role/v2`
-      | #ROLE_INFO => `${userUrl}/parent/list`
-
-      | #GROUP_ACCESS_INFO =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/permission_info?${params}`
-        | None => `${userUrl}/permission_info`
-        }
-
-      // USER ACTIONS
-      | #USER_DELETE => `${userUrl}/user/delete`
-      | #USER_UPDATE => `${userUrl}/update`
-      | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-
-      // INVITATION INSIDE DASHBOARD
-      | #RESEND_INVITE => `${userUrl}/user/resend_invite`
-      | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept`
-      | #INVITE_MULTIPLE =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-        }
-
-      // ACCEPT INVITE PRE_LOGIN
-      | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/pre_auth`
-
-      // CREATE_ORG
-      | #CREATE_ORG => `user/create_org`
-      // CREATE MERCHANT
-      | #CREATE_MERCHANT =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
-        }
-      | #SWITCH_ORG => `${userUrl}/switch/org`
-      | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
-      | #SWITCH_PROFILE => `${userUrl}/switch/profile`
-
-      // Org-Merchant-Profile List
-      | #LIST_ORG => `${userUrl}/list/org`
-      | #LIST_MERCHANT => `${userUrl}/list/merchant`
-      | #LIST_PROFILE => `${userUrl}/list/profile`
-
-      // CREATE ROLES
-      | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
-
-      // EMAIL FLOWS
-      | #FROM_EMAIL => `${userUrl}/from_email`
-      | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
-      | #ACCEPT_INVITE_FROM_EMAIL =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
-        }
-
-      // SPT FLOWS (Totp)
-      | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
-      | #CHECK_TWO_FACTOR_AUTH_STATUS_V2 => `${userUrl}/2fa/v2`
-      | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
-      | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
-      | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
-      | #TERMINATE_TWO_FACTOR_AUTH =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/2fa/terminate?${params}`
-        | None => `${userUrl}/2fa/terminate`
-        }
-
-      | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
-      | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
-
-      // SPT FLOWS (SSO)
-      | #GET_AUTH_LIST =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/auth/list?${params}`
-        | None => `${userUrl}/auth/list`
-        }
-      | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
-      | #AUTH_SELECT => `${userUrl}/auth/select`
-
-      // user-management revamp
-      | #LIST_ROLES_FOR_INVITE =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/role/list/invite?${params}`
-        | None => ""
-        }
-      | #LIST_INVITATION => `${userUrl}/list/invitation`
-      | #USER_DETAILS => `${userUrl}/user`
-      | #LIST_ROLES_FOR_ROLE_UPDATE =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/role/list/update?${params}`
-        | None => ""
-        }
-
-      | #NONE => ""
-      }
-
-    /* TO BE CHECKED */
-    | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
+    | V2(entityNameForv2) =>
+      getV2Url(
+        ~entityName=entityNameForv2,
+        ~userType,
+        ~id,
+        ~methodType,
+        ~queryParamerters,
+        ~profileId,
+        ~merchantId,
+      )
     }
+
     `${Window.env.apiBaseUrl}/${endpoint}`
   }
   getUrl
 }
-let useHandleLogout = () => {
+
+let useHandleLogout = (~eventName="user_sign_out") => {
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   () => {
     try {
-      let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
+      let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
+      mixpanelEvent(~eventName)
       let _ =
         fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
         ->then(Fetch.Response.json)
@@ -868,6 +1050,7 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true) => {
+  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -890,9 +1073,17 @@ let useGetMethod = (~showErrorToast=true) => {
     })
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async url => {
+  async (url, ~version=UserInfoTypes.V1) => {
     try {
-      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+      let res = await fetchApi(
+        url,
+        ~method_=Get,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~merchantId,
+        ~profileId,
+        ~version,
+      )
       await responseHandler(
         ~url,
         ~res,
@@ -913,6 +1104,7 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
+  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -943,6 +1135,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~bodyFormData=?,
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
+    ~version=UserInfoTypes.V1,
   ) => {
     try {
       let res = await fetchApi(
@@ -954,6 +1147,9 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~contentType,
         ~xFeatureRoute,
         ~forceCookies,
+        ~merchantId,
+        ~profileId,
+        ~version,
       )
       await responseHandler(
         ~url,

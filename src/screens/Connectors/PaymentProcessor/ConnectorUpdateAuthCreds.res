@@ -27,6 +27,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
+        | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
         dict
@@ -59,6 +60,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
     | MultiAuthKey(multiAuthKey) => multiAuthKey.auth_type
     | CertificateAuth(certificateAuth) => certificateAuth.auth_type
     | CurrencyAuthKey(currencyAuthKey) => currencyAuthKey.auth_type
+    | NoKey(noKeyAuth) => noKeyAuth.auth_type
     | UnKnownAuthType(_) => ""
     }
     [
@@ -93,7 +95,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   let onSubmit = async (values, _) => {
     try {
       let url = getURL(
-        ~entityName=CONNECTOR,
+        ~entityName=V1(CONNECTOR),
         ~methodType=Post,
         ~id=Some(connectorInfo.merchant_connector_id),
       )

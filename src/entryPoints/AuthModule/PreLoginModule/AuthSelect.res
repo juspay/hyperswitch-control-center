@@ -32,7 +32,7 @@ let make = (~setSelectedAuthId) => {
     try {
       let body = Dict.make()
       body->setOptionString("id", method_id)
-      let terminateURL = getURL(~entityName=USERS, ~userType=#AUTH_SELECT, ~methodType=Post)
+      let terminateURL = getURL(~entityName=V1(USERS), ~userType=#AUTH_SELECT, ~methodType=Post)
       let response = await updateDetails(terminateURL, body->JSON.Encode.object, Post)
       setSelectedAuthId(_ => method_id)
       setAuthStatus(PreLogin(getPreLoginInfo(response)))
@@ -56,12 +56,15 @@ let make = (~setSelectedAuthId) => {
         text="Continue with Password"
         buttonType={Primary}
         buttonSize={Large}
+        customButtonStyle="!w-full"
         onClick={_ => handleTerminateSSO(method.id)->ignore}
       />
     | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
       <Button
         text={`Login with ${(authMethodName :> string)}`}
         buttonType={PrimaryOutline}
+        buttonSize={Large}
+        customButtonStyle="!w-full"
         onClick={_ => handleTerminateSSO(method.id)->ignore}
       />
     | (_, _) => React.null

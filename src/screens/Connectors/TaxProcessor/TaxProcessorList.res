@@ -1,6 +1,9 @@
 @react.component
 let make = () => {
-  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=TaxProcessor,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -29,14 +32,12 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let taxConnectorsList =
-        connectorList->Array.filter(item => item.connector_type === TaxProcessor)
-      ConnectorUtils.sortByDisableField(taxConnectorsList, connectorPayload =>
+      ConnectorUtils.sortByDisableField(connectorList, connectorPayload =>
         connectorPayload.disabled
       )
 
-      setConfiguredConnectors(_ => taxConnectorsList)
-      setFilteredConnectorData(_ => taxConnectorsList->Array.map(Nullable.make))
+      setConfiguredConnectors(_ => connectorList)
+      setFilteredConnectorData(_ => connectorList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -50,7 +51,7 @@ let make = () => {
 
   <div>
     <PageUtils.PageHeading
-      title={"Tax Processors"} subTitle={"Connect and configure Tax Processor"}
+      title={"Tax Processor"} subTitle={"Connect and configure Tax Processor"}
     />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">
@@ -80,8 +81,10 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.TaxProcessor,
+          configuredConnectors={ConnectorInterface.mapConnectorPayloadToConnectorType(
+            ConnectorInterface.connectorInterfaceV1,
+            ConnectorTypes.TaxProcessor,
+            configuredConnectors,
           )}
           connectorsAvailableForIntegration=ConnectorUtils.taxProcessorList
           urlPrefix="tax-processor/new"

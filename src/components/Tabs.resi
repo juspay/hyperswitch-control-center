@@ -80,4 +80,5 @@ let make: (
   ~showStickyHeader: bool=?,
   ~contentHeight: string=?,
   ~selectTabBottomBorderColor: string=?,
+  ~customBottomBorderColor: string=?,
 ) => React.element

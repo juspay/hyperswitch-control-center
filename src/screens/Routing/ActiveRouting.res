@@ -6,7 +6,7 @@ module TopLeftIcons = {
   @react.component
   let make = (~routeType: routingType) => {
     switch routeType {
-    | PRIORITY | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
+    | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
     | VOLUME_SPLIT => <Icon name="processorLevel" size=25 className="w-14" />
     | ADVANCED => <Icon name="parameterLevel" size=25 className="w-20" />
     | _ => React.null
@@ -17,7 +17,7 @@ module TopRightIcons = {
   @react.component
   let make = (~routeType: routingType) => {
     switch routeType {
-    | VOLUME_SPLIT | PRIORITY => <Icon name="quickSetup" size=25 className="w-28" />
+    | VOLUME_SPLIT => <Icon name="quickSetup" size=25 className="w-28" />
     | _ => React.null
     }
   }
@@ -29,14 +29,13 @@ module ActionButtons = {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     switch routeType {
-    | PRIORITY
     | VOLUME_SPLIT
     | ADVANCED =>
       <ACLButton
         text={"Setup"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-        customButtonStyle="mx-auto"
-        buttonType=Primary
+        customButtonStyle="mx-auto w-full"
+        buttonType={Secondary}
         buttonSize=Small
         onClick={_ => {
           RescriptReactRouter.push(
@@ -44,14 +43,15 @@ module ActionButtons = {
               ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
             ),
           )
-          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`)
+          mixpanelEvent(~eventName=`${onRedirectBaseUrl}_setup_${routeType->routingTypeName}`)
         }}
       />
     | DEFAULTFALLBACK =>
       <ACLButton
         text={"Manage"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-        buttonType=Primary
+        buttonType={Secondary}
+        customButtonStyle="mx-auto w-full"
         buttonSize=Small
         onClick={_ => {
           RescriptReactRouter.push(
@@ -59,7 +59,7 @@ module ActionButtons = {
               ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
             ),
           )
-          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`)
+          mixpanelEvent(~eventName=`${onRedirectBaseUrl}_setup_${routeType->routingTypeName}`)
         }}
       />
 

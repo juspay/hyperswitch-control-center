@@ -66,11 +66,13 @@ module NewOrgCreationModal = {
   let make = (~setShowModal, ~showModal, ~getOrgList) => {
     open APIUtils
     let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let createNewOrg = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_ORG, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_ORG, ~methodType=Post)
+        mixpanelEvent(~eventName="create_new_org", ~metadata=values)
         let _ = await updateDetails(url, values, Post)
         getOrgList()->ignore
         showToast(~toastType=ToastSuccess, ~message="Org Created Successfully!", ~autoClose=true)
@@ -203,7 +205,6 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
@@ -218,12 +219,12 @@ let make = () => {
   )
   let getOrgList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_ORG, ~methodType=Get)
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
     } catch {
     | _ => {
-        setOrgList(_ => ompDefaultValue(orgId, ""))
+        setOrgList(_ => [ompDefaultValue(orgId, "")])
         showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
       }
     }
@@ -238,7 +239,6 @@ let make = () => {
     try {
       setShowSwitchingOrg(_ => true)
       let _ = await internalSwitch(~expectedOrgId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {
@@ -292,6 +292,7 @@ let make = () => {
       customSelectStyle={`${backgroundColor.sidebarSecondary} hover:!bg-black/10 rounded`}
       searchable=false
       baseComponent={<ListBaseComp
+        user=#Organization
         heading="Org"
         subHeading={currentOMPName(orgList, orgId)}
         arrow
@@ -321,6 +322,7 @@ let make = () => {
 
   let orgBaseComp =
     <ListBaseComp
+      user=#Organization
       heading="Org"
       subHeading=orgId
       arrow

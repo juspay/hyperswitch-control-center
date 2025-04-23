@@ -25,7 +25,7 @@ let make = (
 
   let chartFetch = async () => {
     try {
-      let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
+      let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some(domain))
 
       let body = PerformanceUtils.requestBody(
         ~dimensions=[],
@@ -79,7 +79,7 @@ let make = (
     <PerformanceUtils.Card title="Payment Failures">
       <LoadedTable
         visibleColumns
-        title=" "
+        title="Performance Monitor"
         hideTitle=true
         actualData={tableData}
         entity=tableEntity

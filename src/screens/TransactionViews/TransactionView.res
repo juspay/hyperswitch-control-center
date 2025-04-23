@@ -60,19 +60,19 @@ let make = (~entity=TransactionViewTypes.Orders) => {
       let url = switch entity {
       | Orders =>
         getURL(
-          ~entityName=ORDERS_AGGREGATE,
+          ~entityName=V1(ORDERS_AGGREGATE),
           ~methodType=Get,
           ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
       | Refunds =>
         getURL(
-          ~entityName=REFUNDS_AGGREGATE,
+          ~entityName=V1(REFUNDS_AGGREGATE),
           ~methodType=Get,
           ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
       | Disputes =>
         getURL(
-          ~entityName=DISPUTES_AGGREGATE,
+          ~entityName=V1(DISPUTES_AGGREGATE),
           ~methodType=Get,
           ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )

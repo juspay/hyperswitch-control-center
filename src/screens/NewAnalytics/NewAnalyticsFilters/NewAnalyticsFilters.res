@@ -125,7 +125,7 @@ let make = (~entityName, ~domain) => {
   let loadFilters = async responseHandler => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domainString))
+      let url = getURL(~entityName=V1(ANALYTICS_FILTERS), ~methodType=Post, ~id=Some(domainString))
 
       let body =
         {

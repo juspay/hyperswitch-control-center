@@ -23,6 +23,7 @@ let make = (~domain="payments") => {
   let {checkUserEntity, userInfo: {analyticsEntity}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let filterBody = (~groupBy) => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
@@ -36,7 +37,7 @@ let make = (~domain="payments") => {
   let fetchFilterData = async dimensions => {
     try {
       let groupBy = getStringListFromArrayDict(dimensions)
-      let filterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+      let filterUrl = getURL(~entityName=V1(ANALYTICS_FILTERS), ~methodType=Post, ~id=Some(domain))
       let res = await updateDetails(filterUrl, filterBody(~groupBy)->JSON.Encode.object, Post)
       let dim =
         res
@@ -53,7 +54,7 @@ let make = (~domain="payments") => {
   let loadInfo = async () => {
     try {
       setScreenState(_ => Loading)
-      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
+      let infoUrl = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       let dimensions = infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", [])
       fetchFilterData(dimensions)->ignore
@@ -67,8 +68,12 @@ let make = (~domain="payments") => {
     setInitialFilters()
     None
   }, [])
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="performance_monitor_date_filter_opened")
+  }
   React.useEffect(() => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      mixpanelEvent(~eventName="performance_monitor_date_filter")
       loadInfo()->ignore
     }
     None
@@ -79,7 +84,10 @@ let make = (~domain="payments") => {
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(Dict.make()->JSON.Encode.object)}
+        initialFixedFilters={initialFixedFilterFields(
+          Dict.make()->JSON.Encode.object,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=defaultFilters
         tabNames=[]
         key="1"
@@ -94,12 +102,14 @@ let make = (~domain="payments") => {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between ">
         <PageUtils.PageHeading title="Performance Monitor" subTitle="" />
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
-          selectedEntity={analyticsEntity}
-          onChange={updateAnalytcisEntity}
-          entityMapper=UserInfoUtils.analyticsEntityMapper
-        />
+        <div className="mr-5">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            selectedEntity={analyticsEntity}
+            onChange={updateAnalytcisEntity}
+            entityMapper=UserInfoUtils.analyticsEntityMapper
+          />
+        </div>
       </div>
       <div
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">

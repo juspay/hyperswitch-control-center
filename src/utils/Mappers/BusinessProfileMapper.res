@@ -20,6 +20,7 @@ let constructAuthConnectorObject = authConnectorDict => {
       "authentication_connectors",
     ),
     three_ds_requestor_url: authConnectorDict->getOptionString("three_ds_requestor_url"),
+    three_ds_requestor_app_url: authConnectorDict->getOptionString("three_ds_requestor_app_url"),
   }
   authConnectorDetails
 }
@@ -30,6 +31,7 @@ let businessProfileTypeMapper = values => {
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+  let metadataKeyValue = jsonDict->getDictfromDict("metadata")
 
   {
     merchant_id: jsonDict->getString("merchant_id", ""),
@@ -52,9 +54,12 @@ let businessProfileTypeMapper = values => {
       "always_collect_billing_details_from_wallet_connector",
     ),
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
+    force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
+    is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,
+    metadata: metadataKeyValue->isEmptyDict ? None : Some(metadataKeyValue),
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),

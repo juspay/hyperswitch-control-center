@@ -19,7 +19,7 @@ module ChangePasswordModal = {
       let oldPassword = getString(valuesDict, "old_password", "")
       let newPassword = getString(valuesDict, "new_password", "")
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CHANGE_PASSWORD, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#CHANGE_PASSWORD, ~methodType=Post)
         let body =
           [
             ("old_password", oldPassword->JSON.Encode.string),
@@ -62,7 +62,7 @@ module ChangePasswordModal = {
             <CommonAuthForm.ChangePasswordForm />
             <div id="auth-submit-btn" className="flex flex-col gap-2">
               <FormRenderer.SubmitButton
-                customSumbitButtonStyle="!w-full !rounded"
+                customSumbitButtonStyle="!w-full"
                 text="Confirm"
                 userInteractionRequired=true
                 showToolTip=false
@@ -115,7 +115,7 @@ module ResetPassword = {
       setIsLoading(_ => true)
       try {
         let url = getURL(
-          ~entityName=USERS,
+          ~entityName=V1(USERS),
           ~userType=#FORGOT_PASSWORD,
           ~methodType=Post,
           ~queryParamerters=Some(`auth_id=${authId}`),

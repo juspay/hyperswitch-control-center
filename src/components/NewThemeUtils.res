@@ -67,11 +67,12 @@ module Badge = {
   @react.component
   let make = (~number, ~color: color=Blue) => {
     let (badgeColor, textColor) = switch color {
-    | Blue => ("bg-primary", " text-white")
+    | Blue => ("bg-primary", " text-white/90")
     | Gray => ("bg-jp-2-light-gray-300", "text-jp-2-light-gray-1800")
     }
     <AddDataAttributes attributes=[("data-badge-value", Int.toString(number))]>
-      <div className={`px-1.5 rounded-full ${badgeColor} ${textColor} font-semibold text-sm`}>
+      <div
+        className={`w-4 h-4 flex justify-center items-center rounded-full ${badgeColor} ${textColor} font-medium text-xs`}>
         {React.string(Int.toString(number))}
       </div>
     </AddDataAttributes>

@@ -6,10 +6,11 @@ module ConnectorOverview = {
     open ConnectorUtils
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
-    let connectorsList =
-      HyperswitchAtom.connectorListAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
+
+    let connectorsList = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV1,
+      ~retainInList=ConnectorTypes.PaymentProcessor,
+    )
     let configuredConnectors =
       connectorsList->Array.map(paymentMethod =>
         paymentMethod.connector_name->getConnectorNameTypeFromString
@@ -77,7 +78,7 @@ module OverviewInfo = {
 
     let generateSampleData = async () => {
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
+        let generateSampleDataUrl = getURL(~entityName=V1(GENERATE_SAMPLE_DATA), ~methodType=Post)
         let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,

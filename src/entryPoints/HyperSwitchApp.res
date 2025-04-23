@@ -5,24 +5,24 @@ let make = () => {
   open APIUtils
 
   open HyperswitchAtom
-  let pageViewEvent = MixpanelHook.usePageView()
-  let url = RescriptReactRouter.useUrl()
 
+  let url = RescriptReactRouter.useUrl()
   let {
     showFeedbackModal,
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
-    currentProduct,
-    setDefaultProductToSessionStorage,
   } = React.useContext(GlobalProvider.defaultContext)
+
+  let {activeProduct, setActiveProductValue} = React.useContext(
+    ProductSelectionProvider.defaultContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-  let {devThemeFeature, devOrgSidebar} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let retainCloneModal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.retainCloneModalAtom)
   let (showModal, setShowModal) = React.useState(_ => false)
 
@@ -32,16 +32,15 @@ let make = () => {
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {
-    userInfo: {orgId, merchantId, profileId, roleId, themeId},
+    userInfo: {orgId, merchantId, profileId, roleId, themeId, version},
     checkUserEntity,
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
-  let modeStyles = featureFlagDetails.isLiveMode
-    ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
-    : "bg-orange-600/80 border-orange-500 text-grey-700"
+  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green" : "bg-orange-500 "
 
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
@@ -49,7 +48,7 @@ let make = () => {
 
   let maintainenceAlert = featureFlagDetails.maintainenceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
-  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~currentProduct)
+  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
   sessionExpired := false
 
   let applyTheme = async () => {
@@ -58,6 +57,20 @@ let make = () => {
         let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
       }
     } catch {
+    | _ => ()
+    }
+  }
+  // set the product url based on the product type
+  let setupProductUrl = (~productType: ProductTypes.productTypes) => {
+    let currentUrl = GlobalVars.extractModulePath(
+      ~path=url.path,
+      ~query=url.search,
+      ~end=url.path->List.toArray->Array.length,
+    )
+    let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
+    RescriptReactRouter.replace(productUrl)
+    switch url.path->urlPath {
+    | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
     | _ => ()
     }
   }
@@ -79,22 +92,19 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
+      let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      setDefaultProductToSessionStorage()
-      switch url.path->urlPath {
-      | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
-      | _ => ()
-      }
+      setActiveProductValue(merchantResponse.product_type)
+      setShowSideBar(_ => true)
+      setupProductUrl(~productType=merchantResponse.product_type)
       if retainCloneModal {
         setScreenState(_ => PageLoaderWrapper.Custom)
       }
-      setDashboardPageState(_ => #HOME)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
   }
-  let path = url.path->List.toArray->Array.joinWith("/")
 
   React.useEffect(() => {
     setUpDashboard()->ignore
@@ -107,18 +117,28 @@ let make = () => {
   }, (themeId, devThemeFeature))
 
   React.useEffect(() => {
+    if userGroupACL->Option.isSome {
+      setDashboardPageState(_ => #HOME)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    }
+    if retainCloneModal {
+      setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+    None
+  }, [userGroupACL])
+  let pageViewEvent = MixpanelHook.usePageView()
+  let path = url.path->List.toArray->Array.joinWith("/")
+
+  React.useEffect(() => {
     if featureFlagDetails.mixpanel {
       pageViewEvent(~path)->ignore
     }
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  React.useEffect(() => {
+  React.useEffect1(() => {
     if userGroupACL->Option.isSome {
       setScreenState(_ => PageLoaderWrapper.Success)
-    }
-    if retainCloneModal {
-      setScreenState(_ => PageLoaderWrapper.Custom)
     }
     None
   }, [userGroupACL])
@@ -145,9 +165,6 @@ let make = () => {
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
-              <RenderIf condition={devOrgSidebar}>
-                <OrgSidebar />
-              </RenderIf>
               <RenderIf condition={screenState === Success}>
                 <Sidebar
                   path={url.path}
@@ -160,31 +177,55 @@ let make = () => {
                 screenState customUI sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                  <div className="border-b shadow hyperswitch_box_shadow ">
-                    <div className="w-full max-w-fixedPageWidth px-9">
-                      <Navbar
-                        headerActions={<div className="relative flex space-around gap-4 my-2 ">
-                          <div className="flex gap-4">
+                  <div className="w-full max-w-fixedPageWidth md:px-12 px-5 pt-3">
+                    <Navbar
+                      headerActions={<div className="relative flex space-around gap-4 my-2 ">
+                        <div className="flex gap-4 items-center">
+                          <RenderIf
+                            condition={merchantDetailsTypedValue.product_type == Orchestration}>
                             <GlobalSearchBar />
-                            <RenderIf condition={isInternalUser}>
-                              <SwitchMerchantForInternal />
-                            </RenderIf>
-                            <div
-                              className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
-                              {modeText->React.string}
-                            </div>
+                          </RenderIf>
+                          <RenderIf condition={isInternalUser}>
+                            <SwitchMerchantForInternal />
+                          </RenderIf>
+                        </div>
+                      </div>}
+                      headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
+                      | Some(url) =>
+                        <div className="flex md:gap-4 gap-2 items-center">
+                          <img className="h-8 w-auto object-contain" alt="image" src={`${url}`} />
+                          <ProfileSwitch />
+                          <div
+                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
+                            <span className="relative flex h-2 w-2">
+                              <span
+                                className={`animate-ping absolute inline-flex h-full w-full rounded-full ${modebg} opacity-75`}
+                              />
+                              <span
+                                className={`relative inline-flex rounded-full h-2 w-2  ${modebg}`}
+                              />
+                            </span>
+                            <span className="font-semibold"> {modeText->React.string} </span>
                           </div>
-                        </div>}
-                        headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
-                        | Some(url) =>
-                          <>
-                            <img className="w-40" alt="image" src={`${url}`} />
-                            {ompDropdowns}
-                          </>
-                        | None => ompDropdowns
-                        }}
-                      />
-                    </div>
+                        </div>
+                      | None =>
+                        <div className="flex md:gap-4 gap-2 items-center">
+                          <ProfileSwitch />
+                          <div
+                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
+                            <span className="relative flex h-2 w-2">
+                              <span
+                                className={`animate-ping absolute inline-flex h-full w-full rounded-full ${modebg} opacity-75`}
+                              />
+                              <span
+                                className={`relative inline-flex rounded-full h-2 w-2  ${modebg}`}
+                              />
+                            </span>
+                            <span className="font-semibold"> {modeText->React.string} </span>
+                          </div>
+                        </div>
+                      }}
+                    />
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
@@ -192,11 +233,28 @@ let make = () => {
                       <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
                     </RenderIf>
                     <div
-                      className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
+                      className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
+                        /* DEFAULT HOME */
+                        | list{"v2", "home"} => <DefaultHome />
+
+                        /* RECON PRODUCT */
                         | list{"v2", "recon", ..._} => <ReconApp />
+
+                        /* RECOVERY PRODUCT */
                         | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
+
+                        /* VAULT PRODUCT */
+                        | list{"v2", "vault", ..._} => <VaultApp />
+
+                        /* HYPERSENSE PRODUCT */
+                        | list{"v2", "cost-observability", ..._} => <HypersenseApp />
+
+                        /* INTELLIGENT ROUTING PRODUCT */
+                        | list{"v2", "dynamic-routing", ..._} => <IntelligentRoutingApp />
+
+                        /* ORCHESTRATOR PRODUCT */
                         | list{"home", ..._}
                         | list{"recon"}
                         | list{"upload-files"}
@@ -218,8 +276,10 @@ let make = () => {
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}
                         | list{"payoutrouting", ..._}
-                        | list{"payment-settings", ..._} =>
+                        | list{"payment-settings", ..._}
+                        | list{"webhooks", ..._} =>
                           <ConnectorContainer />
+                        | list{"apm"} => <APMContainer />
                         | list{"business-details", ..._}
                         | list{"business-profiles", ..._} =>
                           <BusinessProfileContainer />
@@ -327,25 +387,30 @@ let make = () => {
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />
                         | _ =>
-                          RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-                          <MerchantAccountContainer setAppScreenState=setScreenState />
+                          // SPECIAL CASE FOR ORCHESTRATOR
+                          if activeProduct === Orchestration {
+                            RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
+                            <MerchantAccountContainer setAppScreenState=setScreenState />
+                          } else {
+                            React.null
+                          }
                         }}
                       </ErrorBoundary>
                     </div>
                   </div>
                 </div>
+                <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
+                  <HSwitchFeedBackModal
+                    modalHeading="We'd love to hear from you!"
+                    showModal={showFeedbackModal}
+                    setShowModal={setShowFeedbackModal}
+                  />
+                </RenderIf>
+                <RenderIf condition={!featureFlagDetails.isLiveMode}>
+                  <ProdIntentForm productType={activeProduct} />
+                </RenderIf>
               </PageLoaderWrapper>
             </div>
-            <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
-              <HSwitchFeedBackModal
-                modalHeading="We'd love to hear from you!"
-                showModal={showFeedbackModal}
-                setShowModal={setShowFeedbackModal}
-              />
-            </RenderIf>
-            <RenderIf condition={!featureFlagDetails.isLiveMode}>
-              <ProdIntentForm />
-            </RenderIf>
           </div>
         </div>
       | #DEFAULT =>

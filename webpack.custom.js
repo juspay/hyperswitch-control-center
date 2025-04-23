@@ -6,7 +6,7 @@ const tailwindcss = require("tailwindcss");
 const webpack = require("webpack");
 const path = require("path");
 const serverConfig = require("./webpack.server");
-let customBuild = (appName = "hyperswitch") => {
+let customBuild = () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
   let entryObj = {
     app: `./src/entryPoints/HyperSwitchEntry.res.js`,
@@ -15,7 +15,7 @@ let customBuild = (appName = "hyperswitch") => {
     mode: "production",
     entry: entryObj,
     output: {
-      path: path.resolve(__dirname, "dist", appName),
+      path: path.resolve(__dirname, "dist", "hyperswitch"),
       clean: true,
       publicPath: "/",
     },
@@ -67,12 +67,11 @@ let customBuild = (appName = "hyperswitch") => {
       new MiniCssExtractPlugin(),
       new CopyPlugin({
         patterns: [
-          { from: `public/${appName}/index.html` },
-          { from: `public/${appName}/module.js` },
+          { from: `public/hyperswitch/index.html` },
+          { from: `public/hyperswitch/module.js` },
         ].filter(Boolean),
       }),
       new webpack.DefinePlugin({
-        dashboardAppName: JSON.stringify(appName),
         dashboardAppEnv: JSON.stringify(process.env.APP_ENV || "sandbox"),
         GIT_COMMIT_HASH: JSON.stringify(process.env.GIT_COMMIT_HASH || ""),
         appVersion: JSON.stringify(process.env.APP_VERSION || ""),

@@ -21,7 +21,7 @@ module TableModule = {
     <div className>
       <LoadedTable
         visibleColumns
-        title=" "
+        title="Failed Payments Distribution"
         hideTitle=true
         actualData={tableData}
         entity=failedSmartRetryDistributionTableEntity
@@ -86,7 +86,7 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
+        ~entityName=V1(ANALYTICS_PAYMENTS),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )

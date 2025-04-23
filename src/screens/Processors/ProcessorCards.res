@@ -63,6 +63,12 @@ let make = (
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let url = RescriptReactRouter.useUrl()
+  let urlPathArray = url.path->List.toArray
+  let connectorTypeName = switch urlPathArray[1] {
+  | Some(val) => val->LogicUtils.kebabToSnakeCase
+  | _ => ""
+  }
 
   let unConfiguredConnectors =
     connectorsAvailableForIntegration->Array.filter(total =>
@@ -74,7 +80,7 @@ let make = (
   let searchRef = React.useRef(Nullable.null)
 
   let handleClick = connectorName => {
-    mixpanelEvent(~eventName=`connect_processor_${connectorName}`)
+    mixpanelEvent(~eventName=`connect_processor_${connectorName}_${connectorTypeName}}`)
     RescriptReactRouter.push(
       GlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
     )

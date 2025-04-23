@@ -14,7 +14,7 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     open LogicUtils
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_DISPUTES, ~methodType=Get, ~id=Some("dispute"))
+      let infoUrl = getURL(~entityName=V1(ANALYTICS_DISPUTES), ~methodType=Get, ~id=Some("dispute"))
       let infoDetails = await fetchDetails(infoUrl)
       let metrics =
         infoDetails
@@ -49,9 +49,13 @@ let make = () => {
 
   let title = "Disputes Analytics"
 
-  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let analyticsfilterUrl = getURL(
+    ~entityName=V1(ANALYTICS_FILTERS),
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
   let disputeAnalyticsUrl = getURL(
-    ~entityName=ANALYTICS_PAYMENTS,
+    ~entityName=V1(ANALYTICS_PAYMENTS),
     ~methodType=Post,
     ~id=Some(domain),
   )

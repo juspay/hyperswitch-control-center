@@ -154,8 +154,8 @@ let getAttemptCell = (attemptData, colType): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelWhite
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | Amount =>
@@ -301,12 +301,12 @@ let getHeading = colType => {
   }
 }
 
-let getCell = (payoutData, colType): Table.cell => {
+let getCell = (payoutData, colType, merchantId, orgId): Table.cell => {
   switch colType {
   | PayoutId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/payouts/${payoutData.payout_id}/${payoutData.profile_id}`}
+        url={`/payouts/${payoutData.payout_id}/${payoutData.profile_id}/${merchantId}/${orgId}`}
         displayValue={payoutData.payout_id}
         copyValue={Some(payoutData.payout_id)}
       />,
@@ -315,7 +315,12 @@ let getCell = (payoutData, colType): Table.cell => {
   | MerchantId => DisplayCopyCell(payoutData.merchant_id)
   | Currency => Text(payoutData.currency)
   | Connector =>
-    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=payoutData.connector />, "")
+    CustomCell(
+      <HelperComponents.ConnectorCustomCell
+        connectorName=payoutData.connector connectorType={PayoutProcessor}
+      />,
+      "",
+    )
   | Email => Text(payoutData.email)
   | Amount =>
     CustomCell(
@@ -338,8 +343,8 @@ let getCell = (payoutData, colType): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelWhite
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | CustomerId => DisplayCopyCell(payoutData.customer_id)
@@ -366,7 +371,7 @@ let getCell = (payoutData, colType): Table.cell => {
         title: payoutData.priority->String.toUpperCase,
         color: switch priorityVariants {
         | Instant => LabelBlue
-        | _ => LabelOrange
+        | _ => LabelLightGray
         },
       })
     }
@@ -429,18 +434,19 @@ let getPayouts: JSON.t => array<payouts> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let payoutEntity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=getPayouts,
-  ~defaultColumns,
-  ~allColumns,
-  ~getHeading,
-  ~getCell,
-  ~dataKey="",
-  ~getShowLink={
-    payoutData =>
-      GlobalVars.appendDashboardPath(
-        ~url=`/payouts/${payoutData.payout_id}/${payoutData.profile_id}`,
-      )
-  },
-)
+let payoutEntity = (merchantId, orgId) =>
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=getPayouts,
+    ~defaultColumns,
+    ~allColumns,
+    ~getHeading,
+    ~getCell=(payout, payoutColsType) => getCell(payout, payoutColsType, merchantId, orgId),
+    ~dataKey="",
+    ~getShowLink={
+      payoutData =>
+        GlobalVars.appendDashboardPath(
+          ~url=`/payouts/${payoutData.payout_id}/${payoutData.profile_id}/${merchantId}/${orgId}`,
+        )
+    },
+  )

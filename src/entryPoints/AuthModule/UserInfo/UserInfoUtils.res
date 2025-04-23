@@ -14,6 +14,7 @@ let defaultValueOfUserInfo = {
   transactionEntity: #Merchant,
   analyticsEntity: #Merchant,
   themeId: "",
+  version: V1,
 }
 
 let entityMapper = entity => {
@@ -45,6 +46,12 @@ let analyticsEntityMapper = entity => {
   }
 }
 
+let versionMapper = version =>
+  switch version->String.toLowerCase {
+  | "v2" => V2
+  | _ => V1
+  }
+
 let defaultValueOfUserInfoProvider = {
   userInfo: defaultValueOfUserInfo,
   setUserInfoData: _ => (),
@@ -69,4 +76,5 @@ let itemMapper = dict => {
   analyticsEntity: dict->getString("entity_type", "")->analyticsEntityMapper,
   transactionEntity: dict->getString("entity_type", "")->transactionEntityMapper,
   themeId: dict->getString("theme_id", ""),
+  version: dict->getString("version", "v1")->versionMapper,
 }

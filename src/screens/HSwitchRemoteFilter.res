@@ -4,7 +4,7 @@ type filterBody = {
 }
 
 let formateDateString = date => {
-  date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
+  date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
 }
 
 let getDateFilteredObject = (~range=7) => {
@@ -163,7 +163,8 @@ module RemoteTableFilters = {
     ~customLeftView,
     ~title="",
     ~submitInputOnEnter=false,
-    ~entityName: APIUtilsTypes.entityName,
+    ~entityName: APIUtilsTypes.entityTypeWithVersion,
+    ~version=UserInfoTypes.V1,
     (),
   ) => {
     open LogicUtils
@@ -211,7 +212,7 @@ module RemoteTableFilters = {
                 (startTimeFilterKey, start_time->JSON.Encode.string),
                 (endTimeFilterKey, end_time->JSON.Encode.string),
               ]->getJsonFromArrayOfJson
-            await updateDetails(filterUrl, body, Post)
+            await updateDetails(filterUrl, body, Post, ~version)
           }
         | _ => await fetchDetails(filterUrl)
         }

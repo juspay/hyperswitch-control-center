@@ -201,7 +201,7 @@ let make = () => {
   let userDetailsFetch = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=USERS, ~userType=#USER_DETAILS, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#USER_DETAILS, ~methodType=Post)
       let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
       let response = await updateMethod(url, body, Post)
       setUserData(_ => response->valueToType)

@@ -37,6 +37,17 @@ type metrics = [
   | #sessionized_refund_count
   | #sessionized_refund_error_message
   | #sessionized_refund_reason
+  | // Authentication Analytics
+  #authentication_count
+  | #authentication_attempt_count
+  | #authentication_success_count
+  | #challenge_flow_count
+  | #frictionless_flow_count
+  | #frictionless_success_count
+  | #challenge_attempt_count
+  | #challenge_success_count
+  | #authentication_funnel
+  | #authentication_error_message
 ]
 type granularity = [
   | #G_ONEDAY

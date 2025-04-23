@@ -40,6 +40,7 @@ type processorTypes =
   | AIRWALLEX
   | WORLDPAY
   | CYBERSOURCE
+  | COINGATE
   | ELAVON
   | ACI
   | WORLDLINE
@@ -97,6 +98,11 @@ type processorTypes =
   | NEXIXPAY
   | XENDIT
   | JPMORGAN
+  | INESPAY
+  | MONERIS
+  | REDSYS
+  | HIPAY
+  | PAYSTACK
 
 type payoutProcessorTypes =
   | ADYEN
@@ -106,8 +112,10 @@ type payoutProcessorTypes =
   | PAYPAL
   | STRIPE
   | WISE
+  | NOMUPAY
 
-type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD
+type threeDsAuthenticatorTypes =
+  THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER | CLICK_TO_PAY_VISA
 
 type frmTypes =
   | Signifyd
@@ -117,6 +125,17 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
+type billingProcessorTypes = CHARGEBEE
+
+type connectorTypeVariants =
+  | PaymentProcessor
+  | PaymentVas
+  | PayoutProcessor
+  | AuthenticationProcessor
+  | PMAuthProcessor
+  | TaxProcessor
+  | BillingProcessor
+
 type connectorTypes =
   | Processors(processorTypes)
   | PayoutProcessor(payoutProcessorTypes)
@@ -124,6 +143,7 @@ type connectorTypes =
   | FRM(frmTypes)
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
   | TaxProcessor(taxProcessorTypes)
+  | BillingProcessor(billingProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -147,6 +167,9 @@ type paymentMethodTypes =
   | BankDebit
   | OpenBankingPIS
   | Paze
+  | AliPay
+  | WeChatPay
+  | DirectCarrierBilling
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
@@ -156,8 +179,7 @@ type advancedConfigurationList = {
 
 type advancedConfiguration = {options: advancedConfigurationList}
 
-type paymentMethodConfigType = {
-  payment_method_type: string,
+type paymentMethodConfigCommonType = {
   card_networks: array<string>,
   accepted_currencies: option<advancedConfigurationList>,
   accepted_countries: option<advancedConfigurationList>,
@@ -166,6 +188,16 @@ type paymentMethodConfigType = {
   recurring_enabled: option<bool>,
   installment_payment_enabled: option<bool>,
   payment_experience: option<string>,
+}
+
+type paymentMethodConfigType = {
+  payment_method_type: string,
+  ...paymentMethodConfigCommonType,
+}
+
+type paymentMethodConfigTypeV2 = {
+  payment_method_subtype: string,
+  ...paymentMethodConfigCommonType,
 }
 
 type paymentMethodEnabled = {
@@ -199,21 +231,9 @@ type pmAuthPaymentMethods = {
   mca_id: string,
 }
 
-type pmAuthDict = {enabled_payment_methods: array<pmAuthPaymentMethods>}
-
-type paymentMethodConfig = {
-  bank_redirect?: option<array<string>>,
-  bank_transfer?: option<array<string>>,
-  credit_card?: option<array<string>>,
-  debit_card?: option<array<string>>,
-  pay_later?: option<array<string>>,
-  wallets?: option<array<string>>,
-}
-
 type wasmRequest = {
   payment_methods_enabled: array<paymentMethodEnabled>,
   connector: string,
-  metadata: JSON.t,
 }
 
 type wasmExtraPayload = {
@@ -259,6 +279,7 @@ type certificateAuth = {
   certificate: string,
   private_key: string,
 }
+type noKeyAuth = {auth_type: string}
 
 type connectorAuthType =
   | HeaderKey
@@ -267,6 +288,7 @@ type connectorAuthType =
   | MultiAuthKey
   | CurrencyAuthKey
   | CertificateAuth
+  | NoKey
   | UnKnownAuthType
 
 type connectorAuthTypeObj =
@@ -276,22 +298,21 @@ type connectorAuthTypeObj =
   | MultiAuthKey(multiAuthKey)
   | CurrencyAuthKey(currencyAuthKey)
   | CertificateAuth(certificateAuth)
+  | NoKey(noKeyAuth)
   | UnKnownAuthType(JSON.t)
-
-type connectorAccountDetails = {
-  auth_type: string,
-  api_secret?: string,
-  api_key?: string,
-  key1?: string,
-  key2?: string,
-}
 
 type paymentMethodEnabledType = {
   payment_method: string,
-  payment_method_types: array<paymentMethodConfigType>,
+  mutable payment_method_types: array<paymentMethodConfigType>,
+}
+
+type paymentMethodEnabledTypeV2 = {
+  payment_method_type: string,
+  payment_method_subtypes: array<paymentMethodConfigTypeV2>,
 }
 
 type payment_methods_enabled = array<paymentMethodEnabledType>
+type payment_methods_enabledV2 = array<paymentMethodEnabledTypeV2>
 
 type frm_payment_method_type = {
   payment_method_type: string,
@@ -310,14 +331,6 @@ type frm_config = {
   mutable payment_methods: array<frm_payment_method>,
 }
 
-type connectorTypeVariants =
-  | PaymentProcessor
-  | PaymentVas
-  | PayoutProcessor
-  | AuthenticationProcessor
-  | PMAuthProcessor
-  | TaxProcessor
-
 type connectorPayload = {
   connector_type: connectorTypeVariants,
   connector_name: string,
@@ -335,6 +348,23 @@ type connectorPayload = {
   additional_merchant_data: JSON.t,
 }
 
+type connectorPayloadV2 = {
+  connector_type: connectorTypeVariants,
+  connector_name: string,
+  connector_label: string,
+  connector_account_details: connectorAuthTypeObj,
+  disabled: bool,
+  payment_methods_enabled: payment_methods_enabledV2,
+  profile_id: string,
+  metadata: JSON.t,
+  id: string,
+  frm_configs: array<frm_config>,
+  status: string,
+  connector_webhook_details: JSON.t,
+  additional_merchant_data: JSON.t,
+  feature_metadata: JSON.t,
+}
+
 type connector =
   | FRMPlayer
   | Processor
@@ -342,3 +372,4 @@ type connector =
   | ThreeDsAuthenticator
   | PMAuthenticationProcessor
   | TaxProcessor
+  | BillingProcessor

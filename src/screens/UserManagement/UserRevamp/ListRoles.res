@@ -19,7 +19,7 @@ let make = () => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
         ~queryParamerters=userModuleEntity == #Default
@@ -59,7 +59,7 @@ let make = () => {
               GlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
             )
           }}
-          customButtonStyle="w-fit !rounded-md"
+          customButtonStyle="w-fit"
           buttonState={checkUserEntity([#Profile]) ? Disabled : Normal}
         />
       </div>

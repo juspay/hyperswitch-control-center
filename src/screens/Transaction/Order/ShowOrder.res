@@ -66,7 +66,7 @@ module ShowOrderDetails = {
       </RenderIf>
       <FormRenderer.DesktopRow>
         <div
-          className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+          className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
           {detailsFields
           ->Array.mapWithIndex((colType, i) => {
             <div className=widthClass key={i->Int.toString}>
@@ -187,9 +187,9 @@ module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
     let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-    let widthClass = "w-4/12"
+    let widthClass = "w-1/3"
     <div className="flex flex-row flex-wrap">
-      <div className="w-1/2 p-2">
+      <div className="w-full p-2">
         <Details
           heading=String("Dispute Details")
           data
@@ -414,7 +414,7 @@ module OrderActions = {
     })
     React.useEffect(_ => {
       setAmoutAvailableToRefund(_ =>
-        orderData.amount /. 100.0 -.
+        orderData.amount_received /. 100.0 -.
         amountRefunded.contents /. 100.0 -.
         requestedRefundAmount.contents /. 100.0
       )
@@ -456,7 +456,7 @@ module FraudRiskBannerDetails = {
     let updateMerchantDecision = async (~decision) => {
       try {
         let ordersDecisionUrl = `${getURL(
-            ~entityName=ORDERS,
+            ~entityName=V1(ORDERS),
             ~methodType=Get,
             ~id=Some(order.payment_id),
           )}/${decision->String.toLowerCase}`
@@ -490,7 +490,7 @@ module FraudRiskBannerDetails = {
     <div
       className="w-full bg-white dark:bg-jp-gray-lightgray_background rounded-md px-4 pb-5 h-full">
       <div
-        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border lg:flex-row flex-col`}>
         {frmColumns
         ->Array.mapWithIndex((colType, i) => {
           <div className="w-1/3" key={i->Int.toString}>
@@ -536,7 +536,7 @@ module AuthenticationDetails = {
     <div
       className="w-full bg-white dark:bg-jp-gray-lightgray_background rounded-md px-4 pb-5 h-full">
       <div
-        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border lg:flex-row flex-col`}>
         {authenticationColumns
         ->Array.mapWithIndex((colType, i) => {
           <div className="w-1/3" key={i->Int.toString}>
@@ -632,7 +632,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   React.useEffect(() => {
     let accountUrl = getURL(
-      ~entityName=ORDERS,
+      ~entityName=V1(ORDERS),
       ~methodType=Get,
       ~id=Some(id),
       ~queryParamerters=Some("expand_attempts=true"),
@@ -658,7 +658,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let refreshStatus = async () => {
     try {
       let getRefreshStatusUrl = getURL(
-        ~entityName=ORDERS,
+        ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(id),
         ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
@@ -690,7 +690,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                 name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
               />,
             )}
-            customButtonStyle="!w-fit"
+            customButtonStyle="mr-1"
             buttonType={Primary}
             onClick={_ => refreshStatus()->ignore}
           />

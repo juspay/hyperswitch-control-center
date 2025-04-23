@@ -84,7 +84,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -114,7 +114,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       }
 
       let paypalBody = generatePayPalBody(~connectorId={connectorID}, ~profileId=Some(profileId))
-      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post)
+      let url = getURL(~entityName=V1(PAYPAL_ONBOARDING_SYNC), ~methodType=Post)
       let responseValue = await updateDetails(url, paypalBody, Post)
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
@@ -293,6 +293,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           />
         | SummaryAndTest
         | Preview =>
+          // <PaymentProcessorSummary />
           <ConnectorPreview
             connectorInfo={initialValues}
             currentStep

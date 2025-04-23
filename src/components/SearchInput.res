@@ -12,10 +12,10 @@ let make = (
   ~searchRef=?,
   ~shouldSubmitForm=true,
   ~placeholderCss="bg-transparent text-fs-14",
-  ~bgColor="bg-white border-jp-gray-600 border-opacity-75 focus-within:border-primary",
+  ~bgColor="border-jp-gray-600 border-opacity-75 focus-within:border-primary",
   ~iconName="new_search_icon",
   ~onKeyDown=_ => {()},
-  ~showSearchIcon=true,
+  ~showSearchIcon=false,
 ) => {
   let (prevVal, setPrevVal) = React.useState(_ => "")
   let showPopUp = PopUpState.useShowPopUp()
@@ -54,10 +54,13 @@ let make = (
   let exitCross = useLottieJson(exitSearchCross)
   let enterCross = useLottieJson(enterSearchCross)
   <div
-    className={`${widthClass} ${borderClass} ${heightClass} ${bgColor} flex flex-row items-center justify-between
+    className={`${widthClass} ${borderClass} ${heightClass} flex flex-row items-center justify-between
     dark:bg-jp-gray-lightgray_background
     dark:focus-within:border-primary hover:border-opacity-100 
-    dark:border-jp-gray-850 dark:border-opacity-50 dark:hover:border-opacity-100`}>
+    dark:border-jp-gray-850 dark:border-opacity-50 dark:hover:border-opacity-100 ${bgColor} `}>
+    <RenderIf condition={showSearchIcon}>
+      <Icon name="nd-search" className="w-4 h-4" />
+    </RenderIf>
     <input
       ref={searchRef->ReactDOM.Ref.domRef}
       type_="text"
@@ -70,7 +73,7 @@ let make = (
       onKeyDown
     />
     <AddDataAttributes attributes=[("data-icon", "searchExit")]>
-      <div className="h-6 my-auto w-6" onClick=clearSearch>
+      <div className="h-6 flex w-6" onClick=clearSearch>
         <ReactSuspenseWrapper loadingText="">
           <Lottie
             animationData={(prevVal->LogicUtils.isNonEmptyString &&

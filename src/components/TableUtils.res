@@ -37,14 +37,7 @@ type labelColor =
   | LabelGray
   | LabelOrange
   | LabelYellow
-  | LabelDarkGreen
-  | LabelDarkRed
-  | LabelBrown
-  | LabelLightBlue
-  | LabelWhite
-  | LabelViolet
-  | LabelLightGreen
-  | LabelLightRed
+  | LabelLightGray
 
 type filterDataType =
   | Float(float, float)
@@ -119,6 +112,7 @@ type cell =
   | Currency(float, currency)
   | Date(string)
   | DateWithoutTime(string)
+  | DateWithCustomDateStyle(string, string)
   | StartEndDate(string, string)
   | InputField(React.element)
   | Link(string)
@@ -230,29 +224,26 @@ module LabelCell = {
     ~fontStyle="font-ibm-plex",
     ~showIcon=true,
   ) => {
-    let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
     let isMobileView = MatchMedia.useMobileChecker()
     let bgOpacity = isMobileView ? "bg-opacity-12 dark:!bg-opacity-12" : ""
     let borderColor = switch labelColor {
-    | LabelGreen => `bg-green-950 ${bgOpacity} dark:bg-opacity-50`
-    | LabelRed => `bg-red-960 ${bgOpacity} dark:bg-opacity-50`
-    | LabelBlue => `${primaryColor} dark:bg-opacity-50`
-    | LabelGray => "bg-blue-table_gray"
-    | LabelOrange => `bg-orange-950 ${bgOpacity} dark:bg-opacity-50`
-    | LabelYellow => "bg-yellow-600"
-    | LabelDarkGreen => "bg-green-700"
-    | LabelDarkRed => "bg-red-400"
-    | LabelBrown => "bg-brown-600 bg-opacity-50"
-    | LabelLightBlue => `${primaryColor} bg-opacity-50`
-    | LabelWhite => "bg-white border border-jp-gray-300"
-    | LabelViolet => "bg-violet-500"
-    | LabelLightGreen => "bg-green-700  dark:bg-opacity-50"
-    | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
+    | LabelGreen => `bg-nd_green-50 ${bgOpacity} dark:bg-opacity-50`
+    | LabelRed => `bg-nd_red-50 ${bgOpacity} dark:bg-opacity-50`
+    | LabelBlue => `bg-nd_primary_blue-50 bg-opacity-50`
+    | LabelGray => "bg-nd_gray-150"
+    | LabelOrange => `bg-nd_orange-50 ${bgOpacity} dark:bg-opacity-50`
+    | LabelYellow => "bg-nd_yellow-100"
+    | LabelLightGray => "bg-nd_gray-50"
     }
 
     let textColor = switch labelColor {
-    | LabelGray => "text-jp-gray-900"
-    | LabelWhite => "text-jp-gray-700"
+    | LabelGreen => "text-nd_green-600"
+    | LabelRed => "text-nd_red-600"
+    | LabelOrange => "text-nd_orange-600"
+    | LabelYellow => "text-nd_yellow-800"
+    | LabelGray => "text-nd_gray-600"
+    | LabelLightGray => "text-nd_gray_600"
+    | LabelBlue => "text-nd_primary_blue-600"
     | _ => "text-white"
     }
 
@@ -298,14 +289,7 @@ module NewLabelCell = {
     | LabelGray => "bg-blue-table_gray"
     | LabelOrange => "bg-orange-950 dark:bg-opacity-50"
     | LabelYellow => "bg-blue-table_yellow"
-    | LabelDarkGreen => "bg-green-700"
-    | LabelDarkRed => "bg-red-400"
-    | LabelBrown => "bg-brown-600 bg-opacity-50"
-    | LabelLightBlue => "bg-primary bg-opacity-50"
-    | LabelWhite => "bg-white border border-jp-gray-300"
-    | LabelViolet => "bg-violet-500"
-    | LabelLightGreen => "bg-green-700 dark:bg-opacity-50"
-    | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
+    | LabelLightGray => "bg-nd_gray-50"
     }
     let bgColor = switch labelColor {
     | LabelGreen => "bg-[#ECFDF3]"
@@ -349,14 +333,7 @@ module ColoredTextCell = {
     | LabelOrange => "text-status-text-orange"
     | LabelGray => "text-grey-500"
     | LabelYellow => "text-yellow-400"
-    | LabelDarkGreen => "text-green-700"
-    | LabelDarkRed => "text-red-700"
-    | LabelBrown => "text-yellow-800"
-    | LabelLightBlue => "text-sky-300"
-    | LabelWhite => "text-jp-gray-500"
-    | LabelViolet => "bg-violet-500"
-    | LabelLightGreen => "bg-green-700"
-    | LabelLightRed => "bg-red-400"
+    | LabelLightGray => "text-nd_gray-600"
     }
 
     <div className="flex">
@@ -474,10 +451,15 @@ module DateCell = {
     ~textAlign=Right,
     ~customDateStyle="",
     ~hideTime=false,
+    ~hideTimeZone=false,
   ) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let dateFormat = React.useContext(DateFormatProvider.dateFormatContext)
-    let dateFormat = isMobileView ? "DD MMM HH:mm" : dateFormat
+    let dateFormat = isMobileView
+      ? "DD MMM HH:mm"
+      : customDateStyle->LogicUtils.isNonEmptyString
+      ? customDateStyle
+      : dateFormat
 
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
     let getFormattedDate = dateStr => {
@@ -508,7 +490,9 @@ module DateCell = {
       <div className={`${wrapperClass} whitespace-nowrap`}>
         {hideTime
           ? React.string(timestamp->getFormattedDate->String.slice(~start=0, ~end=12))
-          : {React.string(`${timestamp->getFormattedDate} ${selectedTimeZoneAlias}`)}}
+          : hideTimeZone
+          ? React.string(`${timestamp->getFormattedDate}`)
+          : React.string(`${timestamp->getFormattedDate} ${selectedTimeZoneAlias}`)}
       </div>
     </AddDataAttributes>
   }
@@ -708,12 +692,18 @@ module TableCell = {
       timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
+    | DateWithCustomDateStyle(timestamp, dateFormat) =>
+      timestamp->isNonEmptyString
+        ? <DateCell
+            timestamp textAlign=Left hideTime=false hideTimeZone=true customDateStyle=dateFormat
+          />
+        : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
     | InputField(fieldElement) => fieldElement
     | Link(ele) => <LinkCell data=ele trimLength=55 />
     | Progress(percent) => <ProgressCell progressPercentage=percent />
     | CustomCell(ele, _) => ele
-    | DisplayCopyCell(string) => <HelperComponents.CopyTextCustomComp displayValue=string />
+    | DisplayCopyCell(string) => <HelperComponents.CopyTextCustomComp displayValue=Some(string) />
     | DeltaPercentage(value, delta) => <DeltaColumn value delta />
     | Numeric(num, mapper) => <Numeric num mapper clearFormatting />
     | ColoredText(x) => <ColoredTextCell labelColor=x.color text=x.title />
@@ -759,12 +749,18 @@ module NewTableCell = {
       timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
+    | DateWithCustomDateStyle(timestamp, dateFormat) =>
+      timestamp->isNonEmptyString
+        ? <DateCell
+            timestamp textAlign=Left hideTime=false hideTimeZone=true customDateStyle=dateFormat
+          />
+        : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
     | InputField(fieldElement) => fieldElement
     | Link(ele) => <LinkCell data=ele trimLength=55 />
     | Progress(percent) => <ProgressCell progressPercentage=percent />
     | CustomCell(ele, _) => ele
-    | DisplayCopyCell(string) => <HelperComponents.CopyTextCustomComp displayValue=string />
+    | DisplayCopyCell(string) => <HelperComponents.CopyTextCustomComp displayValue=Some(string) />
     | DeltaPercentage(value, delta) => <DeltaColumn value delta />
     | Numeric(num, mapper) => <Numeric num mapper clearFormatting />
     | ColoredText(x) => <ColoredTextCell labelColor=x.color text=x.title />

@@ -24,10 +24,10 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     sidebar: {
       primary: "#FCFCFD",
       secondary: "#FFFFFF",
-      hoverColor: "#cacdd0",
+      hoverColor: "#D9DDE5",
       primaryTextColor: "#1C6DEA",
       secondaryTextColor: "#525866",
-      borderColor: "#E1E4EA",
+      borderColor: "#ECEFF3",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -39,14 +39,14 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     },
     buttons: {
       primary: {
-        backgroundColor: "#0561E2",
+        backgroundColor: "#1272f9",
         textColor: "#ffffff",
-        hoverBackgroundColor: "#247DF9",
+        hoverBackgroundColor: "#0860dd",
       },
       secondary: {
-        backgroundColor: "#F3F3F3",
-        textColor: "#525866",
-        hoverBackgroundColor: "#FCFCFD",
+        backgroundColor: "#f3f3f3",
+        textColor: "#626168",
+        hoverBackgroundColor: "#fcfcfd",
       },
     },
     borders: {

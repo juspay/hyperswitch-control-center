@@ -20,6 +20,7 @@ type pageDetails = {offset: int, resultsPerPage: int}
 let table_pageDetails: Recoil.recoilAtom<RescriptCore.Dict.t<pageDetails>>
 @react.component
 let make: (
+  ~hideCustomisableColumnButton: bool=?,
   ~visibleColumns: array<'a>=?,
   ~defaultSort: Table.sortedObject=?,
   ~title: string,
@@ -117,4 +118,5 @@ let make: (
   ~loadedTableParentClass: string=?,
   ~remoteSortEnabled: bool=?,
   ~showAutoScroll: bool=?,
+  ~highlightSelectedRow: bool=?,
 ) => React.element

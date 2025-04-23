@@ -17,7 +17,11 @@ let make = (
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
-  let connectorInfo = connectorInfoDict->ConnectorListMapper.getProcessorPayloadType
+
+  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    connectorInfoDict,
+  )
 
   let openConfirmationPopUp = _ => {
     showPopUp({
@@ -92,6 +96,7 @@ let make = (
   | MultiAuthKey(multiAuthKey) => multiAuthKey.auth_type
   | CertificateAuth(certificateAuth) => certificateAuth.auth_type
   | CurrencyAuthKey(currencyAuthKey) => currencyAuthKey.auth_type
+  | NoKey(noKeyAuth) => noKeyAuth.auth_type
   | UnKnownAuthType(_) => ""
   }
   <Popover \"as"="div" className="relative inline-block text-left">

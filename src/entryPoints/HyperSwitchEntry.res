@@ -1,10 +1,11 @@
 module HyperSwitchEntryComponent = {
+  open HyperswitchAtom
   @react.component
   let make = () => {
     let fetchDetails = APIUtils.useGetMethod()
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
-    let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
+    let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
     let configureFavIcon = (faviconUrl: option<string>) => {
@@ -43,6 +44,7 @@ module HyperSwitchEntryComponent = {
             faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
             logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           },
+          hypersenseUrl: dict->getString("hypersense_url", ""),
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
@@ -105,6 +107,7 @@ module HyperSwitchEntryComponent = {
       }
       None
     }, [url.path])
+
     <PageLoaderWrapper
       screenState
       sectionHeight="h-screen"

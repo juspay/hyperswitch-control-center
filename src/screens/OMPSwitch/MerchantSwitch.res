@@ -3,12 +3,25 @@ module NewMerchantCreationModal = {
   let make = (~setShowModal, ~showModal, ~getMerchantList) => {
     open APIUtils
     let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let createNewMerchant = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
-        let _ = await updateDetails(url, values, Post)
+        switch activeProduct {
+        | Orchestration
+        | DynamicRouting
+        | CostObservability => {
+            let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            let _ = await updateDetails(url, values, Post)
+          }
+        | _ => {
+            let url = getURL(~entityName=V2(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
+            let _ = await updateDetails(url, values, Post, ~version=V2)
+          }
+        }
+        mixpanelEvent(~eventName="create_new_merchant", ~metadata=values)
         getMerchantList()->ignore
         showToast(
           ~toastType=ToastSuccess,
@@ -22,6 +35,15 @@ module NewMerchantCreationModal = {
       setShowModal(_ => false)
       Nullable.null
     }
+
+    let initialValues = React.useMemo(() => {
+      let dict = Dict.make()
+      dict->Dict.set(
+        "product_type",
+        (Obj.magic(activeProduct) :> string)->String.toLowerCase->JSON.Encode.string,
+      )
+      dict->JSON.Encode.object
+    }, [activeProduct])
 
     let onSubmit = (values, _) => {
       open LogicUtils
@@ -85,7 +107,7 @@ module NewMerchantCreationModal = {
           </div>
         </div>
         <hr />
-        <Form key="new-merchant-creation" onSubmit validate={validateForm}>
+        <Form key="new-merchant-creation" onSubmit validate={validateForm} initialValues>
           <div className="flex flex-col h-full w-full">
             <div className="py-10">
               <FormRenderer.DesktopRow>
@@ -129,24 +151,59 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let url = RescriptReactRouter.useUrl()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
+  let isMobileView = MatchMedia.useMobileChecker()
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
   )
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
+  let {
+    globalUIConfig: {
+      sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
+    },
+  } = React.useContext(ThemeProvider.themeContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devModularityV2} = featureFlagDetails
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
 
+  let getV2MerchantList = async () => {
+    try {
+      let v2MerchantListUrl = getURL(
+        ~entityName=V2(USERS),
+        ~userType=#LIST_MERCHANT,
+        ~methodType=Get,
+      )
+      let v2MerchantResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
+      v2MerchantResponse->getArrayFromJson([])
+    } catch {
+    | _ => []
+    }
+  }
   let getMerchantList = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
-      let response = await fetchDetails(url)
-      setMerchantList(_ => response->getArrayDataFromJson(merchantItemToObjMapper))
+      let v1MerchantListUrl = getURL(
+        ~entityName=V1(USERS),
+        ~userType=#LIST_MERCHANT,
+        ~methodType=Get,
+      )
+      let v1MerchantResponse = await fetchDetails(v1MerchantListUrl)
+
+      let v2MerchantList = if devModularityV2 {
+        await getV2MerchantList()
+      } else {
+        []
+      }
+      let concatenatedList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
+      let response =
+        concatenatedList->LogicUtils.uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
+      let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
+      setMerchantList(_ => concatenatedListTyped)
     } catch {
     | _ => {
-        setMerchantList(_ => ompDefaultValue(merchantId, ""))
+        setMerchantList(_ => [ompDefaultValue(merchantId, "")])
         showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
       }
     }
@@ -155,8 +212,14 @@ let make = () => {
   let switchMerch = async value => {
     try {
       setShowSwitchingMerch(_ => true)
-      let _ = await internalSwitch(~expectedMerchantId=Some(value))
-      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
+      let merchantData =
+        merchantList
+        ->Array.find(merchant => merchant.id == value)
+        ->Option.getOr(ompDefaultValue(merchantId, ""))
+      let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
+      let productType = merchantData.productType->Option.getOr(Orchestration)
+      let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version, ~changePath=true)
+      setActiveProductValue(productType)
       setShowSwitchingMerch(_ => false)
     } catch {
     | _ => {
@@ -178,10 +241,12 @@ let make = () => {
     checked: true,
   }
 
-  let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
-  let addItemBtnStyle = "border border-t-0 w-full"
-  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
-  let dropdownContainerStyle = "rounded-md border border-1 w-[14rem] max-w-[20rem]"
+  let widthClass = isMobileView ? "w-full" : "md:w-60 md:max-w-80"
+  let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
+
+  let addItemBtnStyle = `w-full ${borderColor} border-t-0`
+  let customScrollStyle = `max-h-72 overflow-scroll px-1 pt-1 ${borderColor}`
+  let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass}`
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
@@ -201,7 +266,16 @@ let make = () => {
   > = merchantList->Array.mapWithIndex((item, i) => {
     let customComponent =
       <MerchantDropdownItem
-        key={Int.toString(i)} merchantName=item.name index=i currentId=item.id
+        key={Int.toString(i)}
+        merchantName=item.name
+        productType={switch item.productType {
+        | Some(product) => product
+        | None => Orchestration
+        }}
+        index=i
+        currentId=item.id
+        getMerchantList
+        switchMerch
       />
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,
@@ -210,6 +284,7 @@ let make = () => {
     }
     listItem
   })
+
   <div className="w-fit">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -217,18 +292,27 @@ let make = () => {
       input
       deselectDisable=true
       options={updatedMerchantList->generateDropdownOptionsCustomComponent}
-      marginTop="mt-14 "
+      marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true
       addButton=false
-      customStyle={`!border-none w-fit `}
-      searchable=false
-      baseComponent={<ListBaseComp heading="Merchant" subHeading arrow />}
-      baseComponentCustomStyle=" !border-none"
-      bottomComponent={<AddNewOMPButton user=#Merchant setShowModal customStyle addItemBtnStyle />}
+      customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
+      searchable=true
+      baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
+      baseComponentCustomStyle={`!border-none`}
+      bottomComponent={<AddNewOMPButton
+        user=#Merchant
+        setShowModal
+        customStyle={`${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`}
+        addItemBtnStyle
+        customHRTagStyle={`${borderColor}`}
+      />}
       toggleChevronState
       customScrollStyle
       dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
+      customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
+      searchInputPlaceHolder="Search Merchant Account or ID"
+      placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />

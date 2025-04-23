@@ -30,9 +30,9 @@ let getCell = (customersData, colType): Table.cell => {
   switch colType {
   | CustomerId =>
     CustomCell(
-      <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/customers/${customersData.customer_id}`}
-        displayValue={customersData.customer_id}
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue={Some(customersData.customer_id)}
         copyValue={Some(customersData.customer_id)}
       />,
       "",

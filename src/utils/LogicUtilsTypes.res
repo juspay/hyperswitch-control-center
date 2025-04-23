@@ -4,4 +4,6 @@ type valueType =
   | Volume
   | Latency
   | LatencyMs
-  | No_Type
+  | FormattedAmount
+  | AmountWithSuffix
+  | Default

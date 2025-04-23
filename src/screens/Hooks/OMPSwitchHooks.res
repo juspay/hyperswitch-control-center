@@ -12,7 +12,14 @@ let useUserInfo = () => {
 
   let getUserInfo = async () => {
     try {
-      let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+      let res = await fetchApi(
+        `${url}`,
+        ~method_=Get,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~merchantId={userInfo.merchantId},
+        ~profileId={userInfo.profileId},
+      )
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       userInfo
@@ -46,15 +53,17 @@ let useOrgSwitch = () => {
   let updateDetails = useUpdateMethod()
   let {getUserInfo} = useUserInfo()
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  async (~expectedOrgId, ~currentOrgId, ~defaultValue) => {
+  async (~expectedOrgId, ~currentOrgId, ~defaultValue, ~version=UserInfoTypes.V1) => {
     try {
       if expectedOrgId !== currentOrgId {
-        let url = getURL(~entityName=USERS, ~userType=#SWITCH_ORG, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_ORG, ~methodType=Post)
         let body =
           [("org_id", expectedOrgId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-        let responseDict = await updateDetails(url, body, Post)
+        mixpanelEvent(~eventName=`switch_org`, ~metadata=expectedOrgId->JSON.Encode.string)
+        let responseDict = await updateDetails(url, body, Post, ~version)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
         showToast(
@@ -80,17 +89,39 @@ let useMerchantSwitch = () => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let {getUserInfo} = useUserInfo()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  async (~expectedMerchantId, ~currentMerchantId, ~defaultValue) => {
+  async (~expectedMerchantId, ~currentMerchantId, ~defaultValue, ~version=UserInfoTypes.V1) => {
     try {
       if expectedMerchantId !== currentMerchantId {
-        let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT_NEW, ~methodType=Post)
         let body =
           [
             ("merchant_id", expectedMerchantId->JSON.Encode.string),
           ]->LogicUtils.getJsonFromArrayOfJson
-        let responseDict = await updateDetails(url, body, Post)
+        let responseDict = switch version {
+        | V1 => {
+            let url = getURL(
+              ~entityName=V1(USERS),
+              ~userType=#SWITCH_MERCHANT_NEW,
+              ~methodType=Post,
+            )
+
+            await updateDetails(url, body, Post)
+          }
+        | V2 => {
+            let url = getURL(
+              ~entityName=V2(USERS),
+              ~userType=#SWITCH_MERCHANT_NEW,
+              ~methodType=Post,
+            )
+            await updateDetails(url, body, Post, ~version=V2)
+          }
+        }
+        mixpanelEvent(
+          ~eventName=`switch_merchant`,
+          ~metadata=expectedMerchantId->JSON.Encode.string,
+        )
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
         showToast(~message=`Your merchant has been switched successfully.`, ~toastType=ToastSuccess)
@@ -113,16 +144,18 @@ let useProfileSwitch = () => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let {getUserInfo} = useUserInfo()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  async (~expectedProfileId, ~currentProfileId, ~defaultValue) => {
+  async (~expectedProfileId, ~currentProfileId, ~defaultValue, ~version=UserInfoTypes.V1) => {
     try {
       // Need to remove the Empty string check once userInfo contains the profileId
       if expectedProfileId !== currentProfileId && currentProfileId->LogicUtils.isNonEmptyString {
-        let url = getURL(~entityName=USERS, ~userType=#SWITCH_PROFILE, ~methodType=Post)
+        let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_PROFILE, ~methodType=Post)
         let body =
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-        let responseDict = await updateDetails(url, body, Post)
+        mixpanelEvent(~eventName=`switch_profile`, ~metadata=expectedProfileId->JSON.Encode.string)
+        let responseDict = await updateDetails(url, body, Post, ~version)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
         showToast(~message=`Your profile has been switched successfully.`, ~toastType=ToastSuccess)
@@ -145,27 +178,43 @@ let useInternalSwitch = () => {
   let profileSwitch = useProfileSwitch()
 
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
-
-  async (~expectedOrgId=None, ~expectedMerchantId=None, ~expectedProfileId=None) => {
+  let url = RescriptReactRouter.useUrl()
+  async (
+    ~expectedOrgId=None,
+    ~expectedMerchantId=None,
+    ~expectedProfileId=None,
+    ~version=UserInfoTypes.V1,
+    ~changePath=false,
+  ) => {
     try {
       let userInfoResFromSwitchOrg = await orgSwitch(
         ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
         ~currentOrgId=userInfo.orgId,
         ~defaultValue=userInfo,
+        ~version,
       )
 
       let userInfoResFromSwitchMerch = await merchSwitch(
         ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),
         ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
         ~defaultValue=userInfoResFromSwitchOrg,
+        ~version,
       )
 
       let userInfoFromProfile = await profileSwitch(
         ~expectedProfileId=expectedProfileId->Option.getOr(userInfoResFromSwitchMerch.profileId),
         ~currentProfileId=userInfoResFromSwitchMerch.profileId,
         ~defaultValue=userInfoResFromSwitchMerch,
+        ~version,
       )
       setUserInfoData(userInfoFromProfile)
+      if changePath {
+        // When the internal switch is triggered from the dropdown,
+        // and the current path is "/dashboard/payment/id",
+        // update the path to "/dashboard/payment" by removing the "id" part.
+        let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
+        RescriptReactRouter.replace(currentUrl)
+      }
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to switch!")

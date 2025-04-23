@@ -1,5 +1,5 @@
 describe("connector", () => {
-  const password = "Cypress98#";
+  const password = Cypress.env("CYPRESS_PASSWORD");
   const username = `cypress${Math.round(+new Date() / 1000)}@gmail.com`;
 
   const getIframeBody = () => {
@@ -102,7 +102,7 @@ describe("connector", () => {
     cy.get("[data-testid=connectors]").click();
     cy.get("[data-testid=paymentprocessors]").click();
     cy.contains("Payment Processors").should("be.visible");
-    cy.get("[data-testid=home]").click();
+    cy.get("[data-testid=home]").first().click();
     cy.get("[data-button-for=tryItOut]").click();
     cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
       "exist",
@@ -211,6 +211,7 @@ describe("connector", () => {
     cy.get("[data-testid=operations]").click();
     cy.get("[data-testid=payments]").click();
     cy.contains("Payment Operations").should("be.visible");
+    cy.get("span").contains("...").click();
     cy.get("[data-table-location=Orders_tr1_td2]")
       .invoke("text")
       .then((expectedPaymentId) => {
@@ -219,6 +220,7 @@ describe("connector", () => {
           .click()
           .type(`${expectedPaymentId}{enter}`);
         cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
+        cy.get("span").contains("...").click();
         cy.get("[data-table-location=Orders_tr1_td2]")
           .invoke("text")
           .should((actualPaymentId) => {

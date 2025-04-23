@@ -14,7 +14,7 @@ let make = () => {
   let loadInfo = async () => {
     open LogicUtils
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_REFUNDS, ~methodType=Get, ~id=Some(domain))
+      let infoUrl = getURL(~entityName=V1(ANALYTICS_REFUNDS), ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       let metrics =
         infoDetails
@@ -36,7 +36,7 @@ let make = () => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"))
+      let refundUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Post, ~id=Some("refund-post"))
       let body = Dict.make()
       body->Dict.set("limit", 100->Int.toFloat->JSON.Encode.float)
       let refundDetails = await updateDetails(refundUrl, body->JSON.Encode.object, Post)
@@ -71,9 +71,13 @@ let make = () => {
 
   let title = "Refunds Analytics"
 
-  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let analyticsfilterUrl = getURL(
+    ~entityName=V1(ANALYTICS_FILTERS),
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
   let refundAnalyticsUrl = getURL(
-    ~entityName=ANALYTICS_PAYMENTS,
+    ~entityName=V1(ANALYTICS_PAYMENTS),
     ~methodType=Post,
     ~id=Some(domain),
   )
@@ -83,7 +87,7 @@ let make = () => {
       filterUri=Some(analyticsfilterUrl)
       key="RefundsAnalytics"
       moduleName="Refunds"
-      deltaMetrics={getStringListFromArrayDict(metrics)}
+      deltaMetrics=["refund_success_rate", "refund_count", "refund_success_count"]
       chartEntity={default: chartEntity(tabKeys, ~uri=refundAnalyticsUrl)}
       tabKeys
       tabValues

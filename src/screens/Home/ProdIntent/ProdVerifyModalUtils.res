@@ -7,7 +7,6 @@ type prodFormColumnType =
   | Country
   | Website
   | POCName
-  | BusinessTAN
 
 let getStringFromVariant = key => {
   switch key {
@@ -17,7 +16,6 @@ let getStringFromVariant = key => {
   | Country => "business_location"
   | Website => "business_website"
   | POCName => "poc_name"
-  | BusinessTAN => "comments"
   }
 }
 
@@ -49,14 +47,6 @@ let pocEmail = FormRenderer.makeFieldInfo(
   ~label="Contact Email",
   ~name=POCemail->getStringFromVariant,
   ~placeholder="Eg: jackryan@hyperswitch.io",
-  ~customInput=InputFields.textInput(),
-  ~isRequired=true,
-)
-
-let businessTAN = FormRenderer.makeFieldInfo(
-  ~label="Tax Identification Number",
-  ~name=BusinessTAN->getStringFromVariant,
-  ~placeholder="Eg. Enter EIN No. for US, VAT No. for EU, etc",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )
@@ -95,8 +85,6 @@ let validateEmptyValue = (key, errors) => {
       key->getStringFromVariant,
       "Please enter a Point of Contact Name"->JSON.Encode.string,
     )
-  | BusinessTAN =>
-    Dict.set(errors, key->getStringFromVariant, "Please enter a Business TAN"->JSON.Encode.string)
   | _ => ()
   }
 }
@@ -107,14 +95,13 @@ let getFormField = columnType => {
   | BusinessName => businessName
   | Website => website
   | POCName => pocName
-  | BusinessTAN => businessTAN
   | _ => countryField
   }
 }
 
-let formFields = [BusinessName, Country, Website, POCName, POCemail, BusinessTAN]
+let formFields = [BusinessName, Country, Website, POCName, POCemail]
 
-let formFieldsForQuickStart = [BusinessName, Country, Website, POCName, POCemail, BusinessTAN]
+let formFieldsForQuickStart = [BusinessName, Country, Website, POCName, POCemail]
 
 let validateCustom = (key, errors, value) => {
   switch key {
@@ -136,7 +123,7 @@ let validateCustom = (key, errors, value) => {
   }
 }
 
-let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>, ~setIsDisabled) => {
+let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>) => {
   open LogicUtils
   let errors = Dict.make()
   let valuesDict = values->getDictFromJsonObject
@@ -146,8 +133,6 @@ let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>, ~setIs
 
     value->String.length < 1 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value)
   })
-
-  errors->Dict.keysToArray->Array.length > 0 ? setIsDisabled(_ => true) : setIsDisabled(_ => false)
 
   errors->JSON.Encode.object
 }
@@ -186,10 +171,6 @@ let getBody = (values: JSON.t) => {
   prodOnboardingpayload->setOptionString(
     POCName->getStringFromVariant,
     valuesDict->getOptionString(POCName->getStringFromVariant),
-  )
-  prodOnboardingpayload->setOptionString(
-    BusinessTAN->getStringFromVariant,
-    valuesDict->getOptionString(BusinessTAN->getStringFromVariant),
   )
   prodOnboardingpayload
 }

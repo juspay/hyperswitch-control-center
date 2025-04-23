@@ -1,6 +1,5 @@
 open NewAnalyticsTypes
 open NewAnalyticsHelper
-open LineGraphTypes
 open NewPaymentAnalyticsEntity
 open PaymentsProcessedUtils
 open NewPaymentAnalyticsUtils
@@ -29,7 +28,7 @@ module TableModule = {
     <div className>
       <LoadedTable
         visibleColumns
-        title=" "
+        title="Payments Processed"
         hideTitle=true
         actualData={paymentsProcessed}
         entity=paymentsProcessedTableEntity
@@ -150,7 +149,11 @@ module PaymentsProcessedHeader = {
 @react.component
 let make = (
   ~entity: moduleEntity,
-  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions, JSON.t>,
+  ~chartEntity: chartEntity<
+    LineGraphTypes.lineGraphPayload,
+    LineGraphTypes.lineGraphOptions,
+    JSON.t,
+  >,
 ) => {
   open LogicUtils
   open APIUtils
@@ -174,15 +177,18 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
-  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
-  let (granularity, setGranularity) = React.useState(_ =>
-    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let defaulGranularity = getDefaultGranularity(
+    ~startTime=startTimeVal,
+    ~endTime=endTimeVal,
+    ~granularity=featureFlag.granularity,
   )
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
 
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      setGranularity(_ => getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal))
+      setGranularity(_ => defaulGranularity)
     }
     None
   }, (startTimeVal, endTimeVal))
@@ -197,7 +203,7 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS_V2,
+        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -254,6 +260,7 @@ let make = (
               }->Identity.genericTypeToJson,
               ~granularity=granularity.value,
               ~isoStringToCustomTimeZone,
+              ~granularityEnabled=featureFlag.granularity,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -275,6 +282,7 @@ let make = (
             }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
             ~isoStringToCustomTimeZone,
+            ~granularityEnabled=featureFlag.granularity,
           )
         })
 

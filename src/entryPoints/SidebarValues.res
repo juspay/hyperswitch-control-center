@@ -23,7 +23,7 @@ module GetProductionAccess = {
     switch isProdIntentCompleted {
     | Some(_) =>
       <div
-        className={`flex items-center gap-2 border ${borderColor}  ${cursorStyles} px-3 py-10-px whitespace-nowrap rounded-lg justify-between`}
+        className={`flex items-center gap-2 border ${borderColor} bg-white text-nd_gray-700  ${cursorStyles} px-3 py-10-px mb-4 whitespace-nowrap rounded-lg justify-between`}
         onClick={_ => {
           isProdIntent
             ? ()
@@ -32,11 +32,11 @@ module GetProductionAccess = {
                 mixpanelEvent(~eventName="get_production_access")
               }
         }}>
-        <div className={`text-nd_gray-700 ${textStyles} !font-semibold`}>
+        <div className={`text-nd_gray-600 ${textStyles} !font-semibold`}>
           {productionAccessString->React.string}
         </div>
         <RenderIf condition={!isProdIntent}>
-          <Icon name="nd-arrow-right" size=20 className="pt-1" />
+          <Icon name="nd-arrow-right" size=22 className="pt-2" />
         </RenderIf>
       </div>
     | None =>
@@ -50,10 +50,10 @@ module GetProductionAccess = {
 module ProductHeaderComponent = {
   @react.component
   let make = () => {
-    let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
+    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
-    <div className={`text-sm font-semibold px-3 pt-6 pb-2 text-nd_gray-400`}>
-      {React.string(currentProduct->ProductUtils.getStringFromVariant->String.toUpperCase)}
+    <div className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest`}>
+      {React.string(activeProduct->ProductUtils.getProductDisplayName->String.toUpperCase)}
     </div>
   }
 }
@@ -82,6 +82,7 @@ let home = isHomeEnabled =>
         icon: "nd-home",
         link: "/home",
         access: Access,
+        selectedIcon: "nd-fill-home",
       })
     : emptyComponent
 
@@ -130,6 +131,17 @@ let payouts = userHasResourceAccess => {
   })
 }
 
+let alternatePaymentMethods = isApmEnabled =>
+  isApmEnabled
+    ? Link({
+        name: "Alt Payment Methods",
+        icon: "nd-apm",
+        link: "/apm",
+        access: Access,
+        selectedIcon: "nd-fill-apm",
+      })
+    : emptyComponent
+
 let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled, ~userEntity) => {
   let payments = payments(userHasResourceAccess)
   let refunds = refunds(userHasResourceAccess)
@@ -153,6 +165,7 @@ let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled
         icon: "nd-operations",
         showSection: true,
         links,
+        selectedIcon: "nd-operations-fill",
       })
     : emptyComponent
 }
@@ -194,7 +207,7 @@ let fraudAndRisk = (~userHasResourceAccess) => {
 
 let threeDsConnector = (~userHasResourceAccess) => {
   SubLevelLink({
-    name: "3DS Authenticator",
+    name: "3DS Authenticators",
     link: "/3ds-authenticators",
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: [
@@ -265,6 +278,7 @@ let connectors = (
         icon: "nd-connectors",
         showSection: true,
         links: connectorLinkArray,
+        selectedIcon: "nd-connectors-fill",
       })
     : emptyComponent
 }
@@ -319,7 +333,6 @@ let analytics = (
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
-  Js.log(authenticationAnalyticsFlag)
   let links = [paymentAnalytcis, refundAnalytics]
   if authenticationAnalyticsFlag {
     links->Array.push(authenticationAnalytics)
@@ -421,6 +434,7 @@ let workflow = (
         icon: "nd-workflow",
         showSection: true,
         links: defaultWorkFlow,
+        selectedIcon: "nd-workflow-fill",
       })
     : emptyComponent
 }
@@ -491,6 +505,7 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
     icon: "nd-settings",
     showSection: true,
     links: settingsLinkArray,
+    selectedIcon: "nd-settings-fill",
   })
 }
 
@@ -512,12 +527,30 @@ let paymentSettings = userHasResourceAccess => {
   })
 }
 
-let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity) => {
+let webhooks = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Webhooks",
+    link: `/webhooks`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("Webhooks", ""), ("Retry webhooks", "")],
+  })
+}
+
+let developers = (
+  isDevelopersEnabled,
+  ~isWebhooksEnabled,
+  ~userHasResourceAccess,
+  ~checkUserEntity,
+) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
+  if isWebhooksEnabled {
+    defaultDevelopersOptions->Array.push(webhooks)
+  }
 
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
@@ -650,6 +683,8 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     taxProcessor,
     newAnalytics,
     authenticationAnalytics,
+    devAltPaymentMethods,
+    devWebhooks,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -682,8 +717,9 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isPayoutEnabled=payOut,
       ~userEntity,
     ),
+    devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(~userHasResourceAccess, ~checkUserEntity),
+    default->developers(~isWebhooksEnabled=devWebhooks, ~userHasResourceAccess, ~checkUserEntity),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
@@ -691,22 +727,35 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
 }
 
 let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
-  let {currentProduct} = React.useContext(GlobalProvider.defaultContext)
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {isLiveMode} = featureFlagDetails
-
+  let {isLiveMode, devModularityV2} = featureFlagDetails
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let defaultSidebar = [
-    productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess),
-    CustomComponent({
-      component: <ProductHeaderComponent />,
-    }),
-  ]
-  let sidebarValuesForProduct = switch currentProduct {
-  | Orchestrator => hsSidebars
-  | Recon => [ReconSidebarValues.reconSidebars]
-  | Recovery => [RevenueRecoverySidebarValues.recoverySidebars]
+  let defaultSidebar = [productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess)]
+
+  if devModularityV2 {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Overview",
+        icon: "nd-home",
+        link: "/v2/home",
+        access: Access,
+        selectedIcon: "nd-fill-home",
+      }),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  }
+
+  let sidebarValuesForProduct = switch activeProduct {
+  | Orchestration => hsSidebars
+  | Recon => ReconSidebarValues.reconSidebars
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
+  | Vault => VaultSidebarValues.vaultSidebars
+  | CostObservability => HypersenseSidebarValues.hypersenseSidebars
+  | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

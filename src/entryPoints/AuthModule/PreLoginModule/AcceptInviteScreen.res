@@ -12,7 +12,11 @@ let make = (~onClick) => {
     try {
       open AuthUtils
 
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#ACCEPT_INVITE_FROM_EMAIL})
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~methodType=Post,
+        ~userType={#ACCEPT_INVITE_FROM_EMAIL},
+      )
       let res = await updateDetails(url, body, Post)
       setAuthStatus(PreLogin(getPreLoginInfo(res)))
     } catch {

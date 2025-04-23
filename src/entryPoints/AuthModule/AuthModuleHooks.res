@@ -27,7 +27,7 @@ let useAuthMethods = (): authMethodProps => {
     try {
       let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
       let authListUrl = getURL(
-        ~entityName=USERS,
+        ~entityName=V1(USERS),
         ~userType=#GET_AUTH_LIST,
         ~methodType=Get,
         ~queryParamerters=Some(`auth_id=${authId}`),

@@ -7,14 +7,7 @@ type labelColor =
   | LabelGray
   | LabelOrange
   | LabelYellow
-  | LabelDarkGreen
-  | LabelDarkRed
-  | LabelBrown
-  | LabelLightBlue
-  | LabelWhite
-  | LabelViolet
-  | LabelLightGreen
-  | LabelLightRed
+  | LabelLightGray
 type filterDataType = Float(float, float) | String | DateTime
 type disableField = {key: string, values: array<string>}
 type customiseColumnConfig = {showDropDown: bool, customizeColumnUi: React.element}
@@ -47,6 +40,7 @@ type cell =
   | Currency(float, currency)
   | Date(string)
   | DateWithoutTime(string)
+  | DateWithCustomDateStyle(string, string)
   | StartEndDate(string, string)
   | InputField(React.element)
   | Link(string)
@@ -153,6 +147,7 @@ module DateCell: {
     ~textAlign: textAlign=?,
     ~customDateStyle: string=?,
     ~hideTime: bool=?,
+    ~hideTimeZone: bool=?,
   ) => React.element
 }
 module StartEndDateCell: {

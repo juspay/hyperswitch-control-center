@@ -46,6 +46,7 @@ let make = (
     metrixMapper,
   } = singleStatEntity
 
+  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let jsonTransFormer = switch singleStatEntity {
   | {jsonTransformer} => jsonTransformer
   | _ => (_val, arr) => arr
@@ -261,6 +262,8 @@ let make = (
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
             ~forceCookies,
+            ~merchantId,
+            ~profileId,
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat histotic data for metrics ${metrics->metrixMapper}`,
@@ -313,6 +316,8 @@ let make = (
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
             ~forceCookies,
+            ~merchantId,
+            ~profileId,
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
           ->then(
@@ -364,6 +369,8 @@ let make = (
             ~betaEndpointConfig=?betaEndPointConfig,
             ~xFeatureRoute,
             ~forceCookies,
+            ~merchantId,
+            ~profileId,
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat Time Series data for metrics ${metrics->metrixMapper}`,

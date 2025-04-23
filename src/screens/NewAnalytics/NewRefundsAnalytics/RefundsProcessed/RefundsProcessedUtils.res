@@ -47,10 +47,6 @@ let refundsProcessedMapper = (
 
   let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric)
 
-  let title = {
-    text: "Refunds Processed",
-  }
-
   open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
   | Refund_Processed_Amount => Amount
@@ -66,11 +62,25 @@ let refundsProcessedMapper = (
   )
 
   {
+    chartHeight: DefaultHeight,
+    chartLeftSpacing: DefaultLeftSpacing,
     categories: primaryCategories,
     data: lineGraphData,
-    title,
+    title: {
+      text: "",
+    },
     yAxisMaxValue: None,
+    yAxisMinValue: Some(0),
     tooltipFormatter,
+    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
+      ~statType=Default,
+      ~currency="",
+      ~suffix="",
+    ),
+    legend: {
+      useHTML: true,
+      labelFormatter: LineGraphUtils.valueFormatter,
+    },
   }
 }
 

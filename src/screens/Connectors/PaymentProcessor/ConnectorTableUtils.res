@@ -15,8 +15,6 @@ type colType =
 let defaultColumns = [
   Name,
   MerchantConnectorId,
-  ProfileId,
-  ProfileName,
   ConnectorLabel,
   Status,
   Disabled,
@@ -32,7 +30,12 @@ let getConnectorObjectFromListViaId = (
 ) => {
   connectorList
   ->Array.find(ele => {ele.merchant_connector_id == mca_id})
-  ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+  ->Option.getOr(
+    ConnectorInterface.mapDictToConnectorPayload(
+      ConnectorInterface.connectorInterfaceV1,
+      Dict.make(),
+    ),
+  )
 }
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>) => {
@@ -49,9 +52,9 @@ let getHeading = colType => {
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | MerchantConnectorId =>
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
-  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | PaymentMethods => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
@@ -77,7 +80,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
     | Disabled =>
       Label({
         title: connector.disabled ? "DISABLED" : "ENABLED",
-        color: connector.disabled ? LabelRed : LabelGreen,
+        color: connector.disabled ? LabelGray : LabelGreen,
       })
 
     | Status =>
@@ -85,12 +88,6 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
           {connector.status->String.toUpperCase->React.string}
         </div>,
-        "",
-      )
-    | ProfileId => DisplayCopyCell(connector.profile_id)
-    | ProfileName =>
-      Table.CustomCell(
-        <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
         "",
       )
     | ConnectorLabel => Text(connector.connector_label)
@@ -104,7 +101,14 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         </div>,
         "",
       )
-    | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
+    | MerchantConnectorId =>
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap"
+          displayValue=Some(connector.merchant_connector_id)
+        />,
+        "",
+      )
     | Actions =>
       CustomCell(
         <CloneConnectorPaymentMethods
@@ -126,7 +130,12 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
+    ConnectorInterface.connectorInterfaceV1,
+    json,
+    PaymentProcessor,
+  )
+  data
 }
 
 let connectorEntity = (

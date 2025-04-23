@@ -14,7 +14,11 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let chartFetch = async () => {
     try {
-      let metricsUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
+      let metricsUrl = getURL(
+        ~entityName=V1(ANALYTICS_PAYMENTS),
+        ~methodType=Post,
+        ~id=Some(domain),
+      )
       let body = PerformanceUtils.requestBody(
         ~dimensions,
         ~excludeFilterValue=entity.requestBodyConfig.excludeFilterValue,

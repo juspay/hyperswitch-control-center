@@ -16,7 +16,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+  let {userInfo: {transactionEntity, orgId, merchantId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
@@ -105,7 +105,7 @@ let make = () => {
             customLeftView={<SearchBarFilter
               placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
             />}
-            entityName=PAYOUTS_FILTERS
+            entityName=V1(PAYOUTS_FILTERS)
           />
         </div>
         <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />
@@ -115,7 +115,7 @@ let make = () => {
           hideTitle=true
           title="Payouts"
           actualData=payoutData
-          entity={PayoutsEntity.payoutEntity}
+          entity={PayoutsEntity.payoutEntity(merchantId, orgId)}
           resultsPerPage=20
           showSerialNumber=true
           totalResults={totalCount}

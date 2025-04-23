@@ -6,8 +6,6 @@ type colType =
   | Status
   | Disabled
   | Actions
-  | ProfileId
-  | ProfileName
   | ConnectorLabel
   | PaymentMethods
   | MerchantConnectorId
@@ -15,8 +13,6 @@ type colType =
 let defaultColumns = [
   Name,
   MerchantConnectorId,
-  ProfileId,
-  ProfileName,
   ConnectorLabel,
   Status,
   Disabled,
@@ -39,10 +35,8 @@ let getHeading = colType => {
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | MerchantConnectorId =>
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
-  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | PaymentMethods => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
   }
@@ -66,9 +60,8 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   | Disabled =>
     Label({
       title: connector.disabled ? "DISABLED" : "ENABLED",
-      color: connector.disabled ? LabelRed : LabelGreen,
+      color: connector.disabled ? LabelGray : LabelGreen,
     })
-
   | Status =>
     Table.CustomCell(
       <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
@@ -76,16 +69,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       </div>,
       "",
     )
-  | ProfileId => DisplayCopyCell(connector.profile_id)
-  | ProfileName =>
-    Table.CustomCell(
-      <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
-      "",
-    )
   | ConnectorLabel => Text(connector.connector_label)
-
-  // | Actions =>
-  //   Table.CustomCell(<ConnectorActions connector_id={connector.merchant_connector_id} />, "")
   | Actions => Table.CustomCell(<div />, "")
   | PaymentMethods =>
     Table.CustomCell(
@@ -97,7 +81,14 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       </div>,
       "",
     )
-  | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
+  | MerchantConnectorId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(connector.merchant_connector_id)
+      />,
+      "",
+    )
   }
 }
 
@@ -110,7 +101,12 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
+    ConnectorInterface.connectorInterfaceV1,
+    json,
+    PayoutProcessor,
+  )
+  data
 }
 
 let payoutProcessorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

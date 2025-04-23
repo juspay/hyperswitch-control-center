@@ -11,7 +11,7 @@ module HoverInline = {
     ~customWidth,
   ) => {
     <div
-      className={`group relative font-medium flex flex-row items-center p-2 justify-center gap-x-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
+      className={`group/inlineHover relative font-medium flex flex-row items-center p-2 justify-center gap-x-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
       <RenderIf condition={leftIcon->Option.isSome}>
         {leftIcon->Option.getOr(React.null)}
       </RenderIf>
@@ -19,7 +19,7 @@ module HoverInline = {
         <div className="flex justify-between items-center w-full">
           <div className={`text-sm ${labelTextCustomStyle}`}> {React.string(value)} </div>
           <div
-            className={`${showEditIconOnHover ? "invisible group-hover:visible" : ""}`}
+            className={`${showEditIconOnHover ? "invisible group-hover/inlineHover:visible" : ""}`}
             onClick={ReactEvent.Mouse.stopPropagation}>
             leftActionButtons
           </div>
@@ -108,10 +108,13 @@ let make = (
     ~isActive=isUnderEdit,
     ~callback=() => {
       handleEdit(None)
+      handleCancel()
     },
   )
   let submitButtons =
-    <div className="flex items-center gap-2 pr-4" onClick={ReactEvent.Mouse.stopPropagation}>
+    <div
+      className="flex items-center gap-2 pr-4 cursor-pointer"
+      onClick={ReactEvent.Mouse.stopPropagation}>
       <button onClick={_ => handleCancel()} className={`cursor-pointer  ${customIconStyle}`}>
         <Icon name="nd-cross" size=16 />
       </button>
@@ -124,13 +127,13 @@ let make = (
     </div>
 
   let leftActionButtons =
-    <div className="gap-2 flex">
+    <div className="gap-2 flex cursor-pointer">
       <RenderIf condition={showEditIcon}>
         <button
           onClick={_ => {
             handleEdit(Some(index))
           }}
-          className={`cursor-pointer  ${customIconStyle}`}
+          className={`${customIconStyle}`}
           ariaLabel="Edit">
           <Icon name="nd-pencil" size=14 />
         </button>

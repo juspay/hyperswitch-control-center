@@ -13,15 +13,18 @@ module OrgMerchantSwitchCollapsed = {
 
 @react.component
 let make = (~isSidebarExpanded=false) => {
-  let {devOrgSidebar} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let {globalUIConfig: {sidebarColor: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
-  let expandedContent =
-    <div className={`border-b ${borderColor}`}>
-      <OrgSwitch />
-    </div>
-
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+  let expandedContent = {
+    <RenderIf condition={!isInternalUser}>
+      <div className={`flex justify-start items-center px-6 mt-7 border-b pb-4 ${borderColor}`}>
+        <MerchantSwitch />
+      </div>
+    </RenderIf>
+  }
   <>
-    <RenderIf condition={isSidebarExpanded && !devOrgSidebar}> expandedContent </RenderIf>
+    <RenderIf condition={isSidebarExpanded}> expandedContent </RenderIf>
     <RenderIf condition={!isSidebarExpanded}>
       <OrgMerchantSwitchCollapsed />
     </RenderIf>

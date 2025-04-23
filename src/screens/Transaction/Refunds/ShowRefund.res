@@ -25,7 +25,7 @@ module RefundInfo = {
         </div>
         <FormRenderer.DesktopRow>
           <div
-            className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+            className={`flex flex-wrap ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               if !(excludeColKeys->Array.includes(colType)) {
@@ -98,7 +98,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   let fetchRefundData = async () => {
     try {
-      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id))
+      let refundUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Get, ~id=Some(id))
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
@@ -108,7 +108,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       let paymentId =
         refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
       let orderUrl = getURL(
-        ~entityName=ORDERS,
+        ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(paymentId),
         ~queryParamerters=Some("expand_attempts=true"),
@@ -175,6 +175,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
               />,
             )}
             buttonType={Primary}
+            customButtonStyle="mr-1"
             onClick={_ => syncData()}
           />
         </RenderIf>

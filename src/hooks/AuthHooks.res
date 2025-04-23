@@ -1,4 +1,5 @@
 type contentType = Headers(string) | Unknown
+
 let headersForXFeature = (~uri, ~headers) => {
   if (
     uri->String.includes("lottie-files") ||
@@ -17,6 +18,9 @@ let getHeaders = (
   ~contentType=Headers("application/json"),
   ~xFeatureRoute,
   ~token,
+  ~merchantId,
+  ~profileId,
+  ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
 
@@ -26,12 +30,13 @@ let getHeaders = (
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    switch token {
-    | Some(str) => {
+    switch (token, version) {
+    | (Some(str), V1) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
       }
-    | None => ()
+    | (Some(str), V2) => headers->Dict.set("authorization", `Bearer ${str}`)
+    | _ => ()
     }
     switch contentType {
     | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
@@ -40,6 +45,14 @@ let getHeaders = (
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
     }
+
+    // this header is specific to Intelligent Routing (Dynamic Routing)
+    if uri->String.includes("simulate") {
+      headers->Dict.set("x-feature", "dynamo-simulator")
+    }
+    // headers for V2
+    headers->Dict.set("X-Profile-Id", profileId)
+    headers->Dict.set("X-Merchant-Id", merchantId)
     headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
@@ -67,6 +80,9 @@ let useApiFetcher = () => {
       ~contentType=Headers("application/json"),
       ~xFeatureRoute,
       ~forceCookies,
+      ~merchantId="",
+      ~profileId="",
+      ~version=UserInfoTypes.V1,
     ) => {
       let token = {
         switch authStatus {
@@ -100,7 +116,16 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials={forceCookies ? SameOrigin : Omit},
-            ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ~xFeatureRoute),
+            ~headers=getHeaders(
+              ~headers,
+              ~uri,
+              ~contentType,
+              ~token,
+              ~xFeatureRoute,
+              ~merchantId,
+              ~profileId,
+              ~version,
+            ),
           ),
         )
         ->catch(

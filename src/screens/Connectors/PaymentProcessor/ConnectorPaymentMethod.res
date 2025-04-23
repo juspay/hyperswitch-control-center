@@ -59,18 +59,14 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       let obj: ConnectorTypes.wasmRequest = {
         connector,
         payment_methods_enabled: paymentMethodsEnabled,
-        metadata: metaData,
       }
       let body =
         constructConnectorRequestBody(obj, values)->ignoreFields(
           connectorID->Option.getOr(""),
           connectorIgnoredField,
         )
-      // Need to refactor
-      let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-      let _ = updateMetaData(~metaData)
-      //
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID)
+
+      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=connectorID)
       let response = await updateAPIHook(connectorUrl, body, Post)
       let _ = await fetchConnectorList()
       setInitialValues(_ => response)

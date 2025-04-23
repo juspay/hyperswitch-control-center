@@ -1,10 +1,10 @@
 open LineGraphTypes
 
 // colors
-let darkGray = "#666666"
+let darkGray = "#525866"
 let lightGray = "#999999"
 let gridLineColor = "#e6e6e6"
-let fontFamily = "Arial, sans-serif"
+let fontFamily = "InterDisplay"
 
 let valueFormatter = (
   @this
@@ -16,8 +16,35 @@ let valueFormatter = (
   }
 )->asLegendsFormatter
 
+let lineGraphYAxisFormatter = (
+  ~statType: LogicUtilsTypes.valueType,
+  ~currency="",
+  ~suffix="",
+  ~scaleFactor=1.0,
+) => {
+  (
+    @this
+    (this: yAxisFormatter) => {
+      let value = this.value->Int.toFloat /. scaleFactor
+      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
+      formattedValue
+    }
+  )->asTooltipPointFormatter
+}
+
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
-  let {categories, data, title, tooltipFormatter, yAxisMaxValue} = lineGraphOptions
+  let {
+    chartHeight,
+    chartLeftSpacing,
+    categories,
+    data,
+    title,
+    tooltipFormatter,
+    yAxisMaxValue,
+    yAxisMinValue,
+    yAxisFormatter,
+    legend,
+  } = lineGraphOptions
 
   let stepInterval = Js.Math.max_int(
     Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 10.0),
@@ -30,12 +57,14 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       style: {
         color: darkGray,
         fontFamily, // Set the desired font family
+        fontSize: "12px", // Set the font size
       },
     },
     gridLineWidth: 1,
     gridLineColor,
     gridLineDashStyle: "Dash",
     labels: {
+      formatter: yAxisFormatter,
       align: "center",
       style: {
         color: lightGray,
@@ -43,18 +72,26 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       },
       x: 5,
     },
-    min: 0,
   }
 
   {
     chart: {
       \"type": "line",
-      spacingLeft: 20,
+      height: switch chartHeight {
+      | Custom(chartHeight) => chartHeight
+      | DefaultHeight => 400
+      },
+      spacingLeft: switch chartLeftSpacing {
+      | Custom(chartLeftSpacing) => chartLeftSpacing
+      | DefaultLeftSpacing => 20
+      },
       spacingRight: 20,
+      style: {
+        color: darkGray,
+        fontFamily,
+      },
     },
-    title: {
-      text: "",
-    },
+    title,
     xAxis: {
       categories,
       crosshair: true,
@@ -76,6 +113,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       startOnTick: false,
     },
     tooltip: {
+      enabled: true,
       style: {
         padding: "0px",
         fontFamily, // Set the desired font family
@@ -91,29 +129,48 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       shared: true, // Allows multiple series' data to be shown in a single tooltip
     },
     yAxis: {
-      switch yAxisMaxValue {
-      | Some(val) => {
+      switch (yAxisMaxValue, yAxisMinValue) {
+      | (Some(maxVal), Some(minVal)) => {
           ...yAxis,
-          max: val->Some,
+          max: Some(maxVal),
+          min: Some(minVal),
         }
-      | _ => yAxis
+      | (Some(maxVal), None) => {
+          ...yAxis,
+          max: Some(maxVal),
+        }
+      | (None, Some(minVal)) => {
+          ...yAxis,
+          min: Some(minVal),
+        }
+      | (None, None) => yAxis
       }
     },
     legend: {
+      ...legend,
       useHTML: true,
       labelFormatter: valueFormatter,
       symbolPadding: 0,
       symbolWidth: 0,
       itemStyle: {
-        fontFamily, // Set font family for legend items
-        fontSize: "12px", // Set font size
-        color: darkGray, // Set font color
+        fontFamily,
+        fontSize: "12px",
+        color: darkGray,
+        fontWeight: "400",
       },
     },
     plotOptions: {
       line: {
         marker: {
           enabled: false,
+        },
+      },
+      series: {
+        states: {
+          inactive: {
+            enabled: false,
+            opacity: 0.2,
+          },
         },
       },
     },

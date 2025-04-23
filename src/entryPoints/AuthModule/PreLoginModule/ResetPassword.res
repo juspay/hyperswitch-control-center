@@ -16,7 +16,7 @@ let make = (~flowType) => {
 
   let setResetPassword = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#RESET_PASSWORD, ~methodType=Post)
       let _ = await updateDetails(url, body, Post)
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
       setAuthStatus(LoggedOut)
@@ -30,7 +30,7 @@ let make = (~flowType) => {
 
   let rotatePassword = async password => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#ROTATE_PASSWORD, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#ROTATE_PASSWORD, ~methodType=Post)
       let body = [("password", password->JSON.Encode.string)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)

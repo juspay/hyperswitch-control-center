@@ -6,7 +6,10 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PMAuthProcessor,
+  )
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -29,14 +32,12 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let pmAuthConnectorsList =
-        connectorList->Array.filter(item => item.connector_type === PMAuthProcessor)
-      ConnectorUtils.sortByDisableField(pmAuthConnectorsList, connectorPayload =>
+      ConnectorUtils.sortByDisableField(connectorList, connectorPayload =>
         connectorPayload.disabled
       )
 
-      setConfiguredConnectors(_ => pmAuthConnectorsList)
-      setFilteredConnectorData(_ => pmAuthConnectorsList->Array.map(Nullable.make))
+      setConfiguredConnectors(_ => connectorList)
+      setFilteredConnectorData(_ => connectorList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -50,7 +51,7 @@ let make = () => {
 
   <div>
     <PageUtils.PageHeading
-      title={"PM Authentication Processors"}
+      title={"PM Authentication Processor"}
       subTitle={"Connect and configure open banking providers to verify customer bank accounts"}
     />
     <PageLoaderWrapper screenState>
@@ -81,8 +82,10 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
+          configuredConnectors={ConnectorInterface.mapConnectorPayloadToConnectorType(
+            ConnectorInterface.connectorInterfaceV1,
+            ConnectorTypes.PMAuthenticationProcessor,
+            configuredConnectors,
           )}
           connectorsAvailableForIntegration=ConnectorUtils.pmAuthenticationConnectorList
           urlPrefix="pm-authentication-processor/new"

@@ -85,6 +85,25 @@ let toCamelCase = str => {
   })
   ->Array.joinWith("")
 }
+
+let toKebabCase = str => {
+  let strArr = str->String.replaceRegExp(%re("/[-_]+/g"), " ")->String.split(" ")
+  strArr
+  ->Array.map(item => {
+    item->String.toLocaleLowerCase
+  })
+  ->Array.joinWith("-")
+}
+
+let kebabToSnakeCase = str => {
+  let strArr = str->String.replaceRegExp(%re("/[-_]+/g"), " ")->String.split(" ")
+  strArr
+  ->Array.map(item => {
+    item->String.toLocaleLowerCase
+  })
+  ->Array.joinWith("_")
+}
+
 let getNameFromEmail = email => {
   email
   ->String.split("@")
@@ -560,7 +579,22 @@ let formatCurrency = currency => {
   }
 }
 
-let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="") => {
+let formatAmount = (amount, currency) => {
+  let rec addCommas = str => {
+    let len = String.length(str)
+    if len <= 3 {
+      str
+    } else {
+      let prefix = String.slice(~start=0, ~end=len - 3, str)
+      let suffix = String.slice(~start=len - 3, ~end=len, str)
+      addCommas(prefix) ++ "," ++ suffix
+    }
+  }
+
+  `${currency} ${addCommas(amount->Int.toString)}`
+}
+
+let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="", ~suffix="") => {
   let amountSuffix = currency->formatCurrency
 
   let percentFormat = value => {
@@ -569,11 +603,13 @@ let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="") 
 
   switch statType {
   | Amount => `${value->indianShortNum} ${amountSuffix}`
+  | AmountWithSuffix => `${currency} ${value->Float.toString}${suffix}`
   | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
   | Volume => value->indianShortNum
   | Latency => latencyShortNum(~labelValue=value)
   | LatencyMs => latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
-  | No_Type => value->Float.toString
+  | FormattedAmount => formatAmount(value->Float.toInt, currency)
+  | Default => value->Float.toString
   }
 }
 
@@ -713,3 +749,23 @@ let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).for
 
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
   keys->Array.forEach(key => dict->Dict.delete(key))
+
+let removeTrailingSlash = str => {
+  if str->String.endsWith("/") {
+    str->String.slice(~start=0, ~end=-1)
+  } else {
+    str
+  }
+}
+
+let getMappedValueFromArrayOfJson = (array, itemToObjMapper) =>
+  array->Belt.Array.keepMap(JSON.Decode.object)->Array.map(itemToObjMapper)
+
+let uniqueObjectFromArrayOfObjects = (arr, keyExtractor) => {
+  let uniqueDict = Dict.make()
+  arr->Array.forEach(item => {
+    let key = keyExtractor(item)
+    Dict.set(uniqueDict, key, item)
+  })
+  Dict.valuesToArray(uniqueDict)
+}

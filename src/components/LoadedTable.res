@@ -134,6 +134,7 @@ let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(
 
 @react.component
 let make = (
+  ~hideCustomisableColumnButton=false,
   ~visibleColumns=?,
   ~defaultSort=?,
   ~title,
@@ -231,6 +232,7 @@ let make = (
   ~loadedTableParentClass="",
   ~remoteSortEnabled=false,
   ~showAutoScroll=false,
+  ~highlightSelectedRow=false,
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -462,6 +464,7 @@ let make = (
                 | Link(str)
                 | Date(str)
                 | DateWithoutTime(str)
+                | DateWithCustomDateStyle(str, _)
                 | Text(str) =>
                   convertStrCellToFloat(dataType, str)
                 | Label(x)
@@ -830,6 +833,8 @@ let make = (
                 tableHeadingTextClass
                 nonFrozenTableParentClass
                 showAutoScroll
+                showPagination
+                highlightSelectedRow
               />
             switch tableLocalFilter {
             | true =>
@@ -922,6 +927,7 @@ let make = (
           <div className="w-full">
             <RenderIf condition={!hideTitle}>
               <NewThemeHeading
+                headingColor="text-nd_gray-600"
                 heading=title
                 headingSize=titleSize
                 outerMargin=""
@@ -969,7 +975,7 @@ let make = (
           <RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
             {tableActionElements}
           </RenderIf>
-          customizeColumsButtons
+          <RenderIf condition={!hideCustomisableColumnButton}> customizeColumsButtons </RenderIf>
         </div>
       </div>
       {if dataLoading {

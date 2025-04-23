@@ -40,6 +40,8 @@ module PlaidAdditionMerchantDataSelect = {
         showSelectionAsChips=true
         customButtonStyle="w-full"
         fullLength=true
+        dropdownCustomWidth="w-full"
+        fixedDropDownDirection=TopLeft
       />
     </>
   }

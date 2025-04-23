@@ -141,9 +141,9 @@ let make = (~previewOnly=false) => {
       customLeftView={<SearchBarFilter
         placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
-      entityName=ORDER_FILTERS
+      entityName=V1(ORDER_FILTERS)
     />
-  }, [])
+  }, [searchText])
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
@@ -159,7 +159,7 @@ let make = (~previewOnly=false) => {
             />
           </Portal>
           <RenderIf condition={generateReport && email && orderData->Array.length > 0}>
-            <GenerateReport entityName={PAYMENT_REPORT} />
+            <GenerateReport entityName={V1(PAYMENT_REPORT)} />
           </RenderIf>
         </div>
       </div>

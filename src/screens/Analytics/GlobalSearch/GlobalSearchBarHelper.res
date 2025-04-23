@@ -26,20 +26,29 @@ module RenderedComponent = {
 module SearchBox = {
   @react.component
   let make = (~openModalOnClickHandler) => {
-    let shortcutText = Window.Navigator.platform->String.includes("Mac") ? "Cmd + K" : "Ctrl + K"
+    let iconBoxCss = "w-5 h-5 border border-gray-200 bg-white flex rounded-sm items-center justify-center cursor-pointer "
+    let cmdIcon = Window.Navigator.platform->String.includes("Mac") ? "⌘" : "^"
+    let shortcutIcons = {
+      <>
+        <div className="flex flex-row text-nd_gray-400 gap-1">
+          <div className={`${iconBoxCss} `}> {cmdIcon->React.string} </div>
+          <div className={`${iconBoxCss} text-xs`}> {"K"->React.string} </div>
+        </div>
+      </>
+    }
     let isMobileView = MatchMedia.useMobileChecker()
 
     if isMobileView {
       <Icon size=14 name="search" className="mx-2" onClick={openModalOnClickHandler} />
     } else {
       <div
-        className={`flex w-80 gap-2 items-center bg-white text-grey-700 text-opacity-30 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text`}
+        className={`flex w-80 gap-2 items-center text-grey-800 text-opacity-40 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text shadow-sm bg-nd_gray-100`}
         onClick={openModalOnClickHandler}>
         <div className="flex gap-2 ">
           <Icon size=14 name="search" />
-          <p className="hidden lg:inline-block text-sm"> {"Search"->React.string} </p>
+          <p className="hidden lg:inline-block text-sm font-medium"> {"Search"->React.string} </p>
         </div>
-        <div className="text-semibold text-sm hidden md:block"> {shortcutText->React.string} </div>
+        <div className="text-semibold text-sm hidden md:block cursor-pointer"> shortcutIcons </div>
       </div>
     }
   }
@@ -240,7 +249,7 @@ module FilterResultsComponent = {
       if activeFilter->isNonEmptyString {
         let categoryType = category.categoryType->getcategoryFromVariant
         if searchText->getEndChar == filterSeparator {
-          `${categoryType}:` == `${filterKey}:`
+          `${categoryType}${filterSeparator}` == `${filterKey}${filterSeparator}`
         } else {
           categoryType->String.includes(filterKey)
         }
@@ -392,7 +401,7 @@ module FilterResultsComponent = {
                 ->Array.map(category => {
                   let itemValue = `${category.categoryType
                     ->getcategoryFromVariant
-                    ->String.toLocaleLowerCase} : `
+                    ->String.toLocaleLowerCase} ${filterSeparator} `
                   <FilterOption
                     onClick={_ => category->onFilterClicked}
                     value=itemValue
@@ -689,7 +698,7 @@ module ModalSearchBox = {
       if activeFilter->isNonEmptyString {
         let categoryType = category.categoryType->getcategoryFromVariant
         if searchText->getEndChar == filterSeparator {
-          `${categoryType}:` == `${filterKey}:`
+          `${categoryType}${filterSeparator}` == `${filterKey}${filterSeparator}`
         } else {
           categoryType->String.includes(filterKey)
         }

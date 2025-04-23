@@ -1,11 +1,7 @@
 open GooglePayIntegrationTypes
 open LogicUtils
-let allowedAuthMethod = ["PAN_ONLY", "CRYPTOGRAM_3DS"]
+let allowedAuthMethod = ["PAN_ONLY"]
 let allowedCardNetworks = ["AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"]
-let allowedPaymentMethodparameters = {
-  allowed_auth_methods: allowedAuthMethod,
-  allowed_card_networks: allowedCardNetworks,
-}
 
 let getCustomGateWayName = connector => {
   open ConnectorUtils
@@ -19,6 +15,19 @@ let getCustomGateWayName = connector => {
   | Processors(FIUU) => "molpay"
   | _ => connector
   }
+}
+
+let allowedAuthMethodsArray = dict => {
+  let authMethodsArray =
+    dict
+    ->getDictfromDict("parameters")
+    ->getStrArrayFromDict("allowed_auth_methods", allowedAuthMethod)
+  authMethodsArray
+}
+
+let allowedPaymentMethodparameters = dict => {
+  allowed_auth_methods: dict->allowedAuthMethodsArray,
+  allowed_card_networks: allowedCardNetworks,
 }
 
 let tokenizationSpecificationParameters = (dict, connector) => {
@@ -54,7 +63,7 @@ let tokenizationSpecification = (dict, connector) => {
 
 let allowedPaymentMethod = (dict, connector) => {
   \"type": "CARD",
-  parameters: allowedPaymentMethodparameters,
+  parameters: dict->allowedPaymentMethodparameters,
   tokenization_specification: dict->tokenizationSpecification(connector),
 }
 
@@ -63,6 +72,18 @@ let zenGooglePayConfig = dict => {
     terminal_uuid: dict->getString("terminal_uuid", ""),
     pay_wall_secret: dict->getString("pay_wall_secret", ""),
   }
+}
+
+let validateZenFlow = values => {
+  let data =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("google_pay")
+    ->zenGooglePayConfig
+  data.terminal_uuid->isNonEmptyString && data.pay_wall_secret->isNonEmptyString
+    ? Button.Normal
+    : Button.Disabled
 }
 
 let googlePay = (dict, connector: string) => {
@@ -89,10 +110,58 @@ let googlePayNameMapper = name => {
   switch name {
   | "merchant_id" => `metadata.google_pay.merchant_info.${name}`
   | "merchant_name" => `metadata.google_pay.merchant_info.${name}`
+  | "allowed_auth_methods" => `metadata.google_pay.allowed_payment_methods[0].parameters.${name}`
   | "terminal_uuid" => `metadata.google_pay.${name}`
   | "pay_wall_secret" => `metadata.google_pay.${name}`
   | _ =>
     `metadata.google_pay.allowed_payment_methods[0].tokenization_specification.parameters.${name}`
+  }
+}
+
+let validateGooglePay = (values, connector) => {
+  open ConnectorUtils
+  open ConnectorTypes
+  let googlePayData =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("google_pay")
+  let merchantId = googlePayData->getDictfromDict("merchant_info")->getString("merchant_id", "")
+  let merchantName = googlePayData->getDictfromDict("merchant_info")->getString("merchant_name", "")
+  let allowedPaymentMethodDict =
+    googlePayData
+    ->getArrayFromDict("allowed_payment_methods", [])
+    ->getValueFromArray(0, JSON.Encode.null)
+    ->getDictFromJsonObject
+  let allowedAuthMethodsArray =
+    allowedPaymentMethodDict
+    ->getDictfromDict("parameters")
+    ->getArrayFromDict("allowed_auth_methods", [])
+  let tokenizationSpecificationDict =
+    allowedPaymentMethodDict
+    ->getDictfromDict("tokenization_specification")
+    ->getDictfromDict("parameters")
+
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(ZEN) =>
+    googlePayData->getString("terminal_uuid", "")->isNonEmptyString &&
+      googlePayData->getString("pay_wall_secret", "")->isNonEmptyString
+      ? Button.Normal
+      : Button.Disabled
+  | Processors(STRIPE) =>
+    merchantId->isNonEmptyString &&
+    merchantName->isNonEmptyString &&
+    tokenizationSpecificationDict->getString("stripe:publishableKey", "")->isNonEmptyString &&
+    allowedAuthMethodsArray->Array.length > 0
+      ? Button.Normal
+      : Button.Disabled
+  | _ =>
+    merchantId->isNonEmptyString &&
+    merchantName->isNonEmptyString &&
+    tokenizationSpecificationDict->getString("gateway_merchant_id", "")->isNonEmptyString &&
+    allowedAuthMethodsArray->Array.length > 0
+      ? Button.Normal
+      : Button.Disabled
   }
 }
 

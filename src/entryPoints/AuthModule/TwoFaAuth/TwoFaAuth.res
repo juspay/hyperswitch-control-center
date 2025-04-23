@@ -45,7 +45,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let getUserWithEmail = async body => {
     try {
       let url = getURL(
-        ~entityName=USERS,
+        ~entityName=V1(USERS),
         ~userType=#CONNECT_ACCOUNT,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}`), // todo: domain shall be removed from query params later
@@ -67,7 +67,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
   let getUserWithEmailPassword = async (body, userType) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType, ~methodType=Post)
       let res = await updateDetails(url, body, Post)
       setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(res)))
     } catch {
@@ -86,7 +86,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let setResetPassword = async body => {
     try {
       // Need to check this
-      let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#RESET_PASSWORD, ~methodType=Post)
       let _ = await updateDetails(url, body, Post)
       LocalStorage.clear()
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
@@ -101,7 +101,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     try {
       // Need to check this
       let url = getURL(
-        ~entityName=USERS,
+        ~entityName=V1(USERS),
         ~userType=#FORGOT_PASSWORD,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}`),
@@ -119,7 +119,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     try {
       // Need to check this
       let url = getURL(
-        ~entityName=USERS,
+        ~entityName=V1(USERS),
         ~userType=#VERIFY_EMAIL_REQUEST,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}`),
@@ -301,7 +301,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
               | ResendVerifyEmail
               | SignUP =>
                 <FormRenderer.SubmitButton
-                  customSumbitButtonStyle="!w-full !rounded"
+                  customSumbitButtonStyle="!w-full"
                   text=submitBtnText
                   userInteractionRequired=true
                   showToolTip=false

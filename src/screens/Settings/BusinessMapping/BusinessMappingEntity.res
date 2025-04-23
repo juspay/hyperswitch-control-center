@@ -41,7 +41,7 @@ module ProfileActions = {
 
     let onSubmit = async (values, _) => {
       try {
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
+        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
         let res = await updateDetails(url, values, Post)
         let filteredProfileList =
           businessProfiles
@@ -80,7 +80,7 @@ module ProfileActions = {
       <ToolTip
         description="Copy profile Id"
         toolTipFor={<Icon
-          name="copy-code"
+          name="nd-copy"
           size=20
           className="cursor-pointer"
           onClick={_ => {
@@ -179,11 +179,14 @@ let itemToObjMapper = dict => {
     is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: dict->getOptionBool("is_click_to_pay_enabled"),
+    metadata: None,
     authentication_product_ids: Some(
       dict
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    force_3ds_challenge: None,
+    is_debit_routing_enabled: None,
   }
 }
 

@@ -1,85 +1,67 @@
 module ListBaseComp = {
   @react.component
   let make = (
-    ~heading,
+    ~heading="",
     ~subHeading,
     ~arrow,
     ~showEditIcon=false,
     ~onEditClick=_ => (),
     ~isDarkBg=false,
     ~showDropdownArrow=true,
+    ~user: UserInfoTypes.entity,
   ) => {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let baseCompStyle = isDarkBg
-      ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
-      : "text-black hover:bg-opacity-80"
 
-    let iconName = isDarkBg ? "arrow-without-tail-new" : "arrow-without-tail"
+    let arrowClassName = isDarkBg
+      ? `${arrow
+            ? "rotate-180"
+            : "-rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+      : `${arrow
+            ? "rotate-0"
+            : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
-    let arrowDownClass = isDarkBg
-      ? `rotate-0 transition duration-[250ms] opacity-70 ${secondaryTextColor}`
-      : `rotate-180 transition duration-[250ms] opacity-70 `
-
-    let arrowUpClass = isDarkBg
-      ? `-rotate-180 transition duration-[250ms] opacity-70 ${secondaryTextColor}`
-      : `rotate-0 transition duration-[250ms] opacity-70 `
-
-    let textColor = isDarkBg ? `${secondaryTextColor}` : "text-grey-900"
-    let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
-    let paddingSubheading = isDarkBg ? "pl-2" : ""
-    let paddingHeading = isDarkBg ? "pl-2" : ""
-
-    let endValue = isDarkBg ? 20 : 15
-    let maxLength = isDarkBg ? 20 : 15
-
-    let subHeadingElement = if subHeading->String.length > maxLength {
-      <HelperComponents.EllipsisText
-        displayValue=subHeading endValue showCopy=false customTextStyle={textColor}
-      />
-    } else {
-      {subHeading->React.string}
-    }
-
-    <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
-      <div className={`flex flex-col items-start`}>
-        <RenderIf condition={heading->LogicUtils.isNonEmptyString}>
-          <p className={`text-xs text-left text-gray-400 ${paddingHeading}`}>
-            {heading->React.string}
-          </p>
-        </RenderIf>
-        <div className="text-left flex gap-2">
-          <p
-            className={`fs-10 ${textColor} ${width} ${paddingSubheading} overflow-scroll text-nowrap`}>
-            {subHeadingElement}
-          </p>
-          <RenderIf condition={!showDropdownArrow}>
-            <ToolTip
-              description={subHeading}
-              customStyle="!whitespace-nowrap"
-              toolTipFor={<div className="cursor-pointer">
-                <HelperComponents.CopyTextCustomComp
-                  displayValue=" " copyValue=Some({subHeading})
-                />
-              </div>}
-              toolTipPosition=ToolTip.Right
-            />
-          </RenderIf>
-          <RenderIf condition={showEditIcon}>
-            <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
-          </RenderIf>
-          <RenderIf condition={showDropdownArrow}>
-            <Icon
-              className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
-            />
-          </RenderIf>
+    <>
+      {switch user {
+      | #Merchant =>
+        <div
+          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
+          <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+            {"Merchant Account"->React.string}
+          </span>
+          <div className="text-left flex gap-2 w-13.5-rem justify-between">
+            <p
+              className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
+              {subHeading->React.string}
+            </p>
+            {showDropdownArrow
+              ? <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
+              : React.null}
+          </div>
         </div>
-      </div>
-    </div>
+
+      | #Profile =>
+        <div
+          className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
+          <div className="md:max-w-40 max-w-16">
+            <p
+              className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre">
+              <span className={`text-xs text-nd_gray-400 font-medium`}>
+                {"Profile :   "->React.string}
+              </span>
+              {React.string(subHeading)}
+            </p>
+          </div>
+          {showDropdownArrow
+            ? <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
+            : React.null}
+        </div>
+      | _ => React.null
+      }}
+    </>
   }
 }
-
 module AddNewOMPButton = {
   @react.component
   let make = (
@@ -111,7 +93,7 @@ module AddNewOMPButton = {
       {<>
         <hr className={customHRTagStyle} />
         <div
-          className={`group flex  items-center gap-2 font-medium  px-3.5 py-3 text-sm ${customStyle}`}>
+          className={` flex  items-center gap-2 font-medium  px-3.5 py-3 text-sm ${customStyle}`}>
           <Icon name="nd-plus" size=15 />
           {`Create new`->React.string}
         </div>
@@ -135,7 +117,7 @@ module OMPViewBaseComp = {
     }
 
     <div
-      className="flex items-center text-sm font-medium cursor-pointer secondary-gradient-border rounded-lg h-40-px">
+      className="flex items-center text-sm font-medium cursor-pointer border-1.5 border-double border-transparent secondary-gradient-button rounded-lg h-40-px">
       <div className="flex flex-col items-start">
         <div className="text-left flex items-center gap-1 p-2">
           <Icon name="settings-new" size=18 />
@@ -194,7 +176,7 @@ module OMPViewsComp = {
         customStyle="md:rounded"
         searchable=false
         baseComponent={<OMPViewBaseComp displayName arrow />}
-        baseComponentCustomStyle="bg-white rounded"
+        baseComponentCustomStyle="bg-white rounded-lg"
         optionClass="font-inter text-fs-14 font-normal leading-5"
         selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"
         labelDescriptionClass="font-inter text-fs-12 font-normal leading-4"
@@ -242,36 +224,68 @@ module OMPViews = {
 
 module MerchantDropdownItem = {
   @react.component
-  let make = (~merchantName, ~index: int, ~currentId) => {
+  let make = (
+    ~merchantName,
+    ~productType,
+    ~index: int,
+    ~currentId,
+    ~getMerchantList,
+    ~switchMerch,
+  ) => {
     open LogicUtils
     open APIUtils
+    open ProductTypes
+    open ProductUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
     }
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let url = RescriptReactRouter.useUrl()
+    let {
+      globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
+    } = React.useContext(ThemeProvider.themeContext)
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {merchantId, version}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
-    let (_, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
-    let getMerchantList = async () => {
-      try {
-        let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
-        let response = await fetchDetails(url)
-        setMerchantList(_ => response->getArrayDataFromJson(OMPSwitchUtils.merchantItemToObjMapper))
-      } catch {
-      | _ => {
-          setMerchantList(_ => OMPSwitchUtils.ompDefaultValue(merchantId, ""))
-          showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
-        }
+    let isMobileView = MatchMedia.useMobileChecker()
+
+    let productTypeIconMapper = productType => {
+      switch productType {
+      | Orchestration => "orchestrator-home"
+      | Recon => "recon-home"
+      | Recovery => "recovery-home"
+      | Vault => "vault-home"
+      | CostObservability => "nd-piggy-bank"
+      | DynamicRouting => "intelligent-routing-home"
+      | _ => "orchestrator-home"
       }
     }
+
+    let isActive = currentId == merchantId
+    let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
+
+    let leftIcon = if isActive && !isUnderEdit {
+      <Icon name="nd-check" className={`${leftIconCss} ${secondaryTextColor}`} />
+    } else if isActive && isUnderEdit {
+      React.null
+    } else if !isActive && !isUnderEdit {
+      <ToolTip
+        description={productType->getProductDisplayName}
+        customStyle="!whitespace-nowrap"
+        toolTipFor={<Icon
+          name={productType->productTypeIconMapper}
+          className={`${secondaryTextColor} opacity-50`}
+          size=14
+        />}
+        toolTipPosition=ToolTip.Top
+      />
+    } else {
+      React.null // Default case
+    }
+
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
       let regexForMerchantName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
@@ -291,69 +305,76 @@ module MerchantDropdownItem = {
       errors
     }
 
-    let switchMerch = async value => {
-      try {
-        setShowSwitchingMerch(_ => true)
-        let _ = await internalSwitch(~expectedMerchantId=Some(value))
-        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
-        setShowSwitchingMerch(_ => false)
-      } catch {
-      | _ => {
-          showToast(~message="Failed to switch merchant", ~toastType=ToastError)
-          setShowSwitchingMerch(_ => false)
-        }
-      }
-    }
     let handleMerchantSwitch = id => {
-      switchMerch(id)->ignore
+      if !isActive {
+        switchMerch(id)->ignore
+      }
     }
 
     let onSubmit = async (newMerchantName: string) => {
       try {
-        let body =
-          [
-            ("merchant_id", merchantId->JSON.Encode.string),
-            ("merchant_name", newMerchantName->JSON.Encode.string),
-          ]->getJsonFromArrayOfJson
-        let accountUrl = getURL(
-          ~entityName=MERCHANT_ACCOUNT,
-          ~methodType=Post,
-          ~id=Some(merchantId),
-        )
-        let _ = await updateDetails(accountUrl, body, Post)
-        let _ = await getMerchantList()
+        if version == V2 {
+          let body =
+            [("merchant_name", newMerchantName->JSON.Encode.string)]->getJsonFromArrayOfJson
+          let accountUrl = getURL(
+            ~entityName=V2(MERCHANT_ACCOUNT),
+            ~methodType=Put,
+            ~id=Some(merchantId),
+          )
+          let _ = await updateDetails(accountUrl, body, Put)
+        } else {
+          let body =
+            [
+              ("merchant_id", merchantId->JSON.Encode.string),
+              ("merchant_name", newMerchantName->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson
+          let accountUrl = getURL(
+            ~entityName=V1(MERCHANT_ACCOUNT),
+            ~methodType=Post,
+            ~id=Some(merchantId),
+          )
+          let _ = await updateDetails(accountUrl, body, Post)
+        }
+        getMerchantList()->ignore
         showToast(~message="Updated Merchant name!", ~toastType=ToastSuccess)
       } catch {
       | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
       }
     }
 
-    let isActive = currentId == merchantId
-    let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
-      <div
-        className={`rounded-lg mb-1 ${isUnderEdit
-            ? `hover:bg-transparent`
-            : `hover:bg-jp-gray-100`}`}>
+      <div className={`rounded-lg mb-1`}>
         <InlineEditInput
           index
           labelText=merchantName
-          customStyle="w-full cursor-pointer !bg-transparent mb-0"
+          customStyle={`w-full cursor-pointer mb-0 ${backgroundColor.sidebarSecondary} ${hoverColor} `}
           handleEdit=handleIdUnderEdit
           isUnderEdit
           showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          showEditIconOnHover={!isMobileView}
           onSubmit
-          labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
+          labelTextCustomStyle={` truncate max-w-28 ${isActive
+              ? `${secondaryTextColor}`
+              : `${secondaryTextColor}`}`}
           validateInput
-          customInputStyle="!py-0 text-nd_gray-600"
-          customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(merchantId) customIconCss="text-nd_gray-600"
+          customInputStyle={`!py-0 ${secondaryTextColor}`}
+          customIconComponent={<ToolTip
+            description={currentId}
+            customStyle="!whitespace-nowrap"
+            toolTipFor={<div className="cursor-pointer">
+              <HelperComponents.CopyTextCustomComp
+                customIconCss={`${secondaryTextColor}`}
+                displayValue=Some("")
+                copyValue=Some({currentId})
+              />
+            </div>}
+            toolTipPosition=ToolTip.Right
           />}
-          customIconStyle={isActive ? "text-nd_gray-600" : ""}
+          customIconStyle={isActive ? `${secondaryTextColor}` : ""}
           handleClick={_ => handleMerchantSwitch(currentId)}
-          customWidth="min-w-48"
-          leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
+          customWidth="min-w-56"
+          leftIcon
         />
       </div>
       <LoaderModal
@@ -374,25 +395,36 @@ module ProfileDropdownItem = {
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
     }
+
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+    let isMobileView = MatchMedia.useMobileChecker()
+    let isActive = currentId == profileId
+
     let getProfileList = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
-        let response = await fetchDetails(url)
+        let response = switch version {
+        | V1 => {
+            let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+            await fetchDetails(url)
+          }
+        | V2 => {
+            let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+            await fetchDetails(url, ~version=V2)
+          }
+        }
         setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
       } catch {
       | _ => {
-          setProfileList(_ => OMPSwitchUtils.ompDefaultValue(profileId, ""))
+          setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
           showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
         }
       }
@@ -418,8 +450,7 @@ module ProfileDropdownItem = {
     let profileSwitch = async value => {
       try {
         setShowSwitchingProfile(_ => true)
-        let _ = await internalSwitch(~expectedProfileId=Some(value))
-        RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
+        let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true)
         setShowSwitchingProfile(_ => false)
       } catch {
       | _ => {
@@ -429,13 +460,19 @@ module ProfileDropdownItem = {
       }
     }
     let handleProfileSwitch = id => {
-      profileSwitch(id)->ignore
+      if !isActive {
+        profileSwitch(id)->ignore
+      }
     }
 
     let onSubmit = async (newProfileName: string) => {
       try {
         let body = [("profile_name", newProfileName->JSON.Encode.string)]->getJsonFromArrayOfJson
-        let accountUrl = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
+        let accountUrl = getURL(
+          ~entityName=V1(BUSINESS_PROFILE),
+          ~methodType=Post,
+          ~id=Some(profileId),
+        )
         let _ = await updateDetails(accountUrl, body, Post)
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
@@ -444,9 +481,9 @@ module ProfileDropdownItem = {
       }
     }
 
-    let isActive = currentId == profileId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+
     <>
       <div
         className={`rounded-lg mb-1 ${isUnderEdit
@@ -458,13 +495,23 @@ module ProfileDropdownItem = {
           customStyle="w-full cursor-pointer !bg-transparent mb-0"
           handleEdit=handleIdUnderEdit
           isUnderEdit
-          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          showEditIcon={isActive &&
+          userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
+          version == V1}
+          showEditIconOnHover={!isMobileView}
           onSubmit
           labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
           validateInput
           customInputStyle="!py-0 text-nd_gray-600"
-          customIconComponent={<HelperComponents.CopyTextCustomComp
-            displayValue=" " copyValue=Some(profileId) customIconCss="text-nd_gray-600"
+          customIconComponent={<ToolTip
+            description={currentId}
+            customStyle="!whitespace-nowrap"
+            toolTipFor={<div className="cursor-pointer">
+              <HelperComponents.CopyTextCustomComp
+                displayValue=Some("") copyValue=Some(currentId) customIconCss="text-nd_gray-600"
+              />
+            </div>}
+            toolTipPosition=ToolTip.Right
           />}
           customIconStyle={isActive ? "text-nd_gray-600" : ""}
           handleClick={_ => handleProfileSwitch(currentId)}
@@ -497,7 +544,7 @@ let generateDropdownOptions: (
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp
-              displayValue=" " copyValue=Some({item.id}) customIconCss
+              displayValue=Some("") copyValue=Some({item.id}) customIconCss
             />
           </div>}
           toolTipPosition=ToolTip.TopRight
@@ -523,7 +570,7 @@ let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCus
           description={item.id}
           customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
-            <HelperComponents.CopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+            <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
           </div>}
           toolTipPosition=ToolTip.TopRight
         />,
@@ -579,7 +626,7 @@ module EditOrgName = {
 
     let onSubmit = async (values, _) => {
       try {
-        let url = getURL(~entityName=UPDATE_ORGANIZATION, ~methodType=Put, ~id=Some(orgId))
+        let url = getURL(~entityName=V1(UPDATE_ORGANIZATION), ~methodType=Put, ~id=Some(orgId))
         let _ = await updateDetails(url, values, Put)
         let _ = await getOrgList()
         showToast(~message="Updated organization name!", ~toastType=ToastSuccess)

@@ -1,6 +1,5 @@
 open NewAnalyticsTypes
 open NewAnalyticsHelper
-open LineGraphTypes
 open SmartRetryPaymentsProcessedUtils
 open NewSmartRetryAnalyticsEntity
 open PaymentsProcessedTypes
@@ -29,7 +28,7 @@ module TableModule = {
     <div className>
       <LoadedTable
         visibleColumns
-        title=" "
+        title="Smart Retry Payments Processed"
         hideTitle=true
         actualData={smartRetryPaymentsProcessed}
         entity=smartRetryPaymentsProcessedTableEntity
@@ -65,10 +64,12 @@ module SmartRetryPaymentsProcessedHeader = {
     ~setSelectedMetric,
     ~granularity,
     ~setGranularity,
+    ~granularityOptions,
   ) => {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let currency = filterValueJson->getString((#currency: filters :> string), "")
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let primaryValue = getMetaDataValue(
       ~data,
@@ -106,7 +107,7 @@ module SmartRetryPaymentsProcessedHeader = {
     | _ => Volume
     }
 
-    <div className="w-full px-7 py-8 grid grid-cols-1">
+    <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
           {primaryValue->valueFormatter(metricType, ~currency)->React.string}
@@ -117,12 +118,16 @@ module SmartRetryPaymentsProcessedHeader = {
           />
         </RenderIf>
       </div>
-      // will enable it in future
-      <RenderIf condition={false}>
-        <div className="flex justify-center">
-          <Tabs option={granularity} setOption={setGranularity} options={tabs} />
-        </div>
-      </RenderIf>
+      <div className="flex justify-center">
+        <RenderIf condition={featureFlag.granularity}>
+          <Tabs
+            option={granularity}
+            setOption={setGranularity}
+            options={granularityOptions}
+            showSingleTab=false
+          />
+        </RenderIf>
+      </div>
       <div className="flex gap-2 justify-end">
         <CustomDropDown
           buttonText={selectedMetric} options={dropDownOptions} setOption={setSelectedMetric}
@@ -136,13 +141,18 @@ module SmartRetryPaymentsProcessedHeader = {
 @react.component
 let make = (
   ~entity: moduleEntity,
-  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions, JSON.t>,
+  ~chartEntity: chartEntity<
+    LineGraphTypes.lineGraphPayload,
+    LineGraphTypes.lineGraphOptions,
+    JSON.t,
+  >,
 ) => {
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (smartRetryPaymentsProcessedData, setSmartRetryPaymentsProcessedData) = React.useState(_ =>
@@ -164,16 +174,27 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
-  let (granularity, setGranularity) = React.useState(_ =>
-    getDefaultGranularity(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let defaulGranularity = getDefaultGranularity(
+    ~startTime=startTimeVal,
+    ~endTime=endTimeVal,
+    ~granularity=featureFlag.granularity,
   )
+  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
+
+  React.useEffect(() => {
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      setGranularity(_ => defaulGranularity)
+    }
+    None
+  }, (startTimeVal, endTimeVal))
 
   let getSmartRetryPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS_V2,
+        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -236,7 +257,9 @@ let make = (
                 "payment_processed_amount": 0,
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
+              ~isoStringToCustomTimeZone,
               ~granularity=granularity.value,
+              ~granularityEnabled=featureFlag.granularity,
             )
           })
           (secondaryMetaData, secondaryModifiedData)
@@ -256,7 +279,9 @@ let make = (
               "payment_processed_amount": 0,
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
+            ~isoStringToCustomTimeZone,
             ~granularity=granularity.value,
+            ~granularityEnabled=featureFlag.granularity,
           )
         })
 
@@ -279,7 +304,15 @@ let make = (
       getSmartRetryPaymentsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison, currency))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    granularity.value,
+  ))
 
   let params = {
     data: smartRetryPaymentsProcessedData,
@@ -304,6 +337,7 @@ let make = (
           setSelectedMetric
           granularity
           setGranularity
+          granularityOptions
         />
         <div className="mb-5">
           {switch viewType {

@@ -104,7 +104,7 @@ let make = () => {
   let checkTwofaStatus = async () => {
     try {
       let url = getURL(
-        ~entityName=USERS,
+        ~entityName=V1(USERS),
         ~userType=#CHECK_TWO_FACTOR_AUTH_STATUS_V2,
         ~methodType=Get,
       )

@@ -158,7 +158,15 @@ let getCell = (disputeObj, colType): Table.cell => {
   let disputeStatus = disputeObj.dispute_status->HSwitchOrderUtils.statusVariantMapper
 
   switch colType {
-  | DisputeId => Text(disputeObj.dispute_id)
+  | DisputeId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/disputes/${disputeObj.dispute_id}/${disputeObj.profile_id}/${disputeObj.merchant_id}/${disputeObj.organization_id}`}
+        displayValue={disputeObj.dispute_id}
+        copyValue={Some(disputeObj.dispute_id)}
+      />,
+      "",
+    )
   | DisputeAmount =>
     CustomCell(
       <OrderEntity.CurrencyCell
@@ -181,8 +189,8 @@ let getCell = (disputeObj, colType): Table.cell => {
       | RequiresCustomerAction
       | RequiresConfirmation
       | RequiresPaymentMethod =>
-        LabelLightBlue
-      | _ => LabelLightBlue
+        LabelBlue
+      | _ => LabelLightGray
       },
     })
   | PaymentId => Text(disputeObj.payment_id)

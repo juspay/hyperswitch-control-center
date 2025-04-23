@@ -203,7 +203,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   let getProcessorDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get)
+      let paymentMethoConfigUrl = getURL(~entityName=V1(PAYMENT_METHOD_CONFIG), ~methodType=Get)
       let res = await fetchDetails(
         `${paymentMethoConfigUrl}?connector=${connector}&paymentMethodType=apple_pay`,
       )
@@ -257,7 +257,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     </div>}
     sectionHeight="!h-screen">
     <div>
-      <Heading />
+      <Heading title="Apple Pay" iconName="applepay" />
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(ZEN) =>
         <ApplePayZen applePayFields update closeModal setShowWalletConfigurationModal />

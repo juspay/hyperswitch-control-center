@@ -117,7 +117,7 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=V1(USER_MANAGEMENT),
         ~userRoleTypes=ROLE_ID,
         ~id=roleTypeValue,
         ~methodType=Get,
@@ -152,7 +152,7 @@ let make = () => {
       let roleEntity = formState.values->getDictFromJsonObject->getEntityType
 
       let url = getURL(
-        ~entityName=USERS,
+        ~entityName=V1(USERS),
         ~userType=#LIST_ROLES_FOR_INVITE,
         ~methodType=Get,
         ~queryParamerters=Some(`entity_type=${roleEntity}`),

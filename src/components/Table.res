@@ -12,7 +12,7 @@ module TableFilterRow = {
   ) => {
     let colsLen = item->Array.length
     let borderColor = "border-jp-gray-light_table_border_color dark:border-jp-gray-960"
-    let paddingClass = "px-4 py-3"
+    let paddingClass = "px-8 py-3"
     let hoverClass = "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
     <tr
       className={`filterColumns group rounded-md h-10 bg-white dark:bg-jp-gray-lightgray_background ${hoverClass} transition duration-300 ease-in-out text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${customFilterRowStyle}`}>
@@ -82,6 +82,9 @@ module TableRow = {
     ~fixLastCol=false,
     ~alignCellContent="",
     ~customCellColor="",
+    ~highlightSelectedRow=false,
+    ~selectedIndex,
+    ~setSelectedIndex,
   ) => {
     open Window
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
@@ -90,7 +93,10 @@ module TableRow = {
     let onClick = React.useCallback(_ => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
-      | (Some(fn), false) => fn(actualIndex)
+      | (Some(fn), false) => {
+          setSelectedIndex(_ => actualIndex)
+          fn(actualIndex)
+        }
       | _ => ()
       }
     }, (onRowClick, actualIndex))
@@ -128,12 +134,16 @@ module TableRow = {
         }
       })
       ->Option.isSome
-    let bgColor = coloredRow ? selectedRowColor : "bg-white dark:bg-jp-gray-lightgray_background"
-    let fontSize = "text-fs-13"
-    let fontWeight = ""
-    let textColor = "text-jp-gray-900  dark:text-jp-gray-text_darktheme dark:text-opacity-75"
+    let bgColor = coloredRow
+      ? selectedRowColor
+      : highlightSelectedRow && selectedIndex == actualIndex
+      ? "bg-nd_gray-150"
+      : "bg-white dark:bg-jp-gray-lightgray_background"
+    let fontSize = "text-fs-14"
+    let fontWeight = "font-medium"
+    let textColor = "text-nd_gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
     let hoverClass = onRowClickPresent
-      ? "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
+      ? "hover:bg-nd_gray-50 dark:hover:bg-jp-gray-table_hover_dark"
       : ""
     let tableBodyText = if isHighchartLegend {
       `group rounded-md ${cursorClass} text-fs-10 font-medium dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text pb-4 whitespace-nowrap text-ellipsis overflow-x-hidden`
@@ -169,7 +179,7 @@ module TableRow = {
 
           let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
           let highlightClass = highlightCell ? "hover:font-bold" : ""
-          let borderColor = "border-jp-gray-light_table_border_color dark:border-jp-gray-960"
+          let borderColor = "border-nd_br_gray-150 dark:border-jp-gray-960"
           let borderTop = showBorderTop ? "border-t" : "border-t-0"
           let borderClass = if removeHorizontalLines && removeVerticalLines {
             ""
@@ -185,13 +195,13 @@ module TableRow = {
           let lastColProp =
             isLast && fixLastCol ? "border-l h-full !py-0 flex flex-col justify-center" : ""
           let tableRowBorderClass = if isHighchartLegend {
-            `align-top ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
+            `align-center ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
           } else if isLast {
-            `align-top ${lastColClass} ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
+            `align-center ${lastColClass} ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
           } else {
-            `align-top ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
+            `align-center ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
           }
-          let paddingClass = `px-4 ${paddingClass}`
+          let paddingClass = `px-8 ${paddingClass}`
           let tableRowPaddingClass = if isHighchartLegend {
             `box-border py-1 ${lastColProp} ${alignCellContent}`
           } else {
@@ -362,8 +372,8 @@ module TableHeadingCell = {
     let headerBgColor =
       headerCustomBgColor->Option.isSome
         ? headerCustomBgColor->Option.getOr("")
-        : "bg-offset_white dark:bg-jp-gray-darkgray_background"
-    let paddingClass = "px-4 py-3"
+        : " bg-nd_gray-50 dark:bg-jp-gray-darkgray_background"
+    let paddingClass = "px-8 py-3"
     let roundedClass = if isFirstCol {
       "rounded-tl"
     } else if isLastCol {
@@ -372,14 +382,14 @@ module TableHeadingCell = {
       ""
     }
 
-    let headerTextClass = "text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
-    let fontWeight = "font-bold"
-    let fontSize = "text-fs-13"
+    let headerTextClass = "text-nd_gray-400 leading-18 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
+    let fontWeight = "font-medium"
+    let fontSize = "text-fs-13 "
     let lastColProp = isLastCol && fixLastCol ? "sticky right-0 !px-0 !py-0 z-20" : ""
     let borderlastCol =
       isLastCol && fixLastCol ? "border-l px-4 py-3 h-full justify-center !flex-col" : ""
     let tableHeaderClass = if isHighchartLegend {
-      `tableHeader ${lastColProp} p-0 pb-2 justify-between items-center dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text text-opacity-75 dark:text-opacity-75 whitespace-pre select-none ${isLastCol
+      `tableHeader ${lastColProp} p-3 justify-between items-center dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text text-opacity-75 dark:text-opacity-75 whitespace-pre select-none ${isLastCol
           ? lastHeadingClass
           : ""}`
     } else {
@@ -657,11 +667,15 @@ let make = (
   ~tableHeadingTextClass="",
   ~nonFrozenTableParentClass="",
   ~showAutoScroll=false,
+  ~showVerticalScroll=false,
+  ~showPagination=true,
+  ~highlightSelectedRow=false,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
   let actualData: option<array<Nullable.t<'t>>> = actualData
   let numberOfCols = heading->Array.length
+  let (selectedIndex, setSelectedIndex) = React.useState(_ => -1)
   open Webapi
   let totalTableWidth =
     Dom.document
@@ -737,6 +751,9 @@ let make = (
         fixLastCol
         ?alignCellContent
         ?customCellColor
+        selectedIndex
+        setSelectedIndex
+        highlightSelectedRow
       />
     })
     ->React.array
@@ -822,15 +839,13 @@ let make = (
 
   let frozenTableWidthClass = isMobileView ? "w-48" : "w-auto"
 
-  let parentBoderColor = "border border-jp-gray-940 border-opacity-100 dark:border-jp-gray-960"
+  let parentBoderColor = "border rounded-lg  dark:border-jp-gray-960"
 
-  let boderColor = !showborderColor
-    ? ""
-    : "border border-jp-gray-940 border-opacity-50 dark:border-jp-gray-960"
+  let boderColor = !showborderColor ? "" : " dark:border-jp-gray-960"
 
   let frozenTable = {
     <table
-      className={`table-auto ${frozenTableWidthClass} ${parentBoderColor} rounded-lg ${tableBorderClass} ${stickCol}`}>
+      className={`table-auto ${frozenTableWidthClass} ${parentBoderColor} ${tableBorderClass} ${stickCol}`}>
       <RenderIf condition=showHeading>
         {renderTableHeadingRow(frozenHeading, true, false, lastHeadingClass)}
       </RenderIf>
@@ -888,22 +903,25 @@ let make = (
       : isMinHeightRequired
       ? ""
       : "overflow-scroll"
-  let parentBorderRadius = !isHighchartLegend ? "rounded-lg" : ""
+  let roundedBorders = showPagination ? "rounded-t-lg" : "rounded-lg"
+  let parentBorderRadius = !isHighchartLegend
+    ? `border border-nd_br_gray-150 ${roundedBorders}`
+    : ""
   let tableScrollbarCss = `
   @supports (-webkit-appearance: none) {
     .table-scrollbar {
       scrollbar-width: auto;
-      scrollbar-color: #8a8c8f; 
+      scrollbar-color: #CACFD8; 
     }
 
     .table-scrollbar::-webkit-scrollbar {
       display: block;
-      height: 4px;
+      height: 6px;
       width: 5px;
     }
 
     .table-scrollbar::-webkit-scrollbar-thumb {
-      background-color: #8a8c8f; 
+      background-color: #CACFD8; 
       border-radius: 3px;
     }
 
@@ -913,6 +931,7 @@ let make = (
   }
     `
   let autoscrollcss = showAutoScroll ? "table-scrollbar" : ""
+  let verticalScroll = !showVerticalScroll ? "overflow-y-hidden" : ""
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderRadius,
@@ -931,7 +950,7 @@ let make = (
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
     <style> {React.string(tableScrollbarCss)} </style>
     <div
-      className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} `}>
+      className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} ${verticalScroll} `}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {

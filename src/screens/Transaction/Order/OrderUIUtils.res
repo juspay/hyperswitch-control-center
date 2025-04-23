@@ -7,6 +7,7 @@ type filterTypes = {
   status: array<string>,
   connector_label: array<string>,
   card_network: array<string>,
+  card_discovery: array<string>,
   customer_id: array<string>,
   amount: array<string>,
   merchant_order_reference_id: array<string>,
@@ -21,6 +22,7 @@ type filter = [
   | #payment_method_type
   | #connector_label
   | #card_network
+  | #card_discovery
   | #customer_id
   | #amount
   | #merchant_order_reference_id
@@ -37,6 +39,7 @@ let getFilterTypeFromString = filterType => {
   | "payment_method_type" => #payment_method_type
   | "connector_label" => #connector_label
   | "card_network" => #card_network
+  | "card_discovery" => #card_discovery
   | "customer_id" => #customer_id
   | "amount" => #amount
   | "merchant_order_reference_id" => #merchant_order_reference_id
@@ -82,7 +85,7 @@ module GenerateSampleDataButton = {
     let generateSampleData = async () => {
       mixpanelEvent(~eventName="generate_sample_data")
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
+        let generateSampleDataUrl = getURL(~entityName=V1(GENERATE_SAMPLE_DATA), ~methodType=Post)
         let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
@@ -97,7 +100,7 @@ module GenerateSampleDataButton = {
 
     let deleteSampleData = async () => {
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete)
+        let generateSampleDataUrl = getURL(~entityName=V1(GENERATE_SAMPLE_DATA), ~methodType=Delete)
         let _ = await updateDetails(generateSampleDataUrl, Dict.make()->JSON.Encode.object, Delete)
         showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess)
         getOrdersList()->ignore
@@ -141,14 +144,13 @@ module GenerateSampleDataButton = {
           buttonType={Secondary}
           buttonSize=Small
           text="Generate Sample Data"
-          customButtonStyle="!rounded-l-md !rounded-none"
           onClick={_ => generateSampleData()->ignore}
           leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
         />
         <ACLDiv
           height="h-fit"
           authorization={userHasAccess(~groupAccess=OperationsManage)}
-          className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
+          className="bg-jp-gray-button_gray text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
           border flex items-center justify-center rounded-r-md"
           onClick={ev => rightIconClick(ev)}>
           <Icon name="delete" size=16 customWidth="14" className="scale-125" />
@@ -293,6 +295,7 @@ let itemToObjMapper = dict => {
     payment_method_type: getAllPaymentMethodType(dict),
     connector_label: [],
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
+    card_discovery: dict->getArrayFromDict("card_discovery", [])->getStrArrayFromJsonArray,
     customer_id: [],
     amount: [],
     merchant_order_reference_id: [],
@@ -336,6 +339,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         : filterData.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | #card_network => filterData.card_network
+    | #card_discovery => filterData.card_discovery
     | _ => []
     }
 
@@ -403,7 +407,7 @@ let initialFixedFilter = () => [
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-          ~showTime=false,
+          ~showTime=true,
           ~disablePastDates={false},
           ~disableFutureDates={true},
           ~predefinedDays=[
@@ -473,6 +477,7 @@ let getOrdersList = async (
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
+    ~version: UserInfoTypes.version=?,
   ) => promise<JSON.t>,
   ~getURL: APIUtilsTypes.getUrlTypes,
   ~setOrdersData,
@@ -485,7 +490,7 @@ let getOrdersList = async (
   open LogicUtils
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
-    let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
+    let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
     let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)

@@ -142,7 +142,7 @@ let make = (
 ) => {
   open LogicUtils
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
+  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let getAllFilter = filterValueJson
@@ -308,6 +308,8 @@ let make = (
           ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
           ~xFeatureRoute,
           ~forceCookies,
+          ~merchantId,
+          ~profileId,
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
         ->then(json => resolve((`${urlConfig.prefix->Option.getOr("")}${uri}`, json)))
@@ -383,6 +385,8 @@ let make = (
           ~headers=[("QueryType", "SingleStatTimeseries")]->Dict.fromArray,
           ~xFeatureRoute,
           ~forceCookies,
+          ~merchantId,
+          ~profileId,
         )
         ->addLogsAroundFetch(~logTitle="SingleStatTimeseries Data Api")
         ->then(

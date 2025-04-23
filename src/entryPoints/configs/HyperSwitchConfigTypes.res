@@ -12,6 +12,7 @@ type urlConfig = {
   reconIframeUrl: option<string>,
   dssCertificateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
+  hypersenseUrl: string,
 }
 
 // Type definition for themes

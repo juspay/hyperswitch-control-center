@@ -56,6 +56,7 @@ let itemToObjMapper = dict => {
       "always_collect_billing_details_from_wallet_connector",
     ),
     outgoing_webhook_custom_http_headers: None,
+    metadata: None,
     is_connector_agnostic_mit_enabled: None,
     is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
@@ -65,6 +66,8 @@ let itemToObjMapper = dict => {
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    force_3ds_challenge: None,
+    is_debit_routing_enabled: None,
   }
 }
 

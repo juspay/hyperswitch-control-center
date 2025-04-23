@@ -1,5 +1,5 @@
-type routingType = PRIORITY | VOLUME_SPLIT | ADVANCED | DEFAULTFALLBACK | NO_ROUTING
-type formState = CreateConfig | EditConfig | ViewConfig
+type routingType = VOLUME_SPLIT | ADVANCED | DEFAULTFALLBACK | NO_ROUTING
+type formState = CreateConfig | EditConfig | ViewConfig | EditReplica
 type status = ACTIVE | APPROVED | PENDING | REJECTED
 type pageState = Preview | Create | Edit
 type variantType = Number | Enum_variant | Metadata_value | String_value | UnknownVariant(string)
@@ -9,8 +9,6 @@ type val = StringArray(array<string>) | String(string) | Int(int)
 type historyColType =
   | Name
   | Type
-  | ProfileId
-  | ProfileName
   | Description
   | Created
   | LastUpdated
@@ -71,9 +69,78 @@ type historyData = {
   created_at: string,
 }
 
-type value = {"type": JSON.t, "value": JSON.t}
+type value = {\"type": string, value: JSON.t}
 
 type filterType =
   PaymentConnector | FRMPlayer | PayoutProcessor | PMAuthenticationProcessor | TaxProcessor
 
 type workFlowTypes = Routing | PayoutRouting | ThreedsRouting | SurchargeRouting
+
+type statement = {
+  lhs: string,
+  comparison: string,
+  value: value,
+  logical?: string,
+  metadata?: JSON.t,
+}
+
+type connector = {
+  connector: string,
+  merchant_connector_id: string,
+}
+
+type volumeSplitConnectorSelectionData = {
+  split: int,
+  connector: connector,
+}
+
+type connectorSelectionData =
+  | VolumeObject(volumeSplitConnectorSelectionData)
+  | PriorityObject(connector)
+
+type surchargeDetailsSurchargePropertyValueType = {percentage?: float, amount?: float}
+
+type surchargeDetailsSurchargePropertyType = {
+  \"type": string,
+  value: surchargeDetailsSurchargePropertyValueType,
+}
+
+type surchargeDetailsType = {
+  surcharge: surchargeDetailsSurchargePropertyType,
+  tax_on_surcharge: surchargeDetailsSurchargePropertyValueType,
+}
+
+type connectorSelection = {
+  \"type"?: string,
+  data?: array<connectorSelectionData>,
+  override_3ds?: string,
+  surcharge_details?: Js.nullable<surchargeDetailsType>,
+}
+
+type rule = {
+  name: string,
+  connectorSelection: connectorSelection,
+  statements: array<statement>,
+}
+
+type algorithmData = {
+  defaultSelection: connectorSelection,
+  rules: array<rule>,
+  metadata: JSON.t,
+}
+
+type algorithm = {data: algorithmData, \"type"?: string}
+
+type advancedRouting = {
+  name: string,
+  description: string,
+  algorithm: algorithm,
+}
+
+type statementSendType = {condition: array<statement>}
+
+type advancedRoutingType = {
+  name: string,
+  description: string,
+  algorithm: algorithmData,
+}

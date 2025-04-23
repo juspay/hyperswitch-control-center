@@ -62,7 +62,7 @@ let make = (
         | Some(actions) => actions
         | None => React.null
         }}
-        <div className={`flex flex-wrap ml-5 justify-between items-center w-full`}>
+        <div className={`flex flex-wrap ml-2 md:ml-5 justify-between items-center w-full`}>
           <PortalCapture key=leftPortalName name=leftPortalName customStyle={`${portalStyle}`} />
           <div className="flex flex-row place-content-centerx">
             <PortalCapture key="desktopNavbarCenter" name="desktopNavbarCenter" />
@@ -113,7 +113,7 @@ let make = (
           </div>
         </div>
       </div>
-      <div className="ml-5">
+      <div className="md:ml-5 ml-2">
         <PortalCapture key="navbarSecondRow" name="navbarSecondRow" />
       </div>
       <HSwitchFeedBackModal modalHeading="We'd love to hear from you!" setShowModal showModal />

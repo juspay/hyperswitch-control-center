@@ -70,7 +70,12 @@ let make = (~initialValues, ~currentStep) => {
 
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let frmInfo = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+
+  let frmInfo = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    initialValues->getDictFromJsonObject,
+  )
+
   let isfrmDisabled = initialValues->getDictFromJsonObject->getBool("disabled", false)
 
   let frmConfigs = switch frmInfo.frm_configs {
@@ -82,7 +87,7 @@ let make = (~initialValues, ~currentStep) => {
     try {
       let frmID = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
       let disableFRMPayload = initialValues->FRMTypes.getDisableConnectorPayload(isFRMDisabled)
-      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID))
+      let url = getURL(~entityName=V1(FRAUD_RISK_MANAGEMENT), ~methodType=Post, ~id=Some(frmID))
       let _ = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post)
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))

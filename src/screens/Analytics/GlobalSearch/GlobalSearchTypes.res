@@ -92,6 +92,7 @@ type category =
   | Currency
   | Status
   | Payment_id
+  | Amount
 
 type categoryOption = {
   categoryType: category,

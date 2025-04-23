@@ -10,7 +10,11 @@ let make = () => {
   ]->Array.map(key => {
     [("name", key->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
   })
-  let analyticsUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some("payments"))
+  let analyticsUrl = getURL(
+    ~entityName=V1(ANALYTICS_PAYMENTS),
+    ~methodType=Post,
+    ~id=Some("payments"),
+  )
 
   let singleStatEntity = PaymentOverviewUtils.getSingleStatEntity(metrics, analyticsUrl)
   let dateDict = HSwitchRemoteFilter.getDateFilteredObject()

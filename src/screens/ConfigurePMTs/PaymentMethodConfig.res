@@ -87,7 +87,11 @@ let make = (
   } = paymentMethodConfig
   open APIUtils
   let getURL = useGetURL()
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+
+  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PaymentProcessor,
+  )
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
 
@@ -96,13 +100,20 @@ let make = (
     try {
       setShowPaymentMthdConfigModal(_ => true)
       setScreenState(_ => Loading)
-      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get)
+      let paymentMethoConfigUrl = getURL(~entityName=V1(PAYMENT_METHOD_CONFIG), ~methodType=Get)
       let data =
         connectorList
         ->Array.filter(item =>
           item.merchant_connector_id === paymentMethodConfig.merchant_connector_id
         )
-        ->getValueFromArray(0, Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+        ->getValueFromArray(
+          0,
+          ConnectorInterface.mapDictToConnectorPayload(
+            ConnectorInterface.connectorInterfaceV1,
+            Dict.make(),
+          ),
+        )
+
       let encodeConnectorPayload = data->PaymentMethodConfigUtils.encodeConnectorPayload
       let res = await fetchDetails(
         `${paymentMethoConfigUrl}?connector=${connector_name}&paymentMethodType=${payment_method_type}`,
@@ -142,7 +153,7 @@ let make = (
 
   let onSubmit = async (values, _) => {
     try {
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(merchant_connector_id))
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(merchant_connector_id))
       let _ = await updateDetails(url, values, Post)
       let _ = await setReferesh()
       setShowPaymentMthdConfigModal(_ => false)
@@ -197,7 +208,7 @@ let make = (
     </RenderIf>
     <ACLDiv
       authorization={userHasAccess(~groupAccess=ConnectorsManage)}
-      className="cursor-pointer w-150"
+      className="cursor-pointer w-150 truncate whitespace-nowrap overflow-hidden"
       onClick={_ => getProcessorDetails()->ignore}>
       {switch element {
       | Some(component) => component
