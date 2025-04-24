@@ -43,11 +43,13 @@ let make = () => {
     }
   }
 
-  <div className="flex items-center gap-4">
+  <div className="flex items-center gap-4 ">
     <div
       className={`p-3 rounded-lg whitespace-nowrap text-fs-13 bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green font-semibold`}>
       {merchantId->React.string}
     </div>
-    <TextInput input customWidth="w-80" placeholder="Switch merchant" onKeyUp=handleKeyUp />
+    <TextInput
+      input customWidth="w-30 2xl:w-80" placeholder="Switch merchant" onKeyUp=handleKeyUp
+    />
   </div>
 }
