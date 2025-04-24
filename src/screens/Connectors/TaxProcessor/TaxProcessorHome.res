@@ -63,10 +63,8 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
-  let activeBusinessProfile =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->MerchantAccountUtils.getValueFromBusinessProfile
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"tax-processor", "new"} => false
@@ -148,15 +146,14 @@ let make = () => {
     }
   }, [connectorName])
 
-  let (
+  let {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
@@ -164,15 +161,15 @@ let make = () => {
     if !isUpdateFlow {
       initialValuesToDict->Dict.set(
         "profile_id",
-        activeBusinessProfile.profile_id->JSON.Encode.string,
+        businessProfileRecoilVal.profile_id->JSON.Encode.string,
       )
       initialValuesToDict->Dict.set(
         "connector_label",
-        `${connectorName}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+        `${connectorName}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
       )
     }
     None
-  }, [connectorName, activeBusinessProfile.profile_id])
+  }, [connectorName, businessProfileRecoilVal.profile_id])
 
   React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
@@ -188,7 +185,7 @@ let make = () => {
       let url = getURL(
         ~entityName=V1(BUSINESS_PROFILE),
         ~methodType=Post,
-        ~id=Some(activeBusinessProfile.profile_id),
+        ~id=Some(businessProfileRecoilVal.profile_id),
       )
       let body = Dict.make()
       body->Dict.set("tax_connector_id", mcaId->JSON.Encode.string)
@@ -293,7 +290,7 @@ let make = () => {
                 warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
-                title: "Tax Porcessor",
+                title: "Tax Processor",
                 link: "/tax-processor",
               },
         ]

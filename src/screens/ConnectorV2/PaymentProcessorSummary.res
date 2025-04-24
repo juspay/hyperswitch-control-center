@@ -101,15 +101,12 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
     }
   }, [connectorInfodict.id])
 
-  let (
-    _,
+  let {
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
-    _,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {

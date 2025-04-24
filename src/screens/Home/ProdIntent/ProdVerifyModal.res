@@ -14,10 +14,8 @@ let make = (
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let updateProdDetails = async values => {
     try {
