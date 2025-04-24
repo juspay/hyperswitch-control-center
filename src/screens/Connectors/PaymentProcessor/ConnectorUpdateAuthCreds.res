@@ -42,15 +42,13 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       }
     }
   }, [connectorInfo.merchant_connector_id])
-  let (
-    _,
+  let {
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let initialValues = React.useMemo(() => {
     let authType = switch connectorInfo.connector_account_details {
@@ -60,6 +58,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
     | MultiAuthKey(multiAuthKey) => multiAuthKey.auth_type
     | CertificateAuth(certificateAuth) => certificateAuth.auth_type
     | CurrencyAuthKey(currencyAuthKey) => currencyAuthKey.auth_type
+    | NoKey(noKeyAuth) => noKeyAuth.auth_type
     | UnKnownAuthType(_) => ""
     }
     [

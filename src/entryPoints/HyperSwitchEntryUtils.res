@@ -15,3 +15,29 @@ let getSessionData = (~key, ~defaultValue="") => {
   | None => defaultValue
   }
 }
+
+let getThemeIdfromStore = () => {
+  let themeId = LocalStorage.getItem("theme_id")->Nullable.toOption
+  themeId
+}
+
+let setThemeIdtoStore = themeId => {
+  let themeID = themeId->LogicUtils.getNonEmptyString
+  if themeID->Option.isSome {
+    LocalStorage.setItem("theme_id", themeID->Option.getOr(""))
+  } else {
+    LocalStorage.setItem("theme_id", "") //to change back to default if no theme present on switch
+  }
+}
+
+let setDomaintoStore = domain => {
+  let domain = domain->LogicUtils.getNonEmptyString
+  if domain->Option.isSome {
+    LocalStorage.setItem("domain", domain->Option.getOr(""))
+  }
+}
+
+let getDomainfromStore = () => {
+  let domain = LocalStorage.getItem("domain")->Nullable.toOption
+  domain
+}

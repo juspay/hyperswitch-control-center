@@ -24,10 +24,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     connectorTypeFromName->getConnectorInfo
   }, [connector])
 
-  let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-
-  let activeBusinessProfile =
-    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
   let connectorDetails = React.useMemo(() => {
     try {
@@ -48,7 +46,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     }
   }, [connector])
 
-  let (
+  let {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
@@ -56,7 +54,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let (showModal, setShowModal) = React.useState(_ => false)
 
@@ -86,11 +84,11 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
       } else if connector->isNonEmptyString {
         initialValuesToDict->Dict.set(
           "connector_label",
-          `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+          `${connector}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
         )
         initialValuesToDict->Dict.set(
           "profile_id",
-          activeBusinessProfile.profile_id->JSON.Encode.string,
+          businessProfileRecoilVal.profile_id->JSON.Encode.string,
         )
       }
     }
@@ -105,7 +103,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     } else {
       initialValues
     }
-  }, [connector, activeBusinessProfile.profile_id])
+  }, [connector, businessProfileRecoilVal.profile_id])
 
   let onSubmitMain = async values => {
     open ConnectorTypes

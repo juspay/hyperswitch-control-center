@@ -116,7 +116,7 @@ type formApi = {
   getFieldState: string => option<fieldRenderPropsMeta>,
   getRegisteredFields: bool,
   getState: unit => formState,
-  initialize: bool,
+  initialize: JSON.t => unit,
   isValidationPaused: bool,
   mutators: bool,
   pauseValidation: bool,

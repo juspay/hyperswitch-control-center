@@ -15,7 +15,6 @@ module CheckoutForm = {
   @react.component
   let make = (
     ~clientSecret,
-    ~sdkType: sdkType,
     ~paymentStatus,
     ~currency,
     ~setPaymentStatus,
@@ -39,7 +38,7 @@ module CheckoutForm = {
     let (btnState, setBtnState) = React.useState(_ => Button.Normal)
     let hyper = useHyper()
     let elements = useWidgets()
-    let (appearanceElem, setAppearanceElem) = React.useState(() => JSON.Encode.null)
+    let (appearanceElem, _setAppearanceElem) = React.useState(() => JSON.Encode.null)
     let (paymentElem, setPaymentElem) = React.useState(() => JSON.Encode.null)
     let {forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let fetchApi = AuthHooks.useApiFetcher()
@@ -76,69 +75,6 @@ module CheckoutForm = {
 
       None
     }, (saveViewToSdk, clientSecret))
-
-    React.useEffect(() => {
-      let appearanceVal = {
-        appearance: {
-          variables: {
-            fontFamily,
-            fontSizeBase,
-            colorPrimary: primaryColor,
-            colorBackground: bgColor,
-          },
-          rules: {
-            ".Tab": {
-              "borderRadius": "0px",
-              "display": "flex",
-              "gap": "8px",
-              "height": "52px",
-              "flexDirection": "row",
-              "justifyContent": "center",
-              "borderRadius": "5px",
-              "alignItems": "center",
-              "fontSize": "100%",
-            },
-            ".Tab--selected": {
-              "display": "flex",
-              "gap": "8px",
-              "flexDirection": "row",
-              "justifyContent": "center",
-              "alignItems": "center",
-              "padding": "15px 32px",
-              "borderRadius": "5px",
-              "fontWeight": "700",
-            },
-            ".TabLabel": {
-              "overflowWrap": "break-word",
-            },
-            ".Tab--selected:hover": {
-              "display": "flex",
-              "gap": "8px",
-              "flexDirection": "row",
-              "justifyContent": "center",
-              "alignItems": "center",
-              "padding": "15px 32px",
-              "borderRadius": "5px",
-              "fontWeight": "700",
-            },
-            ".Tab:hover": {
-              "display": "flex",
-              "gap": "8px",
-              "flexDirection": "row",
-              "justifyContent": "center",
-              "alignItems": "center",
-              "padding": "15px 32px",
-              "borderRadius": "5px",
-              "fontWeight": "700",
-            }->Identity.genericTypeToJson,
-          }->Identity.genericTypeToJson,
-          theme,
-        },
-      }->Identity.genericTypeToJson
-      setAppearanceElem(_ => appearanceVal)
-      elements.update(appearanceVal)
-      None
-    }, (elements, theme, primaryColor, bgColor, fontFamily, fontSizeBase))
 
     React.useEffect(() => {
       let paymentElement = elements.getElement("payment")
@@ -213,10 +149,7 @@ module CheckoutForm = {
       | INCOMPLETE =>
         <div className="grid grid-row-2 gap-5">
           <div className="row-span-1 bg-white rounded-lg py-6 px-10 flex-1">
-            {switch sdkType {
-            | ELEMENT => <PaymentElement id="payment-element" options={paymentElementOptions} />
-            | WIDGET => <CardWidget id="card-widget" options={paymentElementOptions} />
-            }}
+            <PaymentElement id="payment-element" options={paymentElementOptions} />
             <Button
               text={`Pay ${currency} ${(amount /. 100.00)->Float.toString}`}
               loadingText="Please wait..."
@@ -253,7 +186,6 @@ module CheckoutForm = {
 let make = (
   ~clientSecret,
   ~publishableKey,
-  ~sdkType: sdkType,
   ~paymentStatus,
   ~currency,
   ~setPaymentStatus,
@@ -315,7 +247,6 @@ let make = (
         <Elements options={elementOptions} stripe={hyperPromise()}>
           <CheckoutForm
             clientSecret
-            sdkType
             paymentStatus
             currency
             setPaymentStatus
