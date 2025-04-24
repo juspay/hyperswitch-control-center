@@ -189,34 +189,34 @@ let make = () => {
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
-                        {switch (url.path->urlPath, merchantDetailsTypedValue.product_type) {
+                        {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
                         /* DEFAULT HOME */
-                        | (list{"v2", "home"}, _) => <DefaultHome />
+                        | (_, list{"v2", "home"}) => <DefaultHome />
 
                         /* RECON PRODUCT */
-                        | (list{"v2", "recon", ..._}, Recon) => <ReconApp />
+                        | (Recon, list{"v2", "recon", ..._}) => <ReconApp />
 
                         /* RECOVERY PRODUCT */
-                        | (list{"v2", "recovery", ..._}, Recovery) => <RevenueRecoveryApp />
+                        | (Recovery, list{"v2", "recovery", ..._}) => <RevenueRecoveryApp />
 
                         /* VAULT PRODUCT */
-                        | (list{"v2", "vault", ..._}, Vault) => <VaultApp />
+                        | (Vault, list{"v2", "vault", ..._}) => <VaultApp />
 
                         /* HYPERSENSE PRODUCT */
-                        | (list{"v2", "cost-observability", ..._}, CostObservability) =>
+                        | (CostObservability, list{"v2", "cost-observability", ..._}) =>
                           <HypersenseApp />
 
                         /* INTELLIGENT ROUTING PRODUCT */
-                        | (list{"v2", "dynamic-routing", ..._}, DynamicRouting) =>
+                        | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
                           <IntelligentRoutingApp />
 
-                        | (list{"v2", "background", ..._}, _) => <DefaultBackgroundPage />
+                        | (_, list{"v2", "background", ..._}) => <DefaultBackgroundPage />
 
-                        | (list{"unauthorized"}, _) =>
+                        | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
 
                         /* ORCHESTRATOR PRODUCT */
-                        | (_, Orchestration) => <OrchestrationApp setScreenState />
+                        | (Orchestration, _) => <OrchestrationApp setScreenState />
 
                         | (_, _) =>
                           <UnauthorizedPage
