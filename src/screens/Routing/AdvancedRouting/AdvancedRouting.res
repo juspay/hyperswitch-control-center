@@ -856,7 +856,6 @@ let make = (
                 />
               </div>
             </div>
-            <FormValuesSpy />
           </Form>
         : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
     </PageLoaderWrapper>

@@ -361,7 +361,6 @@ let make = (
             baseUrlForRedirection
           />
         </RenderIf>
-        <FormValuesSpy />
       </Form>
     </PageLoaderWrapper>
   </div>

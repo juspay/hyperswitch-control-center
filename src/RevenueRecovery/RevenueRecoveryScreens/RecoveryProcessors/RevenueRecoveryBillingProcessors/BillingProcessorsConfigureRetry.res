@@ -65,7 +65,6 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
             />
           </div>
         </div>
-        <FormValuesSpy />
       </Form>
     </div>
   </PageWrapper>
