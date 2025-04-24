@@ -38,9 +38,10 @@ let make = (~setScreenState: ('a => PageLoaderWrapper.viewType) => unit) => {
     | list{"webhooks", ..._} =>
       <ConnectorContainer />
     | list{"apm"} => <APMContainer />
-    | list{"business-details", ..._}
-    | list{"business-profiles", ..._} =>
-      <BusinessProfileContainer />
+    //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
+    // | list{"business-details", ..._}
+    // | list{"business-profiles", ..._} =>
+    //   <BusinessProfileContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}
