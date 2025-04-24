@@ -34,7 +34,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     Link({
       name: Orchestration->getProductDisplayName,
       icon: "orchestrator-home",
-      link: "/v2/home",
+      link: "/v2/background/orchestrator",
       access: Access,
     }),
   ]
@@ -44,7 +44,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Recon->getProductDisplayName,
         icon: "recon-home",
-        link: "/v2/recon",
+        link: "/v2/background/recon",
         access: Access,
       }),
     )
@@ -55,7 +55,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Recovery->getProductDisplayName,
         icon: "recovery-home",
-        link: "/v2/recovery",
+        link: "/v2/background/recovery",
         access: Access,
       }),
     )
@@ -65,7 +65,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Vault->getProductDisplayName,
         icon: "vault-home",
-        link: "/v2/vault",
+        link: "/v2/background/vault",
         access: Access,
       }),
     )
@@ -75,7 +75,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: CostObservability->getProductDisplayName,
         icon: "nd-piggy-bank",
-        link: "/v2/cost-observability",
+        link: "/v2/background/cost-observability",
         access: Access,
       }),
     )
@@ -85,7 +85,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: DynamicRouting->getProductDisplayName,
         icon: "intelligent-routing-home",
-        link: "/v2/dynamic-routing",
+        link: "/v2/background/intelligent-routing",
         access: Access,
       }),
     )

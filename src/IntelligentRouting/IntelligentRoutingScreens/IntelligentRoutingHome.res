@@ -3,6 +3,8 @@ let make = () => {
   let {setCreateNewMerchant, activeProduct} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
     #tenant_admin,
     #org_admin,
@@ -16,6 +18,15 @@ let make = () => {
       setCreateNewMerchant(ProductTypes.DynamicRouting)
     }
   }
+
+  let showSidebar = () => {
+    setShowSideBar(_ => true)
+  }
+
+  React.useEffect(() => {
+    showSidebar()
+    None
+  }, [])
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <img alt="intelligentRouting" src="/IntelligentRouting/IntelligentRoutingOnboarding.svg" />

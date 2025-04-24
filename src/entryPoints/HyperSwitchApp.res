@@ -22,18 +22,13 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-  let {
-    fetchMerchantSpecificConfig,
-    useIsFeatureEnabledForMerchant,
-    merchantSpecificConfig,
-  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
+  let {fetchUserGroupACL} = GroupACLHooks.useUserGroupACLHook()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let {
-    userInfo: {orgId, merchantId, profileId, roleId, version},
-    checkUserEntity,
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green" : "bg-orange-500 "
@@ -64,7 +59,7 @@ let make = () => {
     let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
     RescriptReactRouter.replace(productUrl)
     switch url.path->urlPath {
-    | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
+    | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/unauthorized"))
     | _ => ()
     }
   }
@@ -194,166 +189,40 @@ let make = () => {
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
-                        {switch url.path->urlPath {
+                        {switch (url.path->urlPath, merchantDetailsTypedValue.product_type) {
                         /* DEFAULT HOME */
-                        | list{"v2", "home"} => <DefaultHome />
+                        | (list{"v2", "home"}, _) => <DefaultHome />
 
                         /* RECON PRODUCT */
-                        | list{"v2", "recon", ..._} => <ReconApp />
+                        | (list{"v2", "recon", ..._}, Recon) => <ReconApp />
 
                         /* RECOVERY PRODUCT */
-                        | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
+                        | (list{"v2", "recovery", ..._}, Recovery) => <RevenueRecoveryApp />
 
                         /* VAULT PRODUCT */
-                        | list{"v2", "vault", ..._} => <VaultApp />
+                        | (list{"v2", "vault", ..._}, Vault) => <VaultApp />
 
                         /* HYPERSENSE PRODUCT */
-                        | list{"v2", "cost-observability", ..._} => <HypersenseApp />
+                        | (list{"v2", "cost-observability", ..._}, CostObservability) =>
+                          <HypersenseApp />
 
                         /* INTELLIGENT ROUTING PRODUCT */
-                        | list{"v2", "dynamic-routing", ..._} => <IntelligentRoutingApp />
+                        | (list{"v2", "dynamic-routing", ..._}, DynamicRouting) =>
+                          <IntelligentRoutingApp />
+
+                        | (list{"v2", "background", ..._}, _) => <DefaultBackgroundPage />
+
+                        | (list{"unauthorized"}, _) =>
+                          <UnauthorizedPage message="You don't have access to this module." />
 
                         /* ORCHESTRATOR PRODUCT */
-                        | list{"home", ..._}
-                        | list{"recon"}
-                        | list{"upload-files"}
-                        | list{"run-recon"}
-                        | list{"recon-analytics"}
-                        | list{"reports"}
-                        | list{"config-settings"}
-                        | list{"sdk"} =>
-                          <MerchantAccountContainer setAppScreenState=setScreenState />
-                        // Commented as not needed now
-                        // list{"file-processor"}
+                        | (_, Orchestration) => <OrchestrationApp setScreenState />
 
-                        | list{"connectors", ..._}
-                        | list{"payoutconnectors", ..._}
-                        | list{"3ds-authenticators", ..._}
-                        | list{"pm-authentication-processor", ..._}
-                        | list{"tax-processor", ..._}
-                        | list{"fraud-risk-management", ..._}
-                        | list{"configure-pmts", ..._}
-                        | list{"routing", ..._}
-                        | list{"payoutrouting", ..._}
-                        | list{"payment-settings", ..._}
-                        | list{"webhooks", ..._} =>
-                          <ConnectorContainer />
-                        | list{"apm"} => <APMContainer />
-                        //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
-                        // | list{"business-details", ..._}
-                        // | list{"business-profiles", ..._} =>
-                        //   <BusinessProfileContainer />
-                        | list{"payments", ..._}
-                        | list{"refunds", ..._}
-                        | list{"disputes", ..._}
-                        | list{"payouts", ..._} =>
-                          <TransactionContainer />
-                        | list{"analytics-payments"}
-                        | list{"performance-monitor"}
-                        | list{"analytics-refunds"}
-                        | list{"analytics-disputes"}
-                        | list{"analytics-authentication"} =>
-                          <AnalyticsContainer />
-                        | list{"new-analytics-payment"}
-                        | list{"new-analytics-refund"}
-                        | list{"new-analytics-smart-retry"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.newAnalytics &&
-                            useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext key="NewAnalytics" index="NewAnalytics">
-                              <NewAnalyticsContainer />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"customers", ...remainingPath} =>
-                          <AccessControl
-                            authorization={userHasAccess(~groupAccess=OperationsView)}
-                            isEnabled={[#Tenant, #Organization, #Merchant]->checkUserEntity}>
-                            <EntityScaffold
-                              entityName="Customers"
-                              remainingPath
-                              access=Access
-                              renderList={() => <Customers />}
-                              renderShow={(id, _) => <ShowCustomers id />}
-                            />
-                          </AccessControl>
-                        | list{"users", ..._} => <UserManagementContainer />
-                        | list{"developer-api-keys"} =>
-                          <AccessControl
-                            // TODO: Remove `MerchantDetailsManage` permission in future
-                            authorization={hasAnyGroupAccess(
-                              userHasAccess(~groupAccess=MerchantDetailsView),
-                              userHasAccess(~groupAccess=AccountManage),
-                            )}
-                            isEnabled={!checkUserEntity([#Profile])}>
-                            <KeyManagement.KeysManagement />
-                          </AccessControl>
-                        | list{"compliance"} =>
-                          <AccessControl
-                            isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
-                            <Compliance />
-                          </AccessControl>
-                        | list{"3ds"} =>
-                          <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
-                            <HSwitchThreeDS />
-                          </AccessControl>
-                        | list{"surcharge"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.surcharge}
-                            authorization={userHasAccess(~groupAccess=WorkflowsView)}>
-                            <Surcharge />
-                          </AccessControl>
-                        | list{"account-settings"} =>
-                          <AccessControl
-                            isEnabled=featureFlagDetails.sampleData
-                            // TODO: Remove `MerchantDetailsManage` permission in future
-                            authorization={hasAnyGroupAccess(
-                              userHasAccess(~groupAccess=MerchantDetailsManage),
-                              userHasAccess(~groupAccess=AccountManage),
-                            )}>
-                            <HSwitchSettings />
-                          </AccessControl>
-                        | list{"account-settings", "profile", ...remainingPath} =>
-                          <EntityScaffold
-                            entityName="profile setting"
-                            remainingPath
-                            renderList={() => <HSwitchProfileSettings />}
-                            renderShow={(_, _) => <ModifyTwoFaSettings />}
+                        | (_, _) =>
+                          <UnauthorizedPage
+                            productType=merchantDetailsTypedValue.product_type
+                            message="You don't have access to this module."
                           />
-                        | list{"search"} => <SearchResultsPage />
-                        | list{"payment-attempts"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.globalSearch}
-                            authorization={userHasAccess(~groupAccess=OperationsView)}>
-                            <PaymentAttemptTable />
-                          </AccessControl>
-                        | list{"payment-intents"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.globalSearch}
-                            authorization={userHasAccess(~groupAccess=OperationsView)}>
-                            <PaymentIntentTable />
-                          </AccessControl>
-                        | list{"refunds-global"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.globalSearch}
-                            authorization={userHasAccess(~groupAccess=OperationsView)}>
-                            <RefundsTable />
-                          </AccessControl>
-                        | list{"dispute-global"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.globalSearch}
-                            authorization={userHasAccess(~groupAccess=OperationsView)}>
-                            <DisputeTable />
-                          </AccessControl>
-                        | list{"unauthorized"} => <UnauthorizedPage />
-                        | _ =>
-                          // SPECIAL CASE FOR ORCHESTRATOR
-                          if activeProduct === Orchestration {
-                            RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-                            <MerchantAccountContainer setAppScreenState=setScreenState />
-                          } else {
-                            React.null
-                          }
                         }}
                       </ErrorBoundary>
                     </div>
