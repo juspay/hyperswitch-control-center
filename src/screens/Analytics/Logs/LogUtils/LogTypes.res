@@ -47,6 +47,13 @@ let getTabKeyName = (key: eventLogs, option: logType) => {
     | Response => "Metadata"
     | _ => ""
     }
+  | WEBHOOKS =>
+    switch key {
+    | Logdetails => "Log Details"
+    | Request => "Event Data"
+    | Response => "Response"
+    | _ => ""
+    }
   | _ =>
     switch key {
     | Logdetails => "Log Details"
@@ -60,7 +67,9 @@ let getTabKeyName = (key: eventLogs, option: logType) => {
 let getLogTypefromString = log => {
   switch log {
   | "Log Details" => Logdetails
-  | "Request" => Request
+  | "Event Data"
+  | "Request" =>
+    Request
   | "Response" => Response
   | "Event" => Event
   | "Metadata" => Metadata

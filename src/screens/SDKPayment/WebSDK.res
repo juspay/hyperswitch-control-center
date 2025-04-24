@@ -38,7 +38,7 @@ module CheckoutForm = {
     let (btnState, setBtnState) = React.useState(_ => Button.Normal)
     let hyper = useHyper()
     let elements = useWidgets()
-    let (appearanceElem, setAppearanceElem) = React.useState(() => JSON.Encode.null)
+    let (appearanceElem, _setAppearanceElem) = React.useState(() => JSON.Encode.null)
     let (paymentElem, setPaymentElem) = React.useState(() => JSON.Encode.null)
     let {forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let fetchApi = AuthHooks.useApiFetcher()

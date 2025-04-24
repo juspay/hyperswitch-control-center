@@ -657,13 +657,18 @@ let useGetURL = () => {
       | BUSINESS_PROFILE =>
         switch methodType {
         | Get =>
-          switch userEntity {
-          | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile =>
-            `account/${merchantId}/profile`
+          switch id {
+          | Some(id) => `account/${merchantId}/business_profile/${id}`
+          | None =>
+            switch userEntity {
+            | #Tenant
+            | #Organization
+            | #Merchant
+            | #Profile =>
+              `account/${merchantId}/profile`
+            }
           }
+
         | Post =>
           switch id {
           | Some(id) => `account/${merchantId}/business_profile/${id}`
@@ -917,9 +922,9 @@ let useHandleLogout = (~eventName="user_sign_out") => {
         })
       setAuthStateToLogout()
       clearRecoilValue()
-      LocalStorage.clear()
+      CommonAuthUtils.clearLocalStorage()
     } catch {
-    | _ => LocalStorage.clear()
+    | _ => CommonAuthUtils.clearLocalStorage()
     }
   }
 }

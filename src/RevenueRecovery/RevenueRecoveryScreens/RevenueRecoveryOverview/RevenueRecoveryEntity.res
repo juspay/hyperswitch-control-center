@@ -1,5 +1,4 @@
 open LogicUtils
-open RevenueRecoveryOrderTypes
 
 module CurrencyCell = {
   @react.component
@@ -8,7 +7,10 @@ module CurrencyCell = {
   }
 }
 
-let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.cell => {
+let getAttemptCell = (
+  attempt: RevenueRecoveryOrderTypes.attempts,
+  attemptColType: RevenueRecoveryOrderTypes.attemptColType,
+): Table.cell => {
   switch attemptColType {
   | Status =>
     Label({
@@ -33,7 +35,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   }
 }
 
-let getAttemptHeading = (attemptColType: attemptColType) => {
+let getAttemptHeading = (attemptColType: RevenueRecoveryOrderTypes.attemptColType) => {
   switch attemptColType {
   | Id => Table.makeHeaderInfo(~key="id", ~title="Attempt ID")
   | Status => Table.makeHeaderInfo(~key="Status", ~title="Status")
@@ -43,7 +45,7 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
   }
 }
 
-let attemptsItemToObjMapper = dict => {
+let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempts = dict => {
   id: dict->getString("id", ""),
   status: dict->getString("status", ""),
   error: dict->getString("error", ""),
@@ -54,13 +56,20 @@ let attemptsItemToObjMapper = dict => {
   created: dict->getString("created", ""),
 }
 
-let getAttempts: JSON.t => array<attempts> = json => {
+let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
   LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
 }
 
-let allColumns: array<colType> = [Id, Status, OrderAmount, Connector, Created, PaymentMethodType]
+let allColumns: array<RevenueRecoveryOrderTypes.colType> = [
+  Id,
+  Status,
+  OrderAmount,
+  Connector,
+  Created,
+  PaymentMethodType,
+]
 
-let getHeading = (colType: colType) => {
+let getHeading = (colType: RevenueRecoveryOrderTypes.colType) => {
   switch colType {
   | Id => Table.makeHeaderInfo(~key="Invoice_ID", ~title="Invoice ID")
   | Status => Table.makeHeaderInfo(~key="Status", ~title="Status")
@@ -71,7 +80,7 @@ let getHeading = (colType: colType) => {
   }
 }
 
-let getStatus = (order, primaryColor) => {
+let getStatus = (order: RevenueRecoveryOrderTypes.order, primaryColor) => {
   let orderStatusLabel = order.status->capitalizeString
   let fixedStatusCss = "text-sm text-nd_green-400 font-medium px-2 py-1 rounded-md h-1/2"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
@@ -99,7 +108,10 @@ let getStatus = (order, primaryColor) => {
   }
 }
 
-let getCell = (order, colType: colType): Table.cell => {
+let getCell = (
+  order: RevenueRecoveryOrderTypes.order,
+  colType: RevenueRecoveryOrderTypes.colType,
+): Table.cell => {
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Id =>
@@ -162,7 +174,7 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
   })
 }
 
-let defaultColumns: array<colType> = [
+let defaultColumns: array<RevenueRecoveryOrderTypes.colType> = [
   Id,
   Status,
   OrderAmount,
@@ -171,7 +183,7 @@ let defaultColumns: array<colType> = [
   PaymentMethodType,
 ]
 
-let itemToObjMapper = dict => {
+let itemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict => {
   let attempts = dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts
   attempts->Array.reverse
   {
@@ -187,7 +199,7 @@ let itemToObjMapper = dict => {
     attempts,
   }
 }
-let getOrders: JSON.t => array<order> = json => {
+let getOrders: JSON.t => array<RevenueRecoveryOrderTypes.order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
