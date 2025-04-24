@@ -114,6 +114,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
@@ -174,15 +175,19 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
 
   let disableConnector = async isConnectorDisabled => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let connectorID = connectorInfo.merchant_connector_id
       let disableConnectorPayload = getDisableConnectorPayload(
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
+
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      setInitialValues(_ => res)
+      let _ = await fetchConnectorListResponse()
+      setScreenState(_ => PageLoaderWrapper.Success)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/payoutconnectors"))
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
     }
