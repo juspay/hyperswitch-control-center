@@ -1,4 +1,4 @@
-open TypographyType
+open TypographyTypes
 let createFontStyle = (variant, size, weight) => {
   let fontSize = switch (variant, size) {
   | (Display, Xl) => "text-fs-72 leading-78"
