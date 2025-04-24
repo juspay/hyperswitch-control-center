@@ -411,6 +411,16 @@ module.exports = {
   plugins: [
     plugin(function ({ addUtilities }) {
       const newUtilities = {
+        ".letter-spacing-compressed": { letterSpacing: "-2px" },
+        ".letter-spacing-condensed": { letterSpacing: "-1px" },
+        ".letter-spacing-normal": { letterSpacing: "0px" },
+        ".letter-spacing-expanded": { letterSpacing: "1px" },
+        ".letter-spacing-extended": { letterSpacing: "2px" },
+      };
+      addUtilities(newUtilities, ["responsive"]);
+    }),
+    plugin(function ({ addUtilities }) {
+      const newUtilities = {
         "*::-webkit-scrollbar": {
           display: "none", // chrome and other
         },
