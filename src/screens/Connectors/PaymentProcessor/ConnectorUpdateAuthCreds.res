@@ -103,6 +103,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       | _ => ()
       }
       setShowFeedbackModal(_ => false)
+      showToast(~message="Details Updated!", ~toastType=ToastSuccess)
     } catch {
     | _ => showToast(~message="Connector Failed to update", ~toastType=ToastError)
     }
