@@ -147,7 +147,7 @@ let make = () => {
     | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
     }
   }
-  let (
+  let {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
