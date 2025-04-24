@@ -334,7 +334,6 @@ let make = () => {
                 </div>
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
-            <FormValuesSpy />
           </Form>
 
         | Summary | Preview =>

@@ -770,7 +770,6 @@ module FormContent = {
               <div className="flex flex-1 flex-col overflow-scroll p-4">
                 <FieldsRenderer fields fieldWrapperClass />
               </div>
-              <FormValuesSpy wrapperClass="h-full w-1/3" restrictToLocal=false />
             </div>
           } else {
             <FieldsRenderer fields fieldWrapperClass />

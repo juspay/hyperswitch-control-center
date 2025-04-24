@@ -492,7 +492,6 @@ let make = (
               | _ => React.null
               }}
             </div>
-            <FormValuesSpy />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
         </div>
       </Form>

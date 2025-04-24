@@ -163,7 +163,6 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         <div className="flex p-1 justify-end mb-2">
           <FormRenderer.SubmitButton text="Submit" />
         </div>
-        <FormValuesSpy />
       </Form>
     </Modal>
   </>
