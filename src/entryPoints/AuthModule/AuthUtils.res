@@ -78,14 +78,27 @@ let redirectToLogin = () => {
   open GlobalVars
   open LogicUtils
 
-  let authId = getSessionData(~key="auth_id")
-  let domain = getSessionData(~key="domain") // todo: setting domain in session storage shall be removed later
+  let params = [
+    ("auth_id", getSessionData(~key="auth_id")->getNonEmptyString),
+    ("theme_id", HyperSwitchEntryUtils.getThemeIdfromStore()),
+    ("domain", HyperSwitchEntryUtils.getDomainfromStore()),
+  ]
 
-  let urlToRedirect = switch (authId->isNonEmptyString, domain->isNonEmptyString) {
-  | (true, true) => `/login?auth_id=${authId}&domain=${domain}`
-  | (true, false) => `/login?auth_id=${authId}`
-  | (false, true) => `/login?domain=${domain}`
-  | (_, _) => `/login`
+  let queryString =
+    params
+    ->Array.filterMap(((key, value)) =>
+      switch value {
+      | Some(value) if value->isNonEmptyString => Some(`${key}=${value}`)
+      | _ => None
+      }
+    )
+    ->Array.joinWith("&")
+
+  let urlToRedirect = if queryString->isNonEmptyString {
+    `/login?${queryString}`
+  } else {
+    "/login"
   }
+
   RescriptReactRouter.push(appendDashboardPath(~url=urlToRedirect))
 }

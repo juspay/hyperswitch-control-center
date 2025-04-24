@@ -343,7 +343,7 @@ module MerchantDropdownItem = {
 
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
-      <div className={`rounded-lg mb-1`}>
+      <div className={`rounded-lg`}>
         <InlineEditInput
           index
           labelText=merchantName

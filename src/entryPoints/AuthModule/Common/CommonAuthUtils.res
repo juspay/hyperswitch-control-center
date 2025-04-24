@@ -138,9 +138,12 @@ let errorSubCodeMapper = (subCode: string) => {
 }
 
 let clearLocalStorage = () => {
+  let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
+  let domain = HyperSwitchEntryUtils.getDomainfromStore()->Option.getOr("")
   LocalStorage.clear()
+  HyperSwitchEntryUtils.setThemeIdtoStore(themeId) // Preserve theme id in url and login page
+  HyperSwitchEntryUtils.setDomaintoStore(domain) // Preserve domain in url and login page
 }
-
 module ToggleLiveTestMode = {
   open GlobalVars
   open CommonAuthTypes
