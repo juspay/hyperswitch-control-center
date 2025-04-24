@@ -407,6 +407,8 @@ module ProfileDropdownItem = {
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let isMobileView = MatchMedia.useMobileChecker()
     let isActive = currentId == profileId
+    let setBusinessProfileRecoil =
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
 
     let getProfileList = async () => {
       try {
@@ -472,7 +474,8 @@ module ProfileDropdownItem = {
           ~methodType=Post,
           ~id=Some(profileId),
         )
-        let _ = await updateDetails(accountUrl, body, Post)
+        let res = await updateDetails(accountUrl, body, Post)
+        setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
       } catch {
