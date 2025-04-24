@@ -22,7 +22,6 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-  let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
     fetchMerchantSpecificConfig,
     useIsFeatureEnabledForMerchant,
@@ -32,13 +31,13 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {
-    userInfo: {orgId, merchantId, profileId, roleId, themeId, version},
+    userInfo: {orgId, merchantId, profileId, roleId, version},
     checkUserEntity,
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green" : "bg-orange-500 "
-
+  let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
@@ -47,12 +46,10 @@ let make = () => {
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
   sessionExpired := false
-
+  let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
     try {
-      if devThemeFeature || themeId->LogicUtils.isNonEmptyString {
-        let _ = await getThemesJson(themeId, JSON.Encode.null, devThemeFeature)
-      }
+      let _ = await getThemesJson(~themesID=themeId)
     } catch {
     | _ => ()
     }
@@ -92,12 +89,12 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [orgId, merchantId, profileId, themeId])
+  }, [orgId, merchantId, profileId])
 
   React.useEffect(() => {
     applyTheme()->ignore
     None
-  }, (themeId, devThemeFeature))
+  }, [themeId])
 
   React.useEffect(() => {
     if userGroupACL->Option.isSome {
@@ -152,8 +149,8 @@ let make = () => {
                           </RenderIf>
                         </div>
                       </div>}
-                      headerLeftActions={switch Window.env.urlThemeConfig.logoUrl {
-                      | Some(url) =>
+                      headerLeftActions={switch logoURL {
+                      | Some(url) if url->LogicUtils.isNonEmptyString =>
                         <div className="flex md:gap-4 gap-2 items-center">
                           <img className="h-8 w-auto object-contain" alt="image" src={`${url}`} />
                           <ProfileSwitch />
@@ -170,7 +167,7 @@ let make = () => {
                             <span className="font-semibold"> {modeText->React.string} </span>
                           </div>
                         </div>
-                      | None =>
+                      | _ =>
                         <div className="flex md:gap-4 gap-2 items-center">
                           <ProfileSwitch />
                           <div
