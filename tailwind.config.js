@@ -73,6 +73,13 @@ module.exports = {
       inset: {
         "76-px": "76px",
       },
+      letterSpacing: {
+        compressed: "-2px",
+        condensed: "-1px",
+        normal: "0px",
+        expanded: "1px",
+        extended: "2px",
+      },
       width: {
         "90-px": "90px",
         100: "25rem",
@@ -409,16 +416,6 @@ module.exports = {
     },
   },
   plugins: [
-    plugin(function ({ addUtilities }) {
-      const newUtilities = {
-        ".letter-spacing-compressed": { letterSpacing: "-2px" },
-        ".letter-spacing-condensed": { letterSpacing: "-1px" },
-        ".letter-spacing-normal": { letterSpacing: "0px" },
-        ".letter-spacing-expanded": { letterSpacing: "1px" },
-        ".letter-spacing-extended": { letterSpacing: "2px" },
-      };
-      addUtilities(newUtilities, ["responsive"]);
-    }),
     plugin(function ({ addUtilities }) {
       const newUtilities = {
         "*::-webkit-scrollbar": {
