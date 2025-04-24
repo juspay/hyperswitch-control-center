@@ -32,7 +32,7 @@ let createFontStyle = (variant, size, weight) => {
   | Code => "font-jetbrain-mono"
   }
 
-  fontSize ++ " " ++ fontWeight ++ " " ++ fontFamily
+  `${fontSize} ${fontWeight} ${fontFamily}`
 }
 
 let createWeightStyles = (variant, size) => {
