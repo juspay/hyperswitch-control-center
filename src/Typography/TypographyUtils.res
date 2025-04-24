@@ -28,8 +28,7 @@ let createFontStyle = (variant, size, weight) => {
   }
 
   let fontFamily = switch variant {
-  | Display | Body => "font-inter-style"
-  | Heading
+  | Display | Body | Heading => "font-inter-style"
   | Code => "font-jetbrain-mono"
   }
 
