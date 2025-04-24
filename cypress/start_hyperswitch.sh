@@ -25,6 +25,18 @@ sed '/^\[network_tokenization_service\]/,/^\[.*\]/d' "$toml_file" > temp.toml
 mv temp.toml "$toml_file"
 echo "[network_tokenization_service] section removed from $toml_file."
 
+
+file="config/docker_compose.toml"
+temp_file=$(mktemp)
+
+awk '
+  BEGIN { skip = 0 }
+  /^\[open_router\]/ { skip = 1 }
+  !skip { print }
+' "$file" > "$temp_file" && mv "$temp_file" "$file"
+
+
+
 # Start Docker Compose services in detached mode
 chmod +x /usr/local/bin/docker-compose
 #docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog
