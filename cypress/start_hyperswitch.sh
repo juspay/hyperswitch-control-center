@@ -27,4 +27,12 @@ echo "[network_tokenization_service] section removed from $toml_file."
 
 # Start Docker Compose services in detached mode
 chmod +x /usr/local/bin/docker-compose
-docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog
+#docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog
+
+
+# Start Docker Compose services
+docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog || {
+    echo "Docker Compose failed to start services";
+    docker logs hyperswitch-hyperswitch-server-1;
+    exit 1;
+}
