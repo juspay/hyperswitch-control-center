@@ -147,7 +147,7 @@ let make = () => {
                             condition={merchantDetailsTypedValue.product_type == Orchestration}>
                             <GlobalSearchBar />
                           </RenderIf>
-                          <RenderIf condition={true}>
+                          <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
                         </div>
