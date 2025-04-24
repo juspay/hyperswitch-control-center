@@ -12,7 +12,7 @@ let make = () => {
   let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
   let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (metrics, setMetrics) = React.useState(_ => [])
+  let (_metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()

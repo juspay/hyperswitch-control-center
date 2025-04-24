@@ -562,7 +562,7 @@ let make = (
   @supports (-webkit-appearance: none){
     .sidebar-scrollbar {
         scrollbar-width: auto;
-        scrollbar-color: #8a8c8f;
+        scrollbar-color: #CACFD8;
       }
       
       .sidebar-scrollbar::-webkit-scrollbar {
@@ -572,8 +572,8 @@ let make = (
         width: 5px;
       }
       
-      .sidebar-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #8a8c8f;
+      .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: #CACFD8;
         border-radius: 3px;
       }
       

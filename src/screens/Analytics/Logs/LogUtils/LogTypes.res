@@ -47,6 +47,13 @@ let getTabKeyName = (key: eventLogs, option: logType) => {
     | Response => "Metadata"
     | _ => ""
     }
+  | WEBHOOKS =>
+    switch key {
+    | Logdetails => "Log Details"
+    | Request => "Event Data"
+    | Response => "Response"
+    | _ => ""
+    }
   | _ =>
     switch key {
     | Logdetails => "Log Details"
@@ -60,7 +67,9 @@ let getTabKeyName = (key: eventLogs, option: logType) => {
 let getLogTypefromString = log => {
   switch log {
   | "Log Details" => Logdetails
-  | "Request" => Request
+  | "Event Data"
+  | "Request" =>
+    Request
   | "Response" => Response
   | "Event" => Event
   | "Metadata" => Metadata
@@ -122,8 +131,8 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       })
     }
   | WEBHOOKS => {
-      let request = initialData->getString("outgoing_webhook_event_type", "")
-      let response = initialData->getString("content", "")
+      let request = initialData->getString("content", "")
+      let response = initialData->getString("outgoing_webhook_event_type", "")
       setLogDetails(_ => {
         response,
         request,

@@ -103,6 +103,15 @@ let make = () => {
     }
     None
   }, [userGroupACL])
+  let pageViewEvent = MixpanelHook.usePageView()
+  let path = url.path->List.toArray->Array.joinWith("/")
+
+  React.useEffect(() => {
+    if featureFlagDetails.mixpanel {
+      pageViewEvent(~path)->ignore
+    }
+    None
+  }, (featureFlagDetails.mixpanel, path))
 
   <>
     <div>
@@ -230,9 +239,10 @@ let make = () => {
                         | list{"webhooks", ..._} =>
                           <ConnectorContainer />
                         | list{"apm"} => <APMContainer />
-                        | list{"business-details", ..._}
-                        | list{"business-profiles", ..._} =>
-                          <BusinessProfileContainer />
+                        //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
+                        // | list{"business-details", ..._}
+                        // | list{"business-profiles", ..._} =>
+                        //   <BusinessProfileContainer />
                         | list{"payments", ..._}
                         | list{"refunds", ..._}
                         | list{"disputes", ..._}

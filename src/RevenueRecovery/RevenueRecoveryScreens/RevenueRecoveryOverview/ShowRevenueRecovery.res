@@ -1,7 +1,7 @@
 open RevenueRecoveryEntity
 open LogicUtils
 open RecoveryOverviewHelper
-open RevenueRecoveryOrderTypes
+
 module ShowOrderDetails = {
   @react.component
   let make = (
@@ -55,7 +55,7 @@ module OrderInfo = {
 
 module Attempts = {
   @react.component
-  let make = (~order) => {
+  let make = (~order: RevenueRecoveryOrderTypes.order) => {
     let getStyle = status => {
       let orderStatus = status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
 
@@ -111,13 +111,11 @@ module Attempts = {
 let make = (~id) => {
   open APIUtils
   let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ =>
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
   )
   let showToast = ToastState.useShowToast()
-  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 
   let fetchOrderDetails = async _ => {
     try {

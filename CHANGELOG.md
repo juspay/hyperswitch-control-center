@@ -3,6 +3,65 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.24.0
+
+### Features
+
+- Mobile responsive for operations section ([#2869](https://github.com/juspay/hyperswitch-control-center/pull/2869)) ([`5b7b9b5`](https://github.com/juspay/hyperswitch-control-center/commit/5b7b9b585f151bb5bc39bf0ec0c5b1e26fc8ede2))
+
+### Bug Fixes
+
+- Rename webhooks request heading to event data ([#2872](https://github.com/juspay/hyperswitch-control-center/pull/2872)) ([`e72e426`](https://github.com/juspay/hyperswitch-control-center/commit/e72e42635738a64d8b3a2b01b415ea179a76e614))
+- Configure pmts filter issues ([#2871](https://github.com/juspay/hyperswitch-control-center/pull/2871)) ([`2182543`](https://github.com/juspay/hyperswitch-control-center/commit/21825431ecd6d55cad1688be8717c11b41adcf16))
+- New authentication analytics key and dimensions changes ([#2880](https://github.com/juspay/hyperswitch-control-center/pull/2880)) ([`557441d`](https://github.com/juspay/hyperswitch-control-center/commit/557441d0117f40b759a785df9f938110e658c55c))
+
+### Refactors
+
+- Sdk code refactoring ([#2862](https://github.com/juspay/hyperswitch-control-center/pull/2862)) ([`7cabcbf`](https://github.com/juspay/hyperswitch-control-center/commit/7cabcbfdcf2d0bbcf0df7a7e2addc186377b2429))
+
+### Miscellaneous Tasks
+
+- Added country currency mapping with icons ([#2859](https://github.com/juspay/hyperswitch-control-center/pull/2859)) ([`7098f4a`](https://github.com/juspay/hyperswitch-control-center/commit/7098f4a53ece5385d6b02d08c68495ac92727ee3))
+- Remove warnings ([#2875](https://github.com/juspay/hyperswitch-control-center/pull/2875)) ([`1ecc8b8`](https://github.com/juspay/hyperswitch-control-center/commit/1ecc8b80cea8c55ff2a3877aa2e1ba0cef5815b1))
+- Configurartion record type ([#2877](https://github.com/juspay/hyperswitch-control-center/pull/2877)) ([`453247d`](https://github.com/juspay/hyperswitch-control-center/commit/453247d14c0622d847fdc7bfa92a29d0a67fc5ef))
+
+**Full Changelog:** [`2025.04.23.0...2025.04.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.23.0...2025.04.24.0)
+
+
+- - -
+
+## 2025.04.23.0
+
+### Bug Fixes
+
+- Fixed ctp_vissa connector not updating ([#2856](https://github.com/juspay/hyperswitch-control-center/pull/2856)) ([`1c585b2`](https://github.com/juspay/hyperswitch-control-center/commit/1c585b2494ab20ab9202238ce2f020456144fd4a))
+
+### Miscellaneous Tasks
+
+- Changed scrollbar colour and state ([#2852](https://github.com/juspay/hyperswitch-control-center/pull/2852)) ([`5ab4ba7`](https://github.com/juspay/hyperswitch-control-center/commit/5ab4ba7b9df15784ea5dffd0202d273893a0a80d))
+- Added time selection for payments and reports ([#2854](https://github.com/juspay/hyperswitch-control-center/pull/2854)) ([`1338d1d`](https://github.com/juspay/hyperswitch-control-center/commit/1338d1d1bae5aa044283a643a7e0c3b746b5e47d))
+
+**Full Changelog:** [`2025.04.22.0...2025.04.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.22.0...2025.04.23.0)
+
+
+- - -
+
+## 2025.04.22.0
+
+### Bug Fixes
+
+- Connector metadata default ([#2849](https://github.com/juspay/hyperswitch-control-center/pull/2849)) ([`a48970b`](https://github.com/juspay/hyperswitch-control-center/commit/a48970b0c524953ff9d90617306d55a64014c15b))
+- Webhooks request response data interchange fix ([#2850](https://github.com/juspay/hyperswitch-control-center/pull/2850)) ([`fa160e0`](https://github.com/juspay/hyperswitch-control-center/commit/fa160e0541e122ee69333b446690e374ab52e297))
+
+### Miscellaneous Tasks
+
+- Update login event ([#2855](https://github.com/juspay/hyperswitch-control-center/pull/2855)) ([`2c06a3c`](https://github.com/juspay/hyperswitch-control-center/commit/2c06a3cfe56df58e97f340e2d509e645f9712475))
+
+**Full Changelog:** [`2025.04.18.0...2025.04.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.18.0...2025.04.22.0)
+
+
+- - -
+
 ## 2025.04.18.0
 
 ### Bug Fixes
