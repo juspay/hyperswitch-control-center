@@ -174,7 +174,6 @@ let make = (
             <WebSDK
               clientSecret=val
               publishableKey
-              sdkType=ELEMENT
               paymentStatus
               setErrorMessage
               currency={initialValues.currency}
@@ -192,7 +191,6 @@ let make = (
         <WebSDK
           clientSecret=val
           publishableKey
-          sdkType=ELEMENT
           paymentStatus
           setErrorMessage
           currency={initialValues.currency}

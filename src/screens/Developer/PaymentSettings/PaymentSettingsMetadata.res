@@ -195,7 +195,7 @@ module MetadataHeaders = {
 }
 
 @react.component
-let make = (~busiProfieDetails, ~setBusiProfie, ~setScreenState, ~profileId="") => {
+let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~profileId="") => {
   open APIUtils
   open LogicUtils
   open FormRenderer
@@ -205,8 +205,9 @@ let make = (~busiProfieDetails, ~setBusiProfie, ~setScreenState, ~profileId="") 
   let url = RescriptReactRouter.useUrl()
   let id = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, profileId)
   let showToast = ToastState.useShowToast()
-  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -214,11 +215,11 @@ let make = (~busiProfieDetails, ~setBusiProfie, ~setScreenState, ~profileId="") 
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
       let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
-      setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+      fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
+      setBusinessProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
       setAllowEdit(_ => false)
-      fetchBusinessProfiles()->ignore
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -229,7 +230,7 @@ let make = (~busiProfieDetails, ~setBusiProfie, ~setScreenState, ~profileId="") 
   }
   <ReactFinalForm.Form
     key="auth"
-    initialValues={busiProfieDetails->parseBussinessProfileJson->JSON.Encode.object}
+    initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
     subscription=ReactFinalForm.subscribeToValues
     onSubmit
     render={({handleSubmit}) => {

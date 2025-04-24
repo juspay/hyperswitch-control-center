@@ -137,14 +137,9 @@ module ConnectorSummaryGrid = {
     open ConnectorUtils
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
-    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-    let currentProfileName =
-      businessProfiles
-      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
-        ele.profile_id === connectorInfo.profile_id
-      )
-      ->Option.getOr(defaultBusinessProfile)
+    let businessProfileRecoilVal =
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = getWebhooksUrl(
       ~connectorName={connectorInfo.merchant_connector_id},
@@ -180,7 +175,7 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connectorInfo.merchant_connector_id])
-    let (_, connectorAccountFields, _, _, _, _, _) = getConnectorFields(connectorDetails)
+    let {connectorAccountFields} = getConnectorFields(connectorDetails)
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
     | _ => true
@@ -214,7 +209,7 @@ module ConnectorSummaryGrid = {
       <div className="grid grid-cols-4 border-b  md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
         <div className="col-span-3 font-semibold text-base text-grey-700 opacity-70">
-          {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
+          {`${businessProfileRecoilVal.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
       <div className="grid grid-cols-4 border-b  md:px-10">

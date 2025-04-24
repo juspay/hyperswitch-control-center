@@ -8,7 +8,7 @@ module TransactionViewCard = {
     let borderClass = isActiveView ? "border-primary" : ""
 
     <div
-      className={`flex flex-col justify-center flex-auto gap-1 bg-white text-semibold border rounded-md px-4 py-2.5 w-14 my-8 cursor-pointer hover:bg-gray-50 ${borderClass}`}
+      className={`flex flex-col justify-center flex-auto gap-1 bg-white text-semibold border rounded-md px-4 py-2.5 cursor-pointer hover:bg-gray-50 ${borderClass}`}
       onClick={_ => onViewClick(view)}>
       <p className={textClass}> {view->getViewsDisplayName->React.string} </p>
       <RenderIf condition={!(count->LogicUtils.isEmptyString)}>

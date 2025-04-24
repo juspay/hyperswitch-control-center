@@ -63,11 +63,8 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let updateDetails = useUpdateMethod()
-
-  let activeBusinessProfile =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->MerchantAccountUtils.getValueFromBusinessProfile
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"3ds-authenticators", "new"} => false
@@ -154,11 +151,10 @@ let make = () => {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
@@ -166,15 +162,15 @@ let make = () => {
     if !isUpdateFlow {
       initialValuesToDict->Dict.set(
         "profile_id",
-        activeBusinessProfile.profile_id->JSON.Encode.string,
+        businessProfileRecoilVal.profile_id->JSON.Encode.string,
       )
       initialValuesToDict->Dict.set(
         "connector_label",
-        `${connectorName}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+        `${connectorName}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
       )
     }
     None
-  }, [connectorName, activeBusinessProfile.profile_id])
+  }, [connectorName, businessProfileRecoilVal.profile_id])
 
   React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {

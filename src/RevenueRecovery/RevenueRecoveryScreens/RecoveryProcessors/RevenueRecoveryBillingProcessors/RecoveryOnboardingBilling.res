@@ -23,7 +23,7 @@ let make = (
     ~entityName=V2(V2_CONNECTOR),
     ~version=UserInfoTypes.V2,
   )
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
 
@@ -115,15 +115,12 @@ let make = (
     }
   }, [connector])
 
-  let (
-    _,
+  let {
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
-    _,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let validateMandatoryField = values => {
     let errors = Dict.make()
