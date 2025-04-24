@@ -210,7 +210,7 @@ let make = () => {
                         | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
                           <IntelligentRoutingApp />
 
-                        | (_, list{"v2", "background", ..._}) => <DefaultBackgroundPage />
+                        | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
 
                         | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
