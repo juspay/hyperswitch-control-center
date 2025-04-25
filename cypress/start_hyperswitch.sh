@@ -11,7 +11,6 @@ mv docker-compose.tmp docker-compose.yml
 
 
 # Specify the correct file path to the TOML file
-# File path of the TOML file
 toml_file="config/docker_compose.toml"  # Adjust the path if necessary
 
 # Ensure the file exists
@@ -24,6 +23,21 @@ fi
 sed '/^\[network_tokenization_service\]/,/^\[.*\]/d' "$toml_file" > temp.toml
 mv temp.toml "$toml_file"
 echo "[network_tokenization_service] section removed from $toml_file."
+
+
+
+
+temp_file=$(mktemp)
+
+awk '
+  BEGIN { skip = 0 }
+  /^\[open_router\]/ { skip = 1 }
+  !skip { print }
+' "$toml_file" > "$temp_file" && mv "$temp_file" "$toml_file"
+
+
+
+
 
 # Start Docker Compose services in detached mode
 chmod +x /usr/local/bin/docker-compose
