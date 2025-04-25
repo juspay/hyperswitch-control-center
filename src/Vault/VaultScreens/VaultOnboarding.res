@@ -151,15 +151,12 @@ let make = () => {
     setShowSideBar(_ => true)
   }
 
-  let (
-    _,
+  let {
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
-    _,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let validateMandatoryField = values => {
     let errors = Dict.make()
@@ -215,7 +212,6 @@ let make = () => {
                   tooltipForWidthClass="w-full"
                 />
               </div>
-              <FormValuesSpy />
             </Form>
           </PageLoaderWrapper>
         </div>
@@ -238,7 +234,6 @@ let make = () => {
                   tooltipForWidthClass="w-full"
                 />
               </div>
-              <FormValuesSpy />
             </Form>
           </PageLoaderWrapper>
         </div>

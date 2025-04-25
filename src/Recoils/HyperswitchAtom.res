@@ -26,6 +26,10 @@ let connectorListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom(
   JSON.Encode.null,
 )
 
+let businessProfileFromIdAtom = Recoil.atom(
+  "businessProfileFromIdAtom",
+  JSON.Encode.null->BusinessProfileMapper.businessProfileTypeMapper,
+)
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
 let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(

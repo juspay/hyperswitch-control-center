@@ -140,7 +140,7 @@ let useApiFetcher = () => {
             if resp->Fetch.Response.status === 401 {
               switch authStatus {
               | LoggedIn(_) =>
-                LocalStorage.clear()
+                let _ = CommonAuthUtils.clearLocalStorage()
                 setAuthStateToLogout()
                 AuthUtils.redirectToLogin()
                 resolve(resp)

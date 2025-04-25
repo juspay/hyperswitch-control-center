@@ -99,7 +99,7 @@ module OrgTile = {
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
     let ringClass = switch isActive {
-    | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
+    | true => "border-primary ring-primary/20 ring-offset-0 ring-2"
     | false => "ring-grey-outline"
     }
 
@@ -114,8 +114,8 @@ module OrgTile = {
       className={`w-10 h-10 rounded-lg  flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
       <div
         className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md ${ringClass} ${isActive
-            ? `bg-white/20 ${primaryTextColor} border-sidebar-primaryTextColor`
-            : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
+            ? `bg-white/20 ${primaryTextColor} border-sidebar-textColorPrimary`
+            : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
         <div
           className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40 `}>

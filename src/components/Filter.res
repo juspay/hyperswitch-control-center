@@ -169,12 +169,6 @@ let make = (
   let searchParams = query->decodeURI
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
-  React.useEffect(_ => {
-    let updatedAllFilters = remoteFilters->Array.map(item => item.field)
-    setAllFilters(_ => updatedAllFilters)
-    None
-  }, [remoteFilters])
-
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
     ~initialFilters={Array.concat(localFilters, fixedFilters)},
@@ -370,7 +364,7 @@ let make = (
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys submitInputOnEnter />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
-        <div className="flex gap-2 justify-between my-2">
+        <div className="flex lg:flex-row flex-col justify-between gap-4 my-2">
           <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
             {customLeftView}
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
@@ -397,6 +391,5 @@ let make = (
         </div>
       </>}
     </AddDataAttributes>}
-    <FormValuesSpy />
   </Form>
 }
