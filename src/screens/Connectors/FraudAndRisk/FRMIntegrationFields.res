@@ -165,7 +165,6 @@ module IntegrationFieldsForm = {
           </div>
         </div>
       </div>
-      <FormValuesSpy />
     </Form>
   }
 }

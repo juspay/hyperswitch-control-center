@@ -273,7 +273,6 @@ module WebHookSection = {
               </RenderIf>
             </div>
           </DesktopRow>
-          // <FormValuesSpy />
         </form>
       }}
     />
@@ -729,7 +728,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </DesktopRow>
-                <FormValuesSpy />
               </form>
             }}
           />

@@ -65,7 +65,6 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
- 
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
@@ -319,7 +318,6 @@ let make = () => {
                 </div>
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
-            <FormValuesSpy />
           </Form>
 
         | Summary | Preview =>
