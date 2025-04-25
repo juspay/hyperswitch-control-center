@@ -218,7 +218,7 @@ let make = () => {
                         /* ORCHESTRATOR PRODUCT */
                         | (Orchestration, _) => <OrchestrationApp setScreenState />
 
-                        | (_, _) =>
+                        | _ =>
                           <UnauthorizedPage
                             productType=merchantDetailsTypedValue.product_type
                             message="You don't have access to this module."
