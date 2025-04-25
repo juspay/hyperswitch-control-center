@@ -236,7 +236,6 @@ let make = (
                   />
                 </div>
               </RenderIf>
-              <FormValuesSpy />
             </Form>
           </PageLoaderWrapper>
         </div>
@@ -255,7 +254,6 @@ let make = (
                   tooltipForWidthClass="w-full"
                 />
               </div>
-              <FormValuesSpy />
             </Form>
           </PageLoaderWrapper>
         </div>

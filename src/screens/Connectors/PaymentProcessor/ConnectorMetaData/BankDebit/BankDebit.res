@@ -170,6 +170,5 @@ let make = (
         buttonState={validateSelectedPMAuth(formState.values, paymentMethodType)}
       />
     </div>
-    <FormValuesSpy />
   </div>
 }

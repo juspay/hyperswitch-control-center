@@ -177,7 +177,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
             })
             ->React.array}
           </div>
-          <FormValuesSpy />
         </Form>
       </PageLoaderWrapper>
     </div>

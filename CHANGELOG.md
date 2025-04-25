@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.25.0
+
+### Bug Fixes
+
+- Fix navbar alignment issues in 13inch Screens ([#2887](https://github.com/juspay/hyperswitch-control-center/pull/2887)) ([`e819c5d`](https://github.com/juspay/hyperswitch-control-center/commit/e819c5d3fab68d1662d449adf83bddc5ec0de63e))
+- Added success toast after updating connector credentials ([#2890](https://github.com/juspay/hyperswitch-control-center/pull/2890)) ([`ed63b18`](https://github.com/juspay/hyperswitch-control-center/commit/ed63b188fd5a2d196fbc17a5e0cfbf77792440c9))
+
+### Refactors
+
+- Removed form values spy ([#2889](https://github.com/juspay/hyperswitch-control-center/pull/2889)) ([`cf25593`](https://github.com/juspay/hyperswitch-control-center/commit/cf25593a6a3c3c69a760b7af212d73677f961f89))
+
+### Miscellaneous Tasks
+
+- Removed business details and business profile page and refacto… ([#2845](https://github.com/juspay/hyperswitch-control-center/pull/2845)) ([`effcd34`](https://github.com/juspay/hyperswitch-control-center/commit/effcd347e99c3dcaa29fd31ff6a4c3942fe1403a))
+- Themes release ([#2300](https://github.com/juspay/hyperswitch-control-center/pull/2300)) ([`d7d5046`](https://github.com/juspay/hyperswitch-control-center/commit/d7d5046008142ad5deab9a5512c8adc3404605a9))
+- Added disable functionality to threeds connectors ([#2870](https://github.com/juspay/hyperswitch-control-center/pull/2870)) ([`d79d311`](https://github.com/juspay/hyperswitch-control-center/commit/d79d311616377e11cd68c1530dbacfe241ca808a))
+- Added send invite mixpanel event ([#2891](https://github.com/juspay/hyperswitch-control-center/pull/2891)) ([`0228230`](https://github.com/juspay/hyperswitch-control-center/commit/02282302be8c5436c007a4059c16fdbb4449451d))
+
+**Full Changelog:** [`2025.04.24.0...2025.04.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.24.0...2025.04.25.0)
+
+
+- - -
+
 ## 2025.04.24.0
 
 ### Features
