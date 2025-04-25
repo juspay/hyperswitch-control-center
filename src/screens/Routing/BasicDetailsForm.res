@@ -77,7 +77,6 @@ let make = (
   let ip2 = ReactFinalForm.useField(`description`).input
   let ip3 = ReactFinalForm.useField(`profile_id`).input
 
-
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   //Need to check if necessary

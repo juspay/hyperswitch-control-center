@@ -21,7 +21,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let connectorTypeFromName =
     connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
 
-  
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
@@ -238,7 +237,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           </div>
           <IntegrationHelp.Render connector setShowModal showModal />
         </div>
-        <FormValuesSpy />
       </ConnectorHeaderWrapper>
       <VerifyConnectorModal
         showVerifyModal
