@@ -193,6 +193,11 @@ let make = () => {
                         /* DEFAULT HOME */
                         | (_, list{"v2", "home"}) => <DefaultHome />
 
+                        | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
+
+                        | (_, list{"unauthorized"}) =>
+                          <UnauthorizedPage message="You don't have access to this module." />
+
                         /* RECON PRODUCT */
                         | (Recon, list{"v2", "recon", ..._}) => <ReconApp />
 
@@ -209,11 +214,6 @@ let make = () => {
                         /* INTELLIGENT ROUTING PRODUCT */
                         | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
                           <IntelligentRoutingApp />
-
-                        | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
-
-                        | (_, list{"unauthorized"}) =>
-                          <UnauthorizedPage message="You don't have access to this module." />
 
                         /* ORCHESTRATOR PRODUCT */
                         | (Orchestration, _) => <OrchestrationApp setScreenState />
