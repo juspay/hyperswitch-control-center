@@ -19,13 +19,6 @@ let useFetchBusinessProfiles = () => {
   }
 }
 
-let useGetBusinessProflile = profileId => {
-  HyperswitchAtom.businessProfilesAtom
-  ->Recoil.useRecoilValueFromAtom
-  ->Array.find(profile => profile.profile_id == profileId)
-  ->Option.getOr(MerchantAccountUtils.defaultValueForBusinessProfile)
-}
-
 open APIUtils
 open APIUtilsTypes
 let useFetchBusinessProfileFromId = () => {

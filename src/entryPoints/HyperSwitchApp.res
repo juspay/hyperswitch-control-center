@@ -86,7 +86,9 @@ let make = () => {
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
-      setScreenState(_ => PageLoaderWrapper.Loading)
+      if !retainCloneModal {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+      }
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
@@ -116,10 +118,11 @@ let make = () => {
   React.useEffect(() => {
     if userGroupACL->Option.isSome {
       setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-    if retainCloneModal {
-      setScreenState(_ => PageLoaderWrapper.Custom)
+      if retainCloneModal {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
     None
   }, [userGroupACL])
@@ -132,22 +135,6 @@ let make = () => {
     }
     None
   }, (featureFlagDetails.mixpanel, path))
-
-  React.useEffect1(() => {
-    if userGroupACL->Option.isSome {
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-    None
-  }, [userGroupACL])
-
-  let ompDropdowns =
-    <div className="flex items-center gap-4 mx-4">
-      <RenderIf condition={!isInternalUser}>
-        <MerchantSwitch />
-        <p className="text-gray-400 text-fs-14"> {"/"->React.string} </p>
-      </RenderIf>
-      <ProfileSwitch />
-    </div>
 
   let customUI = <CloneConnectorPaymentMethods.ClonePaymentMethodsModal setShowModal showModal />
 

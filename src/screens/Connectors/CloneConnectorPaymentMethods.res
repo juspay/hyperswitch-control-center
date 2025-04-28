@@ -26,7 +26,7 @@ module ClonePaymentMethodsModal = {
 
     let modalBody = {
       <>
-        <div className="pt-3 m-3 flex justify-between">
+        <div className="text-black pt-3 m-3 flex justify-between">
           <CardUtils.CardHeader
             heading="Clone Payment Methods"
             subHeading=""
@@ -43,24 +43,36 @@ module ClonePaymentMethodsModal = {
         </div>
         <hr />
         <div>
-          <div className="flex flex-col gap-2 py-10 text-sm leading-7 text-gray-600 mx-3">
-            <p>
+          <div className="flex flex-col gap-2 py-10 leading-7 mx-4">
+            <p className="text-black font-medium text-fs-13">
               {"Select the target profile where you want to clone payment methods"->React.string}
             </p>
-            <div>
-              <p> {"Target Profile"->React.string} </p>
+            <div className="flex flex-col gap-1">
+              <p className=" text-black text-fs-13"> {"Target Profile"->React.string} </p>
               <RenderIf condition={retainCloneModal && showModal}>
                 <div className="w-48">
                   <ProfileSwitch
-                    showSwitchModal=false setButtonState showHeading=false customMargin="mt-8"
+                    showSwitchModal=false
+                    setButtonState
+                    showHeading=false
+                    customMargin="mt-8"
+                    disableCreateNewProfile=true
+                    changePath=false
                   />
                 </div>
               </RenderIf>
             </div>
           </div>
           <hr className="mt-4" />
-          <div className="flex justify-end my-4 mr-4">
-            <Button text="Next" onClick={_ => onNextClick()} buttonState buttonType={Primary} />
+          <div className="flex justify-end my-6 mr-4">
+            <Button
+              text="Next"
+              onClick={_ => onNextClick()}
+              buttonState
+              buttonType=Primary
+              buttonSize=Small
+              loadingText="Switching Profile..."
+            />
           </div>
         </div>
       </>
@@ -136,7 +148,7 @@ let make = (~connectorID, ~connectorName) => {
     setCloneConnector(_ => connectorName)
   }
   <>
-    <div onClick={handleCloneClick}>
+    <div onClick={handleCloneClick} className="h-6 w-6">
       <ToolTip
         description="Clone Payment Methods"
         toolTipFor={<Icon name="clone" size=15 />}

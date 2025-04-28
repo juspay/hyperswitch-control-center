@@ -5,8 +5,6 @@ type colType =
   | TestMode
   | Status
   | Disabled
-  | ProfileId
-  | ProfileName
   | ConnectorLabel
   | PaymentMethods
   | MerchantConnectorId
@@ -51,8 +49,6 @@ let getHeading = colType => {
   | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
-  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | MerchantConnectorId =>
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
