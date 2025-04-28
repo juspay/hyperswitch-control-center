@@ -75,7 +75,9 @@ let make = () => {
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
-      if !retainCloneModal {
+      if retainCloneModal {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      } else {
         setScreenState(_ => PageLoaderWrapper.Loading)
       }
       setuserGroupACL(_ => None)
@@ -86,9 +88,6 @@ let make = () => {
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
       setupProductUrl(~productType=merchantResponse.product_type)
-      if retainCloneModal {
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
