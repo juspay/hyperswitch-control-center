@@ -72,17 +72,6 @@ let make = () => {
     }
   }
 
-  React.useEffect(() => {
-    if retainCloneModal {
-      setShowModal(_ => true)
-      setScreenState(_ => PageLoaderWrapper.Custom)
-    } else {
-      setShowModal(_ => false)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-    None
-  }, [retainCloneModal])
-
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
@@ -119,13 +108,14 @@ let make = () => {
     if userGroupACL->Option.isSome {
       setDashboardPageState(_ => #HOME)
       if retainCloneModal {
+        setShowModal(_ => true)
         setScreenState(_ => PageLoaderWrapper.Custom)
       } else {
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }
     None
-  }, [userGroupACL])
+  }, (userGroupACL, retainCloneModal))
   let pageViewEvent = MixpanelHook.usePageView()
   let path = url.path->List.toArray->Array.joinWith("/")
 
