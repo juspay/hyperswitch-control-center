@@ -10,8 +10,6 @@ let make = (~setAuthStatus) => {
   let authInitState = LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
 
-  let (actualAuthType, setActualAuthType) = React.useState(_ => authInitState)
-
   React.useEffect(() => {
     if isLiveMode {
       setMode(_ => LiveButtonMode)
@@ -20,17 +18,16 @@ let make = (~setAuthStatus) => {
     }
 
     switch url.path {
-    | list{"user", "verify_email"} => setActualAuthType(_ => EmailVerify)
-    | list{"login"} =>
-      setActualAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
+    | list{"user", "verify_email"} => setAuthType(_ => EmailVerify)
+    | list{"dashboard", "login"} =>
+      setAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
     | list{"user", "set_password"} =>
-      checkAuthMethodExists([PASSWORD]) ? setActualAuthType(_ => ResetPassword) : ()
-    | list{"user", "accept_invite_from_email"} => setActualAuthType(_ => ActivateFromEmail)
-    | list{"forget-password"} =>
-      checkAuthMethodExists([PASSWORD]) ? setActualAuthType(_ => ForgetPassword) : ()
-    | list{"register"} =>
-      // In Live mode users are not allowed to singup directly
-      !isLiveMode ? setActualAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
+      checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ResetPassword) : ()
+    | list{"user", "accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
+    | list{"dashboard", "forget-password"} =>
+      checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ForgetPassword) : ()
+    | list{"dashboard", "register"} =>
+      !isLiveMode ? setAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
     | _ => ()
     }
 
@@ -38,37 +35,7 @@ let make = (~setAuthStatus) => {
   }, [url.path])
 
   React.useEffect(() => {
-    if authType != actualAuthType {
-      setAuthType(_ => actualAuthType)
-    }
-    None
-  }, [actualAuthType])
-
-  React.useEffect(() => {
-    switch (authType, url.path) {
-    | (
-        LoginWithEmail | LoginWithPassword,
-        list{"user", "verify_email"}
-        | list{"user", "accept_invite_from_email"}
-        | list{"user", "login"}
-        | list{"user", "set_password"}
-        | list{"register", ..._},
-      ) => () // to prevent duplicate push
-    | (LoginWithPassword | LoginWithEmail, _) => AuthUtils.redirectToLogin()
-
-    | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
-    | (SignUP, _) => GlobalVars.appendDashboardPath(~url="/register")->RescriptReactRouter.push
-
-    | (ForgetPassword | ForgetPasswordEmailSent, list{"forget-password", ..._}) => () // to prevent duplicate push
-    | (ForgetPassword | ForgetPasswordEmailSent, _) =>
-      GlobalVars.appendDashboardPath(~url="/forget-password")->RescriptReactRouter.push
-
-    | (ResendVerifyEmail | ResendVerifyEmailSent, list{"resend-mail", ..._}) => () // to prevent duplicate push
-    | (ResendVerifyEmail | ResendVerifyEmailSent, _) =>
-      GlobalVars.appendDashboardPath(~url="/resend-mail")->RescriptReactRouter.push
-
-    | _ => ()
-    }
+    setAuthType(_ => authType)
     None
   }, [authType])
 

@@ -1,5 +1,5 @@
 @react.component
-let make = (~setScreenState: ('a => PageLoaderWrapper.viewType) => unit) => {
+let make = (~setScreenState) => {
   open HyperswitchAtom
 
   let url = RescriptReactRouter.useUrl()

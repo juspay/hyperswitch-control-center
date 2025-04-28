@@ -147,6 +147,10 @@ let useNote = (authType, setAuthType) => {
     </div>
   }
 
+  let onCancelClick = (~path) => {
+    GlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
+  }
+
   <div className="w-96">
     {switch authType {
     | LoginWithEmail =>
@@ -154,7 +158,7 @@ let useNote = (authType, setAuthType) => {
         {getFooterLinkComponent(
           ~btnText="sign in using password",
           ~authType=LoginWithPassword,
-          ~path=`/login?auth_id${authId}`,
+          ~path=authId->LogicUtils.isNonEmptyString ? `/login?auth_id${authId}` : "/login",
         )}
       </RenderIf>
     | LoginWithPassword =>
@@ -162,7 +166,7 @@ let useNote = (authType, setAuthType) => {
         {getFooterLinkComponent(
           ~btnText="sign in with an email",
           ~authType=LoginWithEmail,
-          ~path=`/login?auth_id${authId}`,
+          ~path=authId->LogicUtils.isNonEmptyString ? `/login?auth_id${authId}` : "/login",
         )}
       </RenderIf>
     | SignUP =>
@@ -180,7 +184,14 @@ let useNote = (authType, setAuthType) => {
             | ResendVerifyEmailSent => ResendVerifyEmail
             | ForgetPassword | MagicLinkEmailSent | _ => LoginWithEmail
             }
+            let backUrl = switch authType {
+            | ForgetPasswordEmailSent => "/forget-password"
+            | ResendVerifyEmailSent => "/resend-mail"
+            | ForgetPassword | MagicLinkEmailSent | _ =>
+              authId->LogicUtils.isNonEmptyString ? `/login?auth_id${authId}` : "/login"
+            }
             setAuthType(_ => backState)
+            onCancelClick(~path=backUrl)
           }}
           className={`text-sm text-center ${textColor.primaryNormal} hover:underline underline-offset-2 cursor-pointer w-fit`}>
           {"Cancel"->React.string}

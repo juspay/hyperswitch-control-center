@@ -45,10 +45,17 @@ module AuthHeaderWrapper = {
 @react.component
 let make = (~children) => {
   open APIUtils
+  open AuthUtils
+  open HyperswitchAtom
 
   let getURL = useGetURL()
+  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
 
   let url = RescriptReactRouter.useUrl()
+  let currentUrl = GlobalVars.extractModulePath(
+    ~path=url.path,
+    ~end=url.path->List.toArray->Array.length,
+  )
   let updateDetails = useUpdateMethod()
   let {fetchAuthMethods, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
   let {authStatus, setAuthStatus, authMethods, setAuthStateToLogout} = React.useContext(
@@ -56,7 +63,6 @@ let make = (~children) => {
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let getAuthDetails = () => {
-    open AuthUtils
     open LogicUtils
     let preLoginInfo = getPreLoginDetailsFromLocalStorage()
     let loggedInInfo = getUserInfoDetailsFromLocalStorage()
@@ -92,7 +98,6 @@ let make = (~children) => {
   }
 
   let handleRedirectFromSSO = () => {
-    open AuthUtils
     let info = getPreLoginDetailsFromLocalStorage()->SSOUtils.ssoDefaultValue
     setAuthStatus(PreLogin(info))
   }
@@ -108,7 +113,7 @@ let make = (~children) => {
   React.useEffect(() => {
     switch url.path {
     | list{"user", "login"}
-    | list{"register"} =>
+    | list{"dashboard", "register"} =>
       setAuthStateToLogout()
     | list{"user", "verify_email"}
     | list{"user", "set_password"}
@@ -117,7 +122,6 @@ let make = (~children) => {
     | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
     | _ => getAuthDetails()
     }
-
     None
   }, [])
 
@@ -138,6 +142,23 @@ let make = (~children) => {
     }
     None
   }, [authStatus])
+
+  React.useEffect(() => {
+    switch (authStatus, merchantDetailsTypedValue.product_type) {
+    | (LoggedIn(_token), Orchestration) =>
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+    | (LoggedIn(_token), _) =>
+      if url.path->isAuthPath {
+        let productUrl = ProductUtils.getProductUrl(
+          ~productType=merchantDetailsTypedValue.product_type,
+          ~url=currentUrl,
+        )
+        RescriptReactRouter.replace(productUrl)
+      }
+    | _ => ()
+    }
+    None
+  }, [currentUrl])
 
   let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
     let authMethodType = method.auth_method.\"type"
