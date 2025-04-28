@@ -96,7 +96,7 @@ describe("Payment Operations", () => {
             .children()
             .eq(0)
             .should("have.text", "All1");
-            paymentOperations.transactionView
+          paymentOperations.transactionView
             .children()
             .eq(1)
             .should("have.text", "Succeeded1");
@@ -184,9 +184,10 @@ describe("Payment Operations", () => {
   });
 
   //Columns
-  it("Should display all default columns and allow selecting/deselecting columns", () => {
+  it("should display all default columns and allow selecting/deselecting columns", () => {
     const columns = {
       expected: [
+        "Card Network",
         "Merchant Order Reference Id",
         "Metadata",
         "Payment Status",
@@ -198,10 +199,10 @@ describe("Payment Operations", () => {
         "Created",
         "Connector Transaction ID",
         "Connector",
+        "Profile Id",
         "Amount",
         "AmountCapturable",
         "Authentication Type",
-        "Profile Id",
         "Capture Method",
         "Client Secret",
         "Currency",
@@ -222,6 +223,7 @@ describe("Payment Operations", () => {
         "Attempt count",
       ],
       mandatory: [
+        "Card Network",
         "Merchant Order Reference Id",
         "Metadata",
         "Payment Status",
@@ -233,6 +235,7 @@ describe("Payment Operations", () => {
         "Created",
         "Connector Transaction ID",
         "Connector",
+        "Profile Id",
         "Amount",
       ],
     };
@@ -250,7 +253,7 @@ describe("Payment Operations", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
-    cy.get('button[data-button-for="CustomIcon"]').click();
+    paymentOperations.columnButton.click();
 
     columns.expected.forEach((column) => {
       cy.contains(column).should("exist");
@@ -287,7 +290,33 @@ describe("Payment Operations", () => {
     });
   });
 
-  it("Should display matching columns when searching for valid column names", () => {
+  it("should display matching columns when searching for valid column names", () => {
+    let columns = [
+      "Card Network",
+      "Merchant Order Reference Id",
+      "Metadata",
+      "Payment Status",
+      "Payment Method Type",
+      "Payment Method",
+      "Payment ID",
+      "Customer Email",
+      "Description",
+      "Created",
+      "Connector Transaction ID",
+      "Connector",
+      "Profile Id",
+      "Amount",
+      "AmountCapturable",
+      "Authentication Type",
+      "Capture Method",
+      "Client Secret",
+      "Currency",
+      "Customer ID",
+      "Merchant ID",
+      "Setup Future Usage",
+      "Attempt count",
+    ];
+
     let merchant_id;
     homePage.merchantID
       .eq(0)
@@ -301,7 +330,7 @@ describe("Payment Operations", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
-    cy.get('button[data-button-for="CustomIcon"]').should("be.visible").click();
+    paymentOperations.columnButton.click();
     cy.get(".border > .rounded-md").should(
       "be.visible",
       "have.attr",
@@ -309,7 +338,7 @@ describe("Payment Operations", () => {
       `Search in ${columnSize} options`,
     );
 
-    ["Merchant", "Profile", "Payment"].forEach((searchTerm) => {
+    columns.forEach((searchTerm) => {
       cy.get(`input[placeholder="Search in ${columnSize} options"]`)
         .clear()
         .type(searchTerm);
@@ -317,7 +346,7 @@ describe("Payment Operations", () => {
     });
   });
 
-  it("Should show 'No matching records found' when searching for invalid column names", () => {
+  it("should show 'No matching records found' when searching for invalid column names", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
@@ -331,7 +360,7 @@ describe("Payment Operations", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
-    cy.get('button[data-button-for="CustomIcon"]').click();
+    paymentOperations.columnButton.click();
     cy.get(`input[placeholder="Search in ${columnSize} options"]`).should(
       "be.visible",
     );
@@ -348,7 +377,193 @@ describe("Payment Operations", () => {
     ).should("have.length", columnSize);
   });
 
-  //Search bar
+  it("should display all selected columns in payments table", () => {
+    const expectedColumns = [
+      "S.No",
+      "Payment ID",
+      "Connector",
+      "Profile Id",
+      "Amount",
+      "Payment Status",
+      "Payment Method",
+      "Payment Method Type",
+      "Card Network",
+      "Connector Transaction ID",
+      "Customer Email",
+      "Merchant Order Reference Id",
+      "Description",
+      "Metadata",
+      "Created",
+      "AmountCapturable",
+      "Authentication Type",
+      "Capture Method",
+      "Client Secret",
+      "Currency",
+      "Customer ID",
+      "Merchant ID",
+      "Setup Future Usage",
+      "Attempt count",
+    ];
+
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id);
+      });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    paymentOperations.columnButton.click();
+
+    cy.get(
+      '[data-component="modal:Table Columns"] [data-dropdown-numeric]',
+    ).each(($el) => {
+      cy.wrap($el).click();
+    });
+
+    cy.contains("button", `${columnSize} Columns Selected`).click();
+
+    cy.get("table thead tr th").each(($el, index) => {
+      cy.wrap($el).should("have.text", expectedColumns[index]);
+    });
+  });
+
+  // search bar
+  it("should display a payment when searched with payment ID", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id);
+        cy.createPaymentAPI(merchant_id);
+      });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    // Copy First Payment ID
+    paymentOperations.paymentIdCopyButton
+      .children()
+      .eq(0)
+      .click({ force: true });
+
+    // Paste Payment ID and search
+    cy.window()
+      .its("navigator.clipboard")
+      .then((clip) => clip.readText())
+      .then((text) => {
+        paymentOperations.searchBox.type(text + "{enter}");
+
+        cy.get(
+          '[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]',
+        ).click();
+
+        cy.get('[data-table-location="Orders_tr1_td2"]').should(
+          "contain",
+          text,
+        );
+      });
+
+    paymentOperations.searchBox.clear();
+
+    // Copy Second Payment ID
+    paymentOperations.paymentIdCopyButton
+      .children()
+      .eq(1)
+      .click({ force: true });
+
+    // Paste Payment ID and search
+    cy.window()
+      .its("navigator.clipboard")
+      .then((clip) => clip.readText())
+      .then((text) => {
+        paymentOperations.searchBox.type(text + "{enter}");
+
+        cy.get(
+          '[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]',
+        ).click();
+
+        cy.get('[data-table-location="Orders_tr1_td2"]').should(
+          "contain",
+          text,
+        );
+      });
+  });
+
+  // search with invalid ID verify UI
+  it("should display a error message and expand search timerange button when searched with invalid payment ID", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id);
+      });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    paymentOperations.searchBox.type("Some_ID{enter}");
+
+    cy.get(`[class="items-center text-2xl text-black font-bold mb-4"]`).should(
+      "have.text",
+      "No results found",
+    );
+    cy.get(`[data-button-for="expandTheSearchToThePrevious90Days"]`).should(
+      "have.text",
+      "Expand the search to the previous 90 days",
+    );
+    cy.get(`[class="flex justify-center"]`).should(
+      "have.text",
+      "Or try the following:Try a different search parameterAdjust or remove filters and search once more",
+    );
+  });
+
+  it("should extend the time range by 90 days", () => {
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    // Get the current time range string
+    paymentOperations.dateSelector.invoke("text").then((initialRange) => {
+      const startDateStr = initialRange.split("-")[0].trim();
+
+      // Parse the date using JavaScript Date
+      const parsedStartDate = new Date(startDateStr);
+      const previousStartDate = new Date(parsedStartDate);
+      previousStartDate.setDate(parsedStartDate.getDate() - 90);
+
+      // Format the new expected range
+      const formatDate = (date) => {
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+      };
+
+      const expectedStart = formatDate(previousStartDate); // e.g., "Dec 29, 2024"
+      const expectedEnd = formatDate(parsedStartDate); // e.g., "Mar 29, 2025"
+
+      const expectedRange = `${expectedStart} - ${expectedEnd}`;
+
+      cy.get('[data-button-for="expandTheSearchToThePrevious90Days"]').click();
+
+      paymentOperations.dateSelector.should("contain", expectedRange);
+    });
+  });
+
+  // search with invalid ID and expand search verify time range changed
+
   // Filters
   // Views
   // Date Selector

@@ -1,7 +1,8 @@
 class PaymentOperations {
-
   get transactionView() {
-    return cy.get(`[class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 my-8"]`);
+    return cy.get(
+      `[class="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 my-8"]`,
+    );
   }
 
   get searchBox() {
@@ -26,6 +27,10 @@ class PaymentOperations {
 
   get columnButton() {
     return cy.get(`[data-button-for="CustomIcon"]`);
+  }
+
+  get paymentIdCopyButton() {
+    return cy.get(`[class="fill-current cursor-pointer opacity-70 h-7 py-1"]`);
   }
 }
 
