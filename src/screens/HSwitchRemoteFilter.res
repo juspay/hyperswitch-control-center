@@ -169,6 +169,7 @@ module RemoteTableFilters = {
   ) => {
     open LogicUtils
     open APIUtils
+    open ConnectorUtils
 
     let getURL = useGetURL()
     let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
@@ -216,7 +217,28 @@ module RemoteTableFilters = {
           }
         | _ => await fetchDetails(filterUrl)
         }
-        setFilterDataJson(_ => Some(response))
+
+        let connectorArray =
+          response->getDictFromJsonObject->getDictfromDict("connector")->Dict.toArray
+
+        let filteredConnectorKeys = connectorArray->Array.filter(key => {
+          let (name, _) = key
+          let paymentType = name->ConnectorUtils.getConnectorNameTypeFromString
+          let threedsType =
+            name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator)
+
+          connectorList->Array.some(item => paymentType == item) ||
+          threedsAuthenticatorList->Array.some(item => threedsType == item) ||
+          dummyConnectorList(true)->Array.some(item => paymentType == item)
+        })
+        let newConnectorDict = filteredConnectorKeys->Dict.fromArray
+        let editedResponse = {
+          response
+          ->getDictFromJsonObject
+          ->Dict.set("connector", newConnectorDict->Identity.genericTypeToJson)
+          response
+        }
+        setFilterDataJson(_ => Some(editedResponse))
       } catch {
       | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }
