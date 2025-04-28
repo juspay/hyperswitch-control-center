@@ -5,6 +5,7 @@ type timezoneType = {
   isoAlpha2: CountryUtils.countiesCode,
   phoneCode: string,
   flag: string,
+  currency: string,
 }
 
 let defaultTimeZone = {
@@ -14,6 +15,7 @@ let defaultTimeZone = {
   isoAlpha2: US,
   phoneCode: "+1",
   flag: "🇺🇸",
+  currency: "USD",
 }
 
 let country = [
@@ -24,6 +26,7 @@ let country = [
     isoAlpha2: AF,
     phoneCode: "+93",
     flag: "🇦🇫",
+    currency: "AFN",
   },
   {
     isoAlpha3: "ALB",
@@ -32,6 +35,7 @@ let country = [
     isoAlpha2: AL,
     phoneCode: "+355",
     flag: "🇦🇱",
+    currency: "ALL",
   },
   {
     isoAlpha3: "DZA",
@@ -40,6 +44,7 @@ let country = [
     isoAlpha2: DZ,
     phoneCode: "+213",
     flag: "🇩🇿",
+    currency: "DZD",
   },
   {
     isoAlpha3: "ARG",
@@ -61,6 +66,7 @@ let country = [
     isoAlpha2: AR,
     phoneCode: "+54",
     flag: "🇦🇷",
+    currency: "ARS",
   },
   {
     isoAlpha3: "ARM",
@@ -69,6 +75,7 @@ let country = [
     isoAlpha2: AM,
     phoneCode: "+374",
     flag: "🇦🇲",
+    currency: "AMD",
   },
   {
     isoAlpha3: "AUS",
@@ -91,6 +98,7 @@ let country = [
     isoAlpha2: AU,
     phoneCode: "+61",
     flag: "🇦🇺",
+    currency: "AUD",
   },
   {
     isoAlpha3: "AUT",
@@ -99,6 +107,7 @@ let country = [
     isoAlpha2: AT,
     phoneCode: "+43",
     flag: "🇦🇹",
+    currency: "EUR",
   },
   {
     isoAlpha3: "AZE",
@@ -107,6 +116,7 @@ let country = [
     isoAlpha2: AZ,
     phoneCode: "+994",
     flag: "🇦🇿",
+    currency: "AZN",
   },
   {
     isoAlpha3: "BHR",
@@ -115,6 +125,7 @@ let country = [
     isoAlpha2: BH,
     phoneCode: "+973",
     flag: "🇧🇭",
+    currency: "BHD",
   },
   {
     isoAlpha3: "BGD",
@@ -123,6 +134,7 @@ let country = [
     isoAlpha2: BD,
     phoneCode: "+880",
     flag: "🇧🇩",
+    currency: "BDT",
   },
   {
     isoAlpha3: "BLR",
@@ -131,6 +143,7 @@ let country = [
     isoAlpha2: BY,
     phoneCode: "+375",
     flag: "🇧🇾",
+    currency: "BYN",
   },
   {
     isoAlpha3: "BEL",
@@ -139,6 +152,7 @@ let country = [
     isoAlpha2: BE,
     phoneCode: "+32",
     flag: "🇧🇪",
+    currency: "EUR",
   },
   {
     isoAlpha3: "BLZ",
@@ -147,6 +161,7 @@ let country = [
     isoAlpha2: BZ,
     phoneCode: "+501",
     flag: "🇧🇿",
+    currency: "BZD",
   },
   {
     isoAlpha3: "BTN",
@@ -155,6 +170,7 @@ let country = [
     isoAlpha2: BT,
     phoneCode: "+975",
     flag: "🇧🇹",
+    currency: "BTN",
   },
   {
     isoAlpha3: "BOL",
@@ -163,6 +179,7 @@ let country = [
     isoAlpha2: BO,
     phoneCode: "+591",
     flag: "🇧🇴",
+    currency: "BOB",
   },
   {
     isoAlpha3: "BIH",
@@ -171,6 +188,7 @@ let country = [
     isoAlpha2: BA,
     phoneCode: "+387",
     flag: "🇧🇦",
+    currency: "BAM",
   },
   {
     isoAlpha3: "BWA",
@@ -179,6 +197,7 @@ let country = [
     isoAlpha2: BW,
     phoneCode: "+267",
     flag: "🇧🇼",
+    currency: "BWP",
   },
   {
     isoAlpha3: "BRA",
@@ -204,6 +223,7 @@ let country = [
     isoAlpha2: BR,
     phoneCode: "+55",
     flag: "🇧🇷",
+    currency: "BRL",
   },
   {
     isoAlpha3: "BRN",
@@ -212,6 +232,7 @@ let country = [
     isoAlpha2: BN,
     phoneCode: "+673",
     flag: "🇧🇳",
+    currency: "BND",
   },
   {
     isoAlpha3: "BGR",
@@ -220,6 +241,7 @@ let country = [
     isoAlpha2: BG,
     phoneCode: "+359",
     flag: "🇧🇬",
+    currency: "BGN",
   },
   {
     isoAlpha3: "KHM",
@@ -228,6 +250,7 @@ let country = [
     isoAlpha2: KH,
     phoneCode: "+855",
     flag: "🇰🇭",
+    currency: "KHR",
   },
   {
     isoAlpha3: "CMR",
@@ -236,6 +259,7 @@ let country = [
     isoAlpha2: CM,
     phoneCode: "+237",
     flag: "🇨🇲",
+    currency: "XAF",
   },
   {
     isoAlpha3: "CAN",
@@ -273,6 +297,7 @@ let country = [
     isoAlpha2: CA,
     phoneCode: "+1",
     flag: "🇨🇦",
+    currency: "CAD",
   },
   {
     isoAlpha3: "CHL",
@@ -281,6 +306,7 @@ let country = [
     isoAlpha2: CL,
     phoneCode: "+56",
     flag: "🇨🇱",
+    currency: "CLP",
   },
   {
     isoAlpha3: "CHN",
@@ -289,6 +315,7 @@ let country = [
     isoAlpha2: CN,
     phoneCode: "+86",
     flag: "🇨🇳",
+    currency: "CNY",
   },
   {
     isoAlpha3: "COL",
@@ -297,6 +324,7 @@ let country = [
     isoAlpha2: CO,
     phoneCode: "+57",
     flag: "🇨🇴",
+    currency: "COP",
   },
   {
     isoAlpha3: "COD",
@@ -305,6 +333,7 @@ let country = [
     isoAlpha2: CD,
     phoneCode: "+243",
     flag: "🇨🇩",
+    currency: "CDF",
   },
   {
     isoAlpha3: "CRI",
@@ -313,6 +342,7 @@ let country = [
     isoAlpha2: CR,
     phoneCode: "+506",
     flag: "🇨🇷",
+    currency: "CRC",
   },
   {
     isoAlpha3: "CIV",
@@ -321,6 +351,7 @@ let country = [
     isoAlpha2: CI,
     phoneCode: "+225",
     flag: "🇨🇮",
+    currency: "XOF",
   },
   {
     isoAlpha3: "HRV",
@@ -329,6 +360,7 @@ let country = [
     isoAlpha2: HR,
     phoneCode: "+385",
     flag: "🇭🇷",
+    currency: "HRK",
   },
   {
     isoAlpha3: "CUB",
@@ -337,6 +369,7 @@ let country = [
     isoAlpha2: CU,
     phoneCode: "+53",
     flag: "🇨🇺",
+    currency: "CUP",
   },
   {
     isoAlpha3: "CZE",
@@ -345,6 +378,7 @@ let country = [
     isoAlpha2: CZ,
     phoneCode: "+420",
     flag: "🇨🇿",
+    currency: "CZK",
   },
   {
     isoAlpha3: "DNK",
@@ -353,6 +387,7 @@ let country = [
     isoAlpha2: DK,
     phoneCode: "+45",
     flag: "🇩🇰",
+    currency: "DKK",
   },
   {
     isoAlpha3: "DJI",
@@ -361,6 +396,7 @@ let country = [
     isoAlpha2: DJ,
     phoneCode: "+253",
     flag: "🇩🇯",
+    currency: "DJF",
   },
   {
     isoAlpha3: "DOM",
@@ -369,6 +405,7 @@ let country = [
     isoAlpha2: DO,
     phoneCode: "+1",
     flag: "🇩🇴",
+    currency: "DOP",
   },
   {
     isoAlpha3: "ECU",
@@ -377,6 +414,7 @@ let country = [
     isoAlpha2: EC,
     phoneCode: "+593",
     flag: "🇪🇨",
+    currency: "USD",
   },
   {
     isoAlpha3: "EGY",
@@ -385,6 +423,7 @@ let country = [
     isoAlpha2: EG,
     phoneCode: "+20",
     flag: "🇪🇬",
+    currency: "EGP",
   },
   {
     isoAlpha3: "SLV",
@@ -393,6 +432,7 @@ let country = [
     isoAlpha2: SV,
     phoneCode: "+503",
     flag: "🇸🇻",
+    currency: "USD",
   },
   {
     isoAlpha3: "ERI",
@@ -401,6 +441,7 @@ let country = [
     isoAlpha2: ER,
     phoneCode: "+291",
     flag: "🇪🇷",
+    currency: "ERN",
   },
   {
     isoAlpha3: "EST",
@@ -409,6 +450,7 @@ let country = [
     isoAlpha2: EE,
     phoneCode: "+372",
     flag: "🇪🇪",
+    currency: "EUR",
   },
   {
     isoAlpha3: "ETH",
@@ -417,6 +459,7 @@ let country = [
     isoAlpha2: ET,
     phoneCode: "+251",
     flag: "🇪🇹",
+    currency: "ETB",
   },
   {
     isoAlpha3: "FRO",
@@ -425,6 +468,7 @@ let country = [
     isoAlpha2: FO,
     phoneCode: "+298",
     flag: "🇫🇴",
+    currency: "DKK",
   },
   {
     isoAlpha3: "FIN",
@@ -433,6 +477,7 @@ let country = [
     isoAlpha2: FI,
     phoneCode: "+358",
     flag: "🇫🇮",
+    currency: "EUR",
   },
   {
     isoAlpha3: "FRA",
@@ -441,6 +486,7 @@ let country = [
     isoAlpha2: FR,
     phoneCode: "+33",
     flag: "🇫🇷",
+    currency: "EUR",
   },
   {
     isoAlpha3: "GEO",
@@ -449,6 +495,7 @@ let country = [
     isoAlpha2: GE,
     phoneCode: "+995",
     flag: "🇬🇪",
+    currency: "GEL",
   },
   {
     isoAlpha3: "DEU",
@@ -457,6 +504,7 @@ let country = [
     isoAlpha2: DE,
     phoneCode: "+49",
     flag: "🇩🇪",
+    currency: "EUR",
   },
   {
     isoAlpha3: "GRC",
@@ -465,6 +513,7 @@ let country = [
     isoAlpha2: GR,
     phoneCode: "+30",
     flag: "🇬🇷",
+    currency: "EUR",
   },
   {
     isoAlpha3: "GRL",
@@ -473,6 +522,7 @@ let country = [
     isoAlpha2: GL,
     phoneCode: "+299",
     flag: "🇬🇱",
+    currency: "DKK",
   },
   {
     isoAlpha3: "GTM",
@@ -481,6 +531,7 @@ let country = [
     isoAlpha2: GT,
     phoneCode: "+502",
     flag: "🇬🇹",
+    currency: "GTQ",
   },
   {
     isoAlpha3: "HTI",
@@ -489,6 +540,7 @@ let country = [
     isoAlpha2: HT,
     phoneCode: "+509",
     flag: "🇭🇹",
+    currency: "HTG",
   },
   {
     isoAlpha3: "HND",
@@ -497,6 +549,7 @@ let country = [
     isoAlpha2: HN,
     phoneCode: "+504",
     flag: "🇭🇳",
+    currency: "HNL",
   },
   {
     isoAlpha3: "HKG",
@@ -505,6 +558,7 @@ let country = [
     isoAlpha2: HK,
     phoneCode: "+852",
     flag: "🇭🇰",
+    currency: "HKD",
   },
   {
     isoAlpha3: "HUN",
@@ -513,6 +567,7 @@ let country = [
     isoAlpha2: HU,
     phoneCode: "+36",
     flag: "🇭🇺",
+    currency: "HUF",
   },
   {
     isoAlpha3: "ISL",
@@ -521,6 +576,7 @@ let country = [
     isoAlpha2: IS,
     phoneCode: "+354",
     flag: "🇮🇸",
+    currency: "ISK",
   },
   {
     isoAlpha3: "IND",
@@ -529,6 +585,7 @@ let country = [
     isoAlpha2: IN,
     phoneCode: "+91",
     flag: "🇮🇳",
+    currency: "INR",
   },
   {
     isoAlpha3: "IDN",
@@ -537,6 +594,7 @@ let country = [
     isoAlpha2: ID,
     phoneCode: "+62",
     flag: "🇮🇩",
+    currency: "IDR",
   },
   {
     isoAlpha3: "IRN",
@@ -545,6 +603,7 @@ let country = [
     isoAlpha2: IR,
     phoneCode: "+98",
     flag: "🇮🇷",
+    currency: "IRR",
   },
   {
     isoAlpha3: "IRQ",
@@ -553,6 +612,7 @@ let country = [
     isoAlpha2: IQ,
     phoneCode: "+964",
     flag: "🇮🇶",
+    currency: "IQD",
   },
   {
     isoAlpha3: "IRL",
@@ -561,6 +621,7 @@ let country = [
     isoAlpha2: IE,
     phoneCode: "+353",
     flag: "🇮🇪",
+    currency: "EUR",
   },
   {
     isoAlpha3: "ISR",
@@ -569,6 +630,7 @@ let country = [
     isoAlpha2: IL,
     phoneCode: "+972",
     flag: "🇮🇱",
+    currency: "ILS",
   },
   {
     isoAlpha3: "ITA",
@@ -577,6 +639,7 @@ let country = [
     isoAlpha2: IT,
     phoneCode: "+39",
     flag: "🇮🇹",
+    currency: "EUR",
   },
   {
     isoAlpha3: "JAM",
@@ -585,6 +648,7 @@ let country = [
     isoAlpha2: JM,
     phoneCode: "+1",
     flag: "🇯🇲",
+    currency: "JMD",
   },
   {
     isoAlpha3: "JPN",
@@ -593,6 +657,7 @@ let country = [
     isoAlpha2: JP,
     phoneCode: "+81",
     flag: "🇯🇵",
+    currency: "JPY",
   },
   {
     isoAlpha3: "JOR",
@@ -601,6 +666,7 @@ let country = [
     isoAlpha2: JO,
     phoneCode: "+962",
     flag: "🇯🇴",
+    currency: "JOD",
   },
   {
     isoAlpha3: "KAZ",
@@ -609,6 +675,7 @@ let country = [
     isoAlpha2: KZ,
     phoneCode: "+7",
     flag: "🇰🇿",
+    currency: "KZT",
   },
   {
     isoAlpha3: "KEN",
@@ -617,6 +684,7 @@ let country = [
     isoAlpha2: KE,
     phoneCode: "+254",
     flag: "🇰🇪",
+    currency: "KES",
   },
   {
     isoAlpha3: "KOR",
@@ -625,6 +693,7 @@ let country = [
     isoAlpha2: KR,
     phoneCode: "+82",
     flag: "🇰🇷",
+    currency: "KRW",
   },
   {
     isoAlpha3: "KWT",
@@ -633,6 +702,7 @@ let country = [
     isoAlpha2: KW,
     phoneCode: "+965",
     flag: "🇰🇼",
+    currency: "KWD",
   },
   {
     isoAlpha3: "KGZ",
@@ -641,6 +711,7 @@ let country = [
     isoAlpha2: KG,
     phoneCode: "+996",
     flag: "🇰🇬",
+    currency: "KGS",
   },
   {
     isoAlpha3: "LAO",
@@ -649,6 +720,7 @@ let country = [
     isoAlpha2: LA,
     phoneCode: "+856",
     flag: "🇱🇦",
+    currency: "LAK",
   },
   {
     isoAlpha3: "LVA",
@@ -657,6 +729,7 @@ let country = [
     isoAlpha2: LV,
     phoneCode: "+371",
     flag: "🇱🇻",
+    currency: "EUR",
   },
   {
     isoAlpha3: "LBN",
@@ -665,6 +738,7 @@ let country = [
     isoAlpha2: LB,
     phoneCode: "+961",
     flag: "🇱🇧",
+    currency: "LBP",
   },
   {
     isoAlpha3: "LBY",
@@ -673,6 +747,7 @@ let country = [
     isoAlpha2: LY,
     phoneCode: "+218",
     flag: "🇱🇾",
+    currency: "LYD",
   },
   {
     isoAlpha3: "LIE",
@@ -681,6 +756,7 @@ let country = [
     isoAlpha2: LI,
     phoneCode: "+423",
     flag: "🇱🇮",
+    currency: "CHF",
   },
   {
     isoAlpha3: "LTU",
@@ -689,6 +765,7 @@ let country = [
     isoAlpha2: LT,
     phoneCode: "+370",
     flag: "🇱🇹",
+    currency: "EUR",
   },
   {
     isoAlpha3: "LUX",
@@ -697,6 +774,7 @@ let country = [
     isoAlpha2: LU,
     phoneCode: "+352",
     flag: "🇱🇺",
+    currency: "EUR",
   },
   {
     isoAlpha3: "MAC",
@@ -705,6 +783,7 @@ let country = [
     isoAlpha2: MO,
     phoneCode: "+853",
     flag: "🇲🇴",
+    currency: "MOP",
   },
   {
     isoAlpha3: "MKD",
@@ -713,6 +792,7 @@ let country = [
     isoAlpha2: MK,
     phoneCode: "+389",
     flag: "🇲🇰",
+    currency: "MKD",
   },
   {
     isoAlpha3: "MYS",
@@ -721,6 +801,7 @@ let country = [
     isoAlpha2: MY,
     phoneCode: "+60",
     flag: "🇲🇾",
+    currency: "MYR",
   },
   {
     isoAlpha3: "MDV",
@@ -729,6 +810,7 @@ let country = [
     isoAlpha2: MV,
     phoneCode: "+960",
     flag: "🇲🇻",
+    currency: "MVR",
   },
   {
     isoAlpha3: "MLI",
@@ -737,6 +819,7 @@ let country = [
     isoAlpha2: ML,
     phoneCode: "+223",
     flag: "🇲🇱",
+    currency: "XOF",
   },
   {
     isoAlpha3: "MLT",
@@ -745,6 +828,7 @@ let country = [
     isoAlpha2: MT,
     phoneCode: "+356",
     flag: "🇲🇹",
+    currency: "EUR",
   },
   {
     isoAlpha3: "MEX",
@@ -765,6 +849,7 @@ let country = [
     isoAlpha2: MX,
     phoneCode: "+52",
     flag: "🇲🇽",
+    currency: "MXN",
   },
   {
     isoAlpha3: "MDA",
@@ -773,6 +858,7 @@ let country = [
     isoAlpha2: MD,
     phoneCode: "+373",
     flag: "🇲🇩",
+    currency: "MDL",
   },
   {
     isoAlpha3: "MCO",
@@ -781,6 +867,7 @@ let country = [
     isoAlpha2: MC,
     phoneCode: "+377",
     flag: "🇲🇨",
+    currency: "EUR",
   },
   {
     isoAlpha3: "MNG",
@@ -789,6 +876,7 @@ let country = [
     isoAlpha2: MN,
     phoneCode: "+976",
     flag: "🇲🇳",
+    currency: "MNT",
   },
   {
     isoAlpha3: "MNE",
@@ -797,6 +885,7 @@ let country = [
     isoAlpha2: ME,
     phoneCode: "+382",
     flag: "🇲🇪",
+    currency: "EUR",
   },
   {
     isoAlpha3: "MAR",
@@ -805,6 +894,7 @@ let country = [
     isoAlpha2: MA,
     phoneCode: "+212",
     flag: "🇲🇦",
+    currency: "MAD",
   },
   {
     isoAlpha3: "MMR",
@@ -813,6 +903,7 @@ let country = [
     isoAlpha2: MM,
     phoneCode: "+95",
     flag: "🇲🇲",
+    currency: "MMK",
   },
   {
     isoAlpha3: "NPL",
@@ -821,6 +912,7 @@ let country = [
     isoAlpha2: NP,
     phoneCode: "+977",
     flag: "🇳🇵",
+    currency: "NPR",
   },
   {
     isoAlpha3: "NLD",
@@ -829,6 +921,7 @@ let country = [
     isoAlpha2: NL,
     phoneCode: "+31",
     flag: "🇳🇱",
+    currency: "EUR",
   },
   {
     isoAlpha3: "NZL",
@@ -837,6 +930,7 @@ let country = [
     isoAlpha2: NZ,
     phoneCode: "+64",
     flag: "🇳🇿",
+    currency: "NZD",
   },
   {
     isoAlpha3: "NIC",
@@ -845,6 +939,7 @@ let country = [
     isoAlpha2: NI,
     phoneCode: "+505",
     flag: "🇳🇮",
+    currency: "NIO",
   },
   {
     isoAlpha3: "NGA",
@@ -853,6 +948,7 @@ let country = [
     isoAlpha2: NG,
     phoneCode: "+234",
     flag: "🇳🇬",
+    currency: "NGN",
   },
   {
     isoAlpha3: "NOR",
@@ -861,6 +957,7 @@ let country = [
     isoAlpha2: NO,
     phoneCode: "+47",
     flag: "🇳🇴",
+    currency: "NOK",
   },
   {
     isoAlpha3: "OMN",
@@ -869,6 +966,7 @@ let country = [
     isoAlpha2: OM,
     phoneCode: "+968",
     flag: "🇴🇲",
+    currency: "OMR",
   },
   {
     isoAlpha3: "PAK",
@@ -877,6 +975,7 @@ let country = [
     isoAlpha2: PK,
     phoneCode: "+92",
     flag: "🇵🇰",
+    currency: "PKR",
   },
   {
     isoAlpha3: "PAN",
@@ -885,6 +984,7 @@ let country = [
     isoAlpha2: PA,
     phoneCode: "+507",
     flag: "🇵🇦",
+    currency: "PAB",
   },
   {
     isoAlpha3: "PRY",
@@ -893,6 +993,7 @@ let country = [
     isoAlpha2: PY,
     phoneCode: "+595",
     flag: "🇵🇾",
+    currency: "PYG",
   },
   {
     isoAlpha3: "PER",
@@ -901,6 +1002,7 @@ let country = [
     isoAlpha2: PE,
     phoneCode: "+51",
     flag: "🇵🇪",
+    currency: "PEN",
   },
   {
     isoAlpha3: "PHL",
@@ -909,6 +1011,7 @@ let country = [
     isoAlpha2: PH,
     phoneCode: "+63",
     flag: "🇵🇭",
+    currency: "PHP",
   },
   {
     isoAlpha3: "POL",
@@ -917,6 +1020,7 @@ let country = [
     isoAlpha2: PL,
     phoneCode: "+48",
     flag: "🇵🇱",
+    currency: "PLN",
   },
   {
     isoAlpha3: "PRT",
@@ -925,6 +1029,7 @@ let country = [
     isoAlpha2: PT,
     phoneCode: "+351",
     flag: "🇵🇹",
+    currency: "EUR",
   },
   {
     isoAlpha3: "PRI",
@@ -933,6 +1038,7 @@ let country = [
     isoAlpha2: PR,
     phoneCode: "+1787",
     flag: "🇵🇷",
+    currency: "USD",
   },
   {
     isoAlpha3: "QAT",
@@ -941,6 +1047,7 @@ let country = [
     isoAlpha2: QA,
     phoneCode: "+974",
     flag: "🇶🇦",
+    currency: "QAR",
   },
   {
     isoAlpha3: "REU",
@@ -949,6 +1056,7 @@ let country = [
     isoAlpha2: RE,
     phoneCode: "+262",
     flag: "🇷🇪",
+    currency: "EUR",
   },
   {
     isoAlpha3: "ROU",
@@ -957,6 +1065,7 @@ let country = [
     isoAlpha2: RO,
     phoneCode: "+40",
     flag: "🇷🇴",
+    currency: "RON",
   },
   {
     isoAlpha3: "RUS",
@@ -990,6 +1099,7 @@ let country = [
     isoAlpha2: RU,
     phoneCode: "+7",
     flag: "🇷🇺",
+    currency: "RUB",
   },
   {
     isoAlpha3: "RWA",
@@ -998,6 +1108,7 @@ let country = [
     isoAlpha2: RW,
     phoneCode: "+250",
     flag: "🇷🇼",
+    currency: "RWF",
   },
   {
     isoAlpha3: "SAU",
@@ -1006,6 +1117,7 @@ let country = [
     isoAlpha2: SA,
     phoneCode: "+966",
     flag: "🇸🇦",
+    currency: "SAR",
   },
   {
     isoAlpha3: "SEN",
@@ -1014,6 +1126,7 @@ let country = [
     isoAlpha2: SN,
     phoneCode: "+221",
     flag: "🇸🇳",
+    currency: "XOF",
   },
   {
     isoAlpha3: "SRB",
@@ -1022,6 +1135,7 @@ let country = [
     isoAlpha2: RS,
     phoneCode: "+381",
     flag: "🇷🇸",
+    currency: "RSD",
   },
   {
     isoAlpha3: "SGP",
@@ -1030,6 +1144,7 @@ let country = [
     isoAlpha2: SG,
     phoneCode: "+65",
     flag: "🇸🇬",
+    currency: "SGD",
   },
   {
     isoAlpha3: "SVK",
@@ -1038,6 +1153,7 @@ let country = [
     isoAlpha2: SK,
     phoneCode: "+421",
     flag: "🇸🇰",
+    currency: "EUR",
   },
   {
     isoAlpha3: "SVN",
@@ -1046,6 +1162,7 @@ let country = [
     isoAlpha2: SI,
     phoneCode: "+386",
     flag: "🇸🇮",
+    currency: "EUR",
   },
   {
     isoAlpha3: "SOM",
@@ -1054,6 +1171,7 @@ let country = [
     isoAlpha2: SO,
     phoneCode: "+252",
     flag: "🇸🇴",
+    currency: "SOS",
   },
   {
     isoAlpha3: "ZAF",
@@ -1062,6 +1180,7 @@ let country = [
     isoAlpha2: ZA,
     phoneCode: "+27",
     flag: "🇿🇦",
+    currency: "ZAR",
   },
   {
     isoAlpha3: "ESP",
@@ -1070,6 +1189,7 @@ let country = [
     isoAlpha2: ES,
     phoneCode: "+34",
     flag: "🇪🇸",
+    currency: "EUR",
   },
   {
     isoAlpha3: "LKA",
@@ -1078,6 +1198,7 @@ let country = [
     isoAlpha2: LK,
     phoneCode: "+94",
     flag: "🇱🇰",
+    currency: "LKR",
   },
   {
     isoAlpha3: "SWE",
@@ -1086,6 +1207,7 @@ let country = [
     isoAlpha2: SE,
     phoneCode: "+46",
     flag: "🇸🇪",
+    currency: "SEK",
   },
   {
     isoAlpha3: "CHE",
@@ -1094,6 +1216,7 @@ let country = [
     isoAlpha2: CH,
     phoneCode: "+41",
     flag: "🇨🇭",
+    currency: "CHF",
   },
   {
     isoAlpha3: "SYR",
@@ -1102,6 +1225,7 @@ let country = [
     isoAlpha2: SY,
     phoneCode: "+963",
     flag: "🇸🇾",
+    currency: "SYP",
   },
   {
     isoAlpha3: "TWN",
@@ -1110,6 +1234,7 @@ let country = [
     isoAlpha2: TW,
     phoneCode: "+886",
     flag: "🇹🇼",
+    currency: "TWD",
   },
   {
     isoAlpha3: "TJK",
@@ -1118,6 +1243,7 @@ let country = [
     isoAlpha2: TJ,
     phoneCode: "+992",
     flag: "🇹🇯",
+    currency: "TJS",
   },
   {
     isoAlpha3: "THA",
@@ -1126,6 +1252,7 @@ let country = [
     isoAlpha2: TH,
     phoneCode: "+66",
     flag: "🇹🇭",
+    currency: "THB",
   },
   {
     isoAlpha3: "TTO",
@@ -1134,6 +1261,7 @@ let country = [
     isoAlpha2: TT,
     phoneCode: "+1868",
     flag: "🇹🇹",
+    currency: "TTD",
   },
   {
     isoAlpha3: "TUN",
@@ -1142,6 +1270,7 @@ let country = [
     isoAlpha2: TN,
     phoneCode: "+216",
     flag: "🇹🇳",
+    currency: "TND",
   },
   {
     isoAlpha3: "TUR",
@@ -1150,6 +1279,7 @@ let country = [
     isoAlpha2: TR,
     phoneCode: "+90",
     flag: "🇹🇷",
+    currency: "TRY",
   },
   {
     isoAlpha3: "TKM",
@@ -1158,6 +1288,7 @@ let country = [
     isoAlpha2: TM,
     phoneCode: "+993",
     flag: "🇹🇲",
+    currency: "TMT",
   },
   {
     isoAlpha3: "UKR",
@@ -1166,6 +1297,7 @@ let country = [
     isoAlpha2: UA,
     phoneCode: "+380",
     flag: "🇺🇦",
+    currency: "UAH",
   },
   {
     isoAlpha3: "ARE",
@@ -1174,6 +1306,7 @@ let country = [
     isoAlpha2: AE,
     phoneCode: "+971",
     flag: "🇦🇪",
+    currency: "AED",
   },
   {
     isoAlpha3: "GBR",
@@ -1182,6 +1315,7 @@ let country = [
     isoAlpha2: GB,
     phoneCode: "+44",
     flag: "🇬🇧",
+    currency: "GBP",
   },
   {
     isoAlpha3: "USA",
@@ -1220,6 +1354,7 @@ let country = [
     isoAlpha2: US,
     phoneCode: "+1",
     flag: "🇺🇸",
+    currency: "USD",
   },
   {
     isoAlpha3: "URY",
@@ -1228,6 +1363,7 @@ let country = [
     isoAlpha2: UY,
     phoneCode: "+598",
     flag: "🇺🇾",
+    currency: "UYU",
   },
   {
     isoAlpha3: "UZB",
@@ -1236,6 +1372,7 @@ let country = [
     isoAlpha2: UZ,
     phoneCode: "+998",
     flag: "🇺🇿",
+    currency: "UZS",
   },
   {
     isoAlpha3: "VEN",
@@ -1244,6 +1381,7 @@ let country = [
     isoAlpha2: VE,
     phoneCode: "+58",
     flag: "🇻🇪",
+    currency: "VES",
   },
   {
     isoAlpha3: "VNM",
@@ -1252,6 +1390,7 @@ let country = [
     isoAlpha2: VN,
     phoneCode: "+84",
     flag: "🇻🇳",
+    currency: "VND",
   },
   {
     isoAlpha3: "YEM",
@@ -1260,6 +1399,7 @@ let country = [
     isoAlpha2: YE,
     phoneCode: "+967",
     flag: "🇾🇪",
+    currency: "YER",
   },
   {
     isoAlpha3: "ZWE",
@@ -1268,5 +1408,6 @@ let country = [
     isoAlpha2: ZW,
     phoneCode: "+263",
     flag: "🇿🇼",
+    currency: "ZWL",
   },
 ]

@@ -29,184 +29,6 @@ let getLocaleValueFromLabel = (label: string): string =>
   | _ => "en" // fallback
   }
 
-let countries: array<ReactHyperJs.country> = [
-  {
-    isoAlpha3: "ARE",
-    currency: "AED",
-    countryName: "United Arab Emirates",
-    isoAlpha2: "AE",
-    icon: `🇦🇪`,
-  },
-  {
-    isoAlpha3: "AUS",
-    currency: "AUD",
-    countryName: "Australia",
-    isoAlpha2: "AU",
-    icon: `🇦🇺`,
-  },
-  {
-    isoAlpha3: "BRA",
-    currency: "BRL",
-    countryName: "Brazil",
-    isoAlpha2: "BR",
-    icon: `🇧🇷`,
-  },
-  {
-    isoAlpha3: "CHN",
-    currency: "CNY",
-    countryName: "China",
-    isoAlpha2: "CN",
-    icon: `🇨🇳`,
-  },
-  {
-    isoAlpha3: "DEU",
-    currency: "EUR",
-    countryName: "Germany",
-    isoAlpha2: "DE",
-    icon: `🇩🇪`,
-  },
-  {
-    isoAlpha3: "GBR",
-    currency: "GBP",
-    countryName: "United Kingdom",
-    isoAlpha2: "GB",
-    icon: `🇬🇧`,
-  },
-  {
-    isoAlpha3: "IDN",
-    currency: "IDR",
-    countryName: "Indonesia",
-    isoAlpha2: "ID",
-    icon: `🇮🇩`,
-  },
-  {
-    isoAlpha3: "JPN",
-    currency: "JPY",
-    countryName: "Japan",
-    isoAlpha2: "JP",
-    icon: `🇯🇵`,
-  },
-  {
-    isoAlpha3: "MEX",
-    currency: "MXN",
-    countryName: "Mexico",
-    isoAlpha2: "MX",
-    icon: `🇲🇽`,
-  },
-  {
-    isoAlpha3: "MYS",
-    currency: "MYR",
-    countryName: "Malaysia",
-    isoAlpha2: "MY",
-    icon: `🇲🇾`,
-  },
-  {
-    isoAlpha3: "POL",
-    currency: "PLN",
-    countryName: "Poland",
-    isoAlpha2: "PL",
-    icon: `🇵🇱`,
-  },
-  {
-    isoAlpha3: "SGP",
-    currency: "SGD",
-    countryName: "Singapore",
-    isoAlpha2: "SG",
-    icon: `🇸🇬`,
-  },
-  {
-    isoAlpha3: "THA",
-    currency: "THB",
-    countryName: "Thailand",
-    isoAlpha2: "TH",
-    icon: `🇹🇭`,
-  },
-  {
-    isoAlpha3: "USA",
-    currency: "USD",
-    countryName: "United States",
-    isoAlpha2: "US",
-    icon: `🇺🇸`,
-  },
-  {
-    isoAlpha3: "NLD",
-    currency: "EUR",
-    countryName: "Netherlands",
-    isoAlpha2: "NL",
-    icon: `🇳🇱`,
-  },
-  {
-    isoAlpha3: "FRA",
-    currency: "EUR",
-    countryName: "France",
-    isoAlpha2: "FR",
-    icon: `🇫🇷`,
-  },
-  {
-    isoAlpha3: "HKG",
-    currency: "HKD",
-    countryName: "Hong Kong SAR",
-    isoAlpha2: "HK",
-    icon: `🇭🇰`,
-  },
-  {
-    isoAlpha3: "ITA",
-    currency: "EUR",
-    countryName: "Italy",
-    isoAlpha2: "IT",
-    icon: `🇮🇹`,
-  },
-  {
-    isoAlpha3: "CHE",
-    currency: "CHF",
-    countryName: "Switzerland",
-    isoAlpha2: "CH",
-    icon: `🇨🇭`,
-  },
-  {
-    isoAlpha3: "CAN",
-    currency: "CAD",
-    countryName: "Canada",
-    isoAlpha2: "CA",
-    icon: `🇨🇦`,
-  },
-  {
-    isoAlpha3: "ESP",
-    currency: "EUR",
-    countryName: "Spain",
-    isoAlpha2: "ES",
-    icon: `🇪🇸`,
-  },
-  {
-    isoAlpha3: "PRT",
-    currency: "EUR",
-    countryName: "Portugal",
-    isoAlpha2: "PT",
-    icon: `🇵🇹`,
-  },
-  {
-    isoAlpha3: "NOR",
-    currency: "NOK",
-    countryName: "Norway",
-    isoAlpha2: "NO",
-    icon: `🇳🇴`,
-  },
-  {
-    isoAlpha3: "SWE",
-    currency: "SEK",
-    countryName: "Sweden",
-    isoAlpha2: "SE",
-    icon: `🇸🇪`,
-  },
-  {
-    isoAlpha3: "FIN",
-    currency: "EUR",
-    countryName: "Finland",
-    isoAlpha2: "FI",
-    icon: `🇫🇮`,
-  },
-]
-
 let integrationType = ["Payment", "Unified Checkout"]
 
 let theme = ["Default", "Brutal", "Midnight", "Soft", "Charcoal"]
@@ -359,9 +181,14 @@ let getTypedValueForPayment = values => {
   }
 }
 
-let dropDownOptionsForCountryCurrency = countries->Array.map((item): SelectBox.dropdownOption => {
-  label: `${item.icon} ${item.countryName} - (${item.currency})`,
-  value: `${item.isoAlpha2}-${item.currency}`,
+let dropDownOptionsForCountryCurrency = Country.country->Array.map((
+  item
+): SelectBox.dropdownOption => {
+  open CountryUtils
+  {
+    label: `${item.flag} ${item.countryName->getCountryNameFromVarient} - (${item.currency})`,
+    value: `${item.isoAlpha2->getCountryCodeStringFromVarient}-${item.currency}`,
+  }
 })
 
 let dropDownOptionsForIntegrationType = integrationType->Array.map((
