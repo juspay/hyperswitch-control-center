@@ -145,8 +145,7 @@ let make = (~children) => {
 
   React.useEffect(() => {
     switch (authStatus, merchantDetailsTypedValue.product_type) {
-    | (LoggedIn(_token), Orchestration) =>
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+    | (LoggedIn(_token), Orchestration) => ()
     | (LoggedIn(_token), _) =>
       if url.path->isAuthPath {
         let productUrl = ProductUtils.getProductUrl(
