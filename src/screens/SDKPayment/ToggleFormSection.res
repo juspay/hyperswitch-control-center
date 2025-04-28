@@ -43,41 +43,39 @@ module ShippingAddress = {
     open FormRenderer
     open SDKPaymentUtils
 
-    <>
-      <RenderIf condition={!isSameAsBilling}>
-        <DesktopRow itemWrapperClass="">
-          <FieldRenderer field=enterShippingFirstName />
-          <FieldRenderer field=enterShippingLastName />
-        </DesktopRow>
-        <FieldRenderer field=enterShippingAddress />
-        <DesktopRow itemWrapperClass="">
-          <FieldRenderer field=enterShippingCity />
-          <FieldRenderer field=enterShippingState />
-        </DesktopRow>
-        <DesktopRow itemWrapperClass="">
-          <FieldRenderer field=enterShippingCountry />
-          <FieldRenderer field=enterShippingZipcode />
-        </DesktopRow>
-        <DesktopRow itemWrapperClass="">
-          <FieldRenderer field=selectCountryPhoneCodeFieldForShipping />
-          <FieldRenderer field=enterShippingPhoneNumber />
-        </DesktopRow>
-      </RenderIf>
-    </>
+    <RenderIf condition={!isSameAsBilling}>
+      <DesktopRow itemWrapperClass="">
+        <FieldRenderer field=enterShippingFirstName />
+        <FieldRenderer field=enterShippingLastName />
+      </DesktopRow>
+      <FieldRenderer field=enterShippingAddress />
+      <DesktopRow itemWrapperClass="">
+        <FieldRenderer field=enterShippingCity />
+        <FieldRenderer field=enterShippingState />
+      </DesktopRow>
+      <DesktopRow itemWrapperClass="">
+        <FieldRenderer field=enterShippingCountry />
+        <FieldRenderer field=enterShippingZipcode />
+      </DesktopRow>
+      <DesktopRow itemWrapperClass="">
+        <FieldRenderer field=selectCountryPhoneCodeFieldForShipping />
+        <FieldRenderer field=enterShippingPhoneNumber />
+      </DesktopRow>
+    </RenderIf>
   }
 }
 
 @react.component
 let make = () => {
-  let (showBillingAddress, setShowBillingAddress) = React.useState(_ => true)
-  let (isSameAsBilling, setIsSameAsBilling) = React.useState(_ => true)
+  let (showBillingAddress, setShowBillingAddress) = React.useState(() => true)
+  let (isSameAsBilling, setIsSameAsBilling) = React.useState(() => true)
 
   let customTagComponent =
     <label className="inline-flex items-center cursor-pointer">
       <input
         type_="checkbox"
         checked=showBillingAddress
-        onChange={e => setShowBillingAddress(prev => !prev)}
+        onChange={_ => setShowBillingAddress(prev => !prev)}
         className="sr-only peer"
       />
       <div

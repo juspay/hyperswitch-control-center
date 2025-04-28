@@ -119,56 +119,54 @@ let make = (
     None
   }, [keyValue])
 
-  // <div className={`flex flex-col gap-12 h-full ${paymentStatusStyles}`}>
-  // {switch paymentStatus {
-  // | SUCCESS =>
-  //   <BasicAccountSetupSuccessfulPage
-  //     iconName="account-setup-completed"
-  //     statusText="Payment Successful"
-  //     buttonText=successButtonText
-  //     buttonOnClick={_ => onProceed(~paymentId)->ignore}
-  //     customWidth
-  //     bgColor="bg-green-success_page_bg"
-  //     isButtonVisible={paymentId->Option.isSome}
-  //   />
+  <div className={`flex flex-col gap-12 h-full ${paymentStatusStyles}`}>
+    {switch paymentStatus {
+    | SUCCESS =>
+      <BasicAccountSetupSuccessfulPage
+        iconName="account-setup-completed"
+        statusText="Payment Successful"
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
+        customWidth
+        bgColor="bg-green-success_page_bg"
+        isButtonVisible={paymentId->Option.isSome}
+      />
 
-  // | FAILED(_err) =>
-  //   <BasicAccountSetupSuccessfulPage
-  //     iconName="account-setup-failed"
-  //     statusText="Payment Failed"
-  //     buttonText=successButtonText
-  //     buttonOnClick={_ => onProceed(~paymentId)->ignore}
-  //     errorMessage
-  //     customWidth
-  //     bgColor="bg-red-failed_page_bg"
-  //     isButtonVisible={paymentId->Option.isSome}
-  //   />
-  // | CHECKCONFIGURATION =>
-  //   <BasicAccountSetupSuccessfulPage
-  //     iconName="processing"
-  //     statusText="Check your Configurations"
-  //     buttonText=successButtonText
-  //     buttonOnClick={_ => onProceed(~paymentId)->ignore}
-  //     customWidth
-  //     bgColor="bg-yellow-pending_page_bg"
-  //     isButtonVisible={paymentId->Option.isSome}
-  //   />
+    | FAILED(_err) =>
+      <BasicAccountSetupSuccessfulPage
+        iconName="account-setup-failed"
+        statusText="Payment Failed"
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
+        errorMessage
+        customWidth
+        bgColor="bg-red-failed_page_bg"
+        isButtonVisible={paymentId->Option.isSome}
+      />
+    | CHECKCONFIGURATION =>
+      <BasicAccountSetupSuccessfulPage
+        iconName="processing"
+        statusText="Check your Configurations"
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
+        customWidth
+        bgColor="bg-yellow-pending_page_bg"
+        isButtonVisible={paymentId->Option.isSome}
+      />
 
-  // | PROCESSING =>
-  //   <BasicAccountSetupSuccessfulPage
-  //     iconName="processing"
-  //     statusText="Payment Pending"
-  //     buttonText=successButtonText
-  //     buttonOnClick={_ => onProceed(~paymentId)->ignore}
-  //     customWidth
-  //     bgColor="bg-yellow-pending_page_bg"
-  //     isButtonVisible={paymentId->Option.isSome}
-  //   />
-  // | _ => React.null
-  // }}
-
-  {
-    switch clientSecret {
+    | PROCESSING =>
+      <BasicAccountSetupSuccessfulPage
+        iconName="processing"
+        statusText="Payment Pending"
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
+        customWidth
+        bgColor="bg-yellow-pending_page_bg"
+        isButtonVisible={paymentId->Option.isSome}
+      />
+    | _ => React.null
+    }}
+    {switch clientSecret {
     | Some(val) =>
       if isTestCredsNeeded {
         <div className="flex gap-8">
@@ -205,8 +203,6 @@ let make = (
         />
       }
     | None => React.null
-    }
-  }
-
-  // </div>
+    }}
+  </div>
 }

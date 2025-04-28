@@ -47,7 +47,15 @@ type wallets = {
   style?: styleForWallets,
 }
 
+type layoutType = {
+  \"type": string,
+  defaultCollapsed: bool,
+  radios: bool,
+  spacedAccordionItems: bool,
+}
+
 type checkoutElementOptions = {
+  layout?: layoutType,
   showCardFormByDefault?: bool,
   wallets?: wallets,
 }
@@ -62,7 +70,6 @@ type variables = {
 type appearanceType = {
   theme?: string,
   labels?: string,
-  innerLayout?: string,
   variables?: variables,
   rules?: JSON.t,
 }
@@ -90,18 +97,6 @@ type country = {
   icon: string,
 }
 
-type layout = {
-  \"type"?: string,
-  defaultCollapsed?: bool,
-  radios?: bool,
-  spacedAccordionItems?: bool,
-}
-
-type layoutType = {
-  layout?: layout,
-  paymentMethodOrder?: array<string>,
-}
-
 @module("@juspay-tech/hyper-js")
 external loadHyper: string => hyperPromise = "loadHyper"
 
@@ -111,13 +106,13 @@ external useHyper: unit => hyperType = "useHyper"
 @module("@juspay-tech/react-hyper-js")
 external useWidgets: unit => hyperType = "useWidgets"
 
-module Elements = {
+module HyperElements = {
   @module("@juspay-tech/react-hyper-js") @react.component
   external make: (
     ~options: optionsForElements,
-    ~stripe: hyperPromise,
+    ~hyper: hyperPromise,
     ~children: React.element,
-  ) => React.element = "Elements"
+  ) => React.element = "HyperElements"
 }
 
 module PaymentElement = {

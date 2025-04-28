@@ -1,16 +1,20 @@
 @react.component
-let make = () => {
+let make = (~themeInitialValues, ~setThemeInitialValues, ~setKeyForReRenderingSDK) => {
   open FormRenderer
   open SDKPaymentUtils
 
-  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
+  let onSubmit = (values, _) => {
+    setThemeInitialValues(_ => values)
+    setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
+    Nullable.null->Promise.resolve
+  }
 
   let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PaymentProcessor,
   )
 
-  <>
+  <Form formClass="mt-5" initialValues=themeInitialValues onSubmit>
     <FieldRenderer field=selectThemeField fieldWrapperClass="!w-full" />
     <FieldRenderer field=selectLocaleField fieldWrapperClass="!w-full" />
     <FieldRenderer field=selectLayoutField fieldWrapperClass="!w-full" />
@@ -28,5 +32,5 @@ let make = () => {
       customSumbitButtonStyle="!mt-5"
     />
     <FormValuesSpy />
-  </>
+  </Form>
 }

@@ -287,10 +287,6 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
       },
     },
     capture_method: "automatic",
-    theme: "default",
-    locale: "en-gb",
-    innerLayout: "accordion",
-    labels: "above",
   }
 }
 
@@ -540,7 +536,7 @@ let selectLayoutField = FormRenderer.makeFieldInfo(
 
 let selectLabelsField = FormRenderer.makeFieldInfo(
   ~label="Labels",
-  ~name="label",
+  ~name="labels",
   ~placeholder="",
   ~customInput=InputFields.selectInput(
     ~options=dropDownOptionsForLabels,
