@@ -115,6 +115,7 @@ let connectorList: array<connectorTypes> = [
   Processors(REDSYS),
   Processors(HIPAY),
   Processors(PAYSTACK),
+  Processors(ARCHIPEL),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -606,6 +607,9 @@ let riskifyedInfo = {
     },
   ],
 }
+let archipelInfo = {
+  description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -685,6 +689,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | REDSYS => "redsys"
   | HIPAY => "hipay"
   | PAYSTACK => "paystack"
+  | ARCHIPEL => "archipel"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -830,6 +835,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "redsys" => Processors(REDSYS)
     | "hipay" => Processors(HIPAY)
     | "paystack" => Processors(PAYSTACK)
+    | "archipel" => Processors(ARCHIPEL)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -955,6 +961,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | REDSYS => redsysInfo
   | HIPAY => hipayInfo
   | PAYSTACK => paystackInfo
+  | ARCHIPEL => archipelInfo
   }
 }
 
@@ -1439,7 +1446,7 @@ let getConnectorFields = connectorDetails => {
   let connectorAccountDict =
     connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
   let bodyType = switch connectorAccountDict->JSON.Classify.classify {
-  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "")
+  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "NoKey")
   | String(_) => "NoKey"
   | _ => ""
   }
@@ -1807,6 +1814,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | REDSYS => "Redsys"
   | HIPAY => "HiPay"
   | PAYSTACK => "Paystack"
+  | ARCHIPEL => "ArchiPEL"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
