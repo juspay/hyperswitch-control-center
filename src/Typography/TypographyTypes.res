@@ -19,10 +19,3 @@ type sizeStyles = {
   sm: weightStyles,
   xs: weightStyles,
 }
-
-type textConfig = {
-  display: sizeStyles,
-  heading: sizeStyles,
-  body: sizeStyles,
-  code: sizeStyles,
-}

@@ -1,8 +1,5 @@
-open TypographyTypes
 open TypographyUtils
-let tokens: textConfig = {
-  display: createSizeStyles(Display),
-  heading: createSizeStyles(Heading),
-  body: createSizeStyles(Body),
-  code: createSizeStyles(Code),
-}
+let display = createSizeStyles(Display)
+let heading = createSizeStyles(Heading)
+let body = createSizeStyles(Body)
+let code = createSizeStyles(Code)
