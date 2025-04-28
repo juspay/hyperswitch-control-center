@@ -5,29 +5,12 @@ let make = () => {
 
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 
-  Js.log2("primaryColor", primaryColor)
-
-  let defaultJson = {
-    "theme": "default",
-    "locale": "en-gb",
-    "layout": "accordion",
-    "label": "above",
-  }->Identity.genericTypeToJson
-
-  let (initialValues, setInitialValues) = React.useState(_ => defaultJson)
-
-  let onSubmit = (values, _) => {
-    setInitialValues(_ => values)
-    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
-    Nullable.null->Promise.resolve
-  }
-
   let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PaymentProcessor,
   )
 
-  <Form formClass="mt-5" initialValues={initialValues->Identity.genericTypeToJson} onSubmit>
+  <>
     <FieldRenderer field=selectThemeField fieldWrapperClass="!w-full" />
     <FieldRenderer field=selectLocaleField fieldWrapperClass="!w-full" />
     <FieldRenderer field=selectLayoutField fieldWrapperClass="!w-full" />
@@ -45,5 +28,5 @@ let make = () => {
       customSumbitButtonStyle="!mt-5"
     />
     <FormValuesSpy />
-  </Form>
+  </>
 }

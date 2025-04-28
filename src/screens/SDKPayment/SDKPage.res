@@ -7,9 +7,10 @@ let make = () => {
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
   let (key, setKey) = React.useState(_ => "")
+  let (clientSecret, setClientSecret) = React.useState(_ => "")
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (initialValuesForCheckoutForm, setInitialValuesForCheckoutForm) = React.useState(_ =>
+  let (initialValues, setInitialValues) = React.useState(_ =>
     businessProfileRecoilVal->SDKPaymentUtils.initialValueForForm
   )
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -23,16 +24,23 @@ let make = () => {
 
   React.useEffect(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
+    Js.log2("paymentIntentOptional", paymentIntentOptional)
+    Js.log2("filtersFromUrl", filtersFromUrl)
     if paymentIntentOptional->Option.isSome {
       setIsSDKOpen(_ => true)
     }
     None
-  }, [filtersFromUrl])
+  }, filtersFromUrl)
 
   React.useEffect(() => {
-    setInitialValuesForCheckoutForm(_ =>
-      businessProfileRecoilVal->SDKPaymentUtils.initialValueForForm
-    )
+    if clientSecret !== "" {
+      setIsSDKOpen(_ => true)
+    }
+    None
+  }, [clientSecret])
+
+  React.useEffect(() => {
+    setInitialValues(_ => businessProfileRecoilVal->SDKPaymentUtils.initialValueForForm)
     None
   }, [businessProfileRecoilVal.profile_id])
 
@@ -55,12 +63,34 @@ let make = () => {
     setUpConnectoreContainer()->ignore
     None
   }, [])
+  let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
+  let getClientSecret = async (~typedValues) => {
+    try {
+      open LogicUtils
+      let url = `${Window.env.apiBaseUrl}/payments`
+      let body = typedValues->Identity.genericTypeToJson
+      let response = await updateDetails(url, body, Post)
+      let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
+      Js.log3("clientSecret", response, clientSecret)
+      // setPaymentId(_ => response->getDictFromJsonObject->getOptionString("payment_id"))
+      setClientSecret(_ => clientSecret->Option.getOr(""))
+    } catch {
+    | _ => ()
+    }
+  }
+
+  let onSubmit = (values, _) => {
+    let dict = values->LogicUtils.getDictFromJsonObject
+    let typedValues = values->SDKPaymentUtils.getTypedValueForPayment
+    let a = getClientSecret(~typedValues)
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
+    Nullable.null->Promise.resolve
+  }
 
   let tabs: array<Tabs.tab> = [
     {
       title: "Checkout Details",
-      renderContent: () =>
-        <CheckoutDetails initialValuesForCheckoutForm setInitialValuesForCheckoutForm />,
+      renderContent: () => <CheckoutDetails initialValues />,
     },
     {
       title: "Theme Customization",
@@ -71,24 +101,28 @@ let make = () => {
   <PageLoaderWrapper screenState={screenState}>
     <PageUtils.PageHeading title="Setup Checkout" customHeadingStyle="my-5" />
     <div className="flex">
-      <Tabs
-        initialIndex={tabIndex}
-        tabs
-        onTitleClick={tabId => setTabIndex(_ => tabId)}
-        disableIndicationArrow=true
-        showBorder=true
-        includeMargin=false
-        lightThemeColor="black"
-        textStyle="text-blue-600"
-        selectTabBottomBorderColor="bg-blue-600"
-      />
-      <div className="mt-5 ml-10">
-        <PageUtils.PageHeading
-          title="Preview"
-          customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
-          customHeadingStyle="mb-20"
+      <Form formClass="mt-5" initialValues={initialValues->Identity.genericTypeToJson} onSubmit>
+        <Tabs
+          initialIndex={tabIndex}
+          tabs
+          onTitleClick={tabId => setTabIndex(_ => tabId)}
+          disableIndicationArrow=true
+          showBorder=true
+          includeMargin=false
+          lightThemeColor="black"
+          textStyle="text-blue-600"
+          selectTabBottomBorderColor="bg-blue-600"
         />
-        <SDKPayment isLoading=true />
+      </Form>
+      <div className="flex justify-center w-full max-w-md mx-auto p-4">
+        <div>
+          <PageUtils.PageHeading
+            title="Preview"
+            customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
+            customHeadingStyle="mb-20"
+          />
+          <SDKPayment isLoading={!isSDKOpen} clientSecretKey={clientSecret} initialValues />
+        </div>
       </div>
     </div>
   </PageLoaderWrapper>

@@ -287,6 +287,10 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
       },
     },
     capture_method: "automatic",
+    theme: "default",
+    locale: "en-gb",
+    innerLayout: "accordion",
+    labels: "above",
   }
 }
 

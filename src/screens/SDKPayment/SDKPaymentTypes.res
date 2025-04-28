@@ -37,4 +37,8 @@ type paymentType = {
   setup_future_usage: string,
   country_currency?: string,
   request_external_three_ds_authentication: bool,
+  theme?: string,
+  locale?: string,
+  innerLayout?: string,
+  labels?: string,
 }

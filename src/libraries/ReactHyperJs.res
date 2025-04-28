@@ -61,6 +61,8 @@ type variables = {
 
 type appearanceType = {
   theme?: string,
+  labels?: string,
+  innerLayout?: string,
   variables?: variables,
   rules?: JSON.t,
 }
