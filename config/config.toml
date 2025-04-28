@@ -1,6 +1,6 @@
 [default.endpoints]
 api_url="http://localhost:9000/api"
-sdk_url="http://localhost:9050/HyperLoader.js"
+sdk_url="https://beta.hyperswitch.io/v1/HyperLoader.js"
 apple_pay_certificate_url=""
 dss_certificate_url=""
 logo_url=""

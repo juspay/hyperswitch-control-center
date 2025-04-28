@@ -1,65 +1,5 @@
 let h3Leading2Style = HSwitchUtils.getTextClass((H3, Leading_2))
 
-module SDKConfiguarationFields = {
-  @react.component
-  let make = (~initialValues: SDKPaymentTypes.paymentType) => {
-    let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
-      ~retainInList=PaymentProcessor,
-    )
-    let dropDownOptionsForCountryCurrency = HomeUtils.countries->Array.map((
-      item
-    ): SelectBox.dropdownOption => {
-      label: `${item.icon} ${item.countryName} - (${item.currency})`,
-      value: `${item.isoAlpha2}-${item.currency}`,
-    })
-
-    let selectCurrencyField = FormRenderer.makeFieldInfo(
-      ~label="Currency",
-      ~name="country_currency",
-      ~placeholder="",
-      ~customInput=InputFields.selectInput(
-        ~options=dropDownOptionsForCountryCurrency,
-        ~buttonText="Select Currency",
-        ~deselectDisable=true,
-        ~fullLength=true,
-      ),
-    )
-    let enterAmountField = FormRenderer.makeFieldInfo(
-      ~label="Enter amount",
-      ~name="amount",
-      ~customInput=(~input, ~placeholder as _) =>
-        InputFields.numericTextInput(~isDisabled=false, ~customStyle="w-full", ~precision=2)(
-          ~input={
-            ...input,
-            value: (initialValues.amount /. 100.00)->Float.toString->JSON.Encode.string,
-            onChange: {
-              ev => {
-                let eventValueToFloat =
-                  ev->Identity.formReactEventToString->LogicUtils.getFloatFromString(0.00)
-                let valInCents =
-                  (eventValueToFloat *. 100.00)->Float.toString->Identity.stringToFormReactEvent
-                input.onChange(valInCents)
-              }
-            },
-          },
-          ~placeholder="Enter amount",
-        ),
-    )
-
-    <div className="w-full">
-      <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
-      <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
-      <FormRenderer.SubmitButton
-        text="Show preview"
-        disabledParamter={initialValues.profile_id->LogicUtils.isEmptyString ||
-          paymentConnectorList->Array.length <= 0}
-        customSumbitButtonStyle="!mt-5"
-      />
-    </div>
-  }
-}
-
 @react.component
 let make = () => {
   open HyperswitchAtom
@@ -69,12 +9,8 @@ let make = () => {
   let (key, setKey) = React.useState(_ => "")
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (initialValues, setInitialValues) = React.useState(_ =>
+  let (initialValuesForCheckoutForm, setInitialValuesForCheckoutForm) = React.useState(_ =>
     businessProfileRecoilVal->SDKPaymentUtils.initialValueForForm
-  )
-  let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PaymentProcessor,
   )
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -82,7 +18,8 @@ let make = () => {
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {userInfo: {profileId, merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
   React.useEffect(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
@@ -93,7 +30,9 @@ let make = () => {
   }, [filtersFromUrl])
 
   React.useEffect(() => {
-    setInitialValues(_ => businessProfileRecoilVal->SDKPaymentUtils.initialValueForForm)
+    setInitialValuesForCheckoutForm(_ =>
+      businessProfileRecoilVal->SDKPaymentUtils.initialValueForForm
+    )
     None
   }, [businessProfileRecoilVal.profile_id])
 
@@ -117,74 +56,39 @@ let make = () => {
     None
   }, [])
 
-  let onProceed = async (~paymentId) => {
-    switch paymentId {
-    | Some(val) =>
-      RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url=`/payments/${val}/${profileId}/${merchantId}/${orgId}`),
-      )
-    | None => ()
-    }
-  }
-
-  let onSubmit = (values, _) => {
-    setKey(_ => Date.now()->Float.toString)
-    setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
-    setIsSDKOpen(_ => true)
-    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
-    Nullable.null->Promise.resolve
-  }
+  let tabs: array<Tabs.tab> = [
+    {
+      title: "Checkout Details",
+      renderContent: () =>
+        <CheckoutDetails initialValuesForCheckoutForm setInitialValuesForCheckoutForm />,
+    },
+    {
+      title: "Theme Customization",
+      renderContent: () => <ThemeCustomization />,
+    },
+  ]
 
   <PageLoaderWrapper screenState={screenState}>
-    <BreadCrumbNavigation
-      path=[{title: "Home", link: `/home`}] currentPageTitle="Explore Demo Checkout Experience"
-    />
-    <div className="w-full flex border rounded-md bg-white">
-      <div className="flex flex-col w-1/2 border">
-        <div className="p-6 border-b-1 border-[#E6E6E6]">
-          <p className=h3Leading2Style> {"Setup test checkout"->React.string} </p>
-        </div>
-        <div className="p-7 flex flex-col gap-16">
-          <Form
-            initialValues={initialValues->Identity.genericTypeToJson}
-            formClass="grid grid-cols-2 gap-x-8 gap-y-4"
-            onSubmit>
-            <SDKConfiguarationFields initialValues />
-          </Form>
-          <TestCredentials />
-        </div>
-      </div>
-      <div className="flex flex-col flex-1">
-        <div className="p-6 border-l-1 border-b-1 border-[#E6E6E6]">
-          <p className=h3Leading2Style> {"Preview"->React.string} </p>
-        </div>
-        {if isSDKOpen {
-          <div className="p-7 h-full bg-sidebar-blue">
-            <TestPayment
-              key
-              returnUrl={`${GlobalVars.getHostUrlWithBasePath}/sdk`}
-              onProceed
-              sdkWidth="!w-[100%]"
-              isTestCredsNeeded=false
-              customWidth="!w-full !h-full"
-              paymentStatusStyles=""
-              successButtonText="Go to Payment"
-              keyValue={key}
-              initialValues
-            />
-          </div>
-        } else if paymentConnectorList->Array.length <= 0 {
-          <HelperComponents.BluredTableComponent
-            infoText={"Connect to a payment processor to make your first payment"}
-            buttonText={"Connect a connector"}
-            moduleName=""
-            onClickUrl={`/connectors`}
-          />
-        } else {
-          <div className="bg-sidebar-blue flex items-center justify-center h-full">
-            <img alt="blurry-sdk" src={`/assets/BlurrySDK.svg`} />
-          </div>
-        }}
+    <PageUtils.PageHeading title="Setup Checkout" customHeadingStyle="my-5" />
+    <div className="flex">
+      <Tabs
+        initialIndex={tabIndex}
+        tabs
+        onTitleClick={tabId => setTabIndex(_ => tabId)}
+        disableIndicationArrow=true
+        showBorder=true
+        includeMargin=false
+        lightThemeColor="black"
+        textStyle="text-blue-600"
+        selectTabBottomBorderColor="bg-blue-600"
+      />
+      <div className="mt-5 ml-10">
+        <PageUtils.PageHeading
+          title="Preview"
+          customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
+          customHeadingStyle="mb-20"
+        />
+        <SDKPayment isLoading=true />
       </div>
     </div>
   </PageLoaderWrapper>

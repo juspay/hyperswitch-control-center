@@ -1,0 +1,49 @@
+@react.component
+let make = () => {
+  open FormRenderer
+  open SDKPaymentUtils
+
+  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
+
+  Js.log2("primaryColor", primaryColor)
+
+  let defaultJson = {
+    "theme": "default",
+    "locale": "en-gb",
+    "layout": "accordion",
+    "label": "above",
+  }->Identity.genericTypeToJson
+
+  let (initialValues, setInitialValues) = React.useState(_ => defaultJson)
+
+  let onSubmit = (values, _) => {
+    setInitialValues(_ => values)
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
+    Nullable.null->Promise.resolve
+  }
+
+  let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV1,
+    ~retainInList=PaymentProcessor,
+  )
+
+  <Form formClass="mt-5" initialValues={initialValues->Identity.genericTypeToJson} onSubmit>
+    <FieldRenderer field=selectThemeField fieldWrapperClass="!w-full" />
+    <FieldRenderer field=selectLocaleField fieldWrapperClass="!w-full" />
+    <FieldRenderer field=selectLayoutField fieldWrapperClass="!w-full" />
+    <FieldRenderer field=selectLabelsField fieldWrapperClass="!w-full" />
+    <FieldRenderer field={enterPrimaryColorValue("#38c95f")} fieldWrapperClass="!w-full" />
+    <div className="flex items-center mt-4 text-nd_primary_blue-500 text-sm font-medium">
+      <Icon name="blue-info" className="mt-1" />
+      <span className="cursor-pointer" onClick={_ => Console.log("New Page Link")}>
+        {"Learn More About Customization"->React.string}
+      </span>
+    </div>
+    <SubmitButton
+      text="Show preview"
+      disabledParamter={paymentConnectorList->Array.length === 0}
+      customSumbitButtonStyle="!mt-5"
+    />
+    <FormValuesSpy />
+  </Form>
+}
