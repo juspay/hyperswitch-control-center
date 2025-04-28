@@ -165,6 +165,10 @@ module RemoteTableFilters = {
     ~submitInputOnEnter=false,
     ~entityName: APIUtilsTypes.entityTypeWithVersion,
     ~version=UserInfoTypes.V1,
+    ~connectorTypes: array<ConnectorTypes.connectorTypeVariants>=[
+      PaymentProcessor,
+      AuthenticationProcessor,
+    ],
     (),
   ) => {
     open LogicUtils
@@ -226,10 +230,20 @@ module RemoteTableFilters = {
           let paymentType = name->ConnectorUtils.getConnectorNameTypeFromString
           let threedsType =
             name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator)
+          let payoutType =
+            name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
 
-          connectorList->Array.some(item => paymentType == item) ||
-          threedsAuthenticatorList->Array.some(item => threedsType == item) ||
-          dummyConnectorList(true)->Array.some(item => paymentType == item)
+          connectorTypes->Array.some(item =>
+            switch item {
+            | PaymentProcessor =>
+              connectorList->Array.some(item => paymentType == item) ||
+                dummyConnectorList(true)->Array.some(item => paymentType == item)
+            | AuthenticationProcessor =>
+              threedsAuthenticatorList->Array.some(item => threedsType == item)
+            | PayoutProcessor => payoutConnectorList->Array.some(item => payoutType == item)
+            | _ => connectorList->Array.some(item => paymentType == item)
+            }
+          )
         })
         let newConnectorDict = filteredConnectorKeys->Dict.fromArray
         let editedResponse = {
