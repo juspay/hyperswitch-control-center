@@ -28,7 +28,7 @@ describe("Volume based routing", () => {
     );
   });
 
-  it("should display all elements in volume based routing page", () => {
+  it.only("should display all elements in volume based routing page", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
