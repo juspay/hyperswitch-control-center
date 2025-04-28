@@ -344,7 +344,6 @@ let make = () => {
               </div>
               <ConfigureSurchargeRule wasm />
             </div>
-            <FormValuesSpy />
             <div className="flex gap-4">
               <Button
                 text="Cancel"

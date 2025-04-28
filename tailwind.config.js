@@ -73,6 +73,13 @@ module.exports = {
       inset: {
         "76-px": "76px",
       },
+      letterSpacing: {
+        compressed: "-2px",
+        condensed: "-1px",
+        normal: "0px",
+        expanded: "1px",
+        extended: "2px",
+      },
       width: {
         "90-px": "90px",
         100: "25rem",
@@ -173,11 +180,11 @@ module.exports = {
         sidebar: {
           DEFAULT: withOpacity("--sidebar-primary"),
           primary: withOpacity("--sidebar-primary"),
-          secondary: withOpacity("--sidebar-secondary"),
-          hoverColor: withOpacity("--sidebar-hover-color"),
-          primaryTextColor: withOpacity("--sidebar-primary-text-color"),
-          secondaryTextColor: withOpacity("--sidebar-secondary-text-color"),
-          borderColor: withOpacity("--sidebar-border-color"),
+          textColor: withOpacity("--sidebar-text-color"),
+          textColorPrimary: withOpacity("--sidebar-text-color-primary"),
+          secondary: `hsl(from rgb(var(--sidebar-primary)) h s calc(l + 10) / 1)`, //color for dropdowns in sidebar
+          hoverColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.5)`,
+          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.8)`,
         },
 
         background: {

@@ -126,7 +126,6 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
           </div>
         </div>
       </div>
-      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }
