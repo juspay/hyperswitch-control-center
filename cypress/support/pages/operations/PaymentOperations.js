@@ -22,6 +22,10 @@ class PaymentOperations {
   get columnButton() {
     return cy.get(`[data-button-for="CustomIcon"]`);
   }
+
+  get metricCards() {
+    return cy.get(`[data-testid="metric-cards"]`);
+  }
 }
 
 export default PaymentOperations;

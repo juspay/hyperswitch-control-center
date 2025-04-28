@@ -26,23 +26,20 @@ describe("Payment Operations", () => {
     );
 
     // Transaction view
-    cy.get(`[class="flex gap-6 justify-around"]`)
-      .children()
-      .eq(0)
-      .should("have.text", "All0");
-    cy.get(`[class="flex gap-6 justify-around"]`)
+    paymentOperations.metricCards.children().eq(0).should("have.text", "All0");
+    paymentOperations.metricCards
       .children()
       .eq(1)
       .should("have.text", "Succeeded0");
-    cy.get(`[class="flex gap-6 justify-around"]`)
+    paymentOperations.metricCards
       .children()
       .eq(2)
       .should("have.text", "Failed0");
-    cy.get(`[class="flex gap-6 justify-around"]`)
+    paymentOperations.metricCards
       .children()
       .eq(3)
       .should("have.text", "Dropoffs0");
-    cy.get(`[class="flex gap-6 justify-around"]`)
+    paymentOperations.metricCards
       .children()
       .eq(4)
       .should("have.text", "Cancelled0");
@@ -92,11 +89,11 @@ describe("Payment Operations", () => {
           );
 
           // Transaction view
-          cy.get(`[class="flex gap-6 justify-around"]`)
+          paymentOperations.metricCards
             .children()
             .eq(0)
             .should("have.text", "All1");
-          cy.get(`[class="flex gap-6 justify-around"]`)
+          paymentOperations.metricCards
             .children()
             .eq(1)
             .should("have.text", "Succeeded1");
