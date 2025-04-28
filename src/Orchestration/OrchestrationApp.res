@@ -111,13 +111,6 @@ let make = (~setScreenState) => {
         )}>
         <HSwitchSettings />
       </AccessControl>
-    | list{"account-settings", "profile", ...remainingPath} =>
-      <EntityScaffold
-        entityName="profile setting"
-        remainingPath
-        renderList={() => <HSwitchProfileSettings />}
-        renderShow={(_, _) => <ModifyTwoFaSettings />}
-      />
     | list{"search"} => <SearchResultsPage />
     | list{"payment-attempts"} =>
       <AccessControl

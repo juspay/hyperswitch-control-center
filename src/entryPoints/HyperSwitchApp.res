@@ -195,6 +195,14 @@ let make = () => {
 
                         | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
 
+                        | (_, list{"account-settings", "profile", ...remainingPath}) =>
+                          <EntityScaffold
+                            entityName="profile setting"
+                            remainingPath
+                            renderList={() => <HSwitchProfileSettings />}
+                            renderShow={(_, _) => <ModifyTwoFaSettings />}
+                          />
+
                         | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
 
