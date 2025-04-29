@@ -54,10 +54,17 @@ type layoutType = {
   spacedAccordionItems: bool,
 }
 
+type sdkHandleConfirmPayment = {
+  handleConfirm: bool,
+  buttonText: string,
+  confirmParams: confirmParamType,
+}
+
 type checkoutElementOptions = {
   layout?: layoutType,
   showCardFormByDefault?: bool,
   wallets?: wallets,
+  sdkHandleConfirmPayment?: sdkHandleConfirmPayment,
 }
 
 type variables = {
@@ -72,6 +79,7 @@ type appearanceType = {
   labels?: string,
   variables?: variables,
   rules?: JSON.t,
+  innerLayout?: string,
 }
 
 type optionsForElements = {
@@ -106,13 +114,13 @@ external useHyper: unit => hyperType = "useHyper"
 @module("@juspay-tech/react-hyper-js")
 external useWidgets: unit => hyperType = "useWidgets"
 
-module HyperElements = {
+module Elements = {
   @module("@juspay-tech/react-hyper-js") @react.component
   external make: (
     ~options: optionsForElements,
-    ~hyper: hyperPromise,
+    ~stripe: hyperPromise,
     ~children: React.element,
-  ) => React.element = "HyperElements"
+  ) => React.element = "Elements"
 }
 
 module PaymentElement = {

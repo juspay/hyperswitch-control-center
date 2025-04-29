@@ -22,9 +22,12 @@ let make = (~themeInitialValues, ~setThemeInitialValues, ~setKeyForReRenderingSD
     <FieldRenderer field={enterPrimaryColorValue("#38c95f")} fieldWrapperClass="!w-full" />
     <div className="flex items-center mt-4 text-nd_primary_blue-500 text-sm font-medium">
       <Icon name="blue-info" className="mt-1" />
-      <span className="cursor-pointer" onClick={_ => Console.log("New Page Link")}>
+      <a
+        className="cursor-pointer"
+        target="_blank"
+        href={"https://docs.hyperswitch.io/explore-hyperswitch/merchant-controls/integration-guide/web/customization"}>
         {"Learn More About Customization"->React.string}
-      </span>
+      </a>
     </div>
     <SubmitButton
       text="Show preview"

@@ -75,7 +75,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     description: "Default value",
     customer_id: "hyperswitch_sdk_demo_id",
     setup_future_usage: "off_session",
-    request_external_three_ds_authentication: true,
+    request_external_three_ds_authentication: false,
     email: "guest@example.com",
     authentication_type: "no_three_ds",
     shipping: {

@@ -10,11 +10,15 @@ let defaultJson = {
 @react.component
 let make = () => {
   open HyperswitchAtom
-
+  open ReactHyperJs
+  let returnUrl = {`${GlobalVars.getHostUrlWithBasePath}/sdk`}
+  let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
   let (keyForReRenderingSDK, setKeyForReRenderingSDK) = React.useState(_ => "")
-  let (clientSecret, setClientSecret) = React.useState(_ => "")
+  let (clientSecret, setClientSecret) = React.useState(_ => None)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  let (paymentResponse, setPaymentResponse) = React.useState(_ => JSON.Encode.null)
+  let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(businessProfileFromIdAtom)
   let (initialValuesForCheckoutForm, setInitialValuesForCheckoutForm) = React.useState(_ =>
@@ -34,8 +38,10 @@ let make = () => {
 
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 
+  let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(returnUrl)
+
   React.useEffect(() => {
-    if clientSecret !== "" {
+    if clientSecret->Option.getOr("") !== "" {
       setIsSDKOpen(_ => true)
     }
     None
@@ -72,11 +78,12 @@ let make = () => {
       let url = `${Window.env.apiBaseUrl}/payments`
       let body = typedValues->Identity.genericTypeToJson
       let response = await updateDetails(url, body, Post)
+      setPaymentResponse(_ => response)
       let clientSecretValue =
         response
         ->LogicUtils.getDictFromJsonObject
         ->LogicUtils.getOptionString("client_secret")
-        ->Option.getOr("")
+
       setClientSecret(_ => clientSecretValue)
     } catch {
     | _ => ()
@@ -124,8 +131,15 @@ let make = () => {
         <SDKPayment
           key={keyForReRenderingSDK}
           isLoading={!isSDKOpen}
-          clientSecretKey={clientSecret}
+          clientSecret
           themeInitialValues
+          paymentResponse
+          paymentStatus
+          setPaymentStatus
+          setErrorMessage
+          paymentElementOptions
+          returnUrl
+          setClientSecret
         />
       </div>
     </div>

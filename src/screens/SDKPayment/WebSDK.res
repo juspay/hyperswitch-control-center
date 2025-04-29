@@ -244,7 +244,7 @@ let make = (
     <div>
       {switch Window.checkLoadHyper {
       | Some(_) =>
-        <HyperElements options={elementOptions} hyper={hyperPromise()}>
+        <Elements options={elementOptions} stripe={hyperPromise()}>
           <CheckoutForm
             clientSecret
             paymentStatus
@@ -266,7 +266,7 @@ let make = (
             amount
             setClientSecret
           />
-        </HyperElements>
+        </Elements>
       | None => React.null
       }}
     </div>
