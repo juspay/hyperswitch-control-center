@@ -40,69 +40,72 @@ module BasicAccountSetupSuccessfulPage = {
 let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~setPaymentStatus) => {
   open ReactHyperJs
 
-  let (errorMessage, setErrorMessage) = React.useState(_ => "")
-  let successButtonText = "Proceed"
-
-  let onProceed = (~paymentId) => {
-    // Logic to handle the proceed action
-    Js.log("Proceeding with payment ID: " ++ paymentId)
-    Promise.resolve()
-  }
-
   let paymentId =
-    paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+    paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("payment_id")
+
+  let (errorMessage, setErrorMessage) = React.useState(_ => "")
+  let successButtonText = "Go to Payment Operations"
+
+  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+
+  let onProceed = async () => {
+    switch paymentId {
+    | Some(val) =>
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/payments/${val}/${profileId}/${merchantId}/${orgId}`),
+      )
+    | None => ()
+    }
+  }
 
   <div className="w-full h-full flex items-center justify-center p-5 overflow-auto">
     {switch isSDKOpen {
-    | false => <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
     | true =>
-      <>
-        {switch paymentStatus {
-        | SUCCESS =>
-          <BasicAccountSetupSuccessfulPage
-            iconName="account-setup-completed"
-            statusText="Payment Successful"
-            buttonText=successButtonText
-            buttonOnClick={_ => onProceed(~paymentId)->ignore}
-            bgColor="bg-green-success_page_bg"
-            isButtonVisible={paymentId !== ""}
-          />
+      switch paymentStatus {
+      | SUCCESS =>
+        <BasicAccountSetupSuccessfulPage
+          iconName="account-setup-completed"
+          statusText="Payment Successful"
+          buttonText=successButtonText
+          buttonOnClick={_ => onProceed()->ignore}
+          bgColor="bg-green-success_page_bg"
+          isButtonVisible={paymentId->Option.isSome}
+        />
 
-        | FAILED(_) =>
-          <BasicAccountSetupSuccessfulPage
-            iconName="account-setup-failed"
-            statusText="Payment Failed"
-            buttonText=successButtonText
-            buttonOnClick={_ => onProceed(~paymentId)->ignore}
-            errorMessage
-            bgColor="bg-red-failed_page_bg"
-            isButtonVisible={paymentId !== ""}
-          />
-        | CHECKCONFIGURATION =>
-          <BasicAccountSetupSuccessfulPage
-            iconName="processing"
-            statusText="Check your Configurations"
-            buttonText=successButtonText
-            buttonOnClick={_ => onProceed(~paymentId)->ignore}
-            bgColor="bg-yellow-pending_page_bg"
-            isButtonVisible={paymentId !== ""}
-          />
+      | FAILED(_) =>
+        <BasicAccountSetupSuccessfulPage
+          iconName="account-setup-failed"
+          statusText="Payment Failed"
+          buttonText=successButtonText
+          buttonOnClick={_ => onProceed()->ignore}
+          errorMessage
+          bgColor="bg-red-failed_page_bg"
+          isButtonVisible={paymentId->Option.isSome}
+        />
+      | CHECKCONFIGURATION =>
+        <BasicAccountSetupSuccessfulPage
+          iconName="processing"
+          statusText="Check your Configurations"
+          buttonText=successButtonText
+          buttonOnClick={_ => onProceed()->ignore}
+          bgColor="bg-yellow-pending_page_bg"
+          isButtonVisible={paymentId->Option.isSome}
+        />
 
-        | PROCESSING =>
-          <BasicAccountSetupSuccessfulPage
-            iconName="processing"
-            statusText="Payment Pending"
-            buttonText=successButtonText
-            buttonOnClick={_ => onProceed(~paymentId)->ignore}
-            bgColor="bg-yellow-pending_page_bg"
-            isButtonVisible={paymentId !== ""}
-          />
-        | _ => React.null
-        }}
-        <RenderIf condition={paymentStatus === INCOMPLETE}>
-          <WebSDK paymentStatus setPaymentStatus setErrorMessage themeInitialValues paymentResult />
-        </RenderIf>
-      </>
+      | PROCESSING =>
+        <BasicAccountSetupSuccessfulPage
+          iconName="processing"
+          statusText="Payment Pending"
+          buttonText=successButtonText
+          buttonOnClick={_ => onProceed()->ignore}
+          bgColor="bg-yellow-pending_page_bg"
+          isButtonVisible={paymentId->Option.isSome}
+        />
+      | INCOMPLETE =>
+        <WebSDK paymentStatus setPaymentStatus setErrorMessage themeInitialValues paymentResult />
+      | _ => React.null
+      }
+    | false => <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
     }}
   </div>
 }
