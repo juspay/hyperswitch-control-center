@@ -98,7 +98,6 @@ let make = (
               />
             </div>
           </RenderIf>
-          <FormValuesSpy />
         </Form>
       </PageLoaderWrapper>
     </div>

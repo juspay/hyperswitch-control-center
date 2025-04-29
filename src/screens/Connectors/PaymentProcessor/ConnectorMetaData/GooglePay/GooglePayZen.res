@@ -86,6 +86,5 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         buttonState={formState.values->validateZenFlow}
       />
     </div>
-    <FormValuesSpy />
   </>
 }

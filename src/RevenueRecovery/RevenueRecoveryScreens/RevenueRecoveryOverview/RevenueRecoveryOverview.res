@@ -1,10 +1,6 @@
 @react.component
 let make = () => {
-  open APIUtils
   open LogicUtils
-  //open HSwitchRemoteFilter
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -12,15 +8,11 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("recovery_orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let (filters, setFilters) = React.useState(_ => None)
-  let (searchText, setSearchText) = React.useState(_ => "")
-  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
-  let startTime = filterValueJson->getString("created.gte", "")
+  let (filters, _setFilters) = React.useState(_ => None)
+  let (searchText, _setSearchText) = React.useState(_ => "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
-  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let setData = (total, data) => {
-    let arr = Array.make(~length=offset, Dict.make())
     if total <= offset {
       setOffset(_ => 0)
     }
@@ -42,28 +34,6 @@ let make = () => {
   let getPaymentsList = async (filterValueJson: RescriptCore.Dict.t<Core__JSON.t>) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let filter =
-        filterValueJson
-        ->Dict.toArray
-        ->Array.map(item => {
-          let (key, value) = item
-
-          let value = switch value->JSON.Classify.classify {
-          | String(str) => str
-          | Number(num) => num->Float.toString
-          | _ => ""
-          }
-
-          (key, value)
-        })
-        ->Dict.fromArray
-
-      let ordersUrl = getURL(
-        ~entityName=V2(V2_ORDERS_LIST),
-        ~methodType=Get,
-        ~queryParamerters=Some(filter->FilterUtils.parseFilterDict),
-      )
-      //let res = await fetchDetails(ordersUrl, ~version=V2)
       let res = RevenueRecoveryData.orderData
 
       let data = res->getDictFromJsonObject->getArrayFromDict("data", [])

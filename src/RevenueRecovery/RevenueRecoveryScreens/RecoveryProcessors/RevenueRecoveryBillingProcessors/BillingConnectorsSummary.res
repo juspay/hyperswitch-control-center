@@ -83,9 +83,7 @@ module BillingConnectorDetails = {
       }
     }, [connectorInfodict.id])
 
-    let (_, connectorAccountFields, _, _, connectorWebHookDetails, _, _) = getConnectorFields(
-      connectorDetails,
-    )
+    let {connectorAccountFields} = getConnectorFields(connectorDetails)
 
     let revenueRecovery =
       connectorInfodict.feature_metadata->getDictFromJsonObject->getDictfromDict("revenue_recovery")
@@ -217,15 +215,12 @@ module PaymentConnectorDetails = {
       }
     }, [connectorInfodict.id])
 
-    let (
-      _,
+    let {
       connectorAccountFields,
       connectorMetaDataFields,
-      _,
       connectorWebHookDetails,
       connectorLabelDetailField,
-      _,
-    ) = getConnectorFields(connectorDetails)
+    } = getConnectorFields(connectorDetails)
 
     let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
       try {

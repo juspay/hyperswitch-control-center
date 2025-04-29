@@ -98,7 +98,7 @@ let make = () => {
           />
         | SummaryAndTest
         | Preview =>
-          <FRMSummary initialValues currentStep />
+          <FRMSummary initialValues setInitialValues currentStep />
         | _ => React.null
         }}
       </div>

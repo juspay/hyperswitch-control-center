@@ -72,6 +72,5 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         buttonState={formState.values->validatePaze}
       />
     </div>
-    <FormValuesSpy />
   </div>
 }
