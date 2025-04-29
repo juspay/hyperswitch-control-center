@@ -1,4 +1,4 @@
-module Field = {
+module TestCredsField = {
   @react.component
   let make = (~label: string, ~value: string, ~copyData=?) => {
     <div className="flex flex-row items-center">
@@ -31,9 +31,9 @@ let make = () => {
         </p>
       </div>
       <div className="border-b border-[#c5d7f1] pb-4 mb-4">
-        <Field label="Card Number :" value=testCardNumber copyData=cardNumberCopy />
-        <Field label="Expiry:" value="Any future date" />
-        <Field label="CVC:" value="Any 3 Digits" />
+        <TestCredsField label="Card Number :" value=testCardNumber copyData=cardNumberCopy />
+        <TestCredsField label="Expiry:" value="Any future date" />
+        <TestCredsField label="CVC:" value="Any 3 Digits" />
         <a
           className="flex items-center text-blue-400 dark:text-blue-300 hover:underline cursor-pointer gap-1 pt-2"
           href=testCredsLink
