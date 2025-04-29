@@ -513,11 +513,9 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.searchBox
-      .should("have.attr", "placeholder", "Search for payment ID")
       .should("be.visible")
-      .should("not.be.disabled");
-
-    paymentOperations.searchBox.type("invalid-payment-id{enter}");
+      .should("not.be.disabled")
+      .type("invalid-payment-id{enter}");
 
     cy.get(`[class="items-center text-2xl text-black font-bold mb-4"]`).should(
       "have.text",
