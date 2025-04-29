@@ -38,8 +38,6 @@ let make = () => {
 
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 
-  let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(returnUrl)
-
   React.useEffect(() => {
     if clientSecret->Option.getOr("") !== "" {
       setIsSDKOpen(_ => true)
@@ -130,17 +128,18 @@ let make = () => {
         />
         <SDKPayment
           key={keyForReRenderingSDK}
-          isLoading={!isSDKOpen}
+          isSDKOpen
           clientSecret
           themeInitialValues
           paymentResponse
           paymentStatus
           setPaymentStatus
           setErrorMessage
-          paymentElementOptions
           returnUrl
-          setClientSecret
         />
+        <RenderIf condition={errorMessage != ""}>
+          <div className="text-red-500"> {errorMessage->React.string} </div>
+        </RenderIf>
       </div>
     </div>
   </PageLoaderWrapper>

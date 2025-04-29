@@ -1,100 +1,19 @@
 open ReactHyperJs
-open Promise
-
-type configElements = {
-  appearanceElement: JSON.t,
-  paymentElement: JSON.t,
-}
-
-type configData = {
-  publishableKey: string,
-  config: string,
-}
 
 module CheckoutForm = {
   @react.component
   let make = (
-    ~clientSecret,
     ~paymentStatus,
     ~currency,
     ~setPaymentStatus,
     ~setErrorMessage,
     ~paymentElementOptions,
-    ~theme="",
-    ~primaryColor="",
-    ~bgColor="",
-    ~fontFamily="",
-    ~fontSizeBase="",
-    ~layout="",
-    ~methodsOrder=[],
     ~returnUrl,
-    ~saveViewToSdk=false,
-    ~publishableKey,
-    ~isSpaceAccordion=false,
-    ~amount,
-    ~setClientSecret,
   ) => {
     let (error, setError) = React.useState(_ => None)
     let (btnState, setBtnState) = React.useState(_ => Button.Normal)
     let hyper = useHyper()
     let elements = useWidgets()
-    let (appearanceElem, _setAppearanceElem) = React.useState(() => JSON.Encode.null)
-    let (paymentElem, setPaymentElem) = React.useState(() => JSON.Encode.null)
-    let {forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let fetchApi = AuthHooks.useApiFetcher()
-    React.useEffect(() => {
-      let val = {
-        publishableKey,
-        config: {
-          appearanceElement: appearanceElem,
-          paymentElement: paymentElem,
-        }
-        ->JSON.stringifyAny
-        ->Option.getOr(""),
-      }
-      setError(_ => None)
-
-      if saveViewToSdk {
-        fetchApi(
-          "https://4gla4dnvbg.execute-api.ap-south-1.amazonaws.com/default/hyperConfig",
-          ~bodyStr=val->JSON.stringifyAny->Option.getOr(""),
-          ~headers=[("Access-Control-Allow-Origin", "*")]->Dict.fromArray,
-          ~method_=Post,
-          ~xFeatureRoute=false,
-          ~forceCookies,
-        )
-        ->then(res => res->Fetch.Response.json)
-        ->then(json => {
-          json->resolve
-        })
-        ->catch(_ => {
-          Dict.make()->JSON.Encode.object->resolve
-        })
-        ->ignore
-      }
-
-      None
-    }, (saveViewToSdk, clientSecret))
-
-    React.useEffect(() => {
-      let paymentElement = elements.getElement("payment")
-      switch paymentElement->Nullable.toOption {
-      | Some(ele) =>
-        let paymentVal = {
-          "layout": {
-            \"type": layout == "spaced Accordion" ? "accordion" : layout,
-            defaultCollapsed: layout == "spaced Accordion" || layout == "accordion",
-            radios: true,
-            spacedAccordionItems: isSpaceAccordion,
-          },
-          "paymentMethodOrder": methodsOrder,
-        }->Identity.genericTypeToJson
-        setPaymentElem(_ => paymentVal)
-        ele.update(paymentVal)
-      | None => ()
-      }
-      None
-    }, (layout, elements, methodsOrder))
 
     let handleSubmit = async () => {
       open LogicUtils
@@ -124,7 +43,6 @@ module CheckoutForm = {
             }
           | None => setPaymentStatus(_ => CUSTOMSTATE)
           }
-          setClientSecret(_ => None)
         }
       } catch {
       | Exn.Error(e) => {
@@ -137,7 +55,6 @@ module CheckoutForm = {
             setPaymentStatus(_ => FAILED(err))
             setError(_ => Some(err))
           }
-          setClientSecret(_ => None)
         }
       }
       setBtnState(_ => Button.Normal)
@@ -151,12 +68,12 @@ module CheckoutForm = {
           <div className="row-span-1 bg-white rounded-lg py-6 px-10 flex-1">
             <PaymentElement id="payment-element" options={paymentElementOptions} />
             <Button
-              text={`Pay ${currency} ${(amount /. 100.00)->Float.toString}`}
+              text={`Pay ${currency} ${(5600.00 /. 100.00)->Float.toString}`}
               loadingText="Please wait..."
               buttonState=btnState
               buttonType={Primary}
               buttonSize={Large}
-              customButtonStyle={`mt-2 w-full rounded-md ${primaryColor}`}
+              customButtonStyle={`mt-2 w-full rounded-md`}
               onClick={_ => {
                 setBtnState(_ => Button.Loading)
                 handleSubmit()->ignore
@@ -184,28 +101,25 @@ module CheckoutForm = {
 
 @react.component
 let make = (
-  ~clientSecret,
   ~publishableKey,
   ~paymentStatus,
   ~currency,
   ~setPaymentStatus,
   ~setErrorMessage,
-  ~elementOptions,
-  ~theme="",
-  ~primaryColor="",
-  ~bgColor="",
-  ~fontFamily="",
-  ~fontSizeBase="",
-  ~paymentElementOptions,
   ~returnUrl,
-  ~layout="",
-  ~methodsOrder=[],
-  ~saveViewToSdk=false,
-  ~isSpaceAccordion=false,
-  ~amount=65400.00,
-  ~setClientSecret,
+  ~clientSecret,
+  ~themeInitialValues,
 ) => {
+  open LogicUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
+  let themeDict = themeInitialValues->getDictFromJsonObject
+
+  let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(
+    ~returnUrl,
+    ~themeDict=themeInitialValues->LogicUtils.getDictFromJsonObject,
+  )
+
   let loadDOM = async () => {
     try {
       switch Window.env.sdkBaseUrl {
@@ -223,16 +137,32 @@ let make = (
     | _ => setScreenState(_ => Error(""))
     }
   }
+
   React.useEffect(() => {
     loadDOM()->ignore
     None
   }, [])
+
   let hyperPromise = React.useCallback(async () => {
     Window.loadHyper(
       publishableKey,
       [("isForceInit", true->JSON.Encode.bool)]->LogicUtils.getJsonFromArrayOfJson,
     )
   }, [publishableKey])
+
+  let elementOptions: ReactHyperJs.optionsForElements = {
+    clientSecret: clientSecret->Option.getOr(""),
+    appearance: {
+      theme: themeDict->getString("theme", "brutal"),
+      labels: themeDict->getString("labels", "above"),
+      variables: {
+        colorPrimary: themeDict->getString("primary_color", "#fd1717"),
+      },
+      innerLayout: "spaced",
+    },
+    locale: themeDict->getString("locale", "en-GB"),
+  }
+
   <PageLoaderWrapper
     screenState={screenState}
     customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
@@ -246,25 +176,7 @@ let make = (
       | Some(_) =>
         <Elements options={elementOptions} stripe={hyperPromise()}>
           <CheckoutForm
-            clientSecret
-            paymentStatus
-            currency
-            setPaymentStatus
-            setErrorMessage
-            paymentElementOptions
-            theme
-            primaryColor
-            bgColor
-            fontFamily
-            fontSizeBase
-            methodsOrder
-            layout
-            returnUrl
-            saveViewToSdk
-            publishableKey
-            isSpaceAccordion
-            amount
-            setClientSecret
+            paymentStatus currency setPaymentStatus setErrorMessage paymentElementOptions returnUrl
           />
         </Elements>
       | None => React.null
