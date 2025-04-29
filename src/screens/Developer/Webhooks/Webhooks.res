@@ -24,7 +24,7 @@ let make = () => {
 
   let message = isWebhookUrlConfigured
     ? "No data found, try searching with different filters or try refreshing using the button below"
-    : "Webhook UI is not configured please do it from payment settings"
+    : "Webhook URL is not configured. Please set it up in the Payment Settings"
 
   let refreshPage = () => {
     reset()
