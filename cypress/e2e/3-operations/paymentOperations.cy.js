@@ -183,7 +183,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  //Columns
+  // Columns
   it("should display all default columns and allow selecting/deselecting columns", () => {
     const columns = {
       expected: [
@@ -433,8 +433,8 @@ describe("Payment Operations", () => {
     });
   });
 
-  // search bar
-  it("should display a payment when searched with payment ID", () => {
+  // Search bar
+  it("should display correct payment when searched with payment ID", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
@@ -498,8 +498,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  // search with invalid ID verify UI
-  it("should display a error message and expand search timerange button when searched with invalid payment ID", () => {
+  it("should display a valid message and expand search timerange button when searched with invalid payment ID", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
@@ -534,32 +533,37 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     // Get the current time range string
-    paymentOperations.dateSelector.invoke("text").then((initialRange) => {
-      const startDateStr = initialRange.split("-")[0].trim();
+    paymentOperations.dateSelector
+      .invoke("text")
+      .should("not.contain", "Select Date")
+      .then((initialRange) => {
+        const startDateStr = initialRange.split("-")[0].trim();
 
-      // Parse the date using JavaScript Date
-      const parsedStartDate = new Date(startDateStr);
-      const previousStartDate = new Date(parsedStartDate);
-      previousStartDate.setDate(parsedStartDate.getDate() - 90);
+        // Parse the date using JavaScript Date
+        const parsedStartDate = new Date(startDateStr);
+        const previousStartDate = new Date(parsedStartDate);
+        previousStartDate.setDate(parsedStartDate.getDate() - 90);
 
-      // Format the new expected range
-      const formatDate = (date) => {
-        return date.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
-      };
+        // Format the new expected range
+        const formatDate = (date) => {
+          return date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
+        };
 
-      const expectedStart = formatDate(previousStartDate); // e.g., "Dec 29, 2024"
-      const expectedEnd = formatDate(parsedStartDate); // e.g., "Mar 29, 2025"
+        const expectedStart = formatDate(previousStartDate);
+        const expectedEnd = formatDate(parsedStartDate);
 
-      const expectedRange = `${expectedStart} - ${expectedEnd}`;
+        const expectedRange = `${expectedStart} - ${expectedEnd}`;
 
-      cy.get('[data-button-for="expandTheSearchToThePrevious90Days"]').click();
+        cy.get(
+          '[data-button-for="expandTheSearchToThePrevious90Days"]',
+        ).click();
 
-      paymentOperations.dateSelector.should("contain", expectedRange);
-    });
+        paymentOperations.dateSelector.should("contain", expectedRange);
+      });
   });
 
   // search with invalid ID and expand search verify time range changed
