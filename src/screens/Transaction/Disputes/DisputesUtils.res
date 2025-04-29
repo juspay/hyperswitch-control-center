@@ -217,6 +217,7 @@ let initialFilters = (json, filtervalues, _, _, _) => {
 
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForDisputeFilters(filterDict, filtervalues)
+    | #connector => values->FilterSelectBox.makeOptions(~isTitle=true)
     | _ => values->FilterSelectBox.makeOptions
     }
 
