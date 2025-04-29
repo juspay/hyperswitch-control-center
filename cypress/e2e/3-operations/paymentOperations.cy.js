@@ -498,7 +498,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it("should display a valid message and expand search timerange button when searched with invalid payment ID", () => {
+  it("should display a valid message and expand search timerange when searched with invalid payment ID", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
@@ -512,7 +512,15 @@ describe("Payment Operations", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
-    paymentOperations.searchBox.type("Some_ID{enter}");
+    paymentOperations.searchBox.should(
+      "have.attr",
+      "placeholder",
+      "Search for payment ID",
+    );
+
+    paymentOperations.searchBox
+      .should("not.be.disabled")
+      .type("Some_ID{enter}");
 
     cy.get(`[class="items-center text-2xl text-black font-bold mb-4"]`).should(
       "have.text",
