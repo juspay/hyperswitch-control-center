@@ -639,7 +639,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     )
     fetchOrderDetails(accountUrl)->ignore
     None
-  }, [url])
+  }, [id])
 
   let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 
