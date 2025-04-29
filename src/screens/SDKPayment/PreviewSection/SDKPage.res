@@ -11,13 +11,12 @@ let defaultJson = {
 let make = () => {
   open HyperswitchAtom
   open ReactHyperJs
-  let returnUrl = {`${GlobalVars.getHostUrlWithBasePath}/sdk`}
+
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
   let (keyForReRenderingSDK, setKeyForReRenderingSDK) = React.useState(_ => "")
-  let (clientSecret, setClientSecret) = React.useState(_ => None)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let (paymentResponse, setPaymentResponse) = React.useState(_ => JSON.Encode.null)
+  let (paymentResult, setPaymentResult) = React.useState(_ => JSON.Encode.null)
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(businessProfileFromIdAtom)
@@ -37,13 +36,6 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
-
-  React.useEffect(() => {
-    if clientSecret->Option.getOr("") !== "" {
-      setIsSDKOpen(_ => true)
-    }
-    None
-  }, [clientSecret])
 
   React.useEffect(() => {
     setInitialValuesForCheckoutForm(_ =>
@@ -76,13 +68,8 @@ let make = () => {
       let url = `${Window.env.apiBaseUrl}/payments`
       let body = typedValues->Identity.genericTypeToJson
       let response = await updateDetails(url, body, Post)
-      setPaymentResponse(_ => response)
-      let clientSecretValue =
-        response
-        ->LogicUtils.getDictFromJsonObject
-        ->LogicUtils.getOptionString("client_secret")
-
-      setClientSecret(_ => clientSecretValue)
+      setPaymentResult(_ => response)
+      setIsSDKOpen(_ => true)
     } catch {
     | _ => ()
     }
@@ -132,13 +119,11 @@ let make = () => {
         <SDKPayment
           key={keyForReRenderingSDK}
           isSDKOpen
-          clientSecret
           themeInitialValues
-          paymentResponse
+          paymentResult
           paymentStatus
           setPaymentStatus
           setErrorMessage
-          returnUrl
         />
         <RenderIf condition={errorMessage != ""}>
           <div className="text-red-500"> {errorMessage->React.string} </div>

@@ -2,24 +2,23 @@ open ReactHyperJs
 
 @react.component
 let make = (
-  ~publishableKey,
   ~paymentStatus,
-  ~currency,
   ~setPaymentStatus,
   ~setErrorMessage,
-  ~returnUrl,
-  ~clientSecret,
   ~themeInitialValues,
+  ~paymentResult,
 ) => {
   open LogicUtils
+
+  let publishableKey = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.merchantDetailsValueAtom,
+  ).publishable_key
+
+  let clientSecret = paymentResult->getDictFromJsonObject->getString("client_secret", "")
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-  let themeDict = themeInitialValues->getDictFromJsonObject
-
-  let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(
-    ~returnUrl,
-    ~themeDict=themeInitialValues->getDictFromJsonObject,
-  )
+  let themeConfig = themeInitialValues->getDictFromJsonObject
 
   let loadSDK = async () => {
     try {
@@ -56,15 +55,15 @@ let make = (
 
   // Define element appearance options from theme settings
   let elementOptions: ReactHyperJs.optionsForElements = {
-    clientSecret: clientSecret->Option.getOr(""),
+    clientSecret,
     appearance: {
-      theme: themeDict->getString("theme", "brutal"),
-      labels: themeDict->getString("labels", "above"),
+      theme: themeConfig->getString("theme", "brutal"),
+      labels: themeConfig->getString("labels", "above"),
       variables: {
-        colorPrimary: themeDict->getString("primary_color", "#fd1717"),
+        colorPrimary: themeConfig->getString("primary_color", "#fd1717"),
       },
     },
-    locale: themeDict->getString("locale", "en-GB"),
+    locale: themeConfig->getString("locale", "en-GB"),
   }
 
   <PageLoaderWrapper
@@ -79,9 +78,7 @@ let make = (
       {switch Window.checkLoadHyper {
       | Some(_) =>
         <Elements options={elementOptions} stripe={hyperPromise()}>
-          <CheckoutForm
-            paymentStatus currency setPaymentStatus setErrorMessage paymentElementOptions returnUrl
-          />
+          <CheckoutForm paymentStatus setPaymentStatus setErrorMessage paymentResult themeConfig />
         </Elements>
       | None => React.null
       }}

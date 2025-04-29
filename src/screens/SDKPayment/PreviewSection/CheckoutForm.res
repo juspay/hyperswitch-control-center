@@ -1,22 +1,23 @@
 open ReactHyperJs
 
 @react.component
-let make = (
-  ~paymentStatus,
-  ~currency,
-  ~setPaymentStatus,
-  ~setErrorMessage,
-  ~paymentElementOptions,
-  ~returnUrl,
-) => {
+let make = (~paymentStatus, ~setPaymentStatus, ~setErrorMessage, ~paymentResult, ~themeConfig) => {
+  open LogicUtils
+
+  let returnUrl = {`${GlobalVars.getHostUrlWithBasePath}/sdk`}
+
+  let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(~returnUrl, ~themeConfig)
+
   let (error, setError) = React.useState(_ => None)
   let (btnState, setBtnState) = React.useState(_ => Button.Normal)
   let hyper = useHyper()
   let elements = useWidgets()
+  let paymentResponseDict = paymentResult->getDictFromJsonObject
+  let currency = paymentResponseDict->getString("currency", "USD")
+  let amount = paymentResponseDict->getInt("amount", 0)->Int.toFloat
 
   // Helper function to extract and format error messages
   let extractErrorMessage = responseDict => {
-    open LogicUtils
     let unifiedErrorMessage = responseDict->getString("unified_message", "")
     let errorMessage = responseDict->getString("error_message", "")
     unifiedErrorMessage->isNonEmptyString ? unifiedErrorMessage : errorMessage
@@ -33,7 +34,6 @@ let make = (
   }
 
   let handleSubmit = async () => {
-    open LogicUtils
     setBtnState(_ => Button.Loading)
     try {
       let confirmParamsToPass = {
@@ -78,7 +78,7 @@ let make = (
         <div className="row-span-1 bg-white rounded-lg py-6 px-10 flex-1">
           <PaymentElement id="payment-element" options={paymentElementOptions} />
           <Button
-            text={`Pay ${currency} ${(5600.00 /. 100.00)->Float.toString}`}
+            text={`Pay ${currency} ${(amount /. 100.00)->Float.toString}`}
             loadingText="Please wait..."
             buttonState=btnState
             buttonType={Primary}

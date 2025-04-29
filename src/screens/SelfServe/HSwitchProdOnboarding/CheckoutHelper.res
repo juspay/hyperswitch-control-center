@@ -1,7 +1,7 @@
 open ReactHyperJs
 
-let getOptionReturnUrl = (~themeDict, ~returnUrl) => {
-  let layoutType = themeDict->LogicUtils.getString("layout", "tabs")
+let getOptionReturnUrl = (~themeConfig, ~returnUrl) => {
+  let layoutType = themeConfig->LogicUtils.getString("layout", "tabs")
   let isSpacedLayout = layoutType == "spaced"
 
   {
