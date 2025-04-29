@@ -2,7 +2,7 @@
 let defaultJson = {
   "theme": "default",
   "locale": "en-gb",
-  "layout": "accordion",
+  "layout": "tabs",
   "labels": "above",
   "primary_color": "#000000",
 }->Identity.genericTypeToJson
@@ -111,17 +111,20 @@ let make = () => {
   <PageLoaderWrapper screenState={screenState}>
     <PageUtils.PageHeading title="Setup Checkout" customHeadingStyle="my-5" />
     <div className="flex">
-      <Tabs
-        initialIndex={tabIndex}
-        tabs
-        onTitleClick={tabId => setTabIndex(_ => tabId)}
-        disableIndicationArrow=true
-        showBorder=true
-        includeMargin=false
-        lightThemeColor="black"
-        textStyle="text-blue-600"
-        selectTabBottomBorderColor="bg-blue-600"
-      />
+      <div className="w-1/2 flex flex-col gap-6">
+        <Tabs
+          initialIndex={tabIndex}
+          tabs
+          onTitleClick={tabId => setTabIndex(_ => tabId)}
+          disableIndicationArrow=true
+          showBorder=true
+          includeMargin=false
+          lightThemeColor="black"
+          textStyle="text-blue-600"
+          selectTabBottomBorderColor="bg-blue-600"
+        />
+        <TestCredentials />
+      </div>
       <div className="w-full mt-5 ml-10 max-h-[80vh] overflow-auto">
         <PageUtils.PageHeading
           title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"

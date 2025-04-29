@@ -34,6 +34,6 @@ let make = (~themeInitialValues, ~setThemeInitialValues, ~setKeyForReRenderingSD
       disabledParamter={paymentConnectorList->Array.length === 0}
       customSumbitButtonStyle="!mt-5"
     />
-    <FormValuesSpy />
+    // <FormValuesSpy />
   </Form>
 }

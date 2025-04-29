@@ -162,7 +162,6 @@ let make = (
       variables: {
         colorPrimary: themeDict->getString("primary_color", "#fd1717"),
       },
-      innerLayout: "spaced",
     },
     locale: themeDict->getString("locale", "en-GB"),
   }
