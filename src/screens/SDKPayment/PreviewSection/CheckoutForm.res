@@ -5,7 +5,6 @@ let make = (~paymentStatus, ~setPaymentStatus, ~setErrorMessage, ~paymentResult,
   open LogicUtils
 
   let returnUrl = {`${GlobalVars.getHostUrlWithBasePath}/sdk`}
-
   let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(~returnUrl, ~themeConfig)
 
   let (error, setError) = React.useState(_ => None)
@@ -16,14 +15,12 @@ let make = (~paymentStatus, ~setPaymentStatus, ~setErrorMessage, ~paymentResult,
   let currency = paymentResponseDict->getString("currency", "USD")
   let amount = paymentResponseDict->getInt("amount", 0)->Int.toFloat
 
-  // Helper function to extract and format error messages
   let extractErrorMessage = responseDict => {
     let unifiedErrorMessage = responseDict->getString("unified_message", "")
     let errorMessage = responseDict->getString("error_message", "")
     unifiedErrorMessage->isNonEmptyString ? unifiedErrorMessage : errorMessage
   }
 
-  // Helper to update payment status based on response
   let updatePaymentStatus = responseDict => {
     let status = responseDict->LogicUtils.getOptionString("status")
     switch status {

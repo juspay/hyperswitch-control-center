@@ -12,7 +12,6 @@ let make = () => {
   open HyperswitchAtom
   open ReactHyperJs
 
-  let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
   let (keyForReRenderingSDK, setKeyForReRenderingSDK) = React.useState(_ => "")
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
@@ -123,11 +122,7 @@ let make = () => {
           paymentResult
           paymentStatus
           setPaymentStatus
-          setErrorMessage
         />
-        <RenderIf condition={errorMessage != ""}>
-          <div className="text-red-500"> {errorMessage->React.string} </div>
-        </RenderIf>
       </div>
     </div>
   </PageLoaderWrapper>
