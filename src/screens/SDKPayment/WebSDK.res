@@ -15,8 +15,27 @@ module CheckoutForm = {
     let hyper = useHyper()
     let elements = useWidgets()
 
+    // Helper function to extract and format error messages
+    let extractErrorMessage = responseDict => {
+      open LogicUtils
+      let unifiedErrorMessage = responseDict->getString("unified_message", "")
+      let errorMessage = responseDict->getString("error_message", "")
+      unifiedErrorMessage->isNonEmptyString ? unifiedErrorMessage : errorMessage
+    }
+
+    // Helper to update payment status based on response
+    let updatePaymentStatus = responseDict => {
+      let status = responseDict->LogicUtils.getOptionString("status")
+      switch status {
+      | Some("failed") => setPaymentStatus(_ => FAILED("Failed"))
+      | Some("succeeded") => setPaymentStatus(_ => SUCCESS)
+      | _ => setPaymentStatus(_ => CUSTOMSTATE)
+      }
+    }
+
     let handleSubmit = async () => {
       open LogicUtils
+      setBtnState(_ => Button.Loading)
       try {
         let confirmParamsToPass = {
           "elements": elements,
@@ -25,39 +44,31 @@ module CheckoutForm = {
         let res = await hyper.confirmPayment(confirmParamsToPass->Identity.genericTypeToJson)
         let responseDict = res->getDictFromJsonObject
 
-        let unifiedErrorMessage = responseDict->getString("unified_message", "")
-        let errorMessage = responseDict->getString("error_message", "")
-        let uiErrorMessage =
-          unifiedErrorMessage->isNonEmptyString ? unifiedErrorMessage : errorMessage
+        // Handle error message extraction
+        let uiErrorMessage = extractErrorMessage(responseDict)
         setErrorMessage(_ => uiErrorMessage)
 
+        // Update payment status if not a validation error
         let errorDict = responseDict->getDictfromDict("error")
         if errorDict->getOptionString("type") !== Some("validation_error") {
-          let status = responseDict->getOptionString("status")
-          switch status {
-          | Some(str) =>
-            switch str {
-            | "failed" => setPaymentStatus(_ => FAILED("Failed"))
-            | "succeeded" => setPaymentStatus(_ => SUCCESS)
-            | _ => setPaymentStatus(_ => CUSTOMSTATE)
-            }
-          | None => setPaymentStatus(_ => CUSTOMSTATE)
-          }
+          updatePaymentStatus(responseDict)
         }
+        setBtnState(_ => Button.Normal)
       } catch {
       | Exn.Error(e) => {
           let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-          let str = err->String.replace("\"", "")->String.replace("\"", "")
-          if str == "Something went wrong" {
+          let formattedError = err->String.replace("\"", "")->String.replace("\"", "")
+
+          if formattedError == "Something went wrong" {
             setPaymentStatus(_ => CUSTOMSTATE)
             setError(_ => None)
           } else {
-            setPaymentStatus(_ => FAILED(err))
-            setError(_ => Some(err))
+            setPaymentStatus(_ => FAILED(formattedError))
+            setError(_ => Some(formattedError))
           }
+          setBtnState(_ => Button.Normal)
         }
       }
-      setBtnState(_ => Button.Normal)
     }
 
     <div>
@@ -73,23 +84,12 @@ module CheckoutForm = {
               buttonState=btnState
               buttonType={Primary}
               buttonSize={Large}
-              customButtonStyle={`mt-2 w-full rounded-md`}
-              onClick={_ => {
-                setBtnState(_ => Button.Loading)
-                handleSubmit()->ignore
-              }}
+              customButtonStyle="mt-2 w-full rounded-md"
+              onClick={_ => handleSubmit()->ignore}
             />
           </div>
           {switch error {
-          | Some(val) =>
-            <div className="text-red-500">
-              {val
-              ->JSON.stringifyAny
-              ->Option.getOr("")
-              ->String.replace("\"", "")
-              ->String.replace("\"", "")
-              ->React.string}
-            </div>
+          | Some(errorMessage) => <div className="text-red-500"> {errorMessage->React.string} </div>
           | None => React.null
           }}
         </div>
@@ -117,10 +117,10 @@ let make = (
 
   let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(
     ~returnUrl,
-    ~themeDict=themeInitialValues->LogicUtils.getDictFromJsonObject,
+    ~themeDict=themeInitialValues->getDictFromJsonObject,
   )
 
-  let loadDOM = async () => {
+  let loadSDK = async () => {
     try {
       switch Window.env.sdkBaseUrl {
       | Some(url) => {
@@ -131,25 +131,29 @@ let make = (
           await HyperSwitchUtils.delay(1000)
           setScreenState(_ => PageLoaderWrapper.Success)
         }
-      | None => setScreenState(_ => Error("URL Not Configured"))
+      | None => setScreenState(_ => Error("SDK URL Not Configured"))
       }
     } catch {
-    | _ => setScreenState(_ => Error(""))
+    | error => {
+        Js.Console.error(error)
+        setScreenState(_ => Error("Failed to load SDK"))
+      }
     }
   }
 
   React.useEffect(() => {
-    loadDOM()->ignore
+    loadSDK()->ignore
     None
   }, [])
 
   let hyperPromise = React.useCallback(async () => {
     Window.loadHyper(
       publishableKey,
-      [("isForceInit", true->JSON.Encode.bool)]->LogicUtils.getJsonFromArrayOfJson,
+      [("isForceInit", true->JSON.Encode.bool)]->getJsonFromArrayOfJson,
     )
   }, [publishableKey])
 
+  // Define element appearance options from theme settings
   let elementOptions: ReactHyperJs.optionsForElements = {
     clientSecret: clientSecret->Option.getOr(""),
     appearance: {
@@ -164,9 +168,9 @@ let make = (
   }
 
   <PageLoaderWrapper
-    screenState={screenState}
-    customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
-      <div className={`animate-spin mb-1`}>
+    screenState
+    customLoader={<div className="mt-60 w-screen flex flex-col justify-center items-center">
+      <div className="animate-spin mb-1">
         <Icon name="spinner" size=20 />
       </div>
     </div>}
