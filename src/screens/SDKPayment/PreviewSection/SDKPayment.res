@@ -11,7 +11,8 @@ module BasicAccountSetupSuccessfulPage = {
     ~isButtonVisible=true,
   ) => {
     let headerTextStyle = "text-xl font-semibold text-grey-700"
-    <div className={`flex flex-col gap-4 p-9 h-full w-full justify-between rounded shadow`}>
+
+    <div className={`w-4/5 flex flex-col gap-4 p-9 h-full w-full justify-between rounded shadow`}>
       <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
         <Icon name=iconName size=120 />
         <AddDataAttributes attributes=[("data-testid", "paymentSuccess")]>
@@ -27,7 +28,7 @@ module BasicAccountSetupSuccessfulPage = {
           buttonSize={Large}
           buttonType={Primary}
           customButtonStyle="w-full"
-          onClick={_ => buttonOnClick()}
+          onClick={buttonOnClick}
           buttonState
         />
       </RenderIf>
@@ -51,7 +52,7 @@ let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~se
   let paymentId =
     paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
 
-  <div className="w-full flex items-center justify-center p-5 overflow-auto">
+  <div className="w-full h-full flex items-center justify-center p-5 overflow-auto">
     {switch isSDKOpen {
     | false => <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
     | true =>
@@ -98,7 +99,9 @@ let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~se
           />
         | _ => React.null
         }}
-        <WebSDK paymentStatus setPaymentStatus setErrorMessage themeInitialValues paymentResult />
+        <RenderIf condition={paymentStatus === INCOMPLETE}>
+          <WebSDK paymentStatus setPaymentStatus setErrorMessage themeInitialValues paymentResult />
+        </RenderIf>
       </>
     }}
   </div>

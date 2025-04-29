@@ -4,7 +4,7 @@ let defaultJson = {
   "locale": "en-gb",
   "layout": "tabs",
   "labels": "above",
-  "primary_color": "#000000",
+  "primary_color": "#006DF9",
 }->Identity.genericTypeToJson
 
 @react.component
@@ -79,6 +79,8 @@ let make = () => {
     let typedValues = values->SDKPaymentUtils.getTypedValueForPayment
     let _ = getClientSecret(~typedValues)
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
+    // To re-render the SDK back again after the payment is completed
+    setPaymentStatus(_ => INCOMPLETE)
     Nullable.null->Promise.resolve
   }
 
