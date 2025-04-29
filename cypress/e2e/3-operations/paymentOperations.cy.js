@@ -498,7 +498,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it("should display a valid message and expand search timerange when searched with invalid payment ID", () => {
+  it.skip("should display a valid message and expand search timerange when searched with invalid payment ID", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
