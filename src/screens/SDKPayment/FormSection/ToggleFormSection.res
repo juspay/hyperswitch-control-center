@@ -1,8 +1,10 @@
 module BillingAddress = {
   @react.component
-  let make = (~isSameAsBilling, ~setIsSameAsBilling) => {
+  let make = () => {
     open FormRenderer
     open SDKPaymentUtils
+
+    let {isSameAsBilling, setIsSameAsBilling} = React.useContext(SDKProvider.defaultContext)
 
     <>
       <DesktopRow itemWrapperClass="">
@@ -39,9 +41,11 @@ module BillingAddress = {
 
 module ShippingAddress = {
   @react.component
-  let make = (~isSameAsBilling) => {
+  let make = () => {
     open FormRenderer
     open SDKPaymentUtils
+
+    let {isSameAsBilling} = React.useContext(SDKProvider.defaultContext)
 
     <RenderIf condition={!isSameAsBilling}>
       <DesktopRow itemWrapperClass="">
@@ -67,8 +71,9 @@ module ShippingAddress = {
 
 @react.component
 let make = () => {
-  let (showBillingAddress, setShowBillingAddress) = React.useState(() => true)
-  let (isSameAsBilling, setIsSameAsBilling) = React.useState(() => true)
+  let {showBillingAddress, setShowBillingAddress, isSameAsBilling} = React.useContext(
+    SDKProvider.defaultContext,
+  )
 
   let customTagComponent =
     <label className="inline-flex items-center cursor-pointer">
@@ -92,10 +97,10 @@ let make = () => {
       customHeadingStyle=""
     />
     <RenderIf condition=showBillingAddress>
-      <BillingAddress isSameAsBilling setIsSameAsBilling />
+      <BillingAddress />
     </RenderIf>
     <RenderIf condition={showBillingAddress && !isSameAsBilling}>
-      <ShippingAddress isSameAsBilling />
+      <ShippingAddress />
     </RenderIf>
   </div>
 }

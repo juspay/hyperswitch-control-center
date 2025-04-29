@@ -1,7 +1,11 @@
 @react.component
-let make = (~themeInitialValues, ~setThemeInitialValues, ~setKeyForReRenderingSDK) => {
+let make = () => {
   open FormRenderer
   open SDKPaymentUtils
+
+  let {themeInitialValues, setThemeInitialValues, setKeyForReRenderingSDK} = React.useContext(
+    SDKProvider.defaultContext,
+  )
 
   let onSubmit = (values, _) => {
     setThemeInitialValues(_ => values)

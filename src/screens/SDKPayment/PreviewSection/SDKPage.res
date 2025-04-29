@@ -1,31 +1,25 @@
-// Default theme configuration
-let defaultJson = {
-  "theme": "default",
-  "locale": "en-gb",
-  "layout": "tabs",
-  "labels": "above",
-  "primary_color": "#006DF9",
-}->Identity.genericTypeToJson
-
 @react.component
 let make = () => {
-  open HyperswitchAtom
   open ReactHyperJs
 
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
-  let (keyForReRenderingSDK, setKeyForReRenderingSDK) = React.useState(_ => "")
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let (paymentResult, setPaymentResult) = React.useState(_ => JSON.Encode.null)
-  let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
 
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(businessProfileFromIdAtom)
+  let {
+    keyForReRenderingSDK,
+    setKeyForReRenderingSDK,
+    setPaymentStatus,
+    setPaymentResult,
+  } = React.useContext(SDKProvider.defaultContext)
+
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtom,
+  )
   let (initialValuesForCheckoutForm, setInitialValuesForCheckoutForm) = React.useState(_ =>
     SDKPaymentUtils.initialValueForForm(businessProfileRecoilVal)
   )
 
-  let (themeInitialValues, setThemeInitialValues) = React.useState(_ => defaultJson)
-
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -79,8 +73,10 @@ let make = () => {
     let typedValues = values->SDKPaymentUtils.getTypedValueForPayment
     let _ = getClientSecret(~typedValues)
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
+
     // To re-render the SDK back again after the payment is completed
     setPaymentStatus(_ => INCOMPLETE)
+
     Nullable.null->Promise.resolve
   }
 
@@ -91,8 +87,7 @@ let make = () => {
     },
     {
       title: "Theme Customization",
-      renderContent: () =>
-        <ThemeCustomization themeInitialValues setThemeInitialValues setKeyForReRenderingSDK />,
+      renderContent: () => <ThemeCustomization />,
     },
   ]
 
@@ -117,14 +112,7 @@ let make = () => {
         <PageUtils.PageHeading
           title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
         />
-        <SDKPayment
-          key={keyForReRenderingSDK}
-          isSDKOpen
-          themeInitialValues
-          paymentResult
-          paymentStatus
-          setPaymentStatus
-        />
+        <SDKPayment key={keyForReRenderingSDK} isSDKOpen />
       </div>
     </div>
   </PageLoaderWrapper>

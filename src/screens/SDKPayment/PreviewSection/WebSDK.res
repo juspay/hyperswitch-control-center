@@ -1,15 +1,10 @@
 open ReactHyperJs
 
 @react.component
-let make = (
-  ~paymentStatus,
-  ~setPaymentStatus,
-  ~setErrorMessage,
-  ~themeInitialValues,
-  ~paymentResult,
-) => {
+let make = () => {
   open LogicUtils
 
+  let {paymentResult, themeInitialValues} = React.useContext(SDKProvider.defaultContext)
   let (hyperPromise, setHyperPromise) = React.useState(() => None)
 
   let publishableKey = Recoil.useRecoilValueFromAtom(
@@ -67,7 +62,7 @@ let make = (
     {switch hyperPromise {
     | Some(p) =>
       <ReactHyperJs.Elements options=elementOptions stripe=p>
-        <CheckoutForm paymentStatus setPaymentStatus setErrorMessage paymentResult themeConfig />
+        <CheckoutForm />
       </ReactHyperJs.Elements>
     | _ => React.null
     }}

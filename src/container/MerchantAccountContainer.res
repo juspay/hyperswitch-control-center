@@ -71,7 +71,9 @@ let make = (~setAppScreenState) => {
           userHasAccess(~groupAccess=OperationsManage),
           userHasAccess(~groupAccess=ConnectorsManage),
         ])}>
-        <SDKPage />
+        <SDKProvider>
+          <SDKPage />
+        </SDKProvider>
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />

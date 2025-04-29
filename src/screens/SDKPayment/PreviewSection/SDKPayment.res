@@ -5,11 +5,11 @@ module BasicAccountSetupSuccessfulPage = {
     ~statusText,
     ~buttonText,
     ~buttonOnClick,
-    ~errorMessage="",
     ~bgColor="bg-green-success_page_bg",
     ~buttonState=Button.Normal,
     ~isButtonVisible=true,
   ) => {
+    let {errorMessage} = React.useContext(SDKProvider.defaultContext)
     let headerTextStyle = "text-xl font-semibold text-grey-700"
 
     <div className={`w-4/5 flex flex-col gap-4 p-9 h-full w-full justify-between rounded shadow`}>
@@ -37,13 +37,14 @@ module BasicAccountSetupSuccessfulPage = {
 }
 
 @react.component
-let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~setPaymentStatus) => {
+let make = (~isSDKOpen) => {
   open ReactHyperJs
+
+  let {paymentResult, paymentStatus} = React.useContext(SDKProvider.defaultContext)
 
   let paymentId =
     paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("payment_id")
 
-  let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let successButtonText = "Go to Payment Operations"
 
   let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -78,7 +79,6 @@ let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~se
           statusText="Payment Failed"
           buttonText=successButtonText
           buttonOnClick={_ => onProceed()->ignore}
-          errorMessage
           bgColor="bg-red-failed_page_bg"
           isButtonVisible={paymentId->Option.isSome}
         />
@@ -101,8 +101,7 @@ let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~se
           bgColor="bg-yellow-pending_page_bg"
           isButtonVisible={paymentId->Option.isSome}
         />
-      | INCOMPLETE =>
-        <WebSDK paymentStatus setPaymentStatus setErrorMessage themeInitialValues paymentResult />
+      | INCOMPLETE => <WebSDK />
       | _ => React.null
       }
     | false => <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />

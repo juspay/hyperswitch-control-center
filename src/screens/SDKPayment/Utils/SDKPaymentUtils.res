@@ -1,3 +1,12 @@
+// Default theme configuration
+let themeDefaultJson = {
+  "theme": "default",
+  "locale": "en-gb",
+  "layout": "tabs",
+  "labels": "above",
+  "primary_color": "#006DF9",
+}->Identity.genericTypeToJson
+
 let layoutMapper = val =>
   switch val {
   | "Accordion" => "accordion"

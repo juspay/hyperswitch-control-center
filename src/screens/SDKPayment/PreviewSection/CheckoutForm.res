@@ -1,10 +1,18 @@
 open ReactHyperJs
 
 @react.component
-let make = (~paymentStatus, ~setPaymentStatus, ~setErrorMessage, ~paymentResult, ~themeConfig) => {
+let make = () => {
   open LogicUtils
 
+  let {
+    paymentStatus,
+    setPaymentStatus,
+    paymentResult,
+    setErrorMessage,
+    themeInitialValues,
+  } = React.useContext(SDKProvider.defaultContext)
   let returnUrl = {`${GlobalVars.getHostUrlWithBasePath}/sdk`}
+  let themeConfig = themeInitialValues->getDictFromJsonObject
   let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(~returnUrl, ~themeConfig)
 
   let (error, setError) = React.useState(_ => None)
