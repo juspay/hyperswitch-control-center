@@ -10,14 +10,13 @@ let make = (
 ) => {
   open LogicUtils
 
+  let (hyperPromise, setHyperPromise) = React.useState(() => None)
+
   let publishableKey = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
   ).publishable_key
 
   let clientSecret = paymentResult->getDictFromJsonObject->getString("client_secret", "")
-
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
   let themeConfig = themeInitialValues->getDictFromJsonObject
 
   let loadSDK = async () => {
@@ -29,15 +28,11 @@ let make = (
           DOMUtils.appendChild(script)
           let _ = Some(_ => script->DOMUtils.remove())
           await HyperSwitchUtils.delay(1000)
-          setScreenState(_ => PageLoaderWrapper.Success)
         }
-      | None => setScreenState(_ => Error("SDK URL Not Configured"))
+      | None => ()
       }
     } catch {
-    | error => {
-        Js.Console.error(error)
-        setScreenState(_ => Error("Failed to load SDK"))
-      }
+    | error => Js.Console.error(error)
     }
   }
 
@@ -46,11 +41,13 @@ let make = (
     None
   }, [])
 
-  let hyperPromise = React.useCallback(async () => {
-    Window.loadHyper(
+  React.useEffect1(() => {
+    let promise = ReactHyperJs.loadHyper(
       publishableKey,
-      [("isForceInit", true->JSON.Encode.bool)]->getJsonFromArrayOfJson,
+      [("isForceInit", true->Js.Json.boolean)]->getJsonFromArrayOfJson,
     )
+    setHyperPromise(_ => Some(promise))
+    None
   }, [publishableKey])
 
   // Define element appearance options from theme settings
@@ -66,22 +63,13 @@ let make = (
     locale: themeConfig->getString("locale", "en-GB"),
   }
 
-  <PageLoaderWrapper
-    screenState
-    customLoader={<div className="mt-60 w-screen flex flex-col justify-center items-center">
-      <div className="animate-spin mb-1">
-        <Icon name="spinner" size=20 />
-      </div>
-    </div>}
-    sectionHeight="!h-screen">
-    <div>
-      {switch Window.checkLoadHyper {
-      | Some(_) =>
-        <Elements options={elementOptions} stripe={hyperPromise()}>
-          <CheckoutForm paymentStatus setPaymentStatus setErrorMessage paymentResult themeConfig />
-        </Elements>
-      | None => React.null
-      }}
-    </div>
-  </PageLoaderWrapper>
+  <div className="w-4/5">
+    {switch hyperPromise {
+    | Some(p) =>
+      <ReactHyperJs.Elements options=elementOptions stripe=p>
+        <CheckoutForm paymentStatus setPaymentStatus setErrorMessage paymentResult themeConfig />
+      </ReactHyperJs.Elements>
+    | _ => React.null
+    }}
+  </div>
 }

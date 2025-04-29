@@ -6,13 +6,12 @@ module BasicAccountSetupSuccessfulPage = {
     ~buttonText,
     ~buttonOnClick,
     ~errorMessage="",
-    ~customWidth="w-full",
     ~bgColor="bg-green-success_page_bg",
     ~buttonState=Button.Normal,
     ~isButtonVisible=true,
   ) => {
     let headerTextStyle = "text-xl font-semibold text-grey-700"
-    <div className={`flex flex-col gap-4 p-9 h-full ${customWidth} justify-between rounded shadow`}>
+    <div className={`flex flex-col gap-4 p-9 h-full w-full justify-between rounded shadow`}>
       <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
         <Icon name=iconName size=120 />
         <AddDataAttributes attributes=[("data-testid", "paymentSuccess")]>
@@ -52,12 +51,10 @@ let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~se
   let paymentId =
     paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
 
-  let customWidth = "w-full"
-
-  <div className="w-3/4 flex flex-col p-5 overflow-auto bg-[rgba(124,255,112,0.54)]">
+  <div className="w-full flex items-center justify-center p-5 overflow-auto">
     {switch isSDKOpen {
     | false => <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
-    | _ =>
+    | true =>
       <>
         {switch paymentStatus {
         | SUCCESS =>
@@ -66,7 +63,6 @@ let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~se
             statusText="Payment Successful"
             buttonText=successButtonText
             buttonOnClick={_ => onProceed(~paymentId)->ignore}
-            customWidth
             bgColor="bg-green-success_page_bg"
             isButtonVisible={paymentId !== ""}
           />
@@ -78,7 +74,6 @@ let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~se
             buttonText=successButtonText
             buttonOnClick={_ => onProceed(~paymentId)->ignore}
             errorMessage
-            customWidth
             bgColor="bg-red-failed_page_bg"
             isButtonVisible={paymentId !== ""}
           />
@@ -88,7 +83,6 @@ let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~se
             statusText="Check your Configurations"
             buttonText=successButtonText
             buttonOnClick={_ => onProceed(~paymentId)->ignore}
-            customWidth
             bgColor="bg-yellow-pending_page_bg"
             isButtonVisible={paymentId !== ""}
           />
@@ -99,7 +93,6 @@ let make = (~isSDKOpen, ~themeInitialValues, ~paymentResult, ~paymentStatus, ~se
             statusText="Payment Pending"
             buttonText=successButtonText
             buttonOnClick={_ => onProceed(~paymentId)->ignore}
-            customWidth
             bgColor="bg-yellow-pending_page_bg"
             isButtonVisible={paymentId !== ""}
           />

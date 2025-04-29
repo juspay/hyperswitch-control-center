@@ -106,7 +106,7 @@ type country = {
 }
 
 @module("@juspay-tech/hyper-js")
-external loadHyper: string => hyperPromise = "loadHyper"
+external loadHyper: (string, JSON.t) => hyperPromise = "loadHyper"
 
 @module("@juspay-tech/react-hyper-js")
 external useHyper: unit => hyperType = "useHyper"
