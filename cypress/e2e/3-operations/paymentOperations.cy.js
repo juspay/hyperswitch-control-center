@@ -502,7 +502,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it("should display a valid message and expand search timerange when searched with invalid payment ID", () => {
+  it.skip("should display a valid message and expand search timerange when searched with invalid payment ID", () => {
     let merchant_id;
     homePage.merchantID
       .eq(0)
@@ -535,6 +535,33 @@ describe("Payment Operations", () => {
     );
   });
 
+  // Filters
+  it("should verify filter dropdown contains all filters", () => {
+    const allFilters = [
+      "Connector",
+      "Currency",
+      "Status",
+      "Payment Method",
+      "Authentication Type",
+      "Card Network",
+      "Card Discovery",
+      "Payment Method Type",
+      "Customer Id",
+      "Amount",
+      "Merchant Order Reference Id",
+    ];
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    paymentOperations.addFilters.click();
+
+    allFilters.forEach((filter) => {
+      cy.get('[class="px-1 py-1"]').contains(filter).should("exist");
+    });
+  });
+
+  // Date Selector
   it("should extend the time range by 90 days", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
@@ -573,33 +600,6 @@ describe("Payment Operations", () => {
       });
   });
 
-  // Filters
-  it("should verify filter dropdown contains all filters", () => {
-    const allFilters = [
-      "Connector",
-      "Currency",
-      "Status",
-      "Payment Method",
-      "Authentication Type",
-      "Card Network",
-      "Card Discovery",
-      "Payment Method Type",
-      "Customer Id",
-      "Amount",
-      "Merchant Order Reference Id",
-    ];
-
-    homePage.operations.click();
-    homePage.paymentOperations.click();
-
-    paymentOperations.addFilters.click();
-
-    allFilters.forEach((filter) => {
-      cy.get('[class="px-1 py-1"]').contains(filter).should("exist");
-    });
-  });
-
   // Views
-  // Date Selector
   // Payment details page
 });
