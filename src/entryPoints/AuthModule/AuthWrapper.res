@@ -46,16 +46,10 @@ module AuthHeaderWrapper = {
 let make = (~children) => {
   open APIUtils
   open AuthUtils
-  open HyperswitchAtom
 
   let getURL = useGetURL()
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
 
   let url = RescriptReactRouter.useUrl()
-  let currentUrl = GlobalVars.extractModulePath(
-    ~path=url.path,
-    ~end=url.path->List.toArray->Array.length,
-  )
   let updateDetails = useUpdateMethod()
   let {fetchAuthMethods, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
   let {authStatus, setAuthStatus, authMethods, setAuthStateToLogout} = React.useContext(
@@ -142,22 +136,6 @@ let make = (~children) => {
     }
     None
   }, [authStatus])
-
-  React.useEffect(() => {
-    switch (authStatus, merchantDetailsTypedValue.product_type) {
-    | (LoggedIn(_token), Orchestration) => ()
-    | (LoggedIn(_token), _) =>
-      if url.path->isAuthPath {
-        let productUrl = ProductUtils.getProductUrl(
-          ~productType=merchantDetailsTypedValue.product_type,
-          ~url=currentUrl,
-        )
-        RescriptReactRouter.replace(productUrl)
-      }
-    | _ => ()
-    }
-    None
-  }, [currentUrl])
 
   let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
     let authMethodType = method.auth_method.\"type"

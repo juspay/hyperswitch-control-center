@@ -158,7 +158,7 @@ let useNote = (authType, setAuthType) => {
         {getFooterLinkComponent(
           ~btnText="sign in using password",
           ~authType=LoginWithPassword,
-          ~path=authId->LogicUtils.isNonEmptyString ? `/login?auth_id${authId}` : "/login",
+          ~path=`login?auth_id=${authId}`,
         )}
       </RenderIf>
     | LoginWithPassword =>
@@ -166,7 +166,7 @@ let useNote = (authType, setAuthType) => {
         {getFooterLinkComponent(
           ~btnText="sign in with an email",
           ~authType=LoginWithEmail,
-          ~path=authId->LogicUtils.isNonEmptyString ? `/login?auth_id${authId}` : "/login",
+          ~path=`login?auth_id=${authId}`,
         )}
       </RenderIf>
     | SignUP =>
@@ -187,8 +187,7 @@ let useNote = (authType, setAuthType) => {
             let backUrl = switch authType {
             | ForgetPasswordEmailSent => "/forget-password"
             | ResendVerifyEmailSent => "/resend-mail"
-            | ForgetPassword | MagicLinkEmailSent | _ =>
-              authId->LogicUtils.isNonEmptyString ? `/login?auth_id${authId}` : "/login"
+            | ForgetPassword | MagicLinkEmailSent | _ => `login?auth_id=${authId}`
             }
             setAuthType(_ => backState)
             onCancelClick(~path=backUrl)

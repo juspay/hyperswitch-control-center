@@ -138,7 +138,7 @@ module Header = {
         getHeaderLink(
           ~prefix="Already using Hyperswitch?",
           ~authType=isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword,
-          ~path=authId->LogicUtils.isNonEmptyString ? `/login?auth_id=${authId}` : "/login",
+          ~path=`/login?auth_id=${authId}`,
           ~sufix="Sign in",
         )
       | ForgetPassword =>
