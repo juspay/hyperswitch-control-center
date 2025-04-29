@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.29.0
+
+### Miscellaneous Tasks
+
+- Addition of letter spacing in tailwind ([#2885](https://github.com/juspay/hyperswitch-control-center/pull/2885)) ([`c6abafb`](https://github.com/juspay/hyperswitch-control-center/commit/c6abafba280ba5bea3e88b163a35719b7ab5d170))
+
+**Full Changelog:** [`2025.04.25.0...2025.04.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.25.0...2025.04.29.0)
+
+
+- - -
+
 ## 2025.04.25.0
 
 ### Bug Fixes
