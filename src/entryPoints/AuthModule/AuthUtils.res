@@ -102,21 +102,3 @@ let redirectToLogin = () => {
 
   RescriptReactRouter.replace(appendDashboardPath(~url=urlToRedirect))
 }
-
-let isAuthPath = path => {
-  switch path {
-  | list{"dashboard", "register"}
-  | list{"dashboard", "login"}
-  | list{"dashboard", "forget-password"}
-  | list{"dashboard", "resend-mail"}
-  | list{"dashboard", "verify_email"}
-  | list{"dashboard", "set_password"}
-  | list{"dashboard", "accept_invite_from_email"}
-  | list{"user", "login"}
-  | list{"user", "set_password"}
-  | list{"user", "verify_email"}
-  | list{"user", "accept_invite_from_email"}
-  | list{"user", "resend-mail"} => true
-  | _ => false
-  }
-}

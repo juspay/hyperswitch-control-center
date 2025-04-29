@@ -17,17 +17,15 @@ let make = (~setAuthStatus) => {
       setMode(_ => TestButtonMode)
     }
 
-    switch url.path {
-    | list{"user", "verify_email"} => setAuthType(_ => EmailVerify)
-    | list{"dashboard", "login"} =>
-      setAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
-    | list{"user", "set_password"} =>
+    switch url.path->HSwitchUtils.urlPath {
+    | list{"verify_email"} => setAuthType(_ => EmailVerify)
+    | list{"login"} => setAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
+    | list{"set_password"} =>
       checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ResetPassword) : ()
-    | list{"user", "accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
-    | list{"dashboard", "forget-password"} =>
+    | list{"accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
+    | list{"forget-password"} =>
       checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ForgetPassword) : ()
-    | list{"dashboard", "register"} =>
-      !isLiveMode ? setAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
+    | list{"register"} => !isLiveMode ? setAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
     | _ => ()
     }
 
