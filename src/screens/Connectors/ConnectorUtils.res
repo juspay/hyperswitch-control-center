@@ -1694,6 +1694,17 @@ let defaultSelectAllCards = (
   }
 }
 
+let connectorTypeToListMapper = connector => {
+  switch connector {
+  | Processor => connectorList
+  | ThreeDsAuthenticator => threedsAuthenticatorList
+  | PayoutProcessor => payoutConnectorList
+  | TaxProcessor => taxProcessorList
+  | PMAuthenticationProcessor => pmAuthenticationConnectorList
+  | _ => []
+  }
+}
+
 let getConnectorPaymentMethodDetails = async (
   ~initialValues,
   ~setPaymentMethods,

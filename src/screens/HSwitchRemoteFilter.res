@@ -165,10 +165,7 @@ module RemoteTableFilters = {
     ~submitInputOnEnter=false,
     ~entityName: APIUtilsTypes.entityTypeWithVersion,
     ~version=UserInfoTypes.V1,
-    ~connectorTypes: array<ConnectorTypes.connectorTypeVariants>=[
-      PaymentProcessor,
-      AuthenticationProcessor,
-    ],
+    ~connectorTypes: array<ConnectorTypes.connector>=[Processor, ThreeDsAuthenticator],
     (),
   ) => {
     open LogicUtils
@@ -227,23 +224,17 @@ module RemoteTableFilters = {
 
         let filteredConnectorKeys = connectorArray->Array.filter(key => {
           let (name, _) = key
-          let paymentType = name->ConnectorUtils.getConnectorNameTypeFromString
-          let threedsType =
-            name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator)
-          let payoutType =
-            name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
 
-          connectorTypes->Array.some(item =>
+          connectorTypes->Array.some(item => {
+            let list = item->connectorTypeToListMapper
+            let typedName = name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=item)
             switch item {
-            | PaymentProcessor =>
-              connectorList->Array.some(item => paymentType == item) ||
-                dummyConnectorList(true)->Array.some(item => paymentType == item)
-            | AuthenticationProcessor =>
-              threedsAuthenticatorList->Array.some(item => threedsType == item)
-            | PayoutProcessor => payoutConnectorList->Array.some(item => payoutType == item)
-            | _ => connectorList->Array.some(item => paymentType == item)
+            | Processor =>
+              list->Array.some(item => typedName == item) ||
+                dummyConnectorList(true)->Array.some(item => typedName == item)
+            | _ => list->Array.some(item => typedName == item)
             }
-          )
+          })
         })
         let newConnectorDict = filteredConnectorKeys->Dict.fromArray
         let editedResponse = {
