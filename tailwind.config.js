@@ -66,6 +66,7 @@ module.exports = {
       },
       padding: {
         "10-px": "10px",
+        "7-px": "7px",
       },
       maxHeight: {
         "25-rem": "25rem",
@@ -399,6 +400,9 @@ module.exports = {
         },
         nd_orange: {
           50: "#FDF1DD",
+          150: "#FCEBCF",
+          200: "#E9BE74",
+          500: "#AB6100",
           600: "#9E5400",
         },
         nd_yellow: {

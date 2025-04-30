@@ -144,6 +144,15 @@ let make = () => {
                             condition={merchantDetailsTypedValue.product_type == Orchestration}>
                             <GlobalSearchBar />
                           </RenderIf>
+                          <RenderIf
+                            condition={!featureFlagDetails.isLiveMode &&
+                            // TODO: Remove `MerchantDetailsManage` permission in future
+                            hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=AccountManage),
+                            ) === CommonAuthTypes.Access}>
+                            <ProductionAccess />
+                          </RenderIf>
                           <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
