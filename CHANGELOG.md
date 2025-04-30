@@ -3,6 +3,34 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.04.30.0
+
+### Bug Fixes
+
+- Payment show details fetch when payment id changes ([#2881](https://github.com/juspay/hyperswitch-control-center/pull/2881)) ([`814acbe`](https://github.com/juspay/hyperswitch-control-center/commit/814acbef980c084865d8cbdcf6337db7fbe3ea0b))
+- Webhook url not configured text update ([#2899](https://github.com/juspay/hyperswitch-control-center/pull/2899)) ([`b087fd3`](https://github.com/juspay/hyperswitch-control-center/commit/b087fd37511bfcc534f57a5e42fa784f121b37c1))
+- All types of connectors showing in operations connector filter ([#2897](https://github.com/juspay/hyperswitch-control-center/pull/2897)) ([`62390b7`](https://github.com/juspay/hyperswitch-control-center/commit/62390b7c5f6bea57a6c372e7e40c75ef6c7c1f3f))
+
+### Miscellaneous Tasks
+
+- Typography standardisation Tokens initialisation ([#2893](https://github.com/juspay/hyperswitch-control-center/pull/2893)) ([`3d5bfe4`](https://github.com/juspay/hyperswitch-control-center/commit/3d5bfe4a31cd3be36b1140955985320783adeafa))
+
+**Full Changelog:** [`2025.04.29.0...2025.04.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.29.0...2025.04.30.0)
+
+
+- - -
+
+## 2025.04.29.0
+
+### Miscellaneous Tasks
+
+- Addition of letter spacing in tailwind ([#2885](https://github.com/juspay/hyperswitch-control-center/pull/2885)) ([`c6abafb`](https://github.com/juspay/hyperswitch-control-center/commit/c6abafba280ba5bea3e88b163a35719b7ab5d170))
+
+**Full Changelog:** [`2025.04.25.0...2025.04.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.25.0...2025.04.29.0)
+
+
+- - -
+
 ## 2025.04.25.0
 
 ### Bug Fixes
