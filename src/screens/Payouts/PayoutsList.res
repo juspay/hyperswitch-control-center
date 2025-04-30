@@ -106,6 +106,7 @@ let make = () => {
               placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
             />}
             entityName=V1(PAYOUTS_FILTERS)
+            connectorTypes=[PayoutProcessor]
           />
         </div>
         <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />
