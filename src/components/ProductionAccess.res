@@ -15,7 +15,7 @@ let make = () => {
     switch isProdIntent {
     | true =>
       <ToolTip
-        description="Production Access Already Requested"
+        description="Production access requested, check your email for updates"
         hoverOnToolTip=false
         iconOpacityVal="0"
         toolTipFor={<div
