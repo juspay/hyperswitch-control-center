@@ -47,6 +47,7 @@ let (
   compareToStartTimeKey,
   compareToEndTimeKey,
   comparisonKey,
+  sampleDataKey,
 ) = (
   "startTime",
   "endTime",
@@ -54,6 +55,7 @@ let (
   "compareToStartTime",
   "compareToEndTime",
   "comparison",
+  "is_sample_data_enabled",
 )
 
 let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime, ~events=?) => {

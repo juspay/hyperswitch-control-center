@@ -158,6 +158,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsSampleData
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -199,6 +200,8 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
 
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -226,7 +229,12 @@ let make = (
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let primaryResponse = await updateDetails(url, primaryBody, Post)
+      let primaryResponse = if isSampleDataEnabled {
+        samplePaymentsProcessedPrimaryData // replace with s3 call
+      } else {
+        await updateDetails(url, primaryBody, Post)
+      }
+
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
@@ -239,7 +247,11 @@ let make = (
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
-          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryResponse = if isSampleDataEnabled {
+            samplePaymentsProcessedSecondaryData // replace with s3 call
+          } else {
+            await updateDetails(url, secondaryBody, Post)
+          }
           let secondaryData =
             secondaryResponse
             ->getDictFromJsonObject
@@ -314,6 +326,7 @@ let make = (
     granularity.value,
     currency,
     isSmartRetryEnabled,
+    isSampleDataEnabled,
   ))
 
   let params = {

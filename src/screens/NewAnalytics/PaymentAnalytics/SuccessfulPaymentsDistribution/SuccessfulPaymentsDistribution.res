@@ -4,6 +4,7 @@ open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open SuccessfulPaymentsDistributionUtils
 open NewPaymentAnalyticsUtils
+open NewAnalyticsSampleData
 
 module TableModule = {
   open LogicUtils
@@ -93,32 +94,43 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let isSampleDataEnabled =
+    filterValueJson
+    ->getString("is_sample_data_enabled", "true")
+    ->LogicUtils.getBoolFromString(true)
   let getPaymentsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS),
-        ~methodType=Post,
-        ~id=Some((entity.domain: domain :> string)),
-      )
+      //replace with s3 call
+      let responseData = if isSampleDataEnabled {
+        samplePaymentsSuccessRateDataWithConnectors
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+        ->filterQueryData(groupBy.value)
+      } else {
+        let url = getURL(
+          ~entityName=V1(ANALYTICS_PAYMENTS),
+          ~methodType=Post,
+          ~id=Some((entity.domain: domain :> string)),
+        )
 
-      let body = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~groupByNames=[groupBy.value]->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
+        let body = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~groupByNames=[groupBy.value]->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
 
-      let response = await updateDetails(url, body, Post)
-      let responseData =
+        let response = await updateDetails(url, body, Post)
         response
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
         ->filterQueryData(groupBy.value)
+      }
 
+      Js.log2("paymentsdistributionresponse", responseData)
       if responseData->Array.length > 0 {
         setpaymentsDistribution(_ => responseData->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -135,7 +147,7 @@ let make = (
       getPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, currency])
+  }, (startTimeVal, endTimeVal, groupBy.value, currency, isSampleDataEnabled))
 
   let params = {
     data: paymentsDistribution,

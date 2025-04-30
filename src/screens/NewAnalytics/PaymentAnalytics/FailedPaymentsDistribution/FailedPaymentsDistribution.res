@@ -78,6 +78,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsSampleData
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -95,7 +96,8 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let getFailedPaymentsDistribution = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -104,7 +106,7 @@ let make = (
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
-
+      let sampleData = samplePaymentsSuccessRateDataWithConnectors
       let body = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
@@ -113,8 +115,11 @@ let make = (
         ~groupByNames=[groupBy.value]->Some,
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
-
-      let response = await updateDetails(url, body, Post)
+      let response = if isSampleDataEnabled {
+        sampleData //replace with s3 call
+      } else {
+        await updateDetails(url, body, Post)
+      }
       let responseData =
         response
         ->getDictFromJsonObject
@@ -137,7 +142,7 @@ let make = (
       getFailedPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, currency])
+  }, (startTimeVal, endTimeVal, groupBy.value, currency, isSampleDataEnabled))
 
   let params = {
     data: failedPaymentsDistribution,

@@ -3,6 +3,7 @@ open NewAnalyticsHelper
 open LineGraphTypes
 open PaymentsSuccessRateUtils
 open NewPaymentAnalyticsUtils
+open NewAnalyticsSampleData
 
 module PaymentsSuccessRateHeader = {
   open NewAnalyticsUtils
@@ -80,6 +81,8 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
@@ -103,31 +106,30 @@ let make = (
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
-        ~methodType=Post,
-        ~id=Some((entity.domain: domain :> string)),
-      )
+      let primaryResponse = if isSampleDataEnabled {
+        samplePaymentsSuccessRateData //replace with s3 call
+      } else {
+        let url = getURL(
+          ~entityName=V1(ANALYTICS_PAYMENTS_V2),
+          ~methodType=Post,
+          ~id=Some((entity.domain: domain :> string)),
+        )
 
-      let primaryBody = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
+        let primaryBody = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~granularity=granularity.value->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
 
-      let secondaryBody = requestBody(
-        ~startTime=compareToStartTime,
-        ~endTime=compareToEndTime,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
+        Js.log2("primarybody", primaryBody)
 
-      let primaryResponse = await updateDetails(url, primaryBody, Post)
+        await updateDetails(url, primaryBody, Post)
+      }
+
+      Js.log2("primaryresponse", primaryResponse)
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
@@ -137,7 +139,29 @@ let make = (
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
-          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryResponse = if isSampleDataEnabled {
+            samplePaymentsSuccessRateSecondaryData
+          } else {
+            let url = getURL(
+              ~entityName=V1(ANALYTICS_PAYMENTS_V2),
+              ~methodType=Post,
+              ~id=Some((entity.domain: domain :> string)),
+            )
+
+            let secondaryBody = requestBody(
+              ~startTime=compareToStartTime,
+              ~endTime=compareToEndTime,
+              ~delta=entity.requestBodyConfig.delta,
+              ~metrics=entity.requestBodyConfig.metrics,
+              ~granularity=granularity.value->Some,
+              ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+            )
+
+            Js.log2("secondarybody", secondaryBody)
+
+            await updateDetails(url, secondaryBody, Post)
+          }
+          Js.log2("secondaryresponse", secondaryResponse)
           let secondaryData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
           let secondaryMetaData =
@@ -208,6 +232,7 @@ let make = (
     comparison,
     currency,
     granularity,
+    isSampleDataEnabled,
   ))
 
   let mockDelay = async () => {

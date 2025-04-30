@@ -118,66 +118,80 @@ module CustomDropDown = {
     ~options: array<optionType>,
     ~setOption: optionType => unit,
     ~positionClass="right-0",
+    ~disabled=false,
   ) => {
     open HeadlessUI
     let (arrow, setArrow) = React.useState(_ => false)
+
     <Menu \"as"="div" className="relative inline-block text-left">
       {_ =>
         <div>
-          <Menu.Button
-            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border">
-            {_ => {
-              <>
-                {buttonText.label->React.string}
-                <Icon
-                  className={arrow
-                    ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
-                    : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
-                  name="arrow-without-tail"
-                  size=15
-                />
-              </>
-            }}
-          </Menu.Button>
-          <Transition
-            \"as"="span"
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95">
-            {<Menu.Items
-              className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
-              {props => {
-                setArrow(_ => props["open"])
-
-                <div className="p-1">
-                  {options
-                  ->Array.mapWithIndex((option, i) =>
-                    <Menu.Item key={i->Int.toString}>
-                      {props =>
-                        <div className="relative">
-                          <button
-                            onClick={_ => setOption(option)}
-                            className={
-                              let activeClasses = if props["active"] {
-                                "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                              } else {
-                                "group flex rounded-md items-center w-full px-2 py-2 text-sm"
-                              }
-                              `${activeClasses} font-medium text-start`
-                            }>
-                            <div className="mr-5"> {option.label->React.string} </div>
-                          </button>
-                        </div>}
-                    </Menu.Item>
-                  )
-                  ->React.array}
-                </div>
+          {if disabled {
+            <div
+              className="inline-flex whitespace-pre leading-5 justify-center text-sm px-4 py-2 font-medium rounded-lg bg-gray-50 border text-gray-500 cursor-not-allowed">
+              {buttonText.label->React.string}
+              <Icon className="ml-1 mt-1 opacity-40" name="arrow-without-tail" size=15 />
+            </div>
+          } else {
+            <Menu.Button
+              className="inline-flex whitespace-pre leading-5 justify-center text-sm px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border">
+              {_ => {
+                <>
+                  {buttonText.label->React.string}
+                  <Icon
+                    className={arrow
+                      ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
+                      : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
+                    name="arrow-without-tail"
+                    size=15
+                  />
+                </>
               }}
-            </Menu.Items>}
-          </Transition>
+            </Menu.Button>
+          }}
+          {if !disabled {
+            <Transition
+              \"as"="span"
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95">
+              {<Menu.Items
+                className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
+                {props => {
+                  setArrow(_ => props["open"])
+
+                  <div className="p-1">
+                    {options
+                    ->Array.mapWithIndex((option, i) =>
+                      <Menu.Item key={i->Int.toString}>
+                        {props =>
+                          <div className="relative">
+                            <button
+                              onClick={_ => setOption(option)}
+                              className={
+                                let activeClasses = if props["active"] {
+                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                } else {
+                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                                }
+                                `${activeClasses} font-medium text-start`
+                              }>
+                              <div className="mr-5"> {option.label->React.string} </div>
+                            </button>
+                          </div>}
+                      </Menu.Item>
+                    )
+                    ->React.array}
+                  </div>
+                }}
+              </Menu.Items>}
+            </Transition>
+          } else {
+            React.null
+          }}
         </div>}
     </Menu>
   }
@@ -238,6 +252,10 @@ module SmartRetryToggle = {
       FilterContext.filterContext,
     )
     let (isEnabled, setIsEnabled) = React.useState(_ => false)
+    let isSampleDataEnabled =
+      filterValueJson
+      ->getString("is_sample_data_enabled", "true")
+      ->LogicUtils.getBoolFromString(true)
 
     React.useEffect(() => {
       let value = filterValueJson->getString(smartRetryKey, "true")->getBoolFromString(true)
@@ -257,7 +275,7 @@ module SmartRetryToggle = {
       <BoolInput.BaseComponent
         isSelected={isEnabled}
         setIsSelected={onClick}
-        isDisabled=false
+        isDisabled=isSampleDataEnabled
         boolCustomClass="rounded-lg !bg-primary"
         toggleBorder="border-primary"
       />
@@ -279,6 +297,55 @@ module SmartRetryToggle = {
   }
 }
 
+module SampleDataToggle = {
+  open LogicUtils
+  open NewAnalyticsContainerUtils
+  @react.component
+  let make = () => {
+    let {updateExistingKeys, filterValue, filterValueJson} = React.useContext(
+      FilterContext.filterContext,
+    )
+    let (isEnabled, setIsEnabled) = React.useState(_ => true)
+
+    React.useEffect(() => {
+      let value = filterValueJson->getString(sampleDataKey, "true")->getBoolFromString(true)
+      setIsEnabled(_ => value)
+      None
+    }, [filterValueJson])
+
+    let onClick = _ => {
+      let updatedValue = !isEnabled
+      let newValue = filterValue->Dict.copy
+      newValue->Dict.set(sampleDataKey, updatedValue->getStringFromBool)
+      newValue->updateExistingKeys
+    }
+
+    <BoolInput.BaseComponent
+      isSelected={isEnabled}
+      setIsSelected={onClick}
+      isDisabled=false
+      boolCustomClass="rounded-lg !bg-primary"
+      toggleBorder="border-primary"
+    />
+  }
+}
+
+module SampleDataBanner = {
+  @react.component
+  let make = () => {
+    <div
+      className="absolute z-20 top-76-px left-0 w-full py-2 px-10 bg-orange-50 flex justify-between items-center">
+      <div className="flex gap-4 items-center">
+        <p className="text-nd_gray-600 text-base leading-6 font-medium">
+          {"Currently viewing sample data. Toggle it off to return to your real insights."->React.string}
+        </p>
+      </div>
+      <div>
+        <SampleDataToggle />
+      </div>
+    </div>
+  }
+}
 module OverViewStat = {
   open NewAnalyticsUtils
   open NewAnalyticsTypes

@@ -12,6 +12,7 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
+  open NewAnalyticsSampleData
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ =>
@@ -23,30 +24,40 @@ let make = (
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSmartRetryEnabled = filterValueJson->getString("is_smart_retry_enabled", "true")
-
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let getPaymentLieCycleData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(~entityName=V1(ANALYTICS_SANKEY), ~methodType=Post)
-      let paymentLifeCycleBody =
-        [
-          ("startTime", startTimeVal->JSON.Encode.string),
-          ("endTime", endTimeVal->JSON.Encode.string),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-
-      let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
-
-      if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
+      if isSampleDataEnabled {
+        let sampleData = samplePaymentLifecycleData //replace with s3 call
         setData(_ =>
-          paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
+          sampleData->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
             ~isSmartRetryEnabled=isSmartRetryEnabled->LogicUtils.getBoolFromString(true),
           )
         )
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
-        setScreenState(_ => PageLoaderWrapper.Custom)
+        let url = getURL(~entityName=V1(ANALYTICS_SANKEY), ~methodType=Post)
+        let paymentLifeCycleBody =
+          [
+            ("startTime", startTimeVal->JSON.Encode.string),
+            ("endTime", endTimeVal->JSON.Encode.string),
+          ]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+
+        let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
+        if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
+          setData(_ =>
+            paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
+              ~isSmartRetryEnabled=isSmartRetryEnabled->LogicUtils.getBoolFromString(true),
+            )
+          )
+          setScreenState(_ => PageLoaderWrapper.Success)
+        } else {
+          setScreenState(_ => PageLoaderWrapper.Custom)
+        }
       }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -57,7 +68,7 @@ let make = (
       getPaymentLieCycleData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, isSmartRetryEnabled))
+  }, (startTimeVal, endTimeVal, isSmartRetryEnabled, isSampleDataEnabled))
 
   let params = {
     data,

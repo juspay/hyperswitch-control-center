@@ -61,16 +61,19 @@ let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsSampleData
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let sampleData = samplePaymentsSuccessRateDataWithConnectors
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -97,9 +100,11 @@ let make = (~entity: moduleEntity) => {
         ~groupByNames,
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
-
-      let response = await updateDetails(url, body, Post)
-
+      let response = if isSampleDataEnabled {
+        sampleData //replace with s3 call
+      } else {
+        await updateDetails(url, body, Post)
+      }
       let metaData = response->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let data =
@@ -123,7 +128,7 @@ let make = (~entity: moduleEntity) => {
       getPaymentsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, currency])
+  }, (startTimeVal, endTimeVal, groupBy.value, currency, isSampleDataEnabled))
 
   <div>
     <ModuleHeader title={entity.title} />
