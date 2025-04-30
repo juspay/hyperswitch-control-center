@@ -147,8 +147,8 @@ let getTypedValueForPayment = values => {
   let amount = dict->getFloat("amount", 10000.0)
   let countryCurrency = dict->getString("country_currency", "US-USD")->String.split("-")
 
-  let getCountry = () => countryCurrency->Array.at(0)->Option.getOr("US")
-  let getCurrency = () => countryCurrency->Array.at(1)->Option.getOr("USD")
+  let getCountry = () => countryCurrency->getValueFromArray(0, "US")
+  let getCurrency = () => countryCurrency->getValueFromArray(1, "USD")
 
   let getAddress = address => {
     {

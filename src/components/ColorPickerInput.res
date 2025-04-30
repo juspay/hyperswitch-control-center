@@ -8,9 +8,10 @@ let make = (
   ~pickerPositionClassName="justify-between",
   ~defaultValue=?,
 ) => {
+  open LogicUtils
   let getHexColor = value =>
     switch JSON.Decode.string(value) {
-    | Some(str) => str->LogicUtils.isEmptyString ? "#FFFFFF" : str
+    | Some(str) => str->isEmptyString ? "#FFFFFF" : str
     | None => "#FFFFFF"
     }
 
@@ -24,9 +25,9 @@ let make = (
   let colorPickerRef = React.useRef(Js.Nullable.null)
 
   let onChangeComplete = color =>
-    switch LogicUtils.getDictFromJsonObject(color)->LogicUtils.getString("hex", "") {
+    switch getDictFromJsonObject(color)->getString("hex", "") {
     | hex => {
-        let upperHex = hex->Js.String.toUpperCase
+        let upperHex = hex->String.toUpperCase
         setColor(_ => upperHex)
         input.onChange(upperHex->Identity.anyTypeToReactEvent)
       }
@@ -39,10 +40,11 @@ let make = (
   <div
     className={`flex flex-col ${fullWidth ? "w-full" : ""} ${customWrapperClassName}`}
     ref={colorPickerRef->ReactDOM.Ref.domRef}>
-    {switch labelText {
-    | Some(text) => <label className="text-sm font-medium mb-1"> {React.string(text)} </label>
-    | None => React.null
-    }}
+    <RenderIf condition={labelText->Option.isSome}>
+      <label className="text-sm font-medium mb-1">
+        {React.string(labelText->Option.getOr(""))}
+      </label>
+    </RenderIf>
     <div
       className={`flex flex-row items-center border rounded-md px-3 py-2 bg-white dark:bg-jp-gray-950 dark:border-jp-gray-960 cursor-pointer ${customInputClassName}`}
       onClick={_ => setToggle(prev => !prev)}>

@@ -4,7 +4,7 @@ open ReactHyperJs
 let make = () => {
   open LogicUtils
 
-  let {paymentResult, themeInitialValues} = React.useContext(SDKProvider.defaultContext)
+  let {paymentResult, sdkThemeInitialValues} = React.useContext(SDKProvider.defaultContext)
   let (hyperPromise, setHyperPromise) = React.useState(() => None)
 
   let publishableKey = Recoil.useRecoilValueFromAtom(
@@ -12,7 +12,7 @@ let make = () => {
   ).publishable_key
 
   let clientSecret = paymentResult->getDictFromJsonObject->getString("client_secret", "")
-  let themeConfig = themeInitialValues->getDictFromJsonObject
+  let themeConfig = sdkThemeInitialValues->getDictFromJsonObject
 
   let loadSDK = async () => {
     try {

@@ -5,8 +5,8 @@ let defaultValue = {
   setShowBillingAddress: _ => (),
   isSameAsBilling: true,
   setIsSameAsBilling: _ => (),
-  themeInitialValues: SDKPaymentUtils.themeDefaultJson,
-  setThemeInitialValues: _ => (),
+  sdkThemeInitialValues: SDKPaymentUtils.themeDefaultJson,
+  setSdkThemeInitialValues: _ => (),
   keyForReRenderingSDK: Date.now()->Float.toString,
   setKeyForReRenderingSDK: _ => (),
   paymentStatus: INCOMPLETE,
@@ -29,7 +29,7 @@ let make = (~children) => {
 
   let (showBillingAddress, setShowBillingAddress) = React.useState(_ => true)
   let (isSameAsBilling, setIsSameAsBilling) = React.useState(() => true)
-  let (themeInitialValues, setThemeInitialValues) = React.useState(_ =>
+  let (sdkThemeInitialValues, setSdkThemeInitialValues) = React.useState(_ =>
     SDKPaymentUtils.themeDefaultJson
   )
   let (keyForReRenderingSDK, setKeyForReRenderingSDK) = React.useState(_ =>
@@ -45,8 +45,8 @@ let make = (~children) => {
       setShowBillingAddress,
       isSameAsBilling,
       setIsSameAsBilling,
-      themeInitialValues,
-      setThemeInitialValues,
+      sdkThemeInitialValues,
+      setSdkThemeInitialValues,
       keyForReRenderingSDK,
       setKeyForReRenderingSDK,
       paymentStatus,

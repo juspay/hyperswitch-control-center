@@ -9,10 +9,10 @@ let make = () => {
     setPaymentStatus,
     paymentResult,
     setErrorMessage,
-    themeInitialValues,
+    sdkThemeInitialValues,
   } = React.useContext(SDKProvider.defaultContext)
   let returnUrl = {`${GlobalVars.getHostUrlWithBasePath}/sdk`}
-  let themeConfig = themeInitialValues->getDictFromJsonObject
+  let themeConfig = sdkThemeInitialValues->getDictFromJsonObject
   let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(~returnUrl, ~themeConfig)
 
   let (error, setError) = React.useState(_ => None)
@@ -61,14 +61,13 @@ let make = () => {
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        let formattedError = err->String.replace("\"", "")->String.replace("\"", "")
 
-        if formattedError == "Something went wrong" {
+        if err->String.includes("something went wrong") {
           setPaymentStatus(_ => CUSTOMSTATE)
           setError(_ => None)
         } else {
-          setPaymentStatus(_ => FAILED(formattedError))
-          setError(_ => Some(formattedError))
+          setPaymentStatus(_ => FAILED(err))
+          setError(_ => Some(err))
         }
         setBtnState(_ => Button.Normal)
       }

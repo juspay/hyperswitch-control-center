@@ -101,15 +101,14 @@ let make = (~isSDKOpen: bool) => {
   }
 
   <div className="w-full h-full flex items-center justify-center p-5 overflow-auto">
-    {switch isSDKOpen {
-    | true =>
-      switch paymentStatus {
+    <RenderIf condition=isSDKOpen>
+      {switch paymentStatus {
       | INCOMPLETE => <WebSDK />
       | status =>
         let config = getStatusConfig(status)
         let hasPaymentId = paymentId->Option.isSome
 
-        <RenderIf condition={config.statusText != ""}>
+        <RenderIf condition={config.statusText->LogicUtils.isNonEmptyString}>
           <PaymentStatusPage
             config
             buttonText={successButtonText}
@@ -117,8 +116,10 @@ let make = (~isSDKOpen: bool) => {
             isButtonVisible=hasPaymentId
           />
         </RenderIf>
-      }
-    | false => <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
-    }}
+      }}
+    </RenderIf>
+    <RenderIf condition={!isSDKOpen}>
+      <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
+    </RenderIf>
   </div>
 }

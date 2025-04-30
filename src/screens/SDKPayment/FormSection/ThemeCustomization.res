@@ -3,12 +3,12 @@ let make = () => {
   open FormRenderer
   open SDKPaymentUtils
 
-  let {themeInitialValues, setThemeInitialValues, setKeyForReRenderingSDK} = React.useContext(
+  let {sdkThemeInitialValues, setSdkThemeInitialValues, setKeyForReRenderingSDK} = React.useContext(
     SDKProvider.defaultContext,
   )
 
   let onSubmit = (values, _) => {
-    setThemeInitialValues(_ => values)
+    setSdkThemeInitialValues(_ => values)
     setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
     Nullable.null->Promise.resolve
   }
@@ -18,7 +18,7 @@ let make = () => {
     ~retainInList=PaymentProcessor,
   )
 
-  <Form formClass="mt-5" initialValues=themeInitialValues onSubmit>
+  <Form formClass="mt-5" initialValues=sdkThemeInitialValues onSubmit>
     <FieldRenderer field=selectThemeField fieldWrapperClass="!w-full" />
     <FieldRenderer field=selectLocaleField fieldWrapperClass="!w-full" />
     <FieldRenderer field=selectLayoutField fieldWrapperClass="!w-full" />
