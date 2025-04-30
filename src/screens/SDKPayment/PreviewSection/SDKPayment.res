@@ -1,34 +1,41 @@
-module BasicAccountSetupSuccessfulPage = {
+module PaymentStatusPage = {
+  type statusConfig = {
+    iconName: string,
+    statusText: string,
+    bgColor: string,
+    showErrorMessage: bool,
+  }
+
   @react.component
   let make = (
-    ~iconName,
-    ~statusText,
-    ~buttonText,
-    ~buttonOnClick,
-    ~bgColor="bg-green-success_page_bg",
+    ~config,
+    ~buttonText=?,
+    ~buttonOnClick=?,
     ~buttonState=Button.Normal,
     ~isButtonVisible=true,
   ) => {
     let {errorMessage} = React.useContext(SDKProvider.defaultContext)
     let headerTextStyle = "text-xl font-semibold text-grey-700"
 
-    <div className={`w-4/5 flex flex-col gap-4 p-9 h-full w-full justify-between rounded shadow`}>
-      <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
-        <Icon name=iconName size=120 />
-        <AddDataAttributes attributes=[("data-testid", "paymentSuccess")]>
-          <p className=headerTextStyle> {statusText->React.string} </p>
+    <div className="w-4/5 flex flex-col gap-4 p-9 h-full w-full justify-between rounded shadow">
+      <div
+        className={`p-4 h-5/6 ${config.bgColor} flex flex-col justify-center items-center gap-8`}>
+        <Icon name=config.iconName size=120 />
+        <AddDataAttributes attributes=[("data-testid", "paymentStatus")]>
+          <p className=headerTextStyle> {config.statusText->React.string} </p>
         </AddDataAttributes>
-        <RenderIf condition={statusText == "Payment Failed"}>
+        <RenderIf condition={config.showErrorMessage}>
           <p className="text-center"> {errorMessage->React.string} </p>
         </RenderIf>
       </div>
-      <RenderIf condition={isButtonVisible}>
+      <RenderIf
+        condition={isButtonVisible && buttonText->Option.isSome && buttonOnClick->Option.isSome}>
         <Button
-          text=buttonText
+          text={buttonText->Option.getExn}
           buttonSize={Large}
           buttonType={Primary}
           customButtonStyle="w-full"
-          onClick={buttonOnClick}
+          onClick={buttonOnClick->Option.getExn}
           buttonState
         />
       </RenderIf>
@@ -37,17 +44,16 @@ module BasicAccountSetupSuccessfulPage = {
 }
 
 @react.component
-let make = (~isSDKOpen) => {
+let make = (~isSDKOpen: bool) => {
   open ReactHyperJs
 
   let {paymentResult, paymentStatus} = React.useContext(SDKProvider.defaultContext)
+  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let paymentId =
     paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("payment_id")
 
-  let successButtonText = "Go to Payment Operations"
-
-  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let successButtonText: string = "Go to Payment Operations"
 
   let onProceed = async () => {
     switch paymentId {
@@ -59,50 +65,58 @@ let make = (~isSDKOpen) => {
     }
   }
 
+  let getStatusConfig = (status): PaymentStatusPage.statusConfig => {
+    switch status {
+    | SUCCESS => {
+        iconName: "account-setup-completed",
+        statusText: "Payment Successful",
+        bgColor: "bg-green-success_page_bg",
+        showErrorMessage: false,
+      }
+    | FAILED(_) => {
+        iconName: "account-setup-failed",
+        statusText: "Payment Failed",
+        bgColor: "bg-red-failed_page_bg",
+        showErrorMessage: true,
+      }
+    | CHECKCONFIGURATION => {
+        iconName: "processing",
+        statusText: "Check your Configurations",
+        bgColor: "bg-yellow-pending_page_bg",
+        showErrorMessage: false,
+      }
+    | PROCESSING => {
+        iconName: "processing",
+        statusText: "Payment Pending",
+        bgColor: "bg-yellow-pending_page_bg",
+        showErrorMessage: false,
+      }
+    | _ => {
+        iconName: "",
+        statusText: "",
+        bgColor: "",
+        showErrorMessage: false,
+      }
+    }
+  }
+
   <div className="w-full h-full flex items-center justify-center p-5 overflow-auto">
     {switch isSDKOpen {
     | true =>
       switch paymentStatus {
-      | SUCCESS =>
-        <BasicAccountSetupSuccessfulPage
-          iconName="account-setup-completed"
-          statusText="Payment Successful"
-          buttonText=successButtonText
-          buttonOnClick={_ => onProceed()->ignore}
-          bgColor="bg-green-success_page_bg"
-          isButtonVisible={paymentId->Option.isSome}
-        />
-
-      | FAILED(_) =>
-        <BasicAccountSetupSuccessfulPage
-          iconName="account-setup-failed"
-          statusText="Payment Failed"
-          buttonText=successButtonText
-          buttonOnClick={_ => onProceed()->ignore}
-          bgColor="bg-red-failed_page_bg"
-          isButtonVisible={paymentId->Option.isSome}
-        />
-      | CHECKCONFIGURATION =>
-        <BasicAccountSetupSuccessfulPage
-          iconName="processing"
-          statusText="Check your Configurations"
-          buttonText=successButtonText
-          buttonOnClick={_ => onProceed()->ignore}
-          bgColor="bg-yellow-pending_page_bg"
-          isButtonVisible={paymentId->Option.isSome}
-        />
-
-      | PROCESSING =>
-        <BasicAccountSetupSuccessfulPage
-          iconName="processing"
-          statusText="Payment Pending"
-          buttonText=successButtonText
-          buttonOnClick={_ => onProceed()->ignore}
-          bgColor="bg-yellow-pending_page_bg"
-          isButtonVisible={paymentId->Option.isSome}
-        />
       | INCOMPLETE => <WebSDK />
-      | _ => React.null
+      | status =>
+        let config = getStatusConfig(status)
+        let hasPaymentId = paymentId->Option.isSome
+
+        <RenderIf condition={config.statusText != ""}>
+          <PaymentStatusPage
+            config
+            buttonText={successButtonText}
+            buttonOnClick={_ => onProceed()->ignore}
+            isButtonVisible=hasPaymentId
+          />
+        </RenderIf>
       }
     | false => <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
     }}

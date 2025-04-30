@@ -76,6 +76,38 @@ let requestExternal3dsAuthentication = ["True", "False"]
 let labels = ["Above", "Floating"]
 
 let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.paymentType = defaultBusinessProfile => {
+  let shippingValue: SDKPaymentTypes.addressAndPhone = {
+    address: {
+      line1: "1600 Amphitheatre Parkway",
+      city: "Mountain View",
+      state: "California",
+      zip: "94043",
+      country: "US",
+      first_name: "John",
+      last_name: "Doe",
+    },
+    phone: {
+      number: "6502530000",
+      country_code: "+1",
+    },
+  }
+
+  let billingValue: SDKPaymentTypes.addressAndPhone = {
+    address: {
+      line1: "1600 Amphitheatre Parkway",
+      city: "Mountain View",
+      state: "California",
+      zip: "94043",
+      country: "US",
+      first_name: "John",
+      last_name: "Doe",
+    },
+    phone: {
+      number: "6502530000",
+      country_code: "+1",
+    },
+  }
+
   {
     amount: 10000.00,
     currency: "USD",
@@ -87,36 +119,8 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     request_external_three_ds_authentication: false,
     email: "guest@example.com",
     authentication_type: "no_three_ds",
-    shipping: {
-      address: {
-        line1: "1600 Amphitheatre Parkway",
-        city: "Mountain View",
-        state: "California",
-        zip: "94043",
-        country: "US",
-        first_name: "John",
-        last_name: "Doe",
-      },
-      phone: {
-        number: "6502530000",
-        country_code: "+1",
-      },
-    },
-    billing: {
-      address: {
-        line1: "1600 Amphitheatre Parkway",
-        city: "Mountain View",
-        state: "California",
-        zip: "94043",
-        country: "US",
-        first_name: "John",
-        last_name: "Doe",
-      },
-      phone: {
-        number: "6502530000",
-        country_code: "+1",
-      },
-    },
+    shipping: Nullable.make(shippingValue),
+    billing: Nullable.make(billingValue),
     capture_method: "automatic",
   }
 }
@@ -173,14 +177,14 @@ let getTypedValueForPayment = values => {
     description: dict->getString("description", "Payment Transaction"),
     email: dict->getString("email", ""),
     authentication_type: dict->getString("authentication_type", ""),
-    shipping: {
+    shipping: Nullable.make({
       address: shippingAddress->getAddress,
       phone: shippingPhone->getPhone,
-    },
-    billing: {
+    }),
+    billing: Nullable.make({
       address: billingAddress->getAddress,
       phone: billingPhone->getPhone,
-    },
+    }),
     capture_method: "automatic",
     setup_future_usage: "off_session",
     request_external_three_ds_authentication: dict->getBool(

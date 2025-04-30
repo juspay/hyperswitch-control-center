@@ -13,12 +13,7 @@ type phone = {
   country_code: string,
 }
 
-type shipping = {
-  address: address,
-  phone: phone,
-}
-
-type billing = {
+type addressAndPhone = {
   address: address,
   phone: phone,
 }
@@ -32,8 +27,8 @@ type paymentType = {
   capture_method: string,
   email: string,
   authentication_type: string,
-  shipping: shipping,
-  billing: billing,
+  shipping: Nullable.t<addressAndPhone>,
+  billing: Nullable.t<addressAndPhone>,
   setup_future_usage: string,
   country_currency?: string,
   request_external_three_ds_authentication: bool,
