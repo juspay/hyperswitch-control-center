@@ -164,7 +164,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
               buttonText="Add Processors"
               buttonType=Button.SecondaryFilled
               hideMultiSelectButtons=true
-              customButtonStyle="!bg-white "
+              customButtonStyle="!bg-white !w-full"
               input
               options={gatewayOptions}
               fixedDropDownDirection=SelectBox.TopRight
