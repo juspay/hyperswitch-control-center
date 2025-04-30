@@ -61,6 +61,7 @@ module.exports = {
         "130-px": "130px",
         "195-px": "195px",
         "774-px": "774px",
+        "890-px": "890px",
         "12.5-rem": "12.5rem",
         onBordingSupplier: "calc(100vh - 300px)",
       },

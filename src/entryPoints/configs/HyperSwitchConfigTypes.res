@@ -13,6 +13,7 @@ type urlConfig = {
   dssCertificateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
+  intelligentRoutingTemplateUrl: option<string>,
 }
 
 // Type definition for themes
