@@ -30,7 +30,7 @@ let make = () => {
   }
 
   let updatePaymentStatus = responseDict => {
-    let status = responseDict->LogicUtils.getOptionString("status")
+    let status = responseDict->getOptionString("status")
     switch status {
     | Some("failed") => setPaymentStatus(_ => FAILED("Failed"))
     | Some("succeeded") => setPaymentStatus(_ => SUCCESS)

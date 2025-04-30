@@ -27,7 +27,7 @@ let make = () => {
       | None => ()
       }
     } catch {
-    | error => Js.Console.error(error)
+    | error => Console.error(error)
     }
   }
 

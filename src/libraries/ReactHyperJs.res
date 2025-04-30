@@ -54,17 +54,10 @@ type layoutType = {
   spacedAccordionItems: bool,
 }
 
-type sdkHandleConfirmPayment = {
-  handleConfirm: bool,
-  buttonText: string,
-  confirmParams: confirmParamType,
-}
-
 type checkoutElementOptions = {
   layout?: layoutType,
   showCardFormByDefault?: bool,
   wallets?: wallets,
-  sdkHandleConfirmPayment?: sdkHandleConfirmPayment,
 }
 
 type variables = {
@@ -79,7 +72,6 @@ type appearanceType = {
   labels?: string,
   variables?: variables,
   rules?: JSON.t,
-  innerLayout?: string,
 }
 
 type optionsForElements = {
