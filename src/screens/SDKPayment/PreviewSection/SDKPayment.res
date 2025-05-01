@@ -44,14 +44,22 @@ module PaymentStatusPage = {
 }
 
 @react.component
-let make = (~isSDKOpen: bool, ~screenState) => {
+let make = (~checkIsSDKOpen: SDKPaymentUtils.sdkHandlingTypes, ~setCheckIsSDKOpen) => {
   open ReactHyperJs
 
-  let {paymentResult, paymentStatus} = React.useContext(SDKProvider.defaultContext)
+  let url = RescriptReactRouter.useUrl()
+  let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
+  let (paymentIdFromUrl, setPaymentIdFromUrl) = React.useState(_ => None)
+  let {paymentResult, paymentStatus, setPaymentStatus} = React.useContext(
+    SDKProvider.defaultContext,
+  )
   let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
-  let paymentId =
+  let paymentId = if paymentIdFromUrl->Option.isSome {
+    paymentIdFromUrl
+  } else {
     paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("payment_id")
+  }
 
   let successButtonText: string = "Go to Payment Operations"
 
@@ -73,7 +81,7 @@ let make = (~isSDKOpen: bool, ~screenState) => {
         bgColor: "bg-green-success_page_bg",
         showErrorMessage: false,
       }
-    | FAILED(_) => {
+    | FAILED => {
         iconName: "account-setup-failed",
         statusText: "Payment Failed",
         bgColor: "bg-red-failed_page_bg",
@@ -100,26 +108,79 @@ let make = (~isSDKOpen: bool, ~screenState) => {
     }
   }
 
-  <div className="w-full h-full flex items-center justify-center p-5 overflow-auto">
-    <RenderIf condition=isSDKOpen>
-      {switch paymentStatus {
-      | INCOMPLETE => <WebSDK />
-      | status =>
-        let config = getStatusConfig(status)
-        let hasPaymentId = paymentId->Option.isSome
+  let getClientSecretFromPaymentId = (~paymentIntentClientSecret) => {
+    switch paymentIntentClientSecret {
+    | Some(paymentIdFromClientSecret) =>
+      let paymentClientSecretSplitArray = paymentIdFromClientSecret->String.split("_")
+      Some(
+        `${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(
+            0,
+            "",
+          )}_${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(1, "")}`,
+      )
 
-        <RenderIf condition={config.statusText->LogicUtils.isNonEmptyString}>
-          <PaymentStatusPage
-            config
-            buttonText={successButtonText}
-            buttonOnClick={_ => onProceed()->ignore}
-            isButtonVisible=hasPaymentId
-          />
-        </RenderIf>
-      }}
-    </RenderIf>
-    <RenderIf condition={!isSDKOpen}>
+    | None => None
+    }
+  }
+
+  React.useEffect(() => {
+    open SDKPaymentUtils
+
+    let status = filtersFromUrl->Dict.get("status")->Option.getOr("")->String.toLowerCase
+    let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
+      ~paymentIntentClientSecret=url.search
+      ->LogicUtils.getDictFromUrlSearchParams
+      ->Dict.get("payment_intent_client_secret"),
+    )
+
+    if paymentIdFromPaymemtIntentClientSecret->Option.isSome {
+      setCheckIsSDKOpen(_ => {
+        initialPreview: false,
+        isLoaded: false,
+        isLoading: false,
+        isError: false,
+      })
+    }
+
+    if status === "succeeded" {
+      setPaymentStatus(_ => SUCCESS)
+    } else if status === "failed" {
+      setPaymentStatus(_ => FAILED)
+    } else if status === "processing" {
+      setPaymentStatus(_ => PROCESSING)
+    } else {
+      setPaymentStatus(_ => INCOMPLETE)
+    }
+
+    setPaymentIdFromUrl(_ => paymentIdFromPaymemtIntentClientSecret)
+
+    None
+  }, [])
+
+  <div className="w-full h-full flex items-center justify-center p-5 overflow-auto">
+    {switch paymentStatus {
+    | INCOMPLETE =>
+      <RenderIf condition={checkIsSDKOpen.isLoaded}>
+        <WebSDK />
+      </RenderIf>
+    | status =>
+      let config = getStatusConfig(status)
+      let hasPaymentId = paymentId->Option.isSome
+
+      <RenderIf condition={config.statusText->LogicUtils.isNonEmptyString}>
+        <PaymentStatusPage
+          config
+          buttonText={successButtonText}
+          buttonOnClick={_ => onProceed()->ignore}
+          isButtonVisible=hasPaymentId
+        />
+      </RenderIf>
+    }}
+    <RenderIf condition={checkIsSDKOpen.initialPreview}>
       <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
+    </RenderIf>
+    <RenderIf condition={checkIsSDKOpen.isLoading}>
+      <Loader />
     </RenderIf>
   </div>
 }

@@ -4,7 +4,7 @@ type hyperPromise = promise<hyperloader>
 type paymentStatus =
   | SUCCESS
   | INCOMPLETE
-  | FAILED(string)
+  | FAILED
   | LOADING
   | PROCESSING
   | CHECKCONFIGURATION

@@ -32,7 +32,7 @@ let make = () => {
   let updatePaymentStatus = responseDict => {
     let status = responseDict->getOptionString("status")
     switch status {
-    | Some("failed") => setPaymentStatus(_ => FAILED("Failed"))
+    | Some("failed") => setPaymentStatus(_ => FAILED)
     | Some("succeeded") => setPaymentStatus(_ => SUCCESS)
     | _ => setPaymentStatus(_ => CUSTOMSTATE)
     }
@@ -46,7 +46,15 @@ let make = () => {
         "confirmParams": [("return_url", returnUrl->JSON.Encode.string)]->getJsonFromArrayOfJson,
       }
       let res = await hyper.confirmPayment(confirmParamsToPass->Identity.genericTypeToJson)
+
       let responseDict = res->getDictFromJsonObject
+
+      // Check for submitSuccessful: false and throw error
+      if responseDict->getBool("submitSuccessful", true) === false {
+        let errorDict = responseDict->getDictfromDict("error")
+        let errorMessage = errorDict->getString("message", "Something went wrong")
+        Js.Exn.raiseError(errorMessage)
+      }
 
       // Handle error message extraction
       let uiErrorMessage = extractErrorMessage(responseDict)
@@ -61,14 +69,8 @@ let make = () => {
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-
-        if err->String.includes("something went wrong") {
-          setPaymentStatus(_ => CUSTOMSTATE)
-          setError(_ => None)
-        } else {
-          setPaymentStatus(_ => FAILED(err))
-          setError(_ => Some(err))
-        }
+        setPaymentStatus(_ => FAILED)
+        setError(_ => Some(err))
         setBtnState(_ => Button.Normal)
       }
     }

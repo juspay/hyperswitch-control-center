@@ -1,10 +1,15 @@
 @react.component
 let make = () => {
   open ReactHyperJs
+  open SDKPaymentUtils
 
-  let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (checkIsSDKOpen, setCheckIsSDKOpen) = React.useState(_ => {
+    isLoading: false,
+    isError: false,
+    isLoaded: false,
+    initialPreview: true,
+  })
 
   let {
     keyForReRenderingSDK,
@@ -18,35 +23,48 @@ let make = () => {
     HyperswitchAtom.businessProfileFromIdAtom,
   )
   let (initialValuesForCheckoutForm, setInitialValuesForCheckoutForm) = React.useState(_ =>
-    SDKPaymentUtils.initialValueForForm(businessProfileRecoilVal)
+    initialValueForForm(businessProfileRecoilVal)
   )
 
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 
   React.useEffect(() => {
-    setInitialValuesForCheckoutForm(_ =>
-      businessProfileRecoilVal->SDKPaymentUtils.initialValueForForm
-    )
+    setInitialValuesForCheckoutForm(_ => businessProfileRecoilVal->initialValueForForm)
     None
   }, [businessProfileRecoilVal.profile_id])
 
   let getClientSecret = async (~typedValues) => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
+      setCheckIsSDKOpen(_ => {
+        initialPreview: false,
+        isLoaded: false,
+        isLoading: true,
+        isError: false,
+      })
       let url = `${Window.env.apiBaseUrl}/payments`
       let body = typedValues->Identity.genericTypeToJson
       let response = await updateDetails(url, body, Post)
       setPaymentResult(_ => response)
-      setIsSDKOpen(_ => true)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      setCheckIsSDKOpen(_ => {
+        initialPreview: false,
+        isLoading: false,
+        isError: false,
+        isLoaded: true,
+      })
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to get client secret"))
+    | _ =>
+      setCheckIsSDKOpen(_ => {
+        initialPreview: false,
+        isLoaded: false,
+        isLoading: false,
+        isError: true,
+      })
     }
   }
 
   let onSubmit = (values, _) => {
     setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
-    let typedValues = values->SDKPaymentUtils.getTypedValueForPayment(~showBillingAddress)
+    let typedValues = values->getTypedValueForPayment(~showBillingAddress)
     let _ = getClientSecret(~typedValues)
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
 
@@ -88,7 +106,7 @@ let make = () => {
         <PageUtils.PageHeading
           title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
         />
-        <SDKPayment key={keyForReRenderingSDK} isSDKOpen screenState />
+        <SDKPayment key={keyForReRenderingSDK} checkIsSDKOpen setCheckIsSDKOpen />
       </div>
     </div>
   </>

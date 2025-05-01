@@ -1,3 +1,10 @@
+type sdkHandlingTypes = {
+  initialPreview: bool,
+  isLoading: bool,
+  isError: bool,
+  isLoaded: bool,
+}
+
 // Default theme configuration
 let themeDefaultJson = {
   "theme": "default",
