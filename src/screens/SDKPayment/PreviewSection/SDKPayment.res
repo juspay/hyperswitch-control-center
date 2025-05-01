@@ -44,7 +44,7 @@ module PaymentStatusPage = {
 }
 
 @react.component
-let make = (~isSDKOpen: bool) => {
+let make = (~isSDKOpen: bool, ~screenState) => {
   open ReactHyperJs
 
   let {paymentResult, paymentStatus} = React.useContext(SDKProvider.defaultContext)

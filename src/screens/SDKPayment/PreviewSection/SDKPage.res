@@ -4,6 +4,7 @@ let make = () => {
 
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let {
     keyForReRenderingSDK,
@@ -19,15 +20,6 @@ let make = () => {
     SDKPaymentUtils.initialValueForForm(businessProfileRecoilVal)
   )
 
-  let featureFlagDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 
   React.useEffect(() => {
@@ -37,34 +29,17 @@ let make = () => {
     None
   }, [businessProfileRecoilVal.profile_id])
 
-  React.useEffect(() => {
-    let setUpConnectorContainer = async () => {
-      try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        if userHasAccess(~groupAccess=ConnectorsView) === Access {
-          if !featureFlagDetails.isLiveMode {
-            let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-            let _ = await fetchConnectorListResponse()
-          }
-        }
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
-      }
-    }
-    setUpConnectorContainer()->ignore
-    None
-  }, [])
-
   let getClientSecret = async (~typedValues) => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let url = `${Window.env.apiBaseUrl}/payments`
       let body = typedValues->Identity.genericTypeToJson
       let response = await updateDetails(url, body, Post)
       setPaymentResult(_ => response)
       setIsSDKOpen(_ => true)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to get client secret"))
     }
   }
 
@@ -91,7 +66,7 @@ let make = () => {
     },
   ]
 
-  <PageLoaderWrapper screenState={screenState}>
+  <>
     <PageUtils.PageHeading title="Setup Checkout" customHeadingStyle="my-5" />
     <div className="flex">
       <div className="w-1/2 flex flex-col gap-6">
@@ -112,8 +87,8 @@ let make = () => {
         <PageUtils.PageHeading
           title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
         />
-        <SDKPayment key={keyForReRenderingSDK} isSDKOpen />
+        <SDKPayment key={keyForReRenderingSDK} isSDKOpen screenState />
       </div>
     </div>
-  </PageLoaderWrapper>
+  </>
 }

@@ -220,8 +220,7 @@ let make = () => {
                         | list{"run-recon"}
                         | list{"recon-analytics"}
                         | list{"reports"}
-                        | list{"config-settings"}
-                        | list{"sdk"} =>
+                        | list{"config-settings"} =>
                           <MerchantAccountContainer setAppScreenState=setScreenState />
                         // Commented as not needed now
                         // list{"file-processor"}
@@ -236,7 +235,8 @@ let make = () => {
                         | list{"routing", ..._}
                         | list{"payoutrouting", ..._}
                         | list{"payment-settings", ..._}
-                        | list{"webhooks", ..._} =>
+                        | list{"webhooks", ..._}
+                        | list{"sdk"} =>
                           <ConnectorContainer />
                         | list{"apm"} => <APMContainer />
                         //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
