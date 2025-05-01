@@ -115,17 +115,17 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     profile_id: defaultBusinessProfile.profile_id,
     description: "Default value",
     customer_id: "hyperswitch_sdk_demo_id",
-    setup_future_usage: "off_session",
+    setup_future_usage: "on_session",
     request_external_three_ds_authentication: false,
     email: "guest@example.com",
     authentication_type: "no_three_ds",
-    shipping: Nullable.make(shippingValue),
-    billing: Nullable.make(billingValue),
+    shipping: Some(shippingValue),
+    billing: Some(billingValue),
     capture_method: "automatic",
   }
 }
 
-let getTypedValueForPayment = values => {
+let getTypedValueForPayment = (values, ~showBillingAddress) => {
   open LogicUtils
   open SDKPaymentTypes
 
@@ -169,7 +169,14 @@ let getTypedValueForPayment = values => {
     }
   }
 
-  {
+  let createAddressAndPhone = (~address, ~phone) => {
+    {
+      address: address->getAddress,
+      phone: phone->getPhone,
+    }
+  }
+
+  let basePaymentObject = {
     amount,
     currency: getCurrency(),
     profile_id: dict->getString("profile_id", ""),
@@ -177,20 +184,24 @@ let getTypedValueForPayment = values => {
     description: dict->getString("description", "Payment Transaction"),
     email: dict->getString("email", ""),
     authentication_type: dict->getString("authentication_type", ""),
-    shipping: Nullable.make({
-      address: shippingAddress->getAddress,
-      phone: shippingPhone->getPhone,
-    }),
-    billing: Nullable.make({
-      address: billingAddress->getAddress,
-      phone: billingPhone->getPhone,
-    }),
+    shipping: None,
+    billing: None,
     capture_method: "automatic",
     setup_future_usage: "off_session",
     request_external_three_ds_authentication: dict->getBool(
       "request_external_three_ds_authentication",
       false,
     ),
+  }
+
+  if showBillingAddress {
+    {
+      ...basePaymentObject,
+      shipping: Some(createAddressAndPhone(~address=shippingAddress, ~phone=shippingPhone)),
+      billing: Some(createAddressAndPhone(~address=billingAddress, ~phone=billingPhone)),
+    }
+  } else {
+    basePaymentObject
   }
 }
 
