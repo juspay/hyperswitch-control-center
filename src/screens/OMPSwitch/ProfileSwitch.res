@@ -122,7 +122,14 @@ module NewProfileCreationModal = {
 }
 
 @react.component
-let make = () => {
+let make = (
+  ~showSwitchModal=true,
+  ~setButtonState=_ => (),
+  ~showHeading=true,
+  ~customMargin="",
+  ~disableCreateNewProfile=false,
+  ~changePath=true,
+) => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
@@ -130,11 +137,9 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
-  let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
@@ -168,26 +173,11 @@ let make = () => {
   let addItemBtnStyle = "w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
   let dropdownContainerStyle = `${roundedClass} border border-1 ${widthClass}`
-  let profileSwitch = async value => {
-    try {
-      setShowSwitchingProfile(_ => true)
-      let _ = await internalSwitch(~expectedProfileId=Some(value))
-      setShowSwitchingProfile(_ => false)
-    } catch {
-    | _ => {
-        showToast(~message="Failed to switch profile", ~toastType=ToastError)
-        setShowSwitchingProfile(_ => false)
-      }
-    }
-  }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
-    onChange: ev => {
-      let value = ev->Identity.formReactEventToString
-      profileSwitch(value)->ignore
-    },
+    onChange: _ => (),
     onFocus: _ => (),
     value: profileId->JSON.Encode.string,
     checked: true,
@@ -203,11 +193,21 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
+  let heading = showHeading ? "Profile" : ""
+
   let updatedProfileList: array<
     OMPSwitchTypes.ompListTypesCustom,
   > = profileList->Array.mapWithIndex((item, i) => {
     let customComponent =
-      <ProfileDropdownItem key={Int.toString(i)} profileName=item.name index=i currentId=item.id />
+      <ProfileDropdownItem
+        key={Int.toString(i)}
+        profileName=item.name
+        index=i
+        currentId=item.id
+        showSwitchModal
+        changePath
+        setButtonState
+      />
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,
       name: item.name,
@@ -217,7 +217,10 @@ let make = () => {
   })
 
   let bottomComponent = switch version {
-  | V1 => <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
+  | V1 =>
+    !disableCreateNewProfile
+      ? <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
+      : React.null
   | V2 => React.null
   }
 
@@ -229,13 +232,13 @@ let make = () => {
       deselectDisable=true
       customButtonStyle="!rounded-md"
       options={updatedProfileList->generateDropdownOptionsCustomComponent}
-      marginTop="mt-10"
+      marginTop={customMargin->isNonEmptyString ? customMargin : "mt-14"}
       hideMultiSelectButtons=true
       addButton=false
       searchable=true
       customStyle="w-fit "
       baseComponent={<ListBaseComp
-        user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
+        user={#Profile} heading subHeading={currentOMPName(profileList, profileId)} arrow
       />}
       bottomComponent
       customDropdownOuterClass="!border-none "
@@ -249,10 +252,5 @@ let make = () => {
     <RenderIf condition={showModal}>
       <NewProfileCreationModal setShowModal showModal getProfileList />
     </RenderIf>
-    <LoaderModal
-      showModal={showSwitchingProfile}
-      setShowModal={setShowSwitchingProfile}
-      text="Switching profile..."
-    />
   </>
 }

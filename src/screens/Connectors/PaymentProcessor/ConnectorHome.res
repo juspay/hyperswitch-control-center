@@ -62,6 +62,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let updateDetails = useUpdateMethod()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
+  let showPopUp = PopUpState.useShowPopUp()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let profileIdFromUrl =
@@ -71,6 +72,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
+  let (isClonePMFlow, setIsClonePMFlow) = Recoil.useRecoilState(HyperswitchAtom.isClonePMFlow)
+  let setClonedConnectorData = Recoil.useSetRecoilState(HyperswitchAtom.clonedConnectorData)
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"connectors", "new"} => false
@@ -207,6 +210,14 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       isButton=true
     />
 
+  let infoBanner =
+    <HSwitchUtils.AlertBanner
+      bannerText="This connector contains Cloned Payment Methods from source profile."
+      bannerType=Warning
+    />
+
+  let warningText = `You have not yet completed configuring your ${connector->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`
+
   <PageLoaderWrapper screenState customUI={customUiForPaypal}>
     <div className="flex flex-col gap-10 overflow-scroll h-full w-full">
       <RenderIf condition={showBreadCrumb}>
@@ -216,7 +227,30 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
               ? {
                   title: "Processor",
                   link: "/connectors",
-                  warning: `You have not yet completed configuring your ${connector->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
+                  onClick: _ =>
+                    showPopUp({
+                      popUpType: (Warning, WithIcon),
+                      heading: "Heads up!",
+                      description: {
+                        React.string(warningText)
+                      },
+                      handleConfirm: {
+                        text: "Yes, go back",
+                        onClick: {
+                          if isClonePMFlow {
+                            setClonedConnectorData(_ => HyperswitchAtom.defaultConnectorData)
+                            setIsClonePMFlow(_ => false)
+                          }
+                          _ =>
+                            RescriptReactRouter.push(
+                              GlobalVars.appendDashboardPath(~url="/connectors"),
+                            )
+                        },
+                      },
+                      handleCancel: {
+                        text: "No, don't go back",
+                      },
+                    }),
                 }
               : {
                   title: "Processor",
@@ -236,6 +270,9 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           bannerText="This is a test connector and will not be reflected on your payment processor dashboard."
           bannerType=Warning
         />
+      </RenderIf>
+      <RenderIf condition={isClonePMFlow && featureFlagDetails.devClonePaymentMethods}>
+        {infoBanner}
       </RenderIf>
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">

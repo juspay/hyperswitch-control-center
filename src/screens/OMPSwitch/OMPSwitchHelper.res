@@ -387,9 +387,17 @@ module MerchantDropdownItem = {
 
 module ProfileDropdownItem = {
   @react.component
-  let make = (~profileName, ~index: int, ~currentId) => {
+  let make = (
+    ~profileName,
+    ~index: int,
+    ~currentId,
+    ~showSwitchModal=true,
+    ~setButtonState=_ => (),
+    ~changePath=true,
+  ) => {
     open LogicUtils
     open APIUtils
+    let retainCloneModal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.retainCloneModalAtom)
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
@@ -450,9 +458,11 @@ module ProfileDropdownItem = {
 
     let profileSwitch = async value => {
       try {
+        setButtonState(_ => Button.Loading)
         setShowSwitchingProfile(_ => true)
-        let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true)
+        let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath)
         setShowSwitchingProfile(_ => false)
+        setButtonState(_ => Button.Normal)
       } catch {
       | _ => {
           showToast(~message="Failed to switch profile", ~toastType=ToastError)
@@ -462,7 +472,9 @@ module ProfileDropdownItem = {
     }
     let handleProfileSwitch = id => {
       if !isActive {
-        profileSwitch(id)->ignore
+        if retainCloneModal {
+          profileSwitch(id)->ignore
+        }
       }
     }
 
@@ -521,11 +533,13 @@ module ProfileDropdownItem = {
           leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
         />
       </div>
-      <LoaderModal
-        showModal={showSwitchingProfile}
-        setShowModal={setShowSwitchingProfile}
-        text="Switching profile..."
-      />
+      <RenderIf condition={showSwitchModal}>
+        <LoaderModal
+          showModal={showSwitchingProfile}
+          setShowModal={setShowSwitchingProfile}
+          text="Switching profile..."
+        />
+      </RenderIf>
     </>
   }
 }

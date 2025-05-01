@@ -216,16 +216,6 @@ module ConnectorCustomCell = {
   }
 }
 
-module BusinessProfileComponent = {
-  @react.component
-  let make = (~profile_id: string, ~className="") => {
-    let {profile_name} = BusinessProfileHook.useGetBusinessProflile(profile_id)
-    <div className="truncate whitespace-nowrap overflow-hidden">
-      {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
-    </div>
-  }
-}
-
 module ProfileNameComponent = {
   @react.component
   let make = (~profile_id: string, ~className="") => {

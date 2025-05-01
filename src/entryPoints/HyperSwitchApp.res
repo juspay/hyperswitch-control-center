@@ -22,6 +22,9 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
+  let retainCloneModal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.retainCloneModalAtom)
+  let (showModal, setShowModal) = React.useState(_ => false)
+
   let {
     fetchMerchantSpecificConfig,
     useIsFeatureEnabledForMerchant,
@@ -72,7 +75,11 @@ let make = () => {
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
-      setScreenState(_ => PageLoaderWrapper.Loading)
+      if retainCloneModal {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+      }
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
@@ -99,10 +106,15 @@ let make = () => {
   React.useEffect(() => {
     if userGroupACL->Option.isSome {
       setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if retainCloneModal {
+        setShowModal(_ => true)
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
     None
-  }, [userGroupACL])
+  }, (userGroupACL, retainCloneModal))
   let pageViewEvent = MixpanelHook.usePageView()
   let path = url.path->List.toArray->Array.joinWith("/")
 
@@ -112,6 +124,8 @@ let make = () => {
     }
     None
   }, (featureFlagDetails.mixpanel, path))
+
+  let customUI = <CloneConnectorPaymentMethods.ClonePaymentMethodsModal setShowModal showModal />
 
   <>
     <div>
@@ -133,7 +147,7 @@ let make = () => {
                 />
               </RenderIf>
               <PageLoaderWrapper
-                screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
+                screenState customUI sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="w-full max-w-fixedPageWidth md:px-12 px-5 pt-3">
