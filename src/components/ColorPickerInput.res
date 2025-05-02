@@ -11,8 +11,8 @@ let make = (
   open LogicUtils
   let getHexColor = value =>
     switch JSON.Decode.string(value) {
-    | Some(str) => str->isEmptyString ? "#FFFFFF" : str
-    | None => "#FFFFFF"
+    | Some(str) if str->isNonEmptyString => str
+    | _ => "#FFFFFF"
     }
 
   let initialColor = switch defaultValue {
