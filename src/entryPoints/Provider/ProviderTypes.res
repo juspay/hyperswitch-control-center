@@ -55,4 +55,6 @@ type sdkContextType = {
   setPaymentResult: (JSON.t => JSON.t) => unit,
   errorMessage: string,
   setErrorMessage: (string => string) => unit,
+  isGuestMode: bool,
+  setIsGuestMode: (bool => bool) => unit,
 }

@@ -121,7 +121,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     country_currency: "US-USD",
     profile_id: defaultBusinessProfile.profile_id,
     description: "Default value",
-    customer_id: "hyperswitch_sdk_demo_id",
+    customer_id: Some("hyperswitch_sdk_demo_id"),
     setup_future_usage: "on_session",
     request_external_three_ds_authentication: false,
     email: "guest@example.com",
@@ -132,7 +132,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
   }
 }
 
-let getTypedValueForPayment = (values, ~showBillingAddress) => {
+let getTypedValueForPayment = (values, ~showBillingAddress, ~isGuestMode) => {
   open LogicUtils
   open SDKPaymentTypes
 
@@ -187,7 +187,7 @@ let getTypedValueForPayment = (values, ~showBillingAddress) => {
     amount,
     currency: getCurrency(),
     profile_id: dict->getString("profile_id", ""),
-    customer_id: dict->getString("customer_id", ""),
+    customer_id: !isGuestMode ? dict->getOptionString("customer_id") : None,
     description: dict->getString("description", "Payment Transaction"),
     email: dict->getString("email", ""),
     authentication_type: dict->getString("authentication_type", ""),
@@ -316,18 +316,27 @@ let enterPrimaryColorValue = defaultValue =>
     ~customInput=InputFields.colorPickerInput(~defaultValue),
   )
 
-let enterCustomerId = FormRenderer.makeFieldInfo(
-  ~label="Customer ID",
-  ~name="customer_id",
-  ~customInput=(~input, ~placeholder as _) =>
-    InputFields.textInput(~isDisabled=false, ~customStyle="w-full border-nd_gray-200 rounded-lg")(
-      ~input={
-        ...input,
-        onChange: ev => input.onChange(ev),
-      },
-      ~placeholder="Enter Customer ID",
-    ),
-)
+let enterCustomerId = (~setIsGuestMode) =>
+  FormRenderer.makeFieldInfo(
+    ~label="Customer ID",
+    ~name="customer_id",
+    ~customInput=(~input, ~placeholder as _) =>
+      InputFields.textInput(~isDisabled=false, ~customStyle="w-full border-nd_gray-200 rounded-lg")(
+        ~input={
+          ...input,
+          onChange: ev => input.onChange(ev),
+        },
+        ~placeholder="Enter Customer ID",
+      ),
+    ~labelRightComponent=<div className="flex items-center gap-2">
+      <span className="text-sm text-gray-600"> {"Guest Mode"->React.string} </span>
+      <input
+        type_="checkbox"
+        className="rounded border-gray-300"
+        onChange={_ => setIsGuestMode(prev => !prev)}
+      />
+    </div>,
+  )
 
 let selectEnterIntegrationType = FormRenderer.makeFieldInfo(
   ~label="Integration Type",

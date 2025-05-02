@@ -17,6 +17,7 @@ let make = () => {
     setPaymentStatus,
     setPaymentResult,
     showBillingAddress,
+    isGuestMode,
   } = React.useContext(SDKProvider.defaultContext)
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
@@ -64,7 +65,7 @@ let make = () => {
 
   let onSubmit = (values, _) => {
     setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
-    let typedValues = values->getTypedValueForPayment(~showBillingAddress)
+    let typedValues = values->getTypedValueForPayment(~showBillingAddress, ~isGuestMode)
     let _ = getClientSecret(~typedValues)
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
 

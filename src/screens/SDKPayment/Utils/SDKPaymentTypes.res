@@ -22,7 +22,7 @@ type paymentType = {
   amount: float,
   currency: string,
   profile_id: string,
-  customer_id: string,
+  customer_id: option<string>,
   description: string,
   capture_method: string,
   email: string,

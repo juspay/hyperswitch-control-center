@@ -15,6 +15,8 @@ let defaultValue = {
   setPaymentResult: _ => (),
   errorMessage: "",
   setErrorMessage: _ => (),
+  isGuestMode: false,
+  setIsGuestMode: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -38,6 +40,7 @@ let make = (~children) => {
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
   let (paymentResult, setPaymentResult) = React.useState(_ => JSON.Encode.null)
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
+  let (isGuestMode, setIsGuestMode) = React.useState(_ => false)
 
   <Provider
     value={
@@ -55,6 +58,8 @@ let make = (~children) => {
       setPaymentResult,
       errorMessage,
       setErrorMessage,
+      isGuestMode,
+      setIsGuestMode,
     }>
     children
   </Provider>
