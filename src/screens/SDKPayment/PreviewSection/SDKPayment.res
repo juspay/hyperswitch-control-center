@@ -44,11 +44,7 @@ module PaymentStatusPage = {
 }
 
 @react.component
-let make = (
-  ~checkIsSDKOpen: SDKPaymentUtils.sdkHandlingTypes,
-  ~setCheckIsSDKOpen,
-  ~initialValuesForCheckoutForm,
-) => {
+let make = (~checkIsSDKOpen: SDKPaymentUtils.sdkHandlingTypes, ~setCheckIsSDKOpen) => {
   open ReactHyperJs
 
   let url = RescriptReactRouter.useUrl()
@@ -165,7 +161,7 @@ let make = (
     {switch paymentStatus {
     | INCOMPLETE =>
       <RenderIf condition={checkIsSDKOpen.isLoaded}>
-        <WebSDK initialValuesForCheckoutForm />
+        <WebSDK />
       </RenderIf>
     | status =>
       let config = getStatusConfig(status)

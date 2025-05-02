@@ -1,9 +1,11 @@
 @react.component
-let make = (~initialValuesForCheckoutForm, ~onSubmit) => {
+let make = (~onSubmit) => {
   open FormRenderer
   open SDKPaymentUtils
 
-  let {isGuestMode, setIsGuestMode} = React.useContext(SDKProvider.defaultContext)
+  let {isGuestMode, setIsGuestMode, initialValuesForCheckoutForm} = React.useContext(
+    SDKProvider.defaultContext,
+  )
   let (showModal, setShowModal) = React.useState(() => false)
 
   let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(

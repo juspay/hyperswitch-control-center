@@ -18,13 +18,11 @@ let make = () => {
     setPaymentResult,
     showBillingAddress,
     isGuestMode,
+    setInitialValuesForCheckoutForm,
   } = React.useContext(SDKProvider.defaultContext)
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtom,
-  )
-  let (initialValuesForCheckoutForm, setInitialValuesForCheckoutForm) = React.useState(_ =>
-    initialValueForForm(businessProfileRecoilVal)
   )
 
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
@@ -78,7 +76,7 @@ let make = () => {
   let tabs: array<Tabs.tab> = [
     {
       title: "Checkout Details",
-      renderContent: () => <CheckoutDetails initialValuesForCheckoutForm onSubmit />,
+      renderContent: () => <CheckoutDetails onSubmit />,
     },
     {
       title: "Theme Customization",
@@ -107,9 +105,7 @@ let make = () => {
         <PageUtils.PageHeading
           title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
         />
-        <SDKPayment
-          key={keyForReRenderingSDK} checkIsSDKOpen setCheckIsSDKOpen initialValuesForCheckoutForm
-        />
+        <SDKPayment key={keyForReRenderingSDK} checkIsSDKOpen setCheckIsSDKOpen />
       </div>
     </div>
   </>

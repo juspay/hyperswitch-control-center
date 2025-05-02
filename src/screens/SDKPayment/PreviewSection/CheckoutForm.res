@@ -1,7 +1,7 @@
 open ReactHyperJs
 
 @react.component
-let make = (~initialValuesForCheckoutForm: SDKPaymentTypes.paymentType) => {
+let make = () => {
   open LogicUtils
 
   let {
@@ -11,6 +11,7 @@ let make = (~initialValuesForCheckoutForm: SDKPaymentTypes.paymentType) => {
     paymentResult,
     setErrorMessage,
     sdkThemeInitialValues,
+    initialValuesForCheckoutForm,
   } = React.useContext(SDKProvider.defaultContext)
   let returnUrl = {`${GlobalVars.getHostUrlWithBasePath}/sdk`}
   let themeConfig = sdkThemeInitialValues->getDictFromJsonObject

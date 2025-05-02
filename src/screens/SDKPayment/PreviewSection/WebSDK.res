@@ -1,7 +1,7 @@
 open ReactHyperJs
 
 @react.component
-let make = (~initialValuesForCheckoutForm) => {
+let make = () => {
   open LogicUtils
 
   let {paymentResult, sdkThemeInitialValues} = React.useContext(SDKProvider.defaultContext)
@@ -62,7 +62,7 @@ let make = (~initialValuesForCheckoutForm) => {
     {switch hyperPromise {
     | Some(p) =>
       <ReactHyperJs.Elements options=elementOptions stripe=p>
-        <CheckoutForm initialValuesForCheckoutForm />
+        <CheckoutForm />
       </ReactHyperJs.Elements>
     | _ => React.null
     }}

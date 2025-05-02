@@ -17,6 +17,10 @@ let defaultValue = {
   setErrorMessage: _ => (),
   isGuestMode: false,
   setIsGuestMode: _ => (),
+  initialValuesForCheckoutForm: SDKPaymentUtils.initialValueForForm(
+    BusinessProfileMapper.businessProfileTypeMapper(JSON.Encode.null),
+  ),
+  setInitialValuesForCheckoutForm: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -28,6 +32,10 @@ module Provider = {
 @react.component
 let make = (~children) => {
   open ReactHyperJs
+
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtom,
+  )
 
   let (showBillingAddress, setShowBillingAddress) = React.useState(_ => true)
   let (isSameAsBilling, setIsSameAsBilling) = React.useState(() => true)
@@ -41,6 +49,10 @@ let make = (~children) => {
   let (paymentResult, setPaymentResult) = React.useState(_ => JSON.Encode.null)
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (isGuestMode, setIsGuestMode) = React.useState(_ => false)
+
+  let (initialValuesForCheckoutForm, setInitialValuesForCheckoutForm) = React.useState(_ =>
+    SDKPaymentUtils.initialValueForForm(businessProfileRecoilVal)
+  )
 
   <Provider
     value={
@@ -60,6 +72,8 @@ let make = (~children) => {
       setErrorMessage,
       isGuestMode,
       setIsGuestMode,
+      initialValuesForCheckoutForm,
+      setInitialValuesForCheckoutForm,
     }>
     children
   </Provider>

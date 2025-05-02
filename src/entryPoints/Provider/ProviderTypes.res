@@ -57,4 +57,8 @@ type sdkContextType = {
   setErrorMessage: (string => string) => unit,
   isGuestMode: bool,
   setIsGuestMode: (bool => bool) => unit,
+  initialValuesForCheckoutForm: SDKPaymentTypes.paymentType,
+  setInitialValuesForCheckoutForm: (
+    SDKPaymentTypes.paymentType => SDKPaymentTypes.paymentType
+  ) => unit,
 }
