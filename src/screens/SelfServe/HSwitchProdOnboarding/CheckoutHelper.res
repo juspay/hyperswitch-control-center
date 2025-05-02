@@ -1,10 +1,11 @@
 open ReactHyperJs
 
-let getOptionReturnUrl = (~themeConfig, ~returnUrl) => {
+let getOptionReturnUrl = (~themeConfig, ~returnUrl, ~showSavedCards) => {
   let layoutType = themeConfig->LogicUtils.getString("layout", "tabs")
   let isSpacedLayout = layoutType == "spaced"
 
   {
+    displaySavedPaymentMethods: showSavedCards,
     showCardFormByDefault: false,
     wallets: {
       walletReturnUrl: returnUrl,

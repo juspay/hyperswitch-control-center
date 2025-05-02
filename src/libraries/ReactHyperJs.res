@@ -58,6 +58,7 @@ type checkoutElementOptions = {
   layout?: layoutType,
   showCardFormByDefault?: bool,
   wallets?: wallets,
+  displaySavedPaymentMethods?: bool,
 }
 
 type variables = {

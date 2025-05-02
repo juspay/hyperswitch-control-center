@@ -1,10 +1,11 @@
 open ReactHyperJs
 
 @react.component
-let make = () => {
+let make = (~initialValuesForCheckoutForm: SDKPaymentTypes.paymentType) => {
   open LogicUtils
 
   let {
+    isGuestMode,
     paymentStatus,
     setPaymentStatus,
     paymentResult,
@@ -13,7 +14,12 @@ let make = () => {
   } = React.useContext(SDKProvider.defaultContext)
   let returnUrl = {`${GlobalVars.getHostUrlWithBasePath}/sdk`}
   let themeConfig = sdkThemeInitialValues->getDictFromJsonObject
-  let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(~returnUrl, ~themeConfig)
+  let showSavedCards = !isGuestMode && initialValuesForCheckoutForm.show_saved_card === Some("yes")
+  let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(
+    ~returnUrl,
+    ~themeConfig,
+    ~showSavedCards,
+  )
 
   let (error, setError) = React.useState(_ => None)
   let (btnState, setBtnState) = React.useState(_ => Button.Normal)

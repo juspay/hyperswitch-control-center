@@ -80,6 +80,8 @@ let authenticationType = ["Three DS", "No Three DS"]
 
 let requestExternal3dsAuthentication = ["True", "False"]
 
+let showSavedCardOptions = ["Yes", "No"]
+
 let labels = ["Above", "Floating"]
 
 let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.paymentType = defaultBusinessProfile => {
@@ -123,6 +125,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     description: "Default value",
     customer_id: Some("hyperswitch_sdk_demo_id"),
     setup_future_usage: "on_session",
+    show_saved_card: "yes",
     request_external_three_ds_authentication: false,
     email: "guest@example.com",
     authentication_type: "no_three_ds",
@@ -279,6 +282,13 @@ let dropDownOptionsForRequestThreeDSAuthentication = requestExternal3dsAuthentic
   value: item->String.toLowerCase->String.split(" ")->Array.joinWith("_"),
 })
 
+let dropDownOptionsForShowSavedCard = showSavedCardOptions->Array.map((
+  item
+): SelectBox.dropdownOption => {
+  label: item,
+  value: item->String.toLowerCase,
+})
+
 let enterAmountField = (initialValues: SDKPaymentTypes.paymentType) => {
   FormRenderer.makeFieldInfo(~label="Enter amount", ~name="amount", ~customInput=(
     ~input,
@@ -316,12 +326,15 @@ let enterPrimaryColorValue = defaultValue =>
     ~customInput=InputFields.colorPickerInput(~defaultValue),
   )
 
-let enterCustomerId = (~setIsGuestMode) =>
+let enterCustomerId = (~isGuestMode, ~setIsGuestMode) => {
   FormRenderer.makeFieldInfo(
     ~label="Customer ID",
     ~name="customer_id",
     ~customInput=(~input, ~placeholder as _) =>
-      InputFields.textInput(~isDisabled=false, ~customStyle="w-full border-nd_gray-200 rounded-lg")(
+      InputFields.textInput(
+        ~isDisabled=isGuestMode,
+        ~customStyle="w-full border-nd_gray-200 rounded-lg",
+      )(
         ~input={
           ...input,
           onChange: ev => input.onChange(ev),
@@ -337,6 +350,7 @@ let enterCustomerId = (~setIsGuestMode) =>
       />
     </div>,
   )
+}
 
 let selectEnterIntegrationType = FormRenderer.makeFieldInfo(
   ~label="Integration Type",
@@ -476,6 +490,19 @@ let selectExternal3DSAuthentication = FormRenderer.makeFieldInfo(
       ~placeholder="",
     )
   },
+)
+
+let selectShowSavedCardField = FormRenderer.makeFieldInfo(
+  ~label="Show Saved Card",
+  ~name="show_saved_card",
+  ~placeholder="",
+  ~customInput=InputFields.selectInput(
+    ~options=dropDownOptionsForShowSavedCard,
+    ~buttonText="Select Option",
+    ~deselectDisable=true,
+    ~fullLength=true,
+    ~textStyle="!font-normal",
+  ),
 )
 
 let external3DSAuthToggle = FormRenderer.makeFieldInfo(

@@ -31,5 +31,6 @@ type paymentType = {
   billing: option<addressAndPhone>,
   setup_future_usage: string,
   country_currency?: string,
+  show_saved_card?: string,
   request_external_three_ds_authentication: bool,
 }

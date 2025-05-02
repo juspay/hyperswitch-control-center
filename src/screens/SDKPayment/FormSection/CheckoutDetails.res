@@ -3,7 +3,7 @@ let make = (~initialValuesForCheckoutForm, ~onSubmit) => {
   open FormRenderer
   open SDKPaymentUtils
 
-  let {setIsGuestMode} = React.useContext(SDKProvider.defaultContext)
+  let {isGuestMode, setIsGuestMode} = React.useContext(SDKProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(() => false)
 
   let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
@@ -16,7 +16,12 @@ let make = (~initialValuesForCheckoutForm, ~onSubmit) => {
     initialValues={initialValuesForCheckoutForm->Identity.genericTypeToJson}
     onSubmit>
     // <FieldRenderer field=selectEnterIntegrationType fieldWrapperClass="!w-full" />
-    <FieldRenderer field={enterCustomerId(~setIsGuestMode)} fieldWrapperClass="!w-full" />
+    <FieldRenderer
+      field={enterCustomerId(~isGuestMode, ~setIsGuestMode)} fieldWrapperClass="!w-full"
+    />
+    <RenderIf condition={!isGuestMode}>
+      <FieldRenderer field=selectShowSavedCardField fieldWrapperClass="!w-full" />
+    </RenderIf>
     <FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
     <FieldRenderer
       field={enterAmountField(initialValuesForCheckoutForm)} fieldWrapperClass="!w-full"

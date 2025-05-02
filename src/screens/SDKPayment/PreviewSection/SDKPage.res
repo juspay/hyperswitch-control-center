@@ -107,7 +107,9 @@ let make = () => {
         <PageUtils.PageHeading
           title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
         />
-        <SDKPayment key={keyForReRenderingSDK} checkIsSDKOpen setCheckIsSDKOpen />
+        <SDKPayment
+          key={keyForReRenderingSDK} checkIsSDKOpen setCheckIsSDKOpen initialValuesForCheckoutForm
+        />
       </div>
     </div>
   </>
