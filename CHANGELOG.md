@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.05.0
+
+### Bug Fixes
+
+- Browser navigation issues ([#2886](https://github.com/juspay/hyperswitch-control-center/pull/2886)) ([`fa75dc6`](https://github.com/juspay/hyperswitch-control-center/commit/fa75dc63202dcd5f1242b99631ef6aae5091d48b))
+
+**Full Changelog:** [`2025.05.01.0...2025.05.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.01.0...2025.05.05.0)
+
+
+- - -
+
 ## 2025.05.01.0
 
 ### Bug Fixes

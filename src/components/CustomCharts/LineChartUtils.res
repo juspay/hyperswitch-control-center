@@ -601,7 +601,7 @@ let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
 
   let spacing = index !== length - 1 ? "<tr style='height: 10px;'></tr>" : ""
 
-  let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : "opacity:60%;"
+  let highlight = onCursorName == name ? "font-weight:500;font-size:13px;" : "opacity:60%;"
 
   `<tr>
       <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;fontFamily:"Inter"'/></td>
@@ -645,7 +645,7 @@ let legendItemStyle = legendFontSizeClass => {
     "cursor": "pointer",
     "fontSize": legendFontSizeClass,
     "fontWeight": "500",
-    "fontFamily": "Inter",
+    "fontFamily": "InterDisplay",
     "fontStyle": "normal",
   }->genericObjectOrRecordToJson
 }
