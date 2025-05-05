@@ -330,7 +330,6 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
           />
         </div>
       </div>
-      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }

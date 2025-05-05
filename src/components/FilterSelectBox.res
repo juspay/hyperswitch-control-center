@@ -406,8 +406,14 @@ type allSelectType = Icon | Text
 
 type opt = {name_: string}
 
-let makeOptions = (options: array<string>): array<dropdownOption> => {
-  options->Array.map(str => {label: str, value: str})
+let makeOptions = (options: array<string>, ~isTitle=false): array<dropdownOption> => {
+  options->Array.map(str => {
+    let option: dropdownOption = {
+      label: isTitle ? str->LogicUtils.snakeToTitle : str,
+      value: str,
+    }
+    option
+  })
 }
 
 module BaseSelect = {
