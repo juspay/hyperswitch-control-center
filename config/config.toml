@@ -10,7 +10,6 @@ hypersense_url=""
 mixpanel_token=""
 agreement_url=""
 agreement_version=""
-intelligent_routing_sample_template_url=""
 [default.features]
 branding=false
 mixpanel=false
