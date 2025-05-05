@@ -20,6 +20,10 @@ let proxy = {
     target: "",
     changeOrigin: true,
   },
+  '/dynamo-simulation-template': {
+    target: "https://integ.hyperswitch.io",
+    changeOrigin: true,
+  },
 };
 
 let configMiddleware = (req, res, next) => {

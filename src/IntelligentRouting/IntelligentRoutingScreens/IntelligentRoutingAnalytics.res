@@ -279,6 +279,55 @@ module Overview = {
   }
 }
 
+module FileDropdownBaseComp = {
+  @react.component
+  let make = (~fileName, ~arrow) => {
+    let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
+
+    let arrowClassName = `${arrow
+        ? "rotate-0"
+        : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+
+
+    <div
+      className="text-left flex gap-1 justify-between w-fit border border-nd_gray-200 rounded-md py-1 px-2">
+      <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
+        {fileName->React.string}
+      </p>
+      <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
+    </div>
+  }
+}
+
+module FileDropdownBottomComp = {
+  @react.component
+  let make = () => {
+    let {
+      globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, borderColor}},
+    } = React.useContext(ThemeProvider.themeContext)
+
+    let customStyle = {
+      `${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`
+    }
+
+    let restartSimulation = () => {
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/dynamic-routing/home"))
+    }
+
+    <div className="flex items-center">
+      <hr className={borderColor} />
+      <p
+        className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle} cursor-pointer`}
+        onClick={_ => restartSimulation()}>
+        <Icon name="nd-upload" size=15 customIconColor="#1C6DEA" />
+        {"Change File"->React.string}
+      </p>
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   open IntelligentRoutingHelper
@@ -293,6 +342,9 @@ let make = () => {
   let (timeStampOptions, setTimeStampOptions) = React.useState(() => [])
   let (gateways, setGateways) = React.useState(() => [])
   let (timeRange, setTimeRange) = React.useState(() => defaultTimeRange)
+  let (selectedFile, setSelectedFile) = React.useState(() => "sample.csv")
+  let (fileList, setFileList) = React.useState(() => [])
+  let (arrow, setArrow) = React.useState(_ => false)
 
   let getStatistics = async () => {
     try {
@@ -300,12 +352,15 @@ let make = () => {
       let url = getURL(~entityName=V1(INTELLIGENT_ROUTING_GET_STATISTICS), ~methodType=Get)
       let response = await fetchDetails(url)
       setStats(_ => response)
+      let fileName = (response->IntelligentRoutingUtils.responseMapper).file_name
       let statsData = (response->IntelligentRoutingUtils.responseMapper).time_series_data
       let gatewayData = switch statsData->Array.get(0) {
       | Some(statsData) => statsData.volume_distribution_as_per_sr
       | None => JSON.Encode.null
       }
 
+      setFileList(_ => [fileName])
+      setSelectedFile(_ => fileName)
       statsData->Array.sort((t1, t2) => {
         let t1 = t1.time_stamp
         let t2 = t2.time_stamp
@@ -376,6 +431,34 @@ let make = () => {
   let customScrollStyle = `max-h-40 overflow-scroll px-1 pt-1 border-pink-400`
   let dropdownContainerStyle = `rounded-md border border-1 border md:w-40 md:max-w-50`
 
+  let generateDropdownOptions: array<string> => array<SelectBox.dropdownOption> = dropdownList => {
+    let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+      item
+    ): SelectBox.dropdownOption => {
+      {
+        label: item,
+        value: item,
+      }
+    })
+    options
+  }
+
+  let inputFileDropdown: ReactFinalForm.fieldRenderPropsInput = {
+    name: "filename",
+    onBlur: _ => (),
+    onChange: ev => {
+      let value = ev->Identity.formReactEventToString
+      setSelectedFile(_ => value)
+    },
+    onFocus: _ => (),
+    value: selectedFile->JSON.Encode.string,
+    checked: true,
+  }
+
+  let toggleChevronState = () => {
+    setArrow(prev => !prev)
+  }
+
   <PageLoaderWrapper screenState={screenState}>
     <div
       className="absolute z-20 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
@@ -390,7 +473,25 @@ let make = () => {
     <div className="mt-10">
       <div className="flex items-center justify-between">
         <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
-        <p className="text-nd_gray-500 font-medium"> {dateRange->React.string} </p>
+        <div className="flex items-center gap-4">
+          <p className="text-nd_gray-500 font-medium"> {dateRange->React.string} </p>
+          <SelectBox.BaseDropdown
+            allowMultiSelect=false
+            buttonText=""
+            input=inputFileDropdown
+            deselectDisable=true
+            options={fileList->generateDropdownOptions}
+            marginTop="mt-12 shadow-generic_shadow"
+            hideMultiSelectButtons=true
+            addButton=false
+            baseComponent={<FileDropdownBaseComp fileName=selectedFile arrow />}
+            bottomComponent={<FileDropdownBottomComp />}
+            toggleChevronState
+            customScrollStyle
+            dropdownContainerStyle
+            shouldDisplaySelectedOnTop=true
+          />
+        </div>
       </div>
       <div className="flex flex-col gap-12">
         <Overview data=stats />
