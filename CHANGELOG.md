@@ -3,6 +3,50 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.05.0
+
+### Bug Fixes
+
+- Browser navigation issues ([#2886](https://github.com/juspay/hyperswitch-control-center/pull/2886)) ([`fa75dc6`](https://github.com/juspay/hyperswitch-control-center/commit/fa75dc63202dcd5f1242b99631ef6aae5091d48b))
+
+**Full Changelog:** [`2025.05.01.0...2025.05.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.01.0...2025.05.05.0)
+
+
+- - -
+
+## 2025.05.01.0
+
+### Bug Fixes
+
+- Safari ui changes for svg and select buttons ([#2910](https://github.com/juspay/hyperswitch-control-center/pull/2910)) ([`4da2944`](https://github.com/juspay/hyperswitch-control-center/commit/4da29446fd8177f5bb14f62e05ac84068acf6df5))
+- Merchant name issue fix ([#2913](https://github.com/juspay/hyperswitch-control-center/pull/2913)) ([`436f881`](https://github.com/juspay/hyperswitch-control-center/commit/436f88117c261a7c9014564161e89600a9a5162e))
+
+### Testing
+
+- Add payment operations tests ([#2882](https://github.com/juspay/hyperswitch-control-center/pull/2882)) ([`d7048f0`](https://github.com/juspay/hyperswitch-control-center/commit/d7048f0040f5ff511e4afe813a8320b71e73e35d))
+
+**Full Changelog:** [`2025.04.30.0...2025.05.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.30.0...2025.05.01.0)
+
+
+- - -
+
+## 2025.04.30.0
+
+### Bug Fixes
+
+- Payment show details fetch when payment id changes ([#2881](https://github.com/juspay/hyperswitch-control-center/pull/2881)) ([`814acbe`](https://github.com/juspay/hyperswitch-control-center/commit/814acbef980c084865d8cbdcf6337db7fbe3ea0b))
+- Webhook url not configured text update ([#2899](https://github.com/juspay/hyperswitch-control-center/pull/2899)) ([`b087fd3`](https://github.com/juspay/hyperswitch-control-center/commit/b087fd37511bfcc534f57a5e42fa784f121b37c1))
+- All types of connectors showing in operations connector filter ([#2897](https://github.com/juspay/hyperswitch-control-center/pull/2897)) ([`62390b7`](https://github.com/juspay/hyperswitch-control-center/commit/62390b7c5f6bea57a6c372e7e40c75ef6c7c1f3f))
+
+### Miscellaneous Tasks
+
+- Typography standardisation Tokens initialisation ([#2893](https://github.com/juspay/hyperswitch-control-center/pull/2893)) ([`3d5bfe4`](https://github.com/juspay/hyperswitch-control-center/commit/3d5bfe4a31cd3be36b1140955985320783adeafa))
+
+**Full Changelog:** [`2025.04.29.0...2025.04.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.04.29.0...2025.04.30.0)
+
+
+- - -
+
 ## 2025.04.29.0
 
 ### Miscellaneous Tasks

@@ -477,7 +477,7 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let customStyleForBtn = "rounded-lg bg-white"
+    let customStyleForBtn = "rounded-lg bg-white !w-full"
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 

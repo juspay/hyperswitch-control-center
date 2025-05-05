@@ -45,6 +45,7 @@ module AuthHeaderWrapper = {
 @react.component
 let make = (~children) => {
   open APIUtils
+  open AuthUtils
 
   let getURL = useGetURL()
 
@@ -56,7 +57,6 @@ let make = (~children) => {
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let getAuthDetails = () => {
-    open AuthUtils
     open LogicUtils
     let preLoginInfo = getPreLoginDetailsFromLocalStorage()
     let loggedInInfo = getUserInfoDetailsFromLocalStorage()
@@ -92,7 +92,6 @@ let make = (~children) => {
   }
 
   let handleRedirectFromSSO = () => {
-    open AuthUtils
     let info = getPreLoginDetailsFromLocalStorage()->SSOUtils.ssoDefaultValue
     setAuthStatus(PreLogin(info))
   }
@@ -106,18 +105,17 @@ let make = (~children) => {
   }
 
   React.useEffect(() => {
-    switch url.path {
-    | list{"user", "login"}
+    switch url.path->HSwitchUtils.urlPath {
+    | list{"login"}
     | list{"register"} =>
       setAuthStateToLogout()
-    | list{"user", "verify_email"}
-    | list{"user", "set_password"}
-    | list{"user", "accept_invite_from_email"} =>
+    | list{"verify_email"}
+    | list{"set_password"}
+    | list{"accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
     | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
     | _ => getAuthDetails()
     }
-
     None
   }, [])
 

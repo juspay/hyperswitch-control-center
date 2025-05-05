@@ -4,8 +4,8 @@ let make = () => {
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  <div className="flex flex-1 flex-col w-full gap-14 items-center justify-center w-full h-screen">
-    <img alt="vaultOnboarding" src="/assets/VaultOnboarding.svg" />
+  <div className="flex flex-1 flex-col w-full gap-14 items-center justify-center h-screen">
+    <object type_="image/svg+xml" data="/assets/VaultOnboarding.svg" alt="vaultOnboarding" />
     <div className="flex flex-col gap-8 items-center">
       <div
         className="border rounded-md text-nd_green-200 border-nd_green-200 font-semibold p-1.5 text-sm w-fit">
