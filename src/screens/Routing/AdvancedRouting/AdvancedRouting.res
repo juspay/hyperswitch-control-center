@@ -762,102 +762,104 @@ let make = (
 
   <div className="my-6">
     <PageLoaderWrapper screenState>
-      {connectors->Array.length > 0
-        ? <Form
-            initialValues={initialValues} validate onSubmit={(values, _) => onSubmit(values, true)}>
-            <div className="w-full flex flex-row  justify-between">
-              <div className="w-full">
-                <BasicDetailsForm
-                  formState={pageState == Preview ? ViewConfig : CreateConfig}
-                  currentTabName
-                  profile
-                  setProfile
+      // {connectors->Array.length > 0
+      //   ?
+      <Form initialValues={initialValues} validate onSubmit={(values, _) => onSubmit(values, true)}>
+        <div className="w-full flex flex-row  justify-between">
+          <div className="w-full">
+            <BasicDetailsForm
+              formState={pageState == Preview ? ViewConfig : CreateConfig}
+              currentTabName
+              profile
+              setProfile
+            />
+            <RenderIf condition={formState != CreateConfig}>
+              <div className="mb-5">
+                <RuleBasedUI
+                  gatewayOptions=connectorOptions
+                  wasm
+                  initialRule
+                  pageState
+                  setCurrentRouting
+                  baseUrlForRedirection
                 />
-                <RenderIf condition={formState != CreateConfig}>
-                  <div className="mb-5">
-                    <RuleBasedUI
-                      gatewayOptions=connectorOptions
-                      wasm
-                      initialRule
-                      pageState
-                      setCurrentRouting
-                      baseUrlForRedirection
+                {switch pageState {
+                | Preview =>
+                  <div className="flex flex-col md:flex-row gap-4 p-1">
+                    <Button
+                      text={"Duplicate and Edit Configuration"}
+                      buttonType={isActive ? Primary : Secondary}
+                      onClick={_ => {
+                        setPageState(_ => Create)
+                        let manipualtedJSONValue =
+                          initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
+
+                        let rulesValue =
+                          manipualtedJSONValue
+                          ->getDictFromJsonObject
+                          ->getObj("algorithm", Dict.make())
+                          ->getDictfromDict("data")
+
+                        setInitialValues(_ =>
+                          initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
+                        )
+                        setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
+                      }}
+                      customButtonStyle="w-1/5"
+                      buttonState=Normal
                     />
-                    {switch pageState {
-                    | Preview =>
-                      <div className="flex flex-col md:flex-row gap-4 p-1">
-                        <Button
-                          text={"Duplicate and Edit Configuration"}
-                          buttonType={isActive ? Primary : Secondary}
-                          onClick={_ => {
-                            setPageState(_ => Create)
-                            let manipualtedJSONValue =
-                              initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
-
-                            let rulesValue =
-                              manipualtedJSONValue
-                              ->getDictFromJsonObject
-                              ->getObj("algorithm", Dict.make())
-                              ->getDictfromDict("data")
-
-                            setInitialValues(_ =>
-                              initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
-                            )
-                            setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
-                          }}
-                          customButtonStyle="w-1/5"
-                          buttonState=Normal
-                        />
-                        <RenderIf condition={!isActive}>
-                          <Button
-                            text={"Activate Configuration"}
-                            buttonType={Primary}
-                            onClick={_ => {
-                              handleActivateConfiguration(routingRuleId)->ignore
-                            }}
-                            customButtonStyle="w-1/5"
-                            buttonState=Normal
-                          />
-                        </RenderIf>
-                        <RenderIf condition={isActive}>
-                          <Button
-                            text={"Deactivate Configuration"}
-                            buttonType={Secondary}
-                            onClick={_ => {
-                              handleDeactivateConfiguration()->ignore
-                            }}
-                            customButtonStyle="w-1/5"
-                            buttonState=Normal
-                          />
-                        </RenderIf>
-                      </div>
-                    | Create => <RoutingUtils.ConfigureRuleButton setShowModal />
-                    | _ => React.null
-                    }}
+                    <RenderIf condition={!isActive}>
+                      <Button
+                        text={"Activate Configuration"}
+                        buttonType={Primary}
+                        onClick={_ => {
+                          handleActivateConfiguration(routingRuleId)->ignore
+                        }}
+                        customButtonStyle="w-1/5"
+                        buttonState=Normal
+                      />
+                    </RenderIf>
+                    <RenderIf condition={isActive}>
+                      <Button
+                        text={"Deactivate Configuration"}
+                        buttonType={Secondary}
+                        onClick={_ => {
+                          handleDeactivateConfiguration()->ignore
+                        }}
+                        customButtonStyle="w-1/5"
+                        buttonState=Normal
+                      />
+                    </RenderIf>
                   </div>
-                </RenderIf>
-                <CustomModal.RoutingCustomModal
-                  showModal
-                  setShowModal
-                  cancelButton={<FormRenderer.SubmitButton
-                    text="Save Rule"
-                    buttonSize=Button.Small
-                    buttonType=Button.Secondary
-                    customSumbitButtonStyle="w-1/5 rounded-xl"
-                    tooltipWidthClass="w-48"
-                  />}
-                  submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
-                    onSubmit handleActivateConfiguration
-                  />}
-                  headingText="Activate Current Configuration?"
-                  subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
-                  leftIcon="warning-modal"
-                  iconSize=35
-                />
+                | Create => <RoutingUtils.ConfigureRuleButton setShowModal />
+                | _ => React.null
+                }}
               </div>
-            </div>
-          </Form>
-        : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
+            </RenderIf>
+            <CustomModal.RoutingCustomModal
+              showModal
+              setShowModal
+              cancelButton={<FormRenderer.SubmitButton
+                text="Save Rule"
+                buttonSize=Button.Small
+                buttonType=Button.Secondary
+                customSumbitButtonStyle="w-1/5 rounded-xl"
+                tooltipWidthClass="w-48"
+              />}
+              submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
+                onSubmit handleActivateConfiguration
+              />}
+              headingText="Activate Current Configuration?"
+              subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
+              leftIcon="warning-modal"
+              iconSize=35
+            />
+          </div>
+        </div>
+        <FormValuesSpy />
+      </Form>
+
+      // : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
     </PageLoaderWrapper>
   </div>
 }

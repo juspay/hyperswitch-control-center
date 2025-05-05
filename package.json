@@ -23,7 +23,9 @@
     "cy:run": "sh cypress/start_hyperswitch.sh && cypress run",
     "local:cy:open": "cypress open",
     "lint:hooks": "eslint src/ --max-warnings 0",
-    "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
+    "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "start:routing": "cross-env NODE_ENV=production webpack serve --config webpack.routing.js",
+    "build:routing": "npm run build:common && webpack --config webpack.routingprod.js"
   },
   "husky": {
     "hooks": {

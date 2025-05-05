@@ -110,7 +110,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
   }
 
   React.useEffect(() => {
-    fetchActiveRouting()->ignore
+    // fetchActiveRouting()->ignore
+    setScreenState(_ => PageLoaderWrapper.Success)
     None
   }, (pathVar, url.search))
 

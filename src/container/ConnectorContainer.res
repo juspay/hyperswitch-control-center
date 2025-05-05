@@ -16,14 +16,14 @@ let make = () => {
   let setUpConnectoreContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      if (
-        userHasAccess(~groupAccess=ConnectorsView) === Access ||
-        userHasAccess(~groupAccess=WorkflowsView) === Access ||
-        userHasAccess(~groupAccess=WorkflowsManage) === Access
-      ) {
-        let _ = await fetchConnectorListResponse()
-        let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-      }
+      // if (
+      //   userHasAccess(~groupAccess=ConnectorsView) === Access ||
+      //   userHasAccess(~groupAccess=WorkflowsView) === Access ||
+      //   userHasAccess(~groupAccess=WorkflowsManage) === Access
+      // ) {
+      //   let _ = await fetchConnectorListResponse()
+      //   let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+      // }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
