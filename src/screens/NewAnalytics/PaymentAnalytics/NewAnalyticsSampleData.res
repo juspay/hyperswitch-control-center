@@ -62,17 +62,17 @@ let samplePaymentsOverviewData = {
   [
     {
       "total_dispute": 180,
-      "total_payment_processed_amount": 1350000,
-      "total_refund_processed_amount": 29000,
-      "total_smart_retried_amount": 2200000,
-      "total_success_rate": 99.4,
+      "total_payment_processed_amount": 60577777.410,
+      "total_refund_processed_amount": 290.00,
+      "total_smart_retried_amount": 6332650.571,
+      "total_success_rate": 99.73,
     },
     {
       "total_dispute": 250,
-      "total_payment_processed_amount": 1200000,
-      "total_refund_processed_amount": 35000,
-      "total_smart_retried_amount": 1200000,
-      "total_success_rate": 92.1,
+      "total_payment_processed_amount": 24918131.5083,
+      "total_refund_processed_amount": 350.00,
+      "total_smart_retried_amount": 3947030.9595,
+      "total_success_rate": 74.75,
     },
   ]
 }->Identity.genericTypeToJson

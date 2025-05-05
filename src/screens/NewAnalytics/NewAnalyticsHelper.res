@@ -333,8 +333,14 @@ module SampleDataToggle = {
 module SampleDataBanner = {
   @react.component
   let make = () => {
-    <div
-      className="absolute z-20 top-76-px left-0 w-full py-2 px-10 bg-orange-50 flex justify-between items-center">
+    open LogicUtils
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSampleDataEnabled =
+      filterValueJson
+      ->getString("is_sample_data_enabled", "true")
+      ->LogicUtils.getBoolFromString(true)
+    let scrollCss = isSampleDataEnabled ? "fixed z-[30] top-[74px] left-[331px] right-0" : ""
+    <div className={`${scrollCss} py-2 px-10 bg-orange-50 flex justify-between items-center`}>
       <div className="flex gap-4 items-center">
         <p className="text-nd_gray-600 text-base leading-6 font-medium">
           {"Currently viewing sample data. Toggle it off to return to your real insights."->React.string}

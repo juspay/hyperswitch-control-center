@@ -262,7 +262,7 @@ let make = () => {
                             useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
                             authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="NewAnalytics" index="NewAnalytics">
-                              <NewAnalyticsHelper.SampleDataBanner />
+                              // <NewAnalyticsHelper.SampleDataBanner />
                               <NewAnalyticsContainer />
                             </FilterContext>
                           </AccessControl>
