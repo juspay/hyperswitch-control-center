@@ -6,8 +6,8 @@ let ompDefaultValue = (currUserId, currUserName) => {
 }
 
 let currentOMPName = (list: array<ompListTypes>, id: string) => {
-  switch list->Array.find(user => user.id == id) {
-  | Some(user) => user.name
+  switch list->Array.find(listValue => listValue.id == id) {
+  | Some(listValue) => listValue.name
   | None => id
   }
 }
