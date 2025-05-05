@@ -31,6 +31,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
     setUpConnectoreContainer()->ignore
     None
   }, [])
@@ -122,7 +123,7 @@ let make = () => {
           />
         </FilterContext>
       </AccessControl>
-    // Routing
+    //Routing
     | list{"routing", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
         <EntityScaffold
@@ -132,6 +133,7 @@ let make = () => {
           renderShow={(routingType, _) => <RoutingConfigure routingType />}
         />
       </AccessControl>
+
     | list{"payoutrouting", ...remainingPath} =>
       <AccessControl
         isEnabled={featureFlagDetails.payOut}

@@ -165,8 +165,12 @@ module HyperSwitchEntryComponent = {
       screenState
       sectionHeight="h-screen"
       customUI={<NoDataFound message="Oops! Missing config" renderType=NotFound />}>
-      <div className="text-black h-screen overflow-scroll">
-        <ConnectorContainer />
+      <div className="text-black h-screen overflow-scroll ">
+        <AuthInfoProvider>
+          <AuthWrapper>
+            <ConnectorContainer />
+          </AuthWrapper>
+        </AuthInfoProvider>
       </div>
     </PageLoaderWrapper>
   }
