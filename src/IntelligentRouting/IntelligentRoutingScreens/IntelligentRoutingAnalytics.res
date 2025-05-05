@@ -290,7 +290,6 @@ module FileDropdownBaseComp = {
         ? "rotate-0"
         : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
-
     <div
       className="text-left flex gap-1 justify-between w-fit border border-nd_gray-200 rounded-md py-1 px-2">
       <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
