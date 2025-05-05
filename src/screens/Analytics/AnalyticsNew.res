@@ -408,10 +408,13 @@ module OverallSummary = {
       FilterContext.filterContext,
     )
 
-    let initTab = switch filteredTabKeys->Array.get(0) {
-    | Some(val) => [val]
-    | None => filteredTabKeys
-    }
+    let initTab = React.useMemo(() => {
+      switch filteredTabKeys->Array.get(0) {
+      | Some(val) => [val]
+      | None => [""]
+      }
+    }, [filteredTabKeys])
+
     let (activeTav, setActiveTab) = React.useState(_ =>
       filterValueJson->getStrArrayFromDict(`${moduleName}.tabName`, initTab)
     )
