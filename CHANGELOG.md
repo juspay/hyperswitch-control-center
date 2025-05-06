@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.06.0
+
+### Bug Fixes
+
+- Added validation for the api keys ([#2920](https://github.com/juspay/hyperswitch-control-center/pull/2920)) ([`4fb87f0`](https://github.com/juspay/hyperswitch-control-center/commit/4fb87f0f64adca48cb4f26fab132bccde3939e5e))
+- Changed old analytics graph font style to InterDisplay ([#2918](https://github.com/juspay/hyperswitch-control-center/pull/2918)) ([`2715444`](https://github.com/juspay/hyperswitch-control-center/commit/271544465319bb7750096fb7f5be8a2950d25668))
+
+### Miscellaneous Tasks
+
+- Changed revenue recovery mixpanel events ([#2902](https://github.com/juspay/hyperswitch-control-center/pull/2902)) ([`6c8c94f`](https://github.com/juspay/hyperswitch-control-center/commit/6c8c94f8ead4e4651cdcc2b309dff8dda9e5fb1a))
+
+**Full Changelog:** [`2025.05.05.0...2025.05.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.05.0...2025.05.06.0)
+
+
+- - -
+
 ## 2025.05.05.0
 
 ### Bug Fixes
