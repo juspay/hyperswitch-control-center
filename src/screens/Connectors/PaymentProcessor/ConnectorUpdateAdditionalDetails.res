@@ -1,21 +1,20 @@
 @react.component
 let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetails) => {
-  open ConnectorUtils
   open APIUtils
-  open LogicUtils
+  open ConnectorUtils
   open ConnectorAccountDetailsHelper
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
 
   let (showModal, setShowFeedbackModal) = React.useState(_ => false)
-  // Need to remove connector and merge connector and connectorTypeVariants
+  let {connector_name: connectorName} = connectorInfo
   let (processorType, connectorType) =
     connectorInfo.connector_type
     ->connectorTypeTypedValueToStringMapper
     ->connectorTypeTuple
-  let {connector_name: connectorName} = connectorInfo
   let connectorTypeFromName = connectorName->getConnectorNameTypeFromString(~connectorType)
 
   let connectorDetails = React.useMemo(() => {
@@ -42,53 +41,8 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       }
     }
   }, [connectorInfo.merchant_connector_id])
-  let {
-    connectorAccountFields,
-    connectorMetaDataFields,
-    connectorWebHookDetails,
-    connectorLabelDetailField,
-    connectorAdditionalMerchantData,
-  } = getConnectorFields(connectorDetails)
 
-  let initialValues = React.useMemo(() => {
-    let authType = switch connectorInfo.connector_account_details {
-    | HeaderKey(authKeys) => authKeys.auth_type
-    | BodyKey(bodyKey) => bodyKey.auth_type
-    | SignatureKey(signatureKey) => signatureKey.auth_type
-    | MultiAuthKey(multiAuthKey) => multiAuthKey.auth_type
-    | CertificateAuth(certificateAuth) => certificateAuth.auth_type
-    | CurrencyAuthKey(currencyAuthKey) => currencyAuthKey.auth_type
-    | NoKey(noKeyAuth) => noKeyAuth.auth_type
-    | UnKnownAuthType(_) => ""
-    }
-    [
-      (
-        "connector_type",
-        connectorInfo.connector_type
-        ->connectorTypeTypedValueToStringMapper
-        ->JSON.Encode.string,
-      ),
-      (
-        "connector_account_details",
-        [("auth_type", authType->JSON.Encode.string)]
-        ->Dict.fromArray
-        ->JSON.Encode.object,
-      ),
-      ("connector_webhook_details", connectorInfo.connector_webhook_details),
-      ("connector_label", connectorInfo.connector_label->JSON.Encode.string),
-      ("metadata", connectorInfo.metadata),
-      (
-        "additional_merchant_data",
-        connectorInfo.additional_merchant_data->checkEmptyJson
-          ? JSON.Encode.null
-          : connectorInfo.additional_merchant_data,
-      ),
-    ]->LogicUtils.getJsonFromArrayOfJson
-  }, (
-    connectorInfo.connector_webhook_details,
-    connectorInfo.connector_label,
-    connectorInfo.metadata,
-  ))
+  let {connectorMetaDataFields, connectorWebHookDetails} = getConnectorFields(connectorDetails)
 
   let onSubmit = async (values, _) => {
     try {
@@ -110,23 +64,40 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
 
     Nullable.null
   }
-  let validateMandatoryField = values => {
-    let errors = Dict.make()
-    let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
-    validateConnectorRequiredFields(
-      connectorTypeFromName,
-      valuesFlattenJson,
-      connectorAccountFields,
-      connectorMetaDataFields,
-      connectorWebHookDetails,
-      connectorLabelDetailField,
-      errors->JSON.Encode.object,
-    )
-  }
+
+  let initialValues = React.useMemo(() => {
+    [
+      (
+        "connector_type",
+        connectorInfo.connector_type
+        ->connectorTypeTypedValueToStringMapper
+        ->JSON.Encode.string,
+      ),
+      ("connector_webhook_details", connectorInfo.connector_webhook_details),
+      ("metadata", connectorInfo.metadata),
+    ]->LogicUtils.getJsonFromArrayOfJson
+  }, (
+    connectorInfo.connector_webhook_details,
+    connectorInfo.connector_label,
+    connectorInfo.metadata,
+  ))
 
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->getConnectorInfo
   }, [connectorName])
+
+  let validateMandatoryField = values => {
+    let errors = Dict.make()
+    let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
+    validateOtherDetailsRequiredFields(
+      connectorTypeFromName,
+      valuesFlattenJson,
+      connectorMetaDataFields,
+      connectorWebHookDetails,
+      errors->JSON.Encode.object,
+    )
+  }
+
   <>
     <div
       className="cursor-pointer py-2"
@@ -152,12 +123,11 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       revealFrom=Reveal.Right
       modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900">
       <Form initialValues validate={validateMandatoryField} onSubmit>
-        <ConnectorConfigurationFields
+        <ConnectorAdditionalDetailsFields
           connector={connectorTypeFromName}
-          connectorAccountFields
           selectedConnector
-          connectorLabelDetailField
-          connectorAdditionalMerchantData
+          connectorWebHookDetails
+          connectorMetaDataFields
         />
         <div className="flex p-1 justify-end mb-2">
           <FormRenderer.SubmitButton text="Submit" />

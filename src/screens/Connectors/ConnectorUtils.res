@@ -1322,6 +1322,68 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
   result->Array.includes(true)
 }
 
+let validateOtherDetailsRequiredFields = (
+  connector: connectorTypes,
+  valuesFlattenJson,
+  connectorMetaDataFields,
+  connectorWebHookDetails,
+  errors,
+) => {
+  open LogicUtils
+  let newDict = getDictFromJsonObject(errors)
+  let keys =
+    connectorMetaDataFields
+    ->Dict.keysToArray
+    ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
+
+  {
+    keys->Array.forEach(field => {
+      let {\"type", name, required, label} =
+        connectorMetaDataFields
+        ->getDictfromDict(field)
+        ->JSON.Encode.object
+        ->convertMapObjectToDict
+        ->CommonConnectorUtils.inputFieldMapper
+      let key = `metadata.${name}`
+      let value = switch \"type" {
+      | Text | Select => valuesFlattenJson->getString(`${key}`, "")
+      | Toggle => valuesFlattenJson->getBool(`${key}`, false)->getStringFromBool
+      | _ => ""
+      }
+
+      let multiSelectValue = switch \"type" {
+      | MultiSelect => valuesFlattenJson->getArrayFromDict(key, [])
+      | _ => []
+      }
+
+      switch \"type" {
+      | Text | Select | Toggle =>
+        if value->isEmptyString && required {
+          Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+        }
+      | MultiSelect =>
+        if multiSelectValue->Array.length === 0 && required {
+          Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+        }
+      | _ => ()
+      }
+    })
+  }
+
+  connectorWebHookDetails
+  ->Dict.keysToArray
+  ->Array.forEach(fieldName => {
+    let key = `connector_webhook_details.${fieldName}`
+    let errorKey = connectorWebHookDetails->getString(fieldName, "")
+    let value = valuesFlattenJson->getString(key, "")
+    if value->String.length === 0 && connector->getWebHookRequiredFields(fieldName) {
+      Dict.set(newDict, key, `Please enter ${errorKey}`->JSON.Encode.string)
+    }
+  })
+
+  newDict->JSON.Encode.object
+}
+
 let validateConnectorRequiredFields = (
   connector: connectorTypes,
   valuesFlattenJson,

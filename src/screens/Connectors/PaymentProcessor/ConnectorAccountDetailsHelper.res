@@ -294,13 +294,11 @@ module ConnectorConfigurationFields = {
     ~connectorAccountFields,
     ~connector: connectorTypes,
     ~selectedConnector: integrationFields,
-    ~connectorMetaDataFields,
-    ~connectorWebHookDetails,
     ~isUpdateFlow=false,
     ~connectorLabelDetailField,
     ~connectorAdditionalMerchantData,
   ) => {
-    <div className="flex flex-col">
+    <>
       {switch connector {
       | Processors(CASHTOCODE) =>
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
@@ -322,8 +320,23 @@ module ConnectorConfigurationFields = {
         isLabelNested=false
         description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
-      <ConnectorMetaData connectorMetaDataFields />
       <ConnectorAdditionalMerchantData connector connectorAdditionalMerchantData />
+    </>
+  }
+}
+
+module ConnectorAdditionalDetailsFields = {
+  open ConnectorTypes
+
+  @react.component
+  let make = (
+    ~connector: connectorTypes,
+    ~selectedConnector: integrationFields,
+    ~connectorWebHookDetails,
+    ~connectorMetaDataFields,
+  ) => {
+    <>
+      <ConnectorMetaData connectorMetaDataFields />
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
         name={"connector_webhook_details"}
@@ -331,7 +344,7 @@ module ConnectorConfigurationFields = {
         connector
         selectedConnector
       />
-    </div>
+    </>
   }
 }
 

@@ -292,19 +292,29 @@ let make = () => {
                 />
               </div>
               <div className={`flex flex-col gap-2 p-2 md:p-10`}>
-                <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-                  connector={connectorName->getConnectorNameTypeFromString(
-                    ~connectorType=ThreeDsAuthenticator,
-                  )}
-                  connectorAccountFields
-                  selectedConnector={connectorName
-                  ->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator)
-                  ->getConnectorInfo}
-                  connectorMetaDataFields
-                  connectorWebHookDetails
-                  connectorLabelDetailField
-                  connectorAdditionalMerchantData
-                />
+                <div className="flex flex-col">
+                  <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
+                    connector={connectorName->getConnectorNameTypeFromString(
+                      ~connectorType=ThreeDsAuthenticator,
+                    )}
+                    connectorAccountFields
+                    selectedConnector={connectorName
+                    ->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator)
+                    ->getConnectorInfo}
+                    connectorLabelDetailField
+                    connectorAdditionalMerchantData
+                  />
+                  <ConnectorAccountDetailsHelper.ConnectorAdditionalDetailsFields
+                    connector={connectorName->getConnectorNameTypeFromString(
+                      ~connectorType=ThreeDsAuthenticator,
+                    )}
+                    selectedConnector={connectorName
+                    ->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator)
+                    ->getConnectorInfo}
+                    connectorMetaDataFields
+                    connectorWebHookDetails
+                  />
+                </div>
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
           </Form>

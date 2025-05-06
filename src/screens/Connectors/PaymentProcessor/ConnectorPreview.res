@@ -135,6 +135,7 @@ module ConnectorSummaryGrid = {
     ~getConnectorDetails=None,
   ) => {
     open ConnectorUtils
+    open LogicUtils
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfileRecoilVal =
@@ -175,7 +176,12 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connectorInfo.merchant_connector_id])
-    let {connectorAccountFields} = getConnectorFields(connectorDetails)
+    let {
+      connectorAccountFields,
+      connectorMetaDataFields,
+      connectorWebHookDetails,
+    } = getConnectorFields(connectorDetails)
+
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
     | _ => true
@@ -212,11 +218,11 @@ module ConnectorSummaryGrid = {
           {`${businessProfileRecoilVal.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
-      <div className="grid grid-cols-4 border-b  md:px-10">
+      <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <div className="flex items-start">
-          <h4 className="text-lg font-semibold py-8"> {"Credentials"->React.string} </h4>
+          <h4 className="text-lg font-semibold"> {"Credentials"->React.string} </h4>
         </div>
-        <div className="flex flex-col gap-6  col-span-3">
+        <div className="flex flex-col gap-6 col-span-3">
           <div className="flex gap-12">
             <div className="flex flex-col gap-6 w-5/6  py-8">
               <ConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
@@ -242,7 +248,6 @@ module ConnectorSummaryGrid = {
             </div>
           </RenderIf>
         </div>
-        <div />
       </div>
       {switch updateStepValue {
       | Some(state) =>
@@ -309,9 +314,45 @@ module ConnectorSummaryGrid = {
             </div>
           </div>
         </div>
-
       | None => React.null
       }}
+      <RenderIf
+        condition={!(connectorWebHookDetails->isEmptyDict) ||
+        !(connectorMetaDataFields->isEmptyDict)}>
+        <div className="grid grid-cols-4 border-b md:px-10 pt-8">
+          <div className="flex items-start">
+            <h4 className="text-lg font-semibold"> {"Additional Details"->React.string} </h4>
+          </div>
+          <div className="flex flex-col gap-6 col-span-3">
+            <div className="flex gap-12">
+              <div className="flex flex-col gap-6 w-5/6  py-8">
+                <ConnectorPreviewHelper.AdditionalDetailsPreview
+                  connectorMetaDataFields connectorWebHookDetails connectorInfo
+                />
+              </div>
+              <RenderIf condition={isUpdateFlow}>
+                <ConnectorUpdateAdditionalDetails connectorInfo getConnectorDetails />
+              </RenderIf>
+            </div>
+            <RenderIf
+              condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
+                Processors(FIUU)}>
+              <div
+                className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+                <Icon name="info-vacent" size=18 />
+                <div>
+                  <p className="mb-3">
+                    {"To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."->React.string}
+                  </p>
+                  <p>
+                    {"Please review your webhook settings and confirm that the Source Verification Key is properly configured to avoid any integration issues."->React.string}
+                  </p>
+                </div>
+              </div>
+            </RenderIf>
+          </div>
+        </div>
+      </RenderIf>
     </>
   }
 }

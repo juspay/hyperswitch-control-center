@@ -302,19 +302,29 @@ let make = () => {
               </div>
               <div className={`flex flex-col gap-2 p-2 md:p-10`}>
                 <div className="grid grid-cols-2 flex-1">
-                  <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-                    connector={connectorName->getConnectorNameTypeFromString(
-                      ~connectorType=PMAuthenticationProcessor,
-                    )}
-                    connectorAccountFields
-                    selectedConnector={connectorName
-                    ->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor)
-                    ->getConnectorInfo}
-                    connectorMetaDataFields
-                    connectorWebHookDetails
-                    connectorLabelDetailField
-                    connectorAdditionalMerchantData
-                  />
+                  <div className="flex flex-col">
+                    <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
+                      connector={connectorName->getConnectorNameTypeFromString(
+                        ~connectorType=PMAuthenticationProcessor,
+                      )}
+                      connectorAccountFields
+                      selectedConnector={connectorName
+                      ->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor)
+                      ->getConnectorInfo}
+                      connectorLabelDetailField
+                      connectorAdditionalMerchantData
+                    />
+                    <ConnectorAccountDetailsHelper.ConnectorAdditionalDetailsFields
+                      connector={connectorName->getConnectorNameTypeFromString(
+                        ~connectorType=PMAuthenticationProcessor,
+                      )}
+                      selectedConnector={connectorName
+                      ->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor)
+                      ->getConnectorInfo}
+                      connectorMetaDataFields
+                      connectorWebHookDetails
+                    />
+                  </div>
                 </div>
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>

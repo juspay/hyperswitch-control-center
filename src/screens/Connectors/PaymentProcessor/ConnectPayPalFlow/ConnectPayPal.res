@@ -41,30 +41,6 @@ module PayPalCreateNewAccountModal = {
     </AddDataAttributes>
   }
 }
-module ManualSetupScreen = {
-  @react.component
-  let make = (
-    ~connector,
-    ~connectorAccountFields,
-    ~selectedConnector,
-    ~connectorMetaDataFields,
-    ~connectorWebHookDetails,
-    ~connectorLabelDetailField,
-    ~connectorAdditionalMerchantData,
-  ) => {
-    <div className="flex flex-col gap-8">
-      <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-        connector={connector->ConnectorUtils.getConnectorNameTypeFromString}
-        connectorAccountFields
-        selectedConnector
-        connectorMetaDataFields
-        connectorWebHookDetails
-        connectorLabelDetailField
-        connectorAdditionalMerchantData
-      />
-    </div>
-  }
-}
 
 module LandingScreen = {
   @react.component

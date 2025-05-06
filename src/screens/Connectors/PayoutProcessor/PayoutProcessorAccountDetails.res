@@ -223,17 +223,29 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         </div>
         <div className={`flex flex-col gap-2 p-2 md:px-10`}>
           <div className="grid grid-cols-2 flex-1">
-            <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-              connector={connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)}
-              connectorAccountFields
-              selectedConnector={connector
-              ->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
-              ->getConnectorInfo}
-              connectorMetaDataFields
-              connectorWebHookDetails
-              connectorLabelDetailField
-              connectorAdditionalMerchantData
-            />
+            <div className="flex flex-col">
+              <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
+                connector={connector->getConnectorNameTypeFromString(
+                  ~connectorType=PayoutProcessor,
+                )}
+                connectorAccountFields
+                selectedConnector={connector
+                ->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
+                ->getConnectorInfo}
+                connectorLabelDetailField
+                connectorAdditionalMerchantData
+              />
+              <ConnectorAdditionalDetailsFields
+                connector={connector->getConnectorNameTypeFromString(
+                  ~connectorType=PayoutProcessor,
+                )}
+                selectedConnector={connector
+                ->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
+                ->getConnectorInfo}
+                connectorMetaDataFields
+                connectorWebHookDetails
+              />
+            </div>
           </div>
           <IntegrationHelp.Render connector setShowModal showModal />
         </div>
