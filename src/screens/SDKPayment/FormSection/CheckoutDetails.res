@@ -17,7 +17,6 @@ let make = (~onSubmit) => {
     formClass="mt-5"
     initialValues={initialValuesForCheckoutForm->Identity.genericTypeToJson}
     onSubmit>
-    // <FieldRenderer field=selectEnterIntegrationType fieldWrapperClass="!w-full" />
     <FieldRenderer
       field={enterCustomerId(~isGuestMode, ~setIsGuestMode)} fieldWrapperClass="!w-full"
     />
@@ -44,6 +43,5 @@ let make = (~onSubmit) => {
         paymentConnectorList->Array.length == 0}
       customSumbitButtonStyle="!mt-5"
     />
-    // <FormValuesSpy />
   </Form>
 }
