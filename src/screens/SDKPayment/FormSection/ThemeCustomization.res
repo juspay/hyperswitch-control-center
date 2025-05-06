@@ -38,6 +38,5 @@ let make = () => {
       disabledParamter={paymentConnectorList->Array.length === 0}
       customSumbitButtonStyle="!mt-5"
     />
-    // <FormValuesSpy />
   </Form>
 }
