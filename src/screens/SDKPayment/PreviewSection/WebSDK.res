@@ -31,13 +31,6 @@ let make = () => {
     }
   }
 
-  let checkHyperReady = async () => {
-    while Window.checkLoadHyper == None {
-      await HyperSwitchUtils.delay(500)
-    }
-    setIsHyperReady(_ => true)
-  }
-
   React.useEffect(() => {
     loadDOM()->ignore
     None
@@ -45,10 +38,10 @@ let make = () => {
 
   React.useEffect(() => {
     if isScriptLoaded {
-      checkHyperReady()->ignore
+      setIsHyperReady(_ => true)
     }
     None
-  }, [isScriptLoaded])
+  }, (isScriptLoaded, Window.checkLoadHyper))
 
   let hyperPromise = React.useCallback(async () => {
     Window.loadHyper(
