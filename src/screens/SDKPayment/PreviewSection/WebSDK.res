@@ -64,7 +64,7 @@ let make = () => {
       theme: themeConfig->getString("theme", "brutal"),
       labels: themeConfig->getString("labels", "above"),
       variables: {
-        colorPrimary: themeConfig->getString("primary_color", "#fd1717"),
+        colorPrimary: themeConfig->getString("primary_color", "#006DF9"),
       },
     },
     locale: themeConfig->getString("locale", "en-GB"),

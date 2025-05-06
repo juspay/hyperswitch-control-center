@@ -12,7 +12,7 @@ let make = (
   let getHexColor = value =>
     switch JSON.Decode.string(value) {
     | Some(str) if str->isNonEmptyString => str
-    | _ => "#FFFFFF"
+    | _ => "#006DF9"
     }
 
   let initialColor = switch defaultValue {

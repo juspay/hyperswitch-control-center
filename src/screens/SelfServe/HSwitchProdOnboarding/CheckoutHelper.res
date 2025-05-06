@@ -25,17 +25,3 @@ let getOptionReturnUrl = (~themeConfig, ~returnUrl, ~showSavedCards) => {
     },
   }
 }
-
-let getOption = clientSecret => {
-  {
-    clientSecret: clientSecret->Option.getOr(""),
-    appearance: {
-      theme: "charcoal",
-      variables: {
-        colorPrimary: "#006DF9",
-      },
-    },
-    locale: "en",
-    loader: "always",
-  }
-}
