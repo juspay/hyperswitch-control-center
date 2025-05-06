@@ -73,7 +73,7 @@ let make = (~entity: moduleEntity) => {
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let sampleData = samplePaymentsSuccessRateDataWithConnectors
+  let sampleData = paymentsRateDataWithConnectors
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {

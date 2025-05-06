@@ -69,7 +69,7 @@ let initialFixedFilterFields = (
   | _ => () => ()
   }
   let predefinedDays = if sampleDataIsEnabled {
-    [Day(7.0)]
+    []
   } else {
     [
       Hour(0.5),

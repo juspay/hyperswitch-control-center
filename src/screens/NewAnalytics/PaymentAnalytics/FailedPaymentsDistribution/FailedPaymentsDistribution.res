@@ -106,7 +106,7 @@ let make = (
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
-      let sampleData = samplePaymentsSuccessRateDataWithConnectors
+      let sampleData = paymentsRateDataWithConnectors
       let body = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,

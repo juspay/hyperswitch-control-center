@@ -3,8 +3,7 @@ open NewAnalyticsHelper
 open LineGraphTypes
 open PaymentsSuccessRateUtils
 open NewPaymentAnalyticsUtils
-// open NewAnalyticsSampleData
-open PaymentsSampleData
+open NewAnalyticsSampleData
 module PaymentsSuccessRateHeader = {
   open NewAnalyticsUtils
   open LogicUtils
@@ -107,7 +106,7 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let primaryResponse = if isSampleDataEnabled {
-        sampleData //replace with s3 call
+        paymentSampleData //replace with s3 call
       } else {
         let url = getURL(
           ~entityName=V1(ANALYTICS_PAYMENTS_V2),
@@ -136,7 +135,7 @@ let make = (
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = if isSampleDataEnabled {
-            comparisionSampleData
+            secondaryPaymentSampleData
           } else {
             let url = getURL(
               ~entityName=V1(ANALYTICS_PAYMENTS_V2),
@@ -152,10 +151,8 @@ let make = (
               ~granularity=granularity.value->Some,
               ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
             )
-
             await updateDetails(url, secondaryBody, Post)
           }
-          Js.log2("secondaryresponse", secondaryResponse)
           let secondaryData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
           let secondaryMetaData =

@@ -150,6 +150,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsSampleData
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -182,7 +183,8 @@ let make = (
     ~granularity=featureFlag.granularity,
   )
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
-
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
       setGranularity(_ => defaulGranularity)
@@ -217,7 +219,11 @@ let make = (
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let primaryResponse = await updateDetails(url, primaryBody, Post)
+      let primaryResponse = if isSampleDataEnabled {
+        paymentSampleData //replace with s3 call
+      } else {
+        await updateDetails(url, primaryBody, Post)
+      }
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
@@ -234,7 +240,11 @@ let make = (
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
-          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryResponse = if isSampleDataEnabled {
+            secondaryPaymentSampleData
+          } else {
+            await updateDetails(url, secondaryBody, Post)
+          }
           let secondaryData =
             secondaryResponse
             ->getDictFromJsonObject
@@ -312,6 +322,7 @@ let make = (
     comparison,
     currency,
     granularity.value,
+    isSampleDataEnabled,
   ))
 
   let params = {

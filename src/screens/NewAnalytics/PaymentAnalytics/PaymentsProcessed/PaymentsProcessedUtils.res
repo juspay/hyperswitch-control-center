@@ -178,7 +178,6 @@ let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
     }
 
   | Payment_Processed_Amount =>
-    Js.log2("currency", currency)
     switch (isSmartRetryEnabled, currency->getTypeValue) {
     | (Smart_Retry, #all_currencies) => #payment_processed_amount_in_usd
     | (Smart_Retry, _) => #payment_processed_amount

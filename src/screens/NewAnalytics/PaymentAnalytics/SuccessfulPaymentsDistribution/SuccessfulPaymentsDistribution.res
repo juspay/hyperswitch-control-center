@@ -103,7 +103,7 @@ let make = (
     try {
       //replace with s3 call
       let responseData = if isSampleDataEnabled {
-        samplePaymentsSuccessRateDataWithConnectors
+        paymentsRateDataWithConnectors
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
         ->filterQueryData(groupBy.value)
@@ -129,8 +129,6 @@ let make = (
         ->getArrayFromDict("queryData", [])
         ->filterQueryData(groupBy.value)
       }
-
-      Js.log2("paymentsdistributionresponse", responseData)
       if responseData->Array.length > 0 {
         setpaymentsDistribution(_ => responseData->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)

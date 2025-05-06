@@ -70,6 +70,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsSampleData
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -81,7 +82,8 @@ let make = (
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let getPaymentsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -106,7 +108,11 @@ let make = (
         )->Some,
       )
 
-      let response = await updateDetails(url, body, Post)
+      let response = if isSampleDataEnabled {
+        paymentSampleData //replace with s3 call
+      } else {
+        await updateDetails(url, body, Post)
+      }
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
       if responseData->Array.length > 0 {
@@ -125,7 +131,7 @@ let make = (
       getPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, currency])
+  }, (startTimeVal, endTimeVal, groupBy.value, currency, isSampleDataEnabled))
 
   let params = {
     data: paymentsDistribution,

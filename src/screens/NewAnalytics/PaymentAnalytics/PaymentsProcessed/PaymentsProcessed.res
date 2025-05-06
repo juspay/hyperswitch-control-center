@@ -3,7 +3,7 @@ open NewAnalyticsHelper
 open NewPaymentAnalyticsEntity
 open PaymentsProcessedUtils
 open NewPaymentAnalyticsUtils
-open PaymentsSampleData
+open NewAnalyticsSampleData
 module TableModule = {
   open LogicUtils
   open PaymentsProcessedTypes
@@ -159,7 +159,6 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
-  // open NewAnalyticsSampleData
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -231,7 +230,7 @@ let make = (
       )
 
       let primaryResponse = if isSampleDataEnabled {
-        sampleData // replace with s3 call
+        paymentSampleData // replace with s3 call
       } else {
         await updateDetails(url, primaryBody, Post)
       }
@@ -249,7 +248,7 @@ let make = (
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = if isSampleDataEnabled {
-            comparisionSampleData // replace with s3 call
+            secondaryPaymentSampleData // replace with s3 call
           } else {
             await updateDetails(url, secondaryBody, Post)
           }

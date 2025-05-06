@@ -35,7 +35,7 @@ let make = (~entity: moduleEntity) => {
       let secondaryData = defaultValue->Dict.copy
 
       if isSampleDataEnabled {
-        let sampleData = samplePaymentsOverviewData //replace with s3 call
+        let sampleData = paymentsOverviewData //replace with s3 call
         setData(_ => sampleData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
