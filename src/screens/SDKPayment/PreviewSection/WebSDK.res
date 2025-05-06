@@ -5,7 +5,8 @@ let make = () => {
   open LogicUtils
 
   let {paymentResult, sdkThemeInitialValues} = React.useContext(SDKProvider.defaultContext)
-  let (hyperPromise, setHyperPromise) = React.useState(() => None)
+  let (isScriptLoaded, setIsScriptLoaded) = React.useState(() => false)
+  let (isHyperReady, setIsHyperReady) = React.useState(() => false)
 
   let publishableKey = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
@@ -14,35 +15,46 @@ let make = () => {
   let clientSecret = paymentResult->getDictFromJsonObject->getString("client_secret", "")
   let themeConfig = sdkThemeInitialValues->getDictFromJsonObject
 
-  let loadSDK = async () => {
+  let loadDOM = async () => {
     try {
       switch Window.env.sdkBaseUrl {
       | Some(url) => {
           let script = DOMUtils.document->DOMUtils.createElement("script")
           script->DOMUtils.setAttribute("src", url)
+          script->DOMUtils.elementOnload(_ => setIsScriptLoaded(_ => true))
           DOMUtils.appendChild(script)
-          let _ = Some(_ => script->DOMUtils.remove())
-          await HyperSwitchUtils.delay(1000)
         }
       | None => ()
       }
     } catch {
-    | error => Console.error(error)
+    | _ => ()
     }
   }
 
+  let checkHyperReady = async () => {
+    while Window.checkLoadHyper == None {
+      await HyperSwitchUtils.delay(500)
+    }
+    setIsHyperReady(_ => true)
+  }
+
   React.useEffect(() => {
-    loadSDK()->ignore
+    loadDOM()->ignore
     None
   }, [])
 
-  React.useEffect1(() => {
-    let promise = ReactHyperJs.loadHyper(
-      publishableKey,
-      [("isForceInit", true->Js.Json.boolean)]->getJsonFromArrayOfJson,
-    )
-    setHyperPromise(_ => Some(promise))
+  React.useEffect(() => {
+    if isScriptLoaded {
+      checkHyperReady()->ignore
+    }
     None
+  }, [isScriptLoaded])
+
+  let hyperPromise = React.useCallback(async () => {
+    Window.loadHyper(
+      publishableKey,
+      [("isForceInit", true->JSON.Encode.bool)]->LogicUtils.getJsonFromArrayOfJson,
+    )
   }, [publishableKey])
 
   // Define element appearance options from theme settings
@@ -59,11 +71,11 @@ let make = () => {
   }
 
   <div className="w-4/5">
-    {switch hyperPromise {
-    | Some(p) =>
-      <ReactHyperJs.Elements options=elementOptions stripe=p>
+    {switch (isScriptLoaded, isHyperReady) {
+    | (true, true) =>
+      <Elements options=elementOptions stripe={hyperPromise()}>
         <CheckoutForm />
-      </ReactHyperJs.Elements>
+      </Elements>
     | _ => React.null
     }}
   </div>

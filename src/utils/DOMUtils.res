@@ -22,3 +22,4 @@ external appendChild: Dom.element => unit = "appendChild"
 @scope(("document", "head"))
 external appendHead: Dom.element => unit = "appendChild"
 external domProps: {..} => JsxDOM.domProps = "%identity"
+@set external elementOnload: (Dom.element, unit => unit) => unit = "onload"
