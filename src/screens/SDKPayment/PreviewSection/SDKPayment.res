@@ -157,11 +157,13 @@ let make = (~checkIsSDKOpen: SDKPaymentUtils.sdkHandlingTypes, ~setCheckIsSDKOpe
     None
   }, [])
 
-  <div className="w-full h-full flex items-center justify-center p-5 overflow-auto">
+  <>
     {switch paymentStatus {
     | INCOMPLETE =>
       <RenderIf condition={checkIsSDKOpen.isLoaded}>
-        <WebSDK />
+        <div className="flex items-center justify-center">
+          <WebSDK />
+        </div>
       </RenderIf>
     | status =>
       let config = getStatusConfig(status)
@@ -177,10 +179,12 @@ let make = (~checkIsSDKOpen: SDKPaymentUtils.sdkHandlingTypes, ~setCheckIsSDKOpe
       </RenderIf>
     }}
     <RenderIf condition={checkIsSDKOpen.initialPreview}>
-      <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
+      <div className="flex items-center justify-center w-full h-full">
+        <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
+      </div>
     </RenderIf>
     <RenderIf condition={checkIsSDKOpen.isLoading}>
       <Loader />
     </RenderIf>
-  </div>
+  </>
 }

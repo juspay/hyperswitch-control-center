@@ -87,8 +87,8 @@ let make = () => {
     {switch paymentStatus {
     | LOADING => <Loader />
     | INCOMPLETE =>
-      <div className="grid grid-row-2 gap-5">
-        <div className="row-span-1 bg-white rounded-lg py-6 px-10 flex-1">
+      <>
+        <div className="w-full">
           <PaymentElement id="payment-element" options={paymentElementOptions} />
           <Button
             text={`Pay ${currency} ${(amount /. 100.00)->Float.toString}`}
@@ -104,7 +104,7 @@ let make = () => {
         | Some(errorMessage) => <div className="text-red-500"> {errorMessage->React.string} </div>
         | None => React.null
         }}
-      </div>
+      </>
     | _ => React.null
     }}
   </div>

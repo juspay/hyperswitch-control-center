@@ -28,7 +28,8 @@ let make = () => {
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 
   React.useEffect(() => {
-    setInitialValuesForCheckoutForm(_ => businessProfileRecoilVal->initialValueForForm)
+    setInitialValuesForCheckoutForm(_ => initialValueForForm(businessProfileRecoilVal))
+
     None
   }, [businessProfileRecoilVal.profile_id])
 
@@ -63,7 +64,15 @@ let make = () => {
 
   let onSubmit = (values, _) => {
     setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
-    let typedValues = values->getTypedValueForPayment(~showBillingAddress, ~isGuestMode)
+    setInitialValuesForCheckoutForm(_ =>
+      getTypedPaymentData(values, ~showBillingAddress, ~isGuestMode)
+    )
+    let typedValues = getTypedPaymentData(
+      values,
+      ~onlyEssential=true,
+      ~showBillingAddress,
+      ~isGuestMode,
+    )
     let _ = getClientSecret(~typedValues)
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
 

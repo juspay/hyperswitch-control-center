@@ -135,7 +135,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
   }
 }
 
-let getTypedValueForPayment = (values, ~showBillingAddress, ~isGuestMode) => {
+let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~isGuestMode) => {
   open LogicUtils
   open SDKPaymentTypes
 
@@ -153,10 +153,7 @@ let getTypedValueForPayment = (values, ~showBillingAddress, ~isGuestMode) => {
 
   let (shippingAddress, shippingPhone) = getAddressAndPhone(shipping)
   let (billingAddress, billingPhone) = getAddressAndPhone(billing)
-
-  let amount = dict->getFloat("amount", 10000.0)
   let countryCurrency = dict->getString("country_currency", "US-USD")->String.split("-")
-
   let getCountry = () => countryCurrency->getValueFromArray(0, "US")
   let getCurrency = () => countryCurrency->getValueFromArray(1, "USD")
 
@@ -186,8 +183,8 @@ let getTypedValueForPayment = (values, ~showBillingAddress, ~isGuestMode) => {
     }
   }
 
-  let basePaymentObject = {
-    amount,
+  let base = {
+    amount: dict->getFloat("amount", 10000.0),
     currency: getCurrency(),
     profile_id: dict->getString("profile_id", ""),
     customer_id: !isGuestMode ? dict->getOptionString("customer_id") : None,
@@ -204,14 +201,24 @@ let getTypedValueForPayment = (values, ~showBillingAddress, ~isGuestMode) => {
     ),
   }
 
-  if showBillingAddress {
-    {
-      ...basePaymentObject,
-      shipping: Some(createAddressAndPhone(~address=shippingAddress, ~phone=shippingPhone)),
-      billing: Some(createAddressAndPhone(~address=billingAddress, ~phone=billingPhone)),
+  if onlyEssential {
+    if showBillingAddress {
+      {
+        ...base,
+        shipping: Some(createAddressAndPhone(~address=shippingAddress, ~phone=shippingPhone)),
+        billing: Some(createAddressAndPhone(~address=billingAddress, ~phone=billingPhone)),
+      }
+    } else {
+      base
     }
   } else {
-    basePaymentObject
+    {
+      ...base,
+      show_saved_card: dict->getString("show_saved_card", "yes"),
+      shipping: Some(createAddressAndPhone(~address=shippingAddress, ~phone=shippingPhone)),
+      billing: Some(createAddressAndPhone(~address=billingAddress, ~phone=billingPhone)),
+      country_currency: dict->getString("country_currency", "US-USD"),
+    }
   }
 }
 
