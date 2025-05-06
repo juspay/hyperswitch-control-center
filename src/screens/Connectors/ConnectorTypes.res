@@ -103,6 +103,7 @@ type processorTypes =
   | REDSYS
   | HIPAY
   | PAYSTACK
+  | FACILITAPAY
 
 type payoutProcessorTypes =
   | ADYEN
