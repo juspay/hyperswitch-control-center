@@ -3,7 +3,7 @@ open FailureReasonsRefundsTypes
 open NewRefundsAnalyticsEntity
 open FailureReasonsRefundsUtils
 open NewAnalyticsHelper
-
+open RefundsSampleData
 module TableModule = {
   @react.component
   let make = (~data, ~className="") => {
@@ -60,7 +60,8 @@ let make = (~entity: moduleEntity) => {
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -87,7 +88,11 @@ let make = (~entity: moduleEntity) => {
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let response = await updateDetails(url, body, Post)
+      let response = if isSampleDataEnabled {
+        refundConnectorsSampleData //replace with s3 call
+      } else {
+        await updateDetails(url, body, Post)
+      }
 
       let metaData = response->getDictFromJsonObject->getArrayFromDict("metaData", [])
 

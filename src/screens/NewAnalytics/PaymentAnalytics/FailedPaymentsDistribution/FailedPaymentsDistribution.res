@@ -4,7 +4,6 @@ open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open FailedPaymentsDistributionUtils
 open NewPaymentAnalyticsUtils
-
 module TableModule = {
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {

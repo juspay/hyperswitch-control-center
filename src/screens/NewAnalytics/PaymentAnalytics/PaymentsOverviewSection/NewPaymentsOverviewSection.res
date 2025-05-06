@@ -1,6 +1,5 @@
 open NewAnalyticsTypes
 open NewPaymentsOverviewSectionTypes
-open NewAnalyticsSampleData
 @react.component
 let make = (~entity: moduleEntity) => {
   open NewPaymentsOverviewSectionUtils
@@ -8,6 +7,7 @@ let make = (~entity: moduleEntity) => {
   open APIUtils
   open NewAnalyticsHelper
   open NewAnalyticsUtils
+  open NewAnalyticsSampleData
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => []->JSON.Encode.array)
@@ -35,8 +35,7 @@ let make = (~entity: moduleEntity) => {
       let secondaryData = defaultValue->Dict.copy
 
       if isSampleDataEnabled {
-        let sampleData = paymentsOverviewData //replace with s3 call
-        setData(_ => sampleData)
+        setData(_ => paymentsOverviewData) //replace with s3 call
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         let paymentsUrl = getURL(

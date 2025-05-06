@@ -68,22 +68,22 @@ let initialFixedFilterFields = (
   | Some(fn) => fn
   | _ => () => ()
   }
-  let predefinedDays = if sampleDataIsEnabled {
-    []
-  } else {
-    [
-      Hour(0.5),
-      Hour(1.0),
-      Hour(2.0),
-      Today,
-      Yesterday,
-      Day(2.0),
-      Day(7.0),
-      Day(30.0),
-      ThisMonth,
-      LastMonth,
-    ]
-  }
+  let predefinedDays = // if sampleDataIsEnabled {
+  //   []
+  // } else {
+  [
+    Hour(0.5),
+    Hour(1.0),
+    Hour(2.0),
+    Today,
+    Yesterday,
+    Day(2.0),
+    Day(7.0),
+    Day(30.0),
+    ThisMonth,
+    LastMonth,
+  ]
+  // }
 
   let newArr = [
     (

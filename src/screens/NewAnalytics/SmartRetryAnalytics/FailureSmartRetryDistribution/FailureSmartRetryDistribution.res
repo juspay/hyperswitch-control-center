@@ -109,7 +109,7 @@ let make = (
       )
 
       let response = if isSampleDataEnabled {
-        paymentSampleData //replace with s3 call
+        paymentsRateDataWithConnectors //replace with s3 call
       } else {
         await updateDetails(url, body, Post)
       }
