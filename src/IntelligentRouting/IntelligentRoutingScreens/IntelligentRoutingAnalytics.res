@@ -287,8 +287,8 @@ module FileDropdownBaseComp = {
     )
 
     let arrowClassName = `${arrow
-        ? "rotate-0"
-        : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+        ? "rotate-180"
+        : "rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
     <div
       className="text-left flex gap-1 justify-between w-fit border border-nd_gray-200 rounded-md py-1 px-2">
@@ -320,7 +320,7 @@ module FileDropdownBottomComp = {
       <p
         className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle} cursor-pointer`}
         onClick={_ => restartSimulation()}>
-        <Icon name="nd-upload" size=15 customIconColor="#1C6DEA" />
+        <Icon name="nd-upload" size=15 customIconColor="text-nd_primary_blue" />
         {"Change File"->React.string}
       </p>
     </div>
