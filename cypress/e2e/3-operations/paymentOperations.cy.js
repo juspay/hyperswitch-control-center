@@ -582,7 +582,7 @@ describe("Payment Operations", () => {
         const formatDate = (date) => {
           return date.toLocaleDateString("en-US", {
             month: "short",
-            day: "numeric",
+            day: "2-digit",
             year: "numeric",
           });
         };
