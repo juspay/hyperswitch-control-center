@@ -739,7 +739,8 @@ let useGetURL = () => {
         | Some(queryParams) => `dynamic-routing/simulate/${merchantId}/get-records?${queryParams}`
         | None => `dynamic-routing/simulate/${merchantId}/get-records`
         }
-      | INTELLIGENT_ROUTING_GET_STATISTICS => `dynamic-routing/simulate/${merchantId}/get-statistics`
+      | INTELLIGENT_ROUTING_GET_STATISTICS =>
+        `dynamic-routing/simulate/${merchantId}/get-statistics`
 
       /* USERS */
       | USERS =>
