@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.07.0
+
+### Miscellaneous Tasks
+
+- Added facilitapay connector ([#2929](https://github.com/juspay/hyperswitch-control-center/pull/2929)) ([`249bd03`](https://github.com/juspay/hyperswitch-control-center/commit/249bd03737eef7f011d898e510470c9c8781196f))
+- Wasm update for facilitapay connector ([#2930](https://github.com/juspay/hyperswitch-control-center/pull/2930)) ([`5c867ed`](https://github.com/juspay/hyperswitch-control-center/commit/5c867edeecd62b337e1d7b986320e4bbbdc40711))
+
+**Full Changelog:** [`2025.05.06.0...2025.05.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.06.0...2025.05.07.0)
+
+
+- - -
+
 ## 2025.05.06.0
 
 ### Bug Fixes

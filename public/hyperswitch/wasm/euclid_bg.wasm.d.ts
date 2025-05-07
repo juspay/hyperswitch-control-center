@@ -3,6 +3,7 @@
 export const memory: WebAssembly.Memory;
 export const setForexData: (a: number, b: number) => void;
 export const convertCurrency: (a: number, b: bigint, c: number, d: number) => void;
+export const getTwoLetterCountryCode: (a: number) => void;
 export const seedKnowledgeGraph: (a: number, b: number) => void;
 export const getValidConnectorsForRule: (a: number, b: number) => void;
 export const analyzeProgram: (a: number, b: number) => void;
