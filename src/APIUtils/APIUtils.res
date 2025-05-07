@@ -731,15 +731,15 @@ let useGetURL = () => {
       /* INTELLIGENT ROUTING */
       | SIMULATE_INTELLIGENT_ROUTING =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate/${merchantId}?${queryParams}`
-        | None => `simulate/${merchantId}`
+        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}?${queryParams}`
+        | None => `dynamic-routing/simulate/${merchantId}`
         }
       | INTELLIGENT_ROUTING_RECORDS =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate/${merchantId}/get-records?${queryParams}`
-        | None => `simulate/${merchantId}/get-records`
+        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}/get-records?${queryParams}`
+        | None => `dynamic-routing/simulate/${merchantId}/get-records`
         }
-      | INTELLIGENT_ROUTING_GET_STATISTICS => `simulate/${merchantId}/get-statistics`
+      | INTELLIGENT_ROUTING_GET_STATISTICS => `dynamic-routing/simulate/${merchantId}/get-statistics`
 
       /* USERS */
       | USERS =>
