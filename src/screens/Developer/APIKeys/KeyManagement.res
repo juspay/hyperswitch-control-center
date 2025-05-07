@@ -108,7 +108,7 @@ module ApiEditModal = {
             initialValues={initialValues->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToPristine
             validate={values =>
-              validateAPIKeyForm(values, ["name", "expiration"], ~setShowCustomDate)}
+              validateAPIKeyForm(values, ["name", "expiration", "description"], ~setShowCustomDate)}
             onSubmit
             render={({handleSubmit}) => {
               <LabelVisibilityContext showLabel=false>
