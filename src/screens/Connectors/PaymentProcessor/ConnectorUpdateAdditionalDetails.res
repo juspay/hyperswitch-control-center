@@ -3,6 +3,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   open APIUtils
   open ConnectorUtils
   open ConnectorAccountDetailsHelper
+  open LogicUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
@@ -46,12 +47,22 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
 
   let onSubmit = async (values, _) => {
     try {
+      let valuesDict = values->getDictFromJsonObject
+      let webhookDetails = valuesDict->getDictfromDict("connector_webhook_details")
+
+      if webhookDetails->getOptionString("merchant_secret")->Option.isNone {
+        valuesDict
+        ->getDictfromDict("connector_webhook_details")
+        ->Dict.set("merchant_secret", ""->JSON.Encode.string)
+      }
+
+      let updatedValues = valuesDict->JSON.Encode.object
       let url = getURL(
         ~entityName=V1(CONNECTOR),
         ~methodType=Post,
         ~id=Some(connectorInfo.merchant_connector_id),
       )
-      let _ = await updateAPIHook(url, values, Post)
+      let _ = await updateAPIHook(url, updatedValues, Post)
       switch getConnectorDetails {
       | Some(fun) => fun()->ignore
       | _ => ()

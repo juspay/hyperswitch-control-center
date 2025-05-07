@@ -319,7 +319,7 @@ module ConnectorSummaryGrid = {
       <RenderIf
         condition={!(connectorWebHookDetails->isEmptyDict) ||
         !(connectorMetaDataFields->isEmptyDict)}>
-        <div className="grid grid-cols-4 border-b md:px-10 pt-8">
+        <div className="grid grid-cols-4 border-b md:px-10 py-8">
           <div className="flex items-start">
             <h4 className="text-lg font-semibold"> {"Additional Details"->React.string} </h4>
           </div>
