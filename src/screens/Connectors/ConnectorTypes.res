@@ -103,6 +103,7 @@ type processorTypes =
   | REDSYS
   | HIPAY
   | PAYSTACK
+  | FACILITAPAY
 
 type payoutProcessorTypes =
   | ADYEN
@@ -279,6 +280,7 @@ type certificateAuth = {
   certificate: string,
   private_key: string,
 }
+type noKeyAuth = {auth_type: string}
 
 type connectorAuthType =
   | HeaderKey
@@ -287,6 +289,7 @@ type connectorAuthType =
   | MultiAuthKey
   | CurrencyAuthKey
   | CertificateAuth
+  | NoKey
   | UnKnownAuthType
 
 type connectorAuthTypeObj =
@@ -296,6 +299,7 @@ type connectorAuthTypeObj =
   | MultiAuthKey(multiAuthKey)
   | CurrencyAuthKey(currencyAuthKey)
   | CertificateAuth(certificateAuth)
+  | NoKey(noKeyAuth)
   | UnKnownAuthType(JSON.t)
 
 type paymentMethodEnabledType = {
@@ -370,3 +374,13 @@ type connector =
   | PMAuthenticationProcessor
   | TaxProcessor
   | BillingProcessor
+
+type connectorFieldTypes = {
+  bodyType: string,
+  connectorAccountFields: Dict.t<JSON.t>,
+  connectorMetaDataFields: Dict.t<JSON.t>,
+  isVerifyConnector: bool,
+  connectorWebHookDetails: Dict.t<JSON.t>,
+  connectorLabelDetailField: Dict.t<JSON.t>,
+  connectorAdditionalMerchantData: Dict.t<JSON.t>,
+}

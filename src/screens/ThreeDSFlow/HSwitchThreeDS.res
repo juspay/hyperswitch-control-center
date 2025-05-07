@@ -341,7 +341,6 @@ let make = () => {
               </div>
               <Configure3DSRule wasm />
             </div>
-            <FormValuesSpy />
             <div className="flex gap-4">
               <Button
                 text="Cancel"

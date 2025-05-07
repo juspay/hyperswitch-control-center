@@ -73,6 +73,13 @@ module.exports = {
       inset: {
         "76-px": "76px",
       },
+      letterSpacing: {
+        compressed: "-2px",
+        condensed: "-1px",
+        normal: "0px",
+        expanded: "1px",
+        extended: "2px",
+      },
       width: {
         "90-px": "90px",
         100: "25rem",
@@ -120,8 +127,15 @@ module.exports = {
         20: "20px",
         21: "21px",
         24: "24px",
+        26: "26px",
+        32: "32px",
         38: "38px",
+        46: "46px",
+        56: "56px",
         60: "60px",
+        64: "64px",
+        70: "70px",
+        78: "78px",
       },
       blur: {
         xs: "0.2px",
@@ -160,6 +174,9 @@ module.exports = {
         "fs-28": "28px",
         "fs-32": "32px",
         "fs-48": "48px",
+        "fs-56": "56px",
+        "fs-64": "64px",
+        "fs-72": "72px",
       },
       colors: {
         primary: {
@@ -173,11 +190,11 @@ module.exports = {
         sidebar: {
           DEFAULT: withOpacity("--sidebar-primary"),
           primary: withOpacity("--sidebar-primary"),
-          secondary: withOpacity("--sidebar-secondary"),
-          hoverColor: withOpacity("--sidebar-hover-color"),
-          primaryTextColor: withOpacity("--sidebar-primary-text-color"),
-          secondaryTextColor: withOpacity("--sidebar-secondary-text-color"),
-          borderColor: withOpacity("--sidebar-border-color"),
+          textColor: withOpacity("--sidebar-text-color"),
+          textColorPrimary: withOpacity("--sidebar-text-color-primary"),
+          secondary: `hsl(from rgb(var(--sidebar-primary)) h s calc(l + 10) / 1)`, //color for dropdowns in sidebar
+          hoverColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.5)`,
+          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.8)`,
         },
 
         background: {

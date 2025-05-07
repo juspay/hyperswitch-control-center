@@ -21,12 +21,12 @@ module TotpScanQR = {
                 </div>
                 {"Scan the QR code shown on the screen with your authenticator application"->React.string}
               </p>
-              <p className={`${p2Regular} opacity-60 flex gap-2 items-center`}>
-                <div className="text-white rounded-full bg-grey-900 opacity-50 px-2 py-0.5">
+              <div className={`${p2Regular} opacity-60 flex gap-2 items-center`}>
+                <p className="text-white rounded-full bg-grey-900 opacity-50 px-2 py-0.5">
                   {"2"->React.string}
-                </div>
+                </p>
                 {"Enter the OTP code displayed on the authenticator app in below text field or textbox"->React.string}
-              </p>
+              </div>
             </div>
           </div>
         </div>

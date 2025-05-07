@@ -454,6 +454,9 @@ module LineChart1D = {
             {
               "type": chartType,
               "margin": None,
+              "style": {
+                "fontFamily": "InterDisplay",
+              }->genericObjectOrRecordToJson,
               "zoomType": "x",
               "backgroundColor": Nullable.null,
               "height": Some(chartHeight),

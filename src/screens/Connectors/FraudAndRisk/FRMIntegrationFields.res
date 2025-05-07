@@ -16,17 +16,15 @@ module AdvanceSettings = {
       checked: true,
     }
 
-    let businessProfileValue =
-      Recoil.useRecoilValueFromAtom(
-        HyperswitchAtom.businessProfilesAtom,
-      )->MerchantAccountUtils.getValueFromBusinessProfile
+    let businessProfileRecoilVal =
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
     React.useEffect(() => {
       if !isUpdateFlow {
-        form.change("profile_id", businessProfileValue.profile_id->JSON.Encode.string)
+        form.change("profile_id", businessProfileRecoilVal.profile_id->JSON.Encode.string)
       }
       None
-    }, [businessProfileValue.profile_id])
+    }, [businessProfileRecoilVal.profile_id])
     <>
       <div className="flex gap-2 items-center p-2">
         <BoolInput input={inputLabel} isDisabled={isUpdateFlow} boolCustomClass="rounded-full" />
@@ -167,7 +165,6 @@ module IntegrationFieldsForm = {
           </div>
         </div>
       </div>
-      <FormValuesSpy />
     </Form>
   }
 }
