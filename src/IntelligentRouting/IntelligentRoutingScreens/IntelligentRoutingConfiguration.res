@@ -319,7 +319,9 @@ module Analyze = {
                 <span>
                   <Icon name="nd-arrow-down" />
                 </span>
-                <div className="text-nd_primary_blue-500 font-medium" onClick={_ => downloadTemplateFile()}>
+                <div
+                  className="text-nd_primary_blue-500 font-medium"
+                  onClick={_ => downloadTemplateFile()}>
                   {"Download"->React.string}
                 </div>
               </div>
