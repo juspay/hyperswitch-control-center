@@ -378,6 +378,7 @@ module Analyze = {
                 />
               })
               ->React.array}
+              <RenderIf condition={selectedField === Upload}> {fileUploadComponent} </RenderIf>
             </>
           | Realtime =>
             <>
@@ -402,7 +403,6 @@ module Analyze = {
           }
         })
         ->React.array}
-        <RenderIf condition={selectedField === Upload}> {fileUploadComponent} </RenderIf>
         <Button
           text=buttonText
           customButtonStyle={`w-full mt-6 hover:opacity-80 ${buttonText != "Next"
