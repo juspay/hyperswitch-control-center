@@ -115,10 +115,28 @@ module RenderConnectorInputFields = {
     open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let merchantSecretValue =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("connector_webhook_details")
+      ->getString("merchant_secret", "")
+    let additionalSecretValue =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("connector_webhook_details")
+      ->getString("additional_secret", "")
 
     keys
     ->Array.mapWithIndex((field, i) => {
       let label = details->getString(field, "")
+      let isDisabled =
+        disabled ||
+        (field == "additional_secret" &&
+        merchantSecretValue->LogicUtils.isEmptyString &&
+        additionalSecretValue->LogicUtils.isEmptyString)
 
       let formName = isLabelNested ? `${name}.${field}` : name
       <RenderIf condition={label->isNonEmptyString} key={i->Int.toString}>
@@ -141,7 +159,7 @@ module RenderConnectorInputFields = {
                   ~connector,
                   ~checkRequiredFields,
                   ~getPlaceholder,
-                  ~disabled,
+                  ~disabled=isDisabled,
                   ~description,
                   (),
                 )
