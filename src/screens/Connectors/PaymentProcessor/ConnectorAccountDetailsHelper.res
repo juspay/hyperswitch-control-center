@@ -135,8 +135,8 @@ module RenderConnectorInputFields = {
       let isDisabled =
         disabled ||
         (field == "additional_secret" &&
-        merchantSecretValue->LogicUtils.isEmptyString &&
-        additionalSecretValue->LogicUtils.isEmptyString)
+        merchantSecretValue->isEmptyString &&
+        additionalSecretValue->isEmptyString)
 
       let formName = isLabelNested ? `${name}.${field}` : name
       <RenderIf condition={label->isNonEmptyString} key={i->Int.toString}>
