@@ -312,12 +312,14 @@ module Analyze = {
             className="border ring-grey-outline rounded-lg bg-nd_gray-25 p-4 flex flex-col items-center gap-6">
             <div
               className="border ring-grey-outline rounded-lg bg-white p-4 flex justify-between w-full">
-              <div> {"Download sample file"->React.string} </div>
+              <div className="text-nd_gray-700 font-medium">
+                {"Download sample file"->React.string}
+              </div>
               <div className="flex gap-2 cursor-pointer">
                 <span>
                   <Icon name="nd-arrow-down" />
                 </span>
-                <div className="text-nd_primary_blue-500" onClick={_ => downloadTemplateFile()}>
+                <div className="text-nd_primary_blue-500 font-medium" onClick={_ => downloadTemplateFile()}>
                   {"Download"->React.string}
                 </div>
               </div>
