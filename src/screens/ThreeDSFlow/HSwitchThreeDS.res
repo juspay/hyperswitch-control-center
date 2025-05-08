@@ -148,7 +148,6 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageView, setPageView) = React.useState(_ => NEW)
   let showPopUp = PopUpState.useShowPopUp()
-  let (showWarning, setShowWarning) = React.useState(_ => true)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastState.useShowToast()
 
@@ -198,9 +197,9 @@ let make = () => {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         if err->String.includes("HE_02") {
-          setShowWarning(_ => false)
           setPageView(_ => LANDING)
           setScreenState(_ => Success)
+          setInitialRule(_ => None)
         } else {
           setScreenState(_ => Error(err))
         }
@@ -229,7 +228,6 @@ let make = () => {
       let getActivateUrl = getURL(~entityName=V1(THREE_DS), ~methodType=Put)
       let _ = await updateDetails(getActivateUrl, threeDsPayload->Identity.genericTypeToJson, Put)
       fetchDetails()->ignore
-      setShowWarning(_ => true)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
@@ -281,9 +279,10 @@ let make = () => {
     setPageView(_ => NEW)
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds?type=new"))
   }
+
   let handleCreateNew = () => {
     mixpanelEvent(~eventName="create_new_3ds_rule")
-    if showWarning {
+    if initialRule->Option.isSome {
       showPopUp({
         popUpType: (Warning, WithIcon),
         heading: "Heads up!",
