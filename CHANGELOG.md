@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.08.0
+
+### Bug Fixes
+
+- Added health log in health handler ([#2942](https://github.com/juspay/hyperswitch-control-center/pull/2942)) ([`13aee58`](https://github.com/juspay/hyperswitch-control-center/commit/13aee585d2779da64a84aa1bcc6a03514f6f0dae))
+
+### Testing
+
+- Payment operations date checking with 2 digits ([#2936](https://github.com/juspay/hyperswitch-control-center/pull/2936)) ([`8dd6532`](https://github.com/juspay/hyperswitch-control-center/commit/8dd65320f16dfa2f30af8a4113b34e828169464d))
+
+### Miscellaneous Tasks
+
+- Updated pr label workflow ([#2915](https://github.com/juspay/hyperswitch-control-center/pull/2915)) ([`f34b5ee`](https://github.com/juspay/hyperswitch-control-center/commit/f34b5ee9065415f0b017643648515e79103074bd))
+
+**Full Changelog:** [`2025.05.07.0...2025.05.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.07.0...2025.05.08.0)
+
+
+- - -
+
 ## 2025.05.07.0
 
 ### Miscellaneous Tasks
