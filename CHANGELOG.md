@@ -3,6 +3,53 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.08.0
+
+### Bug Fixes
+
+- Added health log in health handler ([#2942](https://github.com/juspay/hyperswitch-control-center/pull/2942)) ([`13aee58`](https://github.com/juspay/hyperswitch-control-center/commit/13aee585d2779da64a84aa1bcc6a03514f6f0dae))
+
+### Testing
+
+- Payment operations date checking with 2 digits ([#2936](https://github.com/juspay/hyperswitch-control-center/pull/2936)) ([`8dd6532`](https://github.com/juspay/hyperswitch-control-center/commit/8dd65320f16dfa2f30af8a4113b34e828169464d))
+
+### Miscellaneous Tasks
+
+- Updated pr label workflow ([#2915](https://github.com/juspay/hyperswitch-control-center/pull/2915)) ([`f34b5ee`](https://github.com/juspay/hyperswitch-control-center/commit/f34b5ee9065415f0b017643648515e79103074bd))
+
+**Full Changelog:** [`2025.05.07.0...2025.05.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.07.0...2025.05.08.0)
+
+
+- - -
+
+## 2025.05.07.0
+
+### Miscellaneous Tasks
+
+- Added facilitapay connector ([#2929](https://github.com/juspay/hyperswitch-control-center/pull/2929)) ([`249bd03`](https://github.com/juspay/hyperswitch-control-center/commit/249bd03737eef7f011d898e510470c9c8781196f))
+- Wasm update for facilitapay connector ([#2930](https://github.com/juspay/hyperswitch-control-center/pull/2930)) ([`5c867ed`](https://github.com/juspay/hyperswitch-control-center/commit/5c867edeecd62b337e1d7b986320e4bbbdc40711))
+
+**Full Changelog:** [`2025.05.06.0...2025.05.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.06.0...2025.05.07.0)
+
+
+- - -
+
+## 2025.05.06.0
+
+### Bug Fixes
+
+- Added validation for the api keys ([#2920](https://github.com/juspay/hyperswitch-control-center/pull/2920)) ([`4fb87f0`](https://github.com/juspay/hyperswitch-control-center/commit/4fb87f0f64adca48cb4f26fab132bccde3939e5e))
+- Changed old analytics graph font style to InterDisplay ([#2918](https://github.com/juspay/hyperswitch-control-center/pull/2918)) ([`2715444`](https://github.com/juspay/hyperswitch-control-center/commit/271544465319bb7750096fb7f5be8a2950d25668))
+
+### Miscellaneous Tasks
+
+- Changed revenue recovery mixpanel events ([#2902](https://github.com/juspay/hyperswitch-control-center/pull/2902)) ([`6c8c94f`](https://github.com/juspay/hyperswitch-control-center/commit/6c8c94f8ead4e4651cdcc2b309dff8dda9e5fb1a))
+
+**Full Changelog:** [`2025.05.05.0...2025.05.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.05.0...2025.05.06.0)
+
+
+- - -
+
 ## 2025.05.05.0
 
 ### Bug Fixes
