@@ -151,11 +151,23 @@ let responseMapper = (response: JSON.t) => {
   let dict = response->getDictFromJsonObject
 
   {
+    file_name: dict->getString("file_name", ""),
     overall_success_rate: dict->getJsonObjectFromDict("overall_success_rate")->getStats,
     total_failed_payments: dict->getJsonObjectFromDict("total_failed_payments")->getStats,
     total_revenue: dict->getJsonObjectFromDict("total_revenue")->getStats,
     faar: dict->getJsonObjectFromDict("faar")->getStats,
     time_series_data: dict->getArrayFromDict("time_series_data", [])->mapTimeSeriesData,
     overall_success_rate_improvement: dict->getFloat("overall_success_rate_improvement", 0.0),
+  }
+}
+
+let getFileData = json => {
+  let dict = json->getDictFromJsonObject
+  let data = dict->getJsonObjectFromDict("data")
+  let stats = dict->getDictfromDict("stats")
+
+  {
+    data: data->getUInt8ArrayFromJson(Js.TypedArray2.Uint8Array.make([])),
+    stats: IntelligentRoutingReviewFieldsEntity.itemToObjMapper(stats),
   }
 }
