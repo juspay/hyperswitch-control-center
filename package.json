@@ -63,8 +63,8 @@
   "dependencies": {
     "@headlessui/react": "^1.2.0",
     "@iarna/toml": "^2.2.5",
-    "@juspay-tech/hyper-js": "^1.6.0",
-    "@juspay-tech/react-hyper-js": "^1.2.1",
+    "@juspay-tech/hyper-js": "^1.7.0",
+    "@juspay-tech/react-hyper-js": "^1.2.2",
     "@monaco-editor/react": "^4.4.5",
     "@rescript/core": "^0.6.0",
     "@rescript/react": "^0.12.0",
@@ -83,6 +83,7 @@
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
     "react-beautiful-dnd": "^13.1.0",
+    "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
     "react-final-form": "^6.5.9",
     "react-ga4": "^2.0.0",

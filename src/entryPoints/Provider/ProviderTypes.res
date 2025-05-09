@@ -39,3 +39,26 @@ type sidebarContextType = {
   isSidebarExpanded: bool,
   setIsSidebarExpanded: (bool => bool) => unit,
 }
+
+type sdkContextType = {
+  showBillingAddress: bool,
+  setShowBillingAddress: (bool => bool) => unit,
+  isSameAsBilling: bool,
+  setIsSameAsBilling: (bool => bool) => unit,
+  sdkThemeInitialValues: JSON.t,
+  setSdkThemeInitialValues: (JSON.t => JSON.t) => unit,
+  keyForReRenderingSDK: string,
+  setKeyForReRenderingSDK: (string => string) => unit,
+  paymentStatus: ReactHyperJs.paymentStatus,
+  setPaymentStatus: (ReactHyperJs.paymentStatus => ReactHyperJs.paymentStatus) => unit,
+  paymentResult: JSON.t,
+  setPaymentResult: (JSON.t => JSON.t) => unit,
+  errorMessage: string,
+  setErrorMessage: (string => string) => unit,
+  isGuestMode: bool,
+  setIsGuestMode: (bool => bool) => unit,
+  initialValuesForCheckoutForm: SDKPaymentTypes.paymentType,
+  setInitialValuesForCheckoutForm: (
+    SDKPaymentTypes.paymentType => SDKPaymentTypes.paymentType
+  ) => unit,
+}

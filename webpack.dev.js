@@ -12,14 +12,8 @@ let proxy = {
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
-  "/themes": {
-    target: "",
-    changeOrigin: true,
-  },
-  "/test-data/recon": {
-    target: "",
-    changeOrigin: true,
-  },
+  "/themes": { target: "", changeOrigin: true },
+  "/test-data/recon": { target: "", changeOrigin: true },
 };
 
 let configMiddleware = (req, res, next) => {
@@ -54,9 +48,7 @@ let configMiddleware = (req, res, next) => {
 };
 
 let devServer = {
-  static: {
-    directory: path.resolve(__dirname, "dist", "hyperswitch"),
-  },
+  static: { directory: path.resolve(__dirname, "dist", "hyperswitch") },
   compress: true,
   hot: true,
   port: port,
@@ -73,8 +65,5 @@ let devServer = {
 console.log(devServer);
 module.exports = merge([
   common("hyperswitch"),
-  {
-    mode: "development",
-    devServer: devServer,
-  },
+  { mode: "development", devServer: devServer },
 ]);
