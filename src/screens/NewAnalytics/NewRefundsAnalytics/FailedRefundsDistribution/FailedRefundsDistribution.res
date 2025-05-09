@@ -4,7 +4,7 @@ open NewRefundsAnalyticsEntity
 open BarGraphTypes
 open FailedRefundsDistributionUtils
 open FailedRefundsDistributionTypes
-
+open RefundsSampleData
 module TableModule = {
   @react.component
   let make = (~data, ~className="") => {
@@ -67,7 +67,8 @@ let make = (
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let (refundsDistribution, setrefundsDistribution) = React.useState(_ => JSON.Encode.array([]))
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -92,7 +93,11 @@ let make = (
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let response = await updateDetails(url, body, Post)
+      let response = if isSampleDataEnabled {
+        refundConnectorsSampleData //replace with s3 call
+      } else {
+        await updateDetails(url, body, Post)
+      }
 
       let responseTotalNumberData =
         response->getDictFromJsonObject->getArrayFromDict("queryData", [])
@@ -136,7 +141,7 @@ let make = (
       getRefundsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, currency])
+  }, (startTimeVal, endTimeVal, currency, isSampleDataEnabled))
 
   let params = {
     data: refundsDistribution,

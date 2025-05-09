@@ -152,6 +152,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open RefundsSampleData
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -170,6 +171,8 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let defaulGranularity = getDefaultGranularity(
@@ -213,7 +216,11 @@ let make = (
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let primaryResponse = await updateDetails(url, primaryBody, Post)
+      let primaryResponse = if isSampleDataEnabled {
+        refundsSampleData
+      } else {
+        await updateDetails(url, primaryBody, Post)
+      }
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
@@ -225,7 +232,11 @@ let make = (
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
-          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryResponse = if isSampleDataEnabled {
+            comparisonRefundsSampleData
+          } else {
+            await updateDetails(url, secondaryBody, Post)
+          }
           let secondaryData =
             secondaryResponse
             ->getDictFromJsonObject
@@ -299,6 +310,7 @@ let make = (
     comparison,
     currency,
     granularity.value,
+    isSampleDataEnabled,
   ))
 
   let params = {

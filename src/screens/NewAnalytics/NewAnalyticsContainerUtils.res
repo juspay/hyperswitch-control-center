@@ -1,5 +1,5 @@
 open NewAnalyticsTypes
-
+open DateRangeUtils
 let getPageVariant = string => {
   switch string {
   | "new-analytics-smart-retry" => NewAnalyticsSmartRetry
@@ -47,6 +47,7 @@ let (
   compareToStartTimeKey,
   compareToEndTimeKey,
   comparisonKey,
+  sampleDataKey,
 ) = (
   "startTime",
   "endTime",
@@ -54,13 +55,36 @@ let (
   "compareToStartTime",
   "compareToEndTime",
   "comparison",
+  "is_sample_data_enabled",
 )
 
-let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime, ~events=?) => {
+let initialFixedFilterFields = (
+  ~compareWithStartTime,
+  ~compareWithEndTime,
+  ~events=?,
+  ~sampleDataIsEnabled,
+) => {
   let events = switch events {
   | Some(fn) => fn
   | _ => () => ()
   }
+  let predefinedDays = // if sampleDataIsEnabled {
+  //   []
+  // } else {
+  [
+    Hour(0.5),
+    Hour(1.0),
+    Hour(2.0),
+    Today,
+    Yesterday,
+    Day(2.0),
+    Day(7.0),
+    Day(30.0),
+    ThisMonth,
+    LastMonth,
+  ]
+  // }
+
   let newArr = [
     (
       {
@@ -74,18 +98,7 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime, ~eve
             ~showTime=true,
             ~disablePastDates={false},
             ~disableFutureDates={true},
-            ~predefinedDays=[
-              Hour(0.5),
-              Hour(1.0),
-              Hour(2.0),
-              Today,
-              Yesterday,
-              Day(2.0),
-              Day(7.0),
-              Day(30.0),
-              ThisMonth,
-              LastMonth,
-            ],
+            ~predefinedDays,
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,

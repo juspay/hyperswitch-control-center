@@ -58,7 +58,10 @@ module PaymentsFilter = {
     let endTimeVal = filterValueJson->getString("endTime", "")
     let (currencOptions, setCurrencOptions) = React.useState(_ => [])
     let (selectedCurrency, setSelectedCurrency) = React.useState(_ => defaultCurrency)
-
+    let isSampleDataEnabled =
+      filterValueJson
+      ->getString("is_sample_data_enabled", "true")
+      ->LogicUtils.getBoolFromString(true)
     let filterValueModifier = dict => {
       dict->Dict.set((#currency: filters :> string), selectedCurrency.value)
       dict
@@ -92,7 +95,11 @@ module PaymentsFilter = {
 
     <PageLoaderWrapper screenState customLoader={<FilterLoader />}>
       <NewAnalyticsHelper.CustomDropDown
-        buttonText={selectedCurrency} options={currencOptions} setOption positionClass="left-0"
+        buttonText={selectedCurrency}
+        options={currencOptions}
+        setOption
+        positionClass="left-0"
+        disabled=isSampleDataEnabled
       />
     </PageLoaderWrapper>
   }

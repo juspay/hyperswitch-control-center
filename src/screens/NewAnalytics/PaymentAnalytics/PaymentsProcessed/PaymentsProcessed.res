@@ -3,6 +3,7 @@ open NewAnalyticsHelper
 open NewPaymentAnalyticsEntity
 open PaymentsProcessedUtils
 open NewPaymentAnalyticsUtils
+open NewAnalyticsSampleData
 module TableModule = {
   open LogicUtils
   open PaymentsProcessedTypes
@@ -199,6 +200,8 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
 
+  let isSampleDataEnabled =
+    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -226,7 +229,12 @@ let make = (
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let primaryResponse = await updateDetails(url, primaryBody, Post)
+      let primaryResponse = if isSampleDataEnabled {
+        paymentSampleData // replace with s3 call
+      } else {
+        await updateDetails(url, primaryBody, Post)
+      }
+      Js.log2("primaryResponse", primaryResponse)
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
@@ -239,7 +247,11 @@ let make = (
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
-          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryResponse = if isSampleDataEnabled {
+            secondaryPaymentSampleData // replace with s3 call
+          } else {
+            await updateDetails(url, secondaryBody, Post)
+          }
           let secondaryData =
             secondaryResponse
             ->getDictFromJsonObject
@@ -314,6 +326,7 @@ let make = (
     granularity.value,
     currency,
     isSmartRetryEnabled,
+    isSampleDataEnabled,
   ))
 
   let params = {

@@ -112,9 +112,9 @@ let make = () => {
 
   <PageLoaderWrapper key={(analyticsEntity :> string)} screenState>
     <div>
-      <PageUtils.PageHeading title="Insights" />
-      <div
-        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
+      <NewAnalyticsHelper.SampleDataBanner />
+      <PageUtils.PageHeading customTitleStyle="mt-4" title="Insights" />
+      <div className="-ml-1 top-0 z-20 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
           title="NewAnalytics"
           initialFilters=[]
@@ -124,6 +124,7 @@ let make = () => {
             ~compareWithStartTime=startTimeVal,
             ~compareWithEndTime=endTimeVal,
             ~events=dateDropDownTriggerMixpanelCallback,
+            ~sampleDataIsEnabled=filterValueJson->getBool(sampleDataKey, true),
           )}
           defaultFilterKeys=[
             startTimeFilterKey,
