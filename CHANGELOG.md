@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.09.0
+
+### Bug Fixes
+
+- Recovery Processor Reference ID empty value validation check ([#2925](https://github.com/juspay/hyperswitch-control-center/pull/2925)) ([`8eb30c5`](https://github.com/juspay/hyperswitch-control-center/commit/8eb30c5ba472f823847f5899a3b7dd875702344d))
+- Old analytics tab value bug fix ([#2926](https://github.com/juspay/hyperswitch-control-center/pull/2926)) ([`7d6d664`](https://github.com/juspay/hyperswitch-control-center/commit/7d6d664eb9f43e8c0c4604a95eb2c16143f8fd70))
+
+**Full Changelog:** [`2025.05.08.0...2025.05.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.08.0...2025.05.09.0)
+
+
+- - -
+
 ## 2025.05.08.0
 
 ### Bug Fixes
