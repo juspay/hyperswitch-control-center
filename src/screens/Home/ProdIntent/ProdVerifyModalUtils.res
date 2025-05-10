@@ -51,18 +51,19 @@ let pocEmail = FormRenderer.makeFieldInfo(
   ~isRequired=true,
 )
 
-let countryField = FormRenderer.makeFieldInfo(
-  ~label="Business Country",
+let countryFieldInput = () => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  <ProdIntentHelper.CountryField fieldsArray />
+}
+
+let countryField = FormRenderer.makeMultiInputFieldInfoOld(
+  ~label="Business country",
+  ~comboCustomInput=countryFieldInput(),
+  ~inputFields=[
+    FormRenderer.makeInputFieldInfo(~name=`business_location`),
+    FormRenderer.makeInputFieldInfo(~name=`business_country_name`),
+  ],
   ~isRequired=true,
-  ~name=Country->getStringFromVariant,
-  ~customInput=InputFields.selectInput(
-    ~deselectDisable=true,
-    ~fullLength=true,
-    ~customStyle="max-h-48",
-    ~customButtonStyle="pr-3",
-    ~options=CountryUtils.countriesList->Array.map(CountryUtils.getCountryOption),
-    ~buttonText="Select Country",
-  ),
+  (),
 )
 
 let validateEmptyValue = (key, errors) => {
@@ -171,6 +172,10 @@ let getBody = (values: JSON.t) => {
   prodOnboardingpayload->setOptionString(
     POCName->getStringFromVariant,
     valuesDict->getOptionString(POCName->getStringFromVariant),
+  )
+  prodOnboardingpayload->setOptionString(
+    "business_country_name",
+    valuesDict->getOptionString("business_country_name"),
   )
   prodOnboardingpayload
 }
