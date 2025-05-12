@@ -40,6 +40,13 @@ type sidebarContextType = {
   setIsSidebarExpanded: (bool => bool) => unit,
 }
 
+type sdkHandlingTypes = {
+  initialPreview: bool,
+  isLoading: bool,
+  isError: bool,
+  isLoaded: bool,
+}
+
 type sdkContextType = {
   showBillingAddress: bool,
   setShowBillingAddress: (bool => bool) => unit,
@@ -61,4 +68,6 @@ type sdkContextType = {
   setInitialValuesForCheckoutForm: (
     SDKPaymentTypes.paymentType => SDKPaymentTypes.paymentType
   ) => unit,
+  checkIsSDKOpen: sdkHandlingTypes,
+  setCheckIsSDKOpen: (sdkHandlingTypes => sdkHandlingTypes) => unit,
 }

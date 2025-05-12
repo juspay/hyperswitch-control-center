@@ -1,10 +1,3 @@
-type sdkHandlingTypes = {
-  initialPreview: bool,
-  isLoading: bool,
-  isError: bool,
-  isLoaded: bool,
-}
-
 // Default theme configuration
 let themeDefaultJson = {
   "theme": "default",
@@ -870,4 +863,46 @@ let enterShippingPhoneNumber = {
       ~customStyle="w-full border-nd_gray-200 rounded-lg mt-[20px]",
     ),
   )
+}
+
+let getClientSecret = async (
+  ~typedValues,
+  ~updateDetails: (
+    string,
+    RescriptCore.JSON.t,
+    Fetch.requestMethod,
+    ~bodyFormData: Fetch.formData=?,
+    ~headers: RescriptCore.Dict.t<string>=?,
+    ~contentType: AuthHooks.contentType=?,
+    ~version: UserInfoTypes.version=?,
+  ) => promise<Js.Json.t>,
+  ~setCheckIsSDKOpen: (ProviderTypes.sdkHandlingTypes => ProviderTypes.sdkHandlingTypes) => unit,
+  ~setPaymentResult: (JSON.t => JSON.t) => unit,
+) => {
+  try {
+    setCheckIsSDKOpen(_ => {
+      initialPreview: false,
+      isLoaded: false,
+      isLoading: true,
+      isError: false,
+    })
+    let url = `${Window.env.apiBaseUrl}/payments`
+    let body = typedValues->Identity.genericTypeToJson
+    let response = await updateDetails(url, body, Fetch.Post)
+    setPaymentResult(_ => response)
+    setCheckIsSDKOpen(_ => {
+      initialPreview: false,
+      isLoading: false,
+      isError: false,
+      isLoaded: true,
+    })
+  } catch {
+  | _ =>
+    setCheckIsSDKOpen(_ => {
+      initialPreview: false,
+      isLoaded: false,
+      isLoading: false,
+      isError: true,
+    })
+  }
 }

@@ -21,6 +21,13 @@ let defaultValue = {
     BusinessProfileMapper.businessProfileTypeMapper(JSON.Encode.null),
   ),
   setInitialValuesForCheckoutForm: _ => (),
+  checkIsSDKOpen: {
+    isLoading: false,
+    isError: false,
+    isLoaded: false,
+    initialPreview: true,
+  },
+  setCheckIsSDKOpen: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -54,6 +61,13 @@ let make = (~children) => {
     SDKPaymentUtils.initialValueForForm(businessProfileRecoilVal)
   )
 
+  let (checkIsSDKOpen, setCheckIsSDKOpen) = React.useState(_ => {
+    isLoading: false,
+    isError: false,
+    isLoaded: false,
+    initialPreview: true,
+  })
+
   <Provider
     value={
       showBillingAddress,
@@ -74,6 +88,8 @@ let make = (~children) => {
       setIsGuestMode,
       initialValuesForCheckoutForm,
       setInitialValuesForCheckoutForm,
+      checkIsSDKOpen,
+      setCheckIsSDKOpen,
     }>
     children
   </Provider>

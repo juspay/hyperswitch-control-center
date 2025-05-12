@@ -3,11 +3,32 @@ let make = () => {
   open FormRenderer
   open SDKPaymentUtils
 
-  let {sdkThemeInitialValues, setSdkThemeInitialValues, setKeyForReRenderingSDK} = React.useContext(
-    SDKProvider.defaultContext,
-  )
+  let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
+
+  let {
+    sdkThemeInitialValues,
+    setSdkThemeInitialValues,
+    setKeyForReRenderingSDK,
+    paymentResult,
+    setPaymentResult,
+    setCheckIsSDKOpen,
+    initialValuesForCheckoutForm,
+    showBillingAddress,
+    isGuestMode,
+  } = React.useContext(SDKProvider.defaultContext)
+  let clientSecret =
+    paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("client_secret")
 
   let onSubmit = (values, _) => {
+    if clientSecret->Option.isNone {
+      let typedValues = getTypedPaymentData(
+        {initialValuesForCheckoutForm->Identity.genericTypeToJson},
+        ~onlyEssential=true,
+        ~showBillingAddress,
+        ~isGuestMode,
+      )
+      let _ = getClientSecret(~typedValues, ~setCheckIsSDKOpen, ~setPaymentResult, ~updateDetails)
+    }
     setSdkThemeInitialValues(_ => values)
     setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
     Nullable.null->Promise.resolve

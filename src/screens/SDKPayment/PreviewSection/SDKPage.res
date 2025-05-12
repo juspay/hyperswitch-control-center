@@ -4,12 +4,6 @@ let make = () => {
   open SDKPaymentUtils
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let (checkIsSDKOpen, setCheckIsSDKOpen) = React.useState(_ => {
-    isLoading: false,
-    isError: false,
-    isLoaded: false,
-    initialPreview: true,
-  })
 
   let {
     keyForReRenderingSDK,
@@ -19,6 +13,7 @@ let make = () => {
     showBillingAddress,
     isGuestMode,
     setInitialValuesForCheckoutForm,
+    setCheckIsSDKOpen,
   } = React.useContext(SDKProvider.defaultContext)
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
@@ -33,35 +28,6 @@ let make = () => {
     None
   }, [businessProfileRecoilVal.profile_id])
 
-  let getClientSecret = async (~typedValues) => {
-    try {
-      setCheckIsSDKOpen(_ => {
-        initialPreview: false,
-        isLoaded: false,
-        isLoading: true,
-        isError: false,
-      })
-      let url = `${Window.env.apiBaseUrl}/payments`
-      let body = typedValues->Identity.genericTypeToJson
-      let response = await updateDetails(url, body, Post)
-      setPaymentResult(_ => response)
-      setCheckIsSDKOpen(_ => {
-        initialPreview: false,
-        isLoading: false,
-        isError: false,
-        isLoaded: true,
-      })
-    } catch {
-    | _ =>
-      setCheckIsSDKOpen(_ => {
-        initialPreview: false,
-        isLoaded: false,
-        isLoading: false,
-        isError: true,
-      })
-    }
-  }
-
   let onSubmit = (values, _) => {
     setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
     setInitialValuesForCheckoutForm(_ =>
@@ -73,7 +39,7 @@ let make = () => {
       ~showBillingAddress,
       ~isGuestMode,
     )
-    let _ = getClientSecret(~typedValues)
+    let _ = getClientSecret(~typedValues, ~setCheckIsSDKOpen, ~setPaymentResult, ~updateDetails)
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
 
     // To re-render the SDK back again after the payment is completed
@@ -114,7 +80,7 @@ let make = () => {
         <PageUtils.PageHeading
           title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
         />
-        <SDKPayment key={keyForReRenderingSDK} checkIsSDKOpen setCheckIsSDKOpen />
+        <SDKPayment key={keyForReRenderingSDK} />
       </div>
     </div>
   </>

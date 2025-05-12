@@ -44,15 +44,19 @@ module PaymentStatusPage = {
 }
 
 @react.component
-let make = (~checkIsSDKOpen: SDKPaymentUtils.sdkHandlingTypes, ~setCheckIsSDKOpen) => {
+let make = () => {
   open ReactHyperJs
 
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
   let (paymentIdFromUrl, setPaymentIdFromUrl) = React.useState(_ => None)
-  let {paymentResult, paymentStatus, setPaymentStatus} = React.useContext(
-    SDKProvider.defaultContext,
-  )
+  let {
+    paymentResult,
+    paymentStatus,
+    setPaymentStatus,
+    checkIsSDKOpen,
+    setCheckIsSDKOpen,
+  } = React.useContext(SDKProvider.defaultContext)
   let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let paymentId = if paymentIdFromUrl->Option.isSome {
@@ -124,8 +128,6 @@ let make = (~checkIsSDKOpen: SDKPaymentUtils.sdkHandlingTypes, ~setCheckIsSDKOpe
   }
 
   React.useEffect(() => {
-    open SDKPaymentUtils
-
     let status = filtersFromUrl->Dict.get("status")->Option.getOr("")->String.toLowerCase
     let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
       ~paymentIntentClientSecret=url.search
