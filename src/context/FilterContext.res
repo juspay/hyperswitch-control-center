@@ -44,6 +44,7 @@ let make = (~index: string, ~children) => {
 
   let updateFilter = React.useMemo(() => {
     let updateFilter = (dict: Dict.t<string>) => {
+      Js.log("updatefilter called")
       setfilterDict(prev => {
         let prevDictArr =
           prev

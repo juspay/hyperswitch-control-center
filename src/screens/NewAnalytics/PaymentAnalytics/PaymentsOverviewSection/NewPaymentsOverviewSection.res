@@ -16,7 +16,9 @@ let make = (~entity: moduleEntity) => {
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSampleDataEnabled =
-    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
+    filterValueJson
+    ->getString("is_sample_data_enabled", "false")
+    ->LogicUtils.getBoolFromString(false)
   let metricType: metricType =
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")

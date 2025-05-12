@@ -25,7 +25,9 @@ let make = (
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSmartRetryEnabled = filterValueJson->getString("is_smart_retry_enabled", "true")
   let isSampleDataEnabled =
-    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
+    filterValueJson
+    ->getString("is_sample_data_enabled", "false")
+    ->LogicUtils.getBoolFromString(false)
   let getPaymentLieCycleData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {

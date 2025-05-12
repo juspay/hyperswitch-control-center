@@ -243,6 +243,7 @@ let filterDateRangeField: (
   ~isTooltipVisible: bool=?,
   ~allowedDateRange: Calendar.dateObj=?,
   ~events: unit => unit=?,
+  ~disable: bool=?,
 ) => comboCustomInputRecord
 let filterCompareDateRangeField: (
   ~startKey: string,
@@ -264,6 +265,7 @@ let filterCompareDateRangeField: (
   ~isTooltipVisible: bool=?,
   ~compareWithStartTime: string,
   ~compareWithEndTime: string,
+  ~disable: bool=?,
 ) => comboCustomInputRecord
 let dateRangeField: (
   ~startKey: string,
@@ -296,9 +298,10 @@ let iconFieldWithMessageDes: (
   (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element,
   ~description: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
-let passwordMatchField: (
-  ~leftIcon: React.element=?,
-) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
+let passwordMatchField: (~leftIcon: React.element=?) => (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder: string,
+) => React.element
 let checkboxInput: (
   ~isHorizontal: bool=?,
   ~options: array<SelectBox.dropdownOption>,
@@ -317,8 +320,7 @@ let checkboxInput: (
   ~checkboxDimension: string=?,
   ~wrapBasis: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
-let boolInput: (
-  ~isDisabled: bool,
-  ~isCheckBox: bool=?,
-  ~boolCustomClass: string=?,
-) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
+let boolInput: (~isDisabled: bool, ~isCheckBox: bool=?, ~boolCustomClass: string=?) => (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder: 'a,
+) => React.element

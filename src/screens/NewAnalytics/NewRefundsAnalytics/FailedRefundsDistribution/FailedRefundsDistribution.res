@@ -68,7 +68,9 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let isSampleDataEnabled =
-    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
+    filterValueJson
+    ->getString("is_sample_data_enabled", "false")
+    ->LogicUtils.getBoolFromString(false)
   let (refundsDistribution, setrefundsDistribution) = React.useState(_ => JSON.Encode.array([]))
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -94,7 +96,7 @@ let make = (
       )
 
       let response = if isSampleDataEnabled {
-        refundConnectorsSampleData //replace with s3 call
+        refundsSampleData //replace with s3 call
       } else {
         await updateDetails(url, body, Post)
       }
@@ -152,18 +154,20 @@ let make = (
   let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
 
   <div>
-    <ModuleHeader title={entity.title} />
-    <Card>
-      <PageLoaderWrapper
-        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <FailedRefundsDistributionHeader viewType setViewType />
-        <div className="mb-5">
-          {switch viewType {
-          | Graph => <BarGraph options className="mr-3" />
-          | Table => <TableModule data={refundsDistribution} className="mx-7" />
-          }}
-        </div>
-      </PageLoaderWrapper>
-    </Card>
+    <RenderIf condition={!isSampleDataEnabled}>
+      <ModuleHeader title={entity.title} />
+      <Card>
+        <PageLoaderWrapper
+          screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+          <FailedRefundsDistributionHeader viewType setViewType />
+          <div className="mb-5">
+            {switch viewType {
+            | Graph => <BarGraph options className="mr-3" />
+            | Table => <TableModule data={refundsDistribution} className="mx-7" />
+            }}
+          </div>
+        </PageLoaderWrapper>
+      </Card>
+    </RenderIf>
   </div>
 }

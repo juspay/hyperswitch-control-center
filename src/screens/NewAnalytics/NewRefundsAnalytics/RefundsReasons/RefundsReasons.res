@@ -115,7 +115,7 @@ let make = (~entity: moduleEntity) => {
       getRefundsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, currency])
+  }, (startTimeVal, endTimeVal, currency, isSampleDataEnabled))
 
   <div>
     <ModuleHeader title={entity.title} />

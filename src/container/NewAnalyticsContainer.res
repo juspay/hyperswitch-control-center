@@ -15,6 +15,8 @@ let make = () => {
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let isSampleDataEnabled =
+    filterValueJson->getString(sampleDataKey, "false")->LogicUtils.getBoolFromString(false)
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -124,7 +126,9 @@ let make = () => {
             ~compareWithStartTime=startTimeVal,
             ~compareWithEndTime=endTimeVal,
             ~events=dateDropDownTriggerMixpanelCallback,
-            ~sampleDataIsEnabled=filterValueJson->getBool(sampleDataKey, true),
+            ~sampleDataIsEnabled=filterValueJson
+            ->getString(sampleDataKey, "false")
+            ->getBoolFromString(false),
           )}
           defaultFilterKeys=[
             startTimeFilterKey,

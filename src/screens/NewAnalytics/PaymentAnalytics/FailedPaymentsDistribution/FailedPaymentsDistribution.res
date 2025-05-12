@@ -96,7 +96,9 @@ let make = (
     ->getSmartRetryMetricType
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSampleDataEnabled =
-    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
+    filterValueJson
+    ->getString("is_sample_data_enabled", "false")
+    ->LogicUtils.getBoolFromString(false)
   let getFailedPaymentsDistribution = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -105,7 +107,7 @@ let make = (
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
-      let sampleData = paymentsRateDataWithConnectors
+
       let body = requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
@@ -115,7 +117,7 @@ let make = (
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
       let response = if isSampleDataEnabled {
-        sampleData //replace with s3 call
+        paymentsRateDataWithConnectors //replace with s3 call
       } else {
         await updateDetails(url, body, Post)
       }

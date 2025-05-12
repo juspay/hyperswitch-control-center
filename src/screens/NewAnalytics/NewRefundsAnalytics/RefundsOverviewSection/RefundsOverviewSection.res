@@ -5,7 +5,7 @@ open NewAnalyticsHelper
 open LogicUtils
 open APIUtils
 open NewAnalyticsUtils
-open NewAnalyticsSampleData
+open RefundsSampleData
 @react.component
 let make = (~entity: moduleEntity) => {
   let getURL = useGetURL()
@@ -20,7 +20,9 @@ let make = (~entity: moduleEntity) => {
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSampleDataEnabled =
-    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
+    filterValueJson
+    ->getString("is_sample_data_enabled", "false")
+    ->LogicUtils.getBoolFromString(false)
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {

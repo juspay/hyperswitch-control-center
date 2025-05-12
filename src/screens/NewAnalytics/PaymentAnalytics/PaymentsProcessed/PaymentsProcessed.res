@@ -201,7 +201,9 @@ let make = (
     ->getSmartRetryMetricType
 
   let isSampleDataEnabled =
-    filterValueJson->getString("is_sample_data_enabled", "true")->LogicUtils.getBoolFromString(true)
+    filterValueJson
+    ->getString("is_sample_data_enabled", "false")
+    ->LogicUtils.getBoolFromString(false)
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -234,7 +236,6 @@ let make = (
       } else {
         await updateDetails(url, primaryBody, Post)
       }
-      Js.log2("primaryResponse", primaryResponse)
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
