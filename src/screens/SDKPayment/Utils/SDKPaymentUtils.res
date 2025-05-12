@@ -188,7 +188,7 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
     shipping: None,
     billing: None,
     capture_method: "automatic",
-    setup_future_usage: "off_session",
+    setup_future_usage: dict->getString("setup_future_usage", ""),
     request_external_three_ds_authentication: dict->getBool(
       "request_external_three_ds_authentication",
       false,
