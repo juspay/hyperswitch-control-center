@@ -22,7 +22,14 @@ While the Control Center is primarily a frontend application, it relies heavily 
 * **Message Queue (Redis):**
     * Used for caching and potentially for asynchronous task management.
 
-## Architectural Diagram (Simplified)
+## System Patterns
+
+### Frontend Architecture
+
+- **Component-Based UI**: Utilize ReScript with React to build modular and reusable UI components.
+- **State Management**: Employ Recoil for global state and React hooks (`useState`, `useEffect`) for local component state.
+ automatically.
+- **Styling**: Use Tailwind CSS for utility-first styling, potentially augmented with custom CSS or component libraries like Headless UI (though not explicitly seen in the provided diff).
 
 ## Interaction Flow
 
