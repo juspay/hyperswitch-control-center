@@ -120,7 +120,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     setup_future_usage: "on_session",
     show_saved_card: "yes",
     request_external_three_ds_authentication: false,
-    email: "guest@example.com",
+    email: Nullable.make("guest@example.com"),
     authentication_type: "no_three_ds",
     shipping: Some(shippingValue),
     billing: Some(billingValue),
@@ -143,6 +143,7 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
 
   let shipping = getDict("shipping")
   let billing = getDict("billing")
+  let email = dict->getString("email", "")
 
   let (shippingAddress, shippingPhone) = getAddressAndPhone(shipping)
   let (billingAddress, billingPhone) = getAddressAndPhone(billing)
@@ -182,7 +183,7 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
     profile_id: dict->getString("profile_id", ""),
     customer_id: !isGuestMode ? dict->getOptionString("customer_id") : None,
     description: dict->getString("description", "Payment Transaction"),
-    email: dict->getString("email", ""),
+    email: email->isNonEmptyString ? Nullable.make(email) : Nullable.null,
     authentication_type: dict->getString("authentication_type", ""),
     shipping: None,
     billing: None,

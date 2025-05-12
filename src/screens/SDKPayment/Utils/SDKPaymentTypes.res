@@ -25,7 +25,7 @@ type paymentType = {
   customer_id: option<string>,
   description: string,
   capture_method: string,
-  email: string,
+  email: Nullable.t<string>,
   authentication_type: string,
   shipping: option<addressAndPhone>,
   billing: option<addressAndPhone>,
