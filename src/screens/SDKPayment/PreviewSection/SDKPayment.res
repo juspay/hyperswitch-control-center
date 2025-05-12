@@ -65,6 +65,11 @@ let make = () => {
     paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("payment_id")
   }
 
+  let connectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
+    ~interface=ConnectorInterface.connectorInterfaceV2,
+    ~retainInList=PaymentProcessor,
+  )
+
   let successButtonText: string = "Go to Payment Operations"
 
   let onProceed = async () => {
@@ -180,11 +185,21 @@ let make = () => {
         />
       </RenderIf>
     }}
-    <RenderIf condition={checkIsSDKOpen.initialPreview}>
-      <div className="flex items-center justify-center w-full h-full">
-        <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
-      </div>
-    </RenderIf>
+    {switch connectorListFromRecoil->Array.length {
+    | 0 =>
+      <HelperComponents.BluredTableComponent
+        infoText={"Connect to a payment processor to make your first payment"}
+        buttonText={"Connect a connector"}
+        moduleName=""
+        onClickUrl={`/connectors`}
+      />
+    | _ =>
+      <RenderIf condition={checkIsSDKOpen.initialPreview}>
+        <div className="flex items-center justify-center w-full h-full">
+          <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
+        </div>
+      </RenderIf>
+    }}
     <RenderIf condition={checkIsSDKOpen.isLoading}>
       <Loader />
     </RenderIf>
