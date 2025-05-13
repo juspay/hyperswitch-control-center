@@ -13,7 +13,7 @@ let make = (~getClientSecret) => {
     setPaymentStatus,
   } = React.useContext(SDKProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(() => false)
-
+  let showToast = ToastState.useShowToast()
   let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PaymentProcessor,
@@ -35,7 +35,7 @@ let make = (~getClientSecret) => {
       // To re-render the SDK back again after the payment is completed
       setPaymentStatus(_ => INCOMPLETE)
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
     }
     Nullable.null
   }

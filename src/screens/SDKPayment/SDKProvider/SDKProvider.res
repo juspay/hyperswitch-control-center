@@ -1,4 +1,4 @@
-open ProviderTypes
+open SDKPaymentTypes
 
 let defaultValue = {
   showBillingAddress: true,
@@ -21,6 +21,8 @@ let defaultValue = {
     BusinessProfileMapper.businessProfileTypeMapper(JSON.Encode.null),
   ),
   setInitialValuesForCheckoutForm: _ => (),
+  clientSecretStatus: IntialPreview,
+  setClientSecretStatus: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -46,6 +48,8 @@ let make = (~children) => {
     Date.now()->Float.toString
   )
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
+  let (clientSecretStatus, setClientSecretStatus) = React.useState(_ => IntialPreview)
+
   let (paymentResult, setPaymentResult) = React.useState(_ => JSON.Encode.null)
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (isGuestMode, setIsGuestMode) = React.useState(_ => false)
@@ -74,6 +78,8 @@ let make = (~children) => {
       setIsGuestMode,
       initialValuesForCheckoutForm,
       setInitialValuesForCheckoutForm,
+      clientSecretStatus,
+      setClientSecretStatus,
     }>
     children
   </Provider>

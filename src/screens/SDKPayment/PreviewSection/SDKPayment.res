@@ -38,12 +38,12 @@ module PaymentStatusPage = {
 }
 
 @react.component
-let make = (~clientSecretStatus: SDKPaymentTypes.clientSecretStatus) => {
+let make = () => {
   open ReactHyperJs
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
   let (paymentIdFromUrl, setPaymentIdFromUrl) = React.useState(_ => None)
-  let {paymentResult, paymentStatus, setPaymentStatus} = React.useContext(
+  let {paymentResult, paymentStatus, setPaymentStatus, clientSecretStatus} = React.useContext(
     SDKProvider.defaultContext,
   )
   let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)

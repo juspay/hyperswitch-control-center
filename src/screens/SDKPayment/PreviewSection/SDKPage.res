@@ -4,13 +4,12 @@ let make = () => {
   let getURL = APIUtils.useGetURL()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
-  let (clientSecretStatus, setClientSecretStatus) = React.useState(_ =>
-    SDKPaymentTypes.IntialPreview
-  )
-
-  let {keyForReRenderingSDK, setPaymentResult, setInitialValuesForCheckoutForm} = React.useContext(
-    SDKProvider.defaultContext,
-  )
+  let {
+    keyForReRenderingSDK,
+    setPaymentResult,
+    setInitialValuesForCheckoutForm,
+    setClientSecretStatus,
+  } = React.useContext(SDKProvider.defaultContext)
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtom,
@@ -18,22 +17,24 @@ let make = () => {
 
   React.useEffect(() => {
     setInitialValuesForCheckoutForm(_ => initialValueForForm(businessProfileRecoilVal))
-
     None
   }, [businessProfileRecoilVal.profile_id])
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 
-  let getClientSecret = async (~typedValues) => {
+  let getClientSecret = async (~typedValues: SDKPaymentTypes.paymentType) => {
     try {
       setClientSecretStatus(_ => Loading)
       let url = getURL(~entityName=V1(SDK_PAYMENT), ~methodType=Post)
       let body = typedValues->Identity.genericTypeToJson
       let response = await updateDetails(url, body, Fetch.Post)
       setPaymentResult(_ => response)
-
       setClientSecretStatus(_ => Success)
     } catch {
-    | _ => setClientSecretStatus(_ => Error)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update!")
+        setClientSecretStatus(_ => Error)
+        Exn.raiseError(err)
+      }
     }
   }
 
@@ -69,7 +70,7 @@ let make = () => {
         <PageUtils.PageHeading
           title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
         />
-        <SDKPayment key={keyForReRenderingSDK} clientSecretStatus />
+        <SDKPayment key={keyForReRenderingSDK} />
       </div>
     </div>
   </>

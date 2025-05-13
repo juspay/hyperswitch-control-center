@@ -13,7 +13,7 @@ let make = (~getClientSecret) => {
     showBillingAddress,
     isGuestMode,
   } = React.useContext(SDKProvider.defaultContext)
-
+  let showToast = ToastState.useShowToast()
   let clientSecret =
     paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("client_secret")
 
@@ -28,7 +28,7 @@ let make = (~getClientSecret) => {
         )
         let _ = await getClientSecret(~typedValues)
       } catch {
-      | _ => ()
+      | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
       }
     }
 
