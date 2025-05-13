@@ -353,10 +353,10 @@ let make = () => {
       setStats(_ => response)
       let fileName = (response->IntelligentRoutingUtils.responseMapper).file_name
       let statsData = (response->IntelligentRoutingUtils.responseMapper).time_series_data
-      let gatewayData = switch statsData->Array.get(0) {
-      | Some(statsData) => statsData.volume_distribution_as_per_sr
-      | None => JSON.Encode.null
-      }
+      let gatewayData =
+        statsData
+        ->Array.get(0)
+        ->Option.mapOr(JSON.Encode.null, stats => stats.volume_distribution_as_per_sr)
 
       setFileList(_ => [fileName])
       setSelectedFile(_ => fileName)

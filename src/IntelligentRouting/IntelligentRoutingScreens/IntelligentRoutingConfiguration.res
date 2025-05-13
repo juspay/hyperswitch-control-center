@@ -196,9 +196,7 @@ module Analyze = {
       let files = ReactEvent.Form.target(ev)["files"]
       let file = files["0"]
 
-      let arr = [0]
-      let index = arr->Array.get(0)->Option.getOr(0)
-      switch files[index] {
+      switch files[0] {
       | Some(value) => {
           let fileReader = FileReader.reader
           fileReader.readAsArrayBuffer(value)
