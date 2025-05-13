@@ -4,19 +4,18 @@ let make = () => {
   open SDKPaymentUtils
   open SDKPaymentHelper
 
-  let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
+  let getClientSecret = ClientSecretHook.useClientSecret()
 
   let {
     sdkThemeInitialValues,
     setSdkThemeInitialValues,
     setKeyForReRenderingSDK,
     paymentResult,
-    setPaymentResult,
-    setCheckIsSDKOpen,
     initialValuesForCheckoutForm,
     showBillingAddress,
     isGuestMode,
   } = React.useContext(SDKProvider.defaultContext)
+
   let clientSecret =
     paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("client_secret")
 
@@ -28,8 +27,10 @@ let make = () => {
         ~showBillingAddress,
         ~isGuestMode,
       )
-      let _ = getClientSecret(~typedValues, ~setCheckIsSDKOpen, ~setPaymentResult, ~updateDetails)
+
+      let _ = getClientSecret(typedValues)
     }
+
     setSdkThemeInitialValues(_ => values)
     setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
     Nullable.null->Promise.resolve

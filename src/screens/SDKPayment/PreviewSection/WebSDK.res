@@ -69,16 +69,7 @@ let make = () => {
       <Elements options=elementOptions stripe={hyperPromise()}>
         <CheckoutForm />
       </Elements>
-    | _ =>
-      <DefaultLandingPage
-        title="Oops, we hit a little bump on the road!"
-        overriddingStylesTitle="text-2xl font-semibold"
-        buttonText="Refresh"
-        overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
-        subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
-        onClickHandler={_ => Window.Location.hardReload(true)}
-        isButton=true
-      />
+    | _ => React.null
     }}
   </div>
 }
