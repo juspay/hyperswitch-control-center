@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.13.0
+
+### Bug Fixes
+
+- Override 3ds rule popup changes when deleted all 3ds rules ([#2919](https://github.com/juspay/hyperswitch-control-center/pull/2919)) ([`e57518c`](https://github.com/juspay/hyperswitch-control-center/commit/e57518cf3f20133d44dfc73982f095d5dc25e9aa))
+
+### Miscellaneous Tasks
+
+- Add memory bank ([`10150eb`](https://github.com/juspay/hyperswitch-control-center/commit/10150eb2a5677761d36ad23564003aa74eaf800d))
+- Add memory bank ([`53d6918`](https://github.com/juspay/hyperswitch-control-center/commit/53d6918cfd4a6a2cc4d2ddd6415c62edfa8d5991))
+- Add memory bank ([`1ddde37`](https://github.com/juspay/hyperswitch-control-center/commit/1ddde37f8c6156032f6a2410aee9a752db3bb945))
+
+**Full Changelog:** [`2025.05.09.0...2025.05.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.09.0...2025.05.13.0)
+
+- - -
+
 ## 2025.05.09.0
 
 ### Bug Fixes
