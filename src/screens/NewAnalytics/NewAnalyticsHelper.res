@@ -301,7 +301,6 @@ module SampleDataToggle = {
   open LogicUtils
   open NewAnalyticsContainerUtils
   open HSwitchRemoteFilter
-  open NewAnalyticsTypes
   @react.component
   let make = () => {
     let {updateExistingKeys, filterValue, filterValueJson} = React.useContext(
@@ -313,13 +312,10 @@ module SampleDataToggle = {
       ~compareToStartTimeKey="",
       ~compareToEndTimeKey="",
       ~comparisonKey="",
-      ~isInsightsPage=false,
       ~range=7,
-      ~origin,
       ~defaultDate=getDateFilteredObject(~range),
     ) => {
       let inititalSearchParam = Dict.make()
-
       let timeRange = {
         let (compareToStartTime, compareToEndTime) = DateRangeUtils.getComparisionTimePeriod(
           ~startDate=defaultDate.start_time,
@@ -333,14 +329,6 @@ module SampleDataToggle = {
           (comparisonKey, (DateRangeUtils.EnableComparison :> string)),
         ]
       }
-
-      if isInsightsPage {
-        timeRange->Array.push((
-          (#currency: filters :> string),
-          (#all_currencies: defaultFilters :> string),
-        ))
-      }
-
       timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
         switch inititalSearchParam->Dict.get(key) {
@@ -348,7 +336,6 @@ module SampleDataToggle = {
         | None => inititalSearchParam->Dict.set(key, defaultValue)
         }
       })
-      Js.log2(">> here", inititalSearchParam)
       inititalSearchParam->updateExistingKeys
     }
 
@@ -377,8 +364,6 @@ module SampleDataToggle = {
           ~compareToEndTimeKey="compareToEndTime",
           ~comparisonKey="comparison",
           ~range=7,
-          ~origin="analytics",
-          ~isInsightsPage=true,
           ~defaultDate=sampleDates,
         )
       }
