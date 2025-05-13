@@ -115,6 +115,7 @@ let connectorList: array<connectorTypes> = [
   Processors(REDSYS),
   Processors(HIPAY),
   Processors(PAYSTACK),
+  Processors(FACILITAPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -435,6 +436,10 @@ let paystackInfo = {
   description: "Paystack is a technology company solving payments problems for ambitious businesses. Paystack builds technology to help Africa's best businesses grow - from new startups, to market leaders launching new business models.",
 }
 
+let facilitapayInfo = {
+  description: "Facilitapay is a payment provider for international businesses.Their all-in-one payment hub encompasses all payment methods,pay-ins and pay-outs.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -685,6 +690,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | REDSYS => "redsys"
   | HIPAY => "hipay"
   | PAYSTACK => "paystack"
+  | FACILITAPAY => "facilitapay"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -830,6 +836,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "redsys" => Processors(REDSYS)
     | "hipay" => Processors(HIPAY)
     | "paystack" => Processors(PAYSTACK)
+    | "facilitapay" => Processors(FACILITAPAY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -955,6 +962,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | REDSYS => redsysInfo
   | HIPAY => hipayInfo
   | PAYSTACK => paystackInfo
+  | FACILITAPAY => facilitapayInfo
   }
 }
 
@@ -1694,6 +1702,17 @@ let defaultSelectAllCards = (
   }
 }
 
+let connectorTypeToListMapper = connector => {
+  switch connector {
+  | Processor => connectorList
+  | ThreeDsAuthenticator => threedsAuthenticatorList
+  | PayoutProcessor => payoutConnectorList
+  | TaxProcessor => taxProcessorList
+  | PMAuthenticationProcessor => pmAuthenticationConnectorList
+  | _ => []
+  }
+}
+
 let getConnectorPaymentMethodDetails = async (
   ~initialValues,
   ~setPaymentMethods,
@@ -1807,6 +1826,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | REDSYS => "Redsys"
   | HIPAY => "HiPay"
   | PAYSTACK => "Paystack"
+  | FACILITAPAY => "Facilitapay"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

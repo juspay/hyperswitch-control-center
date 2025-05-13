@@ -161,7 +161,7 @@ let make = (
               buttonText=dropDownButtonText
               buttonType=Button.SecondaryFilled
               hideMultiSelectButtons=true
-              customButtonStyle="bg-white dark:bg-jp-gray-darkgray_background"
+              customButtonStyle="bg-white dark:bg-jp-gray-darkgray_background !w-full"
               input
               options={gatewayOptions}
               fixedDropDownDirection=SelectBox.TopRight

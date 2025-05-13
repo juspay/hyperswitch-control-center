@@ -100,5 +100,5 @@ let redirectToLogin = () => {
     "/login"
   }
 
-  RescriptReactRouter.push(appendDashboardPath(~url=urlToRedirect))
+  RescriptReactRouter.replace(appendDashboardPath(~url=urlToRedirect))
 }
