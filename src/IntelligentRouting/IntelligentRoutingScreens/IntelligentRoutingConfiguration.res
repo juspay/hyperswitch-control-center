@@ -266,6 +266,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
+    Window.dynamicRoutingWasmInit()->ignore
     setShowSideBar(_ => false)
     None
   }, [])
