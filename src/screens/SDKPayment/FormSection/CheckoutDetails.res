@@ -1,17 +1,44 @@
 @react.component
-let make = (~onSubmit) => {
+let make = (~getClientSecret) => {
   open FormRenderer
   open SDKPaymentHelper
-
-  let {isGuestMode, setIsGuestMode, initialValuesForCheckoutForm} = React.useContext(
-    SDKProvider.defaultContext,
-  )
+  open SDKPaymentUtils
+  let {
+    isGuestMode,
+    setIsGuestMode,
+    initialValuesForCheckoutForm,
+    setKeyForReRenderingSDK,
+    setInitialValuesForCheckoutForm,
+    showBillingAddress,
+    setPaymentStatus,
+  } = React.useContext(SDKProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(() => false)
 
   let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PaymentProcessor,
   )
+  let onSubmit = async (values, _) => {
+    try {
+      setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
+      setInitialValuesForCheckoutForm(_ =>
+        getTypedPaymentData(values, ~showBillingAddress, ~isGuestMode)
+      )
+      let typedValues = getTypedPaymentData(
+        values,
+        ~onlyEssential=true,
+        ~showBillingAddress,
+        ~isGuestMode,
+      )
+      let _ = await getClientSecret(~typedValues)
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
+      // To re-render the SDK back again after the payment is completed
+      setPaymentStatus(_ => INCOMPLETE)
+    } catch {
+    | _ => ()
+    }
+    Nullable.null
+  }
 
   <Form
     formClass="mt-5"

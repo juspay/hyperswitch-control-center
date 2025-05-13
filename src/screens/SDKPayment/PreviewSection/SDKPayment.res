@@ -1,11 +1,4 @@
 module PaymentStatusPage = {
-  type statusConfig = {
-    iconName: string,
-    statusText: string,
-    bgColor: string,
-    showErrorMessage: bool,
-  }
-
   @react.component
   let make = (
     ~config,
@@ -14,6 +7,7 @@ module PaymentStatusPage = {
     ~buttonState=Button.Normal,
     ~isButtonVisible=true,
   ) => {
+    open SDKPaymentTypes
     let {errorMessage} = React.useContext(SDKProvider.defaultContext)
     let headerTextStyle = "text-xl font-semibold text-grey-700"
 
@@ -44,19 +38,14 @@ module PaymentStatusPage = {
 }
 
 @react.component
-let make = () => {
+let make = (~clientSecretStatus: SDKPaymentTypes.clientSecretStatus) => {
   open ReactHyperJs
-
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
   let (paymentIdFromUrl, setPaymentIdFromUrl) = React.useState(_ => None)
-  let {
-    paymentResult,
-    paymentStatus,
-    setPaymentStatus,
-    checkIsSDKOpen,
-    setCheckIsSDKOpen,
-  } = React.useContext(SDKProvider.defaultContext)
+  let {paymentResult, paymentStatus, setPaymentStatus} = React.useContext(
+    SDKProvider.defaultContext,
+  )
   let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let paymentId = if paymentIdFromUrl->Option.isSome {
@@ -82,7 +71,7 @@ let make = () => {
     }
   }
 
-  let getStatusConfig = (status): PaymentStatusPage.statusConfig => {
+  let getStatusConfig = (status): SDKPaymentTypes.statusConfig => {
     switch status {
     | SUCCESS => {
         iconName: "account-setup-completed",
@@ -109,9 +98,9 @@ let make = () => {
         showErrorMessage: false,
       }
     | _ => {
-        iconName: "",
-        statusText: "",
-        bgColor: "",
+        iconName: "account-setup-failed",
+        statusText: "Something went wrong",
+        bgColor: "bg-red-failed_page_bg",
         showErrorMessage: false,
       }
     }
@@ -140,15 +129,6 @@ let make = () => {
       ->Dict.get("payment_intent_client_secret"),
     )
 
-    if paymentIdFromPaymemtIntentClientSecret->Option.isSome {
-      setCheckIsSDKOpen(_ => {
-        initialPreview: false,
-        isLoaded: false,
-        isLoading: false,
-        isError: false,
-      })
-    }
-
     if status === "succeeded" {
       setPaymentStatus(_ => SUCCESS)
     } else if status === "failed" {
@@ -167,7 +147,7 @@ let make = () => {
   <>
     {switch paymentStatus {
     | INCOMPLETE =>
-      <RenderIf condition={checkIsSDKOpen.isLoaded}>
+      <RenderIf condition={clientSecretStatus == Success}>
         <div className="flex items-center justify-center">
           <WebSDK />
         </div>
@@ -194,13 +174,24 @@ let make = () => {
       />
     </RenderIf>
     <RenderIf
-      condition={connectorListFromRecoil->Array.length > 0 && checkIsSDKOpen.initialPreview}>
+      condition={connectorListFromRecoil->Array.length > 0 && clientSecretStatus == IntialPreview}>
       <div className="flex items-center justify-center w-full h-full">
         <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
       </div>
     </RenderIf>
-    <RenderIf condition={checkIsSDKOpen.isLoading}>
+    <RenderIf condition={clientSecretStatus == Loading}>
       <Loader />
+    </RenderIf>
+    <RenderIf condition={clientSecretStatus == Error}>
+      {
+        let config = getStatusConfig(CUSTOMSTATE)
+        <PaymentStatusPage
+          config
+          buttonText={successButtonText}
+          buttonOnClick={_ => onProceed()->ignore}
+          isButtonVisible=false
+        />
+      }
     </RenderIf>
   </>
 }

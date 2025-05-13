@@ -1,10 +1,8 @@
 @react.component
-let make = () => {
+let make = (~getClientSecret) => {
   open FormRenderer
   open SDKPaymentUtils
   open SDKPaymentHelper
-
-  let getClientSecret = ClientSecretHook.useClientSecret()
 
   let {
     sdkThemeInitialValues,
@@ -19,21 +17,24 @@ let make = () => {
   let clientSecret =
     paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("client_secret")
 
-  let onSubmit = (values, _) => {
+  let onSubmit = async (values, _) => {
     if clientSecret->Option.isNone {
-      let typedValues = getTypedPaymentData(
-        {initialValuesForCheckoutForm->Identity.genericTypeToJson},
-        ~onlyEssential=true,
-        ~showBillingAddress,
-        ~isGuestMode,
-      )
-
-      let _ = getClientSecret(typedValues)
+      try {
+        let typedValues = getTypedPaymentData(
+          {initialValuesForCheckoutForm->Identity.genericTypeToJson},
+          ~onlyEssential=true,
+          ~showBillingAddress,
+          ~isGuestMode,
+        )
+        let _ = await getClientSecret(~typedValues)
+      } catch {
+      | _ => ()
+      }
     }
 
     setSdkThemeInitialValues(_ => values)
     setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
-    Nullable.null->Promise.resolve
+    Nullable.null
   }
 
   let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(

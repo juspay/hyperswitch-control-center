@@ -1,20 +1,16 @@
 @react.component
 let make = () => {
-  open ReactHyperJs
   open SDKPaymentUtils
-
-  let getClientSecret = ClientSecretHook.useClientSecret()
-
+  let getURL = APIUtils.useGetURL()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
-  let {
-    keyForReRenderingSDK,
-    setKeyForReRenderingSDK,
-    setPaymentStatus,
-    showBillingAddress,
-    isGuestMode,
-    setInitialValuesForCheckoutForm,
-  } = React.useContext(SDKProvider.defaultContext)
+  let (clientSecretStatus, setClientSecretStatus) = React.useState(_ =>
+    SDKPaymentTypes.IntialPreview
+  )
+
+  let {keyForReRenderingSDK, setPaymentResult, setInitialValuesForCheckoutForm} = React.useContext(
+    SDKProvider.defaultContext,
+  )
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtom,
@@ -25,38 +21,30 @@ let make = () => {
 
     None
   }, [businessProfileRecoilVal.profile_id])
+  let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 
-  let onSubmit = (values, _) => {
-    setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
-    setInitialValuesForCheckoutForm(_ =>
-      getTypedPaymentData(values, ~showBillingAddress, ~isGuestMode)
-    )
-    let typedValues = getTypedPaymentData(
-      values,
-      ~onlyEssential=true,
-      ~showBillingAddress,
-      ~isGuestMode,
-    )
+  let getClientSecret = async (~typedValues) => {
+    try {
+      setClientSecretStatus(_ => Loading)
+      let url = getURL(~entityName=V1(SDK_PAYMENT), ~methodType=Post)
+      let body = typedValues->Identity.genericTypeToJson
+      let response = await updateDetails(url, body, Fetch.Post)
+      setPaymentResult(_ => response)
 
-    // Use the hook directly
-    let _ = getClientSecret(typedValues)
-
-    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
-
-    // To re-render the SDK back again after the payment is completed
-    setPaymentStatus(_ => INCOMPLETE)
-
-    Nullable.null->Promise.resolve
+      setClientSecretStatus(_ => Success)
+    } catch {
+    | _ => setClientSecretStatus(_ => Error)
+    }
   }
 
   let tabs: array<Tabs.tab> = [
     {
       title: "Checkout Details",
-      renderContent: () => <CheckoutDetails onSubmit />,
+      renderContent: () => <CheckoutDetails getClientSecret />,
     },
     {
       title: "Theme Customization",
-      renderContent: () => <ThemeCustomization />,
+      renderContent: () => <ThemeCustomization getClientSecret />,
     },
   ]
 
@@ -81,7 +69,7 @@ let make = () => {
         <PageUtils.PageHeading
           title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
         />
-        <SDKPayment key={keyForReRenderingSDK} />
+        <SDKPayment key={keyForReRenderingSDK} clientSecretStatus />
       </div>
     </div>
   </>

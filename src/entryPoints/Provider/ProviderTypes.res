@@ -68,6 +68,4 @@ type sdkContextType = {
   setInitialValuesForCheckoutForm: (
     SDKPaymentTypes.paymentType => SDKPaymentTypes.paymentType
   ) => unit,
-  checkIsSDKOpen: sdkHandlingTypes,
-  setCheckIsSDKOpen: (sdkHandlingTypes => sdkHandlingTypes) => unit,
 }

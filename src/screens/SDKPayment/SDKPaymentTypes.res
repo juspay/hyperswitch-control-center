@@ -1,3 +1,4 @@
+type clientSecretStatus = IntialPreview | Loading | Success | Error
 type address = {
   line1: string,
   city: string,
@@ -33,4 +34,11 @@ type paymentType = {
   country_currency?: string,
   show_saved_card?: string,
   request_external_three_ds_authentication: bool,
+}
+
+type statusConfig = {
+  iconName: string,
+  statusText: string,
+  bgColor: string,
+  showErrorMessage: bool,
 }
