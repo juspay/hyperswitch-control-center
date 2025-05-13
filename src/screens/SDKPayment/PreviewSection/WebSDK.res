@@ -64,10 +64,21 @@ let make = () => {
   }
 
   <div className="w-4/5">
-    <RenderIf condition={isScriptLoaded && isHyperReady}>
+    {switch (isScriptLoaded, isHyperReady) {
+    | (true, true) =>
       <Elements options=elementOptions stripe={hyperPromise()}>
         <CheckoutForm />
       </Elements>
-    </RenderIf>
+    | _ =>
+      <DefaultLandingPage
+        title="Oops, we hit a little bump on the road!"
+        overriddingStylesTitle="text-2xl font-semibold"
+        buttonText="Refresh"
+        overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
+        subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
+        onClickHandler={_ => Window.Location.hardReload(true)}
+        isButton=true
+      />
+    }}
   </div>
 }
