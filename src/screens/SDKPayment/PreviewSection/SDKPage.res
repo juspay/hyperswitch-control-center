@@ -3,24 +3,22 @@ let make = () => {
   open ReactHyperJs
   open SDKPaymentUtils
 
+  let getClientSecret = ClientSecretHook.useClientSecret()
+
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
   let {
     keyForReRenderingSDK,
     setKeyForReRenderingSDK,
     setPaymentStatus,
-    setPaymentResult,
     showBillingAddress,
     isGuestMode,
     setInitialValuesForCheckoutForm,
-    setCheckIsSDKOpen,
   } = React.useContext(SDKProvider.defaultContext)
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtom,
   )
-
-  let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 
   React.useEffect(() => {
     setInitialValuesForCheckoutForm(_ => initialValueForForm(businessProfileRecoilVal))
@@ -39,28 +37,16 @@ let make = () => {
       ~showBillingAddress,
       ~isGuestMode,
     )
-    let _ = getClientSecret(~typedValues, ~setCheckIsSDKOpen, ~setPaymentResult, ~updateDetails)
+
+    // Use the hook directly
+    let _ = getClientSecret(typedValues)
+
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
 
     // To re-render the SDK back again after the payment is completed
     setPaymentStatus(_ => INCOMPLETE)
 
     Nullable.null->Promise.resolve
-  }
-
-  let getURL = APIUtils.useGetURL()
-  let getClientSecret = async (~typedValues) => {
-    try {
-      let url = getURL(~entityName=V1(SDK_PAYMENT), ~methodType=Post)
-      let body = typedValues->Identity.genericTypeToJson
-      let response = await updateDetails(url, body, Fetch.Post)
-      response
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
   }
 
   let tabs: array<Tabs.tab> = [

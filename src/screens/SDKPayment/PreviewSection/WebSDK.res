@@ -64,10 +64,12 @@ let make = () => {
   }
 
   <div className="w-4/5">
-    <RenderIf condition={isScriptLoaded && isHyperReady}>
+    {switch (isScriptLoaded, isHyperReady) {
+    | (true, true) =>
       <Elements options=elementOptions stripe={hyperPromise()}>
         <CheckoutForm />
       </Elements>
-    </RenderIf>
+    | _ => React.null
+    }}
   </div>
 }
