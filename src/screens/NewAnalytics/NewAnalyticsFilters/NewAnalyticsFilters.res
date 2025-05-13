@@ -59,13 +59,6 @@ module PaymentsFilter = {
     let endTimeVal = filterValueJson->getString("endTime", "")
     let (currencOptions, setCurrencOptions) = React.useState(_ => [])
     let (selectedCurrency, setSelectedCurrency) = React.useState(_ => defaultCurrency)
-    // let currentDate = Date.make()->Date.toString->DayJs.getDayJsForString
-    // //hardcoded values for sample data
-    // let sampleStartDate = "2024-09-05T00:00:00.000Z"
-    // let sampleEndDate = "2024-10-03T00:00:00.000Z"
-    // let sampleCompareToStartDate = "2024-08-08T00:00:00.000Z"
-    // let sampleCompareToEndDate = "2024-09-05T00:00:00.000Z"
-
     let isSampleDataEnabled =
       filterValueJson
       ->getString(sampleDataKey, "false")
@@ -96,24 +89,6 @@ module PaymentsFilter = {
       updateFilterContext(filterValueModifier)
       None
     }, [selectedCurrency.value])
-
-    // React.useEffect(() => {
-    //   updateFilterContext(dict => {
-    //     let newDict = isSampleDataEnabled ? Dict.make() : dict
-    //     newDict->Dict.set("startTime", isSampleDataEnabled ? sampleStartDate : "")
-    //     newDict->Dict.set("endTime", isSampleDataEnabled ? sampleEndDate : "")
-    //     newDict->Dict.set("compareToStartTime", isSampleDataEnabled ? sampleCompareToStartDate : "")
-    //     newDict->Dict.set("compareToEndTime", isSampleDataEnabled ? sampleCompareToEndDate : "")
-    //     newDict->Dict.set(
-    //       "comparison",
-    //       isSampleDataEnabled
-    //         ? (DateRangeUtils.EnableComparison :> string)
-    //         : (DateRangeUtils.DisableComparison :> string),
-    //     )
-    //     newDict
-    //   })
-    //   None
-    // }, [isSampleDataEnabled])
 
     let setOption = value => {
       setSelectedCurrency(_ => value)

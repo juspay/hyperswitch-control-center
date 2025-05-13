@@ -357,33 +357,10 @@ module SampleDataToggle = {
     )
     let sampleStartDate = "2024-09-05T00:00:00.000Z"
     let sampleEndDate = "2024-10-03T00:00:00.000Z"
-    // let sampleCompareToStartDate = "2024-08-08T00:00:00.000Z"
-    // let sampleCompareToEndDate = "2024-09-05T00:00:00.000Z"
     let sampleDates: filterBody = {
       start_time: sampleStartDate,
       end_time: sampleEndDate,
     }
-    // React.useEffect(() => {
-    //   Js.log3("isnide use effcet", filterValueJson, value)
-    //   Js.log2("sampleDataKey", value)
-
-    //   None
-    // }, [filterValueJson])
-
-    // let setInitialFiltersFunc = HSwitchRemoteFilter.useSetInitialFilters(
-    //   ~updateExistingKeys,
-    //   ~startTimeFilterKey="startTime",
-    //   ~endTimeFilterKey="endTime",
-    //   ~compareToStartTimeKey="compareToStartTime",
-    //   ~compareToEndTimeKey="compareToEndTime",
-    //   ~enableCompareTo=None,
-    //   ~comparisonKey="",
-    //   ~range=7,
-    //   ~origin="analytics",
-    //   ~isInsightsPage=true,
-    //   ~defaultDate=sampleDates,
-    //   (),
-    // )
 
     let onClick = _ => {
       let updatedValue = !isEnabled
@@ -393,7 +370,6 @@ module SampleDataToggle = {
 
       setIsEnabled(value => !value)
       if updatedValue {
-        Js.log2("called", filterValueJson)
         onClickFunc(
           ~startTimeFilterKey="startTime",
           ~endTimeFilterKey="endTime",
@@ -405,13 +381,12 @@ module SampleDataToggle = {
           ~isInsightsPage=true,
           ~defaultDate=sampleDates,
         )
-        // setInitialFiltersFunc()
       }
     }
 
     <BoolInput.BaseComponent
       isSelected={isEnabled}
-      setIsSelected={onClick}
+      setIsSelected=onClick
       isDisabled=false
       boolCustomClass="rounded-lg !bg-primary"
       toggleBorder="border-primary"
@@ -423,7 +398,6 @@ module SampleDataBanner = {
   @react.component
   let make = () => {
     open LogicUtils
-    open NewAnalyticsFiltersHelper
     open NewAnalyticsContainerUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let isSampleDataEnabled =
@@ -431,32 +405,17 @@ module SampleDataBanner = {
       ->getString(sampleDataKey, "false")
       ->LogicUtils.getBoolFromString(false)
     let scrollCss = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-    React.useEffect(() => {
-      if isSampleDataEnabled {
-        let timeoutId = Js.Global.setTimeout(() => {
-          setScreenState(_ => PageLoaderWrapper.Success)
-        }, 1000)
-        Some(() => Js.Global.clearTimeout(timeoutId))
-      } else {
-        setScreenState(_ => PageLoaderWrapper.Success)
-        None
-      }
-    }, [isSampleDataEnabled])
-
-    <PageLoaderWrapper screenState customLoader={<FilterLoader />}>
-      <div className={`${scrollCss} py-2 px-10 bg-orange-50 flex justify-between items-center`}>
-        <div className="flex gap-4 items-center">
-          <p className="text-nd_gray-600 text-base leading-6 font-medium">
-            {"Currently viewing sample data. Toggle it off to return to your real insights."->React.string}
-          </p>
-        </div>
-        <div>
-          <SampleDataToggle />
-        </div>
+    <div className={`${scrollCss} py-2 px-10 bg-orange-50 flex justify-between items-center`}>
+      <div className="flex gap-4 items-center">
+        <p className="text-nd_gray-600 text-base leading-6 font-medium">
+          {"Currently viewing sample data. Toggle it off to return to your real insights."->React.string}
+        </p>
       </div>
-    </PageLoaderWrapper>
+      <div>
+        <SampleDataToggle />
+      </div>
+    </div>
   }
 }
 
