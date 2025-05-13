@@ -185,21 +185,20 @@ let make = () => {
         />
       </RenderIf>
     }}
-    {switch connectorListFromRecoil->Array.length {
-    | 0 =>
+    <RenderIf condition={connectorListFromRecoil->Array.length == 0}>
       <HelperComponents.BluredTableComponent
         infoText={"Connect to a payment processor to make your first payment"}
         buttonText={"Connect a connector"}
         moduleName=""
         onClickUrl={`/connectors`}
       />
-    | _ =>
-      <RenderIf condition={checkIsSDKOpen.initialPreview}>
-        <div className="flex items-center justify-center w-full h-full">
-          <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
-        </div>
-      </RenderIf>
-    }}
+    </RenderIf>
+    <RenderIf
+      condition={connectorListFromRecoil->Array.length > 0 && checkIsSDKOpen.initialPreview}>
+      <div className="flex items-center justify-center w-full h-full">
+        <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
+      </div>
+    </RenderIf>
     <RenderIf condition={checkIsSDKOpen.isLoading}>
       <Loader />
     </RenderIf>

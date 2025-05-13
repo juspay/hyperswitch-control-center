@@ -1,7 +1,7 @@
 @react.component
 let make = (~onSubmit) => {
   open FormRenderer
-  open SDKPaymentUtils
+  open SDKPaymentHelper
 
   let {isGuestMode, setIsGuestMode, initialValuesForCheckoutForm} = React.useContext(
     SDKProvider.defaultContext,

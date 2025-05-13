@@ -1,5 +1,5 @@
 open FormRenderer
-open SDKPaymentUtils
+open SDKPaymentHelper
 
 module AuthorizationAndCaptureSettings = {
   @react.component
