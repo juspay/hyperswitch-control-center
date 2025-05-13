@@ -2,7 +2,7 @@ module BillingAddress = {
   @react.component
   let make = () => {
     open FormRenderer
-    open SDKPaymentUtils
+    open SDKPaymentHelper
 
     let {isSameAsBilling, setIsSameAsBilling} = React.useContext(SDKProvider.defaultContext)
 
@@ -43,7 +43,7 @@ module ShippingAddress = {
   @react.component
   let make = () => {
     open FormRenderer
-    open SDKPaymentUtils
+    open SDKPaymentHelper
 
     let {isSameAsBilling} = React.useContext(SDKProvider.defaultContext)
 

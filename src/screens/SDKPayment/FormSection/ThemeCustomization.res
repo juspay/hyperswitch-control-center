@@ -2,6 +2,7 @@
 let make = () => {
   open FormRenderer
   open SDKPaymentUtils
+  open SDKPaymentHelper
 
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 

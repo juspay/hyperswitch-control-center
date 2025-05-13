@@ -48,6 +48,21 @@ let make = () => {
     Nullable.null->Promise.resolve
   }
 
+  let getURL = APIUtils.useGetURL()
+  let getClientSecret = async (~typedValues) => {
+    try {
+      let url = getURL(~entityName=V1(SDK_PAYMENT), ~methodType=Post)
+      let body = typedValues->Identity.genericTypeToJson
+      let response = await updateDetails(url, body, Fetch.Post)
+      response
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
+      }
+    }
+  }
+
   let tabs: array<Tabs.tab> = [
     {
       title: "Checkout Details",
