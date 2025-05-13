@@ -5,7 +5,6 @@ let make = (
   ~fullWidth=true,
   ~customInputClassName="",
   ~customWrapperClassName="",
-  ~pickerPositionClassName="justify-between",
   ~defaultValue=?,
 ) => {
   open LogicUtils
@@ -38,7 +37,7 @@ let make = (
   )
 
   <div
-    className={`flex flex-col ${fullWidth ? "w-full" : ""} ${customWrapperClassName}`}
+    className={`relative flex flex-col ${fullWidth ? "w-full" : ""} ${customWrapperClassName}`}
     ref={colorPickerRef->ReactDOM.Ref.domRef}>
     <RenderIf condition={labelText->Option.isSome}>
       <label className="text-sm font-medium mb-1">
@@ -60,7 +59,8 @@ let make = (
       />
     </div>
     <RenderIf condition={toggle}>
-      <div className="mt-10 shadow-md border border-jp-gray-300 rounded-md z-50 absolute bg-white">
+      <div
+        className="mt-10 shadow-md border border-jp-gray-300 rounded-md z-50 absolute bg-white right-0">
         <SketchPicker color onChangeComplete />
       </div>
     </RenderIf>
