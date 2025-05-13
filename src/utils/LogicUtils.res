@@ -278,11 +278,11 @@ let getFloatFromJson = (json, default) => {
   }
 }
 
+let isUint8Array: 'a => bool = %raw("(val) => val instanceof Uint8Array")
+
 let getUInt8ArrayFromJson = (json, default) => {
   switch JSON.Classify.classify(json) {
-  | Object(obj) =>
-    let isUint8Array: 'a => bool = %raw("(val) => val instanceof Uint8Array")
-    isUint8Array(obj) ? Identity.anyTypeToUint8Array(obj) : default
+  | Object(obj) => isUint8Array(obj) ? Identity.anyTypeToUint8Array(obj) : default
   | _ => default
   }
 }
