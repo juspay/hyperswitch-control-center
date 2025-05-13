@@ -20,7 +20,7 @@ let proxy = {
     target: "",
     changeOrigin: true,
   },
-  '/dynamo-simulation-template': {
+  "/dynamo-simulation-template": {
     target: "https://integ.hyperswitch.io",
     changeOrigin: true,
   },
