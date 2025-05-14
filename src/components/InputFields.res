@@ -702,3 +702,10 @@ let boolInput = (~isDisabled, ~isCheckBox=false, ~boolCustomClass="") => (
 ) => {
   <BoolInput input isDisabled isCheckBox boolCustomClass />
 }
+
+let colorPickerInput = (~defaultValue="") => (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+) => {
+  <ColorPickerInput input defaultValue />
+}

@@ -268,7 +268,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
           onSubmit={handleSubmit}
           className={`flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600`}>
           {switch authType {
-          | LoginWithPassword => <EmailPasswordForm setAuthType />
+          | LoginWithPassword => <EmailPasswordForm />
           | ForgetPassword =>
             <RenderIf condition={featureFlagValues.email && checkAuthMethodExists([PASSWORD])}>
               <EmailForm />
@@ -280,12 +280,11 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
                 <EmailForm />
               </RenderIf>
               <RenderIf condition={signUpAllowed && signupMethod == SSOTypes.PASSWORD}>
-                <EmailPasswordForm setAuthType />
+                <EmailPasswordForm />
               </RenderIf>
             </>
 
-          | LoginWithEmail =>
-            isMagicLinkEnabled() ? <EmailForm /> : <EmailPasswordForm setAuthType />
+          | LoginWithEmail => isMagicLinkEnabled() ? <EmailForm /> : <EmailPasswordForm />
           | ResetPassword => <ResetPasswordForm />
           | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
             <ResendBtn callBackFun={resendEmail} />

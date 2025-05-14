@@ -43,6 +43,7 @@ let checkHealth = async (res) => {
 
 const healthHandler = (_req, res) => {
   try {
+    console.log("health is good");
     res.write("health is good");
     res.end();
   } catch (error) {

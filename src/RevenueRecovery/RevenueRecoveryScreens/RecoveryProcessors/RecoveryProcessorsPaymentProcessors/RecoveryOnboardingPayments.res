@@ -22,6 +22,7 @@ let make = (
     ~entityName=V2(V2_CONNECTOR),
     ~version=UserInfoTypes.V2,
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
   let (arrow, setArrow) = React.useState(_ => false)
@@ -105,6 +106,7 @@ let make = (
   }, [connector, profileId])
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
@@ -162,7 +164,10 @@ let make = (
       errors->JSON.Encode.object,
     )
   }
-
+  let handleClick = () => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
+    onNextClick(currentStep, setNextStep)->ignore
+  }
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
@@ -275,7 +280,7 @@ let make = (
           <Button
             text="Next"
             buttonType=Primary
-            onClick={_ => onNextClick(currentStep, setNextStep)->ignore}
+            onClick={_ => handleClick()}
             customButtonStyle="w-full mt-8"
           />
         </div>
