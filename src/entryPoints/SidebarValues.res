@@ -537,15 +537,6 @@ let webhooks = userHasResourceAccess => {
   })
 }
 
-let newPaymentSettingLink = userHasResourceAccess => {
-  SubLevelLink({
-    name: "New Payment Setting",
-    link: "/new-payment-settings",
-    access: userHasResourceAccess(~resourceAccess=Account), // Assuming similar access to PaymentSettings
-    searchOptions: [("Configure new payment settings", "")],
-  })
-}
-
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
@@ -556,16 +547,13 @@ let developers = (
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
-  let newPaymentSetting = newPaymentSettingLink(userHasResourceAccess) // Define the new link instance
 
-  let defaultDevelopersOptions = [paymentSettings, newPaymentSetting] // Add newPaymentSetting here
+  let defaultDevelopersOptions = [paymentSettings]
   if isWebhooksEnabled {
     defaultDevelopersOptions->Array.push(webhooks)
   }
 
   if !isProfileUser {
-    // Ensure apiKeys is added after paymentSettings and newPaymentSetting if order matters
-    // For now, appending. If specific order is needed, adjust array construction.
     defaultDevelopersOptions->Array.push(apiKeys)
   }
 

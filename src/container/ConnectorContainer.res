@@ -153,14 +153,6 @@ let make = () => {
         remainingPath
         renderList={() => <PaymentSettings webhookOnly=false showFormOnly=false />}
       />
-    | list{"new-payment-settings", ...remainingPath} =>
-      <AccessControl authorization={userHasAccess(~groupAccess=AccountManage)}> // Or appropriate access
-        <EntityScaffold
-          entityName="NewPaymentSetting" // Or a more descriptive name
-          remainingPath
-          renderList={() => <NewPaymenentSetting />} // Assuming NewPaymenentSetting.make()
-        />
-      </AccessControl>
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
         <FilterContext key="webhooks" index="webhooks">
