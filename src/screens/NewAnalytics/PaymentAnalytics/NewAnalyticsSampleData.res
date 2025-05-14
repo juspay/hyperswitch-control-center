@@ -19,17 +19,16 @@ let paymentsOverviewData = {
 }->Identity.genericTypeToJson
 
 //lifecycle sample data
-
 let paymentLifecycleData = [
   {
-    "count": 16359,
+    "count": 16876,
     "dispute_status": None,
     "first_attempt": 1,
     "refunds_status": None,
     "status": "succeeded",
   },
   {
-    "count": 1055,
+    "count": 538,
     "dispute_status": None,
     "first_attempt": 0,
     "refunds_status": None,
@@ -43,7 +42,7 @@ let paymentLifecycleData = [
     "status": "disputed",
   },
   {
-    "count": 2500,
+    "count": 90,
     "dispute_status": None,
     "first_attempt": 1,
     "refunds_status": None,
@@ -57,9 +56,9 @@ let paymentLifecycleData = [
     "status": "pending",
   },
   {
-    "count": 943,
+    "count": 3350,
     "dispute_status": None,
-    "first_attempt": 1,
+    "first_attempt": 0,
     "refunds_status": None,
     "status": "dropoff",
   },
@@ -92,7 +91,6 @@ let paymentLifecycleData = [
     "status": "succeeded",
   },
 ]->Identity.genericTypeToJson
-
 //for processors , failures and failed
 let paymentsRateDataWithConnectors = {
   "queryData": [

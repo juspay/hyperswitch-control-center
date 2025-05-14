@@ -297,7 +297,7 @@ module SampleModeToggle = {
   open LogicUtils
   open NewAnalyticsContainerUtils
   open HSwitchRemoteFilter
-
+  open DateRangeUtils
   @react.component
   let make = (~applySampleDateFilters) => {
     let {updateExistingKeys, filterValue, filterValueJson} = React.useContext(
@@ -317,8 +317,9 @@ module SampleModeToggle = {
 
     let applyDateRangeBasedOnToggle = (~useSampleDates) => {
       let dates = useSampleDates ? sampleDateRange : defaultDateRange
+      let comparison = useSampleDates ? (EnableComparison :> string) : (DisableComparison :> string)
       let searchParams = Dict.make()
-      let (compareStart, compareEnd) = DateRangeUtils.getComparisionTimePeriod(
+      let (compareStart, compareEnd) = getComparisionTimePeriod(
         ~startDate=dates.start_time,
         ~endDate=dates.end_time,
       )
@@ -328,7 +329,7 @@ module SampleModeToggle = {
         (endTimeFilterKey, dates.end_time),
         (compareToStartTimeKey, compareStart),
         (compareToEndTimeKey, compareEnd),
-        (comparisonKey, (DateRangeUtils.EnableComparison :> string)),
+        (comparisonKey, comparison),
       ]->Array.forEach(((key, value)) => {
         searchParams->Dict.set(key, value)
       })
@@ -365,9 +366,10 @@ module SampleDataBanner = {
       filterValueJson
       ->getString(sampleDataKey, "false")
       ->LogicUtils.getBoolFromString(false)
-    let scrollCss = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
+    let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
 
-    <div className={`${scrollCss} py-2 px-10 bg-orange-50 flex justify-between items-center`}>
+    <div
+      className={`${stickyToggleClass} py-2 px-10 bg-orange-50 flex justify-between items-center`}>
       <div className="flex gap-4 items-center">
         <p className="text-nd_gray-600 text-base leading-6 font-medium">
           {"Currently viewing sample data. Toggle it off to return to your real insights."->React.string}
