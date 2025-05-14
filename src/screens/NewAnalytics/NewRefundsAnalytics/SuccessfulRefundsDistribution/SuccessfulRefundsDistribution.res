@@ -65,6 +65,7 @@ let make = (
   open APIUtils
   open NewAnalyticsUtils
   open RefundsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -76,7 +77,7 @@ let make = (
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   let getRefundsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)

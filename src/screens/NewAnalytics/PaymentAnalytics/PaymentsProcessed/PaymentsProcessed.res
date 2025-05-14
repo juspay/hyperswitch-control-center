@@ -159,6 +159,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -202,7 +203,7 @@ let make = (
 
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)

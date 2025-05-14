@@ -63,13 +63,14 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   let (refundsDistribution, setrefundsDistribution) = React.useState(_ => JSON.Encode.array([]))
   let (viewType, setViewType) = React.useState(_ => Graph)

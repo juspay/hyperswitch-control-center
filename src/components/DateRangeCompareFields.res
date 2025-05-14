@@ -724,7 +724,6 @@ let make = (
   ~compareWithStartTime,
   ~compareWithEndTime,
   ~dateRangeLimit=?,
-  ~isSampleDataEnabled=false,
 ) => {
   let startInput = ReactFinalForm.useField(startKey).input
   let endInput = ReactFinalForm.useField(endKey).input

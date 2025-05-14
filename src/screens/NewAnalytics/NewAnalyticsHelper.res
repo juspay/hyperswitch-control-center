@@ -149,49 +149,45 @@ module CustomDropDown = {
               }}
             </Menu.Button>
           }}
-          {if !disabled {
-            <Transition
-              \"as"="span"
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95">
-              {<Menu.Items
-                className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
-                {props => {
-                  setArrow(_ => props["open"])
+          <Transition
+            \"as"="span"
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95">
+            {<Menu.Items
+              className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
+              {props => {
+                setArrow(_ => props["open"])
 
-                  <div className="p-1">
-                    {options
-                    ->Array.mapWithIndex((option, i) =>
-                      <Menu.Item key={i->Int.toString}>
-                        {props =>
-                          <div className="relative">
-                            <button
-                              onClick={_ => setOption(option)}
-                              className={
-                                let activeClasses = if props["active"] {
-                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                                } else {
-                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm"
-                                }
-                                `${activeClasses} font-medium text-start`
-                              }>
-                              <div className="mr-5"> {option.label->React.string} </div>
-                            </button>
-                          </div>}
-                      </Menu.Item>
-                    )
-                    ->React.array}
-                  </div>
-                }}
-              </Menu.Items>}
-            </Transition>
-          } else {
-            React.null
-          }}
+                <div className="p-1">
+                  {options
+                  ->Array.mapWithIndex((option, i) =>
+                    <Menu.Item key={i->Int.toString}>
+                      {props =>
+                        <div className="relative">
+                          <button
+                            onClick={_ => setOption(option)}
+                            className={
+                              let activeClasses = if props["active"] {
+                                "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                              } else {
+                                "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                              }
+                              `${activeClasses} font-medium text-start`
+                            }>
+                            <div className="mr-5"> {option.label->React.string} </div>
+                          </button>
+                        </div>}
+                    </Menu.Item>
+                  )
+                  ->React.array}
+                </div>
+              }}
+            </Menu.Items>}
+          </Transition>
         </div>}
     </Menu>
   }

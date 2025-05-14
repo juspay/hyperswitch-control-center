@@ -35,20 +35,19 @@ let useSetInitialFilters = (
   ~endTimeFilterKey,
   ~compareToStartTimeKey="",
   ~compareToEndTimeKey="",
-  ~enableCompareTo=Some(true),
+  ~enableCompareTo=None,
   ~comparisonKey="",
   ~isInsightsPage=false,
   ~range=7,
   ~origin,
-  ~defaultDate=getDateFilteredObject(~range),
   (),
 ) => {
-  Js.log("useSetInitialFilters")
   open NewAnalyticsTypes
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
     let inititalSearchParam = Dict.make()
+    let defaultDate = getDateFilteredObject(~range)
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       let timeRange =
         origin !== "analytics"

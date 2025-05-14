@@ -63,7 +63,7 @@ let make = (~entity: moduleEntity) => {
   let isSampleDataEnabled =
     filterValueJson
     ->getString("is_sample_data_enabled", "false")
-    ->LogicUtils.getBoolFromString(false)
+    ->LogicUtils.getBoolFromString(true)
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
