@@ -10,6 +10,8 @@ module PageHeading = {
     ~tagText="",
     ~customTagStyle="bg-extra-light-grey border-light-grey",
     ~leftIcon=None,
+    ~customTagComponent=?,
+    ~customTitleSectionStyles="",
   ) => {
     let headerTextStyle = HSwitchUtils.getTextClass((H1, Optional))
     <div className={`${customHeadingStyle}`}>
@@ -17,13 +19,16 @@ module PageHeading = {
       | Some(icon) => <Icon name={icon} size=56 />
       | None => React.null
       }}
-      <div className="flex items-center gap-4">
+      <div className={`flex items-center gap-4 ${customTitleSectionStyles}`}>
         <div className={`${headerTextStyle} ${customTitleStyle}`}> {title->React.string} </div>
         <RenderIf condition=isTag>
           <div
             className={`text-sm text-grey-700 font-semibold border  rounded-full px-2 py-1 ${customTagStyle}`}>
             {tagText->React.string}
           </div>
+        </RenderIf>
+        <RenderIf condition={!isTag && customTagComponent->Option.isSome}>
+          {customTagComponent->Option.getOr(React.null)}
         </RenderIf>
       </div>
       {switch subTitle {
