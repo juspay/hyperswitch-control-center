@@ -2,9 +2,6 @@
 Modules that depend on Connector and Business Profiles data are located within this container.
  */
 
-// Assuming the new component is in NewPaymenentSetting.res and module is NewPaymenentSetting
-open NewPaymenentSetting // Adjust if module name is different
-
 @react.component
 let make = () => {
   open HSwitchUtils
