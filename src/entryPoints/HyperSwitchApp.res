@@ -108,6 +108,14 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
+  let linkSelectionCheck = (firstPart, tabLink) => {
+    if tabLink->String.includes("new-analytics") {
+      firstPart->String.includes("new-analytics") && tabLink->String.includes("new-analytics")
+    } else {
+      firstPart->LogicUtils.removeTrailingSlash === tabLink->LogicUtils.removeTrailingSlash
+    }
+  }
+
   <>
     <div>
       {switch dashboardPageState {
@@ -125,6 +133,7 @@ let make = () => {
                   sidebars={hyperSwitchAppSidebars}
                   key={(screenState :> string)}
                   productSiebars=productSidebars
+                  linkSelectionCheck
                 />
               </RenderIf>
               <PageLoaderWrapper
