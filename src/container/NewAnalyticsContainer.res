@@ -110,7 +110,7 @@ let make = () => {
     })
   }
 
-  let updateOnToggleClick = async initialValues => {
+  let applySampleDateFilters = async initialValues => {
     try {
       setScreenState(_ => Loading)
       await HyperSwitchUtils.delay(2000)
@@ -123,7 +123,7 @@ let make = () => {
 
   <PageLoaderWrapper key={(analyticsEntity :> string)} screenState>
     <div>
-      <NewAnalyticsHelper.SampleDataBanner updateOnToggleClick />
+      <NewAnalyticsHelper.SampleDataBanner applySampleDateFilters />
       <PageUtils.PageHeading customTitleStyle="mt-4" title="Insights" />
       <div className="-ml-1 top-0 z-20 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
