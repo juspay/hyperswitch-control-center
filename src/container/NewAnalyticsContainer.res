@@ -112,16 +112,12 @@ let make = () => {
     })
   }
 
-  let updateOnToggleClick = initialValues => {
+  let updateOnToggleClick = async initialValues => {
     try {
       setScreenState(_ => Loading)
-      HyperSwitchUtils.delay(2000)
-      ->Promise.then(() => {
-        updateExistingKeys(initialValues)
-        setScreenState(_ => Success)
-        Promise.resolve()
-      })
-      ->ignore
+      await HyperSwitchUtils.delay(2000)
+      updateExistingKeys(initialValues)
+      setScreenState(_ => Success)->ignore
     } catch {
     | _ => setScreenState(_ => Success)
     }

@@ -328,7 +328,7 @@ module SampleDataToggle = {
         inititalSearchParam->Dict.set(key, value)
       })
 
-      updateOnToggleClick(inititalSearchParam)
+      updateOnToggleClick(inititalSearchParam)->ignore
     }
 
     let onClick = _ => {
