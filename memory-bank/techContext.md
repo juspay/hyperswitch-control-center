@@ -48,37 +48,80 @@ This document provides a high-level overview of the technical context in which t
   - React Hooks (`useState`, `useEffect`): Used for local component state.
 - **Testing:** The project should have a suite of tests (unit, integration, and/or end-to-end) to ensure code quality and prevent regressions.
 - **Build Tools:** Tools are used to automate the process of building, optimizing, and deploying the Control Center application.
-- **Code Style:** The project follows a specific code style and conventions (enforced by a linter).
+- **Code Style:** The project follows a specific code style and conventions, enforced by a linter. Key conventions include:
+  - Using camelCase for variable names (e.g., `myVariable`).
+  - Using kebab-case for ReScript file names (e.g., `my-file.res`).
+  - Potentially using snake_case for database column names (though this is more relevant to the backend, it's a general convention sometimes noted).
 - **Contribution Guidelines:** Refer to the main `docs/CONTRIBUTING.md` file for detailed instructions on how to contribute to the project.
 
 ## Local Development Setup
 
-Setting up the Control Center for local development typically involves these steps:
+This section outlines the steps to set up and run the Hyperswitch Control Center frontend locally for development, connecting to a local instance of the Hyperswitch backend services running via Docker.
 
-1.  **Prerequisites:**
-    - Node.js and npm.
-    - Git.
-    - A running Hyperswitch backend instance (often via Docker). Refer to [Hyperswitch Local Setup](https://docs.hyperswitch.io/hyperswitch-open-source/overview/local-setup-using-individual-components/).
-2.  **Clone Repository:**
+### Prerequisites
+
+1.  **Node.js and npm**: Ensure Node.js (which includes npm) is installed. (Tested with Node v16.0.0, npm v7.10.0; newer versions generally recommended).
+2.  **Git**: Ensure Git is installed for cloning repositories.
+3.  **Docker**: Ensure Docker Desktop (or Docker Engine) is installed and running.
+4.  **Hyperswitch Backend Repository**: Clone the `hyperswitch` backend repository, typically as a sibling to `hyperswitch-control-center`.
     ```bash
-    git clone https://github.com/juspay/hyperswitch-control-center.git
-    cd hyperswitch-control-center
+    # Example: If hyperswitch-control-center is in /Workspace/hyperswitch-control-center
+    # Run from /Workspace:
+    git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
     ```
-3.  **Install Dependencies:**
+
+### Setup Steps
+
+1.  **Navigate to Control Center Directory**:
+    Ensure your terminal is in the `hyperswitch-control-center` project root.
+
+2.  **Install Frontend Dependencies**:
+    If not already done, install Node.js packages:
     ```bash
     npm install
     ```
-4.  **Start ReScript Compiler:**
-    ```bash
-    npm run re:start
-    ```
-5.  **Start Development Server:**
-    ```bash
-    npm run start
-    ```
-    (Typically accessible at `http://localhost:3000`)
-6.  **Configure API URLs:**
-    - Ensure the Control Center is configured with the correct URLs for your local Hyperswitch backend API (e.g., `http://localhost:8080`) and SDK (e.g., `http://localhost:9050/HyperLoader.js`). This might be in a `config.toml` or similar.
+    _(Note: If `npm run start` yields module resolution errors for packages like `react-color`, ensure they are installed and saved, e.g., `npm install react-color --save`)_
+
+3.  **Configure Backend URLs**:
+    - Open `config/config.toml` in the `hyperswitch-control-center` project.
+    - Verify these endpoint configurations for local backend (default Docker ports):
+      ```toml
+      [default.endpoints]
+      api_url="http://localhost:8080/api"
+      sdk_url="http://localhost:9050/HyperLoader.js"
+      ```
+
+4.  **Start Hyperswitch Backend Services (Docker)**:
+    - In a terminal, navigate to the `hyperswitch` backend repository (e.g., `cd ../hyperswitch`).
+    - Start services:
+      ```bash
+      # Inside the ../hyperswitch directory
+      docker compose up -d --scale hyperswitch-control-center=0
+      ```
+    - This starts services in detached mode (`-d`).
+    - `--scale hyperswitch-control-center=0` prevents Docker's control center UI, allowing local use.
+    - Monitor logs: `docker compose logs -f hyperswitch-server` (or other services).
+
+5.  **Start ReScript Compiler (Frontend)**:
+    - In a new terminal (in `hyperswitch-control-center` directory).
+    - Run ReScript compiler in watch mode:
+      ```bash
+      npm run re:start
+      ```
+    - Keep this running for automatic recompilation of `.res` to `.bs.js` files.
+
+6.  **Start Frontend Development Server**:
+    - In another new terminal (in `hyperswitch-control-center` directory).
+    - Run the development server:
+      ```bash
+      npm run start
+      ```
+    - This starts webpack dev server, typically at `http://localhost:9000/` (check terminal output).
+
+7.  **Access the Application**:
+    - Open your browser to `http://localhost:9000/` (or the URL from `npm run start`).
+
+Keep `npm run re:start` and `npm run start` terminals running during development.
 
 ## Hyperswitch Ecosystem
 
