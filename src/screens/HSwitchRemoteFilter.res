@@ -48,11 +48,7 @@ let useSetInitialFilters = (
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
-    Js.log2("useSetInitialFilters inside callback", filterValueJson)
     let inititalSearchParam = Dict.make()
-
-    // let defaultDate = getDateFilteredObject(~range)
-
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       let timeRange =
         origin !== "analytics"
@@ -94,7 +90,6 @@ let useSetInitialFilters = (
         | None => inititalSearchParam->Dict.set(key, defaultValue)
         }
       })
-      Js.log2("intialSearchParam", inititalSearchParam)
       inititalSearchParam->updateExistingKeys
     }
   }

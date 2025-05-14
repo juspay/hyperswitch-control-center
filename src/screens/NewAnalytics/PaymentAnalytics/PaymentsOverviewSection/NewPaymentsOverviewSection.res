@@ -92,11 +92,8 @@ let make = (~entity: moduleEntity) => {
         let primaryResponseDisputes = await updateDetails(disputesUrl, primaryBodyDisputes, Post)
 
         let primaryDataPayments = primaryResponsePayments->parseResponse("metaData")
-        Js.log2("primarydatapayments", primaryDataPayments)
         let primaryDataRefunds = primaryResponseRefunds->parseResponse("metaData")
-        Js.log2("primaryDataRefunds", primaryDataRefunds)
         let primaryDataDisputes = primaryResponseDisputes->parseResponse("queryData")
-        Js.log2("primaryDataDisputes", primaryDataDisputes)
 
         primaryData->setValue(
           ~data=primaryDataPayments,

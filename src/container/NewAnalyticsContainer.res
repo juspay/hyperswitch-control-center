@@ -112,9 +112,24 @@ let make = () => {
     })
   }
 
+  let updateOnToggleClick = initialValues => {
+    try {
+      setScreenState(_ => Loading)
+      HyperSwitchUtils.delay(2000)
+      ->Promise.then(() => {
+        updateExistingKeys(initialValues)
+        setScreenState(_ => Success)
+        Promise.resolve()
+      })
+      ->ignore
+    } catch {
+    | _ => setScreenState(_ => Success)
+    }
+  }
+
   <PageLoaderWrapper key={(analyticsEntity :> string)} screenState>
     <div>
-      <NewAnalyticsHelper.SampleDataBanner />
+      <NewAnalyticsHelper.SampleDataBanner updateOnToggleClick />
       <PageUtils.PageHeading customTitleStyle="mt-4" title="Insights" />
       <div className="-ml-1 top-0 z-20 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter

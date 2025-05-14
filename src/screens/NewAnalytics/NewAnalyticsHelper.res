@@ -301,52 +301,38 @@ module SampleDataToggle = {
   open LogicUtils
   open NewAnalyticsContainerUtils
   open HSwitchRemoteFilter
+
   @react.component
-  let make = () => {
+  let make = (~updateOnToggleClick) => {
     let {updateExistingKeys, filterValue, filterValueJson} = React.useContext(
       FilterContext.filterContext,
     )
-    let onClickFunc = (
-      ~startTimeFilterKey,
-      ~endTimeFilterKey,
-      ~compareToStartTimeKey="",
-      ~compareToEndTimeKey="",
-      ~comparisonKey="",
-      ~range=7,
-      ~defaultDate=getDateFilteredObject(~range),
-    ) => {
-      let inititalSearchParam = Dict.make()
-      let timeRange = {
-        let (compareToStartTime, compareToEndTime) = DateRangeUtils.getComparisionTimePeriod(
-          ~startDate=defaultDate.start_time,
-          ~endDate=defaultDate.end_time,
-        )
-        [
-          (startTimeFilterKey, defaultDate.start_time),
-          (endTimeFilterKey, defaultDate.end_time),
-          (compareToStartTimeKey, compareToStartTime),
-          (compareToEndTimeKey, compareToEndTime),
-          (comparisonKey, (DateRangeUtils.EnableComparison :> string)),
-        ]
-      }
-      timeRange->Array.forEach(item => {
-        let (key, defaultValue) = item
-        switch inititalSearchParam->Dict.get(key) {
-        | Some(_) => ()
-        | None => inititalSearchParam->Dict.set(key, defaultValue)
-        }
-      })
-      inititalSearchParam->updateExistingKeys
-    }
-
     let (isEnabled, setIsEnabled) = React.useState(_ =>
       filterValueJson->getString(sampleDataKey, "false")->getBoolFromString(false)
     )
-    let sampleStartDate = "2024-09-05T00:00:00.000Z"
-    let sampleEndDate = "2024-10-03T00:00:00.000Z"
-    let sampleDates: filterBody = {
-      start_time: sampleStartDate,
-      end_time: sampleEndDate,
+    let sampleDates = {
+      start_time: "2024-09-05T00:00:00.000Z",
+      end_time: "2024-10-03T00:00:00.000Z",
+    }
+    let currentDates = getDateFilteredObject(~range=7)
+    let getDatesFilter = (~useCustomDates) => {
+      let dates = useCustomDates ? sampleDates : currentDates
+      let inititalSearchParam = Dict.make()
+      let (compareToStartTime, compareToEndTime) = DateRangeUtils.getComparisionTimePeriod(
+        ~startDate=dates.start_time,
+        ~endDate=dates.end_time,
+      )
+      [
+        (startTimeFilterKey, dates.start_time),
+        (endTimeFilterKey, dates.end_time),
+        (compareToStartTimeKey, compareToStartTime),
+        (compareToEndTimeKey, compareToEndTime),
+        (comparisonKey, (DateRangeUtils.EnableComparison :> string)),
+      ]->Array.forEach(((key, value)) => {
+        inititalSearchParam->Dict.set(key, value)
+      })
+
+      updateOnToggleClick(inititalSearchParam)
     }
 
     let onClick = _ => {
@@ -354,19 +340,8 @@ module SampleDataToggle = {
       let newValue = filterValue->Dict.copy
       newValue->Dict.set(sampleDataKey, updatedValue->getStringFromBool)
       newValue->updateExistingKeys
-
-      setIsEnabled(value => !value)
-      if updatedValue {
-        onClickFunc(
-          ~startTimeFilterKey="startTime",
-          ~endTimeFilterKey="endTime",
-          ~compareToStartTimeKey="compareToStartTime",
-          ~compareToEndTimeKey="compareToEndTime",
-          ~comparisonKey="comparison",
-          ~range=7,
-          ~defaultDate=sampleDates,
-        )
-      }
+      setIsEnabled(_ => updatedValue)
+      getDatesFilter(~useCustomDates=updatedValue)
     }
 
     <BoolInput.BaseComponent
@@ -381,7 +356,7 @@ module SampleDataToggle = {
 
 module SampleDataBanner = {
   @react.component
-  let make = () => {
+  let make = (~updateOnToggleClick) => {
     open LogicUtils
     open NewAnalyticsContainerUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -398,7 +373,7 @@ module SampleDataBanner = {
         </p>
       </div>
       <div>
-        <SampleDataToggle />
+        <SampleDataToggle updateOnToggleClick />
       </div>
     </div>
   }

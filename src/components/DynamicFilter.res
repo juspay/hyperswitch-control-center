@@ -178,6 +178,7 @@ let make = (
 
   let setCustomFilter = customFilter => {
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
+    Js.log3("customFilterKey", customFilterKey, customFilter)
   }
 
   let customFilters = if customFilterKey->isNonEmptyString {

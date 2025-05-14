@@ -142,6 +142,5 @@ let initialFixedFilterFields = (
       }: EntityType.initialFilters<'t>
     ),
   ]
-
   newArr
 }

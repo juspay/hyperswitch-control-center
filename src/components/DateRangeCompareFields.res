@@ -537,7 +537,10 @@ module Base = {
     })
 
     let buttonText = switch predefinedOptionSelected {
-    | Some(value) => DateRangeUtils.datetext(value, disableFutureDates)
+    | Some(value) => {
+        Js.log("inside btn text")
+        DateRangeUtils.datetext(value, disableFutureDates)
+      }
     | None =>
       startDateVal->isEmptyString && endDateVal->isEmptyString
         ? `Select Date`
