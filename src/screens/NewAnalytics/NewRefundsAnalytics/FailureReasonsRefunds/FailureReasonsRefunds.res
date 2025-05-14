@@ -52,6 +52,7 @@ let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -62,8 +63,8 @@ let make = (~entity: moduleEntity) => {
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
-    ->LogicUtils.getBoolFromString(true)
+    ->getString(sampleDataKey, "false")
+    ->LogicUtils.getBoolFromString(false)
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {

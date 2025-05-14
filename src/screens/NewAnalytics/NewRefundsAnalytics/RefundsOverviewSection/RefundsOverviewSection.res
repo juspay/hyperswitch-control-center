@@ -6,6 +6,7 @@ open LogicUtils
 open APIUtils
 open NewAnalyticsUtils
 open RefundsSampleData
+open NewAnalyticsContainerUtils
 @react.component
 let make = (~entity: moduleEntity) => {
   let getURL = useGetURL()
@@ -21,7 +22,7 @@ let make = (~entity: moduleEntity) => {
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)

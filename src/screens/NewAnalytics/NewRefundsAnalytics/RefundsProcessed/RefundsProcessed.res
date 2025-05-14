@@ -153,6 +153,7 @@ let make = (
   open APIUtils
   open NewAnalyticsUtils
   open RefundsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -173,7 +174,7 @@ let make = (
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)

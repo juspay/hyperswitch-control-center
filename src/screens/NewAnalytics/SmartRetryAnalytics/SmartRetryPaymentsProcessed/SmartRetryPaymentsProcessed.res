@@ -151,6 +151,7 @@ let make = (
   open APIUtils
   open NewAnalyticsUtils
   open NewAnalyticsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -185,7 +186,7 @@ let make = (
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {

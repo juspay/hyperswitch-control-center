@@ -62,13 +62,14 @@ let make = (~entity: moduleEntity) => {
   open APIUtils
   open NewAnalyticsUtils
   open NewAnalyticsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)

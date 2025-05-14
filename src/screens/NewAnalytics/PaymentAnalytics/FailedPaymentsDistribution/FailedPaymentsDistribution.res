@@ -78,6 +78,7 @@ let make = (
   open APIUtils
   open NewAnalyticsUtils
   open NewAnalyticsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -97,7 +98,7 @@ let make = (
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   let getFailedPaymentsDistribution = async () => {
     try {

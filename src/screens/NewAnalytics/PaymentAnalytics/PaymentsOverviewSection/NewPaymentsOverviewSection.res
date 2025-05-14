@@ -8,6 +8,7 @@ let make = (~entity: moduleEntity) => {
   open NewAnalyticsHelper
   open NewAnalyticsUtils
   open NewAnalyticsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => []->JSON.Encode.array)
@@ -17,7 +18,7 @@ let make = (~entity: moduleEntity) => {
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   let metricType: metricType =
     filterValueJson

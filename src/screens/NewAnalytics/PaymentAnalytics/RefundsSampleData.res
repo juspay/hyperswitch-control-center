@@ -1730,8 +1730,8 @@ let refundConnectorsSampleData = {
       "refund_status": "succeeded",
       "connector": "Stripe",
       "refund_type": "full",
-      "refund_reason": "Customer Requested",
-      "refund_error_message": "Insufficient funds",
+      "refund_reason": "Requested by customer",
+      "refund_error_message": "The reference transaction doesn't meet the criteria for issuing a credit.",
       "time_range": {
         "start_time": "2025-03-31T18:30:00.000Z",
         "end_time": "2025-04-30T18:29:59.000Z",
@@ -1781,7 +1781,7 @@ let refundConnectorsSampleData = {
       "connector": "checkout",
       "refund_type": "full",
       "refund_reason": "Duplicate Transaction",
-      "refund_error_message": "Card expired",
+      "refund_error_message": "A duplicate transaction was detected",
       "time_range": {
         "start_time": "2025-03-31T18:30:00.000Z",
         "end_time": "2025-04-30T18:29:59.000Z",

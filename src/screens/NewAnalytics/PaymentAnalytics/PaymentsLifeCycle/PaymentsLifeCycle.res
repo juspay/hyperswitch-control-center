@@ -13,6 +13,7 @@ let make = (
   open APIUtils
   open LogicUtils
   open NewAnalyticsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ =>
@@ -26,7 +27,7 @@ let make = (
   let isSmartRetryEnabled = filterValueJson->getString("is_smart_retry_enabled", "true")
   let isSampleDataEnabled =
     filterValueJson
-    ->getString("is_sample_data_enabled", "false")
+    ->getString(sampleDataKey, "false")
     ->LogicUtils.getBoolFromString(false)
   let getPaymentLieCycleData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
