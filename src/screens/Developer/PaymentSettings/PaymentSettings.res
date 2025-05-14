@@ -574,7 +574,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <div
           className={`w-full ${showFormOnly
               ? ""
-              : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
+              : "border border-jp-gray-300 dark:border-jp-gray-700 rounded-lg shadow-md"} ${bgClass} p-4 md:p-6`}>
           <ReactFinalForm.Form
             key="merchantAccount"
             initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
@@ -590,10 +590,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             render={({handleSubmit}) => {
               <form
                 onSubmit={handleSubmit}
-                className={`${showFormOnly
-                    ? ""
-                    : "px-2 py-4"} flex flex-col gap-7 overflow-hidden`}>
-                <div className="flex items-center">
+                className={`flex flex-col gap-8 overflow-hidden`}>
+                <div className="flex items-center mb-4">
                   <InfoViewForWebhooks
                     heading="Profile Name" subHeading=businessProfileDetails.profile_name
                   />
@@ -601,7 +599,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
                   />
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center mb-6">
                   <InfoViewForWebhooks
                     heading="Merchant ID" subHeading={businessProfileDetails.merchant_id}
                   />
@@ -613,37 +611,45 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     isCopy=true
                   />
                 </div>
-                <CollectDetails
-                  title={"Collect billing details from wallets"}
-                  subTitle={"Enable automatic collection of billing information when customers connect their wallets"}
-                  options=[
-                    {
-                      name: "only if required by connector",
-                      key: "collect_billing_details_from_wallet_connector",
-                    },
-                    {
-                      name: "always",
-                      key: "always_collect_billing_details_from_wallet_connector",
-                    },
-                  ]
-                />
-                <CollectDetails
-                  title={"Collect shipping details from wallets"}
-                  subTitle={"Enable automatic collection of shipping information when customers connect their wallets"}
-                  options=[
-                    {
-                      name: "only if required by connector",
-                      key: "collect_shipping_details_from_wallet_connector",
-                    },
-                    {
-                      name: "always",
-                      key: "always_collect_shipping_details_from_wallet_connector",
-                    },
-                  ]
-                />
-                <DesktopRow>
-                  <FieldRenderer
-                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                <div className="mb-6">
+                  <CollectDetails
+                    title={"Collect billing details from wallets"}
+                    subTitle={"Enable automatic collection of billing information when customers connect their wallets"}
+                    options=[
+                      {
+                        name: "only if required by connector",
+                        key: "collect_billing_details_from_wallet_connector",
+                      },
+                      {
+                        name: "always",
+                        key: "always_collect_billing_details_from_wallet_connector",
+                      },
+                    ]
+                  />
+                </div>
+                <div className="mb-6">
+                  <CollectDetails
+                    title={"Collect shipping details from wallets"}
+                    subTitle={"Enable automatic collection of shipping information when customers connect their wallets"}
+                    options=[
+                      {
+                        name: "only if required by connector",
+                        key: "collect_shipping_details_from_wallet_connector",
+                      },
+                      {
+                        name: "always",
+                        key: "always_collect_shipping_details_from_wallet_connector",
+                      },
+                    ]
+                  />
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 mt-5 px-2 md:px-0">
+                    {"Feature Configuration"->React.string}
+                  </p>
+                  <DesktopRow wrapperClass="mb-6">
+                    <FieldRenderer
+                      labelClass="!text-fs-15 !text-grey-700 font-semibold"
                     fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
                     field={makeFieldInfo(
                       ~name="is_connector_agnostic_mit_enabled",
@@ -655,7 +661,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
-                <DesktopRow>
+                <DesktopRow wrapperClass="mb-6">
                   <FieldRenderer
                     labelClass="!text-fs-15 !text-grey-700 font-semibold"
                     fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
@@ -670,7 +676,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   />
                 </DesktopRow>
                 <RenderIf condition={featureFlagDetails.debitRouting}>
-                  <DesktopRow>
+                  <DesktopRow wrapperClass="mb-6">
                     <FieldRenderer
                       labelClass="!text-fs-15 !text-grey-700 font-semibold"
                       fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
@@ -685,10 +691,14 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </DesktopRow>
                 </RenderIf>
-                <ClickToPaySection />
-                <AutoRetries setCheckMaxAutoRetry />
+                <div className="mb-6">
+                  <ClickToPaySection />
+                </div>
+                <div className="mb-6">
+                  <AutoRetries setCheckMaxAutoRetry />
+                </div>
                 <RenderIf condition={isBusinessProfileHasThreeds}>
-                  <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4">
+                  <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4 mb-6">
                     <FieldRenderer
                       field={threedsConnectorList
                       ->Array.map(item => item.connector_name)
@@ -711,10 +721,20 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </DesktopRow>
                 </RenderIf>
-                <ReturnUrl />
-                <WebHook />
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 mt-5 px-2 md:px-0">
+                    {"Webhook & Return URLs"->React.string}
+                  </p>
+                  <div className="mb-6">
+                    <ReturnUrl />
+                  </div>
+                  <div className="mb-6">
+                    <WebHook />
+                  </div>
+                </div>
                 <DesktopRow>
-                  <div className="flex justify-end w-full gap-2">
+                  <div className="flex justify-end w-full gap-2 pt-4">
                     <SubmitButton
                       text="Update" buttonType=Button.Primary buttonSize=Button.Medium
                     />
@@ -732,15 +752,15 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             }}
           />
         </div>
-        <div className={` py-4 md:py-10 h-full flex flex-col `}>
+        <div className={`pt-6 md:pt-10 h-full flex flex-col`}>
           <div
-            className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
+            className={`border border-jp-gray-300 dark:border-jp-gray-700 rounded-lg shadow-md ${bgClass} p-4 md:p-6`}>
             <WebHookSection businessProfileDetails setBusinessProfile setScreenState profileId />
           </div>
         </div>
-        <div className="py-4 md:py-10 h-full flex flex-col">
+        <div className="pt-6 md:pt-10 h-full flex flex-col">
           <div
-            className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
+            className={`border border-jp-gray-300 dark:border-jp-gray-700 rounded-lg shadow-md ${bgClass} p-4 md:p-6`}>
             <PaymentSettingsMetadata
               businessProfileDetails setBusinessProfile setScreenState profileId
             />

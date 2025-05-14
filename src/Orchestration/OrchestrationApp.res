@@ -34,6 +34,7 @@ let make = (~setScreenState) => {
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
+    | list{"new-payment-settings", ..._} // Added new route here
     | list{"webhooks", ..._}
     | list{"sdk"} =>
       <ConnectorContainer />

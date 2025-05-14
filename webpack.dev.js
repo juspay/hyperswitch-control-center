@@ -8,7 +8,7 @@ let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
 let proxy = {
   "/api": {
-    target: "http://localhost:8080",
+    target: "https://app.hyperswitch.io/api",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
@@ -56,6 +56,7 @@ let devServer = {
     rewrites: [{ from: /^\/dashboard/, to: "/index.html" }],
   },
   proxy: proxy,
+  allowedHosts: ["localhost", "host.docker.internal"],
   setupMiddlewares: (middlewares, devServer) => {
     devServer.app.use(configMiddleware);
     return middlewares;

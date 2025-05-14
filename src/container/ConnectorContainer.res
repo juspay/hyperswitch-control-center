@@ -1,6 +1,10 @@
 /*
 Modules that depend on Connector and Business Profiles data are located within this container.
  */
+
+// Assuming the new component is in NewPaymenentSetting.res and module is NewPaymenentSetting
+open NewPaymenentSetting // Adjust if module name is different
+
 @react.component
 let make = () => {
   open HSwitchUtils
@@ -149,6 +153,14 @@ let make = () => {
         remainingPath
         renderList={() => <PaymentSettings webhookOnly=false showFormOnly=false />}
       />
+    | list{"new-payment-settings", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=AccountManage)}> // Or appropriate access
+        <EntityScaffold
+          entityName="NewPaymentSetting" // Or a more descriptive name
+          remainingPath
+          renderList={() => <NewPaymenentSetting />} // Assuming NewPaymenentSetting.make()
+        />
+      </AccessControl>
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
         <FilterContext key="webhooks" index="webhooks">
