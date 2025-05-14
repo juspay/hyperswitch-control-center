@@ -1,59 +1,56 @@
-## Active Decisions
+# Active Context: ReScript Syntax Guide Completion
 
-### Component Architecture
+## 1. Current Work:
 
-The project is refining its component architecture:
+The primary focus of the current session was the review, augmentation, and finalization of the **ReScript Syntax Guide** within the Memory Bank. This involved:
 
-1. **Atomic Design**: Moving towards an atomic design approach for components
-2. **Reusability**: Enhancing component reusability across different parts of the application
-3. **Type Safety**: Strengthening type definitions for components
-4. **Documentation**: Improving component documentation
+- **Review and Refinement:**
+  - Updating the main index file (`memory-bank/rescriptSyntaxGuide.md`) to accurately reflect populated content.
+  - Deleting the redundant `memory-bank/thematic/rescript/jsxSyntax.md` file after content migration.
+- **Broader Code Scan & Augmentation:**
+  - Scanning the `src/` directory for diverse examples of ReScript syntax.
+  - Augmenting the following syntax documents with new, codebase-specific examples:
+    - `memory-bank/thematic/rescript/syntax/typesAndDataStructures.md`: Added more examples of polymorphic variants, including those with payloads.
+    - `memory-bank/thematic/rescript/syntax/patternMatching.md`: Added a new section on matching polymorphic variants with examples.
+    - `memory-bank/thematic/rescript/syntax/functionsAndBindings.md`: Added further examples of the pipe operator and a codebase-specific example for `let rec`.
+    - `memory-bank/thematic/rescript/syntax/jsInterop.md`: Updated with specific codebase examples for various `@bs.*` attributes (`@bs.val`, `@bs.module`, `@bs.send`, `@bs.get`, `@bs.set`, `@bs.new`, `@obj`) and `"%identity"`.
+    - `memory-bank/thematic/rescript/syntax/commonStdLib.md`: Added examples for `Belt.Float.toString`, `Belt.Int.toString`, and `Belt.Array.zipBy`.
+    - `memory-bank/thematic/rescript/syntax/modules.md`: Replaced generic nested module example with specific examples from `src/components/Tabs.res`.
+    - `memory-bank/thematic/rescript/syntax/jsxPatterns.md`: Reviewed and deemed sufficiently detailed from previous work.
+- **Overall Goal:** To create a comprehensive and practical ReScript syntax reference based on patterns observed in the Hyperswitch Control Center codebase.
 
-### State Management
+## 2. Key Technical Concepts Covered in the Guide:
 
-The project is evolving its state management approach:
+- **ReScript Syntax Categories Documented:**
+  - JSX Patterns (prop handling, conditional rendering, list rendering, fragments, etc.)
+  - Modules and File Structure (file-based modules, `.resi` interfaces, `open` statements, nested modules).
+  - Types and Data Structures (variants, records, polymorphic variants, `option`, `array`, `list`, `Js.Dict.t`, type aliases).
+  - Pattern Matching (`switch` on variants, options, polymorphic variants, lists, booleans).
+  - Functions and Let Bindings (definitions, labeled/optional arguments, pipe operator, recursion).
+  - JavaScript Interoperability (`%raw`, `external`, `@bs.*` attributes, `Js.Promise.t`, `Js.Nullable.t`).
+  - Common Standard Library Usage (`Js.*` modules, `Belt.*` modules).
+- **Memory Bank Management:** Structuring documentation, creating index files, managing thematic subfolders.
 
-1. **Context-based State**: Using React Context for global state
-2. **Recoil for Complex State**: Using Recoil for more complex state management
-3. **Local State**: Keeping state local when possible
-4. **Persistence**: Implementing state persistence where appropriate
+## 3. Relevant Files and Code (Syntax Guide Documents):
 
-### API Strategy
+- **Main Index:** `memory-bank/rescriptSyntaxGuide.md`
+- **Thematic Subdirectory:** `memory-bank/thematic/rescript/syntax/`
+  - `jsxPatterns.md`
+  - `modules.md`
+  - `typesAndDataStructures.md`
+  - `patternMatching.md`
+  - `functionsAndBindings.md`
+  - `jsInterop.md`
+  - `commonStdLib.md`
+- **Supporting Files (Analyzed for Examples):** Various files within `src/` including components, utilities, and API handling logic.
 
-The project is refining its API integration strategy:
+## 4. Problem Solving / Observations:
 
-1. **Type Safety**: Enhancing type safety for API calls
-2. **Error Handling**: Improving error handling and user feedback
-3. **Caching**: Implementing caching for improved performance
-4. **Batching**: Batching API calls where appropriate
+- The `search_files` tool occasionally had difficulty with certain regex patterns or specific files (e.g., initially failing to find nested module definitions that were confirmed by reading the file). Workaround involved manual file inspection or regex refinement.
+- Distinguishing polymorphic variants from template strings using regex was challenging due to the overloaded backtick character; searches were refined to target type definitions or specific usage patterns.
 
-## Next Steps
+## 5. Pending Tasks and Next Steps:
 
-### Short-term Goals
-
-1. **Optimize Performance**:
-
-   - Reduce bundle size
-   - Improve loading times
-   - Enhance rendering performance
-
-2. **Enhance Mobile Experience**:
-   - Improve responsive design
-   - Optimize touch interactions
-   - Enhance mobile layouts
-
-### Medium-term Goals
-
-1. **Improve Developer Experience**:
-
-   - Enhance documentation
-   - Streamline development workflow
-   - Improve testing infrastructure
-
-## Current Challenges
-
-1. **Cross-browser Compatibility**:
-
-   - Ensuring consistent experience across browsers
-   - Supporting older browsers while using modern features
-   - Handling browser-specific issues
+- The ReScript Syntax Guide is now considered complete for this iteration.
+- The next step is to update `memory-bank/progress.md` to reflect this milestone.
+- Future work could involve adding even more advanced ReScript patterns or examples as they are encountered or deemed necessary.
