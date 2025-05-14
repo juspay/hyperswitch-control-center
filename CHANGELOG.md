@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.14.0
+
+### Features
+
+- Added wasm for intelligent routing ([#2905](https://github.com/juspay/hyperswitch-control-center/pull/2905)) ([`6842aa2`](https://github.com/juspay/hyperswitch-control-center/commit/6842aa246c7c211e4477f0f4f44a9cd3c0430f93))
+
+### Miscellaneous Tasks
+
+- Upload flow core changes ([#2908](https://github.com/juspay/hyperswitch-control-center/pull/2908)) ([`a21b8e6`](https://github.com/juspay/hyperswitch-control-center/commit/a21b8e694d064135765ed2f0c8bd77846b96df7d))
+- Update the memory bank ([`de6e3bc`](https://github.com/juspay/hyperswitch-control-center/commit/de6e3bc60163b1bc2d673461a22d314628be5229))
+
+**Full Changelog:** [`2025.05.13.0...2025.05.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.13.0...2025.05.14.0)
+
+
+- - -
+
 ## 2025.05.13.0
 
 ### Bug Fixes
