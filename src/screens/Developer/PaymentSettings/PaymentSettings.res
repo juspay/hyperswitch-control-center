@@ -588,9 +588,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             }}
             onSubmit
             render={({handleSubmit}) => {
-              <form
-                onSubmit={handleSubmit}
-                className={`flex flex-col gap-8 overflow-hidden`}>
+              <form onSubmit={handleSubmit} className={`flex flex-col gap-8 overflow-hidden`}>
                 <div className="flex items-center mb-4">
                   <InfoViewForWebhooks
                     heading="Profile Name" subHeading=businessProfileDetails.profile_name
@@ -644,45 +642,17 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   />
                 </div>
                 <div>
-                  <p className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 mt-5 px-2 md:px-0">
+                  <p
+                    className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 mt-5 px-2 md:px-0">
                     {"Feature Configuration"->React.string}
                   </p>
                   <DesktopRow wrapperClass="mb-6">
                     <FieldRenderer
                       labelClass="!text-fs-15 !text-grey-700 font-semibold"
-                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
-                    field={makeFieldInfo(
-                      ~name="is_connector_agnostic_mit_enabled",
-                      ~label="Connector Agnostic",
-                      ~customInput=InputFields.boolInput(
-                        ~isDisabled=false,
-                        ~boolCustomClass="rounded-lg ",
-                      ),
-                    )}
-                  />
-                </DesktopRow>
-                <DesktopRow wrapperClass="mb-6">
-                  <FieldRenderer
-                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
-                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
-                    field={makeFieldInfo(
-                      ~name="force_3ds_challenge",
-                      ~label="Force 3DS Challenge",
-                      ~customInput=InputFields.boolInput(
-                        ~isDisabled=false,
-                        ~boolCustomClass="rounded-lg ",
-                      ),
-                    )}
-                  />
-                </DesktopRow>
-                <RenderIf condition={featureFlagDetails.debitRouting}>
-                  <DesktopRow wrapperClass="mb-6">
-                    <FieldRenderer
-                      labelClass="!text-fs-15 !text-grey-700 font-semibold"
                       fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
                       field={makeFieldInfo(
-                        ~name="is_debit_routing_enabled",
-                        ~label="Debit Routing",
+                        ~name="is_connector_agnostic_mit_enabled",
+                        ~label="Connector Agnostic",
                         ~customInput=InputFields.boolInput(
                           ~isDisabled=false,
                           ~boolCustomClass="rounded-lg ",
@@ -690,40 +660,70 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       )}
                     />
                   </DesktopRow>
-                </RenderIf>
-                <div className="mb-6">
-                  <ClickToPaySection />
-                </div>
-                <div className="mb-6">
-                  <AutoRetries setCheckMaxAutoRetry />
-                </div>
-                <RenderIf condition={isBusinessProfileHasThreeds}>
-                  <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4 mb-6">
+                  <DesktopRow wrapperClass="mb-6">
                     <FieldRenderer
-                      field={threedsConnectorList
-                      ->Array.map(item => item.connector_name)
-                      ->authenticationConnectors}
-                      errorClass
-                      labelClass="!text-fs-15 !text-grey-700 font-semibold "
-                      fieldWrapperClass="max-w-xl"
-                    />
-                    <FieldRenderer
-                      field={threeDsRequestorUrl}
-                      errorClass
                       labelClass="!text-fs-15 !text-grey-700 font-semibold"
-                      fieldWrapperClass="max-w-xl"
-                    />
-                    <FieldRenderer
-                      field={threeDsRequestoApprUrl}
-                      errorClass
-                      labelClass="!text-fs-15 !text-grey-700 font-semibold"
-                      fieldWrapperClass="max-w-xl"
+                      fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
+                      field={makeFieldInfo(
+                        ~name="force_3ds_challenge",
+                        ~label="Force 3DS Challenge",
+                        ~customInput=InputFields.boolInput(
+                          ~isDisabled=false,
+                          ~boolCustomClass="rounded-lg ",
+                        ),
+                      )}
                     />
                   </DesktopRow>
-                </RenderIf>
+                  <RenderIf condition={featureFlagDetails.debitRouting}>
+                    <DesktopRow wrapperClass="mb-6">
+                      <FieldRenderer
+                        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                        fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8 "
+                        field={makeFieldInfo(
+                          ~name="is_debit_routing_enabled",
+                          ~label="Debit Routing",
+                          ~customInput=InputFields.boolInput(
+                            ~isDisabled=false,
+                            ~boolCustomClass="rounded-lg ",
+                          ),
+                        )}
+                      />
+                    </DesktopRow>
+                  </RenderIf>
+                  <div className="mb-6">
+                    <ClickToPaySection />
+                  </div>
+                  <div className="mb-6">
+                    <AutoRetries setCheckMaxAutoRetry />
+                  </div>
+                  <RenderIf condition={isBusinessProfileHasThreeds}>
+                    <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4 mb-6">
+                      <FieldRenderer
+                        field={threedsConnectorList
+                        ->Array.map(item => item.connector_name)
+                        ->authenticationConnectors}
+                        errorClass
+                        labelClass="!text-fs-15 !text-grey-700 font-semibold "
+                        fieldWrapperClass="max-w-xl"
+                      />
+                      <FieldRenderer
+                        field={threeDsRequestorUrl}
+                        errorClass
+                        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                        fieldWrapperClass="max-w-xl"
+                      />
+                      <FieldRenderer
+                        field={threeDsRequestoApprUrl}
+                        errorClass
+                        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                        fieldWrapperClass="max-w-xl"
+                      />
+                    </DesktopRow>
+                  </RenderIf>
                 </div>
                 <div>
-                  <p className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 mt-5 px-2 md:px-0">
+                  <p
+                    className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 mt-5 px-2 md:px-0">
                     {"Webhook & Return URLs"->React.string}
                   </p>
                   <div className="mb-6">

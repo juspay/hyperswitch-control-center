@@ -56,7 +56,6 @@ let devServer = {
     rewrites: [{ from: /^\/dashboard/, to: "/index.html" }],
   },
   proxy: proxy,
-  allowedHosts: ["localhost", "host.docker.internal"],
   setupMiddlewares: (middlewares, devServer) => {
     devServer.app.use(configMiddleware);
     return middlewares;
