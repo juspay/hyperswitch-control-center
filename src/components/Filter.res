@@ -160,7 +160,6 @@ let make = (
 
   let isMobileView = MatchMedia.useMobileChecker()
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
-
   let (allFilters, setAllFilters) = React.useState(_ =>
     remoteFilters->Array.map(item => item.field)
   )
@@ -168,7 +167,6 @@ let make = (
   let (filterList, setFilterList) = React.useState(_ => [])
   let (count, setCount) = React.useState(_ => initalCount)
   let searchParams = query->decodeURI
-
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
@@ -176,6 +174,7 @@ let make = (
     ~initialFilters={Array.concat(localFilters, fixedFilters)},
     (),
   )
+
   let clearFilterJson =
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
