@@ -22,6 +22,8 @@ type reviewFields = {
   payment_method_types: array<string>,
 }
 
+type metadata = {file_name: string}
+
 type transactionObj = {
   txn_no: int,
   payment_intent_id: string,
@@ -61,10 +63,16 @@ type timeSeriesData = {
 }
 
 type statistics = {
+  file_name: string,
   overall_success_rate: stats,
   total_failed_payments: stats,
   total_revenue: stats,
   faar: stats,
   time_series_data: array<timeSeriesData>,
   overall_success_rate_improvement: float,
+}
+
+type fileData = {
+  data: Js.TypedArray2.Uint8Array.t,
+  stats: reviewFields,
 }

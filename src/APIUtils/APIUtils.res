@@ -729,6 +729,7 @@ let useGetURL = () => {
         }
 
       /* INTELLIGENT ROUTING */
+      | GET_REVIEW_FIELDS => `dynamic-routing/simulate/baseline-review-fields`
       | GET_REVIEW_FIELDS => `dynamic-routing/baseline-review-fields`
       | SIMULATE_INTELLIGENT_ROUTING =>
         switch queryParamerters {
