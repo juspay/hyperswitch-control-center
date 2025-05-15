@@ -299,7 +299,7 @@ let performanceMonitor = SubLevelLink({
 
 let newAnalytics = SubLevelLink({
   name: "Insights",
-  link: `/new-analytics-payment`,
+  link: `/new-analytics`,
   access: Access,
   searchOptions: [("Insights", "")],
 })
@@ -341,7 +341,7 @@ let analytics = (
     links->Array.push(disputeAnalytics)
   }
 
-  if newAnalyticsflag {
+  if true {
     links->Array.push(newAnalytics)
   }
 
