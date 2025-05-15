@@ -154,11 +154,7 @@ let make = () => {
                       headerLeftActions={switch logoURL {
                       | Some(url) if url->LogicUtils.isNonEmptyString =>
                         <div className="flex md:gap-4 gap-2 items-center">
-                          <img
-                            className="h-8 w-auto object-contain"
-                            alt="image"
-                            src={url}
-                          />
+                          <img className="h-8 w-auto object-contain" alt="image" src={url} />
                           <ProfileSwitch />
                           <RenderIf condition={featureFlagDetails.isLiveMode}>
                             <div
