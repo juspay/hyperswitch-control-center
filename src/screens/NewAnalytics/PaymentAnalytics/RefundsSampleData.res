@@ -1803,6 +1803,23 @@ let refundConnectorsSampleData = {
   ],
 }->Identity.genericTypeToJson
 
+let refundFailedConnectorsSampleData = {
+  "queryData": [
+    {
+      "refund_count": 50,
+      "connector": "Stripe",
+    },
+    {
+      "refund_count": 25,
+      "connector": "Adyen",
+    },
+    {
+      "refund_count": 25,
+      "connector": "checkout",
+    },
+  ],
+}->Identity.genericTypeToJson
+
 let refundsOverviewData = {
   [
     {

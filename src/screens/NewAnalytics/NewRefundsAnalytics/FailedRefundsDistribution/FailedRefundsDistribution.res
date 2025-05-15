@@ -97,7 +97,7 @@ let make = (
       )
 
       let response = if isSampleDataEnabled {
-        refundsSampleData //replace with s3 call
+        refundConnectorsSampleData //replace with s3 call
       } else {
         await updateDetails(url, body, Post)
       }
@@ -121,7 +121,11 @@ let make = (
           ~groupByNames=[Connector->getStringFromVariant]->Some,
         )
 
-        let response = await updateDetails(url, body, Post)
+        let response = if isSampleDataEnabled {
+          refundFailedConnectorsSampleData //replace with s3 call
+        } else {
+          await updateDetails(url, body, Post)
+        }
 
         let responseFailedNumberData =
           response->getDictFromJsonObject->getArrayFromDict("queryData", [])
@@ -155,20 +159,18 @@ let make = (
   let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
 
   <div>
-    <RenderIf condition={!isSampleDataEnabled}>
-      <ModuleHeader title={entity.title} />
-      <Card>
-        <PageLoaderWrapper
-          screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-          <FailedRefundsDistributionHeader viewType setViewType />
-          <div className="mb-5">
-            {switch viewType {
-            | Graph => <BarGraph options className="mr-3" />
-            | Table => <TableModule data={refundsDistribution} className="mx-7" />
-            }}
-          </div>
-        </PageLoaderWrapper>
-      </Card>
-    </RenderIf>
+    <ModuleHeader title={entity.title} />
+    <Card>
+      <PageLoaderWrapper
+        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+        <FailedRefundsDistributionHeader viewType setViewType />
+        <div className="mb-5">
+          {switch viewType {
+          | Graph => <BarGraph options className="mr-3" />
+          | Table => <TableModule data={refundsDistribution} className="mx-7" />
+          }}
+        </div>
+      </PageLoaderWrapper>
+    </Card>
   </div>
 }
