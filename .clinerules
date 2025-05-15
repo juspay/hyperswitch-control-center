@@ -117,7 +117,8 @@ Implement these optimization techniques for effective context management:
 ### Plan Mode
 
 ```flowchart
-Start[Start] --> ReadFiles[Read Memory Bank Core Files]
+Start[Start] --> ReadMemoryBank[Read Memory Bank Core Files & Relevant Thematic Subfolders]
+ReadMemoryBank --> CheckFiles{Files Complete & Current?}
 ReadFiles --> ReadThematic[Read Relevant Thematic Subfolders]
 ReadThematic --> CheckFiles{Files Complete & Current?}
 
@@ -132,7 +133,8 @@ Strategy --> Present[Present Concise Approach]
 ### Act Mode
 
 ```flowchart
-Start[Start] --> Context[Review Active Context & Relevant Thematic Subfolders]
+Start[Start] --> ReadMemoryBank[Read Memory Bank Core Files & Relevant Thematic Subfolders]
+ReadMemoryBank --> Context[Review Active Context & Relevant Thematic Subfolders]
 Context --> Update[Update Documentation Precisely]
 Update --> Execute[Execute Task Effectively]
 Execute --> Archive[Move Outdated Context to Archive]
@@ -180,7 +182,7 @@ Split files when:
 
 ### Memory Bank Entries
 
--   `memory-bank/thematic/rescript/apiCallStructure.md`:  API call structure in ReScript.
+- `memory-bank/thematic/rescript/apiCallStructure.md`: API call structure in ReScript.
 
 1. A single section exceeds 100 lines
 2. Multiple related components/topics exist in one file
