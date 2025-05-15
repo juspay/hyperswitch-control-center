@@ -75,10 +75,7 @@ let make = (
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString(sampleDataKey, "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
   let getRefundsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {

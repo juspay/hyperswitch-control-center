@@ -354,10 +354,7 @@ module SampleDataBanner = {
     open LogicUtils
     open NewAnalyticsContainerUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
-    let isSampleDataEnabled =
-      filterValueJson
-      ->getString(sampleDataKey, "false")
-      ->LogicUtils.getBoolFromString(false)
+    let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
     let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
 
     <div

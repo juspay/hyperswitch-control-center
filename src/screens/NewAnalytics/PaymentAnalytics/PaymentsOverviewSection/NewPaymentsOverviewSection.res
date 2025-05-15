@@ -16,10 +16,7 @@ let make = (~entity: moduleEntity) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString(sampleDataKey, "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
   let metricType: metricType =
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")

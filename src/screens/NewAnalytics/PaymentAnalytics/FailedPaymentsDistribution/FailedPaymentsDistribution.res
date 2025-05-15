@@ -96,10 +96,7 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString(sampleDataKey, "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
   let getFailedPaymentsDistribution = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)

@@ -184,10 +184,7 @@ let make = (
     ~granularity=featureFlag.granularity,
   )
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString(sampleDataKey, "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
       setGranularity(_ => defaulGranularity)
