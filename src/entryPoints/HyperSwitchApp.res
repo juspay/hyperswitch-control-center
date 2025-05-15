@@ -23,15 +23,13 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
-  let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
-  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green" : "bg-orange-500 "
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
@@ -108,6 +106,15 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
+  let shouldShowGetProdAccessComponent =
+    !featureFlagDetails.isLiveMode &&
+    !isInternalUser &&
+    // TODO: Remove `MerchantDetailsManage` permission in future
+    hasAnyGroupAccess(
+      userHasAccess(~groupAccess=UserManagementTypes.MerchantDetailsManage),
+      userHasAccess(~groupAccess=UserManagementTypes.AccountManage),
+    ) === CommonAuthTypes.Access
+
   <>
     <div>
       {switch dashboardPageState {
@@ -130,7 +137,7 @@ let make = () => {
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
-                  className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
+                  className="flex relative flex-col flex-1 bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="w-full max-w-fixedPageWidth md:px-12 px-5 pt-3">
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
@@ -147,38 +154,53 @@ let make = () => {
                       headerLeftActions={switch logoURL {
                       | Some(url) if url->LogicUtils.isNonEmptyString =>
                         <div className="flex md:gap-4 gap-2 items-center">
-                          <img className="h-8 w-auto object-contain" alt="image" src={`${url}`} />
+                          <img
+                            className="h-8 w-auto object-contain"
+                            alt="image"
+                            src={url}
+                          />
                           <ProfileSwitch />
-                          <div
-                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
-                            <span className="relative flex h-2 w-2">
-                              <span
-                                className={`animate-ping absolute inline-flex h-full w-full rounded-full ${modebg} opacity-75`}
-                              />
-                              <span
-                                className={`relative inline-flex rounded-full h-2 w-2  ${modebg}`}
-                              />
-                            </span>
-                            <span className="font-semibold"> {modeText->React.string} </span>
-                          </div>
+                          <RenderIf condition={featureFlagDetails.isLiveMode}>
+                            <div
+                              className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
+                              <span className="relative flex h-2 w-2">
+                                <span
+                                  className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-hyperswitch_green opacity-75`}
+                                />
+                                <span
+                                  className={`relative inline-flex rounded-full h-2 w-2 bg-hyperswitch_green`}
+                                />
+                              </span>
+                              <span className="font-semibold"> {"Live Mode"->React.string} </span>
+                            </div>
+                          </RenderIf>
                         </div>
                       | _ =>
                         <div className="flex md:gap-4 gap-2 items-center">
                           <ProfileSwitch />
-                          <div
-                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
-                            <span className="relative flex h-2 w-2">
-                              <span
-                                className={`animate-ping absolute inline-flex h-full w-full rounded-full ${modebg} opacity-75`}
-                              />
-                              <span
-                                className={`relative inline-flex rounded-full h-2 w-2  ${modebg}`}
-                              />
-                            </span>
-                            <span className="font-semibold"> {modeText->React.string} </span>
-                          </div>
+                          <RenderIf condition={featureFlagDetails.isLiveMode}>
+                            <div
+                              className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
+                              <span className="relative flex h-2 w-2">
+                                <span
+                                  className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-hyperswitch_green opacity-75`}
+                                />
+                                <span
+                                  className={`relative inline-flex rounded-full h-2 w-2 bg-hyperswitch_green`}
+                                />
+                              </span>
+                              <span className="font-semibold"> {"Live Mode"->React.string} </span>
+                            </div>
+                          </RenderIf>
                         </div>
                       }}
+                      midUiActions={shouldShowGetProdAccessComponent
+                        ? <Navbar.GetProductionAccess />
+                        : React.null}
+                      midUiActionsCustomClass={`top-0 relative flex justify-center ${activeProduct !==
+                          Orchestration
+                          ? "-left-[180px]"
+                          : ""} `}
                     />
                   </div>
                   <div

@@ -1,4 +1,50 @@
 let bgClass = "bg-white hover:bg-jp-gray-100"
+module GetProductionAccess = {
+  @react.component
+  let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let textStyles = HSwitchUtils.getTextClass((P2, Medium))
+    let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
+      GlobalProvider.defaultContext,
+    )
+    let isProdIntent = isProdIntentCompleted->Option.getOr(false)
+    let cursorStyles = isProdIntent ? "cursor-default" : "cursor-pointer underline"
+    let productionAccessString = isProdIntent
+      ? "Production Access Requested"
+      : "Get Production Access"
+
+    let prodAccess = switch isProdIntentCompleted {
+    | Some(_) =>
+      <div
+        className={`flex items-center gap-2 text-nd_yellow-200  ${cursorStyles}  whitespace-nowrap rounded-lg justify-between `}
+        onClick={_ => {
+          isProdIntent
+            ? ()
+            : {
+                setShowProdIntentForm(_ => true)
+                mixpanelEvent(~eventName="get_production_access")
+              }
+        }}>
+        <div className={`text-nd_yellow-200 ${textStyles} !font-semibold `}>
+          {productionAccessString->React.string}
+        </div>
+      </div>
+    | None => React.null
+    }
+
+    <div
+      className="absolute w-fit max-w-fixedPageWidth bg-white flex flex-col items-center -top-11">
+      <div
+        className="bg-nd_orange-100 px-4 py-[6px] rounded-br-md rounded-bl-md w-fit flex gap-2 items-center">
+        <Icon name="nd-toast-info" size=14 customIconColor="text-nd_yellow-200 text-fs-12" />
+        <p className="text-nd_yellow-200 text-base leading-5 font-medium text-nowrap">
+          {"You're in Test Mode"->React.string}
+        </p>
+        {prodAccess}
+      </div>
+    </div>
+  }
+}
 
 module MenuOption = {
   @react.component
@@ -33,16 +79,13 @@ let make = (
   ~homeLink="/",
   ~popOverPanelCustomClass="",
   ~headerLeftActions=?,
+  ~midUiActionsCustomClass="",
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let (showModal, setShowModal) = React.useState(_ => false)
   let (isAppearancePopupOpen, setIsAppearancePopupOpen) = React.useState(_ => false)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
-  let mobileMargin = isMobileView ? "" : "mr-7"
-
-  let leftPortalName = isMobileView ? "mobileNavbarTitle" : "desktopNavbarLeft"
 
   let ref = React.useRef(Nullable.null)
   OutsideClick.useOutsideClick(
@@ -62,25 +105,14 @@ let make = (
         | Some(actions) => actions
         | None => React.null
         }}
-        <div className={`flex flex-wrap ml-2 md:ml-5 justify-between items-center w-full`}>
-          <PortalCapture key=leftPortalName name=leftPortalName customStyle={`${portalStyle}`} />
-          <div className="flex flex-row place-content-centerx">
-            <PortalCapture key="desktopNavbarCenter" name="desktopNavbarCenter" />
-          </div>
-          <div className="flex flex-row items-center">
-            <PortalCapture key="desktopNavbarRight" name="desktopNavbarRight" />
-            <PortalCapture key="desktopNavYoutubeLink" name="desktopNavYoutubeLink" />
-          </div>
+        <div className={midUiActionsCustomClass}>
+          {switch midUiActions {
+          | Some(actions) => actions
+          | None => React.null
+          }}
         </div>
-        <div className="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
-          <div className="flex-shrink-0 flex items-center" />
-        </div>
-        {switch midUiActions {
-        | Some(actions) => actions
-        | None => React.null
-        }}
         <div
-          className={` inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0  ${mobileMargin}`}>
+          className={` inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:pr-0`}>
           {switch headerActions {
           | Some(actions) => actions
           | None => React.null
