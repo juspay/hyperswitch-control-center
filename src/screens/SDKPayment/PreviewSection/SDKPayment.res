@@ -157,10 +157,10 @@ let make = () => {
 
   let backgroundBasedOnTheme = {
     switch theme {
-    | "brutal" => "bg-[#7CFF708A]"
-    | "midnight" => "bg-[#1A1F36]"
-    | "soft" => "bg-[#E0E0E0]"
-    | "charcoal" => "bg-[#FCFEFF]"
+    | "brutal" => "bg-brutal_background_color"
+    | "midnight" => "bg-midnight_background_color"
+    | "soft" => "bg-soft_background_color"
+    | "charcoal" => "bg-charcoal_background_color"
     | "default"
     | _ => "bg-white"
     }
