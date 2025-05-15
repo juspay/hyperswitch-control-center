@@ -75,11 +75,11 @@ module HyperSwitchEntryComponent = {
         let script = createElement(DOMUtils.document, "script")
         let _ = setAttribute(script, "type", "text/javascript")
         let clarityScript = `
-        (function(c,l,a,r,i,t,y){
+        (function(c,l,a,r,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="${clarityBaseUrl}/"+i;
+            t=l.createElement(r);t.async=1;t.src="${clarityBaseUrl}";
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "riyj0ujf9n");`
+        })(window, document, "clarity", "script");`
         let textNode = DOMUtils.document->DOMUtils.createTextNode(clarityScript)
         script->Webapi.Dom.Element.appendChild(~child=textNode)
         appendHead(script)->ignore
