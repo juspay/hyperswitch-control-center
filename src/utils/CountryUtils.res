@@ -2283,3 +2283,7 @@ let getCountryOption: countries => SelectBox.dropdownOption = countryType => {
   let countryCode = countryType->getCountryCodeFromCountry->getCountryCodeStringFromVarient
   {label: countryName, value: countryCode}
 }
+
+let toReadableCountryName = (rawName: string): string => {
+  rawName->String.replaceRegExp(%re("/([a-z])([A-Z])/g"), "$1 $2")
+}
