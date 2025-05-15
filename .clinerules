@@ -10,7 +10,7 @@ Always reference the current working directory's absolute path when operating on
 
 ### Favor MCP Tools
 
-Leverage specialized commands for common tasks, such as file operations (list*directory, read_file, edit_file, write_file), browser interactions (puppeteer*_, playwright\__),
+Leverage specialized commands for common tasks, such as file operations (list*directory, read_file, edit_file, write_file), browser interactions (puppeteer*\_, playwright\_\_),
 
 ### Explain Before Execution
 
@@ -178,6 +178,10 @@ My effectiveness entirely depends on the accuracy, clarity, and optimization of 
 
 Split files when:
 
+### Memory Bank Entries
+
+-   `memory-bank/thematic/rescript/apiCallStructure.md`:  API call structure in ReScript.
+
 1. A single section exceeds 100 lines
 2. Multiple related components/topics exist in one file
 3. Different phases of a project need separate documentation
@@ -232,3 +236,15 @@ REMEMBER: After every memory reset, I begin completely fresh. The Memory Bank is
 - Reference related components or modules affected.
 - Include areas of testing and how to test.
   Keep it concise but informative enough for someone reading the Git log to understand the scope of the commit.
+
+## Make an initial api call to retrieve initial data
+
+- Ask for new route and the method of the call
+- Add the new variant for the route in APIUtilsTypes
+- Make a mapping for the route in APIUtils with the variant in V1
+- In the component where the api needs to be called add the function to call the api
+- the function will be using async await from rescript and call the api
+- If its a get call then use useGetMethod hook from APIUtils to make the API call
+- the component should be wrapped with PageLoaderWrapper with screenState as Loading and Success before and after the api call respectively
+- If the API fails set the screenstate to Error
+- Convert the value of the api response to a typed value and store it in a state
