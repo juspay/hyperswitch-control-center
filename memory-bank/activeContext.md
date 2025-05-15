@@ -11,6 +11,20 @@ The primary focus of the current session was the review, augmentation, and final
   - Scanning the `src/` directory for diverse examples of ReScript syntax.
   - Augmenting the following syntax documents with new, codebase-specific examples:
     - `memory-bank/thematic/rescript/syntax/typesAndDataStructures.md`: Added more examples of polymorphic variants, including those with payloads.
+- **Context7 MCP Server Setup:**
+  - Successfully installed and configured the `github.com/upstash/context7-mcp` server.
+  - Installation involved creating a Dockerfile and building a Docker image, as initial attempts with `npx`, `bunx`, and `deno` were unsuccessful.
+  - The server's `resolve-library-id` tool was tested successfully for "react" and "rescript".
+  - The server is now available for fetching up-to-date library documentation.
+  - MCP settings file (`/Users/jeeva.ramachandran/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`) was updated with the Docker configuration:
+    ```json
+    "github.com/upstash/context7-mcp": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "context7-mcp"],
+      "disabled": false,
+      "autoApprove": []
+    }
+    ```
     - `memory-bank/thematic/rescript/syntax/patternMatching.md`: Added a new section on matching polymorphic variants with examples.
     - `memory-bank/thematic/rescript/syntax/functionsAndBindings.md`: Added further examples of the pipe operator and a codebase-specific example for `let rec`.
     - `memory-bank/thematic/rescript/syntax/jsInterop.md`: Updated with specific codebase examples for various `@bs.*` attributes (`@bs.val`, `@bs.module`, `@bs.send`, `@bs.get`, `@bs.set`, `@bs.new`, `@obj`) and `"%identity"`.
@@ -52,5 +66,6 @@ The primary focus of the current session was the review, augmentation, and final
 ## 5. Pending Tasks and Next Steps:
 
 - The ReScript Syntax Guide is now considered complete for this iteration.
-- The next step is to update `memory-bank/progress.md` to reflect this milestone.
+- The Context7 MCP server (`github.com/upstash/context7-mcp`) has been successfully installed and tested.
+- The next steps are to update `memory-bank/techContext.md` and `memory-bank/progress.md` to reflect the new MCP server setup.
 - Future work could involve adding even more advanced ReScript patterns or examples as they are encountered or deemed necessary.
