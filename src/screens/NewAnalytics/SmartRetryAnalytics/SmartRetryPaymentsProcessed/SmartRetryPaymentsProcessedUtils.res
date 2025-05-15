@@ -1,5 +1,5 @@
 open SmartRetryPaymentsProcessedTypes
-open NewAnalyticsUtils
+open InsightsUtils
 open LogicUtils
 open PaymentsProcessedTypes
 
@@ -33,7 +33,7 @@ let isAmountMetric = key => {
 }
 
 let smartRetryPaymentsProcessedMapper = (
-  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
+  ~params: InsightsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
   let {data, xKey, yKey} = params
@@ -147,7 +147,7 @@ let getCell = (obj, colType): Table.cell => {
   }
 }
 
-open NewAnalyticsTypes
+open InsightsTypes
 let dropDownOptions = [
   {label: "By Amount", value: Payment_Processed_Amount->getStringFromVariant},
   {label: "By Count", value: Payment_Processed_Count->getStringFromVariant},

@@ -1,129 +1,31 @@
 open InsightsTypes
 open InsightsHelper
-open InsightsPaymentAnalyticsEntity
-open PaymentsProcessedUtils
-open InsightsPaymentAnalyticsUtils
-module TableModule = {
-  open LogicUtils
-  open PaymentsProcessedTypes
-  @react.component
-  let make = (~data, ~className="") => {
-    let (offset, setOffset) = React.useState(_ => 0)
-    let defaultSort: Table.sortedObject = {
-      key: "",
-      order: Table.INC,
-    }
-    let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
+open LineGraphTypes
+open RefundsSuccessRateUtils
 
-    let paymentsProcessed =
-      data
-      ->Array.map(item => {
-        item->getDictFromJsonObject->tableItemToObjMapper
-      })
-      ->Array.map(Nullable.make)
-
-    let defaultCols = [Payment_Processed_Amount, Payment_Processed_Count]
-    let visibleColumns = defaultCols->Array.concat(visibleColumns)
-
-    <div className>
-      <LoadedTable
-        visibleColumns
-        title="Payments Processed"
-        hideTitle=true
-        actualData={paymentsProcessed}
-        entity=paymentsProcessedTableEntity
-        resultsPerPage=10
-        totalResults={paymentsProcessed->Array.length}
-        offset
-        setOffset
-        defaultSort
-        currrentFetchCount={paymentsProcessed->Array.length}
-        tableLocalFilter=false
-        tableheadingClass=tableBorderClass
-        tableBorderClass
-        ignoreHeaderBg=true
-        showSerialNumber=true
-        tableDataBorderClass=tableBorderClass
-        isAnalyticsModule=true
-      />
-    </div>
-  }
-}
-
-module PaymentsProcessedHeader = {
+module PaymentsSuccessRateHeader = {
   open InsightsUtils
   open LogicUtils
-  open LogicUtilsTypes
-
   @react.component
-  let make = (
-    ~data: JSON.t,
-    ~viewType,
-    ~setViewType,
-    ~selectedMetric,
-    ~setSelectedMetric,
-    ~granularity,
-    ~setGranularity,
-    ~granularityOptions,
-  ) => {
-    let {filterValueJson} = React.useContext(FilterContext.filterContext)
-    let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
-    let currency = filterValueJson->getString((#currency: filters :> string), "")
-    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-    let isSmartRetryEnabled =
-      filterValueJson
-      ->getString("is_smart_retry_enabled", "true")
-      ->getBoolFromString(true)
-      ->getSmartRetryMetricType
-
-    let primaryValue = getMetaDataValue(
-      ~data,
-      ~index=0,
-      ~key=selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled),
-    )
-    let secondaryValue = getMetaDataValue(
-      ~data,
-      ~index=1,
-      ~key=selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled),
-    )
-
-    let (primaryValue, secondaryValue) = if (
-      selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled)->isAmountMetric
-    ) {
-      (primaryValue /. 100.0, secondaryValue /. 100.0)
-    } else {
-      (primaryValue, secondaryValue)
-    }
-
-    let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-
-    let setViewType = value => {
-      setViewType(_ => value)
-    }
-
-    let setSelectedMetric = value => {
-      setSelectedMetric(_ => value)
-    }
-
+  let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~granularityOptions) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    let metricType = switch selectedMetric.value->getVariantValueFromString {
-    | Payment_Processed_Amount => Amount
-    | _ => Volume
-    }
+    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue)
+    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue)
 
+    let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
     <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
-          {primaryValue->valueFormatter(metricType, ~currency)->React.string}
+          {primaryValue->valueFormatter(Rate)->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
-          <StatisticsCard
-            value direction tooltipValue={secondaryValue->valueFormatter(metricType, ~currency)}
-          />
+          <StatisticsCard value direction tooltipValue={secondaryValue->valueFormatter(Rate)} />
         </RenderIf>
       </div>
       <div className="flex justify-center">
@@ -136,12 +38,7 @@ module PaymentsProcessedHeader = {
           />
         </RenderIf>
       </div>
-      <div className="flex gap-2 justify-end">
-        <CustomDropDown
-          buttonText={selectedMetric} options={dropDownOptions} setOption={setSelectedMetric}
-        />
-        <TabSwitch viewType setViewType />
-      </div>
+      <div />
     </div>
   }
 }
@@ -149,11 +46,7 @@ module PaymentsProcessedHeader = {
 @react.component
 let make = (
   ~entity: moduleEntity,
-  ~chartEntity: chartEntity<
-    LineGraphTypes.lineGraphPayload,
-    LineGraphTypes.lineGraphOptions,
-    JSON.t,
-  >,
+  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions, JSON.t>,
 ) => {
   open LogicUtils
   open APIUtils
@@ -162,15 +55,15 @@ let make = (
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let (paymentsProcessedData, setPaymentsProcessedData) = React.useState(_ => JSON.Encode.array([]))
-  let (paymentsProcessedTableData, setPaymentsProcessedTableData) = React.useState(_ => [])
-  let (paymentsProcessedMetaData, setPaymentsProcessedMetaData) = React.useState(_ =>
+
+  let (paymentsSuccessRateData, setPaymentsSuccessRateData) = React.useState(_ =>
     JSON.Encode.array([])
   )
-  let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
+  let (paymentsSuccessRateMetaData, setpaymentsProcessedMetaData) = React.useState(_ =>
+    JSON.Encode.array([])
+  )
 
-  let (viewType, setViewType) = React.useState(_ => Graph)
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
@@ -178,12 +71,12 @@ let make = (
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let defaulGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
     ~endTime=endTimeVal,
     ~granularity=featureFlag.granularity,
   )
-  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
 
   React.useEffect(() => {
@@ -193,17 +86,11 @@ let make = (
     None
   }, (startTimeVal, endTimeVal))
 
-  let isSmartRetryEnabled =
-    filterValueJson
-    ->getString("is_smart_retry_enabled", "true")
-    ->getBoolFromString(true)
-    ->getSmartRetryMetricType
-
-  let getPaymentsProcessed = async () => {
+  let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
+        ~entityName=V1(ANALYTICS_REFUNDS),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -227,24 +114,14 @@ let make = (
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
-      let primaryData =
-        primaryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-        ->modifyQueryData(~isSmartRetryEnabled, ~currency)
-        ->sortQueryDataByDate
-
+      let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
-      setPaymentsProcessedTableData(_ => primaryData)
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = await updateDetails(url, secondaryBody, Post)
           let secondaryData =
-            secondaryResponse
-            ->getDictFromJsonObject
-            ->getArrayFromDict("queryData", [])
-            ->modifyQueryData(~isSmartRetryEnabled, ~currency)
+            secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
@@ -258,8 +135,8 @@ let make = (
                 "payment_processed_amount": 0,
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
-              ~granularity=granularity.value,
               ~isoStringToCustomTimeZone,
+              ~granularity=granularity.value,
               ~granularityEnabled=featureFlag.granularity,
             )
           })
@@ -267,29 +144,28 @@ let make = (
         }
       | DisableComparison => ([], [])
       }
-
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
           fillMissingDataPoints(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
-            ~timeKey="time_bucket",
+            ~timeKey=Time_Bucket->getStringFromVariant,
             ~defaultValue={
               "payment_count": 0,
-              "payment_processed_amount": 0,
+              "payment_success_rate": 0,
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
-            ~granularity=granularity.value,
             ~isoStringToCustomTimeZone,
+            ~granularity=granularity.value,
             ~granularityEnabled=featureFlag.granularity,
           )
         })
 
-        setPaymentsProcessedData(_ =>
+        setPaymentsSuccessRateData(_ =>
           primaryModifiedData->Array.concat(secondaryModifiedData)->Identity.genericTypeToJson
         )
-        setPaymentsProcessedMetaData(_ =>
+        setpaymentsProcessedMetaData(_ =>
           primaryMetaData->Array.concat(secondaryMetaData)->Identity.genericTypeToJson
         )
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -300,9 +176,10 @@ let make = (
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
+
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getPaymentsProcessed()->ignore
+      getPaymentsSuccessRate()->ignore
     }
     None
   }, (
@@ -311,17 +188,15 @@ let make = (
     compareToStartTime,
     compareToEndTime,
     comparison,
-    granularity.value,
     currency,
-    isSmartRetryEnabled,
+    granularity.value,
   ))
 
   let params = {
-    data: paymentsProcessedData,
-    xKey: selectedMetric.value,
+    data: paymentsSuccessRateData,
+    xKey: Refund_Success_Rate->getStringFromVariant,
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
-    currency,
   }
 
   let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
@@ -331,21 +206,15 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <PaymentsProcessedHeader
-          data=paymentsProcessedMetaData
-          viewType
-          setViewType
-          selectedMetric
-          setSelectedMetric
+        <PaymentsSuccessRateHeader
+          data={paymentsSuccessRateMetaData}
+          keyValue={Total_Refund_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
           granularityOptions
         />
         <div className="mb-5">
-          {switch viewType {
-          | Graph => <LineGraph options className="mr-3" />
-          | Table => <TableModule data={paymentsProcessedTableData} className="mx-7" />
-          }}
+          <LineGraph options className="mr-3" />
         </div>
       </PageLoaderWrapper>
     </Card>

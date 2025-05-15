@@ -1,12 +1,12 @@
 open InsightsTypes
-open FailureReasonsPaymentsTypes
-open InsightsPaymentAnalyticsEntity
-open FailureReasonsPaymentsUtils
+open FailureReasonsRefundsTypes
+open InsightsRefundsAnalyticsEntity
+open FailureReasonsRefundsUtils
 open InsightsHelper
 
 module TableModule = {
   @react.component
-  let make = (~data, ~className="", ~selectedTab: string) => {
+  let make = (~data, ~className="") => {
     let (offset, setOffset) = React.useState(_ => 0)
 
     let defaultSort: Table.sortedObject = {
@@ -14,15 +14,19 @@ module TableModule = {
       order: Table.INC,
     }
 
-    let defaultCols = [Error_Reason, Failure_Reason_Count, Reasons_Count_Ratio]
-    let extraTabs = selectedTab->String.split(",")->Array.map(getColumn)
-    let visibleColumns = defaultCols->Array.concat(extraTabs)
+    let visibleColumns = [
+      Refund_Error_Message,
+      Refund_Error_Message_Count,
+      Refund_Error_Message_Count_Ratio,
+      Connector,
+    ]
+
     let tableData = getTableData(data)
 
     <div className>
       <LoadedTable
         visibleColumns
-        title="Failure Reasons Payments"
+        title="Failure Reasons Refunds"
         hideTitle=true
         actualData={tableData}
         entity=failureReasonsTableEntity
@@ -43,19 +47,6 @@ module TableModule = {
   }
 }
 
-module FailureReasonsPaymentsHeader = {
-  @react.component
-  let make = (~groupBy, ~setGroupBy) => {
-    let setGroupBy = value => {
-      setGroupBy(_ => value)
-    }
-
-    <div className="w-full px-7 py-8 flex justify-between">
-      <Tabs option={groupBy} setOption={setGroupBy} options={tabs} />
-    </div>
-  }
-}
-
 @react.component
 let make = (~entity: moduleEntity) => {
   open LogicUtils
@@ -66,16 +57,15 @@ let make = (~entity: moduleEntity) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
-  let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
 
-  let getPaymentsProcessed = async () => {
+  let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS),
+        ~entityName=V1(ANALYTICS_REFUNDS),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -84,7 +74,6 @@ let make = (~entity: moduleEntity) => {
       | Some(dimentions) =>
         dimentions
         ->Array.map(item => (item: dimension :> string))
-        ->Array.concat(groupBy.value->String.split(","))
         ->Some
       | _ => None
       }
@@ -118,22 +107,20 @@ let make = (~entity: moduleEntity) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
+
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getPaymentsProcessed()->ignore
+      getRefundsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, currency])
+  }, [startTimeVal, endTimeVal, currency])
 
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <FailureReasonsPaymentsHeader groupBy setGroupBy />
-        <div className="mb-5">
-          <TableModule data={tableData} className="mx-7" selectedTab={groupBy.value} />
-        </div>
+        <TableModule data={tableData} className="ml-6 mr-5 mt-6 mb-5" />
       </PageLoaderWrapper>
     </Card>
   </div>

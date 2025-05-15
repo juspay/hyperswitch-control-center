@@ -31,10 +31,10 @@ let isAmountMetric = key => {
 }
 
 let paymentsProcessedMapper = (
-  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
+  ~params: InsightsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  open NewAnalyticsUtils
+  open InsightsUtils
   let {data, xKey, yKey} = params
   let comparison = switch params.comparison {
   | Some(val) => Some(val)
@@ -86,7 +86,7 @@ let paymentsProcessedMapper = (
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
-  open NewAnalyticsUtils
+  open InsightsUtils
   {
     payment_processed_amount: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,
@@ -135,7 +135,7 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
-  open NewAnalyticsUtils
+  open InsightsUtils
   switch colType {
   | Payment_Processed_Amount => Text(obj.payment_processed_amount->valueFormatter(Amount))
   | Payment_Processed_Count => Text(obj.payment_processed_count->Int.toString)
@@ -146,7 +146,7 @@ let getCell = (obj, colType): Table.cell => {
   }
 }
 
-open NewAnalyticsTypes
+open InsightsTypes
 let dropDownOptions = [
   {label: "By Amount", value: Payment_Processed_Amount->getStringFromVariant},
   {label: "By Count", value: Payment_Processed_Count->getStringFromVariant},
@@ -162,7 +162,7 @@ let defaulGranularity = {
   value: (#G_ONEDAY: granularity :> string),
 }
 
-open NewAnalyticsTypes
+open InsightsTypes
 let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
   let key = switch id {
   | Time_Bucket => #time_bucket

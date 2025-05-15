@@ -1,9 +1,9 @@
-open NewAnalyticsTypes
-open NewAnalyticsHelper
-open NewPaymentAnalyticsEntity
+open InsightsTypes
+open InsightsHelper
+open InsightsPaymentAnalyticsEntity
 open BarGraphTypes
 open FailedPaymentsDistributionUtils
-open NewPaymentAnalyticsUtils
+open InsightsPaymentAnalyticsUtils
 
 module TableModule = {
   @react.component
@@ -77,7 +77,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open NewAnalyticsUtils
+  open InsightsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)

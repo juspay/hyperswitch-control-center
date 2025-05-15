@@ -1,5 +1,5 @@
-open NewAnalyticsTypes
-open NewAnalyticsHelper
+open InsightsTypes
+open InsightsHelper
 open SankeyGraphTypes
 @react.component
 let make = (
