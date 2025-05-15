@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.15.1
+
+### Features
+
+- Add clarity tracking ([#2961](https://github.com/juspay/hyperswitch-control-center/pull/2961)) ([`dfb17d6`](https://github.com/juspay/hyperswitch-control-center/commit/dfb17d65933291a0b20e030bccd3f68dbf0c44ea))
+
+### Miscellaneous Tasks
+
+- Api call for payments - theme customization & bg-color added ([#2966](https://github.com/juspay/hyperswitch-control-center/pull/2966)) ([`77a0f2a`](https://github.com/juspay/hyperswitch-control-center/commit/77a0f2ab230e18d008baf85e48d297a01ae2f73c))
+
+**Full Changelog:** [`2025.05.15.0...2025.05.15.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.15.0...2025.05.15.1)
+
+
+- - -
+
+## 2025.05.15.0
+
+### Features
+
+- Include UPI collect SVG asset in TestProcessor ([#2955](https://github.com/juspay/hyperswitch-control-center/pull/2955)) ([`9c4be55`](https://github.com/juspay/hyperswitch-control-center/commit/9c4be55bde9bbb2ccbd2705c519208e6ea47f249))
+- SDK page revamp with updated configuration support ([#2895](https://github.com/juspay/hyperswitch-control-center/pull/2895)) ([`ae6cd59`](https://github.com/juspay/hyperswitch-control-center/commit/ae6cd5900f307ec4c5c7e3a7e1b463a0dda700c5))
+
+### Miscellaneous Tasks
+
+- Memory bank config ([#2960](https://github.com/juspay/hyperswitch-control-center/pull/2960)) ([`e6cd305`](https://github.com/juspay/hyperswitch-control-center/commit/e6cd305b91736ddd660a6b0d84b830dae9edc6c2))
+
+**Full Changelog:** [`2025.05.14.0...2025.05.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.14.0...2025.05.15.0)
+
+
+- - -
+
 ## 2025.05.14.0
 
 ### Features
