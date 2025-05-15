@@ -31,7 +31,11 @@ Below are links to detailed sections covering various aspects of ReScript syntax
   - Describes how to interoperate with JavaScript code using `@bs.*` attributes, `external`s, and handling types like `Js.Promise` and `Js.Nullable`.
 
 - **[Common Standard Library Usage (Belt/Js)](./thematic/rescript/syntax/commonStdLib.md)**
+
   - Provides examples of frequently used utility functions from the `Belt` and `Js` standard library modules.
+
+- **[React Hooks Dependency Arrays](./thematic/rescript/syntax/reactHooksDependencies.md)**
+  - Details how to correctly specify dependency arrays for React hooks like `useEffect`, `useCallback`, and `useMemo`, especially when dealing with mixed data types.
 
 ---
 

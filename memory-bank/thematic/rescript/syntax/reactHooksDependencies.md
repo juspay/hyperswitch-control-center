@@ -49,7 +49,7 @@ React.useEffect(() => {
 
 **Key Takeaway:**
 
--   Use `[...]` (array) for dependency lists where all items have the same type.
--   Use `(...)` (tuple) for dependency lists where items have different types.
+- Use `[...]` (array) for dependency lists where all items have the same type.
+- Use `(...)` (tuple) for dependency lists where items have different types.
 
 This ensures type safety in ReScript while correctly interacting with React's hook dependency mechanism.

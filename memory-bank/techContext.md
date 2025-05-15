@@ -77,12 +77,15 @@ This section outlines the steps to set up and run the Hyperswitch Control Center
 
 2.  **Install Frontend Dependencies**:
     If not already done, install Node.js packages:
+
     ```bash
     npm install
     ```
+
     _(Note: If `npm run start` yields module resolution errors for packages like `react-color`, ensure they are installed and saved, e.g., `npm install react-color --save`)_
 
 3.  **Configure Backend URLs**:
+
     - Open `config/config.toml` in the `hyperswitch-control-center` project.
     - Verify these endpoint configurations for local backend (default Docker ports):
       ```toml
@@ -92,6 +95,7 @@ This section outlines the steps to set up and run the Hyperswitch Control Center
       ```
 
 4.  **Start Hyperswitch Backend Services (Docker)**:
+
     - In a terminal, navigate to the `hyperswitch` backend repository (e.g., `cd ../hyperswitch`).
     - Start services:
       ```bash
@@ -103,6 +107,7 @@ This section outlines the steps to set up and run the Hyperswitch Control Center
     - Monitor logs: `docker compose logs -f hyperswitch-server` (or other services).
 
 5.  **Start ReScript Compiler (Frontend)**:
+
     - In a new terminal (in `hyperswitch-control-center` directory).
     - Run ReScript compiler in watch mode:
       ```bash
@@ -111,6 +116,7 @@ This section outlines the steps to set up and run the Hyperswitch Control Center
     - Keep this running for automatic recompilation of `.res` to `.bs.js` files.
 
 6.  **Start Frontend Development Server**:
+
     - In another new terminal (in `hyperswitch-control-center` directory).
     - Run the development server:
       ```bash
