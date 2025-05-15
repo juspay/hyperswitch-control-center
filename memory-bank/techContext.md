@@ -25,6 +25,18 @@ This document provides a high-level overview of the technical context in which t
   - For a comprehensive guide to ReScript syntax and patterns used in this project, see [./rescriptSyntaxGuide.md](./rescriptSyntaxGuide.md).
 - **MCP Servers:**
   - MCP (Model Context Protocol) servers can be connected to the Control Center to provide additional tools and resources. These servers can extend the functionality of the Control Center by providing access to external APIs or other data sources.
+  - **Context7 MCP Server (`github.com/upstash/context7-mcp`):**
+    - Purpose: Provides tools to fetch up-to-date documentation and code examples for various libraries (e.g., `resolve-library-id`, `get-library-docs`).
+    - Installation Method: Docker-based. A `Dockerfile` was created in `/Users/jeeva.ramachandran/Documents/Cline/MCP/github.com/upstash/context7-mcp/` and an image named `context7-mcp` was built.
+    - Configuration in `cline_mcp_settings.json` (`/Users/jeeva.ramachandran/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`):
+      ```json
+      "github.com/upstash/context7-mcp": {
+        "command": "docker",
+        "args": ["run", "-i", "--rm", "context7-mcp"],
+        "disabled": false,
+        "autoApprove": []
+      }
+      ```
 
 ## Project Directory Structure (High-Level)
 
