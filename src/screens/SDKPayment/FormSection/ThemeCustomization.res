@@ -8,30 +8,24 @@ let make = (~getClientSecret) => {
     sdkThemeInitialValues,
     setSdkThemeInitialValues,
     setKeyForReRenderingSDK,
-    paymentResult,
     initialValuesForCheckoutForm,
     showBillingAddress,
     isGuestMode,
   } = React.useContext(SDKProvider.defaultContext)
   let showToast = ToastState.useShowToast()
-  let clientSecret =
-    paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("client_secret")
 
   let onSubmit = async (values, _) => {
-    if clientSecret->Option.isNone {
-      try {
-        let typedValues = getTypedPaymentData(
-          {initialValuesForCheckoutForm->Identity.genericTypeToJson},
-          ~onlyEssential=true,
-          ~showBillingAddress,
-          ~isGuestMode,
-        )
-        let _ = await getClientSecret(~typedValues)
-      } catch {
-      | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
-      }
+    try {
+      let typedValues = getTypedPaymentData(
+        {initialValuesForCheckoutForm->Identity.genericTypeToJson},
+        ~onlyEssential=true,
+        ~showBillingAddress,
+        ~isGuestMode,
+      )
+      let _ = await getClientSecret(~typedValues)
+    } catch {
+    | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
     }
-
     setSdkThemeInitialValues(_ => values)
     setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
     Nullable.null
@@ -60,7 +54,7 @@ let make = (~getClientSecret) => {
     <SubmitButton
       text="Show preview"
       disabledParamter={paymentConnectorList->Array.length === 0}
-      customSumbitButtonStyle="!mt-5"
+      customSumbitButtonStyle="!mt-5 !w-full"
     />
   </Form>
 }
