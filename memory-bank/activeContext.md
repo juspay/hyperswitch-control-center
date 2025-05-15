@@ -18,6 +18,34 @@ The current work involves ongoing development across various modules and compone
   - Modifications to `src/screens/Routing/HistoryEntity.res` related to routing history.
 - **Transaction Disputes:**
   - Updates to `src/screens/Transaction/Disputes/DisputesEntity.res` related to transaction disputes.
+- **Review and Refinement:**
+  - Updating the main index file (`memory-bank/rescriptSyntaxGuide.md`) to accurately reflect populated content.
+  - Deleting the redundant `memory-bank/thematic/rescript/jsxSyntax.md` file after content migration.
+- **Broader Code Scan & Augmentation:**
+  - Scanning the `src/` directory for diverse examples of ReScript syntax.
+  - Augmenting the following syntax documents with new, codebase-specific examples:
+    - `memory-bank/thematic/rescript/syntax/typesAndDataStructures.md`: Added more examples of polymorphic variants, including those with payloads.
+- **Context7 MCP Server Setup:**
+  - Successfully installed and configured the `github.com/upstash/context7-mcp` server.
+  - Installation involved creating a Dockerfile and building a Docker image, as initial attempts with `npx`, `bunx`, and `deno` were unsuccessful.
+  - The server's `resolve-library-id` tool was tested successfully for "react" and "rescript".
+  - The server is now available for fetching up-to-date library documentation.
+  - MCP settings file (`/Users/jeeva.ramachandran/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`) was updated with the Docker configuration:
+    ```json
+    "github.com/upstash/context7-mcp": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "context7-mcp"],
+      "disabled": false,
+      "autoApprove": []
+    }
+    ```
+    - `memory-bank/thematic/rescript/syntax/patternMatching.md`: Added a new section on matching polymorphic variants with examples.
+    - `memory-bank/thematic/rescript/syntax/functionsAndBindings.md`: Added further examples of the pipe operator and a codebase-specific example for `let rec`.
+    - `memory-bank/thematic/rescript/syntax/jsInterop.md`: Updated with specific codebase examples for various `@bs.*` attributes (`@bs.val`, `@bs.module`, `@bs.send`, `@bs.get`, `@bs.set`, `@bs.new`, `@obj`) and `"%identity"`.
+    - `memory-bank/thematic/rescript/syntax/commonStdLib.md`: Added examples for `Belt.Float.toString`, `Belt.Int.toString`, and `Belt.Array.zipBy`.
+    - `memory-bank/thematic/rescript/syntax/modules.md`: Replaced generic nested module example with specific examples from `src/components/Tabs.res`.
+    - `memory-bank/thematic/rescript/syntax/jsxPatterns.md`: Reviewed and deemed sufficiently detailed from previous work.
+- **Overall Goal:** To create a comprehensive and practical ReScript syntax reference based on patterns observed in the Hyperswitch Control Center codebase.
 
 ## 2. Key Technical Concepts:
 
@@ -48,3 +76,7 @@ The current work involves ongoing development across various modules and compone
 - Address any issues related to routing history and transaction disputes.
 - Created a memory bank under thematic for the task completed step by step so that I can use it later as a reference when we need to make a table in `memory-bank/thematic/table/tableCreation.md`.
 - Updated the following memory bank files: `memory-bank/projectbrief.md`, `memory-bank/productContext.md`, `memory-bank/activeContext.md`, `memory-bank/systemPatterns.md`, `memory-bank/techContext.md`, and `memory-bank/progress.md`.
+- The ReScript Syntax Guide is now considered complete for this iteration.
+- The Context7 MCP server (`github.com/upstash/context7-mcp`) has been successfully installed and tested.
+- The next steps are to update `memory-bank/techContext.md` and `memory-bank/progress.md` to reflect the new MCP server setup.
+- Future work could involve adding even more advanced ReScript patterns or examples as they are encountered or deemed necessary.
