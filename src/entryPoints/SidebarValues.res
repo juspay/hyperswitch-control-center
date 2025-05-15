@@ -341,8 +341,8 @@ let analytics = (
     links->Array.push(disputeAnalytics)
   }
 
-  if true {
-    links->Array.push(newAnalytics)
+  if newAnalyticsflag {
+    links->Array.unshift(newAnalytics)
   }
 
   if performanceMonitorFlag {
