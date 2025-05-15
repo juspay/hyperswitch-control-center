@@ -47,7 +47,9 @@ let useSetInitialFilters = (
 
   () => {
     let inititalSearchParam = Dict.make()
+
     let defaultDate = getDateFilteredObject(~range)
+
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       let timeRange =
         origin !== "analytics"
