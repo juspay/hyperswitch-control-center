@@ -39,7 +39,6 @@ let make = (~entity: moduleEntity) => {
 
       if isSampleDataEnabled {
         setData(_ => paymentsOverviewData) //replace with s3 call
-        setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         let paymentsUrl = getURL(
           ~entityName=V1(ANALYTICS_PAYMENTS_V2),
@@ -191,9 +190,8 @@ let make = (~entity: moduleEntity) => {
         }
 
         setData(_ => [primaryData->JSON.Encode.object, secondaryData]->JSON.Encode.array)
-
-        setScreenState(_ => PageLoaderWrapper.Success)
       }
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Success)
     }
@@ -204,7 +202,15 @@ let make = (~entity: moduleEntity) => {
       getData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, isSampleDataEnabled))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    metricType,
+  ))
 
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 gap-6">

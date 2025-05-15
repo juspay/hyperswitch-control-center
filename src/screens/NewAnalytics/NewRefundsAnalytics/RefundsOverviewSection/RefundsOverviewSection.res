@@ -32,7 +32,6 @@ let make = (~entity: moduleEntity) => {
 
       if isSampleDataEnabled {
         setData(_ => refundsOverviewData) //replace with s3 call
-        setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         let refundsUrl = getURL(
           ~entityName=V1(ANALYTICS_REFUNDS),
@@ -148,8 +147,8 @@ let make = (~entity: moduleEntity) => {
         }
 
         setData(_ => [primaryData->JSON.Encode.object, secondaryData]->JSON.Encode.array)
-        setScreenState(_ => PageLoaderWrapper.Success)
       }
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Success)
     }

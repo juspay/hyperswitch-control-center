@@ -76,7 +76,6 @@ let make = (~entity: moduleEntity) => {
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let sampleData = paymentsRateDataWithConnectors
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -104,7 +103,7 @@ let make = (~entity: moduleEntity) => {
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
       let response = if isSampleDataEnabled {
-        sampleData //replace with s3 call
+        paymentsRateDataWithConnectors //replace with s3 call
       } else {
         await updateDetails(url, body, Post)
       }

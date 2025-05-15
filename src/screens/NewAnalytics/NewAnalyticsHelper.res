@@ -248,11 +248,7 @@ module SmartRetryToggle = {
       FilterContext.filterContext,
     )
     let (isEnabled, setIsEnabled) = React.useState(_ => false)
-    let isSampleDataEnabled =
-      filterValueJson
-      ->getString(sampleDataKey, "false")
-      ->LogicUtils.getBoolFromString(false)
-
+    let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
     React.useEffect(() => {
       let value = filterValueJson->getString(smartRetryKey, "true")->getBoolFromString(true)
       setIsEnabled(_ => value)
@@ -318,22 +314,18 @@ module SampleModeToggle = {
     let applyDateRangeBasedOnToggle = (~useSampleDates) => {
       let dates = useSampleDates ? sampleDateRange : defaultDateRange
       let comparison = useSampleDates ? (EnableComparison :> string) : (DisableComparison :> string)
-      let searchParams = Dict.make()
       let (compareStart, compareEnd) = getComparisionTimePeriod(
         ~startDate=dates.start_time,
         ~endDate=dates.end_time,
       )
-
-      [
-        (startTimeFilterKey, dates.start_time),
-        (endTimeFilterKey, dates.end_time),
-        (compareToStartTimeKey, compareStart),
-        (compareToEndTimeKey, compareEnd),
-        (comparisonKey, comparison),
-      ]->Array.forEach(((key, value)) => {
-        searchParams->Dict.set(key, value)
-      })
-
+      let searchParams =
+        [
+          (startTimeFilterKey, dates.start_time),
+          (endTimeFilterKey, dates.end_time),
+          (compareToStartTimeKey, compareStart),
+          (compareToEndTimeKey, compareEnd),
+          (comparisonKey, comparison),
+        ]->Dict.fromArray
       applySampleDateFilters(searchParams)->ignore
     }
 

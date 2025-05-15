@@ -33,9 +33,9 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       if isSampleDataEnabled {
-        let sampleData = paymentLifecycleData //replace with s3 call
+        //replace with s3 call
         setData(_ =>
-          sampleData->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
+          paymentLifecycleData->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
             ~isSmartRetryEnabled=isSmartRetryEnabled->LogicUtils.getBoolFromString(true),
           )
         )
