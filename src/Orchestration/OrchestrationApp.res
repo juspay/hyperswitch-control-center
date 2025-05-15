@@ -57,9 +57,14 @@ let make = (~setScreenState) => {
     | list{"new-analytics", "payment"}
     | list{"new-analytics", "refund"}
     | list{"new-analytics", "smart-retry"} =>
-      <FilterContext key="NewAnalytics" index="NewAnalytics">
-        <NewAnalyticsContainer />
-      </FilterContext>
+      <AccessControl
+        isEnabled={featureFlagDetails.newAnalytics &&
+        useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
+        authorization={userHasAccess(~groupAccess=AnalyticsView)}>
+        <FilterContext key="NewAnalytics" index="NewAnalytics">
+          <NewAnalyticsContainer />
+        </FilterContext>
+      </AccessControl>
     | list{"customers", ...remainingPath} =>
       <AccessControl
         authorization={userHasAccess(~groupAccess=OperationsView)}
