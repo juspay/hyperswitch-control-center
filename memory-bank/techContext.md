@@ -23,8 +23,15 @@ This document provides a high-level overview of the technical context in which t
   - `.res`: ReScript source files.
   - `.resi`: ReScript interface files (for defining module signatures).
   - For a comprehensive guide to ReScript syntax and patterns used in this project, see [./rescriptSyntaxGuide.md](./rescriptSyntaxGuide.md).
-- **MCP Servers:**
-  - MCP (Model Context Protocol) servers can be connected to the Control Center to provide additional tools and resources. These servers can extend the functionality of the Control Center by providing access to external APIs or other data sources.
+- **Table Display:**
+    - The project uses `LoadedTableWithCustomColumns` component to display data in a table format.
+    - The table columns are defined using ReScript types and data is mapped using `LogicUtils.getArrayDataFromJson` and `NewComponentEntity.itemToObjMapper`.
+- **Recoil Atoms:**
+    - Recoil is used to manage the state of the table columns.
+    - The `newComponentMapDefaultCols` atom is used to store the default columns for the table.
+- **API Integration:**
+    - The project uses `APIUtils` to fetch data from the Hyperswitch backend.
+    - The `useGetMethod` hook is used to make GET requests to the API.
 
 ## Project Directory Structure (High-Level)
 

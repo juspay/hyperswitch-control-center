@@ -26,6 +26,10 @@ This document serves as an index for detailed system patterns observed in the co
 - **[Modules and Fragments](./systemPatterns/modules-and-fragments.md)**
   - Details specific module implementations like the Authentication module (`AuthEntry.res`).
   - Explains the use of Fragments for reusable UI snippets, including `ConnectorFragments`.
+- **API Integration Pattern:**
+  - Utilizes `APIUtils` for making API calls and handling responses.
+  - Employs `LogicUtils` for data conversion and manipulation.
+  - Leverages `Recoil` for managing component state.
 
 ## Overview
 
