@@ -292,52 +292,17 @@ module SmartRetryToggle = {
 module SampleModeToggle = {
   open LogicUtils
   open NewAnalyticsContainerUtils
-  open HSwitchRemoteFilter
-  open DateRangeUtils
   @react.component
   let make = (~applySampleDateFilters) => {
-    let {updateExistingKeys, filterValue, filterValueJson} = React.useContext(
-      FilterContext.filterContext,
-    )
-
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let (isSampleModeEnabled, setIsSampleModeEnabled) = React.useState(_ =>
       filterValueJson->getString(sampleDataKey, "false")->getBoolFromString(false)
     )
-
-    let sampleDateRange = {
-      start_time: "2024-09-05T00:00:00.000Z",
-      end_time: "2024-10-03T00:00:00.000Z",
-    }
-
-    let defaultDateRange = getDateFilteredObject(~range=7)
-
-    let applyDateRangeBasedOnToggle = (~useSampleDates) => {
-      let dates = useSampleDates ? sampleDateRange : defaultDateRange
-      let comparison = useSampleDates ? (EnableComparison :> string) : (DisableComparison :> string)
-      let (compareStart, compareEnd) = getComparisionTimePeriod(
-        ~startDate=dates.start_time,
-        ~endDate=dates.end_time,
-      )
-      let searchParams =
-        [
-          (startTimeFilterKey, dates.start_time),
-          (endTimeFilterKey, dates.end_time),
-          (compareToStartTimeKey, compareStart),
-          (compareToEndTimeKey, compareEnd),
-          (comparisonKey, comparison),
-        ]->Dict.fromArray
-      applySampleDateFilters(searchParams)->ignore
-    }
-
     let handleToggleChange = _ => {
       let newToggleState = !isSampleModeEnabled
-      let updatedFilters = filterValue->Dict.copy
-      updatedFilters->Dict.set(sampleDataKey, newToggleState->getStringFromBool)
-      updatedFilters->updateExistingKeys
       setIsSampleModeEnabled(_ => newToggleState)
-      applyDateRangeBasedOnToggle(~useSampleDates=newToggleState)
+      applySampleDateFilters(newToggleState)->ignore
     }
-
     <BoolInput.BaseComponent
       isSelected={isSampleModeEnabled}
       setIsSelected=handleToggleChange

@@ -110,11 +110,13 @@ let make = () => {
     })
   }
 
-  let applySampleDateFilters = async initialValues => {
+  let applySampleDateFilters = async isSampleDateEnabled => {
     try {
       setScreenState(_ => Loading)
       await HyperSwitchUtils.delay(2000)
-      updateExistingKeys(initialValues)
+      let values = NewAnalyticsUtils.getSampleDateRange(~useSampleDates=isSampleDateEnabled)
+      values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
+      updateExistingKeys(values)
       setScreenState(_ => Success)->ignore
     } catch {
     | _ => setScreenState(_ => Success)
