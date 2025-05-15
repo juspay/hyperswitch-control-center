@@ -112,7 +112,7 @@ let make = (
           }}
         </div>
         <div
-          className={` inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:pr-0`}>
+          className="inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:pr-0">
           {switch headerActions {
           | Some(actions) => actions
           | None => React.null

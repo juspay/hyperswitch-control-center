@@ -106,7 +106,7 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  let shouldShowGetProdAccessComponent =
+  let showGetProductionAccess =
     !featureFlagDetails.isLiveMode &&
     !isInternalUser &&
     // TODO: Remove `MerchantDetailsManage` permission in future
@@ -158,13 +158,13 @@ let make = () => {
                           <ProfileSwitch />
                           <RenderIf condition={featureFlagDetails.isLiveMode}>
                             <div
-                              className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
+                              className="flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300">
                               <span className="relative flex h-2 w-2">
                                 <span
-                                  className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-hyperswitch_green opacity-75`}
+                                  className="animate-ping absolute inline-flex h-full w-full rounded-full bg-hyperswitch_green opacity-75"
                                 />
                                 <span
-                                  className={`relative inline-flex rounded-full h-2 w-2 bg-hyperswitch_green`}
+                                  className="relative inline-flex rounded-full h-2 w-2 bg-hyperswitch_green"
                                 />
                               </span>
                               <span className="font-semibold"> {"Live Mode"->React.string} </span>
@@ -176,13 +176,13 @@ let make = () => {
                           <ProfileSwitch />
                           <RenderIf condition={featureFlagDetails.isLiveMode}>
                             <div
-                              className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
+                              className="flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300">
                               <span className="relative flex h-2 w-2">
                                 <span
-                                  className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-hyperswitch_green opacity-75`}
+                                  className="animate-ping absolute inline-flex h-full w-full rounded-full bg-hyperswitch_green opacity-75"
                                 />
                                 <span
-                                  className={`relative inline-flex rounded-full h-2 w-2 bg-hyperswitch_green`}
+                                  className="relative inline-flex rounded-full h-2 w-2 bg-hyperswitch_green"
                                 />
                               </span>
                               <span className="font-semibold"> {"Live Mode"->React.string} </span>
@@ -190,7 +190,7 @@ let make = () => {
                           </RenderIf>
                         </div>
                       }}
-                      midUiActions={shouldShowGetProdAccessComponent
+                      midUiActions={showGetProductionAccess
                         ? <Navbar.GetProductionAccess />
                         : React.null}
                       midUiActionsCustomClass={`top-0 relative flex justify-center ${activeProduct !==
