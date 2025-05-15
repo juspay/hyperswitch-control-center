@@ -103,11 +103,11 @@ let make = (
       )
 
       let iconClass = "inline-block text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25 cursor-pointer"
-
+      let monthTextAlignCss = showLeft ? "text-right" : "text-left"
       <div key={Int.toString(i)}>
-        <div className="flex flex-row justify-between items-center p-3">
+        <div className="flex flex-row items-center p-3">
           {showLeft
-            ? <>
+            ? <div className="flex items-center gap-8">
                 <Icon
                   name="angle-double-left"
                   className=iconClass
@@ -117,16 +117,18 @@ let make = (
                 <Icon
                   name="chevron-left" className=iconClass onClick={_ => handleChangeMonthBy(-1)}
                 />
-              </>
+              </div>
             : React.null}
-          <AddDataAttributes attributes=[("data-calendar-date", monthAndYear)]>
-            <div
-              className="font-medium text-sm md:text-base text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
-              {React.string(monthAndYear)}
-            </div>
-          </AddDataAttributes>
+          <div className={`flex-1 ${monthTextAlignCss}`}>
+            <AddDataAttributes attributes=[("data-calendar-date", monthAndYear)]>
+              <div
+                className="font-medium text-sm md:text-base text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
+                {React.string(monthAndYear)}
+              </div>
+            </AddDataAttributes>
+          </div>
           {showRight
-            ? <>
+            ? <div className="flex items-center gap-8">
                 <Icon
                   name="chevron-right" className=iconClass onClick={_ => handleChangeMonthBy(1)}
                 />
@@ -136,7 +138,7 @@ let make = (
                   size=24
                   onClick={_ => handleChangeMonthBy(12)}
                 />
-              </>
+              </div>
             : React.null}
         </div>
         <Calendar
