@@ -95,7 +95,7 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let getPaymentsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {

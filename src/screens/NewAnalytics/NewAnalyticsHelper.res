@@ -248,7 +248,7 @@ module SmartRetryToggle = {
       FilterContext.filterContext,
     )
     let (isEnabled, setIsEnabled) = React.useState(_ => false)
-    let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
+    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     React.useEffect(() => {
       let value = filterValueJson->getString(smartRetryKey, "true")->getBoolFromString(true)
       setIsEnabled(_ => value)
@@ -289,12 +289,14 @@ module SmartRetryToggle = {
   }
 }
 
-module SampleModeToggle = {
-  open LogicUtils
-  open NewAnalyticsContainerUtils
+module SampleDataBanner = {
   @react.component
   let make = (~applySampleDateFilters) => {
+    open LogicUtils
+    open NewAnalyticsContainerUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+    let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
     let (isSampleModeEnabled, setIsSampleModeEnabled) = React.useState(_ =>
       filterValueJson->getString(sampleDataKey, "false")->getBoolFromString(false)
     )
@@ -303,25 +305,6 @@ module SampleModeToggle = {
       setIsSampleModeEnabled(_ => newToggleState)
       applySampleDateFilters(newToggleState)->ignore
     }
-    <BoolInput.BaseComponent
-      isSelected={isSampleModeEnabled}
-      setIsSelected=handleToggleChange
-      isDisabled=false
-      boolCustomClass="rounded-lg !bg-primary"
-      toggleBorder="border-primary"
-    />
-  }
-}
-
-module SampleDataBanner = {
-  @react.component
-  let make = (~applySampleDateFilters) => {
-    open LogicUtils
-    open NewAnalyticsContainerUtils
-    let {filterValueJson} = React.useContext(FilterContext.filterContext)
-    let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
-    let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
-
     <div
       className={`${stickyToggleClass} py-2 px-10 bg-orange-50 flex justify-between items-center`}>
       <div className="flex gap-4 items-center">
@@ -330,7 +313,13 @@ module SampleDataBanner = {
         </p>
       </div>
       <div>
-        <SampleModeToggle applySampleDateFilters />
+        <BoolInput.BaseComponent
+          isSelected={isSampleModeEnabled}
+          setIsSelected=handleToggleChange
+          isDisabled=false
+          boolCustomClass="rounded-lg !bg-primary"
+          toggleBorder="border-primary"
+        />
       </div>
     </div>
   }

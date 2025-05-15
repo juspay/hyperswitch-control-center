@@ -74,7 +74,7 @@ let make = (
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
-  let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let defaulGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
     ~endTime=endTimeVal,

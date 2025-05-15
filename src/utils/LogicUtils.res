@@ -221,7 +221,7 @@ let getBoolFromString = (boolString, default: bool) => {
   | _ => default
   }
 }
-let getStringAsBool = (dict, key, default: bool) => {
+let getStringFromDictAsBool = (dict, key, default: bool) => {
   dict
   ->getOptionString(key)
   ->Option.mapOr(default, boolString => {

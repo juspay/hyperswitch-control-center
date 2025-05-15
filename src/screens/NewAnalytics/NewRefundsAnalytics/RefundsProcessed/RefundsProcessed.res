@@ -172,7 +172,7 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let defaulGranularity = getDefaultGranularity(

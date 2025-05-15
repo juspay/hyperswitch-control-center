@@ -200,7 +200,7 @@ let make = (
     ->getString("is_smart_retry_enabled", "true")
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
-  let isSampleDataEnabled = filterValueJson->getStringAsBool(sampleDataKey, false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
