@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.16.0
+
+### Bug Fixes
+
+- Insights side bar highlight fix ([#2963](https://github.com/juspay/hyperswitch-control-center/pull/2963)) ([`03d5bfc`](https://github.com/juspay/hyperswitch-control-center/commit/03d5bfc9d9b1ee1a07da859a72249f34e32da477))
+
+**Full Changelog:** [`2025.05.15.2...2025.05.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.15.2...2025.05.16.0)
+
+
+- - -
+
+## 2025.05.15.2
+
+### Miscellaneous Tasks
+
+- Update memory bank ([`f5d6a04`](https://github.com/juspay/hyperswitch-control-center/commit/f5d6a042670602850f0e34fed12dbc976548fe99))
+- Update memory bank ([`54adac4`](https://github.com/juspay/hyperswitch-control-center/commit/54adac40798a4e8e5afd2d482e448bfd2bf45e11))
+- Update memory bank ([`0ef13b5`](https://github.com/juspay/hyperswitch-control-center/commit/0ef13b510517148a3525787eb968da62b4801edc))
+- Memory bank addition for table creation ([#2972](https://github.com/juspay/hyperswitch-control-center/pull/2972)) ([`f9c5709`](https://github.com/juspay/hyperswitch-control-center/commit/f9c57090738b6c6d429cfafb2ea4bc79da79b8b1))
+- Style issues for scrolling sdk ([#2967](https://github.com/juspay/hyperswitch-control-center/pull/2967)) ([`2aff2c2`](https://github.com/juspay/hyperswitch-control-center/commit/2aff2c2b949f6e10710966ca6ccf7ecebfed8498))
+
+**Full Changelog:** [`2025.05.15.1...2025.05.15.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.15.1...2025.05.15.2)
+
+- - -
+
 ## 2025.05.15.1
 
 ### Features

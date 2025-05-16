@@ -171,8 +171,10 @@ let make = () => {
     | INCOMPLETE =>
       <RenderIf condition={clientSecretStatus == Success}>
         <div
-          className={`flex items-center justify-center ${backgroundBasedOnTheme} w-full h-3/4 border-2`}>
-          <WebSDK />
+          className={`flex items-center justify-center ${backgroundBasedOnTheme} w-full h-5/6 border-2`}>
+          <div className="w-full h-full overflow-y-auto p-4">
+            <WebSDK />
+          </div>
         </div>
       </RenderIf>
     | status =>

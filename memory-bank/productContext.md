@@ -58,5 +58,9 @@ The Hyperswitch Control Center provides a comprehensive set of features for mana
   - Reconcile payment transactions with bank or ledger entries.
 - **Payouts:**
   - Manage payouts to merchants.
+- **New Component:**
+  - Display data in a table format.
+  - Fetch data from an API endpoint.
+  - Integrate with the existing application structure.
 
 _This list provides a general overview. The specific features available may vary depending on the Hyperswitch setup and configuration._

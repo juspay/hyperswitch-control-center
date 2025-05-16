@@ -22,3 +22,8 @@ Users of the Hyperswitch open-source payments switch, including:
 ## Success Metrics
 
 (How will the success of this project be measured? e.g., user adoption, ease of use, feature completeness, community contributions)
+
+- Successful creation of new components with API integration and table display.
+- Adherence to coding standards and best practices.
+- Resolution of ReScript syntax errors and warnings.
+- Proper integration of new components into the existing application structure.
