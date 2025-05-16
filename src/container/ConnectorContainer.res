@@ -1,12 +1,13 @@
 /*
 Modules that depend on Connector and Business Profiles data are located within this container.
  */
+
 @react.component
 let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess, hasAllGroupsAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -161,7 +162,17 @@ let make = () => {
           />
         </FilterContext>
       </AccessControl>
-
+    | list{"sdk"} =>
+      <AccessControl
+        isEnabled={!featureFlagDetails.isLiveMode}
+        authorization={hasAllGroupsAccess([
+          userHasAccess(~groupAccess=OperationsManage),
+          userHasAccess(~groupAccess=ConnectorsManage),
+        ])}>
+        <SDKProvider>
+          <SDKPage />
+        </SDKProvider>
+      </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

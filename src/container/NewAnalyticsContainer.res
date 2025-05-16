@@ -15,8 +15,6 @@ let make = () => {
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let isSampleDataEnabled =
-    filterValueJson->getString(sampleDataKey, "false")->LogicUtils.getBoolFromString(false)
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -112,9 +110,22 @@ let make = () => {
     })
   }
 
+  let applySampleDateFilters = async isSampleDateEnabled => {
+    try {
+      setScreenState(_ => Loading)
+      await HyperSwitchUtils.delay(2000)
+      let values = NewAnalyticsUtils.getSampleDateRange(~useSampleDates=isSampleDateEnabled)
+      values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
+      updateExistingKeys(values)
+      setScreenState(_ => Success)->ignore
+    } catch {
+    | _ => setScreenState(_ => Success)
+    }
+  }
+
   <PageLoaderWrapper key={(analyticsEntity :> string)} screenState>
     <div>
-      <NewAnalyticsHelper.SampleDataBanner />
+      <NewAnalyticsHelper.SampleDataBanner applySampleDateFilters />
       <PageUtils.PageHeading customTitleStyle="mt-4" title="Insights" />
       <div className="-ml-1 top-0 z-20 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
@@ -126,9 +137,7 @@ let make = () => {
             ~compareWithStartTime=startTimeVal,
             ~compareWithEndTime=endTimeVal,
             ~events=dateDropDownTriggerMixpanelCallback,
-            ~sampleDataIsEnabled=filterValueJson
-            ->getString(sampleDataKey, "false")
-            ->getBoolFromString(false),
+            ~sampleDataIsEnabled=filterValueJson->getStringFromDictAsBool(sampleDataKey, false),
           )}
           defaultFilterKeys=[
             startTimeFilterKey,

@@ -12,7 +12,7 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
-  open NewAnalyticsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ =>
@@ -24,17 +24,24 @@ let make = (
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSmartRetryEnabled = filterValueJson->getString("is_smart_retry_enabled", "true")
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString("is_sample_data_enabled", "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+  let fetchApi = AuthHooks.useApiFetcher()
   let getPaymentLieCycleData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       if isSampleDataEnabled {
-        let sampleData = paymentLifecycleData //replace with s3 call
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        let paymentLifecycleData =
+          paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentLifecycleData")
         setData(_ =>
-          sampleData->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
+          paymentLifecycleData->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
             ~isSmartRetryEnabled=isSmartRetryEnabled->LogicUtils.getBoolFromString(true),
           )
         )

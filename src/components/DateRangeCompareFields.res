@@ -477,7 +477,7 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let customStyleForBtn = "rounded-lg bg-white"
+    let customStyleForBtn = "rounded-lg bg-white !w-full"
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
@@ -724,7 +724,6 @@ let make = (
   ~compareWithStartTime,
   ~compareWithEndTime,
   ~dateRangeLimit=?,
-  ~isSampleDataEnabled=false,
 ) => {
   let startInput = ReactFinalForm.useField(startKey).input
   let endInput = ReactFinalForm.useField(endKey).input

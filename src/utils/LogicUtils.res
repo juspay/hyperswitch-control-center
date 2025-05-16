@@ -221,6 +221,13 @@ let getBoolFromString = (boolString, default: bool) => {
   | _ => default
   }
 }
+let getStringFromDictAsBool = (dict, key, default: bool) => {
+  dict
+  ->getOptionString(key)
+  ->Option.mapOr(default, boolString => {
+    getBoolFromString(boolString, default)
+  })
+}
 let getStringFromBool = boolValue => {
   switch boolValue {
   | true => "true"
@@ -274,6 +281,15 @@ let getFloatFromJson = (json, default) => {
   switch json->JSON.Classify.classify {
   | String(str) => getFloatFromString(str, default)
   | Number(floatValue) => floatValue
+  | _ => default
+  }
+}
+
+let isUint8Array: 'a => bool = %raw("(val) => val instanceof Uint8Array")
+
+let getUInt8ArrayFromJson = (json, default) => {
+  switch JSON.Classify.classify(json) {
+  | Object(obj) => isUint8Array(obj) ? Identity.anyTypeToUint8Array(obj) : default
   | _ => default
   }
 }

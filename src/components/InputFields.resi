@@ -324,3 +324,6 @@ let boolInput: (
   ~isCheckBox: bool=?,
   ~boolCustomClass: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
+let colorPickerInput: (
+  ~defaultValue: Js.String.t=?,
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element

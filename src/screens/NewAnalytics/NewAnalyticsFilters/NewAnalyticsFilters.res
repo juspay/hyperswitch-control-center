@@ -59,10 +59,7 @@ module PaymentsFilter = {
     let endTimeVal = filterValueJson->getString("endTime", "")
     let (currencOptions, setCurrencOptions) = React.useState(_ => [])
     let (selectedCurrency, setSelectedCurrency) = React.useState(_ => defaultCurrency)
-    let isSampleDataEnabled =
-      filterValueJson
-      ->getString(sampleDataKey, "false")
-      ->LogicUtils.getBoolFromString(false)
+    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     let filterValueModifier = dict => {
       dict->Dict.set((#currency: filters :> string), selectedCurrency.value)
       dict

@@ -5,10 +5,11 @@ open NewAnalyticsHelper
 open LogicUtils
 open APIUtils
 open NewAnalyticsUtils
-open RefundsSampleData
+open NewAnalyticsContainerUtils
 @react.component
 let make = (~entity: moduleEntity) => {
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => []->JSON.Encode.array)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -19,10 +20,7 @@ let make = (~entity: moduleEntity) => {
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString("is_sample_data_enabled", "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -30,8 +28,19 @@ let make = (~entity: moduleEntity) => {
       let secondaryData = defaultValue->Dict.copy
 
       if isSampleDataEnabled {
-        setData(_ => refundsOverviewData) //replace with s3 call
-        setScreenState(_ => PageLoaderWrapper.Success)
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let res = await fetchApi(
+          refundsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        let refundsOverviewData =
+          refundsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("refundsOverviewData")
+        setData(_ => refundsOverviewData)
       } else {
         let refundsUrl = getURL(
           ~entityName=V1(ANALYTICS_REFUNDS),
@@ -147,8 +156,8 @@ let make = (~entity: moduleEntity) => {
         }
 
         setData(_ => [primaryData->JSON.Encode.object, secondaryData]->JSON.Encode.array)
-        setScreenState(_ => PageLoaderWrapper.Success)
       }
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Success)
     }

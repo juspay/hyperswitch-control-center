@@ -7,7 +7,7 @@ let make = (~entity: moduleEntity) => {
   open APIUtils
   open NewAnalyticsHelper
   open NewAnalyticsUtils
-  open NewAnalyticsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => []->JSON.Encode.array)
@@ -15,10 +15,7 @@ let make = (~entity: moduleEntity) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString("is_sample_data_enabled", "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let metricType: metricType =
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")
@@ -29,7 +26,7 @@ let make = (~entity: moduleEntity) => {
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let fetchApi = AuthHooks.useApiFetcher()
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -37,8 +34,17 @@ let make = (~entity: moduleEntity) => {
       let secondaryData = defaultValue->Dict.copy
 
       if isSampleDataEnabled {
-        setData(_ => paymentsOverviewData) //replace with s3 call
-        setScreenState(_ => PageLoaderWrapper.Success)
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        let paymentsOverviewData =
+          paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentsOverviewData")
+        setData(_ => paymentsOverviewData)
       } else {
         let paymentsUrl = getURL(
           ~entityName=V1(ANALYTICS_PAYMENTS_V2),
@@ -58,7 +64,6 @@ let make = (~entity: moduleEntity) => {
           ~id=Some((#disputes: domain :> string)),
         )
 
-        // primary date range
         let primaryBodyPayments = getPayload(
           ~entity,
           ~metrics=[
@@ -92,11 +97,8 @@ let make = (~entity: moduleEntity) => {
         let primaryResponseDisputes = await updateDetails(disputesUrl, primaryBodyDisputes, Post)
 
         let primaryDataPayments = primaryResponsePayments->parseResponse("metaData")
-        Js.log2("primarydatapayments", primaryDataPayments)
         let primaryDataRefunds = primaryResponseRefunds->parseResponse("metaData")
-        Js.log2("primaryDataRefunds", primaryDataRefunds)
         let primaryDataDisputes = primaryResponseDisputes->parseResponse("queryData")
-        Js.log2("primaryDataDisputes", primaryDataDisputes)
 
         primaryData->setValue(
           ~data=primaryDataPayments,
@@ -193,9 +195,8 @@ let make = (~entity: moduleEntity) => {
         }
 
         setData(_ => [primaryData->JSON.Encode.object, secondaryData]->JSON.Encode.array)
-
-        setScreenState(_ => PageLoaderWrapper.Success)
       }
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Success)
     }
@@ -206,7 +207,15 @@ let make = (~entity: moduleEntity) => {
       getData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, isSampleDataEnabled))
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    currency,
+    metricType,
+  ))
 
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 gap-6">

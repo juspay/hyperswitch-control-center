@@ -122,7 +122,6 @@ module CustomDropDown = {
   ) => {
     open HeadlessUI
     let (arrow, setArrow) = React.useState(_ => false)
-
     <Menu \"as"="div" className="relative inline-block text-left">
       {_ =>
         <div>
@@ -149,49 +148,45 @@ module CustomDropDown = {
               }}
             </Menu.Button>
           }}
-          {if !disabled {
-            <Transition
-              \"as"="span"
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95">
-              {<Menu.Items
-                className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
-                {props => {
-                  setArrow(_ => props["open"])
+          <Transition
+            \"as"="span"
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95">
+            {<Menu.Items
+              className={`absolute ${positionClass} z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
+              {props => {
+                setArrow(_ => props["open"])
 
-                  <div className="p-1">
-                    {options
-                    ->Array.mapWithIndex((option, i) =>
-                      <Menu.Item key={i->Int.toString}>
-                        {props =>
-                          <div className="relative">
-                            <button
-                              onClick={_ => setOption(option)}
-                              className={
-                                let activeClasses = if props["active"] {
-                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                                } else {
-                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm"
-                                }
-                                `${activeClasses} font-medium text-start`
-                              }>
-                              <div className="mr-5"> {option.label->React.string} </div>
-                            </button>
-                          </div>}
-                      </Menu.Item>
-                    )
-                    ->React.array}
-                  </div>
-                }}
-              </Menu.Items>}
-            </Transition>
-          } else {
-            React.null
-          }}
+                <div className="p-1">
+                  {options
+                  ->Array.mapWithIndex((option, i) =>
+                    <Menu.Item key={i->Int.toString}>
+                      {props =>
+                        <div className="relative">
+                          <button
+                            onClick={_ => setOption(option)}
+                            className={
+                              let activeClasses = if props["active"] {
+                                "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                              } else {
+                                "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                              }
+                              `${activeClasses} font-medium text-start`
+                            }>
+                            <div className="mr-5"> {option.label->React.string} </div>
+                          </button>
+                        </div>}
+                    </Menu.Item>
+                  )
+                  ->React.array}
+                </div>
+              }}
+            </Menu.Items>}
+          </Transition>
         </div>}
     </Menu>
   }
@@ -252,11 +247,7 @@ module SmartRetryToggle = {
       FilterContext.filterContext,
     )
     let (isEnabled, setIsEnabled) = React.useState(_ => false)
-    let isSampleDataEnabled =
-      filterValueJson
-      ->getString(sampleDataKey, "false")
-      ->LogicUtils.getBoolFromString(false)
-
+    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     React.useEffect(() => {
       let value = filterValueJson->getString(smartRetryKey, "true")->getBoolFromString(true)
       setIsEnabled(_ => value)
@@ -297,108 +288,37 @@ module SmartRetryToggle = {
   }
 }
 
-module SampleDataToggle = {
-  open LogicUtils
-  open NewAnalyticsContainerUtils
-  open HSwitchRemoteFilter
-  @react.component
-  let make = () => {
-    let {updateExistingKeys, filterValue, filterValueJson} = React.useContext(
-      FilterContext.filterContext,
-    )
-    let onClickFunc = (
-      ~startTimeFilterKey,
-      ~endTimeFilterKey,
-      ~compareToStartTimeKey="",
-      ~compareToEndTimeKey="",
-      ~comparisonKey="",
-      ~range=7,
-      ~defaultDate=getDateFilteredObject(~range),
-    ) => {
-      let inititalSearchParam = Dict.make()
-      let timeRange = {
-        let (compareToStartTime, compareToEndTime) = DateRangeUtils.getComparisionTimePeriod(
-          ~startDate=defaultDate.start_time,
-          ~endDate=defaultDate.end_time,
-        )
-        [
-          (startTimeFilterKey, defaultDate.start_time),
-          (endTimeFilterKey, defaultDate.end_time),
-          (compareToStartTimeKey, compareToStartTime),
-          (compareToEndTimeKey, compareToEndTime),
-          (comparisonKey, (DateRangeUtils.EnableComparison :> string)),
-        ]
-      }
-      timeRange->Array.forEach(item => {
-        let (key, defaultValue) = item
-        switch inititalSearchParam->Dict.get(key) {
-        | Some(_) => ()
-        | None => inititalSearchParam->Dict.set(key, defaultValue)
-        }
-      })
-      inititalSearchParam->updateExistingKeys
-    }
-
-    let (isEnabled, setIsEnabled) = React.useState(_ =>
-      filterValueJson->getString(sampleDataKey, "false")->getBoolFromString(false)
-    )
-    let sampleStartDate = "2024-09-05T00:00:00.000Z"
-    let sampleEndDate = "2024-10-03T00:00:00.000Z"
-    let sampleDates: filterBody = {
-      start_time: sampleStartDate,
-      end_time: sampleEndDate,
-    }
-
-    let onClick = _ => {
-      let updatedValue = !isEnabled
-      let newValue = filterValue->Dict.copy
-      newValue->Dict.set(sampleDataKey, updatedValue->getStringFromBool)
-      newValue->updateExistingKeys
-
-      setIsEnabled(value => !value)
-      if updatedValue {
-        onClickFunc(
-          ~startTimeFilterKey="startTime",
-          ~endTimeFilterKey="endTime",
-          ~compareToStartTimeKey="compareToStartTime",
-          ~compareToEndTimeKey="compareToEndTime",
-          ~comparisonKey="comparison",
-          ~range=7,
-          ~defaultDate=sampleDates,
-        )
-      }
-    }
-
-    <BoolInput.BaseComponent
-      isSelected={isEnabled}
-      setIsSelected=onClick
-      isDisabled=false
-      boolCustomClass="rounded-lg !bg-primary"
-      toggleBorder="border-primary"
-    />
-  }
-}
-
 module SampleDataBanner = {
   @react.component
-  let make = () => {
+  let make = (~applySampleDateFilters) => {
     open LogicUtils
     open NewAnalyticsContainerUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
-    let isSampleDataEnabled =
-      filterValueJson
-      ->getString(sampleDataKey, "false")
-      ->LogicUtils.getBoolFromString(false)
-    let scrollCss = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
-
-    <div className={`${scrollCss} py-2 px-10 bg-orange-50 flex justify-between items-center`}>
+    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+    let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
+    let (isSampleModeEnabled, setIsSampleModeEnabled) = React.useState(_ =>
+      filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+    )
+    let handleToggleChange = _ => {
+      let newToggleState = !isSampleModeEnabled
+      setIsSampleModeEnabled(_ => newToggleState)
+      applySampleDateFilters(newToggleState)->ignore
+    }
+    <div
+      className={`${stickyToggleClass} py-2 px-10 bg-orange-50 flex justify-between items-center`}>
       <div className="flex gap-4 items-center">
         <p className="text-nd_gray-600 text-base leading-6 font-medium">
           {"Currently viewing sample data. Toggle it off to return to your real insights."->React.string}
         </p>
       </div>
       <div>
-        <SampleDataToggle />
+        <BoolInput.BaseComponent
+          isSelected={isSampleModeEnabled}
+          setIsSelected=handleToggleChange
+          isDisabled=false
+          boolCustomClass="rounded-lg !bg-primary"
+          toggleBorder="border-primary"
+        />
       </div>
     </div>
   }

@@ -150,8 +150,9 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
-  open NewAnalyticsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -183,10 +184,7 @@ let make = (
     ~granularity=featureFlag.granularity,
   )
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString("is_sample_data_enabled", "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
       setGranularity(_ => defaulGranularity)
@@ -203,27 +201,26 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
-      let secondaryBody = requestBody(
-        ~startTime=compareToStartTime,
-        ~endTime=compareToEndTime,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
       let primaryResponse = if isSampleDataEnabled {
-        paymentSampleData //replace with s3 call
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentSampleData")
       } else {
+        let primaryBody = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~granularity=granularity.value->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
+
         await updateDetails(url, primaryBody, Post)
       }
       let primaryData =
@@ -243,8 +240,27 @@ let make = (
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = if isSampleDataEnabled {
-            secondaryPaymentSampleData
+            let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+            let res = await fetchApi(
+              paymentsUrl,
+              ~method_=Get,
+              ~xFeatureRoute=false,
+              ~forceCookies=false,
+            )
+            let paymentsResponse = await res->(res => res->Fetch.Response.json)
+            paymentsResponse
+            ->getDictFromJsonObject
+            ->getJsonObjectFromDict("secondaryPaymentSampleData")
           } else {
+            let secondaryBody = requestBody(
+              ~startTime=compareToStartTime,
+              ~endTime=compareToEndTime,
+              ~delta=entity.requestBodyConfig.delta,
+              ~metrics=entity.requestBodyConfig.metrics,
+              ~granularity=granularity.value->Some,
+              ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+            )
+
             await updateDetails(url, secondaryBody, Post)
           }
           let secondaryData =

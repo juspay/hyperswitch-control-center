@@ -77,7 +77,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
-  open NewAnalyticsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -85,6 +85,7 @@ let make = (
   let (failedPaymentsDistribution, setfailedPaymentsDistribution) = React.useState(_ =>
     JSON.Encode.array([])
   )
+  let fetchApi = AuthHooks.useApiFetcher()
   let (viewType, setViewType) = React.useState(_ => Graph)
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -95,30 +96,36 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString("is_sample_data_enabled", "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let getFailedPaymentsDistribution = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS),
-        ~methodType=Post,
-        ~id=Some((entity.domain: domain :> string)),
-      )
-
-      let body = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~groupByNames=[groupBy.value]->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
       let response = if isSampleDataEnabled {
-        paymentsRateDataWithConnectors //replace with s3 call
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        paymentsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("paymentsRateDataWithConnectors")
       } else {
+        let url = getURL(
+          ~entityName=V1(ANALYTICS_PAYMENTS),
+          ~methodType=Post,
+          ~id=Some((entity.domain: domain :> string)),
+        )
+        let body = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~groupByNames=[groupBy.value]->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
         await updateDetails(url, body, Post)
       }
       let responseData =

@@ -4,7 +4,7 @@ type hyperPromise = promise<hyperloader>
 type paymentStatus =
   | SUCCESS
   | INCOMPLETE
-  | FAILED(string)
+  | FAILED
   | LOADING
   | PROCESSING
   | CHECKCONFIGURATION
@@ -47,9 +47,18 @@ type wallets = {
   style?: styleForWallets,
 }
 
+type layoutType = {
+  \"type": string,
+  defaultCollapsed: bool,
+  radios: bool,
+  spacedAccordionItems: bool,
+}
+
 type checkoutElementOptions = {
+  layout?: layoutType,
   showCardFormByDefault?: bool,
   wallets?: wallets,
+  displaySavedPaymentMethods?: bool,
 }
 
 type variables = {
@@ -61,6 +70,7 @@ type variables = {
 
 type appearanceType = {
   theme?: string,
+  labels?: string,
   variables?: variables,
   rules?: JSON.t,
 }
@@ -88,20 +98,8 @@ type country = {
   icon: string,
 }
 
-type layout = {
-  \"type"?: string,
-  defaultCollapsed?: bool,
-  radios?: bool,
-  spacedAccordionItems?: bool,
-}
-
-type layoutType = {
-  layout?: layout,
-  paymentMethodOrder?: array<string>,
-}
-
 @module("@juspay-tech/hyper-js")
-external loadHyper: string => hyperPromise = "loadHyper"
+external loadHyper: (string, JSON.t) => hyperPromise = "loadHyper"
 
 @module("@juspay-tech/react-hyper-js")
 external useHyper: unit => hyperType = "useHyper"

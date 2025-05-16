@@ -152,8 +152,9 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
-  open RefundsSampleData
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -171,10 +172,7 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let isSampleDataEnabled =
-    filterValueJson
-    ->getString("is_sample_data_enabled", "false")
-    ->LogicUtils.getBoolFromString(false)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let defaulGranularity = getDefaultGranularity(
@@ -200,27 +198,25 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
-      let secondaryBody = requestBody(
-        ~startTime=compareToStartTime,
-        ~endTime=compareToEndTime,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
       let primaryResponse = if isSampleDataEnabled {
-        refundsSampleData
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let res = await fetchApi(
+          refundsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse->getDictFromJsonObject->getJsonObjectFromDict("refundsSampleData")
       } else {
+        let primaryBody = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~granularity=granularity.value->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
         await updateDetails(url, primaryBody, Post)
       }
       let primaryData =
@@ -235,8 +231,26 @@ let make = (
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = if isSampleDataEnabled {
-            comparisonRefundsSampleData
+            let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+            let res = await fetchApi(
+              refundsUrl,
+              ~method_=Get,
+              ~xFeatureRoute=false,
+              ~forceCookies=false,
+            )
+            let refundsResponse = await res->(res => res->Fetch.Response.json)
+            refundsResponse
+            ->getDictFromJsonObject
+            ->getJsonObjectFromDict("comparisonRefundsSampleData")
           } else {
+            let secondaryBody = requestBody(
+              ~startTime=compareToStartTime,
+              ~endTime=compareToEndTime,
+              ~delta=entity.requestBodyConfig.delta,
+              ~metrics=entity.requestBodyConfig.metrics,
+              ~granularity=granularity.value->Some,
+              ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+            )
             await updateDetails(url, secondaryBody, Post)
           }
           let secondaryData =
