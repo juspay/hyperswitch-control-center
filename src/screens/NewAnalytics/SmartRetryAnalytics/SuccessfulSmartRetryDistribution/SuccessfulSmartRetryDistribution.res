@@ -1,7 +1,7 @@
-open NewAnalyticsTypes
-open NewAnalyticsHelper
+open InsightsTypes
+open InsightsHelper
 open BarGraphTypes
-open NewSmartRetryAnalyticsEntity
+open InsightsSmartRetryAnalyticsEntity
 open SuccessfulSmartRetryDistributionUtils
 open SuccessfulSmartRetryDistributionTypes
 
@@ -69,8 +69,8 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open NewAnalyticsUtils
-  open NewAnalyticsContainerUtils
+  open InsightsUtils
+  open InsightsContainerUtils
   let getURL = useGetURL()
   let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()

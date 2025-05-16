@@ -196,7 +196,7 @@ module Card = {
       }
 
     let getPercentageChange = (~primaryValue, ~secondaryValue) => {
-      let (value, direction) = NewAnalyticsUtils.calculatePercentageChange(
+      let (value, direction) = InsightsUtils.calculatePercentageChange(
         ~primaryValue,
         ~secondaryValue,
       )

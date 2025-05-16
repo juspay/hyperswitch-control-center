@@ -1,7 +1,7 @@
-open NewAnalyticsTypes
-open NewAnalyticsHelper
+open InsightsTypes
+open InsightsHelper
 open SmartRetryPaymentsProcessedUtils
-open NewSmartRetryAnalyticsEntity
+open InsightsSmartRetryAnalyticsEntity
 open PaymentsProcessedTypes
 
 module TableModule = {
@@ -51,7 +51,7 @@ module TableModule = {
 }
 
 module SmartRetryPaymentsProcessedHeader = {
-  open NewAnalyticsUtils
+  open InsightsUtils
   open LogicUtils
   open LogicUtilsTypes
 
@@ -149,8 +149,8 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open NewAnalyticsUtils
-  open NewAnalyticsContainerUtils
+  open InsightsUtils
+  open InsightsContainerUtils
   let getURL = useGetURL()
   let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
