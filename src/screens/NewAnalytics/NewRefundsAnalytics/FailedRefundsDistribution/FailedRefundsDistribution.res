@@ -106,7 +106,6 @@ let make = (
           ~groupByNames=[Connector->getStringFromVariant]->Some,
           ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
         )
-
         await updateDetails(url, body, Post)
       }
 
