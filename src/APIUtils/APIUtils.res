@@ -607,11 +607,7 @@ let useGetURL = () => {
       /* EVENT LOGS */
       | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
 
-      | WEBHOOK_EVENTS =>
-        switch queryParamerters {
-        | Some(param) => `events/${merchantId}?${param}`
-        | None => `events/${merchantId}`
-        }
+      | WEBHOOK_EVENTS => `events/profile/list`
       | WEBHOOK_EVENTS_ATTEMPTS =>
         switch id {
         | Some(id) => `events/${merchantId}/${id}/attempts`
@@ -661,13 +657,18 @@ let useGetURL = () => {
       | BUSINESS_PROFILE =>
         switch methodType {
         | Get =>
-          switch userEntity {
-          | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile =>
-            `account/${merchantId}/profile`
+          switch id {
+          | Some(id) => `account/${merchantId}/business_profile/${id}`
+          | None =>
+            switch userEntity {
+            | #Tenant
+            | #Organization
+            | #Merchant
+            | #Profile =>
+              `account/${merchantId}/profile`
+            }
           }
+
         | Post =>
           switch id {
           | Some(id) => `account/${merchantId}/business_profile/${id}`
@@ -728,17 +729,19 @@ let useGetURL = () => {
         }
 
       /* INTELLIGENT ROUTING */
+      | GET_REVIEW_FIELDS => `dynamic-routing/baseline-review-fields`
       | SIMULATE_INTELLIGENT_ROUTING =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate/${merchantId}?${queryParams}`
-        | None => `simulate/${merchantId}`
+        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}?${queryParams}`
+        | None => `dynamic-routing/simulate/${merchantId}`
         }
       | INTELLIGENT_ROUTING_RECORDS =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate/${merchantId}/get-records?${queryParams}`
-        | None => `simulate/${merchantId}/get-records`
+        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}/get-records?${queryParams}`
+        | None => `dynamic-routing/simulate/${merchantId}/get-records`
         }
-      | INTELLIGENT_ROUTING_GET_STATISTICS => `simulate/${merchantId}/get-statistics`
+      | INTELLIGENT_ROUTING_GET_STATISTICS =>
+        `dynamic-routing/simulate/${merchantId}/get-statistics`
 
       /* USERS */
       | USERS =>
@@ -879,6 +882,7 @@ let useGetURL = () => {
 
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
+      | SDK_PAYMENT => "payments"
       }
 
     | V2(entityNameForv2) =>
@@ -921,9 +925,9 @@ let useHandleLogout = (~eventName="user_sign_out") => {
         })
       setAuthStateToLogout()
       clearRecoilValue()
-      LocalStorage.clear()
+      CommonAuthUtils.clearLocalStorage()
     } catch {
-    | _ => LocalStorage.clear()
+    | _ => CommonAuthUtils.clearLocalStorage()
     }
   }
 }

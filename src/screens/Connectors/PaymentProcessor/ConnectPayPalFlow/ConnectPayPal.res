@@ -256,10 +256,9 @@ let make = (
 
   let selectedConnector =
     connector->ConnectorUtils.getConnectorNameTypeFromString->ConnectorUtils.getConnectorInfo
-  let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
   let activeBusinessProfile =
-    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
@@ -493,7 +492,6 @@ let make = (
               | _ => React.null
               }}
             </div>
-            <FormValuesSpy />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
         </div>
       </Form>

@@ -22,7 +22,7 @@ class HomePage {
 
   get profileDropdownList() {
     return cy.get(
-      '[class="max-h-72 overflow-scroll px-1 pt-1 sidebar-scrollbar"]',
+      '[class="max-h-72 overflow-scroll px-1 pt-1 selectbox-scrollbar"]',
     );
   }
 
@@ -31,6 +31,15 @@ class HomePage {
   }
 
   //Sidebar
+
+  //Operations
+  get operations() {
+    return cy.get("[data-testid=operations]");
+  }
+
+  get paymentOperations() {
+    return cy.get("[data-testid=payments]");
+  }
 
   //Connectors
   get connectors() {

@@ -82,6 +82,5 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         buttonState={formState.values->validateGooglePay(connector)}
       />
     </div>
-    <FormValuesSpy />
   </>
 }

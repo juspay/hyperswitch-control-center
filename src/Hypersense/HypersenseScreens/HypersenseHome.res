@@ -17,12 +17,14 @@ let make = () => {
     let res = await fetchDetails(hypersenseTokenUrl)
     let token = res->getDictFromJsonObject->getString("token", "")
     mixpanelEvent(~eventName="cost_observability-redirect")
-    let url = `${Window.env.hypersenseUrl}/login?auth_token=${token}`
+    let url = `${Window.env.hypersenseUrl}?auth_token=${token}`
     url->Window._open
   }
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
-    <img alt="hypersenseOnboarding" src="/assets/DefaultHomeHypersenseCard.svg" />
+    <object
+      type_="image/svg+xml" data="/assets/DefaultHomeHypersenseCard.svg" alt="hypersenseOnboarding"
+    />
     <div className="flex flex-col gap-8 items-center">
       <div
         className="border rounded-md text-nd_green-200 border-nd_green-200 font-semibold p-1.5 text-sm w-fit">

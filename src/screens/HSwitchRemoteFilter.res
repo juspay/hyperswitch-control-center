@@ -4,7 +4,7 @@ type filterBody = {
 }
 
 let formateDateString = date => {
-  date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
+  date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
 }
 
 let getDateFilteredObject = (~range=7) => {
@@ -165,10 +165,12 @@ module RemoteTableFilters = {
     ~submitInputOnEnter=false,
     ~entityName: APIUtilsTypes.entityTypeWithVersion,
     ~version=UserInfoTypes.V1,
+    ~connectorTypes: array<ConnectorTypes.connector>=[Processor, ThreeDsAuthenticator],
     (),
   ) => {
     open LogicUtils
     open APIUtils
+    open ConnectorUtils
 
     let getURL = useGetURL()
     let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
@@ -216,7 +218,32 @@ module RemoteTableFilters = {
           }
         | _ => await fetchDetails(filterUrl)
         }
-        setFilterDataJson(_ => Some(response))
+
+        let connectorArray =
+          response->getDictFromJsonObject->getDictfromDict("connector")->Dict.toArray
+
+        let filteredConnectorKeys = connectorArray->Array.filter(key => {
+          let (name, _) = key
+
+          connectorTypes->Array.some(item => {
+            let list = item->connectorTypeToListMapper
+            let typedName = name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=item)
+            switch item {
+            | Processor =>
+              list->Array.some(item => typedName == item) ||
+                dummyConnectorList(true)->Array.some(item => typedName == item)
+            | _ => list->Array.some(item => typedName == item)
+            }
+          })
+        })
+        let newConnectorDict = filteredConnectorKeys->Dict.fromArray
+        let editedResponse = {
+          response
+          ->getDictFromJsonObject
+          ->Dict.set("connector", newConnectorDict->Identity.genericTypeToJson)
+          response
+        }
+        setFilterDataJson(_ => Some(editedResponse))
       } catch {
       | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }

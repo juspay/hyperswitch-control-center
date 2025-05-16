@@ -512,8 +512,15 @@ let make = (
   | _ => ""
   }
 
+  let initTab = React.useMemo(() => {
+    switch filteredTabKeys->Array.get(0) {
+    | Some(val) => [val]
+    | None => [""]
+    }
+  }, [filteredTabKeys])
+
   let (activeTav, setActiveTab) = React.useState(_ =>
-    filterValueDict->getStrArrayFromDict(`${moduleName}.tabName`, filteredTabKeys)
+    filterValueDict->getStrArrayFromDict(`${moduleName}.tabName`, initTab)
   )
   let setActiveTab = React.useMemo(() => {
     (str: string) => {

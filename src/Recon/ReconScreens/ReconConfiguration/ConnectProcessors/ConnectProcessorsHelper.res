@@ -226,7 +226,6 @@ module ConnectProcessorsFields = {
           />
         </FormRenderer.DesktopRow>
       </div>
-      <FormValuesSpy />
     </>
   }
 }

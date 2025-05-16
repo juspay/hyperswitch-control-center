@@ -13,6 +13,7 @@ type urlConfig = {
   dssCertificateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
+  clarityBaseUrl: option<string>,
 }
 
 // Type definition for themes
@@ -53,11 +54,8 @@ type buttonConfig = {
 
 type sidebarConfig = {
   primary: string,
-  secondary: string,
-  hoverColor: string,
-  primaryTextColor: string,
-  secondaryTextColor: string,
-  borderColor: string,
+  textColor: string,
+  textColorPrimary: string,
 }
 
 type themeSettings = {

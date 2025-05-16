@@ -1,4 +1,5 @@
 let wasm;
+let dynamicRoutingWasm;
 async function init() {
   try {
     wasm = await import("/wasm/euclid.js");
@@ -7,6 +8,33 @@ async function init() {
   } catch (e) {
     console.error(e, "FAILED TO LOAD WASM CONFIG");
     throw e;
+  }
+}
+
+async function dynamicRoutingInit() {
+  try {
+    dynamicRoutingWasm = await import("/pkg/procesmo.js");
+    await dynamicRoutingWasm.default("/pkg/procesmo_bg.wasm");
+    return { status: true, dynamicRoutingWasm };
+  } catch (e) {
+    console.error(e, "FAILED TO LOAD DYNAMIC ROUTING WASM CONFIG");
+    throw e;
+  }
+}
+
+function validateExtract(data, config, metadata) {
+  if (dynamicRoutingWasm) {
+    return dynamicRoutingWasm.validate_extract(data, config, metadata);
+  } else {
+    return {};
+  }
+}
+
+function getDefaultConfig() {
+  if (dynamicRoutingWasm) {
+    return dynamicRoutingWasm.default_config();
+  } else {
+    return {};
   }
 }
 

@@ -11,7 +11,6 @@ mv docker-compose.tmp docker-compose.yml
 
 
 # Specify the correct file path to the TOML file
-# File path of the TOML file
 toml_file="config/docker_compose.toml"  # Adjust the path if necessary
 
 # Ensure the file exists
@@ -27,4 +26,9 @@ echo "[network_tokenization_service] section removed from $toml_file."
 
 # Start Docker Compose services in detached mode
 chmod +x /usr/local/bin/docker-compose
-docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog
+docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog || {
+    echo "Docker Compose failed to start services";
+    docker logs hyperswitch-hyperswitch-server-1;
+    docker logs hyperswitch-hyperswitch-web-1;
+    exit 1;
+}

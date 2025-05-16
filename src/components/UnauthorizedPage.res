@@ -2,8 +2,19 @@
 let make = (
   ~message="You don't have access to this module. Contact admin for access",
   ~url="unauthorized",
+  ~productType=ProductTypes.Orchestration,
 ) => {
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
+
+  let showSidebar = () => {
+    setShowSideBar(_ => true)
+  }
+
+  React.useEffect(() => {
+    showSidebar()
+    None
+  }, [])
 
   <NoDataFound message renderType={Locked}>
     <Button
@@ -12,7 +23,8 @@ let make = (
       buttonSize=Small
       onClick={_ => {
         setDashboardPageState(_ => #HOME)
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+        let productUrl = ProductUtils.getProductUrl(~productType, ~url)
+        RescriptReactRouter.replace(productUrl)
       }}
       customButtonStyle="mt-4"
     />

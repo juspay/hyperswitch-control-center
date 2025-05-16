@@ -22,6 +22,8 @@ let useUserInfo = () => {
       )
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
+      let themeId = userInfo.themeId
+      HyperSwitchEntryUtils.setThemeIdtoStore(themeId)
       userInfo
     } catch {
     | Exn.Error(e) => {
