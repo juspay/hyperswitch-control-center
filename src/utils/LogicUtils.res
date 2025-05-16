@@ -221,6 +221,13 @@ let getBoolFromString = (boolString, default: bool) => {
   | _ => default
   }
 }
+let getStringFromDictAsBool = (dict, key, default: bool) => {
+  dict
+  ->getOptionString(key)
+  ->Option.mapOr(default, boolString => {
+    getBoolFromString(boolString, default)
+  })
+}
 let getStringFromBool = boolValue => {
   switch boolValue {
   | true => "true"
