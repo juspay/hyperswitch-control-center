@@ -14,10 +14,6 @@ This document serves as an index for detailed system patterns observed in the co
   - Details common utility functions, with `LogicUtils.res` as a key example.
   - Covers string manipulation, data conversion, validation, etc.
 
-- **[Coding Conventions](./systemPatterns/coding-conventions.md)**
-
-  - Describes naming conventions (camelCase, kebab-case, snake_case) used in the project.
-
 - **[Architectural and React Patterns](./systemPatterns/architectural-react-patterns.md)**
 
   - Discusses overarching architectural patterns like feature-based modules.
