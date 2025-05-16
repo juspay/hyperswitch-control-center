@@ -1,5 +1,5 @@
-open NewAnalyticsTypes
-open NewAnalyticsHelper
+open InsightsTypes
+open InsightsHelper
 open SankeyGraphTypes
 @react.component
 let make = (
@@ -12,6 +12,7 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
+  open InsightsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ =>
@@ -23,30 +24,47 @@ let make = (
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSmartRetryEnabled = filterValueJson->getString("is_smart_retry_enabled", "true")
-
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+  let fetchApi = AuthHooks.useApiFetcher()
   let getPaymentLieCycleData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(~entityName=V1(ANALYTICS_SANKEY), ~methodType=Post)
-      let paymentLifeCycleBody =
-        [
-          ("startTime", startTimeVal->JSON.Encode.string),
-          ("endTime", endTimeVal->JSON.Encode.string),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-
-      let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
-
-      if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
+      if isSampleDataEnabled {
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        let paymentLifecycleData =
+          paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentLifecycleData")
         setData(_ =>
-          paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
+          paymentLifecycleData->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
             ~isSmartRetryEnabled=isSmartRetryEnabled->LogicUtils.getBoolFromString(true),
           )
         )
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
-        setScreenState(_ => PageLoaderWrapper.Custom)
+        let url = getURL(~entityName=V1(ANALYTICS_SANKEY), ~methodType=Post)
+        let paymentLifeCycleBody =
+          [
+            ("startTime", startTimeVal->JSON.Encode.string),
+            ("endTime", endTimeVal->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson
+
+        let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
+        if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
+          setData(_ =>
+            paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
+              ~isSmartRetryEnabled=isSmartRetryEnabled->LogicUtils.getBoolFromString(true),
+            )
+          )
+          setScreenState(_ => PageLoaderWrapper.Success)
+        } else {
+          setScreenState(_ => PageLoaderWrapper.Custom)
+        }
       }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -57,7 +75,7 @@ let make = (
       getPaymentLieCycleData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, isSmartRetryEnabled))
+  }, (startTimeVal, endTimeVal, isSmartRetryEnabled, isSampleDataEnabled))
 
   let params = {
     data,

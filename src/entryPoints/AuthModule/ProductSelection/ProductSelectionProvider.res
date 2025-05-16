@@ -167,11 +167,15 @@ module CreateNewMerchantBody = {
   let make = (~setShowModal, ~selectedProduct: productTypes) => {
     open APIUtils
     open LogicUtils
+
+    let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+    let merchantDetailsTypedValue =
+      HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
 
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
@@ -270,7 +274,20 @@ module CreateNewMerchantBody = {
           subHeading=""
           customSubHeadingStyle="w-full !max-w-none pr-10"
         />
-        <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
+        <div
+          className="h-fit"
+          onClick={_ => {
+            let currentUrl = GlobalVars.extractModulePath(
+              ~path=url.path,
+              ~end=url.path->List.toArray->Array.length,
+            )
+            setShowModal(_ => false)
+            let productUrl = ProductUtils.getProductUrl(
+              ~productType=merchantDetailsTypedValue.product_type,
+              ~url=currentUrl,
+            )
+            RescriptReactRouter.replace(productUrl)
+          }}>
           <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
         </div>
       </div>
@@ -376,7 +393,7 @@ let make = (~children) => {
     })
 
     if midsWithProductValue->Array.length == 0 {
-      setAction(_ => None)
+      setCreateNewMerchant(productVariant)
     } else if midsWithProductValue->Array.length == 1 {
       let merchantIdToSwitch =
         midsWithProductValue

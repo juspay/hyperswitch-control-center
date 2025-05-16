@@ -42,15 +42,13 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       }
     }
   }, [connectorInfo.merchant_connector_id])
-  let (
-    _,
+  let {
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let initialValues = React.useMemo(() => {
     let authType = switch connectorInfo.connector_account_details {
@@ -105,6 +103,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       | _ => ()
       }
       setShowFeedbackModal(_ => false)
+      showToast(~message="Details Updated!", ~toastType=ToastSuccess)
     } catch {
     | _ => showToast(~message="Connector Failed to update", ~toastType=ToastError)
     }
@@ -165,7 +164,6 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         <div className="flex p-1 justify-end mb-2">
           <FormRenderer.SubmitButton text="Submit" />
         </div>
-        <FormValuesSpy />
       </Form>
     </Modal>
   </>

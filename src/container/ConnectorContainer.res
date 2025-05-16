@@ -1,16 +1,19 @@
 /*
 Modules that depend on Connector and Business Profiles data are located within this container.
  */
+
 @react.component
 let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess, hasAllGroupsAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+
   let setUpConnectoreContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -20,7 +23,7 @@ let make = () => {
         userHasAccess(~groupAccess=WorkflowsManage) === Access
       ) {
         let _ = await fetchConnectorListResponse()
-        let _ = await fetchBusinessProfiles()
+        let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -145,8 +148,7 @@ let make = () => {
       <EntityScaffold
         entityName="PaymentSettings"
         remainingPath
-        renderList={() => <PaymentSettingsList />}
-        renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
+        renderList={() => <PaymentSettings webhookOnly=false showFormOnly=false />}
       />
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
@@ -160,7 +162,17 @@ let make = () => {
           />
         </FilterContext>
       </AccessControl>
-
+    | list{"sdk"} =>
+      <AccessControl
+        isEnabled={!featureFlagDetails.isLiveMode}
+        authorization={hasAllGroupsAccess([
+          userHasAccess(~groupAccess=OperationsManage),
+          userHasAccess(~groupAccess=ConnectorsManage),
+        ])}>
+        <SDKProvider>
+          <SDKPage />
+        </SDKProvider>
+      </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

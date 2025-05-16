@@ -292,7 +292,6 @@ let make = (~showModal, ~setShowModal) => {
         <div className="flex justify-end w-full pr-5 pb-3">
           <FormRenderer.SubmitButton text="Start Exploring" buttonSize={Small} />
         </div>
-        <FormValuesSpy />
       </div>
     </Form>
   </Modal>

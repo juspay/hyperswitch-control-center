@@ -37,7 +37,7 @@ module Insights = {
       setScreenState(_ => PageLoaderWrapper.Loading)
       try {
         let insightsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
-        let insightsRequestBody = NewAnalyticsUtils.requestBody(
+        let insightsRequestBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
           ~groupByNames=Some(["error_message"]),
