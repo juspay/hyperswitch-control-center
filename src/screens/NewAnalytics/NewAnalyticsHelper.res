@@ -300,10 +300,9 @@ module SampleDataBanner = {
     let (isSampleModeEnabled, setIsSampleModeEnabled) = React.useState(_ =>
       filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     )
-    let bannerText = isSampleDataEnabled
-      ? "Currently viewing sample data. Toggle it off to return to your real insights."
-      : "No data yet? View sample data to explore the analytics."
-    let toggleText = isSampleDataEnabled ? "Hide sample data" : "View sample data"
+    let (bannerText,toggleText) = isSampleDataEnabled
+      ? ("Currently viewing sample data. Toggle it off to return to your real insights.","Hide sample data")
+      : ("No data yet? View sample data to explore the analytics.","View sample data")
     let handleToggleChange = _ => {
       let newToggleState = !isSampleModeEnabled
       setIsSampleModeEnabled(_ => newToggleState)
