@@ -68,7 +68,7 @@ let make = (
               initialValues={initialValues->JSON.Encode.object}
               validate={values => values->validateForm(~fieldsToValidate=formFields)}
               onSubmit>
-              <div className="flex flex-col gap-12 h-full w-full">
+              <div className="flex flex-col gap-12 w-full">
                 <FormRenderer.DesktopRow>
                   <div className="flex flex-col gap-5">
                     {formFields

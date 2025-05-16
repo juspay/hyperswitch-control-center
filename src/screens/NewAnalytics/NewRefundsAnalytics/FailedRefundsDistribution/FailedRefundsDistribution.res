@@ -63,11 +63,13 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let (refundsDistribution, setrefundsDistribution) = React.useState(_ => JSON.Encode.array([]))
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -83,37 +85,61 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let body = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~groupByNames=[Connector->getStringFromVariant]->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
-      let response = await updateDetails(url, body, Post)
-
-      let responseTotalNumberData =
-        response->getDictFromJsonObject->getArrayFromDict("queryData", [])
-
-      if responseTotalNumberData->Array.length > 0 {
-        let filters = Dict.make()
-        filters->Dict.set("refund_status", ["failure"->JSON.Encode.string]->JSON.Encode.array)
-
+      let response = if isSampleDataEnabled {
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let res = await fetchApi(
+          refundsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("refundConnectorsSampleData")
+      } else {
         let body = requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
-          ~filter=generateFilterObject(
-            ~globalFilters=filterValueJson,
-            ~localFilters=filters->Some,
-          )->Some,
           ~delta=entity.requestBodyConfig.delta,
           ~metrics=entity.requestBodyConfig.metrics,
           ~groupByNames=[Connector->getStringFromVariant]->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
         )
+        await updateDetails(url, body, Post)
+      }
 
-        let response = await updateDetails(url, body, Post)
+      let responseTotalNumberData =
+        response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      if responseTotalNumberData->Array.length > 0 {
+        let response = if isSampleDataEnabled {
+          let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+          let res = await fetchApi(
+            refundsUrl,
+            ~method_=Get,
+            ~xFeatureRoute=false,
+            ~forceCookies=false,
+          )
+          let refundsResponse = await res->(res => res->Fetch.Response.json)
+          refundsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("refundFailedConnectorsSampleData")
+        } else {
+          let filters = Dict.make()
+          filters->Dict.set("refund_status", ["failure"->JSON.Encode.string]->JSON.Encode.array)
+          let body = requestBody(
+            ~startTime=startTimeVal,
+            ~endTime=endTimeVal,
+            ~filter=generateFilterObject(
+              ~globalFilters=filterValueJson,
+              ~localFilters=filters->Some,
+            )->Some,
+            ~delta=entity.requestBodyConfig.delta,
+            ~metrics=entity.requestBodyConfig.metrics,
+            ~groupByNames=[Connector->getStringFromVariant]->Some,
+          )
+          await updateDetails(url, body, Post)
+        }
 
         let responseFailedNumberData =
           response->getDictFromJsonObject->getArrayFromDict("queryData", [])
@@ -136,7 +162,7 @@ let make = (
       getRefundsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, currency])
+  }, (startTimeVal, endTimeVal, currency, isSampleDataEnabled))
 
   let params = {
     data: refundsDistribution,

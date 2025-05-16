@@ -22,9 +22,30 @@ This document provides a high-level overview of the technical context in which t
 - **ReScript File Conventions:**
   - `.res`: ReScript source files.
   - `.resi`: ReScript interface files (for defining module signatures).
-  - For a comprehensive guide to ReScript syntax and patterns used in this project, see [./rescriptSyntaxGuide.md](./rescriptSyntaxGuide.md).
+  - For a comprehensive guide to ReScript syntax and patterns used in this project, see [./thematic/rescript/index.md](./thematic/rescript/index.md).
+- **Table Display:**
+    - The project uses `LoadedTableWithCustomColumns` component to display data in a table format.
+    - The table columns are defined using ReScript types and data is mapped using `LogicUtils.getArrayDataFromJson` and `NewComponentEntity.itemToObjMapper`.
+- **Recoil Atoms:**
+    - Recoil is used to manage the state of the table columns.
+    - The `newComponentMapDefaultCols` atom is used to store the default columns for the table.
+- **API Integration:**
+    - The project uses `APIUtils` to fetch data from the Hyperswitch backend.
+    - The `useGetMethod` hook is used to make GET requests to the API.
 - **MCP Servers:**
   - MCP (Model Context Protocol) servers can be connected to the Control Center to provide additional tools and resources. These servers can extend the functionality of the Control Center by providing access to external APIs or other data sources.
+  - **Context7 MCP Server (`github.com/upstash/context7-mcp`):**
+    - Purpose: Provides tools to fetch up-to-date documentation and code examples for various libraries (e.g., `resolve-library-id`, `get-library-docs`).
+    - Installation Method: Docker-based. A `Dockerfile` was created in `/Users/jeeva.ramachandran/Documents/Cline/MCP/github.com/upstash/context7-mcp/` and an image named `context7-mcp` was built.
+    - Configuration in `cline_mcp_settings.json` (`/Users/jeeva.ramachandran/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`):
+      ```json
+      "github.com/upstash/context7-mcp": {
+        "command": "docker",
+        "args": ["run", "-i", "--rm", "context7-mcp"],
+        "disabled": false,
+        "autoApprove": []
+      }
+      ```
 
 ## Project Directory Structure (High-Level)
 
@@ -77,12 +98,15 @@ This section outlines the steps to set up and run the Hyperswitch Control Center
 
 2.  **Install Frontend Dependencies**:
     If not already done, install Node.js packages:
+
     ```bash
     npm install
     ```
+
     _(Note: If `npm run start` yields module resolution errors for packages like `react-color`, ensure they are installed and saved, e.g., `npm install react-color --save`)_
 
 3.  **Configure Backend URLs**:
+
     - Open `config/config.toml` in the `hyperswitch-control-center` project.
     - Verify these endpoint configurations for local backend (default Docker ports):
       ```toml
@@ -92,6 +116,7 @@ This section outlines the steps to set up and run the Hyperswitch Control Center
       ```
 
 4.  **Start Hyperswitch Backend Services (Docker)**:
+
     - In a terminal, navigate to the `hyperswitch` backend repository (e.g., `cd ../hyperswitch`).
     - Start services:
       ```bash
@@ -103,6 +128,7 @@ This section outlines the steps to set up and run the Hyperswitch Control Center
     - Monitor logs: `docker compose logs -f hyperswitch-server` (or other services).
 
 5.  **Start ReScript Compiler (Frontend)**:
+
     - In a new terminal (in `hyperswitch-control-center` directory).
     - Run ReScript compiler in watch mode:
       ```bash
@@ -111,6 +137,7 @@ This section outlines the steps to set up and run the Hyperswitch Control Center
     - Keep this running for automatic recompilation of `.res` to `.bs.js` files.
 
 6.  **Start Frontend Development Server**:
+
     - In another new terminal (in `hyperswitch-control-center` directory).
     - Run the development server:
       ```bash

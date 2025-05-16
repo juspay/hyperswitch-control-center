@@ -63,7 +63,7 @@ let make = () => {
     locale: themeConfig->getString("locale", "en-GB"),
   }
 
-  <div className="w-4/5">
+  <div>
     {switch (isScriptLoaded, isHyperReady) {
     | (true, true) =>
       <Elements options=elementOptions stripe={hyperPromise()}>

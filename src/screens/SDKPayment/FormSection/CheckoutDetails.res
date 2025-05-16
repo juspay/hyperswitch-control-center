@@ -68,7 +68,7 @@ let make = (~getClientSecret) => {
       text="Show preview"
       disabledParamter={initialValuesForCheckoutForm.profile_id->LogicUtils.isEmptyString ||
         paymentConnectorList->Array.length == 0}
-      customSumbitButtonStyle="!mt-5"
+      customSumbitButtonStyle="!mt-5 !w-full"
     />
   </Form>
 }

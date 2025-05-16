@@ -4,7 +4,6 @@ open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open FailedPaymentsDistributionUtils
 open NewPaymentAnalyticsUtils
-
 module TableModule = {
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {
@@ -78,6 +77,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -85,6 +85,7 @@ let make = (
   let (failedPaymentsDistribution, setfailedPaymentsDistribution) = React.useState(_ =>
     JSON.Encode.array([])
   )
+  let fetchApi = AuthHooks.useApiFetcher()
   let (viewType, setViewType) = React.useState(_ => Graph)
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -95,26 +96,38 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let getFailedPaymentsDistribution = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS),
-        ~methodType=Post,
-        ~id=Some((entity.domain: domain :> string)),
-      )
-
-      let body = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~groupByNames=[groupBy.value]->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
-      let response = await updateDetails(url, body, Post)
+      let response = if isSampleDataEnabled {
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        paymentsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("paymentsRateDataWithConnectors")
+      } else {
+        let url = getURL(
+          ~entityName=V1(ANALYTICS_PAYMENTS),
+          ~methodType=Post,
+          ~id=Some((entity.domain: domain :> string)),
+        )
+        let body = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~groupByNames=[groupBy.value]->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
+        await updateDetails(url, body, Post)
+      }
       let responseData =
         response
         ->getDictFromJsonObject
@@ -137,7 +150,7 @@ let make = (
       getFailedPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, currency])
+  }, (startTimeVal, endTimeVal, groupBy.value, currency, isSampleDataEnabled))
 
   let params = {
     data: failedPaymentsDistribution,
