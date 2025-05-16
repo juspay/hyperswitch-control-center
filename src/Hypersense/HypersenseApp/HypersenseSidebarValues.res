@@ -6,7 +6,7 @@ let hypersenseConfiguration = {
     link: `/v2/cost-observability/home`,
     icon: "home",
     access: Access,
-    searchOptions: [("Cost observability overview", ""),("Cost observability home", "")],
+    searchOptions: [("Cost observability overview", ""), ("Cost observability home", "")],
     selectedIcon: "home",
   })
 }
