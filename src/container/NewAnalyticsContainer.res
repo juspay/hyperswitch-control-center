@@ -8,7 +8,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let {newAnalyticsSmartRetries, newAnalyticsRefunds} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let {updateExistingKeys, updateFilterAsync} = React.useContext(FilterContext.filterContext)
   let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -113,11 +113,10 @@ let make = () => {
   let applySampleDateFilters = async isSampleDateEnabled => {
     try {
       setScreenState(_ => Loading)
-      await HyperSwitchUtils.delay(2000)
       let values = NewAnalyticsUtils.getSampleDateRange(~useSampleDates=isSampleDateEnabled)
       values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
-      updateExistingKeys(values)
-      setScreenState(_ => Success)->ignore
+      let _ = await updateFilterAsync(~delay=1000, values)
+      setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => Success)
     }
