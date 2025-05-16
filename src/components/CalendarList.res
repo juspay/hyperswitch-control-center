@@ -106,19 +106,19 @@ let make = (
       let monthTextAlignCss = showLeft ? "text-right" : "text-left"
       <div key={Int.toString(i)}>
         <div className="flex flex-row items-center p-3">
-          {showLeft
-            ? <div className="flex items-center gap-8">
-                <Icon
-                  name="angle-double-left"
-                  className=iconClass
-                  size=24
-                  onClick={_ => handleChangeMonthBy(-12)}
-                />
-                <Icon
-                  name="chevron-left" className=iconClass onClick={_ => handleChangeMonthBy(-1)}
-                />
-              </div>
-            : React.null}
+          <RenderIf condition=showLeft>
+            <div className="flex items-center gap-8">
+              <Icon
+                name="angle-double-left"
+                className=iconClass
+                size=24
+                onClick={_ => handleChangeMonthBy(-12)}
+              />
+              <Icon
+                name="chevron-left" className=iconClass onClick={_ => handleChangeMonthBy(-1)}
+              />
+            </div>
+          </RenderIf>
           <div className={`flex-1 ${monthTextAlignCss}`}>
             <AddDataAttributes attributes=[("data-calendar-date", monthAndYear)]>
               <div
@@ -127,19 +127,19 @@ let make = (
               </div>
             </AddDataAttributes>
           </div>
-          {showRight
-            ? <div className="flex items-center gap-8">
-                <Icon
-                  name="chevron-right" className=iconClass onClick={_ => handleChangeMonthBy(1)}
-                />
-                <Icon
-                  name="angle-double-right"
-                  className=iconClass
-                  size=24
-                  onClick={_ => handleChangeMonthBy(12)}
-                />
-              </div>
-            : React.null}
+          <RenderIf condition=showRight>
+            <div className="flex items-center gap-8">
+              <Icon
+                name="chevron-right" className=iconClass onClick={_ => handleChangeMonthBy(1)}
+              />
+              <Icon
+                name="angle-double-right"
+                className=iconClass
+                size=24
+                onClick={_ => handleChangeMonthBy(12)}
+              />
+            </div>
+          </RenderIf>
         </div>
         <Calendar
           key={Int.toString(i)}
