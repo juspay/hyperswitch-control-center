@@ -76,29 +76,6 @@ let make = (~entity: moduleEntity) => {
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS),
-        ~methodType=Post,
-        ~id=Some((entity.domain: domain :> string)),
-      )
-
-      let groupByNames = switch entity.requestBodyConfig.groupBy {
-      | Some(dimentions) =>
-        dimentions
-        ->Array.map(item => (item: dimension :> string))
-        ->Array.concat(groupBy.value->String.split(","))
-        ->Some
-      | _ => None
-      }
-
-      let body = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~groupByNames,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
       let response = if isSampleDataEnabled {
         let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
         let res = await fetchApi(
@@ -112,6 +89,27 @@ let make = (~entity: moduleEntity) => {
         ->getDictFromJsonObject
         ->getJsonObjectFromDict("paymentsRateDataWithConnectors")
       } else {
+        let url = getURL(
+          ~entityName=V1(ANALYTICS_PAYMENTS),
+          ~methodType=Post,
+          ~id=Some((entity.domain: domain :> string)),
+        )
+        let groupByNames = switch entity.requestBodyConfig.groupBy {
+        | Some(dimentions) =>
+          dimentions
+          ->Array.map(item => (item: dimension :> string))
+          ->Array.concat(groupBy.value->String.split(","))
+          ->Some
+        | _ => None
+        }
+        let body = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~groupByNames,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
         await updateDetails(url, body, Post)
       }
       let metaData = response->getDictFromJsonObject->getArrayFromDict("metaData", [])

@@ -198,24 +198,6 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
-      let secondaryBody = requestBody(
-        ~startTime=compareToStartTime,
-        ~endTime=compareToEndTime,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
       let primaryResponse = if isSampleDataEnabled {
         let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
         let res = await fetchApi(
@@ -227,6 +209,14 @@ let make = (
         let refundsResponse = await res->(res => res->Fetch.Response.json)
         refundsResponse->getDictFromJsonObject->getJsonObjectFromDict("refundsSampleData")
       } else {
+        let primaryBody = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~granularity=granularity.value->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
         await updateDetails(url, primaryBody, Post)
       }
       let primaryData =
@@ -253,6 +243,14 @@ let make = (
             ->getDictFromJsonObject
             ->getJsonObjectFromDict("comparisonRefundsSampleData")
           } else {
+            let secondaryBody = requestBody(
+              ~startTime=compareToStartTime,
+              ~endTime=compareToEndTime,
+              ~delta=entity.requestBodyConfig.delta,
+              ~metrics=entity.requestBodyConfig.metrics,
+              ~granularity=granularity.value->Some,
+              ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+            )
             await updateDetails(url, secondaryBody, Post)
           }
           let secondaryData =

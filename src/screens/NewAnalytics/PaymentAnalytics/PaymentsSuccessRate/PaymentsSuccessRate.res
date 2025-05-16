@@ -103,6 +103,11 @@ let make = (
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      let url = getURL(
+        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
+        ~methodType=Post,
+        ~id=Some((entity.domain: domain :> string)),
+      )
       let primaryResponse = if isSampleDataEnabled {
         let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
         let res = await fetchApi(
@@ -114,12 +119,6 @@ let make = (
         let paymentsResponse = await res->(res => res->Fetch.Response.json)
         paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentSampleData")
       } else {
-        let url = getURL(
-          ~entityName=V1(ANALYTICS_PAYMENTS_V2),
-          ~methodType=Post,
-          ~id=Some((entity.domain: domain :> string)),
-        )
-
         let primaryBody = requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
@@ -153,12 +152,6 @@ let make = (
             ->getDictFromJsonObject
             ->getJsonObjectFromDict("secondaryPaymentSampleData")
           } else {
-            let url = getURL(
-              ~entityName=V1(ANALYTICS_PAYMENTS_V2),
-              ~methodType=Post,
-              ~id=Some((entity.domain: domain :> string)),
-            )
-
             let secondaryBody = requestBody(
               ~startTime=compareToStartTime,
               ~endTime=compareToEndTime,

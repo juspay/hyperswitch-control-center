@@ -100,20 +100,6 @@ let make = (
   let getFailedPaymentsDistribution = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS),
-        ~methodType=Post,
-        ~id=Some((entity.domain: domain :> string)),
-      )
-
-      let body = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~groupByNames=[groupBy.value]->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
       let response = if isSampleDataEnabled {
         let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
         let res = await fetchApi(
@@ -127,6 +113,19 @@ let make = (
         ->getDictFromJsonObject
         ->getJsonObjectFromDict("paymentsRateDataWithConnectors")
       } else {
+        let url = getURL(
+          ~entityName=V1(ANALYTICS_PAYMENTS),
+          ~methodType=Post,
+          ~id=Some((entity.domain: domain :> string)),
+        )
+        let body = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~groupByNames=[groupBy.value]->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
         await updateDetails(url, body, Post)
       }
       let responseData =

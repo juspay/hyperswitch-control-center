@@ -4,6 +4,7 @@ open NewRefundsAnalyticsEntity
 open BarGraphTypes
 open FailedRefundsDistributionUtils
 open FailedRefundsDistributionTypes
+
 module TableModule = {
   @react.component
   let make = (~data, ~className="") => {
@@ -84,15 +85,6 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let body = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~groupByNames=[Connector->getStringFromVariant]->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
       let response = if isSampleDataEnabled {
         let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
         let res = await fetchApi(
@@ -106,27 +98,21 @@ let make = (
         ->getDictFromJsonObject
         ->getJsonObjectFromDict("refundConnectorsSampleData")
       } else {
+        let body = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~groupByNames=[Connector->getStringFromVariant]->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
+
         await updateDetails(url, body, Post)
       }
 
       let responseTotalNumberData =
         response->getDictFromJsonObject->getArrayFromDict("queryData", [])
-
       if responseTotalNumberData->Array.length > 0 {
-        let filters = Dict.make()
-        filters->Dict.set("refund_status", ["failure"->JSON.Encode.string]->JSON.Encode.array)
-        let body = requestBody(
-          ~startTime=startTimeVal,
-          ~endTime=endTimeVal,
-          ~filter=generateFilterObject(
-            ~globalFilters=filterValueJson,
-            ~localFilters=filters->Some,
-          )->Some,
-          ~delta=entity.requestBodyConfig.delta,
-          ~metrics=entity.requestBodyConfig.metrics,
-          ~groupByNames=[Connector->getStringFromVariant]->Some,
-        )
-
         let response = if isSampleDataEnabled {
           let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
           let res = await fetchApi(
@@ -140,6 +126,19 @@ let make = (
           ->getDictFromJsonObject
           ->getJsonObjectFromDict("refundFailedConnectorsSampleData")
         } else {
+          let filters = Dict.make()
+          filters->Dict.set("refund_status", ["failure"->JSON.Encode.string]->JSON.Encode.array)
+          let body = requestBody(
+            ~startTime=startTimeVal,
+            ~endTime=endTimeVal,
+            ~filter=generateFilterObject(
+              ~globalFilters=filterValueJson,
+              ~localFilters=filters->Some,
+            )->Some,
+            ~delta=entity.requestBodyConfig.delta,
+            ~metrics=entity.requestBodyConfig.metrics,
+            ~groupByNames=[Connector->getStringFromVariant]->Some,
+          )
           await updateDetails(url, body, Post)
         }
 
