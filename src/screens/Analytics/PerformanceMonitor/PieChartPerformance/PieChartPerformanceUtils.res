@@ -5,6 +5,9 @@ let getPieChartOptions = series => {
   {
     "chart": {
       "type": "pie",
+      "style": {
+        "fontFamily": "InterDisplay",
+      },
     },
     "tooltip": {
       "valueSuffix": ``,

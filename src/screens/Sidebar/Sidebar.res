@@ -16,11 +16,11 @@ let getIconSize = buttonType => {
 module MenuOption = {
   @react.component
   let make = (~text=?, ~children=?, ~onClick=?) => {
-    let {globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {
+      globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
+    } = React.useContext(ThemeProvider.themeContext)
     <button
-      className={`px-4 py-3 flex text-sm w-full ${secondaryTextColor} cursor-pointer ${backgroundColor.sidebarSecondary} hover:bg-black/10`}
+      className={`px-4 py-3 flex text-sm w-full ${secondaryTextColor} cursor-pointer ${backgroundColor.sidebarSecondary} ${hoverColor}`}
       ?onClick>
       {switch text {
       | Some(str) => React.string(str)
@@ -562,7 +562,7 @@ let make = (
   @supports (-webkit-appearance: none){
     .sidebar-scrollbar {
         scrollbar-width: auto;
-        scrollbar-color: #8a8c8f;
+        scrollbar-color: #CACFD8;
       }
       
       .sidebar-scrollbar::-webkit-scrollbar {
@@ -572,8 +572,8 @@ let make = (
         width: 5px;
       }
       
-      .sidebar-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #8a8c8f;
+      .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: #CACFD8;
         border-radius: 3px;
       }
       

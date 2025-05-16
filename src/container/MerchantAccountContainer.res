@@ -10,7 +10,6 @@ let make = (~setAppScreenState) => {
   let {
     userHasAccess,
     hasAnyGroupAccess,
-    hasAllGroupsAccess,
     userHasResourceAccess,
   } = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -64,15 +63,7 @@ let make = (~setAppScreenState) => {
     //     authorization={userHasResourceAccess(~resourceAccess=ReconFiles)}>
     //     <ReconModule urlList={url.path->urlPath} />
     //   </AccessControl>
-    | list{"sdk"} =>
-      <AccessControl
-        isEnabled={!featureFlagDetails.isLiveMode}
-        authorization={hasAllGroupsAccess([
-          userHasAccess(~groupAccess=OperationsManage),
-          userHasAccess(~groupAccess=ConnectorsManage),
-        ])}>
-        <SDKPage />
-      </AccessControl>
+
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

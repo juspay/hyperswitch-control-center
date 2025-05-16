@@ -78,6 +78,5 @@ let make = (
         buttonState={formState.values->validateGooglePay(connector, ~googlePayIntegrationType)}
       />
     </div>
-    <FormValuesSpy />
   </>
 }

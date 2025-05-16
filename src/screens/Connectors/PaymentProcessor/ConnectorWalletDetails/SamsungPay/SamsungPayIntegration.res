@@ -137,6 +137,5 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         />
       </div>
     </div>
-    <FormValuesSpy />
   </PageLoaderWrapper>
 }

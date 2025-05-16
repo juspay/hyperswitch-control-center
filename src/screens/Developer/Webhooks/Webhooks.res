@@ -3,7 +3,7 @@ let make = () => {
   open APIUtils
   open WebhooksUtils
   let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (webhooksData, setWebhooksData) = React.useState(_ => [])
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
@@ -14,19 +14,17 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateExistingKeys, filterValueJson, reset, filterValue} =
     FilterContext.filterContext->React.useContext
-  let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
 
-  let webhookURL = switch businessProfileValues->Array.get(0) {
-  | Some(val) => val.webhook_details.webhook_url->Option.getOr("")
-  | None => ""
-  }
+  let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
 
   let isWebhookUrlConfigured = webhookURL->LogicUtils.isNonEmptyString
 
   let message = isWebhookUrlConfigured
     ? "No data found, try searching with different filters or try refreshing using the button below"
-    : "Webhook UI is not configured please do it from payment settings"
+    : "Webhook URL is not configured. Please set it up in the Payment Settings"
 
   let refreshPage = () => {
     reset()
@@ -93,16 +91,18 @@ let make = () => {
       let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
       let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
 
-      let queryParamerters = `limit=50&offset=${offset->Int.toString}&created_after=${start_time}&created_before=${end_time}`
+      let payload = Dict.make()
+      if searchText->isNonEmptyString {
+        payload->Dict.set("object_id", searchText->JSON.Encode.string)
+      } else {
+        payload->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
+        payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
+        payload->Dict.set("created_after", start_time->JSON.Encode.string)
+        payload->Dict.set("created_before", end_time->JSON.Encode.string)
+      }
 
-      let queryParam = searchText->isEmptyString ? queryParamerters : `&object_id=${searchText}`
-
-      let url = getURL(
-        ~entityName=V1(WEBHOOK_EVENTS),
-        ~methodType=Get,
-        ~queryParamerters=Some(queryParam),
-      )
-      let response = await fetchDetails(url)
+      let url = getURL(~entityName=V1(WEBHOOK_EVENTS), ~methodType=Post)
+      let response = await updateDetails(url, payload->JSON.Encode.object, Post)
 
       let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
       let events = response->getDictFromJsonObject->getArrayFromDict("events", [])

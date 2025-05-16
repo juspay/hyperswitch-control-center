@@ -34,6 +34,7 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(NETCETERA),
   ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD),
   ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
+  ThreeDsAuthenticator(CLICK_TO_PAY_VISA),
 ]
 
 let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
@@ -114,6 +115,7 @@ let connectorList: array<connectorTypes> = [
   Processors(REDSYS),
   Processors(HIPAY),
   Processors(PAYSTACK),
+  Processors(FACILITAPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -141,6 +143,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
+  Processors(WORLDPAY),
   Processors(ZSL),
   Processors(ZEN),
 ]
@@ -433,6 +436,10 @@ let paystackInfo = {
   description: "Paystack is a technology company solving payments problems for ambitious businesses. Paystack builds technology to help Africa's best businesses grow - from new startups, to market leaders launching new business models.",
 }
 
+let facilitapayInfo = {
+  description: "Facilitapay is a payment provider for international businesses.Their all-in-one payment hub encompasses all payment methods,pay-ins and pay-outs.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -481,6 +488,9 @@ let netceteraInfo = {
 }
 
 let clickToPayInfo = {
+  description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
+}
+let clickToPayVisaInfo = {
   description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
 }
 
@@ -680,6 +690,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | REDSYS => "redsys"
   | HIPAY => "hipay"
   | PAYSTACK => "paystack"
+  | FACILITAPAY => "facilitapay"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -700,6 +711,7 @@ let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthentica
   | NETCETERA => "netcetera"
   | CLICK_TO_PAY_MASTERCARD => "ctp_mastercard"
   | JUSPAYTHREEDSSERVER => "juspaythreedsserver"
+  | CLICK_TO_PAY_VISA => "ctp_visa"
   }
 
 let getFRMNameString = (frm: frmTypes) => {
@@ -824,6 +836,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "redsys" => Processors(REDSYS)
     | "hipay" => Processors(HIPAY)
     | "paystack" => Processors(PAYSTACK)
+    | "facilitapay" => Processors(FACILITAPAY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -844,6 +857,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "netcetera" => ThreeDsAuthenticator(NETCETERA)
     | "ctp_mastercard" => ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD)
     | "juspaythreedsserver" => ThreeDsAuthenticator(JUSPAYTHREEDSSERVER)
+    | "ctp_visa" => ThreeDsAuthenticator(CLICK_TO_PAY_VISA)
     | _ => UnknownConnector("Not known")
     }
   | FRMPlayer =>
@@ -948,6 +962,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | REDSYS => redsysInfo
   | HIPAY => hipayInfo
   | PAYSTACK => paystackInfo
+  | FACILITAPAY => facilitapayInfo
   }
 }
 
@@ -970,6 +985,7 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   | NETCETERA => netceteraInfo
   | CLICK_TO_PAY_MASTERCARD => clickToPayInfo
   | JUSPAYTHREEDSSERVER => juspayThreeDsServerInfo
+  | CLICK_TO_PAY_VISA => clickToPayVisaInfo
   }
 let getFrmInfo = frm =>
   switch frm {
@@ -1429,9 +1445,16 @@ let connectorLabelDetailField = Dict.fromArray([
 let getConnectorFields = connectorDetails => {
   open LogicUtils
   let connectorAccountDict =
-    connectorDetails->getDictFromJsonObject->getDictfromDict("connector_auth")
-  let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
-  let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
+    connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
+  let bodyType = switch connectorAccountDict->JSON.Classify.classify {
+  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "")
+  | String(_) => "NoKey"
+  | _ => ""
+  }
+  let connectorAccountFields = switch bodyType {
+  | "NoKey" => Dict.make()
+  | _ => connectorAccountDict->getDictFromJsonObject->getDictfromDict(bodyType)
+  }
   let connectorMetaDataFields = connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
@@ -1440,7 +1463,8 @@ let getConnectorFields = connectorDetails => {
     connectorDetails
     ->getDictFromJsonObject
     ->getDictfromDict("additional_merchant_data")
-  (
+
+  {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
@@ -1448,7 +1472,7 @@ let getConnectorFields = connectorDetails => {
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  )
+  }
 }
 
 let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
@@ -1613,7 +1637,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
     (
       "metadata",
       dict->getDictfromDict("metadata")->isEmptyDict
-        ? JSON.Encode.null
+        ? Dict.make()->JSON.Encode.object
         : dict->getDictfromDict("metadata")->JSON.Encode.object,
     ),
   ])
@@ -1675,6 +1699,17 @@ let defaultSelectAllCards = (
       }
     })
     updateDetails(pmts)
+  }
+}
+
+let connectorTypeToListMapper = connector => {
+  switch connector {
+  | Processor => connectorList
+  | ThreeDsAuthenticator => threedsAuthenticatorList
+  | PayoutProcessor => payoutConnectorList
+  | TaxProcessor => taxProcessorList
+  | PMAuthenticationProcessor => pmAuthenticationConnectorList
+  | _ => []
   }
 }
 
@@ -1791,6 +1826,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | REDSYS => "Redsys"
   | HIPAY => "HiPay"
   | PAYSTACK => "Paystack"
+  | FACILITAPAY => "Facilitapay"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -1809,8 +1845,9 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
   | NETCETERA => "Netcetera"
-  | CLICK_TO_PAY_MASTERCARD => "Unified Click to Pay"
+  | CLICK_TO_PAY_MASTERCARD => "Mastercard Unified Click to Pay"
   | JUSPAYTHREEDSSERVER => "Juspay 3DS Server"
+  | CLICK_TO_PAY_VISA => "Visa Unified Click to Pay"
   }
 
 let getDisplayNameForFRMConnector = frmConnector =>

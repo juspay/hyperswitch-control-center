@@ -10,6 +10,31 @@ module LogDetailsSection = {
       }
     }
 
+    let auditLogScrollbar = `
+  @supports (-webkit-appearance: none){
+    pre {
+        scrollbar-width: auto;
+        scrollbar-color: #CACFD8;
+      }
+      
+      pre::-webkit-scrollbar {
+        display: block;
+        overflow: scroll;
+        height: 4px;
+        width: 5px;
+      }
+      
+      pre::-webkit-scrollbar-thumb {
+        background-color: #CACFD8;
+        border-radius: 3px;
+      }
+      
+      pre::-webkit-scrollbar-track {
+        display: none;
+      }
+}
+  `
+
     <div className="pb-3 px-5 py-3">
       {logDetails.data
       ->Dict.toArray
@@ -23,6 +48,7 @@ module LogDetailsSection = {
           <span className="w-2/5"> {key->snakeToTitle->React.string} </span>
           <span
             className="w-3/5 overflow-scroll cursor-pointer relative hover:bg-gray-50 p-1 rounded">
+            <style> {React.string(auditLogScrollbar)} </style>
             <ReactSyntaxHighlighter.SyntaxHighlighter
               wrapLines={true}
               wrapLongLines=true
@@ -37,7 +63,7 @@ module LogDetailsSection = {
               customStyle={{
                 backgroundColor: "transparent",
                 fontSize: "0.875rem",
-                padding: "0px",
+                padding: "0px 0px 6px 0px",
               }}>
               {value->JSON.stringify}
             </ReactSyntaxHighlighter.SyntaxHighlighter>
@@ -68,9 +94,7 @@ module TabDetails = {
         | Event
         | Request =>
           <div className="px-5 py-3">
-            <RenderIf
-              condition={logDetails.request->isNonEmptyString &&
-                selectedOption.optionType !== WEBHOOKS}>
+            <RenderIf condition={logDetails.request->isNonEmptyString}>
               <div className="flex justify-end">
                 <HelperComponents.CopyTextCustomComp
                   displayValue=Some("")
@@ -80,9 +104,7 @@ module TabDetails = {
               </div>
               <PrettyPrintJson jsonToDisplay=logDetails.request />
             </RenderIf>
-            <RenderIf
-              condition={logDetails.request->isEmptyString &&
-                selectedOption.optionType !== WEBHOOKS}>
+            <RenderIf condition={logDetails.request->isEmptyString}>
               <NoDataFound
                 customCssClass={"my-6"} message="No Data Available" renderType=Painting
               />
@@ -91,7 +113,9 @@ module TabDetails = {
         | Metadata
         | Response =>
           <div className="px-5 py-3">
-            <RenderIf condition={logDetails.response->isNonEmptyString}>
+            <RenderIf
+              condition={logDetails.response->isNonEmptyString &&
+                selectedOption.optionType !== WEBHOOKS}>
               <div className="flex justify-end">
                 <HelperComponents.CopyTextCustomComp
                   displayValue=Some("")
@@ -101,7 +125,9 @@ module TabDetails = {
               </div>
               <PrettyPrintJson jsonToDisplay={logDetails.response} />
             </RenderIf>
-            <RenderIf condition={logDetails.response->isEmptyString}>
+            <RenderIf
+              condition={logDetails.response->isEmptyString ||
+                selectedOption.optionType === WEBHOOKS}>
               <NoDataFound
                 customCssClass={"my-6"} message="No Data Available" renderType=Painting
               />
@@ -154,6 +180,12 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     a
   })
 
+  React.useEffect(_ => {
+    setActiveTab(_ => ["Log Details"])
+    setCollapseTab(prev => !prev)
+    None
+  }, [logDetails])
+
   let activeTab = React.useMemo(() => {
     Some(activeTab)
   }, [activeTab])
@@ -163,11 +195,6 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       setActiveTab(_ => str->String.split(","))
     }
   }, [setActiveTab])
-
-  React.useEffect(_ => {
-    setCollapseTab(prev => !prev)
-    None
-  }, [logDetails])
 
   let getDetails = async () => {
     let logs = []

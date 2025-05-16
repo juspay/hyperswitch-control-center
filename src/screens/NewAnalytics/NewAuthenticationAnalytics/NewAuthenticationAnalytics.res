@@ -32,6 +32,7 @@ let make = () => {
 
   let loadInfo = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let infoUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Get)
       let infoDetails = await fetchDetails(infoUrl)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -46,6 +47,7 @@ let make = () => {
   let tabNames = HSAnalyticsUtils.getStringListFromArrayDict(dimensions)
 
   let getFilters = async () => {
+    setFilterDataJson(_ => None)
     try {
       let analyticsfilterUrl = getURL(
         ~entityName=V1(ANALYTICS_AUTHENTICATION_V2_FILTERS),
@@ -176,7 +178,9 @@ let make = () => {
   }, [])
 
   React.useEffect(() => {
-    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+    if (
+      startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString && dimensions->Array.length > 0
+    ) {
       getFilters()->ignore
     }
     None
@@ -217,7 +221,7 @@ let make = () => {
         initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
-        key="0"
+        key="1"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false

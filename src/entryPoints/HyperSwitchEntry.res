@@ -2,14 +2,13 @@ module HyperSwitchEntryComponent = {
   open HyperswitchAtom
   @react.component
   let make = () => {
+    open HyperSwitchEntryUtils
     let fetchDetails = APIUtils.useGetMethod()
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
-    let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
-    let pageViewEvent = MixpanelHook.usePageView()
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
@@ -22,9 +21,6 @@ module HyperSwitchEntryComponent = {
       | _ => Exn.raiseError("Error on configuring favicon")
       }
     }
-
-    let themesID =
-      url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("theme_id")->Option.getOr("")
 
     let configEnv = (urlConfig: JSON.t) => {
       open LogicUtils
@@ -47,26 +43,69 @@ module HyperSwitchEntryComponent = {
             logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           },
           hypersenseUrl: dict->getString("hypersense_url", ""),
+          clarityBaseUrl: dict->getString("clarity_base_url", "")->getNonEmptyString,
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
+        value
       } catch {
       | _ => Exn.raiseError("Error on configuring endpoint")
       }
     }
 
+    let fetchThemeAndDomainFromUrl = () => {
+      let params = url.search->LogicUtils.getDictFromUrlSearchParams
+      let themeID = params->Dict.get("theme_id")
+      let domainUrl = params->Dict.get("domain")
+
+      if themeID->Option.isSome {
+        setThemeIdtoStore(themeID->Option.getOr(""))
+      }
+
+      if domainUrl->Option.isSome {
+        setDomaintoStore(domainUrl->Option.getOr(""))
+      }
+      let themeId = getThemeIdfromStore()
+      (themeId, domainUrl)
+    }
+
+    let appendScript = clarityBaseUrl => {
+      try {
+        open DOMUtils
+        let script = createElement(DOMUtils.document, "script")
+        let _ = setAttribute(script, "type", "text/javascript")
+        let clarityScript = `
+        (function(c,l,a,r,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="${clarityBaseUrl}";
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script");`
+        let textNode = DOMUtils.document->DOMUtils.createTextNode(clarityScript)
+        script->Webapi.Dom.Element.appendChild(~child=textNode)
+        appendHead(script)->ignore
+      } catch {
+      | _ => Js.log("Error on appending clarity script")
+      }
+    }
+
     let fetchConfig = async () => {
       try {
-        let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="")
-        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}` // todo: domain shall be removed from query params later
+        let (themeId, domain) = fetchThemeAndDomainFromUrl()
+        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain->Option.getOr(
+            "",
+          )}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
-        let devThemeFeature = featureFlags.devThemeFeature
-        let _ = configEnv(res) // to set initial env
-        let _ = await getThemesJson(themesID, res, devThemeFeature)
+        let configValues = configEnv(res) // to set initial env
+        let _ = await getThemesJson(~themesID=themeId, ~domain)
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
+
+        if configValues.clarityBaseUrl->Option.isSome {
+          appendScript(configValues.clarityBaseUrl->Option.getOr(""))->ignore
+        }
+
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => Custom)
@@ -74,24 +113,15 @@ module HyperSwitchEntryComponent = {
     }
 
     React.useEffect(() => {
-      let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
-      let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search) // todo: setting domain in session storage shall be removed later
-
+      let _ = setSessionData(~key="auth_id", ~searchParams=url.search)
       let _ = fetchConfig()->ignore
       None
     }, [])
+
     React.useEffect(() => {
       TimeZoneUtils.getUserTimeZone()->setZone
       None
     }, [])
-
-    React.useEffect(() => {
-      let path = url.path->List.toArray->Array.joinWith("/")
-      if featureFlagDetails.mixpanel {
-        pageViewEvent(~path)->ignore
-      }
-      None
-    }, (featureFlagDetails.mixpanel, url.path))
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle

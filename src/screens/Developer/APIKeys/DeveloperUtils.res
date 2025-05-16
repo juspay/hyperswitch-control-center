@@ -29,6 +29,14 @@ let validateAPIKeyForm = (
       }
     } else if key == "expiration" && value->String.toLowerCase == "never" {
       setShowCustomDate(false)
+    } else if key == "name" && value->String.length > 64 {
+      Dict.set(errors, "name", "Name can't be more than 64 characters"->JSON.Encode.string)
+    } else if key == "description" && value->String.length > 256 {
+      Dict.set(
+        errors,
+        "description",
+        "Description can't be more than 256 characters"->JSON.Encode.string,
+      )
     } else if (
       value->LogicUtils.isNonEmptyString &&
       (key === "webhook_url" || key === "return_url") &&

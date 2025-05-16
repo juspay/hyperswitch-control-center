@@ -1,12 +1,3 @@
-[default.theme]
-primary_color="#006DF9"
-primary_hover_color="#005ED6"
-sidebar_primary="#FCFCFD"               # To support current dashboard theme and to be removed later
-sidebar_secondary="#FFFFFF"             # To support current dashboard theme and to be removed later
-sidebar_hover_color="#D9DDE5"           # To support current dashboard theme and to be removed later
-sidebar_primary_text_color="#1C6DEA"    # To support current dashboard theme and to be removed later
-sidebar_secondary_text_color="#525866"  # To support current dashboard theme and to be removed later
-sidebar_border_color="#ECEFF3"          # To support current dashboard theme and to be removed later
 [default.endpoints]
 api_url="http://localhost:9000/api"
 sdk_url="http://localhost:9050/HyperLoader.js"
@@ -19,6 +10,7 @@ hypersense_url=""
 mixpanel_token=""
 agreement_url=""
 agreement_version=""
+clarity_base_url=""
 [default.features]
 branding=false
 mixpanel=false

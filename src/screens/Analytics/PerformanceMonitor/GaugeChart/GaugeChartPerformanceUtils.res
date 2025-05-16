@@ -36,6 +36,9 @@ let gaugeOption = (data: gaugeData) =>
       "plotBorderWidth": 0,
       "plotShadow": false,
       "height": "75%",
+      "style": {
+        "fontFamily": "InterDisplay",
+      },
     },
     "pane": {
       "startAngle": -90,
