@@ -64,7 +64,6 @@ let make = (~entity: moduleEntity) => {
           ~id=Some((#disputes: domain :> string)),
         )
 
-        // primary date range
         let primaryBodyPayments = getPayload(
           ~entity,
           ~metrics=[

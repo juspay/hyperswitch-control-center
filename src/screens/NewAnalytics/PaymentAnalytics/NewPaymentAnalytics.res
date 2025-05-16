@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
   open NewPaymentAnalyticsEntity
-
   let {newAnalyticsFilters} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <div className="flex flex-col gap-14 mt-5 pt-7">

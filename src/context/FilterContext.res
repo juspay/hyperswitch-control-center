@@ -66,6 +66,7 @@ let make = (~index: string, ~children) => {
               !(value->isEmptyString)
             },
           )
+
         let updatedDict = Array.concat(prevDictArr, currentDictArr)->Dict.fromArray
         let dict = if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev

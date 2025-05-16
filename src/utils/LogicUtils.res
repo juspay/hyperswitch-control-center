@@ -225,11 +225,7 @@ let getStringFromDictAsBool = (dict, key, default: bool) => {
   dict
   ->getOptionString(key)
   ->Option.mapOr(default, boolString => {
-    switch boolString->String.toLowerCase {
-    | "true" => true
-    | "false" => false
-    | _ => default
-    }
+    getBoolFromString(boolString, default)
   })
 }
 let getStringFromBool = boolValue => {
