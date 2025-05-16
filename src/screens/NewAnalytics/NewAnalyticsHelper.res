@@ -292,6 +292,7 @@ module SampleDataBanner = {
   @react.component
   let make = (~applySampleDateFilters) => {
     open LogicUtils
+    open Typography
     open NewAnalyticsContainerUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
@@ -299,19 +300,23 @@ module SampleDataBanner = {
     let (isSampleModeEnabled, setIsSampleModeEnabled) = React.useState(_ =>
       filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     )
+    let bannerText = isSampleDataEnabled
+      ? "Currently viewing sample data. Toggle it off to return to your real insights."
+      : "No data yet? View sample data to explore the analytics."
+    let toggleText = isSampleModeEnabled ? "Hide sample data" : "View sample data"
     let handleToggleChange = _ => {
       let newToggleState = !isSampleModeEnabled
       setIsSampleModeEnabled(_ => newToggleState)
       applySampleDateFilters(newToggleState)->ignore
     }
     <div
-      className={`${stickyToggleClass} py-2 px-10 bg-orange-50 flex justify-between items-center`}>
-      <div className="flex gap-4 items-center">
-        <p className="text-nd_gray-600 text-base leading-6 font-medium">
-          {"Currently viewing sample data. Toggle it off to return to your real insights."->React.string}
-        </p>
+      className={`${stickyToggleClass} text-nd_gray-600 py-3 px-4 bg-orange-50 flex justify-between items-center`}>
+      <div className="flex gap-2 items-center">
+        <Icon name="info-vacent" size=13 />
+        <p className={` ${body.md.medium}`}> {bannerText->React.string} </p>
       </div>
-      <div>
+      <div className="flex flex-row gap-4 items-center">
+        <p className={`${body.md.semibold}`}> {toggleText->React.string} </p>
         <BoolInput.BaseComponent
           isSelected={isSampleModeEnabled}
           setIsSelected=handleToggleChange
