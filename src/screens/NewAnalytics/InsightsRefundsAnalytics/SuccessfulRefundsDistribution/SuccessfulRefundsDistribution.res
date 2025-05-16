@@ -64,7 +64,9 @@ let make = (
   open LogicUtils
   open APIUtils
   open InsightsUtils
+  open InsightsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -73,7 +75,7 @@ let make = (
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let getRefundsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -92,8 +94,21 @@ let make = (
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let response = await updateDetails(url, body, Post)
-
+      let response = if isSampleDataEnabled {
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let res = await fetchApi(
+          refundsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("refundConnectorsSampleData")
+      } else {
+        await updateDetails(url, body, Post)
+      }
       let responseData =
         response->getDictFromJsonObject->getArrayFromDict("queryData", [])->modifyQuery
 
@@ -113,7 +128,7 @@ let make = (
       getRefundsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, currency])
+  }, (startTimeVal, endTimeVal, currency, isSampleDataEnabled))
 
   let params = {
     data: refundsDistribution,

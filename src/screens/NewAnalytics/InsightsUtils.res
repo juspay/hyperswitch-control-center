@@ -9,6 +9,9 @@ let sankyLightBlue = "#91B7EE"
 let sankyLightRed = "#EC6262"
 
 open InsightsTypes
+open HSwitchRemoteFilter
+open DateRangeUtils
+open InsightsContainerUtils
 let globalFilter: array<filters> = [#currency]
 let globalExcludeValue = [(#all_currencies: defaultFilters :> string)]
 
@@ -619,4 +622,27 @@ let fillMissingDataPoints = (
   }
 
   dataPoints->Dict.valuesToArray
+}
+
+let getSampleDateRange = (~useSampleDates) => {
+  let defaultDateRange: filterBody = getDateFilteredObject(~range=7)
+  let sampleDateRange: filterBody = {
+    start_time: "2024-09-05T00:00:00.000Z",
+    end_time: "2024-10-03T00:00:00.000Z",
+  }
+  let dates = useSampleDates ? sampleDateRange : defaultDateRange
+  let comparison = useSampleDates ? (EnableComparison :> string) : (DisableComparison :> string)
+  let (compareStart, compareEnd) = getComparisionTimePeriod(
+    ~startDate=dates.start_time,
+    ~endDate=dates.end_time,
+  )
+  let values =
+    [
+      (startTimeFilterKey, dates.start_time),
+      (endTimeFilterKey, dates.end_time),
+      (compareToStartTimeKey, compareStart),
+      (compareToEndTimeKey, compareEnd),
+      (comparisonKey, comparison),
+    ]->Dict.fromArray
+  values
 }

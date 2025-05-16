@@ -53,9 +53,10 @@ let make = (~setScreenState) => {
     | list{"analytics-disputes"}
     | list{"analytics-authentication"} =>
       <AnalyticsContainer />
-    | list{"new-analytics-payment"}
-    | list{"new-analytics-refund"}
-    | list{"new-analytics-smart-retry"} =>
+    | list{"new-analytics"}
+    | list{"new-analytics", "payment"}
+    | list{"new-analytics", "refund"}
+    | list{"new-analytics", "smart-retry"} =>
       <AccessControl
         isEnabled={featureFlagDetails.newAnalytics &&
         useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}

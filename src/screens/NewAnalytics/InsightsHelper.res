@@ -118,27 +118,36 @@ module CustomDropDown = {
     ~options: array<optionType>,
     ~setOption: optionType => unit,
     ~positionClass="right-0",
+    ~disabled=false,
   ) => {
     open HeadlessUI
     let (arrow, setArrow) = React.useState(_ => false)
     <Menu \"as"="div" className="relative inline-block text-left">
       {_ =>
         <div>
-          <Menu.Button
-            className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border">
-            {_ => {
-              <>
-                {buttonText.label->React.string}
-                <Icon
-                  className={arrow
-                    ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
-                    : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
-                  name="arrow-without-tail"
-                  size=15
-                />
-              </>
-            }}
-          </Menu.Button>
+          {if disabled {
+            <div
+              className="inline-flex whitespace-pre leading-5 justify-center text-sm px-4 py-2 font-medium rounded-lg bg-gray-50 border text-gray-500 cursor-not-allowed">
+              {buttonText.label->React.string}
+              <Icon className="ml-1 mt-1 opacity-40" name="arrow-without-tail" size=15 />
+            </div>
+          } else {
+            <Menu.Button
+              className="inline-flex whitespace-pre leading-5 justify-center text-sm px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border">
+              {_ => {
+                <>
+                  {buttonText.label->React.string}
+                  <Icon
+                    className={arrow
+                      ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
+                      : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
+                    name="arrow-without-tail"
+                    size=15
+                  />
+                </>
+              }}
+            </Menu.Button>
+          }}
           <Transition
             \"as"="span"
             enter="transition ease-out duration-100"
@@ -238,7 +247,7 @@ module SmartRetryToggle = {
       FilterContext.filterContext,
     )
     let (isEnabled, setIsEnabled) = React.useState(_ => false)
-
+    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     React.useEffect(() => {
       let value = filterValueJson->getString(smartRetryKey, "true")->getBoolFromString(true)
       setIsEnabled(_ => value)
@@ -257,7 +266,7 @@ module SmartRetryToggle = {
       <BoolInput.BaseComponent
         isSelected={isEnabled}
         setIsSelected={onClick}
-        isDisabled=false
+        isDisabled=isSampleDataEnabled
         boolCustomClass="rounded-lg !bg-primary"
         toggleBorder="border-primary"
       />
@@ -275,6 +284,49 @@ module SmartRetryToggle = {
           newDesign=true
         />
       </p>
+    </div>
+  }
+}
+
+module SampleDataBanner = {
+  @react.component
+  let make = (~applySampleDateFilters) => {
+    open LogicUtils
+    open Typography
+    open InsightsContainerUtils
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+    let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
+    let (isSampleModeEnabled, setIsSampleModeEnabled) = React.useState(_ =>
+      filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+    )
+    let (bannerText, toggleText) = isSampleDataEnabled
+      ? (
+          "Currently viewing sample data. Toggle it off to return to your real insights.",
+          "Hide sample data",
+        )
+      : ("No data yet? View sample data to explore the analytics.", "View sample data")
+    let handleToggleChange = _ => {
+      let newToggleState = !isSampleModeEnabled
+      setIsSampleModeEnabled(_ => newToggleState)
+      applySampleDateFilters(newToggleState)->ignore
+    }
+    <div
+      className={`${stickyToggleClass} text-nd_gray-600 py-3 px-4 bg-orange-50 flex justify-between items-center`}>
+      <div className="flex gap-2 items-center">
+        <Icon name="info-vacent" size=13 />
+        <p className={` ${body.md.medium}`}> {bannerText->React.string} </p>
+      </div>
+      <div className="flex flex-row gap-4 items-center">
+        <p className={`${body.md.semibold}`}> {toggleText->React.string} </p>
+        <BoolInput.BaseComponent
+          isSelected={isSampleModeEnabled}
+          setIsSelected=handleToggleChange
+          isDisabled=false
+          boolCustomClass="rounded-lg !bg-primary"
+          toggleBorder="border-primary"
+        />
+      </div>
     </div>
   }
 }
