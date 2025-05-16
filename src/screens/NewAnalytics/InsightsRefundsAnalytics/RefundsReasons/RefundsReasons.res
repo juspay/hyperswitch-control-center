@@ -1,12 +1,12 @@
 open InsightsTypes
-open FailureReasonsPaymentsTypes
-open InsightsPaymentAnalyticsEntity
-open FailureReasonsPaymentsUtils
+open RefundsReasonsTypes
+open InsightsRefundsAnalyticsEntity
+open RefundsReasonsUtils
 open InsightsHelper
 
 module TableModule = {
   @react.component
-  let make = (~data, ~className="", ~selectedTab: string) => {
+  let make = (~data, ~className="") => {
     let (offset, setOffset) = React.useState(_ => 0)
 
     let defaultSort: Table.sortedObject = {
@@ -14,18 +14,17 @@ module TableModule = {
       order: Table.INC,
     }
 
-    let defaultCols = [Error_Reason, Failure_Reason_Count, Reasons_Count_Ratio]
-    let extraTabs = selectedTab->String.split(",")->Array.map(getColumn)
-    let visibleColumns = defaultCols->Array.concat(extraTabs)
+    let visibleColumns = [Refund_Reason, Refund_Reason_Count, Refund_Reason_Count_Ratio, Connector]
+
     let tableData = getTableData(data)
 
     <div className>
       <LoadedTable
         visibleColumns
-        title="Failure Reasons Payments"
+        title="Refunds Reasons"
         hideTitle=true
         actualData={tableData}
-        entity=failureReasonsTableEntity
+        entity=refundsReasonsTableEntity
         resultsPerPage=10
         totalResults={tableData->Array.length}
         offset
@@ -43,19 +42,6 @@ module TableModule = {
   }
 }
 
-module FailureReasonsPaymentsHeader = {
-  @react.component
-  let make = (~groupBy, ~setGroupBy) => {
-    let setGroupBy = value => {
-      setGroupBy(_ => value)
-    }
-
-    <div className="w-full px-7 py-8 flex justify-between">
-      <Tabs option={groupBy} setOption={setGroupBy} options={tabs} />
-    </div>
-  }
-}
-
 @react.component
 let make = (~entity: moduleEntity) => {
   open LogicUtils
@@ -63,34 +49,27 @@ let make = (~entity: moduleEntity) => {
   open InsightsUtils
   open InsightsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = useGetMethod()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
-  let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
-  let fetchApi = AuthHooks.useApiFetcher()
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let getPaymentsProcessed = async () => {
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+  let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let response = if isSampleDataEnabled {
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
-        let res = await fetchApi(
-          paymentsUrl,
-          ~method_=Get,
-          ~xFeatureRoute=false,
-          ~forceCookies=false,
-        )
-        let paymentsResponse = await res->(res => res->Fetch.Response.json)
-        paymentsResponse
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let refundsResponse = await fetchApi(refundsUrl)
+        refundsResponse
         ->getDictFromJsonObject
-        ->getJsonObjectFromDict("paymentsRateDataWithConnectors")
+        ->getJsonObjectFromDict("refundConnectorsSampleData")
       } else {
         let url = getURL(
-          ~entityName=V1(ANALYTICS_PAYMENTS),
+          ~entityName=V1(ANALYTICS_REFUNDS),
           ~methodType=Post,
           ~id=Some((entity.domain: domain :> string)),
         )
@@ -98,7 +77,6 @@ let make = (~entity: moduleEntity) => {
         | Some(dimentions) =>
           dimentions
           ->Array.map(item => (item: dimension :> string))
-          ->Array.concat(groupBy.value->String.split(","))
           ->Some
         | _ => None
         }
@@ -112,6 +90,7 @@ let make = (~entity: moduleEntity) => {
         )
         await updateDetails(url, body, Post)
       }
+
       let metaData = response->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let data =
@@ -130,22 +109,20 @@ let make = (~entity: moduleEntity) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
+
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getPaymentsProcessed()->ignore
+      getRefundsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, groupBy.value, currency, isSampleDataEnabled))
+  }, (startTimeVal, endTimeVal, currency, isSampleDataEnabled))
 
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <FailureReasonsPaymentsHeader groupBy setGroupBy />
-        <div className="mb-5">
-          <TableModule data={tableData} className="mx-7" selectedTab={groupBy.value} />
-        </div>
+        <TableModule data={tableData} className="ml-6 mr-5 mt-6 mb-5" />
       </PageLoaderWrapper>
     </Card>
   </div>

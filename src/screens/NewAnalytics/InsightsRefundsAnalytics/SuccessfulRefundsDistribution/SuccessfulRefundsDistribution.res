@@ -1,30 +1,29 @@
 open InsightsTypes
 open InsightsHelper
+open InsightsRefundsAnalyticsEntity
 open BarGraphTypes
-open InsightsSmartRetryAnalyticsEntity
-open FailureSmartRetryDistributionUtils
-open FailureSmartRetryDistributionTypes
+open SuccessfulRefundsDistributionUtils
+open SuccessfulRefundsDistributionTypes
 
 module TableModule = {
   @react.component
-  let make = (~data, ~className="", ~selectedTab: string) => {
+  let make = (~data, ~className="") => {
     let (offset, setOffset) = React.useState(_ => 0)
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
     }
 
-    let visibleColumns =
-      [selectedTab->getColumn]->Array.concat([Payments_Failure_Rate_Distribution_With_Only_Retries])
+    let visibleColumns = [Connector, Refunds_Success_Rate]
     let tableData = getTableData(data)
 
     <div className>
       <LoadedTable
         visibleColumns
-        title="Failed Payments Distribution"
+        title="Successful Refunds Distribution"
         hideTitle=true
         actualData={tableData}
-        entity=failedSmartRetryDistributionTableEntity
+        entity=successfulRefundsDistributionTableEntity
         resultsPerPage=10
         totalResults={tableData->Array.length}
         offset
@@ -42,19 +41,14 @@ module TableModule = {
   }
 }
 
-module FailureSmartRetryDistributionHeader = {
+module SuccessfulRefundsDistributionHeader = {
   @react.component
-  let make = (~viewType, ~setViewType, ~groupBy, ~setGroupBy) => {
+  let make = (~viewType, ~setViewType) => {
     let setViewType = value => {
       setViewType(_ => value)
     }
 
-    let setGroupBy = value => {
-      setGroupBy(_ => value)
-    }
-
-    <div className="w-full px-7 py-8 flex justify-between">
-      <Tabs option={groupBy} setOption={setGroupBy} options={tabs} />
+    <div className="w-full px-8 pt-3 pb-3  flex justify-end">
       <div className="flex gap-2">
         <TabSwitch viewType setViewType />
       </div>
@@ -76,54 +70,50 @@ let make = (
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (paymentsDistribution, setpaymentsDistribution) = React.useState(_ => JSON.Encode.array([]))
-
+  let (refundsDistribution, setrefundsDistribution) = React.useState(_ => JSON.Encode.array([]))
   let (viewType, setViewType) = React.useState(_ => Graph)
-  let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
-  let getPaymentsDistribution = async () => {
+  let getRefundsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      let url = getURL(
+        ~entityName=V1(ANALYTICS_REFUNDS),
+        ~methodType=Post,
+        ~id=Some((entity.domain: domain :> string)),
+      )
+
+      let body = requestBody(
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
+        ~delta=entity.requestBodyConfig.delta,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~groupByNames=[Connector->getStringFromVariant]->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+      )
+
       let response = if isSampleDataEnabled {
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
         let res = await fetchApi(
-          paymentsUrl,
+          refundsUrl,
           ~method_=Get,
           ~xFeatureRoute=false,
           ~forceCookies=false,
         )
-        let paymentsResponse = await res->(res => res->Fetch.Response.json)
-        paymentsResponse
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse
         ->getDictFromJsonObject
-        ->getJsonObjectFromDict("paymentsRateDataWithConnectors")
+        ->getJsonObjectFromDict("refundConnectorsSampleData")
       } else {
-        let url = getURL(
-          ~entityName=V1(ANALYTICS_PAYMENTS),
-          ~methodType=Post,
-          ~id=Some((entity.domain: domain :> string)),
-        )
-        let filters = Dict.make()
-        filters->Dict.set("first_attempt", [false->JSON.Encode.bool]->JSON.Encode.array)
-        let body = requestBody(
-          ~startTime=startTimeVal,
-          ~endTime=endTimeVal,
-          ~delta=entity.requestBodyConfig.delta,
-          ~metrics=entity.requestBodyConfig.metrics,
-          ~groupByNames=[groupBy.value]->Some,
-          ~filter=generateFilterObject(
-            ~globalFilters=filterValueJson,
-            ~localFilters=filters->Some,
-          )->Some,
-        )
         await updateDetails(url, body, Post)
       }
-      let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let responseData =
+        response->getDictFromJsonObject->getArrayFromDict("queryData", [])->modifyQuery
 
       if responseData->Array.length > 0 {
-        setpaymentsDistribution(_ => responseData->JSON.Encode.array)
+        setrefundsDistribution(_ => responseData->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -135,15 +125,15 @@ let make = (
 
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getPaymentsDistribution()->ignore
+      getRefundsDistribution()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, groupBy.value, currency, isSampleDataEnabled))
+  }, (startTimeVal, endTimeVal, currency, isSampleDataEnabled))
 
   let params = {
-    data: paymentsDistribution,
-    xKey: Payments_Failure_Rate_Distribution_With_Only_Retries->getStringFromVariant,
-    yKey: groupBy.value,
+    data: refundsDistribution,
+    xKey: Refunds_Success_Rate->getStringFromVariant,
+    yKey: Connector->getStringFromVariant,
   }
 
   let options = chartEntity.getChatOptions(chartEntity.getObjects(~params))
@@ -153,12 +143,11 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <FailureSmartRetryDistributionHeader viewType setViewType groupBy setGroupBy />
+        <SuccessfulRefundsDistributionHeader viewType setViewType />
         <div className="mb-5">
           {switch viewType {
           | Graph => <BarGraph options className="mr-3" />
-          | Table =>
-            <TableModule data={paymentsDistribution} className="mx-7" selectedTab={groupBy.value} />
+          | Table => <TableModule data={refundsDistribution} className="mx-7" />
           }}
         </div>
       </PageLoaderWrapper>

@@ -1,8 +1,7 @@
 open InsightsTypes
 open InsightsHelper
 open LineGraphTypes
-open PaymentsSuccessRateUtils
-open InsightsPaymentAnalyticsUtils
+open RefundsSuccessRateUtils
 
 module PaymentsSuccessRateHeader = {
   open InsightsUtils
@@ -16,25 +15,10 @@ module PaymentsSuccessRateHeader = {
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    let isSmartRetryEnabled =
-      filterValueJson
-      ->getString("is_smart_retry_enabled", "true")
-      ->getBoolFromString(true)
-      ->getSmartRetryMetricType
-
-    let primaryValue = getMetaDataValue(
-      ~data,
-      ~index=0,
-      ~key=keyValue->getMetaDataMapper(~isSmartRetryEnabled),
-    )
-    let secondaryValue = getMetaDataValue(
-      ~data,
-      ~index=1,
-      ~key=keyValue->getMetaDataMapper(~isSmartRetryEnabled),
-    )
+    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue)
+    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue)
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-
     <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-fs-28 font-semibold">
@@ -44,7 +28,7 @@ module PaymentsSuccessRateHeader = {
           <StatisticsCard value direction tooltipValue={secondaryValue->valueFormatter(Rate)} />
         </RenderIf>
       </div>
-      <div className="flex justify-center w-full">
+      <div className="flex justify-center">
         <RenderIf condition={featureFlag.granularity}>
           <Tabs
             option={granularity}
@@ -54,6 +38,7 @@ module PaymentsSuccessRateHeader = {
           />
         </RenderIf>
       </div>
+      <div />
     </div>
   }
 }
@@ -65,11 +50,14 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
+  open InsightsUtils
   open InsightsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
   let (paymentsSuccessRateData, setPaymentsSuccessRateData) = React.useState(_ =>
     JSON.Encode.array([])
   )
@@ -80,87 +68,87 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let isSmartRetryEnabled =
-    filterValueJson
-    ->getString("is_smart_retry_enabled", "true")
-    ->getBoolFromString(true)
-    ->getSmartRetryMetricType
-
-  open InsightsUtils
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let defaulGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
     ~endTime=endTimeVal,
     ~granularity=featureFlag.granularity,
   )
-  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
-  let fetchApi = AuthHooks.useApiFetcher()
+
+  React.useEffect(() => {
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      setGranularity(_ => defaulGranularity)
+    }
+    None
+  }, (startTimeVal, endTimeVal))
+
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
+        ~entityName=V1(ANALYTICS_REFUNDS),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
+
+      let primaryBody = requestBody(
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
+        ~delta=entity.requestBodyConfig.delta,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+      )
+
+      let secondaryBody = requestBody(
+        ~startTime=compareToStartTime,
+        ~endTime=compareToEndTime,
+        ~delta=entity.requestBodyConfig.delta,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~granularity=granularity.value->Some,
+        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+      )
+
       let primaryResponse = if isSampleDataEnabled {
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
         let res = await fetchApi(
-          paymentsUrl,
+          refundsUrl,
           ~method_=Get,
           ~xFeatureRoute=false,
           ~forceCookies=false,
         )
-        let paymentsResponse = await res->(res => res->Fetch.Response.json)
-        paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentSampleData")
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("refundsSampleData")
       } else {
-        let primaryBody = requestBody(
-          ~startTime=startTimeVal,
-          ~endTime=endTimeVal,
-          ~delta=entity.requestBodyConfig.delta,
-          ~metrics=entity.requestBodyConfig.metrics,
-          ~granularity=granularity.value->Some,
-          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-        )
         await updateDetails(url, primaryBody, Post)
       }
-
-      let primaryData =
-        primaryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-        ->sortQueryDataByDate
+      let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = if isSampleDataEnabled {
-            let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+            let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
             let res = await fetchApi(
-              paymentsUrl,
+              refundsUrl,
               ~method_=Get,
               ~xFeatureRoute=false,
               ~forceCookies=false,
             )
-            let paymentsResponse = await res->(res => res->Fetch.Response.json)
-            paymentsResponse
+            let refundsResponse = await res->(res => res->Fetch.Response.json)
+            refundsResponse
             ->getDictFromJsonObject
-            ->getJsonObjectFromDict("secondaryPaymentSampleData")
+            ->getJsonObjectFromDict("comparisonRefundsSampleData")
           } else {
-            let secondaryBody = requestBody(
-              ~startTime=compareToStartTime,
-              ~endTime=compareToEndTime,
-              ~delta=entity.requestBodyConfig.delta,
-              ~metrics=entity.requestBodyConfig.metrics,
-              ~granularity=granularity.value->Some,
-              ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-            )
             await updateDetails(url, secondaryBody, Post)
           }
           let secondaryData =
@@ -178,8 +166,8 @@ let make = (
                 "payment_processed_amount": 0,
                 "time_bucket": startTimeVal,
               }->Identity.genericTypeToJson,
-              ~granularity=granularity.value,
               ~isoStringToCustomTimeZone,
+              ~granularity=granularity.value,
               ~granularityEnabled=featureFlag.granularity,
             )
           })
@@ -199,8 +187,8 @@ let make = (
               "payment_success_rate": 0,
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
-            ~granularity=granularity.value,
             ~isoStringToCustomTimeZone,
+            ~granularity=granularity.value,
             ~granularityEnabled=featureFlag.granularity,
           )
         })
@@ -232,26 +220,13 @@ let make = (
     compareToEndTime,
     comparison,
     currency,
-    granularity,
+    granularity.value,
     isSampleDataEnabled,
   ))
 
-  let mockDelay = async () => {
-    if paymentsSuccessRateData != []->JSON.Encode.array {
-      setScreenState(_ => Loading)
-      await HyperSwitchUtils.delay(300)
-      setScreenState(_ => Success)
-    }
-  }
-
-  React.useEffect(() => {
-    mockDelay()->ignore
-    None
-  }, [isSmartRetryEnabled])
-
   let params = {
     data: paymentsSuccessRateData,
-    xKey: Payments_Success_Rate->getKeyForModule(~isSmartRetryEnabled),
+    xKey: Refund_Success_Rate->getStringFromVariant,
     yKey: Time_Bucket->getStringFromVariant,
     comparison,
   }
@@ -265,7 +240,7 @@ let make = (
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <PaymentsSuccessRateHeader
           data={paymentsSuccessRateMetaData}
-          keyValue={Payments_Success_Rate->getStringFromVariant}
+          keyValue={Total_Refund_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
           granularityOptions

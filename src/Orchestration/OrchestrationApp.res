@@ -62,7 +62,7 @@ let make = (~setScreenState) => {
         useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
         authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="NewAnalytics" index="NewAnalytics">
-          <NewAnalyticsContainer />
+          <InsightsAnalyticsContainer />
         </FilterContext>
       </AccessControl>
     | list{"customers", ...remainingPath} =>
