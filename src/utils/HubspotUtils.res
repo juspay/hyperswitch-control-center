@@ -463,29 +463,6 @@ let hubspotCountriesList = [
   {"name": "Zimbabwe", "code": "ZW"},
 ]->Identity.genericTypeToJson
 
-// let checkIfExist = () => {
-//   open LogicUtils
-//   open CountryUtils
-//   let arary = []
-
-//   let _ = countriesList->Array.map(value => {
-//     let stringVal = value->getCountryCodeFromCountry->getCountryCodeStringFromVarient
-//     let findVal =
-//       hubspotCountriesList
-//       ->getArrayFromJson([])
-//       ->Array.find(listValue => {
-//         let dict = listValue->getDictFromJsonObject
-//         let code = dict->getString("code", "")
-//         code == stringVal
-//       })
-
-//     if findVal->Option.isNone {
-//       arary->Array.push(stringVal)
-//     }
-//   })
-//   Js.log2("arary", arary)
-// }
-
 let getNameFromList = countryCode => {
   open LogicUtils
 
