@@ -303,7 +303,7 @@ module SampleDataBanner = {
     let bannerText = isSampleDataEnabled
       ? "Currently viewing sample data. Toggle it off to return to your real insights."
       : "No data yet? View sample data to explore the analytics."
-    let toggleText = isSampleModeEnabled ? "Hide sample data" : "View sample data"
+    let toggleText = isSampleDataEnabled ? "Hide sample data" : "View sample data"
     let handleToggleChange = _ => {
       let newToggleState = !isSampleModeEnabled
       setIsSampleModeEnabled(_ => newToggleState)
