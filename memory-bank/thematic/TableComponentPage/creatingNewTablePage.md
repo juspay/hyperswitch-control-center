@@ -99,13 +99,14 @@ This file contains the logic for table rendering and data mapping.
        // src/MyNewPage/MyNewPageEntity.res
        open MyNewPageType // Open the types defined in the previous step
        open LogicUtils    // For utility functions like getString, getInt, etc.
+       open Table         // Ensure Table module is open for Table.header, Table.cell etc.
 
        // 1. Define default and all columns for the table
        let defaultColumns: array<myNewPageColsType> = [ItemId, ItemName, Quantity, IsAvailable]
        let allColumns: array<myNewPageColsType> = [ItemId, ItemName, Quantity, IsAvailable, CreatedDate]
 
        // 2. Define table headings
-       let getHeading = (colType: myNewPageColsType): Table.headerInfo => {
+       let getHeading = (colType: myNewPageColsType): Table.header => { // Corrected type
          switch colType {
          | ItemId => Table.makeHeaderInfo(~key="item_id", ~title="Item ID")
          | ItemName => Table.makeHeaderInfo(~key="item_name", ~title="Name")
@@ -129,7 +130,8 @@ This file contains the logic for table rendering and data mapping.
        // 4. Implement the JSON-to-ReScript object mapper
        //    This function converts a JSON object from the API into your typed record.
        //    Refer to `src/utils/LogicUtils.res` for helper functions.
-       let itemToObjMapper = (dict: JSON.t): myNewPageItem => {
+       //    Ensure this mapper takes Js.Dict.t<JSON.t> if used with LogicUtils.getArrayDataFromJson
+       let itemToObjMapper = (dict: Js.Dict.t<JSON.t>): myNewPageItem => {
          {
            item_id: dict->getString("item_id", ""), // Provide default values
            item_name: dict->getString("item_name", "N/A"),
@@ -316,3 +318,50 @@ Make your new page accessible.
 -   **Memory Bank Updates**: After successfully creating the component, consider if any new patterns or reusable logic should be documented in the broader Memory Bank.
 
 This guide provides a comprehensive template. Adapt it based on the specific requirements of your new page and the structure of the API response.
+
+## 5. Common Pitfalls & Troubleshooting / Key Learnings
+
+Based on recent implementations, here are some key points and common issues to watch out for:
+
+### A. Table Type Definitions (`Table.header`, `Table.cell`)
+
+-   **Header Type:** When defining your `getHeading` function, the correct return type for each header object (created by `Table.makeHeaderInfo(...)`) is `Table.header`.
+    *   **Incorrect Example in Guide (Corrected Above):** `let getHeading = (colType): Table.headerInfo => { ... }`
+    *   **Correct:** `let getHeading = (colType): Table.header => { ... }`
+    *   Ensure `open Table` is at the top of your `PageEntity.res` file to make `Table.header` and `Table.cell` types available.
+
+### B. JSON to ReScript Record Mapping (`itemToObjMapper`)
+
+The `itemToObjMapper` function is crucial for converting raw JSON objects from your API into typed ReScript records. Pay close attention to its signature and how it interacts with `LogicUtils` helper functions.
+
+-   **Mapper Signature for `LogicUtils.getArrayDataFromJson`:**
+    The `LogicUtils.getArrayDataFromJson(jsonArray, mapperFunc)` utility expects `mapperFunc` to have the signature:
+    `Js.Dict.t<JSON.t> => yourRecordType`.
+    *   **Correct `itemToObjMapper` definition:**
+        ```rescript
+        let itemToObjMapper = (dict: Js.Dict.t<JSON.t>): myNewPageItem => {
+          // 'dict' is already a dictionary, no need to convert from JSON.t here
+          {
+            item_id: dict->getString("item_id", ""),
+            item_name: dict->getString("item_name", "N/A"),
+            // ... other fields using dict->getString, dict->getInt, etc.
+          }
+        }
+        ```
+    *   **Common Mistake:** Defining `itemToObjMapper` as `(jsonItem: JSON.t) => ...` and then trying to convert `jsonItem` to a dictionary *inside* the mapper. While this works for the `LogicUtils.getString` calls, it makes the mapper incompatible with `LogicUtils.getArrayDataFromJson`.
+
+-   **Using `LogicUtils` for Field Extraction:**
+    Inside `itemToObjMapper` (which now receives `dict: Js.Dict.t<JSON.t>`), use functions like:
+    *   `dict->getString("fieldName", "defaultValue")`
+    *   `dict->getInt("fieldName", 0)`
+    *   `dict->getBool("fieldName", false)`
+    *   `dict->getArrayFromDict("arrayFieldName", [])` (if a field is an array)
+
+### C. Module Referencing in Routes (e.g., `OrchestrationApp.res`)
+
+When adding a route for your new page component (e.g., defined in `src/MyNewPage/MyPageComponent.res`):
+
+-   If your `rescript.json` has `"namespace": false` (which is common), modules are not automatically namespaced by their parent directory names for global access.
+-   The module defined by `src/MyNewPage/MyPageComponent.res` is `MyPageComponent`.
+-   **Correct JSX in Router:** `<MyPageComponent />`
+-   **Incorrect:** `<MyNewPage.MyPageComponent />` (This would only be correct if `MyNewPage` was an explicitly defined module or namespace that contains `MyPageComponent`).
