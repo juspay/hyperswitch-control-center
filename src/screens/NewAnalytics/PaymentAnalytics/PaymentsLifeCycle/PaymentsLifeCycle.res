@@ -52,9 +52,7 @@ let make = (
           [
             ("startTime", startTimeVal->JSON.Encode.string),
             ("endTime", endTimeVal->JSON.Encode.string),
-          ]
-          ->Dict.fromArray
-          ->JSON.Encode.object
+          ]->getJsonFromArrayOfJson
 
         let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
         if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
