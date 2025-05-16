@@ -297,7 +297,7 @@ module SampleDataBanner = {
     let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
     let (isSampleModeEnabled, setIsSampleModeEnabled) = React.useState(_ =>
-      filterValueJson->getString(sampleDataKey, "false")->getBoolFromString(false)
+      filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     )
     let handleToggleChange = _ => {
       let newToggleState = !isSampleModeEnabled

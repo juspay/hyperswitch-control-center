@@ -137,9 +137,7 @@ let make = () => {
             ~compareWithStartTime=startTimeVal,
             ~compareWithEndTime=endTimeVal,
             ~events=dateDropDownTriggerMixpanelCallback,
-            ~sampleDataIsEnabled=filterValueJson
-            ->getString(sampleDataKey, "false")
-            ->getBoolFromString(false),
+            ~sampleDataIsEnabled=filterValueJson->getStringFromDictAsBool(sampleDataKey, false),
           )}
           defaultFilterKeys=[
             startTimeFilterKey,
