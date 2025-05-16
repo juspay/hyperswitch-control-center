@@ -1277,18 +1277,15 @@ let generateInitialValuesDict = (
   let hasMerchantSecret = connectorWebHookDetails->getOptionString("merchant_secret")->Option.isSome
   let hasAdditionalSecret =
     connectorWebHookDetails->getOptionString("additional_secret")->Option.isSome
-
-  dict->Dict.set(
-    "connector_webhook_details",
-    switch (hasMerchantSecret, hasAdditionalSecret) {
-    | (true, _) => connectorWebHookDetails->JSON.Encode.object
-    | (false, false) => JSON.Encode.null
-    | (false, true) => {
-        connectorWebHookDetails->Dict.set("merchant_secret", ""->JSON.Encode.string)
-        connectorWebHookDetails->JSON.Encode.object
-      }
-    },
-  )
+  let connectorWebhookDict = switch (hasMerchantSecret, hasAdditionalSecret) {
+  | (true, _) => connectorWebHookDetails->JSON.Encode.object
+  | (false, true) => {
+      connectorWebHookDetails->Dict.set("merchant_secret", ""->JSON.Encode.string)
+      connectorWebHookDetails->JSON.Encode.object
+    }
+  | _ => JSON.Encode.null
+  }
+  dict->Dict.set("connector_webhook_details", connectorWebhookDict)
 
   dict->JSON.Encode.object
 }
