@@ -377,93 +377,81 @@ let make = () => {
   let dropdownContainerStyle = `rounded-md border border-1 border md:w-40 md:max-w-50`
 
   <PageLoaderWrapper screenState={screenState}>
-    <div
-      className="absolute z-20 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
-      <div className="flex gap-4 items-center">
-        <Icon name="nd-information-triangle" size=24 />
-        <p className="text-nd_gray-600 text-base leading-6 font-medium">
-          {"You are in demo environment and this is sample setup."->React.string}
-        </p>
-      </div>
-      <GetProductionAccess />
+    <div className="flex items-center justify-between">
+      <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
+      <p className="text-nd_gray-500 font-medium"> {dateRange->React.string} </p>
     </div>
-    <div className="mt-10">
-      <div className="flex items-center justify-between">
-        <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
-        <p className="text-nd_gray-500 font-medium"> {dateRange->React.string} </p>
-      </div>
-      <div className="flex flex-col gap-12">
-        <Overview data=stats />
-        <div className="flex flex-col gap-6">
-          <div className="text-nd_gray-600 font-semibold text-fs-18">
-            {"Insights"->React.string}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col border rounded-lg p-4">
-              <div className="flex justify-between">
-                <p className="text-fs-14 text-nd_gray-600 font-semibold leading-17">
-                  {"Overall Transaction Distribution"->React.string}
-                </p>
-              </div>
-              <div className="w-full flex justify-center my-8">
-                <div className="flex flex-col lg:flex-row gap-3 ">
-                  {displayLegend(gateways)->React.array}
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <div
-                  className="flex flex-col xl:flex-row items-center justify-around gap-8 xl:gap-2 tablet:gap-16">
-                  <PieGraph
-                    options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
-                  />
-                  <PieGraph
-                    options={PieGraphUtils.getPieChartOptions(pieGraphOptionsSimulated(stats))}
-                  />
-                </div>
+    <div className="flex flex-col gap-12">
+      <Overview data=stats />
+      <div className="flex flex-col gap-6">
+        <div className="text-nd_gray-600 font-semibold text-fs-18">
+          {"Insights"->React.string}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col border rounded-lg p-4">
+            <div className="flex justify-between">
+              <p className="text-fs-14 text-nd_gray-600 font-semibold leading-17">
+                {"Overall Transaction Distribution"->React.string}
+              </p>
+            </div>
+            <div className="w-full flex justify-center my-8">
+              <div className="flex flex-col lg:flex-row gap-3 ">
+                {displayLegend(gateways)->React.array}
               </div>
             </div>
-            <div className="border rounded-lg p-4">
-              <LineGraph
-                options={LineGraphUtils.getLineGraphOptions(
-                  lineGraphOptions(
-                    stats,
-                    ~isSmallScreen=MatchMedia.useScreenSizeChecker(~screenSize="1279"),
-                  ),
-                )}
-              />
-            </div>
-          </div>
-          <div className="border rounded-lg p-4 flex flex-col">
-            <div className="relative">
-              <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
-                <SelectBox.BaseDropdown
-                  allowMultiSelect=false
-                  buttonText="Select timestamp"
-                  input
-                  searchable=false
-                  deselectDisable=true
-                  customButtonStyle="!rounded-lg"
-                  options={makeOption(timeStampOptions)}
-                  marginTop="mt-10"
-                  hideMultiSelectButtons=true
-                  addButton=false
-                  fullLength=true
-                  shouldDisplaySelectedOnTop=true
-                  customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
-                  customScrollStyle
-                  dropdownContainerStyle
+            <div className="flex justify-center">
+              <div
+                className="flex flex-col xl:flex-row items-center justify-around gap-8 xl:gap-2 tablet:gap-16">
+                <PieGraph
+                  options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
+                />
+                <PieGraph
+                  options={PieGraphUtils.getPieChartOptions(pieGraphOptionsSimulated(stats))}
                 />
               </div>
             </div>
-            <LineAndColumnGraph
-              options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
-                lineColumnGraphOptions(stats, ~timeStamp=selectedTimeStamp),
+          </div>
+          <div className="border rounded-lg p-4">
+            <LineGraph
+              options={LineGraphUtils.getLineGraphOptions(
+                lineGraphOptions(
+                  stats,
+                  ~isSmallScreen=MatchMedia.useScreenSizeChecker(~screenSize="1279"),
+                ),
               )}
             />
           </div>
         </div>
-        <TransactionsTable setTimeRange />
+        <div className="border rounded-lg p-4 flex flex-col">
+          <div className="relative">
+            <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
+              <SelectBox.BaseDropdown
+                allowMultiSelect=false
+                buttonText="Select timestamp"
+                input
+                searchable=false
+                deselectDisable=true
+                customButtonStyle="!rounded-lg"
+                options={makeOption(timeStampOptions)}
+                marginTop="mt-10"
+                hideMultiSelectButtons=true
+                addButton=false
+                fullLength=true
+                shouldDisplaySelectedOnTop=true
+                customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
+                customScrollStyle
+                dropdownContainerStyle
+              />
+            </div>
+          </div>
+          <LineAndColumnGraph
+            options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
+              lineColumnGraphOptions(stats, ~timeStamp=selectedTimeStamp),
+            )}
+          />
+        </div>
       </div>
+      <TransactionsTable setTimeRange />
     </div>
   </PageLoaderWrapper>
 }

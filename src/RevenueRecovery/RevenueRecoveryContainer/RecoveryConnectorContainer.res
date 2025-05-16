@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
   open HSwitchUtils
-  open RevenueRecoveryOnboardingUtils
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
@@ -46,7 +45,6 @@ let make = () => {
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         {<div className="mt-14">
-          {sampleDataBanner}
           <EntityScaffold
             entityName="onboarding"
             remainingPath

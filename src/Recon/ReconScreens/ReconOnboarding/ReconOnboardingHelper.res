@@ -276,7 +276,7 @@ module ReconciliationOverview = {
     let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
     let dropdownContainerStyle = "rounded-md border border-1 !w-full"
     <div className="flex flex-col gap-6 w-full">
-      <div className="relative flex items-center justify-between w-full mt-12">
+      <div className="relative flex items-center justify-between w-full">
         <PageUtils.PageHeading
           title={"Reconciliation Overview"}
           customTitleStyle="!text-2xl !leading-8 !font-semibold !text-nd_gray-700 !tracking-normal"
@@ -477,16 +477,6 @@ module ReconOverviewContent = {
     }, [])
 
     <div>
-      <div
-        className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
-        <div className="flex gap-4 items-center">
-          <Icon name="nd-information-triangle" size=24 />
-          <p className="text-nd_gray-600 text-base leading-6 font-medium">
-            {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
-          </p>
-        </div>
-        <ReconHelper.GetProductionAccess />
-      </div>
       <ReconciliationOverview />
       <Exceptions />
     </div>
