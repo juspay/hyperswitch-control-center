@@ -243,6 +243,7 @@ let filterDateRangeField: (
   ~isTooltipVisible: bool=?,
   ~allowedDateRange: Calendar.dateObj=?,
   ~events: unit => unit=?,
+  ~disable: bool=?,
 ) => comboCustomInputRecord
 let filterCompareDateRangeField: (
   ~startKey: string,
@@ -264,6 +265,7 @@ let filterCompareDateRangeField: (
   ~isTooltipVisible: bool=?,
   ~compareWithStartTime: string,
   ~compareWithEndTime: string,
+  ~disable: bool=?,
 ) => comboCustomInputRecord
 let dateRangeField: (
   ~startKey: string,

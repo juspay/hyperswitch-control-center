@@ -3,7 +3,6 @@ open FailureReasonsRefundsTypes
 open NewRefundsAnalyticsEntity
 open FailureReasonsRefundsUtils
 open NewAnalyticsHelper
-
 module TableModule = {
   @react.component
   let make = (~data, ~className="") => {
@@ -52,7 +51,9 @@ let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -60,34 +61,45 @@ let make = (~entity: moduleEntity) => {
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(
-        ~entityName=V1(ANALYTICS_REFUNDS),
-        ~methodType=Post,
-        ~id=Some((entity.domain: domain :> string)),
-      )
-
-      let groupByNames = switch entity.requestBodyConfig.groupBy {
-      | Some(dimentions) =>
-        dimentions
-        ->Array.map(item => (item: dimension :> string))
-        ->Some
-      | _ => None
+      let response = if isSampleDataEnabled {
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let res = await fetchApi(
+          refundsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("refundConnectorsSampleData")
+      } else {
+        let url = getURL(
+          ~entityName=V1(ANALYTICS_REFUNDS),
+          ~methodType=Post,
+          ~id=Some((entity.domain: domain :> string)),
+        )
+        let groupByNames = switch entity.requestBodyConfig.groupBy {
+        | Some(dimentions) =>
+          dimentions
+          ->Array.map(item => (item: dimension :> string))
+          ->Some
+        | _ => None
+        }
+        let body = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~groupByNames,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
+        await updateDetails(url, body, Post)
       }
-
-      let body = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~groupByNames,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
-      let response = await updateDetails(url, body, Post)
 
       let metaData = response->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
@@ -113,7 +125,7 @@ let make = (~entity: moduleEntity) => {
       getRefundsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, currency])
+  }, (startTimeVal, endTimeVal, currency, isSampleDataEnabled))
 
   <div>
     <ModuleHeader title={entity.title} />

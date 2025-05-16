@@ -51,7 +51,9 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
+  open NewAnalyticsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -72,6 +74,7 @@ let make = (
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let defaulGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
     ~endTime=endTimeVal,
@@ -113,13 +116,41 @@ let make = (
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
 
-      let primaryResponse = await updateDetails(url, primaryBody, Post)
+      let primaryResponse = if isSampleDataEnabled {
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let res = await fetchApi(
+          refundsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("refundsSampleData")
+      } else {
+        await updateDetails(url, primaryBody, Post)
+      }
       let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
-          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryResponse = if isSampleDataEnabled {
+            let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+            let res = await fetchApi(
+              refundsUrl,
+              ~method_=Get,
+              ~xFeatureRoute=false,
+              ~forceCookies=false,
+            )
+            let refundsResponse = await res->(res => res->Fetch.Response.json)
+            refundsResponse
+            ->getDictFromJsonObject
+            ->getJsonObjectFromDict("comparisonRefundsSampleData")
+          } else {
+            await updateDetails(url, secondaryBody, Post)
+          }
           let secondaryData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
           let secondaryMetaData =
@@ -190,6 +221,7 @@ let make = (
     comparison,
     currency,
     granularity.value,
+    isSampleDataEnabled,
   ))
 
   let params = {
