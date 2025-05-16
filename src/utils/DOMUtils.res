@@ -3,6 +3,7 @@ type window = {mutable _env_: HyperSwitchConfigTypes.urlConfig}
 @val external document: document = "document"
 @send external getElementById: (document, string) => Dom.element = "getElementById"
 @send external createElement: (document, string) => Dom.element = "createElement"
+@send external createTextNode: (document, string) => Dom.element = "createTextNode"
 @val external window: window = "window"
 @send external click: (Dom.element, unit) => unit = "click"
 @send external reset: (Dom.element, unit) => unit = "reset"

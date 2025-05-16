@@ -40,19 +40,30 @@ module PaymentStatusPage = {
 @react.component
 let make = () => {
   open ReactHyperJs
+  open LogicUtils
+
   let url = RescriptReactRouter.useUrl()
-  let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
+  let filtersFromUrl = url.search->getDictFromUrlSearchParams
   let (paymentIdFromUrl, setPaymentIdFromUrl) = React.useState(_ => None)
-  let {paymentResult, paymentStatus, setPaymentStatus, clientSecretStatus} = React.useContext(
-    SDKProvider.defaultContext,
-  )
+  let {
+    paymentResult,
+    paymentStatus,
+    setPaymentStatus,
+    clientSecretStatus,
+    sdkThemeInitialValues,
+  } = React.useContext(SDKProvider.defaultContext)
   let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let paymentId = if paymentIdFromUrl->Option.isSome {
     paymentIdFromUrl
   } else {
-    paymentResult->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("payment_id")
+    paymentResult->getDictFromJsonObject->getOptionString("payment_id")
   }
+
+  let theme =
+    sdkThemeInitialValues
+    ->getDictFromJsonObject
+    ->getString("theme", "default")
 
   let connectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV2,
@@ -111,10 +122,10 @@ let make = () => {
     | Some(paymentIdFromClientSecret) =>
       let paymentClientSecretSplitArray = paymentIdFromClientSecret->String.split("_")
       Some(
-        `${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(
+        `${paymentClientSecretSplitArray->getValueFromArray(
             0,
             "",
-          )}_${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(1, "")}`,
+          )}_${paymentClientSecretSplitArray->getValueFromArray(1, "")}`,
       )
 
     | None => None
@@ -125,7 +136,7 @@ let make = () => {
     let status = filtersFromUrl->Dict.get("status")->Option.getOr("")->String.toLowerCase
     let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
       ~paymentIntentClientSecret=url.search
-      ->LogicUtils.getDictFromUrlSearchParams
+      ->getDictFromUrlSearchParams
       ->Dict.get("payment_intent_client_secret"),
     )
 
@@ -144,19 +155,33 @@ let make = () => {
     None
   }, [])
 
+  let backgroundBasedOnTheme = {
+    switch theme {
+    | "brutal" => "bg-brutal_background_color"
+    | "midnight" => "bg-midnight_background_color"
+    | "soft" => "bg-soft_background_color"
+    | "charcoal" => "bg-charcoal_background_color"
+    | "default"
+    | _ => "bg-white"
+    }
+  }
+
   <>
     {switch paymentStatus {
     | INCOMPLETE =>
       <RenderIf condition={clientSecretStatus == Success}>
-        <div className="flex items-center justify-center">
-          <WebSDK />
+        <div
+          className={`flex items-center justify-center ${backgroundBasedOnTheme} w-full h-5/6 border-2`}>
+          <div className="w-full h-full overflow-y-auto p-4">
+            <WebSDK />
+          </div>
         </div>
       </RenderIf>
     | status =>
       let config = getStatusConfig(status)
       let hasPaymentId = paymentId->Option.isSome
 
-      <RenderIf condition={config.statusText->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={config.statusText->isNonEmptyString}>
         <PaymentStatusPage
           config
           buttonText={successButtonText}
