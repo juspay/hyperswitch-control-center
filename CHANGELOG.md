@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.16.1
+
+### Features
+
+- Hubspot changes ([#2848](https://github.com/juspay/hyperswitch-control-center/pull/2848)) ([`a92a814`](https://github.com/juspay/hyperswitch-control-center/commit/a92a81448c4fcb0f22e349704f6fef54a987ea84))
+
+**Full Changelog:** [`2025.05.16.0...2025.05.16.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.16.0...2025.05.16.1)
+
+
+- - -
+
 ## 2025.05.16.0
 
 ### Bug Fixes

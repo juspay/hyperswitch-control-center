@@ -2,18 +2,18 @@
 
 ## Current Status
 
-- Memory Bank review and update cycle in progress (as of 2025-05-15).
+- Memory Bank review, update, and reorganization cycle completed (as of 2025-05-16).
 - Ongoing development across various modules and components.
 - Context7 MCP Server (`github.com/upstash/context7-mcp`) successfully installed and configured via Docker (as of 2025-05-15). This server provides tools for fetching up-to-date library documentation.
-- Memory Bank review and update cycle completed (as of 2025-05-14). Redundant files archived, content consolidated.
-- ReScript Syntax Guide in Memory Bank completed and populated with codebase examples (as of 2025-05-13).
+- ReScript Syntax Guide in Memory Bank populated with codebase examples and reorganized into `thematic/rescript/` folder (as of 2025-05-16).
   (To be updated regularly by the project team. Example: "Actively in development, focusing on feature X. Last major release: v0.5.0 on YYYY-MM-DD")
 
 ## Key Milestones Achieved
 
+- Memory Bank consistency review and reorganization - 2025-05-16.
 - Context7 MCP Server (`github.com/upstash/context7-mcp`) installed and operational - 2025-05-15.
-- Added new PayoutProcessor: `payoutTestConnector` - 2025-05-14
-- ReScript Syntax Guide created and populated - 2025-05-13
+- Added new PayoutProcessor: `payoutTestConnector` - 2025-05-14.
+- ReScript Syntax Guide created and populated - 2025-05-13.
 
 ## Ongoing Activities
 
@@ -37,6 +37,12 @@
 
 ## Project Evolution & Key Decisions
 
+- 2025-05-16 (Afternoon): Enhanced the `memory-bank/thematic/TableComponentPage/creatingNewTablePage.md` guide by adding a "Common Pitfalls & Troubleshooting / Key Learnings" section. This new section includes detailed explanations and solutions for issues related to `Table.header` type usage, `itemToObjMapper` signature with `LogicUtils.getArrayDataFromJson`, and correct module referencing in routes, based on learnings from the `TestComponent` page implementation.
+- 2025-05-16: Conducted Memory Bank consistency review and update. Key changes include:
+  - Updated `systemPatterns.md` to remove a redundant link to archived coding conventions, as this information is now in `techContext.md`.
+  - Corrected a path typo in `activeContext.md` related to the table creation guide.
+  - Reorganized ReScript syntax documentation: moved `rescriptSyntaxGuide.md` to `memory-bank/thematic/rescript/index.md` and updated links in `techContext.md` and within the guide itself.
+  - Updated `activeContext.md` and `progress.md` to reflect the completion of this review cycle.
 - 2025-05-15: Updated `activeContext.md` to reflect ongoing development activities across various modules and components.
 - 2025-05-15: Installed and configured the Context7 MCP Server (`github.com/upstash/context7-mcp`) using Docker. This provides access to tools for fetching current library documentation, enhancing development efficiency. The installation process involved troubleshooting various command-line runner options before successfully using Docker.
 - 2025-05-14: Added new PayoutProcessor `payoutTestConnector`. Modified `ConnectorTypes.res` and `ConnectorUtils.res` to include the new connector variant, its information, and mappings in relevant utility functions. Also documented the steps for adding a new connector in `memory-bank/thematic/connectors/adding-new-connector.md`.
