@@ -19,8 +19,7 @@ let make = (~setScreenState) => {
     | list{"run-recon"}
     | list{"recon-analytics"}
     | list{"reports"}
-    | list{"config-settings"}
-    | list{"sdk"} =>
+    | list{"config-settings"} =>
       <MerchantAccountContainer setAppScreenState=setScreenState />
     // Commented as not needed now
     // list{"file-processor"}
@@ -35,7 +34,8 @@ let make = (~setScreenState) => {
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
-    | list{"webhooks", ..._} =>
+    | list{"webhooks", ..._}
+    | list{"sdk"} =>
       <ConnectorContainer />
     | list{"apm"} => <APMContainer />
     //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
@@ -53,9 +53,10 @@ let make = (~setScreenState) => {
     | list{"analytics-disputes"}
     | list{"analytics-authentication"} =>
       <AnalyticsContainer />
-    | list{"new-analytics-payment"}
-    | list{"new-analytics-refund"}
-    | list{"new-analytics-smart-retry"} =>
+    | list{"new-analytics"}
+    | list{"new-analytics", "payment"}
+    | list{"new-analytics", "refund"}
+    | list{"new-analytics", "smart-retry"} =>
       <AccessControl
         isEnabled={featureFlagDetails.newAnalytics &&
         useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}

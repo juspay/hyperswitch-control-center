@@ -729,17 +729,19 @@ let useGetURL = () => {
         }
 
       /* INTELLIGENT ROUTING */
+      | GET_REVIEW_FIELDS => `dynamic-routing/baseline-review-fields`
       | SIMULATE_INTELLIGENT_ROUTING =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate/${merchantId}?${queryParams}`
-        | None => `simulate/${merchantId}`
+        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}?${queryParams}`
+        | None => `dynamic-routing/simulate/${merchantId}`
         }
       | INTELLIGENT_ROUTING_RECORDS =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate/${merchantId}/get-records?${queryParams}`
-        | None => `simulate/${merchantId}/get-records`
+        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}/get-records?${queryParams}`
+        | None => `dynamic-routing/simulate/${merchantId}/get-records`
         }
-      | INTELLIGENT_ROUTING_GET_STATISTICS => `simulate/${merchantId}/get-statistics`
+      | INTELLIGENT_ROUTING_GET_STATISTICS =>
+        `dynamic-routing/simulate/${merchantId}/get-statistics`
 
       /* USERS */
       | USERS =>
@@ -880,6 +882,7 @@ let useGetURL = () => {
 
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
+      | SDK_PAYMENT => "payments"
       }
 
     | V2(entityNameForv2) =>

@@ -3,6 +3,105 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.16.1
+
+### Features
+
+- Hubspot changes ([#2848](https://github.com/juspay/hyperswitch-control-center/pull/2848)) ([`a92a814`](https://github.com/juspay/hyperswitch-control-center/commit/a92a81448c4fcb0f22e349704f6fef54a987ea84))
+
+**Full Changelog:** [`2025.05.16.0...2025.05.16.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.16.0...2025.05.16.1)
+
+
+- - -
+
+## 2025.05.16.0
+
+### Bug Fixes
+
+- Insights side bar highlight fix ([#2963](https://github.com/juspay/hyperswitch-control-center/pull/2963)) ([`03d5bfc`](https://github.com/juspay/hyperswitch-control-center/commit/03d5bfc9d9b1ee1a07da859a72249f34e32da477))
+
+**Full Changelog:** [`2025.05.15.2...2025.05.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.15.2...2025.05.16.0)
+
+
+- - -
+
+## 2025.05.15.2
+
+### Miscellaneous Tasks
+
+- Update memory bank ([`f5d6a04`](https://github.com/juspay/hyperswitch-control-center/commit/f5d6a042670602850f0e34fed12dbc976548fe99))
+- Update memory bank ([`54adac4`](https://github.com/juspay/hyperswitch-control-center/commit/54adac40798a4e8e5afd2d482e448bfd2bf45e11))
+- Update memory bank ([`0ef13b5`](https://github.com/juspay/hyperswitch-control-center/commit/0ef13b510517148a3525787eb968da62b4801edc))
+- Memory bank addition for table creation ([#2972](https://github.com/juspay/hyperswitch-control-center/pull/2972)) ([`f9c5709`](https://github.com/juspay/hyperswitch-control-center/commit/f9c57090738b6c6d429cfafb2ea4bc79da79b8b1))
+- Style issues for scrolling sdk ([#2967](https://github.com/juspay/hyperswitch-control-center/pull/2967)) ([`2aff2c2`](https://github.com/juspay/hyperswitch-control-center/commit/2aff2c2b949f6e10710966ca6ccf7ecebfed8498))
+
+**Full Changelog:** [`2025.05.15.1...2025.05.15.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.15.1...2025.05.15.2)
+
+- - -
+
+## 2025.05.15.1
+
+### Features
+
+- Add clarity tracking ([#2961](https://github.com/juspay/hyperswitch-control-center/pull/2961)) ([`dfb17d6`](https://github.com/juspay/hyperswitch-control-center/commit/dfb17d65933291a0b20e030bccd3f68dbf0c44ea))
+
+### Miscellaneous Tasks
+
+- Api call for payments - theme customization & bg-color added ([#2966](https://github.com/juspay/hyperswitch-control-center/pull/2966)) ([`77a0f2a`](https://github.com/juspay/hyperswitch-control-center/commit/77a0f2ab230e18d008baf85e48d297a01ae2f73c))
+
+**Full Changelog:** [`2025.05.15.0...2025.05.15.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.15.0...2025.05.15.1)
+
+
+- - -
+
+## 2025.05.15.0
+
+### Features
+
+- Include UPI collect SVG asset in TestProcessor ([#2955](https://github.com/juspay/hyperswitch-control-center/pull/2955)) ([`9c4be55`](https://github.com/juspay/hyperswitch-control-center/commit/9c4be55bde9bbb2ccbd2705c519208e6ea47f249))
+- SDK page revamp with updated configuration support ([#2895](https://github.com/juspay/hyperswitch-control-center/pull/2895)) ([`ae6cd59`](https://github.com/juspay/hyperswitch-control-center/commit/ae6cd5900f307ec4c5c7e3a7e1b463a0dda700c5))
+
+### Miscellaneous Tasks
+
+- Memory bank config ([#2960](https://github.com/juspay/hyperswitch-control-center/pull/2960)) ([`e6cd305`](https://github.com/juspay/hyperswitch-control-center/commit/e6cd305b91736ddd660a6b0d84b830dae9edc6c2))
+
+**Full Changelog:** [`2025.05.14.0...2025.05.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.14.0...2025.05.15.0)
+
+
+- - -
+
+## 2025.05.14.0
+
+### Features
+
+- Added wasm for intelligent routing ([#2905](https://github.com/juspay/hyperswitch-control-center/pull/2905)) ([`6842aa2`](https://github.com/juspay/hyperswitch-control-center/commit/6842aa246c7c211e4477f0f4f44a9cd3c0430f93))
+
+### Miscellaneous Tasks
+
+- Upload flow core changes ([#2908](https://github.com/juspay/hyperswitch-control-center/pull/2908)) ([`a21b8e6`](https://github.com/juspay/hyperswitch-control-center/commit/a21b8e694d064135765ed2f0c8bd77846b96df7d))
+- Update the memory bank ([`de6e3bc`](https://github.com/juspay/hyperswitch-control-center/commit/de6e3bc60163b1bc2d673461a22d314628be5229))
+
+**Full Changelog:** [`2025.05.13.0...2025.05.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.13.0...2025.05.14.0)
+
+
+- - -
+
+## 2025.05.13.0
+
+### Bug Fixes
+
+- Override 3ds rule popup changes when deleted all 3ds rules ([#2919](https://github.com/juspay/hyperswitch-control-center/pull/2919)) ([`e57518c`](https://github.com/juspay/hyperswitch-control-center/commit/e57518cf3f20133d44dfc73982f095d5dc25e9aa))
+
+### Miscellaneous Tasks
+
+- Add memory bank ([`10150eb`](https://github.com/juspay/hyperswitch-control-center/commit/10150eb2a5677761d36ad23564003aa74eaf800d))
+- Add memory bank ([`53d6918`](https://github.com/juspay/hyperswitch-control-center/commit/53d6918cfd4a6a2cc4d2ddd6415c62edfa8d5991))
+- Add memory bank ([`1ddde37`](https://github.com/juspay/hyperswitch-control-center/commit/1ddde37f8c6156032f6a2410aee9a752db3bb945))
+
+**Full Changelog:** [`2025.05.09.0...2025.05.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.09.0...2025.05.13.0)
+
+- - -
+
 ## 2025.05.09.0
 
 ### Bug Fixes
