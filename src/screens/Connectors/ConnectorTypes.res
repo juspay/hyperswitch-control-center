@@ -104,6 +104,7 @@ type processorTypes =
   | HIPAY
   | PAYSTACK
   | FACILITAPAY
+  | ARCHIPEL
 
 type payoutProcessorTypes =
   | ADYEN
