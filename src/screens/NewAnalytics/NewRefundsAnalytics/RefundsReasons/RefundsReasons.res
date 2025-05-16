@@ -3,7 +3,6 @@ open RefundsReasonsTypes
 open NewRefundsAnalyticsEntity
 open RefundsReasonsUtils
 open NewAnalyticsHelper
-open RefundsSampleData
 module TableModule = {
   @react.component
   let make = (~data, ~className="") => {
@@ -48,6 +47,7 @@ let make = (~entity: moduleEntity) => {
   open APIUtils
   open NewAnalyticsUtils
   open NewAnalyticsContainerUtils
+  let fetchApi = AuthHooks.useApiFetcher()
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -84,7 +84,17 @@ let make = (~entity: moduleEntity) => {
       )
 
       let response = if isSampleDataEnabled {
-        refundConnectorsSampleData
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let res = await fetchApi(
+          refundsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("refundConnectorsSampleData")
       } else {
         await updateDetails(url, body, Post)
       }

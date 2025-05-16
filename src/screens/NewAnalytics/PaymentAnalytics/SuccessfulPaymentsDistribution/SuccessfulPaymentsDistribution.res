@@ -4,8 +4,6 @@ open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open SuccessfulPaymentsDistributionUtils
 open NewPaymentAnalyticsUtils
-open NewAnalyticsSampleData
-
 module TableModule = {
   open LogicUtils
   @react.component
@@ -84,7 +82,7 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (paymentsDistribution, setpaymentsDistribution) = React.useState(_ => JSON.Encode.array([]))
-
+  let fetchApi = AuthHooks.useApiFetcher()
   let (viewType, setViewType) = React.useState(_ => Graph)
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -99,10 +97,18 @@ let make = (
   let getPaymentsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      //replace with s3 call
       let responseData = if isSampleDataEnabled {
-        paymentsRateDataWithConnectors
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        paymentsResponse
         ->getDictFromJsonObject
+        ->getDictfromDict("paymentsRateDataWithConnectors")
         ->getArrayFromDict("queryData", [])
         ->filterQueryData(groupBy.value)
       } else {

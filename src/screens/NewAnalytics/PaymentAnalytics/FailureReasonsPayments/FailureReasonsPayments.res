@@ -61,7 +61,6 @@ let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
-  open NewAnalyticsSampleData
   open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -70,6 +69,7 @@ let make = (~entity: moduleEntity) => {
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
+  let fetchApi = AuthHooks.useApiFetcher()
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let currency = filterValueJson->getString((#currency: filters :> string), "")
@@ -100,7 +100,17 @@ let make = (~entity: moduleEntity) => {
         ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
       )
       let response = if isSampleDataEnabled {
-        paymentsRateDataWithConnectors //replace with s3 call
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        paymentsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("paymentsRateDataWithConnectors")
       } else {
         await updateDetails(url, body, Post)
       }

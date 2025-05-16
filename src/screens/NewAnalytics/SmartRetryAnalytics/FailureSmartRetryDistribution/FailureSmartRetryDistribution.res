@@ -70,9 +70,9 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
-  open NewAnalyticsSampleData
   open NewAnalyticsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -109,7 +109,17 @@ let make = (
       )
 
       let response = if isSampleDataEnabled {
-        paymentsRateDataWithConnectors //replace with s3 call
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        paymentsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("paymentsRateDataWithConnectors")
       } else {
         await updateDetails(url, body, Post)
       }

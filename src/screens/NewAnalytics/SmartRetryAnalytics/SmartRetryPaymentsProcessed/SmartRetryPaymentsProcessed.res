@@ -150,9 +150,9 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
-  open NewAnalyticsSampleData
   open NewAnalyticsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -220,7 +220,15 @@ let make = (
       )
 
       let primaryResponse = if isSampleDataEnabled {
-        paymentSampleData //replace with s3 call
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentSampleData")
       } else {
         await updateDetails(url, primaryBody, Post)
       }
@@ -241,7 +249,17 @@ let make = (
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = if isSampleDataEnabled {
-            secondaryPaymentSampleData
+            let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+            let res = await fetchApi(
+              paymentsUrl,
+              ~method_=Get,
+              ~xFeatureRoute=false,
+              ~forceCookies=false,
+            )
+            let paymentsResponse = await res->(res => res->Fetch.Response.json)
+            paymentsResponse
+            ->getDictFromJsonObject
+            ->getJsonObjectFromDict("secondaryPaymentSampleData")
           } else {
             await updateDetails(url, secondaryBody, Post)
           }

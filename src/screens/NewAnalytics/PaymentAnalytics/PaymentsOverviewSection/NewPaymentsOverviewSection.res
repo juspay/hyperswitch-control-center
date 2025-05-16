@@ -7,7 +7,6 @@ let make = (~entity: moduleEntity) => {
   open APIUtils
   open NewAnalyticsHelper
   open NewAnalyticsUtils
-  open NewAnalyticsSampleData
   open NewAnalyticsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -27,7 +26,7 @@ let make = (~entity: moduleEntity) => {
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-
+  let fetchApi = AuthHooks.useApiFetcher()
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -35,7 +34,17 @@ let make = (~entity: moduleEntity) => {
       let secondaryData = defaultValue->Dict.copy
 
       if isSampleDataEnabled {
-        setData(_ => paymentsOverviewData) //replace with s3 call
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        let paymentsOverviewData =
+          paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentsOverviewData")
+        setData(_ => paymentsOverviewData)
       } else {
         let paymentsUrl = getURL(
           ~entityName=V1(ANALYTICS_PAYMENTS_V2),

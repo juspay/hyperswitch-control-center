@@ -4,7 +4,6 @@ open NewRefundsAnalyticsEntity
 open BarGraphTypes
 open FailedRefundsDistributionUtils
 open FailedRefundsDistributionTypes
-open RefundsSampleData
 module TableModule = {
   @react.component
   let make = (~data, ~className="") => {
@@ -65,6 +64,7 @@ let make = (
   open NewAnalyticsUtils
   open NewAnalyticsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -94,7 +94,17 @@ let make = (
       )
 
       let response = if isSampleDataEnabled {
-        refundConnectorsSampleData //replace with s3 call
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let res = await fetchApi(
+          refundsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("refundConnectorsSampleData")
       } else {
         await updateDetails(url, body, Post)
       }
@@ -105,7 +115,6 @@ let make = (
       if responseTotalNumberData->Array.length > 0 {
         let filters = Dict.make()
         filters->Dict.set("refund_status", ["failure"->JSON.Encode.string]->JSON.Encode.array)
-
         let body = requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
@@ -119,7 +128,17 @@ let make = (
         )
 
         let response = if isSampleDataEnabled {
-          refundFailedConnectorsSampleData //replace with s3 call
+          let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+          let res = await fetchApi(
+            refundsUrl,
+            ~method_=Get,
+            ~xFeatureRoute=false,
+            ~forceCookies=false,
+          )
+          let refundsResponse = await res->(res => res->Fetch.Response.json)
+          refundsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("refundFailedConnectorsSampleData")
         } else {
           await updateDetails(url, body, Post)
         }

@@ -152,9 +152,9 @@ let make = (
   open LogicUtils
   open APIUtils
   open NewAnalyticsUtils
-  open RefundsSampleData
   open NewAnalyticsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -217,7 +217,15 @@ let make = (
       )
 
       let primaryResponse = if isSampleDataEnabled {
-        refundsSampleData
+        let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+        let res = await fetchApi(
+          refundsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let refundsResponse = await res->(res => res->Fetch.Response.json)
+        refundsResponse->getDictFromJsonObject->getJsonObjectFromDict("refundsSampleData")
       } else {
         await updateDetails(url, primaryBody, Post)
       }
@@ -233,7 +241,17 @@ let make = (
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = if isSampleDataEnabled {
-            comparisonRefundsSampleData
+            let refundsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/refunds.json`
+            let res = await fetchApi(
+              refundsUrl,
+              ~method_=Get,
+              ~xFeatureRoute=false,
+              ~forceCookies=false,
+            )
+            let refundsResponse = await res->(res => res->Fetch.Response.json)
+            refundsResponse
+            ->getDictFromJsonObject
+            ->getJsonObjectFromDict("comparisonRefundsSampleData")
           } else {
             await updateDetails(url, secondaryBody, Post)
           }
