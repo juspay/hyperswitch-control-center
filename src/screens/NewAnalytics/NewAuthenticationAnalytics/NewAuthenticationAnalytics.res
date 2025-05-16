@@ -32,6 +32,7 @@ let make = () => {
 
   let loadInfo = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let infoUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Get)
       let infoDetails = await fetchDetails(infoUrl)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -46,13 +47,14 @@ let make = () => {
   let tabNames = HSAnalyticsUtils.getStringListFromArrayDict(dimensions)
 
   let getFilters = async () => {
+    setFilterDataJson(_ => None)
     try {
       let analyticsfilterUrl = getURL(
         ~entityName=V1(ANALYTICS_AUTHENTICATION_V2_FILTERS),
         ~methodType=Post,
       )
       let filterBody =
-        NewAnalyticsUtils.requestBody(
+        InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
           ~groupByNames=Some(tabNames),
@@ -73,7 +75,7 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let metricsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
-      let metricsRequestBody = NewAnalyticsUtils.requestBody(
+      let metricsRequestBody = InsightsUtils.requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
@@ -103,7 +105,7 @@ let make = () => {
       let valueOfQueryData = queryDataArray->getValueFromArray(0, defaultQueryData)
       setQueryData(_ => valueOfQueryData)
 
-      let secondFunnelRequestBody = NewAnalyticsUtils.requestBody(
+      let secondFunnelRequestBody = InsightsUtils.requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
@@ -128,7 +130,7 @@ let make = () => {
         ["success"->JSON.Encode.string, "failed"->JSON.Encode.string]->JSON.Encode.array,
       )
 
-      let thirdFunnelRequestBody = NewAnalyticsUtils.requestBody(
+      let thirdFunnelRequestBody = InsightsUtils.requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~filter=Some(updatedFilters->JSON.Encode.object),
@@ -176,7 +178,9 @@ let make = () => {
   }, [])
 
   React.useEffect(() => {
-    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+    if (
+      startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString && dimensions->Array.length > 0
+    ) {
       getFilters()->ignore
     }
     None
@@ -217,7 +221,7 @@ let make = () => {
         initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
-        key="0"
+        key="1"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false

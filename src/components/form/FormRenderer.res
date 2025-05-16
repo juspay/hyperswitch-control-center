@@ -24,6 +24,7 @@ type fieldInfoType = {
   inputFields: array<inputFieldType>,
   inputNames: array<string>,
   fieldPortalKey?: string,
+  labelRightComponent: option<React.element>,
 }
 
 let makeInputFieldInfo = (
@@ -66,6 +67,7 @@ let makeMultiInputFieldInfoOld = (
   ~subText=?,
   ~isRequired=false,
   ~comboCustomInput=?,
+  ~labelRightComponent=?,
   ~inputFields,
   (),
 ) => {
@@ -82,6 +84,7 @@ let makeMultiInputFieldInfoOld = (
     comboCustomInput,
     inputFields,
     inputNames: inputFields->Array.map(x => x.name),
+    labelRightComponent,
   }
 }
 
@@ -97,6 +100,7 @@ let makeMultiInputFieldInfo = (
   ~isRequired=false,
   ~comboCustomInput: option<comboCustomInputRecord>=?,
   ~fieldPortalKey: option<string>=?,
+  ~labelRightComponent: option<React.element>=?,
   ~inputFields,
 ) => {
   let inputNames =
@@ -116,6 +120,7 @@ let makeMultiInputFieldInfo = (
     comboCustomInput: comboCustomInput->Option.map(x => x.fn),
     inputFields,
     inputNames,
+    labelRightComponent,
     ?fieldPortalKey,
   }
 }
@@ -139,6 +144,7 @@ let makeFieldInfo = (
   ~isRequired=false,
   ~fieldPortalKey: option<string>=?,
   ~validate: option<(option<string>, JSON.t) => Promise.t<Nullable.t<string>>>=?,
+  ~labelRightComponent: option<React.element>=?,
 ) => {
   let label = label->Option.getOr(name)
 
@@ -155,6 +161,7 @@ let makeFieldInfo = (
     ~subHeadingIcon?,
     ~isRequired,
     ~fieldPortalKey?,
+    ~labelRightComponent?,
     ~inputFields=[
       makeInputFieldInfo(
         ~label,
@@ -192,6 +199,7 @@ module FieldWrapper = {
     ~dataId="",
     ~subTextClass="",
     ~subHeadingClass="",
+    ~labelRightComponent=?,
   ) => {
     let showLabel = React.useContext(LabelVisibilityContext.formLabelRenderContext)
     let fieldWrapperClass = if fieldWrapperClass->LogicUtils.isEmptyString {
@@ -211,35 +219,41 @@ module FieldWrapper = {
     <AddDataAttributes attributes=[("data-component-field-wrapper", `field-${dataId}`)]>
       <div className={fieldWrapperClass}>
         {<>
-          <div className="flex items-center">
-            <RenderIf condition=showLabel>
-              <AddDataAttributes attributes=[("data-form-label", label)]>
-                <label className={`${labelPadding} ${labelTextClass} ${labelClass}`}>
-                  {React.string(label)}
-                  <RenderIf condition=isRequired>
-                    <span className="text-red-950"> {React.string(" *")} </span>
-                  </RenderIf>
-                </label>
-              </AddDataAttributes>
-            </RenderIf>
-            {switch description {
-            | Some(description) =>
-              <RenderIf condition={description->LogicUtils.isNonEmptyString}>
-                <div className="text-sm text-gray-500 mx-2">
-                  <ToolTip description toolTipPosition />
-                </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <RenderIf condition=showLabel>
+                <AddDataAttributes attributes=[("data-form-label", label)]>
+                  <label className={`${labelPadding} ${labelTextClass} ${labelClass}`}>
+                    {React.string(label)}
+                    <RenderIf condition=isRequired>
+                      <span className="text-red-950"> {React.string(" *")} </span>
+                    </RenderIf>
+                  </label>
+                </AddDataAttributes>
               </RenderIf>
-            | None => React.null
-            }}
-            {switch descriptionComponent {
-            | Some(descriptionComponent) =>
-              <div className="text-sm text-gray-500 mx-2">
-                <ToolTip descriptionComponent toolTipPosition tooltipWidthClass="w-80" />
-              </div>
-            | None => React.null
-            }}
-            {switch customLabelIcon {
-            | Some(customLabelIcon) => <div className="pl-2"> {customLabelIcon} </div>
+              {switch description {
+              | Some(description) =>
+                <RenderIf condition={description->LogicUtils.isNonEmptyString}>
+                  <div className="text-sm text-gray-500 mx-2">
+                    <ToolTip description toolTipPosition />
+                  </div>
+                </RenderIf>
+              | None => React.null
+              }}
+              {switch descriptionComponent {
+              | Some(descriptionComponent) =>
+                <div className="text-sm text-gray-500 mx-2">
+                  <ToolTip descriptionComponent toolTipPosition tooltipWidthClass="w-80" />
+                </div>
+              | None => React.null
+              }}
+              {switch customLabelIcon {
+              | Some(customLabelIcon) => <div className="pl-2"> {customLabelIcon} </div>
+              | None => React.null
+              }}
+            </div>
+            {switch labelRightComponent {
+            | Some(component) => component
             | None => React.null
             }}
           </div>
@@ -484,7 +498,8 @@ module FieldRenderer = {
               fieldWrapperClass
               subTextClass
               subHeadingClass
-              dataId=names>
+              dataId=names
+              labelRightComponent=?field.labelRightComponent>
               {if field.inputFields->Array.length === 1 {
                 let field = field.inputFields[0]->Option.getOr(makeInputFieldInfo(~name=""))
                 <ErrorBoundary>
@@ -770,7 +785,6 @@ module FormContent = {
               <div className="flex flex-1 flex-col overflow-scroll p-4">
                 <FieldsRenderer fields fieldWrapperClass />
               </div>
-              <FormValuesSpy wrapperClass="h-full w-1/3" restrictToLocal=false />
             </div>
           } else {
             <FieldsRenderer fields fieldWrapperClass />

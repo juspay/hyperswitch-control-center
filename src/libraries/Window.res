@@ -41,6 +41,9 @@ external navigator: JSON.t = "navigator"
 external connectorWasmInit: 'a => Promise.t<JSON.t> = "init"
 
 @val @scope("window")
+external dynamicRoutingWasmInit: 'a => Promise.t<JSON.t> = "dynamicRoutingInit"
+
+@val @scope("window")
 external getConnectorConfig: string => JSON.t = "getConnectorConfig"
 
 @val @scope("window")
@@ -257,3 +260,10 @@ external appendStyle: HyperSwitchConfigTypes.customStylesTheme => unit = "append
 
 @val @scope("window")
 external env: HyperSwitchConfigTypes.urlConfig = "_env_"
+
+@val @scope("window")
+external validateExtract: (Js.TypedArray2.Uint8Array.t, JSON.t, JSON.t) => JSON.t =
+  "validateExtract"
+
+@val @scope("window")
+external getDefaultConfig: unit => JSON.t = "getDefaultConfig"

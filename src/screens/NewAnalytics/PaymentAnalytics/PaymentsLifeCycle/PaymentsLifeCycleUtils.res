@@ -210,9 +210,9 @@ let transformData = (data: array<(string, int)>) => {
 }
 
 let paymentsLifeCycleMapper = (
-  ~params: NewAnalyticsTypes.getObjects<paymentLifeCycle>,
+  ~params: InsightsTypes.getObjects<paymentLifeCycle>,
 ): SankeyGraphTypes.sankeyPayload => {
-  open NewAnalyticsUtils
+  open InsightsUtils
   let {data, xKey} = params
 
   let isSmartRetryEnabled = xKey->getBoolFromString(true)

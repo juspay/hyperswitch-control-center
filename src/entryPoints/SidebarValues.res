@@ -299,7 +299,7 @@ let performanceMonitor = SubLevelLink({
 
 let newAnalytics = SubLevelLink({
   name: "Insights",
-  link: `/new-analytics-payment`,
+  link: `/new-analytics`,
   access: Access,
   searchOptions: [("Insights", "")],
 })
@@ -342,7 +342,7 @@ let analytics = (
   }
 
   if newAnalyticsflag {
-    links->Array.push(newAnalytics)
+    links->Array.unshift(newAnalytics)
   }
 
   if performanceMonitorFlag {
@@ -486,8 +486,9 @@ let complianceCertificateSection = {
 
 let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
   let settingsLinkArray = [
-    businessDetails(userHasResourceAccess),
-    businessProfiles(userHasResourceAccess),
+    //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
+    // businessDetails(userHasResourceAccess),
+    // businessProfiles(userHasResourceAccess),
   ]
 
   if isConfigurePmtsEnabled {

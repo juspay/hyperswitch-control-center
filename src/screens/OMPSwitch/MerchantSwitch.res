@@ -251,9 +251,7 @@ let make = () => {
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
   React.useEffect(() => {
-    if subHeading != merchantDetailsTypedValue.merchant_name->Option.getOr("") {
-      getMerchantList()->ignore
-    }
+    getMerchantList()->ignore
     None
   }, [merchantDetailsTypedValue.merchant_name])
 

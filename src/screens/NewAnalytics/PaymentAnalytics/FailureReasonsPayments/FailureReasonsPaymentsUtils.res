@@ -1,4 +1,4 @@
-open NewAnalyticsTypes
+open InsightsTypes
 open FailureReasonsPaymentsTypes
 open LogicUtils
 

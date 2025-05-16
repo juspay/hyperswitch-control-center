@@ -7,6 +7,7 @@ type filterUpdater = {
   setfilterKeys: (array<string> => array<string>) => unit,
   filterValueJson: Dict.t<JSON.t>,
   reset: unit => unit,
+  updateFilterAsync: (~delay: int=?, Dict.t<string>) => Js.Promise.t<Dict.t<string>>,
 }
 
 let filterUpdater = {
@@ -18,6 +19,7 @@ let filterUpdater = {
   filterKeys: [],
   setfilterKeys: _ => (),
   reset: () => (),
+  updateFilterAsync: (~delay as _=?, dict) => Promise.make((resolve, _) => resolve(dict)),
 }
 
 let filterContext = React.createContext(filterUpdater)
@@ -40,6 +42,39 @@ let make = (~index: string, ~children) => {
     sessionStorage.removeItem(index)
     sessionStorage.removeItem(`${index}-list`)
     setfilterKeys(_ => [])
+  }
+
+  let updateFilterAsync = (~delay=0, dict: Dict.t<string>) => {
+    let prevDictArr =
+      filterDict
+      ->Dict.toArray
+      ->Belt.Array.keepMap(item => {
+        let (key, value) = item
+        switch dict->Dict.get(key) {
+        | Some(_) => None
+        | None => !(value->isEmptyString) ? Some(item) : None
+        }
+      })
+    let currentDictArr =
+      dict
+      ->Dict.toArray
+      ->Array.filter(item => {
+        let (_, value) = item
+        !(value->isEmptyString)
+      })
+
+    let updatedDict = Array.concat(prevDictArr, currentDictArr)->Dict.fromArray
+    let dict = if DictionaryUtils.equalDicts(updatedDict, filterDict) {
+      filterDict
+    } else {
+      updatedDict
+    }
+    query := dict->FilterUtils.parseFilterDict
+    setfilterDict(_ => dict)
+    let resolve = Promise.make((resolve, _) => {
+      let _ = setTimeout(() => resolve(dict), delay)
+    })
+    resolve
   }
 
   let updateFilter = React.useMemo(() => {
@@ -119,6 +154,7 @@ let make = (~index: string, ~children) => {
       })
       ->Dict.fromArray,
       reset,
+      updateFilterAsync,
     }
   }, (filterDict, setfilterDict, filterKeys))
 
