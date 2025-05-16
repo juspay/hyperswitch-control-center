@@ -1,5 +1,5 @@
 open LogicUtils
-open NewAnalyticsUtils
+open InsightsUtils
 open SuccessfulSmartRetryDistributionTypes
 
 let getStringFromVariant = value => {
@@ -23,7 +23,7 @@ let getColumn = string => {
 }
 
 let successfulSmartRetryDistributionMapper = (
-  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
+  ~params: InsightsTypes.getObjects<JSON.t>,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
   let {data, xKey, yKey} = params
@@ -50,7 +50,7 @@ let successfulSmartRetryDistributionMapper = (
   }
 }
 
-open NewAnalyticsTypes
+open InsightsTypes
 
 let tableItemToObjMapper: Dict.t<JSON.t> => successfulSmartRetryDistributionObject = dict => {
   {

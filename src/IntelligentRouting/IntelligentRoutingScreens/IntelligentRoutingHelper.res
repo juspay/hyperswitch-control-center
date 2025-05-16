@@ -38,12 +38,12 @@ let stepperHeading = (~title: string, ~subTitle: string) =>
 let displayDateRange = (~minDate, ~maxDate) => {
   let getDateObj = value => value->DayJs.getDayJsForString
   let date = value => {
-    NewAnalyticsUtils.formatDateValue(value, ~includeYear=true)
+    InsightsUtils.formatDateValue(value, ~includeYear=true)
   }
 
   let time = value => {
     let dateObj = getDateObj(value)
-    dateObj.format("HH:mm")->NewAnalyticsUtils.formatTime
+    dateObj.format("HH:mm")->InsightsUtils.formatTime
   }
 
   let diff = DateRangeUtils.getStartEndDiff(minDate, maxDate)
@@ -59,8 +59,8 @@ let displayDateRange = (~minDate, ~maxDate) => {
 
 let getDateTime = value => {
   let dateObj = value->DayJs.getDayJsForString
-  let _date = `${dateObj.month()->NewAnalyticsUtils.getMonthName} ${dateObj.format("DD")}`
-  let time = dateObj.format("HH:mm")->NewAnalyticsUtils.formatTime
+  let _date = `${dateObj.month()->InsightsUtils.getMonthName} ${dateObj.format("DD")}`
+  let time = dateObj.format("HH:mm")->InsightsUtils.formatTime
   `${time}`
 }
 
@@ -173,7 +173,7 @@ let lineGraphOptions = (stats: JSON.t, ~isSmallScreen=false): LineGraphTypes.lin
         color: "#1E90FF",
       },
     ],
-    tooltipFormatter: NewAnalyticsUtils.tooltipFormatter(
+    tooltipFormatter: InsightsUtils.tooltipFormatter(
       ~title="Authorization Rate",
       ~metricType=Rate,
       ~currency="",

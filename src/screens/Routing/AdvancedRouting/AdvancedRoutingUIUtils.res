@@ -106,6 +106,7 @@ module OperatorInp = {
       hideMultiSelectButtons=true
       textStyle={`text-body ${textColorStyle}`}
       disableSelect
+      customButtonStyle="!w-full"
     />
   }
 }
@@ -158,6 +159,7 @@ module ValueInp = {
         hideMultiSelectButtons=true
         showSelectionAsChips={false}
         maxHeight="max-h-full sm:max-h-64"
+        customButtonStyle="!w-full"
       />
     | IS | IS_NOT => {
         let val = valueField.value->LogicUtils.getStringFromJson("")
@@ -168,6 +170,7 @@ module ValueInp = {
           options={variantValues->SelectBox.makeOptions}
           hideMultiSelectButtons=true
           fixedDropDownDirection=SelectBox.TopRight
+          customButtonStyle="!w-full"
         />
       }
     | EQUAL_TO =>
@@ -331,7 +334,12 @@ module FieldInp = {
     }
 
     <SelectBox.BaseDropdown
-      allowMultiSelect=false buttonText="Select Field" input options hideMultiSelectButtons=true
+      allowMultiSelect=false
+      buttonText="Select Field"
+      input
+      options
+      hideMultiSelectButtons=true
+      customButtonStyle="!w-full"
     />
   }
 }

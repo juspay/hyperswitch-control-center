@@ -244,7 +244,6 @@ module LabelCell = {
     | LabelGray => "text-nd_gray-600"
     | LabelLightGray => "text-nd_gray_600"
     | LabelBlue => "text-nd_primary_blue-600"
-    | _ => "text-white"
     }
 
     let mobileTextColor = switch labelColor {
