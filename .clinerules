@@ -117,14 +117,14 @@ Implement these optimization techniques for effective context management:
 ### Plan Mode
 
 ```flowchart
-Start[Start] --> ReadFiles[Read Memory Bank Core Files]
-ReadFiles --> ReadThematic[Read Relevant Thematic Subfolders]
+Start[Start] --> ReadMemoryBank[Read Memory Bank Core Files]
+ReadMemoryBank --> ReadThematic[Read All Files in All Thematic Subfolders]
 ReadThematic --> CheckFiles{Files Complete & Current?}
 
 CheckFiles -->|No| Plan[Update and Optimize Documents]
 Plan --> Document[Document Updates Clearly]
-
 CheckFiles -->|Yes| Verify[Verify Active Context & Progress]
+
 Verify --> Strategy[Develop Optimized Strategy]
 Strategy --> Present[Present Concise Approach]
 ```
@@ -132,7 +132,9 @@ Strategy --> Present[Present Concise Approach]
 ### Act Mode
 
 ```flowchart
-Start[Start] --> Context[Review Active Context & Relevant Thematic Subfolders]
+Start[Start] --> ReadMemoryBank[Read Memory Bank Core Files & Relevant Thematic Subfolders]
+ReadMemoryBank --> ReadThematic[Read All Files in All Thematic Subfolders]
+ReadThematic --> CheckFiles{Files Complete & Current?}
 Context --> Update[Update Documentation Precisely]
 Update --> Execute[Execute Task Effectively]
 Execute --> Archive[Move Outdated Context to Archive]
@@ -180,7 +182,7 @@ Split files when:
 
 ### Memory Bank Entries
 
--   `memory-bank/thematic/rescript/apiCallStructure.md`:  API call structure in ReScript.
+- `memory-bank/thematic/rescript/apiCallStructure.md`: API call structure in ReScript.
 
 1. A single section exceeds 100 lines
 2. Multiple related components/topics exist in one file
@@ -236,6 +238,10 @@ REMEMBER: After every memory reset, I begin completely fresh. The Memory Bank is
 - Reference related components or modules affected.
 - Include areas of testing and how to test.
   Keep it concise but informative enough for someone reading the Git log to understand the scope of the commit.
+
+## Default rule
+
+- don't open module if its already opened gloabally
 
 ## Make an initial api call to retrieve initial data
 
