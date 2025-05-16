@@ -88,7 +88,6 @@ let make = (
                   <FormRenderer.SubmitButton text="Book a call" buttonSize={Small} />
                 </div>
               </div>
-              <FormValuesSpy />
             </Form>
           </PageLoaderWrapper>
         </div>
