@@ -1,5 +1,5 @@
 open NewAnalyticsTypes
-
+open DateRangeUtils
 let getPageIndex = (url: RescriptReactRouter.url) => {
   switch url.path->HSwitchUtils.urlPath {
   | list{"new-analytics", "smart-retry"} => 1
@@ -39,6 +39,7 @@ let (
   compareToStartTimeKey,
   compareToEndTimeKey,
   comparisonKey,
+  sampleDataKey,
 ) = (
   "startTime",
   "endTime",
@@ -46,13 +47,37 @@ let (
   "compareToStartTime",
   "compareToEndTime",
   "comparison",
+  "is_sample_data_enabled",
 )
 
-let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime, ~events=?) => {
+let initialFixedFilterFields = (
+  ~compareWithStartTime,
+  ~compareWithEndTime,
+  ~events=?,
+  ~sampleDataIsEnabled,
+) => {
   let events = switch events {
   | Some(fn) => fn
   | _ => () => ()
   }
+
+  let predefinedDays = if sampleDataIsEnabled {
+    []
+  } else {
+    [
+      Hour(0.5),
+      Hour(1.0),
+      Hour(2.0),
+      Today,
+      Yesterday,
+      Day(2.0),
+      Day(7.0),
+      Day(30.0),
+      ThisMonth,
+      LastMonth,
+    ]
+  }
+
   let newArr = [
     (
       {
@@ -66,22 +91,12 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime, ~eve
             ~showTime=true,
             ~disablePastDates={false},
             ~disableFutureDates={true},
-            ~predefinedDays=[
-              Hour(0.5),
-              Hour(1.0),
-              Hour(2.0),
-              Today,
-              Yesterday,
-              Day(2.0),
-              Day(7.0),
-              Day(30.0),
-              ThisMonth,
-              LastMonth,
-            ],
+            ~predefinedDays,
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
             ~events,
+            ~disable=sampleDataIsEnabled,
           ),
           ~inputFields=[],
           ~isRequired=false,
@@ -106,6 +121,7 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime, ~eve
             ~disableApply=false,
             ~compareWithStartTime,
             ~compareWithEndTime,
+            ~disable=sampleDataIsEnabled,
           ),
           ~inputFields=[],
         ),
@@ -118,6 +134,5 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime, ~eve
       }: EntityType.initialFilters<'t>
     ),
   ]
-
   newArr
 }

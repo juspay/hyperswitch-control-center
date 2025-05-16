@@ -8,7 +8,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let {newAnalyticsSmartRetries, newAnalyticsRefunds} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let {updateExistingKeys, updateFilterAsync} = React.useContext(FilterContext.filterContext)
   let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -110,11 +110,23 @@ let make = () => {
     })
   }
 
+  let applySampleDateFilters = async isSampleDateEnabled => {
+    try {
+      setScreenState(_ => Loading)
+      let values = NewAnalyticsUtils.getSampleDateRange(~useSampleDates=isSampleDateEnabled)
+      values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
+      let _ = await updateFilterAsync(~delay=1000, values)
+      setScreenState(_ => Success)
+    } catch {
+    | _ => setScreenState(_ => Success)
+    }
+  }
+
   <PageLoaderWrapper key={(analyticsEntity :> string)} screenState>
     <div>
-      <PageUtils.PageHeading title="Insights" />
-      <div
-        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
+      <NewAnalyticsHelper.SampleDataBanner applySampleDateFilters />
+      <PageUtils.PageHeading customTitleStyle="mt-4" title="Insights" />
+      <div className="-ml-1 top-0 z-20 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
           title="NewAnalytics"
           initialFilters=[]
@@ -124,6 +136,7 @@ let make = () => {
             ~compareWithStartTime=startTimeVal,
             ~compareWithEndTime=endTimeVal,
             ~events=dateDropDownTriggerMixpanelCallback,
+            ~sampleDataIsEnabled=filterValueJson->getStringFromDictAsBool(sampleDataKey, false),
           )}
           defaultFilterKeys=[
             startTimeFilterKey,
