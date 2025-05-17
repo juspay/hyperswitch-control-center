@@ -37,7 +37,7 @@ let make = () => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
 
-  let maintainenceAlert = featureFlagDetails.maintainenceAlert
+  let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
   sessionExpired := false
@@ -183,8 +183,8 @@ let make = () => {
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
-                    <RenderIf condition={maintainenceAlert->LogicUtils.isNonEmptyString}>
-                      <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
+                    <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
+                      <HSwitchUtils.AlertBanner bannerText={maintenanceAlert} bannerType={Info} />
                     </RenderIf>
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
