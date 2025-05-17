@@ -102,7 +102,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devRecoveryV2Product: dict->getBool("dev_recovery_v2_product", false),
     devVaultV2Product: dict->getBool("dev_vault_v2_product", false),
     devHypersenseV2Product: dict->getBool("dev_hypersense_v2_product", false),
-    maintainenceAlert: dict->getString("maintainence_alert", ""),
+    maintainenceAlert: dict->getString("maintenance_alert", ""),
     forceCookies: dict->getBool("force_cookies", false),
     authenticationAnalytics: dict->getBool("authentication_analytics", false),
     devModularityV2: dict->getBool("dev_modularity_v2", false),
