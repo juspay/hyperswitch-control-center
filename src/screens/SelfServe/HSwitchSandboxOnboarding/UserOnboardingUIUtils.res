@@ -24,7 +24,7 @@ module ProgressBar = {
 module PublishableKeyArea = {
   @react.component
   let make = () => {
-    let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
+    let merchantDetailsValue = MerchantDetailsHook.useMerchantDetailsValue()
     <HelperComponents.KeyAndCopyArea copyValue={merchantDetailsValue.publishable_key} />
   }
 }
@@ -32,7 +32,7 @@ module PublishableKeyArea = {
 module PaymentResponseHashKeyArea = {
   @react.component
   let make = () => {
-    let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
+    let merchantDetailsValue = MerchantDetailsHook.useMerchantDetailsValue()
     <HelperComponents.KeyAndCopyArea
       copyValue={merchantDetailsValue.payment_response_hash_key->Option.getOr("")}
     />
