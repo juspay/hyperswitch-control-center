@@ -18,7 +18,7 @@ let make = (~setAuthStatus) => {
     }
 
     switch url.path {
-    //redirection url for email
+    //redirection url check for email
     | list{"user", "verify_email"} => setAuthType(_ => EmailVerify)
     | list{"user", "set_password"} =>
       checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ResetPassword) : ()
