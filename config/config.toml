@@ -10,6 +10,7 @@ hypersense_url=""
 mixpanel_token=""
 agreement_url=""
 agreement_version=""
+clarity_base_url=""
 [default.features]
 branding=false
 mixpanel=false

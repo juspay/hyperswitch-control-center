@@ -61,6 +61,7 @@ module.exports = {
         "130-px": "130px",
         "195-px": "195px",
         "774-px": "774px",
+        "890-px": "890px",
         "12.5-rem": "12.5rem",
         onBordingSupplier: "calc(100vh - 300px)",
       },
@@ -360,6 +361,10 @@ module.exports = {
         offset_white: "#FEFEFE",
         light_white: "#FFFFFF0D",
         unselected_white: "#9197A3",
+        brutal_background_color: "#7CFF708A",
+        midnight_background_color: "#1A1F36",
+        soft_background_color: "#3E3E3E",
+        charcoal_background_color: "#FCFEFF",
 
         /* NEW DESIGN COLORS */
         nd_gray: {

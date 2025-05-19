@@ -132,15 +132,14 @@ let make = (
     if profileId->String.length === 0 {
       Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
     }
+    let valueDict = values->getDictFromJsonObject
+    let revenue_recovery =
+      valueDict->getDictfromDict("feature_metadata")->getDictfromDict("revenue_recovery")
 
     if (
       currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
         (#addAPlatform, #configureRetries)
     ) {
-      let valueDict = values->getDictFromJsonObject
-      let revenue_recovery =
-        valueDict->getDictfromDict("feature_metadata")->getDictfromDict("revenue_recovery")
-
       let billing_connector_retry_threshold =
         revenue_recovery->getInt("billing_connector_retry_threshold", 0)
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
@@ -170,6 +169,22 @@ let make = (
           errors,
           "max_retry_count",
           `Max retry count count should be less than 15`->JSON.Encode.string,
+        )
+      }
+    }
+
+    if (
+      currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
+        (#addAPlatform, #connectProcessor)
+    ) {
+      let billing_account_reference =
+        revenue_recovery->getObj("billing_account_reference", Dict.make())
+
+      if billing_account_reference->getString(connectorID, "")->isEmptyString {
+        Dict.set(
+          errors,
+          "billing_account_reference",
+          `Please enter Processor Reference ID`->JSON.Encode.string,
         )
       }
     }
