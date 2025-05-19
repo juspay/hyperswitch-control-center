@@ -47,6 +47,7 @@ new_analytics=false
 new_analytics_smart_retries=false
 new_analytics_refunds=false
 new_analytics_filters=false
+sample_data_analytics=false
 surcharge=true
 dispute_evidence_upload=false
 recon=true
