@@ -16,7 +16,6 @@ let defaultColumns = [
   ConnectorLabel,
   Status,
   Disabled,
-  TestMode,
   Actions,
   PaymentMethods,
 ]
