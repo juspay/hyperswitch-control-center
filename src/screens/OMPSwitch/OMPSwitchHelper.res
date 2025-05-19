@@ -1,3 +1,24 @@
+module PlatformHierarchyModal = {
+  @react.component
+  let make = (~showModal, ~setShowModal) => {
+    <Modal
+      showModal
+      setShowModal
+      modalHeading="Platform Hierarchy"
+      modalClass="w-1/4 m-auto"
+      childClass="p-0"
+      borderBottom=true>
+      <div className="flex flex-col gap-12 h-full w-full">
+        <div className="p-4">
+          <div className="text-sm text-nd_gray-500">
+            {"Platform hierarchy will be displayed here"->React.string}
+          </div>
+        </div>
+      </div>
+    </Modal>
+  }
+}
+
 module ListBaseComp = {
   @react.component
   let make = (
@@ -13,6 +34,7 @@ module ListBaseComp = {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
+    let (showHierarchyModal, setShowHierarchyModal) = React.useState(_ => false)
 
     let arrowClassName = isDarkBg
       ? `${arrow
@@ -27,9 +49,19 @@ module ListBaseComp = {
       | #Merchant =>
         <div
           className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
-          <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
-            {"Merchant Account"->React.string}
-          </span>
+          <div className="flex flex-row w-full justify-between">
+            <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+              {"Merchant Account"->React.string}
+            </span>
+            <div
+              className="bg-nd_gray-150 w-5 h-5 rounded-sm flex items-center justify-center"
+              onClick={ev => {
+                ReactEvent.Mouse.stopPropagation(ev)
+                setShowHierarchyModal(_ => true)
+              }}>
+              <Icon name="github-fork" size=14 className="text-gray-500" />
+            </div>
+          </div>
           <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
@@ -59,9 +91,11 @@ module ListBaseComp = {
         </div>
       | _ => React.null
       }}
+      <PlatformHierarchyModal showModal={showHierarchyModal} setShowModal={setShowHierarchyModal} />
     </>
   }
 }
+
 module AddNewOMPButton = {
   @react.component
   let make = (
