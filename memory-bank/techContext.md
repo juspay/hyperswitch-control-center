@@ -22,7 +22,7 @@ This document provides a high-level overview of the technical context in which t
 - **ReScript File Conventions:**
   - `.res`: ReScript source files.
   - `.resi`: ReScript interface files (for defining module signatures).
-  - For a comprehensive guide to ReScript syntax and patterns used in this project, see [./rescriptSyntaxGuide.md](./rescriptSyntaxGuide.md).
+  - For a comprehensive guide to ReScript syntax and patterns used in this project, see [./thematic/rescript/index.md](./thematic/rescript/index.md).
 - **Table Display:**
     - The project uses `LoadedTableWithCustomColumns` component to display data in a table format.
     - The table columns are defined using ReScript types and data is mapped using `LogicUtils.getArrayDataFromJson` and `NewComponentEntity.itemToObjMapper`.

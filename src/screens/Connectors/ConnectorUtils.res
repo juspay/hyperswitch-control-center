@@ -116,6 +116,7 @@ let connectorList: array<connectorTypes> = [
   Processors(HIPAY),
   Processors(PAYSTACK),
   Processors(FACILITAPAY),
+  Processors(ARCHIPEL),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -611,6 +612,9 @@ let riskifyedInfo = {
     },
   ],
 }
+let archipelInfo = {
+  description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -691,6 +695,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | HIPAY => "hipay"
   | PAYSTACK => "paystack"
   | FACILITAPAY => "facilitapay"
+  | ARCHIPEL => "archipel"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -837,6 +842,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "hipay" => Processors(HIPAY)
     | "paystack" => Processors(PAYSTACK)
     | "facilitapay" => Processors(FACILITAPAY)
+    | "archipel" => Processors(ARCHIPEL)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -963,6 +969,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | HIPAY => hipayInfo
   | PAYSTACK => paystackInfo
   | FACILITAPAY => facilitapayInfo
+  | ARCHIPEL => archipelInfo
   }
 }
 
@@ -1274,13 +1281,18 @@ let generateInitialValuesDict = (
 
   let connectorWebHookDetails =
     dict->getJsonObjectFromDict("connector_webhook_details")->getDictFromJsonObject
-
-  dict->Dict.set(
-    "connector_webhook_details",
-    connectorWebHookDetails->getOptionString("merchant_secret")->Option.isSome
-      ? connectorWebHookDetails->JSON.Encode.object
-      : JSON.Encode.null,
-  )
+  let hasMerchantSecret = connectorWebHookDetails->getOptionString("merchant_secret")->Option.isSome
+  let hasAdditionalSecret =
+    connectorWebHookDetails->getOptionString("additional_secret")->Option.isSome
+  let connectorWebhookDict = switch (hasMerchantSecret, hasAdditionalSecret) {
+  | (true, _) => connectorWebHookDetails->JSON.Encode.object
+  | (false, true) => {
+      connectorWebHookDetails->Dict.set("merchant_secret", ""->JSON.Encode.string)
+      connectorWebHookDetails->JSON.Encode.object
+    }
+  | _ => JSON.Encode.null
+  }
+  dict->Dict.set("connector_webhook_details", connectorWebhookDict)
 
   dict->JSON.Encode.object
 }
@@ -1447,7 +1459,7 @@ let getConnectorFields = connectorDetails => {
   let connectorAccountDict =
     connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
   let bodyType = switch connectorAccountDict->JSON.Classify.classify {
-  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "")
+  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "NoKey")
   | String(_) => "NoKey"
   | _ => ""
   }
@@ -1827,6 +1839,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | HIPAY => "HiPay"
   | PAYSTACK => "Paystack"
   | FACILITAPAY => "Facilitapay"
+  | ARCHIPEL => "ArchiPEL"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

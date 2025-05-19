@@ -23,10 +23,10 @@ let getColumn = string => {
 }
 
 let successfulPaymentsDistributionMapper = (
-  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
+  ~params: InsightsTypes.getObjects<JSON.t>,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
-  open NewAnalyticsUtils
+  open InsightsUtils
   let {data, xKey, yKey} = params
   let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
 
@@ -51,7 +51,7 @@ let successfulPaymentsDistributionMapper = (
   }
 }
 
-open NewAnalyticsTypes
+open InsightsTypes
 
 let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
   {
