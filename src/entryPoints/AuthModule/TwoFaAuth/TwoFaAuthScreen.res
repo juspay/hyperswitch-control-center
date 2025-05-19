@@ -18,11 +18,13 @@ let make = (~setAuthStatus) => {
     }
 
     switch url.path {
+    //redirection url for email
     | list{"user", "verify_email"} => setAuthType(_ => EmailVerify)
     | list{"user", "set_password"} =>
       checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ResetPassword) : ()
     | list{"user", "accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
     | _ =>
+      //redirection url for dashboard
       switch url.path->HSwitchUtils.urlPath {
       | list{"login"} => setAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
       | list{"forget-password"} =>

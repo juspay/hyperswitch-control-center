@@ -112,9 +112,10 @@ let make = (~children) => {
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
-    | list{"register"} => setAuthStateToLogout()
     //redirection url from sso
     | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
+
+    | list{"register"} => setAuthStateToLogout()
     | _ => getAuthDetails()
     }
     None
