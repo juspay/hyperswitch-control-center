@@ -106,13 +106,14 @@ let make = (~children) => {
 
   React.useEffect(() => {
     switch url.path {
+    //redirection urls from email
     | list{"user", "login"}
-    | list{"register"} =>
-      setAuthStateToLogout()
     | list{"user", "verify_email"}
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
+    | list{"register"} => setAuthStateToLogout()
+    //redirection url from sso
     | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
     | _ => getAuthDetails()
     }
