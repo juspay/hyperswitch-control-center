@@ -82,61 +82,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let getConnectorDetails = async () => {
     try {
       let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Get, ~id=Some(connectorID))
-      // let json = await fetchDetails(connectorUrl)
-      let json = {
-        "connector_type": "payment_processor",
-        "connector_name": "stripe",
-        "connector_label": "00f379d5-d57d-4d92-b023-6b8e15a17239",
-        "merchant_connector_id": "mca_Qo0FofuBUHjl9rGEftuA",
-        "profile_id": "pro_282tTnuo4aAOJ6qNX13N",
-        "connector_account_details": {
-          "auth_type": "HeaderKey",
-          "api_key": "sk*******************df",
-        },
-        "payment_methods_enabled": [
-          {
-            "payment_method": "card",
-            "payment_method_types": [
-              {
-                "payment_method_type": "credit",
-                "payment_experience": null,
-                "card_networks": ["Mastercard"],
-                "accepted_currencies": null,
-                "accepted_countries": null,
-                "minimum_amount": 0,
-                "maximum_amount": 68607706,
-                "recurring_enabled": true,
-                "installment_payment_enabled": false,
-              },
-              {
-                "payment_method_type": "credit",
-                "payment_experience": null,
-                "card_networks": ["Visa"],
-                "accepted_currencies": null,
-                "accepted_countries": null,
-                "minimum_amount": 0,
-                "maximum_amount": 68607706,
-                "recurring_enabled": true,
-                "installment_payment_enabled": false,
-              },
-            ],
-          },
-        ],
-        "connector_webhook_details": null,
-        "metadata": null,
-        "test_mode": null,
-        "disabled": false,
-        "frm_configs": null,
-        "business_country": null,
-        "business_label": null,
-        "business_sub_label": null,
-        "applepay_verified_domains": null,
-        "pm_auth_config": null,
-        "status": "active",
-        "additional_merchant_data": null,
-        "connector_wallets_details": null,
-      }->Identity.genericTypeToJson
-
+      let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
     | Exn.Error(e) => {
