@@ -54,6 +54,7 @@ type featureFlag = {
   devIntelligentRoutingV2: bool,
   googlePayDecryptionFlow: bool,
   devWebhooks: bool,
+  sampleDataAnalytics: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -110,6 +111,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
     googlePayDecryptionFlow: dict->getBool("google_pay_decryption_flow", false),
     devWebhooks: dict->getBool("dev_webhooks", false),
+    sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
   }
 }
 
