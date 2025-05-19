@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.19.0
+
+### Bug Fixes
+
+- Payme connector not sending webhookdetails when only additional secret is populated ([#2946](https://github.com/juspay/hyperswitch-control-center/pull/2946)) ([`6572126`](https://github.com/juspay/hyperswitch-control-center/commit/6572126fc65b9cdb1928f401b02347912cef2a3b))
+
+### Miscellaneous Tasks
+
+- Insights file name change ([#2976](https://github.com/juspay/hyperswitch-control-center/pull/2976)) ([`e57f860`](https://github.com/juspay/hyperswitch-control-center/commit/e57f860206e2653960742a0a027ba2638bdb7185))
+
+**Full Changelog:** [`2025.05.16.2...2025.05.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.16.2...2025.05.19.0)
+
+
+- - -
+
 ## 2025.05.16.2
 
 ### Bug Fixes
