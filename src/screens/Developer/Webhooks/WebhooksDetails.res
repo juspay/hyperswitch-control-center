@@ -48,7 +48,7 @@ module TabDetails = {
     <div className="h-[44rem] !max-h-[72rem] overflow-scroll mt-4">
       {switch activeTab {
       | Request =>
-        <div className="flex flex-col w-[98%] pl-3">
+        <div className="flex flex-col gap-1 w-[98%] pl-3">
           <div> {"Headers"->React.string} </div>
           <div className="m-3 p-3 border border-grey-300 rounded-md max-w-[90%]">
             {headersValues(requestHeaders)}
@@ -243,17 +243,20 @@ let make = (~id) => {
       cursorStyle="cursor-pointer"
     />
     <PageLoaderWrapper screenState>
-      <div className="grid grid-cols-2 ">
+      <div className="flex gap-2">
         <div> {table} </div>
-        <div className="flex flex-col border border-grey-300 bg-white">
+        <div className="flex flex-col gap-2 border rounded-md bg-white max-w-full overflow-auto p-2">
           <RenderIf condition={!(selectedEvent.deliveryAttempt->LogicUtils.isEmptyString)}>
-            <div className="flex justify-between items-center mx-5 mt-5">
-              <TableUtils.LabelCell
-                labelColor=LabelGreen text={selectedEvent.deliveryAttempt->LogicUtils.snakeToTitle}
-              />
-              <Button
-                text="Retry Webhook" onClick={_ => retryWebhook()->ignore} buttonSize=XSmall
-              />
+            <div className="flex justify-between items-center mx-2 mt-5">
+              <div className="flex items-center gap-2  text-fs-14 border rounded-md py-1 px-2">
+                <span className="text-nd_gray-400">
+                  {"Delivery Attempt Type: "->React.string}
+                </span>
+                <span className="text-nd_gray-700">
+                  {selectedEvent.deliveryAttempt->LogicUtils.snakeToTitle->React.string}
+                </span>
+              </div>
+              <Button text="Retry Webhook" onClick={_ => retryWebhook()->ignore} buttonSize=Small />
             </div>
           </RenderIf>
           <div> {details} </div>
