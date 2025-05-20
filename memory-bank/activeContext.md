@@ -4,6 +4,13 @@
 
 The current work involves ongoing development across various modules and components. Recent activity includes:
 
+- **Dashboard Page Implementation:**
+  - Created a generic pattern for implementing dashboard pages with tables and charts
+  - Documented proper JSON encoding for chart configurations with ReScript's Dict API
+  - Added examples of JavaScript interop through `%raw` for chart formatters
+  - Explained type compatibility handling with `Obj.magic`
+  - Created comprehensive documentation in `memory-bank/thematic/PageCreationWithTableAndChart`
+
 - **AuthModule/ProductSelection:**
   - Modifications to `src/entryPoints/AuthModule/ProductSelection/ProductSelectionProvider.res` related to product selection logic.
 - **Recoils:**
@@ -54,21 +61,27 @@ The current work involves ongoing development across various modules and compone
 - **Recoil:** Utilizing Recoil for managing global application state.
 - **Modular Architecture:** Maintaining a modular architecture with clear separation of concerns.
 - **Feature Flags:** Using feature flags to enable/disable functionalities.
+- **Chart Implementation Patterns:** 
+  - Separating chart configuration from rendering components
+  - Using ReScript's Dict API for building complex JSON structures
+  - Leveraging JavaScript interop for chart callbacks
+  - Handling type compatibility between JSON and typed components
 
-## 3. Relevant Files and Code:
+## 3. Relevant Documentation:
 
-- `src/entryPoints/AuthModule/ProductSelection/ProductSelectionProvider.res`
-- `src/Recoils/TableAtoms.res`
-- `src/entryPoints/SidebarValues.res`
-- `src/RevenueRecovery/RevenueRecoveryScreens/RevenueRecoveryOverview/RevenueRecoveryOverview.res`
-- `src/screens/Customers/Customers.res`
-- `src/screens/Customers/CustomersEntity.res`
-- `src/screens/Routing/HistoryEntity.res`
-- `src/screens/Transaction/Disputes/DisputesEntity.res`
+- **PageCreationWithTableAndChart:**
+  - `memory-bank/thematic/PageCreationWithTableAndChart/index.md` - Overview guide
+  - `memory-bank/thematic/PageCreationWithTableAndChart/chartImplementation.md` - Chart implementation patterns
+  - `memory-bank/thematic/PageCreationWithTableAndChart/tableImplementation.md` - Table implementation patterns
 
 ## 4. Problem Solving / Observations:
 
-- (To be updated with any specific problem-solving efforts or observations)
+- **Dashboard Page Implementation Challenges:**
+  - Documented solutions for type compatibility issues between JSON configuration and typed component props
+  - Provided patterns for creating complex nested JSON structures for chart options
+  - Demonstrated JavaScript interop techniques for chart formatters using %raw
+  - Explained when and how to use Obj.magic for type casting between JSON.t and specific chart option types
+  - Established best practices for extracting configuration logic into separate utility functions
 
 ## 5. Pending Tasks and Next Steps:
 
