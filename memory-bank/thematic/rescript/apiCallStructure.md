@@ -1,6 +1,6 @@
 # ReScript API Call Structure in Hyperswitch
 
-This document outlines the standardized patterns for making API calls in the Hyperswitch Control Center, focusing on the ReScript-specific implementation details and type safety patterns.
+This document outlines the standardized patterns for making API calls in the Hyperswitch Control Center, focusing on the ReScript-specific implementation details and type safety patterns, with integration of the PageLoaderWrapper pattern for consistent UI state management.
 
 ## API Call Architecture
 
@@ -9,6 +9,7 @@ The Hyperswitch Control Center implements a robust, type-safe approach to API co
 ```mermaid
 graph TD
     Component[Component/Container] -->|uses hooks| APIHooks[API Hook Functions]
+    Component -->|manages| ScreenState[Screen State]
     APIHooks -->|calls| APIUtils[API Utilities]
     APIUtils -->|uses| Types[Type Definitions]
     APIUtils -->|handles| Auth[Authentication]
@@ -16,6 +17,8 @@ graph TD
     APIUtils -->|processes| Responses[Response Processing]
     APIUtils -->|manages| Errors[Error Handling]
     APIUtils -->|sends requests to| Backend[Backend API]
+    ScreenState -->|controls| PageLoaderWrapper[PageLoaderWrapper]
+    PageLoaderWrapper -->|renders| UI[UI Components]
 ```
 
 ## Key Components
@@ -235,30 +238,43 @@ let submitData = (data) => {
 
 6. **Toast Notifications**: Use the built-in toast notification system for user feedback on API operations.
 
-## Common Patterns
+## Integration with PageLoaderWrapper
 
-### Data Fetching in Components
+A core pattern in the Hyperswitch Control Center is integrating API calls with the PageLoaderWrapper component to manage UI states during asynchronous operations. This approach provides consistent loading, error, and success states across the application.
+
+### Data Fetching with PageLoaderWrapper
 
 ```rescript
-// Pattern for data fetching in a component
+// Pattern for data fetching in a component with PageLoaderWrapper
 @react.component
 let make = () => {
   let getURL = APIUtils.useGetURL()
   let getMethod = APIUtils.useGetMethod()
+  let showToast = ToastState.useShowToast()
+  
+  // Screen state for UI state management
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => None)
-  let (loading, setLoading) = React.useState(_ => true)
   
   React.useEffect0(() => {
     let fetchData = async () => {
       try {
-        setLoading(_ => true)
+        // Set loading state before API call
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        
         let url = getURL(~entityName=V1(ORDERS), ~methodType=Get)
         let response = await getMethod(url)
+        
+        // Set data and success state after successful API call
         setData(_ => Some(response))
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => () // Handle error
-      } finally {
-        setLoading(_ => false)
+      | Exn.Error(e) => {
+        // Set error state with message
+        let errorMsg = Exn.message(e)->Option.getOr("Failed to fetch data")
+        setScreenState(_ => PageLoaderWrapper.Error(errorMsg))
+        showToast(~message=errorMsg, ~toastType=ToastError)
+      }
       }
     }
     
@@ -266,68 +282,244 @@ let make = () => {
     None
   })
   
-  if loading {
-    <LoadingComponent />
-  } else {
-    switch data {
-    | Some(data) => <DataDisplay data />
-    | None => <EmptyState />
-    }
-  }
+  // PageLoaderWrapper handles loading, error, and success states
+  <PageLoaderWrapper screenState>
+    <div className="p-4">
+      {switch data {
+      | Some(responseData) => <DataDisplay data={responseData} />
+      | None => React.null
+      }}
+    </div>
+  </PageLoaderWrapper>
 }
 ```
 
-### Form Submission
+### Form Submission with PageLoaderWrapper
 
 ```rescript
-// Pattern for form submission
-let handleSubmit = (formData) => {
+// Pattern for form submission with PageLoaderWrapper
+let FormComponent = () => {
   let getURL = APIUtils.useGetURL()
   let updateMethod = APIUtils.useUpdateMethod()
-  let (submitting, setSubmitting) = React.useState(_ => false)
+  let showToast = ToastState.useShowToast()
   
-  let submit = async () => {
-    setSubmitting(_ => true)
+  // Screen state for UI state management
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  
+  let handleSubmit = async (formData) => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post)
       let response = await updateMethod(url, formData, Post)
-      // Handle success
+      
+      setScreenState(_ => PageLoaderWrapper.Success)
+      showToast(~message="Data saved successfully", ~toastType=ToastSuccess)
+      
+      // Process response if needed
     } catch {
-    | _ => // Handle error
-    } finally {
-      setSubmitting(_ => false)
+    | Exn.Error(e) => {
+      let errorMsg = Exn.message(e)->Option.getOr("Failed to save data")
+      setScreenState(_ => PageLoaderWrapper.Error(errorMsg))
+      showToast(~message=errorMsg, ~toastType=ToastError)
+    }
     }
   }
   
-  submit()->ignore
+  <PageLoaderWrapper screenState>
+    <Form onSubmit={handleSubmit}>
+      {/* Form fields */}
+    </Form>
+  </PageLoaderWrapper>
 }
 ```
 
-## Custom API Hooks
-
-For frequently used API operations, custom hooks are built on top of the base API utilities:
+### Empty Data Handling
 
 ```rescript
-// Example custom hook for fetching payment data
-let useFetchPayments = () => {
+// Handling empty data with PageLoaderWrapper Custom state
+let fetchData = async () => {
+  setScreenState(_ => PageLoaderWrapper.Loading)
+  
+  try {
+    let url = getURL(~entityName=V1(ENTITY), ~methodType=Get)
+    let response = await getMethod(url)
+    
+    if (response->Array.length > 0) {
+      setData(_ => response)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } else {
+      // No data case uses Custom state
+      setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  } catch {
+    | Exn.Error(e) => {
+      let errorMsg = Exn.message(e)->Option.getOr("Failed to fetch data")
+      setScreenState(_ => PageLoaderWrapper.Error(errorMsg))
+    }
+  }
+}
+
+// In render function
+<PageLoaderWrapper 
+  screenState 
+  customUI={<NoDataFound message="No data available" />}>
+  <DataDisplay data />
+</PageLoaderWrapper>
+```
+
+## Adding New API Endpoints
+
+When adding a new API endpoint to the application, follow these steps to ensure type safety and consistency:
+
+### 1. Add a Route Variant to APIUtilsTypes.res
+
+First, add a new variant to the `entityName` or `v2entityNameType` type in APIUtilsTypes.res:
+
+```rescript
+type entityName =
+  | CONNECTOR
+  | ROUTING
+  | MERCHANT_ACCOUNT
+  | NEW_ENTITY // Add your new entity here
+  // ... other entity types
+```
+
+### 2. Update URL Mapping in APIUtils.res
+
+Add a mapping for the new route in the `useGetURL` function:
+
+```rescript
+let endpoint = switch entityName {
+  | V1(entityNameType) =>
+      switch entityNameType {
+      | CONNECTOR => // Existing connector URL
+      | ROUTING => // Existing routing URL
+      | NEW_ENTITY => // New entity URL format
+        switch methodType {
+        | Get => `api/v1/new-entity${id->Option.mapOr("", id => `/${id}`)}`
+        | Post => `api/v1/new-entity`
+        | Put => `api/v1/new-entity${id->Option.mapOr("", id => `/${id}`)}`
+        | Delete => `api/v1/new-entity${id->Option.mapOr("", id => `/${id}`)}`
+        | _ => ""
+        }
+      // ... other entities
+      }
+  | V2(entityNameForv2) => // Handle V2 endpoints
+}
+```
+
+### 3. Component Implementation
+
+Implement the API call in your component:
+
+```rescript
+@react.component
+let make = () => {
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (data, setData) = React.useState(_ => None)
   let getURL = APIUtils.useGetURL()
   let getMethod = APIUtils.useGetMethod()
   
-  let fetchPayments = async (~params=?) => {
-    let queryString = switch params {
-    | Some(p) => `?${p}`
-    | None => ""
+  React.useEffect0(() => {
+    let fetchData = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        
+        let url = getURL(~entityName=V1(NEW_ENTITY), ~methodType=Get)
+        let response = await getMethod(url)
+        
+        // Convert response to properly typed value
+        let typedResponse = response->convertToTypedValue
+        
+        setData(_ => Some(typedResponse))
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | Exn.Error(e) => {
+        let errorMsg = Exn.message(e)->Option.getOr("Failed to fetch data")
+        setScreenState(_ => PageLoaderWrapper.Error(errorMsg))
+      }
+      }
     }
     
-    let url = getURL(~entityName=V1(ORDERS), ~methodType=Get) ++ queryString
-    await getMethod(url)
-  }
+    fetchData()->ignore
+    None
+  })
   
-  fetchPayments
+  <PageLoaderWrapper screenState>
+    // Component content for success state
+  </PageLoaderWrapper>
+}
+```
+
+## Custom API Hooks with Screen State Management
+
+For frequently used API operations, custom hooks can be built that incorporate screen state management:
+
+```rescript
+// Example custom hook for fetching payment data with screen state management
+let useFetchPaymentsWithState = () => {
+  let getURL = APIUtils.useGetURL()
+  let getMethod = APIUtils.useGetMethod()
+  let showToast = ToastState.useShowToast()
+  
+  // Return both the fetch function and state management
+  (screenState, setScreenState) => {
+    let fetchPayments = async (~params=?) => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        
+        let queryString = switch params {
+        | Some(p) => `?${p}`
+        | None => ""
+        }
+        
+        let url = getURL(~entityName=V1(ORDERS), ~methodType=Get) ++ queryString
+        let response = await getMethod(url)
+        
+        setScreenState(_ => PageLoaderWrapper.Success)
+        response
+      } catch {
+      | Exn.Error(e) => {
+        let errorMsg = Exn.message(e)->Option.getOr("Failed to fetch payments")
+        setScreenState(_ => PageLoaderWrapper.Error(errorMsg))
+        showToast(~message=errorMsg, ~toastType=ToastError)
+        
+        // Return null or a default value on error
+        JSON.Encode.null
+      }
+      }
+    }
+    
+    fetchPayments
+  }
+}
+
+// Usage in a component
+let PaymentsComponent = () => {
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (data, setData) = React.useState(_ => [])
+  
+  let fetchPayments = useFetchPaymentsWithState()(screenState, setScreenState)
+  
+  React.useEffect0(() => {
+    let loadData = async () => {
+      let response = await fetchPayments()
+      setData(_ => response->convertToPaymentsArray)
+    }
+    
+    loadData()->ignore
+    None
+  })
+  
+  <PageLoaderWrapper screenState>
+    <PaymentsTable data />
+  </PageLoaderWrapper>
 }
 ```
 
 These custom hooks:
 1. Abstract common API operations into reusable functions
-2. Provide a more domain-specific interface
+2. Provide integrated screen state management
 3. Reduce duplication across components
+4. Ensure consistent error handling and user feedback

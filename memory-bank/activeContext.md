@@ -7,40 +7,48 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ### Current Sprint Priorities
 
 1. **API Integration Enhancements**
-   - Standardizing API call patterns across the application
-   - Improving error handling and recovery mechanisms
-   - Implementing more robust data validation
+
+   - Standardizing API call patterns across the application following the established ReScript pattern
+   - Implementing consistent error handling with PageLoaderWrapper integration
+   - Enhancing type safety with improved response type definitions
+   - Refining API hook usage patterns for better reusability
 
 2. **Payment Processing Workflow**
+
    - Refining payment management interfaces
    - Optimizing refund and dispute handling flows
    - Enhancing payment status visualization
 
 3. **Intelligent Routing**
-   - Developing advanced routing rule configurations
-   - Implementing routing simulation capabilities
-   - Creating intuitive UI for complex routing scenarios
+
+   - Enhancing rule-based routing configuration interfaces
+   - Implementing performance simulation and visualization tools
+   - Creating intuitive drag-and-drop UI for complex routing scenarios
+   - Optimizing routing rule evaluation performance
 
 4. **Dashboard Performance**
-   - Optimizing component rendering performance
-   - Improving data loading and caching strategies
-   - Reducing bundle size for faster initial load
+   - Implementing optimized data fetching with cancelable API requests
+   - Enhancing component virtualization for large data sets
+   - Refining code splitting strategies for faster initial load
+   - Improving state management performance with selective Recoil atom updates
 
 ### Recent Changes
 
 #### Latest Features Added
 
-- Enhanced analytics dashboard with new visualization options
-- Improved connector integration workflow for easier onboarding
-- Added support for additional payment processors
-- Implemented feature flag system for gradual feature rollout
+- Enhanced analytics dashboard with customizable visualization options
+- Streamlined connector integration workflow with guided setup
+- Added support for regional payment processors and methods
+- Implemented granular feature flag system with user-level overrides
+- Introduced PageLoaderWrapper component for standardized loading states
 
 #### Refactoring and Improvements
 
-- Consolidated API utility functions for better maintainability
-- Standardized component prop interfaces across the application
-- Migrated to the latest version of ReScript
-- Improved theme customization capabilities
+- Consolidated API utility functions with improved typing and error handling
+- Standardized component prop interfaces with comprehensive .resi files
+- Migrated to ReScript 11.1.1 with enhanced compiler performance
+- Enhanced theme customization with runtime theme switching capabilities
+- Improved API response handling with standardized loader states
 
 #### Technical Debt Addressed
 
@@ -55,14 +63,17 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 - React Version: 18.2.0
 - Node.js Recommended Version: 18.x
 - Package Manager: Yarn 3.2.1
+- Recommended IDE: VSCode with ReScript extension 1.4.0
 
 ## Known Issues and Constraints
 
 1. **Performance Challenges**
+
    - Large data sets may cause rendering slowdowns in some analytics views
    - Initial load time on low-end devices may be suboptimal
 
 2. **Browser Compatibility**
+
    - Optimized for Chrome, Firefox, Safari, and Edge
    - Some visual inconsistencies may appear in older browsers
 
@@ -73,15 +84,18 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ## Next Milestone Goals
 
 1. **Payment Method Management**
+
    - Enhanced saved payment method management for customers
    - Better visualization of payment method performance
 
 2. **Advanced Analytics**
+
    - Implement advanced filtering capabilities
    - Add customizable dashboard widgets
    - Provide deeper insights into payment performance
 
 3. **Multi-tenant Capabilities**
+
    - Improve organization and merchant management
    - Enhance user permission systems
    - Support for more complex organizational hierarchies
@@ -93,10 +107,12 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ## Active Experiments
 
 1. **UI/UX Improvements**
+
    - Testing alternative navigation patterns for complex workflows
    - Evaluating different visualization approaches for payment data
 
 2. **Performance Optimizations**
+
    - Evaluating code splitting strategies for faster initial load
    - Testing various caching mechanisms for API responses
 
@@ -107,16 +123,21 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ## Recent Decisions
 
 1. **Architecture**
+
    - Continued commitment to ReScript for type safety benefits
    - Adoption of more granular component composition patterns
-   - Standardization of data fetching and error handling approaches
+   - Standardization of data fetching with PageLoaderWrapper pattern
+   - Consistent API call structure with central type definitions
 
 2. **UI/UX**
+
    - Emphasis on accessibility improvements across all components
    - Standardized mobile-first approach for all new components
    - Commitment to comprehensive dark mode support
+   - Implementation of skeleton loaders for better perceived performance
 
 3. **Technical**
-   - Standardized approach to API response handling
-   - Consolidated state management patterns using Recoil
+   - Standardized approach to API response handling with typed responses
+   - Consolidated state management patterns using Recoil with atom families
    - Improved feature flag implementation for better runtime customization
+   - Formalized error handling with consistent user feedback mechanisms
