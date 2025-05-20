@@ -245,7 +245,8 @@ let make = (~id) => {
     <PageLoaderWrapper screenState>
       <div className="flex gap-2">
         <div> {table} </div>
-        <div className="flex flex-col gap-2 border rounded-md bg-white max-w-full overflow-auto p-2">
+        <div
+          className="flex flex-col gap-2 border rounded-md bg-white max-w-full overflow-auto p-2">
           <RenderIf condition={!(selectedEvent.deliveryAttempt->LogicUtils.isEmptyString)}>
             <div className="flex justify-between items-center mx-2 mt-5">
               <div className="flex items-center gap-2  text-fs-14 border rounded-md py-1 px-2">
