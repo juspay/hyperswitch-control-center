@@ -3,6 +3,39 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.21.0
+
+### Features
+
+- Recovery analytics folder and side bar routes changes ([#2997](https://github.com/juspay/hyperswitch-control-center/pull/2997)) ([`1811176`](https://github.com/juspay/hyperswitch-control-center/commit/1811176dc498c9ef849fc779ff0c6ccf3f2f34aa))
+
+### Bug Fixes
+
+- Webhook ui enhancement ([#3007](https://github.com/juspay/hyperswitch-control-center/pull/3007)) ([`c33d40f`](https://github.com/juspay/hyperswitch-control-center/commit/c33d40fe052f1b1c4351a7902fadedc2f694b137))
+
+### Miscellaneous Tasks
+
+- Add metadata in mixpanel sample analytics ([#3002](https://github.com/juspay/hyperswitch-control-center/pull/3002)) ([`b228a6d`](https://github.com/juspay/hyperswitch-control-center/commit/b228a6da05a462faaf8b94485cc130ed21c36ea9))
+- Standardize names ([#2985](https://github.com/juspay/hyperswitch-control-center/pull/2985)) ([`f5de8a8`](https://github.com/juspay/hyperswitch-control-center/commit/f5de8a8c31d44f0f68efd62f9339124ed9911a08))
+- Redsys connector live ([#3016](https://github.com/juspay/hyperswitch-control-center/pull/3016)) ([`5bd3622`](https://github.com/juspay/hyperswitch-control-center/commit/5bd3622fde524c4ba471d351455a171b34db6690))
+- Webhook minor updates 1 ([#3017](https://github.com/juspay/hyperswitch-control-center/pull/3017)) ([`66071c7`](https://github.com/juspay/hyperswitch-control-center/commit/66071c7d9cbb69a0c22e37749fbf019e8180b48b))
+
+**Full Changelog:** [`2025.05.20.1...2025.05.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.20.1...2025.05.21.0)
+
+
+- - -
+
+## 2025.05.20.1
+
+### Bug Fixes
+
+- Analytics sample fixes ([#3012](https://github.com/juspay/hyperswitch-control-center/pull/3012)) ([`ab281e7`](https://github.com/juspay/hyperswitch-control-center/commit/ab281e709027f0ba1103042de43ace4f1833c58d))
+
+**Full Changelog:** [`2025.05.20.0...2025.05.20.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.20.0...2025.05.20.1)
+
+
+- - -
+
 ## 2025.05.20.0
 
 ### Features
