@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.20.1
+
+### Bug Fixes
+
+- Analytics sample fixes ([#3012](https://github.com/juspay/hyperswitch-control-center/pull/3012)) ([`ab281e7`](https://github.com/juspay/hyperswitch-control-center/commit/ab281e709027f0ba1103042de43ace4f1833c58d))
+
+**Full Changelog:** [`2025.05.20.0...2025.05.20.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.20.0...2025.05.20.1)
+
+
+- - -
+
 ## 2025.05.20.0
 
 ### Features

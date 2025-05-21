@@ -19,7 +19,7 @@ let make = () => {
     UserInfoProvider.defaultContext,
   )
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let tempRecallAmountMetrics = async () => {
     try {
       //Currency Conversion is failing in Backend for the first time so to fix that we are the calling the api for one time and ignoring the error
@@ -136,7 +136,7 @@ let make = () => {
             ~compareWithStartTime=startTimeVal,
             ~compareWithEndTime=endTimeVal,
             ~events=dateDropDownTriggerMixpanelCallback,
-            ~sampleDataIsEnabled=filterValueJson->getStringFromDictAsBool(sampleDataKey, false),
+            ~sampleDataIsEnabled=isSampleDataEnabled,
           )}
           defaultFilterKeys=[
             startTimeFilterKey,
@@ -159,6 +159,8 @@ let make = () => {
           selectedEntity={analyticsEntity}
           onChange={updateAnalytcisEntity}
           entityMapper=UserInfoUtils.analyticsEntityMapper
+          disabled=isSampleDataEnabled
+          disabledDisplayName="Hyperswitch_test"
         />
       </Portal>
       <Tabs

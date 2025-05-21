@@ -78,7 +78,7 @@ let initialFixedFilterFields = (
       LastMonth,
     ]
   }
-
+  let textStyle = sampleDataIsEnabled ? "text-gray-400" : "text-primary"
   let newArr = [
     (
       {
@@ -123,6 +123,7 @@ let initialFixedFilterFields = (
             ~compareWithStartTime,
             ~compareWithEndTime,
             ~disable=sampleDataIsEnabled,
+            ~textStyle,
           ),
           ~inputFields=[],
         ),
