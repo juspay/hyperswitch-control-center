@@ -1,33 +1,3 @@
-module PlatformModalChart = {
-  @react.component
-  let make = () => {
-    <div>
-      {"Platform hierarchy will be displayed here"->React.string}
-      <div className="flex items-end justify-end gap-4" />
-    </div>
-  }
-}
-module PlatformHierarchyModal = {
-  @react.component
-  let make = (~showModal, ~setShowModal) => {
-    open Typography
-    <Modal
-      showModal
-      setShowModal
-      modalHeading="Platform Hierarchy"
-      modalHeadingClass={`${heading.sm.medium} text-nd_gray-700`}
-      modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400`}>
-        {"Choose the organization, merchant, and profile you want to work with. This defines the scope for your configurations and data views."->React.string}
-      </div>}
-      modalClass="w-1/3 m-auto"
-      childClass="p-0"
-      borderBottom=true>
-      <div className="flex flex-col gap-12 h-full w-full">
-        <PlatformModalChart />
-      </div>
-    </Modal>
-  }
-}
 module ListBaseComp = {
   @react.component
   let make = (
@@ -66,7 +36,7 @@ module ListBaseComp = {
               className="bg-nd_gray-150 w-5 h-5 rounded-sm flex items-center justify-center"
               onClick={ev => {
                 ReactEvent.Mouse.stopPropagation(ev)
-                setShowHierarchyModal(_ => true)
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/organisation-chart"))
               }}>
               <Icon name="github-fork" size=14 className="text-gray-500" />
             </div>
@@ -100,7 +70,6 @@ module ListBaseComp = {
         </div>
       | _ => React.null
       }}
-      <PlatformHierarchyModal showModal={showHierarchyModal} setShowModal={setShowHierarchyModal} />
     </>
   }
 }

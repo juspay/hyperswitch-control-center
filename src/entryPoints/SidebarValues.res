@@ -448,6 +448,14 @@ let userManagement = userHasResourceAccess => {
   })
 }
 
+let organisationChart = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Organisation Chart",
+    link: `/organisation-chart`,
+    access: userHasResourceAccess(~resourceAccess=User),
+    searchOptions: [("View Organisation Chart", "")],
+  })
+}
 let businessDetails = userHasResourceAccess => {
   SubLevelLink({
     name: "Business Details",
@@ -500,7 +508,9 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
   }
 
   settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
-
+  settingsLinkArray
+  ->Array.push(organisationChart(userHasResourceAccess))
+  ->ignore
   Section({
     name: "Settings",
     icon: "nd-settings",
