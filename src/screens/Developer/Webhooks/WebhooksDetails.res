@@ -2,6 +2,7 @@ module TabDetails = {
   @react.component
   let make = (~activeTab: WebhooksTypes.tabs, ~selectedEvent: WebhooksTypes.attemptType) => {
     open LogicUtils
+    open WebhooksUtils
 
     let keyTextClass = HSwitchUtils.getTextClass((P1, Medium))
     let valTextClass = HSwitchUtils.getTextClass((P1, Regular))
@@ -48,13 +49,13 @@ module TabDetails = {
     <div className="h-[44rem] !max-h-[72rem] overflow-scroll mt-4">
       {switch activeTab {
       | Request =>
-        <div className="flex flex-col gap-1 w-[98%] pl-3">
-          <div> {"Headers"->React.string} </div>
-          <div className="m-3 p-3 border border-grey-300 rounded-md max-w-[90%]">
+        <div className="flex flex-col gap-1 pl-6">
+          {subHeading(~text="Headers")}
+          <div className="p-3 border border-nd_gray-200 rounded-md max-w-[90%]">
             {headersValues(requestHeaders)}
           </div>
           <div className="flex justify-between">
-            <div className=" mt-2"> {"Body"->React.string} </div>
+            {subHeading(~text="Body", ~customClass="mt-2")}
             <HelperComponents.CopyTextCustomComp
               displayValue=Some("") copyValue={Some(requestBody)} customTextCss="text-nowrap"
             />
@@ -67,25 +68,25 @@ module TabDetails = {
           </RenderIf>
         </div>
       | Response =>
-        <div className="pl-4">
+        <div className="flex flex-col gap-1 pl-6">
           <div className="flex items-center gap-2 mb-2">
-            <div> {"Status Code: "->React.string} </div>
+            {subHeading(~text="Status Code: ")}
             <TableUtils.LabelCell
               labelColor={WebhooksUtils.labelColor(statusCode)} text={statusCode->Int.toString}
             />
           </div>
-          <div> {"Headers"->React.string} </div>
-          <div className="m-3 p-3 border border-grey-300 rounded-md max-w-[40rem]">
+          {subHeading(~text="Headers")}
+          <div className="p-3 border border-grey-300 rounded-md max-w-[90%]">
             {headersValues(responseHeaders)}
           </div>
           <RenderIf condition={errorMessage->Option.isSome}>
             <div className="flex gap-2">
-              <div> {"Error Message:"->React.string} </div>
+              {subHeading(~text="Error Message:")}
               <div> {errorMessage->Option.getOr("")->React.string} </div>
             </div>
           </RenderIf>
           <div className="flex justify-between mr-2">
-            <div className="mt-2"> {"Body"->React.string} </div>
+            {subHeading(~text="Body", ~customClass="mt-2")}
             <RenderIf condition={!noResponse}>
               <HelperComponents.CopyTextCustomComp
                 displayValue=Some("") copyValue={Some(responseBody)} customTextCss="text-nowrap"
@@ -243,19 +244,19 @@ let make = (~id) => {
       cursorStyle="cursor-pointer"
     />
     <PageLoaderWrapper screenState>
-      <div className="flex gap-2">
+      <div className="flex gap-6">
         <div> {table} </div>
         <div
-          className="flex flex-col gap-2 border rounded-md bg-white max-w-full overflow-auto p-2">
+          className="flex flex-col gap-2 border border-nd_gray-200 rounded-lg bg-white w-[40rem] overflow-auto p-2">
           <RenderIf condition={!(selectedEvent.deliveryAttempt->LogicUtils.isEmptyString)}>
-            <div className="flex justify-between items-center mx-2 mt-5">
-              <div className="flex items-center gap-2  text-fs-14 border rounded-md py-1 px-2">
-                <span className="text-nd_gray-400">
-                  {"Delivery Attempt Type: "->React.string}
+            <div className="flex justify-between items-center mx-4 mt-5">
+              <div className="flex items-center gap-3 text-fs-14 px-2">
+                <span className="text-nd_gray-600 text-fs-20 font-semibold text-nowrap">
+                  {"Webhook Delivery "->React.string}
                 </span>
-                <span className="text-nd_gray-700">
-                  {selectedEvent.deliveryAttempt->LogicUtils.snakeToTitle->React.string}
-                </span>
+                <TableUtils.LabelCell
+                  labelColor=LabelGray text={selectedEvent.deliveryAttempt->LogicUtils.snakeToTitle}
+                />
               </div>
               <Button text="Retry Webhook" onClick={_ => retryWebhook()->ignore} buttonSize=Small />
             </div>
