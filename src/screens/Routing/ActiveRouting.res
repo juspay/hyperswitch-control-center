@@ -75,73 +75,79 @@ module ActiveSection = {
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-
+    let businessProfileRecoilVal =
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    let debitRoutingValue = businessProfileRecoilVal.is_debit_routing_enabled->Option.getOr(false)
     let routingName = switch activeRoutingType {
     | DEFAULTFALLBACK => ""
     | _ => `${activeRouting->getDictFromJsonObject->getString("name", "")->capitalizeString} - `
     }
 
     let profileId = activeRouting->getDictFromJsonObject->getString("profile_id", "")
-
-    <div
-      className="relative flex flex-col flex-wrap bg-white border rounded w-full px-6 py-10 gap-12">
-      <div>
-        <div
-          className="absolute top-0 left-0 bg-green-700 text-white py-2 px-4 rounded-br font-semibold">
-          {"ACTIVE"->React.string}
-        </div>
-        <div className="flex flex-col my-6 pt-4 gap-2">
-          <div className=" flex gap-4  align-center">
-            <p className="text-lightgray_background font-semibold text-base">
-              {`${routingName}${getContent(activeRoutingType).heading}`->React.string}
-            </p>
-            <Icon name="primary-tag" size=25 className="w-20" />
+    <>
+      <RenderIf condition=debitRoutingValue>
+        <DebitRoutingActiveCard />
+      </RenderIf>
+      <div className="flex flex-col flex-wrap bg-white border rounded w-full px-6 py-8 gap-4">
+        <div>
+          <div
+            className="flex items-center w-fit bg-green-700 text-white py-1 px-2 rounded-sm font-semibold">
+            <Icon name="check" size={10} className="mr-1" />
+            <span className={`text-fs-11`}> {"ACTIVE"->React.string} </span>
           </div>
-          <RenderIf condition={profileId->isNonEmptyString}>
-            <div className="flex gap-2">
-              <HelperComponents.ProfileNameComponent
-                profile_id={profileId} className="text-lightgray_background  opacity-50 text-sm"
-              />
-              <p className="text-lightgray_background  opacity-50 text-sm">
-                {`: ${profileId}`->React.string}
+          <div className="flex flex-col my-6 gap-2">
+            <div className=" flex gap-2 align-center">
+              <p className="text-lightgray_background font-semibold text-base">
+                {`${routingName}${getContent(activeRoutingType).heading}`->React.string}
               </p>
+              <Icon name="primary-tag" size=25 className="w-20" />
             </div>
-          </RenderIf>
-        </div>
-        <div className="text-lightgray_background font-medium text-base opacity-50 text-fs-14 ">
-          {`${getContent(activeRoutingType).heading} : ${getContent(
-              activeRoutingType,
-            ).subHeading}`->React.string}
-        </div>
-        <div className="flex gap-5 pt-6 w-1/4">
-          <ACLButton
-            authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-            text="Manage"
-            buttonType=Secondary
-            customButtonStyle="w-2/3"
-            buttonSize={Small}
-            onClick={_ => {
-              switch activeRoutingType {
-              | DEFAULTFALLBACK =>
-                RescriptReactRouter.push(
-                  GlobalVars.appendDashboardPath(
-                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
-                  ),
-                )
-              | _ =>
-                RescriptReactRouter.push(
-                  GlobalVars.appendDashboardPath(
-                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(
-                        activeRoutingType,
-                      )}?id=${activeRoutingId}&isActive=true`,
-                  ),
-                )
-              }
-            }}
-          />
+            <RenderIf condition={profileId->isNonEmptyString}>
+              <div className="flex gap-2">
+                <HelperComponents.ProfileNameComponent
+                  profile_id={profileId} className="text-lightgray_background  opacity-50 text-sm"
+                />
+                <p className="text-lightgray_background  opacity-50 text-sm">
+                  {`: ${profileId}`->React.string}
+                </p>
+              </div>
+            </RenderIf>
+          </div>
+          <div className="text-lightgray_background font-medium text-base opacity-50 text-fs-14 ">
+            {`${getContent(activeRoutingType).heading} : ${getContent(
+                activeRoutingType,
+              ).subHeading}`->React.string}
+          </div>
+          <div className="flex gap-2 pt-6 w-1/4">
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+              text="Manage"
+              buttonType=Secondary
+              customButtonStyle="w-4/3"
+              buttonSize={Small}
+              onClick={_ => {
+                switch activeRoutingType {
+                | DEFAULTFALLBACK =>
+                  RescriptReactRouter.push(
+                    GlobalVars.appendDashboardPath(
+                      ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
+                    ),
+                  )
+                | _ =>
+                  RescriptReactRouter.push(
+                    GlobalVars.appendDashboardPath(
+                      ~url=`/${onRedirectBaseUrl}/${routingTypeName(
+                          activeRoutingType,
+                        )}?id=${activeRoutingId}&isActive=true`,
+                    ),
+                  )
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   }
 }
 
@@ -181,7 +187,7 @@ module LevelWiseRoutingSection = {
         )
         ->React.array}
         <RenderIf condition=hasLeastCost>
-          <DebitRoutingCard onRedirectBaseUrl />
+          <DebitRoutingCard />
         </RenderIf>
       </div>
     </div>

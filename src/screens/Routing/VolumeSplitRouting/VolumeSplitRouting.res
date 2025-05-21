@@ -39,6 +39,7 @@ module VolumeRoutingView = {
         let activateRuleURL = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=activatingId)
         let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
+        Js.log2("baseUrlForRedirection", baseUrlForRedirection)
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )

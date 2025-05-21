@@ -4,7 +4,7 @@ module BulletItem = {
     open Typography
     <div className="flex gap-4 items-center ">
       <div
-        className={`${body.md.semibold} text-nd_gray-700 bg-nd_gray-150 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0`}>
+        className={`${body.md.semibold} text-nd_gray-600 bg-nd_gray-150 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0`}>
         {number->React.string}
       </div>
       textElement
@@ -34,6 +34,8 @@ let make = (~showModal, ~setShowModal) => {
       let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       setShowModal(_ => false)
       showToast(~message=`Successfully added configuration`, ~toastType=ToastState.ToastSuccess)
+      await HyperSwitchUtils.delay(1000)
+      Window.Location.hardReload(true)
     } catch {
     | _ => showToast(~message=`Failed to add configuration`, ~toastType=ToastState.ToastError)
     }
@@ -51,27 +53,27 @@ let make = (~showModal, ~setShowModal) => {
     </div>}
     borderBottom=true>
     <div className="flex flex-col h-full w-full p-3 m-3">
-      <span className={`${body.md.medium} text-nd_gray-700 mb-4`}>
+      <span className={`${body.md.medium} text-nd_gray-500 mb-4`}>
         {"Before you proceed, please ensure the following are in place:"->React.string}
       </span>
       <div className="flex flex-col gap-4">
         <BulletItem
           number="1"
-          textElement={<div className={`${body.md.medium} text-nd_gray-700`}>
+          textElement={<div className={`${body.md.medium} text-nd_gray-600`}>
             <span className={body.md.semibold}> {"Adyen"->React.string} </span>
             {" is added as one of your payment processors."->React.string}
           </div>}
         />
         <BulletItem
           number="2"
-          textElement={<div className={`${body.md.medium} text-nd_gray-700`}>
+          textElement={<div className={`${body.md.medium} text-nd_gray-600`}>
             <span className={body.md.semibold}> {"Debit card"->React.string} </span>
             {" is enabled in your Adyen configuration."->React.string}
           </div>}
         />
         <BulletItem
           number="3"
-          textElement={<div className={`${body.md.medium} text-nd_gray-700`}>
+          textElement={<div className={`${body.md.medium} text-nd_gray-600`}>
             <span className={body.md.semibold}> {"Local networks"->React.string} </span>
             {" are configured under the debit card settings."->React.string}
           </div>}
