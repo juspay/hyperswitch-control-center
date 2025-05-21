@@ -78,7 +78,7 @@ let productionAccessComponent = (isProductionAccessEnabled, userHasAccess, hasAn
 let home = isHomeEnabled =>
   isHomeEnabled
     ? Link({
-        name: "Home",
+        name: "Overview",
         icon: "nd-home",
         link: "/home",
         access: Access,
@@ -738,7 +738,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   if devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
-        name: "Overview",
+        name: "Home",
         icon: "nd-home",
         link: "/v2/home",
         access: Access,
