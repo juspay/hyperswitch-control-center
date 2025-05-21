@@ -55,7 +55,6 @@ let make = (~routingType) => {
           baseUrlForRedirection
           connectorVariant=ConnectorTypes.PaymentProcessor
         />
-      | LEASTCOST => <DebitRouting />
       | _ => <> </>
       }}
     </History.BreadCrumbWrapper>
