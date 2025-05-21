@@ -133,7 +133,7 @@ let columnGraphTooltipFormatter = (
               switch comparison {
               | Some(value) =>
                 value == DateRangeUtils.EnableComparison && showComparison
-                  ? NewAnalyticsUtils.getToolTipConparision(
+                  ? InsightsUtils.getToolTipConparision(
                       ~primaryValue=y,
                       ~secondaryValue=secondaryPoint.y,
                     )

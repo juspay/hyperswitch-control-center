@@ -1,11 +1,11 @@
-open NewAnalyticsTypes
-open NewAnalyticsHelper
+open InsightsTypes
+open InsightsHelper
 open LineGraphTypes
 open PaymentsSuccessRateUtils
-open NewPaymentAnalyticsUtils
+open InsightsPaymentAnalyticsUtils
 
 module PaymentsSuccessRateHeader = {
-  open NewAnalyticsUtils
+  open InsightsUtils
   open LogicUtils
   @react.component
   let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~granularityOptions) => {
@@ -65,7 +65,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-
+  open InsightsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -80,6 +80,7 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
@@ -90,7 +91,7 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
 
-  open NewAnalyticsUtils
+  open InsightsUtils
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let defaulGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
@@ -99,7 +100,7 @@ let make = (
   )
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
-
+  let fetchApi = AuthHooks.useApiFetcher()
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -108,26 +109,28 @@ let make = (
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
+      let primaryResponse = if isSampleDataEnabled {
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentSampleData")
+      } else {
+        let primaryBody = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~granularity=granularity.value->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
+        await updateDetails(url, primaryBody, Post)
+      }
 
-      let primaryBody = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
-      let secondaryBody = requestBody(
-        ~startTime=compareToStartTime,
-        ~endTime=compareToEndTime,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
-      let primaryResponse = await updateDetails(url, primaryBody, Post)
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
@@ -137,7 +140,29 @@ let make = (
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
-          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryResponse = if isSampleDataEnabled {
+            let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+            let res = await fetchApi(
+              paymentsUrl,
+              ~method_=Get,
+              ~xFeatureRoute=false,
+              ~forceCookies=false,
+            )
+            let paymentsResponse = await res->(res => res->Fetch.Response.json)
+            paymentsResponse
+            ->getDictFromJsonObject
+            ->getJsonObjectFromDict("secondaryPaymentSampleData")
+          } else {
+            let secondaryBody = requestBody(
+              ~startTime=compareToStartTime,
+              ~endTime=compareToEndTime,
+              ~delta=entity.requestBodyConfig.delta,
+              ~metrics=entity.requestBodyConfig.metrics,
+              ~granularity=granularity.value->Some,
+              ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+            )
+            await updateDetails(url, secondaryBody, Post)
+          }
           let secondaryData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
           let secondaryMetaData =
@@ -208,6 +233,7 @@ let make = (
     comparison,
     currency,
     granularity,
+    isSampleDataEnabled,
   ))
 
   let mockDelay = async () => {

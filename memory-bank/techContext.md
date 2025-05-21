@@ -1,213 +1,166 @@
-# Hyperswitch Control Center - Technical Context
+# Technical Context for Control Center
 
-## Technology Stack Overview
+This document provides a high-level overview of the technical context in which the Hyperswitch Control Center operates. It outlines the key technologies, tools, and practices employed in its development.
 
-Hyperswitch Control Center is built using a modern frontend technology stack centered around ReScript (a strongly-typed functional language that compiles to JavaScript) and React, with a focus on type safety, composability, and performance.
+## Key Technologies
 
-### Core Technologies
+- **Frontend Framework & UI Library:**
+  - ReScript: A robust, statically-typed language that compiles to efficient JavaScript.
+  - React: Used via ReScript bindings for building modular and reusable UI components.
+- **Styling:**
+  - Tailwind CSS: Utilized for utility-first styling.
+- **JavaScript Runtime:**
+  - Node.js: Used for the development server and build tools.
+- **Package Manager:**
+  - npm: The standard package manager for Node.js, used for managing project dependencies.
+- **Version Control:**
+  - Git: Used for source code management and collaboration.
+- **Backend Interaction:**
+  - RESTful APIs: The Control Center communicates with the Hyperswitch backend using RESTful API endpoints.
+- **Documentation:**
+  - Markdown: Used for documentation files.
+- **ReScript File Conventions:**
+  - `.res`: ReScript source files.
+  - `.resi`: ReScript interface files (for defining module signatures).
+  - For a comprehensive guide to ReScript syntax and patterns used in this project, see [./rescriptSyntaxGuide.md](./rescriptSyntaxGuide.md).
+- **Table Display:**
+    - The project uses `LoadedTableWithCustomColumns` component to display data in a table format.
+    - The table columns are defined using ReScript types and data is mapped using `LogicUtils.getArrayDataFromJson` and `NewComponentEntity.itemToObjMapper`.
+- **Recoil Atoms:**
+    - Recoil is used to manage the state of the table columns.
+    - The `newComponentMapDefaultCols` atom is used to store the default columns for the table.
+- **API Integration:**
+    - The project uses `APIUtils` to fetch data from the Hyperswitch backend.
+    - The `useGetMethod` hook is used to make GET requests to the API.
+- **MCP Servers:**
+  - MCP (Model Context Protocol) servers can be connected to the Control Center to provide additional tools and resources. These servers can extend the functionality of the Control Center by providing access to external APIs or other data sources.
+  - **Context7 MCP Server (`github.com/upstash/context7-mcp`):**
+    - Purpose: Provides tools to fetch up-to-date documentation and code examples for various libraries (e.g., `resolve-library-id`, `get-library-docs`).
+    - Installation Method: Docker-based. A `Dockerfile` was created in `/Users/jeeva.ramachandran/Documents/Cline/MCP/github.com/upstash/context7-mcp/` and an image named `context7-mcp` was built.
+    - Configuration in `cline_mcp_settings.json` (`/Users/jeeva.ramachandran/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`):
+      ```json
+      "github.com/upstash/context7-mcp": {
+        "command": "docker",
+        "args": ["run", "-i", "--rm", "context7-mcp"],
+        "disabled": false,
+        "autoApprove": []
+      }
+      ```
 
-| Category | Technologies |
-|----------|-------------|
-| **Primary Language** | ReScript |
-| **UI Framework** | React 18 |
-| **Styling** | Tailwind CSS |
-| **State Management** | Recoil |
-| **Build System** | Webpack |
-| **API Interaction** | Fetch (bs-fetch) |
-| **Date Handling** | Day.js |
-| **Visualization** | ApexCharts, Highcharts |
-| **Form Management** | React Final Form |
+## Project Directory Structure (High-Level)
 
-## ReScript Overview
+- **`src/`**: Contains the main ReScript source code for the Control Center application.
+- **`public/`**: Contains static assets (HTML, CSS, images) served directly to the browser.
+- **`build/`**: (Generated) Output directory for the built and optimized application.
+- **`node_modules/`**: (Generated) Contains installed Node.js packages and dependencies.
 
-ReScript is the core language of the project, providing:
+## Key Configuration Aspects
 
-- **Strong Type System**: Catch errors at compile time rather than runtime
-- **Pattern Matching**: Powerful capability for handling complex data structures
-- **Interoperability**: Seamless JavaScript integration
-- **Functional Paradigm**: Immutable data and pure functions as defaults
+- **API URLs:** The Control Center is configured with URLs for the Hyperswitch backend API and SDK. These are critical for communication and resource loading.
+- **Feature Flags:** Used to enable/disable functionalities, manage A/B testing, or control environment-specific features (e.g., `reports`, `mixpanel`, `test_processors`, `recon`).
+- **Environment Variables:** Standard practice for configuring settings that vary between development, staging, and production environments (e.g., API endpoints, base URLs).
 
-Key ReScript files are organized with:
-- `.res` files containing the implementation
-- `.resi` files containing the interface/type definitions (when present)
+## Development Practices
 
-## Architecture Components
+- **Modular Architecture:** The Control Center is likely built using a modular architecture, promoting code reusability and maintainability.
+- **Component-Based Development:** The UI is constructed using reusable components (see React above).
+- **State Management:**
+  - Recoil: Employed for global application state.
+  - React Hooks (`useState`, `useEffect`): Used for local component state.
+- **Testing:** The project should have a suite of tests (unit, integration, and/or end-to-end) to ensure code quality and prevent regressions.
+- **Build Tools:** Tools are used to automate the process of building, optimizing, and deploying the Control Center application.
+- **Code Style:** The project follows a specific code style and conventions, enforced by a linter. Key conventions include:
+  - Using camelCase for variable names (e.g., `myVariable`).
+  - Using kebab-case for ReScript file names (e.g., `my-file.res`).
+  - Potentially using snake_case for database column names (though this is more relevant to the backend, it's a general convention sometimes noted).
+- **Contribution Guidelines:** Refer to the main `docs/CONTRIBUTING.md` file for detailed instructions on how to contribute to the project.
 
-### Frontend Structure
+## Local Development Setup
 
-1. **Components Layer**
-   - Reusable UI components (src/components/)
-   - Typed interfaces for component props
-   - Component composition pattern
-
-2. **API Layer**
-   - Centralized API utilities (src/APIUtils/)
-   - Type-safe API request/response handling
-   - Error handling patterns
-
-3. **State Management**
-   - Recoil atoms and selectors (src/Recoils/)
-   - Global state organization
-   - Type-safe state access
-
-4. **Module Organization**
-   - Feature-based modules (Hypersense, IntelligentRouting, Recon, etc.)
-   - Each module typically contains:
-     - App component (entry point)
-     - Container components (logic)
-     - Screen components (presentation)
-
-5. **Utility Layer**
-   - Generic utilities (src/utils/)
-   - Typography utilities (src/Typography/)
-   - UI configuration (src/UIConfig/)
-
-### Build System
-
-- **Webpack**: Used for bundling and development server
-- **Configuration Files**:
-  - webpack.common.js - Common configuration
-  - webpack.dev.js - Development-specific configuration
-  - webpack.prod.js - Production-specific configuration
-  - webpack.custom.js - Custom builds
-  - webpack.server.js - Server configuration
-
-### Development Workflow
-
-1. **ReScript Compilation**
-   - `npm run re:start` watches and compiles ReScript files
-   - Compiled JavaScript is then processed by webpack
-
-2. **Development Server**
-   - `npm run start` launches the webpack dev server
-   - Hot Module Replacement for quick iteration
-
-3. **Production Build**
-   - `npm run build:prod` creates optimized production build
-   - Output is served from the dist directory
-
-## Features & Customization
-
-### Feature Flag System
-
-Feature flags allow for controlled feature rollout and customization:
-
-- Configuration stored in `config/FeatureFlag.json`
-- Runtime overrides possible via environment variables
-- Commonly toggled features include:
-  - Payment features (reconciliation, payouts, FRM)
-  - UI features (branding, test/live mode)
-  - Integration options (email, test processors)
-
-### Theming System
-
-The application supports theme customization:
-
-- Theme configuration in `ThemesProvider.res`
-- Overridable values for colors, sidebar styles, buttons
-- Custom logo and favicon support
-- Runtime customization via environment variables
-
-## Development Setup
+This section outlines the steps to set up and run the Hyperswitch Control Center frontend locally for development, connecting to a local instance of the Hyperswitch backend services running via Docker.
 
 ### Prerequisites
 
-- Node.js and npm/yarn
-- Git (for version control)
-- Docker (for running Hyperswitch backend)
+1.  **Node.js and npm**: Ensure Node.js (which includes npm) is installed. (Tested with Node v16.0.0, npm v7.10.0; newer versions generally recommended).
+2.  **Git**: Ensure Git is installed for cloning repositories.
+3.  **Docker**: Ensure Docker Desktop (or Docker Engine) is installed and running.
+4.  **Hyperswitch Backend Repository**: Clone the `hyperswitch` backend repository, typically as a sibling to `hyperswitch-control-center`.
+    ```bash
+    # Example: If hyperswitch-control-center is in /Workspace/hyperswitch-control-center
+    # Run from /Workspace:
+    git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
+    ```
 
-### Getting Started Steps
+### Setup Steps
 
-1. **Clone repository**
-   ```bash
-   git clone https://github.com/juspay/hyperswitch-control-center.git
-   ```
+1.  **Navigate to Control Center Directory**:
+    Ensure your terminal is in the `hyperswitch-control-center` project root.
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+2.  **Install Frontend Dependencies**:
+    If not already done, install Node.js packages:
 
-3. **Start ReScript compiler**
-   ```bash
-   npm run re:start
-   ```
+    ```bash
+    npm install
+    ```
 
-4. **Configure Backend**
-   - Clone and run Hyperswitch backend
-   - Update config.toml with correct endpoints
+    _(Note: If `npm run start` yields module resolution errors for packages like `react-color`, ensure they are installed and saved, e.g., `npm install react-color --save`)_
 
-5. **Start Development Server**
-   ```bash
-   npm run start
-   ```
+3.  **Configure Backend URLs**:
 
-### Deployment Options
+    - Open `config/config.toml` in the `hyperswitch-control-center` project.
+    - Verify these endpoint configurations for local backend (default Docker ports):
+      ```toml
+      [default.endpoints]
+      api_url="http://localhost:8080/api"
+      sdk_url="http://localhost:9050/HyperLoader.js"
+      ```
 
-- **Docker**: Docker-based deployment using provided Dockerfile
-- **AWS**: Automated AWS deployment using provided scripts
-- **Custom**: Build with webpack and deploy to any static hosting
+4.  **Start Hyperswitch Backend Services (Docker)**:
 
-## Testing Framework
+    - In a terminal, navigate to the `hyperswitch` backend repository (e.g., `cd ../hyperswitch`).
+    - Start services:
+      ```bash
+      # Inside the ../hyperswitch directory
+      docker compose up -d --scale hyperswitch-control-center=0
+      ```
+    - This starts services in detached mode (`-d`).
+    - `--scale hyperswitch-control-center=0` prevents Docker's control center UI, allowing local use.
+    - Monitor logs: `docker compose logs -f hyperswitch-server` (or other services).
 
-- **Cypress**: Used for end-to-end testing
-- **Test Structure**: Organized in cypress/e2e/ by feature area
-- **Test Execution**: Via `npm run cy:open` or `npm run cy:run`
+5.  **Start ReScript Compiler (Frontend)**:
 
-## Technical Constraints
+    - In a new terminal (in `hyperswitch-control-center` directory).
+    - Run ReScript compiler in watch mode:
+      ```bash
+      npm run re:start
+      ```
+    - Keep this running for automatic recompilation of `.res` to `.bs.js` files.
 
-1. **Browser Compatibility**
-   - Modern browser focus (Chrome, Firefox, Safari, Edge)
-   - No explicit IE11 support
+6.  **Start Frontend Development Server**:
 
-2. **Performance Targets**
-   - Dashboard loading under 3 seconds
-   - Smooth UI interactions (60 FPS)
-   - Efficient handling of large data sets
+    - In another new terminal (in `hyperswitch-control-center` directory).
+    - Run the development server:
+      ```bash
+      npm run start
+      ```
+    - This starts webpack dev server, typically at `http://localhost:9000/` (check terminal output).
 
-3. **API Dependencies**
-   - Requires functional Hyperswitch backend API
-   - Configuration via config.toml
+7.  **Access the Application**:
+    - Open your browser to `http://localhost:9000/` (or the URL from `npm run start`).
 
-## Libraries & Dependencies
+Keep `npm run re:start` and `npm run start` terminals running during development.
 
-### Core Dependencies
+## Hyperswitch Ecosystem
 
-- **@rescript/react**: ReScript bindings for React
-- **@rescript/core**: Core ReScript utilities
-- **recoil**: Atomic state management
-- **tailwindcss**: Utility-first CSS framework
+The Control Center operates within the broader Hyperswitch ecosystem, interacting with other components:
 
-### UI Components and Visualization
+- **Hyperswitch Backend:** The core payment processing engine.
+- **Hyperswitch SDK:** The JavaScript SDK used to interact with Hyperswitch.
 
-- **@headlessui/react**: Unstyled, accessible UI components
-- **apexcharts/react-apexcharts**: Interactive charts
-- **highcharts/highcharts-react-official**: Advanced charting
-- **framer-motion**: Animation library
-- **react-beautiful-dnd**: Drag and drop functionality
+## Target Audience
 
-### Form Handling
+This technical context is relevant for:
 
-- **final-form/react-final-form**: Form state management
-- **js-datepicker**: Date picker component
-
-### Other Utilities
-
-- **dayjs**: Lightweight date manipulation
-- **mixpanel-browser**: Analytics integration
-- **lottie-react**: Animation rendering
-- **monaco-editor**: Code editor component
-
-## Integration Points
-
-1. **Hyperswitch API**
-   - Primary backend integration point
-   - REST API communication
-
-2. **Payment Processors**
-   - Indirect integration via Hyperswitch API
-   - Processor-specific configuration screens
-
-3. **Analytics Tools**
-   - Mixpanel integration (when enabled)
-   - Google Analytics integration (react-ga4)
+- Developers working on the Control Center.
+- Developers integrating with the Control Center or Hyperswitch.
+- Anyone interested in understanding the technology stack used in the project.

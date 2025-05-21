@@ -8,21 +8,21 @@ Hyperswitch Control Center follows a modern, type-safe frontend architecture bas
 graph TD
     Client[Client Browser]
     API[Hyperswitch API]
-    
+
     subgraph "Frontend Application"
         Components[Component Layer]
         API_Utils[API Utilities]
         State[State Management]
         Screens[Screen Modules]
         Entities[Entity Definitions]
-        
+
         Components --> API_Utils
         Screens --> Components
         Screens --> API_Utils
         Screens --> State
         API_Utils --> Entities
     end
-    
+
     Client --> Frontend Application
     API_Utils --> API
 ```
@@ -39,6 +39,7 @@ ReScript enables type-first development, where types guide implementation:
 - **Type Safety**: Compile-time type checking eliminates entire classes of runtime errors
 
 Example from APIUtilsTypes.res:
+
 ```rescript
 type entityTypeWithVersion = V1(entityName) | V2(v2entityNameType)
 
@@ -55,6 +56,8 @@ type getUrlTypes = (
 ) => string
 ```
 
+- **[Architectural and React Patterns](./systemPatterns/architectural-react-patterns.md)**
+
 ### 2. Centralized API Communication
 
 API communication is centralized through a set of utilities:
@@ -65,6 +68,7 @@ API communication is centralized through a set of utilities:
 - **Auth Integration**: Authentication state management integrated with API calls
 
 The pattern allows for:
+
 - Consistent error handling
 - Centralized authentication
 - Type-safe API interactions across the application
@@ -79,6 +83,7 @@ UI is built through component composition with clear interfaces:
 - **Composition**: Complex UI assembled from simpler building blocks
 
 Example from Button.res:
+
 ```rescript
 type buttonState = Normal | Loading | Disabled | NoHover | Focused
 type buttonVariant = Fit | Long | Full | Rounded
@@ -106,6 +111,7 @@ Application is organized into feature modules:
 - **Shared Components**: Reusable across multiple features
 
 Example module structure:
+
 ```
 src/
   ├── IntelligentRouting/
@@ -145,6 +151,7 @@ Robust error handling approach:
 - **Logging**: Error events sent to monitoring systems
 
 From APIUtils.res:
+
 ```rescript
 let responseHandler = async (
   ~url,
@@ -167,7 +174,7 @@ sequenceDiagram
     participant APIUtils
     participant AuthHooks
     participant Server
-    
+
     Component->>APIUtils: Call useGetMethod() or useUpdateMethod()
     APIUtils->>AuthHooks: fetchApi() with auth tokens
     AuthHooks->>Server: HTTP Request with headers
@@ -187,7 +194,7 @@ sequenceDiagram
     participant Screen
     participant UIComponents
     participant APIUtils
-    
+
     User->>AppComponent: Navigate to route
     AppComponent->>Container: Render with route params
     Container->>APIUtils: Fetch required data
@@ -200,11 +207,13 @@ sequenceDiagram
 ## Security Patterns
 
 1. **Authentication**
+
    - Token-based authentication
    - Session management
    - Automatic redirection on auth failure
 
 2. **Authorization**
+
    - Role-based access control
    - Feature-based permissions
    - UI elements conditionally rendered based on permissions
