@@ -36,8 +36,12 @@ let revenueRecoverySummary = {
   })
 }
 
-let recoverySidebars = {
-  let links = [revenueRecoveryPayments, revenueRecoveryInvoices, revenueRecoverySummary]
+let recoverySidebars = devRecoveryV2ProductAnalytics => {
+  let links = [revenueRecoveryInvoices, revenueRecoverySummary]
+
+  if devRecoveryV2ProductAnalytics {
+    links->Array.unshift(revenueRecoveryPayments)
+  }
 
   links
 }
