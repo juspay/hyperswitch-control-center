@@ -22,7 +22,6 @@ let routingTypeMapper = routingType => {
   | "volume_split" => VOLUME_SPLIT
   | "advanced" => ADVANCED
   | "default" => DEFAULTFALLBACK
-  | "leastcost" => LEASTCOST
   | _ => NO_ROUTING
   }
 }
@@ -32,8 +31,7 @@ let routingTypeName = routingType => {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
   | DEFAULTFALLBACK => "default"
-  | LEASTCOST => "leastcost"
-  | NO_ROUTING => ""
+  | _ => ""
   }
 }
 
@@ -93,10 +91,6 @@ let getContent = routetype =>
   | ADVANCED => {
       heading: "Rule Based Configuration",
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
-    }
-  | LEASTCOST => {
-      heading: "Least Cost Routing Configuration",
-      subHeading: "Optimize processing fees on debit payments by routing traffic to the cheapest network",
     }
   | _ => {
       heading: "",

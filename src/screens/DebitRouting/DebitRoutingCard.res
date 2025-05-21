@@ -1,5 +1,5 @@
 @react.component
-let make = (~onRedirectBaseUrl) => {
+let make = () => {
   open LogicUtils
   open Typography
   let (showLeastCostModal, setShowLeastCostModal) = React.useState(_ => false)
@@ -58,7 +58,7 @@ let make = (~onRedirectBaseUrl) => {
       buttonSize=Small
       onClick={_ => {
         handleButtonClick()
-        mixpanelEvent(~eventName=`${onRedirectBaseUrl}_setup_leastcost`)
+        mixpanelEvent(~eventName=`debit_routing`)
       }}
     />
     <DebitRoutingConfigureModal showModal=showLeastCostModal setShowModal=setShowLeastCostModal />
