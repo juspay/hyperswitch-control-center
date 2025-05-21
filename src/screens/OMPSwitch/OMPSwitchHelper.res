@@ -195,7 +195,13 @@ let generateDropdownOptionsOMPViews = (dropdownList: OMPSwitchTypes.ompViews, ge
 
 module OMPViewsComp = {
   @react.component
-  let make = (~input, ~options, ~displayName, ~entityMapper=UserInfoUtils.entityMapper) => {
+  let make = (
+    ~input,
+    ~options,
+    ~displayName,
+    ~entityMapper=UserInfoUtils.entityMapper,
+    ~disabled=false,
+  ) => {
     let (arrow, setArrow) = React.useState(_ => false)
 
     let toggleChevronState = () => {
@@ -230,6 +236,7 @@ module OMPViewsComp = {
         shouldDisplaySelectedOnTop=true
         descriptionOnHover=true
         textEllipsisForDropDownOptions=true
+        disableSelect=disabled
       />
     </div>
   }
@@ -242,6 +249,8 @@ module OMPViews = {
     ~selectedEntity: UserInfoTypes.entity,
     ~onChange,
     ~entityMapper=UserInfoUtils.entityMapper,
+    ~disabled=false,
+    ~disabledDisplayName="",
   ) => {
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
@@ -259,9 +268,8 @@ module OMPViews = {
 
     let options = views->generateDropdownOptionsOMPViews(getNameForId)
 
-    let displayName = selectedEntity->getNameForId
-
-    <OMPViewsComp input options displayName />
+    let displayName = disabled ? disabledDisplayName : selectedEntity->getNameForId
+    <OMPViewsComp input options displayName disabled />
   }
 }
 

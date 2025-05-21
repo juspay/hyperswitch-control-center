@@ -3,6 +3,38 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.20.1
+
+### Bug Fixes
+
+- Analytics sample fixes ([#3012](https://github.com/juspay/hyperswitch-control-center/pull/3012)) ([`ab281e7`](https://github.com/juspay/hyperswitch-control-center/commit/ab281e709027f0ba1103042de43ace4f1833c58d))
+
+**Full Changelog:** [`2025.05.20.0...2025.05.20.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.20.0...2025.05.20.1)
+
+
+- - -
+
+## 2025.05.20.0
+
+### Features
+
+- **connector:** Archipel connector ([#2876](https://github.com/juspay/hyperswitch-control-center/pull/2876)) ([`b247994`](https://github.com/juspay/hyperswitch-control-center/commit/b24799471c0b1404dd6b03914d8555a9c363995f))
+
+### Bug Fixes
+
+- Fixed arrows in custom range calenders ([#2969](https://github.com/juspay/hyperswitch-control-center/pull/2969)) ([`032291e`](https://github.com/juspay/hyperswitch-control-center/commit/032291eda32a23c35ac151e91ccdfa22e51aee13))
+
+### Miscellaneous Tasks
+
+- Fix typo in config ([#2986](https://github.com/juspay/hyperswitch-control-center/pull/2986)) ([`25e3b36`](https://github.com/juspay/hyperswitch-control-center/commit/25e3b367b4bd155075bcc94306b9adca4d1f1103))
+- Sample data analytics feature flag and mixpanel addition ([#2994](https://github.com/juspay/hyperswitch-control-center/pull/2994)) ([`8916e7c`](https://github.com/juspay/hyperswitch-control-center/commit/8916e7c7882afb6aadc02d216e2881971505e89e))
+- Revert "browser navigation" handle redirect from sso ([#2988](https://github.com/juspay/hyperswitch-control-center/pull/2988)) ([`7f4bd36`](https://github.com/juspay/hyperswitch-control-center/commit/7f4bd363710126dbd1391c5a7d764ee238cc4bd6))
+
+**Full Changelog:** [`2025.05.19.0...2025.05.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.19.0...2025.05.20.0)
+
+
+- - -
+
 ## 2025.05.19.0
 
 ### Bug Fixes
