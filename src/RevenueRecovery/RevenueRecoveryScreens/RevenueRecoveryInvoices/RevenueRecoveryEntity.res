@@ -215,7 +215,7 @@ let revenueRecoveryEntity = (merchantId, orgId, profile_id) =>
     ~getShowLink={
       order =>
         GlobalVars.appendDashboardPath(
-          ~url=`v2/recovery/overview/${order.id}/${profile_id}/${merchantId}/${orgId}`,
+          ~url=`v2/recovery/invoices/${order.id}/${profile_id}/${merchantId}/${orgId}`,
         )
     },
   )

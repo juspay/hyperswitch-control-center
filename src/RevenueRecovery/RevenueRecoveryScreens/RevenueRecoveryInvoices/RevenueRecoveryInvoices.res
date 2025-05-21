@@ -140,9 +140,7 @@ let make = () => {
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading
-          title="Revenue Recovery Payments"
-          subTitle="List of failed Invoices picked up for retry"
-          customTitleStyle
+          title="Invoices" subTitle="List of failed Invoices picked up for retry" customTitleStyle
         />
       </div>
       //<div className="flex"> {filtersUI} </div>
