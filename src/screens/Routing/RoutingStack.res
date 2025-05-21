@@ -124,7 +124,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
         />
         <ActiveRouting.LevelWiseRoutingSection
-          types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="routing"
+          types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK, LEASTCOST] onRedirectBaseUrl="routing"
         />
       </div>
       <RenderIf condition={!previewOnly}>

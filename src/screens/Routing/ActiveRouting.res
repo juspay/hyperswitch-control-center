@@ -148,15 +148,22 @@ module ActiveSection = {
 module LevelWiseRoutingSection = {
   @react.component
   let make = (~types: array<routingType>, ~onRedirectBaseUrl) => {
-    <div className="flex flex-col flex-wrap  rounded w-full py-6 gap-5">
+    let (regularTypes, hasLeastCost) = types->Array.reduce(([], false), ((acc, hasLeast), value) =>
+      switch value {
+      | LEASTCOST => (acc, true)
+      | other => ([...acc, other], hasLeast)
+      }
+    )
+
+    <div className="flex flex-col flex-wrap rounded w-full py-6 gap-5">
       <div className="flex flex-wrap justify-evenly gap-9 items-stretch">
-        {types
+        {regularTypes
         ->Array.mapWithIndex((value, index) =>
           <div
             key={index->Int.toString}
-            className="flex flex-1 flex-col  bg-white border rounded px-5 py-5 gap-8">
+            className="flex flex-1 flex-col bg-white border rounded px-5 py-5 gap-8">
             <div className="flex flex-1 flex-col gap-7">
-              <div className="flex w-full items-center flex-wrap justify-between ">
+              <div className="flex w-full items-center flex-wrap justify-between">
                 <TopLeftIcons routeType=value />
                 <TopRightIcons routeType=value />
               </div>
@@ -173,6 +180,9 @@ module LevelWiseRoutingSection = {
           </div>
         )
         ->React.array}
+        <RenderIf condition=hasLeastCost>
+          <DebitRoutingCard onRedirectBaseUrl />
+        </RenderIf>
       </div>
     </div>
   }
