@@ -13,6 +13,11 @@ export function setForexData(forex: any): any;
  */
 export function convertCurrency(amount: bigint, from_currency: any, to_currency: any): any;
 /**
+ * This function can be used by the frontend to get all the two letter country codes
+ * along with their country names.
+ */
+export function getTwoLetterCountryCode(): any;
+/**
  * This function can be used by the frontend to provide the WASM with information about
  * all the merchant's connector accounts. The input argument is a vector of all the merchant's
  * connector accounts from the API.
@@ -58,6 +63,7 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly setForexData: (a: number, b: number) => void;
   readonly convertCurrency: (a: number, b: bigint, c: number, d: number) => void;
+  readonly getTwoLetterCountryCode: (a: number) => void;
   readonly seedKnowledgeGraph: (a: number, b: number) => void;
   readonly getValidConnectorsForRule: (a: number, b: number) => void;
   readonly analyzeProgram: (a: number, b: number) => void;

@@ -2,7 +2,7 @@ let fieldWrapperClass = "w-full flex flex-col"
 let labelClass = "!text-black !font-medium"
 module EmailPasswordForm = {
   @react.component
-  let make = (~setAuthType) => {
+  let make = () => {
     open CommonInputFields
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -15,7 +15,8 @@ module EmailPasswordForm = {
           <AddDataAttributes attributes=[("data-testid", "forgot-password")]>
             <label
               className={`not-italic text-[12px] font-semibold font-ibm-plex ${textColor.primaryNormal} cursor-pointer w-fit`}
-              onClick={_ => setAuthType(_ => CommonAuthTypes.ForgetPassword)}>
+              onClick={_ =>
+                GlobalVars.appendDashboardPath(~url="/forget-password")->RescriptReactRouter.push}>
               {"Forgot Password?"->React.string}
             </label>
           </AddDataAttributes>

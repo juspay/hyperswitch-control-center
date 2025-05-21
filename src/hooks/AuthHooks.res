@@ -47,7 +47,7 @@ let getHeaders = (
     }
 
     // this header is specific to Intelligent Routing (Dynamic Routing)
-    if uri->String.includes("simulate") {
+    if uri->String.includes("dynamic-routing") {
       headers->Dict.set("x-feature", "dynamo-simulator")
     }
     // headers for V2
@@ -140,7 +140,7 @@ let useApiFetcher = () => {
             if resp->Fetch.Response.status === 401 {
               switch authStatus {
               | LoggedIn(_) =>
-                LocalStorage.clear()
+                let _ = CommonAuthUtils.clearLocalStorage()
                 setAuthStateToLogout()
                 AuthUtils.redirectToLogin()
                 resolve(resp)

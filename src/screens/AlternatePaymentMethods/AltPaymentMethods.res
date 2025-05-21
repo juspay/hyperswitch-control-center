@@ -12,12 +12,13 @@ let make = () => {
     />
     <div
       className="w-full h-64 rounded-lg border border-nd_gray-50 gap-2 bg-nd_gray-25 flex justify-center items-center">
-      <img
+      <object
+        type_="image/svg+xml"
+        data="/AlternatePaymentMethods/AlternatePaymentMethodsOnboarding.svg"
+        className="w-full h-full"
         alt="alternatePaymentMethodsOnboarding"
-        src="/AlternatePaymentMethods/AlternatePaymentMethodsOnboarding.svg"
       />
     </div>
-    <div className="w-full flex flex-col gap-4" />
     {alternatePaymentConfiguration
     ->Array.mapWithIndex((item, idx) =>
       <APMConfigureStep

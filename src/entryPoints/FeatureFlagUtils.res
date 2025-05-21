@@ -42,19 +42,19 @@ type featureFlag = {
   tenantUser: bool,
   clickToPay: bool,
   debitRouting: bool,
-  devThemeFeature: bool,
   devReconv2Product: bool,
   devRecoveryV2Product: bool,
   devVaultV2Product: bool,
   devAltPaymentMethods: bool,
   devHypersenseV2Product: bool,
   devModularityV2: bool,
-  maintainenceAlert: string,
+  maintenanceAlert: string,
   forceCookies: bool,
   authenticationAnalytics: bool,
   devIntelligentRoutingV2: bool,
   googlePayDecryptionFlow: bool,
   devWebhooks: bool,
+  sampleDataAnalytics: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -99,12 +99,11 @@ let featureFlagType = (featureFlags: JSON.t) => {
     taxProcessor: dict->getBool("tax_processor", false),
     xFeatureRoute: dict->getBool("x_feature_route", false),
     tenantUser: dict->getBool("tenant_user", false),
-    devThemeFeature: dict->getBool("dev_theme_feature", false),
     devReconv2Product: dict->getBool("dev_recon_v2_product", false),
     devRecoveryV2Product: dict->getBool("dev_recovery_v2_product", false),
     devVaultV2Product: dict->getBool("dev_vault_v2_product", false),
     devHypersenseV2Product: dict->getBool("dev_hypersense_v2_product", false),
-    maintainenceAlert: dict->getString("maintainence_alert", ""),
+    maintenanceAlert: dict->getString("maintenance_alert", ""),
     forceCookies: dict->getBool("force_cookies", false),
     authenticationAnalytics: dict->getBool("authentication_analytics", false),
     devModularityV2: dict->getBool("dev_modularity_v2", false),
@@ -112,6 +111,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
     googlePayDecryptionFlow: dict->getBool("google_pay_decryption_flow", false),
     devWebhooks: dict->getBool("dev_webhooks", false),
+    sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
   }
 }
 

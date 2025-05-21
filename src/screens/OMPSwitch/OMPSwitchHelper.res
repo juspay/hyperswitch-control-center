@@ -121,7 +121,7 @@ module OMPViewBaseComp = {
       <div className="flex flex-col items-start">
         <div className="text-left flex items-center gap-1 p-2">
           <Icon name="settings-new" size=18 />
-          <p className="text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
+          <p className="sm:block hidden text-jp-gray-900 fs-10 overflow-scroll text-nowrap">
             {`View data for:`->React.string}
           </p>
           <span className="text-primary text-nowrap"> {truncatedDisplayName} </span>
@@ -152,7 +152,13 @@ let generateDropdownOptionsOMPViews = (dropdownList: OMPSwitchTypes.ompViews, ge
 
 module OMPViewsComp = {
   @react.component
-  let make = (~input, ~options, ~displayName, ~entityMapper=UserInfoUtils.entityMapper) => {
+  let make = (
+    ~input,
+    ~options,
+    ~displayName,
+    ~entityMapper=UserInfoUtils.entityMapper,
+    ~disabled=false,
+  ) => {
     let (arrow, setArrow) = React.useState(_ => false)
 
     let toggleChevronState = () => {
@@ -187,6 +193,7 @@ module OMPViewsComp = {
         shouldDisplaySelectedOnTop=true
         descriptionOnHover=true
         textEllipsisForDropDownOptions=true
+        disableSelect=disabled
       />
     </div>
   }
@@ -199,6 +206,8 @@ module OMPViews = {
     ~selectedEntity: UserInfoTypes.entity,
     ~onChange,
     ~entityMapper=UserInfoUtils.entityMapper,
+    ~disabled=false,
+    ~disabledDisplayName="",
   ) => {
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
@@ -216,9 +225,8 @@ module OMPViews = {
 
     let options = views->generateDropdownOptionsOMPViews(getNameForId)
 
-    let displayName = selectedEntity->getNameForId
-
-    <OMPViewsComp input options displayName />
+    let displayName = disabled ? disabledDisplayName : selectedEntity->getNameForId
+    <OMPViewsComp input options displayName disabled />
   }
 }
 
@@ -260,7 +268,6 @@ module MerchantDropdownItem = {
       | Vault => "vault-home"
       | CostObservability => "nd-piggy-bank"
       | DynamicRouting => "intelligent-routing-home"
-      | _ => "orchestrator-home"
       }
     }
 
@@ -344,7 +351,7 @@ module MerchantDropdownItem = {
 
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
-      <div className={`rounded-lg mb-1`}>
+      <div className={`rounded-lg`}>
         <InlineEditInput
           index
           labelText=merchantName
@@ -408,6 +415,8 @@ module ProfileDropdownItem = {
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let isMobileView = MatchMedia.useMobileChecker()
     let isActive = currentId == profileId
+    let setBusinessProfileRecoil =
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
 
     let getProfileList = async () => {
       try {
@@ -473,7 +482,8 @@ module ProfileDropdownItem = {
           ~methodType=Post,
           ~id=Some(profileId),
         )
-        let _ = await updateDetails(accountUrl, body, Post)
+        let res = await updateDetails(accountUrl, body, Post)
+        setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
       } catch {

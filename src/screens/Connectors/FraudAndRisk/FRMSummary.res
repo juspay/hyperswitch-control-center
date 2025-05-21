@@ -59,7 +59,7 @@ module ConfigInfo = {
 }
 
 @react.component
-let make = (~initialValues, ~currentStep) => {
+let make = (~initialValues, ~currentStep, ~setInitialValues) => {
   open LogicUtils
   open FRMUtils
   open APIUtils
@@ -67,6 +67,8 @@ let make = (~initialValues, ~currentStep) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -85,58 +87,66 @@ let make = (~initialValues, ~currentStep) => {
 
   let disableFRM = async isFRMDisabled => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let frmID = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
       let disableFRMPayload = initialValues->FRMTypes.getDisableConnectorPayload(isFRMDisabled)
       let url = getURL(~entityName=V1(FRAUD_RISK_MANAGEMENT), ~methodType=Post, ~id=Some(frmID))
-      let _ = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post)
+      setInitialValues(_ => res)
+      let _ = await fetchConnectorListResponse()
+      setScreenState(_ => PageLoaderWrapper.Success)
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
     }
   }
-
-  <div>
-    <div className="flex justify-between border-b sticky top-0 bg-white pb-2">
-      <div className="flex gap-2 items-center">
-        <GatewayIcon gateway={String.toUpperCase(frmInfo.connector_name)} className=size />
-        <h2 className="text-xl font-semibold">
-          {frmInfo.connector_name->capitalizeString->React.string}
-        </h2>
-      </div>
-      {switch currentStep {
-      | Preview =>
-        <div className="flex gap-6 items-center">
-          <p
-            className={`text-fs-13 font-bold ${isfrmDisabled ? "text-red-800" : "text-green-700"}`}>
-            {(isfrmDisabled ? "INACTIVE" : "ACTIVE")->React.string}
-          </p>
-          <ConnectorPreview.MenuOption
-            updateStepValue={ConnectorTypes.PaymentMethods}
-            disableConnector={disableFRM}
-            isConnectorDisabled={isfrmDisabled}
-            pageName={url.path->LogicUtils.getListHead}
-          />
-        </div>
-      | _ =>
-        <Button
-          onClick={_ => {
-            mixpanelEvent(~eventName="frm_step3")
-            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
-          }}
-          text="Done"
-          buttonType={Primary}
-        />
-      }}
-    </div>
+  <PageLoaderWrapper screenState>
     <div>
-      <div className="grid grid-cols-2 md:w-1/2 m-12">
-        <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
-        <div> {frmInfo.profile_id->React.string} </div>
+      <div className="flex justify-between border-b sticky top-0 bg-white pb-2">
+        <div className="flex gap-2 items-center">
+          <GatewayIcon gateway={String.toUpperCase(frmInfo.connector_name)} className=size />
+          <h2 className="text-xl font-semibold">
+            {frmInfo.connector_name->capitalizeString->React.string}
+          </h2>
+        </div>
+        {switch currentStep {
+        | Preview =>
+          <div className="flex gap-6 items-center">
+            <p
+              className={`text-fs-13 font-bold ${isfrmDisabled
+                  ? "text-red-800"
+                  : "text-green-700"}`}>
+              {(isfrmDisabled ? "INACTIVE" : "ACTIVE")->React.string}
+            </p>
+            <ConnectorPreview.MenuOption
+              updateStepValue={ConnectorTypes.PaymentMethods}
+              disableConnector={disableFRM}
+              isConnectorDisabled={isfrmDisabled}
+              pageName={url.path->LogicUtils.getListHead}
+            />
+          </div>
+        | _ =>
+          <Button
+            onClick={_ => {
+              mixpanelEvent(~eventName="frm_step3")
+              RescriptReactRouter.push(
+                GlobalVars.appendDashboardPath(~url="/fraud-risk-management"),
+              )
+            }}
+            text="Done"
+            buttonType={Primary}
+          />
+        }}
       </div>
-      <RenderIf condition={frmConfigs->Array.length > 0}>
-        <ConfigInfo frmConfigs />
-      </RenderIf>
+      <div>
+        <div className="grid grid-cols-2 md:w-1/2 m-12">
+          <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
+          <div> {frmInfo.profile_id->React.string} </div>
+        </div>
+        <RenderIf condition={frmConfigs->Array.length > 0}>
+          <ConfigInfo frmConfigs />
+        </RenderIf>
+      </div>
     </div>
-  </div>
+  </PageLoaderWrapper>
 }

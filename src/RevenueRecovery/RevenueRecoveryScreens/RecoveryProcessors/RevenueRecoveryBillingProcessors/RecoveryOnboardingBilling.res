@@ -23,7 +23,7 @@ let make = (
     ~entityName=V2(V2_CONNECTOR),
     ~version=UserInfoTypes.V2,
   )
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
 
@@ -63,6 +63,7 @@ let make = (
   }, [connector, profileId])
 
   let handleAuthKeySubmit = async (values, _) => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     setInitialValues(_ => values)
     onNextClick(currentStep, setNextStep)
     Nullable.null
@@ -72,7 +73,6 @@ let make = (
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     let dict = values->getDictFromJsonObject
     let values = dict->JSON.Encode.object
-
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
@@ -114,16 +114,16 @@ let make = (
       }
     }
   }, [connector])
-
-  let (
-    _,
+  let handleClick = () => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
+    onNextClick(currentStep, setNextStep)->ignore
+  }
+  let {
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
-    _,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let validateMandatoryField = values => {
     let errors = Dict.make()
@@ -132,15 +132,14 @@ let make = (
     if profileId->String.length === 0 {
       Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
     }
+    let valueDict = values->getDictFromJsonObject
+    let revenue_recovery =
+      valueDict->getDictfromDict("feature_metadata")->getDictfromDict("revenue_recovery")
 
     if (
       currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
         (#addAPlatform, #configureRetries)
     ) {
-      let valueDict = values->getDictFromJsonObject
-      let revenue_recovery =
-        valueDict->getDictfromDict("feature_metadata")->getDictfromDict("revenue_recovery")
-
       let billing_connector_retry_threshold =
         revenue_recovery->getInt("billing_connector_retry_threshold", 0)
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
@@ -170,6 +169,22 @@ let make = (
           errors,
           "max_retry_count",
           `Max retry count count should be less than 15`->JSON.Encode.string,
+        )
+      }
+    }
+
+    if (
+      currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
+        (#addAPlatform, #connectProcessor)
+    ) {
+      let billing_account_reference =
+        revenue_recovery->getObj("billing_account_reference", Dict.make())
+
+      if billing_account_reference->getString(connectorID, "")->isEmptyString {
+        Dict.set(
+          errors,
+          "billing_account_reference",
+          `Please enter Processor Reference ID`->JSON.Encode.string,
         )
       }
     }
@@ -210,9 +225,7 @@ let make = (
           connector_account_reference_id=connectorID
         />
       | (#addAPlatform, #setupWebhookPlatform) =>
-        <BillingProcessorsWebhooks
-          initialValues merchantId onNextClick={_ => onNextClick(currentStep, setNextStep)->ignore}
-        />
+        <BillingProcessorsWebhooks initialValues merchantId onNextClick={_ => handleClick()} />
       | (#reviewDetails, _) => <BillingProcessorsReviewDetails />
       | _ => React.null
       }}

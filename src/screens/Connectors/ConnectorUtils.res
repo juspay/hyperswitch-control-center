@@ -115,6 +115,8 @@ let connectorList: array<connectorTypes> = [
   Processors(REDSYS),
   Processors(HIPAY),
   Processors(PAYSTACK),
+  Processors(FACILITAPAY),
+  Processors(ARCHIPEL),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -435,6 +437,10 @@ let paystackInfo = {
   description: "Paystack is a technology company solving payments problems for ambitious businesses. Paystack builds technology to help Africa's best businesses grow - from new startups, to market leaders launching new business models.",
 }
 
+let facilitapayInfo = {
+  description: "Facilitapay is a payment provider for international businesses.Their all-in-one payment hub encompasses all payment methods,pay-ins and pay-outs.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -606,6 +612,9 @@ let riskifyedInfo = {
     },
   ],
 }
+let archipelInfo = {
+  description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -685,6 +694,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | REDSYS => "redsys"
   | HIPAY => "hipay"
   | PAYSTACK => "paystack"
+  | FACILITAPAY => "facilitapay"
+  | ARCHIPEL => "archipel"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -830,6 +841,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "redsys" => Processors(REDSYS)
     | "hipay" => Processors(HIPAY)
     | "paystack" => Processors(PAYSTACK)
+    | "facilitapay" => Processors(FACILITAPAY)
+    | "archipel" => Processors(ARCHIPEL)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -955,6 +968,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | REDSYS => redsysInfo
   | HIPAY => hipayInfo
   | PAYSTACK => paystackInfo
+  | FACILITAPAY => facilitapayInfo
+  | ARCHIPEL => archipelInfo
   }
 }
 
@@ -1266,13 +1281,18 @@ let generateInitialValuesDict = (
 
   let connectorWebHookDetails =
     dict->getJsonObjectFromDict("connector_webhook_details")->getDictFromJsonObject
-
-  dict->Dict.set(
-    "connector_webhook_details",
-    connectorWebHookDetails->getOptionString("merchant_secret")->Option.isSome
-      ? connectorWebHookDetails->JSON.Encode.object
-      : JSON.Encode.null,
-  )
+  let hasMerchantSecret = connectorWebHookDetails->getOptionString("merchant_secret")->Option.isSome
+  let hasAdditionalSecret =
+    connectorWebHookDetails->getOptionString("additional_secret")->Option.isSome
+  let connectorWebhookDict = switch (hasMerchantSecret, hasAdditionalSecret) {
+  | (true, _) => connectorWebHookDetails->JSON.Encode.object
+  | (false, true) => {
+      connectorWebHookDetails->Dict.set("merchant_secret", ""->JSON.Encode.string)
+      connectorWebHookDetails->JSON.Encode.object
+    }
+  | _ => JSON.Encode.null
+  }
+  dict->Dict.set("connector_webhook_details", connectorWebhookDict)
 
   dict->JSON.Encode.object
 }
@@ -1439,7 +1459,7 @@ let getConnectorFields = connectorDetails => {
   let connectorAccountDict =
     connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
   let bodyType = switch connectorAccountDict->JSON.Classify.classify {
-  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "")
+  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "NoKey")
   | String(_) => "NoKey"
   | _ => ""
   }
@@ -1455,7 +1475,8 @@ let getConnectorFields = connectorDetails => {
     connectorDetails
     ->getDictFromJsonObject
     ->getDictfromDict("additional_merchant_data")
-  (
+
+  {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
@@ -1463,7 +1484,7 @@ let getConnectorFields = connectorDetails => {
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  )
+  }
 }
 
 let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
@@ -1693,6 +1714,17 @@ let defaultSelectAllCards = (
   }
 }
 
+let connectorTypeToListMapper = connector => {
+  switch connector {
+  | Processor => connectorList
+  | ThreeDsAuthenticator => threedsAuthenticatorList
+  | PayoutProcessor => payoutConnectorList
+  | TaxProcessor => taxProcessorList
+  | PMAuthenticationProcessor => pmAuthenticationConnectorList
+  | _ => []
+  }
+}
+
 let getConnectorPaymentMethodDetails = async (
   ~initialValues,
   ~setPaymentMethods,
@@ -1806,6 +1838,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | REDSYS => "Redsys"
   | HIPAY => "HiPay"
   | PAYSTACK => "Paystack"
+  | FACILITAPAY => "Facilitapay"
+  | ARCHIPEL => "ArchiPEL"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

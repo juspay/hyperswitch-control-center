@@ -103,6 +103,8 @@ type processorTypes =
   | REDSYS
   | HIPAY
   | PAYSTACK
+  | FACILITAPAY
+  | ARCHIPEL
 
 type payoutProcessorTypes =
   | ADYEN
@@ -373,3 +375,13 @@ type connector =
   | PMAuthenticationProcessor
   | TaxProcessor
   | BillingProcessor
+
+type connectorFieldTypes = {
+  bodyType: string,
+  connectorAccountFields: Dict.t<JSON.t>,
+  connectorMetaDataFields: Dict.t<JSON.t>,
+  isVerifyConnector: bool,
+  connectorWebHookDetails: Dict.t<JSON.t>,
+  connectorLabelDetailField: Dict.t<JSON.t>,
+  connectorAdditionalMerchantData: Dict.t<JSON.t>,
+}

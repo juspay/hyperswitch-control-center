@@ -5,7 +5,8 @@ module AuthHeaderWrapper = {
     open CommonAuthTypes
 
     let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let (logoVariant, iconUrl) = switch (Window.env.urlThemeConfig.logoUrl, branding) {
+    let {logoURL} = React.useContext(ThemeProvider.themeContext)
+    let (logoVariant, iconUrl) = switch (logoURL, branding) {
     | (Some(url), true) => (IconWithURL, Some(url))
     | (Some(url), false) => (IconWithURL, Some(url))
     | _ => (IconWithText, None)
@@ -44,6 +45,7 @@ module AuthHeaderWrapper = {
 @react.component
 let make = (~children) => {
   open APIUtils
+  open AuthUtils
 
   let getURL = useGetURL()
 
@@ -55,7 +57,6 @@ let make = (~children) => {
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let getAuthDetails = () => {
-    open AuthUtils
     open LogicUtils
     let preLoginInfo = getPreLoginDetailsFromLocalStorage()
     let loggedInInfo = getUserInfoDetailsFromLocalStorage()
@@ -91,7 +92,6 @@ let make = (~children) => {
   }
 
   let handleRedirectFromSSO = () => {
-    open AuthUtils
     let info = getPreLoginDetailsFromLocalStorage()->SSOUtils.ssoDefaultValue
     setAuthStatus(PreLogin(info))
   }
@@ -106,17 +106,18 @@ let make = (~children) => {
 
   React.useEffect(() => {
     switch url.path {
+    //redirection urls from email
     | list{"user", "login"}
-    | list{"register"} =>
-      setAuthStateToLogout()
     | list{"user", "verify_email"}
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
+    //redirection url from sso
     | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
+
+    | list{"register"} => setAuthStateToLogout()
     | _ => getAuthDetails()
     }
-
     None
   }, [])
 

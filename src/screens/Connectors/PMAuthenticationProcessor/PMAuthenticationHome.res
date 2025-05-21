@@ -65,10 +65,8 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
-  let activeBusinessProfile =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->MerchantAccountUtils.getValueFromBusinessProfile
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"pm-authentication-processor", "new"} => false
@@ -84,15 +82,18 @@ let make = () => {
 
   let disableConnector = async isConnectorDisabled => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let connectorID = connectorInfo.merchant_connector_id
       let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
         connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
       )
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      setInitialValues(_ => res)
+      let _ = await fetchConnectorListResponse()
+      setScreenState(_ => PageLoaderWrapper.Success)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/pm-authentication-processor"))
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
     }
@@ -150,15 +151,14 @@ let make = () => {
     }
   }, [connectorName])
 
-  let (
+  let {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
@@ -166,15 +166,15 @@ let make = () => {
     if !isUpdateFlow {
       initialValuesToDict->Dict.set(
         "profile_id",
-        activeBusinessProfile.profile_id->JSON.Encode.string,
+        businessProfileRecoilVal.profile_id->JSON.Encode.string,
       )
       initialValuesToDict->Dict.set(
         "connector_label",
-        `${connectorName}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+        `${connectorName}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
       )
     }
     None
-  }, [connectorName, activeBusinessProfile.profile_id])
+  }, [connectorName, businessProfileRecoilVal.profile_id])
 
   React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
@@ -318,7 +318,6 @@ let make = () => {
                 </div>
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
-            <FormValuesSpy />
           </Form>
 
         | Summary | Preview =>

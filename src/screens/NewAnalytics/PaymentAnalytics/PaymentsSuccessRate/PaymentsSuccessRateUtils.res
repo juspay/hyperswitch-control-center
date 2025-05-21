@@ -27,10 +27,10 @@ let getVariantValueFromString = value => {
 }
 
 let paymentsSuccessRateMapper = (
-  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
+  ~params: InsightsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  open NewAnalyticsUtils
+  open InsightsUtils
   let {data, xKey, yKey} = params
   let comparison = switch params.comparison {
   | Some(val) => Some(val)
@@ -69,7 +69,7 @@ let paymentsSuccessRateMapper = (
   }
 }
 
-open NewAnalyticsTypes
+open InsightsTypes
 let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
 
 let defaulGranularity = {
