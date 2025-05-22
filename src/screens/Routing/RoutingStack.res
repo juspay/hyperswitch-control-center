@@ -24,6 +24,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
     open Tabs
     [
       {
+        title: "Active configuration",
+        renderContent: () => <ActiveRouting routingType />,
+      },
+      {
         title: "Manage rules",
         renderContent: () => {
           records->Array.length > 0
@@ -35,10 +39,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
                 overriddingStylesTitle="text-3xl font-semibold"
               />
         },
-      },
-      {
-        title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType />,
       },
     ]
   }, (routingType, debitRoutingValue))
