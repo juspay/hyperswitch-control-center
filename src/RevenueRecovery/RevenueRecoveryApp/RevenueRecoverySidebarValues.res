@@ -18,6 +18,15 @@ let revenueRecoveryPayments = {
   })
 }
 
+let revenueRecoveryInvoices = {
+  Link({
+    name: "Invoices",
+    link: `/v2/recovery/invoices`,
+    access: Access,
+    icon: "nd-operations",
+  })
+}
+
 let revenueRecoverySummary = {
   Link({
     name: "Configuration Details",
@@ -27,8 +36,12 @@ let revenueRecoverySummary = {
   })
 }
 
-let recoverySidebars = {
-  let links = [revenueRecoveryPayments, revenueRecoverySummary]
+let recoverySidebars = devRecoveryV2ProductAnalytics => {
+  let links = [revenueRecoveryInvoices, revenueRecoverySummary]
+
+  if devRecoveryV2ProductAnalytics {
+    links->Array.unshift(revenueRecoveryPayments)
+  }
 
   links
 }
