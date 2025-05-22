@@ -8904,17 +8904,12 @@ License)
       fill="#1C1B1F"
     />
   </symbol>
-  <symbol
-    id="modal-close-icon"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M6.39953 18.6534L5.3457 17.5995L10.9457 11.9995L5.3457 6.39953L6.39953 5.3457L11.9995 10.9457L17.5995 5.3457L18.6534 6.39953L13.0534 11.9995L18.6534 17.5995L17.5995 18.6534L11.9995 13.0534L6.39953 18.6534Z"
-      fill="currentColor"
-    />
+
+  <symbol id="modal-close-icon" viewBox="0 0 24 24" fill="none">
+    <path d="M6 18L12 12M12 12L18 6M12 12L6 6M12 12L18 18" stroke="currentColor" stroke-width="2.25"
+      stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
+
 
   <symbol id="new-window" viewBox="0 0 16 16" fill="none">
     <path

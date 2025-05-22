@@ -41,7 +41,7 @@ module ModalHeading = {
     ~modalHeaderIconSize,
   ) => {
     let borderClass = showBorderBottom
-      ? "border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75"
+      ? "border-b border-nd_gray-150 dark:border-jp-gray-960 dark:border-opacity-75"
       : ""
 
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")

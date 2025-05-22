@@ -8,6 +8,7 @@ let make = (~showModal, ~setShowModal) => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let setBusinessProfile = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateBusinessProfileDetails = async () => {
     try {
       let url = getURL(
@@ -37,24 +38,30 @@ let make = (~showModal, ~setShowModal) => {
     modalClass="w-1/3 m-auto"
     childClass="p-0"
     modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-      {"Optimize processing fees on debit payments by routing traffic to the cheapest network"->React.string}
+      {"Disabling this setting may result in higher processing fees for debit transactions."->React.string}
     </div>}
     borderBottom=true>
-    <div className="flex flex-col h-full w-full p-3 m-3">
-      <div className={`${body.md.medium} text-sm text-nd_gray-600`}>
+    <div className="flex flex-col h-full w-full px-6">
+      <div className={`${body.md.medium} text-sm text-nd_gray-600 py-6`}>
         {"Are you sure you want to deactivate the Least Cost Routing configuration?"->React.string}
       </div>
-      <div className="flex justify-end gap-4 p-4 mt-4 bg-white ">
+      <div className="flex justify-end gap-4 pb-8 pt-4">
         <Button
           text="Cancel"
           buttonType=Secondary
-          onClick={_ => setShowModal(_ => false)}
+          customButtonStyle="w-fit p-2"
+          onClick={_ => {
+            setShowModal(_ => false)
+          }}
           buttonSize=Small
         />
         <Button
           text="Deactivate Configuration"
           buttonType=Primary
-          onClick={_ => updateBusinessProfileDetails()->ignore}
+          onClick={_ => {
+            mixpanelEvent(~eventName=`debit_routing_disabled`)
+            updateBusinessProfileDetails()->ignore
+          }}
           buttonSize=Small
         />
       </div>

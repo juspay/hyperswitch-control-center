@@ -16,16 +16,16 @@ let make = () => {
     }
   }
   let buttonText = debitRoutingValue ? "Manage" : "Setup"
-  <div className="flex flex-1 flex-col bg-white border rounded px-5 py-5 gap-8">
+  <div className="flex flex-1 flex-col bg-white border rounded p-4 gap-8">
     <div className="flex flex-1 flex-col gap-7">
       <div className="flex w-full items-center flex-wrap justify-between">
         <Icon name="leastCostRouting" size=15 className="w-20" />
       </div>
-      <div className="flex flex-1 flex-col gap-3">
-        <p className={`${body.md.semibold} text-lightgray_background`}>
+      <div className="flex flex-1 flex-col gap-3 text-nd_gray-600">
+        <p className={`${body.md.semibold}`}>
           {"Least Cost Routing Configuration"->React.string}
         </p>
-        <p className={`${body.md.medium} opacity-50 text-lightgray_background`}>
+        <p className={`${body.md.medium} opacity-50`}>
           {"Optimize processing fees on debit payments by routing traffic to the cheapest network"->React.string}
         </p>
       </div>
@@ -33,7 +33,7 @@ let make = () => {
     <ACLButton
       text={buttonText}
       authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-      customButtonStyle="mx-auto w-full"
+      customButtonStyle="w-28"
       buttonType={Secondary}
       buttonSize=Small
       onClick={_ => {

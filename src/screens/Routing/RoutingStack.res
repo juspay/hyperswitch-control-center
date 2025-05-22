@@ -125,7 +125,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
         />
         <ActiveRouting.LevelWiseRoutingSection
-          types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK, LEASTCOST] onRedirectBaseUrl="routing"
+          types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK, DEBITROUTING] onRedirectBaseUrl="routing"
         />
       </div>
       <RenderIf condition={!previewOnly}>
@@ -139,8 +139,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
                 tabs
                 showBorder=false
                 includeMargin=false
-                lightThemeColor="black"
+                lightThemeColor="primary"
                 defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+                selectTabBottomBorderColor="bg-primary"
                 onTitleClick={indx => {
                   setTabIndex(_ => indx)
                   setCurrentTabName(_ => getTabName(indx))

@@ -1,4 +1,4 @@
 @react.component
 let make = () => {
-  <div />
+  <DebitRoutingCard />
 }

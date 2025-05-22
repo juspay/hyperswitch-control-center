@@ -19,6 +19,7 @@ let make = (~showModal, ~setShowModal) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let setBusinessProfile = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
@@ -51,11 +52,11 @@ let make = (~showModal, ~setShowModal) => {
       {"Optimize processing fees on debit payments by routing traffic to the cheapest network"->React.string}
     </div>}
     borderBottom=true>
-    <div className="flex flex-col h-full w-full p-3 m-3">
-      <span className={`${body.md.medium} text-nd_gray-500 mb-4`}>
+    <div className="flex flex-col h-full w-full px-6">
+      <span className={`${body.md.medium} text-sm text-nd_gray-600 py-6`}>
         {"Before you proceed, please ensure the following are in place:"->React.string}
       </span>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 pb-4">
         <BulletItem
           number="1"
           textElement={<div className={`${body.md.medium} text-nd_gray-600`}>
@@ -78,7 +79,7 @@ let make = (~showModal, ~setShowModal) => {
           </div>}
         />
       </div>
-      <div className="flex justify-end gap-4 p-4 mt-4 bg-white ">
+      <div className="flex justify-end gap-4 pb-8 pt-4">
         <Button
           text="Cancel"
           buttonType=Secondary
@@ -88,7 +89,10 @@ let make = (~showModal, ~setShowModal) => {
         <Button
           text="Enable"
           buttonType=Primary
-          onClick={_ => updateBusinessProfileDetails()->ignore}
+          onClick={_ => {
+            updateBusinessProfileDetails()->ignore
+            mixpanelEvent(~eventName=`debit_routing_enabled`)
+          }}
           buttonSize=Small
         />
       </div>

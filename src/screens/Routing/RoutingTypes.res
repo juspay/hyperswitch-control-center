@@ -1,4 +1,4 @@
-type routingType = VOLUME_SPLIT | ADVANCED | DEFAULTFALLBACK | LEASTCOST | NO_ROUTING
+type routingType = VOLUME_SPLIT | ADVANCED | DEFAULTFALLBACK | DEBITROUTING | NO_ROUTING
 type formState = CreateConfig | EditConfig | ViewConfig | EditReplica
 type status = ACTIVE | APPROVED | PENDING | REJECTED
 type pageState = Preview | Create | Edit
