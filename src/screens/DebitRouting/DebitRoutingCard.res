@@ -19,7 +19,7 @@ let make = () => {
   <div className="flex flex-1 flex-col bg-white border rounded p-4 gap-8">
     <div className="flex flex-1 flex-col gap-7">
       <div className="flex w-full items-center flex-wrap justify-between">
-        <Icon name="leastCostRouting" size=15 className="w-20" />
+        <Icon name="leastCostRouting" size=30 className="w-14" />
       </div>
       <div className="flex flex-1 flex-col gap-3 text-nd_gray-600">
         <p className={`${body.md.semibold}`}>
@@ -33,7 +33,7 @@ let make = () => {
     <ACLButton
       text={buttonText}
       authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-      customButtonStyle="w-28"
+      customButtonStyle="w-28 mt-4"
       buttonType={Secondary}
       buttonSize=Small
       onClick={_ => {
