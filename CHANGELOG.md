@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.22.0
+
+### Features
+
+- Recovery analytics feature flag ([#3023](https://github.com/juspay/hyperswitch-control-center/pull/3023)) ([`c372db0`](https://github.com/juspay/hyperswitch-control-center/commit/c372db04d690d2903b6fbeb43e4ba83328ec5904))
+
+### Bug Fixes
+
+- Prevent Web SDK script from loading multiple times ([#3020](https://github.com/juspay/hyperswitch-control-center/pull/3020)) ([`3a81ed2`](https://github.com/juspay/hyperswitch-control-center/commit/3a81ed2c9e5531b9717347edd92b9a97bf6c0f3e))
+
+**Full Changelog:** [`2025.05.21.0...2025.05.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.21.0...2025.05.22.0)
+
+
+- - -
+
 ## 2025.05.21.0
 
 ### Features
