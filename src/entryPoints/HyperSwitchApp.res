@@ -111,9 +111,6 @@ let make = () => {
   <>
     <div>
       {switch dashboardPageState {
-      | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-      // INTEGRATION_DOC Need to be removed
-      | #INTEGRATION_DOC => <UserOnboarding />
       | #HOME =>
         <div className="relative">
           // TODO: Change the key to only profileId once the userInfo starts sending profileId

@@ -292,12 +292,11 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
-  open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
-  let (showEditOrgModal, setShowEditOrgModal) = React.useState(_ => false)
+
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -379,14 +378,6 @@ let make = () => {
         </div>
       </RenderIf>
     </div>
-    <RenderIf condition={showAddOrgModal}>
-      <NewOrgCreationModal
-        setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} getOrgList
-      />
-    </RenderIf>
-    <EditOrgName
-      showModal={showEditOrgModal} setShowModal={setShowEditOrgModal} orgList orgId getOrgList
-    />
     <RenderIf condition={showAddOrgModal}>
       <NewOrgCreationModal
         setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} getOrgList

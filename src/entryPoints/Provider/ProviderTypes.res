@@ -3,9 +3,7 @@ type integration = {
   mutable metadata: JSON.t,
 }
 type dashboardPageStateTypes = [
-  | #AUTO_CONNECTOR_INTEGRATION
   | #DEFAULT
-  | #INTEGRATION_DOC
   | #HOME
 ]
 

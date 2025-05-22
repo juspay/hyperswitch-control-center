@@ -1,5 +1,30 @@
 open ReactHyperJs
 
+let getOptionReturnUrl = (~themeConfig, ~returnUrl, ~showSavedCards) => {
+  let layoutType = themeConfig->LogicUtils.getString("layout", "tabs")
+  let isSpacedLayout = layoutType == "spaced"
+
+  {
+    displaySavedPaymentMethods: showSavedCards,
+    showCardFormByDefault: false,
+    wallets: {
+      walletReturnUrl: returnUrl,
+      applePay: "auto",
+      googlePay: "auto",
+      style: {
+        theme: "dark",
+        type_: "default",
+        height: 48,
+      },
+    },
+    layout: {
+      \"type": isSpacedLayout ? "accordion" : layoutType,
+      defaultCollapsed: false,
+      radios: true,
+      spacedAccordionItems: isSpacedLayout,
+    },
+  }
+}
 @react.component
 let make = () => {
   open LogicUtils
@@ -16,11 +41,7 @@ let make = () => {
   let returnUrl = {`${GlobalVars.getHostUrlWithBasePath}/sdk`}
   let themeConfig = sdkThemeInitialValues->getDictFromJsonObject
   let showSavedCards = !isGuestMode && initialValuesForCheckoutForm.show_saved_card === Some("yes")
-  let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(
-    ~returnUrl,
-    ~themeConfig,
-    ~showSavedCards,
-  )
+  let paymentElementOptions = getOptionReturnUrl(~returnUrl, ~themeConfig, ~showSavedCards)
 
   let (error, setError) = React.useState(_ => None)
   let (btnState, setBtnState) = React.useState(_ => Button.Normal)
