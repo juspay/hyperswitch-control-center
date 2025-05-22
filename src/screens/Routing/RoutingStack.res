@@ -11,7 +11,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (routingType, setRoutingType) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let debitRoutingValue = businessProfileRecoilVal.is_debit_routing_enabled->Option.getOr(false)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
 
   let (widthClass, marginClass) = React.useMemo(() => {
@@ -39,7 +41,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         renderContent: () => <ActiveRouting routingType />,
       },
     ]
-  }, [routingType])
+  }, (routingType, debitRoutingValue))
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -47,7 +49,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
       let routingUrl = `${getURL(~entityName=V1(ROUTING), ~methodType=Get)}?limit=100`
       let routingJson = await fetchDetails(routingUrl)
       let configuredRules = routingJson->RoutingUtils.getRecordsObject
-
       let recordsData =
         configuredRules
         ->Belt.Array.keepMap(JSON.Decode.object)
@@ -112,7 +113,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   React.useEffect(() => {
     fetchActiveRouting()->ignore
     None
-  }, (pathVar, url.search))
+  }, (pathVar, url.search, debitRoutingValue))
 
   let getTabName = index => index == 0 ? "active" : "history"
 

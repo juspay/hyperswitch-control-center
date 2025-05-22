@@ -7,10 +7,9 @@ let make = (~showModal, ~setShowModal) => {
   let showToast = ToastState.useShowToast()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  //   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let setBusinessProfile = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
   let updateBusinessProfileDetails = async () => {
     try {
-      //   setScreenState(_ => Loading)
       let url = getURL(
         ~entityName=V1(BUSINESS_PROFILE),
         ~methodType=Post,
@@ -19,17 +18,14 @@ let make = (~showModal, ~setShowModal) => {
       let body = Dict.make()
       body->Dict.set("is_debit_routing_enabled", false->JSON.Encode.bool)
       let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
-      setShowModal(_ => false)
       showToast(
         ~message=`Successfully deactivated configuration`,
         ~toastType=ToastState.ToastSuccess,
       )
-      await HyperSwitchUtils.delay(1000)
-      Window.Location.hardReload(true)
-      //   setScreenState(_ => Success)
+      setShowModal(_ => false)
+      setBusinessProfile(prev => {...prev, is_debit_routing_enabled: Some(false)})
     } catch {
     | _ =>
-      //   setScreenState(_ => Success)
       showToast(~message=`Failed to deactivate configuration`, ~toastType=ToastState.ToastError)
     }
   }

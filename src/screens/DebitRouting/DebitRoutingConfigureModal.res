@@ -21,7 +21,7 @@ let make = (~showModal, ~setShowModal) => {
   let showToast = ToastState.useShowToast()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-
+  let setBusinessProfile = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
   let updateBusinessProfileDetails = async () => {
     try {
       let url = getURL(
@@ -32,10 +32,9 @@ let make = (~showModal, ~setShowModal) => {
       let body = Dict.make()
       body->Dict.set("is_debit_routing_enabled", true->JSON.Encode.bool)
       let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
-      setShowModal(_ => false)
       showToast(~message=`Successfully added configuration`, ~toastType=ToastState.ToastSuccess)
-      await HyperSwitchUtils.delay(1000)
-      Window.Location.hardReload(true)
+      setShowModal(_ => false)
+      setBusinessProfile(prev => {...prev, is_debit_routing_enabled: Some(true)})
     } catch {
     | _ => showToast(~message=`Failed to add configuration`, ~toastType=ToastState.ToastError)
     }
