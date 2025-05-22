@@ -310,9 +310,7 @@ module SampleDataBanner = {
       : ("No data yet? View sample data to explore the analytics.", "View sample data")
     let handleToggleChange = _ => {
       let newToggleState = !isSampleModeEnabled
-      if newToggleState {
-        mixpanelEvent(~eventName="sample_data_analytics")
-      }
+      mixpanelEvent(~eventName="sample_data_analytics", ~metadata=newToggleState->JSON.Encode.bool)
       setIsSampleModeEnabled(_ => newToggleState)
       applySampleDateFilters(newToggleState)->ignore
     }

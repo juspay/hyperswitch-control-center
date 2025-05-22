@@ -62,7 +62,19 @@ let make = () => {
           entityName="Payments"
           remainingPath
           access=Access
-          renderList={() => <RevenueRecoveryOverview />}
+          renderList={() => <RevenueRecoveryAnalytics />}
+          renderCustomWithOMP={(_, _, _, _) => <RevenueRecoveryAnalytics />}
+        />
+      } else {
+        <RevenueRecoveryOnboardingLanding createMerchant=false />
+      }
+    | list{"v2", "recovery", "invoices", ...remainingPath} =>
+      if hasConfiguredBillingConnector {
+        <EntityScaffold
+          entityName="Invoices"
+          remainingPath
+          access=Access
+          renderList={() => <RevenueRecoveryInvoices />}
           renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
         />
       } else {
