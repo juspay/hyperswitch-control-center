@@ -102,14 +102,12 @@ describe("connector", () => {
     cy.get("[data-testid=connectors]").click();
     cy.get("[data-testid=paymentprocessors]").click();
     cy.contains("Payment Processors").should("be.visible");
-    cy.get("[data-testid=home]").first().click();
+    cy.get("[data-testid=overview]").first().click();
     cy.get("[data-button-for=tryItOut]").click();
-    cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
-      "exist",
+    cy.get('[class="text-fs-28 font-semibold leading-10 "]').should(
+      "contain",
+      "Setup Checkout",
     );
-    cy.get('[data-button-text="🇺🇸 United States - (USD)"]').click();
-    cy.get('[data-text="🇩🇪 Germany - (EUR)"]').click();
-    cy.get("[data-testid=amount]").find("input").clear().type("77");
     cy.get("[data-button-for=showPreview]").click();
     cy.wait(2000);
     getIframeBody()
@@ -121,7 +119,7 @@ describe("connector", () => {
       .should("exist")
       .type("0127");
     getIframeBody().find("[data-testid=cvvInput]").should("exist").type("492");
-    cy.get("[data-button-for=payEUR77]").should("exist").click();
+    cy.get("[data-button-for=payUSD100]").should("exist").click();
     cy.contains("Payment Successful").should("exist");
   });
   it("Verify Time Range Filters after Payment in Payment Operations Page", () => {
