@@ -1,0 +1,347 @@
+@react.component
+let make = (
+  ~routingRuleId,
+  ~isActive,
+  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~urlEntityName,
+  ~baseUrlForRedirection,
+) => {
+  open APIUtils
+  open RoutingTypes
+  open AuthRateRoutingUtils
+  open LogicUtils
+
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod()
+  let showToast = ToastState.useShowToast()
+  let (initialValues, setInitialValues) = React.useState(_ => initialValues)
+  let (pageState, setPageState) = React.useState(() => Create)
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
+  let (showModal, setShowModal) = React.useState(_ => false)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (disableFields, setDisableFields) = React.useState(_ => false)
+
+  let _getVolumeSplit = async () => {
+    try {
+      let url = getURL(~entityName=V1(GET_VOLUME_SPLIT), ~methodType=Get)
+      let response = await fetchDetails(url)
+
+      Nullable.make(response)
+    } catch {
+    | _ => {
+        showToast(~message="Failed to get volumne split", ~toastType=ToastError)
+        Nullable.null
+      }
+    }
+  }
+
+  let activeRoutingDetails = async () => {
+    try {
+      let _url = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
+      // let response = await fetchDetails(url)
+      // let splitPercentage = await _getVolumeSplit()
+      let splitPercentage = 100
+      // splitPercentage
+      // ->Nullable.getOr(JSON.Encode.int(100))
+      // ->getDictFromJsonObject
+      // ->getInt("split_percentage", 100)
+
+      // let values = response->configFieldsMapper(splitPercentage)
+      let values =
+        defaultConfigsValue
+        ->Identity.genericTypeToJson
+        ->configFieldsMapper(splitPercentage)
+        ->Identity.genericTypeToJson
+      setInitialValues(_ => values)
+    } catch {
+    | _ => showToast(~message="Failed to fetch details", ~toastType=ToastError)
+    }
+  }
+
+  let fetchDetails = async () => {
+    try {
+      setScreenState(_ => Loading)
+      let _ = await activeRoutingDetails()
+      switch routingRuleId {
+      | Some(_id) => {
+          setPageState(_ => Preview)
+          setDisableFields(_ => true)
+        }
+      | None => setPageState(_ => Create)
+      }
+      setScreenState(_ => Success)
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        setScreenState(_ => Error(err))
+      }
+    }
+  }
+
+  React.useEffect(() => {
+    fetchDetails()->ignore
+    None
+  }, [])
+
+  React.useEffect(() => {
+    fetchDetails()->ignore
+    None
+  }, [routingRuleId])
+
+  let authRateRoutingConfig = async (routingId, values: JSON.t) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(SET_CONFIG_AUTH_RATE_ROUTING),
+        ~methodType=Patch,
+        ~id=Some(routingId),
+      )
+      let _ = await updateDetails(url, values, Patch)
+    } catch {
+    | _ => showToast(~message="Failed to update configs", ~toastType=ToastError)
+    }
+  }
+
+  let enableAuthRateRouting = async (~isActivate=true) => {
+    try {
+      let queryParamerters = `enable=${isActivate ? "dynamic_connector_selection" : "none"}`
+      let url = getURL(
+        ~entityName=V1(ENABLE_AUTH_RATE_ROUTING),
+        ~methodType=Post,
+        ~queryParamerters=Some(queryParamerters),
+      )
+      let response = await updateDetails(url, JSON.Encode.null, Post)
+      if !isActivate {
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
+      }
+      Nullable.make(response)
+    } catch {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
+      | Some(message) =>
+        if message->String.includes("IR_16") {
+          let message = isActivate ? "Algorithm is activated!" : "Algorithm is deactivated!"
+          showToast(~message, ~toastType=ToastState.ToastSuccess)
+          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
+          setScreenState(_ => Success)
+        } else {
+          let message = isActivate
+            ? "Failed to Activate the Configuration!"
+            : "Failed to Deactivate the Configuration!"
+          showToast(~message, ~toastType=ToastState.ToastError)
+          setScreenState(_ => Error(message))
+        }
+      | None => setScreenState(_ => Error("Something went wrong"))
+      }
+      Nullable.null
+    }
+  }
+
+  let setVolumeSplit = async (splitPercentage: int) => {
+    try {
+      let queryParamerters = `split=${splitPercentage->Int.toString}`
+      let url = getURL(
+        ~entityName=V1(SET_VOLUME_SPLIT),
+        ~methodType=Post,
+        ~queryParamerters=Some(queryParamerters),
+      )
+      let _ = await updateDetails(url, JSON.Encode.null, Post)
+    } catch {
+    | _ => showToast(~message="Failed to set volumne split", ~toastType=ToastError)
+    }
+  }
+
+  let onSubmit = async (values, isSaveRule) => {
+    try {
+      let splitPercentage = values->getDictFromJsonObject->getInt("split_percentage", 100)
+      let _ = Dict.delete(values->getDictFromJsonObject, "split_percentage")
+
+      let response = await enableAuthRateRouting()
+      let routingId =
+        response->Nullable.getOr(JSON.Encode.null)->getDictFromJsonObject->getString("id", "")
+
+      let _ = await authRateRoutingConfig(routingId, values)
+      let _ = await setVolumeSplit(splitPercentage)
+
+      showToast(
+        ~message="Successfully Created a new Configuration !",
+        ~toastType=ToastState.ToastSuccess,
+      )
+      setScreenState(_ => Success)
+      setShowModal(_ => false)
+
+      if isSaveRule {
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
+      }
+      response
+    } catch {
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Something went wrong!")
+      showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError)
+      setScreenState(_ => PageLoaderWrapper.Error(err))
+      Nullable.null
+    }
+  }
+
+  let handleActivateConfiguration = async (activatingId: option<string>) => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let activateRuleURL = getURL(
+        ~entityName=V1(ACTIVATE_AUTH_RATE_ROUTING),
+        ~methodType=Post,
+        ~id=activatingId,
+      )
+      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
+      showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
+      setScreenState(_ => Success)
+    } catch {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
+      | Some(message) =>
+        if message->String.includes("IR_16") {
+          showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess)
+          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
+          setScreenState(_ => Success)
+        } else {
+          showToast(
+            ~message="Failed to Activate the Configuration!",
+            ~toastType=ToastState.ToastError,
+          )
+          setScreenState(_ => Error(message))
+        }
+      | None => setScreenState(_ => Error("Something went wrong"))
+      }
+    }
+  }
+
+  let validateForm = (values: JSON.t) => {
+    let finalValuesDict = switch values->JSON.Decode.object {
+    | Some(dict) => dict
+    | None => Dict.make()
+    }
+    let errors = Dict.make()
+    let keysToValidate = ["min_aggregates_size", "default_success_rate", "max_aggregates_size"]
+
+    keysToValidate->Array.forEach(key => {
+      if getInt(finalValuesDict, key, -1) == -1 {
+        Dict.set(errors, key, "Required"->JSON.Encode.string)
+      }
+    })
+
+    let totalCount =
+      values
+      ->getDictFromJsonObject
+      ->getDictfromDict("current_block_threshold")
+      ->getInt("max_total_count", -1)
+
+    if totalCount == -1 {
+      let currentBlockThresholdErrors = Dict.make()
+      Dict.set(currentBlockThresholdErrors, "max_total_count", "Required"->JSON.Encode.string)
+      Dict.set(errors, "current_block_threshold", currentBlockThresholdErrors->JSON.Encode.object)
+    }
+
+    errors->JSON.Encode.object
+  }
+
+  let formFields = allFormFields->Array.map(field => {
+    <FormRenderer.FieldRenderer
+      field={FormRenderer.makeFieldInfo(
+        ~label=getFormFieldLabel(field),
+        ~isRequired=requiredFormFields->Array.includes(field),
+        ~name=getFormFieldValue(field),
+        ~customInput=InputFields.numericTextInput(~precision=-1, ~isDisabled=disableFields),
+      )}
+    />
+  })
+
+  let editConfiguration = () => {
+    setPageState(_ => Create)
+    setDisableFields(_ => false)
+  }
+
+  <div className="my-6">
+    <PageLoaderWrapper screenState>
+      {connectorList->Array.length > 0
+        ? <Form
+            onSubmit={(values, _) => onSubmit(values, true)} initialValues validate=validateForm>
+            <div className="w-full flex justify-between">
+              <BasicDetailsForm.BusinessProfileInp
+                setProfile={setProfile}
+                profile={profile}
+                options={[
+                  businessProfileRecoilVal,
+                ]->MerchantAccountUtils.businessProfileNameDropDownOption}
+                label="Profile"
+              />
+            </div>
+            <div
+              className="mt-5 mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
+              <div className="font-bold py-2">
+                {"Intelligent Routing Configuration"->React.string}
+              </div>
+              <div className="max-w-[500px]"> {formFields->React.array} </div>
+            </div>
+            <div>
+              {switch pageState {
+              | Preview =>
+                <div className="flex flex-col md:flex-row gap-4 p-1 mt-5">
+                  <Button
+                    text={"Duplicate and Edit Configuration"}
+                    buttonType={isActive ? Primary : Secondary}
+                    onClick={_ => editConfiguration()}
+                    customButtonStyle="w-1/5"
+                    buttonState=Normal
+                  />
+                  <RenderIf condition={!isActive}>
+                    <Button
+                      text={"Activate Configuration"}
+                      buttonType={Primary}
+                      onClick={_ => handleActivateConfiguration(routingRuleId)->ignore}
+                      customButtonStyle="w-1/5"
+                      buttonState=Normal
+                    />
+                  </RenderIf>
+                  <RenderIf condition={isActive}>
+                    <Button
+                      text={"Deactivate Configuration"}
+                      buttonType={Secondary}
+                      onClick={_ => enableAuthRateRouting(~isActivate=false)->ignore}
+                      customButtonStyle="w-1/5"
+                      buttonState=Normal
+                    />
+                  </RenderIf>
+                </div>
+              | Create =>
+                <div className="mt-5">
+                  <RoutingUtils.ConfigureRuleButton setShowModal />
+                </div>
+              | _ => React.null
+              }}
+              <CustomModal.RoutingCustomModal
+                showModal
+                setShowModal
+                cancelButton={<FormRenderer.SubmitButton
+                  text="Save Rule"
+                  buttonSize=Button.Small
+                  buttonType=Button.Secondary
+                  customSumbitButtonStyle="w-1/5 rounded-lg"
+                  tooltipWidthClass="w-48"
+                />}
+                submitButton={<RoutingUtils.SaveAndActivateButton
+                  onSubmit handleActivateConfiguration
+                />}
+                headingText="Activate Current Configuration?"
+                subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
+                leftIcon="warning-modal"
+                iconSize=35
+              />
+            </div>
+            <FormValuesSpy />
+          </Form>
+        : <NoDataFound message="Please configure at least 1 connector" renderType=InfoBox />}
+    </PageLoaderWrapper>
+  </div>
+}

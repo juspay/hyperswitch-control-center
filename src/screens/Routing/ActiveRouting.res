@@ -9,6 +9,7 @@ module TopLeftIcons = {
     | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
     | VOLUME_SPLIT => <Icon name="processorLevel" size=25 className="w-14" />
     | ADVANCED => <Icon name="parameterLevel" size=25 className="w-20" />
+    | AUTH_RATE_ROUTING => <Icon name="fallback" size=25 className="w-11" />
     | _ => React.null
     }
   }
@@ -30,7 +31,8 @@ module ActionButtons = {
 
     switch routeType {
     | VOLUME_SPLIT
-    | ADVANCED =>
+    | ADVANCED
+    | AUTH_RATE_ROUTING =>
       <ACLButton
         text={"Setup"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
@@ -108,7 +110,7 @@ module ActiveSection = {
             </div>
           </RenderIf>
         </div>
-        <div className="text-lightgray_background font-medium text-base opacity-50 text-fs-14 ">
+        <div className="text-lightgray_background font-medium opacity-50 text-fs-14 ">
           {`${getContent(activeRoutingType).heading} : ${getContent(
               activeRoutingType,
             ).subHeading}`->React.string}

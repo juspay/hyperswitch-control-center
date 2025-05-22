@@ -22,6 +22,7 @@ let routingTypeMapper = routingType => {
   | "volume_split" => VOLUME_SPLIT
   | "advanced" => ADVANCED
   | "default" => DEFAULTFALLBACK
+  | "dynamic" => AUTH_RATE_ROUTING
   | _ => NO_ROUTING
   }
 }
@@ -31,6 +32,7 @@ let routingTypeName = routingType => {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
   | DEFAULTFALLBACK => "default"
+  | AUTH_RATE_ROUTING => "auth-rate"
   | NO_ROUTING => ""
   }
 }
@@ -91,6 +93,10 @@ let getContent = routetype =>
   | ADVANCED => {
       heading: "Rule Based Configuration",
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
+    }
+  | AUTH_RATE_ROUTING => {
+      heading: "Auth Rate Based Routing",
+      subHeading: "Dynamically route payments to maximise payment authorization rates",
     }
   | _ => {
       heading: "",
@@ -175,7 +181,7 @@ module SaveAndActivateButton = {
       onClick={_ => {
         handleSaveAndActivate()->ignore
       }}
-      customButtonStyle="w-1/5 rounded-sm"
+      customButtonStyle="w-1/5"
     />
   }
 }
@@ -187,7 +193,7 @@ module ConfigureRuleButton = {
     )
 
     <Button
-      text={"Configure Rule"}
+      text="Configure Rule"
       buttonType=Primary
       buttonState={!formState.hasValidationErrors ? Normal : Disabled}
       onClick={_ => {
