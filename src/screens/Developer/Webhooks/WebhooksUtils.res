@@ -15,6 +15,9 @@ let labelColor = (statusCode): TableUtils.labelColor => {
   }
 }
 
+let subHeading = (~text, ~customClass="") =>
+  <div className={`text-nd_gray-600 font-medium ${customClass}`}> {text->React.string} </div>
+
 let itemToObjectMapper: dict<JSON.t> => webhookObject = dict => {
   eventId: dict->getString("event_id", ""),
   eventClass: dict->getString("event_class", ""),

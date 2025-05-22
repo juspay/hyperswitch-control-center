@@ -41,7 +41,7 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
       url
     }
   | Recon => `/dashboard/v2/recon/overview`
-  | Recovery => `/dashboard/v2/recovery/overview`
+  | Recovery => `/dashboard/v2/recovery/invoices`
   | Vault
   | CostObservability
   | DynamicRouting =>

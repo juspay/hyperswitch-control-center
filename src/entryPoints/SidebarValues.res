@@ -78,7 +78,7 @@ let productionAccessComponent = (isProductionAccessEnabled, userHasAccess, hasAn
 let home = isHomeEnabled =>
   isHomeEnabled
     ? Link({
-        name: "Home",
+        name: "Overview",
         icon: "nd-home",
         link: "/home",
         access: Access,
@@ -748,7 +748,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   if devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
-        name: "Overview",
+        name: "Home",
         icon: "nd-home",
         link: "/v2/home",
         access: Access,
@@ -763,7 +763,8 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration => hsSidebars
   | Recon => ReconSidebarValues.reconSidebars
-  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
+  | Recovery =>
+    RevenueRecoverySidebarValues.recoverySidebars(featureFlagDetails.devRecoveryV2ProductAnalytics)
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars

@@ -1,6 +1,6 @@
 open RevenueRecoveryEntity
 open LogicUtils
-open RecoveryOverviewHelper
+open RecoveryInvoicesHelper
 
 module ShowOrderDetails = {
   @react.component
@@ -168,7 +168,7 @@ let make = (~id) => {
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
-      path=[{title: "Overview", link: "/v2/recovery/overview"}]
+      path=[{title: "Invoices", link: "/v2/recovery/invoices"}]
       currentPageTitle=id
       cursorStyle="cursor-pointer"
       customTextClass="text-nd_gray-400"

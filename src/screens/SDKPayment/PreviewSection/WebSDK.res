@@ -18,11 +18,16 @@ let make = () => {
   let loadDOM = async () => {
     try {
       switch Window.env.sdkBaseUrl {
-      | Some(url) => {
+      | Some(url) =>
+        if (
+          DOMUtils.querySelectorAll(DOMUtils.document, `script[src="${url}"]`)->Array.length === 0
+        ) {
           let script = DOMUtils.document->DOMUtils.createElement("script")
           script->DOMUtils.setAttribute("src", url)
           script->DOMUtils.elementOnload(_ => setIsScriptLoaded(_ => true))
           DOMUtils.appendChild(script)
+        } else {
+          setIsScriptLoaded(_ => true)
         }
       | None => ()
       }
