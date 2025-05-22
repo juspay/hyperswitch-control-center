@@ -1,5 +1,5 @@
 type authRateSummaryCols =
-  | SuccessRatePercent
+  | SuccessRatePercentage
   | SuccessOrdersPercentage
   | SoftDeclinesPercentage
   | HardDeclinesPercentage

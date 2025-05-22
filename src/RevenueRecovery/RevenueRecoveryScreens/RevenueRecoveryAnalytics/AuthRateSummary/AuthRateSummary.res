@@ -2,7 +2,6 @@ open InsightsTypes
 
 @react.component
 let make = (~entity: moduleEntity) => {
-  open LogicUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (authRateSummaryData, setAuthRateSummaryData) = React.useState(_ => JSON.Encode.array([]))
 
@@ -16,12 +15,7 @@ let make = (~entity: moduleEntity) => {
         "hard_declines_percentage": 10.9,
       }->Identity.genericTypeToJson
 
-      let primaryData =
-        primaryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-
-      setAuthRateSummaryData(_ => primaryData->Identity.genericTypeToJson)
+      setAuthRateSummaryData(_ => primaryResponse->Identity.genericTypeToJson)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
