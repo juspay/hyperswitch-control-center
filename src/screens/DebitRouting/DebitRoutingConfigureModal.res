@@ -1,7 +1,7 @@
+open Typography
 module BulletItem = {
   @react.component
   let make = (~number, ~textElement) => {
-    open Typography
     <div className="flex gap-4 items-center ">
       <div
         className={`${body.md.semibold} text-nd_gray-600 bg-nd_gray-150 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0`}>
@@ -11,10 +11,8 @@ module BulletItem = {
     </div>
   }
 }
-
 @react.component
 let make = (~showModal, ~setShowModal) => {
-  open Typography
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()

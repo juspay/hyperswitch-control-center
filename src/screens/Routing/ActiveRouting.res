@@ -1,6 +1,6 @@
 open RoutingTypes
 open RoutingUtils
-
+open Typography
 type viewType = Loading | Error(string) | Loaded
 module TopLeftIcons = {
   @react.component
@@ -72,7 +72,6 @@ module ActiveSection = {
   @react.component
   let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl) => {
     open LogicUtils
-    open Typography
     let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
@@ -145,7 +144,6 @@ module ActiveSection = {
 module LevelWiseRoutingSection = {
   @react.component
   let make = (~types: array<routingType>, ~onRedirectBaseUrl) => {
-    open Typography
     let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (regularTypes, hasDebitRouting) = types->Array.reduce(([], false), (
       (acc, hasDebitRouting),
