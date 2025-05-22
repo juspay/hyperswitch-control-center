@@ -294,6 +294,8 @@ module SampleDataBanner = {
     open LogicUtils
     open Typography
     open InsightsContainerUtils
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let {sampleDataAnalytics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
@@ -308,26 +310,29 @@ module SampleDataBanner = {
       : ("No data yet? View sample data to explore the analytics.", "View sample data")
     let handleToggleChange = _ => {
       let newToggleState = !isSampleModeEnabled
+      mixpanelEvent(~eventName="sample_data_analytics", ~metadata=newToggleState->JSON.Encode.bool)
       setIsSampleModeEnabled(_ => newToggleState)
       applySampleDateFilters(newToggleState)->ignore
     }
-    <div
-      className={`${stickyToggleClass} text-nd_gray-600 py-3 px-4 bg-orange-50 flex justify-between items-center`}>
-      <div className="flex gap-2 items-center">
-        <Icon name="info-vacent" size=13 />
-        <p className={` ${body.md.medium}`}> {bannerText->React.string} </p>
+    <RenderIf condition=sampleDataAnalytics>
+      <div
+        className={`${stickyToggleClass} text-nd_gray-600 py-3 px-4 bg-orange-50 flex justify-between items-center`}>
+        <div className="flex gap-2 items-center">
+          <Icon name="info-vacent" size=13 />
+          <p className={` ${body.md.medium}`}> {bannerText->React.string} </p>
+        </div>
+        <div className="flex flex-row gap-4 items-center">
+          <p className={`${body.md.semibold}`}> {toggleText->React.string} </p>
+          <BoolInput.BaseComponent
+            isSelected={isSampleModeEnabled}
+            setIsSelected=handleToggleChange
+            isDisabled=false
+            boolCustomClass="rounded-lg !bg-primary"
+            toggleBorder="border-primary"
+          />
+        </div>
       </div>
-      <div className="flex flex-row gap-4 items-center">
-        <p className={`${body.md.semibold}`}> {toggleText->React.string} </p>
-        <BoolInput.BaseComponent
-          isSelected={isSampleModeEnabled}
-          setIsSelected=handleToggleChange
-          isDisabled=false
-          boolCustomClass="rounded-lg !bg-primary"
-          toggleBorder="border-primary"
-        />
-      </div>
-    </div>
+    </RenderIf>
   }
 }
 
