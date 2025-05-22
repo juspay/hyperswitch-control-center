@@ -85,7 +85,7 @@ module ActiveSection = {
     }
 
     let profileId = activeRouting->getDictFromJsonObject->getString("profile_id", "")
-    <div className="flex flex-row gap-8">
+    <div className="flex flex-col sm:flex-row gap-8">
       <div className="relative flex flex-1 flex-col bg-white border rounded-lg p-4 pt-10 gap-8">
         <div className=" flex flex-1 flex-col gap-7">
           <div
