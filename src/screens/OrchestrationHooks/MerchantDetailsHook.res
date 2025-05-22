@@ -1,3 +1,4 @@
+open HyperswitchAtom
 let useFetchMerchantDetails = () => {
   let getURL = APIUtils.useGetURL()
   let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
@@ -27,3 +28,5 @@ let useFetchMerchantDetails = () => {
     }
   }
 }
+
+let useMerchantDetailsValue = () => Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
