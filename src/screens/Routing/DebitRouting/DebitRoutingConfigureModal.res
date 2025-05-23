@@ -65,7 +65,7 @@ let make = (~showModal, ~setShowModal) => {
           text="Enable"
           buttonType=Primary
           onClick={_ => {
-            updateBusinessProfileDetails(true)->ignore
+            updateBusinessProfileDetails(~isEnabled=true)->ignore
             mixpanelEvent(~eventName=`debit_routing_enabled`)
           }}
           buttonSize=Small

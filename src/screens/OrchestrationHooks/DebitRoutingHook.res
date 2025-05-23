@@ -9,7 +9,7 @@ let useDebitRoutingUpdate = () => {
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let setBusinessProfile = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
 
-  async isEnabled => {
+  async (~isEnabled) => {
     try {
       let url = getURL(
         ~entityName=V1(BUSINESS_PROFILE),

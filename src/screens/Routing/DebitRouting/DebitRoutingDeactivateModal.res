@@ -34,7 +34,7 @@ let make = (~showModal, ~setShowModal) => {
           buttonType=Primary
           onClick={_ => {
             mixpanelEvent(~eventName=`debit_routing_disabled`)
-            updateBusinessProfileDetails(false)->ignore
+            updateBusinessProfileDetails(~isEnabled=false)->ignore
           }}
           buttonSize=Small
         />
