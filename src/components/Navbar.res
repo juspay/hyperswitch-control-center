@@ -33,16 +33,13 @@ let make = (
   ~homeLink="/",
   ~popOverPanelCustomClass="",
   ~headerLeftActions=?,
+  ~midUiActionsCustomClass="",
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let (showModal, setShowModal) = React.useState(_ => false)
   let (isAppearancePopupOpen, setIsAppearancePopupOpen) = React.useState(_ => false)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
-  let mobileMargin = isMobileView ? "" : "mr-7"
-
-  let leftPortalName = isMobileView ? "mobileNavbarTitle" : "desktopNavbarLeft"
 
   let ref = React.useRef(Nullable.null)
   OutsideClick.useOutsideClick(
@@ -62,25 +59,13 @@ let make = (
         | Some(actions) => actions
         | None => React.null
         }}
-        <div className={`flex flex-wrap ml-2 md:ml-5 justify-between items-center w-full`}>
-          <PortalCapture key=leftPortalName name=leftPortalName customStyle={`${portalStyle}`} />
-          <div className="flex flex-row place-content-centerx">
-            <PortalCapture key="desktopNavbarCenter" name="desktopNavbarCenter" />
-          </div>
-          <div className="flex flex-row items-center">
-            <PortalCapture key="desktopNavbarRight" name="desktopNavbarRight" />
-            <PortalCapture key="desktopNavYoutubeLink" name="desktopNavYoutubeLink" />
-          </div>
+        <div className={midUiActionsCustomClass}>
+          {switch midUiActions {
+          | Some(actions) => actions
+          | None => React.null
+          }}
         </div>
-        <div className="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
-          <div className="flex-shrink-0 flex items-center" />
-        </div>
-        {switch midUiActions {
-        | Some(actions) => actions
-        | None => React.null
-        }}
-        <div
-          className={` inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0  ${mobileMargin}`}>
+        <div className="inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:pr-0">
           {switch headerActions {
           | Some(actions) => actions
           | None => React.null
