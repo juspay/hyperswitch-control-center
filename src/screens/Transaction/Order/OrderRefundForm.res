@@ -27,6 +27,9 @@ let make = (
   let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let initiateValue = Dict.make()
   let initiateValueJson = initiateValue->JSON.Encode.object
+  let isSplitPayment =
+    order.connector->String.toLowerCase->isSplitPaymentConnector &&
+      !(order.split_payments->isEmptyDict)
 
   let updateRefundDetails = async body => {
     try {
@@ -58,11 +61,20 @@ let make = (
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
 
-    // NOTE: Backend might change later , but for now removed as backend will have default value as scheduled
-    // Dict.set(body, "refund_type", "instant"->JSON.Encode.string)
-
     if !showRefundReason {
       Dict.set(body, "reason", "RETURN"->JSON.Encode.string)
+    }
+
+    if isSplitPayment {
+      Dict.set(
+        body,
+        "split_refunds",
+        getSplitRefundDict(
+          dict,
+          order.connector,
+          order.split_payments->getStripeChargeType,
+        )->JSON.Encode.object,
+      )
     }
     updateRefundDetails(body->JSON.Encode.object)->ignore
     Nullable.null->resolve
@@ -206,7 +218,7 @@ let make = (
             />
           </FormRenderer.DesktopRow>
         </div>
-        <div className="grid grid-cols-2 gap-8 mb-16">
+        <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
             <FormRenderer.FieldRenderer field={amountField} labelClass="text-fs-11" />
           </FormRenderer.DesktopRow>
@@ -224,7 +236,44 @@ let make = (
             </FormRenderer.DesktopRow>
           </RenderIf>
         </div>
-        <div className="flex justify-end gap-4">
+        <RenderIf condition={isSplitPayment}>
+          {switch order.connector
+          ->String.toLowerCase
+          ->ConnectorUtils.getConnectorNameTypeFromString {
+          | Processors(STRIPE) =>
+            let chargeType = order.split_payments->getStripeChargeType
+            <div className="grid grid-cols-2 gap-8 mb-2 mx-4">
+              <FormRenderer.FieldRenderer
+                field={FormRenderer.makeFieldInfo(
+                  ~name="split_refunds.stripe_split_refund.revert_platform_fee",
+                  ~label="Revert Platform Fee",
+                  ~customInput=InputFields.boolInput(
+                    ~isDisabled=false,
+                    ~boolCustomClass="rounded-lg mx-1",
+                  ),
+                  ~placeholder="",
+                  ~isRequired=true,
+                )}
+              />
+              <RenderIf condition={chargeType == Destination}>
+                <FormRenderer.FieldRenderer
+                  field={FormRenderer.makeFieldInfo(
+                    ~name="split_refunds.stripe_split_refund.revert_transfer",
+                    ~label="Revert Transfer",
+                    ~customInput=InputFields.boolInput(
+                      ~isDisabled=false,
+                      ~boolCustomClass="rounded-lg mx-1",
+                    ),
+                    ~placeholder="",
+                    ~isRequired=true,
+                  )}
+                />
+              </RenderIf>
+            </div>
+          | _ => React.null
+          }}
+        </RenderIf>
+        <div className="flex justify-end gap-4 mt-12">
           <Button
             text="Cancel"
             onClick={_ => {

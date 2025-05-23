@@ -928,6 +928,7 @@ let itemToObjMapper = dict => {
     merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
     attempt_count: dict->getInt("attempt_count", 0),
     connector_label: dict->getString("connector_label", "NA"),
+    split_payments: dict->getDictfromDict("split_payments"),
   }
 }
 
