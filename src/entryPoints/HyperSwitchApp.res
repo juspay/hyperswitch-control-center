@@ -106,6 +106,12 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
+  let productsToShowProductionAccess: array<ProductTypes.productTypes> = [
+    Orchestration,
+    DynamicRouting,
+    Recon,
+  ]
+
   let showGetProductionAccess =
     !featureFlagDetails.isLiveMode &&
     !isInternalUser &&
@@ -113,7 +119,8 @@ let make = () => {
     hasAnyGroupAccess(
       userHasAccess(~groupAccess=UserManagementTypes.MerchantDetailsManage),
       userHasAccess(~groupAccess=UserManagementTypes.AccountManage),
-    ) === CommonAuthTypes.Access
+    ) === CommonAuthTypes.Access &&
+    productsToShowProductionAccess->Array.includes(activeProduct)
 
   <>
     <div>
