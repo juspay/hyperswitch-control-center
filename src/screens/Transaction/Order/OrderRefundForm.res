@@ -242,7 +242,7 @@ let make = (
           ->ConnectorUtils.getConnectorNameTypeFromString {
           | Processors(STRIPE) =>
             let chargeType = order.split_payments->getStripeChargeType
-            <div className="grid grid-cols-2 gap-8 mb-12 mx-4">
+            <div className="grid grid-cols-2 gap-8 mb-2 mx-4">
               <FormRenderer.FieldRenderer
                 field={FormRenderer.makeFieldInfo(
                   ~name="split_refunds.stripe_split_refund.revert_platform_fee",
@@ -273,7 +273,7 @@ let make = (
           | _ => React.null
           }}
         </RenderIf>
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 mt-12">
           <Button
             text="Cancel"
             onClick={_ => {
