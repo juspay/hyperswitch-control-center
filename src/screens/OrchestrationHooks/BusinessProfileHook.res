@@ -50,8 +50,8 @@ let useFetchBusinessProfileFromId = () => {
 let useUpdateBusinessProfile = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let profileId =
+    (HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom). profile_id
   let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
 
   async (~body) => {
