@@ -5,9 +5,10 @@ let make = () => {
   let (showManageModal, setShowManageModal) = React.useState(_ => false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let debitRoutingValue = businessProfileRecoilVal.is_debit_routing_enabled->Option.getOr(false)
+  let debitRoutingValue =
+    (
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    ).is_debit_routing_enabled->Option.getOr(false)
   let handleButtonClick = _ => {
     if debitRoutingValue {
       setShowManageModal(_ => true)
