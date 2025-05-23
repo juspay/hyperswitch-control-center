@@ -69,7 +69,11 @@ let make = (
       Dict.set(
         body,
         "split_refunds",
-        getSplitRefundDict(order.connector, order.split_payments)->JSON.Encode.object,
+        getSplitRefundDict(
+          dict,
+          order.connector,
+          order.split_payments->getStripeChargeType,
+        )->JSON.Encode.object,
       )
     }
     updateRefundDetails(body->JSON.Encode.object)->ignore
@@ -214,7 +218,7 @@ let make = (
             />
           </FormRenderer.DesktopRow>
         </div>
-        <div className="grid grid-cols-2 gap-8 mb-16">
+        <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
             <FormRenderer.FieldRenderer field={amountField} labelClass="text-fs-11" />
           </FormRenderer.DesktopRow>
@@ -232,6 +236,43 @@ let make = (
             </FormRenderer.DesktopRow>
           </RenderIf>
         </div>
+        <RenderIf condition={isSplitPayment}>
+          {switch order.connector
+          ->String.toLowerCase
+          ->ConnectorUtils.getConnectorNameTypeFromString {
+          | Processors(STRIPE) =>
+            let chargeType = order.split_payments->getStripeChargeType
+            <div className="grid grid-cols-2 gap-8 mb-12 mx-4">
+              <FormRenderer.FieldRenderer
+                field={FormRenderer.makeFieldInfo(
+                  ~name="split_refunds.stripe_split_refund.revert_platform_fee",
+                  ~label="Revert Platform Fee",
+                  ~customInput=InputFields.boolInput(
+                    ~isDisabled=false,
+                    ~boolCustomClass="rounded-lg mx-1",
+                  ),
+                  ~placeholder="",
+                  ~isRequired=true,
+                )}
+              />
+              <RenderIf condition={chargeType == Destination}>
+                <FormRenderer.FieldRenderer
+                  field={FormRenderer.makeFieldInfo(
+                    ~name="split_refunds.stripe_split_refund.revert_transfer",
+                    ~label="Revert Transfer",
+                    ~customInput=InputFields.boolInput(
+                      ~isDisabled=false,
+                      ~boolCustomClass="rounded-lg mx-1",
+                    ),
+                    ~placeholder="",
+                    ~isRequired=true,
+                  )}
+                />
+              </RenderIf>
+            </div>
+          | _ => React.null
+          }}
+        </RenderIf>
         <div className="flex justify-end gap-4">
           <Button
             text="Cancel"

@@ -147,17 +147,28 @@ let getStripeChargeVariantFromString = stripeChargeType => {
   }
 }
 
-let getSplitRefundDict = (connector, splitPaymentsDict) => {
+let getStripeChargeType = splitPaymentsDict => {
+  let stripeChargeType =
+    splitPaymentsDict->getDictfromDict("stripe_split_payment")->getString("charge_type", "")
+  stripeChargeType->String.toLowerCase->getStripeChargeVariantFromString
+}
+
+let getSplitRefundDict = (valuesDict, connector, chargeType) => {
+  let stripeSplitRefundDict =
+    valuesDict->getDictfromDict("split_refunds")->getDictfromDict("stripe_split_refund")
   switch connector->ConnectorUtils.getConnectorNameTypeFromString {
   | Processors(STRIPE) =>
-    let stripeChargeType =
-      splitPaymentsDict->getDictfromDict("stripe_split_payment")->getString("charge_type", "")
-    switch stripeChargeType->getStripeChargeVariantFromString {
+    switch chargeType {
     | Direct =>
       Dict.fromArray([
         (
           "stripe_split_refund",
-          Dict.fromArray([("revert_platform_fee", true->JSON.Encode.bool)])->JSON.Encode.object,
+          Dict.fromArray([
+            (
+              "revert_platform_fee",
+              stripeSplitRefundDict->getBool("revert_platform_fee", false)->JSON.Encode.bool,
+            ),
+          ])->JSON.Encode.object,
         ),
       ])
     | Destination =>
@@ -165,8 +176,14 @@ let getSplitRefundDict = (connector, splitPaymentsDict) => {
         (
           "stripe_split_refund",
           Dict.fromArray([
-            ("revert_platform_fee", true->JSON.Encode.bool),
-            ("revert_transfer", true->JSON.Encode.bool),
+            (
+              "revert_platform_fee",
+              stripeSplitRefundDict->getBool("revert_platform_fee", false)->JSON.Encode.bool,
+            ),
+            (
+              "revert_transfer",
+              stripeSplitRefundDict->getBool("revert_transfer", false)->JSON.Encode.bool,
+            ),
           ])->JSON.Encode.object,
         ),
       ])
