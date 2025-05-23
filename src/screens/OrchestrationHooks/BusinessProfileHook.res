@@ -46,3 +46,29 @@ let useFetchBusinessProfileFromId = () => {
     }
   }
 }
+
+let useUpdateBusinessProfile = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+
+  async (~body) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(BUSINESS_PROFILE),
+        ~methodType=Post,
+        ~id=Some(businessProfileRecoilVal.profile_id),
+      )
+      let res = await updateDetails(url, body, Post)
+      setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+      res
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
+      }
+    }
+  }
+}

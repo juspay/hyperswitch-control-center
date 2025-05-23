@@ -1,4 +1,5 @@
 open Typography
+
 module BulletItem = {
   @react.component
   let make = (~number, ~textElement) => {
@@ -11,11 +12,24 @@ module BulletItem = {
     </div>
   }
 }
+
 @react.component
 let make = (~showModal, ~setShowModal) => {
-  open DebitRoutingHook
+  let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let updateBusinessProfileDetails = useDebitRoutingUpdate()
+  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
+  let handleUpdate = async () => {
+    try {
+      let body =
+        [("is_debit_routing_enabled", true->JSON.Encode.bool)]->LogicUtils.getJsonFromArrayOfJson
+      let _ = await updateBusinessProfile(~body)
+      showToast(~message=`Successfully added configuration`, ~toastType=ToastSuccess)
+      setShowModal(_ => false)
+    } catch {
+    | _ => showToast(~message=`Failed to add configuration`, ~toastType=ToastError)
+    }
+  }
+
   <Modal
     showModal
     setShowModal
@@ -65,7 +79,7 @@ let make = (~showModal, ~setShowModal) => {
           text="Enable"
           buttonType=Primary
           onClick={_ => {
-            updateBusinessProfileDetails(~isEnabled=true)->ignore
+            handleUpdate()->ignore
             mixpanelEvent(~eventName=`debit_routing_enabled`)
           }}
           buttonSize=Small

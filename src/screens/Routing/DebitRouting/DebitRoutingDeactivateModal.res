@@ -1,9 +1,23 @@
+open Typography
+
 @react.component
 let make = (~showModal, ~setShowModal) => {
-  open Typography
-  open DebitRoutingHook
+  let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let updateBusinessProfileDetails = useDebitRoutingUpdate()
+  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
+
+  let handleUpdate = async () => {
+    try {
+      let body =
+        [("is_debit_routing_enabled", false->JSON.Encode.bool)]->LogicUtils.getJsonFromArrayOfJson
+      let _ = await updateBusinessProfile(~body)
+      showToast(~message=`Successfully deactivated configuration`, ~toastType=ToastSuccess)
+      setShowModal(_ => false)
+    } catch {
+    | _ => showToast(~message=`Failed to deactivate configuration`, ~toastType=ToastError)
+    }
+  }
+
   <Modal
     showModal
     setShowModal
@@ -33,8 +47,8 @@ let make = (~showModal, ~setShowModal) => {
           text="Deactivate Configuration"
           buttonType=Primary
           onClick={_ => {
+            handleUpdate()->ignore
             mixpanelEvent(~eventName=`debit_routing_disabled`)
-            updateBusinessProfileDetails(~isEnabled=false)->ignore
           }}
           buttonSize=Small
         />
