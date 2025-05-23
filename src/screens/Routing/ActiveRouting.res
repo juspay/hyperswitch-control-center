@@ -76,10 +76,10 @@ module ActiveSection = {
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let debitRoutingValue =
-    (
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-    ).is_debit_routing_enabled->Option.getOr(false)
+    let debitRoutingValue =
+      (
+        HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      ).is_debit_routing_enabled->Option.getOr(false)
     let routingName = switch activeRoutingType {
     | DEFAULTFALLBACK => ""
     | _ => `${activeRouting->getDictFromJsonObject->getString("name", "")->capitalizeString} - `
