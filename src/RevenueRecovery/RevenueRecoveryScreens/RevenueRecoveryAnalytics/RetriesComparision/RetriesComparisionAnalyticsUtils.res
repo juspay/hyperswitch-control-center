@@ -174,7 +174,7 @@ let smartRetriesComparisionMapper = (
     showInLegend: true,
     name: "Smart Retry attempts",
     data: scatterData,
-    color: "#C27AFF",
+    color: "#EBD35C",
   }
 
   let helperScatterGraphData: LineScatterGraphTypes.dataObj = {
