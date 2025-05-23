@@ -56,6 +56,15 @@ let retriesComparisionEntity: moduleEntity = {
   domain: #payments,
 }
 
+let retriesComparisionChartEntity: chartEntity<
+  LineScatterGraphTypes.lineScatterGraphPayload,
+  LineScatterGraphTypes.lineScatterGraphOptions,
+  JSON.t,
+> = {
+  getObjects: RetriesComparisionAnalyticsUtils.staticRetriesComparisionMapper,
+  getChatOptions: LineScatterGraphUtils.getLineGraphOptions,
+}
+
 // Smart Retry Strategy
 let smartRetryStrategyEntity: moduleEntity = {
   requestBodyConfig: {

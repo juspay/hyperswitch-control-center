@@ -1,38 +1,102 @@
 open InsightsTypes
+open RetriesComparisionAnalyticsUtils
 
 @react.component
-let make = (~entity: moduleEntity) => {
+let make = (
+  ~entity: moduleEntity,
+  ~chartEntity: chartEntity<
+    LineScatterGraphTypes.lineScatterGraphPayload,
+    LineScatterGraphTypes.lineScatterGraphOptions,
+    JSON.t,
+  >,
+) => {
   open LogicUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (retriesComparisionData, setRetriesComparisionData) = React.useState(_ =>
-    JSON.Encode.array([])
-  )
+  let (staticRetryData, setStaticRetryData) = React.useState(_ => JSON.Encode.array([]))
+  let (smartRetryData, setSmartRetryData) = React.useState(_ => JSON.Encode.array([]))
 
-  let getRetriesComparision = async () => {
+  let getRetryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let primaryResponse = {
-        "success_rate_percent": 72.48,
-        "success_orders_percentage": 72.48,
-        "soft_declines_percentage": 16.52,
-        "hard_declines_percentage": 10.9,
+        "retry_attempts_trend": {
+          "static_retries": [
+            {
+              "time_bucket": "2025-05-01T00:00:00Z", // Updated format
+              "success_rate": 32.5,
+              "had_retry_attempt": true,
+            },
+            {
+              "time_bucket": "2025-05-02T00:00:00Z", // Updated format
+              "success_rate": 28.0,
+              "had_retry_attempt": false,
+            },
+            {
+              "time_bucket": "2025-05-03T00:00:00Z", // Updated format
+              "success_rate": 35.0,
+              "had_retry_attempt": true,
+            },
+          ],
+          "smart_retries": [
+            {
+              "time_bucket": "2025-05-01T00:00:00Z", // Updated format
+              "success_rate": 25.0,
+              "had_retry_attempt": true,
+            },
+            {
+              "time_bucket": "2025-05-02T00:00:00Z", // Updated format
+              "success_rate": 22.5,
+              "had_retry_attempt": true,
+            },
+            {
+              "time_bucket": "2025-05-03T00:00:00Z", // Updated format
+              "success_rate": 30.0,
+              "had_retry_attempt": false,
+            },
+          ],
+        },
       }->Identity.genericTypeToJson
 
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
+        ->getObj("retry_attempts_trend", Dict.make())
 
-      setRetriesComparisionData(_ => primaryData->Identity.genericTypeToJson)
+      let staticRetryData = primaryData->getArrayFromDict(StaticRetries->getStringFromVariant, [])
+
+      let smartRetryData = primaryData->getArrayFromDict(SmartRetries->getStringFromVariant, [])
+
+      setStaticRetryData(_ => staticRetryData->Identity.genericTypeToJson)
+      setSmartRetryData(_ => smartRetryData->Identity.genericTypeToJson)
+
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
+
   React.useEffect(() => {
-    getRetriesComparision()->ignore
+    getRetryData()->ignore
     None
   }, [])
+
+  let params1 = {
+    data: staticRetryData,
+    xKey: "",
+    yKey: TimeBucket->getStringFromVariant,
+  }
+
+  let params2 = {
+    data: smartRetryData,
+    xKey: "",
+    yKey: TimeBucket->getStringFromVariant,
+  }
+
+  let staticRetryGraphOptions = chartEntity.getChatOptions(chartEntity.getObjects(~params=params1))
+
+  let smartRetryGraphOptions = chartEntity.getChatOptions(
+    smartRetriesComparisionMapper(~params=params2),
+  )
 
   <div>
     <div className="space-y-1 mb-5">
@@ -41,29 +105,30 @@ let make = (~entity: moduleEntity) => {
         {"Static Retries are executed based on predefined rules, whereas Smart Retries are dynamically triggered"->React.string}
       </p>
     </div>
-    <div className="grid grid-cols-2 gap-5">
-      <div className="rounded-xl border border-gray-200 w-full bg-white">
-        <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
-          <h2 className="font-medium text-gray-800"> {"Static Current Retries"->React.string} </h2>
+    <PageLoaderWrapper
+      screenState
+      customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-64 rounded-lg" />}
+      customUI={<InsightsHelper.NoData />}>
+      <div className="grid grid-cols-2 gap-5">
+        <div className="rounded-xl border border-gray-200 w-full bg-white">
+          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+            <h2 className="font-medium text-gray-800">
+              {"Static Current Retries"->React.string}
+            </h2>
+          </div>
+          <div className="p-4">
+            <LineScatterGraph options={staticRetryGraphOptions} className="mr-3" />
+          </div>
         </div>
-        <div className="p-4">
-          <div
-            className="h-[300px] w-full bg-gray-50 border border-dashed border-gray-300 rounded-md flex items-center justify-center text-gray-400 text-sm">
-            {"Graph placeholder – replace with chart"->React.string}
+        <div className="rounded-xl border border-gray-200 w-full bg-white">
+          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+            <h2 className="font-medium text-gray-800"> {"Smart Retries"->React.string} </h2>
+          </div>
+          <div className="p-4">
+            <LineScatterGraph options={smartRetryGraphOptions} className="mr-3" />
           </div>
         </div>
       </div>
-      <div className="rounded-xl border border-gray-200 w-full bg-white">
-        <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
-          <h2 className="font-medium text-gray-800"> {"Smart Retries"->React.string} </h2>
-        </div>
-        <div className="p-4">
-          <div
-            className="h-[300px] w-full bg-gray-50 border border-dashed border-gray-300 rounded-md flex items-center justify-center text-gray-400 text-sm">
-            {"Graph placeholder – replace with chart"->React.string}
-          </div>
-        </div>
-      </div>
-    </div>
+    </PageLoaderWrapper>
   </div>
 }
