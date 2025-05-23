@@ -95,7 +95,7 @@ module ActiveSection = {
             <span className={`${body.sm.semibold}`}> {"Primary Configuration"->React.string} </span>
           </div>
           <div className={"flex flex-col gap-3"}>
-            <p className={`text-nd_gray-600 ${body.md.semibold}`}>
+            <p className={`text-nd_gray-600 ${body.md.semibold} w-full whitespace-normal`}>
               {`${routingName}${getContent(activeRoutingType).heading}`->React.string}
             </p>
             <RenderIf condition={profileId->isNonEmptyString}>
