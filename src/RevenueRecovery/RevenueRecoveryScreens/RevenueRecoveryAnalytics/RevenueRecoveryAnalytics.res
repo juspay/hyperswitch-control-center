@@ -10,16 +10,6 @@ let make = () => {
       />
     </div>
     <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-5">
-        <AuthRateSummary entity={authRateSummaryEntity} chartEntity={authRateSummaryChartEntity} />
-        <RetryStrategiesAnalytics entity={retryStrategiesEntity} />
-      </div>
-      <OverallRetryStrategyAnalytics
-        entity={overallRetryStrategysEntity} chartEntity={overallRetryStrategyChartEntity}
-      />
-      <RetriesComparisionAnalytics
-        entity={retriesComparisionEntity} chartEntity={retriesComparisionChartEntity}
-      />
       <SmartRetryStrategyAnalytics entity={smartRetryStrategyEntity} />
     </div>
   </div>
