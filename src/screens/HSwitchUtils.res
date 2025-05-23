@@ -1,6 +1,5 @@
 open LogicUtils
 open HSLocalStorage
-open HyperswitchAtom
 
 module TextFieldRow = {
   @react.component
@@ -65,8 +64,6 @@ let setUserDetails = (key, value) => {
   localStorageData->Dict.set(key, value)
   "user"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
 }
-
-let useMerchantDetailsValue = () => Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
 
 let getClientCountry = clientTimeZone => {
   Country.country

@@ -17,18 +17,22 @@ let make = (~setAuthStatus) => {
       setMode(_ => TestButtonMode)
     }
 
-    switch url.path->HSwitchUtils.urlPath {
-    | list{"verify_email"} => setAuthType(_ => EmailVerify)
-    | list{"login"} => setAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
-    | list{"set_password"} =>
+    switch url.path {
+    //redirection url check for email
+    | list{"user", "verify_email"} => setAuthType(_ => EmailVerify)
+    | list{"user", "set_password"} =>
       checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ResetPassword) : ()
-    | list{"accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
-    | list{"forget-password"} =>
-      checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ForgetPassword) : ()
-    | list{"register"} => !isLiveMode ? setAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
-    | _ => ()
+    | list{"user", "accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
+    | _ =>
+      //redirection url for dashboard
+      switch url.path->HSwitchUtils.urlPath {
+      | list{"login"} => setAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
+      | list{"forget-password"} =>
+        checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ForgetPassword) : ()
+      | list{"register"} => !isLiveMode ? setAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
+      | _ => ()
+      }
     }
-
     None
   }, [url.path])
 
