@@ -106,22 +106,6 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  let productsToShowProductionAccess: array<ProductTypes.productTypes> = [
-    Orchestration,
-    DynamicRouting,
-    Recon,
-  ]
-
-  let showGetProductionAccess =
-    !featureFlagDetails.isLiveMode &&
-    !isInternalUser &&
-    // TODO: Remove `MerchantDetailsManage` permission in future
-    hasAnyGroupAccess(
-      userHasAccess(~groupAccess=UserManagementTypes.MerchantDetailsManage),
-      userHasAccess(~groupAccess=UserManagementTypes.AccountManage),
-    ) === CommonAuthTypes.Access &&
-    productsToShowProductionAccess->Array.includes(activeProduct)
-
   <>
     <div>
       {switch dashboardPageState {
@@ -197,9 +181,7 @@ let make = () => {
                           </RenderIf>
                         </div>
                       }}
-                      midUiActions={showGetProductionAccess
-                        ? <Navbar.GetProductionAccess />
-                        : React.null}
+                      midUiActions={<GetProductionAccess />}
                       midUiActionsCustomClass={`top-0 relative flex justify-center ${activeProduct !==
                           Orchestration
                           ? "-left-[180px]"
@@ -269,7 +251,7 @@ let make = () => {
                   />
                 </RenderIf>
                 <RenderIf condition={!featureFlagDetails.isLiveMode}>
-                  <ProdIntentForm productType={activeProduct} />
+                  <ProdIntentForm />
                 </RenderIf>
               </PageLoaderWrapper>
             </div>

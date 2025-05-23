@@ -2,13 +2,7 @@ open ProdVerifyModalUtils
 open CardUtils
 
 @react.component
-let make = (
-  ~showModal,
-  ~setShowModal,
-  ~initialValues=Dict.make(),
-  ~getProdVerifyDetails,
-  ~productType: ProductTypes.productTypes,
-) => {
+let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerifyDetails) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -16,14 +10,12 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
   let updateProdDetails = async values => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let bodyValues = values->getBody->JSON.Encode.object
-      bodyValues
-      ->LogicUtils.getDictFromJsonObject
-      ->Dict.set("product_type", (Obj.magic(productType) :> string)->JSON.Encode.string)
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(
@@ -41,7 +33,10 @@ let make = (
   }
 
   let onSubmit = (values, _) => {
-    mixpanelEvent(~eventName="create_get_production_access_request")
+    values
+    ->LogicUtils.getDictFromJsonObject
+    ->Dict.set("product_type", (Obj.magic(activeProduct) :> string)->JSON.Encode.string)
+    mixpanelEvent(~eventName="create_get_production_access_request", ~metadata=values)
     setScreenState(_ => PageLoaderWrapper.Loading)
     updateProdDetails(values)
   }
