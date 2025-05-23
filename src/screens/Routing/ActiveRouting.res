@@ -145,19 +145,9 @@ module LevelWiseRoutingSection = {
   @react.component
   let make = (~types: array<routingType>, ~onRedirectBaseUrl) => {
     let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let (regularTypes, hasDebitRouting) = types->Array.reduce(([], false), (
-      (acc, hasDebitRouting),
-      value,
-    ) =>
-      switch value {
-      | DEBITROUTING => (acc, true)
-      | other => ([...acc, other], hasDebitRouting)
-      }
-    )
-
     <div className="flex flex-col flex-wrap rounded w-full py-6 gap-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-9">
-        {regularTypes
+        {types
         ->Array.mapWithIndex((value, index) =>
           <div
             key={index->Int.toString}
@@ -178,7 +168,7 @@ module LevelWiseRoutingSection = {
           </div>
         )
         ->React.array}
-        <RenderIf condition={hasDebitRouting && debitRouting}>
+        <RenderIf condition={debitRouting}>
           <DebitRouting />
         </RenderIf>
       </div>
