@@ -5,6 +5,7 @@ let make = () => {
   open APIUtils
 
   open HyperswitchAtom
+  open HyperswitchAppHelper
 
   let url = RescriptReactRouter.useUrl()
   let {
@@ -23,7 +24,7 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL} = GroupACLHooks.useUserGroupACLHook()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
@@ -147,41 +148,15 @@ let make = () => {
                         <div className="flex md:gap-4 gap-2 items-center">
                           <img className="h-8 w-auto object-contain" alt="image" src={url} />
                           <ProfileSwitch />
-                          <RenderIf condition={featureFlagDetails.isLiveMode}>
-                            <div
-                              className="flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300">
-                              <span className="relative flex h-2 w-2">
-                                <span
-                                  className="animate-ping absolute inline-flex h-full w-full rounded-full bg-hyperswitch_green opacity-75"
-                                />
-                                <span
-                                  className="relative inline-flex rounded-full h-2 w-2 bg-hyperswitch_green"
-                                />
-                              </span>
-                              <span className="font-semibold"> {"Live Mode"->React.string} </span>
-                            </div>
-                          </RenderIf>
+                          <LiveMode />
                         </div>
                       | _ =>
                         <div className="flex md:gap-4 gap-2 items-center">
                           <ProfileSwitch />
-                          <RenderIf condition={featureFlagDetails.isLiveMode}>
-                            <div
-                              className="flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300">
-                              <span className="relative flex h-2 w-2">
-                                <span
-                                  className="animate-ping absolute inline-flex h-full w-full rounded-full bg-hyperswitch_green opacity-75"
-                                />
-                                <span
-                                  className="relative inline-flex rounded-full h-2 w-2 bg-hyperswitch_green"
-                                />
-                              </span>
-                              <span className="font-semibold"> {"Live Mode"->React.string} </span>
-                            </div>
-                          </RenderIf>
+                          <LiveMode />
                         </div>
                       }}
-                      midUiActions={<GetProductionAccess />}
+                      midUiActions={<TestMode />}
                       midUiActionsCustomClass={`top-0 relative flex justify-center ${activeProduct !==
                           Orchestration
                           ? "-left-[180px]"

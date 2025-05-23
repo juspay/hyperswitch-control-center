@@ -674,12 +674,10 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
 let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {isLiveMode, devModularityV2} = featureFlagDetails
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let defaultSidebar = []
 
-  if devModularityV2 {
+  if featureFlagDetails.devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
         name: "Overview",
