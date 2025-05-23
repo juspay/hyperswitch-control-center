@@ -165,6 +165,7 @@ module.exports = {
         heading: "var(--base-heading-font-size)",
         "fs-10": "10px",
         "fs-11": "11px",
+        "fs-12": "12px",
         "fs-13": "13px",
         "fs-14": "14px",
         "fs-15": "15px",
