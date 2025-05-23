@@ -13,32 +13,9 @@ module BulletItem = {
 }
 @react.component
 let make = (~showModal, ~setShowModal) => {
-  open APIUtils
-  let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
+  open DebitRoutingHook
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let setBusinessProfile = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
-  let updateBusinessProfileDetails = async () => {
-    try {
-      let url = getURL(
-        ~entityName=V1(BUSINESS_PROFILE),
-        ~methodType=Post,
-        ~id=Some(businessProfileRecoilVal.profile_id),
-      )
-      let body =
-        [("is_debit_routing_enabled", true->JSON.Encode.bool)]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post)
-      showToast(~message=`Successfully added configuration`, ~toastType=ToastState.ToastSuccess)
-      setShowModal(_ => false)
-      setBusinessProfile(prev => {...prev, is_debit_routing_enabled: Some(true)})
-    } catch {
-    | _ => showToast(~message=`Failed to add configuration`, ~toastType=ToastState.ToastError)
-    }
-  }
-
+  let updateBusinessProfileDetails = useDebitRoutingUpdate()
   <Modal
     showModal
     setShowModal
@@ -88,7 +65,7 @@ let make = (~showModal, ~setShowModal) => {
           text="Enable"
           buttonType=Primary
           onClick={_ => {
-            updateBusinessProfileDetails()->ignore
+            updateBusinessProfileDetails(true)->ignore
             mixpanelEvent(~eventName=`debit_routing_enabled`)
           }}
           buttonSize=Small

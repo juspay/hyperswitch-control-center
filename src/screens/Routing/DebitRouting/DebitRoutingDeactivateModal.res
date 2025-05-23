@@ -1,35 +1,9 @@
 @react.component
 let make = (~showModal, ~setShowModal) => {
   open Typography
-  open APIUtils
-  let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let setBusinessProfile = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+  open DebitRoutingHook
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let updateBusinessProfileDetails = async () => {
-    try {
-      let url = getURL(
-        ~entityName=V1(BUSINESS_PROFILE),
-        ~methodType=Post,
-        ~id=Some(businessProfileRecoilVal.profile_id),
-      )
-      let body =
-        [("is_debit_routing_enabled", true->JSON.Encode.bool)]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post)
-      showToast(
-        ~message=`Successfully deactivated configuration`,
-        ~toastType=ToastState.ToastSuccess,
-      )
-      setShowModal(_ => false)
-      setBusinessProfile(prev => {...prev, is_debit_routing_enabled: Some(false)})
-    } catch {
-    | _ =>
-      showToast(~message=`Failed to deactivate configuration`, ~toastType=ToastState.ToastError)
-    }
-  }
+  let updateBusinessProfileDetails = useDebitRoutingUpdate()
   <Modal
     showModal
     setShowModal
@@ -60,7 +34,7 @@ let make = (~showModal, ~setShowModal) => {
           buttonType=Primary
           onClick={_ => {
             mixpanelEvent(~eventName=`debit_routing_disabled`)
-            updateBusinessProfileDetails()->ignore
+            updateBusinessProfileDetails(false)->ignore
           }}
           buttonSize=Small
         />
