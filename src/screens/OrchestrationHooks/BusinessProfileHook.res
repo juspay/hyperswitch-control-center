@@ -50,17 +50,14 @@ let useFetchBusinessProfileFromId = () => {
 let useUpdateBusinessProfile = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let profileId =
-    (HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom). profile_id
+  let profileId = (
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  ).profile_id
   let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
 
   async (~body) => {
     try {
-      let url = getURL(
-        ~entityName=V1(BUSINESS_PROFILE),
-        ~methodType=Post,
-        ~id=Some(businessProfileRecoilVal.profile_id),
-      )
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
       let res = await updateDetails(url, body, Post)
       setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       res
