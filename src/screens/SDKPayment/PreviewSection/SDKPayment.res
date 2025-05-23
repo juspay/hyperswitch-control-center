@@ -200,8 +200,8 @@ let make = () => {
     </RenderIf>
     <RenderIf
       condition={connectorListFromRecoil->Array.length > 0 && clientSecretStatus == IntialPreview}>
-      <div className="flex items-center justify-center w-full h-full">
-        <img alt="blurry-sdk" src="/assets/BlurrySDK.svg" height="500px" width="400px" />
+      <div className="flex items-center justify-center w-full h-5/6">
+        <img alt="blurry-sdk" src="/assets/BlurSdkPreview.png" className="w-full h-full" />
       </div>
     </RenderIf>
     <RenderIf condition={clientSecretStatus == Loading}>
