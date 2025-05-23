@@ -1,38 +1,110 @@
 open InsightsTypes
-
+open SmartRetryStrategyAnalyticsUtils
 @react.component
 let make = (~entity: moduleEntity) => {
   open LogicUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (smartRetryStrategyData, setSmartRetryStrategyData) = React.useState(_ =>
-    JSON.Encode.array([])
-  )
+  let (overallSRData, setOverallSRData) = React.useState(_ => [])
+  let (groupSRData, setGroupSRData) = React.useState(_ => [])
 
-  let getSmartRetryStrategy = async () => {
+  let getOverallSR = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let primaryResponse = {
-        "success_rate_percent": 72.48,
-        "success_orders_percentage": 72.48,
-        "soft_declines_percentage": 16.52,
-        "hard_declines_percentage": 10.9,
+        "error_category_analysis": {
+          "category": "Do Not Honor",
+          "overall_success_rate": [
+            {
+              "time_bucket": "2025-05-01T00:00:00Z",
+              "success_rate": 22.4,
+            },
+            {
+              "time_bucket": "2025-05-02T00:00:00Z",
+              "success_rate": 40.1,
+            },
+          ],
+          "groupwise_data": [
+            {
+              "group_id": "group_a",
+              "group_name": "Do not Honor - Group A",
+              "success_rate_series": [
+                {
+                  "time_bucket": "2025-05-01T00:00:00Z",
+                  "success_rate": 10.0,
+                  "had_retry_attempt": true,
+                },
+                {
+                  "time_bucket": "2025-05-02T00:00:00Z",
+                  "success_rate": 35.0,
+                  "had_retry_attempt": false,
+                },
+              ],
+            },
+            {
+              "group_id": "group_b",
+              "group_name": "Do not Honor - Group B",
+              "success_rate_series": [
+                {
+                  "time_bucket": "2025-05-01T00:00:00Z",
+                  "success_rate": 5.0,
+                  "had_retry_attempt": false,
+                },
+                {
+                  "time_bucket": "2025-05-02T00:00:00Z",
+                  "success_rate": 60.0,
+                  "had_retry_attempt": true,
+                },
+              ],
+            },
+          ],
+        },
       }->Identity.genericTypeToJson
 
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
+        ->getObj("error_category_analysis", Dict.make())
 
-      setSmartRetryStrategyData(_ => primaryData->Identity.genericTypeToJson)
+      let overallData = primaryData->getArrayFromDict(OverallSuccessRate->getStringFromVariant, [])
+      let groupWiseData = primaryData->getArrayFromDict(GroupwiseData->getStringFromVariant, [])
+
+      setOverallSRData(_ => overallData)
+      setGroupSRData(_ => groupWiseData)
+
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
   React.useEffect(() => {
-    getSmartRetryStrategy()->ignore
+    getOverallSR()->ignore
     None
   }, [])
+
+  let getSmartRetryGraphOptions = data => {
+    data->Array.map(item => {
+      let params = {
+        data: item,
+        xKey: "",
+        yKey: TimeBucket->getStringFromVariant,
+      }
+
+      let itemDict = item->getDictFromJsonObject
+      let title = itemDict->getString(GroupName->getStringFromVariant, "")
+
+      (title, LineScatterGraphUtils.getLineGraphOptions(smartRetriesMapper(~params)))
+    })
+  }
+
+  let getMainChartOptions = data => {
+    let params = {
+      data: data->Identity.genericTypeToJson,
+      xKey: SuccessRate->getStringFromVariant,
+      yKey: TimeBucket->getStringFromVariant,
+    }
+
+    LineGraphUtils.getLineGraphOptions(overallSRMapper(~params))
+  }
 
   <div>
     <div className="space-y-1 mb-5">
@@ -42,48 +114,39 @@ let make = (~entity: moduleEntity) => {
         {"Smart retries are attempted by targeting specific error groups where the probability of success is highest."->React.string}
       </div>
     </div>
-    <div className="flex flex-col gap-5">
-      <div className="rounded-xl border border-gray-200 w-full bg-white">
-        <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
-          <h2 className="font-medium text-gray-800">
-            {"Error Category : Do Not Honor"->React.string}
-          </h2>
-        </div>
-        <div className="p-4">
-          <div
-            className="h-[300px] w-full bg-gray-50 border border-dashed border-gray-300 rounded-md flex items-center justify-center text-gray-400 text-sm">
-            {"Graph placeholder – replace with chart"->React.string}
-          </div>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-5">
+    <PageLoaderWrapper
+      screenState
+      customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-64 rounded-lg" />}
+      customUI={<InsightsHelper.NoData />}>
+      <div className="flex flex-col gap-5">
         <div className="rounded-xl border border-gray-200 w-full bg-white">
           <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
             <h2 className="font-medium text-gray-800">
-              {"Do not Honor - Group A"->React.string}
+              {"Error Category : Do Not Honor"->React.string}
             </h2>
           </div>
           <div className="p-4">
-            <div
-              className="h-[300px] w-full bg-gray-50 border border-dashed border-gray-300 rounded-md flex items-center justify-center text-gray-400 text-sm">
-              {"Graph placeholder – replace with chart"->React.string}
-            </div>
+            <LineGraph options={overallSRData->getMainChartOptions} className="mr-3" />
           </div>
         </div>
-        <div className="rounded-xl border border-gray-200 w-full bg-white">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
-            <h2 className="font-medium text-gray-800">
-              {"Do not Honor - Group B"->React.string}
-            </h2>
-          </div>
-          <div className="p-4">
-            <div
-              className="h-[300px] w-full bg-gray-50 border border-dashed border-gray-300 rounded-md flex items-center justify-center text-gray-400 text-sm">
-              {"Graph placeholder – replace with chart"->React.string}
+        <div className="grid grid-cols-2 gap-5">
+          {groupSRData
+          ->getSmartRetryGraphOptions
+          ->Array.map(item => {
+            let (title, options) = item
+
+            <div className="rounded-xl border border-gray-200 w-full bg-white">
+              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+                <h2 className="font-medium text-gray-800"> {title->React.string} </h2>
+              </div>
+              <div className="p-4">
+                <LineScatterGraph options className="mr-3" />
+              </div>
             </div>
-          </div>
+          })
+          ->React.array}
         </div>
       </div>
-    </div>
+    </PageLoaderWrapper>
   </div>
 }
