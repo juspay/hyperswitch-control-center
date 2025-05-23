@@ -41,7 +41,7 @@ let make = (
         "hard_declines_percentage": 10.9,
       }->Identity.genericTypeToJson
 
-      setAuthRateSummaryData(_ => primaryResponse->Identity.genericTypeToJson)
+      setAuthRateSummaryData(_ => primaryResponse)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)

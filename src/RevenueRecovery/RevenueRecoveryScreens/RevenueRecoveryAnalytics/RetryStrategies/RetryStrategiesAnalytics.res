@@ -1,7 +1,9 @@
 open InsightsTypes
-open RetryStrategiesAnalyticsTypes
+
+open RetryStrategiesAnalyticsUtils
 
 module RetryUpliftCard = {
+  open RetryStrategiesAnalyticsTypes
   open LogicUtils
   @react.component
   let make = (
@@ -68,7 +70,6 @@ module RetryUpliftCard = {
 
 @react.component
 let make = (~entity: moduleEntity) => {
-  open LogicUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (retryStrategiesData, setRetryStrategiesData) = React.useState(_ => JSON.Encode.array([]))
 
@@ -76,18 +77,34 @@ let make = (~entity: moduleEntity) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let primaryResponse = {
-        "success_rate_percent": 72.48,
-        "success_orders_percentage": 72.48,
-        "soft_declines_percentage": 16.52,
-        "hard_declines_percentage": 10.9,
+        "static_retries": {
+          "auth_rate_percent": 75.1,
+          "delta_percent": 2.62,
+          "recovered_orders": {
+            "soft_declines_percent": 2.62,
+            "hard_declines_percent": 0.0,
+          },
+        },
+        "smart_retries": {
+          "auth_rate_percent": 81.35,
+          "delta_percent": 8.87,
+          "recovered_orders": {
+            "soft_declines_percent": 8.87,
+            "hard_declines_percent": 0.0,
+          },
+        },
+        "smart_retries_booster": {
+          "auth_rate_percent": 84.41,
+          "delta_percent": 11.93,
+          "recovered_orders": {
+            "soft_declines_percent": 8.87,
+            "hard_declines_percent": 3.06,
+          },
+          "is_premium": true,
+        },
       }->Identity.genericTypeToJson
 
-      let primaryData =
-        primaryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-
-      setRetryStrategiesData(_ => primaryData->Identity.genericTypeToJson)
+      setRetryStrategiesData(_ => primaryResponse)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -98,46 +115,59 @@ let make = (~entity: moduleEntity) => {
     None
   }, [])
 
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <RetryUpliftCard
-      title="Static Retry Uplifts"
-      rate=75.10
-      changeValue=2.62
-      changeDirection=No_Change
-      recovered=[
-        {
-          declineType: #soft_declines,
-          value: 2.62,
-        },
-      ]
-    />
-    <RetryUpliftCard
-      title="Smart Retry Uplifts"
-      rate=81.35
-      changeValue=8.87
-      changeDirection=Upward
-      recovered=[
-        {
-          declineType: #soft_declines,
-          value: 8.87,
-        },
-      ]
-    />
-    <RetryUpliftCard
-      title="Booster Retry Uplifts"
-      rate=84.41
-      changeValue=11.93
-      changeDirection=Upward
-      recovered=[
-        {
-          declineType: #soft_declines,
-          value: 8.87,
-        },
-        {
-          declineType: #hard_declines,
-          value: 3.06,
-        },
-      ]
-    />
-  </div>
+  <PageLoaderWrapper
+    screenState
+    customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-56 rounded-lg" />}
+    customUI={<InsightsHelper.NoData />}>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <RetryUpliftCard
+        title={StaticRetries->getTitleForColumn}
+        rate={(retryStrategiesData->itemToObjectMapper).static_retries.auth_rate_percent}
+        changeValue={(retryStrategiesData->itemToObjectMapper).static_retries.delta_percent}
+        changeDirection=No_Change
+        recovered=[
+          {
+            declineType: #soft_declines,
+            value: (
+              retryStrategiesData->itemToObjectMapper
+            ).static_retries.recovered_orders.soft_declines_percent,
+          },
+        ]
+      />
+      <RetryUpliftCard
+        title={SmartRetries->getTitleForColumn}
+        rate={(retryStrategiesData->itemToObjectMapper).smart_retries.auth_rate_percent}
+        changeValue={(retryStrategiesData->itemToObjectMapper).smart_retries.delta_percent}
+        changeDirection=Upward
+        recovered=[
+          {
+            declineType: #soft_declines,
+            value: (
+              retryStrategiesData->itemToObjectMapper
+            ).smart_retries.recovered_orders.soft_declines_percent,
+          },
+        ]
+      />
+      <RetryUpliftCard
+        title={SmartRetriesBooster->getTitleForColumn}
+        rate={(retryStrategiesData->itemToObjectMapper).smart_retries_booster.auth_rate_percent}
+        changeValue={(retryStrategiesData->itemToObjectMapper).smart_retries_booster.delta_percent}
+        changeDirection=Upward
+        recovered=[
+          {
+            declineType: #soft_declines,
+            value: (
+              retryStrategiesData->itemToObjectMapper
+            ).smart_retries_booster.recovered_orders.soft_declines_percent,
+          },
+          {
+            declineType: #hard_declines,
+            value: (
+              retryStrategiesData->itemToObjectMapper
+            ).smart_retries_booster.recovered_orders.hard_declines_percent,
+          },
+        ]
+      />
+    </div>
+  </PageLoaderWrapper>
 }
