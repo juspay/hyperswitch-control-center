@@ -27,6 +27,9 @@ let make = (
   let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let initiateValue = Dict.make()
   let initiateValueJson = initiateValue->JSON.Encode.object
+  let isSplitPayment =
+    order.connector->String.toLowerCase->isSplitPaymentConnector &&
+      !(order.split_payments->isEmptyDict)
 
   let updateRefundDetails = async body => {
     try {
@@ -58,11 +61,16 @@ let make = (
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
 
-    // NOTE: Backend might change later , but for now removed as backend will have default value as scheduled
-    // Dict.set(body, "refund_type", "instant"->JSON.Encode.string)
-
     if !showRefundReason {
       Dict.set(body, "reason", "RETURN"->JSON.Encode.string)
+    }
+
+    if isSplitPayment {
+      Dict.set(
+        body,
+        "split_refunds",
+        getSplitRefundDict(order.connector, order.split_payments)->JSON.Encode.object,
+      )
     }
     updateRefundDetails(body->JSON.Encode.object)->ignore
     Nullable.null->resolve

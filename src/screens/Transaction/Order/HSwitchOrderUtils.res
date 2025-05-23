@@ -43,6 +43,11 @@ type refundStatus =
   | Failure
   | None
 
+type stripeChargeType =
+  | Destination
+  | Direct
+  | None
+
 let statusVariantMapper: string => status = statusLabel =>
   switch statusLabel->String.toUpperCase {
   | "SUCCEEDED" => Succeeded
@@ -128,6 +133,49 @@ let refundEmailField = FormRenderer.makeFieldInfo(
 )
 
 let nonRefundConnectors = ["braintree", "klarna", "airwallex"]
+let isSplitPaymentConnectors = ["stripe"]
+
+let isSplitPaymentConnector = connector => {
+  isSplitPaymentConnectors->Array.includes(connector)
+}
+
+let getStripeChargeVariantFromString = stripeChargeType => {
+  switch stripeChargeType {
+  | "destination" => Destination
+  | "direct" => Direct
+  | _ => None
+  }
+}
+
+let getSplitRefundDict = (connector, splitPaymentsDict) => {
+  switch connector->ConnectorUtils.getConnectorNameTypeFromString {
+  | Processors(STRIPE) =>
+    let stripeChargeType =
+      splitPaymentsDict->getDictfromDict("stripe_split_payment")->getString("charge_type", "")
+    switch stripeChargeType->getStripeChargeVariantFromString {
+    | Direct =>
+      Dict.fromArray([
+        (
+          "stripe_split_refund",
+          Dict.fromArray([("revert_platform_fee", true->JSON.Encode.bool)])->JSON.Encode.object,
+        ),
+      ])
+    | Destination =>
+      Dict.fromArray([
+        (
+          "stripe_split_refund",
+          Dict.fromArray([
+            ("revert_platform_fee", true->JSON.Encode.bool),
+            ("revert_transfer", true->JSON.Encode.bool),
+          ])->JSON.Encode.object,
+        ),
+      ])
+
+    | None => Dict.make()
+    }
+  | _ => Dict.make()
+  }
+}
 
 let isNonRefundConnector = connector => {
   nonRefundConnectors->Array.includes(connector)
