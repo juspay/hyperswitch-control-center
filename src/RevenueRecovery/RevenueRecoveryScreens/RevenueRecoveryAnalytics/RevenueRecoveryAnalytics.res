@@ -14,7 +14,9 @@ let make = () => {
         <AuthRateSummary entity={authRateSummaryEntity} chartEntity={authRateSummaryChartEntity} />
         <RetryStrategiesAnalytics entity={retryStrategiesEntity} />
       </div>
-      <OverallRetryStrategyAnalytics entity={overallRetryStrategysEntity} />
+      <OverallRetryStrategyAnalytics
+        entity={overallRetryStrategysEntity} chartEntity={overallRetryStrategyChartEntity}
+      />
       <RetriesComparisionAnalytics entity={retriesComparisionEntity} />
       <SmartRetryStrategyAnalytics entity={smartRetryStrategyEntity} />
     </div>

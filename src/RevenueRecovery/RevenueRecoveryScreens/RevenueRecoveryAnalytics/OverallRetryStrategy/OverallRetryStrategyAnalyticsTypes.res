@@ -15,7 +15,7 @@ type retryTrendKeys = [
 
 type retryTrendEntry = {
   time_bucket: string,
-  transactions: int,
+  transactions: float,
   static_retry_success_rate: float,
   smart_retry_success_rate: float,
   smart_retry_booster_success_rate: float,

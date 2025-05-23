@@ -36,6 +36,16 @@ let overallRetryStrategysEntity: moduleEntity = {
   domain: #payments,
 }
 
+open LineAndColumnGraphTypes
+let overallRetryStrategyChartEntity: chartEntity<
+  lineColumnGraphPayload,
+  lineColumnGraphOptions,
+  JSON.t,
+> = {
+  getObjects: OverallRetryStrategyAnalyticsUtils.retryStrategiesMapper,
+  getChatOptions: LineAndColumnGraphUtils.getLineColumnGraphOptions,
+}
+
 // Retries Comparision
 let retriesComparisionEntity: moduleEntity = {
   requestBodyConfig: {
