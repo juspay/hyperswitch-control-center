@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.23.0
+
+### Bug Fixes
+
+- Payout processor unknown name in edit pmt ([#3027](https://github.com/juspay/hyperswitch-control-center/pull/3027)) ([`2b859f3`](https://github.com/juspay/hyperswitch-control-center/commit/2b859f378ff2925286cea863520ac01d83de5ca1))
+
+### Refactors
+
+- Move typography folder under UI config ([#3013](https://github.com/juspay/hyperswitch-control-center/pull/3013)) ([`1bf95c9`](https://github.com/juspay/hyperswitch-control-center/commit/1bf95c936a68aee765c21c8e3f27c189b64937e5))
+
+### Testing
+
+- Fix failing tests ([#3026](https://github.com/juspay/hyperswitch-control-center/pull/3026)) ([`57d64fa`](https://github.com/juspay/hyperswitch-control-center/commit/57d64fa28be4758394747b1a7378abaefb7d1713))
+
+### Miscellaneous Tasks
+
+- Refactor hooks folder ([#2998](https://github.com/juspay/hyperswitch-control-center/pull/2998)) ([`026fbf0`](https://github.com/juspay/hyperswitch-control-center/commit/026fbf014cacff13ea4336b092315b8ed7a028d7))
+
+**Full Changelog:** [`2025.05.22.0...2025.05.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.22.0...2025.05.23.0)
+
+
+- - -
+
 ## 2025.05.22.0
 
 ### Features
