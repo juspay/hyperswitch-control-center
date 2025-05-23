@@ -97,3 +97,60 @@ module PreviewCreds = {
     }
   }
 }
+
+module AdditionalDetailsPreview = {
+  @react.component
+  let make = (
+    ~connectorWebHookDetails,
+    ~connectorMetaDataFields,
+    ~connectorInfo: ConnectorTypes.connectorPayload,
+  ) => {
+    open LogicUtils
+    open ConnectorMetaDataUtils
+
+    let metaDataDict = connectorInfo.metadata->Identity.genericTypeToDictOfJson
+    let connectorWebHookJson = connectorInfo.connector_webhook_details
+
+    let metaDataFields =
+      connectorMetaDataFields
+      ->Dict.keysToArray
+      ->Array.filter(ele => !Array.includes(metaDataInputKeysToIgnore, ele))
+
+    let metaDataFields = metaDataFields->Array.mapWithIndex((field, index) => {
+      let fields =
+        connectorMetaDataFields
+        ->getDictfromDict(field)
+        ->JSON.Encode.object
+        ->convertMapObjectToDict
+        ->CommonConnectorUtils.inputFieldMapper
+
+      let fieldValue = metaDataDict->getString(field, "")
+
+      if fieldValue->isNonEmptyString {
+        <div key={index->Int.toString}>
+          <InfoField label={fields.label} str={fieldValue} />
+        </div>
+      } else {
+        React.null
+      }
+    })
+
+    let webHookFields = if !(connectorWebHookJson->isNullJson) {
+      connectorWebHookDetails
+      ->Dict.keysToArray
+      ->Array.filter(field => {
+        let value = connectorWebHookJson->Identity.genericTypeToDictOfJson->getString(field, "")
+        value->isNonEmptyString
+      })
+      ->Array.map(field => {
+        let label = connectorWebHookDetails->getString(field, "")
+        let value = connectorWebHookJson->Identity.genericTypeToDictOfJson->getString(field, "")
+        <InfoField label str=value />
+      })
+    } else {
+      []
+    }
+
+    Array.concat(metaDataFields, webHookFields)->React.array
+  }
+}
