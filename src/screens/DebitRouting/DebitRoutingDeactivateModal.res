@@ -16,9 +16,9 @@ let make = (~showModal, ~setShowModal) => {
         ~methodType=Post,
         ~id=Some(businessProfileRecoilVal.profile_id),
       )
-      let body = Dict.make()
-      body->Dict.set("is_debit_routing_enabled", false->JSON.Encode.bool)
-      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
+      let body =
+        [("is_debit_routing_enabled", true->JSON.Encode.bool)]->LogicUtils.getJsonFromArrayOfJson
+      let _ = await updateDetails(url, body, Post)
       showToast(
         ~message=`Successfully deactivated configuration`,
         ~toastType=ToastState.ToastSuccess,
