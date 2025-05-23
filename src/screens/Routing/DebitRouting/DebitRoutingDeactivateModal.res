@@ -14,7 +14,9 @@ let make = (~showModal, ~setShowModal) => {
       showToast(~message=`Successfully deactivated configuration`, ~toastType=ToastSuccess)
       setShowModal(_ => false)
     } catch {
-    | _ => showToast(~message=`Failed to deactivate configuration`, ~toastType=ToastError)
+    | _ =>
+      showToast(~message=`Failed to deactivate configuration`, ~toastType=ToastError)
+      setShowModal(_ => false)
     }
   }
 
@@ -30,7 +32,7 @@ let make = (~showModal, ~setShowModal) => {
     </div>}
     borderBottom=true>
     <div className="flex flex-col h-full w-full px-6">
-      <div className={`${body.md.medium} text-sm text-nd_gray-600 py-6`}>
+      <div className={`${body.md.medium} text-nd_gray-600 py-6`}>
         {"Are you sure you want to deactivate the Least Cost Routing configuration?"->React.string}
       </div>
       <div className="flex justify-end gap-4 pb-8 pt-4">

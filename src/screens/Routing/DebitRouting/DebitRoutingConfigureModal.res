@@ -26,7 +26,9 @@ let make = (~showModal, ~setShowModal) => {
       showToast(~message=`Successfully added configuration`, ~toastType=ToastSuccess)
       setShowModal(_ => false)
     } catch {
-    | _ => showToast(~message=`Failed to add configuration`, ~toastType=ToastError)
+    | _ =>
+      showToast(~message=`Failed to add configuration`, ~toastType=ToastError)
+      setShowModal(_ => false)
     }
   }
 
@@ -42,7 +44,7 @@ let make = (~showModal, ~setShowModal) => {
     </div>}
     borderBottom=true>
     <div className="flex flex-col h-full w-full px-6">
-      <span className={`${body.md.medium} text-sm text-nd_gray-600 py-6`}>
+      <span className={`${body.md.medium} text-nd_gray-600 py-6`}>
         {"Before you proceed, please ensure the following are in place:"->React.string}
       </span>
       <div className="flex flex-col gap-4 pb-4">
