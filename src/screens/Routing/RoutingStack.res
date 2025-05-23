@@ -11,9 +11,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (routingType, setRoutingType) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let debitRoutingValue = businessProfileRecoilVal.is_debit_routing_enabled->Option.getOr(false)
+  let debitRoutingValue =
+    (
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    ).is_debit_routing_enabled->Option.getOr(false)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
 
   let (widthClass, marginClass) = React.useMemo(() => {
