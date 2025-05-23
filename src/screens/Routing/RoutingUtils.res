@@ -31,7 +31,7 @@ let routingTypeName = routingType => {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
   | DEFAULTFALLBACK => "default"
-  | _ => ""
+  | NO_ROUTING => ""
   }
 }
 
