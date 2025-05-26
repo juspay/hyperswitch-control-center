@@ -152,7 +152,13 @@ let generateDropdownOptionsOMPViews = (dropdownList: OMPSwitchTypes.ompViews, ge
 
 module OMPViewsComp = {
   @react.component
-  let make = (~input, ~options, ~displayName, ~entityMapper=UserInfoUtils.entityMapper) => {
+  let make = (
+    ~input,
+    ~options,
+    ~displayName,
+    ~entityMapper=UserInfoUtils.entityMapper,
+    ~disabled=false,
+  ) => {
     let (arrow, setArrow) = React.useState(_ => false)
 
     let toggleChevronState = () => {
@@ -187,6 +193,7 @@ module OMPViewsComp = {
         shouldDisplaySelectedOnTop=true
         descriptionOnHover=true
         textEllipsisForDropDownOptions=true
+        disableSelect=disabled
       />
     </div>
   }
@@ -199,6 +206,8 @@ module OMPViews = {
     ~selectedEntity: UserInfoTypes.entity,
     ~onChange,
     ~entityMapper=UserInfoUtils.entityMapper,
+    ~disabled=false,
+    ~disabledDisplayName="",
   ) => {
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
@@ -216,9 +225,8 @@ module OMPViews = {
 
     let options = views->generateDropdownOptionsOMPViews(getNameForId)
 
-    let displayName = selectedEntity->getNameForId
-
-    <OMPViewsComp input options displayName />
+    let displayName = disabled ? disabledDisplayName : selectedEntity->getNameForId
+    <OMPViewsComp input options displayName disabled />
   }
 }
 
@@ -247,7 +255,6 @@ module MerchantDropdownItem = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let {userInfo: {merchantId, version}} = React.useContext(UserInfoProvider.defaultContext)
-    let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let isMobileView = MatchMedia.useMobileChecker()
@@ -376,32 +383,24 @@ module MerchantDropdownItem = {
           leftIcon
         />
       </div>
-      <LoaderModal
-        showModal={showSwitchingMerch}
-        setShowModal={setShowSwitchingMerch}
-        text="Switching merchant..."
-      />
     </>
   }
 }
 
 module ProfileDropdownItem = {
   @react.component
-  let make = (~profileName, ~index: int, ~currentId) => {
+  let make = (~profileName, ~index: int, ~currentId, ~profileSwitch) => {
     open LogicUtils
     open APIUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
       setUnderEdit(_ => selectedEditId)
     }
-
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
-    let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
@@ -448,18 +447,6 @@ module ProfileDropdownItem = {
       errors
     }
 
-    let profileSwitch = async value => {
-      try {
-        setShowSwitchingProfile(_ => true)
-        let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true)
-        setShowSwitchingProfile(_ => false)
-      } catch {
-      | _ => {
-          showToast(~message="Failed to switch profile", ~toastType=ToastError)
-          setShowSwitchingProfile(_ => false)
-        }
-      }
-    }
     let handleProfileSwitch = id => {
       if !isActive {
         profileSwitch(id)->ignore
@@ -521,11 +508,6 @@ module ProfileDropdownItem = {
           leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
         />
       </div>
-      <LoaderModal
-        showModal={showSwitchingProfile}
-        setShowModal={setShowSwitchingProfile}
-        text="Switching profile..."
-      />
     </>
   }
 }
@@ -581,83 +563,4 @@ let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCus
     option
   })
   options
-}
-module EditOrgName = {
-  @react.component
-  let make = (~showModal, ~setShowModal, ~orgList, ~orgId, ~getOrgList) => {
-    open LogicUtils
-    open APIUtils
-    let getURL = useGetURL()
-    let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
-    let initialValues =
-      [
-        ("organization_name", OMPSwitchUtils.currentOMPName(orgList, orgId)->JSON.Encode.string),
-      ]->Dict.fromArray
-
-    let validateForm = (values: JSON.t) => {
-      let errors = Dict.make()
-      let organizationName =
-        values->getDictFromJsonObject->getString("organization_name", "")->String.trim
-      let regexForOrganizationName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-
-      let errorMessage = if organizationName->isEmptyString {
-        "Organization name cannot be empty"
-      } else if organizationName->String.length > 64 {
-        "Organization name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForOrganizationName), organizationName) {
-        "Organization name should not contain special characters"
-      } else {
-        ""
-      }
-
-      if errorMessage->isNonEmptyString {
-        Dict.set(errors, "organization_name", errorMessage->JSON.Encode.string)
-      }
-
-      errors->JSON.Encode.object
-    }
-
-    let orgName = FormRenderer.makeFieldInfo(
-      ~label="Org Name",
-      ~name="organization_name",
-      ~placeholder=`Eg: Hyperswitch`,
-      ~customInput=InputFields.textInput(),
-      ~isRequired=true,
-    )
-
-    let onSubmit = async (values, _) => {
-      try {
-        let url = getURL(~entityName=V1(UPDATE_ORGANIZATION), ~methodType=Put, ~id=Some(orgId))
-        let _ = await updateDetails(url, values, Put)
-        let _ = await getOrgList()
-        showToast(~message="Updated organization name!", ~toastType=ToastSuccess)
-      } catch {
-      | _ => showToast(~message="Failed to update organization name!", ~toastType=ToastError)
-      }
-      setShowModal(_ => false)
-      Nullable.null
-    }
-
-    <>
-      <Modal modalHeading="Edit Org name" showModal setShowModal modalClass="w-1/4 m-auto">
-        <Form initialValues={initialValues->JSON.Encode.object} onSubmit validate={validateForm}>
-          <div className="flex flex-col gap-12 h-full w-full">
-            <FormRenderer.DesktopRow>
-              <FormRenderer.FieldRenderer
-                fieldWrapperClass="w-full"
-                field={orgName}
-                labelClass="!text-black font-medium !-ml-[0.5px]"
-              />
-            </FormRenderer.DesktopRow>
-            <div className="flex justify-end w-full pr-5 pb-3">
-              <FormRenderer.SubmitButton
-                text="Submit changes" buttonSize={Small} loadingText="Processing..."
-              />
-            </div>
-          </div>
-        </Form>
-      </Modal>
-    </>
-  }
 }

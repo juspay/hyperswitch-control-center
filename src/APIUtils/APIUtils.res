@@ -883,6 +883,7 @@ let useGetURL = () => {
 
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
+      | SDK_PAYMENT => "payments"
       }
 
     | V2(entityNameForv2) =>

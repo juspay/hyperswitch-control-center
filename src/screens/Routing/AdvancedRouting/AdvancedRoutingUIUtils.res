@@ -106,6 +106,7 @@ module OperatorInp = {
       hideMultiSelectButtons=true
       textStyle={`text-body ${textColorStyle}`}
       disableSelect
+      customButtonStyle="!w-full"
     />
   }
 }
@@ -333,7 +334,12 @@ module FieldInp = {
     }
 
     <SelectBox.BaseDropdown
-      allowMultiSelect=false buttonText="Select Field" input options hideMultiSelectButtons=true
+      allowMultiSelect=false
+      buttonText="Select Field"
+      input
+      options
+      hideMultiSelectButtons=true
+      customButtonStyle="!w-full"
     />
   }
 }

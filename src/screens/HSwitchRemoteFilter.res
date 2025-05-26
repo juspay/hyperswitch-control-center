@@ -42,7 +42,7 @@ let useSetInitialFilters = (
   ~origin,
   (),
 ) => {
-  open NewAnalyticsTypes
+  open InsightsTypes
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {

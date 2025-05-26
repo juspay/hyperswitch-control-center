@@ -35,7 +35,7 @@ let getRoutingTypeName = (routingType: RoutingTypes.routingType) => {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
   | DEFAULTFALLBACK => "default"
-  | NO_ROUTING => ""
+  | _ => ""
   }
 }
 

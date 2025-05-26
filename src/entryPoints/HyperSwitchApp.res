@@ -5,6 +5,7 @@ let make = () => {
   open APIUtils
 
   open HyperswitchAtom
+  open HyperswitchAppHelper
 
   let url = RescriptReactRouter.useUrl()
   let {
@@ -30,14 +31,12 @@ let make = () => {
     UserInfoProvider.defaultContext,
   )
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
-  let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
-  let modebg = featureFlagDetails.isLiveMode ? "bg-hyperswitch_green" : "bg-orange-500 "
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
 
-  let maintainenceAlert = featureFlagDetails.maintainenceAlert
+  let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
   sessionExpired := false
@@ -111,9 +110,6 @@ let make = () => {
   <>
     <div>
       {switch dashboardPageState {
-      | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-      // INTEGRATION_DOC Need to be removed
-      | #INTEGRATION_DOC => <UserOnboarding />
       | #HOME =>
         <div className="relative">
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
@@ -130,7 +126,7 @@ let make = () => {
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
-                  className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
+                  className="flex relative flex-col flex-1 bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="w-full max-w-fixedPageWidth md:px-12 px-5 pt-3">
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
@@ -147,44 +143,27 @@ let make = () => {
                       headerLeftActions={switch logoURL {
                       | Some(url) if url->LogicUtils.isNonEmptyString =>
                         <div className="flex md:gap-4 gap-2 items-center">
-                          <img className="h-8 w-auto object-contain" alt="image" src={`${url}`} />
+                          <img className="h-8 w-auto object-contain" alt="image" src={url} />
                           <ProfileSwitch />
-                          <div
-                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
-                            <span className="relative flex h-2 w-2">
-                              <span
-                                className={`animate-ping absolute inline-flex h-full w-full rounded-full ${modebg} opacity-75`}
-                              />
-                              <span
-                                className={`relative inline-flex rounded-full h-2 w-2  ${modebg}`}
-                              />
-                            </span>
-                            <span className="font-semibold"> {modeText->React.string} </span>
-                          </div>
+                          <LiveMode />
                         </div>
                       | _ =>
                         <div className="flex md:gap-4 gap-2 items-center">
                           <ProfileSwitch />
-                          <div
-                            className={`flex flex-row items-center px-2 py-3 gap-2 whitespace-nowrap cursor-default justify-between h-8 bg-white border rounded-lg  text-sm text-nd_gray-500 border-nd_gray-300`}>
-                            <span className="relative flex h-2 w-2">
-                              <span
-                                className={`animate-ping absolute inline-flex h-full w-full rounded-full ${modebg} opacity-75`}
-                              />
-                              <span
-                                className={`relative inline-flex rounded-full h-2 w-2  ${modebg}`}
-                              />
-                            </span>
-                            <span className="font-semibold"> {modeText->React.string} </span>
-                          </div>
+                          <LiveMode />
                         </div>
                       }}
+                      midUiActions={<TestMode />}
+                      midUiActionsCustomClass={`top-0 relative flex justify-center ${activeProduct !==
+                          Orchestration
+                          ? "-left-[180px]"
+                          : ""} `}
                     />
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
-                    <RenderIf condition={maintainenceAlert->LogicUtils.isNonEmptyString}>
-                      <HSwitchUtils.AlertBanner bannerText={maintainenceAlert} bannerType={Info} />
+                    <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
+                      <HSwitchUtils.AlertBanner bannerText={maintenanceAlert} bannerType={Info} />
                     </RenderIf>
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
@@ -244,7 +223,7 @@ let make = () => {
                   />
                 </RenderIf>
                 <RenderIf condition={!featureFlagDetails.isLiveMode}>
-                  <ProdIntentForm productType={activeProduct} />
+                  <ProdIntentForm />
                 </RenderIf>
               </PageLoaderWrapper>
             </div>

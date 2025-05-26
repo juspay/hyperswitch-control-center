@@ -48,5 +48,7 @@ module BreadCrumbWrapper = {
 
 @react.component
 let make = (~records, ~activeRoutingIds: array<string>) => {
-  <HistoryTable records activeRoutingIds />
+  <div className="mt-8">
+    <HistoryTable records activeRoutingIds />
+  </div>
 }
