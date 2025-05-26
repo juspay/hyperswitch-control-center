@@ -18,7 +18,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
       let bodyValues = values->getBody->JSON.Encode.object
       bodyValues
       ->LogicUtils.getDictFromJsonObject
-      ->Dict.set("product_type", (Obj.magic(activeProduct) :> string)->JSON.Encode.string)
+      ->Dict.set("product_type", (activeProduct :> string)->JSON.Encode.string)
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(
