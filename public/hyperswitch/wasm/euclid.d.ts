@@ -36,7 +36,6 @@ export function getAllKeys(): any;
 export function getKeyType(key: string): string;
 export function getThreeDsKeys(): any;
 export function getSurchargeKeys(): any;
-export function getThreeDsDecisionRuleEngineKeys(): any;
 export function parseToString(val: string): string;
 export function getVariantValues(key: string): any;
 export function addTwo(n1: bigint, n2: bigint): bigint;
@@ -74,7 +73,6 @@ export interface InitOutput {
   readonly getKeyType: (a: number, b: number, c: number) => void;
   readonly getThreeDsKeys: (a: number) => void;
   readonly getSurchargeKeys: (a: number) => void;
-  readonly getThreeDsDecisionRuleEngineKeys: (a: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
   readonly addTwo: (a: bigint, b: bigint) => bigint;
   readonly getDescriptionCategory: (a: number) => void;

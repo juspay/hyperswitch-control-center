@@ -13,7 +13,6 @@ export const getAllKeys: (a: number) => void;
 export const getKeyType: (a: number, b: number, c: number) => void;
 export const getThreeDsKeys: (a: number) => void;
 export const getSurchargeKeys: (a: number) => void;
-export const getThreeDsDecisionRuleEngineKeys: (a: number) => void;
 export const getVariantValues: (a: number, b: number, c: number) => void;
 export const addTwo: (a: bigint, b: bigint) => bigint;
 export const getDescriptionCategory: (a: number) => void;
