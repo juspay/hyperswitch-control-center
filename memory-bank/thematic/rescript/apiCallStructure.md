@@ -19,9 +19,9 @@ This document provides a template for making API calls in ReScript. It covers th
     let url = getUrl(~entityName=V1(USERS), ~userType=#ROLE_INFO, ~methodType=Get)
     ```
 
-    *   `entityName`:  The name of the entity to fetch (e.g., `USERS`). You will need to provide this.
-    *   `userType`: The type of user (e.g., `#ROLE_INFO`).
-    *   `methodType`: The HTTP method to use (e.g., `Get`). You will need to provide this.
+    - `entityName`: The name of the entity to fetch (e.g., `USERS`). You will need to provide this.
+    - `userType`: The type of user (e.g., `#ROLE_INFO`).
+    - `methodType`: The HTTP method to use (e.g., `Get`). You will need to provide this.
 
 3.  **Data Fetching:**
 
@@ -64,6 +64,6 @@ This document provides a template for making API calls in ReScript. It covers th
 
 ### Notes
 
-*   Ensure that the `entityName` and `methodType` are correctly defined in `src/APIUtils/APIUtilsTypes.res`.
-*   The `PageLoaderWrapper` component is used to display loading and error states.
-*   The `fetchData` function is an asynchronous function that fetches data from the API and updates the state variables.
+- Ensure that the `entityName` and `methodType` are correctly defined in `src/APIUtils/APIUtilsTypes.res`.
+- The `PageLoaderWrapper` component is used to display loading and error states.
+- The `fetchData` function is an asynchronous function that fetches data from the API and updates the state variables.

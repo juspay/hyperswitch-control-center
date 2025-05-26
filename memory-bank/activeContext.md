@@ -47,6 +47,9 @@ The current work involves ongoing development across various modules and compone
     - `memory-bank/thematic/rescript/syntax/jsxPatterns.md`: Reviewed and deemed sufficiently detailed from previous work.
 - **Overall Goal:** To create a comprehensive and practical ReScript syntax reference based on patterns observed in the Hyperswitch Control Center codebase.
 - **Memory Bank Enhancement (TestComponent Learnings):** Updating the guide `memory-bank/thematic/TableComponentPage/creatingNewTablePage.md` with troubleshooting tips and corrections (e.g., `Table.header` type, `itemToObjMapper` signature, module routing references) derived from the recent `TestComponent` page implementation.
+- **Connector Addition (Worldpayxml):**
+  - Added `WORLDPAYXML` to `processorTypes` in `src/screens/Connectors/ConnectorTypes.res`.
+  - Updated `src/screens/Connectors/ConnectorUtils.res` to include `WORLDPAYXML` in `connectorList`, defined `worldpayxmlInfo`, and updated `getConnectorNameString`, `getConnectorNameTypeFromString`, `getProcessorInfo`, and `getDisplayNameForProcessor`.
 
 ## 2. Key Technical Concepts:
 
@@ -65,6 +68,8 @@ The current work involves ongoing development across various modules and compone
 - `src/screens/Customers/CustomersEntity.res`
 - `src/screens/Routing/HistoryEntity.res`
 - `src/screens/Transaction/Disputes/DisputesEntity.res`
+- `src/screens/Connectors/ConnectorTypes.res`
+- `src/screens/Connectors/ConnectorUtils.res`
 
 ## 4. Problem Solving / Observations:
 
