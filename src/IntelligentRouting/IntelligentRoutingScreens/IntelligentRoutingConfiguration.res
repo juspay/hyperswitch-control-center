@@ -478,7 +478,6 @@ let make = () => {
     </>
 
   <div className="h-774-px w-full">
-    {IntelligentRoutingHelper.simulatorBanner}
     <div className="flex flex-row mt-5 py-10 h-890-px">
       <VerticalStepIndicator
         titleElement=intelligentRoutingTitleElement sections currentStep backClick
