@@ -24,7 +24,7 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (disableFields, setDisableFields) = React.useState(_ => false)
 
-  let _getVolumeSplit = async () => {
+  let getVolumeSplit = async () => {
     try {
       let url = getURL(~entityName=V1(GET_VOLUME_SPLIT), ~methodType=Get)
       let response = await fetchDetails(url)
@@ -40,19 +40,22 @@ let make = (
 
   let activeRoutingDetails = async () => {
     try {
-      let _url = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
+      let url = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
       // let response = await fetchDetails(url)
-      // let splitPercentage = await _getVolumeSplit()
+      // let splitPercentage = await getVolumeSplit()
       let splitPercentage = 100
       // splitPercentage
       // ->Nullable.getOr(JSON.Encode.int(100))
       // ->getDictFromJsonObject
       // ->getInt("split_percentage", 100)
 
-      // let values = response->configFieldsMapper(splitPercentage)
+      // let dict =
+      //   response->getDictFromJsonObject->getDictfromDict("algorithm")->getDictfromDict("config")
+      // let values = dict->configFieldsMapper(splitPercentage)->Identity.genericTypeToJson
+
       let values =
         defaultConfigsValue
-        ->Identity.genericTypeToJson
+        ->Identity.genericTypeToDictOfJson
         ->configFieldsMapper(splitPercentage)
         ->Identity.genericTypeToJson
       setInitialValues(_ => values)
@@ -64,9 +67,9 @@ let make = (
   let fetchDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let _ = await activeRoutingDetails()
       switch routingRuleId {
       | Some(_id) => {
+          await activeRoutingDetails()
           setPageState(_ => Preview)
           setDisableFields(_ => true)
         }
@@ -84,11 +87,6 @@ let make = (
   React.useEffect(() => {
     fetchDetails()->ignore
     None
-  }, [])
-
-  React.useEffect(() => {
-    fetchDetails()->ignore
-    None
   }, [routingRuleId])
 
   let authRateRoutingConfig = async (routingId, values: JSON.t) => {
@@ -98,9 +96,13 @@ let make = (
         ~methodType=Patch,
         ~id=Some(routingId),
       )
-      let _ = await updateDetails(url, values, Patch)
+      let response = await updateDetails(url, values, Patch)
+      Nullable.make(response)
     } catch {
-    | _ => showToast(~message="Failed to update configs", ~toastType=ToastError)
+    | _ => {
+        showToast(~message="Failed to update configs", ~toastType=ToastError)
+        Nullable.null
+      }
     }
   }
 
@@ -162,7 +164,12 @@ let make = (
       let routingId =
         response->Nullable.getOr(JSON.Encode.null)->getDictFromJsonObject->getString("id", "")
 
-      let _ = await authRateRoutingConfig(routingId, values)
+      let updateRoutingId = routingRuleId->Option.getOr(routingId)
+
+      let response = await authRateRoutingConfig(updateRoutingId, values)
+      let routingId =
+        response->Nullable.getOr(JSON.Encode.null)->getDictFromJsonObject->getString("id", "")
+
       let _ = await setVolumeSplit(splitPercentage)
 
       showToast(
@@ -175,7 +182,11 @@ let make = (
       if isSaveRule {
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
       }
-      response
+
+      let dict = Dict.make()
+      Dict.set(dict, "id", routingId->JSON.Encode.string)
+
+      Nullable.make(dict->JSON.Encode.object)
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong!")
@@ -278,9 +289,14 @@ let make = (
               />
             </div>
             <div
-              className="mt-5 mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
-              <div className="font-bold py-2">
-                {"Intelligent Routing Configuration"->React.string}
+              className="flex flex-col gap-4 mt-5 mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
+              <div>
+                <div className="font-bold py-2">
+                  {"Intelligent Routing Configuration"->React.string}
+                </div>
+                <div className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
+                  {"Dynamically route payments to maximise payment authorization rates."->React.string}
+                </div>
               </div>
               <div className="max-w-[500px]"> {formFields->React.array} </div>
             </div>

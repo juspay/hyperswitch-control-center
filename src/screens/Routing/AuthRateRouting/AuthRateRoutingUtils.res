@@ -31,7 +31,6 @@ let getFormFieldLabel = (field: formFields) => {
   }
 }
 
-//TODO: get it from backend
 let defaultConfigsValue = {
   min_aggregates_size: 5,
   default_success_rate: 100,
@@ -42,6 +41,8 @@ let defaultConfigsValue = {
   split_percentage: 100,
 }
 
+let initialValues = defaultConfigsValue->Identity.genericTypeToJson
+
 let getCurrentBlockThreshold = dict => {
   let maxTotalCount = dict->getDictfromDict("current_block_threshold")->getInt("max_total_count", 0)
   {
@@ -49,8 +50,7 @@ let getCurrentBlockThreshold = dict => {
   }
 }
 
-let configFieldsMapper = (json, split_percentage) => {
-  let dict = json->getDictFromJsonObject
+let configFieldsMapper = (dict, split_percentage) => {
   {
     min_aggregates_size: dict->getInt("max_aggregates_size", 0),
     default_success_rate: dict->getInt("default_success_rate", 0),
@@ -59,6 +59,3 @@ let configFieldsMapper = (json, split_percentage) => {
     split_percentage: dict->getInt("split_percentage", split_percentage),
   }
 }
-
-let initialValues =
-  Dict.make()->JSON.Encode.object->configFieldsMapper(0)->Identity.genericTypeToJson
