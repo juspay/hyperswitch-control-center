@@ -114,6 +114,7 @@ type order = {
   merchant_order_reference_id: string,
   attempt_count: int,
   connector_label: string,
+  split_payments: Dict.t<JSON.t>,
 }
 
 type refundsColType =
