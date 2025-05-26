@@ -267,31 +267,72 @@ Make your new page accessible.
 **A. Add to Sidebar (`src/entryPoints/SidebarValues.res`):**
 
 Locate the `useGetHsSidebarValues` hook (or similar structure) and add a new `Link` or `Section` entry for your page.
+Locate the appropriate section in the sidebar configuration and add a new entry for your page.
+
+For a simple link in a section (like Operations):
+
+```rescript
+// src/entryPoints/SidebarValues.res
+// Inside an existing section like operations
+let myNewPage = userHasResourceAccess => {
+  SubLevelLink({
+    name: "My New Page",
+    link: `/my-new-page`,
+    access: userHasResourceAccess(~resourceAccess=MyResource), // Use appropriate resource
+    searchOptions: [("View my new page data", "")],
+  })
+}
+
+// Then add your link to the appropriate array:
+let links = [payments, refunds, disputes]
+// Add your page to the links array
+links->Array.push(myNewPage(userHasResourceAccess))->ignore
+```
+
+For a standalone link in the main sidebar:
+
+````rescript
+// In the sidebar array within useGetHsSidebarValues
+Locate the `useGetHsSidebarValues` hook (or similar structure) and add a new `Link` or `Section` entry for your page.
 
 ```rescript
 // src/entryPoints/SidebarValues.res
 // Inside the `sidebar` array within `useGetHsSidebarValues`
 let sidebar = [
-  // ... other sidebar items
-  Link({
-    name: "My New Page",
-    icon: "nd-your-icon-name", // Choose an appropriate icon
-    link: "/my-new-page",      // This will be the route
-    access: Access,            // Or specific access control
-    selectedIcon: "nd-your-icon-name-fill",
-  }),
-  // ... other sidebar items
+// ... other sidebar items
+Link({
+ name: "My New Page",
+ icon: "nd-your-icon-name", // Choose an appropriate icon
+ link: "/my-new-page",      // This will be the route
+ access: Access,            // Or specific access control
+ selectedIcon: "nd-your-icon-name-fill",
+}),
+// ... other sidebar items
 ]
-```
+````
 
 **B. Add Route (`src/Orchestration/OrchestrationApp.res`):**
 
 Add a new case to the main router `switch` statement to render your page component.
 
-```rescript
+````rescript
 // src/Orchestration/OrchestrationApp.res
 // Ensure your page component is imported or opened, e.g.:
 // open MyNewPagePage - though often not needed if using <MyNewPagePage /> directly
+   ```rescript
+   // src/Orchestration/OrchestrationApp.res
+
+   // Inside the switch url.path->HSwitchUtils.urlPath block:
+   switch url.path->HSwitchUtils.urlPath {
+   // ... other routes
+   | list{"my-new-page", ...remainingPath} =>
+     <AccessControl
+       authorization={userHasAccess(~groupAccess=YourGroupAccess)}
+       isEnabled={true}>
+       <MyNewPagePage />
+     </AccessControl>
+   // Ensure your page component is imported or opened, e.g.:
+   // open MyNewPagePage - though often not needed if using <MyNewPagePage /> directly
 
 // Inside the `switch url.path->HSwitchUtils.urlPath` block:
 switch url.path->HSwitchUtils.urlPath {
@@ -299,6 +340,23 @@ switch url.path->HSwitchUtils.urlPath {
 | list{"my-new-page", ..._} => <MyNewPagePage /> // Or <MyNewPagePage.make />
 // ... other routes
 }
+````
+
+For pages that need detail views (like showing a single item's details):
+
+```rescript
+| list{"my-new-page", ...remainingPath} =>
+  <AccessControl
+    authorization={userHasAccess(~groupAccess=YourGroupAccess)}
+    isEnabled={true}>
+    <EntityScaffold
+      entityName="My New Page"
+      remainingPath
+      access=Access
+      renderList={() => <MyNewPagePage />}
+      renderShow={(id, _) => <ShowMyNewPageItem id />}
+    />
+  </AccessControl>
 ```
 
 ## 3. Testing and Refinement
@@ -327,6 +385,73 @@ This guide provides a comprehensive template. Adapt it based on the specific req
 ## 5. Common Pitfalls & Troubleshooting / Key Learnings
 
 Based on recent implementations, here are some key points and common issues to watch out for:
+
+### A. Table Type Definitions
+
+- **Cell and Header Types:** The `getCell` function returns `Table.cell` and the `getHeading` function creates `Table.header` objects (using `Table.makeHeaderInfo`).
+- **Custom Cell Rendering:** For complex cell content beyond simple text or dates, use the `CustomCell` constructor with a React component:
+  ```rescript
+  | CustomerId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue={Some(customersData.customer_id)}
+        copyValue={Some(customersData.customer_id)}
+      />,
+      "",
+    )
+  ```
+
+### B. JSON to ReScript Record Mapping (`itemToObjMapper`)
+
+The `itemToObjMapper` function is crucial for converting raw JSON objects from your API into typed ReScript records:
+
+```rescript
+// Well-structured example from CustomersEntity.res
+let itemToObjMapper = dict => {
+  open LogicUtils
+  {
+    customer_id: dict->getString("customer_id", ""),
+    name: dict->getString("name", ""),
+    email: dict->getString("email", ""),
+    // ... other fields
+  }
+}
+```
+
+- **Correct Usage with `LogicUtils`**: Open the `LogicUtils` module to access helper functions.
+- **Default Values**: Always provide sensible default values for fields that might be missing.
+- **Complex Objects**: For nested objects, use functions like `getJsonObjectFromDict` to preserve the structure.
+
+### C. Integrating Into Navigation Flow
+
+When adding your page to the application:
+
+1. **Sidebar Entry**: Add an entry in the appropriate section in `SidebarValues.res`.
+2. **Route Handling**: Add a route case in `OrchestrationApp.res`.
+3. **Access Control**: Wrap your component with `<AccessControl>` if authorization is required.
+4. **Entity Scaffold**: Use `<EntityScaffold>` for pages that have both list and detail views.
+
+### D. Working with Nullable Data
+
+The `LoadedTableWithCustomColumns` component expects data as `array<Nullable.t<'a>>`, so always remember to map your data:
+
+```rescript
+actualData={pageData->Array.map(Nullable.make)}
+```
+
+This pattern allows for proper handling of potentially null items in the table.
+
+### E. Real-World Example
+
+The Customers page implementation provides a good reference:
+
+- `CustomersType.res` defines the data structure
+- `CustomersEntity.res` handles data transformation and presentation
+- In `OrchestrationApp.res`, the route is defined with `EntityScaffold`
+- In `SidebarValues.res`, it's included in the Operations section
+
+By following these patterns consistently, your new table page will integrate seamlessly with the rest of the application.
 
 ### A. Table Type Definitions (`Table.header`, `Table.cell`)
 
