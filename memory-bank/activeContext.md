@@ -4,6 +4,53 @@
 
 This document tracks the current focus areas and recent changes in the Hyperswitch Control Center project. It should be updated regularly to reflect the most recent development status.
 
+- **AuthModule/ProductSelection:**
+  - Modifications to `src/entryPoints/AuthModule/ProductSelection/ProductSelectionProvider.res` related to product selection logic.
+- **Recoils:**
+  - Updates to `src/Recoils/TableAtoms.res` for managing table state using Recoil.
+- **Sidebar:**
+  - Modifications to `src/entryPoints/SidebarValues.res` related to sidebar values and navigation.
+- **Revenue Recovery:**
+  - Development of `src/RevenueRecovery/RevenueRecoveryScreens/RevenueRecoveryOverview/RevenueRecoveryOverview.res` for the Revenue Recovery overview screen.
+- **Customers:**
+  - Updates to `src/screens/Customers/Customers.res` and `src/screens/Customers/CustomersEntity.res` related to customer management.
+- **Routing:**
+  - Modifications to `src/screens/Routing/HistoryEntity.res` related to routing history.
+- **Transaction Disputes:**
+  - Updates to `src/screens/Transaction/Disputes/DisputesEntity.res` related to transaction disputes.
+- **Review and Refinement:**
+  - Updating the main index file (`memory-bank/rescriptSyntaxGuide.md`) to accurately reflect populated content.
+  - Deleting the redundant `memory-bank/thematic/rescript/jsxSyntax.md` file after content migration.
+- **Broader Code Scan & Augmentation:**
+  - Scanning the `src/` directory for diverse examples of ReScript syntax.
+  - Augmenting the following syntax documents with new, codebase-specific examples:
+    - `memory-bank/thematic/rescript/syntax/typesAndDataStructures.md`: Added more examples of polymorphic variants, including those with payloads.
+- **Context7 MCP Server Setup:**
+  - Successfully installed and configured the `github.com/upstash/context7-mcp` server.
+  - Installation involved creating a Dockerfile and building a Docker image, as initial attempts with `npx`, `bunx`, and `deno` were unsuccessful.
+  - The server's `resolve-library-id` tool was tested successfully for "react" and "rescript".
+  - The server is now available for fetching up-to-date library documentation.
+  - MCP settings file (`/Users/jeeva.ramachandran/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`) was updated with the Docker configuration:
+    ```json
+    "github.com/upstash/context7-mcp": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "context7-mcp"],
+      "disabled": false,
+      "autoApprove": []
+    }
+    ```
+    - `memory-bank/thematic/rescript/syntax/patternMatching.md`: Added a new section on matching polymorphic variants with examples.
+    - `memory-bank/thematic/rescript/syntax/functionsAndBindings.md`: Added further examples of the pipe operator and a codebase-specific example for `let rec`.
+    - `memory-bank/thematic/rescript/syntax/jsInterop.md`: Updated with specific codebase examples for various `@bs.*` attributes (`@bs.val`, `@bs.module`, `@bs.send`, `@bs.get`, `@bs.set`, `@bs.new`, `@obj`) and `"%identity"`.
+    - `memory-bank/thematic/rescript/syntax/commonStdLib.md`: Added examples for `Belt.Float.toString`, `Belt.Int.toString`, and `Belt.Array.zipBy`.
+    - `memory-bank/thematic/rescript/syntax/modules.md`: Replaced generic nested module example with specific examples from `src/components/Tabs.res`.
+    - `memory-bank/thematic/rescript/syntax/jsxPatterns.md`: Reviewed and deemed sufficiently detailed from previous work.
+- **Overall Goal:** To create a comprehensive and practical ReScript syntax reference based on patterns observed in the Hyperswitch Control Center codebase.
+- **Memory Bank Enhancement (TestComponent Learnings):** Updating the guide `memory-bank/thematic/TableComponentPage/creatingNewTablePage.md` with troubleshooting tips and corrections (e.g., `Table.header` type, `itemToObjMapper` signature, module routing references) derived from the recent `TestComponent` page implementation.
+- **Connector Addition (Worldpayxml):**
+  - Added `WORLDPAYXML` to `processorTypes` in `src/screens/Connectors/ConnectorTypes.res`.
+  - Updated `src/screens/Connectors/ConnectorUtils.res` to include `WORLDPAYXML` in `connectorList`, defined `worldpayxmlInfo`, and updated `getConnectorNameString`, `getConnectorNameTypeFromString`, `getProcessorInfo`, and `getDisplayNameForProcessor`.
+
 ### Current Sprint Priorities
 
 1. **API Integration Enhancements**
@@ -15,9 +62,19 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 
 2. **Payment Processing Workflow**
 
-   - Refining payment management interfaces
-   - Optimizing refund and dispute handling flows
-   - Enhancing payment status visualization
+- `src/entryPoints/AuthModule/ProductSelection/ProductSelectionProvider.res`
+- `src/Recoils/TableAtoms.res`
+- `src/entryPoints/SidebarValues.res`
+- `src/RevenueRecovery/RevenueRecoveryScreens/RevenueRecoveryOverview/RevenueRecoveryOverview.res`
+- `src/screens/Customers/Customers.res`
+- `src/screens/Customers/CustomersEntity.res`
+- `src/screens/Routing/HistoryEntity.res`
+- `src/screens/Transaction/Disputes/DisputesEntity.res`
+- `src/screens/Connectors/ConnectorTypes.res`
+- `src/screens/Connectors/ConnectorUtils.res`
+  - Refining payment management interfaces
+  - Optimizing refund and dispute handling flows
+  - Enhancing payment status visualization
 
 3. **Intelligent Routing**
 
