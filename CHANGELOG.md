@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.26.0
+
+### Features
+
+- Debit routing configuration addition ([#3025](https://github.com/juspay/hyperswitch-control-center/pull/3025)) ([`0f56cbf`](https://github.com/juspay/hyperswitch-control-center/commit/0f56cbf61a9bb416e943ddad171a36d75e71ab10))
+
+### Miscellaneous Tasks
+
+- Update preview image for Blur Web SDK ([#3031](https://github.com/juspay/hyperswitch-control-center/pull/3031)) ([`39a2986`](https://github.com/juspay/hyperswitch-control-center/commit/39a2986f6e354c18b24becab0a68f443b3aefada))
+- Get prod access UI revamp ([#2974](https://github.com/juspay/hyperswitch-control-center/pull/2974)) ([`ec24629`](https://github.com/juspay/hyperswitch-control-center/commit/ec24629e9f4c66ff9d7a0a00b674882b60295f79))
+
+**Full Changelog:** [`2025.05.23.0...2025.05.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.23.0...2025.05.26.0)
+
+
+- - -
+
 ## 2025.05.23.0
 
 ### Bug Fixes
