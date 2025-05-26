@@ -132,17 +132,7 @@ let make = (~showOnBoarding) => {
       </div>
     </RenderIf>
     <RenderIf condition={!showOnBoarding}>
-      <div
-        className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
-        <div className="flex gap-4 items-center">
-          <Icon name="nd-information-triangle" size=24 />
-          <p className="text-nd_gray-600 text-base leading-6 font-medium">
-            {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
-          </p>
-        </div>
-        <ReconHelper.GetProductionAccess />
-      </div>
-      <div className="flex flex-col space-y-2 justify-center relative gap-4 mt-12">
+      <div className="flex flex-col space-y-2 justify-center relative gap-4">
         <div>
           <div className="flex justify-between items-center">
             <p className="text-2xl font-semibold text-nd_gray-700">

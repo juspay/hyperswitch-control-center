@@ -7,7 +7,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
+  let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let isReconEnabled = merchentDetails.recon_status === Active

@@ -165,6 +165,7 @@ module.exports = {
         heading: "var(--base-heading-font-size)",
         "fs-10": "10px",
         "fs-11": "11px",
+        "fs-12": "12px",
         "fs-13": "13px",
         "fs-14": "14px",
         "fs-15": "15px",
@@ -414,10 +415,12 @@ module.exports = {
         },
         nd_orange: {
           50: "#FDF1DD",
+          100: "#FFE6CC",
           600: "#9E5400",
         },
         nd_yellow: {
           100: "#FFFBEE",
+          200: "#5E4200",
           800: "#998335",
         },
       },

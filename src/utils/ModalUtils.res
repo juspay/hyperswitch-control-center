@@ -7,5 +7,5 @@ let getAnimationClass = showModal =>
   }
 
 let getCloseIcon = onClick => {
-  <Icon name="modal-close-icon" className="cursor-pointer" size=30 onClick />
+  <Icon name="modal-close-icon" className="cursor-pointer text-nd_gray-600" size=28 onClick />
 }
