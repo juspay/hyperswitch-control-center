@@ -196,42 +196,42 @@ module Analyze = {
       let files = ReactEvent.Form.target(ev)["files"]
       let file = files["0"]
 
-      switch files[0] {
-      | Some(value) => {
-          let fileReader = FileReader.reader
-          fileReader.readAsArrayBuffer(value)
-
-          fileReader.onload = e => {
-            let target = ReactEvent.Form.target(e)
-            let file = target["result"]
-
-            let config = Window.getDefaultConfig()
-
-            let uint8array = FileReader.makeUint8Array(file)
-
-            let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
-
-            try {
-              let dict = Window.validateExtract(uint8array, config, metadata)
-              let data = getFileData(dict)
-
-              setFileUInt8Array(_ => data.data)
-              setReviewFields(_ => data.stats)
-              setUpload(_ => true)
-            } catch {
-            | _ => showToast(~message="Invalid file. Please try again.", ~toastType=ToastError)
-            }
-          }
-        }
-      | None => ()
-      }
-
       let fileSize = file["size"]
       if fileSize > 10 * 1024 * 1024 {
         showToast(~message="File size should be less than 10MB", ~toastType=ToastError)
         setFile(_ => None)
+      } else {
+        switch files[0] {
+        | Some(value) => {
+            let fileReader = FileReader.reader
+            fileReader.readAsArrayBuffer(value)
+
+            fileReader.onload = e => {
+              let target = ReactEvent.Form.target(e)
+              let file = target["result"]
+
+              let config = Window.getDefaultConfig()
+
+              let uint8array = FileReader.makeUint8Array(file)
+
+              let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
+
+              try {
+                let dict = Window.validateExtract(uint8array, config, metadata)
+                let data = getFileData(dict)
+
+                setFileUInt8Array(_ => data.data)
+                setReviewFields(_ => data.stats)
+                setUpload(_ => true)
+              } catch {
+              | _ => showToast(~message="Invalid file. Please try again.", ~toastType=ToastError)
+              }
+            }
+          }
+        | None => ()
+        }
+        setFile(_ => Some(file))
       }
-      setFile(_ => Some(file))
     }
 
     let triggerInput = _ => {
