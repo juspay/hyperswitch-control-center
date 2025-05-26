@@ -153,43 +153,35 @@ let getStripeChargeType = splitPaymentsDict => {
   stripeChargeType->String.toLowerCase->getStripeChargeVariantFromString
 }
 
-let getSplitRefundDict = (valuesDict, connector, chargeType) => {
-  let stripeSplitRefundDict =
-    valuesDict->getDictfromDict("split_refunds")->getDictfromDict("stripe_split_refund")
-  switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-  | Processors(STRIPE) =>
-    switch chargeType {
-    | Direct =>
-      Dict.fromArray([
-        (
-          "stripe_split_refund",
-          Dict.fromArray([
-            (
-              "revert_platform_fee",
-              stripeSplitRefundDict->getBool("revert_platform_fee", false)->JSON.Encode.bool,
-            ),
-          ])->JSON.Encode.object,
-        ),
-      ])
-    | Destination =>
-      Dict.fromArray([
-        (
-          "stripe_split_refund",
-          Dict.fromArray([
-            (
-              "revert_platform_fee",
-              stripeSplitRefundDict->getBool("revert_platform_fee", false)->JSON.Encode.bool,
-            ),
-            (
-              "revert_transfer",
-              stripeSplitRefundDict->getBool("revert_transfer", false)->JSON.Encode.bool,
-            ),
-          ])->JSON.Encode.object,
-        ),
-      ])
-
-    | None => Dict.make()
-    }
+let initialValuesDict = (~isSplitPayment, ~order: OrderTypes.order) => {
+  switch (isSplitPayment, order.split_payments->getStripeChargeType) {
+  | (true, Direct) =>
+    Dict.fromArray([
+      (
+        "split_refunds",
+        Dict.fromArray([
+          (
+            "stripe_split_refund",
+            Dict.fromArray([("revert_platform_fee", false->JSON.Encode.bool)])->JSON.Encode.object,
+          ),
+        ])->JSON.Encode.object,
+      ),
+    ])
+  | (true, Destination) =>
+    Dict.fromArray([
+      (
+        "split_refunds",
+        Dict.fromArray([
+          (
+            "stripe_split_refund",
+            Dict.fromArray([
+              ("revert_platform_fee", false->JSON.Encode.bool),
+              ("revert_transfer", false->JSON.Encode.bool),
+            ])->JSON.Encode.object,
+          ),
+        ])->JSON.Encode.object,
+      ),
+    ])
   | _ => Dict.make()
   }
 }

@@ -25,11 +25,11 @@ let make = (
     showRefundAddressEmailList->Array.includes(order.connector->String.toLowerCase)
 
   let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
-  let initiateValue = Dict.make()
-  let initiateValueJson = initiateValue->JSON.Encode.object
   let isSplitPayment =
     order.connector->String.toLowerCase->isSplitPaymentConnector &&
       !(order.split_payments->isEmptyDict)
+  let initiateValue = initialValuesDict(~isSplitPayment, ~order)
+  let initiateValueJson = initiateValue->JSON.Encode.object
 
   let updateRefundDetails = async body => {
     try {
@@ -63,18 +63,6 @@ let make = (
 
     if !showRefundReason {
       Dict.set(body, "reason", "RETURN"->JSON.Encode.string)
-    }
-
-    if isSplitPayment {
-      Dict.set(
-        body,
-        "split_refunds",
-        getSplitRefundDict(
-          dict,
-          order.connector,
-          order.split_payments->getStripeChargeType,
-        )->JSON.Encode.object,
-      )
     }
     updateRefundDetails(body->JSON.Encode.object)->ignore
     Nullable.null->resolve
@@ -252,20 +240,18 @@ let make = (
                     ~boolCustomClass="rounded-lg mx-1",
                   ),
                   ~placeholder="",
-                  ~isRequired=true,
                 )}
               />
               <RenderIf condition={chargeType == Destination}>
                 <FormRenderer.FieldRenderer
                   field={FormRenderer.makeFieldInfo(
                     ~name="split_refunds.stripe_split_refund.revert_transfer",
-                    ~label="Revert Transfer",
+                    ~label="Revert Transfer Fee",
                     ~customInput=InputFields.boolInput(
                       ~isDisabled=false,
                       ~boolCustomClass="rounded-lg mx-1",
                     ),
                     ~placeholder="",
-                    ~isRequired=true,
                   )}
                 />
               </RenderIf>
@@ -273,7 +259,7 @@ let make = (
           | _ => React.null
           }}
         </RenderIf>
-        <div className="flex justify-end gap-4 mt-12">
+        <div className="flex justify-end gap-4 mt-16">
           <Button
             text="Cancel"
             onClick={_ => {
