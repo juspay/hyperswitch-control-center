@@ -369,7 +369,7 @@ let make = (
             {customLeftView}
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <RenderIf condition={fixedFilters->Array.length > 0}>
               <FormRenderer.FieldsRenderer
                 fields={fixedFilters->Array.map(item => item.field)}

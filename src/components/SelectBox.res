@@ -1965,8 +1965,8 @@ module BaseDropdown = {
 
     <div
       className={`flex relative flex-row flex-wrap ${disableSelect
-          ? "opacity-50 cursor-not-allowed"
-          : ""}`}>
+          ? "cursor-not-allowed"
+          : "cursor-pointer"}`}>
       <div className={`flex relative ${flexWrapper} ${fullLength ? "w-full" : ""}`}>
         <div
           ref={selectBoxRef->ReactDOM.Ref.domRef}

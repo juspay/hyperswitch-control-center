@@ -495,7 +495,7 @@ let filterDateRangeField = (
   ~allowedDateRange=?,
   ~events=?,
   ~disable=false,
-  ~customButtonStyle="",
+  ~customButtonStyle="!rounded-lg !bg-none",
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeField
@@ -547,7 +547,7 @@ let filterCompareDateRangeField = (
   ~compareWithEndTime: string,
   ~disable=false,
   ~textStyle=?,
-  ~customButtonStyle="",
+  ~customButtonStyle="!rounded-lg !bg-none",
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeCompareFields

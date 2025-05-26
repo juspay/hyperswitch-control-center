@@ -81,7 +81,7 @@ let initialFixedFilterFields = (
   let textStyle = sampleDataIsEnabled ? "text-nd_gray-400" : "text-primary"
   let customButtonStyle = sampleDataIsEnabled
     ? "!bg-nd_gray-50 !text-nd_gray-400 !rounded-lg !bg-none"
-    : ""
+    : "border !rounded-lg !bg-none"
   let newArr = [
     (
       {

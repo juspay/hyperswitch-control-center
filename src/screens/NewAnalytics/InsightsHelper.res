@@ -142,7 +142,7 @@ module CustomDropDown = {
                     className={arrow
                       ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
                       : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
-                    name="arrow-without-tail"
+                    name="angle-up"
                     size=15
                   />
                 </>
