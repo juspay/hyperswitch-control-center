@@ -11,12 +11,12 @@ module Review = {
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (showLoading, setShowLoading) = React.useState(() => false)
-    let queryParamerters = `upload_data=${isUpload ? "true" : "false"}`
     let loaderLottieFile = LottieFiles.useLottieJson("spinner.json")
 
     let uploadData = async () => {
       try {
         setShowLoading(_ => true)
+        let queryParamerters = `upload_data=${isUpload ? "true" : "false"}`
         let url = getURL(
           ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
           ~methodType=Post,
@@ -162,7 +162,6 @@ module Analyze = {
         let reviewFields =
           res->getDictFromJsonObject->IntelligentRoutingReviewFieldsEntity.itemToObjMapper
         setReviewFields(_ => reviewFields)
-        onNextClick()
       } catch {
       | _ =>
         setButtonText(_ => "Next")
@@ -173,18 +172,13 @@ module Analyze = {
       }
     }
 
-    let steps = ["Preparing sample data"]
-
     let handleNextClick = async () => {
-      for i in 0 to Array.length(steps) - 1 {
-        setButtonText(_ => steps[i]->Option.getOr(""))
-        await HyperSwitchUtils.delay(800)
-      }
+      setButtonText(_ => "Preparing sample data")
+      await HyperSwitchUtils.delay(800)
       if !upload {
         getReviewData()->ignore
-      } else {
-        onNextClick()
       }
+      onNextClick()
       mixpanelEvent(~eventName="intelligent_routing_analyze_data")
     }
 
@@ -193,44 +187,78 @@ module Analyze = {
     }
 
     let handleFileUpload = ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      let file = files["0"]
-
-      let fileSize = file["size"]
-      if fileSize > 10 * 1024 * 1024 {
-        showToast(~message="File size should be less than 10MB", ~toastType=ToastError)
-        setFile(_ => None)
-      } else {
+      try {
+        let files = ReactEvent.Form.target(ev)["files"]
         switch files[0] {
-        | Some(value) => {
-            let fileReader = FileReader.reader
-            fileReader.readAsArrayBuffer(value)
+        | Some(value) =>
+          let fileSize = value["size"]
+          if fileSize > 10 * 1024 * 1024 {
+            showToast(~message="File size should be less than 10MB", ~toastType=ToastError)
+            setFile(_ => None)
+          } else {
+            try {
+              let fileReader = FileReader.reader
+              fileReader.readAsArrayBuffer(value)
 
-            fileReader.onload = e => {
-              let target = ReactEvent.Form.target(e)
-              let file = target["result"]
+              fileReader.onload = e => {
+                try {
+                  let target = ReactEvent.Form.target(e)
+                  switch target["result"]->Nullable.toOption {
+                  | Some(fileData) =>
+                    let uint8array = FileReader.makeUint8Array(fileData)
+                    let config = Window.getDefaultConfig()
+                    let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
 
-              let config = Window.getDefaultConfig()
+                    try {
+                      let dict = Window.validateExtract(uint8array, config, metadata)
+                      let data = getFileData(dict)
 
-              let uint8array = FileReader.makeUint8Array(file)
-
-              let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
-
-              try {
-                let dict = Window.validateExtract(uint8array, config, metadata)
-                let data = getFileData(dict)
-
-                setFileUInt8Array(_ => data.data)
-                setReviewFields(_ => data.stats)
-                setUpload(_ => true)
-              } catch {
-              | _ => showToast(~message="Invalid file. Please try again.", ~toastType=ToastError)
+                      setFileUInt8Array(_ => data.data)
+                      setReviewFields(_ => data.stats)
+                      setUpload(_ => true)
+                    } catch {
+                    | _ =>
+                      showToast(~message="Invalid file. Please try again.", ~toastType=ToastError)
+                      setFileUInt8Array(_ => Js.TypedArray2.Uint8Array.make([]))
+                      setUpload(_ => false)
+                    }
+                  | None =>
+                    showToast(
+                      ~message="Failed to read file. Please try again.",
+                      ~toastType=ToastError,
+                    )
+                    setFile(_ => None)
+                  }
+                } catch {
+                | _ =>
+                  showToast(
+                    ~message="Error processing file data. Please try again.",
+                    ~toastType=ToastError,
+                  )
+                  setFile(_ => None)
+                  setFileUInt8Array(_ => Js.TypedArray2.Uint8Array.make([]))
+                  setUpload(_ => false)
+                }
               }
+              setFile(_ => Some(value))
+            } catch {
+            | _ =>
+              showToast(~message="Error reading file. Please try again.", ~toastType=ToastError)
+              setFile(_ => None)
+              setFileUInt8Array(_ => Js.TypedArray2.Uint8Array.make([]))
+              setUpload(_ => false)
             }
           }
-        | None => ()
+        | None =>
+          showToast(~message="No file selected. Please choose a file.", ~toastType=ToastError)
+          setFile(_ => None)
         }
-        setFile(_ => Some(file))
+      } catch {
+      | _ =>
+        showToast(~message="An unexpected error occurred. Please try again.", ~toastType=ToastError)
+        setFile(_ => None)
+        setFileUInt8Array(_ => Js.TypedArray2.Uint8Array.make([]))
+        setUpload(_ => false)
       }
     }
 
@@ -254,45 +282,43 @@ module Analyze = {
     | Some(file) => file["size"]
     | None => 0
     }
-    let fileSizeDisplay = if fileSize / 1024 / 1024 > 1 {
-      `${(fileSize / 1024 / 1024)->Int.toString} MB`
-    } else if fileSize / 1024 > 1 {
-      ` ${(fileSize / 1024)->Int.toString}KB`
-    } else {
-      `${fileSize->Int.toString} B`
-    }
 
     let downloadTemplateFile = () => {
       open Promise
-      let downloadURL = `${GlobalVars.getHostUrl}/dynamo-simulation-template/simulator_template.csv`
-      fetchApi(
-        downloadURL,
-        ~method_=Get,
-        ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
-        ~forceCookies=false,
-        ~contentType=AuthHooks.Headers("text/csv"),
-      )
-      ->then(resp => {
-        Fetch.Response.blob(resp)
-      })
-      ->then(content => {
-        DownloadUtils.download(~fileName=`simulator_template.csv`, ~content, ~fileType="text/csv")
-        showToast(~toastType=ToastSuccess, ~message="File download complete")
-        resolve()
-      })
-      ->catch(_ => {
-        showToast(
-          ~toastType=ToastError,
-          ~message="Oops, something went wrong with the download. Please try again.",
+      let downloadURL = Window.env.dynamoSimulationTemplateUrl->Option.getOr("")
+      if downloadURL->LogicUtils.isNonEmptyString {
+        fetchApi(
+          downloadURL,
+          ~method_=Get,
+          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
+          ~forceCookies=false,
+          ~contentType=AuthHooks.Headers("text/csv"),
         )
-        resolve()
-      })
-      ->ignore
+        ->then(resp => {
+          Fetch.Response.blob(resp)
+        })
+        ->then(content => {
+          DownloadUtils.download(~fileName=`simulator_template.csv`, ~content, ~fileType="text/csv")
+          showToast(~toastType=ToastSuccess, ~message="File download complete")
+          resolve()
+        })
+        ->catch(_ => {
+          showToast(
+            ~toastType=ToastError,
+            ~message="Oops, something went wrong with the download. Please try again.",
+          )
+          resolve()
+        })
+        ->ignore
+      } else {
+        showToast(~toastType=ToastError, ~message="Oops, something went wrong with the download ")
+      }
     }
 
-    let fileUploadComponent = {
-      upload
-        ? <div
+    let fileUploadComponent =
+      <>
+        <RenderIf condition={upload}>
+          <div
             className="border ring-grey-outline rounded-lg bg-nd_gray-25 p-4 flex flex-col items-center gap-6">
             <div
               className="border ring-grey-outline rounded-lg bg-white flex justify-between w-full p-4">
@@ -300,13 +326,17 @@ module Analyze = {
                 <Icon name="nd-file" size=35 />
                 <div className="flex flex-col">
                   <div className="text-nd_gray-600"> {fileName->React.string} </div>
-                  <div className="text-nd_gray-400"> {fileSizeDisplay->React.string} </div>
+                  <div className="text-nd_gray-400">
+                    {getDisplayFileSize(fileSize)->React.string}
+                  </div>
                 </div>
               </div>
               <Icon name="trash-alt" onClick={_ => resetUploadFile()} className="cursor-pointer" />
             </div>
           </div>
-        : <div
+        </RenderIf>
+        <RenderIf condition={!upload}>
+          <div
             className="border ring-grey-outline rounded-lg bg-nd_gray-25 p-4 flex flex-col items-center gap-6">
             <div
               className="border ring-grey-outline rounded-lg bg-white p-4 flex justify-between w-full">
@@ -339,7 +369,8 @@ module Analyze = {
               />
             </div>
           </div>
-    }
+        </RenderIf>
+      </>
 
     let dataSourceHeading = title =>
       <div className="text-nd_gray-400 text-xs font-semibold tracking-wider">
@@ -483,10 +514,10 @@ let make = () => {
         titleElement=intelligentRoutingTitleElement sections currentStep backClick
       />
       <div className="mx-12 mt-16 overflow-y-auto">
-        {switch currentStep {
-        | {sectionId: "analyze"} =>
+        {switch currentStep.sectionId->stringToSectionVariantMapper {
+        | #analyze =>
           <Analyze onNextClick setReviewFields setIsUpload fileUInt8Array setFileUInt8Array />
-        | {sectionId: "review"} => <Review reviewFields isUpload fileUInt8Array />
+        | #review => <Review reviewFields isUpload fileUInt8Array />
         | _ => React.null
         }}
       </div>

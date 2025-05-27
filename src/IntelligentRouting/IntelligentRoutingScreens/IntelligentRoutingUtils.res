@@ -27,6 +27,14 @@ let sections = [
   },
 ]
 
+let stringToSectionVariantMapper = string => {
+  switch string {
+  | "analyze" => #analyze
+  | "review" => #review
+  | _ => #analyze
+  }
+}
+
 let getFileTypeHeading = fileType => {
   switch fileType {
   | Sample => "Try with Our Sample Data"
@@ -171,3 +179,12 @@ let getFileData = json => {
     stats: IntelligentRoutingReviewFieldsEntity.itemToObjMapper(stats),
   }
 }
+
+let getDisplayFileSize = fileSize =>
+  if fileSize / 1024 / 1024 > 1 {
+    `${(fileSize / 1024 / 1024)->Int.toString} MB`
+  } else if fileSize / 1024 > 1 {
+    ` ${(fileSize / 1024)->Int.toString}KB`
+  } else {
+    `${fileSize->Int.toString} B`
+  }

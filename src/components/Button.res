@@ -670,7 +670,7 @@ let make = (
                 </div>
               </AddDataAttributes>
 
-            if showBtnTextToolTip {
+            if showBtnTextToolTip && !showTooltip {
               <div className=ellipsisParentClass>
                 <ToolTip
                   description={tooltipText->Option.getOr("")}
