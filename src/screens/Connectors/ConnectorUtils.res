@@ -1783,7 +1783,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BLUESNAP => "Bluesnap"
   | AIRWALLEX => "Airwallex"
   | WORLDPAY => "Worldpay"
-  | WORLDPAYXML => "Worldpay XML"
+  | WORLDPAYXML => "Worldpay WPG"
   | CYBERSOURCE => "Cybersource"
   | COINGATE => "CoinGate"
   | ELAVON => "Elavon"
