@@ -16,11 +16,6 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
   let (upload, setUpload) = React.useState(() => false)
   let inputRef = React.useRef(Nullable.null)
 
-  React.useEffect(() => {
-    setIsUpload(_ => selectedField === Upload)
-    None
-  }, [selectedField])
-
   let getReviewData = async () => {
     try {
       let url = getURL(~entityName=V1(GET_REVIEW_FIELDS), ~methodType=Get)
@@ -140,44 +135,25 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
     setUpload(_ => false)
   }
 
-  let fileName = switch file {
-  | Some(file) => file["name"]
-  | None => "No file selected"
-  }
-  let fileSize = switch file {
-  | Some(file) => file["size"]
-  | None => 0
-  }
-
-  let downloadTemplateFile = () => {
-    open Promise
-    let downloadURL = Window.env.dynamoSimulationTemplateUrl->Option.getOr("")
-    if downloadURL->LogicUtils.isNonEmptyString {
-      fetchApi(
+  let downloadTemplateFile = async () => {
+    try {
+      let downloadURL = Window.env.dynamoSimulationTemplateUrl->Option.getOr("")
+      let blob = await fetchApi(
         downloadURL,
         ~method_=Get,
         ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         ~forceCookies=false,
         ~contentType=AuthHooks.Headers("text/csv"),
       )
-      ->then(resp => {
-        Fetch.Response.blob(resp)
-      })
-      ->then(content => {
-        DownloadUtils.download(~fileName=`simulator_template.csv`, ~content, ~fileType="text/csv")
-        showToast(~toastType=ToastSuccess, ~message="File download complete")
-        resolve()
-      })
-      ->catch(_ => {
-        showToast(
-          ~toastType=ToastError,
-          ~message="Oops, something went wrong with the download. Please try again.",
-        )
-        resolve()
-      })
-      ->ignore
-    } else {
-      showToast(~toastType=ToastError, ~message="Oops, something went wrong with the download ")
+      let content = await Fetch.Response.blob(blob)
+      DownloadUtils.download(~fileName=`simulator_template.csv`, ~content, ~fileType="text/csv")
+      showToast(~message="File download complete", ~toastType=ToastSuccess)
+    } catch {
+    | _ =>
+      showToast(
+        ~message="Oops, something went wrong with the download. Please try again.",
+        ~toastType=ToastError,
+      )
     }
   }
 
@@ -191,9 +167,9 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
             <div className="flex gap-2">
               <Icon name="nd-file" size=35 />
               <div className="flex flex-col">
-                <div className="text-nd_gray-600"> {fileName->React.string} </div>
+                <div className="text-nd_gray-600"> {getFileName(file)->React.string} </div>
                 <div className="text-nd_gray-400">
-                  {getDisplayFileSize(fileSize)->React.string}
+                  {getDisplayFileSize(getFileSize(file))->React.string}
                 </div>
               </div>
             </div>
@@ -215,7 +191,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
               </span>
               <div
                 className="text-nd_primary_blue-500 font-medium"
-                onClick={_ => downloadTemplateFile()}>
+                onClick={_ => downloadTemplateFile()->ignore}>
                 {"Download"->React.string}
               </div>
             </div>
@@ -267,11 +243,16 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
               let fileTypeIcon = item->getFileTypeIconName
               let isSelected = selectedField === item
 
+              let handleCardClick = _ => {
+                setSelectedField(_ => item)
+                setIsUpload(_ => selectedField === Upload)
+              }
+
               <StepCard
                 stepName={fileTypeHeading}
                 description={fileTypeDescription}
                 isSelected
-                onClick={_ => setSelectedField(_ => item)}
+                onClick={_ => handleCardClick()}
                 iconName=fileTypeIcon
                 showDemoLabel={item === Sample ? true : false}
               />

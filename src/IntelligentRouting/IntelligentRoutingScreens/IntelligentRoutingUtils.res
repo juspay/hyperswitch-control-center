@@ -184,7 +184,19 @@ let getDisplayFileSize = fileSize =>
   if fileSize / 1024 / 1024 > 1 {
     `${(fileSize / 1024 / 1024)->Int.toString} MB`
   } else if fileSize / 1024 > 1 {
-    ` ${(fileSize / 1024)->Int.toString}KB`
+    ` ${(fileSize / 1024)->Int.toString} KB`
   } else {
     `${fileSize->Int.toString} B`
+  }
+
+let getFileName = file =>
+  switch file {
+  | Some(file) => file["name"]
+  | None => "No file selected"
+  }
+
+let getFileSize = file =>
+  switch file {
+  | Some(file) => file["size"]
+  | None => 0
   }
