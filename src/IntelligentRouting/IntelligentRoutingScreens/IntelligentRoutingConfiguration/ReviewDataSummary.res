@@ -9,12 +9,14 @@ let make = (~reviewFields, ~isUpload=false, ~fileUInt8Array) => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let (buttonState, setButtonState) = React.useState(() => Button.Normal)
   let (showLoading, setShowLoading) = React.useState(() => false)
   let loaderLottieFile = LottieFiles.useLottieJson("spinner.json")
 
   let uploadData = async () => {
     try {
       setShowLoading(_ => true)
+      setButtonState(_ => Button.Loading)
       let queryParamerters = `upload_data=${isUpload ? "true" : "false"}`
       let url = getURL(
         ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
@@ -44,9 +46,11 @@ let make = (~reviewFields, ~isUpload=false, ~fileUInt8Array) => {
           GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
         )
       }
+      setButtonState(_ => Button.Normal)
       setShowLoading(_ => false)
     } catch {
     | _ =>
+      setButtonState(_ => Button.Normal)
       setShowLoading(_ => false)
       showToast(~message="Upload data failed", ~toastType=ToastError)
     }
@@ -97,18 +101,10 @@ let make = (~reviewFields, ~isUpload=false, ~fileUInt8Array) => {
       </div>
       <Button
         text="Explore Insights"
-        customButtonStyle={`w-full mt-6 hover:opacity-80 ${showLoading ? "cursor-wait" : ""}`}
+        customButtonStyle="w-full mt-6 hover:opacity-80"
         buttonType=Primary
         onClick={_ => handleNext()}
-        rightIcon={showLoading
-          ? CustomIcon(
-              <span className="px-3">
-                <span className={`flex items-center mx-2 animate-spin`}>
-                  <Loadericon size=14 iconColor="text-white" />
-                </span>
-              </span>,
-            )
-          : NoIcon}
+        buttonState
       />
     </div>
     <Modal

@@ -11,10 +11,10 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (selectedField, setSelectedField) = React.useState(() => IntelligentRoutingTypes.Sample)
-  let (buttonText, setButtonText) = React.useState(() => "Next")
   let (file, setFile) = React.useState(() => None)
   let (upload, setUpload) = React.useState(() => false)
   let inputRef = React.useRef(Nullable.null)
+  let (buttonState, setButtonState) = React.useState(() => Button.Normal)
 
   let getReviewData = async () => {
     try {
@@ -25,7 +25,6 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
       setReviewFields(_ => reviewFields)
     } catch {
     | _ =>
-      setButtonText(_ => "Next")
       showToast(
         ~message="Something went wrong while fetching the review fields data",
         ~toastType=ToastError,
@@ -34,7 +33,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
   }
 
   let handleNextClick = async () => {
-    setButtonText(_ => "Preparing sample data")
+    setButtonState(_ => Button.Loading)
     await HyperSwitchUtils.delay(800)
     if !upload {
       getReviewData()->ignore
@@ -190,10 +189,8 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
       {title->String.toUpperCase->React.string}
     </div>
 
-  let noFileUploaded =
+  let errorInUploadFlow =
     selectedField === Upload && fileUInt8Array->Js.TypedArray2.Uint8Array.length === 0
-
-  let buttonState = noFileUploaded ? Button.Disabled : Button.Normal
 
   <div className="w-500-px">
     {IntelligentRoutingHelper.stepperHeading(
@@ -255,23 +252,13 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
       })
       ->React.array}
       <Button
-        text=buttonText
-        customButtonStyle={`w-full mt-6 hover:opacity-80 ${buttonText != "Next"
-            ? "cursor-wait"
-            : ""}`}
+        text="Next"
+        customButtonStyle="w-full mt-6 hover:opacity-80"
         buttonType=Primary
         onClick={_ => handleNext()}
-        rightIcon={buttonText != "Next"
-          ? CustomIcon(
-              <span className="px-3">
-                <span className={`flex items-center mx-2 animate-spin`}>
-                  <Loadericon size=14 iconColor="text-white" />
-                </span>
-              </span>,
-            )
-          : NoIcon}
-        buttonState
-        showTooltip=noFileUploaded
+        buttonState={errorInUploadFlow ? Button.Disabled : buttonState}
+        loadingText={upload ? "Analysing data" : "Preparing sample data"}
+        showTooltip=errorInUploadFlow
         tooltipText="Please upload a file"
         toolTipPosition=Right
       />
