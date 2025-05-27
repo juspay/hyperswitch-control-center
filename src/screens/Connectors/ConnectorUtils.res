@@ -123,6 +123,7 @@ let connectorList: array<connectorTypes> = [
 let connectorListForLive: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
+  Processors(ARCHIPEL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),

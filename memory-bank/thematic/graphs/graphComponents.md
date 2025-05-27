@@ -185,11 +185,13 @@ type tooltip = {
 A horizontal bar chart used for comparing values across categories.
 
 **Key features:**
+
 - Custom tooltip formatting
 - Configurable bar padding
 - Options for legends and labels
 
 **Example configuration:**
+
 ```rescript
 let barGraphConfig = {
   categories: ["Category 1", "Category 2", "Category 3"],
@@ -214,12 +216,14 @@ let options = BarGraphUtils.getBarGraphOptions(barGraphConfig)
 A line chart used for showing trends over time.
 
 **Key features:**
+
 - Customizable line styles
 - Support for multiple series
 - Interactive tooltips
 - Custom height configuration
 
 **Example configuration:**
+
 ```rescript
 let lineGraphConfig = {
   chartHeight: DefaultHeight,
@@ -250,12 +254,14 @@ let options = LineGraphUtils.getLineGraphOptions(lineGraphConfig)
 A combined line and column chart for showing related metrics.
 
 **Key features:**
+
 - Dual Y-axes for different scales
 - Combined columns and lines
 - Shared tooltips across series types
 - Advanced tooltip formatting
 
 **Example configuration:**
+
 ```rescript
 let lineColumnConfig = {
   categories: ["Jan", "Feb", "Mar", "Apr"],
@@ -312,7 +318,7 @@ let customTooltipFormatter = (
         </div>
       </div>
     `
-    
+
     `<div style="padding:10px; border-radius:7px; background-color:#FFFFFF; box-shadow:0px 4px 8px rgba(0,0,0,0.2); border:1px solid #E5E5E5;">
       ${content}
     </div>`
@@ -328,7 +334,7 @@ Common style constants are used across graph components for consistency:
 // Common styling constants
 let fontFamily = "Arial, sans-serif"
 let darkGray = "#666666"
-let lightGray = "#999999" 
+let lightGray = "#999999"
 let gridLineColor = "#e6e6e6"
 ```
 
@@ -364,6 +370,7 @@ let labelFormatter = (
 2. **Default Configurations**: Use the utility functions to generate default configurations, then override specific properties as needed.
 
 3. **Responsive Design**: Apply responsive sizing through the className prop:
+
    ```rescript
    <BarGraph options className="h-64 md:h-80 lg:h-96" />
    ```

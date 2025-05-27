@@ -33,7 +33,6 @@ Hyperswitch Control Center addresses these challenges by providing:
 ### Primary Goals
 
 1. **Simplicity in Complexity**: Make complex payment operations intuitive and accessible.
-   
 2. **Operational Efficiency**: Reduce time spent managing payments across multiple platforms.
 
 3. **Data-Driven Decisions**: Enable better business decisions through comprehensive payment analytics.
@@ -48,13 +47,12 @@ Hyperswitch Control Center addresses these challenges by providing:
    - Needs to monitor payment flows and health
    - Manages refunds and disputes
    - Requires operational dashboards and alerts
-   
 2. **Finance/Treasury Team**
    - Focuses on payment costs and reconciliation
    - Needs detailed reporting and analytics
    - Values processor cost optimization
-   
 3. **Technical Team/Developers**
+
    - Implements and maintains payment infrastructure
    - Needs easy integration and troubleshooting capabilities
    - Values clear documentation and APIs
@@ -102,17 +100,20 @@ Hyperswitch Control Center addresses these challenges by providing:
 
 Hyperswitch Control Center delivers:
 
-1. **Operational Excellence**: 
+1. **Operational Excellence**:
+
    - Single interface for all payment operations
    - Streamlined workflows for common tasks
    - Reduced operational errors and overhead
 
 2. **Financial Benefits**:
+
    - Lower processing costs through optimized routing
    - Reduced development and maintenance costs
    - Better conversion rates and authorization success
 
 3. **Strategic Advantage**:
+
    - Flexibility to adapt payment stack without vendor lock-in
    - Data-driven insights for continuous improvement
    - Ability to quickly respond to processor issues or opportunities

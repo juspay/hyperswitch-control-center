@@ -44,6 +44,7 @@ let customColumnsAtom = Recoil.atom({
 ```
 
 Key characteristics:
+
 - Each atom has a unique key
 - Default values are provided in the atom definition
 - Atoms are exported for use across the application
@@ -59,7 +60,7 @@ let filteredDataSelector = Recoil.selector({
   get: ({get}) => {
     let allData = get(dataAtom)
     let filters = get(filtersAtom)
-    
+
     // Apply filters to data
     allData->Array.filter(item => applyFilters(item, filters))
   },
@@ -67,6 +68,7 @@ let filteredDataSelector = Recoil.selector({
 ```
 
 Selectors in Hyperswitch are used for:
+
 - Filtering and sorting data
 - Combining data from multiple atoms
 - Formatting data for display
@@ -124,7 +126,7 @@ Custom hooks abstract Recoil interactions:
 let useClearRecoilValue = () => {
   let resetTableFilterState = TableFilterAtoms.tableFilterAtom->Recoil.useResetRecoilState
   let resetOrdersData = TableAtoms.ordersAtom->Recoil.useResetRecoilState
-  
+
   () => {
     // Reset all relevant atoms
     resetTableFilterState()
@@ -206,7 +208,7 @@ let useLoadTableData = () => {
   let setTableData = TableAtoms.tableDataAtom->Recoil.useSetRecoilState
   let setLoading = TableAtoms.loadingAtom->Recoil.useSetRecoilState
   let setError = TableAtoms.errorAtom->Recoil.useSetRecoilState
-  
+
   let fetchData = async () => {
     setLoading(true)
     try {
@@ -221,7 +223,7 @@ let useLoadTableData = () => {
       }
     }
   }
-  
+
   fetchData
 }
 ```
@@ -235,19 +237,19 @@ let paymentStatsSelector = Recoil.selector({
   key: "paymentStatsSelector",
   get: ({get}) => {
     let payments = get(paymentsAtom)
-    
+
     // Calculate statistics from payments data
     let totalAmount = payments->Array.reduce(0.0, (acc, payment) => {
       acc +. payment.amount
     })
-    
+
     let successRate = {
       let total = payments->Array.length
       let successful = payments->Array.filter(p => p.status === "succeeded")->Array.length
-      
+
       total > 0 ? successful->Float.fromInt /. total->Float.fromInt *. 100.0 : 0.0
     }
-    
+
     {
       totalAmount,
       successRate,
@@ -267,7 +269,7 @@ Persisting state across sessions:
 // Storing state in localStorage
 let useStoreFilterPreferences = () => {
   let filters = FilterAtoms.filtersAtom->Recoil.useRecoilValueFromAtom
-  
+
   React.useEffect1(() => {
     let filtersJson = filters->JSON.stringify
     LocalStorage.setItem("filters", filtersJson)
@@ -278,7 +280,7 @@ let useStoreFilterPreferences = () => {
 // Loading state from localStorage
 let useLoadFilterPreferences = () => {
   let setFilters = FilterAtoms.filtersAtom->Recoil.useSetRecoilState
-  
+
   React.useEffect0(() => {
     switch LocalStorage.getItem("filters") {
     | Some(filtersJson) => {
@@ -336,10 +338,10 @@ let paginatedDataSelector = Recoil.selector({
     let data = get(tableDataAtom)
     let page = get(tablePageAtom)
     let pageSize = get(tablePageSizeAtom)
-    
+
     let startIndex = (page - 1) * pageSize
     let endIndex = min(startIndex + pageSize, data->Array.length)
-    
+
     data->Array.slice(~start=startIndex, ~end=endIndex)
   },
 })
@@ -367,7 +369,7 @@ let formErrorsAtom = Recoil.atom({
 let make = () => {
   let formValues = formValuesAtom->Recoil.useRecoilValueFromAtom
   let setFormValues = formValuesAtom->Recoil.useSetRecoilState
-  
+
   <Form
     initialValues=formValues
     onSubmit={values => {
@@ -409,12 +411,12 @@ let filteredDataSelector = Recoil.selector({
     let data = get(dataAtom)
     let filters = get(filterValuesAtom)
     let activeFilters = get(activeFiltersAtom)
-    
+
     // Apply active filters to data
     data->Array.filter(item => {
       activeFilters->Array.every(filterKey => {
         let filterValue = filters->Dict.get(filterKey)
-        
+
         switch filterValue {
         | Some(value) => applyFilter(item, filterKey, value)
         | None => true
@@ -463,7 +465,8 @@ let filteredDataSelector = Recoil.selector({
 
 **Problem**: Putting too much in global state that should be local component state
 
-**Solution**: 
+**Solution**:
+
 - Use React's local state for temporary UI state
 - Only elevate to Recoil state when sharing across components is needed
 
@@ -472,6 +475,7 @@ let filteredDataSelector = Recoil.selector({
 **Problem**: Computed values becoming out of sync with source data
 
 **Solution**:
+
 - Always use selectors for derived state
 - Avoid storing calculated values in atoms that could get out of sync
 
@@ -480,6 +484,7 @@ let filteredDataSelector = Recoil.selector({
 **Problem**: Components re-rendering too often due to state changes
 
 **Solution**:
+
 - Split atoms into smaller pieces to reduce unnecessary re-renders
 - Use React.memo and useMemo when appropriate
 - Structure selectors to minimize dependencies
