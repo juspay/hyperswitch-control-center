@@ -52,8 +52,8 @@ let make = () => {
       <div className="mx-12 mt-16 overflow-y-auto">
         {switch currentStep.sectionId->stringToSectionVariantMapper {
         | #analyze =>
-          <Analyze onNextClick setReviewFields setIsUpload fileUInt8Array setFileUInt8Array />
-        | #review => <Review reviewFields isUpload fileUInt8Array />
+          <AnalyzeData onNextClick setReviewFields setIsUpload fileUInt8Array setFileUInt8Array />
+        | #review => <ReviewDataSummary reviewFields isUpload fileUInt8Array />
         | _ => React.null
         }}
       </div>
