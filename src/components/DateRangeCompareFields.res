@@ -133,6 +133,7 @@ module Base = {
     ~isTooltipVisible=true,
     ~compareWithStartTime: string,
     ~compareWithEndTime: string,
+    ~customButtonStyle="",
   ) => {
     open DateRangeHelper
     open DateRangeUtils
@@ -477,8 +478,6 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let customStyleForBtn = "rounded-lg bg-white !w-full"
-
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
     let getPredefinedValues = predefinedDay => {
@@ -670,7 +669,7 @@ module Base = {
         buttonType
         textStyle
         iconBorderColor=customborderCSS
-        customButtonStyle=customStyleForBtn
+        customButtonStyle
         showLeftIcon=false
         isCompare=true
         comparison
@@ -724,6 +723,7 @@ let make = (
   ~compareWithStartTime,
   ~compareWithEndTime,
   ~dateRangeLimit=?,
+  ~customButtonStyle="",
 ) => {
   let startInput = ReactFinalForm.useField(startKey).input
   let endInput = ReactFinalForm.useField(endKey).input
@@ -756,6 +756,7 @@ let make = (
     endDateVal
     setEndDateVal
     showTime
+    customButtonStyle
     disable
     disablePastDates
     disableFutureDates
