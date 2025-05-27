@@ -57,58 +57,29 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
           showToast(~message="File size should be less than 10MB", ~toastType=ToastError)
           setFile(_ => None)
         } else {
-          try {
-            let fileReader = FileReader.reader
-            fileReader.readAsArrayBuffer(value)
+          let fileReader = FileReader.reader
+          fileReader.readAsArrayBuffer(value)
 
-            fileReader.onload = e => {
-              try {
-                let target = ReactEvent.Form.target(e)
-                switch target["result"]->Nullable.toOption {
-                | Some(fileData) =>
-                  let uint8array = FileReader.makeUint8Array(fileData)
-                  let config = Window.getDefaultConfig()
-                  let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
+          fileReader.onload = e => {
+            let target = ReactEvent.Form.target(e)
+            switch target["result"]->Nullable.toOption {
+            | Some(fileData) =>
+              let uint8array = FileReader.makeUint8Array(fileData)
+              let config = Window.getDefaultConfig()
+              let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
 
-                  try {
-                    let dict = Window.validateExtract(uint8array, config, metadata)
-                    let data = getFileData(dict)
+              let dict = Window.validateExtract(uint8array, config, metadata)
+              let data = getFileData(dict)
 
-                    setFileUInt8Array(_ => data.data)
-                    setReviewFields(_ => data.stats)
-                    setUpload(_ => true)
-                  } catch {
-                  | _ =>
-                    showToast(~message="Invalid file. Please try again.", ~toastType=ToastError)
-                    setFileUInt8Array(_ => Js.TypedArray2.Uint8Array.make([]))
-                    setUpload(_ => false)
-                  }
-                | None =>
-                  showToast(
-                    ~message="Failed to read file. Please try again.",
-                    ~toastType=ToastError,
-                  )
-                  setFile(_ => None)
-                }
-              } catch {
-              | _ =>
-                showToast(
-                  ~message="Error processing file data. Please try again.",
-                  ~toastType=ToastError,
-                )
-                setFile(_ => None)
-                setFileUInt8Array(_ => Js.TypedArray2.Uint8Array.make([]))
-                setUpload(_ => false)
-              }
+              setFileUInt8Array(_ => data.data)
+              setReviewFields(_ => data.stats)
+              setUpload(_ => true)
+            | None =>
+              showToast(~message="Failed to read file. Please try again.", ~toastType=ToastError)
+              setFile(_ => None)
             }
-            setFile(_ => Some(value))
-          } catch {
-          | _ =>
-            showToast(~message="Error reading file. Please try again.", ~toastType=ToastError)
-            setFile(_ => None)
-            setFileUInt8Array(_ => Js.TypedArray2.Uint8Array.make([]))
-            setUpload(_ => false)
           }
+          setFile(_ => Some(value))
         }
       | None =>
         showToast(~message="No file selected. Please choose a file.", ~toastType=ToastError)
