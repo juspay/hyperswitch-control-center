@@ -192,6 +192,11 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
   let errorInUploadFlow =
     selectedField === Upload && fileUInt8Array->Js.TypedArray2.Uint8Array.length === 0
 
+  React.useEffect(() => {
+    setIsUpload(_ => selectedField === Upload)
+    None
+  }, [selectedField])
+
   <div className="w-500-px">
     {IntelligentRoutingHelper.stepperHeading(
       ~title="Choose Your Data Source",
@@ -213,7 +218,6 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
 
               let handleCardClick = _ => {
                 setSelectedField(_ => item)
-                setIsUpload(_ => selectedField === Upload)
               }
 
               <StepCard
