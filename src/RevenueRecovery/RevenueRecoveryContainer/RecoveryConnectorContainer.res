@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
   open HSwitchUtils
-  open RevenueRecoveryOnboardingUtils
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
@@ -46,7 +45,6 @@ let make = () => {
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         {<div className="mt-14">
-          {sampleDataBanner}
           <EntityScaffold
             entityName="onboarding"
             remainingPath
@@ -62,7 +60,19 @@ let make = () => {
           entityName="Payments"
           remainingPath
           access=Access
-          renderList={() => <RevenueRecoveryOverview />}
+          renderList={() => <RevenueRecoveryAnalytics />}
+          renderCustomWithOMP={(_, _, _, _) => <RevenueRecoveryAnalytics />}
+        />
+      } else {
+        <RevenueRecoveryOnboardingLanding createMerchant=false />
+      }
+    | list{"v2", "recovery", "invoices", ...remainingPath} =>
+      if hasConfiguredBillingConnector {
+        <EntityScaffold
+          entityName="Invoices"
+          remainingPath
+          access=Access
+          renderList={() => <RevenueRecoveryInvoices />}
           renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
         />
       } else {

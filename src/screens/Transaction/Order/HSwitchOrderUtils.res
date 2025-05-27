@@ -43,6 +43,11 @@ type refundStatus =
   | Failure
   | None
 
+type stripeChargeType =
+  | Destination
+  | Direct
+  | None
+
 let statusVariantMapper: string => status = statusLabel =>
   switch statusLabel->String.toUpperCase {
   | "SUCCEEDED" => Succeeded
@@ -128,6 +133,58 @@ let refundEmailField = FormRenderer.makeFieldInfo(
 )
 
 let nonRefundConnectors = ["braintree", "klarna", "airwallex"]
+let isSplitPaymentConnectors = ["stripe"]
+
+let isSplitPaymentConnector = connector => {
+  isSplitPaymentConnectors->Array.includes(connector)
+}
+
+let getStripeChargeVariantFromString = stripeChargeType => {
+  switch stripeChargeType {
+  | "destination" => Destination
+  | "direct" => Direct
+  | _ => None
+  }
+}
+
+let getStripeChargeType = splitPaymentsDict => {
+  let stripeChargeType =
+    splitPaymentsDict->getDictfromDict("stripe_split_payment")->getString("charge_type", "")
+  stripeChargeType->String.toLowerCase->getStripeChargeVariantFromString
+}
+
+let initialValuesDict = (~isSplitPayment, ~order: OrderTypes.order) => {
+  switch (isSplitPayment, order.split_payments->getStripeChargeType) {
+  | (true, Direct) =>
+    Dict.fromArray([
+      (
+        "split_refunds",
+        Dict.fromArray([
+          (
+            "stripe_split_refund",
+            Dict.fromArray([("revert_platform_fee", false->JSON.Encode.bool)])->JSON.Encode.object,
+          ),
+        ])->JSON.Encode.object,
+      ),
+    ])
+  | (true, Destination) =>
+    Dict.fromArray([
+      (
+        "split_refunds",
+        Dict.fromArray([
+          (
+            "stripe_split_refund",
+            Dict.fromArray([
+              ("revert_platform_fee", false->JSON.Encode.bool),
+              ("revert_transfer", false->JSON.Encode.bool),
+            ])->JSON.Encode.object,
+          ),
+        ])->JSON.Encode.object,
+      ),
+    ])
+  | _ => Dict.make()
+  }
+}
 
 let isNonRefundConnector = connector => {
   nonRefundConnectors->Array.includes(connector)

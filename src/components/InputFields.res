@@ -494,6 +494,8 @@ let filterDateRangeField = (
   ~isTooltipVisible=true,
   ~allowedDateRange=?,
   ~events=?,
+  ~disable=false,
+  ~customButtonStyle="!rounded-lg !bg-none",
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeField
@@ -515,6 +517,8 @@ let filterDateRangeField = (
       isTooltipVisible
       ?allowedDateRange
       ?events
+      disable
+      customButtonStyle
     />
   }
 
@@ -541,6 +545,9 @@ let filterCompareDateRangeField = (
   ~isTooltipVisible=true,
   ~compareWithStartTime: string,
   ~compareWithEndTime: string,
+  ~disable=false,
+  ~textStyle=?,
+  ~customButtonStyle="!rounded-lg !bg-none",
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeCompareFields
@@ -563,6 +570,9 @@ let filterCompareDateRangeField = (
       isTooltipVisible
       compareWithStartTime
       compareWithEndTime
+      disable
+      ?textStyle
+      customButtonStyle
     />
   }
 
@@ -697,4 +707,11 @@ let boolInput = (~isDisabled, ~isCheckBox=false, ~boolCustomClass="") => (
   ~placeholder as _,
 ) => {
   <BoolInput input isDisabled isCheckBox boolCustomClass />
+}
+
+let colorPickerInput = (~defaultValue="") => (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+) => {
+  <ColorPickerInput input defaultValue />
 }
