@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.26.1
+
+### Features
+
+- Stripe refund for split payment ([#3038](https://github.com/juspay/hyperswitch-control-center/pull/3038)) ([`7c64756`](https://github.com/juspay/hyperswitch-control-center/commit/7c64756917b7b1652428c57eee0f9562d5bdcfd8))
+- Add worldpayxml connector ([#3049](https://github.com/juspay/hyperswitch-control-center/pull/3049)) ([`4432fd5`](https://github.com/juspay/hyperswitch-control-center/commit/4432fd57f5fa7f76075566c6674b37ec3972ede2))
+
+### Bug Fixes
+
+- Product type value added in prod intent api payload ([#3051](https://github.com/juspay/hyperswitch-control-center/pull/3051)) ([`3db23a3`](https://github.com/juspay/hyperswitch-control-center/commit/3db23a345cd08f6a20cc880cf508bd0ef5d93cca))
+
+### Miscellaneous Tasks
+
+- Update latest memory bank ([#3005](https://github.com/juspay/hyperswitch-control-center/pull/3005)) ([`3ba78a7`](https://github.com/juspay/hyperswitch-control-center/commit/3ba78a75c10d7e74d57d3ade0be8023471bd85ec))
+- Remove unused code ([#3000](https://github.com/juspay/hyperswitch-control-center/pull/3000)) ([`f4aa8f7`](https://github.com/juspay/hyperswitch-control-center/commit/f4aa8f7784af5b7d40bdc7faeffcc15d09260f7b))
+
+**Full Changelog:** [`2025.05.26.0...2025.05.26.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.26.0...2025.05.26.1)
+
+
+- - -
+
 ## 2025.05.26.0
 
 ### Features
