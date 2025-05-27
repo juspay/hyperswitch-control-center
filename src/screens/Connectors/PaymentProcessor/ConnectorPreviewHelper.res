@@ -108,7 +108,7 @@ module AdditionalDetailsPreview = {
     open LogicUtils
     open ConnectorMetaDataUtils
 
-    let metaDataDict = connectorInfo.metadata->Identity.genericTypeToDictOfJson
+    let metaDataDict = connectorInfo.metadata->getDictFromJsonObject
     let connectorWebHookJson = connectorInfo.connector_webhook_details
 
     let metaDataFields =
@@ -139,12 +139,12 @@ module AdditionalDetailsPreview = {
       connectorWebHookDetails
       ->Dict.keysToArray
       ->Array.filter(field => {
-        let value = connectorWebHookJson->Identity.genericTypeToDictOfJson->getString(field, "")
+        let value = connectorWebHookJson->getDictFromJsonObject->getString(field, "")
         value->isNonEmptyString
       })
       ->Array.map(field => {
         let label = connectorWebHookDetails->getString(field, "")
-        let value = connectorWebHookJson->Identity.genericTypeToDictOfJson->getString(field, "")
+        let value = connectorWebHookJson->getDictFromJsonObject->getString(field, "")
         <InfoField label str=value />
       })
     } else {
