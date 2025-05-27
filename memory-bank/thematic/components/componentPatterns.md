@@ -11,7 +11,7 @@ graph TD
     A[Page Components] --> B[Container Components]
     B --> C[Presentation Components]
     C --> D[Basic UI Components]
-    
+
     E[Utility Components] --> C
     F[Layout Components] --> A
 ```
@@ -39,6 +39,7 @@ let make = (~title, ~isLoading, ~data, ~onAction) => {
 ```
 
 Benefits:
+
 - Compile-time error detection
 - Self-documenting components
 - Better IDE support and code completion
@@ -59,6 +60,7 @@ let make = (~buttonState: buttonState=Normal, ~text=?) => {
 ```
 
 This pattern:
+
 - Ensures all possible states are handled
 - Makes state transitions explicit
 - Prevents invalid state combinations
@@ -83,6 +85,7 @@ let make = (~title, ~children, ~footerContent=?) => {
 ```
 
 Benefits:
+
 - Improved reusability
 - Easier testing and maintenance
 - Better separation of concerns
@@ -107,6 +110,7 @@ let make: (
 ```
 
 This pattern:
+
 - Creates a clear public API
 - Hides implementation details
 - Enables better encapsulation
@@ -120,7 +124,7 @@ Components use React Context for theme and application-wide settings:
 let make = (~text) => {
   let config = React.useContext(ThemeProvider.themeContext)
   let textColor = config.globalUIConfig.button.textColor.primaryNormal
-  
+
   <div className={`text-${textColor}`}>
     {React.string(text)}
   </div>
@@ -128,6 +132,7 @@ let make = (~text) => {
 ```
 
 Benefits:
+
 - Avoids prop drilling
 - Enables theme and feature consistency
 - Facilitates global setting changes
@@ -143,7 +148,7 @@ let make = (~data) => {
     <RenderIf condition={data->Array.length > 0}>
       <DataTable data />
     </RenderIf>
-    
+
     <RenderIf condition={data->Array.length === 0}>
       <EmptyState />
     </RenderIf>
@@ -152,6 +157,7 @@ let make = (~data) => {
 ```
 
 This creates:
+
 - More readable conditional rendering
 - Consistent pattern throughout the codebase
 - Cleaner component structure
@@ -167,7 +173,7 @@ type screenState = Loading | Error(string) | Success
 let make = (~initialData) => {
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (data, setData) = React.useState(_ => initialData)
-  
+
   React.useEffect0(() => {
     let fetchData = async () => {
       try {
@@ -178,11 +184,11 @@ let make = (~initialData) => {
       | Exn.Error(e) => setScreenState(_ => Error(Exn.message(e)->Option.getOr("Unknown error")))
       }
     }
-    
+
     fetchData()->ignore
     None
   })
-  
+
   switch screenState {
   | Loading => <LoadingIndicator />
   | Error(msg) => <ErrorDisplay message=msg />
@@ -192,6 +198,7 @@ let make = (~initialData) => {
 ```
 
 Benefits:
+
 - Consistent handling of async operations
 - Clear UI feedback for users
 - Standardized error handling
@@ -208,6 +215,7 @@ Foundational UI building blocks:
 - **Typography**: Text components with consistent styling
 
 Example (Button.res):
+
 ```rescript
 @react.component
 let make = (
@@ -233,6 +241,7 @@ Components that combine basic components into more complex UI structures:
 - **Table**: Data display with sorting and filtering
 
 Example:
+
 ```rescript
 // Modal component combining various UI elements
 @react.component
@@ -259,6 +268,7 @@ Components that manage data fetching and state:
 - Pass data down to presentation components
 
 Example:
+
 ```rescript
 @react.component
 let make = (~id) => {
@@ -266,7 +276,7 @@ let make = (~id) => {
   let getMethod = APIUtils.useGetMethod()
   let (data, setData) = React.useState(_ => None)
   let (isLoading, setIsLoading) = React.useState(_ => true)
-  
+
   // Data fetching logic
   React.useEffect1(() => {
     let fetchData = async () => {
@@ -281,11 +291,11 @@ let make = (~id) => {
         setIsLoading(_ => false)
       }
     }
-    
+
     fetchData()->ignore
     None
   }, [id])
-  
+
   <OrderDetailsDisplay isLoading data />
 }
 ```
@@ -300,20 +310,21 @@ Top-level components that represent full pages:
 - Define page layouts
 
 Example:
+
 ```rescript
 @react.component
 let make = () => {
   let url = ReactRouter.useUrl()
-  
+
   // Extract params from URL
   let orderId = switch url.path {
   | list{"orders", id, ..._} => Some(id)
   | _ => None
   }
-  
+
   <div className="page-container">
     <PageHeader title="Order Details" />
-    
+
     <div className="page-content">
       {switch orderId {
        | Some(id) => <OrderDetailsContainer id />
@@ -340,8 +351,9 @@ let make = (~text) => {
 ```
 
 Key styling patterns:
+
 1. **Utility Classes**: Direct use of Tailwind utility classes
-2. **Dark Mode Support**: Consistent dark:* prefixes for dark mode styles
+2. **Dark Mode Support**: Consistent dark:\* prefixes for dark mode styles
 3. **Theme-based Classes**: Dynamic classes based on theme context
 4. **Responsive Design**: Mobile-first with responsive breakpoint prefixes
 
@@ -400,10 +412,10 @@ let buttonStyle = switch (buttonType, buttonState) {
 </Card>
 
 // Over this pattern
-<Card 
-  title="User Details" 
-  body={userData->renderUserInfo} 
-  footer={<Button text="Edit" />} 
+<Card
+  title="User Details"
+  body={userData->renderUserInfo}
+  footer={<Button text="Edit" />}
 />
 ```
 
@@ -417,7 +429,9 @@ Components are designed for testability:
 4. **Data attributes**: Components include data attributes for test selectors
 
 Example test selector:
+
 ```rescript
 <AddDataAttributes attributes=[("data-button-for", "save"), ("data-testid", "save-button")]>
   <button onClick> {React.string("Save")} </button>
 </AddDataAttributes>
+```

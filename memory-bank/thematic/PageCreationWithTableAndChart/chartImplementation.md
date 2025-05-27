@@ -11,6 +11,7 @@ Modern dashboard pages often include visualizations using chart components like 
 ### 1. Dashboard Component
 
 The main dashboard component that:
+
 - Manages state for data
 - Transforms data for table display
 - Renders chart components
@@ -37,7 +38,7 @@ A dedicated utility file containing functions to generate chart configurations:
 // Helper functions to generate options for charts used in dashboards
 open DataTypes
 
-// Create line chart options 
+// Create line chart options
 let getLineChartOptions = (data: dataType) => {
   // Implementation details...
 }
@@ -104,7 +105,7 @@ let formatterFunction = %raw(`
     var pointsHtml = points.map(function(point) {
       // HTML generation logic...
     }).join('');
-    
+
     return '<div>...</div>';
   }
 `)
@@ -126,14 +127,17 @@ This approach maintains type safety within the utility functions while allowing 
 ## Best Practices
 
 1. **Separation of Concerns**:
+
    - Keep chart configuration logic separate from display components
    - Use utility functions for generating complex chart options
 
 2. **Type Handling**:
+
    - Use proper type annotations for function parameters and returns
    - When necessary, use `Obj.magic` at the interface boundary between JSON and typed components
 
 3. **JavaScript Interop**:
+
    - Use `%raw` for JavaScript code that doesn't easily translate to ReScript
    - Keep raw JavaScript minimal and focused on specific functionality (like formatters)
 
@@ -167,11 +171,11 @@ let getVisitorsTrendOptions = (websiteTrafficData: websiteTrafficData) => {
     // Set chart series properties...
     seriesDict->JSON.Encode.object
   })
-  
+
   // Build chart options with Dict API
   let options = Dict.make()
   // Add chart configuration...
-  
+
   // Return options as JSON
   options->JSON.Encode.object
 }

@@ -17,10 +17,10 @@ sequenceDiagram
     participant State as Screen State
     participant API
     participant UI
-    
+
     Component->>State: Set Loading State
     Component->>API: Make API Request
-    
+
     alt Success Response
         API-->>Component: Return Data
         Component->>State: Set Success State
@@ -77,20 +77,20 @@ let getMethod = APIUtils.useGetMethod()
 let fetchData = async () => {
   try {
     setScreenState(_ => PageLoaderWrapper.Loading)
-    
+
     let url = getURL(~entityName=V1(ENTITY_NAME), ~methodType=Get)
     let response = await getMethod(url)
-    
+
     // Process and store response
     setData(_ => Some(response))
-    
+
     // Update screen state based on result
     setScreenState(_ => PageLoaderWrapper.Success)
   } catch {
     | Exn.Error(e) => {
       let errorMsg = Exn.message(e)->Option.getOr("Failed to fetch data")
       setScreenState(_ => PageLoaderWrapper.Error(errorMsg))
-      
+
       // Optional: Show toast notification
       showToast(~message=errorMsg, ~toastType=ToastError)
     }
@@ -108,11 +108,11 @@ let fetchData = async () => {
 ```rescript
 let handleSubmit = async (formData) => {
   setScreenState(_ => PageLoaderWrapper.Loading)
-  
+
   try {
     let url = getURL(~entityName=V1(ENTITY_NAME), ~methodType=Post)
     let response = await updateMethod(url, formData, Post)
-    
+
     // Handle successful submission
     setScreenState(_ => PageLoaderWrapper.Success)
     showToast(~message="Data saved successfully", ~toastType=ToastSuccess)
@@ -134,7 +134,7 @@ let handleSubmit = async (formData) => {
 try {
   setScreenState(_ => PageLoaderWrapper.Loading)
   let response = await getMethod(url)
-  
+
   if (response->Array.length > 0) {
     setData(_ => response)
     setScreenState(_ => PageLoaderWrapper.Success)
@@ -147,8 +147,8 @@ try {
 }
 
 // In render function
-<PageLoaderWrapper 
-  screenState 
+<PageLoaderWrapper
+  screenState
   customUI={<NoDataFound message="No data available" />}>
   <DataTable data />
 </PageLoaderWrapper>
@@ -159,12 +159,12 @@ try {
 ```rescript
 React.useEffect(() => {
   let isMounted = true
-  
+
   let fetchData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let response = await getMethod(url)
-      
+
       // Only update state if component is still mounted
       if (isMounted) {
         setData(_ => response)
@@ -176,9 +176,9 @@ React.useEffect(() => {
       }
     }
   }
-  
+
   fetchData()->ignore
-  
+
   // Cleanup function
   () => {
     isMounted = false
@@ -192,11 +192,11 @@ React.useEffect(() => {
 let fetchDependentData = async () => {
   try {
     setScreenState(_ => PageLoaderWrapper.Loading)
-    
+
     // First API call
     let configUrl = getURL(~entityName=V1(CONFIG), ~methodType=Get)
     let config = await getMethod(configUrl)
-    
+
     // Second API call depends on first
     let dataUrl = getURL(
       ~entityName=V1(DATA),
@@ -204,7 +204,7 @@ let fetchDependentData = async () => {
       ~id=Some(config.id),
     )
     let data = await getMethod(dataUrl)
-    
+
     // Set all data and update state
     setConfig(_ => config)
     setData(_ => data)
@@ -255,14 +255,14 @@ try {
 ```rescript
 let MyForm = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  
+
   let handleSubmit = async (formData) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     // Process form submission
     // ...
     setScreenState(_ => PageLoaderWrapper.Success)
   }
-  
+
   <PageLoaderWrapper screenState>
     <Form onSubmit={handleSubmit}>
       {/* Form fields */}
@@ -276,12 +276,12 @@ let MyForm = () => {
 ```rescript
 let fetchFilteredData = async (filters) => {
   setScreenState(_ => PageLoaderWrapper.Loading)
-  
+
   try {
     let queryParams = filters->convertToQueryString
     let url = `${baseUrl}?${queryParams}`
     let response = await getMethod(url)
-    
+
     setTableData(_ => response)
     setScreenState(_ => PageLoaderWrapper.Success)
   } catch {

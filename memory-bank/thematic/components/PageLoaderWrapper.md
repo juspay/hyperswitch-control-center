@@ -10,7 +10,7 @@ graph TD
     Loading --> |Success| SuccessState[Success State]
     Loading --> |Error| ErrorState[Error State]
     Loading --> |Custom Condition| CustomState[Custom State]
-    
+
     SuccessState --> UI[Component UI]
     ErrorState --> ErrorUI[Error UI]
     CustomState --> CustomUI[Custom UI]
@@ -54,25 +54,25 @@ let MyComponent = () => {
   // 1. Define state for tracking API call status
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => None)
-  
+
   // 2. Define API utilities
   let getURL = APIUtils.useGetURL()
   let getMethod = APIUtils.useGetMethod()
-  
+
   // 3. Implement data fetching with appropriate state transitions
   React.useEffect0(() => {
     let fetchData = async () => {
       try {
         // Set loading state before API call
         setScreenState(_ => PageLoaderWrapper.Loading)
-        
+
         // Make API call
         let url = getURL(~entityName=V1(ENTITY_NAME), ~methodType=Get)
         let response = await getMethod(url)
-        
+
         // Process response data
         setData(_ => Some(response))
-        
+
         // Set success state after successful API call
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
@@ -83,11 +83,11 @@ let MyComponent = () => {
         }
       }
     }
-    
+
     fetchData()->ignore
     None
   })
-  
+
   // 4. Wrap component with PageLoaderWrapper
   <PageLoaderWrapper screenState>
     // Content to show in success state
@@ -112,8 +112,8 @@ if (data->Array.length > 0) {
 }
 
 // In the render function
-<PageLoaderWrapper 
-  screenState 
+<PageLoaderWrapper
+  screenState
   customUI={<NoDataFound message="No data available" />}>
   // Normal content shown only in Success state
   <DataTable data />
@@ -143,10 +143,10 @@ setScreenState(_ => PageLoaderWrapper.Loading)
 try {
   // Make API call
   let response = await apiCall()
-  
+
   // Update state with response data
   setData(_ => response)
-  
+
   // Set success state
   setScreenState(_ => PageLoaderWrapper.Success)
 } catch {
@@ -173,7 +173,7 @@ try {
 ```rescript
 let handleSubmit = async (formData) => {
   setScreenState(_ => PageLoaderWrapper.Loading)
-  
+
   try {
     await submitData(formData)
     setScreenState(_ => PageLoaderWrapper.Success)

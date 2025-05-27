@@ -171,7 +171,7 @@ Implement custom rendering for specific column types:
 ```rescript
 let getCell = (data, colKey) => {
   switch colKey {
-  | "status" => 
+  | "status" =>
     switch data.status {
     | "Active" => <div className="text-green-600 font-medium">{data.status->React.string}</div>->Table.makeReactElementCell
     | "Inactive" => <div className="text-red-600 font-medium">{data.status->React.string}</div>->Table.makeReactElementCell

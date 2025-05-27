@@ -112,6 +112,7 @@ module Tabs = {
 
 module CustomDropDown = {
   open InsightsTypes
+  open Typography
   @react.component
   let make = (
     ~buttonText: optionType,
@@ -127,13 +128,13 @@ module CustomDropDown = {
         <div>
           {if disabled {
             <div
-              className="inline-flex whitespace-pre leading-5 justify-center text-sm px-4 py-2 font-medium rounded-lg bg-gray-50 border text-gray-500 cursor-not-allowed">
+              className="inline-flex whitespace-pre leading-5 justify-center text-sm px-4 py-2 font-medium rounded-lg bg-nd_gray-50 border text-nd_gray-400 cursor-not-allowed">
               {buttonText.label->React.string}
-              <Icon className="ml-1 mt-1 opacity-40" name="arrow-without-tail" size=15 />
+              <Icon className="ml-1 text-nd_gray-400" name="angle-down" size=15 />
             </div>
           } else {
             <Menu.Button
-              className="inline-flex whitespace-pre leading-5 justify-center text-sm px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border">
+              className={`${body.md.medium} inline-flex justify-center px-4 py-2 rounded-lg hover:bg-opacity-80 bg-white border`}>
               {_ => {
                 <>
                   {buttonText.label->React.string}
@@ -141,7 +142,7 @@ module CustomDropDown = {
                     className={arrow
                       ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
                       : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
-                    name="arrow-without-tail"
+                    name="angle-up"
                     size=15
                   />
                 </>
