@@ -14,13 +14,13 @@ let dataTypeVariantToString = dataType =>
 
 let sections = [
   {
-    id: "analyze",
+    id: (#analyze: sections :> string),
     name: "Choose Your Data Source",
     icon: "nd-shield",
     subSections: None,
   },
   {
-    id: "review",
+    id: (#review: sections :> string),
     name: "Review Data Summary",
     icon: "nd-flag",
     subSections: None,
