@@ -40,7 +40,15 @@ let make = (~showModal, ~setShowModal) => {
     modalClass="w-1/3 m-auto"
     childClass="p-0"
     modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-      {"Optimize processing fees on debit payments by routing traffic to the cheapest network"->React.string}
+      {"To get started with least-cost routing, ensure that connectors supporting local networks are properly configured "->React.string}
+      <a
+        href="https://your-docs-link.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-500 underline">
+        {"(refer docs)"->React.string}
+      </a>
+      {"."->React.string}
     </div>}
     borderBottom=true>
     <div className="flex flex-col h-full w-full px-6">
