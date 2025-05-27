@@ -2,51 +2,6 @@ open SidebarTypes
 open UserManagementTypes
 
 // * Custom Component
-
-module GetProductionAccess = {
-  @react.component
-  let make = () => {
-    let mixpanelEvent = MixpanelHook.useSendEvent()
-    let textStyles = HSwitchUtils.getTextClass((P2, Medium))
-    let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
-      GlobalProvider.defaultContext,
-    )
-    let {globalUIConfig: {sidebarColor: {borderColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
-    let isProdIntent = isProdIntentCompleted->Option.getOr(false)
-    let cursorStyles = isProdIntent ? "cursor-default" : "cursor-pointer"
-    let productionAccessString = isProdIntent
-      ? "Production Access Requested"
-      : "Get Production Access"
-
-    switch isProdIntentCompleted {
-    | Some(_) =>
-      <div
-        className={`flex items-center gap-2 border ${borderColor} bg-white text-nd_gray-700  ${cursorStyles} px-3 py-10-px mb-4 whitespace-nowrap rounded-lg justify-between`}
-        onClick={_ => {
-          isProdIntent
-            ? ()
-            : {
-                setShowProdIntentForm(_ => true)
-                mixpanelEvent(~eventName="get_production_access")
-              }
-        }}>
-        <div className={`text-nd_gray-600 ${textStyles} !font-semibold`}>
-          {productionAccessString->React.string}
-        </div>
-        <RenderIf condition={!isProdIntent}>
-          <Icon name="nd-arrow-right" size=22 className="pt-2" />
-        </RenderIf>
-      </div>
-    | None =>
-      <Shimmer
-        styleClass="h-10 px-4 py-3 m-2 ml-2 mb-3 dark:bg-black bg-white rounded" shimmerType={Small}
-      />
-    }
-  }
-}
-
 module ProductHeaderComponent = {
   @react.component
   let make = () => {
@@ -57,21 +12,10 @@ module ProductHeaderComponent = {
     </div>
   }
 }
+
 let emptyComponent = CustomComponent({
   component: React.null,
 })
-
-let productionAccessComponent = (isProductionAccessEnabled, userHasAccess, hasAnyGroupAccess) =>
-  isProductionAccessEnabled &&
-  // TODO: Remove `MerchantDetailsManage` permission in future
-  hasAnyGroupAccess(
-    userHasAccess(~groupAccess=MerchantDetailsManage),
-    userHasAccess(~groupAccess=AccountManage),
-  ) === CommonAuthTypes.Access
-    ? CustomComponent({
-        component: <GetProductionAccess />,
-      })
-    : emptyComponent
 
 // * Main Features
 
@@ -740,12 +684,10 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
 let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {isLiveMode, devModularityV2} = featureFlagDetails
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let defaultSidebar = [productionAccessComponent(!isLiveMode, userHasAccess, hasAnyGroupAccess)]
+  let defaultSidebar = []
 
-  if devModularityV2 {
+  if featureFlagDetails.devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
         name: "Home",
