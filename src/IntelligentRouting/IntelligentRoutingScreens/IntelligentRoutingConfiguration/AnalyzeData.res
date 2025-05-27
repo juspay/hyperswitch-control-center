@@ -36,7 +36,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
     setButtonState(_ => Button.Loading)
     await HyperSwitchUtils.delay(800)
     if !upload {
-      getReviewData()->ignore
+      await getReviewData()
     }
     onNextClick()
     mixpanelEvent(~eventName="intelligent_routing_analyze_data")
