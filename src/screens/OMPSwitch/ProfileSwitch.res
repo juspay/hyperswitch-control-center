@@ -207,7 +207,9 @@ let make = () => {
     OMPSwitchTypes.ompListTypesCustom,
   > = profileList->Array.mapWithIndex((item, i) => {
     let customComponent =
-      <ProfileDropdownItem key={Int.toString(i)} profileName=item.name index=i currentId=item.id />
+      <ProfileDropdownItem
+        key={Int.toString(i)} profileName=item.name index=i currentId=item.id profileSwitch
+      />
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,
       name: item.name,

@@ -415,10 +415,12 @@ module.exports = {
         },
         nd_orange: {
           50: "#FDF1DD",
+          100: "#FFE6CC",
           600: "#9E5400",
         },
         nd_yellow: {
           100: "#FFFBEE",
+          200: "#5E4200",
           800: "#998335",
         },
       },
