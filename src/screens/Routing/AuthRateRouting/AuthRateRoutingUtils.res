@@ -23,11 +23,11 @@ let getFormFieldValue = (field: formFields) => {
 
 let getFormFieldLabel = (field: formFields) => {
   switch field {
-  | MinAggregateSize => "Min Aggregate Size"
-  | DefaultSuccessRate => "Default Success Rate"
-  | MaxAggregateSize => "Max Aggregate Size"
-  | MaxTotalCount => "Max Total Count"
-  | SplitPercentage => "Split Percentage"
+  | MinAggregateSize => "Min aggregate size"
+  | DefaultSuccessRate => "Default success rate"
+  | MaxAggregateSize => "Max aggregate size"
+  | MaxTotalCount => "Max total count"
+  | SplitPercentage => "Rollout traffic percentage"
   }
 }
 

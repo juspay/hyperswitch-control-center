@@ -7,7 +7,6 @@ let make = (
   ~baseUrlForRedirection,
 ) => {
   open APIUtils
-  open RoutingTypes
   open AuthRateRoutingUtils
   open LogicUtils
 
@@ -15,11 +14,11 @@ let make = (
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let (initialValues, setInitialValues) = React.useState(_ => initialValues)
-  let (pageState, setPageState) = React.useState(() => Create)
-  let businessProfileRecoilVal =
+  let businessProfileValues =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
+  let (profile, setProfile) = React.useState(_ => businessProfileValues.profile_id)
+  let (initialValues, setInitialValues) = React.useState(_ => initialValues)
+  let (pageState, setPageState) = React.useState(() => RoutingTypes.Create)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (disableFields, setDisableFields) = React.useState(_ => false)
@@ -28,11 +27,10 @@ let make = (
     try {
       let url = getURL(~entityName=V1(GET_VOLUME_SPLIT), ~methodType=Get)
       let response = await fetchDetails(url)
-
       Nullable.make(response)
     } catch {
     | _ => {
-        showToast(~message="Failed to get volumne split", ~toastType=ToastError)
+        showToast(~message="Failed to get volumne split data", ~toastType=ToastError)
         Nullable.null
       }
     }
