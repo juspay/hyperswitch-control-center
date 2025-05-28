@@ -756,6 +756,15 @@ let useGetURL = () => {
         | _ => ""
         }
 
+      /* MERCHANT ACQUIRER */
+      | ACQUIRER_CONFIG_SETTINGS =>
+        switch methodType {
+        | Get => `account/${merchantId}/merchant_acquirer/${profileId}`
+        | Post => `account/${merchantId}/merchant_acquirer`
+
+        | _ => ""
+        }
+
       /* DISPUTES EVIDENCE */
       | ACCEPT_DISPUTE =>
         switch id {
