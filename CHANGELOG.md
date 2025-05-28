@@ -3,6 +3,61 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.28.0
+
+### Bug Fixes
+
+- Text update in routing active card ([#3055](https://github.com/juspay/hyperswitch-control-center/pull/3055)) ([`23bab3f`](https://github.com/juspay/hyperswitch-control-center/commit/23bab3fe734c89d08d2dedb4d8c50eff77dfdea2))
+- Standardise disabled state for sample analytics and show daterange filter field as dropdown ([#3040](https://github.com/juspay/hyperswitch-control-center/pull/3040)) ([`9db320f`](https://github.com/juspay/hyperswitch-control-center/commit/9db320fb3835a50cbe014479aa0d05f3f5c11aca))
+- Sdk issue description ([#3058](https://github.com/juspay/hyperswitch-control-center/pull/3058)) ([`9ce308d`](https://github.com/juspay/hyperswitch-control-center/commit/9ce308d1311f999284139f3a1bce0cbb39c94d5a))
+
+### Miscellaneous Tasks
+
+- Added mixpanel event on start exploring button ([#3053](https://github.com/juspay/hyperswitch-control-center/pull/3053)) ([`b08376e`](https://github.com/juspay/hyperswitch-control-center/commit/b08376e01bdc7b9dc6eceb5b268b62bb2c0f8aba))
+- Wasm changes & add archipel to prod ([#3060](https://github.com/juspay/hyperswitch-control-center/pull/3060)) ([`e22702a`](https://github.com/juspay/hyperswitch-control-center/commit/e22702a2cf1e15f66ba3eaacfa5446791f8fa94f))
+
+**Full Changelog:** [`2025.05.26.1...2025.05.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.26.1...2025.05.28.0)
+
+
+- - -
+
+## 2025.05.26.1
+
+### Features
+
+- Stripe refund for split payment ([#3038](https://github.com/juspay/hyperswitch-control-center/pull/3038)) ([`7c64756`](https://github.com/juspay/hyperswitch-control-center/commit/7c64756917b7b1652428c57eee0f9562d5bdcfd8))
+- Add worldpayxml connector ([#3049](https://github.com/juspay/hyperswitch-control-center/pull/3049)) ([`4432fd5`](https://github.com/juspay/hyperswitch-control-center/commit/4432fd57f5fa7f76075566c6674b37ec3972ede2))
+
+### Bug Fixes
+
+- Product type value added in prod intent api payload ([#3051](https://github.com/juspay/hyperswitch-control-center/pull/3051)) ([`3db23a3`](https://github.com/juspay/hyperswitch-control-center/commit/3db23a345cd08f6a20cc880cf508bd0ef5d93cca))
+
+### Miscellaneous Tasks
+
+- Update latest memory bank ([#3005](https://github.com/juspay/hyperswitch-control-center/pull/3005)) ([`3ba78a7`](https://github.com/juspay/hyperswitch-control-center/commit/3ba78a75c10d7e74d57d3ade0be8023471bd85ec))
+- Remove unused code ([#3000](https://github.com/juspay/hyperswitch-control-center/pull/3000)) ([`f4aa8f7`](https://github.com/juspay/hyperswitch-control-center/commit/f4aa8f7784af5b7d40bdc7faeffcc15d09260f7b))
+
+**Full Changelog:** [`2025.05.26.0...2025.05.26.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.26.0...2025.05.26.1)
+
+
+- - -
+
+## 2025.05.26.0
+
+### Features
+
+- Debit routing configuration addition ([#3025](https://github.com/juspay/hyperswitch-control-center/pull/3025)) ([`0f56cbf`](https://github.com/juspay/hyperswitch-control-center/commit/0f56cbf61a9bb416e943ddad171a36d75e71ab10))
+
+### Miscellaneous Tasks
+
+- Update preview image for Blur Web SDK ([#3031](https://github.com/juspay/hyperswitch-control-center/pull/3031)) ([`39a2986`](https://github.com/juspay/hyperswitch-control-center/commit/39a2986f6e354c18b24becab0a68f443b3aefada))
+- Get prod access UI revamp ([#2974](https://github.com/juspay/hyperswitch-control-center/pull/2974)) ([`ec24629`](https://github.com/juspay/hyperswitch-control-center/commit/ec24629e9f4c66ff9d7a0a00b674882b60295f79))
+
+**Full Changelog:** [`2025.05.23.0...2025.05.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.23.0...2025.05.26.0)
+
+
+- - -
+
 ## 2025.05.23.0
 
 ### Bug Fixes

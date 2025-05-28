@@ -78,7 +78,10 @@ let initialFixedFilterFields = (
       LastMonth,
     ]
   }
-  let textStyle = sampleDataIsEnabled ? "text-gray-400" : "text-primary"
+  let textStyle = sampleDataIsEnabled ? "text-nd_gray-400" : "text-primary"
+  let customButtonStyle = sampleDataIsEnabled
+    ? "!bg-nd_gray-50 !text-nd_gray-400 !rounded-lg !bg-none"
+    : "border !rounded-lg !bg-none"
   let newArr = [
     (
       {
@@ -98,6 +101,7 @@ let initialFixedFilterFields = (
             ~dateRangeLimit=180,
             ~events,
             ~disable=sampleDataIsEnabled,
+            ~customButtonStyle,
           ),
           ~inputFields=[],
           ~isRequired=false,
@@ -124,6 +128,7 @@ let initialFixedFilterFields = (
             ~compareWithEndTime,
             ~disable=sampleDataIsEnabled,
             ~textStyle,
+            ~customButtonStyle,
           ),
           ~inputFields=[],
         ),
