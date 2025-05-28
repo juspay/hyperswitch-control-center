@@ -10,9 +10,7 @@ type routingConfig = {
   current_block_threshold: currentBlockThreshold,
 }
 
-type routingConfigFormFields = {
-  config: routingConfig,
+type routingConfigForm = {
+  ...routingConfig,
   split_percentage: int,
-  name: string,
-  description: string,
 }
