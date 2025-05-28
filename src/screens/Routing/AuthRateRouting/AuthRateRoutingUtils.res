@@ -13,10 +13,10 @@ let requiredFormFields = [MinAggregateSize, DefaultSuccessRate, MaxAggregateSize
 
 let getFormFieldValue = (field: formFields) => {
   switch field {
-  | MinAggregateSize => "min_aggregates_size"
-  | DefaultSuccessRate => "default_success_rate"
-  | MaxAggregateSize => "max_aggregates_size"
-  | MaxTotalCount => "current_block_threshold.max_total_count"
+  | MinAggregateSize => "config.min_aggregates_size"
+  | DefaultSuccessRate => "config.default_success_rate"
+  | MaxAggregateSize => "config.max_aggregates_size"
+  | MaxTotalCount => "config.current_block_threshold.max_total_count"
   | SplitPercentage => "split_percentage"
   }
 }
@@ -32,11 +32,13 @@ let getFormFieldLabel = (field: formFields) => {
 }
 
 let defaultConfigsValue = {
-  min_aggregates_size: 5,
-  default_success_rate: 100,
-  max_aggregates_size: 8,
-  current_block_threshold: {
-    max_total_count: 5,
+  config: {
+    min_aggregates_size: 5,
+    default_success_rate: 100,
+    max_aggregates_size: 8,
+    current_block_threshold: {
+      max_total_count: 5,
+    },
   },
   split_percentage: 100,
 }
@@ -50,12 +52,22 @@ let getCurrentBlockThreshold = dict => {
   }
 }
 
-let configFieldsMapper = (dict, split_percentage) => {
+let configMapper = dict => {
+  let config = dict->getDictfromDict("algorithm")->getDictfromDict("config")
+
   {
-    min_aggregates_size: dict->getInt("max_aggregates_size", 0),
-    default_success_rate: dict->getInt("default_success_rate", 0),
-    max_aggregates_size: dict->getInt("max_aggregates_size", 0),
-    current_block_threshold: getCurrentBlockThreshold(dict),
+    min_aggregates_size: config->getInt("min_aggregates_size", 0),
+    default_success_rate: config->getInt("default_success_rate", 0),
+    max_aggregates_size: config->getInt("max_aggregates_size", 0),
+    current_block_threshold: getCurrentBlockThreshold(config),
+  }
+}
+
+let formFieldsMapper = (json, split_percentage) => {
+  let dict = json->getDictFromJsonObject
+
+  {
+    config: configMapper(dict),
     split_percentage: dict->getInt("split_percentage", split_percentage),
   }
 }

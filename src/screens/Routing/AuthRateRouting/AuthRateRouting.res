@@ -39,23 +39,16 @@ let make = (
   let activeRoutingDetails = async () => {
     try {
       let url = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
-      // let response = await fetchDetails(url)
-      // let splitPercentage = await getVolumeSplit()
-      let splitPercentage = 100
-      // splitPercentage
-      // ->Nullable.getOr(JSON.Encode.int(100))
-      // ->getDictFromJsonObject
-      // ->getInt("split_percentage", 100)
+      let response = await fetchDetails(url)
+      let splitPercentage = await getVolumeSplit()
+      let splitPercentage =
+        splitPercentage
+        ->Nullable.getOr(JSON.Encode.int(100))
+        ->getDictFromJsonObject
+        ->getInt("split", 100)
 
-      // let dict =
-      //   response->getDictFromJsonObject->getDictfromDict("algorithm")->getDictfromDict("config")
-      // let values = dict->configFieldsMapper(splitPercentage)->Identity.genericTypeToJson
+      let values = response->formFieldsMapper(splitPercentage)->Identity.genericTypeToJson
 
-      let values =
-        defaultConfigsValue
-        ->Identity.genericTypeToDictOfJson
-        ->configFieldsMapper(splitPercentage)
-        ->Identity.genericTypeToJson
       setInitialValues(_ => values)
     } catch {
     | _ => showToast(~message="Failed to fetch details", ~toastType=ToastError)
@@ -229,20 +222,26 @@ let make = (
   let validateForm = (values: JSON.t): JSON.t => {
     let dict = values->JSON.Decode.object->Option.getOr(Dict.make())
     let errors = Dict.make()
+    let configErrors = Dict.make()
 
+    let config = dict->getDictfromDict("config")
     let requiredConfigKeys = ["min_aggregates_size", "default_success_rate", "max_aggregates_size"]
 
     requiredConfigKeys->Array.forEach(key => {
-      if dict->getInt(key, -1) == -1 {
-        errors->Dict.set(key, "Required"->JSON.Encode.string)
+      if config->getInt(key, -1) == -1 {
+        configErrors->Dict.set(key, "Required"->JSON.Encode.string)
       }
     })
 
-    let currentBlockThreshold = dict->getDictfromDict("current_block_threshold")
+    let currentBlockThreshold = config->getDictfromDict("current_block_threshold")
     if currentBlockThreshold->getInt("max_total_count", -1) == -1 {
       let thresholdErrors = Dict.make()
       thresholdErrors->Dict.set("max_total_count", "Required"->JSON.Encode.string)
-      errors->Dict.set("current_block_threshold", thresholdErrors->JSON.Encode.object)
+      configErrors->Dict.set("current_block_threshold", thresholdErrors->JSON.Encode.object)
+    }
+
+    if configErrors->Dict.keysToArray->Array.length > 0 {
+      errors->Dict.set("config", configErrors->JSON.Encode.object)
     }
 
     errors->JSON.Encode.object
