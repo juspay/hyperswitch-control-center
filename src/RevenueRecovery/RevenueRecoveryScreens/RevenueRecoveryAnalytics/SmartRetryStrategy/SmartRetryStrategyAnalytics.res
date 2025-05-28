@@ -7,8 +7,7 @@ let make = (~entity: moduleEntity) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (overallSRData, setOverallSRData) = React.useState(_ => [])
-  let (groupSRData, setGroupSRData) = React.useState(_ => [])
+  let (overallData, setOverallData) = React.useState(_ => [])
 
   let getOverallSR = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -19,13 +18,9 @@ let make = (~entity: moduleEntity) => {
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
-        ->getObj("error_category_analysis", Dict.make())
+        ->getArrayFromDict("error_category_analysis", [])
 
-      let overallData = primaryData->getArrayFromDict(OverallSuccessRate->getStringFromVariant, [])
-      let groupWiseData = primaryData->getArrayFromDict(GroupwiseData->getStringFromVariant, [])
-
-      setOverallSRData(_ => overallData)
-      setGroupSRData(_ => groupWiseData)
+      setOverallData(_ => primaryData)
 
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -62,6 +57,56 @@ let make = (~entity: moduleEntity) => {
     LineGraphUtils.getLineGraphOptions(overallSRMapper(~params))
   }
 
+  let getTabs = () => {
+    let tabs: array<Tabs.tab> = overallData->Array.map(data => {
+      let primaryData = data->getDictFromJsonObject
+
+      let category = primaryData->getString(Category->getStringFromVariant, "")
+
+      let overallSRData =
+        primaryData->getArrayFromDict(OverallSuccessRate->getStringFromVariant, [])
+      let groupSRData = primaryData->getArrayFromDict(GroupwiseData->getStringFromVariant, [])
+
+      let tab: Tabs.tab = {
+        title: category,
+        renderContent: () =>
+          <div className="flex flex-col gap-5 mt-5">
+            <div className="rounded-xl border border-gray-200 w-full bg-white">
+              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+                <h2 className="font-medium text-gray-800">
+                  {`Error Category : ${category}`->React.string}
+                </h2>
+              </div>
+              <div className="p-4">
+                <LineGraph options={overallSRData->getMainChartOptions} className="mr-3" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-5">
+              {groupSRData
+              ->getSmartRetryGraphOptions
+              ->Array.map(item => {
+                let (title, options) = item
+
+                <div className="rounded-xl border border-gray-200 w-full bg-white">
+                  <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+                    <h2 className="font-medium text-gray-800"> {title->React.string} </h2>
+                  </div>
+                  <div className="p-4">
+                    <LineScatterGraph options className="mr-3" />
+                  </div>
+                </div>
+              })
+              ->React.array}
+            </div>
+          </div>,
+      }
+
+      tab
+    })
+
+    tabs
+  }
+
   <div>
     <div className="space-y-1 mb-5">
       <h2 className="text-xl font-semibold text-gray-900 mb-2"> {entity.title->React.string} </h2>
@@ -74,35 +119,16 @@ let make = (~entity: moduleEntity) => {
       screenState
       customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-64 rounded-lg" />}
       customUI={<InsightsHelper.NoData height="h-64 p-0 -m-0" />}>
-      <div className="flex flex-col gap-5">
-        <div className="rounded-xl border border-gray-200 w-full bg-white">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
-            <h2 className="font-medium text-gray-800">
-              {"Error Category : Do Not Honor"->React.string}
-            </h2>
-          </div>
-          <div className="p-4">
-            <LineGraph options={overallSRData->getMainChartOptions} className="mr-3" />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-5">
-          {groupSRData
-          ->getSmartRetryGraphOptions
-          ->Array.map(item => {
-            let (title, options) = item
-
-            <div className="rounded-xl border border-gray-200 w-full bg-white">
-              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
-                <h2 className="font-medium text-gray-800"> {title->React.string} </h2>
-              </div>
-              <div className="p-4">
-                <LineScatterGraph options className="mr-3" />
-              </div>
-            </div>
-          })
-          ->React.array}
-        </div>
-      </div>
+      <Tabs
+        initialIndex=0
+        tabs={getTabs()}
+        onTitleClick={_ => ()}
+        disableIndicationArrow=true
+        showBorder=true
+        includeMargin=false
+        lightThemeColor="black"
+        defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+      />
     </PageLoaderWrapper>
   </div>
 }

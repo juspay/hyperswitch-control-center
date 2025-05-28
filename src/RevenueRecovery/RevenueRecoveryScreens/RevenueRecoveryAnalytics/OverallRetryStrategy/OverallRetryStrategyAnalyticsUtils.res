@@ -172,7 +172,7 @@ let retryStrategiesMapper = (~params: InsightsTypes.getObjects<JSON.t>) => {
         \"type": "column",
         data: transactions,
         color: "#91D9CE",
-        yAxis: 0,
+        yAxis: 1,
       },
       {
         showInLegend: true,
@@ -180,7 +180,7 @@ let retryStrategiesMapper = (~params: InsightsTypes.getObjects<JSON.t>) => {
         \"type": "line",
         data: staticRetries,
         color: "#C27AFF",
-        yAxis: 1,
+        yAxis: 0,
       },
       {
         showInLegend: true,
@@ -188,7 +188,7 @@ let retryStrategiesMapper = (~params: InsightsTypes.getObjects<JSON.t>) => {
         \"type": "line",
         data: smartRetries,
         color: "#6BBDF6",
-        yAxis: 1,
+        yAxis: 0,
       },
       {
         showInLegend: true,
@@ -196,7 +196,7 @@ let retryStrategiesMapper = (~params: InsightsTypes.getObjects<JSON.t>) => {
         \"type": "line",
         data: smartRetryBoosters,
         color: "#EBD35C",
-        yAxis: 1,
+        yAxis: 0,
       },
     ],
     tooltipFormatter: customTooltipFormatter(~title="Overall Retry Strategy"),
