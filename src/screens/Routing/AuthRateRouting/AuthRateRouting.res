@@ -219,26 +219,32 @@ let make = (
     }
   }
 
-  let validateForm = (values: JSON.t): JSON.t => {
+  let validateForm = (
+    values: JSON.t,
+    requiredConfigKeys: array<AuthRateRoutingTypes.formFields>,
+  ): JSON.t => {
     let dict = values->JSON.Decode.object->Option.getOr(Dict.make())
     let errors = Dict.make()
     let configErrors = Dict.make()
 
     let config = dict->getDictfromDict("config")
-    let requiredConfigKeys = ["min_aggregates_size", "default_success_rate", "max_aggregates_size"]
 
     requiredConfigKeys->Array.forEach(key => {
-      if config->getInt(key, -1) == -1 {
-        configErrors->Dict.set(key, "Required"->JSON.Encode.string)
+      switch key {
+      | MaxTotalCount => {
+          let currentBlockThreshold = config->getDictfromDict("current_block_threshold")
+          if currentBlockThreshold->getInt("max_total_count", -1) == -1 {
+            let thresholdErrors = Dict.make()
+            thresholdErrors->Dict.set("max_total_count", "Required"->JSON.Encode.string)
+            configErrors->Dict.set("current_block_threshold", thresholdErrors->JSON.Encode.object)
+          }
+        }
+      | _ =>
+        if config->getInt(key->getFormFieldKey, -1) == -1 {
+          configErrors->Dict.set(key->getFormFieldKey, "Required"->JSON.Encode.string)
+        }
       }
     })
-
-    let currentBlockThreshold = config->getDictfromDict("current_block_threshold")
-    if currentBlockThreshold->getInt("max_total_count", -1) == -1 {
-      let thresholdErrors = Dict.make()
-      thresholdErrors->Dict.set("max_total_count", "Required"->JSON.Encode.string)
-      configErrors->Dict.set("current_block_threshold", thresholdErrors->JSON.Encode.object)
-    }
 
     if configErrors->Dict.keysToArray->Array.length > 0 {
       errors->Dict.set("config", configErrors->JSON.Encode.object)
@@ -252,7 +258,7 @@ let make = (
       field={FormRenderer.makeFieldInfo(
         ~label=getFormFieldLabel(field),
         ~isRequired=requiredFormFields->Array.includes(field),
-        ~name=getFormFieldValue(field),
+        ~name=getFormFieldName(field),
         ~customInput=InputFields.numericTextInput(~precision=-1, ~isDisabled=disableFields),
       )}
     />
@@ -263,11 +269,20 @@ let make = (
     setDisableFields(_ => false)
   }
 
+  let requiredConfigKeys: array<AuthRateRoutingTypes.formFields> = [
+    MinAggregateSize,
+    DefaultSuccessRate,
+    MaxAggregateSize,
+    MaxTotalCount,
+  ]
+
   <div className="my-6">
     <PageLoaderWrapper screenState>
       {connectorList->Array.length > 0
         ? <Form
-            onSubmit={(values, _) => onSubmit(values, true)} initialValues validate=validateForm>
+            onSubmit={(values, _) => onSubmit(values, true)}
+            initialValues
+            validate={values => validateForm(values, requiredConfigKeys)}>
             <div className="w-full flex justify-between">
               <BasicDetailsForm.BusinessProfileInp
                 setProfile={setProfile}

@@ -11,7 +11,17 @@ let allFormFields = [
 
 let requiredFormFields = [MinAggregateSize, DefaultSuccessRate, MaxAggregateSize, MaxTotalCount]
 
-let getFormFieldValue = (field: formFields) => {
+let getFormFieldKey = (field: formFields) => {
+  switch field {
+  | MinAggregateSize => "min_aggregates_size"
+  | DefaultSuccessRate => "default_success_rate"
+  | MaxAggregateSize => "max_aggregates_size"
+  | MaxTotalCount => "max_total_count"
+  | SplitPercentage => "split_percentage"
+  }
+}
+
+let getFormFieldName = (field: formFields) => {
   switch field {
   | MinAggregateSize => "config.min_aggregates_size"
   | DefaultSuccessRate => "config.default_success_rate"
