@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.28.0
+
+### Bug Fixes
+
+- Text update in routing active card ([#3055](https://github.com/juspay/hyperswitch-control-center/pull/3055)) ([`23bab3f`](https://github.com/juspay/hyperswitch-control-center/commit/23bab3fe734c89d08d2dedb4d8c50eff77dfdea2))
+- Standardise disabled state for sample analytics and show daterange filter field as dropdown ([#3040](https://github.com/juspay/hyperswitch-control-center/pull/3040)) ([`9db320f`](https://github.com/juspay/hyperswitch-control-center/commit/9db320fb3835a50cbe014479aa0d05f3f5c11aca))
+- Sdk issue description ([#3058](https://github.com/juspay/hyperswitch-control-center/pull/3058)) ([`9ce308d`](https://github.com/juspay/hyperswitch-control-center/commit/9ce308d1311f999284139f3a1bce0cbb39c94d5a))
+
+### Miscellaneous Tasks
+
+- Added mixpanel event on start exploring button ([#3053](https://github.com/juspay/hyperswitch-control-center/pull/3053)) ([`b08376e`](https://github.com/juspay/hyperswitch-control-center/commit/b08376e01bdc7b9dc6eceb5b268b62bb2c0f8aba))
+- Wasm changes & add archipel to prod ([#3060](https://github.com/juspay/hyperswitch-control-center/pull/3060)) ([`e22702a`](https://github.com/juspay/hyperswitch-control-center/commit/e22702a2cf1e15f66ba3eaacfa5446791f8fa94f))
+
+**Full Changelog:** [`2025.05.26.1...2025.05.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.26.1...2025.05.28.0)
+
+
+- - -
+
 ## 2025.05.26.1
 
 ### Features
