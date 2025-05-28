@@ -13,8 +13,6 @@ module ListBaseComp = {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let (showHierarchyModal, setShowHierarchyModal) = React.useState(_ => false)
-
     let arrowClassName = isDarkBg
       ? `${arrow
             ? "rotate-180"

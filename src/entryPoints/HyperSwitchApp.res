@@ -35,7 +35,7 @@ let make = () => {
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
-
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -171,6 +171,12 @@ let make = () => {
                         {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
                         /* DEFAULT HOME */
                         | (_, list{"v2", "home"}) => <DefaultHome />
+
+                        | (_, list{"organisation-chart"}) =>
+                          <AccessControl
+                            authorization={userHasAccess(~groupAccess=OrganizationManage)}>
+                            <OrganisationChart />
+                          </AccessControl>
 
                         | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
 
