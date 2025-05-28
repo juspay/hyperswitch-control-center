@@ -22,6 +22,7 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (disableFields, setDisableFields) = React.useState(_ => false)
+  let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
 
   let getVolumeSplit = async () => {
     try {
@@ -37,25 +38,40 @@ let make = (
   }
 
   let activeRoutingDetails = async () => {
+    open AuthRateRoutingTypes
     try {
       let url = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
-      // let response = await fetchDetails(url)
-      // let splitPercentage = await getVolumeSplit()
-      let splitPercentage = 100
-      // splitPercentage
-      // ->Nullable.getOr(JSON.Encode.int(100))
-      // ->getDictFromJsonObject
-      // ->getInt("split_percentage", 100)
+      let response = await fetchDetails(url)
 
-      // let dict =
-      //   response->getDictFromJsonObject->getDictfromDict("algorithm")->getDictfromDict("config")
-      // let values = dict->configFieldsMapper(splitPercentage)->Identity.genericTypeToJson
+      let response = {
+        config: {
+          min_aggregates_size: 5,
+          default_success_rate: 100,
+          max_aggregates_size: 8,
+          current_block_threshold: {
+            max_total_count: 5,
+          },
+        },
+        split_percentage: 100,
+        name: "Auth Rate Routing",
+        description: "Auth Rate Routing configuration",
+      }->Identity.genericTypeToJson
 
-      let values =
-        defaultConfigsValue
-        ->Identity.genericTypeToDictOfJson
-        ->configFieldsMapper(splitPercentage)
-        ->Identity.genericTypeToJson
+      let splitPercentage = await getVolumeSplit()
+
+      let splitPercentage =
+        splitPercentage
+        ->Nullable.getOr(JSON.Encode.int(100))
+        ->getDictFromJsonObject
+        ->getInt("split_percentage", 100)
+
+      let values = response->formFieldsMapper(splitPercentage)->Identity.genericTypeToJson
+
+      // let values =
+      //   defaultConfigsValue
+      //   ->Identity.genericTypeToDictOfJson
+      //   ->formFieldsMapper(splitPercentage)
+      //   ->Identity.genericTypeToJson
       setInitialValues(_ => values)
     } catch {
     | _ => showToast(~message="Failed to fetch details", ~toastType=ToastError)
@@ -226,30 +242,35 @@ let make = (
     }
   }
 
-  let validateForm = (values: JSON.t) => {
-    let finalValuesDict = switch values->JSON.Decode.object {
-    | Some(dict) => dict
-    | None => Dict.make()
-    }
+  let validateForm = (values: JSON.t): JSON.t => {
+    let dict = values->JSON.Decode.object->Option.getOr(Dict.make())
     let errors = Dict.make()
-    let keysToValidate = ["min_aggregates_size", "default_success_rate", "max_aggregates_size"]
+    let configErrors = Dict.make()
 
-    keysToValidate->Array.forEach(key => {
-      if getInt(finalValuesDict, key, -1) == -1 {
-        Dict.set(errors, key, "Required"->JSON.Encode.string)
+    AdvancedRoutingUtils.validateNameAndDescription(
+      ~dict,
+      ~errors,
+      ~validateFields=["name", "description"],
+    )
+
+    let config = dict->getDictfromDict("config")
+    let requiredConfigKeys = ["min_aggregates_size", "default_success_rate", "max_aggregates_size"]
+
+    requiredConfigKeys->Array.forEach(key => {
+      if config->getInt(key, -1) == -1 {
+        configErrors->Dict.set(key, "Required"->JSON.Encode.string)
       }
     })
 
-    let totalCount =
-      values
-      ->getDictFromJsonObject
-      ->getDictfromDict("current_block_threshold")
-      ->getInt("max_total_count", -1)
+    let currentBlockThreshold = config->getDictfromDict("current_block_threshold")
+    if currentBlockThreshold->getInt("max_total_count", -1) == -1 {
+      let thresholdErrors = Dict.make()
+      thresholdErrors->Dict.set("max_total_count", "Required"->JSON.Encode.string)
+      configErrors->Dict.set("current_block_threshold", thresholdErrors->JSON.Encode.object)
+    }
 
-    if totalCount == -1 {
-      let currentBlockThresholdErrors = Dict.make()
-      Dict.set(currentBlockThresholdErrors, "max_total_count", "Required"->JSON.Encode.string)
-      Dict.set(errors, "current_block_threshold", currentBlockThresholdErrors->JSON.Encode.object)
+    if configErrors->Dict.keysToArray->Array.length > 0 {
+      errors->Dict.set("config", configErrors->JSON.Encode.object)
     }
 
     errors->JSON.Encode.object
@@ -276,14 +297,12 @@ let make = (
       {connectorList->Array.length > 0
         ? <Form
             onSubmit={(values, _) => onSubmit(values, true)} initialValues validate=validateForm>
-            <div className="w-full flex justify-between">
-              <BasicDetailsForm.BusinessProfileInp
-                setProfile={setProfile}
-                profile={profile}
-                options={[
-                  businessProfileRecoilVal,
-                ]->MerchantAccountUtils.businessProfileNameDropDownOption}
-                label="Profile"
+            <div className="w-full flex flex-col justify-between">
+              <BasicDetailsForm
+                formState={pageState == Preview ? ViewConfig : CreateConfig}
+                currentTabName
+                profile
+                setProfile
               />
             </div>
             <div
