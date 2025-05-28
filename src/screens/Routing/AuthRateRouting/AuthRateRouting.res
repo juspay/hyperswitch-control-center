@@ -226,30 +226,23 @@ let make = (
     }
   }
 
-  let validateForm = (values: JSON.t) => {
-    let finalValuesDict = switch values->JSON.Decode.object {
-    | Some(dict) => dict
-    | None => Dict.make()
-    }
+  let validateForm = (values: JSON.t): JSON.t => {
+    let dict = values->JSON.Decode.object->Option.getOr(Dict.make())
     let errors = Dict.make()
-    let keysToValidate = ["min_aggregates_size", "default_success_rate", "max_aggregates_size"]
 
-    keysToValidate->Array.forEach(key => {
-      if getInt(finalValuesDict, key, -1) == -1 {
-        Dict.set(errors, key, "Required"->JSON.Encode.string)
+    let requiredConfigKeys = ["min_aggregates_size", "default_success_rate", "max_aggregates_size"]
+
+    requiredConfigKeys->Array.forEach(key => {
+      if dict->getInt(key, -1) == -1 {
+        errors->Dict.set(key, "Required"->JSON.Encode.string)
       }
     })
 
-    let totalCount =
-      values
-      ->getDictFromJsonObject
-      ->getDictfromDict("current_block_threshold")
-      ->getInt("max_total_count", -1)
-
-    if totalCount == -1 {
-      let currentBlockThresholdErrors = Dict.make()
-      Dict.set(currentBlockThresholdErrors, "max_total_count", "Required"->JSON.Encode.string)
-      Dict.set(errors, "current_block_threshold", currentBlockThresholdErrors->JSON.Encode.object)
+    let currentBlockThreshold = dict->getDictfromDict("current_block_threshold")
+    if currentBlockThreshold->getInt("max_total_count", -1) == -1 {
+      let thresholdErrors = Dict.make()
+      thresholdErrors->Dict.set("max_total_count", "Required"->JSON.Encode.string)
+      errors->Dict.set("current_block_threshold", thresholdErrors->JSON.Encode.object)
     }
 
     errors->JSON.Encode.object
@@ -281,7 +274,7 @@ let make = (
                 setProfile={setProfile}
                 profile={profile}
                 options={[
-                  businessProfileRecoilVal,
+                  businessProfileValues,
                 ]->MerchantAccountUtils.businessProfileNameDropDownOption}
                 label="Profile"
               />
