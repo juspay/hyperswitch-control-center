@@ -70,39 +70,17 @@ module RetryUpliftCard = {
 
 @react.component
 let make = (~entity: moduleEntity) => {
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (retryStrategiesData, setRetryStrategiesData) = React.useState(_ => JSON.Encode.array([]))
 
   let getRetryStrategies = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let primaryResponse = {
-        "static_retries": {
-          "auth_rate_percent": 75.1,
-          "delta_percent": 2.62,
-          "recovered_orders": {
-            "soft_declines_percent": 2.62,
-            "hard_declines_percent": 0.0,
-          },
-        },
-        "smart_retries": {
-          "auth_rate_percent": 81.35,
-          "delta_percent": 8.87,
-          "recovered_orders": {
-            "soft_declines_percent": 8.87,
-            "hard_declines_percent": 0.0,
-          },
-        },
-        "smart_retries_booster": {
-          "auth_rate_percent": 84.41,
-          "delta_percent": 11.93,
-          "recovered_orders": {
-            "soft_declines_percent": 8.87,
-            "hard_declines_percent": 3.06,
-          },
-          "is_premium": true,
-        },
-      }->Identity.genericTypeToJson
+      let url = getURL(~entityName=V1(RETRY_PERFORMANCE), ~methodType=Get)
+      let primaryResponse = await fetchDetails(url, ~version=V1)
 
       setRetryStrategiesData(_ => primaryResponse)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -118,7 +96,7 @@ let make = (~entity: moduleEntity) => {
   <PageLoaderWrapper
     screenState
     customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-56 rounded-lg" />}
-    customUI={<InsightsHelper.NoData />}>
+    customUI={<InsightsHelper.NoData height="h-56 p-0 -m-0" />}>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <RetryUpliftCard
         title={StaticRetries->getTitleForColumn}

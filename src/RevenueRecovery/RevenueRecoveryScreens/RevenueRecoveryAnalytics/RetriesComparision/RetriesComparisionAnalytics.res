@@ -11,6 +11,9 @@ let make = (
   >,
 ) => {
   open LogicUtils
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (staticRetryData, setStaticRetryData) = React.useState(_ => JSON.Encode.array([]))
   let (smartRetryData, setSmartRetryData) = React.useState(_ => JSON.Encode.array([]))
@@ -18,44 +21,8 @@ let make = (
   let getRetryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let primaryResponse = {
-        "retry_attempts_trend": {
-          "static_retries": [
-            {
-              "time_bucket": "2025-05-01T00:00:00Z", // Updated format
-              "success_rate": 32.5,
-              "had_retry_attempt": true,
-            },
-            {
-              "time_bucket": "2025-05-02T00:00:00Z", // Updated format
-              "success_rate": 28.0,
-              "had_retry_attempt": false,
-            },
-            {
-              "time_bucket": "2025-05-03T00:00:00Z", // Updated format
-              "success_rate": 35.0,
-              "had_retry_attempt": true,
-            },
-          ],
-          "smart_retries": [
-            {
-              "time_bucket": "2025-05-01T00:00:00Z", // Updated format
-              "success_rate": 25.0,
-              "had_retry_attempt": true,
-            },
-            {
-              "time_bucket": "2025-05-02T00:00:00Z", // Updated format
-              "success_rate": 22.5,
-              "had_retry_attempt": true,
-            },
-            {
-              "time_bucket": "2025-05-03T00:00:00Z", // Updated format
-              "success_rate": 30.0,
-              "had_retry_attempt": false,
-            },
-          ],
-        },
-      }->Identity.genericTypeToJson
+      let url = getURL(~entityName=V1(RETRY_ATTEMPTS_TREND), ~methodType=Get)
+      let primaryResponse = await fetchDetails(url, ~version=V1)
 
       let primaryData =
         primaryResponse
@@ -108,7 +75,7 @@ let make = (
     <PageLoaderWrapper
       screenState
       customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-64 rounded-lg" />}
-      customUI={<InsightsHelper.NoData />}>
+      customUI={<InsightsHelper.NoData height="h-64 p-0 -m-0" />}>
       <div className="grid grid-cols-2 gap-5">
         <div className="rounded-xl border border-gray-200 w-full bg-white">
           <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">

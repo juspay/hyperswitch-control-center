@@ -4,6 +4,9 @@ open OverallRetryStrategyAnalyticsUtils
 @react.component
 let make = (~entity: moduleEntity, ~chartEntity) => {
   open LogicUtils
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (overallRetryStrategyData, setOverallRetryStrategyData) = React.useState(_ =>
     JSON.Encode.array([])
@@ -12,31 +15,8 @@ let make = (~entity: moduleEntity, ~chartEntity) => {
   let getOverallRetryStrategy = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let primaryResponse = {
-        "data": [
-          {
-            "time_bucket": "2024-01-01T00:00:00Z",
-            "transactions": 0,
-            "static_retry_success_rate": 70.5,
-            "smart_retry_success_rate": 0,
-            "smart_retry_booster_success_rate": 0,
-          }->Identity.genericTypeToJson,
-          {
-            "time_bucket": "2024-02-01T00:00:00Z",
-            "transactions": 0,
-            "static_retry_success_rate": 68.2,
-            "smart_retry_success_rate": 10.1,
-            "smart_retry_booster_success_rate": 5.4,
-          }->Identity.genericTypeToJson,
-          {
-            "time_bucket": "2024-03-01T00:00:00Z",
-            "transactions": 56000,
-            "static_retry_success_rate": 65.3,
-            "smart_retry_success_rate": 60.2,
-            "smart_retry_booster_success_rate": 62.7,
-          }->Identity.genericTypeToJson,
-        ],
-      }->Identity.genericTypeToJson
+      let url = getURL(~entityName=V1(MONTHLY_RETRY_SUCCESS), ~methodType=Get)
+      let primaryResponse = await fetchDetails(url, ~version=V1)
 
       let primaryData =
         primaryResponse
@@ -65,7 +45,7 @@ let make = (~entity: moduleEntity, ~chartEntity) => {
   <PageLoaderWrapper
     screenState
     customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-64 rounded-lg" />}
-    customUI={<InsightsHelper.NoData />}>
+    customUI={<InsightsHelper.NoData height="h-64 p-0 -m-0" />}>
     <div className="rounded-xl border border-gray-200 w-full bg-white">
       <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
         <h2 className="font-medium text-gray-800"> {entity.title->React.string} </h2>

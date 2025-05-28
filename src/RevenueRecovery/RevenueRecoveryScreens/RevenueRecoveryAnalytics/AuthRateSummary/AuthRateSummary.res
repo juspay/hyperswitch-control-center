@@ -28,18 +28,18 @@ let make = (
   ~entity: moduleEntity,
   ~chartEntity: chartEntity<barGraphPayload, barGraphOptions, JSON.t>,
 ) => {
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (authRateSummaryData, setAuthRateSummaryData) = React.useState(_ => JSON.Encode.array([]))
 
   let getAuthRateSummary = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
+
     try {
-      let primaryResponse = {
-        "success_rate_percent": 72.49,
-        "success_orders_percentage": 72.48,
-        "soft_declines_percentage": 16.52,
-        "hard_declines_percentage": 10.9,
-      }->Identity.genericTypeToJson
+      let url = getURL(~entityName=V1(TRANSACTION_OVERVIEW), ~methodType=Get)
+      let primaryResponse = await fetchDetails(url, ~version=V1)
 
       setAuthRateSummaryData(_ => primaryResponse)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -69,7 +69,7 @@ let make = (
   <PageLoaderWrapper
     screenState
     customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-48 rounded-lg" />}
-    customUI={<InsightsHelper.NoData />}>
+    customUI={<InsightsHelper.NoData height="h-48 p-0 -m-0" />}>
     <div className="rounded-xl border border-gray-200 p-4 w-full bg-white">
       <div className="flex items-center justify-start gap-3 mb-4">
         <p className="text-sm text-gray-500"> {"Current Subscription Auth Rate"->React.string} </p>

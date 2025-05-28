@@ -104,6 +104,7 @@ let useGetURL = () => {
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
+    let recoveryAnalyticsDemo = "revenue-recovery-demo/analytics"
 
     let endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -742,6 +743,13 @@ let useGetURL = () => {
         }
       | INTELLIGENT_ROUTING_GET_STATISTICS =>
         `dynamic-routing/simulate/${merchantId}/get-statistics`
+
+      /* Revenue Recovery */
+      | TRANSACTION_OVERVIEW => `${recoveryAnalyticsDemo}/transaction_overview`
+      | RETRY_PERFORMANCE => `${recoveryAnalyticsDemo}/retry_performance`
+      | MONTHLY_RETRY_SUCCESS => `${recoveryAnalyticsDemo}/monthly_retry_success`
+      | RETRY_ATTEMPTS_TREND => `${recoveryAnalyticsDemo}/retry_attempts_trend`
+      | ERROR_CATEGORY_ANALYSIS => `${recoveryAnalyticsDemo}/error_category_analysis`
 
       /* USERS */
       | USERS =>

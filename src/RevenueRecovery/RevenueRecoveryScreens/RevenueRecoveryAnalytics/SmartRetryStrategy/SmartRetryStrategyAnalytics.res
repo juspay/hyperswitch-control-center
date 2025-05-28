@@ -3,6 +3,9 @@ open SmartRetryStrategyAnalyticsUtils
 @react.component
 let make = (~entity: moduleEntity) => {
   open LogicUtils
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (overallSRData, setOverallSRData) = React.useState(_ => [])
   let (groupSRData, setGroupSRData) = React.useState(_ => [])
@@ -10,55 +13,8 @@ let make = (~entity: moduleEntity) => {
   let getOverallSR = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let primaryResponse = {
-        "error_category_analysis": {
-          "category": "Do Not Honor",
-          "overall_success_rate": [
-            {
-              "time_bucket": "2025-05-01T00:00:00Z",
-              "success_rate": 22.4,
-            },
-            {
-              "time_bucket": "2025-05-02T00:00:00Z",
-              "success_rate": 40.1,
-            },
-          ],
-          "groupwise_data": [
-            {
-              "group_id": "group_a",
-              "group_name": "Do not Honor - Group A",
-              "success_rate_series": [
-                {
-                  "time_bucket": "2025-05-01T00:00:00Z",
-                  "success_rate": 10.0,
-                  "had_retry_attempt": true,
-                },
-                {
-                  "time_bucket": "2025-05-02T00:00:00Z",
-                  "success_rate": 35.0,
-                  "had_retry_attempt": false,
-                },
-              ],
-            },
-            {
-              "group_id": "group_b",
-              "group_name": "Do not Honor - Group B",
-              "success_rate_series": [
-                {
-                  "time_bucket": "2025-05-01T00:00:00Z",
-                  "success_rate": 5.0,
-                  "had_retry_attempt": false,
-                },
-                {
-                  "time_bucket": "2025-05-02T00:00:00Z",
-                  "success_rate": 60.0,
-                  "had_retry_attempt": true,
-                },
-              ],
-            },
-          ],
-        },
-      }->Identity.genericTypeToJson
+      let url = getURL(~entityName=V1(ERROR_CATEGORY_ANALYSIS), ~methodType=Get)
+      let primaryResponse = await fetchDetails(url, ~version=V1)
 
       let primaryData =
         primaryResponse
@@ -117,7 +73,7 @@ let make = (~entity: moduleEntity) => {
     <PageLoaderWrapper
       screenState
       customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-64 rounded-lg" />}
-      customUI={<InsightsHelper.NoData />}>
+      customUI={<InsightsHelper.NoData height="h-64 p-0 -m-0" />}>
       <div className="flex flex-col gap-5">
         <div className="rounded-xl border border-gray-200 w-full bg-white">
           <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
