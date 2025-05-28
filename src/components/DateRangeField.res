@@ -133,6 +133,7 @@ module Base = {
     ~customborderCSS="",
     ~isTooltipVisible=true,
     ~events=?,
+    ~customButtonStyle="",
   ) => {
     open DateRangeUtils
     open LogicUtils
@@ -571,8 +572,6 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let customStyleForBtn = "rounded-lg bg-white w-fit"
-
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
     let getDiffForPredefined = predefinedDay => {
@@ -822,7 +821,7 @@ module Base = {
                 isDropdownOpen=isDropdownExpandedActual
                 onClick={_ => handleDropdownClick()}
                 iconBorderColor={customborderCSS}
-                customButtonStyle={customStyleForBtn}
+                customButtonStyle
                 buttonState={disable ? Disabled : Normal}
                 ?buttonType
                 ?textStyle
@@ -900,6 +899,7 @@ let make = (
   ~removeConversion=false,
   ~isTooltipVisible=true,
   ~events=?,
+  ~customButtonStyle="",
 ) => {
   let startInput = ReactFinalForm.useField(startKey).input
   let endInput = ReactFinalForm.useField(endKey).input
@@ -933,5 +933,6 @@ let make = (
     removeConversion
     isTooltipVisible
     ?events
+    customButtonStyle
   />
 }

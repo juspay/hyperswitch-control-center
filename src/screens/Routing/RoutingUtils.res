@@ -84,7 +84,7 @@ let getContent = routetype =>
   switch routetype {
   | DEFAULTFALLBACK => {
       heading: "Default fallback ",
-      subHeading: "Fallback is a priority order of all the configured processors which is used to route traffic standalone or when other routing rules are not applicable. You can reorder the list with simple drag and drop",
+      subHeading: "Fallback is the priority list of configured processors used for routing traffic alone or when other rules don’t apply. You can reorder it via drag and drop",
     }
   | VOLUME_SPLIT => {
       heading: "Volume Based Configuration",
