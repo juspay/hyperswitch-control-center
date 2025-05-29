@@ -3,10 +3,10 @@ open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
-  | SuccessRatePercentage => "success_rate_percent"
-  | SuccessOrdersPercentage => "success_orders_percentage"
-  | SoftDeclinesPercentage => "soft_declines_percentage"
-  | HardDeclinesPercentage => "hard_declines_percentage"
+  | SuccessRatePercentage => (#success_rate_percent: responseKeys :> string)
+  | SuccessOrdersPercentage => (#success_orders_percentage: responseKeys :> string)
+  | SoftDeclinesPercentage => (#soft_declines_percentage: responseKeys :> string)
+  | HardDeclinesPercentage => (#hard_declines_percentage: responseKeys :> string)
   }
 }
 
