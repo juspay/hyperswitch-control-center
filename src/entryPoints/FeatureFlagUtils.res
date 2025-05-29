@@ -56,6 +56,7 @@ type featureFlag = {
   googlePayDecryptionFlow: bool,
   devWebhooks: bool,
   sampleDataAnalytics: bool,
+  threedsDevIntelligence: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -114,6 +115,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     googlePayDecryptionFlow: dict->getBool("google_pay_decryption_flow", false),
     devWebhooks: dict->getBool("dev_webhooks", false),
     sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
+    threedsDevIntelligence: dict->getBool("threeds_dev_intelligence", false),
   }
 }
 

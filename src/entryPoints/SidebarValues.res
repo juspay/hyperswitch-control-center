@@ -330,6 +330,15 @@ let payoutRouting = userHasResourceAccess => {
   })
 }
 
+let threeDsIntelligence = userHasResourceAccess => {
+  SubLevelLink({
+    name: "3DS Intelligence",
+    link: `/3dsintelligence`,
+    access: userHasResourceAccess(~resourceAccess=ThreeDsDecisionManager), // Assuming same access as 3DS Decision Manager for now
+    searchOptions: [("View 3DS Intelligence", "")],
+  })
+}
+
 let threeDs = userHasResourceAccess => {
   SubLevelLink({
     name: "3DS Decision Manager",
@@ -338,6 +347,7 @@ let threeDs = userHasResourceAccess => {
     searchOptions: [("Configure 3ds", "")],
   })
 }
+
 let surcharge = userHasResourceAccess => {
   SubLevelLink({
     name: "Surcharge",
@@ -350,6 +360,7 @@ let surcharge = userHasResourceAccess => {
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
+  threedsDevIntelligence,
   ~userHasResourceAccess,
   ~isPayoutEnabled,
   ~userEntity,
@@ -370,6 +381,9 @@ let workflow = (
   }
   if isPayoutEnabled {
     defaultWorkFlow->Array.push(payoutRouting)->ignore
+  }
+  if threedsDevIntelligence {
+    defaultWorkFlow->Array.push(threeDsIntelligence(userHasResourceAccess))->ignore
   }
 
   isWorkflowEnabled
@@ -607,6 +621,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     authenticationAnalytics,
     devAltPaymentMethods,
     devWebhooks,
+    threedsDevIntelligence,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -635,6 +650,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     ),
     default->workflow(
       isSurchargeEnabled,
+      threedsDevIntelligence,
       ~userHasResourceAccess,
       ~isPayoutEnabled=payOut,
       ~userEntity,

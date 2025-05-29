@@ -28,6 +28,7 @@ let getHeaders = (
     [
       ("Content-Type", "application/x-www-form-urlencoded"),
       ("accept", "application/json"),
+      ("x-feature", "router-custom-be"),
     ]->Dict.fromArray
   } else {
     switch (token, version) {
@@ -53,6 +54,8 @@ let getHeaders = (
     // headers for V2
     headers->Dict.set("X-Profile-Id", profileId)
     headers->Dict.set("X-Merchant-Id", merchantId)
+    headers->Dict.set("x-feature", "router-custom-be")
+
     headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)

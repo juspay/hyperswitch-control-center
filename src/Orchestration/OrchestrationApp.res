@@ -98,6 +98,12 @@ let make = (~setScreenState) => {
         authorization={userHasAccess(~groupAccess=WorkflowsView)}>
         <Surcharge />
       </AccessControl>
+    | list{"3dsintelligence"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.threedsDevIntelligence}
+        authorization={userHasAccess(~groupAccess=WorkflowsView)}>
+        <ThreeDSIntelligence />
+      </AccessControl>
     | list{"account-settings"} =>
       <AccessControl
         isEnabled=featureFlagDetails.sampleData

@@ -406,6 +406,15 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | ACTIVATE_3DS_RULE =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(routing_id) => `routing/${routing_id}/activate`
+          | _ => ""
+          }
+        | _ => ""
+        }
       | ACTIVE_ROUTING => `routing/active`
       /* ANALYTICS V2 */
 
@@ -564,6 +573,22 @@ let useGetURL = () => {
 
       /* THREE DS ROUTING */
       | THREE_DS => `routing/decision`
+
+      /* THREE DS ROUTING */
+      | THREE_DS_INTELLIGENCE_LIST => `/routing/active?transaction_type=three_ds_authentication&limit=100`
+
+      | THREE_DS_INTELLIGENCE_ACTIVE_RULE =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(routingId) => `routing/${routingId}`
+          | None => ""
+          }
+        | _ => ""
+        }
+
+      /* THREE DS INTELLIGENCE */
+      | THREE_DS_INTELLIGENCE => `routing`
 
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
