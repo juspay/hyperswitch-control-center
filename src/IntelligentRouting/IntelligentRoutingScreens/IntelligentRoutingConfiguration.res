@@ -178,13 +178,14 @@ module Analyze = {
             <>
               {dataSourceHeading(dataSource->dataTypeVariantToString)}
               {fileTypes
-              ->Array.map(item => {
+              ->Array.mapWithIndex((item, index) => {
                 let fileTypeHeading = item->getFileTypeHeading
                 let fileTypeDescription = item->getFileTypeDescription
                 let fileTypeIcon = item->getFileTypeIconName
                 let isSelected = selectedField === item
 
                 <StepCard
+                  key={Int.toString(index)}
                   stepName={fileTypeHeading}
                   description={fileTypeDescription}
                   isSelected
@@ -200,12 +201,13 @@ module Analyze = {
             <>
               {dataSourceHeading(dataSource->dataTypeVariantToString)}
               {realtime
-              ->Array.map(item => {
+              ->Array.mapWithIndex((item, index) => {
                 let realtimeHeading = item->getRealtimeHeading
                 let realtimeDescription = item->getRealtimeDescription
                 let realtimeIcon = item->getRealtimeIconName
 
                 <StepCard
+                  key={Int.toString(index)}
                   stepName={realtimeHeading}
                   description={realtimeDescription}
                   isSelected=false

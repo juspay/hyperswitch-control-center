@@ -55,7 +55,7 @@ let make = (
     }
   }
 
-  let fetchDetails = async () => {
+  let fetchActiveRoutingDetails = async () => {
     try {
       setScreenState(_ => Loading)
       switch routingRuleId {
@@ -76,7 +76,7 @@ let make = (
   }
 
   React.useEffect(() => {
-    fetchDetails()->ignore
+    fetchActiveRoutingDetails()->ignore
     None
   }, [routingRuleId])
 
@@ -253,8 +253,9 @@ let make = (
     errors->JSON.Encode.object
   }
 
-  let formFields = allFormFields->Array.map(field => {
+  let formFields = allFormFields->Array.mapWithIndex((field, index) => {
     <FormRenderer.FieldRenderer
+      key={Int.toString(index)}
       field={FormRenderer.makeFieldInfo(
         ~label=getFormFieldLabel(field),
         ~isRequired=requiredFormFields->Array.includes(field),
