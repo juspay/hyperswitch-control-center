@@ -46,7 +46,39 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
     handleNextClick()->ignore
   }
 
-  let handleFileUpload = ev => {
+  let validaData = (fileData, metadata) => {
+    try {
+      let uint8array = FileReader.makeUint8Array(fileData)
+      let config = Window.getDefaultConfig()
+      Ok(Window.validateExtract(uint8array, config, metadata))
+    } catch {
+    | _ => Error("Error validating data")
+    }
+  }
+  let readFileAsArrayBuffer = (file, metadata) =>
+    Promise.make((resolve, _) => {
+      let reader = FileReader.reader
+      reader.readAsArrayBuffer(file)
+      reader.onload = e => {
+        let target = ReactEvent.Form.target(e)
+        switch target["result"]->Nullable.toOption {
+        | Some(fileData) =>
+          switch validaData(fileData, metadata) {
+          | Ok(dict) => {
+              let data = getFileData(dict)
+              setFileUInt8Array(_ => data.data)
+              setReviewFields(_ => data.stats)
+              setUpload(_ => true)
+              resolve(Ok(dict))
+            }
+          | Error(err) => resolve(Error("Error validating data: " ++ err))
+          }
+        | None => resolve(Error("Error on loading file"))
+        }
+      }
+    })
+
+  let handleFileUpload = async ev => {
     try {
       let files = ReactEvent.Form.target(ev)["files"]
       switch files[0] {
@@ -56,29 +88,11 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
           showToast(~message="File size should be less than 10MB", ~toastType=ToastError)
           setFile(_ => None)
         } else {
-          let fileReader = FileReader.reader
-          fileReader.readAsArrayBuffer(value)
-
-          fileReader.onload = e => {
-            let target = ReactEvent.Form.target(e)
-            switch target["result"]->Nullable.toOption {
-            | Some(fileData) =>
-              let uint8array = FileReader.makeUint8Array(fileData)
-              let config = Window.getDefaultConfig()
-              let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
-
-              let dict = Window.validateExtract(uint8array, config, metadata)
-              let data = getFileData(dict)
-
-              setFileUInt8Array(_ => data.data)
-              setReviewFields(_ => data.stats)
-              setUpload(_ => true)
-            | None =>
-              showToast(~message="Failed to read file. Please try again.", ~toastType=ToastError)
-              setFile(_ => None)
-            }
+          let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
+          switch await readFileAsArrayBuffer(value, metadata) {
+          | Ok(_) => setFile(_ => Some(value))
+          | Error(_) => Js.Exn.raiseError("Error reading file")
           }
-          setFile(_ => Some(value))
         }
       | None =>
         showToast(~message="No file selected. Please choose a file.", ~toastType=ToastError)
@@ -172,7 +186,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
               className="hidden"
               accept={".csv"}
               ref={inputRef->ReactDOM.Ref.domRef}
-              onChange={handleFileUpload}
+              onChange={e => handleFileUpload(e)->ignore}
             />
             <Button
               text={upload ? "File Uploaded" : "Upload File"}
