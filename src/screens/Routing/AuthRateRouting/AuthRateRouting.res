@@ -154,8 +154,12 @@ let make = (
 
   let onSubmit = async (values, isSaveRule) => {
     try {
-      let splitPercentage = values->getDictFromJsonObject->getInt("split_percentage", 100)
-      let _ = Dict.delete(values->getDictFromJsonObject, "split_percentage")
+      let dict = values->getDictFromJsonObject
+      let splitPercentage = dict->getInt("split_percentage", 100)
+
+      let configDict = Dict.make()
+      let configValues = dict->getDictfromDict("config")->JSON.Encode.object
+      configDict->Dict.set("config", configValues)
 
       let response = await enableAuthRateRouting()
       let routingId =
@@ -163,7 +167,7 @@ let make = (
 
       let updateRoutingId = routingRuleId->Option.getOr(routingId)
 
-      let response = await authRateRoutingConfig(updateRoutingId, values)
+      let response = await authRateRoutingConfig(updateRoutingId, configDict->JSON.Encode.object)
       let routingId =
         response->Nullable.getOr(JSON.Encode.null)->getDictFromJsonObject->getString("id", "")
 
