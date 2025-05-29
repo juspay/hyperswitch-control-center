@@ -15,8 +15,8 @@ module RetryUpliftCard = {
   ) => {
     let getLegendBg = declineType => {
       switch declineType {
-      | #soft_declines => "bg-[#E9BE74]"
-      | #hard_declines => "bg-[#F8B3AA]"
+      | #soft_declines => "bg-orange-light"
+      | #hard_declines => "bg-red-light"
       }
     }
 

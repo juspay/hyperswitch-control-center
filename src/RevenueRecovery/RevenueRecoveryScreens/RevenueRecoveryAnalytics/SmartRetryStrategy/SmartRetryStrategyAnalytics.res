@@ -18,7 +18,7 @@ let make = (~entity: moduleEntity) => {
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
-        ->getArrayFromDict("error_category_analysis", [])
+        ->getArrayFromDict(ErrorCategoryAnalysis->getStringFromVariant, [])
 
       setOverallData(_ => primaryData)
 

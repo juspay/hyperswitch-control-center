@@ -3,6 +3,16 @@ type declineTypes = [
   | #hard_declines
 ]
 
+type response_keys = [
+  | #static_retries
+  | #smart_retries
+  | #smart_retries_booster
+  | #auth_rate_percent
+  | #delta_percent
+  | #soft_declines_percent
+  | #hard_declines_percent
+]
+
 type recoveredType = {
   declineType: declineTypes,
   value: float,

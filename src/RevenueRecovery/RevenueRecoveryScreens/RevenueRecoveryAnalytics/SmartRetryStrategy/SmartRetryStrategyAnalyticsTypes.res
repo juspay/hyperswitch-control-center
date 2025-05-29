@@ -8,6 +8,20 @@ type smartRetryStatergyCols =
   | Category
   | OverallSuccessRate
   | GroupwiseData
+  | ErrorCategoryAnalysis
+
+type responseKeys = [
+  | #time_bucket
+  | #success_rate
+  | #had_retry_attempt
+  | #group_id
+  | #group_name
+  | #success_rate_series
+  | #category
+  | #overall_success_rate
+  | #groupwise_data
+  | #error_category_analysis
+]
 
 type successRateSeries = {
   time_bucket: string,

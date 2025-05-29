@@ -3,11 +3,11 @@ open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
-  | TimeBucket => "time_bucket"
-  | Transactions => "transactions"
-  | StaticRetrySuccessRate => "static_retry_success_rate"
-  | SmartRetrySuccessRate => "smart_retry_success_rate"
-  | SmartRetryBoosterSuccessRate => "smart_retry_booster_success_rate"
+  | TimeBucket => (#time_bucket: retryTrendKeys :> string)
+  | Transactions => (#transactions: retryTrendKeys :> string)
+  | StaticRetrySuccessRate => (#static_retry_success_rate: retryTrendKeys :> string)
+  | SmartRetrySuccessRate => (#smart_retry_success_rate: retryTrendKeys :> string)
+  | SmartRetryBoosterSuccessRate => (#smart_retry_booster_success_rate: retryTrendKeys :> string)
   }
 }
 
@@ -32,7 +32,7 @@ let customTooltipFormatter = (~title) => {
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
 
       let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: "", series: {name: ""}}
-      let primartPoint = this.points->getValueFromArray(0, defaultValue)
+      let primaryPoint = this.points->getValueFromArray(0, defaultValue)
       let line1Point = this.points->getValueFromArray(1, defaultValue)
       let line2Point = this.points->getValueFromArray(2, defaultValue)
       let line3Point = this.points->getValueFromArray(3, defaultValue)
@@ -50,9 +50,9 @@ let customTooltipFormatter = (~title) => {
       let tableItems =
         [
           getRowsHtml(
-            ~iconColor=primartPoint.color,
-            ~value=primartPoint.y,
-            ~name=primartPoint.series.name,
+            ~iconColor=primaryPoint.color,
+            ~value=primaryPoint.y,
+            ~name=primaryPoint.series.name,
             ~metricType=Amount,
           ),
           getRowsHtml(

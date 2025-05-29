@@ -2,15 +2,16 @@ open SmartRetryStrategyAnalyticsTypes
 
 let getStringFromVariant = (variant: smartRetryStatergyCols): string => {
   switch variant {
-  | TimeBucket => "time_bucket"
-  | SuccessRate => "success_rate"
-  | HadRetryAttempt => "had_retry_attempt"
-  | GroupId => "group_id"
-  | GroupName => "group_name"
-  | SuccessRateSeries => "success_rate_series"
-  | Category => "category"
-  | OverallSuccessRate => "overall_success_rate"
-  | GroupwiseData => "groupwise_data"
+  | TimeBucket => (#time_bucket: responseKeys :> string)
+  | SuccessRate => (#success_rate: responseKeys :> string)
+  | HadRetryAttempt => (#had_retry_attempt: responseKeys :> string)
+  | GroupId => (#group_id: responseKeys :> string)
+  | GroupName => (#group_name: responseKeys :> string)
+  | SuccessRateSeries => (#success_rate_series: responseKeys :> string)
+  | Category => (#category: responseKeys :> string)
+  | OverallSuccessRate => (#overall_success_rate: responseKeys :> string)
+  | GroupwiseData => (#groupwise_data: responseKeys :> string)
+  | ErrorCategoryAnalysis => (#error_category_analysis: responseKeys :> string)
   }
 }
 

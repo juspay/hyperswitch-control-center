@@ -3,9 +3,9 @@ open RetryStrategiesAnalyticsTypes
 
 let getTitleForColumn = (col: retrySummaryCols): string => {
   switch col {
-  | StaticRetries => "Static Retry Upliftss"
+  | StaticRetries => "Static Retry Uplifter"
   | SmartRetries => "Smart Retry Uplifts"
-  | SmartRetriesBooster => "Booster Retry Upliftsr"
+  | SmartRetriesBooster => "Booster Retry Uplifter"
   | AuthRatePercent => "Authorization Rate (%)"
   | DeltaPercent => "Delta (%)"
   | SoftDeclinesRecoveredPercent => "Soft Declines"
@@ -15,13 +15,13 @@ let getTitleForColumn = (col: retrySummaryCols): string => {
 
 let getStringFromVariant = (col: retrySummaryCols): string => {
   switch col {
-  | StaticRetries => "static_retries"
-  | SmartRetries => "smart_retries"
-  | SmartRetriesBooster => "smart_retries_booster"
-  | AuthRatePercent => "auth_rate_percent"
-  | DeltaPercent => "delta_percent"
-  | SoftDeclinesRecoveredPercent => "soft_declines_percent"
-  | HardDeclinesRecoveredPercent => "hard_declines_percent"
+  | StaticRetries => (#static_retries: response_keys :> string)
+  | SmartRetries => (#smart_retries: response_keys :> string)
+  | SmartRetriesBooster => (#smart_retries_booster: response_keys :> string)
+  | AuthRatePercent => (#auth_rate_percent: response_keys :> string)
+  | DeltaPercent => (#delta_percent: response_keys :> string)
+  | SoftDeclinesRecoveredPercent => (#soft_declines_percent: response_keys :> string)
+  | HardDeclinesRecoveredPercent => (#hard_declines_percent: response_keys :> string)
   }
 }
 

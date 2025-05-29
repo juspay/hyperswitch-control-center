@@ -1,5 +1,6 @@
 open InsightsTypes
 open RetriesComparisionAnalyticsUtils
+open RetriesComparisionAnalyticsTypes
 
 @react.component
 let make = (
@@ -27,7 +28,7 @@ let make = (
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
-        ->getObj("retry_attempts_trend", Dict.make())
+        ->getObj((#retry_attempts_trend: retryAttemptsTrendKeys :> string), Dict.make())
 
       let staticRetryData = primaryData->getArrayFromDict(StaticRetries->getStringFromVariant, [])
 
