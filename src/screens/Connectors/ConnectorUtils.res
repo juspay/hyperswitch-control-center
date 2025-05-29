@@ -94,6 +94,7 @@ let connectorList: array<connectorTypes> = [
   Processors(VOLT),
   Processors(WORLDLINE),
   Processors(WORLDPAY),
+  Processors(WORLDPAYXML),
   Processors(ZEN),
   Processors(ZSL),
   Processors(PLACETOPAY),
@@ -122,6 +123,7 @@ let connectorList: array<connectorTypes> = [
 let connectorListForLive: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
+  Processors(ARCHIPEL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -141,6 +143,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(PAYPAL),
   Processors(PAYBOX),
   Processors(PAYME),
+  Processors(REDSYS),
   Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
@@ -278,6 +281,10 @@ let airwallexInfo = {
 
 let worldpayInfo = {
   description: "Leading processor facilitating secure online and in-person payments with global coverage and a range of payment options.",
+}
+
+let worldpayxmlInfo = {
+  description: "Worldpay XML connector enables payment processing through Worldpay’s XML API, allowing seamless transaction requests and responses using structured XML messages.",
 }
 
 let cybersourceInfo = {
@@ -628,6 +635,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BLUESNAP => "bluesnap"
   | AIRWALLEX => "airwallex"
   | WORLDPAY => "worldpay"
+  | WORLDPAYXML => "worldpayxml"
   | CYBERSOURCE => "cybersource"
   | COINGATE => "coingate"
   | ELAVON => "elavon"
@@ -775,6 +783,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "bluesnap" => Processors(BLUESNAP)
     | "airwallex" => Processors(AIRWALLEX)
     | "worldpay" => Processors(WORLDPAY)
+    | "worldpayxml" => Processors(WORLDPAYXML)
     | "cybersource" => Processors(CYBERSOURCE)
     | "elavon" => Processors(ELAVON)
     | "coingate" => Processors(COINGATE)
@@ -903,6 +912,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | BLUESNAP => bluesnapInfo
   | AIRWALLEX => airwallexInfo
   | WORLDPAY => worldpayInfo
+  | WORLDPAYXML => worldpayxmlInfo
   | CYBERSOURCE => cybersourceInfo
   | COINGATE => coingateInfo
   | ELAVON => elavonInfo
@@ -1773,6 +1783,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BLUESNAP => "Bluesnap"
   | AIRWALLEX => "Airwallex"
   | WORLDPAY => "Worldpay"
+  | WORLDPAYXML => "Worldpay WPG"
   | CYBERSOURCE => "Cybersource"
   | COINGATE => "CoinGate"
   | ELAVON => "Elavon"

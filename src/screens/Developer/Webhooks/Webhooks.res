@@ -107,12 +107,7 @@ let make = () => {
       let totalCount = response->getDictFromJsonObject->getInt("total_count", 0)
       let events = response->getDictFromJsonObject->getArrayFromDict("events", [])
 
-      if !isWebhookUrlConfigured || events->Array.length <= 0 {
-        setScreenState(_ => Custom)
-      } else {
-        setData(~total=totalCount, ~data=events)
-        setScreenState(_ => Success)
-      }
+      setData(~total=totalCount, ~data=events)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }

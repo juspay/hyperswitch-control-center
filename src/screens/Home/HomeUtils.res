@@ -29,7 +29,7 @@ let isDefaultBusinessProfile = details => details->Array.length === 1
 module MerchantAuthInfo = {
   @react.component
   let make = () => {
-    let merchantDetailsValue = useMerchantDetailsValue()
+    let merchantDetailsValue = MerchantDetailsHook.useMerchantDetailsValue()
     let dataDict =
       [
         ("merchant_id", merchantDetailsValue.merchant_id->JSON.Encode.string),

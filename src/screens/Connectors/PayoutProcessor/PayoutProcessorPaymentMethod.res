@@ -100,7 +100,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
           <div className="flex gap-2 items-center">
             <GatewayIcon gateway={connector->String.toUpperCase} />
             <h2 className="text-xl font-semibold">
-              {connector->getDisplayNameForConnector->React.string}
+              {connector->getDisplayNameForConnector(~connectorType=PayoutProcessor)->React.string}
             </h2>
           </div>
           <div className="self-center">

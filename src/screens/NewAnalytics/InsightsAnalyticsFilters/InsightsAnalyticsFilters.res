@@ -7,6 +7,7 @@ open InsightsTypes
 module RefundsFilter = {
   @react.component
   let make = (~filterValueJson, ~dimensions, ~loadFilters, ~screenState, ~updateFilterContext) => {
+    open InsightsContainerUtils
     let startTimeVal = filterValueJson->getString("startTime", "")
     let endTimeVal = filterValueJson->getString("endTime", "")
     let (currencOptions, setCurrencOptions) = React.useState(_ => [])
@@ -16,7 +17,7 @@ module RefundsFilter = {
       dict->Dict.set((#currency: filters :> string), selectedCurrency.value)
       dict
     }
-
+    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     let responseHandler = json => {
       let options = json->getOptions
       setCurrencOptions(_ => options)
@@ -45,7 +46,11 @@ module RefundsFilter = {
 
     <PageLoaderWrapper screenState customLoader={<FilterLoader />}>
       <InsightsHelper.CustomDropDown
-        buttonText={selectedCurrency} options={currencOptions} setOption positionClass="left-0"
+        buttonText={selectedCurrency}
+        options={currencOptions}
+        setOption
+        positionClass="left-0"
+        disabled=isSampleDataEnabled
       />
     </PageLoaderWrapper>
   }

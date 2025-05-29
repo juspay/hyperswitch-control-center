@@ -244,6 +244,7 @@ let filterDateRangeField: (
   ~allowedDateRange: Calendar.dateObj=?,
   ~events: unit => unit=?,
   ~disable: bool=?,
+  ~customButtonStyle: string=?,
 ) => comboCustomInputRecord
 let filterCompareDateRangeField: (
   ~startKey: string,
@@ -266,6 +267,8 @@ let filterCompareDateRangeField: (
   ~compareWithStartTime: string,
   ~compareWithEndTime: string,
   ~disable: bool=?,
+  ~textStyle: string=?,
+  ~customButtonStyle: string=?,
 ) => comboCustomInputRecord
 let dateRangeField: (
   ~startKey: string,
@@ -325,5 +328,5 @@ let boolInput: (
   ~boolCustomClass: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
 let colorPickerInput: (
-  ~defaultValue: Js.String.t=?,
+  ~defaultValue: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
