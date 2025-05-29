@@ -391,25 +391,6 @@ let userManagement = userHasResourceAccess => {
     searchOptions: [("View user management", "")],
   })
 }
-
-let businessDetails = userHasResourceAccess => {
-  SubLevelLink({
-    name: "Business Details",
-    link: `/business-details`,
-    access: userHasResourceAccess(~resourceAccess=Account),
-    searchOptions: [("Configure business details", "")],
-  })
-}
-
-let businessProfiles = userHasResourceAccess => {
-  SubLevelLink({
-    name: "Business Profiles",
-    link: `/business-profiles`,
-    access: userHasResourceAccess(~resourceAccess=Account),
-    searchOptions: [("Configure business profiles", "")],
-  })
-}
-
 let configurePMTs = userHasResourceAccess => {
   SubLevelLink({
     name: "Configure PMTs",
@@ -429,11 +410,7 @@ let complianceCertificateSection = {
 }
 
 let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
-  let settingsLinkArray = [
-    //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
-    // businessDetails(userHasResourceAccess),
-    // businessProfiles(userHasResourceAccess),
-  ]
+  let settingsLinkArray = []
 
   if isConfigurePmtsEnabled {
     settingsLinkArray->Array.push(configurePMTs(userHasResourceAccess))->ignore
