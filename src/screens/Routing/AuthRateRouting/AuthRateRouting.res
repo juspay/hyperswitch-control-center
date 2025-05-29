@@ -30,7 +30,7 @@ let make = (
       Nullable.make(response)
     } catch {
     | _ => {
-        showToast(~message="Failed to get volume split data", ~toastType=ToastError)
+        showToast(~message="Failed to get volume split data!", ~toastType=ToastError)
         Nullable.null
       }
     }
@@ -48,10 +48,9 @@ let make = (
         ->getInt("split", 100)
 
       let values = response->formFieldsMapper(splitPercentage)->Identity.genericTypeToJson
-
       setInitialValues(_ => values)
     } catch {
-    | _ => showToast(~message="Failed to fetch details", ~toastType=ToastError)
+    | _ => showToast(~message="Failed to fetch details!", ~toastType=ToastError)
     }
   }
 
@@ -90,8 +89,10 @@ let make = (
       let response = await updateDetails(url, values, Patch)
       Nullable.make(response)
     } catch {
-    | _ => {
-        showToast(~message="Failed to update configs", ~toastType=ToastError)
+    | Exn.Error(e) => {
+        showToast(~message="Failed to update configs!", ~toastType=ToastError)
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        Exn.raiseError(err)->ignore
         Nullable.null
       }
     }
@@ -117,7 +118,6 @@ let make = (
         if message->String.includes("IR_16") {
           let message = isActivate ? "Algorithm is activated!" : "Algorithm is deactivated!"
           showToast(~message, ~toastType=ToastState.ToastSuccess)
-          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
           setScreenState(_ => Success)
         } else {
           let message = isActivate
@@ -128,6 +128,8 @@ let make = (
         }
       | None => setScreenState(_ => Error("Something went wrong"))
       }
+      let err = Exn.message(e)->Option.getOr("Something went wrong")
+      Exn.raiseError(err)->ignore
       Nullable.null
     }
   }
@@ -142,7 +144,11 @@ let make = (
       )
       let _ = await updateDetails(url, JSON.Encode.null, Post)
     } catch {
-    | _ => showToast(~message="Failed to set volume split", ~toastType=ToastError)
+    | Exn.Error(e) => {
+        showToast(~message="Failed to set volume split!", ~toastType=ToastError)
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        Exn.raiseError(err)->ignore
+      }
     }
   }
 
@@ -164,7 +170,7 @@ let make = (
       let _ = await setVolumeSplit(splitPercentage)
 
       showToast(
-        ~message="Successfully Created a new Configuration !",
+        ~message="Successfully Created a new Configuration!",
         ~toastType=ToastState.ToastSuccess,
       )
       setScreenState(_ => Success)
@@ -181,8 +187,9 @@ let make = (
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong!")
-      showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError)
+      showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError)
       setScreenState(_ => PageLoaderWrapper.Error(err))
+      Exn.raiseError(err)->ignore
       Nullable.null
     }
   }
@@ -196,7 +203,7 @@ let make = (
         ~id=activatingId,
       )
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
-      showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
+      showToast(~message="Successfully Activated!", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {

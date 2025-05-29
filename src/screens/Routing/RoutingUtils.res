@@ -167,8 +167,8 @@ module SaveAndActivateButton = {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson = onSubmitResponse->getValFromNullableValue(JSON.Encode.null)
         let currentActivatedId =
-          currentActivatedFromJson->getDictFromJsonObject->getString("id", "")
-        let _ = await handleActivateConfiguration(Some(currentActivatedId))
+          currentActivatedFromJson->getDictFromJsonObject->getOptionString("id")
+        let _ = await handleActivateConfiguration(currentActivatedId)
       } catch {
       | Exn.Error(e) =>
         let _ = Exn.message(e)->Option.getOr("Failed to save and activate configuration!")
