@@ -30,7 +30,7 @@ let make = (
       Nullable.make(response)
     } catch {
     | _ => {
-        showToast(~message="Failed to get volumne split data", ~toastType=ToastError)
+        showToast(~message="Failed to get volume split data", ~toastType=ToastError)
         Nullable.null
       }
     }
@@ -142,7 +142,7 @@ let make = (
       )
       let _ = await updateDetails(url, JSON.Encode.null, Post)
     } catch {
-    | _ => showToast(~message="Failed to set volumne split", ~toastType=ToastError)
+    | _ => showToast(~message="Failed to set volume split", ~toastType=ToastError)
     }
   }
 
