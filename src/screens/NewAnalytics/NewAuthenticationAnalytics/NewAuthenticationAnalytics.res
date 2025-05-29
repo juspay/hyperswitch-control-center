@@ -4,17 +4,21 @@ let make = () => {
   open LogicUtils
   open NewAuthenticationAnalyticsUtils
   open NewAuthenticationAnalyticsHelper
+  open NewAuthenticationAnalyticsEntity
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (queryData, setQueryData) = React.useState(_ => Dict.make()->itemToObjMapperForQueryData)
   let (funnelData, setFunnelData) = React.useState(_ => Dict.make()->itemToObjMapperForFunnelData)
-  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+  let {updateExistingKeys, updateFilterAsync, filterValueJson, filterValue} = React.useContext(
     FilterContext.filterContext,
   )
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
 
   let title = "Authentication Analytics"
   let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
@@ -54,7 +58,7 @@ let make = () => {
         ~methodType=Post,
       )
       let filterBody =
-        InsightsUtils.requestBody(
+        NewAuthenticationAnalyticsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
           ~groupByNames=Some(tabNames),
@@ -74,89 +78,113 @@ let make = () => {
   let getMetricsDetails = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let metricsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
-      let metricsRequestBody = InsightsUtils.requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
-        ~mode=Some("ORDER"),
-        ~metrics=[
-          #authentication_count,
-          #authentication_attempt_count,
-          #authentication_success_count,
-          #challenge_flow_count,
-          #frictionless_flow_count,
-          #frictionless_success_count,
-          #challenge_attempt_count,
-          #challenge_success_count,
-        ],
-        ~delta=Some(true),
-      )
+      if isSampleDataEnabled {
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        let paymentData =
+          paymentsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("authenticationLifeCycleData")
+          ->getDictFromJsonObject
+        setQueryData(_ => paymentData->itemToObjMapperForQueryData)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        let metricsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
+        let metricsRequestBody = NewAuthenticationAnalyticsUtils.requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
+          ~mode=Some("ORDER"),
+          ~metrics=[
+            #authentication_count,
+            #authentication_attempt_count,
+            #authentication_success_count,
+            #challenge_flow_count,
+            #frictionless_flow_count,
+            #frictionless_success_count,
+            #challenge_attempt_count,
+            #challenge_success_count,
+            // #authentication_exemption_accepted,
+            // #authentication_exemption_requested,
+          ],
+          ~delta=Some(true),
+        )
 
-      let metricsQueryResponse = await updateDetails(metricsUrl, metricsRequestBody, Post)
+        let metricsQueryResponse = await updateDetails(metricsUrl, metricsRequestBody, Post)
 
-      let queryDataArray =
-        metricsQueryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-        ->JSON.Encode.array
-        ->getArrayDataFromJson(itemToObjMapperForQueryData)
+        let queryDataArray =
+          metricsQueryResponse
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForQueryData)
 
-      let valueOfQueryData = queryDataArray->getValueFromArray(0, defaultQueryData)
-      setQueryData(_ => valueOfQueryData)
+        let valueOfQueryData = queryDataArray->getValueFromArray(0, defaultQueryData)
+        setQueryData(_ => valueOfQueryData)
 
-      let secondFunnelRequestBody = InsightsUtils.requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
-        ~metrics=[#authentication_funnel],
-        ~delta=Some(true),
-      )
+        let secondFunnelRequestBody = InsightsUtils.requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
+          ~metrics=[#authentication_funnel],
+          ~delta=Some(true),
+        )
 
-      let secondFunnelQueryResponse = await updateDetails(metricsUrl, secondFunnelRequestBody, Post)
+        let secondFunnelQueryResponse = await updateDetails(
+          metricsUrl,
+          secondFunnelRequestBody,
+          Post,
+        )
 
-      let authenticationInitiated = (
-        secondFunnelQueryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-        ->JSON.Encode.array
-        ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
-        ->getValueFromArray(0, defaultSecondFunnelData)
-      ).authentication_funnel
+        let authenticationInitiated = (
+          secondFunnelQueryResponse
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
+          ->getValueFromArray(0, defaultSecondFunnelData)
+        ).authentication_funnel
 
-      let updatedFilters = Js.Dict.map(t => t, getUpdatedFilterValueJson(filterValueJson))
-      updatedFilters->Dict.set(
-        "authentication_status",
-        ["success"->JSON.Encode.string, "failed"->JSON.Encode.string]->JSON.Encode.array,
-      )
+        let updatedFilters = Js.Dict.map(t => t, getUpdatedFilterValueJson(filterValueJson))
+        updatedFilters->Dict.set(
+          "authentication_status",
+          ["success"->JSON.Encode.string, "failed"->JSON.Encode.string]->JSON.Encode.array,
+        )
 
-      let thirdFunnelRequestBody = InsightsUtils.requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~filter=Some(updatedFilters->JSON.Encode.object),
-        ~metrics=[#authentication_funnel],
-        ~delta=Some(true),
-      )
+        let thirdFunnelRequestBody = InsightsUtils.requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~filter=Some(updatedFilters->JSON.Encode.object),
+          ~metrics=[#authentication_funnel],
+          ~delta=Some(true),
+        )
 
-      let thirdFunnelQueryResponse = await updateDetails(metricsUrl, thirdFunnelRequestBody, Post)
+        let thirdFunnelQueryResponse = await updateDetails(metricsUrl, thirdFunnelRequestBody, Post)
 
-      let authenticationAttempted = (
-        thirdFunnelQueryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-        ->JSON.Encode.array
-        ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
-        ->getValueFromArray(0, defaultSecondFunnelData)
-      ).authentication_funnel
+        let authenticationAttempted = (
+          thirdFunnelQueryResponse
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
+          ->getValueFromArray(0, defaultSecondFunnelData)
+        ).authentication_funnel
 
-      let funnelDict = Dict.make()->itemToObjMapperForFunnelData
-      funnelDict.authentication_initiated = authenticationInitiated
-      funnelDict.authentication_attemped = authenticationAttempted
-      funnelDict.payments_requiring_3ds_2_authentication = valueOfQueryData.authentication_count
-      funnelDict.authentication_successful = valueOfQueryData.authentication_success_count
+        let funnelDict = Dict.make()->itemToObjMapperForFunnelData
+        funnelDict.authentication_initiated = authenticationInitiated
+        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.payments_requiring_3ds_2_authentication = valueOfQueryData.authentication_count
+        funnelDict.authentication_successful = valueOfQueryData.authentication_success_count
 
-      setFunnelData(_ => funnelDict)
-      setScreenState(_ => PageLoaderWrapper.Success)
+        setFunnelData(_ => funnelDict)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -229,9 +257,22 @@ let make = () => {
       />
     </div>
   }
-
+  let applySampleDateFilters = async isSampleDateEnabled => {
+    try {
+      setScreenState(_ => Loading)
+      let values = NewAuthenticationAnalyticsUtils.getSampleDateRange(
+        ~useSampleDates=isSampleDateEnabled,
+      )
+      values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
+      let _ = await updateFilterAsync(~delay=1000, values)
+      setScreenState(_ => Success)
+    } catch {
+    | _ => setScreenState(_ => Success)
+    }
+  }
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
     <div>
+      <NewAuthenticationAnalyticsHelper.SampleDataBanner applySampleDateFilters />
       <PageUtils.PageHeading title />
       <div className="flex justify-end mr-4">
         <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
@@ -243,13 +284,15 @@ let make = () => {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {getMetricsData(queryData)
         ->Array.mapWithIndex((metric, index) =>
-          <Card
-            key={index->Int.toString}
-            title={metric.title}
-            value={metric.value}
-            valueType={metric.valueType}
-            description={metric.tooltip_description}
-          />
+          <RenderIf condition={index <= 6}>
+            <StatCard
+              key={index->Int.toString}
+              title={metric.title}
+              value={metric.value}
+              valueType={metric.valueType}
+              description={metric.tooltip_description}
+            />
+          </RenderIf>
         )
         ->React.array}
       </div>
@@ -268,6 +311,39 @@ let make = () => {
         </div>
       </RenderIf>
       <Insights />
+      <hr className="w-full mt-6" />
+      <div className="my-4">
+        <SimpleHeader title="3DS Exemption Analytics" />
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {getMetricsData(queryData)
+        ->Array.mapWithIndex((metric, index) =>
+          <RenderIf condition={index > 6}>
+            <StatCard
+              key={index->Int.toString}
+              title={metric.title}
+              value={metric.value}
+              valueType={metric.valueType}
+              description={metric.tooltip_description}
+            />
+          </RenderIf>
+        )
+        ->React.array}
+      </div>
+      <SCAExemptionAnalytics entity={scaExemptionEntity} chartEntity={scaExemptionChartEntity} />
+      <div className="grid grid-cols-2 gap-6 mt-6">
+        <AuthenticationSuccess
+          entity={authenticationSuccessEntity} chartEntity={authenticationSuccessChartEntity}
+        />
+        <UserDropOffRate entity={userDropOffRateEntity} chartEntity={userDropOffRateChartEntity} />
+        <ExemptionApprovalRate
+          entity={exemptionApprovalRateEntity} chartEntity={exemptionApprovalRateChartEntity}
+        />
+        <ExemptionRequestRate
+          entity={exemptionRequestRateEntity} chartEntity={exemptionRequestRateChartEntity}
+        />
+      </div>
+      <AuthenticationSummary />
     </div>
   </PageLoaderWrapper>
 }
