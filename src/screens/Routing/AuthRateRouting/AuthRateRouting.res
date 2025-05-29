@@ -30,7 +30,7 @@ let make = (
       Nullable.make(response)
     } catch {
     | _ => {
-        showToast(~message="Failed to get volumne split data", ~toastType=ToastError)
+        showToast(~message="Failed to get volume split data", ~toastType=ToastError)
         Nullable.null
       }
     }
