@@ -7,13 +7,24 @@ external toWasm: Dict.t<JSON.t> => RoutingTypes.wasmModule = "%identity"
 
 module Add3DSCondition = {
   @react.component
-  let make = (~isFirst, ~id, ~isExpanded, ~threeDsType) => {
+  let make = (~isFirst, ~id, ~isExpanded, ~threeDsType, ~isFrom3dsIntelligence=false) => {
     let classStyle = "flex justify-center relative py-2 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
 
-    let options: array<SelectBox.dropdownOption> = [
-      {value: "three_ds", label: "3DS"},
-      {value: "no_three_ds", label: "No 3DS"},
-    ]
+    let options: array<SelectBox.dropdownOption> = if isFrom3dsIntelligence {
+      [
+        {value: "no_three_ds", label: "Request No-3DS"},
+        {value: "challenge_requested", label: "Mandate 3DS Challenge"},
+        {value: "challenge_preferred", label: "Prefer 3DS Challenge"},
+        {value: "three_ds_exemption_requested_tra", label: "Request 3DS Exemption, Type: TRA"},
+        {
+          value: "three_ds_exemption_requested_low_value",
+          label: "Request 3DS Exemption, Type: Low Value Transaction",
+        },
+        {value: "issuer_three_ds_exemption_requested", label: "No challenge requested"},
+      ]
+    } else {
+      [{value: "three_ds", label: "3DS"}, {value: "no_three_ds", label: "No 3DS"}]
+    }
 
     if isExpanded {
       <div className="flex flex-row ml-2">
@@ -148,6 +159,7 @@ module Wrapper = {
     ~wasm,
     ~isFrom3ds=false,
     ~isFromSurcharge=false,
+    ~isFrom3dsIntelligence=false,
   ) => {
     let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
     let showToast = ToastState.useShowToast()
@@ -190,7 +202,7 @@ module Wrapper = {
       )
 
     let handleClickExpand = _ => {
-      if isFrom3ds {
+      if isFrom3ds || isFrom3dsIntelligence {
         if threeDsType->String.length > 0 {
           setIsExpanded(p => !p)
         } else {
@@ -291,13 +303,15 @@ module Wrapper = {
             ${border} 
             ${borderColor.primaryNormal}`}>
         <RenderIf condition={!isFirst}>
-          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
+          <AdvancedRoutingUIUtils.MakeRuleField
+            id isExpanded wasm isFrom3ds isFromSurcharge isFrom3dsIntelligence
+          />
         </RenderIf>
-        <RenderIf condition={!isFrom3ds && !isFromSurcharge}>
+        <RenderIf condition={!isFrom3ds && !isFromSurcharge && !isFrom3dsIntelligence}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
         </RenderIf>
-        <RenderIf condition={isFrom3ds}>
-          <Add3DSCondition isFirst id isExpanded threeDsType />
+        <RenderIf condition={isFrom3ds || isFrom3dsIntelligence}>
+          <Add3DSCondition isFirst id isExpanded threeDsType isFrom3dsIntelligence />
         </RenderIf>
         <RenderIf condition={isFromSurcharge}>
           <AddSurchargeCondition
