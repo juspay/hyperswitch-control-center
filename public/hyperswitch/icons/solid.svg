@@ -10140,4 +10140,9 @@ License)
       stroke-linejoin="round"
     />
   </symbol>
+  <symbol id="nd-angle-up" viewBox="0 0 10 6" fill="none">
+    <path
+      d="M1 5C2.05134 3.54614 3.28196 2.2424 4.65992 1.12189C4.85978 0.95937 5.14022 0.95937 5.34008 1.12189C6.71804 2.2424 7.94866 3.54614 9 5"
+      stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
+  </symbol>
 </svg>
