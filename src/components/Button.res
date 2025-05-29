@@ -632,7 +632,7 @@ let make = (
             e->ReactEvent.Keyboard.preventDefault
           }
         }}
-        className={`flex group ${customButtonStyle} ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}   ${cursorType} ${paddingClass} ${lengthStyle}   ${customTextOverFlowClass} ${textColor} ${customWidthClass} ${customHeightClass}`}
+        className={`flex group ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}   ${cursorType} ${paddingClass} ${lengthStyle}   ${customTextOverFlowClass} ${textColor} ${customWidthClass} ${customHeightClass} ${customButtonStyle}`}
         onClick=handleClick>
         {if buttonState == Loading {
           <span className={iconPadding}>
@@ -670,7 +670,7 @@ let make = (
                 </div>
               </AddDataAttributes>
 
-            if showBtnTextToolTip {
+            if showBtnTextToolTip && !showTooltip {
               <div className=ellipsisParentClass>
                 <ToolTip
                   description={tooltipText->Option.getOr("")}

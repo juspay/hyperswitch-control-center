@@ -14,18 +14,26 @@ let dataTypeVariantToString = dataType =>
 
 let sections = [
   {
-    id: "analyze",
+    id: (#analyze: sections :> string),
     name: "Choose Your Data Source",
     icon: "nd-shield",
     subSections: None,
   },
   {
-    id: "review",
+    id: (#review: sections :> string),
     name: "Review Data Summary",
     icon: "nd-flag",
     subSections: None,
   },
 ]
+
+let stringToSectionVariantMapper = string => {
+  switch string {
+  | "analyze" => #analyze
+  | "review" => #review
+  | _ => #analyze
+  }
+}
 
 let getFileTypeHeading = fileType => {
   switch fileType {
@@ -171,3 +179,24 @@ let getFileData = json => {
     stats: IntelligentRoutingReviewFieldsEntity.itemToObjMapper(stats),
   }
 }
+
+let getDisplayFileSize = fileSize =>
+  if fileSize / 1024 / 1024 > 1 {
+    `${(fileSize / 1024 / 1024)->Int.toString} MB`
+  } else if fileSize / 1024 > 1 {
+    ` ${(fileSize / 1024)->Int.toString} KB`
+  } else {
+    `${fileSize->Int.toString} B`
+  }
+
+let getFileName = file =>
+  switch file {
+  | Some(file) => file["name"]
+  | None => "No file selected"
+  }
+
+let getFileSize = file =>
+  switch file {
+  | Some(file) => file["size"]
+  | None => 0
+  }

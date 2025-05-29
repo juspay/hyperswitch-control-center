@@ -123,6 +123,7 @@ let connectorList: array<connectorTypes> = [
 let connectorListForLive: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
+  Processors(ARCHIPEL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -1782,7 +1783,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BLUESNAP => "Bluesnap"
   | AIRWALLEX => "Airwallex"
   | WORLDPAY => "Worldpay"
-  | WORLDPAYXML => "Worldpay XML"
+  | WORLDPAYXML => "Worldpay WPG"
   | CYBERSOURCE => "Cybersource"
   | COINGATE => "CoinGate"
   | ELAVON => "Elavon"

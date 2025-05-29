@@ -200,37 +200,40 @@ let headers = switch version {
 
 ### V1 vs V2 Payment Endpoints
 
-| Feature | V1 | V2 |
-|---------|----|----|
-| Base Path | `/payments` | `/v2/payments` |
-| List Endpoint | `/payments/list` | `/v2/payments/list` |
-| Filters | `/payments/v2/filter` | `/v2/payments/profile/filter` |
-| Response Format | Nested response | Flattened response |
-| Pagination | Simple limit/offset | Cursor-based pagination |
-| Field Names | `created_at` | `created_at_time` |
+| Feature         | V1                    | V2                            |
+| --------------- | --------------------- | ----------------------------- |
+| Base Path       | `/payments`           | `/v2/payments`                |
+| List Endpoint   | `/payments/list`      | `/v2/payments/list`           |
+| Filters         | `/payments/v2/filter` | `/v2/payments/profile/filter` |
+| Response Format | Nested response       | Flattened response            |
+| Pagination      | Simple limit/offset   | Cursor-based pagination       |
+| Field Names     | `created_at`          | `created_at_time`             |
 
 ### V1 vs V2 Connector Endpoints
 
-| Feature | V1 | V2 |
-|---------|----|----|
-| Base Path | `/account/{merchantId}/connectors` | `/v2/connector-accounts` |
+| Feature       | V1                                         | V2                                            |
+| ------------- | ------------------------------------------ | --------------------------------------------- |
+| Base Path     | `/account/{merchantId}/connectors`         | `/v2/connector-accounts`                      |
 | List Endpoint | `/account/{merchantId}/profile/connectors` | `/v2/profiles/{profileId}/connector-accounts` |
-| Configuration | Nested config | Structured config |
-| Metadata | Limited | Enhanced metadata support |
+| Configuration | Nested config                              | Structured config                             |
+| Metadata      | Limited                                    | Enhanced metadata support                     |
 
 ## Migration Strategy
 
 When migrating from V1 to V2 endpoints:
 
 1. **Gradual Adoption**
+
    - New features should use V2 endpoints
    - Existing features can migrate incrementally
 
 2. **Dual Support Period**
+
    - Both V1 and V2 endpoints are maintained during transition
    - Feature flags can control which version is used
 
 3. **Component Updates**
+
    - Update entity types from `V1(ENTITY)` to `V2(V2_ENTITY)`
    - Update response handling for any format changes
 
@@ -301,22 +304,27 @@ let response = await updateMethod(url, body, Post, ~version=UserInfoTypes.V2)
 ## Best Practices
 
 1. **Use Type Safety**
+
    - Always use the appropriate entity type (V1 or V2)
    - Leverage ReScript's type system to catch errors
 
 2. **Version Consistency**
+
    - For a given feature, use the same API version throughout
    - Don't mix V1 and V2 endpoints for the same functionality
 
 3. **Response Format Awareness**
+
    - Be aware of response format differences between versions
    - Update data extraction patterns accordingly
 
 4. **Error Handling Adaptation**
+
    - Check for version-specific error formats
    - Update error handling logic as needed
 
 5. **Testing Migration**
+
    - Test endpoints in both versions before migrating
    - Compare responses to ensure compatibility
 

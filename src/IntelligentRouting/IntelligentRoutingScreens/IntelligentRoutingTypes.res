@@ -3,6 +3,8 @@ type timeRange = {
   maxDate: string,
 }
 
+type sections = [#analyze | #review]
+
 type dataType = Historical | Realtime
 type file = Sample | Upload
 type realtime = StreamLive
