@@ -59,6 +59,13 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
           let fileReader = FileReader.reader
           fileReader.readAsArrayBuffer(value)
 
+          fileReader.onerror = _ => {
+            showToast(~message="Error reading file. Please try again.", ~toastType=ToastError)
+            setFile(_ => None)
+            setFileUInt8Array(_ => Js.TypedArray2.Uint8Array.make([]))
+            setUpload(_ => false)
+          }
+
           fileReader.onload = e => {
             let target = ReactEvent.Form.target(e)
             switch target["result"]->Nullable.toOption {
@@ -67,17 +74,25 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
               let config = Window.getDefaultConfig()
               let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
 
-              let dict = Window.validateExtract(uint8array, config, metadata)
-              let data = getFileData(dict)
+              try {
+                let dict = Window.validateExtract(uint8array, config, metadata)
+                let data = getFileData(dict)
 
-              setFileUInt8Array(_ => data.data)
-              setReviewFields(_ => data.stats)
-              setUpload(_ => true)
+                setFileUInt8Array(_ => data.data)
+                setReviewFields(_ => data.stats)
+                setUpload(_ => true)
+              } catch {
+              | _ =>
+                showToast(~message="Invalid file. Please try again.", ~toastType=ToastError)
+                setFileUInt8Array(_ => Js.TypedArray2.Uint8Array.make([]))
+                setUpload(_ => false)
+              }
             | None =>
               showToast(~message="Failed to read file. Please try again.", ~toastType=ToastError)
               setFile(_ => None)
             }
           }
+
           setFile(_ => Some(value))
         }
       | None =>

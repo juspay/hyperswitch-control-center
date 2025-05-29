@@ -9,7 +9,7 @@ type read = {
   readAsArrayBuffer: file => unit,
   readAsDataURL: file => unit,
   result: string,
-  onerror: string => unit,
+  mutable onerror: string => unit,
 }
 
 @new external reader: read = "FileReader"
