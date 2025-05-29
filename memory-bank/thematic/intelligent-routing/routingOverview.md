@@ -23,7 +23,7 @@ graph TD
     A --> C[IntelligentRoutingScreens]
     B --> D[Backend API Interaction]
     C --> E[UI Components]
-    
+
     F[Rule Definitions] --> B
     F --> C
 ```
@@ -76,6 +76,7 @@ The routing configuration UI allows:
 - Activating and deactivating routing configurations
 
 Example rule definition structure:
+
 ```rescript
 type routingCondition = {
   field: string,
@@ -118,18 +119,18 @@ Routing performance is monitored through:
 
 The Intelligent Routing module interacts with several backend endpoints:
 
-| Endpoint | Purpose | Method |
-|----------|---------|--------|
-| `/routing/list/profile` | List routing configurations | GET |
-| `/routing/{id}` | Get specific routing configuration | GET |
-| `/routing` | Create routing configuration | POST |
-| `/routing/{id}/activate` | Activate a routing configuration | POST |
-| `/routing/active` | Get currently active configuration | GET |
-| `/routing/default` | Get default fallback configuration | GET |
-| `/dynamic-routing/simulate/{merchantId}` | Simulate routing for a transaction | GET |
-| `/dynamic-routing/simulate/{merchantId}/get-records` | Get simulation records | GET |
-| `/dynamic-routing/simulate/{merchantId}/get-statistics` | Get simulation statistics | GET |
-| `/dynamic-routing/baseline-review-fields` | Get fields available for routing rules | GET |
+| Endpoint                                                | Purpose                                | Method |
+| ------------------------------------------------------- | -------------------------------------- | ------ |
+| `/routing/list/profile`                                 | List routing configurations            | GET    |
+| `/routing/{id}`                                         | Get specific routing configuration     | GET    |
+| `/routing`                                              | Create routing configuration           | POST   |
+| `/routing/{id}/activate`                                | Activate a routing configuration       | POST   |
+| `/routing/active`                                       | Get currently active configuration     | GET    |
+| `/routing/default`                                      | Get default fallback configuration     | GET    |
+| `/dynamic-routing/simulate/{merchantId}`                | Simulate routing for a transaction     | GET    |
+| `/dynamic-routing/simulate/{merchantId}/get-records`    | Get simulation records                 | GET    |
+| `/dynamic-routing/simulate/{merchantId}/get-statistics` | Get simulation statistics              | GET    |
+| `/dynamic-routing/baseline-review-fields`               | Get fields available for routing rules | GET    |
 
 ## User Journeys
 
@@ -140,7 +141,7 @@ sequenceDiagram
     actor Merchant
     participant UI as Routing UI
     participant API as Routing API
-    
+
     Merchant->>UI: Navigate to Routing
     Merchant->>UI: Create New Rule
     UI->>Merchant: Display Rule Editor
@@ -162,7 +163,7 @@ sequenceDiagram
     actor Merchant
     participant UI as Simulation UI
     participant API as Simulation API
-    
+
     Merchant->>UI: Navigate to Routing Simulation
     Merchant->>UI: Configure Test Transaction
     UI->>API: GET /dynamic-routing/simulate/{merchantId}
@@ -177,16 +178,16 @@ sequenceDiagram
 
 ## Feature Implementation Status
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Basic Rule Creation | Complete | Core rule creation and editing |
-| Rule Activation | Complete | Mechanism to activate configurations |
-| Simulation | Complete | Basic simulation capabilities |
-| Volume-Based Routing | Complete | Percentage-based distribution |
-| Rule-Based Routing | Complete | Condition-based routing |
-| Cascading Routing | Complete | Fallback routing support |
-| Smart Routing | In Progress | Dynamic adjustment based on performance |
-| Performance Analytics | In Progress | Extended metrics and analysis |
+| Feature               | Status      | Notes                                   |
+| --------------------- | ----------- | --------------------------------------- |
+| Basic Rule Creation   | Complete    | Core rule creation and editing          |
+| Rule Activation       | Complete    | Mechanism to activate configurations    |
+| Simulation            | Complete    | Basic simulation capabilities           |
+| Volume-Based Routing  | Complete    | Percentage-based distribution           |
+| Rule-Based Routing    | Complete    | Condition-based routing                 |
+| Cascading Routing     | Complete    | Fallback routing support                |
+| Smart Routing         | In Progress | Dynamic adjustment based on performance |
+| Performance Analytics | In Progress | Extended metrics and analysis           |
 
 ## Best Practices
 
@@ -220,7 +221,7 @@ let make = () => {
   let getURL = APIUtils.useGetURL()
   let updateMethod = APIUtils.useUpdateMethod()
   let (rule, setRule) = React.useState(_ => initialRuleState)
-  
+
   let saveRule = async () => {
     try {
       let url = getURL(~entityName=V1(ROUTING), ~methodType=Post)
@@ -230,7 +231,7 @@ let make = () => {
     | _ => // Handle error
     }
   }
-  
+
   <RoutingRuleEditorScreen
     rule
     onRuleChange={newRule => setRule(_ => newRule)}
@@ -242,14 +243,17 @@ let make = () => {
 ## Common Challenges and Solutions
 
 1. **Complex Rule Interactions**
+
    - **Challenge**: Rules may have unexpected interactions when combined
    - **Solution**: Simulation tools to visualize and test rule outcomes
 
 2. **Performance Monitoring**
+
    - **Challenge**: Determining if routing is actually improving performance
    - **Solution**: Detailed analytics comparing routing strategies
 
 3. **Processor-Specific Limitations**
+
    - **Challenge**: Different processors have different capabilities
    - **Solution**: Processor capability matrix in the UI for guidance
 

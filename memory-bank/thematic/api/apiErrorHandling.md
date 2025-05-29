@@ -158,6 +158,7 @@ The API returns errors in a consistent format:
 ```
 
 Key fields:
+
 - `type`: General error category
 - `code`: Specific error code (e.g., "HE_01")
 - `message`: Human-readable error message
@@ -191,11 +192,11 @@ For 401 errors, the system handles session expiration:
   if !sessionExpired.contents {
     // Show warning toast
     showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
-    
+
     // Perform logout and redirect
     handleLogout()->ignore
     AuthUtils.redirectToLogin()
-    
+
     // Set flag to prevent duplicate handling
     sessionExpired := true
   }
@@ -272,6 +273,7 @@ showToast(
 ```
 
 Toast types:
+
 - `ToastError`: For critical errors
 - `ToastWarning`: For warnings like session expiration
 - `ToastInfo`: For informational messages
@@ -307,10 +309,10 @@ let sessionExpired = ref(false)
 // Session expiration handling
 if !sessionExpired.contents {
   showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
-  
+
   handleLogout()->ignore
   AuthUtils.redirectToLogin()
-  
+
   sessionExpired := true
 }
 ```
@@ -351,7 +353,7 @@ try {
       }
     | None => "Unknown error"
     }
-    
+
     setError(_ => Some(errorMsg))
   }
 }
@@ -395,14 +397,14 @@ switch errorCode->CommonAuthUtils.errorSubCodeMapper {
 
 Common error codes:
 
-| Code | Description | Handling |
-|------|-------------|----------|
-| HE_01 | General error | Display message |
-| HE_02 | Resource not found | Redirect to home |
-| UR_33 | Permission error | Redirect to home |
-| AU_01 | Authentication error | Show login prompt |
-| AU_02 | Session expired | Logout and redirect |
-| VA_01 | Validation error | Highlight form field |
+| Code  | Description          | Handling             |
+| ----- | -------------------- | -------------------- |
+| HE_01 | General error        | Display message      |
+| HE_02 | Resource not found   | Redirect to home     |
+| UR_33 | Permission error     | Redirect to home     |
+| AU_01 | Authentication error | Show login prompt    |
+| AU_02 | Session expired      | Logout and redirect  |
+| VA_01 | Validation error     | Highlight form field |
 
 ## Playground Mode Error Handling
 
@@ -585,7 +587,7 @@ try {
       let errorJson = JSON.parse(msg)
       let errorObj = errorJson->getDictFromJsonObject
       let fieldErrors = errorObj->getObj("details", Dict.make())
-      
+
       // Set field-specific errors
       setFieldErrors(_ => fieldErrors)
     } catch {
@@ -609,7 +611,7 @@ try {
     if msg->Js.String2.includes("401") || msg->Js.String2.includes("unauthorized") {
       // Save current state or work
       LocalStorage.setItem("saved_draft", JSON.stringify(currentDraft))
-      
+
       // The system will handle logout and redirect
     } else {
       // Handle other errors
@@ -674,7 +676,7 @@ try {
     if msg->Js.String2.includes("500") || msg->Js.String2.includes("server error") {
       // Show temporary outage message
       setServerDown(_ => true)
-      
+
       // Schedule retry
       let _ = Js.Global.setTimeout(() => {
         fetchData()->ignore
