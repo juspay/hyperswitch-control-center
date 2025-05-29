@@ -238,6 +238,7 @@ module.exports = {
           840: "#303E5F",
           background_blue: "#EAEEF9",
           info_blue_background: "#F6F8FA",
+          light: "#5AAAE3",
         },
         grey: {
           0: "#FEFEFE",
@@ -281,6 +282,7 @@ module.exports = {
           warning_background_orange: "#eea2361a",
           warning_text_orange: "#EEA236",
           status: "#D99530",
+          light: "#E9BE74",
         },
         red: {
           DEFAULT: "#FF0000",
@@ -296,6 +298,7 @@ module.exports = {
           dark: "#F04E42",
           light: "#FEEDEC",
           status: "#DD2B0E",
+          light: "#F8B3AA",
         },
         "yellow-bg": "#F7D59B4D",
         "profile-sidebar-blue": "#16488F",

@@ -8,9 +8,9 @@ module LegendItem = {
   @react.component
   let make = (~value, ~itemType: authRateSummaryCols) => {
     let bgColor = switch itemType {
-    | SuccessOrdersPercentage => "bg-[#5AAAE3]"
-    | SoftDeclinesPercentage => "bg-[#E9BE74]"
-    | HardDeclinesPercentage | _ => "bg-[#F8B3AA]"
+    | SuccessOrdersPercentage => "bg-blue-light"
+    | SoftDeclinesPercentage => "bg-orange-light"
+    | HardDeclinesPercentage | _ => "bg-red-light"
     }
 
     <div className="flex items-center space-x-2">
