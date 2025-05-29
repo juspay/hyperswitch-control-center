@@ -421,6 +421,7 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
   }
 
   settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
+
   Section({
     name: "Settings",
     icon: "nd-settings",
