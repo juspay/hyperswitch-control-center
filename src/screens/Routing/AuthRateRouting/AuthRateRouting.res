@@ -142,7 +142,7 @@ let make = (
       )
       let _ = await updateDetails(url, JSON.Encode.null, Post)
     } catch {
-    | _ => showToast(~message="Failed to set volumne split", ~toastType=ToastError)
+    | _ => showToast(~message="Failed to set volume split", ~toastType=ToastError)
     }
   }
 
