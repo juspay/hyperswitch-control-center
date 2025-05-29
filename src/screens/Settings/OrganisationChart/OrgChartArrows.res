@@ -104,7 +104,7 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
 
   let updatePaths = () => {
     let newPaths = []
-    switch findElementById(`org-${selectedOrg}`) {
+    switch findElementById(`${selectedOrg}`) {
     | Some(selectedOrgEl) =>
       switch selectedOrgEl
       //getting parent container
@@ -114,7 +114,7 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
           let containerRect = container->getBoundingClientRect
           // Helper to create org->merchant path
           let createOrgToMerchantPath = (~merchantId, ~color, ~strokeWidth, ~opacity) => {
-            switch findElementById(`merchant-${merchantId}`) {
+            switch findElementById(`${merchantId}`) {
             | Some(merchantEl) =>
               switch (
                 selectedOrgEl->getElementAnchor(#right),
@@ -171,11 +171,11 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
 
           // Draw merchant->profile connections ONLY if profiles are loaded and selectedProfile exists
           if Array.length(profileList) > 0 && selectedProfileExists {
-            switch findElementById(`merchant-${selectedMerchant}`) {
+            switch findElementById(`${selectedMerchant}`) {
             | Some(selectedMerchantEl) =>
               // Helper to create merchant->profile path
               let createMerchantToProfilePath = (~profileId, ~color, ~strokeWidth, ~opacity) => {
-                switch findElementById(`profile-${profileId}`) {
+                switch findElementById(`${profileId}`) {
                 | Some(profileEl) =>
                   switch (
                     selectedMerchantEl->getElementAnchor(#right),
@@ -255,12 +255,12 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
       let hasData = Array.length(merchantList) > 0 && Array.length(profileList) > 0
 
       // Check if required elements exist
-      let selectedOrgExists = findElementById(`org-${selectedOrg}`)->Option.isSome
-      let selectedMerchantExists = findElementById(`merchant-${selectedMerchant}`)->Option.isSome
+      let selectedOrgExists = findElementById(`${selectedOrg}`)->Option.isSome
+      let selectedMerchantExists = findElementById(`${selectedMerchant}`)->Option.isSome
 
       // For profiles, we need to be more flexible - either selectedProfile exists OR we have some profiles
       let profilesReady = if selectedProfileExists {
-        findElementById(`profile-${selectedProfile}`)->Option.isSome
+        findElementById(`${selectedProfile}`)->Option.isSome
       } else {
         // If selectedProfile doesn't exist in current list, just check if we have profiles
         Array.length(profileList) > 0

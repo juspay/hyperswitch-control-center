@@ -25,7 +25,7 @@ module OrgChartTree = {
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
             onClick={_ => onOrgSelect(org)}
-            id={`org-${org.id}`}>
+            id={`${org.id}`}>
             {org.name->React.string}
           </button>
         })
@@ -42,7 +42,7 @@ module OrgChartTree = {
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
             onClick={_ => onMerchantSelect(merchant)}
-            id={`merchant-${merchant.id}`}>
+            id={`${merchant.id}`}>
             <span className="truncate whitespace-wrap "> {merchant.name->React.string} </span>
             {switch merchant.productType {
             | Some(product) =>
@@ -67,7 +67,7 @@ module OrgChartTree = {
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
             onClick={_ => onProfileSelect(profile)}
-            id={`profile-${profile.id}`}>
+            id={`${profile.id}`}>
             {profile.name->React.string}
           </button>
         )
