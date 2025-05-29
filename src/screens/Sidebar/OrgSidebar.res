@@ -318,7 +318,9 @@ let make = () => {
       setMaxVisibleOrgs(_ => calculated)
     }
     calculateMaxOrgs()
-    None
+    let handler = _ => calculateMaxOrgs()
+    Window.addEventListener("resize", handler) //for window resize cases
+    Some(() => Window.removeEventListener("resize", handler))
   }, [])
 
   let visibleOrgList = if showAllOrgs {
