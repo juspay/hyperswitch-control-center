@@ -7,9 +7,6 @@ module OrgChartTree = {
     ~onOrgSelect,
     ~onMerchantSelect,
     ~onProfileSelect,
-    ~orgColumnRef,
-    ~merchantColumnRef,
-    ~profileColumnRef,
   ) => {
     open Typography
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
@@ -17,7 +14,7 @@ module OrgChartTree = {
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16 w-full py-8">
-      <div className="flex flex-col gap-4" ref={orgColumnRef}>
+      <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Organization")} </div>
         {orgList
         ->Array.mapWithIndex((org, i) => {
@@ -27,14 +24,14 @@ module OrgChartTree = {
                 org.id
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
-            onClick={_ => onOrgSelect(org)->ignore}
+            onClick={_ => onOrgSelect(org)}
             id={`org-${org.id}`}>
             {org.name->React.string}
           </button>
         })
         ->React.array}
       </div>
-      <div className="flex flex-col gap-4" ref={merchantColumnRef}>
+      <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Merchant")} </div>
         {merchantList
         ->Array.map(merchant =>
@@ -44,7 +41,7 @@ module OrgChartTree = {
                 merchant.id
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
-            onClick={_ => onMerchantSelect(merchant)->ignore}
+            onClick={_ => onMerchantSelect(merchant)}
             id={`merchant-${merchant.id}`}>
             <span> {merchant.name->React.string} </span>
             {switch merchant.productType {
@@ -59,7 +56,7 @@ module OrgChartTree = {
         )
         ->React.array}
       </div>
-      <div className="flex flex-col gap-4" ref={profileColumnRef}>
+      <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Profile")} </div>
         {profileList
         ->Array.map(profile =>
@@ -69,7 +66,7 @@ module OrgChartTree = {
                 profile.id
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
-            onClick={_ => onProfileSelect(profile)->ignore}
+            onClick={_ => onProfileSelect(profile)}
             id={`profile-${profile.id}`}>
             {profile.name->React.string}
           </button>
@@ -89,37 +86,20 @@ let make = () => {
   let (selectedMerchant, setSelectedMerchant) = React.useState(() => merchantId)
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)
 
-  // Refs for getting actual element positions
-  let orgColumnRef = ref(Nullable.null)
-  let merchantColumnRef = ref(Nullable.null)
-  let profileColumnRef = ref(Nullable.null)
-  let orgColumnDomRef = React.useRef(Nullable.null)
-  let merchantColumnDomRef = React.useRef(Nullable.null)
-  let profileColumnDomRef = React.useRef(Nullable.null)
-
-  // Sync OCaml refs with React refs
-  React.useLayoutEffect3(() => {
-    orgColumnRef := orgColumnDomRef.current
-    merchantColumnRef := merchantColumnDomRef.current
-    profileColumnRef := profileColumnDomRef.current
-    None
-  }, (orgColumnDomRef.current, merchantColumnDomRef.current, profileColumnDomRef.current))
-
-  let onOrgSelect = async (org: OMPSwitchTypes.ompListTypes) => {
+  let onOrgSelect = (org: OMPSwitchTypes.ompListTypes) => {
     setSelectedOrg(_ => org.id)
-    await internalSwitch(~expectedOrgId=Some(org.id))
+    internalSwitch(~expectedOrgId=Some(org.id))->ignore
   }
 
-  let onMerchantSelect = async (merchant: OMPSwitchTypes.ompListTypes) => {
+  let onMerchantSelect = (merchant: OMPSwitchTypes.ompListTypes) => {
     setSelectedMerchant(_ => merchant.id)
-    await internalSwitch(~expectedMerchantId=Some(merchant.id))
+    internalSwitch(~expectedMerchantId=Some(merchant.id))->ignore
   }
 
-  let onProfileSelect = async (profile: OMPSwitchTypes.ompListTypes) => {
+  let onProfileSelect = (profile: OMPSwitchTypes.ompListTypes) => {
     setSelectedProfile(_ => profile.id)
-    await internalSwitch(~expectedProfileId=Some(profile.id))
+    internalSwitch(~expectedProfileId=Some(profile.id))->ignore
   }
-
   <div className="flex flex-col px-4 lg:px-10 gap-8">
     <div className="flex flex-col">
       <PageUtils.PageHeading
@@ -129,23 +109,12 @@ let make = () => {
       />
       <div className="relative w-full min-h-[400px]">
         <OrgChartTree
-          selectedOrg
-          selectedMerchant
-          selectedProfile
-          onOrgSelect
-          onMerchantSelect
-          onProfileSelect
-          orgColumnRef={orgColumnDomRef->ReactDOM.Ref.domRef}
-          merchantColumnRef={merchantColumnDomRef->ReactDOM.Ref.domRef}
-          profileColumnRef={profileColumnDomRef->ReactDOM.Ref.domRef}
+          selectedOrg selectedMerchant selectedProfile onOrgSelect onMerchantSelect onProfileSelect
         />
         <OrgChartArrows
           selectedOrg={selectedOrg}
           selectedMerchant={selectedMerchant}
           selectedProfile={selectedProfile}
-          orgColumnRef={orgColumnRef}
-          merchantColumnRef={merchantColumnRef}
-          profileColumnRef={profileColumnRef}
         />
       </div>
     </div>
