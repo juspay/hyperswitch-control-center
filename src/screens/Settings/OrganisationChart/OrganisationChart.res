@@ -37,13 +37,13 @@ module OrgChartTree = {
         ->Array.map(merchant =>
           <button
             key={merchant.id}
-            className={`flex justify-between h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 truncate whitespace-wrap ${body.md.medium} ${selectedMerchant ==
+            className={`flex justify-between h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${body.md.medium} ${selectedMerchant ==
                 merchant.id
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
             onClick={_ => onMerchantSelect(merchant)}
             id={`merchant-${merchant.id}`}>
-            <span> {merchant.name->React.string} </span>
+            <span className="truncate whitespace-wrap "> {merchant.name->React.string} </span>
             {switch merchant.productType {
             | Some(product) =>
               <span
@@ -62,7 +62,7 @@ module OrgChartTree = {
         ->Array.map(profile =>
           <button
             key={profile.id}
-            className={`rounded-lg h-10  border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${selectedProfile ==
+            className={`rounded-lg h-10 truncate whitespace-wrap border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${selectedProfile ==
                 profile.id
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
