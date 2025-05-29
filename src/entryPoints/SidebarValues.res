@@ -332,7 +332,7 @@ let payoutRouting = userHasResourceAccess => {
 
 let threeDsIntelligence = userHasResourceAccess => {
   SubLevelLink({
-    name: "3DS Intelligence",
+    name: "3DS Exemption Rules",
     link: `/3dsintelligence`,
     access: userHasResourceAccess(~resourceAccess=ThreeDsDecisionManager), // Assuming same access as 3DS Decision Manager for now
     searchOptions: [("View 3DS Intelligence", "")],

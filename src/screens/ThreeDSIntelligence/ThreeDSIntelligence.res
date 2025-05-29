@@ -327,8 +327,8 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll gap-6">
       <PageUtils.PageHeading
-        title={"3DS Decision Manager"}
-        subTitle="Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters"
+        title={"3DS Exemption Rules"}
+        subTitle="Optimize User Experience and Compliance by Automatically Applying 3DS Exemptions Using Rule-Based Logic"
       />
       {switch pageView {
       | NEW =>
@@ -384,10 +384,10 @@ let make = () => {
           </RenderIf>
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">
-              {"Configure 3DS Rule"->React.string}
+              {"Configure 3DS Exemption Rules"->React.string}
             </p>
             <p className="text-base font-normal text-grey-700 opacity-50">
-              {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions"->React.string}
+              {"Configure advanced rules on parameters like amount, currency, and method to automatically apply 3DS exemptions, balancing regulatory compliance with seamless user experience."->React.string}
             </p>
             <ACLButton
               text="Create New"
