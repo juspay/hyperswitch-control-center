@@ -166,10 +166,17 @@ let connectorSelectionDataMapperFromJson: JSON.t => RoutingTypes.connectorSelect
   }
 }
 
-let getDefaultSelection: Dict.t<JSON.t> => RoutingTypes.connectorSelection = defaultSelection => {
+let getDefaultSelection = (
+  defaultSelection: Dict.t<JSON.t>,
+  ~isFrom3dsIntelligence=false,
+): RoutingTypes.connectorSelection => {
   open LogicUtils
   open RoutingTypes
-  let override3dsValue = defaultSelection->getString("override_3ds", "")
+  let override3dsValue = if isFrom3dsIntelligence {
+    defaultSelection->getString("decision", "")
+  } else {
+    defaultSelection->getString("override_3ds", "")
+  }
   let surchargeDetailsOptionalValue = defaultSelection->Dict.get("surcharge_details")
   let surchargeDetailsValue = defaultSelection->getDictfromDict("surcharge_details")
 
@@ -228,7 +235,10 @@ let getSplitFromConnectorSelectionData = connectorSelectionData => {
   }
 }
 
-let ruleInfoTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper = (
+  ~isFrom3dsIntelligence=false,
+  json: Dict.t<JSON.t>,
+): RoutingTypes.algorithmData => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 
@@ -238,7 +248,7 @@ let ruleInfoTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithmData = json => {
     let ruleDict = rule->getDictFromJsonObject
     let connectorsDict = ruleDict->getDictfromDict("connectorSelection")
 
-    let connectorSelection = getDefaultSelection(connectorsDict)
+    let connectorSelection = getDefaultSelection(connectorsDict, ~isFrom3dsIntelligence)
     let ruleName = ruleDict->getString("name", "")
 
     let eachRule: RoutingTypes.rule = {
@@ -251,7 +261,7 @@ let ruleInfoTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithmData = json => {
 
   {
     rules: rulesModifiedArray,
-    defaultSelection: getDefaultSelection(defaultSelection),
+    defaultSelection: getDefaultSelection(defaultSelection, ~isFrom3dsIntelligence),
     metadata: json->getJsonObjectFromDict("metadata"),
   }
 }
@@ -298,22 +308,30 @@ let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   statement.lhs->isNonEmptyString && (statement.value.\"type"->isNonEmptyString && statementValue)
 }
 
-let algorithmTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithm = values => {
+let algorithmTypeMapper = (
+  ~isFrom3dsIntelligence=false,
+  values: Dict.t<JSON.t>,
+): RoutingTypes.algorithm => {
   open LogicUtils
   {
-    data: values->getDictfromDict("data")->ruleInfoTypeMapper,
+    data: values->getDictfromDict("data")->ruleInfoTypeMapper(~isFrom3dsIntelligence),
     \"type": values->getString("type", ""),
   }
 }
 
-let getRoutingTypesFromJson: JSON.t => RoutingTypes.advancedRouting = values => {
+let getRoutingTypesFromJson = (
+  ~isFrom3dsIntelligence=false,
+  values: JSON.t,
+): RoutingTypes.advancedRouting => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
   {
     name: valuesDict->getString("name", ""),
     description: valuesDict->getString("description", ""),
-    algorithm: valuesDict->getDictfromDict("algorithm")->algorithmTypeMapper,
+    algorithm: valuesDict
+    ->getDictfromDict("algorithm")
+    ->algorithmTypeMapper(~isFrom3dsIntelligence),
   }
 }
 
@@ -372,7 +390,7 @@ let generateStatements = statements => {
   })
 }
 
-let generateRule = rulesDict => {
+let generateRule = (~isFrom3dsIntelligence=false, rulesDict) => {
   let modifiedRules = rulesDict->Array.map(ruleJson => {
     open LogicUtils
     let ruleDict = ruleJson->getDictFromJsonObject
@@ -380,9 +398,20 @@ let generateRule = rulesDict => {
 
     let modifiedStatements = statements->generateStatements
 
+    let connectorSelection = if isFrom3dsIntelligence {
+      let connectorSelectionJson = ruleDict->getJsonObjectFromDict("connectorSelection")
+      let connectorSelectionDict = connectorSelectionJson->getDictFromJsonObject
+      let decision = connectorSelectionDict->getString("override_3ds", "")
+      let dict = Dict.make()
+      dict->Dict.set("decision", decision->JSON.Encode.string)
+      dict->JSON.Encode.object
+    } else {
+      ruleDict->getJsonObjectFromDict("connectorSelection")
+    }
+
     {
       "name": ruleDict->getString("name", ""),
-      "connectorSelection": ruleDict->getJsonObjectFromDict("connectorSelection"),
+      "connectorSelection": connectorSelection,
       "statements": modifiedStatements->Array.map(Identity.genericTypeToJson)->JSON.Encode.array,
     }
   })

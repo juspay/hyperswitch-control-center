@@ -107,6 +107,14 @@ function getThreeDsKeys() {
   }
 }
 
+function getThreeDsDecisionRuleEngineKeys() {
+  if (wasm) {
+    return wasm.getThreeDsDecisionRuleEngineKeys();
+  } else {
+    return [];
+  }
+}
+
 function getSurchargeKeys() {
   if (wasm) {
     return wasm.getSurchargeKeys();

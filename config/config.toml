@@ -62,6 +62,7 @@ dev_modularity_v2=false
 dev_alt_payment_methods=false
 dev_hypersense_v2_product=false
 dev_intelligent_routing_v2=false
+threeds_exemption=false
 dev_recon_v2_product=false
 dev_debit_routing=false
 google_pay_decryption_flow=false
