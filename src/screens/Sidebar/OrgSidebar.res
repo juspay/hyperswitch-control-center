@@ -306,7 +306,21 @@ let make = () => {
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let showToast = ToastState.useShowToast()
   let (showAllOrgs, setShowAllOrgs) = React.useState(_ => false)
-  let maxVisibleOrgs = 15
+  let (maxVisibleOrgs, setMaxVisibleOrgs) = React.useState(_ => 15)
+
+  React.useEffect(() => {
+    let calculateMaxOrgs = () => {
+      let screenHeight = Window.innerHeight->Int.toFloat
+      let orgTileHeight = 50.
+      let reservedSpace = 170.
+      let availableHeight = screenHeight -. reservedSpace
+      let calculated = (availableHeight /. orgTileHeight)->Float.toInt
+      setMaxVisibleOrgs(_ => calculated)
+    }
+    calculateMaxOrgs()
+    None
+  }, [])
+
   let visibleOrgList = if showAllOrgs {
     orgList->Array.slice(~start=maxVisibleOrgs, ~end=orgList->Array.length)
   } else {
@@ -360,14 +374,14 @@ let make = () => {
     setUnderEdit(_ => selectedEditId)
   }
 
-  <div className={`${backgroundColor.sidebarNormal}  p-2 border-r w-14 ${borderColor}`}>
+  <div className={`${backgroundColor.sidebarNormal}  p-2 pt-3 border-r w-14 ${borderColor}`}>
     // the org tiles
     <div className="flex flex-col gap-5 pt-2 px-2 items-center justify-center ">
       <RenderIf condition={showAllOrgs}>
         <Icon
           name="nd-angle-up"
           size=13
-          className="mt-4 ml-1 text-primary cursor-pointer"
+          className="mt-3 ml-1 text-primary cursor-pointer"
           onClick={_ => setShowAllOrgs(_ => false)}
         />
       </RenderIf>
