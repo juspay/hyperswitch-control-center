@@ -282,26 +282,36 @@ let make = () => {
     )
     if isSampleDataEnabled {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
-      fetchApi(paymentsUrl, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
-      ->then(res => res->Fetch.Response.json)
-      ->then(json => {
-        let updatedData = getUpdatedData(
+      // let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+      // fetchApi(paymentsUrl, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
+      // ->then(res => res->Fetch.Response.json)
+      // ->then(json => {
+      //   let updatedData = getUpdatedData(
+      //     data,
+      //     json->getDictFromJsonObject->getJsonObjectFromDict("authenticationSummaryTableData"),
+      //     cols,
+      //   )
+      //   setTableData(_ => updatedData)
+
+      //   setScreenState(_ => PageLoaderWrapper.Success)
+
+      //   resolve()
+      // })
+      // ->catch(_ => {
+      //   setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch data!"))
+      //   resolve()
+      // })
+      // ->ignore
+      setTableData(_ =>
+        getUpdatedData(
           data,
-          json->getDictFromJsonObject->getJsonObjectFromDict("authenticationSummaryTableData"),
+          NewAuthenticationAnalyticsUtils.authDummyData
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("authenticationSummaryTableData"),
           cols,
         )
-        setTableData(_ => updatedData)
-
-        setScreenState(_ => PageLoaderWrapper.Success)
-
-        resolve()
-      })
-      ->catch(_ => {
-        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch data!"))
-        resolve()
-      })
-      ->ignore
+      )
+      setScreenState(_ => PageLoaderWrapper.Success)
     } else {
       setScreenState(_ => PageLoaderWrapper.Loading)
       fetchUpdateDetails(tableEntity.uri, weeklyTableReqBody, Post)
@@ -343,26 +353,27 @@ let make = () => {
       )
       if isSampleDataEnabled {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
-        fetchApi(paymentsUrl, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
-        ->then(res => res->Fetch.Response.json)
-        ->then(json => {
-          updateTableData(
-            json->getDictFromJsonObject->getJsonObjectFromDict("authenticationSummaryTableData"),
-          )
-          setScreenState(_ => PageLoaderWrapper.Success)
-          resolve()
-        })
-        ->catch(_ => {
-          setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch data!"))
-          resolve()
-        })
-        ->ignore
+        // let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        // fetchApi(paymentsUrl, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
+        // ->then(res => res->Fetch.Response.json)
+        // ->then(json => {
+        //   updateTableData(
+        //     json->getDictFromJsonObject->getJsonObjectFromDict("authenticationSummaryTableData"),
+        //   )
+        //   setScreenState(_ => PageLoaderWrapper.Success)
+        //   resolve()
+        // })
+        // ->catch(_ => {
+        //   setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch data!"))
+        //   resolve()
+        // })
+        // ->ignore
         updateTableData(
           NewAuthenticationAnalyticsUtils.authDummyData
           ->getDictFromJsonObject
           ->getJsonObjectFromDict("authenticationSummaryTableData"),
         )
+        setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         fetchUpdateDetails(tableEntity.uri, tableReqBody, Post)
         ->thenResolve(json => json->updateTableData)
