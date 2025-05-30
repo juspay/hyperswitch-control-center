@@ -210,7 +210,6 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
                 | None => ()
                 }
               }
-
               // Draw all gray merchant->profile paths first (non-selected)
               profileList->Array.forEach(profile => {
                 if profile.id != selectedProfile {
@@ -222,7 +221,6 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
                   )
                 }
               })
-
               // Draw the blue merchant->selectedProfile path last (on top)
               createMerchantToProfilePath(
                 ~profileId=selectedProfile,
@@ -233,7 +231,6 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
             | None => ()
             }
           }
-
           // Update SVG viewBox to match container size
           setSvgViewBox(_ =>
             `0 0 ${Float.toString(containerRect.width)} ${Float.toString(containerRect.height)}`
@@ -253,12 +250,9 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
     let rec tryUpdate = () => {
       // Check if we have data
       let hasData = Array.length(merchantList) > 0 && Array.length(profileList) > 0
-
       // Check if required elements exist
       let selectedOrgExists = findElementById(`${selectedOrg}`)->Option.isSome
       let selectedMerchantExists = findElementById(`${selectedMerchant}`)->Option.isSome
-
-      // For profiles, we need to be more flexible - either selectedProfile exists OR we have some profiles
       let profilesReady = if selectedProfileExists {
         findElementById(`${selectedProfile}`)->Option.isSome
       } else {
@@ -270,7 +264,6 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
         updatePaths()
       } else if retries.contents < maxRetries {
         retries.contents = retries.contents + 1
-        // Progressive delay: longer waits for later retries
         let delay = if retries.contents > 8 {
           300
         } else if retries.contents > 4 {
@@ -299,10 +292,9 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
     selectedProfile,
     Array.length(merchantList),
     Array.length(profileList),
-    selectedProfileExists, // Add this dependency
+    selectedProfileExists,
   ))
 
-  // Additional effect for initial data load with longer delay
   React.useEffect(() => {
     if Array.length(merchantList) > 0 && Array.length(profileList) > 0 {
       let timeoutId = Js.Global.setTimeout(() => {
