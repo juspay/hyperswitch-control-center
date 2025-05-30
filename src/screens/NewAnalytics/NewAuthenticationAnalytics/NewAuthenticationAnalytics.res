@@ -271,79 +271,76 @@ let make = () => {
     }
   }
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
-    <div>
-      <NewAuthenticationAnalyticsHelper.SampleDataBanner applySampleDateFilters />
-      <PageUtils.PageHeading title />
-      <div className="flex justify-end mr-4">
-        <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
-      </div>
-      <div
-        className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
-        {topFilterUi}
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {getMetricsData(queryData)
-        ->Array.mapWithIndex((metric, index) =>
-          <RenderIf condition={index <= 6}>
-            <StatCard
-              key={index->Int.toString}
-              title={metric.title}
-              value={metric.value}
-              valueType={metric.valueType}
-              description={metric.tooltip_description}
-            />
-          </RenderIf>
-        )
-        ->React.array}
-      </div>
-      <RenderIf
-        condition={funnelData.authentication_initiated > 0 &&
-        funnelData.payments_requiring_3ds_2_authentication > 0 &&
-        funnelData.authentication_attemped > 0 &&
-        funnelData.authentication_successful > 0}>
-        <div className="border border-gray-200 mt-5 rounded-lg">
-          <FunnelChart
-            data={getFunnelChartData(funnelData)}
-            metrics={metrics}
-            moduleName="Authentication Funnel"
-            description=Some("Breakdown of ThreeDS 2.0 Journey")
-          />
-        </div>
-      </RenderIf>
-      <Insights />
-      <hr className="w-full mt-6" />
-      <div className="my-4">
-        <SimpleHeader title="3DS Exemption Analytics" />
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {getMetricsData(queryData)
-        ->Array.mapWithIndex((metric, index) =>
-          <RenderIf condition={index > 6}>
-            <StatCard
-              key={index->Int.toString}
-              title={metric.title}
-              value={metric.value}
-              valueType={metric.valueType}
-              description={metric.tooltip_description}
-            />
-          </RenderIf>
-        )
-        ->React.array}
-      </div>
-      <SCAExemptionAnalytics entity={scaExemptionEntity} chartEntity={scaExemptionChartEntity} />
-      <div className="grid grid-cols-2 gap-6 mt-6">
-        <AuthenticationSuccess
-          entity={authenticationSuccessEntity} chartEntity={authenticationSuccessChartEntity}
-        />
-        <UserDropOffRate entity={userDropOffRateEntity} chartEntity={userDropOffRateChartEntity} />
-        <ExemptionApprovalRate
-          entity={exemptionApprovalRateEntity} chartEntity={exemptionApprovalRateChartEntity}
-        />
-        <ExemptionRequestRate
-          entity={exemptionRequestRateEntity} chartEntity={exemptionRequestRateChartEntity}
-        />
-      </div>
-      <AuthenticationSummary />
+    <NewAuthenticationAnalyticsHelper.SampleDataBanner applySampleDateFilters />
+    <PageUtils.PageHeading title />
+    <div className="flex justify-end mr-4">
+      <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
     </div>
+    <div className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
+      {topFilterUi}
+    </div>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {getMetricsData(queryData)
+      ->Array.mapWithIndex((metric, index) =>
+        <RenderIf condition={index <= 6}>
+          <StatCard
+            key={index->Int.toString}
+            title={metric.title}
+            value={metric.value}
+            valueType={metric.valueType}
+            description={metric.tooltip_description}
+          />
+        </RenderIf>
+      )
+      ->React.array}
+    </div>
+    <RenderIf
+      condition={funnelData.authentication_initiated > 0 &&
+      funnelData.payments_requiring_3ds_2_authentication > 0 &&
+      funnelData.authentication_attemped > 0 &&
+      funnelData.authentication_successful > 0}>
+      <div className="border border-gray-200 mt-5 rounded-lg">
+        <FunnelChart
+          data={getFunnelChartData(funnelData)}
+          metrics={metrics}
+          moduleName="Authentication Funnel"
+          description=Some("Breakdown of ThreeDS 2.0 Journey")
+        />
+      </div>
+    </RenderIf>
+    <Insights />
+    <hr className="w-full mt-6" />
+    <div className="my-4">
+      <SimpleHeader title="3DS Exemption Analytics" />
+    </div>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {getMetricsData(queryData)
+      ->Array.mapWithIndex((metric, index) =>
+        <RenderIf condition={index > 6}>
+          <StatCard
+            key={index->Int.toString}
+            title={metric.title}
+            value={metric.value}
+            valueType={metric.valueType}
+            description={metric.tooltip_description}
+          />
+        </RenderIf>
+      )
+      ->React.array}
+    </div>
+    <SCAExemptionAnalytics entity={scaExemptionEntity} chartEntity={scaExemptionChartEntity} />
+    <div className="grid grid-cols-2 gap-6 mt-6">
+      <AuthenticationSuccess
+        entity={authenticationSuccessEntity} chartEntity={authenticationSuccessChartEntity}
+      />
+      <UserDropOffRate entity={userDropOffRateEntity} chartEntity={userDropOffRateChartEntity} />
+      <ExemptionApprovalRate
+        entity={exemptionApprovalRateEntity} chartEntity={exemptionApprovalRateChartEntity}
+      />
+      <ExemptionRequestRate
+        entity={exemptionRequestRateEntity} chartEntity={exemptionRequestRateChartEntity}
+      />
+    </div>
+    <AuthenticationSummary />
   </PageLoaderWrapper>
 }

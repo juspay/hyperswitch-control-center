@@ -147,15 +147,13 @@ let make = (
 
   let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
 
-  <div>
-    <Card>
-      <PageLoaderWrapper
-        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <ModuleHeader title={entity.title} description={entity.description->Option.getOr("")} />
-        <div className="mx-5">
-          <LineGraph options className="mr-3" />
-        </div>
-      </PageLoaderWrapper>
-    </Card>
-  </div>
+  <Card>
+    <ModuleHeader title={entity.title} description={entity.description->Option.getOr("")} />
+    <PageLoaderWrapper
+      screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+      <div className="mx-5">
+        <LineGraph options className="mr-3" />
+      </div>
+    </PageLoaderWrapper>
+  </Card>
 }

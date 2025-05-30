@@ -99,14 +99,3 @@ let exemptionRequestRateChartEntity: chartEntity<
   getObjects: ExemptionRequestRateUtils.excemptionRequestRateMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
-
-// Transaction list
-let transactionListEntity: moduleEntity = {
-  requestBodyConfig: {
-    delta: false,
-    metrics: [#sessionized_payment_processed_amount],
-  },
-  title: "Authentication Summary",
-  description: "List of transactions with payment processing details",
-  domain: #payments,
-}
