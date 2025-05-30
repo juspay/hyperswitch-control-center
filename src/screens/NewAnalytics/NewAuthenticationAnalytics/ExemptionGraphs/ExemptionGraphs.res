@@ -1,6 +1,6 @@
 open NewAuthenticationAnalyticsTypes
 open NewAuthenticationAnalyticsHelper
-open ExemptionApprovalRateUtils
+open ExemptionGraphsUtils
 open NewAuthenticationAnalyticsUtils
 
 @react.component
@@ -11,22 +11,29 @@ let make = (
     LineGraphTypes.lineGraphOptions,
     JSON.t,
   >,
+  ~metricXKey: string,
 ) => {
   open LogicUtils
   open APIUtils
 
   let getURL = useGetURL()
-  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
+  let fetchApi = AuthHooks.useApiFetcher()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let (exemptionApprovalData, setExemptionApprovalData) = React.useState(_ => JSON.Encode.array([]))
+  let (authenticationSuccessData, setAuthenticationSuccessData) = React.useState(_ =>
+    JSON.Encode.array([])
+  )
+
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
-  let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+  let comparison =
+    filterValueJson
+    ->getString("comparison", "")
+    ->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let defaulGranularity = getDefaultGranularity(
@@ -53,7 +60,7 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=V1(ANALYTICS_PAYMENTS_V2),
+        ~entityName=V1(ANALYTICS_AUTHENTICATION_V2),
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -66,7 +73,6 @@ let make = (
         //   ~forceCookies=false,
         // )
         // let paymentsResponse = await res->(res => res->Fetch.Response.json)
-
         let paymentsResponse = authDummyData
         paymentsResponse
         ->getDictFromJsonObject
@@ -97,6 +103,9 @@ let make = (
             ~endDate=endTimeVal,
             ~timeKey="time_bucket",
             ~defaultValue={
+              "authentication_count": 0,
+              "authentication_success_count": 0,
+              "authentication_attempt_count": 0,
               "authentication_exemption_requested": 0,
               "authentication_exemption_accepted": 0,
               "time_bucket": startTimeVal,
@@ -107,7 +116,8 @@ let make = (
           )
         })
 
-        setExemptionApprovalData(_ => primaryModifiedData->Identity.genericTypeToJson)
+        setAuthenticationSuccessData(_ => primaryModifiedData->Identity.genericTypeToJson)
+
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -134,11 +144,11 @@ let make = (
   ))
 
   let params = {
-    data: exemptionApprovalData,
-    xKey: defaultMetric.value,
+    data: authenticationSuccessData,
+    xKey: metricXKey,
     yKey: Time_Bucket->getStringFromVariant,
+    title: entity.title,
     comparison,
-    currency,
   }
 
   let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions

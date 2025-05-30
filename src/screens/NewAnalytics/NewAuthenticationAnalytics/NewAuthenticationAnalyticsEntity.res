@@ -36,7 +36,7 @@ let authenticationSuccessChartEntity: chartEntity<
   LineGraphTypes.lineGraphOptions,
   JSON.t,
 > = {
-  getObjects: AuthenticationSuccessUtils.authenticationSuccessMapper,
+  getObjects: ExemptionGraphsUtils.exemptionGraphsMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
 
@@ -56,7 +56,7 @@ let userDropOffRateChartEntity: chartEntity<
   LineGraphTypes.lineGraphOptions,
   JSON.t,
 > = {
-  getObjects: UserDropOffRateUtils.userDropOffRateMapper,
+  getObjects: ExemptionGraphsUtils.exemptionGraphsMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
 
@@ -76,7 +76,7 @@ let exemptionApprovalRateChartEntity: chartEntity<
   LineGraphTypes.lineGraphOptions,
   JSON.t,
 > = {
-  getObjects: ExemptionApprovalRateUtils.excemptionApprovalRateMapper,
+  getObjects: ExemptionGraphsUtils.exemptionGraphsMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
 
@@ -96,6 +96,6 @@ let exemptionRequestRateChartEntity: chartEntity<
   LineGraphTypes.lineGraphOptions,
   JSON.t,
 > = {
-  getObjects: ExemptionRequestRateUtils.excemptionRequestRateMapper,
+  getObjects: ExemptionGraphsUtils.exemptionGraphsMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }

@@ -336,15 +336,25 @@ let make = () => {
     </div>
     <SCAExemptionAnalytics entity={scaExemptionEntity} chartEntity={scaExemptionChartEntity} />
     <div className="grid grid-cols-2 gap-6 mt-6">
-      <AuthenticationSuccess
-        entity={authenticationSuccessEntity} chartEntity={authenticationSuccessChartEntity}
+      <ExemptionGraphs
+        entity={authenticationSuccessEntity}
+        chartEntity={authenticationSuccessChartEntity}
+        metricXKey="authentication_success_count"
       />
-      <UserDropOffRate entity={userDropOffRateEntity} chartEntity={userDropOffRateChartEntity} />
-      <ExemptionApprovalRate
-        entity={exemptionApprovalRateEntity} chartEntity={exemptionApprovalRateChartEntity}
+      <ExemptionGraphs
+        entity={userDropOffRateEntity}
+        chartEntity={userDropOffRateChartEntity}
+        metricXKey="user_drop_off_rate"
       />
-      <ExemptionRequestRate
-        entity={exemptionRequestRateEntity} chartEntity={exemptionRequestRateChartEntity}
+      <ExemptionGraphs
+        entity={exemptionApprovalRateEntity}
+        chartEntity={exemptionApprovalRateChartEntity}
+        metricXKey="exemption_approval_rate"
+      />
+      <ExemptionGraphs
+        entity={exemptionRequestRateEntity}
+        chartEntity={exemptionRequestRateChartEntity}
+        metricXKey="exemption_request_rate"
       />
     </div>
     <AuthenticationSummary />
