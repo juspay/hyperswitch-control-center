@@ -1,6 +1,5 @@
 open NewAuthenticationAnalyticsTypes
 open LogicUtils
-// open HSwitchRemoteFilter
 open DateRangeUtils
 
 @module("./authDummyData.json")
@@ -386,36 +385,8 @@ let sankyRed = "#F7E0E0"
 let sankyLightBlue = "#91B7EE"
 let sankyLightRed = "#EC6262"
 
-let getPageIndex = (url: RescriptReactRouter.url) => {
-  switch url.path->HSwitchUtils.urlPath {
-  | list{"new-analytics", "smart-retry"} => 1
-  | list{"new-analytics", "refund"} => 2
-  | list{"new-analytics", "payment"} | _ => 0
-  }
-}
-
-let getPageFromIndex = index => {
-  switch index {
-  | 1 => NewAnalyticsSmartRetry
-  | 2 => NewAnalyticsRefund
-  | 0 | _ => NewAnalyticsPayment
-  }
-}
-
 let renderValueInp = () => (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   React.null
-}
-
-let compareToInput = (~comparisonKey) => {
-  FormRenderer.makeMultiInputFieldInfoOld(
-    ~label="",
-    ~comboCustomInput=renderValueInp(),
-    ~inputFields=[
-      FormRenderer.makeInputFieldInfo(~name=`${comparisonKey}`),
-      FormRenderer.makeInputFieldInfo(~name=`extraKey`),
-    ],
-    (),
-  )
 }
 
 let (
@@ -515,35 +486,6 @@ let getLabelName = (~key, ~index, ~points) => {
     `Series ${(index + 1)->Int.toString}`
   }
 }
-let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
-  let change = primaryValue -. secondaryValue
-
-  if secondaryValue === 0.0 || change === 0.0 {
-    (0.0, No_Change)
-  } else if change > 0.0 {
-    let diff = change /. secondaryValue
-    let percentage = diff *. 100.0
-    (percentage, Upward)
-  } else {
-    let diff = change *. -1.0 /. secondaryValue
-    let percentage = diff *. 100.0
-    (percentage, Downward)
-  }
-}
-
-let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
-  let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-
-  let (textColor, icon) = switch direction {
-  | Upward => ("#12B76A", "▲")
-  | Downward => ("#F04E42", "▼")
-  | No_Change => ("#A0A0A0", "")
-  }
-
-  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->LogicUtils.valueFormatter(
-      Rate,
-    )}</span>`
-}
 
 // removes the NA buckets
 let filterQueryData = (query, key) => {
@@ -637,89 +579,6 @@ let getCategories = (data: JSON.t, index: int, key: string) => {
   })
 }
 
-let getMetaDataValue = (~data, ~index, ~key) => {
-  data
-  ->getArrayFromJson([])
-  ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
-  ->getDictFromJsonObject
-  ->getFloat(key, 0.0)
-}
-
-let getBarGraphObj = (
-  ~array: array<JSON.t>,
-  ~key: string,
-  ~name: string,
-  ~color,
-): BarGraphTypes.dataObj => {
-  let data = array->Array.map(item => {
-    item->getDictFromJsonObject->getFloat(key, 0.0)
-  })
-  let dataObj: BarGraphTypes.dataObj = {
-    showInLegend: false,
-    name,
-    data,
-    color,
-  }
-  dataObj
-}
-
-let bargraphTooltipFormatter = (~title, ~metricType) => {
-  open BarGraphTypes
-
-  (
-    @this
-    (this: pointFormatter) => {
-      let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
-
-      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}}
-      let primartPoint = this.points->getValueFromArray(0, defaultValue)
-
-      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType)
-        `<div style="display: flex; align-items: center;">
-            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
-        </div>`
-      }
-
-      let tableItems =
-        [
-          getRowsHtml(~iconColor=primartPoint.color, ~date=primartPoint.x, ~value=primartPoint.y),
-        ]->Array.joinWith("")
-
-      let content = `
-          <div style=" 
-          padding:5px 12px;
-          display:flex;
-          flex-direction:column;
-          justify-content: space-between;
-          gap: 7px;">
-              ${title}
-              <div style="
-                margin-top: 5px;
-                display:flex;
-                flex-direction:column;
-                gap: 7px;">
-                ${tableItems}
-              </div>
-        </div>`
-
-      `<div style="
-    padding: 10px;
-    width:fit-content;
-    border-radius: 7px;
-    background-color:#FFFFFF;
-    padding:10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid #E5E5E5;
-    position:relative;">
-        ${content}
-    </div>`
-    }
-  )->asTooltipPointFormatter
-}
-
 let getColor = index => {
   [blue, green]->Array.get(index)->Option.getOr(blue)
 }
@@ -763,109 +622,6 @@ let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false) => {
     let color = index->getColor
     getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color, ~isAmount)
   })
-}
-
-let tooltipFormatter = (
-  ~secondaryCategories,
-  ~title,
-  ~metricType,
-  ~comparison: option<DateRangeUtils.comparison>=None,
-  ~currency="",
-  ~reverse=false,
-  ~suffix="",
-  ~showNameInTooltip=false,
-) => {
-  open LineGraphTypes
-
-  (
-    @this
-    (this: pointFormatter) => {
-      let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
-
-      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, series: {name: ""}}
-
-      let primaryIndex = reverse ? 1 : 0
-      let secondaryIndex = reverse ? 0 : 1
-
-      let primartPoint = this.points->getValueFromArray(primaryIndex, defaultValue)
-      let secondaryPoint = this.points->getValueFromArray(secondaryIndex, defaultValue)
-
-      let getRowsHtml = (~iconColor, ~date, ~name="", ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
-        let key = showNameInTooltip ? name : date
-        `<div style="display: flex; align-items: center;">
-            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
-        </div>`
-      }
-
-      let tableItems = [
-        getRowsHtml(
-          ~iconColor=primartPoint.color,
-          ~date=primartPoint.x,
-          ~name=primartPoint.series.name,
-          ~value=primartPoint.y,
-          ~comparisionComponent={
-            switch comparison {
-            | Some(value) =>
-              value == DateRangeUtils.EnableComparison
-                ? getToolTipConparision(
-                    ~primaryValue=primartPoint.y,
-                    ~secondaryValue=secondaryPoint.y,
-                  )
-                : ""
-            | None => ""
-            }
-          },
-        ),
-        {
-          switch comparison {
-          | Some(value) =>
-            value == DateRangeUtils.EnableComparison
-              ? getRowsHtml(
-                  ~iconColor=secondaryPoint.color,
-                  ~date=secondaryCategories->getValueFromArray(secondaryPoint.point.index, ""),
-                  ~value=secondaryPoint.y,
-                  ~name=secondaryPoint.series.name,
-                )
-              : ""
-          | None => ""
-          }
-        },
-      ]->Array.joinWith("")
-
-      let content = `
-          <div style=" 
-          padding:5px 12px;
-          border-left: 3px solid #0069FD;
-          display:flex;
-          flex-direction:column;
-          justify-content: space-between;
-          gap: 7px;">
-              ${title}
-              <div style="
-                margin-top: 5px;
-                display:flex;
-                flex-direction:column;
-                gap: 7px;">
-                ${tableItems}
-              </div>
-        </div>`
-
-      `<div style="
-    padding: 10px;
-    width:fit-content;
-    border-radius: 7px;
-    background-color:#FFFFFF;
-    padding:10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid #E5E5E5;
-    position:relative;">
-        ${content}
-    </div>`
-    }
-  )->asTooltipPointFormatter
 }
 
 let generateFilterObject = (~globalFilters, ~localFilters=None) => {
@@ -1075,14 +831,5 @@ let getSmartRetryMetricType = isSmartRetryEnabled => {
   switch isSmartRetryEnabled {
   | true => Smart_Retry
   | false => Default
-  }
-}
-
-let getEntityForSmartRetry = isEnabled => {
-  open NewAuthenticationAnalyticsTypes
-  open APIUtilsTypes
-  switch isEnabled {
-  | Smart_Retry => ANALYTICS_PAYMENTS
-  | Default => ANALYTICS_PAYMENTS_V2
   }
 }

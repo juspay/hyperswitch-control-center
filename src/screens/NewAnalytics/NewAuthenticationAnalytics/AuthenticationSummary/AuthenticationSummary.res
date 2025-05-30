@@ -6,9 +6,6 @@ let make = () => {
   open APIUtils
   open HSAnalyticsUtils
 
-  // let updateDetails = useUpdateMethod()
-
-  // let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
   let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
 
   let getURL = useGetURL()
@@ -20,14 +17,59 @@ let make = () => {
   let isSampleDataEnabled =
     filterValueJson->getStringFromDictAsBool(NewAuthenticationAnalyticsUtils.sampleDataKey, false)
   let fetchDetails = useGetMethod()
+  let fetchUpdateDetails = APIUtils.useUpdateMethod()
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let tabKeys = getStringListFromArrayDict(dimensions)
+
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
+
+  // let analyticsfilterUrl = getURL(
+  //   ~entityName=V1(ANALYTICS_FILTERS),
+  //   ~methodType=Post,
+  //   ~id=Some(domain),
+  // )
+  let paymentAnalyticsUrl = getURL(
+    ~entityName=V1(ANALYTICS_PAYMENTS),
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
+
+  let title = "Authentication Summary"
+
+  let chartEntity = chartEntity(tabKeys, ~uri=paymentAnalyticsUrl)
+
+  let tableEntity = paymentTableEntity(~uri=paymentAnalyticsUrl)
+
+  let dateKeys = chartEntity.dateFilterKeys
+  let filterKeys = chartEntity.allFilterDimension
+  let activeTab = Some(["connector"])
+  let getTable = getPaymentTable
+
+  let defaultSort = "total_volume"
+  let deltaMetrics = ["payment_success_rate", "payment_count", "payment_success_count"]
+  let deltaArray = []
+
+  let moduleName = "overall_summary"
+
+  let distributionArray = Some([distribution])
+  let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let filterValueDict = filterValueJson
+  let {getHeading, allColumns, defaultColumns} = tableEntity
+  let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
+  let (startTimeFilterKey, endTimeFilterKey) = dateKeys
+
+  let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
+  let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
 
   let loadInfo = async () => {
     try {
       let infoUrl = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
-      // Need to be removed
       let ignoreSessionizedPayment =
         infoDetails
         ->getDictFromJsonObject
@@ -49,7 +91,7 @@ let make = () => {
       let paymentDetails = await fetchDetails(paymentUrl)
       let data = paymentDetails->getDictFromJsonObject->getArrayFromDict("data", [])
       if data->Array.length < 0 {
-        setScreenState(_ => PageLoaderWrapper.Custom)
+        setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         await loadInfo()
       }
@@ -65,10 +107,6 @@ let make = () => {
     None
   }, [])
 
-  let tabKeys = getStringListFromArrayDict(dimensions)
-
-  let title = "Payments Analytics"
-
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
     ~startTimeFilterKey,
@@ -81,20 +119,6 @@ let make = () => {
     setInitialFilters()
     None
   }, [])
-
-  let startTimeVal = filterValueJson->getString("startTime", "")
-  let endTimeVal = filterValueJson->getString("endTime", "")
-
-  // let analyticsfilterUrl = getURL(
-  //   ~entityName=V1(ANALYTICS_FILTERS),
-  //   ~methodType=Post,
-  //   ~id=Some(domain),
-  // )
-  let paymentAnalyticsUrl = getURL(
-    ~entityName=V1(ANALYTICS_PAYMENTS),
-    ~methodType=Post,
-    ~id=Some(domain),
-  )
 
   // let filterBody = React.useMemo(() => {
   //   let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
@@ -130,34 +154,6 @@ let make = () => {
     None
   }, [startTimeVal, endTimeVal])
 
-  let chartEntity = chartEntity(tabKeys, ~uri=paymentAnalyticsUrl)
-
-  let tableEntity = paymentTableEntity(~uri=paymentAnalyticsUrl)
-
-  let dateKeys = chartEntity.dateFilterKeys
-  let filterKeys = chartEntity.allFilterDimension
-  let activeTab = Some(["connector"])
-  let getTable = getPaymentTable
-
-  let defaultSort = "total_volume"
-  let deltaMetrics = ["payment_success_rate", "payment_count", "payment_success_count"]
-  let deltaArray = []
-
-  let moduleName = "overall_summary"
-
-  let distributionArray = Some([distribution])
-  let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
-  let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let filterValueDict = filterValueJson
-  let fetchDetails = APIUtils.useUpdateMethod()
-  let {getHeading, allColumns, defaultColumns} = tableEntity
-  let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
-  let (startTimeFilterKey, endTimeFilterKey) = dateKeys
-  let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
-  let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
-  let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-    ThemeProvider.themeContext,
-  )
   let getTopLevelFilter = React.useMemo(() => {
     filterValueDict
     ->Dict.toArray
@@ -285,6 +281,7 @@ let make = () => {
       (),
     )
     if isSampleDataEnabled {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
       fetchApi(paymentsUrl, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
       ->then(res => res->Fetch.Response.json)
@@ -295,32 +292,25 @@ let make = () => {
           cols,
         )
         setTableData(_ => updatedData)
-        setTableDataLoading(_ => false)
+
+        setScreenState(_ => PageLoaderWrapper.Success)
+
         resolve()
       })
       ->catch(_ => {
-        setTableDataLoading(_ => false)
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch data!"))
         resolve()
       })
       ->ignore
-      // setTableData(_ =>
-      //   getUpdatedData(
-      //     data,
-      //     NewAuthenticationAnalyticsUtils.authDummyData
-      //     ->getDictFromJsonObject
-      //     ->getJsonObjectFromDict("authenticationSummaryTableData"),
-      //     cols,
-      //   )
-      // )
-      // setTableDataLoading(_ => false)
     } else {
-      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post)
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      fetchUpdateDetails(tableEntity.uri, weeklyTableReqBody, Post)
       ->thenResolve(json => {
         setTableData(_ => getUpdatedData(data, json, cols))
-        setTableDataLoading(_ => false)
+        setScreenState(_ => PageLoaderWrapper.Success)
       })
       ->catch(_ => {
-        setTableDataLoading(_ => false)
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch data!"))
         resolve()
       })
       ->ignore
@@ -352,6 +342,7 @@ let make = () => {
         (),
       )
       if isSampleDataEnabled {
+        setScreenState(_ => PageLoaderWrapper.Loading)
         let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
         fetchApi(paymentsUrl, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
         ->then(res => res->Fetch.Response.json)
@@ -359,11 +350,11 @@ let make = () => {
           updateTableData(
             json->getDictFromJsonObject->getJsonObjectFromDict("authenticationSummaryTableData"),
           )
-          setTableDataLoading(_ => false)
+          setScreenState(_ => PageLoaderWrapper.Success)
           resolve()
         })
         ->catch(_ => {
-          setTableDataLoading(_ => false)
+          setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch data!"))
           resolve()
         })
         ->ignore
@@ -373,10 +364,10 @@ let make = () => {
           ->getJsonObjectFromDict("authenticationSummaryTableData"),
         )
       } else {
-        fetchDetails(tableEntity.uri, tableReqBody, Post)
+        fetchUpdateDetails(tableEntity.uri, tableReqBody, Post)
         ->thenResolve(json => json->updateTableData)
         ->catch(_ => {
-          setTableDataLoading(_ => false)
+          setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch data!"))
           resolve()
         })
         ->ignore
@@ -414,10 +405,6 @@ let make = () => {
   }, (newDefaultCols, `${moduleName}DefaultCols${activeTabStr}`))
 
   let (offset, setOffset) = React.useState(_ => 0)
-  let (_, setCounter) = React.useState(_ => 1)
-  let refetch = React.useCallback(_ => {
-    setCounter(p => p + 1)
-  }, [setCounter])
 
   let visibleColumns = Recoil.useRecoilValueFromAtom(transactionTableDefaultCols)
 
@@ -436,45 +423,42 @@ let make = () => {
 
   let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 rounded-md border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30 mt-7"
 
-  <PageLoaderWrapper screenState customUI={<NoData title />}>
+  <PageLoaderWrapper
+    screenState
+    customLoader={<NewAuthenticationAnalyticsHelper.Shimmer layoutId="Authentication summary" />}
+    customUI={<NoData title />}>
     <div className="flex flex-1 flex-col my-5">
-      <DynamicTableUtils.RefetchContextProvider value=refetch>
-        {if tableDataLoading {
-          <DynamicTableUtils.TableDataLoadingIndicator showWithData={true} />
-        } else {
-          <div className="relative">
-            <div
-              className="absolute font-bold text-xl bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75">
-              {React.string("Authentication Summary")}
-            </div>
-            <LoadedTable
-              visibleColumns
-              title="Summary Table"
-              hideTitle=true
-              actualData={tableData}
-              entity=modifiedTableEntity
-              resultsPerPage=10
-              totalResults={tableData->Array.length}
-              offset
-              setOffset
-              defaultSort
-              currrentFetchCount={tableData->Array.length}
-              tableLocalFilter=false
-              tableheadingClass=tableBorderClass
-              tableBorderClass
-              tableDataBorderClass=tableBorderClass
-              isAnalyticsModule=true
-            />
-            <RenderIf condition={tableData->Array.length > 0}>
-              <div
-                className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3 my-4`}>
-                <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
-                {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
-              </div>
-            </RenderIf>
+      <div className="relative">
+        <div
+          className="absolute font-bold text-xl bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75">
+          {React.string("Authentication Summary")}
+        </div>
+        <LoadedTable
+          visibleColumns
+          title="Summary Table"
+          hideTitle=true
+          actualData={tableData}
+          entity=modifiedTableEntity
+          resultsPerPage=10
+          totalResults={tableData->Array.length}
+          offset
+          setOffset
+          defaultSort
+          currrentFetchCount={tableData->Array.length}
+          tableLocalFilter=false
+          tableheadingClass=tableBorderClass
+          tableBorderClass
+          tableDataBorderClass=tableBorderClass
+          isAnalyticsModule=true
+        />
+        <RenderIf condition={tableData->Array.length > 0}>
+          <div
+            className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3 my-4`}>
+            <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
+            {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
           </div>
-        }}
-      </DynamicTableUtils.RefetchContextProvider>
+        </RenderIf>
+      </div>
     </div>
   </PageLoaderWrapper>
 }

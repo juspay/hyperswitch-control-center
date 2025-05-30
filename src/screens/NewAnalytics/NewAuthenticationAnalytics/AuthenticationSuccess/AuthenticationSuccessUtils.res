@@ -19,36 +19,25 @@ let getVariantValueFromString = value => {
   }
 }
 
-let isAmountMetric = key => {
-  switch key->getVariantValueFromString {
-  | _ => false
-  }
-}
-
 let authenticationSuccessMapper = (
   ~params: NewAuthenticationAnalyticsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
   open InsightsUtils
+  open LogicUtilsTypes
+
   let {data, xKey, yKey} = params
-  let comparison = switch params.comparison {
-  | Some(val) => Some(val)
-  | None => None
-  }
   let currency = params.currency->Option.getOr("")
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
   let lineGraphData = data->getLineGraphData(~xKey, ~yKey)
 
-  open LogicUtilsTypes
-  let metricType = Amount
-
   let tooltipFormatter = tooltipFormatter(
     ~secondaryCategories,
     ~title="Authentication Success Rate",
-    ~metricType,
-    ~comparison,
+    ~metricType=Amount,
+    ~comparison=params.comparison,
     ~currency,
   )
 
@@ -60,7 +49,7 @@ let authenticationSuccessMapper = (
     title: {
       text: "",
     },
-    yAxisMaxValue: 100->Some,
+    yAxisMaxValue: Some(100),
     yAxisMinValue: Some(0),
     tooltipFormatter,
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
@@ -78,7 +67,6 @@ let authenticationSuccessMapper = (
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => authenticationSuccessObject = dict => {
-  // open InsightsUtils
   {
     authentication_count: dict->getInt(Authentication_Count->getStringFromVariant, 0),
     authentication_success_count: dict->getInt(
