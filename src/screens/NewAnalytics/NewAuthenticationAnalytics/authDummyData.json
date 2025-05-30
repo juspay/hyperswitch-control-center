@@ -1,0 +1,422 @@
+{
+  "authenticationsOverviewData": {
+    "authentication_count": 1000,
+    "authentication_attempt_count": 1050,
+    "authentication_success_count": 920,
+    "challenge_flow_count": 400,
+    "challenge_attempt_count": 380,
+    "challenge_success_count": 330,
+    "frictionless_flow_count": 600,
+    "frictionless_success_count": 590,
+    "authentication_exemption_requested": 200,
+    "authentication_exemption_accepted": 180,
+    "error_message_count": 15,
+    "authentication_funnel": null,
+    "authentication_status": null,
+    "trans_status": null,
+    "authentication_type": null,
+    "error_message": null,
+    "authentication_connector": null,
+    "message_version": null,
+    "acs_reference_number": null
+  },
+
+  "authenticationLifeCycleData": {
+    "queryData": [
+      {
+        "authentication_count": 60,
+        "authentication_attempt_count": 70,
+        "authentication_success_count": 51,
+        "challenge_flow_count": 36,
+        "challenge_attempt_count": 40,
+        "challenge_success_count": 32,
+        "frictionless_flow_count": 24,
+        "frictionless_success_count": 21,
+        "error_message_count": null,
+        "authentication_funnel": null,
+        "authentication_status": null,
+        "trans_status": null,
+        "authentication_type": null,
+        "error_message": null,
+        "authentication_connector": null,
+        "message_version": null,
+        "acs_reference_number": null,
+        "authentication_exemption_requested": 21,
+        "authentication_exemption_accepted": 18,
+        "time_range": {
+          "start_time": "2025-05-26T00:00:00.000Z",
+          "end_time": "2025-05-26T23:00:00.000Z"
+        },
+        "time_bucket": "2025-05-26 00:00:00"
+      },
+      {
+        "authentication_count": 30,
+        "authentication_attempt_count": 35,
+        "authentication_success_count": 25,
+        "challenge_flow_count": 20,
+        "challenge_attempt_count": 24,
+        "challenge_success_count": 19,
+        "frictionless_flow_count": 10,
+        "frictionless_success_count": 8,
+        "error_message_count": null,
+        "authentication_funnel": null,
+        "authentication_status": null,
+        "trans_status": null,
+        "authentication_type": null,
+        "error_message": null,
+        "authentication_connector": null,
+        "message_version": null,
+        "acs_reference_number": null,
+        "authentication_exemption_requested": 11,
+        "authentication_exemption_accepted": 9,
+        "time_range": {
+          "start_time": "2025-05-02T00:00:00.000Z",
+          "end_time": "2025-05-02T23:00:00.000Z"
+        },
+        "time_bucket": "2025-05-02 00:00:00"
+      },
+      {
+        "authentication_count": 65,
+        "authentication_attempt_count": 72,
+        "authentication_success_count": 56,
+        "challenge_flow_count": 38,
+        "challenge_attempt_count": 44,
+        "challenge_success_count": 37,
+        "frictionless_flow_count": 23,
+        "frictionless_success_count": 20,
+        "error_message_count": null,
+        "authentication_funnel": null,
+        "authentication_status": null,
+        "trans_status": null,
+        "authentication_type": null,
+        "error_message": null,
+        "authentication_connector": null,
+        "message_version": null,
+        "acs_reference_number": null,
+        "authentication_exemption_requested": 22,
+        "authentication_exemption_accepted": 19,
+        "time_range": {
+          "start_time": "2025-05-27T00:00:00.000Z",
+          "end_time": "2025-05-27T23:00:00.000Z"
+        },
+        "time_bucket": "2025-05-27 00:00:00"
+      },
+      {
+        "authentication_count": 55,
+        "authentication_attempt_count": 60,
+        "authentication_success_count": 47,
+        "challenge_flow_count": 33,
+        "challenge_attempt_count": 38,
+        "challenge_success_count": 31,
+        "frictionless_flow_count": 20,
+        "frictionless_success_count": 17,
+        "error_message_count": null,
+        "authentication_funnel": null,
+        "authentication_status": null,
+        "trans_status": null,
+        "authentication_type": null,
+        "error_message": null,
+        "authentication_connector": null,
+        "message_version": null,
+        "acs_reference_number": null,
+        "authentication_exemption_requested": 18,
+        "authentication_exemption_accepted": 15,
+        "time_range": {
+          "start_time": "2025-05-22T00:00:00.000Z",
+          "end_time": "2025-05-22T23:00:00.000Z"
+        },
+        "time_bucket": "2025-05-22 00:00:00"
+      },
+      {
+        "authentication_count": 70,
+        "authentication_attempt_count": 78,
+        "authentication_success_count": 60,
+        "challenge_flow_count": 41,
+        "challenge_attempt_count": 46,
+        "challenge_success_count": 38,
+        "frictionless_flow_count": 25,
+        "frictionless_success_count": 22,
+        "error_message_count": null,
+        "authentication_funnel": null,
+        "authentication_status": null,
+        "trans_status": null,
+        "authentication_type": null,
+        "error_message": null,
+        "authentication_connector": null,
+        "message_version": null,
+        "acs_reference_number": null,
+        "authentication_exemption_requested": 24,
+        "authentication_exemption_accepted": 20,
+        "time_range": {
+          "start_time": "2025-05-28T00:00:00.000Z",
+          "end_time": "2025-05-28T23:00:00.000Z"
+        },
+        "time_bucket": "2025-05-28 00:00:00"
+      }
+    ]
+  },
+
+  "metaData": [
+    {
+      "total_error_message_count": 90
+    }
+  ],
+  "exemptionSankeyChartData": [
+    {
+      "count": 100,
+      "authentication_status": "Total 3DS Payment Request"
+    },
+    {
+      "count": 34,
+      "authentication_status": "Exemption Requested"
+    },
+    {
+      "count": 66,
+      "authentication_status": "Exemption not Requested"
+    },
+    {
+      "count": 29,
+      "authentication_status": "Exemption Accepted"
+    },
+    {
+      "count": 5,
+      "authentication_status": "Exemption not Accepted"
+    },
+    {
+      "count": 62,
+      "authentication_status": "3DS Completed"
+    },
+    {
+      "count": 9,
+      "authentication_status": "3DS not Completed"
+    },
+    {
+      "count": 85,
+      "authentication_status": "Authentication Success"
+    },
+    {
+      "count": 15,
+      "authentication_status": "Authentication Failure"
+    }
+  ],
+  "authenticationSummaryTableData": {
+    "queryData": [
+      {
+        "payment_success_rate": 30.76923076923077,
+        "payment_count": 26,
+        "payment_success_count": 8,
+        "payment_processed_amount": 0,
+        "payment_error_message": [
+          {
+            "reason": "Required field 'deliveryAddress.street' is not provided.",
+            "count": 12,
+            "percentage": 80
+          },
+          {
+            "reason": "Refused",
+            "count": 3,
+            "percentage": 20
+          }
+        ],
+        "avg_ticket_size": 0,
+        "connector": "Adyen",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "30.77%"
+      },
+      {
+        "payment_success_rate": 100,
+        "payment_count": 1,
+        "payment_success_count": 1,
+        "payment_processed_amount": 0,
+        "payment_error_message": [],
+        "avg_ticket_size": 0,
+        "connector": "Bluesnap",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "100.00%"
+      },
+      {
+        "payment_success_rate": 100,
+        "payment_count": 2,
+        "payment_success_count": 2,
+        "payment_processed_amount": 0,
+        "payment_error_message": [],
+        "avg_ticket_size": 0,
+        "connector": "Bankofamerica",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "100.00%"
+      },
+      {
+        "payment_success_rate": 100,
+        "payment_count": 1,
+        "payment_success_count": 1,
+        "payment_processed_amount": 0,
+        "payment_error_message": [],
+        "avg_ticket_size": 0,
+        "connector": "Checkout",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "100.00%"
+      },
+      {
+        "payment_success_rate": 80,
+        "payment_count": 5,
+        "payment_success_count": 4,
+        "payment_processed_amount": 0,
+        "payment_error_message": [
+          {
+            "reason": "PayPal transactions are not accepted by this merchant.",
+            "count": 1,
+            "percentage": 100
+          }
+        ],
+        "avg_ticket_size": 0,
+        "connector": "Authorizedotnet",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "80.00%"
+      },
+      {
+        "payment_success_rate": 66.66666666666667,
+        "payment_count": 3,
+        "payment_success_count": 2,
+        "payment_processed_amount": 0,
+        "payment_error_message": [
+          {
+            "reason": "Invalid credit card number",
+            "count": 1,
+            "percentage": 100
+          }
+        ],
+        "avg_ticket_size": 0,
+        "connector": "Bamboraapac",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "66.67%"
+      },
+      {
+        "payment_success_rate": 100,
+        "payment_count": 3,
+        "payment_success_count": 3,
+        "payment_processed_amount": 0,
+        "payment_error_message": [],
+        "avg_ticket_size": 0,
+        "connector": "Stripe",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "100.00%"
+      },
+      {
+        "payment_success_rate": 50,
+        "payment_count": 2,
+        "payment_success_count": 1,
+        "payment_processed_amount": 0,
+        "payment_error_message": [],
+        "avg_ticket_size": 0,
+        "connector": "Trustpay",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "50.00%"
+      },
+      {
+        "payment_success_rate": 0,
+        "payment_count": 2,
+        "payment_success_count": 0,
+        "payment_processed_amount": 0,
+        "payment_error_message": [],
+        "avg_ticket_size": 0,
+        "connector": "Cashtocode",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "0.00%"
+      },
+      {
+        "payment_success_rate": 0,
+        "payment_count": 3,
+        "payment_success_count": 0,
+        "payment_processed_amount": 0,
+        "payment_error_message": [
+          {
+            "reason": "null",
+            "count": 3,
+            "percentage": 100
+          }
+        ],
+        "avg_ticket_size": 0,
+        "connector": "Bambora",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "0.00%"
+      },
+      {
+        "payment_success_rate": 100,
+        "payment_count": 16,
+        "payment_success_count": 16,
+        "payment_processed_amount": 0,
+        "payment_error_message": [],
+        "avg_ticket_size": 0,
+        "connector": "Cybersource",
+        "payment_method": "NA",
+        "payment_method_type": "NA",
+        "currency": "NA",
+        "authentication_type": "NA",
+        "client_source": "NA",
+        "client_version": "NA",
+        "refund_status": "NA",
+        "weekly_payment_success_rate": "100.00%"
+      }
+    ]
+  }
+}
