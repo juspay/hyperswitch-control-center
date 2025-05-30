@@ -306,16 +306,15 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let (showAllOrgs, setShowAllOrgs) = React.useState(_ => false)
   let (maxVisibleOrgs, setMaxVisibleOrgs) = React.useState(_ => 15)
-
+  let calculateMaxOrgs = () => {
+    let screenHeight = Window.innerHeight->Int.toFloat
+    let orgTileHeight = 50.
+    let reservedSpace = 170.
+    let availableHeight = screenHeight -. reservedSpace
+    let calculated = (availableHeight /. orgTileHeight)->Float.toInt
+    setMaxVisibleOrgs(_ => calculated)
+  }
   React.useEffect(() => {
-    let calculateMaxOrgs = () => {
-      let screenHeight = Window.innerHeight->Int.toFloat
-      let orgTileHeight = 50.
-      let reservedSpace = 170.
-      let availableHeight = screenHeight -. reservedSpace
-      let calculated = (availableHeight /. orgTileHeight)->Float.toInt
-      setMaxVisibleOrgs(_ => calculated)
-    }
     calculateMaxOrgs()
     let handler = _ => calculateMaxOrgs()
     Window.addEventListener("resize", handler) //for window resize cases
@@ -404,7 +403,7 @@ let make = () => {
         <Icon
           name="nd-angle-down"
           size=14
-          className="ml-1 text-primary -mt-2 cursor-pointer"
+          className="ml-1 text-primary -mt-3 cursor-pointer"
           onClick={_ => setShowAllOrgs(_ => true)}
         />
       </RenderIf>
