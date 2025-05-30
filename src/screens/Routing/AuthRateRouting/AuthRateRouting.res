@@ -27,11 +27,11 @@ let make = (
     try {
       let url = getURL(~entityName=V1(GET_VOLUME_SPLIT), ~methodType=Get)
       let response = await fetchDetails(url)
-      Nullable.make(response)
+      response
     } catch {
     | _ => {
         showToast(~message="Failed to get volume split data!", ~toastType=ToastError)
-        Nullable.null
+        Exn.raiseError("Failed to get volume split data")
       }
     }
   }
@@ -41,11 +41,7 @@ let make = (
       let url = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
       let response = await fetchDetails(url)
       let splitPercentage = await getVolumeSplit()
-      let splitPercentage =
-        splitPercentage
-        ->Nullable.getOr(JSON.Encode.int(100))
-        ->getDictFromJsonObject
-        ->getInt("split", 100)
+      let splitPercentage = splitPercentage->getDictFromJsonObject->getInt("split", 100)
 
       let values = response->formFieldsMapper(splitPercentage)->Identity.genericTypeToJson
       setInitialValues(_ => values)
@@ -87,13 +83,12 @@ let make = (
         ~id=Some(routingId),
       )
       let response = await updateDetails(url, values, Patch)
-      Nullable.make(response)
+      response
     } catch {
     | Exn.Error(e) => {
         showToast(~message="Failed to update configs!", ~toastType=ToastError)
         let err = Exn.message(e)->Option.getOr("Something went wrong")
-        Exn.raiseError(err)->ignore
-        Nullable.null
+        Exn.raiseError(err)
       }
     }
   }
@@ -110,7 +105,7 @@ let make = (
       if !isActivate {
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
       }
-      Nullable.make(response)
+      response
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {
@@ -129,8 +124,7 @@ let make = (
       | None => setScreenState(_ => Error("Something went wrong"))
       }
       let err = Exn.message(e)->Option.getOr("Something went wrong")
-      Exn.raiseError(err)->ignore
-      Nullable.null
+      Exn.raiseError(err)
     }
   }
 
@@ -162,14 +156,12 @@ let make = (
       configDict->Dict.set("config", configValues)
 
       let response = await enableAuthRateRouting()
-      let routingId =
-        response->Nullable.getOr(JSON.Encode.null)->getDictFromJsonObject->getString("id", "")
+      let routingId = response->getDictFromJsonObject->getString("id", "")
 
       let updateRoutingId = routingRuleId->Option.getOr(routingId)
 
       let response = await authRateRoutingConfig(updateRoutingId, configDict->JSON.Encode.object)
-      let routingId =
-        response->Nullable.getOr(JSON.Encode.null)->getDictFromJsonObject->getString("id", "")
+      let routingId = response->getDictFromJsonObject->getString("id", "")
 
       let _ = await setVolumeSplit(splitPercentage)
 
@@ -193,8 +185,7 @@ let make = (
       let err = Exn.message(e)->Option.getOr("Something went wrong!")
       showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError)
       setScreenState(_ => PageLoaderWrapper.Error(err))
-      Exn.raiseError(err)->ignore
-      Nullable.null
+      Exn.raiseError(err)
     }
   }
 
