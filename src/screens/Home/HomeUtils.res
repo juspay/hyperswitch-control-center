@@ -173,13 +173,13 @@ module DevResources = {
       <PageHeading
         title="Developer resources"
         subTitle="Couple of things developers need in handy can be found right here."
-        customHeadingStyle="test-fs-20 font-semibold"
-        customSubTitleStyle="text-fs-16 text-nd_gray-400 !opacity-100 font-medium"
+        customTitleStyle="!text-fs-20 !font-semibold"
+        customSubTitleStyle="!text-fs-16 !text-nd_gray-400 !opacity-100 font-medium "
       />
       <div className="flex flex-col md:flex-row  gap-5 ">
         <RenderIf condition={!checkUserEntity([#Profile])}>
-          <CardLayout width=" " customStyle={isLiveMode ? "" : "h-3/6 rounded-xl"}>
-            <div className="flex flex-col w-28-rem 2xl:w-38-rem">
+          <CardLayout width=" " customStyle={isLiveMode ? "" : " rounded-xl"}>
+            <div className="flex flex-col w-[24rem] 2xl:w-38-rem">
               <CardHeader
                 heading="Credentials and Keys"
                 subHeading="Your secret credentials to start integrating"
@@ -208,12 +208,12 @@ module DevResources = {
               customHeadingStyle="!text-fs-18 !font-semibold"
               customSubHeadingStyle="!text-fs-14 !text-nd_gray-400 !opacity-100"
             />
-            <img alt="devdocs" src="/assets/DevDocs.png" className="w-3/4 2xl:w-fit" />
+            <img alt="devdocs" src="/assets/DevDocs.png" className="w-64 2xl:w-fit" />
             <Button
               text="Visit"
               buttonType={Secondary}
               buttonSize={Medium}
-              customButtonStyle="mt-7 2xl:mt-0"
+              customButtonStyle="mt-12 2xl:mt-0"
               onClick={_ => {
                 mixpanelEvent(~eventName=`dev_docs`)
                 "https://hyperswitch.io/docs"->Window._open
