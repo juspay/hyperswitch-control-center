@@ -17,9 +17,9 @@ module OrgChartTree = {
       <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Organization")} </div>
         {orgList
-        ->Array.mapWithIndex((org, i) => {
+        ->Array.map(org => {
           <button
-            key={Int.toString(i)}
+            key=org.id
             className={`rounded-lg border h-10  px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${selectedOrg ==
                 org.id
                 ? "border-blue-600 bg-blue-50 text-blue-600"
@@ -111,7 +111,7 @@ let make = () => {
         <OrgChartTree
           selectedOrg selectedMerchant selectedProfile onOrgSelect onMerchantSelect onProfileSelect
         />
-        <OrgChartArrows
+        <OrganisationChartArrows
           selectedOrg={selectedOrg}
           selectedMerchant={selectedMerchant}
           selectedProfile={selectedProfile}
