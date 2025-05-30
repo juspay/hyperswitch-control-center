@@ -73,6 +73,9 @@ module ActiveSection = {
   let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl) => {
     open LogicUtils
     let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {userInfo: {profileId: currentprofileId}} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -85,7 +88,12 @@ module ActiveSection = {
     | _ => `${activeRouting->getDictFromJsonObject->getString("name", "")->capitalizeString} - `
     }
 
-    let profileId = activeRouting->getDictFromJsonObject->getString("profile_id", "")
+    let profileId = if activeRoutingType == DEFAULTFALLBACK {
+      currentprofileId
+    } else {
+      activeRouting->getDictFromJsonObject->getString("profile_id", "")
+    }
+
     <div className="flex flex-col sm:flex-row gap-8">
       <div className="relative flex flex-1 flex-col bg-white border rounded-lg p-4 pt-10 gap-8">
         <div className=" flex flex-1 flex-col gap-7">

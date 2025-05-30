@@ -28,7 +28,7 @@ let make = (~showModal, ~setShowModal) => {
     modalClass="w-1/3 m-auto"
     childClass="p-0"
     modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-      {"Disabling this setting may result in higher processing fees for debit transactions."->React.string}
+      {"Disabling this setting could limit cost optimization for debit transactions."->React.string}
     </div>}
     borderBottom=true>
     <div className="flex flex-col h-full w-full px-6">
