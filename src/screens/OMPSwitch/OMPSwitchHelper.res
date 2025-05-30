@@ -32,7 +32,7 @@ module ListBaseComp = {
               {"Merchant Account"->React.string}
             </span>
             <RenderIf condition={userHasAccess(~groupAccess=OrganizationManage) === Access}>
-              <div
+              <button
                 className="bg-nd_gray-150 w-5 h-5 rounded-sm flex items-center justify-center"
                 onClick={ev => {
                   ReactEvent.Mouse.stopPropagation(ev)
@@ -41,7 +41,7 @@ module ListBaseComp = {
                   )
                 }}>
                 <Icon name="github-fork" size=14 className="text-gray-500" />
-              </div>
+              </button>
             </RenderIf>
           </div>
           <div className="text-left flex gap-2 w-13.5-rem justify-between">
