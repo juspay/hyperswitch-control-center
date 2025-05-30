@@ -16,6 +16,16 @@ let authRateSummaryChartEntity: chartEntity<barGraphPayload, barGraphOptions, JS
   getChatOptions: AuthRateSummaryUtils.getAuthRateSummaryOptions,
 }
 
+// Retry Strategies
+let retryStrategiesEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [],
+  },
+  title: "Retry Strategies",
+  domain: #payments,
+}
+
 // Retries Comparision
 let retriesComparisionEntity: moduleEntity = {
   requestBodyConfig: {
