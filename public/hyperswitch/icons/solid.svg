@@ -9705,19 +9705,10 @@ License)
       stroke-linejoin="round"
     />
   </symbol>
-  <symbol
-    id="nd-upload"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 16 16"
-    fill="none"
-  >
+  <symbol id="nd-upload" width="12" height="14" viewBox="0 0 12 14">
     <path
-      d="M12.6666 13.3327H3.33325M3.99992 6.55295C5.03696 5.15068 6.24844 3.89124 7.60371 2.8057C7.71997 2.71258 7.85994 2.66602 7.99992 2.66602M11.9999 6.55295C10.9629 5.15068 9.7514 3.89124 8.39613 2.8057C8.27987 2.71258 8.13989 2.66602 7.99992 2.66602M7.99992 2.66602V10.666"
-      stroke="#525866"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
+        d="M10.6663 12.3327H1.33301M1.99967 5.55295C3.03672 4.15068 4.2482 2.89124 5.60346 1.8057C5.71972 1.71258 5.8597 1.66602 5.99967 1.66602M9.99967 5.55295C8.96263 4.15068 7.75115 2.89124 6.39589 1.8057C6.27963 1.71258 6.13965 1.66602 5.99967 1.66602M5.99967 1.66602V9.66602"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
   <symbol
     id="nd-delete-dustbin"
