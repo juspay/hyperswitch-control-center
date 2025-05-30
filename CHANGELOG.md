@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.05.30.0
+
+### Features
+
+- Upload flow changes ([#2927](https://github.com/juspay/hyperswitch-control-center/pull/2927)) ([`b847d63`](https://github.com/juspay/hyperswitch-control-center/commit/b847d63b1883e48c320ee05533a1798084cc996b))
+
+### Miscellaneous Tasks
+
+- Removed unused business profile and business details code ([#3063](https://github.com/juspay/hyperswitch-control-center/pull/3063)) ([`b5e5c0a`](https://github.com/juspay/hyperswitch-control-center/commit/b5e5c0ae1d3e74bbef0d2cdb8f183e57f2908437))
+- Update latest routing wasm ([#2959](https://github.com/juspay/hyperswitch-control-center/pull/2959)) ([`3c11c8c`](https://github.com/juspay/hyperswitch-control-center/commit/3c11c8cb3ff760e1c0ca2110dfbcda50d5eb2b9e))
+- Removed frontend email case conversion ([#3065](https://github.com/juspay/hyperswitch-control-center/pull/3065)) ([`c92ada3`](https://github.com/juspay/hyperswitch-control-center/commit/c92ada3a4494107de2131bb55fa98771aed9837d))
+- Update memory bank ([`9eee9af`](https://github.com/juspay/hyperswitch-control-center/commit/9eee9afa886be4279536e5b4a39843d3bc010bf2))
+- Update memory bank ([`da8505d`](https://github.com/juspay/hyperswitch-control-center/commit/da8505dd06a0aca4dce454a764a2c873378347dc))
+
+**Full Changelog:** [`2025.05.28.0...2025.05.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.28.0...2025.05.30.0)
+
+
+- - -
+
 ## 2025.05.28.0
 
 ### Bug Fixes
