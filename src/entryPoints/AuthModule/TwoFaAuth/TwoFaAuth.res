@@ -147,7 +147,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     try {
       open CommonAuthUtils
       let valuesDict = values->getDictFromJsonObject
-      let email = valuesDict->getString("email", "")->String.toLowerCase
+      let email = valuesDict->getString("email", "")
       setEmail(_ => email)
       logMixpanelEvents(email)
       setMixpanelIdentity(~distinctId=email)->ignore

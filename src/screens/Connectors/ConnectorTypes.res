@@ -39,6 +39,7 @@ type processorTypes =
   | BLUESNAP
   | AIRWALLEX
   | WORLDPAY
+  | WORLDPAYXML
   | CYBERSOURCE
   | COINGATE
   | ELAVON

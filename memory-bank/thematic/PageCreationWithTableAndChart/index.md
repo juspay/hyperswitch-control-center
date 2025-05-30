@@ -11,6 +11,7 @@ Modern dashboard pages typically include both tabular data displays and visual r
 A typical dashboard page with tables and charts consists of:
 
 1. **Dashboard Component** - The main React component that:
+
    - Manages state for data
    - Handles data fetching and transformations
    - Renders UI components including tables and charts
@@ -102,7 +103,7 @@ let make = () => {
           {"Description of the dashboard"->React.string}
         </p>
       </div>
-      
+
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white dark:bg-jp-gray-950 rounded-lg shadow-md p-4">
@@ -126,7 +127,7 @@ let make = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Table */}
       <div className="bg-white dark:bg-jp-gray-950 rounded-lg shadow-md p-4">
         <h2 className="text-lg font-medium mb-4 text-jp-gray-900 dark:text-jp-gray-100">
@@ -172,19 +173,23 @@ The WebsiteTraffic module provides a complete example of this pattern:
 ## Best Practices
 
 1. **Separation of Concerns**
+
    - Keep data types, entity definitions, and utility functions in separate files
    - Extract reusable logic into utility functions
 
 2. **Type Safety**
+
    - Use proper type annotations for all functions and data structures
    - Handle type casting carefully, especially for chart configurations
 
 3. **Component Structure**
+
    - Use a common layout structure for dashboards for consistency
    - Group related charts together
    - Place tables below charts for a natural information flow
 
 4. **Error Handling**
+
    - Use PageLoaderWrapper for handling loading states
    - Provide fallback UI for error states
 

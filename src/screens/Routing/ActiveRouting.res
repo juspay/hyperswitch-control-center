@@ -92,7 +92,7 @@ module ActiveSection = {
           <div
             className="absolute top-0 left-0 flex items-center w-fit bg-green-200 text-green-800 py-1 px-2 rounded-tl-lg rounded-br-md">
             <Icon name="check" size={8} className="mr-1" />
-            <span className={`${body.sm.semibold}`}> {"Primary Configuration"->React.string} </span>
+            <span className={`${body.sm.semibold}`}> {"Active"->React.string} </span>
           </div>
           <div className={"flex flex-col gap-3"}>
             <p className={`text-nd_gray-600 ${body.md.semibold} w-full whitespace-normal`}>

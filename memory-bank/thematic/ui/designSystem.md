@@ -81,7 +81,7 @@ let themeContext = React.createContext(defaultThemeConfig)
 @react.component
 let make = (~children) => {
   let (theme, _) = React.useState(_ => defaultThemeConfig)
-  
+
   <themeContext.Provider value=theme>
     {children}
   </themeContext.Provider>
@@ -174,7 +174,7 @@ Typography is implemented through a set of consistent components:
 // Typography.res
 module Heading = {
   type headingLevel = H1 | H2 | H3 | H4 | H5 | H6
-  
+
   @react.component
   let make = (~level=H2, ~className="", ~children) => {
     let headingClass = switch level {
@@ -185,9 +185,9 @@ module Heading = {
     | H5 => "text-fs-16 font-medium"
     | H6 => "text-fs-14 font-medium"
     }
-    
+
     let combinedClassName = `${headingClass} ${className}`
-    
+
     switch level {
     | H1 => <h1 className=combinedClassName> {children} </h1>
     | H2 => <h2 className=combinedClassName> {children} </h2>
@@ -210,7 +210,7 @@ module Text = {
     | Medium => "text-fs-14"
     | Large => "text-fs-16"
     }
-    
+
     <p className={`${textClass} ${className}`}> {children} </p>
   }
 }
@@ -240,6 +240,7 @@ A consistent spacing system ensures proper layout throughout the application:
 ```
 
 Spacing is applied consistently through Tailwind classes:
+
 - Margin: `m-4`, `mt-4`, `mr-4`, `mb-4`, `ml-4`, `mx-4`, `my-4`
 - Padding: `p-4`, `pt-4`, `pr-4`, `pb-4`, `pl-4`, `px-4`, `py-4`
 - Gap: `gap-4`, `gap-x-4`, `gap-y-4`
@@ -301,7 +302,7 @@ Components access theme configuration for consistent styling:
 let make = (~text) => {
   let config = React.useContext(ThemeProvider.themeContext)
   let textColor = config.globalUIConfig.button.textColor.primaryNormal
-  
+
   <button className={`px-4 py-2 rounded ${textColor} bg-primary`}>
     {React.string(text)}
   </button>
@@ -317,7 +318,7 @@ Component styling adapts based on props and state:
 let make = (~isActive, ~text) => {
   let baseClass = "px-4 py-2 rounded transition-colors"
   let stateClass = isActive ? "bg-primary text-white" : "bg-gray-200 text-gray-700"
-  
+
   <button className={`${baseClass} ${stateClass}`}>
     {React.string(text)}
   </button>
@@ -399,8 +400,8 @@ let make = (
 ) => {
   let backColor = useGetBgColor(~buttonType, ~buttonState, ~showBorder)
   let textColor = useGetTextColor(~buttonType, ~buttonState, ~showBorder)
-  
-  <button 
+
+  <button
     className={`flex items-center justify-center ${backColor} ${textColor} rounded-lg`}
     onClick=?onClick
     disabled={buttonState === Disabled || buttonState === Loading}
@@ -426,7 +427,7 @@ let make = (~title, ~children, ~footer=?) => {
       {children}
     </div>
     {switch footer {
-     | Some(content) => 
+     | Some(content) =>
        <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
          {content}
        </div>
@@ -451,8 +452,8 @@ let make = (
   ~error=None,
 ) => {
   <div className="mb-4">
-    <label className="block text-gray-700 dark:text-gray-300 mb-1"> 
-      {React.string(label)} 
+    <label className="block text-gray-700 dark:text-gray-300 mb-1">
+      {React.string(label)}
     </label>
     <input
       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
@@ -461,7 +462,7 @@ let make = (
       placeholder
     />
     {switch error {
-     | Some(errorMsg) => 
+     | Some(errorMsg) =>
        <p className="mt-1 text-red-500 text-sm"> {React.string(errorMsg)} </p>
      | None => React.null
      }}
@@ -480,6 +481,7 @@ The design system incorporates accessibility features:
 5. **Reduced Motion**: Respects user preferences for reduced motion
 
 Example:
+
 ```rescript
 @react.component
 let make = (~label, ~onClick) => {
@@ -503,6 +505,7 @@ Animations follow consistent patterns:
 4. **Motion**: Subtle motion to guide attention
 
 Example of transition:
+
 ```rescript
 <div className="transition-all duration-300 ease-in-out transform hover:scale-105">
   // Content
@@ -519,6 +522,7 @@ The application follows a responsive design approach:
 4. **Adaptive Layouts**: Layouts adapt to screen size
 
 Example responsive layout:
+
 ```rescript
 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
   // Grid items
@@ -592,7 +596,7 @@ UI components integrate with feature flags for conditional rendering:
 @react.component
 let make = () => {
   let {feedback} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  
+
   <div>
     <RenderIf condition=feedback>
       <FeedbackButton />
@@ -622,9 +626,11 @@ The application supports UI customization for white-labeling:
 4. **Theme Overrides**: Override specific theme settings
 
 Configuration example:
+
 ```toml
 # config.toml
 [branding]
 primary_color = "#4F54EF"
 logo_url = "/custom/logo.png"
 favicon_url = "/custom/favicon.ico"
+```

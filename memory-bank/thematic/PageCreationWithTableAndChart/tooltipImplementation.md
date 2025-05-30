@@ -48,9 +48,9 @@ Always implement safe data access patterns when working with tooltip data:
 ```rescript
 // Define default values for safety
 let defaultValue = {
-  color: "", 
-  x: "", 
-  y: 0.0, 
+  color: "",
+  x: "",
+  y: 0.0,
   point: {index: 0},
   series: {name: ""}
 }
@@ -75,6 +75,7 @@ let pointRows = formatter.points->Array.map(point => {
 ### Line Graph Points
 
 Line graph points typically include:
+
 - `point.x`: The x-axis category/value
 - `point.y`: The y-axis value
 - `point.series.name`: The series name

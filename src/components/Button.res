@@ -620,106 +620,117 @@ let make = (
     )}`
   let customJustifyStyle = customButtonStyle->String.includes("justify") ? "" : "justify-center"
 
-  <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr), ("data-testid", dataTestId)]>
-    <button
-      type_
-      disabled=dis
-      ref={parentRef->ReactDOM.Ref.domRef}
-      onKeyUp={e => e->ReactEvent.Keyboard.preventDefault}
-      onKeyPress={e => {
-        if !onEnterPress {
-          e->ReactEvent.Keyboard.preventDefault
-        }
-      }}
-      className={`flex group ${customButtonStyle} ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}   ${cursorType} ${paddingClass} ${lengthStyle}   ${customTextOverFlowClass} ${textColor} ${customWidthClass} ${customHeightClass}`}
-      onClick=handleClick>
-      {if buttonState == Loading {
-        <span className={iconPadding}>
-          <span className={`flex items-center mx-2 animate-spin`}>
-            <Loadericon size=iconSize iconColor=?loaderIconColor />
+  let buttonComp =
+    <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr), ("data-testid", dataTestId)]>
+      <button
+        type_
+        disabled=dis
+        ref={parentRef->ReactDOM.Ref.domRef}
+        onKeyUp={e => e->ReactEvent.Keyboard.preventDefault}
+        onKeyPress={e => {
+          if !onEnterPress {
+            e->ReactEvent.Keyboard.preventDefault
+          }
+        }}
+        className={`flex group ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}   ${cursorType} ${paddingClass} ${lengthStyle}   ${customTextOverFlowClass} ${textColor} ${customWidthClass} ${customHeightClass} ${customButtonStyle}`}
+        onClick=handleClick>
+        {if buttonState == Loading {
+          <span className={iconPadding}>
+            <span className={`flex items-center mx-2 animate-spin`}>
+              <Loadericon size=iconSize iconColor=?loaderIconColor />
+            </span>
           </span>
-        </span>
-      } else {
-        switch leftIcon {
+        } else {
+          switch leftIcon {
+          | FontAwesome(iconName) =>
+            <span className={`flex items-center ${iconColor} ${iconMargin} ${iconPadding}`}>
+              <Icon
+                className={`align-middle ${strokeColor} ${iconBorderColor}`}
+                size=iconSize
+                name=iconName
+              />
+            </span>
+          | Euler(iconName) =>
+            <span className={`flex items-center ${iconColor} ${iconMargin}`}>
+              <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
+            </span>
+          | CustomIcon(element) =>
+            <span className={`flex items-center ${iconMargin}`}> {element} </span>
+          | _ => React.null
+          }
+        }}
+        {switch text {
+        | Some(textStr) =>
+          if !(textStr->LogicUtils.isEmptyString) {
+            let btnContent =
+              <AddDataAttributes attributes=[("data-button-text", textStr)]>
+                <div
+                  className={`${textPaddingClass} px-3 ${textSize} ${textWeight} ${ellipsisClass} whitespace-pre ${textStyle}`}>
+                  {buttonState == Loading ? React.string(loadingText) : React.string(textStr)}
+                </div>
+              </AddDataAttributes>
+
+            if showBtnTextToolTip && !showTooltip {
+              <div className=ellipsisParentClass>
+                <ToolTip
+                  description={tooltipText->Option.getOr("")}
+                  toolTipFor=btnContent
+                  contentAlign=Default
+                  justifyClass="justify-start"
+                  toolTipPosition
+                />
+              </div>
+            } else {
+              <div className=ellipsisParentClass> btnContent </div>
+            }
+          } else {
+            React.null
+          }
+
+        | None => React.null
+        }}
+        {switch badge.color {
+        | NoBadge => React.null
+        | _ =>
+          <AddDataAttributes attributes=[("data-badge-value", badge.value)]>
+            <span
+              className={`flex items-center ${rightIconSpacing} ${badgeColor} ${badgeTextColor} ${badgeSpacing} ${badgeTextSize}  rounded-full`}>
+              {React.string(badge.value)}
+            </span>
+          </AddDataAttributes>
+        }}
+        {switch buttonRightText {
+        | Some(text) =>
+          <RenderIf condition={!(text->LogicUtils.isEmptyString)}>
+            <span className="text-jp-2-light-primary-600 font-semibold text-fs-14">
+              {React.string(text)}
+            </span>
+          </RenderIf>
+        | None => React.null
+        }}
+        {switch rightIcon {
         | FontAwesome(iconName) =>
-          <span className={`flex items-center ${iconColor} ${iconMargin} ${iconPadding}`}>
-            <Icon
-              className={`align-middle ${strokeColor} ${iconBorderColor}`}
-              size=iconSize
-              name=iconName
-            />
+          <span className={`flex items-center ${rightIconSpacing}`}>
+            <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
           </span>
         | Euler(iconName) =>
-          <span className={`flex items-center ${iconColor} ${iconMargin}`}>
+          <span className={`flex items-center ${iconMargin}`}>
             <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
           </span>
         | CustomIcon(element) =>
-          <span className={`flex items-center ${iconMargin}`}> {element} </span>
+          <span className={`flex items-center ${iconPadding} `}> {element} </span>
         | _ => React.null
-        }
-      }}
-      {switch text {
-      | Some(textStr) =>
-        if !(textStr->LogicUtils.isEmptyString) {
-          let btnContent =
-            <AddDataAttributes attributes=[("data-button-text", textStr)]>
-              <div
-                className={`${textPaddingClass} px-3 ${textSize} ${textWeight} ${ellipsisClass} whitespace-pre ${textStyle}`}>
-                {buttonState == Loading ? React.string(loadingText) : React.string(textStr)}
-              </div>
-            </AddDataAttributes>
+        }}
+      </button>
+    </AddDataAttributes>
 
-          if showBtnTextToolTip {
-            <div className=ellipsisParentClass>
-              <ToolTip
-                description={tooltipText->Option.getOr("")}
-                toolTipFor=btnContent
-                contentAlign=Default
-                justifyClass="justify-start"
-                toolTipPosition
-              />
-            </div>
-          } else {
-            <div className=ellipsisParentClass> btnContent </div>
-          }
-        } else {
-          React.null
-        }
-
-      | None => React.null
-      }}
-      {switch badge.color {
-      | NoBadge => React.null
-      | _ =>
-        <AddDataAttributes attributes=[("data-badge-value", badge.value)]>
-          <span
-            className={`flex items-center ${rightIconSpacing} ${badgeColor} ${badgeTextColor} ${badgeSpacing} ${badgeTextSize}  rounded-full`}>
-            {React.string(badge.value)}
-          </span>
-        </AddDataAttributes>
-      }}
-      {switch buttonRightText {
-      | Some(text) =>
-        <RenderIf condition={!(text->LogicUtils.isEmptyString)}>
-          <span className="text-jp-2-light-primary-600 font-semibold text-fs-14">
-            {React.string(text)}
-          </span>
-        </RenderIf>
-      | None => React.null
-      }}
-      {switch rightIcon {
-      | FontAwesome(iconName) =>
-        <span className={`flex items-center ${rightIconSpacing}`}>
-          <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
-        </span>
-      | Euler(iconName) =>
-        <span className={`flex items-center ${iconMargin}`}>
-          <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
-        </span>
-      | CustomIcon(element) =>
-        <span className={`flex items-center ${iconPadding} `}> {element} </span>
-      | _ => React.null
-      }}
-    </button>
-  </AddDataAttributes>
+  showTooltip
+    ? <ToolTip
+        description={tooltipText->Option.getOr("")}
+        toolTipFor=buttonComp
+        contentAlign=Default
+        justifyClass="justify-start"
+        toolTipPosition
+      />
+    : buttonComp
 }

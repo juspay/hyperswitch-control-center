@@ -42,6 +42,7 @@ let make = (~showModal, ~setShowModal) => {
   open SbxOnboardingSurveyUtils
   open CommonAuthHooks
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let {merchantId, email: userEmail} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
@@ -107,7 +108,7 @@ let make = (~showModal, ~setShowModal) => {
   let onSubmit = async (values, _) => {
     try {
       let _ = values->udpateMerchantDetails
-
+      mixpanelEvent(~eventName="start_exploring_button_click")
       // TODO: Move this to prod onboarding form
       // let _ = values->updateOnboardingSurveyDetails
       // let _ = values->updateUserName

@@ -5,6 +5,7 @@ This document provides detailed information about the PieGraph component in Hype
 ## Overview
 
 The PieGraph component is used for visualizing proportional data, showing parts of a whole. It's particularly useful for displaying:
+
 - Payment method distribution
 - Transaction status breakdowns
 - Processor allocation percentages
@@ -29,9 +30,9 @@ external pieGraphOptionsToJson: PieGraphTypes.pieGraphOptions => JSON.t = "%iden
 @react.component
 let make = (~options: PieGraphTypes.pieGraphOptions, ~className="") => {
   <div className>
-    <Highcharts.Chart 
-      options={options->pieGraphOptionsToJson} 
-      highcharts={Highcharts.highcharts} 
+    <Highcharts.Chart
+      options={options->pieGraphOptionsToJson}
+      highcharts={Highcharts.highcharts}
     />
   </div>
 }
@@ -183,7 +184,7 @@ let pieGraphTooltipFormatter = (
     (point: pointFormatter) => {
       // Format title
       let titleHtml = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
-      
+
       // Format value
       let formattedValue = valueFormatter(point.y, valueType, ~currency)
       let formattedPercentage = if valueType !== Percentage {
@@ -191,7 +192,7 @@ let pieGraphTooltipFormatter = (
       } else {
         ""
       }
-      
+
       // Format total if requested
       let totalHtml = if showTotal {
         let formattedTotal = valueFormatter(totalValue, valueType, ~currency)
@@ -201,7 +202,7 @@ let pieGraphTooltipFormatter = (
       } else {
         ""
       }
-      
+
       // Generate content
       let content = `
         <div style="padding: 5px 12px; display: flex; flex-direction: column; gap: 7px;">
@@ -216,7 +217,7 @@ let pieGraphTooltipFormatter = (
           ${totalHtml}
         </div>
       `
-      
+
       // Return styled container
       `<div style="padding: 10px; border-radius: 7px; background-color: #FFFFFF; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); border: 1px solid #E5E5E5;">
         ${content}
@@ -231,14 +232,17 @@ let pieGraphTooltipFormatter = (
 The PieGraph is particularly useful for:
 
 1. **Payment Method Distribution**
+
    - Show breakdown of card vs. wallet vs. bank transfer payments
    - Visualize card brand (Visa, Mastercard, etc.) distribution
 
 2. **Status Breakdowns**
+
    - Display transaction statuses (successful, failed, pending)
    - Show dispute resolution outcomes
 
 3. **Geographical Analysis**
+
    - Display transaction distribution by country or region
    - Show revenue breakdown by market
 
@@ -281,15 +285,18 @@ let options = PieGraphUtils.getPieGraphOptions(pieChartConfig)
 ## Styling Considerations
 
 1. **Color Selection**
+
    - Use distinct colors for different segments
    - Follow design system color palette for consistency
    - Ensure sufficient contrast between adjacent segments
 
 2. **Label Placement**
+
    - Consider enabling or disabling data labels based on chart size
    - Use shorter labels when possible to avoid overlap
 
 3. **Legend Design**
+
    - Position legend for optimal space usage (bottom for larger segments, right for many small segments)
    - Use custom formatting for clearer representation
 
@@ -365,18 +372,22 @@ plotOptions: {
 ## Best Practices
 
 1. **Limit Segments**
+
    - Keep the number of segments below 7 for readability
    - Consider grouping small segments into an "Other" category
 
 2. **Order Segments**
+
    - Arrange segments by size (largest to smallest) or by logical grouping
    - Place the most important segment at the 12 o'clock position
 
 3. **Use Clear Labels**
+
    - Ensure labels clearly identify each segment
    - Consider using percentages in labels when appropriate
 
 4. **Provide Context**
+
    - Include a clear title that explains what the pie represents
    - Add a subtitle if additional context is needed
 
@@ -387,6 +398,7 @@ plotOptions: {
 ## Common Customizations
 
 1. **Gradient Colors**
+
    ```rescript
    data: [
      {
@@ -405,6 +417,7 @@ plotOptions: {
    ```
 
 2. **Custom Legend Layout**
+
    ```rescript
    legend: {
      layout: "vertical",
@@ -430,21 +443,25 @@ plotOptions: {
 ## Troubleshooting
 
 1. **Overlapping Labels**
+
    - Reduce label content or size
    - Switch to using tooltips instead of data labels
    - Increase chart size if possible
 
 2. **Poor Segment Visibility**
+
    - Adjust colors for better contrast
    - Group very small segments into an "Other" category
    - Consider using a donut chart for better differentiation
 
 3. **Unclear Proportions**
+
    - Ensure total adds up to 100%
    - Sort segments by size for easier comparison
    - Add percentage values to tooltips or labels
 
 4. **Legend Issues**
+
    - Adjust legend position based on available space
    - Use shorter names in the legend
    - Consider a custom legend formatter for better control
