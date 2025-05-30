@@ -18,7 +18,7 @@ let make = (~setAppScreenState) => {
         title={`${greeting}, it's great to see you!`}
         subTitle="Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments."
         customHeadingStyle="text-fs-24 font-semibold"
-        customSubTitleStyle="text-fs-16 text-nd_gray-400 !opacity-100 font-medium"
+        customSubTitleStyle="text-fs-16 text-nd_gray-400 !opacity-100 font-medium !mt-1"
       />
       <ControlCenter />
       <DevResources />

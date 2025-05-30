@@ -174,12 +174,12 @@ module DevResources = {
         title="Developer resources"
         subTitle="Couple of things developers need in handy can be found right here."
         customTitleStyle="!text-fs-20 !font-semibold"
-        customSubTitleStyle="!text-fs-16 !text-nd_gray-400 !opacity-100 font-medium "
+        customSubTitleStyle="!text-fs-16 !text-nd_gray-400 !opacity-100 font-medium !mt-1"
       />
       <div className="flex flex-col md:flex-row  gap-5 ">
         <RenderIf condition={!checkUserEntity([#Profile])}>
           <CardLayout width=" " customStyle={isLiveMode ? "" : " rounded-xl"}>
-            <div className="flex flex-col w-[24rem] 2xl:w-38-rem">
+            <div className="flex flex-col w-24-rem 2xl:w-38-rem">
               <CardHeader
                 heading="Credentials and Keys"
                 subHeading="Your secret credentials to start integrating"
