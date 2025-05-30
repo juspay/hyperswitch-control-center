@@ -284,16 +284,6 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
         Js.Global.setTimeout(() => {
           requestAnimationFrame(_ => tryUpdate())
         }, delay)->ignore
-      } else {
-        // Debug logging for failed attempts
-        Js.log4(
-          "Arrow update failed after retries:",
-          hasData,
-          selectedOrgExists,
-          selectedMerchantExists,
-        )
-        Js.log2("ProfilesReady:", profilesReady)
-        Js.log2("SelectedProfileExists:", selectedProfileExists)
       }
     }
     requestAnimationFrame(_ => tryUpdate())
