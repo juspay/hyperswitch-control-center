@@ -1,187 +1,594 @@
-# ReScript JavaScript Interoperability
+# JavaScript Interop in ReScript (Hyperswitch Control Center)
 
-ReScript provides a comprehensive set of features to seamlessly interoperate with JavaScript code. This includes calling JavaScript functions from ReScript, exposing ReScript functions to JavaScript, and handling JavaScript-specific types like Promises and Nullables.
+This document describes how to interoperate with JavaScript code using `@bs.*` attributes, `external`s, and handling types like `Js.Promise` and `Js.Nullable`.
 
-## Raw JavaScript (`%raw`)
+## External Bindings
 
-The `%raw` extension allows embedding arbitrary JavaScript code directly within ReScript. This should be used sparingly, as it bypasses ReScript's type safety.
-
-**Example: `isUint8Array` in `LogicUtils.res`**
-This function uses `%raw` to perform an `instanceof` check, which is a JavaScript-specific operation.
+### Basic External Bindings
 
 ```rescript
-// In src/utils/LogicUtils.res
-let isUint8Array: 'a => bool = %raw("(val) => val instanceof Uint8Array")
+// Binding to global JavaScript functions
+@val external alert: string => unit = "alert"
+@val external confirm: string => bool = "confirm"
+@val external parseInt: string => int = "parseInt"
+@val external parseFloat: string => float = "parseFloat"
 
-// Usage:
-// let arr = getSomeValue();
-// if isUint8Array(arr) { ... }
+// Usage
+alert("Hello World!")
+let userConfirmed = confirm("Are you sure?")
+let number = parseInt("42")
 ```
 
-- The type signature `'a => bool` is provided to ReScript, but the implementation is raw JavaScript.
-
-## Externals (`external`)
-
-The `external` keyword is used to declare bindings to existing JavaScript values or functions. It tells the ReScript compiler that a certain identifier exists in JavaScript and provides its ReScript type signature.
-
-**Common `@bs.*` Attributes with `external`:**
-
-These attributes modify how `external` declarations are compiled to JavaScript.
-
-- **`@bs.val`**: Binds to a JavaScript value that is globally accessible or accessible via a specified scope.
-
-  ```rescript
-  // From src/libraries/Window.res - Accessing window.location.hostname
-  // 'location' is an abstract type representing the window.location object
-  type location;
-  @bs.val @bs.scope("window", "location") external hostname: string = "hostname";
-  // Usage: let currentHost = Window.hostname;
-
-  // From src/components/RippleEffectBackground.res - Accessing global 'document'
-  @bs.val external document: Dom.document = "document";
-  ```
-
-- **`@bs.module("module-name")`**: Imports a value or function from a JavaScript module.
-
-  ```rescript
-  // From src/libraries/GoogleAnalytics.res
-  // Assuming 'analyticsType' is defined elsewhere.
-  type analyticsType;
-  @bs.module("react-ga4") external analytics: analyticsType = "default";
-  // This imports the default export from "react-ga4" module.
-
-  // From src/server/NodeJs.res - Importing 'execFile' from 'child_process'
-  type promisifyable;
-  @bs.module("child_process") external execFile: promisifyable = "execFile";
-  ```
-
-  If importing a named export `foo`, it would be `external foo: type = "foo"`.
-  For the default export, the external name is often `"default"`.
-
-- **`@bs.send`**: Used for calling methods on JavaScript objects. The first ReScript argument is the object instance.
-
-  ```rescript
-  // From src/hooks/TimeZoneHook.res - Calling Date.prototype.toLocaleString
-  type timeZoneObject = {timeZone: string};
-  @bs.send external toLocaleString: (Date.t, string, timeZoneObject) => string = "toLocaleString";
-  // Usage: myDate->toLocaleString("en-US", {timeZone: "America/New_York"})
-
-  // From src/components/DynamicTabs.res - Calling element.scrollIntoView
-  type scrollIntoViewParams = {behavior: string, block: string, inline: string};
-  @bs.send external scrollIntoView: (Dom.element, scrollIntoViewParams) => unit = "scrollIntoView";
-  // Usage: myElement->scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
-  ```
-
-- **`@bs.get`**: Used for accessing properties of JavaScript objects.
-
-  ```rescript
-  // From src/components/RippleEffectBackground.res - Getting element.style
-  type styleObj; // Abstract type for a style object
-  @bs.get external style: Dom.element => styleObj = "style";
-  // Usage: let s = myElement->style;
-  ```
-
-- **`@bs.set`**: Used for setting properties of JavaScript objects.
-
-  ```rescript
-  // From src/components/RippleEffectBackground.res - Setting style.width
-  type styleObj; // As above
-  @bs.set external setWidth: (styleObj, string) => unit = "width";
-  // Usage: myStyleObject->setWidth("100px");
-  ```
-
-- **`@bs.new`**: Used for calling JavaScript constructors (e.g., `new AbortController()`).
-
-  ```rescript
-  // From src/libraries/bsfetch/Fetch.res - AbortController constructor
-  module AbortController = {
-    type t; // Abstract type for AbortController instance
-    @bs.new external make: unit => t = "AbortController";
-  };
-  // Usage: let controller = AbortController.make();
-  ```
-
-- **`@obj`**: Used to create a ReScript function that, when called, generates a plain JavaScript object.
-  The function must have only labeled arguments.
-  ```rescript
-  // From src/server/Server.res - Creating a rewrite rule object
-  type rewrite; // Abstract type for the object shape
-  @obj external makeRewrite: (~source: string, ~destination: string) => rewrite = "";
-  // Usage: let rule = makeRewrite(~source="/old", ~destination="/new");
-  // 'rule' is now a JS object like {source: "/old", destination: "/new"}
-  ```
-
-**Identity External (`"%identity"`)**
-Sometimes, you need to tell ReScript that two types are equivalent at runtime, essentially a type cast. `external identityCast: typeA => typeB = "%identity"` can be used for this. It has no runtime cost.
-`rescript
-    // From src/hooks/OutsideClick.res
-    // Casting Dom.eventTarget to a more specific DOM node like type
-    external ffToDomType: Dom.eventTarget => Dom.node_like<'a> = "%identity";
-    `
-Use with caution, as it bypasses some type safety if the types aren't actually compatible.
-
-## JavaScript Promises (`Js.Promise.t<'a>`)
-
-ReScript represents JavaScript Promises with the `Js.Promise.t<'a>` type. The `Js.Promise` module provides functions to work with them.
-
-**Example: Handling Fetch response in `APIUtils.res`**
-The `fetchApi` function (likely from `AuthHooks.useApiFetcher`) returns a `Js.Promise.t<Fetch.Response.t>`.
+### Binding to Object Methods
 
 ```rescript
-// In src/APIUtils/APIUtils.res (simplified from useHandleLogout)
-open Promise // Often Js.Promise is aliased or its functions are used directly
+// Binding to console methods
+@val external console: 'a = "console"
+@send external log: (console, 'a) => unit = "log"
+@send external error: (console, 'a) => unit = "error"
+@send external warn: (console, 'a) => unit = "warn"
 
-let handleLogoutLogic = () => {
-  // fetchApi(...) returns a Js.Promise.t<Fetch.Response.t>
-  fetchApi(logoutUrl, ~method_=Post, ...)
-  ->then(Fetch.Response.json) // Fetch.Response.json also returns a Js.Promise.t<JSON.t>
-  ->then(json => { // 'json' here is the resolved JSON.t
-    // Process the JSON
-    json->resolve // Resolve the outer promise created by this chain
-  })
-  ->catch(_err => { // Catch errors from any preceding promise in the chain
-    JSON.Encode.null->resolve // Resolve with a default value in case of error
-  })
-  // ...
+// Usage
+console->log("Debug message")
+console->error("Error occurred")
+
+// Alternative approach
+@scope("console") @val external consoleLog: 'a => unit = "log"
+@scope("console") @val external consoleError: 'a => unit = "error"
+
+consoleLog("Direct console log")
+consoleError("Direct console error")
+```
+
+### Binding to DOM APIs
+
+```rescript
+// DOM element types and methods
+type element
+type document
+
+@val external document: document = "document"
+@send external getElementById: (document, string) => Js.Nullable.t<element> = "getElementById"
+@send external querySelector: (document, string) => Js.Nullable.t<element> = "querySelector"
+@send external createElement: (document, string) => element = "createElement"
+
+@send external addEventListener: (element, string, unit => unit) => unit = "addEventListener"
+@send external removeEventListener: (element, string, unit => unit) => unit = "removeEventListener"
+@send external setAttribute: (element, string, string) => unit = "setAttribute"
+@send external getAttribute: (element, string) => Js.Nullable.t<string> = "getAttribute"
+
+// Usage
+let button = document->getElementById("myButton")
+switch button->Js.Nullable.toOption {
+| Some(btn) => {
+    btn->addEventListener("click", () => Js.log("Button clicked!"))
+    btn->setAttribute("disabled", "true")
+  }
+| None => Js.log("Button not found")
 }
 ```
 
-- `->then(callback)` is used for successful resolution.
-- `->catch(errorCallback)` is used for handling promise rejections.
-- `value->resolve` creates a new resolved promise (often `Js.Promise.resolve(value)`).
-- `error->reject` creates a new rejected promise (often `Js.Promise.reject(error)`).
-- Async/await syntax can also be used with promises if preferred, by marking functions with `async` and using `await` keyword.
-
-## Nullable Values (`Js.Nullable.t<'a>`)
-
-To interoperate with JavaScript functions or libraries that might return `null` or `undefined`, ReScript uses the `Js.Nullable.t<'a>` type. This is distinct from ReScript's `option<'a>`.
-
-**Constructors/Values:**
-
-- `Js.Nullable.null`: Represents `null`.
-- `Js.Nullable.undefined`: Represents `undefined`.
-- `Js.Nullable.return(value)`: Wraps a ReScript `value` into a `Js.Nullable.t<value>`.
-
-**Conversion:**
-
-- `Js.Nullable.toOption(nullableValue)`: Converts `Js.Nullable.t<'a>` to `option<'a>`.
-- `Js.Nullable.fromOption(optionValue)`: Converts `option<'a>` to `Js.Nullable.t<'a>` (where `None` becomes `undefined`).
-
-**Example: React Refs in `Button.res`**
-React refs are often initialized with `null`.
+### Binding to Browser APIs
 
 ```rescript
-// In src/components/Button.res
-let parentRef = React.useRef(Js.Nullable.null); // Initializing a ref with null
+// Local Storage
+@scope("localStorage") @val external setItem: (string, string) => unit = "setItem"
+@scope("localStorage") @val external getItem: string => Js.Nullable.t<string> = "getItem"
+@scope("localStorage") @val external removeItem: string => unit = "removeItem"
+@scope("localStorage") @val external clear: unit => unit = "clear"
 
-// Later, to use the ref's current value (which is a DOM element or null):
-// myRef.current is Js.Nullable.t<Dom.element>
-myRef.current
-->Js.Nullable.toOption // Convert to option<Dom.element>
-->Option.forEach(element => {
-  // Now 'element' is Dom.element, and this block only runs if it's Some(element)
-  // Do something with the element
-})
+// Usage
+setItem("user", "john_doe")
+let user = getItem("user")->Js.Nullable.toOption
+
+// Fetch API
+@val external fetch: string => Js.Promise.t<'response> = "fetch"
+@send external json: 'response => Js.Promise.t<'a> = "json"
+@send external text: 'response => Js.Promise.t<string> = "text"
+
+// Usage
+let fetchData = async () => {
+  try {
+    let response = await fetch("/api/data")
+    let data = await response->json
+    data
+  } catch {
+  | Exn.Error(e) => Js.log("Fetch failed")
+  }
+}
 ```
 
-This section provides a starting point for understanding JS interop. More specific patterns and attributes will be added as they are identified in the codebase.
+## Working with JavaScript Objects
+
+### Object Creation and Access
+
+```rescript
+// Creating JavaScript objects
+let userObj = %raw(`{
+  name: "John Doe",
+  age: 30,
+  email: "john@example.com"
+}`)
+
+// Accessing object properties
+@get external getName: 'a => string = "name"
+@get external getAge: 'a => int = "age"
+@get external getEmail: 'a => string = "email"
+
+let name = userObj->getName
+let age = userObj->getAge
+
+// Setting object properties
+@set external setName: ('a, string) => unit = "name"
+@set external setAge: ('a, int) => unit = "age"
+
+userObj->setName("Jane Doe")
+userObj->setAge(25)
+```
+
+### Dynamic Object Access
+
+```rescript
+// Dynamic property access
+@get_index external getProperty: ('obj, string) => 'a = ""
+@set_index external setProperty: ('obj, string, 'a) => unit = ""
+
+let config = %raw(`{
+  apiUrl: "https://api.example.com",
+  timeout: 5000,
+  retries: 3
+}`)
+
+let apiUrl = config->getProperty("apiUrl")
+config->setProperty("timeout", 10000)
+
+// Using Js.Dict for dynamic objects
+let configDict: Js.Dict.t<string> = %raw(`{
+  theme: "dark",
+  language: "en",
+  timezone: "UTC"
+}`)
+
+let theme = configDict->Js.Dict.get("theme") // option<string>
+configDict->Js.Dict.set("theme", "light")
+```
+
+### Object Type Definitions
+
+```rescript
+// Defining object types for JavaScript interop
+type userConfig = {
+  @as("api_url") apiUrl: string,
+  @as("max_retries") maxRetries: int,
+  timeout: option<int>,
+}
+
+// Converting from JavaScript object
+@scope("JSON") @val external parseJson: string => 'a = "parse"
+
+let configJson = `{
+  "api_url": "https://api.example.com",
+  "max_retries": 3,
+  "timeout": 5000
+}`
+
+let config: userConfig = parseJson(configJson)
+```
+
+## Promises and Async Operations
+
+### Working with Js.Promise
+
+```rescript
+// Basic promise handling
+let fetchUser = userId => {
+  fetch(`/api/users/${userId}`)
+  ->Js.Promise.then_(response => {
+    response->json->Js.Promise.resolve
+  }, _)
+  ->Js.Promise.then_(userData => {
+    Js.log("User data received")
+    userData->Js.Promise.resolve
+  }, _)
+  ->Js.Promise.catch(error => {
+    Js.log("Error fetching user")
+    Js.Promise.reject(error)
+  }, _)
+}
+
+// Converting to async/await
+let fetchUserAsync = async userId => {
+  try {
+    let response = await fetch(`/api/users/${userId}`)
+    let userData = await response->json
+    userData
+  } catch {
+  | Exn.Error(e) => {
+    Js.log("Error fetching user")
+    Exn.raiseError("Failed to fetch user")
+  }
+  }
+}
+```
+
+### Promise Utilities
+
+```rescript
+// Promise.all equivalent
+@val external promiseAll: array<Js.Promise.t<'a>> => Js.Promise.t<array<'a>> = "Promise.all"
+
+let fetchMultipleUsers = userIds => {
+  userIds
+  ->Belt.Array.map(id => fetchUser(id))
+  ->promiseAll
+}
+
+// Promise.race equivalent
+@val external promiseRace: array<Js.Promise.t<'a>> => Js.Promise.t<'a> = "Promise.race"
+
+// Custom promise creation
+@new external makePromise: (('a => unit, 'b => unit) => unit) => Js.Promise.t<'a> = "Promise"
+
+let delayPromise = ms => {
+  makePromise((resolve, _reject) => {
+    let _ = Js.Global.setTimeout(() => resolve(), ms)
+  })
+}
+```
+
+## Nullable and Optional Values
+
+### Working with Js.Nullable
+
+```rescript
+// Converting between nullable and option
+let processNullableValue = (nullableStr: Js.Nullable.t<string>) => {
+  switch nullableStr->Js.Nullable.toOption {
+  | Some(str) => `Value: ${str}`
+  | None => "No value"
+  }
+}
+
+// Creating nullable values
+let someValue = Js.Nullable.return("hello")
+let nullValue = Js.Nullable.null
+
+// Nullable in function parameters
+@val external getElementById: string => Js.Nullable.t<element> = "document.getElementById"
+
+let getElementText = elementId => {
+  elementId
+  ->getElementById
+  ->Js.Nullable.toOption
+  ->Belt.Option.map(element => element->getTextContent)
+  ->Belt.Option.getOr("Element not found")
+}
+```
+
+### Undefined Values
+
+```rescript
+// Working with undefined
+@val external undefined: 'a = "undefined"
+
+type jsValue<'a> = 
+  | @as(undefined) Undefined
+  | Value('a)
+
+let processJsValue = value => {
+  switch value {
+  | Undefined => "No value provided"
+  | Value(v) => `Value: ${v}`
+  }
+}
+```
+
+## Event Handling
+
+### DOM Events
+
+```rescript
+// Event types
+type event
+type mouseEvent
+type keyboardEvent
+
+@get external target: event => element = "target"
+@get external preventDefault: event => unit = "preventDefault"
+@get external stopPropagation: event => unit = "stopPropagation"
+
+// Mouse events
+@get external clientX: mouseEvent => int = "clientX"
+@get external clientY: mouseEvent => int = "clientY"
+@get external button: mouseEvent => int = "button"
+
+// Keyboard events
+@get external key: keyboardEvent => string = "key"
+@get external keyCode: keyboardEvent => int = "keyCode"
+@get external ctrlKey: keyboardEvent => bool = "ctrlKey"
+@get external shiftKey: keyboardEvent => bool = "shiftKey"
+
+// Event handlers
+let handleClick = (event: mouseEvent) => {
+  let x = event->clientX
+  let y = event->clientY
+  Js.log(`Clicked at (${Int.toString(x)}, ${Int.toString(y)})`)
+}
+
+let handleKeyPress = (event: keyboardEvent) => {
+  let key = event->key
+  if key == "Enter" {
+    event->preventDefault
+    Js.log("Enter key pressed")
+  }
+}
+```
+
+### Custom Events
+
+```rescript
+// Custom event creation
+@new external customEvent: (string, 'options) => event = "CustomEvent"
+@send external dispatchEvent: (element, event) => bool = "dispatchEvent"
+
+let createCustomEvent = (eventName, data) => {
+  let options = %raw(`{ detail: data, bubbles: true }`)
+  customEvent(eventName, options)
+}
+
+let triggerCustomEvent = (element, eventName, data) => {
+  let event = createCustomEvent(eventName, data)
+  element->dispatchEvent(event)->ignore
+}
+```
+
+## JSON Handling
+
+### JSON Parsing and Stringifying
+
+```rescript
+// JSON operations
+@scope("JSON") @val external stringify: 'a => string = "stringify"
+@scope("JSON") @val external parse: string => 'a = "parse"
+
+// Safe JSON parsing
+let safeJsonParse = jsonString => {
+  try {
+    Some(parse(jsonString))
+  } catch {
+  | _ => None
+  }
+}
+
+// JSON with specific types
+type apiResponse = {
+  status: string,
+  data: array<string>,
+  message: option<string>,
+}
+
+let parseApiResponse = jsonString => {
+  try {
+    let parsed: apiResponse = parse(jsonString)
+    Ok(parsed)
+  } catch {
+  | Exn.Error(e) => Error("Invalid JSON format")
+  }
+}
+```
+
+### Working with JSON Objects
+
+```rescript
+// JSON object manipulation
+let createJsonPayload = (userId, action, data) => {
+  let payload = %raw(`{}`)
+  payload->setProperty("userId", userId)
+  payload->setProperty("action", action)
+  payload->setProperty("data", data)
+  payload->setProperty("timestamp", Date.now())
+  payload
+}
+
+// Converting ReScript records to JSON
+type user = {
+  id: string,
+  name: string,
+  email: string,
+}
+
+let userToJson = user => {
+  %raw(`{
+    id: user.id,
+    name: user.name,
+    email: user.email
+  }`)
+}
+```
+
+## Error Handling
+
+### JavaScript Error Handling
+
+```rescript
+// Catching JavaScript errors
+let safeOperation = () => {
+  try {
+    // Some operation that might throw
+    let result = %raw(`someRiskyJavaScriptFunction()`)
+    Ok(result)
+  } catch {
+  | Exn.Error(e) => {
+    let message = Exn.message(e)->Belt.Option.getOr("Unknown error")
+    Error(message)
+  }
+  | _ => Error("Unexpected error")
+  }
+}
+
+// Error object properties
+@get external errorMessage: Exn.t => string = "message"
+@get external errorName: Exn.t => string = "name"
+@get external errorStack: Exn.t => option<string> = "stack"
+
+let logError = error => {
+  let message = error->errorMessage
+  let name = error->errorName
+  let stack = error->errorStack->Belt.Option.getOr("No stack trace")
+  
+  Js.log(`Error: ${name} - ${message}`)
+  Js.log(`Stack: ${stack}`)
+}
+```
+
+## Common Patterns in Hyperswitch
+
+### API Integration
+
+```rescript
+// Fetch wrapper with error handling
+let apiCall = async (~method="GET", ~url, ~body=?, ~headers=[], ()) => {
+  try {
+    let fetchOptions = %raw(`{
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...Object.fromEntries(headers)
+      }
+    }`)
+    
+    switch body {
+    | Some(b) => fetchOptions->setProperty("body", stringify(b))
+    | None => ()
+    }
+    
+    let response = await fetch(url, fetchOptions)
+    
+    if response->getOk {
+      let data = await response->json
+      Ok(data)
+    } else {
+      let errorText = await response->text
+      Error(`HTTP ${response->getStatus->Int.toString}: ${errorText}`)
+    }
+  } catch {
+  | Exn.Error(e) => Error(Exn.message(e)->Belt.Option.getOr("Network error"))
+  }
+}
+
+// Response property bindings
+@get external getOk: 'response => bool = "ok"
+@get external getStatus: 'response => int = "status"
+@get external getStatusText: 'response => string = "statusText"
+```
+
+### Browser Storage
+
+```rescript
+// Enhanced localStorage wrapper
+module LocalStorage = {
+  let setItem = (key, value) => {
+    try {
+      let jsonValue = stringify(value)
+      setItem(key, jsonValue)
+      Ok()
+    } catch {
+    | _ => Error("Failed to serialize value")
+    }
+  }
+  
+  let getItem = key => {
+    try {
+      switch getItem(key)->Js.Nullable.toOption {
+      | Some(jsonValue) => Some(parse(jsonValue))
+      | None => None
+      }
+    } catch {
+    | _ => None
+    }
+  }
+  
+  let removeItem = removeItem
+  let clear = clear
+}
+
+// Usage
+LocalStorage.setItem("userPrefs", {theme: "dark", language: "en"})
+let prefs = LocalStorage.getItem("userPrefs")
+```
+
+### Window and Location APIs
+
+```rescript
+// Window object bindings
+@val external window: 'a = "window"
+@get external location: 'a => 'b = "location"
+@get external href: 'a => string = "href"
+@get external pathname: 'a => string = "pathname"
+@get external search: 'a => string = "search"
+@get external hash: 'a => string = "hash"
+
+@send external pushState: ('a, 'b, string, string) => unit = "pushState"
+@send external replaceState: ('a, 'b, string, string) => unit = "replaceState"
+
+// Navigation utilities
+let getCurrentPath = () => {
+  window->location->pathname
+}
+
+let getQueryParams = () => {
+  let search = window->location->search
+  // Parse query parameters
+  search
+}
+
+let navigateTo = path => {
+  window->location->pushState(Js.null, "", path)
+}
+```
+
+### Third-party Library Integration
+
+```rescript
+// Chart.js integration example
+type chartConfig = {
+  @as("type") chartType: string,
+  data: 'a,
+  options: option<'b>,
+}
+
+@module("chart.js") @new external createChart: (element, chartConfig) => 'chart = "Chart"
+@send external update: 'chart => unit = "update"
+@send external destroy: 'chart => unit = "destroy"
+
+let createLineChart = (canvasElement, data) => {
+  let config = {
+    chartType: "line",
+    data: data,
+    options: Some(%raw(`{
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Chart Title'
+        }
+      }
+    }`)),
+  }
+  
+  createChart(canvasElement, config)
+}
+```
+
+## Best Practices
+
+1. **Use type-safe bindings** whenever possible to catch errors at compile time
+2. **Handle nullable values explicitly** using `Js.Nullable.toOption`
+3. **Wrap risky JavaScript operations** in try-catch blocks
+4. **Use `@as` attributes** to map between ReScript and JavaScript naming conventions
+5. **Create wrapper modules** for complex JavaScript libraries
+6. **Validate JSON data** before using it in your application
+7. **Use external bindings** instead of `%raw` when possible for better type safety
+8. **Document your bindings** with comments explaining the JavaScript API
+9. **Test JavaScript interop code** thoroughly as it bypasses ReScript's type system
+10. **Keep JavaScript interop minimal** and isolated to specific modules

@@ -1,5 +1,5 @@
-open NewAnalyticsTypes
-open NewAnalyticsHelper
+open InsightsTypes
+open InsightsHelper
 open SankeyGraphTypes
 @react.component
 let make = (
@@ -12,7 +12,7 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
-  open NewAnalyticsContainerUtils
+  open InsightsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ =>

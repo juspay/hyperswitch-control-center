@@ -1,8 +1,8 @@
-open NewAnalyticsTypes
+open InsightsTypes
 open FailureReasonsPaymentsTypes
-open NewPaymentAnalyticsEntity
+open InsightsPaymentAnalyticsEntity
 open FailureReasonsPaymentsUtils
-open NewAnalyticsHelper
+open InsightsHelper
 
 module TableModule = {
   @react.component
@@ -60,8 +60,8 @@ module FailureReasonsPaymentsHeader = {
 let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
-  open NewAnalyticsUtils
-  open NewAnalyticsContainerUtils
+  open InsightsUtils
+  open InsightsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

@@ -1,222 +1,598 @@
-# ReScript Functions and Let Bindings
+# Functions and Let Bindings in ReScript (Hyperswitch Control Center)
 
-This section covers how functions are defined and used in ReScript, including labeled arguments, optional arguments, recursion, `let` bindings for values and functions, and the pipe operator for chaining operations.
+This document covers function definitions (including labeled and optional arguments, recursion), `let` bindings, and the pipe operator (`->`).
 
-## `let` Bindings
+## Let Bindings
 
-`let` is used to bind values and functions to names.
-
-**Binding Values:**
+### Basic Let Bindings
 
 ```rescript
-let companyName = "Hyperswitch";
-let year = 2023;
-let pi = 3.14159;
+// Immutable bindings
+let name = "John Doe"
+let age = 30
+let isActive = true
+
+// Type annotations (optional but helpful)
+let userId: string = "user_123"
+let count: int = 42
+let price: float = 99.99
 ```
 
-**Binding Functions:**
-Functions are first-class citizens and are also bound using `let`.
+### Mutable Bindings
 
 ```rescript
-// Simple function
-let add = (a: int, b: int): int => a + b;
+// Mutable references
+let counter = ref(0)
+counter := counter.contents + 1
 
-// Calling the function
-let sum = add(5, 3); // sum is 8
+// Mutable record fields
+type user = {
+  name: string,
+  mutable age: int,
+  mutable isActive: bool,
+}
+
+let user = {name: "John", age: 30, isActive: true}
+user.age = 31
+user.isActive = false
 ```
 
-**Type Annotations:**
-While ReScript has powerful type inference, explicit type annotations are often good practice for clarity, especially for function signatures.
+### Destructuring in Let Bindings
 
 ```rescript
-let greet = (name: string): string => "Hello, " ++ name ++ "!";
+// Tuple destructuring
+let coordinates = (10, 20)
+let (x, y) = coordinates
+
+// Record destructuring
+type user = {name: string, age: int, email: string}
+let user = {name: "John", age: 30, email: "john@example.com"}
+let {name, age} = user
+let {name: userName, email: userEmail} = user // with renaming
+
+// Array destructuring
+let numbers = [1, 2, 3, 4, 5]
+let [first, second, ...rest] = numbers
+```
+
+### Pattern Matching in Let Bindings
+
+```rescript
+// Option destructuring
+let userEmail: option<string> = Some("user@example.com")
+let emailDisplay = switch userEmail {
+| Some(email) => email
+| None => "No email"
+}
+
+// Variant destructuring
+type result<'a, 'b> = Ok('a) | Error('b)
+let apiResult: result<string, string> = Ok("Success")
+let message = switch apiResult {
+| Ok(data) => `Success: ${data}`
+| Error(err) => `Error: ${err}`
+}
 ```
 
 ## Function Definitions
 
-**Anonymous Functions (Lambdas):**
-Functions can be defined anonymously.
+### Basic Functions
 
 ```rescript
-let numbers = [1, 2, 3];
-let doubledNumbers = numbers->Array.map(x => x * 2); // x => x * 2 is an anonymous function
+// Simple function
+let add = (a, b) => a + b
+
+// Function with explicit types
+let multiply = (a: int, b: int): int => a * b
+
+// Multi-line function
+let processUser = user => {
+  let formattedName = user.name->String.trim->String.toUpperCase
+  let isValid = user.age >= 18
+  (formattedName, isValid)
+}
 ```
 
-**Labeled Arguments (`~labelName`):**
-For clarity, especially with multiple arguments of the same type, ReScript encourages labeled arguments.
+### Function with Multiple Parameters
 
 ```rescript
-// Definition in Button.resi
-let useGetBgColor: (
-  ~buttonType: buttonType, // Labeled argument
-  ~buttonState: buttonState, // Labeled argument
-  ~showBorder: bool, // Labeled argument (can also be positional if last)
-  ~isDropdownOpen: bool=?, // Optional labeled argument
-  ~isPhoneDropdown: bool=?,
-) => string;
-
-// Calling with labeled arguments (order doesn't matter for labeled ones)
-let bgColor = useGetBgColor(
-  ~buttonState=Normal,
-  ~buttonType=Primary,
-  ~showBorder=true,
-  // Optional arguments can be omitted or passed
-  ~isDropdownOpen=false,
-);
-```
-
-- When calling a function with labeled arguments, you use the `~labelName=value` syntax.
-- If all arguments are labeled, their order during the call does not matter.
-- A final positional argument can exist after labeled arguments.
-
-**Optional Labeled Arguments (`~labelName=?defaultValue` or `~labelName=?`):**
-Arguments can be made optional by adding a `?` after the label.
-
-- If a default value is provided (`~labelName=?defaultValue`), the argument is of type `typeOfDefaultValue`.
-- If no default value is provided (`~labelName=?`), the argument inside the function is an `option<typeOfArgument>`.
-
-```rescript
-// From Button.res - ~isDropdownOpen is option<bool>, defaults to false if not provided by caller
-// The type signature in .resi was ~isDropdownOpen: bool=?, which means it's option<bool>
-// and the implementation provides the default.
-let useGetBgColor = (
-  ~buttonType,
-  ~buttonState,
-  ~showBorder,
-  ~isDropdownOpen=false, // Default value provided in implementation
-  ~isPhoneDropdown=false,
-) => {
-  // ...
-};
-
-// From Button.resi - make function has many optional arguments
-// ~text: string=? means text is option<string> inside the 'make' function
-@react.component
-let make = (
-  ~text: string=?, // This will be option<string> inside 'make'
-  ~buttonState: buttonState=Normal, // Defaults to Normal if not passed
-  // ...
-) => React.element;
-```
-
-**Type Casting with Labeled Arguments (`:>`)**
-Sometimes, you might need to cast a polymorphic variant to its concrete type when passing it as a labeled argument if the function expects a more general type.
-
-```rescript
-// Example from APIUtils.res
-// userType is a polymorphic variant like type userType = [ | #SIGNUP | #SIGNOUT | ...]
-// The string_of_userType function might expect a specific variant, or it's being used
-// in a context (like URL construction) where it needs to be a string.
-let urlPart = (userType :> string)->String.toLowerCase;
-// (userType :> string) casts the polymorphic variant userType to a string.
-// This is often used when a polymorphic variant needs to be passed to a function
-// expecting a more general type, or for specific interop scenarios.
-```
-
-_Note: The `(userType :> string)` syntax is more about type coercion for polymorphic variants to their underlying representation (often strings for URLs or JS interop) rather than a general argument passing feature._
-
-## Pipe Operator (`->`)
-
-The pipe operator `->` is used to chain operations in a readable, left-to-right fashion. It passes the result of the expression on its left as the _first_ argument to the function call on its right.
-
-**Basic Pipe:**
-
-```rescript
-let result = value->function1->function2(argForFunc2);
-// Equivalent to: function2(function1(value), argForFunc2)
-```
-
-**Example from `LogicUtils.res`:**
-
-````rescript
-// In src/utils/LogicUtils.res
-let getNameFromEmail = email => {
-  email
-  ->String.split("@") // result of String.split(email, "@")
-  ->Array.get(0)      // result of Array.get(previous_result, 0)
-  ->Option.getOr("")  // result of Option.getOr(previous_result, "")
-  ->String.split(".")
-  ->Array.map(name => /* ... */)
-  ->Array.joinWith(" ")
-};
-
-**Further Examples of Pipe Usage:**
-
-**Piping to a Custom Mapper Function:**
-This pattern is common for transforming data, often for UI display or further processing.
-
-```rescript
-// In src/Vault/VaultCustomersAndTokens/VaultPSPTokensEntity.res
-// 'pspTokens.status' (a string) is piped into a custom function
-// 'VaultPaymentMethodUtils.connectrTokensStatusToVariantMapper'.
-// This mapper likely converts the status string to a variant or another suitable type
-// for UI display or logic.
-
-let statusDisplay = pspTokens.status->VaultPaymentMethodUtils.connectrTokensStatusToVariantMapper;
-````
-
-**Piping the Result of an Initial Function Call:**
-The output of one function can be directly piped into another.
-
-```rescript
-// In src/Vault/VaultOnboarding.res
-// The result of 'UrlUtils.useGetFilterDictFromUrl("")' (which might return a Js.Dict.t)
-// is piped into 'LogicUtils.getString' to extract the "name" field, with "" as a default.
-
-let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "");
-```
-
-````
-
-**Pipe with Labeled Arguments:**
-When piping to a function that takes labeled arguments, the piped value still becomes the first *positional* argument. If the function *only* takes labeled arguments, or if the first argument it expects is the one being piped, it works naturally.
-
-If the function expects the piped value for a *specific labeled argument* that isn't the first one, you'd typically use an anonymous function:
-```rescript
-// Assume: let processData = (~config: configType, ~data: dataType) => ...
-let myData = initialValue->transform;
-let result = myData->(d => processData(~config=someConfig, ~data=d));
-````
-
-## Recursion
-
-Functions can call themselves to perform recursive operations. ReScript requires the `rec` keyword for `let` bindings of recursive functions. This is often used for tasks like traversing nested data structures or, as in the example below, iterative string manipulation.
-
-**Example: `addCommas` from `src/utils/LogicUtils.res`**
-
-The `addCommas` function is part of a larger `formatAmount` function. It recursively adds commas to a number string for formatting.
-
-```rescript
-// In src/utils/LogicUtils.res (within formatAmount function)
-
-// Definition of the recursive function 'addCommas'
-let rec addCommas = str => {
-  let len = String.length(str)
-  if len <= 3 {
-    str // Base case: if the string length is 3 or less, no more commas needed
-  } else {
-    // Recursive step:
-    // Take the part of the string before the last 3 digits
-    let prefix = String.slice(~start=0, ~end=len - 3, str)
-    // Take the last 3 digits
-    let suffix = String.slice(~start=len - 3, ~end=len, str)
-    // Recursively call addCommas on the prefix, then append comma and suffix
-    addCommas(prefix) ++ "," ++ suffix
+// Multiple parameters
+let createUser = (name, age, email) => {
+  {
+    id: Js.Math.random()->Float.toString,
+    name: name,
+    age: age,
+    email: email,
+    createdAt: Date.now(),
   }
 }
 
-// Example of how addCommas might be used (simplified from formatAmount)
-let formattedNumberString = addCommas("1234567"); // Results in "1,234,567"
-
-/*
-Full context in formatAmount:
-let formatAmount = (amount, currency) => {
-  // ... addCommas definition from above ...
-  `${currency} ${addCommas(amount->Int.toString)}`
-}
-*/
+// Curried function (automatic in ReScript)
+let addThreeNumbers = (a, b, c) => a + b + c
+let addFive = addThreeNumbers(2, 3) // Partial application
+let result = addFive(4) // result = 9
 ```
 
-This example demonstrates how `let rec` is used to define `addCommas`, which calls itself to build up the formatted string.
+### Labeled Arguments
 
-This covers the fundamental aspects of defining and using functions and `let` bindings in ReScript.
+```rescript
+// Labeled arguments for clarity
+let createPayment = (~amount, ~currency, ~description) => {
+  {
+    id: Js.Math.random()->Float.toString,
+    amount: amount,
+    currency: currency,
+    description: description,
+    status: "pending",
+  }
+}
+
+// Usage with labeled arguments (order doesn't matter)
+let payment = createPayment(
+  ~currency="USD",
+  ~amount=100.0,
+  ~description="Test payment"
+)
+```
+
+### Optional Arguments
+
+```rescript
+// Optional arguments with default values
+let createUser = (~name, ~age, ~email=?, ~isActive=true, ()) => {
+  {
+    name: name,
+    age: age,
+    email: email,
+    isActive: isActive,
+    id: Js.Math.random()->Float.toString,
+  }
+}
+
+// Usage
+let user1 = createUser(~name="John", ~age=30, ())
+let user2 = createUser(~name="Jane", ~age=25, ~email="jane@example.com", ())
+let user3 = createUser(~name="Bob", ~age=35, ~isActive=false, ())
+```
+
+### Functions with Pattern Matching
+
+```rescript
+// Pattern matching in function parameters
+let getStatusMessage = status => {
+  switch status {
+  | "pending" => "Processing..."
+  | "completed" => "Done!"
+  | "failed" => "Error occurred"
+  | _ => "Unknown status"
+  }
+}
+
+// Pattern matching with variants
+type userRole = Admin | User | Guest
+
+let getPermissions = role => {
+  switch role {
+  | Admin => ["read", "write", "delete", "admin"]
+  | User => ["read", "write"]
+  | Guest => ["read"]
+  }
+}
+```
+
+## Recursive Functions
+
+### Basic Recursion
+
+```rescript
+// Simple recursive function
+let rec factorial = n => {
+  switch n {
+  | 0 | 1 => 1
+  | n => n * factorial(n - 1)
+  }
+}
+
+// Tail-recursive version (more efficient)
+let factorialTailRec = n => {
+  let rec loop = (acc, n) => {
+    switch n {
+    | 0 | 1 => acc
+    | n => loop(acc * n, n - 1)
+    }
+  }
+  loop(1, n)
+}
+```
+
+### List Processing with Recursion
+
+```rescript
+// Recursive list processing
+let rec sumList = lst => {
+  switch lst {
+  | list{} => 0
+  | list{head, ...tail} => head + sumList(tail)
+  }
+}
+
+let rec mapList = (lst, fn) => {
+  switch lst {
+  | list{} => list{}
+  | list{head, ...tail} => list{fn(head), ...mapList(tail, fn)}
+  }
+}
+
+let rec filterList = (lst, predicate) => {
+  switch lst {
+  | list{} => list{}
+  | list{head, ...tail} => 
+    if predicate(head) {
+      list{head, ...filterList(tail, predicate)}
+    } else {
+      filterList(tail, predicate)
+    }
+  }
+}
+```
+
+### Mutual Recursion
+
+```rescript
+// Mutually recursive functions
+let rec isEven = n => {
+  switch n {
+  | 0 => true
+  | n => isOdd(n - 1)
+  }
+}
+and isOdd = n => {
+  switch n {
+  | 0 => false
+  | n => isEven(n - 1)
+  }
+}
+```
+
+## Higher-Order Functions
+
+### Functions as Parameters
+
+```rescript
+// Function that takes another function as parameter
+let applyTwice = (fn, value) => fn(fn(value))
+
+let double = x => x * 2
+let result = applyTwice(double, 5) // 20
+
+// Array processing with higher-order functions
+let processNumbers = (numbers, operation) => {
+  numbers->Belt.Array.map(operation)
+}
+
+let squared = processNumbers([1, 2, 3, 4], x => x * x)
+```
+
+### Functions Returning Functions
+
+```rescript
+// Function that returns a function
+let makeAdder = increment => {
+  value => value + increment
+}
+
+let addFive = makeAdder(5)
+let result = addFive(10) // 15
+
+// Configurable validation function
+let makeValidator = (minLength, maxLength) => {
+  value => {
+    let len = String.length(value)
+    len >= minLength && len <= maxLength
+  }
+}
+
+let validatePassword = makeValidator(8, 50)
+let isValid = validatePassword("mypassword123")
+```
+
+### Partial Application
+
+```rescript
+// Partial application examples
+let createApiUrl = (baseUrl, version, endpoint) => {
+  `${baseUrl}/api/${version}/${endpoint}`
+}
+
+// Partially apply base URL and version
+let createV1Url = createApiUrl("https://api.example.com", "v1")
+let usersUrl = createV1Url("users")
+let paymentsUrl = createV1Url("payments")
+
+// Practical example with API calls
+let makeApiCall = (method, headers, url, body) => {
+  // API call implementation
+}
+
+let makeGetCall = makeApiCall("GET", [])
+let makePostCall = makeApiCall("POST", [("Content-Type", "application/json")])
+```
+
+## Pipe Operator
+
+### Basic Pipe Usage
+
+```rescript
+// Without pipe operator
+let result = String.toUpperCase(String.trim("  hello world  "))
+
+// With pipe operator (more readable)
+let result = "  hello world  "->String.trim->String.toUpperCase
+
+// Complex data transformation
+let processUserData = userData => {
+  userData
+  ->Belt.Array.filter(user => user.isActive)
+  ->Belt.Array.map(user => {...user, name: String.trim(user.name)})
+  ->Belt.Array.sort((a, b) => String.compare(a.name, b.name))
+}
+```
+
+### Pipe with Function Calls
+
+```rescript
+// Pipe with function calls
+let calculateTotal = items => {
+  items
+  ->Belt.Array.map(item => item.price * item.quantity)
+  ->Belt.Array.reduce(0.0, (acc, price) => acc +. price)
+  ->Float.toFixed(~digits=2)
+}
+
+// API data processing pipeline
+let processApiResponse = response => {
+  response
+  ->Js.Json.parseExn
+  ->getDataField
+  ->Belt.Array.map(parseUser)
+  ->Belt.Array.filter(user => user.age >= 18)
+  ->Belt.Array.sort((a, b) => String.compare(a.name, b.name))
+}
+```
+
+### Pipe with Optional Chaining
+
+```rescript
+// Pipe with option handling
+let getUserEmail = user => {
+  user.email
+  ->Belt.Option.map(String.trim)
+  ->Belt.Option.map(String.toLowerCase)
+  ->Belt.Option.getOr("no-email@example.com")
+}
+
+// Complex option chaining
+let getNestedValue = data => {
+  data.user
+  ->Belt.Option.flatMap(user => user.profile)
+  ->Belt.Option.flatMap(profile => profile.settings)
+  ->Belt.Option.map(settings => settings.theme)
+  ->Belt.Option.getOr("default")
+}
+```
+
+## Async Functions
+
+### Basic Async Functions
+
+```rescript
+// Async function definition
+let fetchUserData = async userId => {
+  try {
+    let response = await fetch(`/api/users/${userId}`)
+    let json = await response->Fetch.Response.json
+    Ok(json)
+  } catch {
+  | Exn.Error(e) => Error(Exn.message(e)->Belt.Option.getOr("Unknown error"))
+  }
+}
+
+// Using async functions
+let loadUser = async () => {
+  switch await fetchUserData("123") {
+  | Ok(userData) => Js.log("User loaded successfully")
+  | Error(message) => Js.log(`Failed to load user: ${message}`)
+  }
+}
+```
+
+### Async with Pipe Operator
+
+```rescript
+// Async data processing pipeline
+let processUserAsync = async userId => {
+  let result = await userId
+    ->fetchUserData
+    ->Promise.then(result => {
+      switch result {
+      | Ok(data) => data->parseUserData->Promise.resolve
+      | Error(e) => Promise.reject(Exn.raiseError(e))
+      }
+    })
+    ->Promise.then(userData => {
+      userData->validateUserData->Promise.resolve
+    })
+  
+  result
+}
+```
+
+## Function Composition
+
+### Composing Functions
+
+```rescript
+// Function composition utility
+let compose = (f, g) => x => f(g(x))
+
+// Example functions
+let addOne = x => x + 1
+let double = x => x * 2
+let square = x => x * x
+
+// Compose functions
+let addOneThenDouble = compose(double, addOne)
+let result = addOneThenDouble(5) // (5 + 1) * 2 = 12
+
+// Multiple composition
+let complexTransform = x => x->addOne->double->square
+let result2 = complexTransform(3) // ((3 + 1) * 2)^2 = 64
+```
+
+### Practical Function Composition
+
+```rescript
+// Data validation pipeline
+let validateEmail = email => {
+  email->String.trim->String.toLowerCase
+}
+
+let validatePassword = password => {
+  let trimmed = password->String.trim
+  if String.length(trimmed) >= 8 {
+    Ok(trimmed)
+  } else {
+    Error("Password too short")
+  }
+}
+
+let validateUser = userData => {
+  let email = validateEmail(userData.email)
+  switch validatePassword(userData.password) {
+  | Ok(password) => Ok({...userData, email, password})
+  | Error(e) => Error(e)
+  }
+}
+```
+
+## Common Patterns in Hyperswitch
+
+### API Call Functions
+
+```rescript
+// Generic API call function
+let makeApiCall = async (~method, ~url, ~body=?, ~headers=[], ()) => {
+  try {
+    let response = await fetch(url, {
+      method: method,
+      headers: headers->Belt.Array.concat([("Content-Type", "application/json")]),
+      body: body,
+    })
+    
+    if response->Fetch.Response.ok {
+      let json = await response->Fetch.Response.json
+      Ok(json)
+    } else {
+      let errorText = await response->Fetch.Response.text
+      Error(`HTTP ${response->Fetch.Response.status->Int.toString}: ${errorText}`)
+    }
+  } catch {
+  | Exn.Error(e) => Error(Exn.message(e)->Belt.Option.getOr("Network error"))
+  }
+}
+
+// Specialized API functions
+let getPayments = async () => {
+  await makeApiCall(~method="GET", ~url="/api/v1/payments", ())
+}
+
+let createPayment = async paymentData => {
+  await makeApiCall(
+    ~method="POST",
+    ~url="/api/v1/payments",
+    ~body=paymentData->Js.Json.stringify,
+    ()
+  )
+}
+```
+
+### Data Transformation Functions
+
+```rescript
+// Data transformation pipeline
+let transformPaymentData = rawData => {
+  rawData
+  ->Belt.Array.map(parsePaymentJson)
+  ->Belt.Array.filter(payment => payment.amount > 0.0)
+  ->Belt.Array.map(payment => {
+    ...payment,
+    formattedAmount: `${payment.currency} ${Float.toString(payment.amount)}`,
+    isLarge: payment.amount > 1000.0,
+  })
+  ->Belt.Array.sort((a, b) => Float.compare(b.amount, a.amount))
+}
+
+// Form validation functions
+let validateRequired = (fieldName, value) => {
+  if String.length(String.trim(value)) > 0 {
+    Ok(value)
+  } else {
+    Error(`${fieldName} is required`)
+  }
+}
+
+let validateEmail = email => {
+  if String.includes(email, "@") {
+    Ok(email)
+  } else {
+    Error("Invalid email format")
+  }
+}
+
+let validateForm = formData => {
+  let nameResult = validateRequired("Name", formData.name)
+  let emailResult = formData.email->validateRequired("Email")->Belt.Result.flatMap(validateEmail)
+  
+  switch (nameResult, emailResult) {
+  | (Ok(name), Ok(email)) => Ok({...formData, name, email})
+  | (Error(e), _) => Error(e)
+  | (_, Error(e)) => Error(e)
+  }
+}
+```
+
+### Event Handler Functions
+
+```rescript
+// Event handler with state updates
+let createEventHandler = (setState, transform) => {
+  event => {
+    let value = ReactEvent.Form.target(event)["value"]
+    setState(prevState => transform(prevState, value))
+  }
+}
+
+// Usage in components
+let handleNameChange = createEventHandler(setFormData, (prev, value) => {
+  {...prev, name: value}
+})
+
+let handleEmailChange = createEventHandler(setFormData, (prev, value) => {
+  {...prev, email: value}
+})
+```
+
+## Best Practices
+
+1. **Use descriptive function names** that clearly indicate what the function does
+2. **Prefer labeled arguments** for functions with multiple parameters
+3. **Use optional arguments** with sensible defaults when appropriate
+4. **Leverage the pipe operator** for data transformation pipelines
+5. **Keep functions small and focused** on a single responsibility
+6. **Use pattern matching** instead of nested if-else statements
+7. **Prefer immutable data** and pure functions when possible
+8. **Use partial application** to create specialized versions of generic functions
+9. **Handle errors explicitly** with Result types or try-catch blocks
+10. **Document complex functions** with comments explaining their purpose and usage
+11. **Use tail recursion** for recursive functions that might process large datasets
+12. **Compose functions** to build complex operations from simple building blocks

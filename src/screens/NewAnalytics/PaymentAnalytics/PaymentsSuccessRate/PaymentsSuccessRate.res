@@ -1,10 +1,11 @@
-open NewAnalyticsTypes
-open NewAnalyticsHelper
+open InsightsTypes
+open InsightsHelper
 open LineGraphTypes
 open PaymentsSuccessRateUtils
-open NewPaymentAnalyticsUtils
+open InsightsPaymentAnalyticsUtils
+
 module PaymentsSuccessRateHeader = {
-  open NewAnalyticsUtils
+  open InsightsUtils
   open LogicUtils
   @react.component
   let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~granularityOptions) => {
@@ -64,7 +65,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open NewAnalyticsContainerUtils
+  open InsightsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -90,7 +91,7 @@ let make = (
     ->getBoolFromString(true)
     ->getSmartRetryMetricType
 
-  open NewAnalyticsUtils
+  open InsightsUtils
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let defaulGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,

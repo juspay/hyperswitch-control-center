@@ -1,257 +1,631 @@
-# ReScript Types and Data Structures
+# Types and Data Structures in ReScript (Hyperswitch Control Center)
 
-ReScript has a strong, static type system. This document covers common type definitions (records, variants, aliases) and usage of built-in data structures like `option`, `array`, `list`, and `Js.Dict`.
+This document explains the definition and usage of ReScript types (records, variants, aliases) and common data structures (`option`, `array`, `list`, `Js.Dict`, `Belt` collections).
 
-## Variant Types (Sum Types)
+## Basic Types
 
-Variant types allow you to define a type that can be one of several distinct cases, each with an optional payload.
-
-**Example: Simple Variants from `Button.resi`**
+### Primitive Types
 
 ```rescript
-// In src/components/Button.resi
-type buttonState = Normal | Loading | Disabled | NoHover | Focused
-type buttonVariant = Fit | Long | Full | Rounded
-type buttonSize = Large | Medium | Small | XSmall
+// Basic primitive types
+let name: string = "John"
+let age: int = 25
+let height: float = 5.9
+let isActive: bool = true
+let nothing: unit = ()
 ```
 
-- `buttonState` can be `Normal`, `Loading`, etc. These are simple constructors without payloads.
-
-**Example: Variants with Payloads from `Button.resi`**
+### Type Aliases
 
 ```rescript
-// In src/components/Button.resi
-type iconType =
-  | FontAwesome(string) // Constructor FontAwesome takes a string payload
-  | CustomIcon(React.element) // CustomIcon takes a React.element payload
-  | CustomRightIcon(React.element)
-  | Euler(string)
-  | NoIcon // No payload
+// Create aliases for existing types
+type userId = string
+type timestamp = float
+type count = int
+
+let user: userId = "user_123"
+let createdAt: timestamp = Date.now()
+let itemCount: count = 42
 ```
 
-**Example: Extensive Variants from `APIUtilsTypes.res`**
+## Records
 
-This file defines many variant types to represent different kinds of API entities or user roles.
+### Basic Record Definition
 
 ```rescript
-// In src/APIUtils/APIUtilsTypes.res
-type entityName =
-  | CONNECTOR
-  | ROUTING
-  | MERCHANT_ACCOUNT
-  // ... many more constructors ...
-  | SDK_PAYMENT
-  | GET_REVIEW_FIELDS
+type user = {
+  id: string,
+  name: string,
+  email: string,
+  age: int,
+  isActive: bool,
+}
 
-type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
+// Creating a record
+let john: user = {
+  id: "123",
+  name: "John Doe",
+  email: "john@example.com",
+  age: 30,
+  isActive: true,
+}
 ```
 
-**Example: Polymorphic Variants from `APIUtilsTypes.res`**
-
-Polymorphic variants start with a `#` and are structurally typed. They are useful for creating types that can be easily extended or combined.
+### Record with Optional Fields
 
 ```rescript
-// In src/APIUtils/APIUtilsTypes.res
-type reconType = [#TOKEN | #REQUEST | #NONE] // Note the # prefix
-type hypersenseType = [#TOKEN | #HOME | #NONE]
+type userProfile = {
+  id: string,
+  name: string,
+  email: string,
+  avatar: option<string>,
+  bio: option<string>,
+  lastLogin: option<float>,
+}
 
-type userType = [ // Square brackets also denote polymorphic variants
-  | #CONNECT_ACCOUNT
-  | #SIGNUP
-  // ... many more constructors ...
-  | #NONE
+let profile: userProfile = {
+  id: "123",
+  name: "John",
+  email: "john@example.com",
+  avatar: Some("avatar.jpg"),
+  bio: None,
+  lastLogin: Some(Date.now()),
+}
+```
+
+### Record Updates (Immutable)
+
+```rescript
+// Update records immutably
+let updatedUser = {...john, age: 31, isActive: false}
+
+// Functional update
+let updateUserAge = (user, newAge) => {...user, age: newAge}
+let olderJohn = updateUserAge(john, 35)
+```
+
+### Nested Records
+
+```rescript
+type address = {
+  street: string,
+  city: string,
+  country: string,
+  zipCode: string,
+}
+
+type userWithAddress = {
+  id: string,
+  name: string,
+  email: string,
+  address: address,
+}
+
+let userAddress: address = {
+  street: "123 Main St",
+  city: "New York",
+  country: "USA",
+  zipCode: "10001",
+}
+
+let userWithAddr: userWithAddress = {
+  id: "123",
+  name: "John",
+  email: "john@example.com",
+  address: userAddress,
+}
+```
+
+## Variants (Union Types)
+
+### Basic Variants
+
+```rescript
+type status = Loading | Success | Error
+
+type paymentStatus = 
+  | Pending
+  | Processing
+  | Completed
+  | Failed
+  | Cancelled
+
+let currentStatus: status = Loading
+let payment: paymentStatus = Completed
+```
+
+### Variants with Data
+
+```rescript
+type result<'success, 'error> = 
+  | Ok('success)
+  | Error('error)
+
+type apiResponse = 
+  | Loading
+  | Success(string)
+  | Error(string)
+  | NetworkError(int, string)
+
+let response: apiResponse = Success("Data loaded successfully")
+let errorResponse: apiResponse = NetworkError(500, "Internal Server Error")
+```
+
+### Complex Variants
+
+```rescript
+type userAction = 
+  | Login(string, string) // email, password
+  | Logout
+  | UpdateProfile(string, option<string>) // name, avatar
+  | ChangePassword(string, string) // old, new
+  | DeleteAccount(string) // confirmation
+
+let action: userAction = Login("user@example.com", "password123")
+let updateAction: userAction = UpdateProfile("New Name", Some("new-avatar.jpg"))
+```
+
+### Polymorphic Variants
+
+```rescript
+// Polymorphic variants (open variants)
+type color = [#red | #green | #blue | #yellow]
+type primaryColor = [#red | #green | #blue]
+
+let userColor: color = #red
+let brandColor: primaryColor = #blue
+
+// Can be extended
+type extendedColor = [color | #purple | #orange]
+let newColor: extendedColor = #purple
+```
+
+## Option Type
+
+### Basic Option Usage
+
+```rescript
+// Option represents a value that might not exist
+type user = {
+  id: string,
+  name: string,
+  email: option<string>, // might not have email
+}
+
+let userWithEmail: user = {
+  id: "123",
+  name: "John",
+  email: Some("john@example.com"),
+}
+
+let userWithoutEmail: user = {
+  id: "456",
+  name: "Jane",
+  email: None,
+}
+```
+
+### Working with Options
+
+```rescript
+// Pattern matching on options
+let getEmailDisplay = user => {
+  switch user.email {
+  | Some(email) => email
+  | None => "No email provided"
+  }
+}
+
+// Using Belt.Option utilities
+open Belt.Option
+
+let emailLength = user.email->map(String.length)->getOr(0)
+let hasEmail = user.email->isSome
+let emailOrDefault = user.email->getOr("default@example.com")
+```
+
+### Chaining Options
+
+```rescript
+type address = {
+  street: option<string>,
+  city: option<string>,
+  country: option<string>,
+}
+
+type user = {
+  id: string,
+  name: string,
+  address: option<address>,
+}
+
+// Chain option operations
+let getCountry = user => {
+  user.address
+  ->Belt.Option.flatMap(addr => addr.country)
+  ->Belt.Option.getOr("Unknown")
+}
+```
+
+## Arrays
+
+### Basic Array Operations
+
+```rescript
+// Array creation and basic operations
+let numbers = [1, 2, 3, 4, 5]
+let names = ["Alice", "Bob", "Charlie"]
+let empty: array<string> = []
+
+// Array access
+let firstNumber = numbers[0] // option<int>
+let secondName = names[1]   // option<string>
+```
+
+### Array Processing with Belt
+
+```rescript
+open Belt.Array
+
+let numbers = [1, 2, 3, 4, 5]
+
+// Map, filter, reduce
+let doubled = numbers->map(x => x * 2)
+let evens = numbers->filter(x => x mod 2 == 0)
+let sum = numbers->reduce(0, (acc, x) => acc + x)
+
+// Find operations
+let found = numbers->getBy(x => x > 3) // option<int>
+let index = numbers->getIndexBy(x => x == 3) // option<int>
+
+// Array utilities
+let length = numbers->length
+let isEmpty = numbers->length == 0
+let contains = numbers->some(x => x == 3)
+```
+
+### Array Transformation Patterns
+
+```rescript
+type user = {id: string, name: string, age: int}
+
+let users = [
+  {id: "1", name: "Alice", age: 25},
+  {id: "2", name: "Bob", age: 30},
+  {id: "3", name: "Charlie", age: 35},
 ]
 
-// Example from src/screens/Connectors/PaymentProcessor/ConnectorMetaData/ApplePay/ApplePayIntegrationTypes.res
-// Demonstrates polymorphic variant constructors with payloads
-type applePayConfig = [#manual(manual) | #simplified(simplified)]
-// Here, 'manual' and 'simplified' would be types of the payloads.
+// Complex transformations
+let adultNames = users
+  ->Belt.Array.filter(user => user.age >= 18)
+  ->Belt.Array.map(user => user.name)
+  ->Belt.Array.sort(String.compare)
 
-// Example from src/entryPoints/AuthModule/SSOAuth/SSOTypes.res
-// Demonstrates mixed constructors with and without payloads
-type redirectmethods = [#Okta(okta) | #Google | #Github]
-// '#Okta' takes a payload of type 'okta', while '#Google' and '#Github' do not.
-```
-
-**Example: Parameterized Variants from `APIUtilsTypes.res`**
-
-Variants can also carry other types as payloads, effectively creating a new type that wraps existing ones.
-
-```rescript
-// In src/APIUtils/APIUtilsTypes.res
-// 'entityName' and 'v2entityNameType' are other variant types defined in the same file.
-type entityTypeWithVersion = V1(entityName) | V2(v2entityNameType)
-```
-
-Here, `entityTypeWithVersion` can either be `V1` holding an `entityName` value, or `V2` holding a `v2entityNameType` value.
-
-## Record Types
-
-Record types define named fields, similar to objects in JavaScript. They are structurally typed by default.
-
-**Example: `badge` type from `Button.resi`**
-
-```rescript
-// In src/components/Button.resi
-type badgeColor = // This is a variant type used in the record
-  | BadgeGreen
-  | BadgeRed
-  // ... other colors ...
-  | NoBadge
-
-type badge = {
-  value: string,
-  color: badgeColor, // Field 'color' is of type badgeColor
+// Group by age ranges
+let groupByAgeRange = users => {
+  let young = users->Belt.Array.filter(u => u.age < 30)
+  let old = users->Belt.Array.filter(u => u.age >= 30)
+  (young, old)
 }
 ```
 
-- A `badge` record must have a `value` field of type `string` and a `color` field of type `badgeColor`.
+## Lists
 
-**Creating Record Values:**
+### Basic List Operations
 
 ```rescript
-let myBadge: badge = {value: "New", color: BadgeGreen};
+// Lists are immutable linked lists
+let numbers = list{1, 2, 3, 4, 5}
+let names = list{"Alice", "Bob", "Charlie"}
+let empty = list{}
+
+// List construction
+let newList = list{0, ...numbers} // prepend
 ```
 
-## Option Type (`option<'a>`)
-
-The `option` type is a built-in variant used to represent values that might be absent. It's ReScript's way of handling `null` or `undefined` in a type-safe manner.
-
-- It has two constructors: `Some('a)` (value is present) or `None` (value is absent).
-- Many functions in ReScript that might not return a value (e.g., finding an item in a dictionary) return an `option`.
-
-**Example: Optional props in `Button.resi`**
-Many props in `Button.resi` are optional, indicated by `option<type>` or `~propName=?type` in the `make` function signature.
+### List Processing
 
 ```rescript
-// In src/components/Button.resi
-// ~text: string=? means text is option<string>
-// ~buttonState: buttonState=? means buttonState is option<buttonState>
-@react.component
-let make: (
-  ~text: string=?,
-  ~buttonState: buttonState=?,
-  // ...
-) => React.element
+open Belt.List
+
+let numbers = list{1, 2, 3, 4, 5}
+
+// Map, filter, reduce
+let doubled = numbers->map(x => x * 2)
+let evens = numbers->filter(x => x mod 2 == 0)
+let sum = numbers->reduce(0, (acc, x) => acc + x)
+
+// List utilities
+let length = numbers->length
+let head = numbers->head // option<int>
+let tail = numbers->tail // option<list<int>>
 ```
 
-**Example: Usage in `LogicUtils.res`**
-`LogicUtils.res` has many functions that return or manipulate `option` types.
+### List vs Array Choice
 
 ```rescript
-// In src/utils/LogicUtils.res
-let getOptionString = (dict, key): option<string> => {
-  // Dict.get returns an option, JSON.Decode.string also returns an option
-  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.string)
+// Use arrays for:
+// - Random access
+// - Frequent updates
+// - Interop with JavaScript
+
+// Use lists for:
+// - Functional programming patterns
+// - Prepending operations
+// - Recursive algorithms
+
+let processRecursively = lst => {
+  switch lst {
+  | list{} => 0
+  | list{head, ...tail} => head + processRecursively(tail)
+  }
+}
+```
+
+## Dictionaries and Maps
+
+### Js.Dict (JavaScript Objects)
+
+```rescript
+// JavaScript-style dictionaries
+let userPrefs: Js.Dict.t<string> = Js.Dict.empty()
+
+// Set values
+userPrefs->Js.Dict.set("theme", "dark")
+userPrefs->Js.Dict.set("language", "en")
+
+// Get values
+let theme = userPrefs->Js.Dict.get("theme") // option<string>
+
+// From object literal
+let config = %raw(`{
+  apiUrl: "https://api.example.com",
+  timeout: "5000",
+  retries: "3"
+}`)
+```
+
+### Belt.Map (Immutable Maps)
+
+```rescript
+// String-keyed maps
+module StringMap = Belt.Map.String
+
+let userAges = StringMap.empty
+  ->StringMap.set("alice", 25)
+  ->StringMap.set("bob", 30)
+  ->StringMap.set("charlie", 35)
+
+// Get values
+let aliceAge = userAges->StringMap.get("alice") // option<int>
+
+// Map operations
+let hasUser = userAges->StringMap.has("alice")
+let userCount = userAges->StringMap.size
+let allUsers = userAges->StringMap.keysToArray
+```
+
+### Belt.HashMap (Mutable Maps)
+
+```rescript
+// Mutable hash maps for performance
+module IntHash = Belt.HashMap.Int
+
+let cache = IntHash.make(~hintSize=10)
+
+// Set and get
+cache->IntHash.set(1, "first")
+cache->IntHash.set(2, "second")
+
+let value = cache->IntHash.get(1) // option<string>
+```
+
+## Advanced Type Patterns
+
+### Generic Types
+
+```rescript
+// Generic record types
+type response<'data> = {
+  data: 'data,
+  status: int,
+  message: string,
 }
 
-let getNonEmptyString = (str: string): option<string> => {
-  if str->isEmptyString {
-    None // Return None if string is empty
+type apiResult<'success, 'error> = 
+  | Loading
+  | Success('success)
+  | Error('error)
+
+// Usage
+let userResponse: response<array<user>> = {
+  data: [john],
+  status: 200,
+  message: "Success",
+}
+
+let result: apiResult<string, string> = Success("Data loaded")
+```
+
+### Recursive Types
+
+```rescript
+// Tree structures
+type tree<'a> = 
+  | Leaf('a)
+  | Node(tree<'a>, tree<'a>)
+
+let numberTree = Node(
+  Leaf(1),
+  Node(Leaf(2), Leaf(3))
+)
+
+// JSON-like structures
+type json = 
+  | String(string)
+  | Number(float)
+  | Boolean(bool)
+  | Null
+  | Array(array<json>)
+  | Object(Js.Dict.t<json>)
+```
+
+### Phantom Types
+
+```rescript
+// Phantom types for type safety
+type validated<'a>
+type unvalidated<'a>
+
+type email<'validation> = string
+
+let validateEmail = (email: email<unvalidated>): option<email<validated>> => {
+  if email->String.includes("@") {
+    Some(email->Obj.magic) // Safe cast after validation
   } else {
-    Some(str) // Return Some(string) if not empty
+    None
+  }
+}
+
+// Usage
+let rawEmail: email<unvalidated> = "user@example.com"
+let validEmail = validateEmail(rawEmail)
+```
+
+## Common Patterns in Hyperswitch
+
+### API Response Types
+
+```rescript
+type apiError = {
+  code: string,
+  message: string,
+  details: option<Js.Dict.t<string>>,
+}
+
+type apiResponse<'data> = 
+  | Loading
+  | Success('data)
+  | Error(apiError)
+  | NetworkError(string)
+
+type paginatedResponse<'item> = {
+  data: array<'item>,
+  total: int,
+  page: int,
+  pageSize: int,
+  hasMore: bool,
+}
+```
+
+### Form State Types
+
+```rescript
+type fieldError = {
+  field: string,
+  message: string,
+}
+
+type formState<'data> = {
+  data: 'data,
+  errors: array<fieldError>,
+  isSubmitting: bool,
+  isDirty: bool,
+  isValid: bool,
+}
+
+type validationResult<'data> = 
+  | Valid('data)
+  | Invalid(array<fieldError>)
+```
+
+### Entity Types
+
+```rescript
+type payment = {
+  id: string,
+  amount: float,
+  currency: string,
+  status: paymentStatus,
+  createdAt: float,
+  updatedAt: float,
+  metadata: option<Js.Dict.t<string>>,
+}
+
+type connector = {
+  id: string,
+  name: string,
+  connectorType: string,
+  isEnabled: bool,
+  configuration: Js.Dict.t<string>,
+  supportedPaymentMethods: array<string>,
+}
+```
+
+## Type Conversion and Interop
+
+### JSON Conversion
+
+```rescript
+// Manual JSON conversion
+let userToJson = user => {
+  open Js.Json
+  object_(Js.Dict.fromArray([
+    ("id", string(user.id)),
+    ("name", string(user.name)),
+    ("age", number(Int.toFloat(user.age))),
+  ]))
+}
+
+let userFromJson = json => {
+  open Js.Json
+  switch classify(json) {
+  | JSONObject(obj) => {
+      let id = obj->Js.Dict.get("id")->Belt.Option.flatMap(decodeString)
+      let name = obj->Js.Dict.get("name")->Belt.Option.flatMap(decodeString)
+      let age = obj->Js.Dict.get("age")->Belt.Option.flatMap(decodeNumber)
+      
+      switch (id, name, age) {
+      | (Some(id), Some(name), Some(age)) => Some({
+          id: id,
+          name: name,
+          age: Float.toInt(age),
+        })
+      | _ => None
+      }
+    }
+  | _ => None
   }
 }
 ```
 
-- `Option.flatMap` is often used to chain operations that return `option`s.
-- `Option.getOr(defaultValue)` is used to extract the value from an `option` or provide a default if it's `None`.
-  ```rescript
-  let myString: string = getOptionString(myDict, "myKey")->Option.getOr("default value");
-  ```
-
-## Type Aliases for Function Signatures
-
-You can create a named alias for a function type signature.
-
-**Example: `getUrlTypes` from `APIUtilsTypes.res`**
+### External Type Bindings
 
 ```rescript
-// In src/APIUtils/APIUtilsTypes.res
-type getUrlTypes = (
-  ~entityName: entityTypeWithVersion,
-  ~methodType: Fetch.requestMethod,
-  ~id: option<string>=?,
-  ~connector: option<string>=?,
-  ~userType: userType=?,
-  ~userRoleTypes: userRoleTypes=?,
-  ~reconType: reconType=?,
-  ~hypersenseType: hypersenseType=?,
-  ~queryParamerters: option<string>=?,
-) => string
-```
+// Binding to JavaScript types
+type element
+type document
 
-Now, `getUrlTypes` can be used as a type annotation for functions matching this signature.
+@val external document: document = "document"
+@send external getElementById: (document, string) => option<element> = "getElementById"
+@send external addEventListener: (element, string, unit => unit) => unit = "addEventListener"
 
-## Array (`array<'a>`)
-
-ReScript arrays are mutable, fixed-length (at compile-time, though JS arrays are dynamic at runtime), and zero-indexed. They are JavaScript arrays at runtime.
-
-**Example: Usage in `LogicUtils.res`**
-
-```rescript
-// In src/utils/LogicUtils.res
-let removeDuplicate = (arr: array<string>): array<string> => {
-  arr->Array.filterWithIndex((item, i) => {
-    arr->Array.indexOf(item) === i
-  })
-}
-
-let strArr = ["apple", "banana", "apple"];
-let uniqueArr = removeDuplicate(strArr); // ["apple", "banana"]
-```
-
-- The `Array` module provides many functions for working with arrays (e.g., `Array.mapWithIndex`, `Array.filterWithIndex`, `Array.joinWith`).
-- `Belt.Array` is often preferred for more optimized and purely functional operations.
-
-## List (`list<'a>`)
-
-ReScript lists are immutable, singly-linked lists. They are well-suited for functional programming patterns.
-
-**Example: `stripV4` in `LogicUtils.res`**
-
-```rescript
-// In src/utils/LogicUtils.res
-let stripV4 = (path: list<string>): list<string> => {
-  switch path {
-  | list{"v4", ...remaining} => remaining // Pattern matching on a list
-  | _ => path
-  }
-}
-
-let path1 = list{"v4", "users", "list"};
-let strippedPath1 = stripV4(path1); // list{"users", "list"}
-
-let path2 = list{"api", "items"};
-let strippedPath2 = stripV4(path2); // list{"api", "items"}
-```
-
-- The `List` module (and `Belt.List`) provides functions for list manipulation.
-- Lists are often processed using recursion or pattern matching.
-
-## Js.Dict.t (`Js.Dict.t<'a>`)
-
-`Js.Dict.t<'a>` represents JavaScript objects used as dictionaries (string keys to values of type `'a`).
-
-**Example: Usage in `LogicUtils.res`**
-
-```rescript
-// In src/utils/LogicUtils.res
-let getDictFromJsonObject = (json: JSON.t): Js.Dict.t<JSON.t> => {
-  switch json->JSON.Decode.object {
-  | Some(dict) => dict
-  | None => Dict.make() // Creates an empty dictionary
-  }
-}
-
-let getString = (dict: Js.Dict.t<JSON.t>, key: string, default: string): string => {
-  // Dict.get returns option<JSON.t>
-  dict->Dict.get(key)
-  ->Option.flatMap(obj => obj->JSON.Decode.string)
-  ->Option.getOr(default)
+// Usage
+switch document->getElementById("myButton") {
+| Some(button) => button->addEventListener("click", () => Js.log("Clicked!"))
+| None => ()
 }
 ```
 
-- The `Dict` module (often an alias for `Js.Dict`) is used for operations.
+## Best Practices
 
-_(More examples for `Belt` collections and other data structures will be added as encountered.)_
+1. **Use descriptive type names** that clearly indicate their purpose
+2. **Prefer records over tuples** for structured data with multiple fields
+3. **Use variants for state machines** and discriminated unions
+4. **Leverage option types** instead of nullable values
+5. **Use generic types** to create reusable data structures
+6. **Keep types close to usage** - define types near where they're used
+7. **Use phantom types** for additional type safety when needed
+8. **Prefer immutable data structures** unless performance requires mutation
+9. **Use Belt collections** for functional programming patterns
+10. **Document complex types** with comments explaining their purpose and usage

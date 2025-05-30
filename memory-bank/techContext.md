@@ -22,30 +22,24 @@ This document provides a high-level overview of the technical context in which t
 - **ReScript File Conventions:**
   - `.res`: ReScript source files.
   - `.resi`: ReScript interface files (for defining module signatures).
-  - For a comprehensive guide to ReScript syntax and patterns used in this project, see [./thematic/rescript/index.md](./thematic/rescript/index.md).
+  - For a comprehensive guide to ReScript syntax and patterns used in this project, see [./rescriptSyntaxGuide.md](./rescriptSyntaxGuide.md).
 - **Table Display:**
-    - The project uses `LoadedTableWithCustomColumns` component to display data in a table format.
-    - The table columns are defined using ReScript types and data is mapped using `LogicUtils.getArrayDataFromJson` and `NewComponentEntity.itemToObjMapper`.
+  - The project uses `LoadedTableWithCustomColumns` component to display data in a table format.
+  - The table columns are defined using ReScript types and data is mapped using `LogicUtils.getArrayDataFromJson` and `NewComponentEntity.itemToObjMapper`.
 - **Recoil Atoms:**
-    - Recoil is used to manage the state of the table columns.
-    - The `newComponentMapDefaultCols` atom is used to store the default columns for the table.
+  - Recoil is used to manage the state of the table columns.
+  - The `newComponentMapDefaultCols` atom is used to store the default columns for the table.
 - **API Integration:**
-    - The project uses `APIUtils` to fetch data from the Hyperswitch backend.
-    - The `useGetMethod` hook is used to make GET requests to the API.
+  - The project uses `APIUtils` to fetch data from the Hyperswitch backend.
+  - The `useGetMethod` hook is used to make GET requests to the API.
 - **MCP Servers:**
   - MCP (Model Context Protocol) servers can be connected to the Control Center to provide additional tools and resources. These servers can extend the functionality of the Control Center by providing access to external APIs or other data sources.
-  - **Context7 MCP Server (`github.com/upstash/context7-mcp`):**
-    - Purpose: Provides tools to fetch up-to-date documentation and code examples for various libraries (e.g., `resolve-library-id`, `get-library-docs`).
-    - Installation Method: Docker-based. A `Dockerfile` was created in `/Users/jeeva.ramachandran/Documents/Cline/MCP/github.com/upstash/context7-mcp/` and an image named `context7-mcp` was built.
-    - Configuration in `cline_mcp_settings.json` (`/Users/jeeva.ramachandran/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`):
-      ```json
-      "github.com/upstash/context7-mcp": {
-        "command": "docker",
-        "args": ["run", "-i", "--rm", "context7-mcp"],
-        "disabled": false,
-        "autoApprove": []
-      }
-      ```
+  - **Context7 MCP Server (`github.com/upstash/context7-mcp`) - Installed 2025-05-15:**
+    - Purpose: Provides tools to fetch up-to-date documentation and code examples for various libraries
+    - Available tools: `resolve-library-id` and `get-library-docs`
+    - Installation Method: Docker-based installation with custom Dockerfile
+    - Configuration: `docker run -i --rm context7-mcp`
+    - Status: Successfully installed and operational for library documentation retrieval
 
 ## Project Directory Structure (High-Level)
 
@@ -62,12 +56,12 @@ This document provides a high-level overview of the technical context in which t
 
 ## Development Practices
 
-- **Modular Architecture:** The Control Center is likely built using a modular architecture, promoting code reusability and maintainability.
+- **Modular Architecture:** The Control Center is built using a modular architecture, promoting code reusability and maintainability.
 - **Component-Based Development:** The UI is constructed using reusable components (see React above).
 - **State Management:**
   - Recoil: Employed for global application state.
   - React Hooks (`useState`, `useEffect`): Used for local component state.
-- **Testing:** The project should have a suite of tests (unit, integration, and/or end-to-end) to ensure code quality and prevent regressions.
+- **Testing:** The project has a suite of tests (unit, integration, and end-to-end) to ensure code quality and prevent regressions.
 - **Build Tools:** Tools are used to automate the process of building, optimizing, and deploying the Control Center application.
 - **Code Style:** The project follows a specific code style and conventions, enforced by a linter. Key conventions include:
   - Using camelCase for variable names (e.g., `myVariable`).
@@ -81,72 +75,72 @@ This section outlines the steps to set up and run the Hyperswitch Control Center
 
 ### Prerequisites
 
-1.  **Node.js and npm**: Ensure Node.js (which includes npm) is installed. (Tested with Node v16.0.0, npm v7.10.0; newer versions generally recommended).
-2.  **Git**: Ensure Git is installed for cloning repositories.
-3.  **Docker**: Ensure Docker Desktop (or Docker Engine) is installed and running.
-4.  **Hyperswitch Backend Repository**: Clone the `hyperswitch` backend repository, typically as a sibling to `hyperswitch-control-center`.
-    ```bash
-    # Example: If hyperswitch-control-center is in /Workspace/hyperswitch-control-center
-    # Run from /Workspace:
-    git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
-    ```
+1. **Node.js and npm**: Ensure Node.js (which includes npm) is installed. (Tested with Node v16.0.0, npm v7.10.0; newer versions generally recommended).
+2. **Git**: Ensure Git is installed for cloning repositories.
+3. **Docker**: Ensure Docker Desktop (or Docker Engine) is installed and running.
+4. **Hyperswitch Backend Repository**: Clone the `hyperswitch` backend repository, typically as a sibling to `hyperswitch-control-center`.
+   ```bash
+   # Example: If hyperswitch-control-center is in /Workspace/hyperswitch-control-center
+   # Run from /Workspace:
+   git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
+   ```
 
 ### Setup Steps
 
-1.  **Navigate to Control Center Directory**:
-    Ensure your terminal is in the `hyperswitch-control-center` project root.
+1. **Navigate to Control Center Directory**:
+   Ensure your terminal is in the `hyperswitch-control-center` project root.
 
-2.  **Install Frontend Dependencies**:
-    If not already done, install Node.js packages:
+2. **Install Frontend Dependencies**:
+   If not already done, install Node.js packages:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
-    _(Note: If `npm run start` yields module resolution errors for packages like `react-color`, ensure they are installed and saved, e.g., `npm install react-color --save`)_
+   _(Note: If `npm run start` yields module resolution errors for packages like `react-color`, ensure they are installed and saved, e.g., `npm install react-color --save`)_
 
-3.  **Configure Backend URLs**:
+3. **Configure Backend URLs**:
 
-    - Open `config/config.toml` in the `hyperswitch-control-center` project.
-    - Verify these endpoint configurations for local backend (default Docker ports):
-      ```toml
-      [default.endpoints]
-      api_url="http://localhost:8080/api"
-      sdk_url="http://localhost:9050/HyperLoader.js"
-      ```
+   - Open `config/config.toml` in the `hyperswitch-control-center` project.
+   - Verify these endpoint configurations for local backend (default Docker ports):
+     ```toml
+     [default.endpoints]
+     api_url="http://localhost:8080/api"
+     sdk_url="http://localhost:9050/HyperLoader.js"
+     ```
 
-4.  **Start Hyperswitch Backend Services (Docker)**:
+4. **Start Hyperswitch Backend Services (Docker)**:
 
-    - In a terminal, navigate to the `hyperswitch` backend repository (e.g., `cd ../hyperswitch`).
-    - Start services:
-      ```bash
-      # Inside the ../hyperswitch directory
-      docker compose up -d --scale hyperswitch-control-center=0
-      ```
-    - This starts services in detached mode (`-d`).
-    - `--scale hyperswitch-control-center=0` prevents Docker's control center UI, allowing local use.
-    - Monitor logs: `docker compose logs -f hyperswitch-server` (or other services).
+   - In a terminal, navigate to the `hyperswitch` backend repository (e.g., `cd ../hyperswitch`).
+   - Start services:
+     ```bash
+     # Inside the ../hyperswitch directory
+     docker compose up -d --scale hyperswitch-control-center=0
+     ```
+   - This starts services in detached mode (`-d`).
+   - `--scale hyperswitch-control-center=0` prevents Docker's control center UI, allowing local use.
+   - Monitor logs: `docker compose logs -f hyperswitch-server` (or other services).
 
-5.  **Start ReScript Compiler (Frontend)**:
+5. **Start ReScript Compiler (Frontend)**:
 
-    - In a new terminal (in `hyperswitch-control-center` directory).
-    - Run ReScript compiler in watch mode:
-      ```bash
-      npm run re:start
-      ```
-    - Keep this running for automatic recompilation of `.res` to `.bs.js` files.
+   - In a new terminal (in `hyperswitch-control-center` directory).
+   - Run ReScript compiler in watch mode:
+     ```bash
+     npm run re:start
+     ```
+   - Keep this running for automatic recompilation of `.res` to `.bs.js` files.
 
-6.  **Start Frontend Development Server**:
+6. **Start Frontend Development Server**:
 
-    - In another new terminal (in `hyperswitch-control-center` directory).
-    - Run the development server:
-      ```bash
-      npm run start
-      ```
-    - This starts webpack dev server, typically at `http://localhost:9000/` (check terminal output).
+   - In another new terminal (in `hyperswitch-control-center` directory).
+   - Run the development server:
+     ```bash
+     npm run start
+     ```
+   - This starts webpack dev server, typically at `http://localhost:9000/` (check terminal output).
 
-7.  **Access the Application**:
-    - Open your browser to `http://localhost:9000/` (or the URL from `npm run start`).
+7. **Access the Application**:
+   - Open your browser to `http://localhost:9000/` (or the URL from `npm run start`).
 
 Keep `npm run re:start` and `npm run start` terminals running during development.
 
