@@ -188,8 +188,79 @@ let make = (
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
 
+  open IntelligentRoutingUtils
   <div>
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
+    | (#chooseDataSource, _) =>
+      <PageWrapper
+        title="Choose Your Data Source" subTitle="Select a data source to begin your simulation">
+        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
+          {dataSource
+          ->Array.map(dataSource => {
+            switch dataSource {
+            | Historical =>
+              <>
+                <div className="text-nd_gray-400 text-xs font-semibold tracking-wider">
+                  {dataSource
+                  ->dataTypeVariantToString
+                  ->String.toUpperCase
+                  ->React.string}
+                </div>
+                {fileTypes
+                ->Array.map(item => {
+                  let fileTypeHeading = item->getFileTypeHeading
+                  let fileTypeDescription = item->getFileTypeDescription
+                  let fileTypeIcon = item->getFileTypeIconName
+                  let isSelected = item == Sample
+
+                  <StepCard
+                    stepName={fileTypeHeading}
+                    description={fileTypeDescription}
+                    isSelected
+                    onClick={_ => ()}
+                    iconName=fileTypeIcon
+                    isDisabled={item === Upload}
+                    showDemoLabel={item === Sample ? true : false}
+                  />
+                })
+                ->React.array}
+              </>
+            | Realtime =>
+              <>
+                <div className="text-nd_gray-400 text-xs font-semibold tracking-wider">
+                  {dataSource
+                  ->dataTypeVariantToString
+                  ->String.toUpperCase
+                  ->React.string}
+                </div>
+                {realtime
+                ->Array.map(item => {
+                  let realtimeHeading = item->getRealtimeHeading
+                  let realtimeDescription = item->getRealtimeDescription
+                  let realtimeIcon = item->getRealtimeIconName
+
+                  <StepCard
+                    stepName={realtimeHeading}
+                    description={realtimeDescription}
+                    isSelected=false
+                    onClick={_ => ()}
+                    iconName=realtimeIcon
+                    isDisabled={item === StreamLive}
+                  />
+                })
+                ->React.array}
+              </>
+            }
+          })
+          ->React.array}
+          <Button
+            text="Next"
+            buttonType=Primary
+            onClick={_ => handleClick()}
+            customButtonStyle="w-full mt-8"
+          />
+        </div>
+      </PageWrapper>
     | (#connectProcessor, #selectProcessor) =>
       <PageWrapper
         title="Where do you process your payments"

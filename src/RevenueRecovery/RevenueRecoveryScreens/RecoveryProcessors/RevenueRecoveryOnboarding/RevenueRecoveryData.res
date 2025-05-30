@@ -54,7 +54,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -65,7 +65,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -76,7 +76,7 @@ let orderData = {
           "error": "Fraud suspicion",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -109,7 +109,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -142,7 +142,7 @@ let orderData = {
           "error": "Decline due to daily cutoff being in progress",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -153,7 +153,7 @@ let orderData = {
           "error": "",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -180,7 +180,7 @@ let orderData = {
           "error": "Card expired",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -191,7 +191,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -202,7 +202,7 @@ let orderData = {
           "error": "Transaction limit exceeded",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -213,7 +213,7 @@ let orderData = {
           "error": "Card expired",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -235,7 +235,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -295,7 +295,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -306,7 +306,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -328,7 +328,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -339,7 +339,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -350,7 +350,7 @@ let orderData = {
           "error": "Decline due to daily cutoff being in progress",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -372,7 +372,7 @@ let orderData = {
           "error": "3D Secure authentication failed",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -427,7 +427,7 @@ let orderData = {
           "error": "Decline due to daily cutoff being in progress",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -487,7 +487,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -498,7 +498,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -509,7 +509,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -520,7 +520,7 @@ let orderData = {
           "error": "Fraud suspicion",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -591,7 +591,7 @@ let orderData = {
           "error": "Decline due to daily cutoff being in progress",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -624,7 +624,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -646,7 +646,7 @@ let orderData = {
           "error": "Fraud suspicion",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -657,7 +657,7 @@ let orderData = {
           "error": "Insufficient funds",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -668,7 +668,7 @@ let orderData = {
           "error": "",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -695,7 +695,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -706,7 +706,7 @@ let orderData = {
           "error": "Transaction limit exceeded",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -728,7 +728,7 @@ let orderData = {
           "error": "Transaction limit exceeded",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -750,7 +750,7 @@ let orderData = {
           "error": "Fraud suspicion",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -761,7 +761,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -772,7 +772,7 @@ let orderData = {
           "error": "Insufficient funds",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -783,7 +783,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -794,7 +794,7 @@ let orderData = {
           "error": "Card expired",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -805,7 +805,7 @@ let orderData = {
           "error": "Insufficient funds",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -838,7 +838,7 @@ let orderData = {
           "error": "Decline due to daily cutoff being in progress",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -849,7 +849,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -887,7 +887,7 @@ let orderData = {
           "error": "Decline due to daily cutoff being in progress",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -898,7 +898,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -931,7 +931,7 @@ let orderData = {
           "error": "Fraud suspicion",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -942,7 +942,7 @@ let orderData = {
           "error": "Decline due to daily cutoff being in progress",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -953,7 +953,7 @@ let orderData = {
           "error": "Fraud suspicion",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -991,7 +991,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1002,7 +1002,7 @@ let orderData = {
           "error": "",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1062,7 +1062,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1073,7 +1073,7 @@ let orderData = {
           "error": "3D Secure authentication failed",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1084,7 +1084,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1106,7 +1106,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1117,7 +1117,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1128,7 +1128,7 @@ let orderData = {
           "error": "Fraud suspicion",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1172,7 +1172,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1183,7 +1183,7 @@ let orderData = {
           "error": "Transaction limit exceeded",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1210,7 +1210,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1221,7 +1221,7 @@ let orderData = {
           "error": "3D Secure authentication failed",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1243,7 +1243,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1265,7 +1265,7 @@ let orderData = {
           "error": "Card expired",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1276,7 +1276,7 @@ let orderData = {
           "error": "",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1303,7 +1303,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1325,7 +1325,7 @@ let orderData = {
           "error": "Decline due to daily cutoff being in progress",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1336,7 +1336,7 @@ let orderData = {
           "error": "Insufficient funds",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1347,7 +1347,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1358,7 +1358,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1380,7 +1380,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1489,7 +1489,7 @@ let orderData = {
           "error": "Fraud suspicion",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1511,7 +1511,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1571,7 +1571,7 @@ let orderData = {
           "error": "3D Secure authentication failed",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1582,7 +1582,7 @@ let orderData = {
           "error": "Fraud suspicion",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1593,7 +1593,7 @@ let orderData = {
           "error": "Card expired",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1615,7 +1615,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1648,7 +1648,7 @@ let orderData = {
           "error": "",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1686,7 +1686,7 @@ let orderData = {
           "error": "Card expired",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1697,7 +1697,7 @@ let orderData = {
           "error": "3D Secure authentication failed",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1741,7 +1741,7 @@ let orderData = {
           "error": "Transaction limit exceeded",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1763,7 +1763,7 @@ let orderData = {
           "error": "Transaction limit exceeded",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1774,7 +1774,7 @@ let orderData = {
           "error": "Invalid CVV",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1856,7 +1856,7 @@ let orderData = {
           "error": "Insufficient funds",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1867,7 +1867,7 @@ let orderData = {
           "error": "Transaction limit exceeded",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1889,7 +1889,7 @@ let orderData = {
           "error": "",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1916,7 +1916,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1938,7 +1938,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1960,7 +1960,7 @@ let orderData = {
           "error": "Card expired",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -1982,7 +1982,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2020,7 +2020,7 @@ let orderData = {
           "error": "3D Secure authentication failed",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2053,7 +2053,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2086,7 +2086,7 @@ let orderData = {
           "error": "Decline due to daily cutoff being in progress",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2097,7 +2097,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2130,7 +2130,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2141,7 +2141,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2163,7 +2163,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2174,7 +2174,7 @@ let orderData = {
           "error": "Insufficient funds",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2201,7 +2201,7 @@ let orderData = {
           "error": "3D Secure authentication failed",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2212,7 +2212,7 @@ let orderData = {
           "error": "Insufficient funds",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2278,7 +2278,7 @@ let orderData = {
           "error": "Insufficient funds",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2327,7 +2327,7 @@ let orderData = {
           "error": "Invalid payment method",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2349,7 +2349,7 @@ let orderData = {
           "error": "Bank server unavailable",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",
@@ -2360,7 +2360,7 @@ let orderData = {
           "error": "Account restricted",
           "feature_metadata": {
             "revenue_recovery": {
-              "attempt_triggered_by": "external",
+              "attempt_triggered_by": "internal",
             },
           },
           "created": "2025-03-17T13:20:12.000Z",

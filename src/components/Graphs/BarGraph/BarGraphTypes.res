@@ -32,7 +32,13 @@ type marker = {
   ...enabled,
 }
 type pointPadding = float
-type bar = {marker: marker, pointPadding: pointPadding}
+type bar = {
+  marker: marker,
+  pointPadding: pointPadding,
+  stacking?: string,
+  borderWidth?: float,
+  borderColor?: string,
+}
 type plotOptions = {bar: bar}
 type labels = {
   align: align,
@@ -42,6 +48,8 @@ type chart = {
   \"type": \"type",
   spacingLeft: spacingLeft,
   spacingRight: spacingRight,
+  height?: float,
+  spacing?: array<int>,
 }
 
 type dataObj = {
@@ -54,27 +62,29 @@ type dataObj = {
 type data = array<dataObj>
 
 type yAxis = {
-  title: title,
-  gridLineWidth: gridLineWidth,
-  gridLineColor: gridLineColor,
-  gridLineDashStyle: gridLineDashStyle,
-  tickInterval: tickInterval,
-  min: min,
-  max: max,
-  labels: labels,
+  title?: title,
+  gridLineWidth?: gridLineWidth,
+  gridLineColor?: gridLineColor,
+  gridLineDashStyle?: gridLineDashStyle,
+  tickInterval?: tickInterval,
+  min?: min,
+  max?: max,
+  labels?: labels,
+  visible?: bool,
 }
 
 type xAxis = {
-  categories: categories,
-  labels: labels,
-  tickWidth: tickWidth,
-  tickmarkPlacement: tickmarkPlacement,
-  endOnTick: endOnTick,
-  startOnTick: startOnTick,
-  gridLineDashStyle: gridLineDashStyle,
-  gridLineWidth: gridLineWidth,
-  gridLineColor: gridLineColor,
-  min: min,
+  categories?: categories,
+  labels?: labels,
+  tickWidth?: tickWidth,
+  tickmarkPlacement?: tickmarkPlacement,
+  endOnTick?: endOnTick,
+  startOnTick?: startOnTick,
+  gridLineDashStyle?: gridLineDashStyle,
+  gridLineWidth?: gridLineWidth,
+  gridLineColor?: gridLineColor,
+  min?: min,
+  visible?: bool,
 }
 
 type info = {index: int}
@@ -91,15 +101,16 @@ type cssStyle = {
 }
 
 type tooltip = {
-  shape: string,
-  backgroundColor: string,
-  borderColor: string,
-  useHTML: bool,
-  formatter: pointFormatter => string,
-  shared: bool,
-  style: cssStyle,
-  borderWidth: float,
-  shadow: bool,
+  shape?: string,
+  backgroundColor?: string,
+  borderColor?: string,
+  useHTML?: bool,
+  formatter?: pointFormatter => string,
+  shared?: bool,
+  style?: cssStyle,
+  borderWidth?: float,
+  shadow?: bool,
+  enabled?: bool,
 }
 
 type barGraphOptions = {
