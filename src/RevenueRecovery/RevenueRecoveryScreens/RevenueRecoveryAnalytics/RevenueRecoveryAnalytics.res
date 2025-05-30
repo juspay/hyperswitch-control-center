@@ -20,8 +20,6 @@ let make = () => {
       <RetriesComparisionAnalytics
         entity={retriesComparisionEntity} chartEntity={retriesComparisionChartEntity}
       />
-      <SmartRetryStrategyAnalytics entity={smartRetryStrategyEntity} />
-      </div>
     </div>
   </div>
 }
