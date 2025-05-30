@@ -57,11 +57,11 @@ module Attempts = {
   @react.component
   let make = (~order: RevenueRecoveryOrderTypes.order) => {
     let getStyle = status => {
-      let orderStatus = status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
+      let orderStatus = status->HSwitchOrderUtils.refundStatusVariantMapper
 
       switch orderStatus {
-      | #CHARGED => ("green-status", "nd-check")
-      | #FAILURE => ("red-status", "nd-alert-triangle-outline")
+      | Success => ("green-status", "nd-check")
+      | Failure => ("red-status", "nd-alert-triangle-outline")
       | _ => ("orange-status", "nd-calender")
       }
     }
@@ -111,6 +111,7 @@ module Attempts = {
 let make = (~id) => {
   open APIUtils
   let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ =>
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
@@ -121,28 +122,18 @@ let make = (~id) => {
     try {
       setScreenState(_ => Loading)
 
-      let _ordersUrl = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
-      //let res = await fetchDetails(ordersUrl)
-      let res = RevenueRecoveryData.orderData
+      let url = getURL(
+        ~entityName=V1(RECOVERY_ATTEMPTS),
+        ~methodType=Get,
+        ~queryParamerters=Some(id),
+      )
+      let data = await fetchDetails(url, ~version=V1)
 
-      let data =
-        res
-        ->getDictFromJsonObject
-        ->getArrayFromDict("data", [])
-
-      let order =
+      setRevenueRecoveryData(_ =>
         data
-        ->Array.map(item => {
-          item
-          ->getDictFromJsonObject
-          ->RevenueRecoveryEntity.itemToObjMapper
-        })
-        ->Array.find(item => item.id == id)
-
-      switch order {
-      | Some(value) => setRevenueRecoveryData(_ => value)
-      | _ => ()
-      }
+        ->getDictFromJsonObject
+        ->RevenueRecoveryEntity.itemToObjMapper
+      )
 
       setScreenState(_ => Success)
     } catch {
