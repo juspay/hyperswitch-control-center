@@ -79,18 +79,24 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       if isSampleDataEnabled {
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
-        let res = await fetchApi(
-          paymentsUrl,
-          ~method_=Get,
-          ~xFeatureRoute=false,
-          ~forceCookies=false,
-        )
-        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        // let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        // let res = await fetchApi(
+        //   paymentsUrl,
+        //   ~method_=Get,
+        //   ~xFeatureRoute=false,
+        //   ~forceCookies=false,
+        // )
+        // let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        // let paymentData =
+        //   paymentsResponse
+        //   ->getDictFromJsonObject
+        //   ->getJsonObjectFromDict("authenticationLifeCycleData")
+        //   ->getDictFromJsonObject
+
         let paymentData =
-          paymentsResponse
+          authDummyData
           ->getDictFromJsonObject
-          ->getJsonObjectFromDict("authenticationLifeCycleData")
+          ->getJsonObjectFromDict("authenticationsOverviewData")
           ->getDictFromJsonObject
         setQueryData(_ => paymentData->itemToObjMapperForQueryData)
         setScreenState(_ => PageLoaderWrapper.Success)

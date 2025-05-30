@@ -58,15 +58,16 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
       let primaryResponse = if isSampleDataEnabled {
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
-        let res = await fetchApi(
-          paymentsUrl,
-          ~method_=Get,
-          ~xFeatureRoute=false,
-          ~forceCookies=false,
-        )
-        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        // let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        // let res = await fetchApi(
+        //   paymentsUrl,
+        //   ~method_=Get,
+        //   ~xFeatureRoute=false,
+        //   ~forceCookies=false,
+        // )
+        // let paymentsResponse = await res->(res => res->Fetch.Response.json)
 
+        let paymentsResponse = authDummyData
         paymentsResponse
         ->getDictFromJsonObject
         ->getJsonObjectFromDict("authenticationLifeCycleData")
