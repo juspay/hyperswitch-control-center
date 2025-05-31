@@ -152,7 +152,7 @@ module VolumeRoutingView = {
                     iconSize=35
                   />
                 </>
-              : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
+              : <NoDataFound message="Please configure at least 1 connector" renderType=InfoBox />}
           </div>
         | Preview =>
           <div className="flex flex-col w-full gap-3">

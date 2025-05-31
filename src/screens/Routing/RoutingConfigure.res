@@ -21,6 +21,7 @@ let make = (~routingType) => {
     | "volume" => setCurrentRouting(_ => VOLUME_SPLIT)
     | "rule" => setCurrentRouting(_ => ADVANCED)
     | "default" => setCurrentRouting(_ => DEFAULTFALLBACK)
+    | "auth-rate" => setCurrentRouting(_ => AUTH_RATE_ROUTING)
     | _ => setCurrentRouting(_ => NO_ROUTING)
     }
     let isActive =
@@ -48,6 +49,10 @@ let make = (~routingType) => {
           connectorList
           urlEntityName=V1(ROUTING)
           baseUrlForRedirection
+        />
+      | AUTH_RATE_ROUTING =>
+        <AuthRateRouting
+          routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
         />
       | DEFAULTFALLBACK =>
         <DefaultRouting

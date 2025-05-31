@@ -218,13 +218,13 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
     )}
     <div className="flex flex-col gap-4 mt-10">
       {dataSource
-      ->Array.map(dataSource => {
+      ->Array.mapWithIndex((dataSource, index) => {
         switch dataSource {
         | Historical =>
-          <>
+          <React.Fragment key={Int.toString(index)}>
             {dataSourceHeading(dataSource->dataTypeVariantToString)}
             {fileTypes
-            ->Array.map(item => {
+            ->Array.mapWithIndex((item, index) => {
               let fileTypeHeading = item->getFileTypeHeading
               let fileTypeDescription = item->getFileTypeDescription
               let fileTypeIcon = item->getFileTypeIconName
@@ -235,6 +235,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
               }
 
               <StepCard
+                key={index->Int.toString}
                 stepName={fileTypeHeading}
                 description={fileTypeDescription}
                 isSelected
@@ -245,17 +246,18 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
             })
             ->React.array}
             <RenderIf condition={selectedField === Upload}> {fileUploadComponent} </RenderIf>
-          </>
+          </React.Fragment>
         | Realtime =>
-          <>
+          <React.Fragment key={Int.toString(index)}>
             {dataSourceHeading(dataSource->dataTypeVariantToString)}
             {realtime
-            ->Array.map(item => {
+            ->Array.mapWithIndex((item, index) => {
               let realtimeHeading = item->getRealtimeHeading
               let realtimeDescription = item->getRealtimeDescription
               let realtimeIcon = item->getRealtimeIconName
 
               <StepCard
+                key={index->Int.toString}
                 stepName={realtimeHeading}
                 description={realtimeDescription}
                 isSelected=false
@@ -265,7 +267,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
               />
             })
             ->React.array}
-          </>
+          </React.Fragment>
         }
       })
       ->React.array}
