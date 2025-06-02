@@ -70,15 +70,6 @@ type metricsData = {
   tooltip_description: string,
 }
 
-type analyticsPages = Payment
-type viewType = Graph | Table
-type statisticsDirection = Upward | Downward | No_Change
-
-type analyticsPagesRoutes =
-  | @as("new-analytics/payment") NewAnalyticsPayment
-  | @as("new-analytics/smart-retry") NewAnalyticsSmartRetry
-  | @as("new-analytics/refund") NewAnalyticsRefund
-
 type domain = [#payments | #refunds | #disputes]
 type dimension = [
   | #connector

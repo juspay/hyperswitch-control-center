@@ -266,9 +266,7 @@ let make = () => {
   let applySampleDateFilters = async isSampleDateEnabled => {
     try {
       setScreenState(_ => Loading)
-      let values = NewAuthenticationAnalyticsUtils.getSampleDateRange(
-        ~useSampleDates=isSampleDateEnabled,
-      )
+      let values = InsightsUtils.getSampleDateRange(~useSampleDates=isSampleDateEnabled)
       values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
       let _ = await updateFilterAsync(~delay=1000, values)
       setScreenState(_ => Success)
@@ -276,8 +274,17 @@ let make = () => {
     | _ => setScreenState(_ => Success)
     }
   }
+
+  let funnelRenderCondition = React.useMemo(
+    () =>
+      funnelData.authentication_initiated > 0 &&
+      funnelData.payments_requiring_3ds_2_authentication > 0 &&
+      funnelData.authentication_attemped > 0 &&
+      funnelData.authentication_successful > 0,
+    [funnelData],
+  )
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
-    <NewAuthenticationAnalyticsHelper.SampleDataBanner applySampleDateFilters />
+    <InsightsHelper.SampleDataBanner applySampleDateFilters />
     <PageUtils.PageHeading title />
     <div className="flex justify-end mr-4">
       <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
@@ -300,11 +307,7 @@ let make = () => {
       )
       ->React.array}
     </div>
-    <RenderIf
-      condition={funnelData.authentication_initiated > 0 &&
-      funnelData.payments_requiring_3ds_2_authentication > 0 &&
-      funnelData.authentication_attemped > 0 &&
-      funnelData.authentication_successful > 0}>
+    <RenderIf condition={funnelRenderCondition}>
       <div className="border border-gray-200 mt-5 rounded-lg">
         <FunnelChart
           data={getFunnelChartData(funnelData)}

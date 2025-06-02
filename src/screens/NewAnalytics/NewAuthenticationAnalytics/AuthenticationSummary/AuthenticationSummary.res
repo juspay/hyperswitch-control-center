@@ -2,9 +2,10 @@
 let make = () => {
   open LogicUtils
   open Promise
-  open AuthenticationSummaryEntity
+  open PaymentAnalyticsEntity
   open APIUtils
   open HSAnalyticsUtils
+  open AuthenticationSummaryUtils
 
   let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
 
@@ -58,7 +59,7 @@ let make = () => {
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let filterValueDict = filterValueJson
   let {getHeading, allColumns, defaultColumns} = tableEntity
-  let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
+
   let (startTimeFilterKey, endTimeFilterKey) = dateKeys
 
   let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
@@ -120,33 +121,6 @@ let make = () => {
     None
   }, [])
 
-  // let filterBody = React.useMemo(() => {
-  //   let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
-  //     startTime: startTimeVal,
-  //     endTime: endTimeVal,
-  //     groupByNames: tabKeys,
-  //     source: "BATCH",
-  //   }
-  //   AnalyticsUtils.filterBody(filterBodyEntity)
-  // }, (startTimeVal, endTimeVal, tabKeys->Array.joinWith(",")))
-
-  // let body = filterBody->JSON.Encode.object
-
-  // React.useEffect(() => {
-  //   setFilterDataJson(_ => None)
-  //   if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
-  //     try {
-  //       updateDetails(analyticsfilterUrl, body, Post)
-  //       ->thenResolve(json => setFilterDataJson(_ => Some(json)))
-  //       ->catch(_ => resolve())
-  //       ->ignore
-  //     } catch {
-  //     | _ => ()
-  //     }
-  //   }
-  //   None
-  // }, (startTimeVal, endTimeVal, body->JSON.stringify))
-
   React.useEffect(() => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       mixpanelEvent(~eventName="analytics_payments_date_filter")
@@ -155,56 +129,18 @@ let make = () => {
   }, [startTimeVal, endTimeVal])
 
   let getTopLevelFilter = React.useMemo(() => {
-    filterValueDict
-    ->Dict.toArray
-    ->Belt.Array.keepMap(item => {
-      let (key, value) = item
-      let keyArr = key->String.split(".")
-      let prefix = keyArr->Array.get(0)->Option.getOr("")
-      if prefix === moduleName && prefix->LogicUtils.isNonEmptyString {
-        None
-      } else {
-        Some((prefix, value))
-      }
-    })
-    ->Dict.fromArray
+    getTopLevelFilterFromDict(filterValueDict, moduleName)
   }, [filterValueDict])
 
   let allColumns = allColumns->Option.getOr([])
   let allFilterKeys = Array.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
 
   let topFiltersToSearchParam = React.useMemo(() => {
-    let filterSearchParam =
-      getTopLevelFilter
-      ->Dict.toArray
-      ->Belt.Array.keepMap(entry => {
-        let (key, value) = entry
-        if allFilterKeys->Array.includes(key) {
-          switch value->JSON.Classify.classify {
-          | String(str) => `${key}=${str}`->Some
-          | Number(num) => `${key}=${num->String.make}`->Some
-          | Array(arr) => `${key}=[${arr->String.make}]`->Some
-          | _ => None
-          }
-        } else {
-          None
-        }
-      })
-      ->Array.joinWith("&")
-
-    filterSearchParam
+    getTopFiltersToSearchParam(getTopLevelFilter, allFilterKeys)
   }, [getTopLevelFilter])
 
   let filterValueFromUrl = React.useMemo(() => {
-    getTopLevelFilter
-    ->Dict.toArray
-    ->Belt.Array.keepMap(entries => {
-      let (key, value) = entries
-      filterKeys->Array.includes(key) ? Some((key, value)) : None
-    })
-    ->Dict.fromArray
-    ->JSON.Encode.object
-    ->Some
+    getFilterValueFromUrl(getTopLevelFilter, filterKeys)
   }, [topFiltersToSearchParam])
 
   let startTimeFromUrl = React.useMemo(() => {
@@ -213,53 +149,6 @@ let make = () => {
   let endTimeFromUrl = React.useMemo(() => {
     getTopLevelFilter->getString(endTimeFilterKey, "")
   }, [topFiltersToSearchParam])
-
-  let parseData = json => {
-    let data = json->getDictFromJsonObject
-    let value = data->getJsonObjectFromDict("queryData")->getArrayFromJson([])
-    value
-  }
-
-  let generateIDFromKeys = (keys, dict) => {
-    keys
-    ->Option.getOr([])
-    ->Array.map(key => {
-      dict->Dict.get(key)
-    })
-    ->Array.joinWithUnsafe("")
-  }
-
-  open AnalyticsTypes
-  let getUpdatedData = (data, weeklyData, cols) => {
-    let dataArr = data->parseData
-    let weeklyArr = weeklyData->parseData
-
-    dataArr
-    ->Array.map(item => {
-      let dataDict = item->getDictFromJsonObject
-      let dataKey = activeTab->generateIDFromKeys(dataDict)
-
-      weeklyArr->Array.forEach(newItem => {
-        let weekklyDataDict = newItem->getDictFromJsonObject
-        let weekklyDataKey = activeTab->generateIDFromKeys(weekklyDataDict)
-
-        if dataKey === weekklyDataKey {
-          cols->Array.forEach(
-            obj => {
-              switch weekklyDataDict->Dict.get(obj.refKey) {
-              | Some(val) => dataDict->Dict.set(obj.newKey, val)
-              | _ => ()
-              }
-            },
-          )
-        }
-      })
-      dataDict->JSON.Encode.object
-    })
-    ->JSON.Encode.array
-    ->getTable
-    ->Array.map(Nullable.make)
-  }
 
   let getWeeklyData = (data, cols) => {
     let weeklyDateRange = HSwitchRemoteFilter.getDateFilteredObject()
@@ -290,6 +179,8 @@ let make = () => {
       //     data,
       //     json->getDictFromJsonObject->getJsonObjectFromDict("authenticationSummaryTableData"),
       //     cols,
+      //     activeTab,
+      //     getTable,
       //   )
       //   setTableData(_ => updatedData)
 
@@ -309,6 +200,8 @@ let make = () => {
           ->getDictFromJsonObject
           ->getJsonObjectFromDict("authenticationSummaryTableData"),
           cols,
+          activeTab,
+          getTable,
         )
       )
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -316,7 +209,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       fetchUpdateDetails(tableEntity.uri, weeklyTableReqBody, Post)
       ->thenResolve(json => {
-        setTableData(_ => getUpdatedData(data, json, cols))
+        setTableData(_ => getUpdatedData(data, json, cols, activeTab, getTable))
         setScreenState(_ => PageLoaderWrapper.Success)
       })
       ->catch(_ => {
@@ -385,7 +278,7 @@ let make = () => {
       }
     }
     None
-  }, (topFiltersToSearchParam, activeTabStr, customFilter))
+  }, (topFiltersToSearchParam, customFilter))
   let newDefaultCols = React.useMemo(() => {
     activeTab
     ->Option.getOr([])
@@ -400,7 +293,7 @@ let make = () => {
       ->Array.get(0)
     })
     ->Array.concat(allColumns)
-  }, [activeTabStr])
+  }, [])
 
   let newAllCols = React.useMemo(() => {
     defaultColumns
@@ -409,20 +302,15 @@ let make = () => {
       activeTab->Option.getOr([])->Array.includes(val.key) ? Some(item) : None
     })
     ->Array.concat(allColumns)
-  }, [activeTabStr])
+  }, [])
 
   let transactionTableDefaultCols = React.useMemo(() => {
-    Recoil.atom(`${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
-  }, (newDefaultCols, `${moduleName}DefaultCols${activeTabStr}`))
+    Recoil.atom(`${moduleName}DefaultColsconnector`, newDefaultCols)
+  }, (newDefaultCols, `${moduleName}DefaultColsconnector`))
 
   let (offset, setOffset) = React.useState(_ => 0)
 
   let visibleColumns = Recoil.useRecoilValueFromAtom(transactionTableDefaultCols)
-
-  let defaultSort: Table.sortedObject = {
-    key: defaultSort,
-    order: Table.INC,
-  }
 
   let modifiedTableEntity = React.useMemo(() => {
     {
@@ -432,11 +320,14 @@ let make = () => {
     }
   }, (tableEntity, newDefaultCols, newAllCols))
 
-  let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 rounded-md border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30 mt-7"
+  let defaultSort: Table.sortedObject = {
+    key: defaultSort,
+    order: Table.INC,
+  }
 
   <PageLoaderWrapper
     screenState
-    customLoader={<NewAuthenticationAnalyticsHelper.Shimmer layoutId="Authentication summary" />}
+    customLoader={<InsightsHelper.Shimmer layoutId="Authentication summary" />}
     customUI={<NoData title />}>
     <div className="flex flex-1 flex-col my-5">
       <div className="relative">

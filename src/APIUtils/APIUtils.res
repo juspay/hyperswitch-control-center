@@ -532,6 +532,18 @@ let useGetURL = () => {
 
         | _ => ""
         }
+      | ANALYTICS_SCA_EXEMPTION_SANKEY =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization => `analytics/v1/org/metrics/auth_events/sankey`
+          | #Merchant => `analytics/v1/merchant/metrics/auth_events/sankey`
+          | #Profile => `analytics/v1/profile/metrics/auth_events/sankey`
+          }
+
+        | _ => ""
+        }
       /* PAYOUTS ROUTING */
       | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
       | PAYOUT_ROUTING =>

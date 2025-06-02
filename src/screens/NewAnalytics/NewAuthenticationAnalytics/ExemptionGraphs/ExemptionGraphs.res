@@ -1,7 +1,8 @@
 open NewAuthenticationAnalyticsTypes
-open NewAuthenticationAnalyticsHelper
+open InsightsHelper
 open ExemptionGraphsUtils
 open NewAuthenticationAnalyticsUtils
+open InsightsUtils
 
 @react.component
 let make = (
@@ -50,11 +51,11 @@ let make = (
     None
   }, (startTimeVal, endTimeVal))
 
-  let isSmartRetryEnabled =
-    filterValueJson
-    ->getString("is_smart_retry_enabled", "true")
-    ->getBoolFromString(true)
-    ->getSmartRetryMetricType
+  // let isSmartRetryEnabled =
+  //   filterValueJson
+  //   ->getString("is_smart_retry_enabled", "true")
+  //   ->getBoolFromString(true)
+  //   ->getSmartRetryMetricType
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -78,7 +79,7 @@ let make = (
         ->getDictFromJsonObject
         ->getJsonObjectFromDict("authenticationLifeCycleData")
       } else {
-        let primaryBody = requestBody(
+        let primaryBody = NewAuthenticationAnalyticsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
           ~delta=entity.requestBodyConfig.delta,
@@ -126,22 +127,25 @@ let make = (
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-  React.useEffect(() => {
-    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getPaymentsProcessed()->ignore
-    }
-    None
-  }, (
-    startTimeVal,
-    endTimeVal,
-    compareToStartTime,
-    compareToEndTime,
-    comparison,
-    granularity.value,
-    currency,
-    isSmartRetryEnabled,
-    isSampleDataEnabled,
-  ))
+  React.useEffect(
+    () => {
+      if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+        getPaymentsProcessed()->ignore
+      }
+      None
+    },
+    (
+      startTimeVal,
+      endTimeVal,
+      compareToStartTime,
+      compareToEndTime,
+      comparison,
+      granularity.value,
+      currency,
+      // isSmartRetryEnabled,
+      isSampleDataEnabled,
+    ),
+  )
 
   let params = {
     data: authenticationSuccessData,
@@ -154,7 +158,9 @@ let make = (
   let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions
 
   <Card>
-    <ModuleHeader title={entity.title} description={entity.description->Option.getOr("")} />
+    <NewAuthenticationAnalyticsHelper.ModuleHeader
+      title={entity.title} description={entity.description->Option.getOr("")}
+    />
     <PageLoaderWrapper
       screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
       <div className="mx-5">

@@ -39,7 +39,8 @@ let exemptionGraphsMapper = (
   open InsightsUtils
   open LogicUtilsTypes
 
-  let {data, xKey, yKey, title} = params
+  let {data, xKey, yKey} = params
+  let title = params.title->Option.getOr("")
   let currency = params.currency->Option.getOr("")
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)

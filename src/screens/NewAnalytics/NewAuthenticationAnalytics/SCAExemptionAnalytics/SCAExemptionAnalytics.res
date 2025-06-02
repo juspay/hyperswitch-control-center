@@ -1,5 +1,5 @@
 open NewAuthenticationAnalyticsTypes
-open NewAuthenticationAnalyticsHelper
+open InsightsHelper
 open SankeyGraphTypes
 @react.component
 let make = (
@@ -45,7 +45,7 @@ let make = (
         setData(_ => scaExemptionData->SCAExemptionAnalyticsUtils.scaExemptionResponseMapper)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
-        let url = getURL(~entityName=V1(ANALYTICS_SANKEY), ~methodType=Post)
+        let url = getURL(~entityName=V1(ANALYTICS_SCA_EXEMPTION_SANKEY), ~methodType=Post)
         let scaExemptionBody =
           [
             ("startTime", startTimeVal->JSON.Encode.string),
@@ -80,7 +80,9 @@ let make = (
 
   <div className="my-4">
     <Card>
-      <ModuleHeader title={entity.title} description={entity.description->Option.getOr("")} />
+      <NewAuthenticationAnalyticsHelper.ModuleHeader
+        title={entity.title} description={entity.description->Option.getOr("")}
+      />
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <div className="my-10">

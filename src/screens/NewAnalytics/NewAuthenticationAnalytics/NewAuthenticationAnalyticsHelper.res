@@ -112,41 +112,6 @@ module Insights = {
   }
 }
 
-let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-module Card = {
-  @react.component
-  let make = (~children) => {
-    <div
-      className={`h-full flex flex-col justify-between border rounded-lg dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox`}>
-      {children}
-    </div>
-  }
-}
-
-module NoData = {
-  @react.component
-  let make = (~height="h-96") => {
-    <div
-      className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
-      {"No entires in selected time period."->React.string}
-    </div>
-  }
-}
-
-module Shimmer = {
-  @react.component
-  let make = (~className="w-full h-96", ~layoutId) => {
-    <FramerMotion.Motion.Div
-      className={`${className} bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100`}
-      initial={{backgroundPosition: "-200% 0"}}
-      animate={{backgroundPosition: "200% 0"}}
-      transition={{duration: 1.5, ease: "easeInOut", repeat: 10000}}
-      style={{backgroundSize: "200% 100%"}}
-      layoutId
-    />
-  }
-}
-
 module ModuleHeader = {
   @react.component
   let make = (~title, ~description="") => {
@@ -163,52 +128,5 @@ module SimpleHeader = {
   @react.component
   let make = (~title) => {
     <h2 className="font-semibold text-xl text-jp-gray-900"> {title->React.string} </h2>
-  }
-}
-
-module SampleDataBanner = {
-  @react.component
-  let make = (~applySampleDateFilters) => {
-    open Typography
-    open InsightsContainerUtils
-    let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {sampleDataAnalytics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let {filterValueJson} = React.useContext(FilterContext.filterContext)
-    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
-    let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "
-    let (isSampleModeEnabled, setIsSampleModeEnabled) = React.useState(_ =>
-      filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
-    )
-    let (bannerText, toggleText) = isSampleDataEnabled
-      ? (
-          "Currently viewing sample data. Toggle it off to return to your real insights.",
-          "Hide sample data",
-        )
-      : ("No data yet? View sample data to explore the analytics.", "View sample data")
-    let handleToggleChange = _ => {
-      let newToggleState = !isSampleModeEnabled
-      mixpanelEvent(~eventName="sample_data_analytics", ~metadata=newToggleState->JSON.Encode.bool)
-      setIsSampleModeEnabled(_ => newToggleState)
-      applySampleDateFilters(newToggleState)->ignore
-    }
-    <RenderIf condition=sampleDataAnalytics>
-      <div
-        className={`${stickyToggleClass} text-nd_gray-600 py-3 px-4 bg-orange-50 flex justify-between items-center`}>
-        <div className="flex gap-2 items-center">
-          <Icon name="info-vacent" size=13 />
-          <p className={` ${body.md.medium}`}> {bannerText->React.string} </p>
-        </div>
-        <div className="flex flex-row gap-4 items-center">
-          <p className={`${body.md.semibold}`}> {toggleText->React.string} </p>
-          <BoolInput.BaseComponent
-            isSelected={isSampleModeEnabled}
-            setIsSelected=handleToggleChange
-            isDisabled=false
-            boolCustomClass="rounded-lg !bg-primary"
-            toggleBorder="border-primary"
-          />
-        </div>
-      </div>
-    </RenderIf>
   }
 }
