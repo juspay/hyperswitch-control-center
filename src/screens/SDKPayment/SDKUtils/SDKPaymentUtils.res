@@ -80,7 +80,8 @@ let labels = ["Above", "Floating"]
 let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.paymentType = defaultBusinessProfile => {
   let shippingValue: SDKPaymentTypes.addressAndPhone = {
     address: {
-      line1: "1600 Amphitheatre Parkway",
+      line1: "1600",
+      line2: "Amphitheatre Parkway",
       city: "Mountain View",
       state: "California",
       zip: "94043",
@@ -96,7 +97,8 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
 
   let billingValue: SDKPaymentTypes.addressAndPhone = {
     address: {
-      line1: "1600 Amphitheatre Parkway",
+      line1: "1600",
+      line2: "Amphitheatre Parkway",
       city: "Mountain View",
       state: "California",
       zip: "94043",
@@ -154,6 +156,7 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
   let getAddress = address => {
     {
       line1: address->getString("line1", ""),
+      line2: address->getString("line2", ""),
       city: address->getString("city", ""),
       state: address->getString("state", ""),
       zip: address->getString("zip", ""),
