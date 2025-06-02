@@ -107,7 +107,7 @@ module CheckoutCard = {
         )
       : (
           "Demo our checkout experience",
-          "Test your connector by making a payment and visualize the how user checkout experience",
+          "Test your connector by making a payment and visualize the user checkout experience",
         )
 
     <CardLayout width="" customStyle="flex flex-col  justify-center rounded-xl p-6 ">
