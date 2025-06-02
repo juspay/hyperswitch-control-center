@@ -11,7 +11,10 @@ module BillingAddress = {
         <FieldRenderer field=enterBillingFirstName />
         <FieldRenderer field=enterBillingLastName />
       </DesktopRow>
-      <FieldRenderer field=enterBillingAddress />
+      <DesktopRow itemWrapperClass="">
+        <FieldRenderer field=enterBillingAddressLine1 />
+        <FieldRenderer field=enterBillingAddressLine2 />
+      </DesktopRow>
       <DesktopRow itemWrapperClass="">
         <FieldRenderer field=enterBillingCity />
         <FieldRenderer field=enterBillingState />
@@ -52,7 +55,10 @@ module ShippingAddress = {
         <FieldRenderer field=enterShippingFirstName />
         <FieldRenderer field=enterShippingLastName />
       </DesktopRow>
-      <FieldRenderer field=enterShippingAddress />
+      <DesktopRow itemWrapperClass="">
+        <FieldRenderer field=enterShippingAddressLine1 />
+        <FieldRenderer field=enterShippingAddressLine2 />
+      </DesktopRow>
       <DesktopRow itemWrapperClass="">
         <FieldRenderer field=enterShippingCity />
         <FieldRenderer field=enterShippingState />
