@@ -111,7 +111,7 @@ module CheckoutCard = {
           "Test your payment connector by initiating a transaction and visualize the user checkout experience",
         )
 
-    <CardLayout width="" customStyle="flex-[1] rounded-xl p-6 gap-4  ">
+    <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4  ">
       <div className="flex flex-col gap-4  ">
         <img alt="sdk" src="/assets/SDK.png" />
         <CardHeader heading=title subHeading=description />
@@ -136,7 +136,7 @@ module ControlCenter = {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let liveModeStyles = isLiveMode ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
     <div className=liveModeStyles>
-      <CardLayout width=" " customStyle="flex-[1] rounded-xl p-6 gap-4">
+      <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
         <div className="flex flex-col gap-4 max-w-[38rem]">
           <img alt="sdk" src="/assets/IntegrateProcessorsOver.png" />
           <CardHeader
@@ -173,7 +173,7 @@ module DevResources = {
       />
       <div className="flex flex-col md:flex-row  gap-5 ">
         <RenderIf condition={!checkUserEntity([#Profile])}>
-          <CardLayout width=" " customStyle={" flex-[1] rounded-xl  p-6"}>
+          <CardLayout width="" customStyle={"flex-1 rounded-xl p-6"}>
             <div className="flex flex-col gap-7 ">
               <CardHeader
                 heading="Credentials and Keys"
@@ -196,7 +196,7 @@ module DevResources = {
             </div>
           </CardLayout>
         </RenderIf>
-        <CardLayout width=" " customStyle="flex-[1] rounded-xl p-6">
+        <CardLayout width="" customStyle="flex-1 rounded-xl p-6">
           <div className="flex flex-col gap-4 ">
             <CardHeader
               heading="Developer docs"
