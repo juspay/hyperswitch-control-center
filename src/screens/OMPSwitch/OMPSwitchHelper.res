@@ -13,6 +13,7 @@ module ListBaseComp = {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
+    let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let arrowClassName = isDarkBg
       ? `${arrow
@@ -31,7 +32,8 @@ module ListBaseComp = {
             <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
               {"Merchant Account"->React.string}
             </span>
-            <RenderIf condition={userHasAccess(~groupAccess=OrganizationManage) === Access}>
+            <RenderIf
+              condition={userHasAccess(~groupAccess=OrganizationManage) === Access && devOmpChart}>
               <button
                 className="bg-nd_gray-150 w-5 h-5 rounded-sm flex items-center justify-center"
                 onClick={ev => {

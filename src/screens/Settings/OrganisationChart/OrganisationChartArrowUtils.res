@@ -121,15 +121,17 @@ let createDynamicRoundedElbowPath = (
     | (1., 1.) | (-1., -1.) => "0"
     | _ => "1"
     }
-    `M ${Float.toString(startX)} ${Float.toString(startY)}
-     H ${Float.toString(preArcX)}
-     A ${Float.toString(radius)} ${Float.toString(radius)} 0 0 ${arcSweep} ${Float.toString(
-        elbowX,
-      )} ${Float.toString(arcToY)}
-     V ${Float.toString(preCurveY)}
-     A ${Float.toString(radius)} ${Float.toString(radius)} 0 0 ${curveArcSweep} ${Float.toString(
-        curveArcX,
-      )} ${Float.toString(endY)}
-     H ${Float.toString(endX)}`
+    [
+      `M ${Float.toString(startX)} ${Float.toString(startY)}`,
+      `H ${Float.toString(preArcX)}`,
+      `A ${Float.toString(radius)} ${Float.toString(radius)} 0 0 ${arcSweep} ${Float.toString(
+          elbowX,
+        )} ${Float.toString(arcToY)}`,
+      `V ${Float.toString(preCurveY)}`,
+      `A ${Float.toString(radius)} ${Float.toString(radius)} 0 0 ${curveArcSweep} ${Float.toString(
+          curveArcX,
+        )} ${Float.toString(endY)}`,
+      `H ${Float.toString(endX)}`,
+    ]->Array.joinWith("")
   }
 }
