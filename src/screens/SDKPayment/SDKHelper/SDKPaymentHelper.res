@@ -282,10 +282,10 @@ let enterBillingLastName = FormRenderer.makeFieldInfo(
   },
 )
 
-let enterBillingAddress = FormRenderer.makeFieldInfo(
-  ~label="Address",
+let enterBillingAddressLine1 = FormRenderer.makeFieldInfo(
+  ~label="Address Line 1",
   ~name="billing.address.line1",
-  ~placeholder="Enter your Address",
+  ~placeholder="Enter your Address Line 1",
   ~isRequired=false,
   ~customInput=(~input, ~placeholder as _) => {
     InputFields.textInput(~autoComplete="off")(
@@ -297,7 +297,27 @@ let enterBillingAddress = FormRenderer.makeFieldInfo(
           ->Identity.stringToFormReactEvent
           ->input.onChange,
       },
-      ~placeholder="Enter your Address",
+      ~placeholder="Enter your Address Line 1",
+    )
+  },
+)
+
+let enterBillingAddressLine2 = FormRenderer.makeFieldInfo(
+  ~label="Address Line 2",
+  ~name="billing.address.line2",
+  ~placeholder="Enter your Address Line 2",
+  ~isRequired=false,
+  ~customInput=(~input, ~placeholder as _) => {
+    InputFields.textInput(~autoComplete="off")(
+      ~input={
+        ...input,
+        onChange: event =>
+          ReactEvent.Form.target(event)["value"]
+          ->String.trim
+          ->Identity.stringToFormReactEvent
+          ->input.onChange,
+      },
+      ~placeholder="Enter your Address Line 2",
     )
   },
 )
@@ -449,10 +469,10 @@ let enterShippingLastName = FormRenderer.makeFieldInfo(
   },
 )
 
-let enterShippingAddress = FormRenderer.makeFieldInfo(
-  ~label="Address",
+let enterShippingAddressLine1 = FormRenderer.makeFieldInfo(
+  ~label="Address Line 1",
   ~name="shipping.address.line1",
-  ~placeholder="Enter your Address",
+  ~placeholder="Enter your Address Line 1",
   ~isRequired=false,
   ~customInput=(~input, ~placeholder as _) => {
     InputFields.textInput(~autoComplete="off")(
@@ -464,7 +484,27 @@ let enterShippingAddress = FormRenderer.makeFieldInfo(
           ->Identity.stringToFormReactEvent
           ->input.onChange,
       },
-      ~placeholder="Enter your Address",
+      ~placeholder="Enter your Address Line 1",
+    )
+  },
+)
+
+let enterShippingAddressLine2 = FormRenderer.makeFieldInfo(
+  ~label="Address Line 2",
+  ~name="shipping.address.line2",
+  ~placeholder="Enter your Address Line 2",
+  ~isRequired=false,
+  ~customInput=(~input, ~placeholder as _) => {
+    InputFields.textInput(~autoComplete="off")(
+      ~input={
+        ...input,
+        onChange: event =>
+          ReactEvent.Form.target(event)["value"]
+          ->String.trim
+          ->Identity.stringToFormReactEvent
+          ->input.onChange,
+      },
+      ~placeholder="Enter your Address Line 2",
     )
   },
 )

@@ -344,8 +344,6 @@ module BusinessProfileRender = {
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
-    let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
-
     let hereTextStyle = isUpdateFlow
       ? "text-grey-700 opacity-50 cursor-not-allowed"
       : `${textColor.primaryNormal}  cursor-pointer`
@@ -398,7 +396,6 @@ module BusinessProfileRender = {
           </span>
         </div>
       </RenderIf>
-      <BusinessProfile isFromSettings=false showModalFromOtherScreen setShowModalFromOtherScreen />
     </>
   }
 }
