@@ -286,6 +286,7 @@ let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
   | String(str) => str->isNonEmptyString
+  | Number(_) => true
   | Object(objectValue) => {
       let key = objectValue->getString("key", "")
       let value = objectValue->getString("value", "")
