@@ -441,7 +441,7 @@ let useGetURL = () => {
         | Post =>
           switch queryParamerters {
           | Some(param) =>
-            `/account/${merchantId}/business_profile/${profileId}/dynamic_routing/set_volume_split?${param}`
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/set_volume_split?${param}`
           | None => ""
           }
         | _ => ""
@@ -449,7 +449,7 @@ let useGetURL = () => {
       | GET_VOLUME_SPLIT =>
         switch methodType {
         | Get =>
-          `/account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
+          `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
         | _ => ""
         }
       /* ANALYTICS V2 */

@@ -155,10 +155,13 @@ let make = (
       let configValues = dict->getDictfromDict("config")->JSON.Encode.object
       configDict->Dict.set("config", configValues)
 
-      let response = await enableAuthRateRouting()
-      let routingId = response->getDictFromJsonObject->getString("id", "")
-
-      let updateRoutingId = routingRuleId->Option.getOr(routingId)
+      let updateRoutingId = switch routingRuleId {
+      | Some(id) => id
+      | None => {
+          let response = await enableAuthRateRouting()
+          response->getDictFromJsonObject->getString("id", "")
+        }
+      }
 
       let response = await authRateRoutingConfig(updateRoutingId, configDict->JSON.Encode.object)
       let routingId = response->getDictFromJsonObject->getString("id", "")
