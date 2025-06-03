@@ -224,6 +224,17 @@ let make = (
     }
   }
 
+  let handleDeactivateConfiguration = async () => {
+    try {
+      let _ = await enableAuthRateRouting(~isActivate=false)
+      showToast(~message="Successfully Deactivated!", ~toastType=ToastState.ToastSuccess)
+    } catch {
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Deactivation failed!")
+      setScreenState(_ => PageLoaderWrapper.Error(err))
+    }
+  }
+
   let validateForm = (
     values: JSON.t,
     requiredConfigKeys: array<AuthRateRoutingTypes.formFields>,
@@ -335,7 +346,7 @@ let make = (
                     <Button
                       text={"Deactivate Configuration"}
                       buttonType={Secondary}
-                      onClick={_ => enableAuthRateRouting(~isActivate=false)->ignore}
+                      onClick={_ => handleDeactivateConfiguration()->ignore}
                       customButtonStyle="w-1/5"
                       buttonState=Normal
                     />
