@@ -40,15 +40,14 @@ let make = (~showModal, ~setShowModal) => {
     modalClass="w-1/3 m-auto"
     childClass="p-0"
     modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-      {"To get started with least-cost routing, ensure that connectors supporting local networks are properly configured "->React.string}
+      {"To get started with least-cost routing, ensure connectors with local network support "->React.string}
       <a
-        href="https://your-docs-link.com"
+        href="https://docs.hyperswitch.io/explore-hyperswitch/payment-orchestration/smart-router/least-cost-routing#supported-configuration-for-least-cost-routing"
         target="_blank"
-        rel="noopener noreferrer"
         className="text-blue-500 underline">
-        {"(refer docs)"->React.string}
+        {"(see docs)"->React.string}
       </a>
-      {"."->React.string}
+      {" are configured."->React.string}
     </div>}
     borderBottom=true>
     <div className="flex flex-col h-full w-full px-6">
