@@ -34,10 +34,8 @@ let make = (~showModal, ~setShowModal) => {
         {"To get started with least-cost routing, ensure connectors with local network support are configured"->React.string}
         <a
           href="https://docs.hyperswitch.io/explore-hyperswitch/payment-orchestration/smart-router/least-cost-routing#supported-configuration-for-least-cost-routing"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`text-blue-500 inline-flex`}>
-          <Icon name="external-link-alt" size=10 className="ml-1" />
+          target="_blank">
+          <Icon name="external-link-alt" size=10 className="ml-1 text-blue-500 inline-flex" />
         </a>
       </div>
       <div className="flex justify-end gap-4 pb-8 pt-2">
