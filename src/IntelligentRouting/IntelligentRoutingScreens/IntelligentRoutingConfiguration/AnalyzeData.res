@@ -52,7 +52,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
       let config = Window.getDefaultConfig()
       Ok(Window.validateExtract(uint8array, config, metadata))
     } catch {
-    | _ => Error("Error validating data")
+    | _ => Error("Error validating data. Please check the file format.")
     }
   }
   let readFileAsArrayBuffer = (file, metadata) =>
@@ -71,7 +71,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
               setUpload(_ => true)
               resolve(Ok(dict))
             }
-          | Error(err) => resolve(Error("Error validating data: " ++ err))
+          | Error(err) => resolve(Error(err))
           }
         | None => resolve(Error("Error on loading file"))
         }
@@ -91,7 +91,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
           let metadata = {file_name: value["name"]}->Identity.genericTypeToJson
           switch await readFileAsArrayBuffer(value, metadata) {
           | Ok(_) => setFile(_ => Some(value))
-          | Error(_) => Js.Exn.raiseError("Error reading file")
+          | Error(err) => showToast(~message=err, ~toastType=ToastError)
           }
         }
       | None =>
@@ -167,7 +167,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
           <div
             className="border ring-grey-outline rounded-lg bg-white p-4 flex justify-between w-full">
             <div className="text-nd_gray-700 font-medium">
-              {"Download sample file"->React.string}
+              {"Download template file"->React.string}
             </div>
             <div className="flex gap-2 cursor-pointer">
               <span>
