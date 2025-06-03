@@ -9,6 +9,7 @@ module TopLeftIcons = {
     | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
     | VOLUME_SPLIT => <Icon name="processorLevel" size=25 className="w-14" />
     | ADVANCED => <Icon name="parameterLevel" size=25 className="w-20" />
+    | AUTH_RATE_ROUTING => <Icon name="authRate" size=25 className="w-12" />
     | _ => React.null
     }
   }
@@ -30,7 +31,8 @@ module ActionButtons = {
 
     switch routeType {
     | VOLUME_SPLIT
-    | ADVANCED =>
+    | ADVANCED
+    | AUTH_RATE_ROUTING =>
       <ACLButton
         text={"Setup"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
