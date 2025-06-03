@@ -185,7 +185,7 @@ let make = (
       let err = Exn.message(e)->Option.getOr("Something went wrong!")
       showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError)
       setScreenState(_ => PageLoaderWrapper.Error(err))
-      Exn.raiseError(err)
+      Nullable.null
     }
   }
 
