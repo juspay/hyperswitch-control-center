@@ -15,16 +15,9 @@ let getAttemptCell = (
   | Status =>
     Label({
       title: attempt.status->String.toUpperCase,
-      color: switch attempt.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
-      | #CHARGED => LabelGreen
-      | #AUTHENTICATION_FAILED
-      | #ROUTER_DECLINED
-      | #AUTHORIZATION_FAILED
-      | #VOIDED
-      | #CAPTURE_FAILED
-      | #VOID_FAILED
-      | #FAILURE =>
-        LabelRed
+      color: switch attempt.status->HSwitchOrderUtils.refundStatusVariantMapper {
+      | Success => LabelGreen
+      | Failure => LabelRed
       | _ => LabelLightGray
       },
     })
@@ -80,39 +73,11 @@ let getHeading = (colType: RevenueRecoveryOrderTypes.colType) => {
   }
 }
 
-let getStatus = (order: RevenueRecoveryOrderTypes.order, primaryColor) => {
-  let orderStatusLabel = order.status->capitalizeString
-  let fixedStatusCss = "text-sm text-nd_green-400 font-medium px-2 py-1 rounded-md h-1/2"
-  switch order.status->HSwitchOrderUtils.statusVariantMapper {
-  | Succeeded
-  | PartiallyCaptured =>
-    <div className={`${fixedStatusCss} bg-green-50 dark:bg-opacity-50`}>
-      {orderStatusLabel->React.string}
-    </div>
-  | Failed
-  | Cancelled =>
-    <div className={`${fixedStatusCss} bg-red-960 dark:bg-opacity-50`}>
-      {orderStatusLabel->React.string}
-    </div>
-  | Processing
-  | RequiresCustomerAction
-  | RequiresConfirmation
-  | RequiresPaymentMethod =>
-    <div className={`${fixedStatusCss} ${primaryColor} bg-opacity-50`}>
-      {orderStatusLabel->React.string}
-    </div>
-  | _ =>
-    <div className={`${fixedStatusCss} ${primaryColor} bg-opacity-50`}>
-      {orderStatusLabel->React.string}
-    </div>
-  }
-}
-
 let getCell = (
   order: RevenueRecoveryOrderTypes.order,
   colType: RevenueRecoveryOrderTypes.colType,
 ): Table.cell => {
-  let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
+  let orderStatus = order.status->HSwitchOrderUtils.refundStatusVariantMapper
   switch colType {
   | Id =>
     CustomCell(
@@ -126,17 +91,9 @@ let getCell = (
     Label({
       title: order.status->String.toUpperCase,
       color: switch orderStatus {
-      | Succeeded
-      | PartiallyCaptured =>
-        LabelGreen
-      | Failed
-      | Cancelled =>
-        LabelRed
-      | Processing
-      | RequiresCustomerAction
-      | RequiresConfirmation
-      | RequiresPaymentMethod =>
-        LabelBlue
+      | Success => LabelGreen
+      | Failure => LabelRed
+      | Pending => LabelBlue
       | _ => LabelLightGray
       },
     })

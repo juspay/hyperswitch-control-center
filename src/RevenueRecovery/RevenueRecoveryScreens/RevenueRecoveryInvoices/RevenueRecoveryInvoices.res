@@ -1,6 +1,9 @@
 @react.component
 let make = () => {
   open LogicUtils
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -31,39 +34,16 @@ let make = () => {
     }
   }
 
-  let getPaymentsList = async (filterValueJson: RescriptCore.Dict.t<Core__JSON.t>) => {
+  let getPaymentsList = async (_: RescriptCore.Dict.t<Core__JSON.t>) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let res = RevenueRecoveryData.orderData
+      let url = getURL(~entityName=V1(RECOVERY_INVOICES), ~methodType=Get)
+      let res = await fetchDetails(url, ~version=V1)
 
-      let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-      let total = res->getDictFromJsonObject->getInt("total_count", 0)
+      let data = res->JSON.Decode.array->Option.getOr([])
+      let total = res->getDictFromJsonObject->getInt("total_count", data->Array.length)
 
-      if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
-        let payment_id =
-          filterValueJson
-          ->Dict.get("payment_id")
-          ->Option.getOr(""->JSON.Encode.string)
-          ->JSON.Decode.string
-          ->Option.getOr("")
-
-        if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
-          let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
-          filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
-
-          //let res = await fetchDetails(ordersUrl, ~version=V2)
-          let res = RevenueRecoveryData.orderData
-
-          let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-          let total = res->getDictFromJsonObject->getInt("total_count", 0)
-
-          setData(total, data)
-        } else {
-          setScreenState(_ => PageLoaderWrapper.Success)
-        }
-      } else {
-        setData(total, data)
-      }
+      setData(total, data)
     } catch {
     | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
     }

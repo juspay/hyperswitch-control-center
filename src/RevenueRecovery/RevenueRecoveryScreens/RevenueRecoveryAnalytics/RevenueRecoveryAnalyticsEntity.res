@@ -16,6 +16,36 @@ let authRateSummaryChartEntity: chartEntity<barGraphPayload, barGraphOptions, JS
   getChatOptions: AuthRateSummaryUtils.getAuthRateSummaryOptions,
 }
 
+// Retry Strategies
+let retryStrategiesEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [],
+  },
+  title: "Retry Strategies",
+  domain: #payments,
+}
+
+// Overall Retry Strategy
+let overallRetryStrategysEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [],
+  },
+  title: "Overall Retry Strategy Comparison",
+  domain: #payments,
+}
+
+open LineAndColumnGraphTypes
+let overallRetryStrategyChartEntity: chartEntity<
+  lineColumnGraphPayload,
+  lineColumnGraphOptions,
+  JSON.t,
+> = {
+  getObjects: OverallRetryStrategyAnalyticsUtils.retryStrategiesMapper,
+  getChatOptions: LineAndColumnGraphUtils.getLineColumnGraphOptions,
+}
+
 // Retries Comparision
 let retriesComparisionEntity: moduleEntity = {
   requestBodyConfig: {
@@ -33,4 +63,14 @@ let retriesComparisionChartEntity: chartEntity<
 > = {
   getObjects: RetriesComparisionAnalyticsUtils.smartRetriesComparisionMapper,
   getChatOptions: LineScatterGraphUtils.getLineGraphOptions,
+}
+
+// Smart Retry Strategy
+let smartRetryStrategyEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [],
+  },
+  title: "Smart Retry Strategy",
+  domain: #payments,
 }

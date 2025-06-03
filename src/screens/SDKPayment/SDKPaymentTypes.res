@@ -1,6 +1,7 @@
 type clientSecretStatus = IntialPreview | Loading | Success | Error
 type address = {
   line1: string,
+  line2: string,
   city: string,
   state: string,
   zip: string,
