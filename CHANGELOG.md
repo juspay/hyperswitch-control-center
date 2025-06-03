@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.03.0
+
+### Features
+
+- Recovery invoices api data and removed hard coded data ([#3075](https://github.com/juspay/hyperswitch-control-center/pull/3075)) ([`1f3c6ba`](https://github.com/juspay/hyperswitch-control-center/commit/1f3c6ba8e1e65d2f550b1d95682f94840c243ba7))
+
+### Miscellaneous Tasks
+
+- Orchestrator Overview page revamp ([#3080](https://github.com/juspay/hyperswitch-control-center/pull/3080)) ([`0d8ebae`](https://github.com/juspay/hyperswitch-control-center/commit/0d8ebae7b8eb3859e0e26893343c219c0774121a))
+- Missing line 1 & line 2 added ([#3087](https://github.com/juspay/hyperswitch-control-center/pull/3087)) ([`12c3d2b`](https://github.com/juspay/hyperswitch-control-center/commit/12c3d2b6c9312e9300b9778d60f4b15e6bc75896))
+
+**Full Changelog:** [`2025.05.30.1...2025.06.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.05.30.1...2025.06.03.0)
+
+
+- - -
+
 ## 2025.05.30.1
 
 ### Features
