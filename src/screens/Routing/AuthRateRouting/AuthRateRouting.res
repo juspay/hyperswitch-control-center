@@ -141,7 +141,7 @@ let make = (
     | Exn.Error(e) => {
         showToast(~message="Failed to set volume split!", ~toastType=ToastError)
         let err = Exn.message(e)->Option.getOr("Something went wrong")
-        Exn.raiseError(err)->ignore
+        Exn.raiseError(err)
       }
     }
   }
