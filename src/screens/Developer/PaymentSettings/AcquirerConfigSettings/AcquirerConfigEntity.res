@@ -1,5 +1,4 @@
 open FormRenderer
-type acquirerConfig = AcquirerConfigMapper.acquirerConfig
 open AcquirerConfigTypes
 
 let makeTextInputField = (~label, ~name, ~placeholder, ~isRequired=true, ~isDisabled) =>

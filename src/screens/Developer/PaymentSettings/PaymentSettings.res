@@ -390,7 +390,6 @@ module CollectDetails = {
     </DesktopRow>
   }
 }
-type acquirerConfig = AcquirerConfigMapper.acquirerConfig
 
 module AutoRetries = {
   @react.component
@@ -509,6 +508,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open MerchantAccountUtils
   open HSwitchSettingTypes
   open FormRenderer
+  open AcquirerConfigHelpers
+
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
@@ -572,7 +573,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       let acquirerConfig =
         res
         ->LogicUtils.getArrayFromJson([])
-        ->Array.map(item => item->AcquirerConfigMapper.acquirerConfigTypeMapper)
+        ->Array.map(item => item->acquirerConfigTypeMapper)
       setAcquirerConfigData(_ => acquirerConfig)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
