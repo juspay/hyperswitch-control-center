@@ -101,9 +101,9 @@ describe("Volume based routing", () => {
 
     cy.url().should("include", "/routing/volume");
 
-    cy.get(`[placeholder="Enter Configuration Name"]`).type(
-      "Test volume based config",
-    );
+    cy.get(`[placeholder="Enter Configuration Name"]`)
+      .clear()
+      .type("Test volume based config");
 
     volumeBasedConfiguration.connectorDropdown.click();
     cy.get(`[value="stripe_test_1"]`).click();
@@ -114,6 +114,8 @@ describe("Volume based routing", () => {
       "contain",
       "Successfully Created a new Configuration !",
     );
+
+    cy.get(`[class="flex flex-col cursor-pointer w-max"]`).eq(1).click();
 
     cy.get(`[data-table-location="History_tr1_td2"]`).should(
       "contain",
@@ -138,25 +140,34 @@ describe("Volume based routing", () => {
 
     cy.url().should("include", "/routing/volume");
 
-    cy.get(`[placeholder="Enter Configuration Name"]`).type(
-      "Test volume based config",
-    );
+    cy.get(`[placeholder="Enter Configuration Name"]`)
+      .clear()
+      .type("Test volume based config");
 
     volumeBasedConfiguration.connectorDropdown.click();
     cy.get(`[value="stripe_test_1"]`).click();
     cy.get(`[data-button-for="configureRule"]`).click();
     cy.get(`[data-button-for="saveAndActivateRule"]`).click();
 
+    cy.get(`[data-toast="Successfully Created a new Configuration !"]`).should(
+      "contain",
+      "Successfully Created a new Configuration !",
+    );
+
     cy.get(`[data-toast="Successfully Activated !"]`).should(
       "contain",
       "Successfully Activated !",
     );
 
-    cy.get(`[data-table-location="History_tr1_td2"]`).should(
+    cy.get(`[class="flex flex-col gap-3"]`).should(
       "contain",
       "Test volume based config",
     );
-    cy.get(`[data-label="ACTIVE"]`).should("contain", "ACTIVE");
+
+    cy.get('[data-icon="check"]')
+      .closest("div")
+      .siblings("span")
+      .should("have.text", "Active");
   });
 });
 
