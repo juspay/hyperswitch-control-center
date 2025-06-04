@@ -787,18 +787,15 @@ let uniqueObjectFromArrayOfObjects = (arr, keyExtractor) => {
 }
 
 let randomString = (~length) => {
-  let ranges = [[48.0, 57.0], [65.0, 90.0], [97.0, 122.0]] // 0-9 // A-Z // a-z
-
-  let extract = (~index, ~position, ~default) => {
-    ranges->Array.get(index)->Option.getOr([48.0, 57.0])->Array.get(position)->Option.getOr(default)
-  }
+  let ranges = [(48.0, 57.0), (65.0, 90.0), (97.0, 122.0)] // 0-9 // A-Z // a-z
 
   let text =
     Array.make(~length, "")
     ->Array.map(_ => {
-      let index = Math.floor(Math.random() *. 3.0)->Float.toInt
-      let min = extract(~index, ~position=0, ~default=48.0)
-      let max = extract(~index, ~position=1, ~default=57.0)
+      let (min, max) =
+        ranges
+        ->Array.get(Js.Math.random_int(0, 3))
+        ->Option.getOr((48.0, 57.0))
       let index = Math.floor(Math.random() *. (max -. min) +. min)->Int.fromFloat
 
       String.fromCharCode(index)
