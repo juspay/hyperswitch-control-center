@@ -43,6 +43,7 @@ let make = (~children) => {
     open LogicUtils
     let url = `${Window.env.apiBaseUrl}/user`
     try {
+      setScreenState(_ => Loading)
       let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute, ~forceCookies)
       let response = await res->(
         res => {
