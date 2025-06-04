@@ -1,45 +1,28 @@
-module DummyKeyGen = {
-  let randomString = (~length) => {
-    let text =
-      Array.make(~length, "")
-      ->Array.map(_ => {
-        let min = 65.0
-        let max = 122.0
-        let index = Math.floor(Math.random() *. (max -. min) +. min)->Int.fromFloat
-
-        String.fromCharCode(index)
-      })
-      ->Array.joinWith("")
-
-    text
-  }
-
-  let apiKey = (~prefix: string) => {
-    prefix ++ "_" ++ randomString(~length=24)
-  }
+let generateApiKey = (~prefix: string) => {
+  prefix ++ "_" ++ LogicUtils.randomString(~length=24)
 }
 
 let connector_account_details = {
   "auth_type": "HeaderKey",
-  "api_key": DummyKeyGen.apiKey(~prefix="sk"),
+  "api_key": generateApiKey(~prefix="sk"),
 }->Identity.genericTypeToJson
 
 let payment_connector_webhook_details = {
-  "merchant_secret": DummyKeyGen.apiKey(~prefix="secret"),
+  "merchant_secret": generateApiKey(~prefix="secret"),
 }->Identity.genericTypeToJson
 
 let metadata = {
-  "site": DummyKeyGen.apiKey(~prefix="site"),
+  "site": generateApiKey(~prefix="site"),
 }->Identity.genericTypeToJson
 
 let connector_webhook_details = {
-  "merchant_secret": DummyKeyGen.apiKey(~prefix="secret"),
-  "additional_secret": DummyKeyGen.apiKey(~prefix="secret"),
+  "merchant_secret": generateApiKey(~prefix="secret"),
+  "additional_secret": generateApiKey(~prefix="secret"),
 }->Identity.genericTypeToJson
 
 let feature_metadata = (~id) => {
   let billing_account_reference =
-    [(id, DummyKeyGen.apiKey(~prefix="acct")->JSON.Encode.string)]->Dict.fromArray
+    [(id, generateApiKey(~prefix="acct")->JSON.Encode.string)]->Dict.fromArray
 
   {
     "revenue_recovery": {
