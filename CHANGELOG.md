@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.04.1
+
+### Testing
+
+- Fix failing routing tests ([#3093](https://github.com/juspay/hyperswitch-control-center/pull/3093)) ([`9324556`](https://github.com/juspay/hyperswitch-control-center/commit/93245563b51c8ad39161bb071bb30436019def22))
+
+### Miscellaneous Tasks
+
+- Path updated for dynamo wasm files as per BE changes ([#3100](https://github.com/juspay/hyperswitch-control-center/pull/3100)) ([`7b21754`](https://github.com/juspay/hyperswitch-control-center/commit/7b2175428307de38aff485b59c33b432229ad073))
+
+**Full Changelog:** [`2025.06.04.0...2025.06.04.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.04.0...2025.06.04.1)
+
+- - -
+
 ## 2025.06.04.0
 
 ### Features
