@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.04.0
+
+### Features
+
+- Auth-rate-based-routing for orchestrator ([#3033](https://github.com/juspay/hyperswitch-control-center/pull/3033)) ([`e5bba21`](https://github.com/juspay/hyperswitch-control-center/commit/e5bba214cc2c48c22e618ed28d55c6af09e603fe))
+
+### Bug Fixes
+
+- Updates for debit routing ([#3064](https://github.com/juspay/hyperswitch-control-center/pull/3064)) ([`82a3a97`](https://github.com/juspay/hyperswitch-control-center/commit/82a3a97d3f6ce1a6253e68f51931370354de3010))
+- Debit routing configure modal ([#3094](https://github.com/juspay/hyperswitch-control-center/pull/3094)) ([`2f0dae7`](https://github.com/juspay/hyperswitch-control-center/commit/2f0dae721f561a8d98603df46e9244313c6b2beb))
+- Configuring a Rule Based Configuration with amount / acquirer fraud rate conditions ([#3097](https://github.com/juspay/hyperswitch-control-center/pull/3097)) ([`420589f`](https://github.com/juspay/hyperswitch-control-center/commit/420589f2aa01aa6d5045467bc40638d0e00ccf51))
+
+### Miscellaneous Tasks
+
+- Displaying proper error message in case file is invalid in upl… ([#3096](https://github.com/juspay/hyperswitch-control-center/pull/3096)) ([`07286af`](https://github.com/juspay/hyperswitch-control-center/commit/07286aff7f15aebf5de557d291b2e5c914b222b6))
+
+**Full Changelog:** [`2025.06.03.0...2025.06.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.03.0...2025.06.04.0)
+
+- - -
+
 ## 2025.06.03.0
 
 ### Features
