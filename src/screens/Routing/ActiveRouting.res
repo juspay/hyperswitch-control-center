@@ -74,17 +74,13 @@ module ActiveSection = {
   @react.component
   let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl) => {
     open LogicUtils
-    let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {userInfo: {profileId: currentprofileId}} = React.useContext(
       UserInfoProvider.defaultContext,
     )
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    let debitRoutingValue =
-      (
-        HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-      ).is_debit_routing_enabled->Option.getOr(false)
+
     let routingName = switch activeRoutingType {
     | DEFAULTFALLBACK => ""
     | _ => `${activeRouting->getDictFromJsonObject->getString("name", "")->capitalizeString} - `
@@ -145,9 +141,6 @@ module ActiveSection = {
           }}
         />
       </div>
-      <RenderIf condition={debitRoutingValue && debitRouting}>
-        <DebitRoutingActiveCard profileId />
-      </RenderIf>
     </div>
   }
 }
@@ -189,14 +182,26 @@ module LevelWiseRoutingSection = {
 
 @react.component
 let make = (~routingType: array<JSON.t>) => {
-  <div className="mt-8 flex flex-col gap-6">
-    {routingType
-    ->Array.mapWithIndex((ele, i) => {
-      let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
-      <ActiveSection
-        key={i->Int.toString} activeRouting={ele} activeRoutingId={id} onRedirectBaseUrl="routing"
-      />
-    })
-    ->React.array}
+  let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let debitRoutingValue =
+    (
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    ).is_debit_routing_enabled->Option.getOr(false)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+
+  <div className="mt-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-9">
+      {routingType
+      ->Array.mapWithIndex((ele, i) => {
+        let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
+        <ActiveSection
+          key={i->Int.toString} activeRouting={ele} activeRoutingId={id} onRedirectBaseUrl="routing"
+        />
+      })
+      ->React.array}
+      <RenderIf condition={debitRoutingValue && debitRouting}>
+        <DebitRoutingActiveCard profileId />
+      </RenderIf>
+    </div>
   </div>
 }
