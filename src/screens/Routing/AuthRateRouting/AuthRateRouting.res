@@ -368,6 +368,7 @@ let make = (
                   customSumbitButtonStyle="w-1/5 rounded-lg"
                   tooltipWidthClass="w-48"
                 />}
+                showCancelButton=false
                 submitButton={<RoutingUtils.SaveAndActivateButton
                   onSubmit handleActivateConfiguration
                 />}
