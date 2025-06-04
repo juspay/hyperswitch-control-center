@@ -73,7 +73,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
       {"The generated reports will be emailed to you."->React.string}
     </div>}
     setShowModal=setReportModal
-    modalClass="w-1/4 m-auto">
+    modalClass="m-auto">
     <Form onSubmit initialValues>
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeMultiInputFieldInfo(
