@@ -223,7 +223,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
           | Some(dict) =>
             switch dict->getDictFromJsonObject->getLogType {
             | SDK => logs->Array.pushMany(arr->parseSdkResponse)->ignore
-            | CONNECTOR | API_EVENTS | WEBHOOKS => logs->Array.pushMany(arr)->ignore
+            | CONNECTOR | API_EVENTS | WEBHOOKS | ROUTING => logs->Array.pushMany(arr)->ignore
             }
           | _ => ()
           }
