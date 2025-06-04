@@ -80,7 +80,6 @@ module ActiveSection = {
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-
     let routingName = switch activeRoutingType {
     | DEFAULTFALLBACK => ""
     | _ => `${activeRouting->getDictFromJsonObject->getString("name", "")->capitalizeString} - `
