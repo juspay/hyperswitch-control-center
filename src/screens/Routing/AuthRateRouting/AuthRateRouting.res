@@ -373,7 +373,7 @@ let make = (
                   onSubmit handleActivateConfiguration
                 />}
                 headingText="Activate Current Configuration?"
-                subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
+                subHeadingText="Activating this configuration will override the current one. Please confirm."
                 leftIcon="warning-modal"
                 iconSize=35
               />
