@@ -92,7 +92,7 @@ module ActiveSection = {
       activeRouting->getDictFromJsonObject->getString("profile_id", "")
     }
 
-    <div className="flex flex-col sm:flex-row gap-8">
+    <div className="flex flex-1">
       <div className="relative flex flex-1 flex-col bg-white border rounded-lg p-4 pt-10 gap-8">
         <div className=" flex flex-1 flex-col gap-7">
           <div
@@ -188,20 +188,22 @@ let make = (~routingType: array<JSON.t>) => {
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
     ).is_debit_routing_enabled->Option.getOr(false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-
-  <div className="mt-8">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-9">
-      {routingType
-      ->Array.mapWithIndex((ele, i) => {
-        let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
-        <ActiveSection
-          key={i->Int.toString} activeRouting={ele} activeRoutingId={id} onRedirectBaseUrl="routing"
-        />
-      })
-      ->React.array}
-      <RenderIf condition={debitRoutingValue && debitRouting}>
-        <DebitRoutingActiveCard profileId />
-      </RenderIf>
-    </div>
+  let totalCards = routingType->Array.length + (debitRoutingValue && debitRouting ? 1 : 0)
+  let gridClass = switch totalCards {
+  | 1 => ""
+  | _ => "grid grid-cols-1 lg:grid-cols-2 gap-9"
+  }
+  <div className={`mt-8 ${gridClass}`}>
+    {routingType
+    ->Array.mapWithIndex((ele, i) => {
+      let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
+      <ActiveSection
+        key={i->Int.toString} activeRouting={ele} activeRoutingId={id} onRedirectBaseUrl="routing"
+      />
+    })
+    ->React.array}
+    <RenderIf condition={debitRoutingValue && debitRouting}>
+      <DebitRoutingActiveCard profileId />
+    </RenderIf>
   </div>
 }
