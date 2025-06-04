@@ -24,7 +24,7 @@ describe("Volume based routing", () => {
     paymentRouting.volumeBasedRoutingSetupButton.click();
     cy.get('[class="px-3 text-fs-16"]').should(
       "contains.text",
-      "Please configure atleast 1 connector",
+      "Please configure at least 1 connector",
     );
   });
 
