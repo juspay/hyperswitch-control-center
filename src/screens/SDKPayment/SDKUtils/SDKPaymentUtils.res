@@ -69,7 +69,7 @@ let captureMethods = ["Automatic", "Manual"]
 
 let setupFutureUsageOptions = ["Off Session", "On Session"]
 
-let authenticationType = ["Three DS", "No Three DS"]
+let authenticationType = ["Three DS", "No Three DS", "None"]
 
 let requestExternal3dsAuthentication = ["True", "False"]
 
@@ -123,7 +123,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     show_saved_card: "yes",
     request_external_three_ds_authentication: false,
     email: Nullable.make("guest@example.com"),
-    authentication_type: "no_three_ds",
+    authentication_type: Nullable.make("none"),
     shipping: Some(shippingValue),
     billing: Some(billingValue),
     capture_method: "automatic",
@@ -180,6 +180,12 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
     }
   }
 
+  let authenticationType = if dict->getString("authentication_type", "none") === "none" {
+    Nullable.null
+  } else {
+    Nullable.make(dict->getString("authentication_type", "none"))
+  }
+
   let base = {
     amount: dict->getFloat("amount", 10000.0),
     currency: getCurrency(),
@@ -187,7 +193,7 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
     customer_id: !isGuestMode ? dict->getOptionString("customer_id") : None,
     description: dict->getString("description", "Payment Transaction"),
     email: email->isNonEmptyString ? Nullable.make(email) : Nullable.null,
-    authentication_type: dict->getString("authentication_type", ""),
+    authentication_type: authenticationType,
     shipping: None,
     billing: None,
     capture_method: dict->getString("capture_method", "automatic"),
