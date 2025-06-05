@@ -3,6 +3,7 @@ open RevenueRecoveryOnboardingTypes
 
 let getMainStepName = step => {
   switch step {
+  | #chooseDataSource => "Choose Your Data Source"
   | #connectProcessor => "Connect Processor"
   | #addAPlatform => "Add a Platform"
   | #reviewDetails => "Review Details"
@@ -23,6 +24,7 @@ let getStepName = step => {
 
 let getIcon = step => {
   switch step {
+  | #chooseDataSource => "nd-shield"
   | #connectProcessor => "nd-inbox"
   | #addAPlatform => "nd-plugin"
   | #reviewDetails => "nd-flag"
@@ -30,6 +32,12 @@ let getIcon = step => {
 }
 
 let sections = [
+  {
+    id: (#chooseDataSource: revenueRecoverySections :> string),
+    name: #chooseDataSource->getMainStepName,
+    icon: #chooseDataSource->getIcon,
+    subSections: None,
+  },
   {
     id: (#connectProcessor: revenueRecoverySections :> string),
     name: #connectProcessor->getMainStepName,
@@ -77,8 +85,8 @@ let sections = [
 ]
 
 let defaultStep = {
-  sectionId: (#connectProcessor: revenueRecoverySections :> string),
-  subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
+  sectionId: (#chooseDataSource: revenueRecoverySections :> string),
+  subSectionId: None,
 }
 
 let defaultStepBilling = {
@@ -111,6 +119,7 @@ let onPreviousClick = (currentStep, setNextStep) => {
 
 let getSectionVariant = ({sectionId, subSectionId}) => {
   let mainSection = switch sectionId {
+  | "chooseDataSource" => #chooseDataSource
   | "connectProcessor" => #connectProcessor
   | "addAPlatform" => #addAPlatform
   | "reviewDetails" | _ => #reviewDetails
@@ -128,17 +137,6 @@ let getSectionVariant = ({sectionId, subSectionId}) => {
 
   (mainSection, subSection)
 }
-
-let sampleDataBanner =
-  <div
-    className="absolute z-10 top-76-px left-0 w-full py-4 px-10 bg-orange-50 flex justify-between items-center">
-    <div className="flex gap-4 items-center">
-      <Icon name="nd-information-triangle" size=24 />
-      <p className="text-nd_gray-600 text-base leading-6 font-medium">
-        {"You are in demo environment and this is sample setup."->React.string}
-      </p>
-    </div>
-  </div>
 
 module PageWrapper = {
   @react.component

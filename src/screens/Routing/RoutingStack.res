@@ -11,7 +11,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (routingType, setRoutingType) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-
+  let debitRoutingValue =
+    (
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    ).is_debit_routing_enabled->Option.getOr(false)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
 
   let (widthClass, marginClass) = React.useMemo(() => {
@@ -21,6 +24,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     [
+      {
+        title: "Active configuration",
+        renderContent: () => <ActiveRouting routingType />,
+      },
       {
         title: "Manage rules",
         renderContent: () => {
@@ -34,12 +41,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
               />
         },
       },
-      {
-        title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType />,
-      },
     ]
-  }, [routingType])
+  }, (routingType, debitRoutingValue))
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -47,7 +50,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
       let routingUrl = `${getURL(~entityName=V1(ROUTING), ~methodType=Get)}?limit=100`
       let routingJson = await fetchDetails(routingUrl)
       let configuredRules = routingJson->RoutingUtils.getRecordsObject
-
       let recordsData =
         configuredRules
         ->Belt.Array.keepMap(JSON.Decode.object)
@@ -112,7 +114,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   React.useEffect(() => {
     fetchActiveRouting()->ignore
     None
-  }, (pathVar, url.search))
+  }, (pathVar, url.search, debitRoutingValue))
 
   let getTabName = index => index == 0 ? "active" : "history"
 
@@ -124,7 +126,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
           subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
         />
         <ActiveRouting.LevelWiseRoutingSection
-          types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="routing"
+          types=[VOLUME_SPLIT, ADVANCED, AUTH_RATE_ROUTING, DEFAULTFALLBACK]
+          onRedirectBaseUrl="routing"
         />
       </div>
       <RenderIf condition={!previewOnly}>
@@ -138,8 +141,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
                 tabs
                 showBorder=false
                 includeMargin=false
-                lightThemeColor="black"
+                lightThemeColor="primary"
                 defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+                selectTabBottomBorderColor="bg-primary"
                 onTitleClick={indx => {
                   setTabIndex(_ => indx)
                   setCurrentTabName(_ => getTabName(indx))

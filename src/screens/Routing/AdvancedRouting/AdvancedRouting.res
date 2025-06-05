@@ -857,7 +857,7 @@ let make = (
               </div>
             </div>
           </Form>
-        : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
+        : <NoDataFound message="Please configure at least 1 connector" renderType=InfoBox />}
     </PageLoaderWrapper>
   </div>
 }

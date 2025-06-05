@@ -304,7 +304,7 @@ let getButtonText = (
 
 let getStrokeColor = (disable, isDropdownExpandedActualPrimary) =>
   if disable {
-    "stroke-jp-2-light-gray-600"
+    "text-nd_gray-400"
   } else if isDropdownExpandedActualPrimary {
     "stroke-jp-2-light-gray-1700"
   } else {

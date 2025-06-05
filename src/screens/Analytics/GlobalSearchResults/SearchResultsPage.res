@@ -88,7 +88,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let globalSearchResult = HyperswitchAtom.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
-  let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
+  let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarValues.useGetHsSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")

@@ -39,6 +39,7 @@ type processorTypes =
   | BLUESNAP
   | AIRWALLEX
   | WORLDPAY
+  | WORLDPAYXML
   | CYBERSOURCE
   | COINGATE
   | ELAVON
@@ -105,6 +106,7 @@ type processorTypes =
   | PAYSTACK
   | FACILITAPAY
   | ARCHIPEL
+  | WORLDPAYVANTIV
 
 type payoutProcessorTypes =
   | ADYEN

@@ -165,6 +165,7 @@ module.exports = {
         heading: "var(--base-heading-font-size)",
         "fs-10": "10px",
         "fs-11": "11px",
+        "fs-12": "12px",
         "fs-13": "13px",
         "fs-14": "14px",
         "fs-15": "15px",
@@ -237,6 +238,7 @@ module.exports = {
           840: "#303E5F",
           background_blue: "#EAEEF9",
           info_blue_background: "#F6F8FA",
+          light: "#5AAAE3",
         },
         grey: {
           0: "#FEFEFE",
@@ -280,6 +282,7 @@ module.exports = {
           warning_background_orange: "#eea2361a",
           warning_text_orange: "#EEA236",
           status: "#D99530",
+          light: "#E9BE74",
         },
         red: {
           DEFAULT: "#FF0000",
@@ -295,6 +298,7 @@ module.exports = {
           dark: "#F04E42",
           light: "#FEEDEC",
           status: "#DD2B0E",
+          light: "#F8B3AA",
         },
         "yellow-bg": "#F7D59B4D",
         "profile-sidebar-blue": "#16488F",
@@ -414,10 +418,12 @@ module.exports = {
         },
         nd_orange: {
           50: "#FDF1DD",
+          100: "#FFE6CC",
           600: "#9E5400",
         },
         nd_yellow: {
           100: "#FFFBEE",
+          200: "#5E4200",
           800: "#998335",
         },
       },

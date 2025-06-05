@@ -1,224 +1,600 @@
-# ReScript Pattern Matching (`switch`)
+# Pattern Matching in ReScript (Hyperswitch Control Center)
 
-ReScript's `switch` expression is a powerful tool for control flow, allowing you to destructure data types (like variants, options, lists, records) and execute code based on their shape and values.
+This document illustrates the use of `switch` expressions for pattern matching on various data types like variants, options, and lists.
 
-## Matching on Variants
+## Basic Switch Expressions
 
-`switch` is commonly used to handle different cases of a variant type.
-
-**Example: URL Generation in `APIUtils.res`**
-The `getV2Url` function in `src/APIUtils/APIUtils.res` uses nested `switch` statements to determine the correct URL string based on `entityName` (a variant type) and `methodType` (another variant type, `Fetch.requestMethod`).
+### Simple Value Matching
 
 ```rescript
-// In src/APIUtils/APIUtils.res
-// entityName is a variant like: type v2entityNameType = CUSTOMERS | V2_CONNECTOR | ...
-// methodType is a variant like: type requestMethod = Get | Post | Put | ...
-
-let getV2Url = (
-  ~entityName: v2entityNameType,
-  ~userType: userType=#NONE,
-  ~methodType: Fetch.requestMethod,
-  ~id=None,
-  ~profileId,
-  ~merchantId,
-  ~queryParamerters: option<string>=None,
-) => {
-  // ...
-  switch entityName {
-  | CUSTOMERS =>
-    switch (methodType, id) { // Matching on a tuple of (variant, option)
-    | (Get, None) => "v2/customers/list"
-    | (Get, Some(customerId)) => `v2/customers/${customerId}` // Destructuring Some
-    | _ => "" // Wildcard for other methodType/id combinations
-    }
-  | V2_CONNECTOR =>
-    switch methodType {
-    | Get =>
-      switch id { // Nested switch on an option type
-      | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-      | None => `v2/profiles/${profileId}/connector-accounts`
-      }
-    | Put =>
-      // ...
-    | _ => ""
-    }
-  // ... more cases for entityName ...
-  | V2_ORDERS_LIST => // Another case for the outer switch
-    // ...
-  }
-}
-```
-
-- The `switch` expression must be exhaustive, meaning all possible cases of the type being matched must be handled. The wildcard `_` can be used to match any case not explicitly listed.
-- You can match on tuples, as seen with `switch (methodType, id)`.
-- Values inside variant constructors or `Some` can be destructured (e.g., `Some(customerId)` makes `customerId` available).
-
-**Example: Button Styling in `Button.res`**
-The `useGetBgColor` function in `src/components/Button.res` uses `switch` to determine background color based on `buttonType` and `buttonState` (both variant types).
-
-````rescript
-// In src/components/Button.res
-let useGetBgColor = (
-  ~buttonType, // variant type
-  ~buttonState, // variant type
-  ~showBorder,
-  ~isDropdownOpen=false,
-  ~isPhoneDropdown=false,
-) => {
-  // ...
-  switch buttonType {
-  | Primary =>
-    switch buttonState {
-    | Focused | Normal => buttonConfig.primaryNormal // Multiple constructors can share a case
-    | Loading => buttonConfig.primaryLoading
-    | Disabled => buttonConfig.primaryDisabled
-    | NoHover => buttonConfig.primaryNoHover
-    }
-  | SecondaryFilled =>
-    switch buttonState {
-    | Focused | Normal => "..."
-    // ... other cases ...
-    }
-  // ... other buttonType cases ...
-  }
-}
-
-## Matching on Polymorphic Variants
-
-Polymorphic variants (often prefixed with `#` or using backticks like `` `ConstructorName `` in this codebase, though the official ReScript style is typically an initial uppercase without a prefix for the constructor itself, e.g., `` `MyConstructor ``) can also be pattern matched using `switch`.
-
-**Example: Simple Match from `VaultHomeUtils.res`**
-
-The `getTrackingName` function determines a string based on the `section` polymorphic variant.
-
-```rescript
-// In src/Vault/VaultScreens/VaultHomeUtils.res
-// Assuming 'section' is of a polymorphic variant type like:
-// type vaultSections = [#AuthenticateProcessor | #SetupPmts | #SetupWebhook | #ReviewAndConnect]
-
-let getTrackingName = section =>
-  switch section {
-  | #AuthenticateProcessor => "vault_onboarding_step1"
-  | #SetupPmts => "vault_onboarding_step2"
-  | #SetupWebhook => "vault_onboarding_step3"
-  | #ReviewAndConnect => "vault_onboarding_step4"
-  // Note: If vaultSections is an exact polymorphic variant type ([ ... ]),
-  // the switch must be exhaustive or include a wildcard _.
-  // If it's an open one ([> ... ] or [< ...]), a wildcard is often necessary.
-  }
-````
-
-**Example: Multiple Cases from `PaymentAttemptEntity.res`**
-
-This example shows how different polymorphic variant cases can map to shared outcomes.
-
-```rescript
-// In src/screens/Analytics/GlobalSearchResults/GlobalSearchTables/PaymentAttempt/PaymentAttemptEntity.res
-// Assuming 'status' is a polymorphic variant including these cases,
-// and LabelGreen, LabelRed, LabelOrange are defined values (e.g., color strings or other variants).
-
-let getStatusColor = status =>
+let getStatusMessage = status => {
   switch status {
-  | #AUTO_REFUNDED => LabelGreen
-  | #VOID_FAILED // Fall-through: shares the result of #FAILURE
-  | #FAILURE => LabelRed
-  | #CAPTURE_INITIATED // Fall-through: shares the result of #PENDING
-  | #PENDING => LabelOrange
-  | _ => DefaultLabel // Wildcard for any other statuses
-  }
-```
-
-**Example: UI Rendering based on Match from `RecoveryConnectorHome.res`**
-
-Different React components are rendered based on the `currentStep` polymorphic variant.
-
-```rescript
-// In src/RevenueRecovery/RevenueRecoveryScreens/RecoveryProcessors/RecoveryProcessorsPaymentProcessors/RecoveryConnectorHome.res
-// Assuming 'currentStep' is of a polymorphic variant type like:
-// type sectionType = [#AuthenticateProcessor | #SetupPmts | #SetupWebhook | #ReviewAndConnect]
-// And <AuthenticateProcessorComponent />, etc., are defined React components.
-
-let renderSection = currentStep =>
-  switch currentStep {
-  | #AuthenticateProcessor => <AuthenticateProcessorComponent />
-  | #SetupPmts => <SetupPaymentsComponent />
-  | #SetupWebhook => <SetupWebhookComponent />
-  | #ReviewAndConnect => <ReviewAndConnectComponent />
-  // Assuming 'sectionType' is exact and all cases are covered.
-  }
-```
-
-_(Note: Component names in the example above are illustrative.)_
-
-````
-
-## Matching on Option (`option<'a>`)
-
-`switch` is the idiomatic way to handle `option` types.
-
-**Example: From `LogicUtils.res` (conceptual, actual code might use `Option.mapOr` etc.)**
-
-```rescript
-// In src/utils/LogicUtils.res (illustrative example)
-let processOptionalString = (optStr: option<string>) => {
-  switch optStr {
-  | Some(s) => "Got string: " ++ s
-  | None => "No string provided"
+  | "pending" => "Payment is being processed"
+  | "completed" => "Payment completed successfully"
+  | "failed" => "Payment failed"
+  | _ => "Unknown status"
   }
 }
-````
 
-Many functions in `LogicUtils.res` like `getString` or `getOptionIntFromJson` internally use `switch` or `Option` module functions (which themselves use `switch`-like logic) to handle optional values. For instance, `getOptionIntFromJson` uses `switch json->JSON.Classify.classify` which can result in `None`.
-
-## Matching on Other Types
-
-`switch` can also be used with booleans, integers, strings, lists, and other types.
-
-**Example: Boolean match in `LogicUtils.res` (for `getBoolFromString`)**
-
-```rescript
-// In src/utils/LogicUtils.res
-let getBoolFromString = (boolString, default: bool) => {
-  switch boolString->String.toLowerCase {
-  | "true" => true
-  | "false" => false
-  | _ => default // Wildcard for any other string
+let processNumber = num => {
+  switch num {
+  | 0 => "Zero"
+  | 1 => "One"
+  | 2 => "Two"
+  | n when n > 10 => "Large number"
+  | n => `Number: ${Int.toString(n)}`
   }
 }
 ```
 
-**Example: List pattern matching (from `typesAndDataStructures.md` for illustration)**
+### Boolean Pattern Matching
 
 ```rescript
-// In src/utils/LogicUtils.res
-let stripV4 = (path: list<string>): list<string> => {
-  switch path {
-  | list{"v4", ...remaining} => remaining // Matches a list starting with "v4"
-  | _ => path // Matches any other list (empty or not starting with "v4")
+let getAccessLevel = (isAdmin, isActive) => {
+  switch (isAdmin, isActive) {
+  | (true, true) => "Full Access"
+  | (true, false) => "Admin (Inactive)"
+  | (false, true) => "User Access"
+  | (false, false) => "No Access"
   }
 }
 ```
 
-- `list{...}` syntax is used for matching list patterns.
-- `...remaining` (spread operator) captures the rest of the list.
+## Variant Pattern Matching
 
-## Guards (When Clauses)
-
-You can add `when` clauses to `switch` cases for more complex conditions.
-
-**Example (Generic):**
+### Basic Variants
 
 ```rescript
-let processNumber = (x: int) => {
-  switch x {
+type status = Loading | Success | Error | Empty
+
+let renderStatus = status => {
+  switch status {
+  | Loading => <div> {React.string("Loading...")} </div>
+  | Success => <div> {React.string("Data loaded successfully")} </div>
+  | Error => <div> {React.string("An error occurred")} </div>
+  | Empty => <div> {React.string("No data available")} </div>
+  }
+}
+```
+
+### Variants with Data
+
+```rescript
+type apiResponse<'data> = 
+  | Loading
+  | Success('data)
+  | Error(string)
+  | NetworkError(int, string)
+
+let handleResponse = response => {
+  switch response {
+  | Loading => "Processing request..."
+  | Success(data) => `Received: ${data}`
+  | Error(message) => `Error: ${message}`
+  | NetworkError(code, message) => `Network Error ${Int.toString(code)}: ${message}`
+  }
+}
+```
+
+### Complex Variant Matching
+
+```rescript
+type userAction = 
+  | Login(string, string) // email, password
+  | Logout
+  | UpdateProfile(string, option<string>) // name, avatar
+  | ChangePassword(string, string) // old, new
+  | DeleteAccount(string) // confirmation
+
+let processAction = action => {
+  switch action {
+  | Login(email, password) => 
+    `Attempting login for ${email}`
+  | Logout => 
+    "User logged out"
+  | UpdateProfile(name, Some(avatar)) => 
+    `Updating profile: ${name} with avatar ${avatar}`
+  | UpdateProfile(name, None) => 
+    `Updating profile: ${name} without avatar`
+  | ChangePassword(oldPass, newPass) => 
+    "Password change requested"
+  | DeleteAccount(confirmation) when confirmation == "DELETE" => 
+    "Account deletion confirmed"
+  | DeleteAccount(_) => 
+    "Invalid confirmation for account deletion"
+  }
+}
+```
+
+## Option Pattern Matching
+
+### Basic Option Handling
+
+```rescript
+let getUserEmail = user => {
+  switch user.email {
+  | Some(email) => email
+  | None => "No email provided"
+  }
+}
+
+let getEmailDomain = user => {
+  switch user.email {
+  | Some(email) => {
+      let parts = email->String.split("@")
+      switch parts[1] {
+      | Some(domain) => domain
+      | None => "Invalid email format"
+      }
+    }
+  | None => "No email"
+  }
+}
+```
+
+### Nested Option Matching
+
+```rescript
+type address = {
+  street: option<string>,
+  city: option<string>,
+  country: option<string>,
+}
+
+type user = {
+  name: string,
+  address: option<address>,
+}
+
+let getFullAddress = user => {
+  switch user.address {
+  | None => "No address provided"
+  | Some({street: None, city: None, country: None}) => "Incomplete address"
+  | Some({street: Some(s), city: Some(c), country: Some(co)}) => 
+    `${s}, ${c}, ${co}`
+  | Some({city: Some(c), country: Some(co)}) => 
+    `${c}, ${co}`
+  | Some({country: Some(co)}) => 
+    co
+  | Some(_) => "Partial address available"
+  }
+}
+```
+
+### Option with Guards
+
+```rescript
+let validateAge = age => {
+  switch age {
+  | Some(a) when a >= 18 && a <= 120 => "Valid adult age"
+  | Some(a) when a < 18 => "Minor"
+  | Some(a) when a > 120 => "Invalid age"
+  | Some(_) => "Age out of range"
+  | None => "Age not provided"
+  }
+}
+```
+
+## Array and List Pattern Matching
+
+### Array Pattern Matching
+
+```rescript
+let processArray = arr => {
+  switch arr {
+  | [] => "Empty array"
+  | [single] => `Single item: ${single}`
+  | [first, second] => `Two items: ${first}, ${second}`
+  | [first, second, third] => `Three items: ${first}, ${second}, ${third}`
+  | [first, ...rest] => `First: ${first}, remaining: ${Int.toString(Array.length(rest))}`
+  }
+}
+
+let getFirstTwo = numbers => {
+  switch numbers {
+  | [] => (None, None)
+  | [first] => (Some(first), None)
+  | [first, second, ..._] => (Some(first), Some(second))
+  }
+}
+```
+
+### List Pattern Matching
+
+```rescript
+let processList = lst => {
+  switch lst {
+  | list{} => "Empty list"
+  | list{single} => `Single item: ${single}`
+  | list{first, second} => `Two items: ${first}, ${second}`
+  | list{first, ...rest} => `First: ${first}, rest length: ${Belt.List.length(rest)->Int.toString}`
+  }
+}
+
+// Recursive list processing
+let rec sumList = lst => {
+  switch lst {
+  | list{} => 0
+  | list{head, ...tail} => head + sumList(tail)
+  }
+}
+
+let rec findInList = (lst, target) => {
+  switch lst {
+  | list{} => false
+  | list{head, ...tail} when head == target => true
+  | list{_, ...tail} => findInList(tail, target)
+  }
+}
+```
+
+## Record Pattern Matching
+
+### Basic Record Matching
+
+```rescript
+type user = {
+  id: string,
+  name: string,
+  role: string,
+  isActive: bool,
+}
+
+let getUserPermissions = user => {
+  switch user {
+  | {role: "admin", isActive: true} => "Full permissions"
+  | {role: "admin", isActive: false} => "Admin account disabled"
+  | {role: "user", isActive: true} => "User permissions"
+  | {role: "user", isActive: false} => "User account disabled"
+  | {role} => `Unknown role: ${role}`
+  }
+}
+```
+
+### Partial Record Matching
+
+```rescript
+type payment = {
+  id: string,
+  amount: float,
+  currency: string,
+  status: string,
+  metadata: option<Js.Dict.t<string>>,
+}
+
+let getPaymentInfo = payment => {
+  switch payment {
+  | {status: "completed", amount} when amount > 1000.0 => 
+    "Large completed payment"
+  | {status: "completed"} => 
+    "Payment completed"
+  | {status: "pending", metadata: Some(_)} => 
+    "Pending payment with metadata"
+  | {status: "pending"} => 
+    "Pending payment"
+  | {status: "failed", amount} => 
+    `Failed payment of ${Float.toString(amount)}`
+  | {status} => 
+    `Payment status: ${status}`
+  }
+}
+```
+
+## Tuple Pattern Matching
+
+### Basic Tuple Matching
+
+```rescript
+let processCoordinates = coords => {
+  switch coords {
+  | (0, 0) => "Origin"
+  | (x, 0) => `On X-axis at ${Int.toString(x)}`
+  | (0, y) => `On Y-axis at ${Int.toString(y)}`
+  | (x, y) when x == y => `Diagonal at ${Int.toString(x)}`
+  | (x, y) => `Point at (${Int.toString(x)}, ${Int.toString(y)})`
+  }
+}
+
+let analyzeResult = result => {
+  switch result {
+  | (true, Some(data)) => `Success with data: ${data}`
+  | (true, None) => "Success without data"
+  | (false, Some(error)) => `Failed with error: ${error}`
+  | (false, None) => "Failed without error message"
+  }
+}
+```
+
+### Complex Tuple Matching
+
+```rescript
+type httpMethod = GET | POST | PUT | DELETE
+type httpStatus = int
+
+let analyzeRequest = (method, status, hasBody) => {
+  switch (method, status, hasBody) {
+  | (GET, 200, false) => "Successful GET request"
+  | (GET, 404, false) => "Resource not found"
+  | (POST, 201, true) => "Resource created successfully"
+  | (POST, 400, _) => "Bad request"
+  | (PUT, 200, true) => "Resource updated"
+  | (DELETE, 204, false) => "Resource deleted"
+  | (_, status, _) when status >= 500 => "Server error"
+  | (method, status, _) => `${method->methodToString} request with status ${Int.toString(status)}`
+  }
+}
+```
+
+## Advanced Pattern Matching
+
+### Guards and When Clauses
+
+```rescript
+let categorizeNumber = num => {
+  switch num {
   | n when n < 0 => "Negative"
-  | n when n == 0 => "Zero"
-  | n when n > 0 && n < 10 => "Small positive"
-  | _ => "Large positive or other"
+  | 0 => "Zero"
+  | n when n > 0 && n <= 10 => "Small positive"
+  | n when n > 10 && n <= 100 => "Medium positive"
+  | n when n > 100 => "Large positive"
+  | _ => "Unknown" // This case is unreachable but required for exhaustiveness
+  }
+}
+
+let validateUser = user => {
+  switch user {
+  | {name, age: Some(a)} when String.length(name) > 0 && a >= 18 => 
+    "Valid adult user"
+  | {name} when String.length(name) > 0 => 
+    "Valid user (age unknown)"
+  | {name} when String.length(name) == 0 => 
+    "Invalid: empty name"
+  | _ => 
+    "Invalid user"
   }
 }
 ```
 
-_(Specific examples of `when` clauses from the codebase will be added if prominently found.)_
+### Exception Pattern Matching
 
-Pattern matching is a cornerstone of ReScript development, leading to safe, expressive, and often more readable code compared to deeply nested if-else statements.
+```rescript
+let safeParseInt = str => {
+  try {
+    Some(Int.fromString(str))
+  } catch {
+  | Failure(_) => None
+  | Invalid_argument(_) => None
+  | _ => None
+  }
+}
+
+let handleApiCall = () => {
+  try {
+    // Some API call
+    "Success"
+  } catch {
+  | Fetch.Error(NetworkError) => "Network error occurred"
+  | Fetch.Error(ParseError) => "Failed to parse response"
+  | Exn.Error(obj) => 
+    switch Exn.message(obj) {
+    | Some(msg) => `Error: ${msg}`
+    | None => "Unknown error occurred"
+    }
+  | _ => "Unexpected error"
+  }
+}
+```
+
+### Polymorphic Variant Matching
+
+```rescript
+type color = [#red | #green | #blue | #yellow]
+type size = [#small | #medium | #large]
+
+let getButtonClass = (color, size) => {
+  switch (color, size) {
+  | (#red, #large) => "btn-red-lg"
+  | (#red, _) => "btn-red"
+  | (#green, #small) => "btn-green-sm"
+  | (#green, _) => "btn-green"
+  | (#blue, _) => "btn-blue"
+  | (#yellow, _) => "btn-yellow"
+  }
+}
+```
+
+## Pattern Matching in React Components
+
+### Component State Matching
+
+```rescript
+type loadingState<'data> = 
+  | Loading
+  | Success('data)
+  | Error(string)
+  | Empty
+
+@react.component
+let make = (~data: loadingState<array<string>>) => {
+  switch data {
+  | Loading => 
+    <div className="loading"> {React.string("Loading...")} </div>
+  | Success(items) when Array.length(items) == 0 => 
+    <div className="empty"> {React.string("No items found")} </div>
+  | Success(items) => 
+    <ul>
+      {items
+      ->Array.mapWithIndex((item, index) => 
+          <li key={Int.toString(index)}> {React.string(item)} </li>
+        )
+      ->React.array}
+    </ul>
+  | Error(message) => 
+    <div className="error"> {React.string(`Error: ${message}`)} </div>
+  | Empty => 
+    <div className="empty"> {React.string("No data available")} </div>
+  }
+}
+```
+
+### Event Handling with Pattern Matching
+
+```rescript
+type formEvent = 
+  | Submit(ReactEvent.Form.t)
+  | InputChange(string, string) // field name, value
+  | Reset
+
+let handleFormEvent = event => {
+  switch event {
+  | Submit(e) => {
+      ReactEvent.Form.preventDefault(e)
+      // Handle form submission
+    }
+  | InputChange("email", value) => {
+      // Validate email
+      if String.includes(value, "@") {
+        // Valid email format
+      } else {
+        // Invalid email
+      }
+    }
+  | InputChange(field, value) => {
+      // Handle other field changes
+      Js.log(`Field ${field} changed to: ${value}`)
+    }
+  | Reset => {
+      // Reset form
+    }
+  }
+}
+```
+
+## Common Patterns in Hyperswitch
+
+### API Response Handling
+
+```rescript
+type apiError = {
+  code: string,
+  message: string,
+}
+
+type apiResponse<'data> = 
+  | Loading
+  | Success('data)
+  | Error(apiError)
+  | NetworkError(string)
+
+let handleApiResponse = response => {
+  switch response {
+  | Loading => 
+    <PageLoaderWrapper screenState={PageLoaderWrapper.Loading}>
+      React.null
+    </PageLoaderWrapper>
+  | Success(data) => 
+    <PageLoaderWrapper screenState={PageLoaderWrapper.Success}>
+      <DataDisplay data />
+    </PageLoaderWrapper>
+  | Error({code: "UNAUTHORIZED"}) => 
+    <PageLoaderWrapper screenState={PageLoaderWrapper.Error("Please log in again")}>
+      React.null
+    </PageLoaderWrapper>
+  | Error({code: "FORBIDDEN"}) => 
+    <PageLoaderWrapper screenState={PageLoaderWrapper.Error("Access denied")}>
+      React.null
+    </PageLoaderWrapper>
+  | Error({message}) => 
+    <PageLoaderWrapper screenState={PageLoaderWrapper.Error(message)}>
+      React.null
+    </PageLoaderWrapper>
+  | NetworkError(msg) => 
+    <PageLoaderWrapper screenState={PageLoaderWrapper.Error(`Network error: ${msg}`)}>
+      React.null
+    </PageLoaderWrapper>
+  }
+}
+```
+
+### Form Validation
+
+```rescript
+type validationError = 
+  | Required(string) // field name
+  | InvalidFormat(string, string) // field name, expected format
+  | TooShort(string, int) // field name, minimum length
+  | TooLong(string, int) // field name, maximum length
+
+let getErrorMessage = error => {
+  switch error {
+  | Required(field) => `${field} is required`
+  | InvalidFormat(field, format) => `${field} must be in ${format} format`
+  | TooShort(field, minLength) => `${field} must be at least ${Int.toString(minLength)} characters`
+  | TooLong(field, maxLength) => `${field} must be no more than ${Int.toString(maxLength)} characters`
+  }
+}
+
+let validateField = (fieldName, value) => {
+  switch (fieldName, value) {
+  | ("email", "") => Some(Required("Email"))
+  | ("email", email) when !String.includes(email, "@") => 
+    Some(InvalidFormat("Email", "user@domain.com"))
+  | ("password", "") => Some(Required("Password"))
+  | ("password", pwd) when String.length(pwd) < 8 => 
+    Some(TooShort("Password", 8))
+  | ("name", "") => Some(Required("Name"))
+  | ("name", name) when String.length(name) > 50 => 
+    Some(TooLong("Name", 50))
+  | _ => None
+  }
+}
+```
+
+### Route Matching
+
+```rescript
+type route = 
+  | Dashboard
+  | Payments(option<string>) // optional payment ID
+  | Connectors
+  | ConnectorDetail(string) // connector ID
+  | Settings(string) // settings section
+  | NotFound
+
+let matchRoute = path => {
+  switch path->String.split("/") {
+  | ["", "dashboard"] => Dashboard
+  | ["", "payments"] => Payments(None)
+  | ["", "payments", id] => Payments(Some(id))
+  | ["", "connectors"] => Connectors
+  | ["", "connectors", id] => ConnectorDetail(id)
+  | ["", "settings", section] => Settings(section)
+  | _ => NotFound
+  }
+}
+
+let renderRoute = route => {
+  switch route {
+  | Dashboard => <DashboardScreen />
+  | Payments(None) => <PaymentsListScreen />
+  | Payments(Some(id)) => <PaymentDetailScreen paymentId={id} />
+  | Connectors => <ConnectorsScreen />
+  | ConnectorDetail(id) => <ConnectorDetailScreen connectorId={id} />
+  | Settings(section) => <SettingsScreen section />
+  | NotFound => <NotFoundScreen />
+  }
+}
+```
+
+## Best Practices
+
+1. **Use exhaustive matching**: Always handle all possible cases
+2. **Order patterns from specific to general**: Put more specific patterns first
+3. **Use guards for complex conditions**: When simple pattern matching isn't enough
+4. **Prefer pattern matching over if-else chains**: More readable and type-safe
+5. **Use meaningful variable names in patterns**: Make the code self-documenting
+6. **Avoid deep nesting**: Break complex patterns into smaller functions
+7. **Use wildcards sparingly**: Be explicit about what you're matching
+8. **Combine patterns when possible**: Use tuples to match multiple values at once
+9. **Use when clauses for validation**: Add guards for additional constraints
+10. **Document complex patterns**: Add comments for non-obvious pattern matching logic

@@ -1,4 +1,9 @@
-type revenueRecoverySections = [#connectProcessor | #addAPlatform | #reviewDetails]
+type revenueRecoverySections = [
+  | #chooseDataSource
+  | #connectProcessor
+  | #addAPlatform
+  | #reviewDetails
+]
 
 type revenueRecoverySubsections = [
   | #selectProcessor
