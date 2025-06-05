@@ -24,7 +24,7 @@ module OrgChartTree = {
                 org.id
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
-            onClick={_ => onOrgSelect(org)}
+            onClick={_ => onOrgSelect(org)->ignore}
             id={`${org.id}`}>
             {org.name->React.string}
           </button>
@@ -41,7 +41,7 @@ module OrgChartTree = {
                 merchant.id
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
-            onClick={_ => onMerchantSelect(merchant)}
+            onClick={_ => onMerchantSelect(merchant)->ignore}
             id={`${merchant.id}`}>
             <span className="truncate whitespace-wrap "> {merchant.name->React.string} </span>
             {switch merchant.productType {
@@ -66,7 +66,7 @@ module OrgChartTree = {
                 profile.id
                 ? "border-blue-600 bg-blue-50 text-blue-600"
                 : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
-            onClick={_ => onProfileSelect(profile)}
+            onClick={_ => onProfileSelect(profile)->ignore}
             id={`${profile.id}`}>
             {profile.name->React.string}
           </button>
@@ -85,21 +85,30 @@ let make = () => {
   let (selectedOrg, setSelectedOrg) = React.useState(() => orgId)
   let (selectedMerchant, setSelectedMerchant) = React.useState(() => merchantId)
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)
-
-  let onOrgSelect = (org: OMPSwitchTypes.ompListTypes) => {
-    setSelectedOrg(_ => org.id)
-    internalSwitch(~expectedOrgId=Some(org.id))->ignore
+  let showToast = ToastState.useShowToast()
+  let onOrgSelect = async (org: OMPSwitchTypes.ompListTypes) => {
+    try {
+      setSelectedOrg(_ => org.id)
+      let _ = await internalSwitch(~expectedOrgId=Some(org.id))
+    } catch {
+    | _ => showToast(~message="Failed to switch organization", ~toastType=ToastError)
+    }
   }
+  let onMerchantSelect = async (merchant: OMPSwitchTypes.ompListTypes) =>
+    try {
+      setSelectedMerchant(_ => merchant.id)
+      let _ = await internalSwitch(~expectedMerchantId=Some(merchant.id))
+    } catch {
+    | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+    }
+  let onProfileSelect = async (profile: OMPSwitchTypes.ompListTypes) =>
+    try {
+      setSelectedProfile(_ => profile.id)
+      let _ = await internalSwitch(~expectedProfileId=Some(profile.id))
+    } catch {
+    | _ => showToast(~message="Failed to switch profile", ~toastType=ToastError)
+    }
 
-  let onMerchantSelect = (merchant: OMPSwitchTypes.ompListTypes) => {
-    setSelectedMerchant(_ => merchant.id)
-    internalSwitch(~expectedMerchantId=Some(merchant.id))->ignore
-  }
-
-  let onProfileSelect = (profile: OMPSwitchTypes.ompListTypes) => {
-    setSelectedProfile(_ => profile.id)
-    internalSwitch(~expectedProfileId=Some(profile.id))->ignore
-  }
   <div className="flex flex-col px-4 lg:px-10 gap-8">
     <div className="flex flex-col">
       <PageUtils.PageHeading
