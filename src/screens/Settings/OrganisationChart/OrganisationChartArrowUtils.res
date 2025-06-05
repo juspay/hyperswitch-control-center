@@ -6,10 +6,15 @@ type domRect = {
   width: float, // Element width
   height: float, // Element height
 }
-
 @send external getBoundingClientRect: Dom.element => domRect = "getBoundingClientRect"
-@send external getElementById: (Dom.document, string) => Nullable.t<Dom.element> = "getElementById"
-
+let getElementById = (id: string): option<Dom.element> => {
+  try {
+    let element = DOMUtils.document->DOMUtils.getElementById(id)
+    Js.Nullable.return(element)->Nullable.toOption
+  } catch {
+  | _ => None
+  }
+}
 // Gets anchor point coordinates for an element based on specified position
 let getElementAnchor = (element: Dom.element, anchor: [#left | #center | #right]): option<(
   float,
@@ -27,13 +32,6 @@ let getElementAnchor = (element: Dom.element, anchor: [#left | #center | #right]
   Some((x, y))
 }
 
-// finds DOM element by ID
-let findElementById = (id: string): option<Dom.element> => {
-  Webapi.Dom.document
-  ->getElementById(id)
-  ->Nullable.toOption
-}
-
 // helper to create a connection path between two elements
 let createConnectionPath = (
   ~startId: string,
@@ -48,7 +46,7 @@ let createConnectionPath = (
   ~createDynamicRoundedElbowPath: ((float, float), (float, float), float, float) => string,
   newPaths: array<React.element>,
 ) => {
-  switch (findElementById(startId), findElementById(endId)) {
+  switch (getElementById(startId), getElementById(endId)) {
   | (Some(startEl), Some(endEl)) =>
     switch (getElementAnchor(startEl, startAnchor), getElementAnchor(endEl, endAnchor)) {
     | (Some((startX, startY)), Some((endX, endY))) => {

@@ -1,6 +1,4 @@
-// Import helpers from OrganisationChartArrowUtils
 open OrganisationChartArrowUtils
-@send external getElementById: (Dom.document, string) => Nullable.t<Dom.element> = "getElementById"
 @val @scope("window")
 external requestAnimationFrame: (unit => unit) => unit = "requestAnimationFrame"
 
@@ -15,7 +13,7 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
   let selectedProfileExists = profileList->Array.some(profile => profile.id == selectedProfile)
   let updatePaths = () => {
     let newPaths = []
-    switch findElementById(`${selectedOrg}`) {
+    switch getElementById(`${selectedOrg}`) {
     | Some(selectedOrgEl) =>
       switch selectedOrgEl
       //getting parent container
@@ -111,10 +109,10 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
       // Check if we have data
       let hasData = Array.length(merchantList) > 0 && Array.length(profileList) > 0
       // Check if required elements exist
-      let selectedOrgExists = findElementById(`${selectedOrg}`)->Option.isSome
-      let selectedMerchantExists = findElementById(`${selectedMerchant}`)->Option.isSome
+      let selectedOrgExists = getElementById(`${selectedOrg}`)->Option.isSome
+      let selectedMerchantExists = getElementById(`${selectedMerchant}`)->Option.isSome
       let profilesReady = if selectedProfileExists {
-        findElementById(`${selectedProfile}`)->Option.isSome
+        getElementById(`${selectedProfile}`)->Option.isSome
       } else {
         // If selectedProfile doesn't exist in current list, just check if we have profiles
         Array.length(profileList) > 0
