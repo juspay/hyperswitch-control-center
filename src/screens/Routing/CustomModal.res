@@ -9,6 +9,7 @@ module RoutingCustomModal = {
     ~subHeadingText,
     ~leftIcon,
     ~iconSize=25,
+    ~showCancelButton=true,
   ) => {
     <Modal
       showModal
@@ -30,7 +31,7 @@ module RoutingCustomModal = {
         />
       </div>
       <div className="flex items-end justify-end gap-4">
-        {cancelButton}
+        <RenderIf condition={showCancelButton}> {cancelButton} </RenderIf>
         {submitButton}
       </div>
     </Modal>
