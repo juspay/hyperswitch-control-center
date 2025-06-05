@@ -237,7 +237,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       } else {
         setScreenState(_ => PageLoaderWrapper.Success)
         logs->Array.sort(sortByCreatedAt)
-        setData(_ => logs)
+        setData(_ => logs->reorderLogs)
         switch logs->Array.get(0) {
         | Some(value) => {
             let initialData = value->getDictFromJsonObject
