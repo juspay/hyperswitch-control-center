@@ -91,7 +91,10 @@ let make = () => {
       setSelectedOrg(_ => org.id)
       let _ = await internalSwitch(~expectedOrgId=Some(org.id))
     } catch {
-    | _ => showToast(~message="Failed to switch organization", ~toastType=ToastError)
+    | _ => {
+        setSelectedOrg(_ => orgId)
+        showToast(~message="Failed to switch organization", ~toastType=ToastError)
+      }
     }
   }
   let onMerchantSelect = async (merchant: OMPSwitchTypes.ompListTypes) =>
@@ -99,16 +102,21 @@ let make = () => {
       setSelectedMerchant(_ => merchant.id)
       let _ = await internalSwitch(~expectedMerchantId=Some(merchant.id))
     } catch {
-    | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+    | _ => {
+        setSelectedMerchant(_ => merchantId)
+        showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+      }
     }
   let onProfileSelect = async (profile: OMPSwitchTypes.ompListTypes) =>
     try {
       setSelectedProfile(_ => profile.id)
       let _ = await internalSwitch(~expectedProfileId=Some(profile.id))
     } catch {
-    | _ => showToast(~message="Failed to switch profile", ~toastType=ToastError)
+    | _ => {
+        setSelectedMerchant(_ => profileId)
+        showToast(~message="Failed to switch profile", ~toastType=ToastError)
+      }
     }
-
   <div className="flex flex-col px-4 lg:px-10 gap-8">
     <div className="flex flex-col">
       <PageUtils.PageHeading

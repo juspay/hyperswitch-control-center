@@ -133,10 +133,9 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
         } else {
           25
         }
-
-        Js.Global.setTimeout(() => {
+        let _ = setTimeout(() => {
           requestAnimationFrame(_ => tryUpdate())
-        }, delay)->ignore
+        }, delay)
       }
     }
     requestAnimationFrame(_ => tryUpdate())
@@ -157,10 +156,10 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
 
   React.useEffect(() => {
     if Array.length(merchantList) > 0 && Array.length(profileList) > 0 {
-      let timeoutId = Js.Global.setTimeout(() => {
+      let timeoutId = setTimeout(() => {
         updatePathsAfterLayout()
       }, 500) // Longer delay for initial load
-      Some(() => Js.Global.clearTimeout(timeoutId))
+      Some(() => clearTimeout(timeoutId))
     } else {
       None
     }
