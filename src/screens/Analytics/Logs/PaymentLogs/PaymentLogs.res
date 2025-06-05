@@ -32,6 +32,11 @@ let make = (~paymentId, ~createdAt) => {
     ~methodType=Get,
     ~queryParamerters=Some(`type=Payment&payment_id=${paymentId}`),
   )
+  let routingLogsUrl = getURL(
+    ~entityName=V1(ROUTING_EVENT_LOGS),
+    ~methodType=Get,
+    ~queryParamerters=Some(`type=Payment&payment_id=${paymentId}`),
+  )
 
   let urls = [
     {
@@ -49,6 +54,10 @@ let make = (~paymentId, ~createdAt) => {
     },
     {
       url: connectorLogsUrl,
+      apiMethod: Get,
+    },
+    {
+      url: routingLogsUrl,
       apiMethod: Get,
     },
   ]

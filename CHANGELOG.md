@@ -3,6 +3,32 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.05.0
+
+### Bug Fixes
+
+- Debit routing duplication with multiple rules configuration ([#3114](https://github.com/juspay/hyperswitch-control-center/pull/3114)) ([`726ea9d`](https://github.com/juspay/hyperswitch-control-center/commit/726ea9d605c4d56b8d4ec7016749038b65d8d760))
+- Overflow orgs case ([#3071](https://github.com/juspay/hyperswitch-control-center/pull/3071)) ([`5719b26`](https://github.com/juspay/hyperswitch-control-center/commit/5719b2658d6968c7c55416753afe6728921426e1))
+
+**Full Changelog:** [`2025.06.04.2...2025.06.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.04.2...2025.06.05.0)
+
+- - -
+
+## 2025.06.04.2
+
+### Bug Fixes
+
+- Fixed generate reports modal responsiveness ([#3107](https://github.com/juspay/hyperswitch-control-center/pull/3107)) ([`92e7e90`](https://github.com/juspay/hyperswitch-control-center/commit/92e7e90f8fb2128f71a4b8c21ad2d86639d92ef2))
+
+### Miscellaneous Tasks
+
+- Make authentication type nullable ([#3106](https://github.com/juspay/hyperswitch-control-center/pull/3106)) ([`c7b2612`](https://github.com/juspay/hyperswitch-control-center/commit/c7b26125c2f0fc857a93f9354341ef3de55fc71b))
+- Disable create configuration flow only for auth rate routing ([#3112](https://github.com/juspay/hyperswitch-control-center/pull/3112)) ([`f472b5b`](https://github.com/juspay/hyperswitch-control-center/commit/f472b5b30331c246209d9a9725a854687e50e3a1))
+
+**Full Changelog:** [`2025.06.04.1...2025.06.04.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.04.1...2025.06.04.2)
+
+- - -
+
 ## 2025.06.04.1
 
 ### Testing
