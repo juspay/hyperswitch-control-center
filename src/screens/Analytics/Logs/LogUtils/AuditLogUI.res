@@ -223,7 +223,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
           | Some(dict) =>
             switch dict->getDictFromJsonObject->getLogType {
             | SDK => logs->Array.pushMany(arr->parseSdkResponse)->ignore
-            | CONNECTOR | API_EVENTS | WEBHOOKS => logs->Array.pushMany(arr)->ignore
+            | CONNECTOR | API_EVENTS | WEBHOOKS | ROUTING => logs->Array.pushMany(arr)->ignore
             }
           | _ => ()
           }
@@ -237,7 +237,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       } else {
         setScreenState(_ => PageLoaderWrapper.Success)
         logs->Array.sort(sortByCreatedAt)
-        setData(_ => logs)
+        setData(_ => logs->reorderLogs)
         switch logs->Array.get(0) {
         | Some(value) => {
             let initialData = value->getDictFromJsonObject

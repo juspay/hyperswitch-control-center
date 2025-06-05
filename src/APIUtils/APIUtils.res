@@ -682,7 +682,15 @@ let useGetURL = () => {
           }
         | _ => ""
         }
-
+      | ROUTING_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParamerters {
+          | Some(params) => `analytics/v1/profile/routing_event_logs?${params}`
+          | None => `analytics/v1/routing_event_logs`
+          }
+        | _ => ""
+        }
       /* SAMPLE DATA */
       | GENERATE_SAMPLE_DATA => `user/sample_data`
 
