@@ -12,7 +12,11 @@ module OrgChartTree = {
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-
+    let getButtonStyles = isSelected => {
+      isSelected
+        ? "border-blue-600 bg-blue-50 text-blue-600"
+        : "border-gray-200 hover:bg-gray-50 text-gray-600"
+    }
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16 w-full py-8">
       <div className="flex flex-col gap-4">
         <div className={`${body.lg.semibold} mb-2`}> {React.string("Organization")} </div>
@@ -20,10 +24,9 @@ module OrgChartTree = {
         ->Array.map(org => {
           <button
             key=org.id
-            className={`rounded-lg border h-10  px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${selectedOrg ==
-                org.id
-                ? "border-blue-600 bg-blue-50 text-blue-600"
-                : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
+            className={`rounded-lg border h-10  px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
+                selectedOrg == org.id,
+              )}`}
             onClick={_ => onOrgSelect(org)->ignore}
             id={`${org.id}`}>
             {org.name->React.string}
@@ -37,10 +40,9 @@ module OrgChartTree = {
         ->Array.map(merchant =>
           <button
             key={merchant.id}
-            className={`flex justify-between h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${body.md.medium} ${selectedMerchant ==
-                merchant.id
-                ? "border-blue-600 bg-blue-50 text-blue-600"
-                : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
+            className={`flex justify-between h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
+                selectedMerchant == merchant.id,
+              )}`}
             onClick={_ => onMerchantSelect(merchant)->ignore}
             id={`${merchant.id}`}>
             <span className="truncate whitespace-wrap "> {merchant.name->React.string} </span>
@@ -62,10 +64,9 @@ module OrgChartTree = {
         ->Array.map(profile =>
           <button
             key={profile.id}
-            className={`rounded-lg h-10 truncate whitespace-wrap border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${selectedProfile ==
-                profile.id
-                ? "border-blue-600 bg-blue-50 text-blue-600"
-                : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
+            className={`rounded-lg h-10 truncate whitespace-wrap border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
+                selectedProfile == profile.id,
+              )}`}
             onClick={_ => onProfileSelect(profile)->ignore}
             id={`${profile.id}`}>
             {profile.name->React.string}
