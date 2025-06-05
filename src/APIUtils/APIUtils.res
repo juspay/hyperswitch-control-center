@@ -407,6 +407,51 @@ let useGetURL = () => {
         | _ => ""
         }
       | ACTIVE_ROUTING => `routing/active`
+      | ENABLE_AUTH_RATE_ROUTING =>
+        switch methodType {
+        | Post =>
+          switch queryParamerters {
+          | Some(param) =>
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/toggle?${param}`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | SET_CONFIG_AUTH_RATE_ROUTING =>
+        switch methodType {
+        | Patch =>
+          switch id {
+          | Some(id) =>
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/config/${id}`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | ACTIVATE_AUTH_RATE_ROUTING =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(id) => `routing/${id}/activate`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | SET_VOLUME_SPLIT =>
+        switch methodType {
+        | Post =>
+          switch queryParamerters {
+          | Some(param) =>
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/set_volume_split?${param}`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | GET_VOLUME_SPLIT =>
+        switch methodType {
+        | Get =>
+          `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
+        | _ => ""
+        }
       /* ANALYTICS V2 */
 
       | ANALYTICS_PAYMENTS_V2 =>
@@ -649,7 +694,15 @@ let useGetURL = () => {
           }
         | _ => ""
         }
-
+      | ROUTING_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParamerters {
+          | Some(params) => `analytics/v1/profile/routing_event_logs?${params}`
+          | None => `analytics/v1/routing_event_logs`
+          }
+        | _ => ""
+        }
       /* SAMPLE DATA */
       | GENERATE_SAMPLE_DATA => `user/sample_data`
 

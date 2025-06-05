@@ -6,6 +6,40 @@ let sortByCreatedAt = (log1, log2) => {
   compareLogic(keyA, keyB)
 }
 
+let reorderLogs = logs => {
+  open LogicUtils
+  logs->Array.reverse
+
+  // Find the index of the log with "PaymentsCreate" in the "api_flow" field
+  let index =
+    logs->Array.findIndex(item =>
+      item->getDictFromJsonObject->getString("api_flow", "") == "PaymentsCreate"
+    )
+
+  switch index {
+  | 0 // If it's already at the first position, return the logs as is
+  | -1 => logs // If not found, return the logs as is
+  | _ => {
+      // If found but not at the first position, move it to the front
+      let element = logs->Array.find(item => {
+        item->getDictFromJsonObject->getString("api_flow", "") == "PaymentsCreate"
+      })
+
+      let logs = switch element {
+      | Some(val) => {
+          let arr = logs->Array.filter(item => item != val)
+          let newList = [val]->Array.concat(arr)
+          newList->Array.reverse
+          newList
+        }
+      | _ => logs
+      }
+
+      logs
+    }
+  }
+}
+
 type flowType =
   | PaymentsCancel
   | PaymentsCapture

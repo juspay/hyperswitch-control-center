@@ -13,7 +13,7 @@ class PaymentRouting {
   }
 
   get defaultFallbackManageButton() {
-    return cy.get('[data-button-for="manage"]');
+    return cy.get('[data-button-for="manage"]').children().eq(0);
   }
 }
 
