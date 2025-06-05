@@ -3,6 +3,35 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.04.2
+
+### Bug Fixes
+
+- Fixed generate reports modal responsiveness ([#3107](https://github.com/juspay/hyperswitch-control-center/pull/3107)) ([`92e7e90`](https://github.com/juspay/hyperswitch-control-center/commit/92e7e90f8fb2128f71a4b8c21ad2d86639d92ef2))
+
+### Miscellaneous Tasks
+
+- Make authentication type nullable ([#3106](https://github.com/juspay/hyperswitch-control-center/pull/3106)) ([`c7b2612`](https://github.com/juspay/hyperswitch-control-center/commit/c7b26125c2f0fc857a93f9354341ef3de55fc71b))
+- Disable create configuration flow only for auth rate routing ([#3112](https://github.com/juspay/hyperswitch-control-center/pull/3112)) ([`f472b5b`](https://github.com/juspay/hyperswitch-control-center/commit/f472b5b30331c246209d9a9725a854687e50e3a1))
+
+**Full Changelog:** [`2025.06.04.1...2025.06.04.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.04.1...2025.06.04.2)
+
+- - -
+
+## 2025.06.04.1
+
+### Testing
+
+- Fix failing routing tests ([#3093](https://github.com/juspay/hyperswitch-control-center/pull/3093)) ([`9324556`](https://github.com/juspay/hyperswitch-control-center/commit/93245563b51c8ad39161bb071bb30436019def22))
+
+### Miscellaneous Tasks
+
+- Path updated for dynamo wasm files as per BE changes ([#3100](https://github.com/juspay/hyperswitch-control-center/pull/3100)) ([`7b21754`](https://github.com/juspay/hyperswitch-control-center/commit/7b2175428307de38aff485b59c33b432229ad073))
+
+**Full Changelog:** [`2025.06.04.0...2025.06.04.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.04.0...2025.06.04.1)
+
+- - -
+
 ## 2025.06.04.0
 
 ### Features
