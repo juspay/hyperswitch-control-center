@@ -796,7 +796,7 @@ let randomString = (~length) => {
         ranges
         ->Array.get(Js.Math.random_int(0, 3))
         ->Option.getOr((48.0, 57.0))
-      let index = Math.floor(Math.random() *. (max -. min) +. min)->Int.fromFloat
+      let index = Math.floor(Math.random() *. (max -. min +. 1.0) +. min)->Int.fromFloat
 
       String.fromCharCode(index)
     })
