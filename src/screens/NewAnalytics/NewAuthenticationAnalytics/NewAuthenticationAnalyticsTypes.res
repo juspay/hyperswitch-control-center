@@ -7,8 +7,8 @@ type queryDataType = {
   authentication_count: int,
   authentication_attempt_count: int,
   authentication_success_count: int,
-  authentication_exemption_accepted: option<int>,
-  authentication_exemption_requested: option<int>,
+  authentication_exemption_approved_count: option<int>,
+  authentication_exemption_requested_count: option<int>,
   challenge_flow_count: int,
   challenge_attempt_count: int,
   challenge_success_count: int,
@@ -65,6 +65,7 @@ type insightsDataType = {
 
 type metricsData = {
   title: string,
+  name: string,
   value: float,
   valueType: LogicUtilsTypes.valueType,
   tooltip_description: string,
@@ -111,8 +112,8 @@ type metrics = [
   | #challenge_success_count
   | #authentication_funnel
   | #authentication_error_message
-  | #authentication_exemption_accepted
-  | #authentication_exemption_requested
+  | #authentication_exemption_approved_count
+  | #authentication_exemption_requested_count
 ]
 type granularity = [
   | #G_ONEDAY

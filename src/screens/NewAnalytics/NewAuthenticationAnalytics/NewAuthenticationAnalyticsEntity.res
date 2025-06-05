@@ -4,7 +4,13 @@ open NewAuthenticationAnalyticsTypes
 let scaExemptionEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#sessionized_payment_processed_amount],
+    metrics: [
+      #authentication_count,
+      #authentication_success_count,
+      #authentication_exemption_requested_count,
+      #authentication_exemption_approved_count,
+      #authentication_attempt_count,
+    ],
   },
   title: "Exemption Flowchart",
   description: "Breakdown of ThreeDS 2.0 Journey",
@@ -64,7 +70,7 @@ let userDropOffRateChartEntity: chartEntity<
 let exemptionApprovalRateEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#sessionized_payment_processed_amount],
+    metrics: [#authentication_exemption_requested_count, #authentication_exemption_approved_count],
   },
   title: "Exemption Approval Rate",
   description: "Breakdown of exemption approval rates",
@@ -84,7 +90,7 @@ let exemptionApprovalRateChartEntity: chartEntity<
 let exemptionRequestRateEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#sessionized_payment_processed_amount],
+    metrics: [#authentication_exemption_requested_count, #authentication_attempt_count],
   },
   title: "Exemption Request Rate",
   description: "Breakdown of exemption request rates",
@@ -98,4 +104,35 @@ let exemptionRequestRateChartEntity: chartEntity<
 > = {
   getObjects: ExemptionGraphsUtils.exemptionGraphsMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
+}
+
+// Authentication Summary
+let authenticationSummaryEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [
+      #authentication_count,
+      #authentication_success_count,
+      #authentication_exemption_requested_count,
+      #authentication_exemption_approved_count,
+      #authentication_attempt_count,
+    ],
+  },
+  title: "Authentication Summary",
+  description: "Breakdown of ThreeDS 2.0 Journey",
+  domain: #payments,
+}
+
+let authSummaryTableEntity = {
+  open ExemptionGraphsUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=visibleColumns,
+    ~requiredSearchFieldsList=[],
+    ~allColumns=visibleColumns,
+    ~getCell,
+    ~getHeading,
+  )
 }

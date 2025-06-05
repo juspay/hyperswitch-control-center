@@ -51,11 +51,6 @@ let make = (
     None
   }, (startTimeVal, endTimeVal))
 
-  // let isSmartRetryEnabled =
-  //   filterValueJson
-  //   ->getString("is_smart_retry_enabled", "true")
-  //   ->getBoolFromString(true)
-  //   ->getSmartRetryMetricType
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -85,7 +80,7 @@ let make = (
           ~delta=entity.requestBodyConfig.delta,
           ~metrics=entity.requestBodyConfig.metrics,
           ~granularity=granularity.value->Some,
-          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+          ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
         )
         await updateDetails(url, primaryBody, Post)
       }
@@ -127,25 +122,21 @@ let make = (
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-  React.useEffect(
-    () => {
-      if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-        getPaymentsProcessed()->ignore
-      }
-      None
-    },
-    (
-      startTimeVal,
-      endTimeVal,
-      compareToStartTime,
-      compareToEndTime,
-      comparison,
-      granularity.value,
-      currency,
-      // isSmartRetryEnabled,
-      isSampleDataEnabled,
-    ),
-  )
+  React.useEffect(() => {
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      getPaymentsProcessed()->ignore
+    }
+    None
+  }, (
+    startTimeVal,
+    endTimeVal,
+    compareToStartTime,
+    compareToEndTime,
+    comparison,
+    granularity.value,
+    currency,
+    isSampleDataEnabled,
+  ))
 
   let params = {
     data: authenticationSuccessData,

@@ -2,6 +2,15 @@ open SankeyGraphTypes
 open LogicUtils
 open SCAExemptionAnalyticsTypes
 
+let sankeyGreenNode = "#69AF7D"
+let sankeyGreenFlow = "#B1D6B5"
+let sankeyRedNode = "#F57F6C"
+let sankeyRedFlow = "#FDD4CD"
+let sankeyBlueNode = "#6AA1F2"
+let sankeyBlueFlow = "#BCD7FA"
+let sankeyYellowNode = "#D99530"
+let sankeyYellowFlow = "#F5D9A8"
+
 let scaExemptionResponseMapper = (json: JSON.t) => {
   let sankeyDataArray = json->getArrayFromJson([])
 
@@ -26,18 +35,71 @@ let scaExemptionResponseMapper = (json: JSON.t) => {
     let itemDict = item->getDictFromJsonObject
     let count = itemDict->getInt("count", 0)
     let authStatus = itemDict->getString("authentication_status", "")
+    let exemptionRequestedValue = itemDict->getOptionBool("exemption_requested")
+    let exemptionAcceptedValue = itemDict->getOptionBool("exemption_accepted")
+
+    // Total 3DS
+    countersDict->Dict.set(
+      "total_3ds_payments",
+      countersDict->getInt("total_3ds_payments", 0) + count,
+    )
+
+    // Exemption requested
+    switch exemptionRequestedValue {
+    | Some(true) =>
+      countersDict->Dict.set(
+        "exemption_requested",
+        countersDict->getInt("exemption_requested", 0) + count,
+      )
+    | Some(false) | None =>
+      countersDict->Dict.set(
+        "exemption_not_requested",
+        countersDict->getInt("exemption_not_requested", 0) + count,
+      )
+    }
+
+    // Exemption accepted/rejected (only if requested)
+    switch (exemptionRequestedValue, exemptionAcceptedValue) {
+    | (Some(true), Some(true)) =>
+      countersDict->Dict.set(
+        "exemption_accepted",
+        countersDict->getInt("exemption_accepted", 0) + count,
+      )
+    | (Some(true), Some(false)) =>
+      countersDict->Dict.set(
+        "exemption_rejected",
+        countersDict->getInt("exemption_rejected", 0) + count,
+      )
+    | _ => ()
+    }
 
     switch authStatus {
-    | "Total 3DS Payment Request" => countersDict->Dict.set("total_3ds_payments", count)
-    | "Exemption Requested" => countersDict->Dict.set("exemption_requested", count)
-    | "Exemption not Requested" => countersDict->Dict.set("exemption_not_requested", count)
-    | "Exemption Accepted" => countersDict->Dict.set("exemption_accepted", count)
-    | "Exemption not Accepted" => countersDict->Dict.set("exemption_rejected", count)
-    | "3DS Completed" => countersDict->Dict.set("3ds_completed", count)
-    | "3DS not Completed" => countersDict->Dict.set("3ds_incomplete", count)
-    | "Authentication Success" => countersDict->Dict.set("auth_success", count)
-    | "Authentication Failure" => countersDict->Dict.set("auth_failure", count)
-    | _ => ()
+    | "success" => {
+        countersDict->Dict.set("auth_success", countersDict->getInt("auth_success", 0) + count)
+
+        // Count 3DS completed unless exemption accepted (no challenge)
+        switch (exemptionRequestedValue, exemptionAcceptedValue) {
+        | (Some(true), Some(true)) => () // skip challenge
+        | _ =>
+          countersDict->Dict.set("3ds_completed", countersDict->getInt("3ds_completed", 0) + count)
+        }
+      }
+
+    | "failed" => {
+        countersDict->Dict.set("auth_failure", countersDict->getInt("auth_failure", 0) + count)
+
+        // Count 3DS completed unless exemption accepted (no challenge)
+        switch (exemptionRequestedValue, exemptionAcceptedValue) {
+        | (Some(true), Some(true)) => () // skip challenge
+        | _ =>
+          countersDict->Dict.set("3ds_completed", countersDict->getInt("3ds_completed", 0) + count)
+        }
+      }
+
+    | "pending" =>
+      countersDict->Dict.set("3ds_incomplete", countersDict->getInt("3ds_incomplete", 0) + count)
+    | _ =>
+      countersDict->Dict.set("3ds_incomplete", countersDict->getInt("3ds_incomplete", 0) + count)
     }
   })
 
@@ -103,7 +165,6 @@ let transformData = (data: array<(string, int)>) => {
 let scaExemptionMapper = (
   ~params: NewAuthenticationAnalyticsTypes.getObjects<scaExemption>,
 ): SankeyGraphTypes.sankeyPayload => {
-  open InsightsUtils
   let {data} = params
 
   // Extract values from the data record
@@ -142,100 +203,114 @@ let scaExemptionMapper = (
       id: "Total 3DS Payment Request",
       dataLabels: {
         align: "left",
-        x: -130,
+        x: -140,
         name: totalThreeDSPayments,
       },
+      column: 0,
     },
     {
       id: "Exemption Requested",
       dataLabels: {
         align: "left",
-        x: 20,
+        x: 25,
         name: exemptionRequested,
       },
+      column: 1,
     },
     {
       id: "Exemption not Requested",
       dataLabels: {
         align: "left",
-        x: 20,
+        x: 25,
         name: exemptionNotRequested,
       },
+      column: 1,
     },
     {
       id: "Exemption Accepted",
       dataLabels: {
         align: "left",
-        x: 20,
+        x: 25,
         name: exemptionAccepted,
       },
+      column: 2,
     },
     {
       id: "Exemption not Accepted",
       dataLabels: {
         align: "left",
-        x: 20,
+        x: 25,
         name: exemptionRejected,
       },
+      column: 2,
     },
     {
       id: "3DS Completed",
       dataLabels: {
         align: "left",
-        x: 20,
+        x: 25,
         name: threeDSCompleted,
       },
+      column: 3,
     },
     {
       id: "3DS not Completed",
       dataLabels: {
         align: "left",
-        x: 20,
+        x: 25,
         name: threeDSIncomplete,
       },
+      column: 3,
+      offset: 270,
     },
     {
       id: "Authentication Success",
       dataLabels: {
         align: "right",
-        x: 183,
+        x: 155,
         name: authSuccess,
       },
+      column: 4,
     },
     {
       id: "Authentication Failure",
       dataLabels: {
         align: "right",
-        x: 183,
+        x: 145,
         name: authFailure,
       },
+      column: 4,
     },
   ]
 
-  // Get values from transformed dictionary
-  let exemptionRequested = valueDict->getInt("Exemption Requested", 0)
-  let exemptionNotRequested = valueDict->getInt("Exemption not Requested", 0)
-  let exemptionAccepted = valueDict->getInt("Exemption Accepted", 0)
-  let exemptionRejected = valueDict->getInt("Exemption not Accepted", 0)
-  let threeDSCompleted = valueDict->getInt("3DS Completed", 0)
-  let threeDSIncomplete = valueDict->getInt("3DS not Completed", 0)
-  let authSuccess = valueDict->getInt("Authentication Success", 0)
-  let authFailure = valueDict->getInt("Authentication Failure", 0)
+  let exemptionRequestedVal = valueDict->getInt("Exemption Requested", 0)
+  let exemptionNotRequestedVal = valueDict->getInt("Exemption not Requested", 0)
+  let exemptionAcceptedVal = valueDict->getInt("Exemption Accepted", 0)
+  let exemptionRejectedVal = valueDict->getInt("Exemption not Accepted", 0)
+  let threeDSCompletedVal = valueDict->getInt("3DS Completed", 0)
+  let threeDSIncompleteVal = valueDict->getInt("3DS not Completed", 0)
+  let authSuccessVal = valueDict->getInt("Authentication Success", 0)
+  let authFailureVal = valueDict->getInt("Authentication Failure", 0)
 
   // Create sankey flow data
   let processedData = [
-    ("Total 3DS Payment Request", "Exemption Requested", exemptionRequested, sankyBlue),
-    ("Total 3DS Payment Request", "Exemption not Requested", exemptionNotRequested, sankyRed),
-    ("Exemption Requested", "Exemption Accepted", exemptionAccepted, sankyBlue),
-    ("Exemption Requested", "Exemption not Accepted", exemptionRejected, sankyRed),
-    ("Exemption not Requested", "3DS Completed", threeDSCompleted, sankyBlue),
-    ("Exemption not Accepted", "3DS Completed", threeDSCompleted, sankyBlue),
-    ("Exemption not Requested", "3DS not Completed", threeDSIncomplete, sankyRed),
-    ("Exemption Accepted", "Authentication Success", authSuccess, sankyBlue),
-    ("Exemption Accepted", "Authentication Failure", authFailure, sankyRed),
-    ("3DS Completed", "Authentication Success", authSuccess, sankyBlue),
-    ("3DS not Completed", "Authentication Failure", authFailure, sankyRed),
-    ("3DS Completed", "Authentication Failure", authFailure, sankyRed),
+    ("Total 3DS Payment Request", "Exemption Requested", exemptionRequestedVal, sankeyBlueFlow),
+    (
+      "Total 3DS Payment Request",
+      "Exemption not Requested",
+      exemptionNotRequestedVal,
+      sankeyBlueFlow,
+    ),
+    ("Exemption Requested", "Exemption Accepted", exemptionAcceptedVal, sankeyBlueFlow),
+    ("Exemption Requested", "Exemption not Accepted", exemptionRejectedVal, sankeyYellowFlow),
+    ("Exemption not Requested", "3DS Completed", threeDSCompletedVal, sankeyBlueFlow),
+    ("Exemption not Requested", "3DS not Completed", threeDSIncompleteVal, sankeyRedFlow),
+    ("Exemption not Accepted", "3DS Completed", threeDSCompletedVal, sankeyYellowFlow),
+    ("Exemption Accepted", "Authentication Success", authSuccessVal, sankeyGreenFlow),
+    ("Exemption Accepted", "Authentication Failure", authFailureVal, sankeyRedFlow),
+    ("3DS Completed", "Authentication Success", authSuccessVal, sankeyGreenFlow),
+    ("3DS Completed", "Authentication Failure", authFailureVal, sankeyRedFlow),
+    ("3DS not Completed", "Authentication Failure", authFailureVal, sankeyRedFlow),
   ]->Array.filter(item => {
     let (_, _, value, _) = item
     value > 0
@@ -246,15 +321,15 @@ let scaExemptionMapper = (
   }
 
   let colors = [
-    sankyLightBlue, // "Total 3DS Payment Request"
-    sankyLightBlue, // "Exemption Requested"
-    sankyLightRed, // "Exemption not Requested"
-    sankyLightBlue, // "Exemption Accepted"
-    sankyLightRed, // "Exemption not Accepted"
-    sankyLightBlue, // "3DS Completed"
-    sankyLightRed, // "3DS not Completed"
-    sankyLightBlue, // "Authentication Success"
-    sankyLightRed, // "Authentication Failure"
+    sankeyBlueNode, // "Total 3DS Payment Request"
+    sankeyBlueNode, // "Exemption Requested"
+    sankeyBlueNode, // "Exemption not Requested"
+    sankeyBlueNode, // "Exemption Accepted"
+    sankeyYellowNode, // "Exemption not Accepted"
+    sankeyBlueNode, // "3DS Completed"
+    sankeyRedNode, // "3DS not Completed"
+    sankeyGreenNode, // "Authentication Success"
+    sankeyRedNode, // "Authentication Failure"
   ]
 
   {data: processedData, nodes: sankeyNodes, title, colors}

@@ -115,9 +115,8 @@ let make = () => {
             #frictionless_flow_count,
             #frictionless_success_count,
             #challenge_attempt_count,
-            #challenge_success_count,
-            // #authentication_exemption_accepted,
-            // #authentication_exemption_requested,
+            #authentication_exemption_approved_count,
+            #authentication_exemption_requested_count,
           ],
           ~delta=Some(true),
         )
@@ -235,7 +234,10 @@ let make = () => {
         initialFilters={HSAnalyticsUtils.initialFilterFields(filterData)}
         options=[]
         popupFilterFields={HSAnalyticsUtils.options(filterData)}
-        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
+        initialFixedFilters={initialFixedFilterFields(
+          ~events=dateDropDownTriggerMixpanelCallback,
+          ~sampleDataIsEnabled=isSampleDataEnabled,
+        )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
         key="0"
@@ -266,7 +268,7 @@ let make = () => {
   let applySampleDateFilters = async isSampleDateEnabled => {
     try {
       setScreenState(_ => Loading)
-      let values = InsightsUtils.getSampleDateRange(~useSampleDates=isSampleDateEnabled)
+      let values = getSampleDateRange(~useSampleDates=isSampleDateEnabled)
       values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
       let _ = await updateFilterAsync(~delay=1000, values)
       setScreenState(_ => Success)
@@ -295,7 +297,7 @@ let make = () => {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {getMetricsData(queryData)
       ->Array.mapWithIndex((metric, index) =>
-        <RenderIf condition={index <= 6}>
+        <RenderIf condition={metric.name === "authentication"}>
           <StatCard
             key={index->Int.toString}
             title={metric.title}
@@ -325,7 +327,7 @@ let make = () => {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {getMetricsData(queryData)
       ->Array.mapWithIndex((metric, index) =>
-        <RenderIf condition={index > 6}>
+        <RenderIf condition={metric.name === "3ds_exemption_authentication"}>
           <StatCard
             key={index->Int.toString}
             title={metric.title}
@@ -360,6 +362,6 @@ let make = () => {
         metricXKey="exemption_request_rate"
       />
     </div>
-    <AuthenticationSummary />
+    <AuthenticationSummary entity={authenticationSummaryEntity} />
   </PageLoaderWrapper>
 }
