@@ -104,7 +104,7 @@ let useGetURL = () => {
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
-    let recoveryAnalyticsDemo = "revenue-recovery-demo/analytics"
+    let recoveryAnalyticsDemo = "revenue-recovery-demo"
 
     let endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -407,6 +407,51 @@ let useGetURL = () => {
         | _ => ""
         }
       | ACTIVE_ROUTING => `routing/active`
+      | ENABLE_AUTH_RATE_ROUTING =>
+        switch methodType {
+        | Post =>
+          switch queryParamerters {
+          | Some(param) =>
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/toggle?${param}`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | SET_CONFIG_AUTH_RATE_ROUTING =>
+        switch methodType {
+        | Patch =>
+          switch id {
+          | Some(id) =>
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/config/${id}`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | ACTIVATE_AUTH_RATE_ROUTING =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(id) => `routing/${id}/activate`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | SET_VOLUME_SPLIT =>
+        switch methodType {
+        | Post =>
+          switch queryParamerters {
+          | Some(param) =>
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/set_volume_split?${param}`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | GET_VOLUME_SPLIT =>
+        switch methodType {
+        | Get =>
+          `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
+        | _ => ""
+        }
       /* ANALYTICS V2 */
 
       | ANALYTICS_PAYMENTS_V2 =>
@@ -745,11 +790,17 @@ let useGetURL = () => {
         `dynamic-routing/simulate/${merchantId}/get-statistics`
 
       /* Revenue Recovery */
-      | TRANSACTION_OVERVIEW => `${recoveryAnalyticsDemo}/transaction_overview`
-      | RETRY_PERFORMANCE => `${recoveryAnalyticsDemo}/retry_performance`
-      | MONTHLY_RETRY_SUCCESS => `${recoveryAnalyticsDemo}/monthly_retry_success`
-      | RETRY_ATTEMPTS_TREND => `${recoveryAnalyticsDemo}/retry_attempts_trend`
-      | ERROR_CATEGORY_ANALYSIS => `${recoveryAnalyticsDemo}/error_category_analysis`
+      | TRANSACTION_OVERVIEW => `${recoveryAnalyticsDemo}/analytics/transaction_overview`
+      | RETRY_PERFORMANCE => `${recoveryAnalyticsDemo}/analytics/retry_performance`
+      | MONTHLY_RETRY_SUCCESS => `${recoveryAnalyticsDemo}/analytics/monthly_retry_success`
+      | RETRY_ATTEMPTS_TREND => `${recoveryAnalyticsDemo}/analytics/retry_attempts_trend`
+      | ERROR_CATEGORY_ANALYSIS => `${recoveryAnalyticsDemo}/analytics/error_category_analysis`
+      | RECOVERY_INVOICES => `${recoveryAnalyticsDemo}/list-invoices`
+      | RECOVERY_ATTEMPTS =>
+        switch queryParamerters {
+        | Some(queryParams) => `${recoveryAnalyticsDemo}/list-attempts/${queryParams}`
+        | None => `${recoveryAnalyticsDemo}/list-attempts`
+        }
 
       /* USERS */
       | USERS =>

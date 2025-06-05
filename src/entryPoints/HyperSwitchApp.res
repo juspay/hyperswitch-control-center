@@ -114,7 +114,7 @@ let make = () => {
         <div className="relative">
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
-            <div className="flex relative overflow-auto h-screen ">
+            <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
                   path={url.path}
