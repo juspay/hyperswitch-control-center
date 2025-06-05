@@ -125,7 +125,7 @@ let make = () => {
         subTitle="Review your configured processor details, enabled payment methods and associated settings."
         customSubTitleStyle={` ${body.lg.medium} text-gray-500`}
       />
-      <div className="relative w-full min-h-[400px]">
+      <div className="relative w-full min-h-96">
         <OrgChartTree
           selectedOrg selectedMerchant selectedProfile onOrgSelect onMerchantSelect onProfileSelect
         />

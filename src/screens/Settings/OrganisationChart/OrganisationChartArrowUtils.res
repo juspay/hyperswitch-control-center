@@ -91,45 +91,31 @@ let createDynamicRoundedElbowPath = (
   let dx = Js.Math.abs_float(elbowX -. startX)
   let dy = Js.Math.abs_float(endY -. startY)
   let radius = Js.Math.min_float(Js.Math.min_float(desiredRadius, dx), dy)
-  let horizontalDir = if endX > elbowX {
-    1.
-  } else {
-    -1.
-  }
-  let verticalDir = if endY > startY {
-    1.
-  } else {
-    -1.
-  }
-  if radius < 1.0 {
-    `M ${Float.toString(startX)} ${Float.toString(startY)} H ${Float.toString(
-        elbowX,
-      )} V ${Float.toString(endY)} H ${Float.toString(endX)}`
-  } else {
-    let arcToY = startY +. verticalDir *. radius
-    let preArcX = elbowX -. radius
-    let arcSweep = if verticalDir > 0. {
-      "1"
-    } else {
-      "0"
-    }
-    let preCurveY = endY -. verticalDir *. radius
-    let curveArcX = elbowX +. horizontalDir *. radius
-    let curveArcSweep = switch (horizontalDir, verticalDir) {
-    | (1., 1.) | (-1., -1.) => "0"
-    | _ => "1"
-    }
-    [
-      `M ${Float.toString(startX)} ${Float.toString(startY)}`,
-      `H ${Float.toString(preArcX)}`,
-      `A ${Float.toString(radius)} ${Float.toString(radius)} 0 0 ${arcSweep} ${Float.toString(
+  let horizontalDir = endX > elbowX ? 1. : -1.
+  let verticalDir = endY > startY ? 1. : -1.
+
+  radius < 1.0
+    ? `M ${Float.toString(startX)} ${Float.toString(startY)} H ${Float.toString(
           elbowX,
-        )} ${Float.toString(arcToY)}`,
-      `V ${Float.toString(preCurveY)}`,
-      `A ${Float.toString(radius)} ${Float.toString(radius)} 0 0 ${curveArcSweep} ${Float.toString(
-          curveArcX,
-        )} ${Float.toString(endY)}`,
-      `H ${Float.toString(endX)}`,
-    ]->Array.joinWith("")
-  }
+        )} V ${Float.toString(endY)} H ${Float.toString(endX)}`
+    : {
+        let arcToY = startY +. verticalDir *. radius
+        let preArcX = elbowX -. radius
+        let arcSweep = verticalDir > 0. ? "1" : "0"
+        let preCurveY = endY -. verticalDir *. radius
+        let curveArcX = elbowX +. horizontalDir *. radius
+        let curveArcSweep = horizontalDir *. verticalDir > 0. ? "0" : "1"
+        [
+          `M ${Float.toString(startX)} ${Float.toString(startY)}`,
+          `H ${Float.toString(preArcX)}`,
+          `A ${Float.toString(radius)} ${Float.toString(radius)} 0 0 ${arcSweep} ${Float.toString(
+              elbowX,
+            )} ${Float.toString(arcToY)}`,
+          `V ${Float.toString(preCurveY)}`,
+          `A ${Float.toString(radius)} ${Float.toString(
+              radius,
+            )} 0 0 ${curveArcSweep} ${Float.toString(curveArcX)} ${Float.toString(endY)}`,
+          `H ${Float.toString(endX)}`,
+        ]->Array.joinWith("")
+      }
 }
