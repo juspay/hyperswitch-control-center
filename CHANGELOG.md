@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.05.0
+
+### Bug Fixes
+
+- Debit routing duplication with multiple rules configuration ([#3114](https://github.com/juspay/hyperswitch-control-center/pull/3114)) ([`726ea9d`](https://github.com/juspay/hyperswitch-control-center/commit/726ea9d605c4d56b8d4ec7016749038b65d8d760))
+- Overflow orgs case ([#3071](https://github.com/juspay/hyperswitch-control-center/pull/3071)) ([`5719b26`](https://github.com/juspay/hyperswitch-control-center/commit/5719b2658d6968c7c55416753afe6728921426e1))
+
+**Full Changelog:** [`2025.06.04.2...2025.06.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.04.2...2025.06.05.0)
+
+- - -
+
 ## 2025.06.04.2
 
 ### Bug Fixes
