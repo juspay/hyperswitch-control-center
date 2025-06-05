@@ -188,10 +188,7 @@ let make = (~routingType: array<JSON.t>) => {
     ).is_debit_routing_enabled->Option.getOr(false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let totalCards = routingType->Array.length + (debitRoutingValue && debitRouting ? 1 : 0)
-  let gridClass = switch totalCards {
-  | 1 => ""
-  | _ => "grid grid-cols-1 lg:grid-cols-2 gap-9"
-  }
+  let gridClass = totalCards > 1 ? "grid grid-cols-1 lg:grid-cols-2 gap-9" : ""
   <div className={`mt-8 ${gridClass}`}>
     {routingType
     ->Array.mapWithIndex((ele, i) => {
