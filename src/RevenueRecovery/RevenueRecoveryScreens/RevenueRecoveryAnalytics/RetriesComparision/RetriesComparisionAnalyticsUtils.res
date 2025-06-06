@@ -39,7 +39,7 @@ let smartRetriesComparisionMapper = (
   ~params: InsightsTypes.getObjects<JSON.t>,
 ): LineScatterGraphTypes.lineScatterGraphPayload => {
   open InsightsUtils
-  let {data, yKey} = params
+  let {data, yKey, xKey} = params
 
   let successRates = []
   let scatterData = []
@@ -87,7 +87,7 @@ let smartRetriesComparisionMapper = (
   let scatterGraphData: LineScatterGraphTypes.dataObj = {
     \"type": "scatter",
     showInLegend: true,
-    name: "Smart Retry attempts",
+    name: `${xKey} attempts`,
     data: scatterData,
     color: "#EBD35C",
   }
@@ -95,17 +95,14 @@ let smartRetriesComparisionMapper = (
   let helperScatterGraphData: LineScatterGraphTypes.dataObj = {
     \"type": "line",
     showInLegend: false,
-    name: "Smart Retry attempts",
+    name: `${xKey} attempts`,
     data: helperScatterData,
     color: "transparent",
   }
 
   open LogicUtilsTypes
 
-  let tooltipFormatter = LineScatterGraphUtils.tooltipFormatter(
-    ~title="Smart Retries",
-    ~metricType=Rate,
-  )
+  let tooltipFormatter = LineScatterGraphUtils.tooltipFormatter(~title=`${xKey}`, ~metricType=Rate)
 
   {
     chartHeight: DefaultHeight,
