@@ -2,9 +2,6 @@ open NewAuthenticationAnalyticsTypes
 open LogicUtils
 open DateRangeUtils
 
-@module("./authDummyData.json")
-external authDummyData: JSON.t = "default"
-
 let defaultQueryData: queryDataType = {
   authentication_count: 0,
   authentication_attempt_count: 0,

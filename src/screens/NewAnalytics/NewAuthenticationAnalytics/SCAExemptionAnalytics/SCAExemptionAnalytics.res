@@ -30,18 +30,16 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       if isSampleDataEnabled {
-        // let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
-        // let res = await fetchApi(
-        //   paymentsUrl,
-        //   ~method_=Get,
-        //   ~xFeatureRoute=false,
-        //   ~forceCookies=false,
-        // )
-        // let paymentsResponse = await res->(res => res->Fetch.Response.json)
-
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
         let scaExemptionData =
-          authDummyData->getDictFromJsonObject->getJsonObjectFromDict("exemptionSankeyChartData")
-
+          paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("exemptionSankeyChartData")
         setData(_ => scaExemptionData->SCAExemptionAnalyticsUtils.scaExemptionResponseMapper)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
