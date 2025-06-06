@@ -364,7 +364,11 @@ let generateStatements = statements => {
       filteredArr
     }
 
-    newAcc
+    let filteredAcc = newAcc->Array.filter(item => {
+      item.condition->Array.length > 0
+    })
+
+    filteredAcc
   })
 }
 
