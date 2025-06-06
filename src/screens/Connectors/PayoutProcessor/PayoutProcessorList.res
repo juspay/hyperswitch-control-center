@@ -100,6 +100,7 @@ let make = () => {
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
+            showAutoScroll=true
           />
         </RenderIf>
         <ProcessorCards

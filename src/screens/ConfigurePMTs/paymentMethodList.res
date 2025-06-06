@@ -103,6 +103,7 @@ let make = (~isPayoutFlow=false) => {
           )}
           currrentFetchCount={filteredConnectors->Array.length}
           collapseTableRow=false
+          showAutoScroll=true
         />
       </div>
     </PageLoaderWrapper>

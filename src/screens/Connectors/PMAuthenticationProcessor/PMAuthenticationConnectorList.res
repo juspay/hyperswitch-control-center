@@ -79,6 +79,7 @@ let make = () => {
             setOffset
             currrentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
             collapseTableRow=false
+            showAutoScroll=true
           />
         </RenderIf>
         <ProcessorCards
