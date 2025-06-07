@@ -1,7 +1,7 @@
 open LogicUtils
 open LogicUtilsTypes
 
-module Card = {
+module StatCard = {
   @react.component
   let make = (~title: string, ~description: string, ~value: float, ~valueType: valueType) => {
     let valueString = valueFormatter(value, valueType)
@@ -109,5 +109,24 @@ module Insights = {
         </div>
       </RenderIf>
     </PageLoaderWrapper>
+  }
+}
+
+module ModuleHeader = {
+  @react.component
+  let make = (~title, ~description="") => {
+    <div className="p-4 bg-[#fcfcfd] border-b dark:border-jp-gray-850">
+      <h2 className="font-semibold text-xl text-jp-gray-900"> {title->React.string} </h2>
+      <div className="font-medium text-sm text-jp-gray-800 dark:text-dark_theme my-2">
+        {description->React.string}
+      </div>
+    </div>
+  }
+}
+
+module SimpleHeader = {
+  @react.component
+  let make = (~title) => {
+    <h2 className="font-semibold text-xl text-jp-gray-900"> {title->React.string} </h2>
   }
 }
