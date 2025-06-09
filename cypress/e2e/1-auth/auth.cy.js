@@ -2,11 +2,12 @@ import * as helper from "../../support/helper";
 import SignInPage from "../../support/pages/auth/SignInPage";
 import SignUpPage from "../../support/pages/auth/SignUpPage";
 import ResetPasswordPage from "../../support/pages/auth/ResetPasswordPage";
-import { reset } from "mixpanel-browser";
+import HomePage from "../../support/pages/homepage/HomePage";
 
 const signinPage = new SignInPage();
 const signupPage = new SignUpPage();
 const resetPasswordPage = new ResetPasswordPage();
+const homepage = new HomePage();
 
 describe("Sign up", () => {
   it("should verify all components on the sign-up page", () => {
@@ -361,6 +362,145 @@ describe("Sign in", () => {
     signinPage.footerText2FA.children().eq(0).click();
 
     signinPage.headerText.should("contain", "Hey there, Welcome back!");
+  });
+});
+
+describe.skip("Okta SSO tests", () => {
+  let auth_id = "5b454c38-5d92-499d-976b-962b55aedbd3";
+
+  it("should display “Continue with Okta” button when login URL is accessed with valid okta enabled auth_id", () => {
+    cy.visit(`/?auth_id=${auth_id}`);
+
+    signinPage.continueWithOktaButton.should("be.visible");
+    signinPage.continueWithOktaButton.should("contain", "Continue with Okta");
+  });
+
+  it("should not display the SSO button when login URL is accessed without, with empty, or with invalid auth_id parameter", () => {
+    cy.visit("/");
+    signinPage.continueWithOktaButton.should("not.exist");
+
+    cy.visit("/?auth_id=");
+    signinPage.continueWithOktaButton.should("not.exist");
+
+    cy.visit("/?auth_id=abcd");
+    signinPage.continueWithOktaButton.should("not.exist");
+  });
+
+  it("should redirect to Okta login page when “Continue with Okta” button is clicked", () => {
+    cy.visit(`/?auth_id=${auth_id}`);
+
+    signinPage.continueWithOktaButton.click();
+
+    cy.waitUntil(() => cy.url().then((url) => url.includes("okta.com")), {
+      errorMsg: "Did not reach okta.com in time",
+      timeout: 10000,
+      interval: 500,
+    });
+  });
+
+  it("should redirect to dashboard homepage after entering valid Okta credentials ", () => {
+    cy.visit(`/?auth_id=${auth_id}`);
+
+    signinPage.continueWithOktaButton.click();
+
+    cy.waitUntil(() => cy.url().then((url) => url.includes("okta.com")), {
+      errorMsg: "Did not reach okta.com in time",
+      timeout: 10000,
+      interval: 500,
+    });
+
+    signinPage.oktaEmailInput.type(Cypress.env("CYPRESS_SSO_USERNAME"));
+    signinPage.oktaPasswordInput.type(Cypress.env("CYPRESS_SSO_PASSWORD"));
+    signinPage.oktaSigninButton.click();
+
+    cy.waitUntil(
+      () => cy.url().then((url) => url.includes("/dashboard/home")),
+      {
+        errorMsg: "Did not reach /dashboard/home in time",
+        timeout: 10000,
+        interval: 500,
+      },
+    );
+  });
+
+  it("should show authentication error after entering invalid Okta credentials and stay on Okta login page", () => {
+    cy.visit(`/?auth_id=${auth_id}`);
+
+    signinPage.continueWithOktaButton.click();
+
+    signinPage.oktaEmailInput.type("demo.user@test.com");
+    signinPage.oktaPasswordInput.type("Test@1234");
+    signinPage.oktaSigninButton.click();
+
+    signinPage.oktaErrorMessage
+      .should("be.visible")
+      .should("contain", "Unable to sign in");
+  });
+
+  it(`should automatically log in and redirect to the dashboard after logout once initial Okta login is successfull`, () => {
+    cy.visit(`/?auth_id=${auth_id}`);
+
+    signinPage.continueWithOktaButton.click();
+
+    signinPage.oktaEmailInput.type(Cypress.env("CYPRESS_SSO_USERNAME"));
+    signinPage.oktaPasswordInput.type(Cypress.env("CYPRESS_SSO_PASSWORD"));
+    signinPage.oktaSigninButton.click();
+
+    cy.waitUntil(
+      () => cy.url().then((url) => url.includes("/dashboard/home")),
+      {
+        errorMsg: "Did not reach /dashboard/home in time",
+        timeout: 10000,
+        interval: 500,
+      },
+    );
+
+    homepage.user_account.click();
+    homepage.sign_out.click();
+
+    signinPage.continueWithOktaButton.click();
+
+    cy.waitUntil(
+      () => cy.url().then((url) => url.includes("/dashboard/home")),
+      {
+        errorMsg: "Did not reach /dashboard/home in time",
+        timeout: 10000,
+        interval: 500,
+      },
+    );
+  });
+
+  it(`should require full Okta login after clearing browser cookies `, () => {
+    cy.visit(`/?auth_id=${auth_id}`);
+
+    signinPage.continueWithOktaButton.click();
+
+    signinPage.oktaEmailInput.type(Cypress.env("CYPRESS_SSO_USERNAME"));
+    signinPage.oktaPasswordInput.type(Cypress.env("CYPRESS_SSO_PASSWORD"));
+    signinPage.oktaSigninButton.click();
+
+    cy.waitUntil(
+      () => cy.url().then((url) => url.includes("/dashboard/home")),
+      {
+        errorMsg: "Did not reach /dashboard/home in time",
+        timeout: 10000,
+        interval: 500,
+      },
+    );
+
+    homepage.user_account.click();
+    homepage.sign_out.click();
+
+    cy.clearCookies();
+
+    signinPage.continueWithOktaButton.click();
+
+    cy.waitUntil(() => cy.url().then((url) => url.includes("okta.com")), {
+      errorMsg: "Did not reach okta.com in time",
+      timeout: 10000,
+      interval: 500,
+    });
+    cy.url().should("contain", "okta.com");
   });
 });
 

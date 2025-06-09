@@ -39,6 +39,10 @@ class SignInPage {
     return cy.get('[data-toast="Incorrect email or password"]');
   }
 
+  get continueWithOktaButton() {
+    return cy.get('[data-button-for="continueWithOkta"]');
+  }
+
   // 2FA setup
   get headerText2FA() {
     return cy.get('[class="text-2xl font-semibold leading-8 text-grey-900"]');
@@ -75,6 +79,23 @@ class SignInPage {
 
   get cancelForgetPassword() {
     return cy.get('[data-testid="card-foot-text"]');
+  }
+
+  //Okta SSO
+  get oktaEmailInput() {
+    return cy.get('[id="okta-signin-username"]');
+  }
+
+  get oktaPasswordInput() {
+    return cy.get('[id="okta-signin-password"]');
+  }
+
+  get oktaSigninButton() {
+    return cy.get('[id="okta-signin-submit"]');
+  }
+
+  get oktaErrorMessage() {
+    return cy.get('[role="alert"]');
   }
 }
 

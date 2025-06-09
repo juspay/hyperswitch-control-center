@@ -58,6 +58,19 @@ class HomePage {
   get routing() {
     return cy.get('[data-testid="routing"]');
   }
+
+  //Profile
+  get user_account() {
+    return cy.get('[id="headlessui-popover-button-:r0:"]');
+  }
+
+  get user_profile() {
+    return cy.get('[id="neglectTopbarTheme"]').first().children().eq(0);
+  }
+
+  get sign_out() {
+    return cy.get('[id="neglectTopbarTheme"]').first().children().eq(1);
+  }
 }
 
 export default HomePage;
