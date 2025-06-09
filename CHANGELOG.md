@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.09.0
+
+### Bug Fixes
+
+- Swap tabs in payout routing ([#3127](https://github.com/juspay/hyperswitch-control-center/pull/3127)) ([`53f0b23`](https://github.com/juspay/hyperswitch-control-center/commit/53f0b23bfe506287a2092fc3f3575824440cd770))
+- Back navigation issue from SDK page ([#3126](https://github.com/juspay/hyperswitch-control-center/pull/3126)) ([`a30883e`](https://github.com/juspay/hyperswitch-control-center/commit/a30883e3b21a7bc949868ed3a56b390d8f7d2734))
+
+**Full Changelog:** [`2025.06.06.0...2025.06.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.06.0...2025.06.09.0)
+
+- - -
+
 ## 2025.06.06.0
 
 ### Features
