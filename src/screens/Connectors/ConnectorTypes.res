@@ -106,6 +106,7 @@ type processorTypes =
   | PAYSTACK
   | FACILITAPAY
   | ARCHIPEL
+  | WORLDPAYVANTIV
 
 type payoutProcessorTypes =
   | ADYEN
