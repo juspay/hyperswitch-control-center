@@ -150,6 +150,13 @@ let make = () => {
         remainingPath
         renderList={() => <PaymentSettings webhookOnly=false showFormOnly=false />}
       />
+    | list{"payment-settings-new", ...remainingPath} =>
+      <EntityScaffold
+        entityName="PaymentSettingsV2"
+        remainingPath
+        renderList={() => <PaymentSettingsV2 webhookOnly=false showFormOnly=false />}
+      />
+
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
         <FilterContext key="webhooks" index="webhooks">
