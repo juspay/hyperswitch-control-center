@@ -24,7 +24,7 @@ module OrgChartTree = {
         ->Array.map(org => {
           <button
             key=org.id
-            className={`rounded-lg border h-10  px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
+            className={`rounded-lg border cursor-pointer h-10 px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
                 selectedOrg == org.id,
               )}`}
             onClick={_ => onOrgSelect(org)->ignore}
@@ -40,7 +40,7 @@ module OrgChartTree = {
         ->Array.map(merchant =>
           <button
             key={merchant.id}
-            className={`flex justify-between h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
+            className={`flex justify-between cursor-pointer  h-10 items-center bg-white rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
                 selectedMerchant == merchant.id,
               )}`}
             onClick={_ => onMerchantSelect(merchant)->ignore}
@@ -64,7 +64,7 @@ module OrgChartTree = {
         ->Array.map(profile =>
           <button
             key={profile.id}
-            className={`rounded-lg h-10 truncate whitespace-wrap border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
+            className={`rounded-lg h-10 cursor-pointer truncate whitespace-wrap border px-4 py-2 bg-white text-left transition-colors duration-200 ${body.md.medium} ${getButtonStyles(
                 selectedProfile == profile.id,
               )}`}
             onClick={_ => onProfileSelect(profile)->ignore}
