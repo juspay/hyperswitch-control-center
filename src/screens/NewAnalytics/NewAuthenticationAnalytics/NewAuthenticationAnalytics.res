@@ -86,13 +86,49 @@ let make = () => {
           ~xFeatureRoute=false,
           ~forceCookies=false,
         )
-        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        let paymentsResponse = await res->Fetch.Response.json
         let paymentData =
           paymentsResponse
           ->getDictFromJsonObject
           ->getJsonObjectFromDict("authenticationsOverviewData")
           ->getDictFromJsonObject
-        setQueryData(_ => paymentData->itemToObjMapperForQueryData)
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForQueryData)
+          ->getValueFromArray(0, defaultQueryData)
+
+        setQueryData(_ => paymentData)
+
+        let authenticationInitiated = (
+          paymentsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("funnelData1")
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
+          ->getValueFromArray(0, defaultSecondFunnelData)
+        ).authentication_funnel
+
+        let authenticationAttempted = (
+          paymentsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("funnelData2")
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
+          ->getValueFromArray(0, defaultSecondFunnelData)
+        ).authentication_funnel
+
+        let queryDataMapped = paymentData
+        let funnelDict = Dict.make()->itemToObjMapperForFunnelData
+        funnelDict.authentication_initiated = authenticationInitiated
+        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.payments_requiring_3ds_2_authentication = queryDataMapped.authentication_count
+        funnelDict.authentication_successful = queryDataMapped.authentication_success_count
+
+        setFunnelData(_ => funnelDict)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         let metricsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)

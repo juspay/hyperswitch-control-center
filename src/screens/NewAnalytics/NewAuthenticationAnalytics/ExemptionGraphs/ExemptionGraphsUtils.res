@@ -1,5 +1,6 @@
 open ExemptionGraphsTypes
 open LogicUtils
+open NewAuthenticationAnalyticsTypes
 
 let getStringFromVariant = value => {
   switch value {
@@ -34,12 +35,8 @@ let getVariantValueFromString = value => {
   }
 }
 
-let exemptionGraphsMapper = (
-  ~params: NewAuthenticationAnalyticsTypes.getObjects<JSON.t>,
-): LineGraphTypes.lineGraphPayload => {
-  open LineGraphTypes
+let exemptionGraphsMapper = (~params: getObjects<JSON.t>): LineGraphTypes.lineGraphPayload => {
   open InsightsUtils
-  open LogicUtilsTypes
 
   let {data, xKey, yKey} = params
   let title = params.title->Option.getOr("")
@@ -120,8 +117,6 @@ let getObjects: JSON.t => array<exemptionGraphsObject> = json => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
 }
-
-open NewAuthenticationAnalyticsTypes
 
 let defaulGranularity = {
   label: "Daily",

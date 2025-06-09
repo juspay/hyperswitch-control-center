@@ -161,10 +161,8 @@ let make = (~entity: moduleEntity) => {
     isSampleDataEnabled,
   ))
 
-  <>
-    <PageLoaderWrapper
-      screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-      <TableModule data={authenticationSummaryTableData} />
-    </PageLoaderWrapper>
-  </>
+  <PageLoaderWrapper
+    screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+    <TableModule data={authenticationSummaryTableData} />
+  </PageLoaderWrapper>
 }

@@ -26,26 +26,43 @@ module Insights = {
     open NewAuthenticationAnalyticsUtils
 
     let getURL = useGetURL()
+    let fetchApi = AuthHooks.useApiFetcher()
     let updateDetails = useUpdateMethod()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (data, setData) = React.useState(_ => Dict.make()->itemToObjMapperForInsightsData)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let startTimeVal = filterValueJson->getString("startTime", "")
     let endTimeVal = filterValueJson->getString("endTime", "")
+    let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
 
     let loadTable = async () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       try {
         let insightsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
-        let insightsRequestBody = InsightsUtils.requestBody(
-          ~startTime=startTimeVal,
-          ~endTime=endTimeVal,
-          ~groupByNames=Some(["error_message"]),
-          ~metrics=[#authentication_error_message],
-          ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
-          ~delta=Some(true),
-        )
-        let infoQueryResponse = await updateDetails(insightsUrl, insightsRequestBody, Post)
+
+        let infoQueryResponse = if isSampleDataEnabled {
+          let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+          let res = await fetchApi(
+            paymentsUrl,
+            ~method_=Get,
+            ~xFeatureRoute=false,
+            ~forceCookies=false,
+          )
+          let paymentsResponse = await res->(res => res->Fetch.Response.json)
+          paymentsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("Insights")
+        } else {
+          let insightsRequestBody = InsightsUtils.requestBody(
+            ~startTime=startTimeVal,
+            ~endTime=endTimeVal,
+            ~groupByNames=Some(["error_message"]),
+            ~metrics=[#authentication_error_message],
+            ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
+            ~delta=Some(true),
+          )
+          await updateDetails(insightsUrl, insightsRequestBody, Post)
+        }
 
         setData(_ => infoQueryResponse->getDictFromJsonObject->itemToObjMapperForInsightsData)
         setScreenState(_ => PageLoaderWrapper.Success)

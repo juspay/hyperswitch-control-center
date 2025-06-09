@@ -1,8 +1,8 @@
 open NewAuthenticationAnalyticsTypes
 open InsightsHelper
 open ExemptionGraphsUtils
-open NewAuthenticationAnalyticsUtils
 open InsightsUtils
+open NewAuthenticationAnalyticsUtils
 
 @react.component
 let make = (
