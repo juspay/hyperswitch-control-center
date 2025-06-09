@@ -508,8 +508,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open MerchantAccountUtils
   open HSwitchSettingTypes
   open FormRenderer
-  open AcquirerConfigHelpers
-
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
@@ -520,8 +518,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (checkMaxAutoRetry, setCheckMaxAutoRetry) = React.useState(_ => true)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-  let getMethod = useGetMethod()
-  let (acquirerConfigData, setAcquirerConfigData) = React.useState(_ => [])
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
 
   let threedsConnectorList = ConnectorInterface.useConnectorArrayMapper(
@@ -562,37 +558,11 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     Nullable.null
   }
 
-  let fetchAcquirerConfig = async () => {
-    try {
-      let url = getURL(
-        ~entityName=V1(ACQUIRER_CONFIG_SETTINGS),
-        ~methodType=Get,
-        ~id=Some(profileId),
-      )
-      let res = await getMethod(url)
-      let acquirerConfig =
-        res
-        ->LogicUtils.getArrayFromJson([])
-        ->Array.map(item => item->acquirerConfigTypeMapper)
-      setAcquirerConfigData(_ => acquirerConfig)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => {
-        setScreenState(_ => PageLoaderWrapper.Error("Failed to load acquirer configurations"))
-        showToast(~message=`Failed to fetch acquirer config`, ~toastType=ToastState.ToastError)
-      }
-    }
-  }
-
   React.useEffect(() => {
     if businessProfileRecoilVal.profile_id->LogicUtils.isNonEmptyString {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setBusinessProfile(_ => businessProfileRecoilVal)
-      if featureFlagDetails.acquirerConfigSettings {
-        fetchAcquirerConfig()->ignore
-      } else {
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
   }, [businessProfileRecoilVal.profile_id, businessProfileRecoilVal.profile_name])
@@ -764,9 +734,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
           </div>
         </div>
         <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>
-          <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
-            <AcquirerConfigSettings acquirerConfigData fetchAcquirerConfig />
-          </div>
+          <AcquirerConfigSettings
+            acquirerConfigData={businessProfileRecoilVal.acquirer_configs}
+            fetchBusinessProfileFromId
+          />
         </RenderIf>
       </div>
     </div>

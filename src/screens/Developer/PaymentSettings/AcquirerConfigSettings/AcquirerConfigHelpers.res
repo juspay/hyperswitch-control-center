@@ -25,12 +25,10 @@ let countryDropDownOptions: array<SelectBox.dropdownOption> =
 let formKeys = [
   "network",
   "merchant_name",
-  "mcc",
   "merchant_country_code",
   "acquirer_assigned_merchant_id",
   "acquirer_bin",
   "acquirer_fraud_rate",
-  "merchant_acquirer_id",
 ]
 
 let fieldStyles = {
@@ -40,51 +38,41 @@ let fieldStyles = {
   "containerClass": "mt-5",
 }
 
-let validateAcquirerConfigForm = (values, keys, ~isDisabled) => {
-  let errors = Dict.make()
+let validateAcquirerConfigForm = (values, keys) => {
+  let errors = []
 
-  if !isDisabled {
-    let valuesDict = values->getDictFromJsonObject
-    let setFieldError = (key, errorMessage) => {
-      Dict.set(errors, key, errorMessage)
-    }
+  let valuesDict = values->getDictFromJsonObject
+  let setFieldError = (key, msg) => errors->Array.push((key, msg->JSON.Encode.string))
 
-    let validateField = (key, value) => {
-      switch key {
-      | "acquirer_fraud_rate" =>
-        let fraudRate = valuesDict->getFloat(key, 0.0)
-        if fraudRate < 0.0 || fraudRate > 100.0 {
-          key->setFieldError("Fraud rate should be between 0 and 100")
-        }
-      | _ =>
-        if value === "" {
-          key->setFieldError("This field is required")
-        } else if value->String.length > 60 {
-          key->setFieldError("Length should be less than 60 characters")
-        }
+  let validateField = (key, value) => {
+    switch key {
+    | "acquirer_fraud_rate" =>
+      let fraudRate = valuesDict->getFloat(key, 0.0)
+      if fraudRate < 0.0 || fraudRate > 100.0 {
+        key->setFieldError("Fraud rate should be between 0 and 100")
+      }
+    | _ =>
+      if value === "" {
+        key->setFieldError("This field is required")
+      } else if value->String.length > 60 {
+        key->setFieldError("Length should be less than 60 characters")
       }
     }
-
-    keys->Array.forEach(key => {
-      let value = valuesDict->getString(key, "")
-      validateField(key, value)
-    })
   }
 
-  errors
-  ->Dict.toArray
-  ->Array.map(((key, value)) => (key, value->JSON.Encode.string))
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  keys->Array.forEach(key => {
+    let value = valuesDict->getString(key, "")
+    validateField(key, value)
+  })
+
+  errors->getJsonFromArrayOfJson
 }
 
 let acquirerConfigTypeMapper = (json: JSON.t): acquirerConfig => {
   let dict = json->getDictFromJsonObject
   {
-    merchant_acquirer_id: dict->getString("merchant_acquirer_id", ""),
     acquirer_assigned_merchant_id: dict->getString("acquirer_assigned_merchant_id", ""),
     merchant_name: dict->getString("merchant_name", ""),
-    mcc: dict->getString("mcc", ""),
     merchant_country_code: dict->getString("merchant_country_code", ""),
     network: dict->getString("network", ""),
     acquirer_bin: dict->getString("acquirer_bin", ""),
