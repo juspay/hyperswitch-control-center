@@ -69,7 +69,7 @@ let captureMethods = ["Automatic", "Manual"]
 
 let setupFutureUsageOptions = ["Off Session", "On Session"]
 
-let authenticationType = ["Three DS", "No Three DS"]
+let authenticationType = ["Three DS", "No Three DS", "None"]
 
 let requestExternal3dsAuthentication = ["True", "False"]
 
@@ -80,7 +80,8 @@ let labels = ["Above", "Floating"]
 let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.paymentType = defaultBusinessProfile => {
   let shippingValue: SDKPaymentTypes.addressAndPhone = {
     address: {
-      line1: "1600 Amphitheatre Parkway",
+      line1: "1600",
+      line2: "Amphitheatre Parkway",
       city: "Mountain View",
       state: "California",
       zip: "94043",
@@ -96,7 +97,8 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
 
   let billingValue: SDKPaymentTypes.addressAndPhone = {
     address: {
-      line1: "1600 Amphitheatre Parkway",
+      line1: "1600",
+      line2: "Amphitheatre Parkway",
       city: "Mountain View",
       state: "California",
       zip: "94043",
@@ -121,7 +123,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     show_saved_card: "yes",
     request_external_three_ds_authentication: false,
     email: Nullable.make("guest@example.com"),
-    authentication_type: "no_three_ds",
+    authentication_type: Nullable.make("none"),
     shipping: Some(shippingValue),
     billing: Some(billingValue),
     capture_method: "automatic",
@@ -154,6 +156,7 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
   let getAddress = address => {
     {
       line1: address->getString("line1", ""),
+      line2: address->getString("line2", ""),
       city: address->getString("city", ""),
       state: address->getString("state", ""),
       zip: address->getString("zip", ""),
@@ -177,6 +180,12 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
     }
   }
 
+  let authenticationType = if dict->getString("authentication_type", "none") === "none" {
+    Nullable.null
+  } else {
+    Nullable.make(dict->getString("authentication_type", "none"))
+  }
+
   let base = {
     amount: dict->getFloat("amount", 10000.0),
     currency: getCurrency(),
@@ -184,7 +193,7 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
     customer_id: !isGuestMode ? dict->getOptionString("customer_id") : None,
     description: dict->getString("description", "Payment Transaction"),
     email: email->isNonEmptyString ? Nullable.make(email) : Nullable.null,
-    authentication_type: dict->getString("authentication_type", ""),
+    authentication_type: authenticationType,
     shipping: None,
     billing: None,
     capture_method: dict->getString("capture_method", "automatic"),

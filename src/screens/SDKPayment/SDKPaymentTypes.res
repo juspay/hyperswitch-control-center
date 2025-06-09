@@ -1,6 +1,7 @@
 type clientSecretStatus = IntialPreview | Loading | Success | Error
 type address = {
   line1: string,
+  line2: string,
   city: string,
   state: string,
   zip: string,
@@ -27,7 +28,7 @@ type paymentType = {
   description: string,
   capture_method: string,
   email: Nullable.t<string>,
-  authentication_type: string,
+  authentication_type: Nullable.t<string>,
   shipping: option<addressAndPhone>,
   billing: option<addressAndPhone>,
   setup_future_usage: string,

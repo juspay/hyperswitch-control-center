@@ -22,10 +22,17 @@ let make = (
   | CONNECTOR =>
     dataDict->getString("flow", "default value")->LogUtils.apiNameMapper->camelCaseToTitle
   | WEBHOOKS => dataDict->getString("event_type", "default value")->snakeToTitle
+  | ROUTING =>
+    dataDict
+    ->getString("flow", "")
+    ->String.split(" ")
+    ->Array.get(1)
+    ->Option.getOr("default_value")
+    ->camelCaseToTitle
   }->nameToURLMapper
   let createdTime = dataDict->getString("created_at", "00000")
   let requestObject = switch logType {
-  | API_EVENTS | CONNECTOR => dataDict->getString("request", "")
+  | API_EVENTS | CONNECTOR | ROUTING => dataDict->getString("request", "")
   | SDK =>
     dataDict
     ->Dict.toArray
@@ -39,7 +46,7 @@ let make = (
   }
 
   let responseObject = switch logType {
-  | API_EVENTS => dataDict->getString("response", "")
+  | API_EVENTS | ROUTING => dataDict->getString("response", "")
   | CONNECTOR => dataDict->getString("masked_response", "")
   | SDK => {
       let isErrorLog = dataDict->getString("log_type", "") === "ERROR"
@@ -49,14 +56,14 @@ let make = (
   }
 
   let statusCode = switch logType {
-  | API_EVENTS | CONNECTOR => dataDict->getInt("status_code", 200)->Int.toString
+  | API_EVENTS | CONNECTOR | ROUTING => dataDict->getInt("status_code", 200)->Int.toString
   | SDK => dataDict->getString("log_type", "INFO")
   | WEBHOOKS => dataDict->getBool("is_error", false) ? "500" : "200"
   }
 
   let method = switch logType {
   | API_EVENTS => dataDict->getString("http_method", "")
-  | CONNECTOR => dataDict->getString("method", "")
+  | CONNECTOR | ROUTING => dataDict->getString("method", "")
   | SDK => ""
   | WEBHOOKS => "POST"
   }
@@ -74,7 +81,7 @@ let make = (
     | "200" => "green-700"
     | "500" | _ => "gray-700 opacity-50"
     }
-  | API_EVENTS | CONNECTOR =>
+  | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
     | "200" => "green-700"
     | "500" => "gray-700 opacity-50"
@@ -96,7 +103,7 @@ let make = (
     | "200" => "green-50"
     | "500" | _ => "gray-100"
     }
-  | API_EVENTS | CONNECTOR =>
+  | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
     | "200" => "green-50"
     | "500" => "gray-100"
@@ -121,7 +128,7 @@ let make = (
         | "200" => "green-700"
         | "500" | _ => "gray-700 opacity-50"
         }
-      | API_EVENTS | CONNECTOR =>
+      | API_EVENTS | CONNECTOR | ROUTING =>
         switch statusCode {
         | "200" => "green-700"
         | "500" => "gray-700 opacity-50"
@@ -144,7 +151,7 @@ let make = (
         | "200" => "green-700"
         | "500" | _ => "gray-700 opacity-50"
         }
-      | API_EVENTS | CONNECTOR =>
+      | API_EVENTS | CONNECTOR | ROUTING =>
         switch statusCode {
         | "200" => "green-700"
         | "500" => "gray-600"
@@ -167,7 +174,7 @@ let make = (
     | "200" => "border border-green-700"
     | "500" | _ => "border border-gray-700 opacity-80"
     }
-  | API_EVENTS | CONNECTOR =>
+  | API_EVENTS | CONNECTOR | ROUTING =>
     switch statusCode {
     | "200" => "border border-green-700"
     | "500" => "border border-gray-700 opacity-50"
@@ -183,6 +190,7 @@ let make = (
   | WEBHOOKS => "anchor"
   | API_EVENTS => "api-icon"
   | CONNECTOR => "connector-icon"
+  | ROUTING => "routing"
   }
 
   <div className="flex items-start gap-4">
@@ -231,7 +239,7 @@ let make = (
               </p>
             </div>
             {switch logType {
-            | SDK =>
+            | SDK | ROUTING =>
               <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
                 {apiName->String.toLowerCase->snakeToTitle->React.string}
               </p>

@@ -1,4 +1,4 @@
-type logType = SDK | API_EVENTS | WEBHOOKS | CONNECTOR
+type logType = SDK | API_EVENTS | WEBHOOKS | CONNECTOR | ROUTING
 
 type pageType = [#PAYMENT | #REFUND | #DISPUTE]
 
@@ -18,7 +18,9 @@ type selectedObj = {
 let tabkeys: array<eventLogs> = [Logdetails, Request, Response]
 
 let getLogType = dict => {
-  if dict->Dict.get("connector_name")->Option.isSome {
+  if dict->Dict.get("routing_engine")->Option.isSome {
+    ROUTING
+  } else if dict->Dict.get("connector_name")->Option.isSome {
     CONNECTOR
   } else if dict->Dict.get("request_id")->Option.isSome {
     API_EVENTS
@@ -35,6 +37,7 @@ let getTagName = tag => {
   | API_EVENTS => "API"
   | WEBHOOKS => "WEBHOOKS"
   | CONNECTOR => "CONNECTOR"
+  | ROUTING => "ROUTING"
   }
 }
 
@@ -91,6 +94,19 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       setSelectedOption(_ => {
         value: 0,
         optionType: API_EVENTS,
+      })
+    }
+  | ROUTING => {
+      let request = initialData->getString("request", "")
+      let response = initialData->getString("response", "")
+      setLogDetails(_ => {
+        response,
+        request,
+        data: initialData,
+      })
+      setSelectedOption(_ => {
+        value: 0,
+        optionType: ROUTING,
       })
     }
   | SDK => {
