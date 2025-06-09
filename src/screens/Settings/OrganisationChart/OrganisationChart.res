@@ -114,7 +114,7 @@ let make = () => {
       let _ = await internalSwitch(~expectedProfileId=Some(profile.id))
     } catch {
     | _ => {
-        setSelectedMerchant(_ => profileId)
+        setSelectedProfile(_ => profileId)
         showToast(~message="Failed to switch profile", ~toastType=ToastError)
       }
     }
