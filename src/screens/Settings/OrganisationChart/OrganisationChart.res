@@ -86,36 +86,48 @@ let make = () => {
   let (selectedOrg, setSelectedOrg) = React.useState(() => orgId)
   let (selectedMerchant, setSelectedMerchant) = React.useState(() => merchantId)
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)
+  let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
+  let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
+  let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let showToast = ToastState.useShowToast()
   let onOrgSelect = async (org: OMPSwitchTypes.ompListTypes) => {
     try {
+      setShowSwitchingOrg(_ => true)
       setSelectedOrg(_ => org.id)
       let _ = await internalSwitch(~expectedOrgId=Some(org.id))
+      setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {
         setSelectedOrg(_ => orgId)
         showToast(~message="Failed to switch organization", ~toastType=ToastError)
+        setShowSwitchingOrg(_ => false)
       }
     }
   }
   let onMerchantSelect = async (merchant: OMPSwitchTypes.ompListTypes) =>
     try {
+      setShowSwitchingMerchant(_ => true)
       setSelectedMerchant(_ => merchant.id)
       let _ = await internalSwitch(~expectedMerchantId=Some(merchant.id))
+      setShowSwitchingMerchant(_ => false)
     } catch {
     | _ => {
         setSelectedMerchant(_ => merchantId)
         showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+        setShowSwitchingMerchant(_ => false)
       }
     }
   let onProfileSelect = async (profile: OMPSwitchTypes.ompListTypes) =>
     try {
+      setShowSwitchingProfile(_ => true)
       setSelectedProfile(_ => profile.id)
       let _ = await internalSwitch(~expectedProfileId=Some(profile.id))
+      setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {
         setSelectedProfile(_ => profileId)
         showToast(~message="Failed to switch profile", ~toastType=ToastError)
+        setShowSwitchingProfile(_ => false)
       }
     }
   <div className="flex flex-col px-4 lg:px-10 gap-8">
@@ -136,5 +148,20 @@ let make = () => {
         />
       </div>
     </div>
+    <LoaderModal
+      showModal={showSwitchingMerchant}
+      setShowModal={setShowSwitchingMerchant}
+      text="Switching merchant..."
+    />
+    <LoaderModal
+      showModal={showSwitchingProfile}
+      setShowModal={setShowSwitchingProfile}
+      text="Switching profile..."
+    />
+    <LoaderModal
+      showModal={showSwitchingOrg}
+      setShowModal={setShowSwitchingOrg}
+      text="Switching organisation..."
+    />
   </div>
 }

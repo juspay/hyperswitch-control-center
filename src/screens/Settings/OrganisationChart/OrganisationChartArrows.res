@@ -139,10 +139,25 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
     requestAnimationFrame(_ => tryUpdate())
   }
 
-  // Effect for selection changes AND list changes
   React.useEffect(() => {
-    updatePathsAfterLayout()
-    None
+    let hasData = Array.length(merchantList) > 0 && Array.length(profileList) > 0
+    if hasData {
+      // Use longer delay for initial load when data first becomes available
+      let isInitialLoad = paths->Array.length == 0
+      let delay = if isInitialLoad {
+        500
+      } else {
+        0
+      }
+      let timeoutId = setTimeout(() => {
+        updatePathsAfterLayout()
+      }, delay)
+      Some(() => clearTimeout(timeoutId))
+    } else {
+      // Clear paths when no data
+      setPaths(_ => [])
+      None
+    }
   }, (
     selectedOrg,
     selectedMerchant,
@@ -151,17 +166,6 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
     Array.length(profileList),
     selectedProfileExists,
   ))
-
-  React.useEffect(() => {
-    if Array.length(merchantList) > 0 && Array.length(profileList) > 0 {
-      let timeoutId = setTimeout(() => {
-        updatePathsAfterLayout()
-      }, 500) // Longer delay for initial load
-      Some(() => clearTimeout(timeoutId))
-    } else {
-      None
-    }
-  }, (Array.length(merchantList), Array.length(profileList)))
 
   // Window resize effect
   React.useEffect(() => {
