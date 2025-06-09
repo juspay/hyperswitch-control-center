@@ -252,6 +252,7 @@ let scaExemptionMapper = (
         name: threeDSCompleted,
       },
       column: 3,
+      offset: -25,
     },
     {
       id: "3DS not Completed",
@@ -311,10 +312,7 @@ let scaExemptionMapper = (
     ("3DS Completed", "Authentication Success", authSuccessVal, sankeyGreenFlow),
     ("3DS Completed", "Authentication Failure", authFailureVal, sankeyRedFlow),
     ("3DS not Completed", "Authentication Failure", authFailureVal, sankeyRedFlow),
-  ]->Array.filter(item => {
-    let (_, _, value, _) = item
-    value > 0
-  })
+  ]
 
   let title = {
     text: "",
