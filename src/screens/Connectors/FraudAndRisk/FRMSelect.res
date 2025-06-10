@@ -178,6 +178,7 @@ let make = () => {
           )}
           currrentFetchCount={configuredFRMs->Array.length}
           collapseTableRow=false
+          showAutoScroll=true
         />
       </RenderIf>
       <NewProcessorCards
