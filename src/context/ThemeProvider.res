@@ -25,7 +25,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     sidebar: {
       primary: "#FCFCFD",
       textColor: "#525866",
-      textColorPrimary: "#1C6DEA",
+      textColorPrimary: "#050506",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",

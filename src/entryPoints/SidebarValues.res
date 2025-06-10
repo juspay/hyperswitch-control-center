@@ -1,5 +1,6 @@
 open SidebarTypes
 open UserManagementTypes
+open FeatureFlagUtils
 
 // * Custom Component
 module ProductHeaderComponent = {
@@ -575,7 +576,7 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
     }
   | (true, false, true) =>
     Link({
-      name: "Reconciliation",
+      name: "Recon And Settlement",
       icon: isReconEnabled ? "recon" : "recon-lock",
       link: `/recon`,
       access: userHasResourceAccess(~resourceAccess=ReconToken),
@@ -648,28 +649,15 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   sidebar
 }
 
-let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
-  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+let useGetSidebarValuesForCurrentActive = (
+  ~isReconEnabled,
+  ~productType: ProductTypes.productTypes,
+) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let defaultSidebar = []
 
-  if featureFlagDetails.devModularityV2 {
-    defaultSidebar->Array.pushMany([
-      Link({
-        name: "Home",
-        icon: "nd-home",
-        link: "/v2/home",
-        access: Access,
-        selectedIcon: "nd-fill-home",
-      }),
-      CustomComponent({
-        component: <ProductHeaderComponent />,
-      }),
-    ])
-  }
-
-  let sidebarValuesForProduct = switch activeProduct {
+  let sidebarValuesForProduct = switch productType {
   | Orchestration => hsSidebars
   | Recon => ReconSidebarValues.reconSidebars
   | Recovery =>
@@ -679,4 +667,61 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
+}
+
+let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
+  let products = [ProductTypes.Orchestration]
+
+  if featureFlagDetails.devReconv2Product {
+    products->Array.push(ProductTypes.Recon)->ignore
+  }
+
+  if featureFlagDetails.devRecoveryV2Product {
+    products->Array.push(ProductTypes.Recovery)->ignore
+  }
+
+  if featureFlagDetails.devVaultV2Product {
+    products->Array.push(ProductTypes.Vault)->ignore
+  }
+
+  if featureFlagDetails.devHypersenseV2Product {
+    products->Array.push(ProductTypes.CostObservability)->ignore
+  }
+
+  if featureFlagDetails.devIntelligentRoutingV2 {
+    products->Array.push(ProductTypes.DynamicRouting)->ignore
+  }
+
+  products
+}
+
+let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.productTypes>) => {
+  products->Array.map(productType => {
+    let links = useGetSidebarValuesForCurrentActive(~isReconEnabled, ~productType)
+    {
+      name: productType->ProductUtils.getProductDisplayName,
+      icon: productType->ProductUtils.productTypeIconMapper,
+      links,
+      showSection: true,
+    }
+  })
+}
+
+let getSidebarProductModules = (~isExplored) => {
+  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  let allProducts = getAllProductsBasedOnFeatureFlags(featureFlagDetails)
+
+  let filteredProducts = allProducts->Array.filter(productType => {
+    let hasProduct = merchantList->Array.some(merchant => {
+      switch merchant.productType {
+      | Some(merchantProductType) => merchantProductType === productType
+      | None => false
+      }
+    })
+    isExplored ? hasProduct : !hasProduct
+  })
+
+  filteredProducts
 }

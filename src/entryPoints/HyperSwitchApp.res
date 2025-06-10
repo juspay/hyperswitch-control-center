@@ -37,8 +37,17 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
-  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
+  let exploredModules = SidebarValues.getSidebarProductModules(~isExplored=true)
+  let unexploredModules = SidebarValues.getSidebarProductModules(~isExplored=false)
+  let exploredSidebars = SidebarValues.useGetAllProductSections(
+    ~isReconEnabled,
+    ~products=exploredModules,
+  )
+  let unexploredSidebars = SidebarValues.useGetAllProductSections(
+    ~isReconEnabled,
+    ~products=unexploredModules,
+  )
+
   sessionExpired := false
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
@@ -116,12 +125,7 @@ let make = () => {
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
-                <Sidebar
-                  path={url.path}
-                  sidebars={hyperSwitchAppSidebars}
-                  key={(screenState :> string)}
-                  productSiebars=productSidebars
-                />
+                <Sidebar path=url.path exploredSidebars unexploredSidebars />
               </RenderIf>
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>

@@ -76,7 +76,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     sideBarValues->Array.push(
       Link({
         name: CostObservability->getProductDisplayName,
-        icon: "nd-piggy-bank",
+        icon: "cost-observability-home",
         link: "/v2/onboarding/cost-observability",
         access: Access,
       }),
