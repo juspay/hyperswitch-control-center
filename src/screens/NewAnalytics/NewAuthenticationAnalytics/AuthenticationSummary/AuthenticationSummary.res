@@ -1,4 +1,4 @@
-open NewAuthenticationAnalyticsTypes
+open InsightsTypes
 open InsightsHelper
 open ExemptionGraphsUtils
 open ExemptionGraphsTypes
@@ -123,7 +123,7 @@ let make = (~entity: moduleEntity) => {
         ->getDictFromJsonObject
         ->getJsonObjectFromDict("authenticationSummaryTableData")
       } else {
-        let primaryBody = NewAuthenticationAnalyticsUtils.requestBody(
+        let primaryBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
           ~delta=entity.requestBodyConfig.delta,

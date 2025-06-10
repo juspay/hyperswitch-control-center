@@ -5,6 +5,7 @@ let make = () => {
   open NewAuthenticationAnalyticsUtils
   open NewAuthenticationAnalyticsHelper
   open NewAuthenticationAnalyticsEntity
+  open Typography
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -58,7 +59,7 @@ let make = () => {
         ~methodType=Post,
       )
       let filterBody =
-        NewAuthenticationAnalyticsUtils.requestBody(
+        InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
           ~groupByNames=Some(tabNames),
@@ -132,7 +133,7 @@ let make = () => {
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         let metricsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
-        let metricsRequestBody = NewAuthenticationAnalyticsUtils.requestBody(
+        let metricsRequestBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
           ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
@@ -298,7 +299,14 @@ let make = () => {
   let applySampleDateFilters = async isSampleDateEnabled => {
     try {
       setScreenState(_ => Loading)
-      let values = getSampleDateRange(~useSampleDates=isSampleDateEnabled)
+      let sampleDateRange: HSwitchRemoteFilter.filterBody = {
+        start_time: "2025-05-20T00:00:00.000Z",
+        end_time: "2025-06-03T00:00:00.000Z",
+      }
+      let values = InsightsUtils.getSampleDateRange(
+        ~useSampleDates=isSampleDateEnabled,
+        ~sampleDateRange,
+      )
       values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
       let _ = await updateFilterAsync(~delay=1000, values)
       setScreenState(_ => Success)
@@ -352,7 +360,9 @@ let make = () => {
     <Insights />
     <hr className="w-full mt-6" />
     <div className="my-4">
-      <SimpleHeader title="3DS Exemption Analytics" />
+      <h2 className={`${heading.xl.semibold} text-jp-gray-900`}>
+        {"3DS Exemption Analytics"->React.string}
+      </h2>
     </div>
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {getMetricsData(queryData)

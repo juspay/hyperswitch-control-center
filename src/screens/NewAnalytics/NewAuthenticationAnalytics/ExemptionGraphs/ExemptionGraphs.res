@@ -1,4 +1,4 @@
-open NewAuthenticationAnalyticsTypes
+open InsightsTypes
 open InsightsHelper
 open ExemptionGraphsUtils
 open InsightsUtils
@@ -73,7 +73,7 @@ let make = (
         ->getDictFromJsonObject
         ->getJsonObjectFromDict("authenticationLifeCycleData")
       } else {
-        let primaryBody = NewAuthenticationAnalyticsUtils.requestBody(
+        let primaryBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
           ~delta=entity.requestBodyConfig.delta,

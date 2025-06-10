@@ -1,4 +1,4 @@
-open NewAuthenticationAnalyticsTypes
+open InsightsTypes
 open InsightsHelper
 open SankeyGraphTypes
 @react.component
@@ -67,9 +67,7 @@ let make = (
     None
   }, (startTimeVal, endTimeVal, isSmartRetryEnabled, isSampleDataEnabled))
 
-  let params: NewAuthenticationAnalyticsTypes.getObjects<
-    SCAExemptionAnalyticsTypes.scaExemption,
-  > = {
+  let params: InsightsTypes.getObjects<SCAExemptionAnalyticsTypes.scaExemption> = {
     data,
     xKey: isSmartRetryEnabled,
     yKey: "",

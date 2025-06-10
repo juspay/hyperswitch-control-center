@@ -1,5 +1,5 @@
 // SCA Exemption
-open NewAuthenticationAnalyticsTypes
+open InsightsTypes
 
 let scaExemptionEntity: moduleEntity = {
   requestBodyConfig: {

@@ -132,18 +132,12 @@ module Insights = {
 module ModuleHeader = {
   @react.component
   let make = (~title, ~description="") => {
-    <div className="p-4 bg-[#fcfcfd] border-b dark:border-jp-gray-850">
-      <h2 className="font-semibold text-xl text-jp-gray-900"> {title->React.string} </h2>
-      <div className="font-medium text-sm text-jp-gray-800 dark:text-dark_theme my-2">
+    open Typography
+    <div className="p-4 bg-nd_gray-25 border-b dark:border-jp-gray-850">
+      <h2 className={`${heading.xl.semibold} text-jp-gray-900`}> {title->React.string} </h2>
+      <div className={`${body.md.medium} text-jp-gray-800 dark:text-dark_theme my-2`}>
         {description->React.string}
       </div>
     </div>
-  }
-}
-
-module SimpleHeader = {
-  @react.component
-  let make = (~title) => {
-    <h2 className="font-semibold text-xl text-jp-gray-900"> {title->React.string} </h2>
   }
 }

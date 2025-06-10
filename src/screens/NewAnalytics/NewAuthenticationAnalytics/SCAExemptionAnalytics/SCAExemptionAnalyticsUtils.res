@@ -163,7 +163,7 @@ let transformData = (data: array<(string, int)>) => {
 }
 
 let scaExemptionMapper = (
-  ~params: NewAuthenticationAnalyticsTypes.getObjects<scaExemption>,
+  ~params: InsightsTypes.getObjects<scaExemption>,
 ): SankeyGraphTypes.sankeyPayload => {
   let {data} = params
 

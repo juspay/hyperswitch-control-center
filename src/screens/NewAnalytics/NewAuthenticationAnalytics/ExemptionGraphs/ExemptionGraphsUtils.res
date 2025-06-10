@@ -1,6 +1,6 @@
 open ExemptionGraphsTypes
 open LogicUtils
-open NewAuthenticationAnalyticsTypes
+open InsightsTypes
 
 let getStringFromVariant = value => {
   switch value {
