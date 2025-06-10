@@ -2,7 +2,6 @@ open InsightsTypes
 open InsightsHelper
 open ExemptionGraphsUtils
 open InsightsUtils
-open NewAuthenticationAnalyticsUtils
 
 @react.component
 let make = (
@@ -51,7 +50,8 @@ let make = (
     None
   }, (startTimeVal, endTimeVal))
 
-  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+  let isSampleDataEnabled =
+    filterValueJson->getStringFromDictAsBool(NewAuthenticationAnalyticsUtils.sampleDataKey, false)
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -79,7 +79,11 @@ let make = (
           ~delta=entity.requestBodyConfig.delta,
           ~metrics=entity.requestBodyConfig.metrics,
           ~granularity=granularity.value->Some,
-          ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
+          ~filter=Some(
+            NewAuthenticationAnalyticsUtils.getUpdatedFilterValueJson(
+              filterValueJson,
+            )->JSON.Encode.object,
+          ),
         )
         await updateDetails(url, primaryBody, Post)
       }

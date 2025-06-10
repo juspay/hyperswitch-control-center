@@ -3,7 +3,6 @@ open InsightsTypes
 open RetryStrategiesAnalyticsUtils
 
 module RetryUpliftCard = {
-  open RetryStrategiesAnalyticsTypes
   open LogicUtils
   @react.component
   let make = (
@@ -11,7 +10,7 @@ module RetryUpliftCard = {
     ~rate: float,
     ~changeValue: float,
     ~changeDirection: statisticsDirection,
-    ~recovered: array<recoveredType>,
+    ~recovered: array<RetryStrategiesAnalyticsTypes.recoveredType>,
   ) => {
     let getLegendBg = declineType => {
       switch declineType {
@@ -54,7 +53,9 @@ module RetryUpliftCard = {
             <span className={`w-3 h-3 ${getLegendBg(recoveredType.declineType)} rounded-[4px]`} />
             <div className="flex gap-2">
               <span className="font-medium">
-                {(recoveredType.declineType: declineTypes :> string)->snakeToTitle->React.string}
+                {(recoveredType.declineType: RetryStrategiesAnalyticsTypes.declineTypes :> string)
+                ->snakeToTitle
+                ->React.string}
               </span>
               <span className="text-gray-500">
                 {`| ${recoveredType.value->valueFormatter(Rate)}`->React.string}

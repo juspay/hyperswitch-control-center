@@ -2,7 +2,6 @@ open InsightsTypes
 open InsightsHelper
 open ExemptionGraphsUtils
 open ExemptionGraphsTypes
-open NewAuthenticationAnalyticsUtils
 open InsightsUtils
 open NewAuthenticationAnalyticsEntity
 
@@ -69,7 +68,6 @@ module TableModule = {
 let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
-
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchApi = AuthHooks.useApiFetcher()
@@ -101,7 +99,8 @@ let make = (~entity: moduleEntity) => {
     None
   }, (startTimeVal, endTimeVal))
 
-  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
+  let isSampleDataEnabled =
+    filterValueJson->getStringFromDictAsBool(NewAuthenticationAnalyticsUtils.sampleDataKey, false)
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
