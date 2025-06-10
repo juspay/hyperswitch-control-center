@@ -24,7 +24,13 @@ let defaultTheme = {
   faviconUrl: "",
   logoUrl: "",
 }
-
+let renderInfoIcon = (~info) => {
+  <ToolTip
+    description=info
+    toolTipFor={<Icon name="question-circle-unfilled" size=14 />}
+    toolTipPosition=ToolTip.Right
+  />
+}
 let sidebarItems = [
   {label: "Module Name", active: false},
   {label: "Section #1", active: false},
@@ -34,7 +40,10 @@ let sidebarItems = [
 let inputClassCSS = `flex-1 px-3 py-2 border border-nd_br_gray-200 text-nd_gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm ${body.md.medium}`
 let renderTextInput = (label: string, value: string, onChange: string => unit) => {
   <div className="flex flex-col gap-2">
-    <label className="block text-sm font-medium text-gray-700"> {React.string(label)} </label>
+    <div className="flex flex-row gap-2 items-center">
+      <span className={`${body.md.medium} text-gray-700`}> {React.string(label)} </span>
+      {renderInfoIcon(~info=`Enter a name for your theme.`)}
+    </div>
     <input
       type_="text"
       value
@@ -47,15 +56,14 @@ let renderTextInput = (label: string, value: string, onChange: string => unit) =
     />
   </div>
 }
-let infoIcon = () => {
-  <div className="w-4 h-4 rounded-full bg-gray-300 flex items-center justify-center cursor-help">
-    <span className="text-xs text-gray-600"> {"?"->React.string} </span>
-  </div>
-}
+
 let renderColorInput = (label: string, value: string, onChange: string => unit) => {
   <div className="space-y-3">
     <div className="flex items-center space-x-2">
-      <span className={`${body.md.medium} text-gray-900`}> {React.string(label)} </span>
+      <div className="flex flex-row gap-2 items-center">
+        <span className={`${body.md.medium} text-gray-900`}> {React.string(label)} </span>
+        {renderInfoIcon(~info=`This will effect your ${label}`)}
+      </div>
     </div>
     <div className="relative">
       <div
@@ -92,7 +100,10 @@ let renderColorInput = (label: string, value: string, onChange: string => unit) 
 
 let renderImageUploader = (~asset: string, value: string, onChange: string => unit) => {
   <div className="flex flex-col gap-2">
-    <span className={`${body.md.medium} text-gray-700`}> {`${asset} URL`->React.string} </span>
+    <div className="flex flex-row gap-2 items-center">
+      <span className={`${body.md.medium} text-gray-700`}> {`${asset} URL`->React.string} </span>
+      {renderInfoIcon(~info=`Provide a URL to your ${asset} image.`)}
+    </div>
     <div className="flex items-center gap-3">
       <input
         type_="url"
@@ -109,7 +120,7 @@ let renderImageUploader = (~asset: string, value: string, onChange: string => un
         buttonType=Secondary
         buttonState=Normal
         buttonSize=Small
-        customButtonStyle={`w-20 ${body.md.semibold} py-4`}
+        customButtonStyle={`w-20 ${body.sm.semibold} py-4`}
       />
     </div>
   </div>

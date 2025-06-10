@@ -39,9 +39,9 @@ module MockDashboard = {
           <div
             className="flex items-center justify-center w-5 h-5 rounded-md bg-white border text-nd_gray-500"
             style={ReactDOM.Style.make(
-              ~borderColor=index === 0 ? theme.primaryColor : "border",
+              ~borderColor=index === 0 ? theme.sidebar.textColorPrimary : "border",
               ~backgroundColor=theme.sidebar.primary,
-              ~color=theme.sidebar.textColor,
+              ~color=index === 0 ? theme.sidebar.textColorPrimary : theme.sidebar.textColor,
               (),
             )}>
             <span className="text-fs-10 font-medium "> {React.string(ele)} </span>
@@ -86,6 +86,7 @@ module MockDashboard = {
             ->Array.mapWithIndex(renderSidebarItem)
             ->React.array}
           </nav>
+          <div />
         </div>
         // Main Content
         <div className="flex-1 flex flex-col overflow-hidden ">
@@ -101,6 +102,32 @@ module MockDashboard = {
             <p className="text-gray-600 mb-4 text-fs-10">
               {React.string("Page Descriptions will go here")}
             </p>
+          </div>
+          <div className="p-2 m-2 rounded-lg border-nd_gray-50 border flex flex-col gap-0.5">
+            <span className={`${body.xs.semibold}`}> {"Card Heading"->React.string} </span>
+            <span className={`text-fs-10 text-nd_gray-400`}>
+              {"Lorem ipsum dolor sit amet, consectetur adipiscing elit"->React.string}
+            </span>
+            <div className="flex flex-row gap-2 mt-2 font-semibold text-fs-8">
+              <div
+                className="px-2 py-3 h-4 rounded flex items-center justify-between cursor-pointer"
+                style={ReactDOM.Style.make(
+                  ~backgroundColor=theme.buttons.primary.backgroundColor,
+                  ~color=theme.buttons.primary.textColor,
+                  (),
+                )}>
+                {React.string("Primary Button")}
+              </div>
+              <div
+                className="px-2 py-3 rounded h-4 flex justify-between items-center cursor-pointer"
+                style={ReactDOM.Style.make(
+                  ~backgroundColor=theme.buttons.secondary.backgroundColor,
+                  ~color=theme.buttons.secondary.textColor,
+                  (),
+                )}>
+                {React.string("Secondary Button")}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -130,10 +157,10 @@ module UploadAssets = {
   let make = (~theme, ~updateTheme) => {
     <div className="flex flex-col gap-4">
       <div className={`${body.lg.semibold}`}> {React.string("Assets")} </div>
-      {renderImageUploader(~asset="Logo", theme.logoUrl, v => updateTheme(t => {...t, logoUrl: v}))}
       {renderImageUploader(~asset="Favicon", theme.faviconUrl, v =>
         updateTheme(t => {...t, faviconUrl: v})
       )}
+      {renderImageUploader(~asset="Logo", theme.logoUrl, v => updateTheme(t => {...t, logoUrl: v}))}
     </div>
   }
 }
