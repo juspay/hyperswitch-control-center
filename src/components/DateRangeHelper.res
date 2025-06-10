@@ -12,7 +12,7 @@ module CompareOption = {
   ) => {
     open Typography
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
-    let selectedBg = if value->compareOptionToString == selectedOption->compareOptionToString {
+    let selectedBg = if value == selectedOption {
       "bg-jp-gray-100 "
     } else {
       "bg-white "

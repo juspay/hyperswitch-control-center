@@ -25,13 +25,6 @@ let comparisonMapprer = val => {
   }
 }
 
-let compareOptionToString = (option: compareOption) =>
-  switch option {
-  | No_Comparison => "No_Comparison"
-  | Previous_Period => "Previous_Period"
-  | Custom => "Custom"
-  }
-
 let getDateString = (value, isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString) => {
   try {
     let {year, month, date} = isoStringToCustomTimeZone(value)
