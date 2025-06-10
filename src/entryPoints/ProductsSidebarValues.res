@@ -4,7 +4,7 @@ let emptyComponent = CustomComponent({
 })
 
 let useGetSideBarValues = () => {
-  let {devReconv2Product, devRecoveryV2Product, devRecoveryV2ProductAnalytics} =
+  let {devReconv2Product, devRecoveryV2Product} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let sideBarValues = []
 
@@ -13,9 +13,7 @@ let useGetSideBarValues = () => {
   }
 
   if devRecoveryV2Product {
-    sideBarValues->Array.pushMany(
-      RevenueRecoverySidebarValues.recoverySidebars(devRecoveryV2ProductAnalytics),
-    )
+    sideBarValues->Array.pushMany(RevenueRecoverySidebarValues.recoverySidebars)
   }
 
   sideBarValues
