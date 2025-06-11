@@ -26,12 +26,14 @@ module InfoViewForWebhooks = {
   }
 }
 @react.component
-let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
+let make = () => {
   open HSwitchSettingTypes
   open Typography
 
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = BusinessProfileInterface.useBusinessProfileMapper(
+    ~interface=BusinessProfileInterface.businessProfileInterfaceV1,
+  )
+
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
   let tabs: array<Tabs.tab> = [
