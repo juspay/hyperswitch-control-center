@@ -330,13 +330,13 @@ let payoutRouting = userHasResourceAccess => {
   })
 }
 
-let threeDsIntelligence = userHasResourceAccess => {
+let threeDsExemption = userHasResourceAccess => {
   SubLevelLink({
     name: "3DS Exemption Manager",
     iconTag: "betaTag",
     link: `/3ds-exemption`,
     access: userHasResourceAccess(~resourceAccess=ThreeDsDecisionManager), // Assuming same access as 3DS Decision Manager for now
-    searchOptions: [("View 3DS Intelligence", "")],
+    searchOptions: [("View 3DS Exemption", "")],
   })
 }
 
@@ -383,7 +383,7 @@ let workflow = (
     defaultWorkFlow->Array.push(payoutRouting)->ignore
   }
   if threedsExemptionRules {
-    defaultWorkFlow->Array.push(threeDsIntelligence(userHasResourceAccess))->ignore
+    defaultWorkFlow->Array.push(threeDsExemption(userHasResourceAccess))->ignore
   }
 
   isWorkflowEnabled

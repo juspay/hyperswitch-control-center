@@ -1,12 +1,13 @@
 open RoutingTypes
 open ThreeDSUtils
+open LogicUtils
+open APIUtils
+
 external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
 module ActiveRulePreview = {
-  open LogicUtils
-  open APIUtils
   @react.component
-  let make = (~initialRule, ~setInitialRule=?, ~isFrom3DsIntelligence=false) => {
+  let make = (~initialRule, ~setInitialRule=?, ~isFrom3DsExemptions=false) => {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showPopUp = PopUpState.useShowPopUp()
@@ -20,7 +21,7 @@ module ActiveRulePreview = {
       ruleInfo
       ->getJsonObjectFromDict("algorithm")
       ->getDictFromJsonObject
-      ->AdvancedRoutingUtils.ruleInfoTypeMapper(~isFrom3DsIntelligence)
+      ->AdvancedRoutingUtils.ruleInfoTypeMapper(~isFrom3DsExemptions)
 
     let deleteCurrentThreedsRule = async () => {
       try {
@@ -56,7 +57,7 @@ module ActiveRulePreview = {
           <p className="text-xl font-semibold text-grey-700">
             {name->capitalizeString->React.string}
           </p>
-          <RenderIf condition={!isFrom3DsIntelligence}>
+          <RenderIf condition={!isFrom3DsExemptions}>
             <ACLDiv
               authorization={userHasAccess(~groupAccess=WorkflowsManage)}
               onClick={_ => handleDeletePopup()}
@@ -73,36 +74,36 @@ module ActiveRulePreview = {
           {description->React.string}
         </p>
       </div>
-      <RulePreviewer ruleInfo isFrom3ds={!isFrom3DsIntelligence} isFrom3DsIntelligence />
+      <RulePreviewer ruleInfo isFrom3ds={!isFrom3DsExemptions} isFrom3DsExemptions />
     </div>
   }
 }
 
 module Configure3DSRule = {
   @react.component
-  let make = (~wasm, ~isFrom3DsIntelligence=false) => {
+  let make = (~wasm, ~isFrom3DsExemptions=false) => {
     let ruleInput = ReactFinalForm.useField("algorithm.rules").input
-    let (rules, setRules) = React.useState(_ => ruleInput.value->LogicUtils.getArrayFromJson([]))
+    let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
     React.useEffect(() => {
       ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
     let addRule = (index, _copy) => {
-      let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
+      let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = existingRules[index]->Option.getOr(JSON.Encode.null)
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     let removeRule = index => {
-      let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
+      let existingRules = ruleInput.value->getArrayFromJson([])
       let newRules = existingRules->Array.filterWithIndex((_, i) => i !== index)
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     <div>
       {
-        let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
+        let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
         let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${Int.toString(index)}]`}
@@ -118,8 +119,8 @@ module Configure3DSRule = {
             notFirstRule
             isDragging
             wasm
-            isFrom3ds={!isFrom3DsIntelligence}
-            isFrom3DsIntelligence
+            isFrom3ds={!isFrom3DsExemptions}
+            isFrom3DsExemptions
           />
         }
         if notFirstRule {
@@ -139,9 +140,8 @@ module Configure3DSRule = {
 }
 
 @react.component
-let make = (~isFrom3DsIntelligence=false) => {
+let make = (~isFrom3DsExemptions=false) => {
   // Three Ds flow
-  open APIUtils
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let url = RescriptReactRouter.useUrl()
@@ -156,11 +156,11 @@ let make = (~isFrom3DsIntelligence=false) => {
   let showToast = ToastState.useShowToast()
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
-  let pageConfig = getPageConfigs(isFrom3DsIntelligence)
+  let pageConfig = getPageConfigs(isFrom3DsExemptions)
 
   let (initialValues, _setInitialValues) = React.useState(_ => {
-    if isFrom3DsIntelligence {
-      buildInitial3DSValueForIntelligence->Identity.genericTypeToJson
+    if isFrom3DsExemptions {
+      buildInitial3DSValueForExemption->Identity.genericTypeToJson
     } else {
       buildInitial3DSValue->Identity.genericTypeToJson
     }
@@ -169,22 +169,20 @@ let make = (~isFrom3DsIntelligence=false) => {
   let getWasm = async () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
-      let fetchedWasm =
-        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Dict.make())
+      let fetchedWasm = wasmResult->getDictFromJsonObject->getObj("wasm", Dict.make())
       setWasm(_ => Some(fetchedWasm->toWasm))
     } catch {
     | _ => ()
     }
   }
   let activeRoutingDetails = async () => {
-    open LogicUtils
     try {
-      if isFrom3DsIntelligence {
+      if isFrom3DsExemptions {
         let threeDsUrl = getURL(~entityName=pageConfig.entityName, ~methodType=Get)
         let threeDsRuleDetail = await fetchDetails(threeDsUrl)
         let threeDsRuleArray = threeDsRuleDetail->JSON.Decode.array->Option.getOr([])
         let firstRule = threeDsRuleArray->Array.get(0)->Option.getOr(JSON.Encode.null)
-        let ruleId = firstRule->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
+        let ruleId = firstRule->getDictFromJsonObject->getString("id", "")
 
         if ruleId != "" {
           let activeRulesUrl = getURL(
@@ -199,11 +197,8 @@ let make = (~isFrom3DsIntelligence=false) => {
 
           let intitialValue =
             [
-              ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
-              (
-                "description",
-                responseDict->LogicUtils.getString("description", "")->JSON.Encode.string,
-              ),
+              ("name", responseDict->getString("name", "")->JSON.Encode.string),
+              ("description", responseDict->getString("description", "")->JSON.Encode.string),
               ("algorithm", programValue->JSON.Encode.object),
             ]->Dict.fromArray
 
@@ -217,11 +212,8 @@ let make = (~isFrom3DsIntelligence=false) => {
 
         let intitialValue =
           [
-            ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
-            (
-              "description",
-              responseDict->LogicUtils.getString("description", "")->JSON.Encode.string,
-            ),
+            ("name", responseDict->getString("name", "")->JSON.Encode.string),
+            ("description", responseDict->getString("description", "")->JSON.Encode.string),
             ("algorithm", programValue->JSON.Encode.object),
           ]->Dict.fromArray
 
@@ -254,23 +246,22 @@ let make = (~isFrom3DsIntelligence=false) => {
     }
   }
 
-  // Reset state when switching between intelligence modes
   React.useEffect(() => {
     setInitialRule(_ => None)
     setScreenState(_ => PageLoaderWrapper.Loading)
     setPageView(_ => LANDING)
     None
-  }, [isFrom3DsIntelligence])
+  }, [isFrom3DsExemptions])
 
   React.useEffect(() => {
     fetchDetails()->ignore
     None
-  }, [isFrom3DsIntelligence])
+  }, [isFrom3DsExemptions])
 
   React.useEffect(() => {
     let searchParams = url.search
     let filtersFromUrl =
-      LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("type")->Option.getOr("")
+      getDictFromUrlSearchParams(searchParams)->Dict.get("type")->Option.getOr("")
     setPageView(_ => filtersFromUrl->pageStateMapper)
     None
   }, [url.search])
@@ -279,21 +270,21 @@ let make = (~isFrom3DsIntelligence=false) => {
     try {
       setScreenState(_ => Loading)
 
-      if isFrom3DsIntelligence {
-        let valuesWithProfileId = values->LogicUtils.getDictFromJsonObject
+      if isFrom3DsExemptions {
+        let valuesWithProfileId = values->getDictFromJsonObject
         valuesWithProfileId->Dict.set("profile_id", profileId->JSON.Encode.string)
         let threeDsPayload =
           valuesWithProfileId
           ->JSON.Encode.object
-          ->buildThreeDsPayloadBody(~isFrom3DsIntelligence=true)
+          ->buildThreeDsPayloadBody(~isFrom3DsExemptions=true)
         let getActivateUrl = getURL(~entityName=pageConfig.entityName, ~methodType=Post)
         let result = await updateDetails(
           getActivateUrl,
           threeDsPayload->Identity.genericTypeToJson,
           Post,
         )
-        let resultDict = result->LogicUtils.getDictFromJsonObject
-        let routingId = resultDict->LogicUtils.getString("id", "")
+        let resultDict = result->getDictFromJsonObject
+        let routingId = resultDict->getString("id", "")
         let body =
           [("transaction_type", "three_ds_authentication"->JSON.Encode.string)]
           ->Dict.fromArray
@@ -326,7 +317,7 @@ let make = (~isFrom3DsIntelligence=false) => {
   }
 
   let validate = (values: JSON.t) => {
-    let dict = values->LogicUtils.getDictFromJsonObject
+    let dict = values->getDictFromJsonObject
 
     let errors = Dict.make()
 
@@ -339,12 +330,12 @@ let make = (~isFrom3DsIntelligence=false) => {
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {
         let index = 1
-        let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
+        let rules = jsonDict->getArrayFromDict("rules", [])
         if index === 1 && rules->Array.length === 0 {
           errors->Dict.set(`Rules`, "Minimum 1 rule needed"->JSON.Encode.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
-            let ruleDict = rule->LogicUtils.getDictFromJsonObject
+            let ruleDict = rule->getDictFromJsonObject
             if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
               errors->Dict.set(
                 `Rule ${(i + 1)->Int.toString} - Condition`,
@@ -420,7 +411,7 @@ let make = (~isFrom3DsIntelligence=false) => {
                   </div>
                 </div>
               </div>
-              <Configure3DSRule wasm isFrom3DsIntelligence />
+              <Configure3DSRule wasm isFrom3DsExemptions />
             </div>
             <div className="flex gap-4">
               <Button
@@ -443,7 +434,7 @@ let make = (~isFrom3DsIntelligence=false) => {
         <div className="flex flex-col gap-6">
           <RenderIf condition={initialRule->Option.isSome}>
             <ActiveRulePreview
-              initialRule setInitialRule=?{Some(setInitialRule)} isFrom3DsIntelligence
+              initialRule setInitialRule=?{Some(setInitialRule)} isFrom3DsExemptions
             />
           </RenderIf>
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
