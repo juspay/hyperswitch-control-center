@@ -104,7 +104,7 @@ let make = (~setScreenState) => {
       <AccessControl
         isEnabled={featureFlagDetails.threedsExemptionRules}
         authorization={userHasAccess(~groupAccess=WorkflowsView)}>
-        <HSwitchThreeDS isIntelligence=true />
+        <HSwitchThreeDS isFrom3DsIntelligence=true />
       </AccessControl>
     | list{"account-settings"} =>
       <AccessControl

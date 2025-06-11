@@ -146,3 +146,15 @@ type advancedRoutingType = {
   description: string,
   algorithm: algorithmData,
 }
+
+type pageConfig = {
+  isFrom3DsIntelligence: bool,
+  pageTitle: string,
+  pageSubtitle: string,
+  configureTitle: string,
+  configureDescription: string,
+  baseUrl: string,
+  newUrl: string,
+  entityName: APIUtilsTypes.entityTypeWithVersion,
+  mixpanelEvent: string,
+}

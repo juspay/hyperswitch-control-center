@@ -354,7 +354,7 @@ module RuleFieldBase = {
     ~wasm,
     ~isFrom3ds,
     ~isFromSurcharge,
-    ~isFrom3dsIntelligence,
+    ~isFrom3DsIntelligence,
   ) => {
     let url = RescriptReactRouter.useUrl()
     let (hover, setHover) = React.useState(_ => false)
@@ -386,7 +386,7 @@ module RuleFieldBase = {
       }
       if isFrom3ds {
         Window.getThreeDsKeys()
-      } else if isFrom3dsIntelligence {
+      } else if isFrom3DsIntelligence {
         Window.getThreeDsDecisionRuleEngineKeys()
       } else if isFromSurcharge {
         Window.getSurchargeKeys()
@@ -440,7 +440,7 @@ module RuleFieldBase = {
 
 module MakeRuleField = {
   @react.component
-  let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds, ~isFromSurcharge, ~isFrom3dsIntelligence) => {
+  let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds, ~isFromSurcharge, ~isFrom3DsIntelligence) => {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
     let fields = conditionsInput.value->JSON.Decode.array->Option.getOr([])
@@ -477,7 +477,7 @@ module MakeRuleField = {
           wasm
           isFrom3ds
           isFromSurcharge
-          isFrom3dsIntelligence
+          isFrom3DsIntelligence
         />
       )->React.array}
       {if isExpanded {

@@ -79,7 +79,7 @@ let make = (
   ~ruleInfo: algorithmData,
   ~isFrom3ds=false,
   ~isFromSurcharge=false,
-  ~isFrom3dsIntelligence=false,
+  ~isFrom3DsIntelligence=false,
 ) => {
   open LogicUtils
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
@@ -165,13 +165,13 @@ let make = (
                 <RenderIf condition={rule.statements->Array.length > 0}>
                   <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
                 </RenderIf>
-                <RenderIf condition={isFrom3ds || isFrom3dsIntelligence}>
+                <RenderIf condition={isFrom3ds || isFrom3DsIntelligence}>
                   <ThreedsTypeView threeDsType />
                 </RenderIf>
                 <RenderIf condition={!isFrom3ds}>
                   <GatewayView gateways={rule.connectorSelection.data->Option.getOr([])} />
                 </RenderIf>
-                <RenderIf condition={!isFrom3dsIntelligence}>
+                <RenderIf condition={!isFrom3DsIntelligence}>
                   <GatewayView gateways={rule.connectorSelection.data->Option.getOr([])} />
                 </RenderIf>
                 <RenderIf condition={isFromSurcharge}>
