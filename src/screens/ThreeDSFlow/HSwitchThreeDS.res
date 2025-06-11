@@ -1,20 +1,12 @@
 open RoutingTypes
+open ThreeDSUtils
 external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
-
-type pageState = NEW | LANDING
-
-let pageStateMapper = pageType => {
-  switch pageType {
-  | "new" => NEW
-  | _ => LANDING
-  }
-}
 
 module ActiveRulePreview = {
   open LogicUtils
   open APIUtils
   @react.component
-  let make = (~initialRule, ~setInitialRule=?, ~isIntelligence=false) => {
+  let make = (~initialRule, ~setInitialRule=?, ~isFrom3DsIntelligence=false) => {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showPopUp = PopUpState.useShowPopUp()
@@ -28,7 +20,7 @@ module ActiveRulePreview = {
       ruleInfo
       ->getJsonObjectFromDict("algorithm")
       ->getDictFromJsonObject
-      ->AdvancedRoutingUtils.ruleInfoTypeMapper(~isFrom3dsIntelligence=isIntelligence)
+      ->AdvancedRoutingUtils.ruleInfoTypeMapper(~isFrom3DsIntelligence)
 
     let deleteCurrentThreedsRule = async () => {
       try {
@@ -64,7 +56,7 @@ module ActiveRulePreview = {
           <p className="text-xl font-semibold text-grey-700">
             {name->capitalizeString->React.string}
           </p>
-          <RenderIf condition={!isIntelligence}>
+          <RenderIf condition={!isFrom3DsIntelligence}>
             <ACLDiv
               authorization={userHasAccess(~groupAccess=WorkflowsManage)}
               onClick={_ => handleDeletePopup()}
@@ -81,14 +73,14 @@ module ActiveRulePreview = {
           {description->React.string}
         </p>
       </div>
-      <RulePreviewer ruleInfo isFrom3ds={!isIntelligence} isFrom3dsIntelligence=isIntelligence />
+      <RulePreviewer ruleInfo isFrom3ds={!isFrom3DsIntelligence} isFrom3DsIntelligence />
     </div>
   }
 }
 
 module Configure3DSRule = {
   @react.component
-  let make = (~wasm, ~isIntelligence=false) => {
+  let make = (~wasm, ~isFrom3DsIntelligence=false) => {
     let ruleInput = ReactFinalForm.useField("algorithm.rules").input
     let (rules, setRules) = React.useState(_ => ruleInput.value->LogicUtils.getArrayFromJson([]))
     React.useEffect(() => {
@@ -126,8 +118,8 @@ module Configure3DSRule = {
             notFirstRule
             isDragging
             wasm
-            isFrom3ds={!isIntelligence}
-            isFrom3dsIntelligence=isIntelligence
+            isFrom3ds={!isFrom3DsIntelligence}
+            isFrom3DsIntelligence
           />
         }
         if notFirstRule {
@@ -145,20 +137,9 @@ module Configure3DSRule = {
     </div>
   }
 }
-type pageConfig = {
-  isIntelligence: bool,
-  pageTitle: string,
-  pageSubtitle: string,
-  configureTitle: string,
-  configureDescription: string,
-  baseUrl: string,
-  newUrl: string,
-  entityName: APIUtilsTypes.entityTypeWithVersion,
-  mixpanelEvent: string,
-}
 
 @react.component
-let make = (~isIntelligence=false) => {
+let make = (~isFrom3DsIntelligence=false) => {
   // Three Ds flow
   open APIUtils
   let getURL = useGetURL()
@@ -175,37 +156,13 @@ let make = (~isIntelligence=false) => {
   let showToast = ToastState.useShowToast()
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
-  let config = if isIntelligence {
-    {
-      isIntelligence: true,
-      pageTitle: "3DS Exemption Rules",
-      pageSubtitle: "Optimize  3DS strategy by correctly applying 3DS exemptions to offer a seamless experience to the users while balancing fraud",
-      configureTitle: "Configure 3DS Exemption Rules",
-      configureDescription: "Configure advanced rules on parameters like amount, currency, and method to automatically apply 3DS exemptions, balancing regulatory compliance with seamless user experience.",
-      baseUrl: "/3ds-exemption",
-      newUrl: "/3ds-exemption?type=new",
-      entityName: V1(THREE_DS_EXEMPTION_RULES),
-      mixpanelEvent: "create_new_3ds_rule",
-    }
-  } else {
-    {
-      isIntelligence: false,
-      pageTitle: "3DS Decision Manager",
-      pageSubtitle: "Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters",
-      configureTitle: "Configure 3DS Rule",
-      configureDescription: "Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions",
-      baseUrl: "/3ds",
-      newUrl: "/3ds?type=new",
-      entityName: V1(THREE_DS),
-      mixpanelEvent: "create_new_3ds_rule",
-    }
-  }
+  let pageConfig = getPageConfigs(isFrom3DsIntelligence)
 
   let (initialValues, _setInitialValues) = React.useState(_ => {
-    if isIntelligence {
-      ThreeDSIntelligenceUtils.buildInitial3DSValue->Identity.genericTypeToJson
+    if isFrom3DsIntelligence {
+      buildInitial3DSValueForIntelligence->Identity.genericTypeToJson
     } else {
-      ThreeDSUtils.buildInitial3DSValue->Identity.genericTypeToJson
+      buildInitial3DSValue->Identity.genericTypeToJson
     }
   })
 
@@ -222,8 +179,8 @@ let make = (~isIntelligence=false) => {
   let activeRoutingDetails = async () => {
     open LogicUtils
     try {
-      if isIntelligence {
-        let threeDsUrl = getURL(~entityName=config.entityName, ~methodType=Get)
+      if isFrom3DsIntelligence {
+        let threeDsUrl = getURL(~entityName=pageConfig.entityName, ~methodType=Get)
         let threeDsRuleDetail = await fetchDetails(threeDsUrl)
         let threeDsRuleArray = threeDsRuleDetail->JSON.Decode.array->Option.getOr([])
         let firstRule = threeDsRuleArray->Array.get(0)->Option.getOr(JSON.Encode.null)
@@ -231,7 +188,7 @@ let make = (~isIntelligence=false) => {
 
         if ruleId != "" {
           let activeRulesUrl = getURL(
-            ~entityName=config.entityName,
+            ~entityName=pageConfig.entityName,
             ~methodType=Get,
             ~id=Some(ruleId),
           )
@@ -253,7 +210,7 @@ let make = (~isIntelligence=false) => {
           setInitialRule(_ => Some(intitialValue))
         }
       } else {
-        let threeDsUrl = getURL(~entityName=config.entityName, ~methodType=Get)
+        let threeDsUrl = getURL(~entityName=pageConfig.entityName, ~methodType=Get)
         let threeDsRuleDetail = await fetchDetails(threeDsUrl)
         let responseDict = threeDsRuleDetail->getDictFromJsonObject
         let programValue = responseDict->getObj("program", Dict.make())
@@ -303,12 +260,12 @@ let make = (~isIntelligence=false) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     setPageView(_ => LANDING)
     None
-  }, [isIntelligence])
+  }, [isFrom3DsIntelligence])
 
   React.useEffect(() => {
     fetchDetails()->ignore
     None
-  }, [isIntelligence])
+  }, [isFrom3DsIntelligence])
 
   React.useEffect(() => {
     let searchParams = url.search
@@ -322,12 +279,14 @@ let make = (~isIntelligence=false) => {
     try {
       setScreenState(_ => Loading)
 
-      if isIntelligence {
+      if isFrom3DsIntelligence {
         let valuesWithProfileId = values->LogicUtils.getDictFromJsonObject
         valuesWithProfileId->Dict.set("profile_id", profileId->JSON.Encode.string)
         let threeDsPayload =
-          valuesWithProfileId->JSON.Encode.object->ThreeDSIntelligenceUtils.buildThreeDsPayloadBody
-        let getActivateUrl = getURL(~entityName=config.entityName, ~methodType=Post)
+          valuesWithProfileId
+          ->JSON.Encode.object
+          ->buildThreeDsPayloadBody(~isFrom3DsIntelligence=true)
+        let getActivateUrl = getURL(~entityName=pageConfig.entityName, ~methodType=Post)
         let result = await updateDetails(
           getActivateUrl,
           threeDsPayload->Identity.genericTypeToJson,
@@ -341,20 +300,20 @@ let make = (~isIntelligence=false) => {
           ->JSON.Encode.object
 
         let activateUrl = getURL(
-          ~entityName=config.entityName,
+          ~entityName=pageConfig.entityName,
           ~methodType=Post,
           ~id=Some(routingId),
         )
 
         let _ = await updateDetails(activateUrl, body, Post)
       } else {
-        let threeDsPayload = values->ThreeDSUtils.buildThreeDsPayloadBody
-        let getActivateUrl = getURL(~entityName=config.entityName, ~methodType=Put)
+        let threeDsPayload = values->buildThreeDsPayloadBody
+        let getActivateUrl = getURL(~entityName=pageConfig.entityName, ~methodType=Put)
         let _ = await updateDetails(getActivateUrl, threeDsPayload->Identity.genericTypeToJson, Put)
       }
 
       fetchDetails()->ignore
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=config.baseUrl))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=pageConfig.baseUrl))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
       showToast(~message="Configuration saved successfully!", ~toastType=ToastState.ToastSuccess)
@@ -403,11 +362,11 @@ let make = (~isIntelligence=false) => {
   }
   let redirectToNewRule = () => {
     setPageView(_ => NEW)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=config.newUrl))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=pageConfig.newUrl))
   }
 
   let handleCreateNew = () => {
-    mixpanelEvent(~eventName=config.mixpanelEvent)
+    mixpanelEvent(~eventName=pageConfig.mixpanelEvent)
     if initialRule->Option.isSome {
       showPopUp({
         popUpType: (Warning, WithIcon),
@@ -430,7 +389,7 @@ let make = (~isIntelligence=false) => {
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll gap-6">
-      <PageUtils.PageHeading title={config.pageTitle} subTitle={config.pageSubtitle} />
+      <PageUtils.PageHeading title={pageConfig.pageTitle} subTitle={pageConfig.pageSubtitle} />
       {switch pageView {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
@@ -461,7 +420,7 @@ let make = (~isIntelligence=false) => {
                   </div>
                 </div>
               </div>
-              <Configure3DSRule wasm isIntelligence />
+              <Configure3DSRule wasm isFrom3DsIntelligence />
             </div>
             <div className="flex gap-4">
               <Button
@@ -469,7 +428,9 @@ let make = (~isIntelligence=false) => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=config.baseUrl))
+                  RescriptReactRouter.replace(
+                    GlobalVars.appendDashboardPath(~url=pageConfig.baseUrl),
+                  )
                 }}
               />
               <FormRenderer.SubmitButton
@@ -481,14 +442,16 @@ let make = (~isIntelligence=false) => {
       | LANDING =>
         <div className="flex flex-col gap-6">
           <RenderIf condition={initialRule->Option.isSome}>
-            <ActiveRulePreview initialRule setInitialRule=?{Some(setInitialRule)} isIntelligence />
+            <ActiveRulePreview
+              initialRule setInitialRule=?{Some(setInitialRule)} isFrom3DsIntelligence
+            />
           </RenderIf>
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">
-              {config.configureTitle->React.string}
+              {pageConfig.configureTitle->React.string}
             </p>
             <p className="text-base font-normal text-grey-700 opacity-50">
-              {config.configureDescription->React.string}
+              {pageConfig.configureDescription->React.string}
             </p>
             <ACLButton
               text="Create New"
