@@ -767,7 +767,7 @@ module Base = {
               disablePastDates
               disableFutureDates
               ?dateRangeLimit
-              calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
+              calendarContaierStyle="md:mx-2 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
             <div
