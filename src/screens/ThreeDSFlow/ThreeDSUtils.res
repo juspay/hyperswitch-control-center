@@ -1,10 +1,10 @@
 type pageState = NEW | LANDING
 open RoutingTypes
 
-let getPageConfigs = isFrom3DsIntelligence =>
-  if isFrom3DsIntelligence {
+let getPageConfigs = isFrom3DsExemptions =>
+  if isFrom3DsExemptions {
     {
-      isFrom3DsIntelligence: true,
+      isFrom3DsExemptions: true,
       pageTitle: "3DS Exemption Rules",
       pageSubtitle: "Optimize  3DS strategy by correctly applying 3DS exemptions to offer a seamless experience to the users while balancing fraud",
       configureTitle: "Configure 3DS Exemption Rules",
@@ -16,7 +16,7 @@ let getPageConfigs = isFrom3DsIntelligence =>
     }
   } else {
     {
-      isFrom3DsIntelligence: false,
+      isFrom3DsExemptions: false,
       pageTitle: "3DS Decision Manager",
       pageSubtitle: "Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters",
       configureTitle: "Configure 3DS Rule",
@@ -62,7 +62,7 @@ let rules: rule = {
   statements: statementObject,
 }
 
-let rulesForIntelligence: rule = {
+let rulesFor3dsExemptions: rule = {
   name: "rule_1",
   connectorSelection: {
     decision: "three_ds",
@@ -82,11 +82,11 @@ let buildInitial3DSValue: threeDsRoutingType = {
   },
 }
 
-let buildInitial3DSValueForIntelligence: threeDsRoutingType = {
+let buildInitial3DSValueForExemption: threeDsRoutingType = {
   name: `3DS Rule-${RoutingUtils.getCurrentUTCTime()}`,
   description: `This is a Three-Ds Rule created at ${RoutingUtils.currentTimeInUTC}`,
   algorithm: {
-    rules: [rulesForIntelligence],
+    rules: [rulesFor3dsExemptions],
     defaultSelection: {
       decision: "",
     },
@@ -101,16 +101,16 @@ let pageStateMapper = pageType => {
   }
 }
 
-let buildThreeDsPayloadBody = (~isFrom3DsIntelligence=false, values) => {
+let buildThreeDsPayloadBody = (~isFrom3DsExemptions=false, values) => {
   open LogicUtils
 
   let valuesDict = values->getDictFromJsonObject
   let dataDict = valuesDict->getDictfromDict("algorithm")
   let rulesDict = dataDict->getArrayFromDict("rules", [])
 
-  let modifiedRules = rulesDict->AdvancedRoutingUtils.generateRule(~isFrom3DsIntelligence)
+  let modifiedRules = rulesDict->AdvancedRoutingUtils.generateRule(~isFrom3DsExemptions)
 
-  if isFrom3DsIntelligence {
+  if isFrom3DsExemptions {
     {
       "name": valuesDict->getString("name", ""),
       "profile_id": valuesDict->getString("profile_id", ""),

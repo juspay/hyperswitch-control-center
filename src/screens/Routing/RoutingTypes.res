@@ -148,7 +148,7 @@ type advancedRoutingType = {
 }
 
 type pageConfig = {
-  isFrom3DsIntelligence: bool,
+  isFrom3DsExemptions: bool,
   pageTitle: string,
   pageSubtitle: string,
   configureTitle: string,

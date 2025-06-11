@@ -168,11 +168,11 @@ let connectorSelectionDataMapperFromJson: JSON.t => RoutingTypes.connectorSelect
 
 let getDefaultSelection = (
   defaultSelection: Dict.t<JSON.t>,
-  ~isFrom3DsIntelligence=false,
+  ~isFrom3DsExemptions=false,
 ): RoutingTypes.connectorSelection => {
   open LogicUtils
   open RoutingTypes
-  let override3dsValue = if isFrom3DsIntelligence {
+  let override3dsValue = if isFrom3DsExemptions {
     defaultSelection->getString("decision", "")
   } else {
     defaultSelection->getString("override_3ds", "")
@@ -236,7 +236,7 @@ let getSplitFromConnectorSelectionData = connectorSelectionData => {
 }
 
 let ruleInfoTypeMapper = (
-  ~isFrom3DsIntelligence=false,
+  ~isFrom3DsExemptions=false,
   json: Dict.t<JSON.t>,
 ): RoutingTypes.algorithmData => {
   open LogicUtils
@@ -248,7 +248,7 @@ let ruleInfoTypeMapper = (
     let ruleDict = rule->getDictFromJsonObject
     let connectorsDict = ruleDict->getDictfromDict("connectorSelection")
 
-    let connectorSelection = getDefaultSelection(connectorsDict, ~isFrom3DsIntelligence)
+    let connectorSelection = getDefaultSelection(connectorsDict, ~isFrom3DsExemptions)
     let ruleName = ruleDict->getString("name", "")
 
     let eachRule: RoutingTypes.rule = {
@@ -261,7 +261,7 @@ let ruleInfoTypeMapper = (
 
   {
     rules: rulesModifiedArray,
-    defaultSelection: getDefaultSelection(defaultSelection, ~isFrom3DsIntelligence),
+    defaultSelection: getDefaultSelection(defaultSelection, ~isFrom3DsExemptions),
     metadata: json->getJsonObjectFromDict("metadata"),
   }
 }
@@ -309,18 +309,18 @@ let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
 }
 
 let algorithmTypeMapper = (
-  ~isFrom3DsIntelligence=false,
+  ~isFrom3DsExemptions=false,
   values: Dict.t<JSON.t>,
 ): RoutingTypes.algorithm => {
   open LogicUtils
   {
-    data: values->getDictfromDict("data")->ruleInfoTypeMapper(~isFrom3DsIntelligence),
+    data: values->getDictfromDict("data")->ruleInfoTypeMapper(~isFrom3DsExemptions),
     \"type": values->getString("type", ""),
   }
 }
 
 let getRoutingTypesFromJson = (
-  ~isFrom3DsIntelligence=false,
+  ~isFrom3DsExemptions=false,
   values: JSON.t,
 ): RoutingTypes.advancedRouting => {
   open LogicUtils
@@ -331,7 +331,7 @@ let getRoutingTypesFromJson = (
     description: valuesDict->getString("description", ""),
     algorithm: valuesDict
     ->getDictfromDict("algorithm")
-    ->algorithmTypeMapper(~isFrom3DsIntelligence),
+    ->algorithmTypeMapper(~isFrom3DsExemptions),
   }
 }
 
@@ -390,7 +390,7 @@ let generateStatements = statements => {
   })
 }
 
-let generateRule = (~isFrom3DsIntelligence=false, rulesDict) => {
+let generateRule = (~isFrom3DsExemptions=false, rulesDict) => {
   let modifiedRules = rulesDict->Array.map(ruleJson => {
     open LogicUtils
     let ruleDict = ruleJson->getDictFromJsonObject
@@ -398,7 +398,7 @@ let generateRule = (~isFrom3DsIntelligence=false, rulesDict) => {
 
     let modifiedStatements = statements->generateStatements
 
-    let connectorSelection = if isFrom3DsIntelligence {
+    let connectorSelection = if isFrom3DsExemptions {
       let connectorSelectionJson = ruleDict->getJsonObjectFromDict("connectorSelection")
       let connectorSelectionDict = connectorSelectionJson->getDictFromJsonObject
       let decision = connectorSelectionDict->getString("override_3ds", "")
