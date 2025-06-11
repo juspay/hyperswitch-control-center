@@ -756,7 +756,7 @@ module Base = {
         <AddDataAttributes attributes=[("data-date-picker-section", "date-picker-calendar")]>
           <div
             className={calendarVisibility && isCustomSelected
-              ? "w-auto md:w-max h-auto"
+              ? "w-full tablet:w-auto h-auto"
               : "hidden"}>
             <CalendarList
               count=numMonths
@@ -767,7 +767,7 @@ module Base = {
               disablePastDates
               disableFutureDates
               ?dateRangeLimit
-              calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
+              calendarContaierStyle="md:mx-2 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
             <div
@@ -848,7 +848,7 @@ module Base = {
               leaveTo="transform opacity-0 scale-95">
               <div
                 ref={dropdownRef->ReactDOM.Ref.domRef}
-                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`}>
+                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-min max-w-lg tablet:max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-100 tablet:right-0`}>
                 calendarElement
               </div>
             </Transition>
