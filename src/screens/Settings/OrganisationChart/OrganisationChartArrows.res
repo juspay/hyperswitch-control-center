@@ -11,6 +11,8 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let selectedProfileExists = profileList->Array.some(profile => profile.id == selectedProfile)
+  let svgColorSelected = "#2563EB" // Blue color for selected paths
+  let svgColorDefault = "#D1D5DB" // Gray color for default paths
   let updatePaths = () => {
     let newPaths = []
     switch getElementById(`${selectedOrg}`) {
@@ -29,7 +31,7 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
                 ~endId=merchant.id,
                 ~startAnchor=#right,
                 ~endAnchor=#left,
-                ~color="#D1D5DB",
+                ~color=svgColorDefault,
                 ~strokeWidth="2",
                 ~opacity="0.6",
                 ~keyPrefix="org-mer",
@@ -45,7 +47,7 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
             ~endId=selectedMerchant,
             ~startAnchor=#right,
             ~endAnchor=#left,
-            ~color="#2563EB",
+            ~color=svgColorSelected,
             ~strokeWidth="2",
             ~opacity="1",
             ~keyPrefix="org-mer",
@@ -64,7 +66,7 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
                   ~endId=profile.id,
                   ~startAnchor=#right,
                   ~endAnchor=#left,
-                  ~color="#D1D5DB",
+                  ~color=svgColorDefault,
                   ~strokeWidth="2",
                   ~opacity="0.6",
                   ~keyPrefix="mer-prof",
@@ -80,7 +82,7 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
               ~endId=selectedProfile,
               ~startAnchor=#right,
               ~endAnchor=#left,
-              ~color="#2563EB",
+              ~color=svgColorSelected,
               ~strokeWidth="2",
               ~opacity="1",
               ~keyPrefix="mer-prof",
