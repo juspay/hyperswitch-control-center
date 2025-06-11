@@ -50,13 +50,13 @@ let make = (
 
   let params1 = {
     data: staticRetryData,
-    xKey: "",
+    xKey: StaticRetries->getStringFromVariant->snakeToTitle,
     yKey: TimeBucket->getStringFromVariant,
   }
 
   let params2 = {
     data: smartRetryData,
-    xKey: "",
+    xKey: SmartRetries->getStringFromVariant->snakeToTitle,
     yKey: TimeBucket->getStringFromVariant,
   }
 

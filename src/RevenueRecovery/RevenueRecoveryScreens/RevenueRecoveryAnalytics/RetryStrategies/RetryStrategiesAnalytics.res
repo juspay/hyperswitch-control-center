@@ -3,15 +3,15 @@ open InsightsTypes
 open RetryStrategiesAnalyticsUtils
 
 module RetryUpliftCard = {
-  open RetryStrategiesAnalyticsTypes
   open LogicUtils
   @react.component
   let make = (
     ~title: string,
     ~rate: float,
+    ~description: string,
     ~changeValue: float,
     ~changeDirection: statisticsDirection,
-    ~recovered: array<recoveredType>,
+    ~recovered: array<RetryStrategiesAnalyticsTypes.recoveredType>,
   ) => {
     let getLegendBg = declineType => {
       switch declineType {
@@ -36,8 +36,16 @@ module RetryUpliftCard = {
     }
 
     <div className="rounded-xl border border-gray-200 p-4 w-full bg-white">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-start gap-2 mb-3">
         <p className="text-sm text-gray-500 flex items-center"> {title->React.string} </p>
+        <ToolTip
+          description
+          toolTipFor={<div className="cursor-pointer">
+            <Icon name="info-vacent" size=15 />
+          </div>}
+          toolTipPosition=ToolTip.Top
+          newDesign=true
+        />
       </div>
       <div className="flex items-center space-x-3 mb-3">
         <p className="text-3xl font-semibold text-gray-800">
@@ -54,7 +62,9 @@ module RetryUpliftCard = {
             <span className={`w-3 h-3 ${getLegendBg(recoveredType.declineType)} rounded-[4px]`} />
             <div className="flex gap-2">
               <span className="font-medium">
-                {(recoveredType.declineType: declineTypes :> string)->snakeToTitle->React.string}
+                {(recoveredType.declineType: RetryStrategiesAnalyticsTypes.declineTypes :> string)
+                ->snakeToTitle
+                ->React.string}
               </span>
               <span className="text-gray-500">
                 {`| ${recoveredType.value->valueFormatter(Rate)}`->React.string}
@@ -100,9 +110,10 @@ let make = (~entity: moduleEntity) => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <RetryUpliftCard
         title={StaticRetries->getTitleForColumn}
+        description={StaticRetries->getDescriptionForColumn}
         rate={(retryStrategiesData->itemToObjectMapper).static_retries.auth_rate_percent}
         changeValue={(retryStrategiesData->itemToObjectMapper).static_retries.delta_percent}
-        changeDirection=No_Change
+        changeDirection=Upward
         recovered=[
           {
             declineType: #soft_declines,
@@ -114,6 +125,7 @@ let make = (~entity: moduleEntity) => {
       />
       <RetryUpliftCard
         title={SmartRetries->getTitleForColumn}
+        description={SmartRetries->getDescriptionForColumn}
         rate={(retryStrategiesData->itemToObjectMapper).smart_retries.auth_rate_percent}
         changeValue={(retryStrategiesData->itemToObjectMapper).smart_retries.delta_percent}
         changeDirection=Upward
@@ -128,6 +140,7 @@ let make = (~entity: moduleEntity) => {
       />
       <RetryUpliftCard
         title={SmartRetriesBooster->getTitleForColumn}
+        description={SmartRetriesBooster->getDescriptionForColumn}
         rate={(retryStrategiesData->itemToObjectMapper).smart_retries_booster.auth_rate_percent}
         changeValue={(retryStrategiesData->itemToObjectMapper).smart_retries_booster.delta_percent}
         changeDirection=Upward
