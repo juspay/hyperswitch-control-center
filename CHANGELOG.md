@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.11.1
+
+### Bug Fixes
+
+- Url updates for the default home page ([#3143](https://github.com/juspay/hyperswitch-control-center/pull/3143)) ([`334cdba`](https://github.com/juspay/hyperswitch-control-center/commit/334cdba15073311e81f9885858f91c99ba51a94a))
+
+### Miscellaneous Tasks
+
+- Recovery analytics ui changes ([#3124](https://github.com/juspay/hyperswitch-control-center/pull/3124)) ([`8f4d0e1`](https://github.com/juspay/hyperswitch-control-center/commit/8f4d0e182f3366da00682dead2af1005395c754b))
+
+**Full Changelog:** [`2025.06.11.0...2025.06.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.11.0...2025.06.11.1)
+
+- - -
+
 ## 2025.06.11.0
 
 ### Bug Fixes
