@@ -707,7 +707,7 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.p
   })
 }
 
-let getSidebarProductModules = (~isExplored) => {
+let useGetSidebarProductModules = (~isExplored) => {
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 

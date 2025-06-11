@@ -543,8 +543,13 @@ module ProductTypeSectionItem = {
         onClick=handleClick
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${hoverColor} rounded-lg`}>
         <div className="flex items-center gap-5">
-          <Icon size=14 name={section.icon} className=textColor />
-          <div className="text-sm  whitespace-nowrap"> {React.string(section.name)} </div>
+          <Icon size=14 name={section.icon} className={textColor} />
+          <div
+            className={`text-sm whitespace-nowrap ${isActiveProduct
+                ? `${primaryTextColor} font-semibold`
+                : ""}`}>
+            {React.string(section.name)}
+          </div>
         </div>
         <RenderIf condition={isSidebarExpanded && isExploredModule}>
           //
@@ -790,7 +795,7 @@ let make = (
                   {React.string("My Modules"->String.toUpperCase)}
                 </div>
               </RenderIf>
-              <div className="my-2">
+              <div className="my-2 flex flex-col gap-2">
                 {exploredSidebars
                 ->Array.mapWithIndex((section, index) => {
                   let isExpanded = Array.includes(expandedSections, section.name)
@@ -815,23 +820,25 @@ let make = (
                   className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest ${borderColor} leading-[18px]`}>
                   {React.string("Other Modules"->String.toUpperCase)}
                 </div>
-                {unexploredSidebars
-                ->Array.mapWithIndex((section, index) => {
-                  let isExpanded = Array.includes(expandedSections, section.name)
-                  <ProductTypeSectionItem
-                    key={Int.toString(index)}
-                    section
-                    isExpanded
-                    onToggle={_ => toggleSection(section.name)}
-                    isSidebarExpanded
-                    linkSelectionCheck
-                    firstPart
-                    openItem
-                    setOpenItem
-                    isExploredModule=false
-                  />
-                })
-                ->React.array}
+                <div className="flex flex-col gap-2">
+                  {unexploredSidebars
+                  ->Array.mapWithIndex((section, index) => {
+                    let isExpanded = Array.includes(expandedSections, section.name)
+                    <ProductTypeSectionItem
+                      key={Int.toString(index)}
+                      section
+                      isExpanded
+                      onToggle={_ => toggleSection(section.name)}
+                      isSidebarExpanded
+                      linkSelectionCheck
+                      firstPart
+                      openItem
+                      setOpenItem
+                      isExploredModule=false
+                    />
+                  })
+                  ->React.array}
+                </div>
               </RenderIf>
             </div>
           </div>
@@ -850,10 +857,8 @@ let make = (
                       `${openClasses} border-none`
                     }>
                     {_ => <>
-                      <div className="flex items-center justify-between gap-x-3  ">
-                        <div className="bg-nd_gray-600 rounded-full p-1">
-                          <Icon name="nd-user" size=16 />
-                        </div>
+                      <div className="flex items-center justify-between gap-x-3">
+                        <Icon name="nd-user" size=24 />
                         <ToolTip
                           description=email
                           toolTipFor={<RenderIf condition={isSidebarExpanded}>
