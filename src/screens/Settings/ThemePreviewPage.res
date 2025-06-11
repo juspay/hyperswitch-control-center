@@ -66,6 +66,28 @@ module MockDashboard = {
       </>
     }
 
+    let renderNavbar = () =>
+      <div className="flex flex-row gap-8 justify-between items-center w-full p-2">
+        <div
+          className="flex items-center border rounded-lg px-3 py-1 bg-white text-fs-10 text-nd_gray-400">
+          <span> {"Profile :"->React.string} </span>
+          <span className="ml-1 font-semibold text-nd_gray-500">
+            {"Test_profile"->React.string}
+          </span>
+          <Icon name="chevron-down" size=10 className="ml-1 text-nd_gray-400" />
+        </div>
+        <div
+          className="flex items-center border rounded-lg px-3 py-1 bg-white text-fs-10 text-nd_gray-400 w-72">
+          <Icon name="search" size=12 className="mr-2 text-nd_gray-400" />
+          <input
+            className="flex-1 outline-none bg-transparent text-fs-10 text-nd_gray-700"
+            placeholder="Search"
+            style={ReactDOM.Style.make(~border="none", ())}
+          />
+          <span className="ml-2 text-fs-8 text-nd_gray-300"> {"⌘ + K"->React.string} </span>
+        </div>
+      </div>
+
     <div className="bg-white rounded-lg overflow-hidden w-full shadow-xl h-3/4">
       <div className="flex h-full">
         // Org Sidebar
@@ -86,15 +108,24 @@ module MockDashboard = {
             ->Array.mapWithIndex(renderSidebarItem)
             ->React.array}
           </nav>
-          <div />
+          // Profile element at the bottom
+          <div className="p-3 border-t flex items-center gap-2">
+            <span
+              className="rounded-full bg-nd_gray-600 w-4 h-4 flex items-center justify-center text-fs-10 text-white">
+              <Icon name="user" size=8 />
+            </span>
+            <span
+              className="text-fs-10 text-nd_gray-600 truncate"
+              style={ReactDOM.Style.make(~color=theme.sidebar.textColor, ())}>
+              {"test@gmail.com"->React.string}
+            </span>
+            <Icon name="chevron-down" size=10 className="text-nd_gray-400" />
+          </div>
         </div>
         // Main Content
         <div className="flex-1 flex flex-col overflow-hidden ">
           // Navbar
-          <div className="flex flex-row gap-8 space-between p-2">
-            <img className="w-32 h-6" alt="Nav" src="/assets/profileMock.png" />
-            <img className="w-72 h-6" alt="Search" src="/assets/searchMock.png" />
-          </div>
+          {renderNavbar()}
           <div className="p-2">
             <span className="font-semibold text-gray-900 text-fs-12">
               {React.string("Page Heading")}
