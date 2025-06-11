@@ -52,6 +52,7 @@ type plotSeries = {states: states}
 type marker = {
   ...enabled,
   radius?: float,
+  symbol?: string,
 }
 
 type scatter = {marker: marker}
