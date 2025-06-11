@@ -43,7 +43,11 @@ let make = () => {
         {defaultHomeCardsArray
         ->Array.map(item =>
           <DefaultHomeCard
-            heading=item.heading description=item.description img=item.imgSrc action=item.action
+            product=item.product
+            heading=item.heading
+            description=item.description
+            img=item.imgSrc
+            action=item.action
           />
         )
         ->React.array}

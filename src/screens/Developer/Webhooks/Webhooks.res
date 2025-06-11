@@ -162,6 +162,7 @@ let make = () => {
         currrentFetchCount={webhooksData->Array.map(Nullable.make)->Array.length}
         collapseTableRow=false
         showSerialNumber=true
+        showAutoScroll=true
       />
     </PageLoaderWrapper>
   </>

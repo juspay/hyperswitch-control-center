@@ -38,10 +38,6 @@ let make = (~setScreenState) => {
     | list{"sdk"} =>
       <ConnectorContainer />
     | list{"apm"} => <APMContainer />
-    //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
-    // | list{"business-details", ..._}
-    // | list{"business-profiles", ..._} =>
-    //   <BusinessProfileContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}

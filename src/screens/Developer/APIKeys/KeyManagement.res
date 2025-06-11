@@ -384,6 +384,7 @@ module ApiKeysTable = {
           offset
           setOffset
           currrentFetchCount={data->Array.length}
+          showAutoScroll=true
           tableActions={<div className="mt-0 md:mt-5">
             <ApiKeyAddBtn getAPIKeyDetails />
           </div>}
