@@ -365,7 +365,7 @@ describe("Sign in", () => {
   });
 });
 
-(Cypress.env("CYPRESS_SSO_BASE_URL") ? describe : describe.skip).only(
+(Cypress.env("CYPRESS_SSO_BASE_URL") ? describe : describe.skip)(
   "Okta SSO tests",
   () => {
     let auth_id = "";
