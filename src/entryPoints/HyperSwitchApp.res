@@ -37,13 +37,13 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
-  let exploredModules = SidebarValues.useGetSidebarProductModules(~isExplored=true)
-  let unexploredModules = SidebarValues.useGetSidebarProductModules(~isExplored=false)
-  let exploredSidebars = SidebarValues.useGetAllProductSections(
+  let exploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=true)
+  let unexploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=false)
+  let exploredSidebars = SidebarHooks.useGetAllProductSections(
     ~isReconEnabled,
     ~products=exploredModules,
   )
-  let unexploredSidebars = SidebarValues.useGetAllProductSections(
+  let unexploredSidebars = SidebarHooks.useGetAllProductSections(
     ~isReconEnabled,
     ~products=unexploredModules,
   )
