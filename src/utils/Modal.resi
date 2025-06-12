@@ -44,7 +44,6 @@ module ModalOverlay: {
     ~children: React.element,
     ~paddingClass: string,
     ~modalHeading: option<string>,
-    ~overlayBG: string,
     ~modalPosition: string=?,
     ~noBackDrop: bool=?,
     ~isBackdropBlurReq: bool=?,

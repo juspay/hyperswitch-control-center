@@ -6,8 +6,6 @@ type appName = [
 
 type appEnv = [#production | #sandbox | #integration | #development]
 
-@val external dashboardAppName: appName = "dashboardAppName"
-
 let isLocalhost =
   Window.Location.hostname === "localhost" || Window.Location.hostname === "127.0.0.1"
 
@@ -30,18 +28,16 @@ let appendDashboardPath = (~url) => {
   }
 }
 
-let extractModulePath = (url: RescriptReactRouter.url) => {
-  let currentPathList = url.path->List.toArray
+let extractModulePath = (~path: list<string>, ~query="", ~end) => {
+  open LogicUtils
+  let currentPathList = path->List.toArray
+  let slicedPath = currentPathList->Array.slice(~start=0, ~end)
+  let pathString = slicedPath->Array.joinWith("/")->appendTrailingSlash
 
-  /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
-  let modulePath = if currentPathList->Array.includes("v2") {
-    currentPathList->Array.slice(~start=0, ~end=4)->Array.joinWith("/")->appendTrailingSlash
-  } else if currentPathList->Array.includes(dashboardPrefix) {
-    currentPathList->Array.slice(~start=0, ~end=2)->Array.joinWith("/")->appendTrailingSlash
-  } else {
-    currentPathList->Array.slice(~start=0, ~end=1)->Array.joinWith("/")->appendTrailingSlash
+  switch query->getNonEmptyString {
+  | Some(q) => `${pathString}?${q}`
+  | None => pathString
   }
-  modulePath
 }
 
 type hostType = Live | Sandbox | Local | Integ
@@ -66,8 +62,6 @@ let getEnvironment = hostType =>
 let getHostUrlWithBasePath = `${Window.Location.origin}${appendDashboardPath(~url="")}`
 
 let getHostUrl = Window.Location.origin
-
-let isHyperSwitchDashboard = dashboardAppName === #hyperswitch
 
 let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"

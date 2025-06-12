@@ -94,7 +94,6 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
   let requestPayload: ConnectorTypes.wasmRequest = {
     payment_methods_enabled: paymentMethodsEnabledArray,
     connector: connectorName,
-    metadata: Dict.make()->JSON.Encode.object,
   }
 
   let requestPayloadDict = requestPayload->constructConnectorRequestBody(initialValueForPayload)

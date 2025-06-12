@@ -40,7 +40,7 @@ module TextView = {
 
 module CompressedView = {
   @react.component
-  let make = (~id, ~isFirst) => {
+  let make = (~id, ~isFirst, ~keyType) => {
     open LogicUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let conditionInput = ReactFinalForm.useField(id).input
@@ -64,10 +64,11 @@ module CompressedView = {
           dict->getString("comparison", ""),
           dict->getDictfromDict("value")->getJsonObjectFromDict("value")->displayForValue,
           dict->getDictfromDict("metadata")->getOptionString("key"),
+          dict->getDictfromDict("value")->getDictfromDict("value")->getOptionString("key"),
         )
       })
     switch condition {
-    | Some((logical, field, operator, value, key)) =>
+    | Some((logical, field, operator, value, key, metadataKeyType)) =>
       <div className="flex flex-wrap items-center gap-4">
         {if !isFirst {
           <TextView
@@ -81,6 +82,12 @@ module CompressedView = {
         | Some(val) => <TextView str=val />
         | None => React.null
         }}
+        <RenderIf condition={keyType->AdvancedRoutingUtils.variantTypeMapper == Metadata_value}>
+          {switch metadataKeyType {
+          | Some(val) => <TextView str=val />
+          | None => React.null
+          }}
+        </RenderIf>
         <TextView str=operator fontColor="text-red-500" fontWeight="font-semibold" />
         <TextView str={value} />
       </div>

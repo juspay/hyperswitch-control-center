@@ -69,7 +69,7 @@ let getV2Url = (
     | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
     | None => ""
     }
-  /* MERCHANT ACCOUNT DETAILS (Get and Post) */
+  /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
   | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
   | USERS =>
     let userUrl = `user`
@@ -607,6 +607,17 @@ let useGetURL = () => {
       /* EVENT LOGS */
       | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
 
+      | WEBHOOK_EVENTS => `events/profile/list`
+      | WEBHOOK_EVENTS_ATTEMPTS =>
+        switch id {
+        | Some(id) => `events/${merchantId}/${id}/attempts`
+        | None => `events/${merchantId}/attempts`
+        }
+      | WEBHOOKS_EVENTS_RETRY =>
+        switch id {
+        | Some(id) => `events/${merchantId}/${id}/retry`
+        | None => `events/${merchantId}/retry`
+        }
       | WEBHOOKS_EVENT_LOGS =>
         switch methodType {
         | Get =>
@@ -646,13 +657,18 @@ let useGetURL = () => {
       | BUSINESS_PROFILE =>
         switch methodType {
         | Get =>
-          switch userEntity {
-          | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile =>
-            `account/${merchantId}/profile`
+          switch id {
+          | Some(id) => `account/${merchantId}/business_profile/${id}`
+          | None =>
+            switch userEntity {
+            | #Tenant
+            | #Organization
+            | #Merchant
+            | #Profile =>
+              `account/${merchantId}/profile`
+            }
           }
+
         | Post =>
           switch id {
           | Some(id) => `account/${merchantId}/business_profile/${id}`
@@ -883,8 +899,7 @@ let useGetURL = () => {
   getUrl
 }
 
-let useHandleLogout = () => {
-  open SessionStorage
+let useHandleLogout = (~eventName="user_sign_out") => {
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -895,7 +910,7 @@ let useHandleLogout = () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
-      mixpanelEvent(~eventName="user_sign_out")
+      mixpanelEvent(~eventName)
       let _ =
         fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute, ~forceCookies)
         ->then(Fetch.Response.json)
@@ -907,10 +922,9 @@ let useHandleLogout = () => {
         })
       setAuthStateToLogout()
       clearRecoilValue()
-      sessionStorage.removeItem("product")
-      LocalStorage.clear()
+      CommonAuthUtils.clearLocalStorage()
     } catch {
-    | _ => LocalStorage.clear()
+    | _ => CommonAuthUtils.clearLocalStorage()
     }
   }
 }

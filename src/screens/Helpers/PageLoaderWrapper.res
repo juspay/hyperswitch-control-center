@@ -6,21 +6,19 @@ module ScreenLoader = {
   let make = (~sectionHeight="h-80-vh") => {
     let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
     let loader = LottieFiles.useLottieJson("loader-circle.json")
-    let {devThemeFeature} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let {userInfo: {themeId}} = React.useContext(UserInfoProvider.defaultContext)
+    let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
     let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let showLoader = devThemeFeature && themeId->LogicUtils.isNonEmptyString
-    <div className={`${sectionHeight} w-scrren flex flex-col justify-center items-center`}>
+    let showLoader = themeId->Option.getOr("")->LogicUtils.isNonEmptyString
+    <div className={`${sectionHeight} flex flex-col justify-center items-center`}>
       <RenderIf condition={!branding}>
-        <div className="w-20 h-16">
-          <ReactSuspenseWrapper>
-            <div className="scale-400 pt-px">
-              <Lottie
-                animationData={showLoader ? loader : loaderLottieFile} autoplay=true loop=true
-              />
-            </div>
-          </ReactSuspenseWrapper>
-        </div>
+        <ReactSuspenseWrapper>
+          <Lottie
+            animationData={showLoader ? loader : loaderLottieFile}
+            autoplay=true
+            loop=true
+            style={{height: 300, width: 300, transform: "unset"}}
+          />
+        </ReactSuspenseWrapper>
       </RenderIf>
       <RenderIf condition={branding}>
         <Loader />

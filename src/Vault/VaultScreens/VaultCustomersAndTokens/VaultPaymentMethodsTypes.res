@@ -8,12 +8,6 @@ type psp_tokens = {
 
 type psp_tokensization = {psp_token: array<psp_tokens>}
 
-type network_tokensization = {
-  enabled: bool,
-  status: string,
-  token: string,
-}
-
 type paymentMethodCardType = {
   issuer_country: string,
   last4_digits: string,
@@ -31,10 +25,11 @@ type paymentMethodCardType = {
 
 type paymentMethodType = {card: paymentMethodCardType}
 
+type network_tokensization = {payment_method_data: JSON.t}
+
 //TODO: network and psp types move to details page, modify as per API response
 
 type vaultPaymentMethods = {
-  merchant: string,
   customer_id: option<string>,
   id: string,
   payment_method_type: option<string>,
@@ -49,6 +44,7 @@ type vaultPaymentMethods = {
   last_used_at: string,
   network_transaction_id: string,
   payment_method_data: paymentMethodType,
+  psp_tokenization_enabled: bool,
 }
 
 type paymentMethodsColsTypes =

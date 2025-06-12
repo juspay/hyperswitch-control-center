@@ -8,14 +8,14 @@ module Review = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let (buttonState, setButtonState) = React.useState(() => Button.Normal)
-
+    let (showLoading, setShowLoading) = React.useState(() => false)
     let reviewFields = reviewFields->getReviewFields
     let queryParamerters = isUpload ? "upload_data=true" : "upload_data=false"
+    let loaderLottieFile = LottieFiles.useLottieJson("spinner.json")
 
     let uploadData = async () => {
       try {
-        setButtonState(_ => Button.Loading)
+        setShowLoading(_ => true)
         let url = getURL(
           ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
           ~methodType=Post,
@@ -29,12 +29,11 @@ module Review = {
             GlobalVars.appendDashboardPath(~url="v2/dynamic-routing/dashboard"),
           )
         }
-        setButtonState(_ => Button.Normal)
+        setShowLoading(_ => false)
       } catch {
-      | _ => {
-          setButtonState(_ => Button.Normal)
-          showToast(~message="Upload data failed", ~toastType=ToastError)
-        }
+      | _ =>
+        setShowLoading(_ => false)
+        showToast(~message="Upload data failed", ~toastType=ToastError)
       }
     }
 
@@ -43,36 +42,69 @@ module Review = {
       mixpanelEvent(~eventName="intelligent_routing_upload_data")
     }
 
-    <div className="w-500-px">
-      {IntelligentRoutingHelper.stepperHeading(
-        ~title="Review Data Summary",
-        ~subTitle="Explore insights in the dashboard",
-      )}
-      <div className="mt-6">
-        <VaultCustomerSummary.Details
-          data=reviewFields
-          getHeading
-          getCell
-          detailsFields=allColumns
-          widthClass=""
-          justifyClassName="grid grid-cols-none"
+    let modalBody =
+      <div className="">
+        <div className="text-xl p-3 m-3 font-semibold text-nd_gray-700">
+          {"Running Intelligence Routing "->React.string}
+        </div>
+        <hr />
+        <div className="flex flex-col gap-12 items-center pt-10 pb-6 px-6">
+          <div className="w-8">
+            <span className="px-3">
+              <span className={`flex items-center`}>
+                <div className="scale-400 pt-px">
+                  <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
+                </div>
+              </span>
+            </span>
+          </div>
+          <p className="text-center text-nd_gray-600">
+            {"Please wait while we are analyzing data. Our intelligent models are working to determine the potential authentication rate uplift."->React.string}
+          </p>
+        </div>
+      </div>
+
+    <div>
+      <div className="w-500-px">
+        {IntelligentRoutingHelper.stepperHeading(
+          ~title="Review Data Summary",
+          ~subTitle="Explore insights in the dashboard",
+        )}
+        <div className="mt-6">
+          <VaultCustomerSummary.Details
+            data=reviewFields
+            getHeading
+            getCell
+            detailsFields=allColumns
+            widthClass=""
+            justifyClassName="grid grid-cols-none"
+          />
+        </div>
+        <Button
+          text="Explore Insights"
+          customButtonStyle={`w-full mt-6 hover:opacity-80 ${showLoading ? "cursor-wait" : ""}`}
+          buttonType=Primary
+          onClick={_ => handleNext()}
+          rightIcon={showLoading
+            ? CustomIcon(
+                <span className="px-3">
+                  <span className={`flex items-center mx-2 animate-spin`}>
+                    <Loadericon size=14 iconColor="text-white" />
+                  </span>
+                </span>,
+              )
+            : NoIcon}
         />
       </div>
-      <Button
-        text="Explore Insights"
-        customButtonStyle={`w-full hover:opacity-80 ${buttonState == Loading ? "cursor-wait" : ""}`}
-        buttonType=Primary
-        onClick={_ => handleNext()}
-        rightIcon={buttonState === Button.Loading
-          ? CustomIcon(
-              <span className="px-3">
-                <span className={`flex items-center mx-2 animate-spin`}>
-                  <Loadericon size=14 iconColor="text-white" />
-                </span>
-              </span>,
-            )
-          : NoIcon}
-      />
+      <Modal
+        showModal=showLoading
+        closeOnOutsideClick=false
+        setShowModal=setShowLoading
+        childClass="p-0"
+        borderBottom=true
+        modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+        {modalBody}
+      </Modal>
     </div>
   }
 }
@@ -96,25 +128,11 @@ module Analyze = {
     let getReviewData = async () => {
       try {
         let response = {
-          "total": 81735,
-          "total_amount": 27289187.399992384,
+          "total": 74894,
+          "total_amount": 26317180.359999552,
           "file_name": "baseline_data.csv",
-          "processors": [
-            "PSP1",
-            "PSP2",
-            "PSP3",
-            "PSP4",
-            "PSP5",
-            "PSP6",
-            "PSP7",
-            "PSP8",
-            "PSP9",
-            "PSP10",
-            "PSP11",
-            "PSP12",
-            "PSP13",
-          ],
-          "payment_methods": ["APPLEPAY", "CARD", "WALLET"],
+          "processors": ["PSP1", "PSP2", "PSP3", "PSP4", "PSP5"],
+          "payment_method_types": ["APPLEPAY", "CARD", "AMAZONPAY"],
         }->Identity.genericTypeToJson
         setReviewFields(_ => response)
       } catch {
@@ -126,7 +144,7 @@ module Analyze = {
       }
     }
 
-    let steps = ["Preparing sample data", "Apply Rule-based Routing", "Apply Debit Routing"]
+    let steps = ["Preparing sample data"]
 
     let loadButton = async () => {
       for i in 0 to Array.length(steps) - 1 {
@@ -173,6 +191,7 @@ module Analyze = {
                   onClick={_ => setSelectedField(_ => item)}
                   iconName=fileTypeIcon
                   isDisabled={item === Upload}
+                  showDemoLabel={item === Sample ? true : false}
                 />
               })
               ->React.array}
@@ -202,7 +221,7 @@ module Analyze = {
         ->React.array}
         <Button
           text
-          customButtonStyle={`w-full hover:opacity-80 ${text != "Next" ? "cursor-wait" : ""}`}
+          customButtonStyle={`w-full mt-6 hover:opacity-80 ${text != "Next" ? "cursor-wait" : ""}`}
           buttonType={Primary}
           onClick={_ => handleNext()}
           rightIcon={text != "Next"
@@ -263,13 +282,13 @@ let make = () => {
       </h1>
     </>
 
-  <div className="h-full w-full">
+  <div className="h-774-px w-full">
     {IntelligentRoutingHelper.simulatorBanner}
-    <div className="flex flex-row mt-10 py-10">
+    <div className="flex flex-row mt-5 py-10 h-774-px">
       <VerticalStepIndicator
         titleElement=intelligentRoutingTitleElement sections currentStep backClick
       />
-      <div className="p-12">
+      <div className="mx-12 mt-16 overflow-y-auto">
         {switch currentStep {
         | {sectionId: "analyze"} => <Analyze onNextClick setReviewFields setIsUpload />
         | {sectionId: "review"} => <Review reviewFields isUpload />

@@ -1,3 +1,8 @@
+type timeRange = {
+  minDate: string,
+  maxDate: string,
+}
+
 type dataType = Historical | Realtime
 type file = Sample | Upload
 type realtime = StreamLive
@@ -7,28 +12,34 @@ type reviewFieldsColsType =
   | TotalAmount
   | FileName
   | Processors
-  | PaymentMethod
+  | PaymentMethodTypes
 
 type reviewFields = {
   total: int,
   total_amount: int,
   file_name: string,
   processors: array<string>,
-  payment_methods: array<string>,
+  payment_method_types: array<string>,
 }
 
-type transactionDetails = {
+type transactionObj = {
   txn_no: int,
   payment_intent_id: string,
   payment_attempt_id: string,
   amount: float,
   payment_gateway: string,
   payment_status: bool,
+  card_network: string,
   created_at: string,
   payment_method_type: string,
   order_currency: string,
   model_connector: string,
   suggested_uplift: float,
+}
+
+type transactionDetails = {
+  total_payment_count: string,
+  simulation_outcome_of_each_txn: array<transactionObj>,
 }
 
 type stats = {

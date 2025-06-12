@@ -16,6 +16,10 @@ type customersColsType =
   | Email
   | Phone
   | PhoneCountryCode
-  | Description
   | Address
   | CreatedAt
+
+type totalTokenCountComponentStateTypes =
+  | Loading
+  | Success
+  | Error

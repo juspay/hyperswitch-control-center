@@ -207,7 +207,7 @@ let getMetricsData = (queryData: queryDataType) => {
     {
       title: "Payments Requiring 3DS authentication",
       value: queryData.authentication_count->Int.toFloat,
-      valueType: No_Type,
+      valueType: Default,
       tooltip_description: "Total number of payments which requires 3DS 2.0 authentication",
     },
     {
@@ -288,7 +288,11 @@ let compareToInput = (~comparisonKey) => {
 
 let (startTimeFilterKey, endTimeFilterKey) = ("startTime", "endTime")
 
-let initialFixedFilterFields = () => {
+let initialFixedFilterFields = (~events=?) => {
+  let events = switch events {
+  | Some(fn) => fn
+  | _ => () => ()
+  }
   let newArr = [
     (
       {
@@ -317,6 +321,7 @@ let initialFixedFilterFields = () => {
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
+            ~events,
           ),
           ~inputFields=[],
           ~isRequired=false,

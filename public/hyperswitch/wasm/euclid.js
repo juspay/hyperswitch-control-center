@@ -237,6 +237,27 @@ export function convertCurrency(amount, from_currency, to_currency) {
 }
 
 /**
+ * This function can be used by the frontend to get all the two letter country codes
+ * along with their country names.
+ * @returns {any}
+ */
+export function getTwoLetterCountryCode() {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.getTwoLetterCountryCode(retptr);
+        var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+        var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+        var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+        if (r2) {
+            throw takeObject(r1);
+        }
+        return takeObject(r0);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+}
+
+/**
  * This function can be used by the frontend to provide the WASM with information about
  * all the merchant's connector accounts. The input argument is a vector of all the merchant's
  * connector accounts from the API.

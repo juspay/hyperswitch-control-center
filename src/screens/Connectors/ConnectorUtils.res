@@ -26,6 +26,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(PAYPAL),
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
+  PayoutProcessor(NOMUPAY),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -33,6 +34,7 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(NETCETERA),
   ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD),
   ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
+  ThreeDsAuthenticator(CLICK_TO_PAY_VISA),
 ]
 
 let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
@@ -110,6 +112,10 @@ let connectorList: array<connectorTypes> = [
   Processors(XENDIT),
   Processors(INESPAY),
   Processors(MONERIS),
+  Processors(REDSYS),
+  Processors(HIPAY),
+  Processors(PAYSTACK),
+  Processors(FACILITAPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -137,6 +143,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
+  Processors(WORLDPAY),
   Processors(ZSL),
   Processors(ZEN),
 ]
@@ -418,6 +425,21 @@ let monerisInfo = {
   description: "Unify your retail operations with the combined power of Moneris and Wix, in an all-in-one omnichannel POS solution.",
 }
 
+let redsysInfo = {
+  description: "Redsys is a Spanish payment gateway offering secure and innovative payment solutions for merchants and banks.",
+}
+let hipayInfo = {
+  description: "HiPay is a global payment service provider offering a range of solutions for online, mobile, and in-store payments. It supports multiple payment methods, including credit cards, e-wallets, and local payment options, with a focus on fraud prevention and data-driven insights.",
+}
+
+let paystackInfo = {
+  description: "Paystack is a technology company solving payments problems for ambitious businesses. Paystack builds technology to help Africa's best businesses grow - from new startups, to market leaders launching new business models.",
+}
+
+let facilitapayInfo = {
+  description: "Facilitapay is a payment provider for international businesses.Their all-in-one payment hub encompasses all payment methods,pay-ins and pay-outs.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -466,6 +488,9 @@ let netceteraInfo = {
 }
 
 let clickToPayInfo = {
+  description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
+}
+let clickToPayVisaInfo = {
   description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
 }
 
@@ -550,6 +575,10 @@ let chargebeeInfo = {
 let nexixpayInfo = {
   description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
 }
+let nomupayInfo = {
+  description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -658,6 +687,10 @@ let getConnectorNameString = (connector: processorTypes) =>
   | XENDIT => "xendit"
   | INESPAY => "inespay"
   | MONERIS => "moneris"
+  | REDSYS => "redsys"
+  | HIPAY => "hipay"
+  | PAYSTACK => "paystack"
+  | FACILITAPAY => "facilitapay"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -669,6 +702,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | PAYPAL => "paypal"
   | STRIPE => "stripe"
   | WISE => "wise"
+  | NOMUPAY => "nomupay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -677,6 +711,7 @@ let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthentica
   | NETCETERA => "netcetera"
   | CLICK_TO_PAY_MASTERCARD => "ctp_mastercard"
   | JUSPAYTHREEDSSERVER => "juspaythreedsserver"
+  | CLICK_TO_PAY_VISA => "ctp_visa"
   }
 
 let getFRMNameString = (frm: frmTypes) => {
@@ -798,6 +833,10 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "xendit" => Processors(XENDIT)
     | "inespay" => Processors(INESPAY)
     | "moneris" => Processors(MONERIS)
+    | "redsys" => Processors(REDSYS)
+    | "hipay" => Processors(HIPAY)
+    | "paystack" => Processors(PAYSTACK)
+    | "facilitapay" => Processors(FACILITAPAY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -809,6 +848,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paypal" => PayoutProcessor(PAYPAL)
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
+    | "nomupay" => PayoutProcessor(NOMUPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -817,6 +857,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "netcetera" => ThreeDsAuthenticator(NETCETERA)
     | "ctp_mastercard" => ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD)
     | "juspaythreedsserver" => ThreeDsAuthenticator(JUSPAYTHREEDSSERVER)
+    | "ctp_visa" => ThreeDsAuthenticator(CLICK_TO_PAY_VISA)
     | _ => UnknownConnector("Not known")
     }
   | FRMPlayer =>
@@ -918,6 +959,10 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | XENDIT => xenditInfo
   | INESPAY => inespayInfo
   | MONERIS => monerisInfo
+  | REDSYS => redsysInfo
+  | HIPAY => hipayInfo
+  | PAYSTACK => paystackInfo
+  | FACILITAPAY => facilitapayInfo
   }
 }
 
@@ -930,6 +975,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | PAYPAL => paypalInfo
   | STRIPE => stripeInfo
   | WISE => wiseInfo
+  | NOMUPAY => nomupayInfo
   }
 }
 
@@ -939,6 +985,7 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   | NETCETERA => netceteraInfo
   | CLICK_TO_PAY_MASTERCARD => clickToPayInfo
   | JUSPAYTHREEDSSERVER => juspayThreeDsServerInfo
+  | CLICK_TO_PAY_VISA => clickToPayVisaInfo
   }
 let getFrmInfo = frm =>
   switch frm {
@@ -1248,6 +1295,8 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
+  | (BillingProcessor(CHARGEBEE), "merchant_secret") => true
+  | (BillingProcessor(CHARGEBEE), "additional_secret") => true
   | _ => false
   }
 }
@@ -1396,9 +1445,16 @@ let connectorLabelDetailField = Dict.fromArray([
 let getConnectorFields = connectorDetails => {
   open LogicUtils
   let connectorAccountDict =
-    connectorDetails->getDictFromJsonObject->getDictfromDict("connector_auth")
-  let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
-  let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
+    connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
+  let bodyType = switch connectorAccountDict->JSON.Classify.classify {
+  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "")
+  | String(_) => "NoKey"
+  | _ => ""
+  }
+  let connectorAccountFields = switch bodyType {
+  | "NoKey" => Dict.make()
+  | _ => connectorAccountDict->getDictFromJsonObject->getDictfromDict(bodyType)
+  }
   let connectorMetaDataFields = connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
@@ -1407,7 +1463,8 @@ let getConnectorFields = connectorDetails => {
     connectorDetails
     ->getDictFromJsonObject
     ->getDictfromDict("additional_merchant_data")
-  (
+
+  {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
@@ -1415,7 +1472,7 @@ let getConnectorFields = connectorDetails => {
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  )
+  }
 }
 
 let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
@@ -1577,6 +1634,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
         ? JSON.Encode.null
         : dict->getDictfromDict("connector_wallets_details")->JSON.Encode.object,
     ),
+    (
+      "metadata",
+      dict->getDictfromDict("metadata")->isEmptyDict
+        ? Dict.make()->JSON.Encode.object
+        : dict->getDictfromDict("metadata")->JSON.Encode.object,
+    ),
   ])
 
   values
@@ -1639,6 +1702,17 @@ let defaultSelectAllCards = (
   }
 }
 
+let connectorTypeToListMapper = connector => {
+  switch connector {
+  | Processor => connectorList
+  | ThreeDsAuthenticator => threedsAuthenticatorList
+  | PayoutProcessor => payoutConnectorList
+  | TaxProcessor => taxProcessorList
+  | PMAuthenticationProcessor => pmAuthenticationConnectorList
+  | _ => []
+  }
+}
+
 let getConnectorPaymentMethodDetails = async (
   ~initialValues,
   ~setPaymentMethods,
@@ -1651,7 +1725,7 @@ let getConnectorPaymentMethodDetails = async (
   open LogicUtils
   try {
     let json = Window.getResponsePayload(initialValues)
-    let metaData = json->getDictFromJsonObject->getJsonObjectFromDict("metadata")
+    let metaData = initialValues->getDictFromJsonObject->getJsonObjectFromDict("metadata")
     let paymentMethodEnabled =
       json
       ->getDictFromJsonObject
@@ -1749,6 +1823,10 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | XENDIT => "Xendit"
   | INESPAY => "Inespay"
   | MONERIS => "Moneris"
+  | REDSYS => "Redsys"
+  | HIPAY => "HiPay"
+  | PAYSTACK => "Paystack"
+  | FACILITAPAY => "Facilitapay"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -1760,14 +1838,16 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | PAYPAL => "PayPal"
   | STRIPE => "Stripe"
   | WISE => "Wise"
+  | NOMUPAY => "Nomupay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
   | NETCETERA => "Netcetera"
-  | CLICK_TO_PAY_MASTERCARD => "Unified Click to Pay"
+  | CLICK_TO_PAY_MASTERCARD => "Mastercard Unified Click to Pay"
   | JUSPAYTHREEDSSERVER => "Juspay 3DS Server"
+  | CLICK_TO_PAY_VISA => "Visa Unified Click to Pay"
   }
 
 let getDisplayNameForFRMConnector = frmConnector =>

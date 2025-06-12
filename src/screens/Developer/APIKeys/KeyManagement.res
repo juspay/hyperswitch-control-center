@@ -108,7 +108,7 @@ module ApiEditModal = {
             initialValues={initialValues->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToPristine
             validate={values =>
-              validateAPIKeyForm(values, ["name", "expiration"], ~setShowCustomDate)}
+              validateAPIKeyForm(values, ["name", "expiration", "description"], ~setShowCustomDate)}
             onSubmit
             render={({handleSubmit}) => {
               <LabelVisibilityContext showLabel=false>
@@ -373,7 +373,8 @@ module ApiKeysTable = {
           {"API Keys"->React.string}
         </h2>
         <LoadedTable
-          title=" "
+          title="Keys"
+          hideTitle=true
           resultsPerPage=7
           visibleColumns
           entity=apiKeysTableEntity

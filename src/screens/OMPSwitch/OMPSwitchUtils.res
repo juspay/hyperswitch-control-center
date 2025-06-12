@@ -6,8 +6,8 @@ let ompDefaultValue = (currUserId, currUserName) => {
 }
 
 let currentOMPName = (list: array<ompListTypes>, id: string) => {
-  switch list->Array.find(user => user.id == id) {
-  | Some(user) => user.name
+  switch list->Array.find(listValue => listValue.id == id) {
+  | Some(listValue) => listValue.name
   | None => id
   }
 }
@@ -83,4 +83,10 @@ let analyticsViewList = (~checkUserEntity): ompViews => {
   } else {
     []
   }
+}
+
+let keyExtractorForMerchantid = item => {
+  open LogicUtils
+  let dict = item->getDictFromJsonObject
+  dict->getString("merchant_id", "")
 }

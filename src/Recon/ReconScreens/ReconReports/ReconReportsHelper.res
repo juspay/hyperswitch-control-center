@@ -109,7 +109,7 @@ module ListBaseComp = {
         </RenderIf>
       </div>
       <RenderIf condition={showDropdownArrow}>
-        <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+        <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
       </RenderIf>
     </div>
   }

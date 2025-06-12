@@ -340,8 +340,8 @@ module BusinessProfileRender = {
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-    let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
+    let businessProfileRecoilVal =
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
@@ -360,10 +360,12 @@ module BusinessProfileRender = {
           ~customInput=(~input, ~placeholder as _) =>
             InputFields.selectInput(
               ~deselectDisable=true,
-              ~disableSelect={isUpdateFlow || businessProfiles->HomeUtils.isDefaultBusinessProfile},
+              ~disableSelect={
+                isUpdateFlow || [businessProfileRecoilVal]->HomeUtils.isDefaultBusinessProfile
+              },
               ~customStyle="max-h-48",
               ~options={
-                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
+                [businessProfileRecoilVal]->MerchantAccountUtils.businessProfileNameDropDownOption
               },
               ~buttonText="Select Profile",
             )(
@@ -371,13 +373,7 @@ module BusinessProfileRender = {
                 ...input,
                 onChange: {
                   ev => {
-                    let profileName = (
-                      businessProfiles
-                      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
-                        ele.profile_id === ev->Identity.formReactEventToString
-                      )
-                      ->Option.getOr(defaultBusinessProfile)
-                    ).profile_name
+                    let profileName = businessProfileRecoilVal.profile_name
                     connectorLabelOnChange(
                       `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,
                     )
@@ -425,7 +421,6 @@ module VerifyConnectorModal = {
       childClass="p-0 m-0 -mt-8"
       customHeight="border-0 h-fit"
       showCloseIcon=false
-      modalHeading=" "
       headingClass="h-2 bg-orange-960 rounded-t-xl"
       onCloseClickCustomFun={_ => {
         setVerifyDone(_ => NoAttempt)

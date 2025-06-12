@@ -1,8 +1,8 @@
 open VaultCustomersType
 
-let defaultColumns = [CustomerId, Name, Email, PhoneCountryCode, Phone, Description, CreatedAt]
+let defaultColumns = [CustomerId, Name, Email, PhoneCountryCode, Phone, CreatedAt]
 
-let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Description, Address, CreatedAt]
+let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Address, CreatedAt]
 
 let getHeading = colType => {
   switch colType {
@@ -11,7 +11,6 @@ let getHeading = colType => {
   | Email => Table.makeHeaderInfo(~key="email", ~title="Email")
   | PhoneCountryCode => Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code")
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone")
-  | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
   | Address => Table.makeHeaderInfo(~key="address", ~title="Address")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created")
   }
@@ -21,10 +20,8 @@ let getCell = (customersData, colType): Table.cell => {
   switch colType {
   | CustomerId =>
     CustomCell(
-      <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/customers/${customersData.id}`}
-        displayValue={customersData.id}
-        copyValue={Some(customersData.id)}
+      <HelperComponents.CopyTextCustomComp
+        displayValue={Some(customersData.id)} copyValue={Some(customersData.id)}
       />,
       "",
     )
@@ -32,7 +29,6 @@ let getCell = (customersData, colType): Table.cell => {
   | Email => Text(customersData.email)
   | Phone => Text(customersData.phone)
   | PhoneCountryCode => Text(customersData.phone_country_code)
-  | Description => Text(customersData.description)
   | Address => Date(customersData.address)
   | CreatedAt => Date(customersData.created_at)
   }
@@ -65,19 +61,23 @@ let getCustomers: JSON.t => array<customers> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let customersEntity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=getCustomers,
-  ~defaultColumns,
-  ~allColumns,
-  ~getHeading,
-  ~getCell,
-  ~dataKey="",
-  ~getShowLink={
-    customerData =>
-      GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
-  },
-)
+let customersEntity = callMixpanel => {
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=getCustomers,
+    ~defaultColumns,
+    ~allColumns,
+    ~getHeading,
+    ~getCell,
+    ~dataKey="",
+    ~getShowLink={
+      customerData => {
+        callMixpanel("vault_view_customer_details")
+        GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
+      }
+    },
+  )
+}
 
 let colToStringMapper = val => {
   switch val {
@@ -86,7 +86,6 @@ let colToStringMapper = val => {
   | Email => "Email"
   | Phone => "Phone"
   | PhoneCountryCode => "Phone Country Code"
-  | Description => "Description"
   | Address => "Address"
   | CreatedAt => "Created"
   }

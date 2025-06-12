@@ -4,7 +4,7 @@ module DefaultActionItem = {
   let make = (~heading, ~description, ~img, ~action) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     <div
-      className="border rounded-xl p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer w-334-px justify-between py-4"
+      className="border rounded-xl p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer w-full justify-between py-4"
       onClick={_ => {
         switch action {
         | InternalRoute(route) =>
@@ -39,8 +39,8 @@ module DefaultHomeCard = {
     )
 
     <div
-      className="w-499-px p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
-      <img className="w-full h-195-px object-cover rounded-xl" src={img} />
+      className="w-full p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
+      <img className="w-full h-auto aspect-video object-cover rounded-xl" src={img} />
       <div className="flex flex-col p-2 gap-1">
         <span className="text-fs-16 text-nd_gray-600 font-semibold leading-24">
           {heading->React.string}
@@ -78,16 +78,13 @@ module DefaultHomeCard = {
 let defaultHomeActionArray = {
   [
     {
-      heading: "Set up API Keys",
-      description: "Configure API keys and start integrating.",
-      imgSrc: "/assets/VaultServerImage.svg",
-      action: InternalRoute("developer-api-keys"),
-    },
-    {
-      heading: "Invite your team",
-      description: "Invite your team to collaborate.",
+      heading: "Product and tech blog",
+      description: "Learn about payments, payment orchestration and all the tech behind it.",
       imgSrc: "/assets/DefaultHomeTeam.svg",
-      action: InternalRoute("users"),
+      action: ExternalLink({
+        url: "https://hyperswitch.io/blog",
+        trackingEvent: "dev_docs",
+      }),
     },
     {
       heading: "Developer Docs",
@@ -112,7 +109,7 @@ let defaultHomeCardsArray = {
     {
       product: Vault,
       heading: "Vault",
-      description: "A modular solution designed to unify various abstractions, seamlessly connecting with payment processors, payout processors, fraud management, tax automation, identity solutions, and reporting systems.",
+      description: "A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data—without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
       action: InternalRoute("v2/vault"),
     },
@@ -125,10 +122,10 @@ let defaultHomeCardsArray = {
     },
     {
       product: Recovery,
-      heading: "Recovery",
+      heading: "Revenue Recovery",
       description: "A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.",
       imgSrc: "/assets/DefaultHomeRecoveryCard.svg",
-      action: InternalRoute("v2/recovery/home"),
+      action: InternalRoute("v2/recovery"),
     },
   ]
 }

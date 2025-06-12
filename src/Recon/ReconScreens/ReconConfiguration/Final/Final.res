@@ -17,7 +17,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
     | None => ()
     }
     setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recon/overview"))
     setShowOnBoarding(_ => false)
   }
 
@@ -32,13 +32,12 @@ let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
   <div className="flex flex-col h-full gap-y-10">
     <div className="flex flex-col h-full gap-y-10">
       <ReconConfigurationHelper.SubHeading
-        title="Reconciliation Successful"
-        subTitle="Explore the all the Recon metrics in the dashboard"
+        title="Reconciliation Successful" subTitle="Explore all the Recon metrics in the dashboard"
       />
       <div className="flex flex-col gap-6">
         <ReconConfigurationHelper.StepCard
           key="order_data_successful"
-          stepName="Order connection successful"
+          stepName="Order data connection successful"
           description=""
           isSelected=true
           customSelectionComponent

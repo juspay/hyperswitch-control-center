@@ -10,20 +10,29 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (queryData, setQueryData) = React.useState(_ => Dict.make()->itemToObjMapperForQueryData)
   let (funnelData, setFunnelData) = React.useState(_ => Dict.make()->itemToObjMapperForFunnelData)
-  let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
+  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+    FilterContext.filterContext,
+  )
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
-  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
 
   let title = "Authentication Analytics"
   let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
   let (dimensions, setDimensions) = React.useState(_ => [])
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  React.useEffect(() => {
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      mixpanelEvent(~eventName="authentication_analytics_date_filter")
+    }
+    None
+  }, (startTimeVal, endTimeVal))
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="authentication_analytics_date_filter_opened")
+  }
 
   let loadInfo = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let infoUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Get)
       let infoDetails = await fetchDetails(infoUrl)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -38,6 +47,7 @@ let make = () => {
   let tabNames = HSAnalyticsUtils.getStringListFromArrayDict(dimensions)
 
   let getFilters = async () => {
+    setFilterDataJson(_ => None)
     try {
       let analyticsfilterUrl = getURL(
         ~entityName=V1(ANALYTICS_AUTHENTICATION_V2_FILTERS),
@@ -168,7 +178,9 @@ let make = () => {
   }, [])
 
   React.useEffect(() => {
-    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+    if (
+      startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString && dimensions->Array.length > 0
+    ) {
       getFilters()->ignore
     }
     None
@@ -179,7 +191,7 @@ let make = () => {
       getMetricsDetails()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, filterValueJson))
+  }, (startTimeVal, endTimeVal, filterValue))
 
   let topFilterUi = switch filterDataJson {
   | Some(filterData) =>
@@ -189,7 +201,7 @@ let make = () => {
         initialFilters={HSAnalyticsUtils.initialFilterFields(filterData)}
         options=[]
         popupFilterFields={HSAnalyticsUtils.options(filterData)}
-        initialFixedFilters={initialFixedFilterFields()}
+        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
         key="0"
@@ -206,10 +218,10 @@ let make = () => {
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields()}
+        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
-        key="0"
+        key="1"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
@@ -224,16 +236,8 @@ let make = () => {
       <div className="flex justify-end mr-4">
         <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
       </div>
-      <Portal to="AuthenticationAnalyticsV2OMPView">
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-          selectedEntity={transactionEntity}
-          onChange={updateTransactionEntity}
-          entityMapper=UserInfoUtils.transactionEntityMapper
-        />
-      </Portal>
       <div
-        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
+        className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         {topFilterUi}
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

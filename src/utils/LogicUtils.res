@@ -95,6 +95,15 @@ let toKebabCase = str => {
   ->Array.joinWith("-")
 }
 
+let kebabToSnakeCase = str => {
+  let strArr = str->String.replaceRegExp(%re("/[-_]+/g"), " ")->String.split(" ")
+  strArr
+  ->Array.map(item => {
+    item->String.toLocaleLowerCase
+  })
+  ->Array.joinWith("_")
+}
+
 let getNameFromEmail = email => {
   email
   ->String.split("@")
@@ -600,7 +609,7 @@ let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="", 
   | Latency => latencyShortNum(~labelValue=value)
   | LatencyMs => latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
   | FormattedAmount => formatAmount(value->Float.toInt, currency)
-  | No_Type => value->Float.toString
+  | Default => value->Float.toString
   }
 }
 
@@ -747,4 +756,16 @@ let removeTrailingSlash = str => {
   } else {
     str
   }
+}
+
+let getMappedValueFromArrayOfJson = (array, itemToObjMapper) =>
+  array->Belt.Array.keepMap(JSON.Decode.object)->Array.map(itemToObjMapper)
+
+let uniqueObjectFromArrayOfObjects = (arr, keyExtractor) => {
+  let uniqueDict = Dict.make()
+  arr->Array.forEach(item => {
+    let key = keyExtractor(item)
+    Dict.set(uniqueDict, key, item)
+  })
+  Dict.valuesToArray(uniqueDict)
 }

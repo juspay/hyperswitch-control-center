@@ -4,11 +4,22 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
 
   <PageWrapper
     title="Configure Recovery Plan"
-    subTitle="Choose one processor for now. You can connect more processors later">
+    subTitle="Set up how invoices should be selected and processed for recovery.">
     <div className="mb-10 flex flex-col gap-8">
       <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
         <div>
-          <div className="text-nd_gray-700 font-medium"> {"Start Retry After"->React.string} </div>
+          <div className="text-nd_gray-700 font-medium flex gap-2 w-fit align-center">
+            {"Start Retry After"->React.string}
+            <ToolTip
+              height="mt-0.5"
+              description="Sets the number of failed attempts that will be monitored before initiating retry scheduling"
+              toolTipFor={<div className="cursor-pointer">
+                <Icon name="info-vacent" size=13 />
+              </div>}
+              toolTipPosition=ToolTip.Top
+              newDesign=true
+            />
+          </div>
           <div className="-m-1 -mt-3">
             <FormRenderer.FieldRenderer
               labelClass="font-semibold !text-hyperswitch_black"
@@ -23,7 +34,18 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
           </div>
         </div>
         <div className="mt-5">
-          <div className="text-nd_gray-700 font-medium"> {"Max Retry Attempts"->React.string} </div>
+          <div className="text-nd_gray-700 font-medium flex gap-2 w-fit">
+            {"Max Retry Attempts"->React.string}
+            <ToolTip
+              height="mt-0.5"
+              description="Defines the maximum number of retry attempts before the system stops trying."
+              toolTipFor={<div className="cursor-pointer">
+                <Icon name="info-vacent" size=13 />
+              </div>}
+              toolTipPosition=ToolTip.Top
+              newDesign=true
+            />
+          </div>
           <div className="-m-1 -mt-3">
             <FormRenderer.FieldRenderer
               labelClass="font-semibold !text-hyperswitch_black"
@@ -43,7 +65,6 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
             />
           </div>
         </div>
-        <FormValuesSpy />
       </Form>
     </div>
   </PageWrapper>

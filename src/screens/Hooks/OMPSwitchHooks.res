@@ -22,6 +22,8 @@ let useUserInfo = () => {
       )
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
+      let themeId = userInfo.themeId
+      HyperSwitchEntryUtils.setThemeIdtoStore(themeId)
       userInfo
     } catch {
     | Exn.Error(e) => {
@@ -178,12 +180,13 @@ let useInternalSwitch = () => {
   let profileSwitch = useProfileSwitch()
 
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
-
+  let url = RescriptReactRouter.useUrl()
   async (
     ~expectedOrgId=None,
     ~expectedMerchantId=None,
     ~expectedProfileId=None,
     ~version=UserInfoTypes.V1,
+    ~changePath=false,
   ) => {
     try {
       let userInfoResFromSwitchOrg = await orgSwitch(
@@ -207,6 +210,13 @@ let useInternalSwitch = () => {
         ~version,
       )
       setUserInfoData(userInfoFromProfile)
+      if changePath {
+        // When the internal switch is triggered from the dropdown,
+        // and the current path is "/dashboard/payment/id",
+        // update the path to "/dashboard/payment" by removing the "id" part.
+        let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
+        RescriptReactRouter.replace(currentUrl)
+      }
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to switch!")

@@ -33,7 +33,7 @@ let vaultActionArray = {
       heading: "If non PCI compliant, learn to tokenize using our Vault SDK",
       imgSrc: "/assets/VaultSdkImage.svg",
       action: ExternalLink({
-        url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault",
+        url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault/vault-sdk-integration",
         trackingEvent: "vault-sdk-redirect",
       }),
     },
@@ -41,7 +41,7 @@ let vaultActionArray = {
       heading: "If PCI compliant, learn to tokenize directly from your server",
       imgSrc: "/assets/VaultServerImage.svg",
       action: ExternalLink({
-        url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault",
+        url: "https://docs.hyperswitch.io/about-hyperswitch/payments-modules/vault/server-to-server-vault-tokenization",
         trackingEvent: "vault-server-redirect",
       }),
     },

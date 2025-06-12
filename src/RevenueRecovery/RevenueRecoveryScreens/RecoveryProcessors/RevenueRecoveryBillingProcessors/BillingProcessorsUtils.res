@@ -8,6 +8,15 @@ module SubHeading = {
   }
 }
 
+let getConnectorDetails = (connectorList: array<ConnectorTypes.connectorPayloadV2>) => {
+  let (mca, name) = switch connectorList->Array.get(0) {
+  | Some(connectorDetails) => (connectorDetails.id, connectorDetails.connector_name)
+  | _ => ("", "")
+  }
+
+  (mca, name)
+}
+
 let getConnectorConfig = connector => {
   switch connector {
   | "chargebee" =>
@@ -20,6 +29,15 @@ let getConnectorConfig = connector => {
       "connector_webhook_details": {
         "merchant_secret": "Username",
         "additional_secret": "Password",
+      },
+      "metadata": {
+        "site": [
+          ("name", "site"),
+          ("label", "Site"),
+          ("placeholder", "Enter chargebee site"),
+          ("required", "true"),
+          ("type", "Text"),
+        ]->Map.fromArray,
       },
     }->Identity.genericTypeToJson
   | _ => JSON.Encode.null

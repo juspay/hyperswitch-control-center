@@ -32,9 +32,9 @@ let getCell = (
   | Status =>
     Label({
       title: pspTokens.status->String.toUpperCase,
-      color: switch pspTokens.status->VaultPaymentMethodUtils.statusToVariantMapper {
-      | Enabled => LabelGreen
-      | Disabled => LabelRed
+      color: switch pspTokens.status->VaultPaymentMethodUtils.connectrTokensStatusToVariantMapper {
+      | Active => LabelGreen
+      | Inactive => LabelGray
       },
     })
   }

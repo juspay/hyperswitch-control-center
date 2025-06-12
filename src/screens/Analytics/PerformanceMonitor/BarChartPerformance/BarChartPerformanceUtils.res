@@ -3,6 +3,9 @@ let getBarOption = data =>
   {
     "chart": {
       "type": `column`,
+      "style": {
+        "fontFamily": "InterDisplay",
+      },
     },
     "xAxis": {
       "categories": data.categories,

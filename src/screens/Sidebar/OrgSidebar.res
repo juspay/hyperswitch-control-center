@@ -99,16 +99,23 @@ module OrgTile = {
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
     let ringClass = switch isActive {
-    | true => "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
+    | true => "border-primary ring-primary/20 ring-offset-0 ring-2"
     | false => "ring-grey-outline"
     }
+
+    let handleClick = () => {
+      if !isActive {
+        orgSwitch(orgID)->ignore
+      }
+    }
+
     <div
-      onClick={_ => orgSwitch(orgID)->ignore}
+      onClick={_ => handleClick()}
       className={`w-10 h-10 rounded-lg  flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
       <div
         className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md ${ringClass} ${isActive
-            ? `bg-white/20 ${primaryTextColor} border-sidebar-primaryTextColor`
-            : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-secondaryTextColor/30`}`}>
+            ? `bg-white/20 ${primaryTextColor} border-sidebar-textColorPrimary`
+            : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
         <div
           className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40 `}>
@@ -124,7 +131,9 @@ module OrgTile = {
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
-                  customIconCss={`${secondaryTextColor}`} displayValue=" " copyValue=Some({orgID})
+                  customIconCss={`${secondaryTextColor}`}
+                  displayValue=Some("")
+                  copyValue=Some({orgID})
                 />
               </div>}
               toolTipPosition=ToolTip.Right
@@ -294,6 +303,7 @@ let make = () => {
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let showToast = ToastState.useShowToast()
 
   let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
@@ -318,14 +328,18 @@ let make = () => {
     }
   }
   React.useEffect(() => {
-    getOrgList()->ignore
+    if !isInternalUser {
+      getOrgList()->ignore
+    } else {
+      setOrgList(_ => [ompDefaultValue(orgId, "")])
+    }
     None
   }, [])
 
   let orgSwitch = async value => {
     try {
       setShowSwitchingOrg(_ => true)
-      let _ = await internalSwitch(~expectedOrgId=Some(value))
+      let _ = await internalSwitch(~expectedOrgId=Some(value), ~changePath=true)
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {

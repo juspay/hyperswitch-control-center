@@ -13,6 +13,21 @@ Hyperswitch control center is an open source dashboard to easily view, manage an
 
 ## Standard Installation
 
+1. You can run Hyperswitch on your system using Docker compose after cloning this repository.
+   ```bash
+   git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
+   cd hyperswitch
+   docker compose up -d
+   ```
+
+### Accessing the Application
+
+Once the containers are up and running, you can access the application by navigating to http://localhost:9000 in your web browser.
+
+---
+
+## Standard Process for Local Development
+
 ### Prerequisites
 
 1. Node.js and npm installed on your machine.
@@ -39,37 +54,34 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    npm install
    ```
 
-4. Update the config.toml file
-
-   ```bash
-   api_url = your-backend-url
-   sdk_url = your-sdk-url
-   # To view Mixpanel events on the Mixpanel dashboard, you must add your Mixpanel token; otherwise, you can ignore this requirement.
-   ```
-
-5. Start the ReScript compiler:
+4. Start the ReScript compiler:
 
    ```bash
    npm run re:start
    ```
 
-6. In another terminal window, start the development server:
+5. In another terminal window, start the backend development server:
+
+   ```
+   git clone --depth 1 --branch latest https://github.com/juspay/hyperswitch
+   cd hyperswitch
+   docker compose up -d --scale hyperswitch-control-center=0
+   ```
+
+6. Update the config.toml file
+
+   ```bash
+   api_url = your-backend-url #e.g: http://localhost:8080
+   sdk_url = your-sdk-url  #e.g: http://localhost:9050/HyperLoader.js
+   ```
+
+7. In another terminal window, start the development server:
 
    ```bash
    npm run start
    ```
 
-7. Access the application in your browser at http://localhost:9000.
-
----
-
-### Running with Docker
-
-1. `docker run -p 9000:9000  -e default__endpoints__api_url=your-backend-url -e default__endpoints__sdk_url=your-sdk-url juspaydotin/hyperswitch-control-center:latest`
-
-### Accessing the Application
-
-Once the containers are up and running, you can access the application by navigating to http://localhost:9000 in your web browser.
+8. Access the application in your browser at http://localhost:9000.
 
 ---
 
@@ -142,19 +154,9 @@ Enabling `branding` feature flag enables customization of branding elements like
 
 ---
 
-## Customize the Color and Logo
+## Themes
 
-Priamry color,logo and favicon can customizied by setting the values in the config.toml
-
-```
-[default.theme]
-primary_color="#006DF9"
-primary_hover_color="#005ED6"
-sidebar_color="#242F48"
-[default.endpoints]
-logo_url=""
-favicon_url=""
-```
+Themes can now be customized in `ThemesProvider.res` by overriding the values in `newDefaultConfig`. This allows you to update default colors, sidebar styles, button designs, and URLs for the logo and favicon.
 
 ## Enable the features on Run time by overriding the default value
 
@@ -409,35 +411,61 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 
 ## Cypress Test Suite
 
-### Running Tests
+This guide walks you through running Cypress tests locally for the [Hyperswitch Control Center](https://github.com/juspay/hyperswitch-control-center) project. The tests simulate real user workflows on the dashboard UI and require a working Hyperswitch backend environment.
 
-1.
+---
+
+## Local Testing Setup
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/)
+- [npm](https://www.npmjs.com/)
+- [Cypress](https://docs.cypress.io/app/get-started/install-cypress)
+
+---
+
+### 1. Clone the repository and navigate to the project directory
+
+```bash
+git clone https://github.com/juspay/hyperswitch-control-center.git
+cd hyperswitch-control-center
+```
+
+### 2. Install project dependencies:
+
+```bash
+npm install
+```
+
+### 3. Start the local dashboard server
 
 ```
-npm run build:test
-npm run test:start
+npm run build:test && npm run test:start
 ```
 
-2. To run tests interactively in Cypress Test Runner:
+### 4. Running Cypress Tests
 
-   ```
-   npm run cy:open
+Open a second terminal and run the following commands
 
-   ```
+#### Set environment variables for cypress
 
-3. To run tests in headless mode (CI/CD):
+```
+export CYPRESS_USERNAME="cypress@test.com"
+export CYPRESS_PASSWORD="Cypress00#"
+```
 
-   ```
-   npm run cy:run
+#### To run tests interactively in Cypress Test Runner:
 
-   ```
+```
+npm run cy:open
+```
 
-### Running Tests Locally
+#### To run tests in headless mode (CI/CD):
 
-## Prerequisite
-
-1. Make sure to run the Hyperswitch backend locally by following the instructions at https://github.com/juspay/hyperswitch.
-2. Once the backend is running, follow the steps in Running Tests to execute the Cypress test suite.
+```
+npm run cy:run
+```
 
 ## License
 

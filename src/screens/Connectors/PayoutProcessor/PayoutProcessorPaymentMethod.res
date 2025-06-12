@@ -11,7 +11,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
-  let (metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (_metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let showToast = ToastState.useShowToast()
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -56,7 +56,6 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       let obj: ConnectorTypes.wasmRequest = {
         connector,
         payment_methods_enabled: paymentMethodsEnabled,
-        metadata: metaData,
       }
       let body =
         constructConnectorRequestBody(obj, values)->ignoreFields(
@@ -127,7 +126,6 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
           </div>
         </div>
       </div>
-      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }

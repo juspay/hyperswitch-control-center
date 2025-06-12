@@ -186,6 +186,7 @@ let itemToObjMapper = dict => {
       ->JSON.Encode.object,
     ),
     force_3ds_challenge: None,
+    is_debit_routing_enabled: None,
   }
 }
 

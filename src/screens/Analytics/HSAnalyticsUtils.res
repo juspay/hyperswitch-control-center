@@ -93,16 +93,21 @@ let initialFilterFields = json => {
       ->Belt.Array.keepMap(item => {
         let dimensionObject = item->getDictFromJsonObject
 
-        let dimension = getString(dimensionObject, "dimension", "")
-        let dimensionTitleCase = `Select ${snakeToTitle(dimension)}`
+        let dimensionValue = getString(dimensionObject, "dimension", "")
+        // TODO: Add support for custom labels. This can be achieved either through backend support (by making dimension an array of objects) or frontend support (via a custom label field).
+        let dimensionLabel = switch dimensionValue {
+        | "acs_reference_number" => "issuer"
+        | _ => dimensionValue
+        }
+        let dimensionTitleCase = `Select ${snakeToTitle(dimensionLabel)}`
         let value = getArrayFromDict(dimensionObject, "values", [])->getStrArrayFromJsonArray
 
         Some(
           (
             {
               field: FormRenderer.makeFieldInfo(
-                ~label="",
-                ~name=dimension,
+                ~label=dimensionLabel,
+                ~name=dimensionValue,
                 ~customInput=InputFields.filterMultiSelectInput(
                   ~options=value->FilterSelectBox.makeOptions,
                   ~buttonText=dimensionTitleCase,
@@ -125,9 +130,15 @@ let initialFilterFields = json => {
 
   dropdownValue
 }
+
 let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTime", "opt")
 
-let initialFixedFilterFields = _json => {
+let initialFixedFilterFields = (_json, ~events=?) => {
+  let events = switch events {
+  | Some(fn) => fn
+  | None => _ => ()
+  }
+
   let newArr = [
     (
       {
@@ -157,6 +168,7 @@ let initialFixedFilterFields = _json => {
             ~disableApply=false,
             ~dateRangeLimit=180,
             ~optFieldKey=optFilterKey,
+            ~events,
           ),
           ~inputFields=[],
           ~isRequired=false,

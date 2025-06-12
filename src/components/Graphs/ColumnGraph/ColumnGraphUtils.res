@@ -1,5 +1,5 @@
 // constants
-let fontFamily = "Arial, sans-serif"
+let fontFamily = "InterDisplay"
 let darkGray = "#525866"
 
 open ColumnGraphTypes
@@ -29,7 +29,7 @@ let getColumnGraphOptions = (columnGraphOptions: columnGraphPayload) => {
       \"type": "column",
       spacingLeft: 0,
       spacingRight: 0,
-      height: 270,
+      height: 300,
       style,
     },
     title,
@@ -93,7 +93,11 @@ let getColumnGraphOptions = (columnGraphOptions: columnGraphPayload) => {
   }
 }
 
-let columnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueType) => {
+let columnGraphTooltipFormatter = (
+  ~title,
+  ~metricType: LogicUtilsTypes.valueType,
+  ~comparison: option<DateRangeUtils.comparison>=None,
+) => {
   (
     @this
     (this: pointFormatter) => {
@@ -110,13 +114,37 @@ let columnGraphTooltipFormatter = (~title, ~metricType: LogicUtilsTypes.valueTyp
         </div>`
       }
 
-      let tableItems =
+      let tableItems = {
+        this.points->Array.reverse
         this.points
-        ->Array.mapWithIndex((point, _index) => {
+        ->Array.mapWithIndex((point, index) => {
+          let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: ""}
           let {color, key, y} = point
-          getRowsHtml(~iconColor=color, ~date=key, ~value=y)
+
+          let showComparison = index == 0 ? true : false
+          let secondaryPoint =
+            this.points->LogicUtils.getValueFromArray(index == 1 ? 0 : 1, defaultValue)
+
+          getRowsHtml(
+            ~iconColor=color,
+            ~date=key,
+            ~value=y,
+            ~comparisionComponent={
+              switch comparison {
+              | Some(value) =>
+                value == DateRangeUtils.EnableComparison && showComparison
+                  ? NewAnalyticsUtils.getToolTipConparision(
+                      ~primaryValue=y,
+                      ~secondaryValue=secondaryPoint.y,
+                    )
+                  : ""
+              | None => ""
+              }
+            },
+          )
         })
         ->Array.joinWith("")
+      }
 
       let content = `
           <div style=" 

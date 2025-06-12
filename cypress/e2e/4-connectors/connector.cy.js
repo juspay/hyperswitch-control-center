@@ -1,5 +1,5 @@
 describe("connector", () => {
-  const password = "Cypress98#";
+  const password = Cypress.env("CYPRESS_PASSWORD");
   const username = `cypress${Math.round(+new Date() / 1000)}@gmail.com`;
 
   const getIframeBody = () => {
@@ -107,8 +107,8 @@ describe("connector", () => {
     cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
       "exist",
     );
-    cy.get('[data-value="unitedStates(USD)"]').click();
-    cy.get('[data-dropdown-value="Germany (EUR)"]').click();
+    cy.get('[data-button-text="🇺🇸 United States - (USD)"]').click();
+    cy.get('[data-text="🇩🇪 Germany - (EUR)"]').click();
     cy.get("[data-testid=amount]").find("input").clear().type("77");
     cy.get("[data-button-for=showPreview]").click();
     cy.wait(2000);

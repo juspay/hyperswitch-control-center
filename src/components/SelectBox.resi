@@ -244,6 +244,7 @@ module BaseRadio: {
     ~shouldDisplaySelectedOnTop: bool=?,
     ~labelDescriptionClass: string=?,
     ~customSelectionIcon: Button.iconType=?,
+    ~placeholderCss: string=?,
   ) => React.element
 }
 type direction = BottomLeft | BottomMiddle | BottomRight | TopLeft | TopMiddle | TopRight
@@ -329,6 +330,7 @@ module BaseDropdown: {
     ~shouldDisplaySelectedOnTop: bool=?,
     ~labelDescriptionClass: string=?,
     ~customSelectionIcon: Button.iconType=?,
+    ~placeholderCss: string=?,
   ) => React.element
 }
 module InfraSelectBox: {
@@ -439,4 +441,5 @@ let make: (
   ~wrapBasis: string=?,
   ~customScrollStyle: string=?,
   ~shouldDisplaySelectedOnTop: bool=?,
+  ~placeholderCss: string=?,
 ) => React.element

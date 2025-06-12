@@ -1,5 +1,10 @@
 @react.component
-let make = (~initialValues, ~showVertically=true, ~processorType=ConnectorTypes.Processor) => {
+let make = (
+  ~initialValues,
+  ~showVertically=true,
+  ~processorType=ConnectorTypes.Processor,
+  ~updateAccountDetails=true,
+) => {
   open LogicUtils
   open ConnectorAuthKeysHelper
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
@@ -40,12 +45,15 @@ let make = (~initialValues, ~showVertically=true, ~processorType=ConnectorTypes.
 
   React.useEffect(() => {
     let updatedValues = initialValues->JSON.stringify->safeParse->getDictFromJsonObject
-    let acc =
-      [("auth_type", bodyType->JSON.Encode.string)]
-      ->Dict.fromArray
-      ->JSON.Encode.object
 
-    let _ = updatedValues->Dict.set("connector_account_details", acc)
+    if updateAccountDetails {
+      let acc =
+        [("auth_type", bodyType->JSON.Encode.string)]
+        ->Dict.fromArray
+        ->JSON.Encode.object
+      let _ = updatedValues->Dict.set("connector_account_details", acc)
+    }
+
     form.reset(updatedValues->JSON.Encode.object->Nullable.make)
 
     None

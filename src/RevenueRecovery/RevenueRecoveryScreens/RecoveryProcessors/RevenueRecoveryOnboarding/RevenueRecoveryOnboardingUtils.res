@@ -40,10 +40,6 @@ let sections = [
         name: #selectProcessor->getStepName,
       },
       {
-        id: (#activePaymentMethods: revenueRecoverySubsections :> string),
-        name: #activePaymentMethods->getStepName,
-      },
-      {
         id: (#setupWebhookProcessor: revenueRecoverySubsections :> string),
         name: #setupWebhookProcessor->getStepName,
       },
@@ -83,6 +79,11 @@ let sections = [
 let defaultStep = {
   sectionId: (#connectProcessor: revenueRecoverySections :> string),
   subSectionId: Some((#selectProcessor: revenueRecoverySubsections :> string)),
+}
+
+let defaultStepBilling = {
+  sectionId: (#addAPlatform: revenueRecoverySections :> string),
+  subSectionId: Some((#selectAPlatform: revenueRecoverySubsections :> string)),
 }
 
 open VerticalStepIndicatorUtils
@@ -128,6 +129,17 @@ let getSectionVariant = ({sectionId, subSectionId}) => {
   (mainSection, subSection)
 }
 
+let sampleDataBanner =
+  <div
+    className="absolute z-10 top-76-px left-0 w-full py-4 px-10 bg-orange-50 flex justify-between items-center">
+    <div className="flex gap-4 items-center">
+      <Icon name="nd-information-triangle" size=24 />
+      <p className="text-nd_gray-600 text-base leading-6 font-medium">
+        {"You are in demo environment and this is sample setup."->React.string}
+      </p>
+    </div>
+  </div>
+
 module PageWrapper = {
   @react.component
   let make = (~title, ~subTitle, ~children) => {
@@ -160,7 +172,11 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
 
     {
       label: connectorName,
+      customRowClass: "my-1",
       value: connectorValue,
+      icon: Button.CustomIcon(
+        <GatewayIcon gateway={connectorValue->String.toUpperCase} className="mr-2 w-5 h-5" />,
+      ),
     }
   })
   options
@@ -168,13 +184,13 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
 
 let getMixpanelEventName = currentStep => {
   switch currentStep->getSectionVariant {
-  | (#connectProcessor, #selectProcessor) => "recovery_payment_processor_step1"
-  | (#connectProcessor, #activePaymentMethods) => "recovery_payment_processor_step2"
-  | (#connectProcessor, #setupWebhookProcessor) => "recovery_payment_processor_step3"
-  | (#addAPlatform, #selectAPlatform) => "recovery_billing_processor_step1"
-  | (#addAPlatform, #configureRetries) => "recovery_billing_processor_step2"
-  | (#addAPlatform, #connectProcessor) => "recovery_billing_processor_step3"
-  | (#addAPlatform, #setupWebhookPlatform) => "recovery_billing_processor_step4"
+  | (#connectProcessor, #selectProcessor) => "recovery_payment_processor"
+  | (#connectProcessor, #activePaymentMethods) => "recovery_processor_active_payment_method"
+  | (#connectProcessor, #setupWebhookProcessor) => "recovery_processor_setup_webhook"
+  | (#addAPlatform, #selectAPlatform) => "recovery_billing_processor"
+  | (#addAPlatform, #configureRetries) => "recovery_configure_retries"
+  | (#addAPlatform, #connectProcessor) => "recovery_connector_processor_billing"
+  | (#addAPlatform, #setupWebhookPlatform) => "recovery_billing_webhook_setup"
   | _ => ""
   }
 }

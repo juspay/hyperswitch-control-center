@@ -1,35 +1,18 @@
 @react.component
 let make = () => {
-  open APIUtils
   open LogicUtils
-  //open HSwitchRemoteFilter
-  open RevenueRecoveryOrderUtils
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
-  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
+  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get("recovery-orders")->Option.getOr(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get("recovery_orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let (filters, setFilters) = React.useState(_ => None)
-  let (searchText, setSearchText) = React.useState(_ => "")
-  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
-  let startTime = filterValueJson->getString("created.gte", "")
+  let (filters, _setFilters) = React.useState(_ => None)
+  let (searchText, _setSearchText) = React.useState(_ => "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV2,
-    ~retainInList=BillingProcessor,
-  )
-
-  let (billingConnectorID, billingConnectorName) =
-    billingConnectorListFromRecoil->getBillingConnectorDetails
 
   let setData = (total, data) => {
-    let arr = Array.make(~length=offset, Dict.make())
     if total <= offset {
       setOffset(_ => 0)
     }
@@ -37,10 +20,7 @@ let make = () => {
     if total > 0 {
       let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
-      let orderData =
-        arr
-        ->Array.concat(orderDataDictArr)
-        ->Array.map(RevenueRecoveryEntity.itemToObjMapper)
+      let orderData = orderDataDictArr->Array.map(RevenueRecoveryEntity.itemToObjMapper)
 
       let list = orderData->Array.map(Nullable.make)
       setTotalCount(_ => total)
@@ -54,28 +34,7 @@ let make = () => {
   let getPaymentsList = async (filterValueJson: RescriptCore.Dict.t<Core__JSON.t>) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let filter =
-        filterValueJson
-        ->Dict.toArray
-        ->Array.map(item => {
-          let (key, value) = item
-
-          let value = switch value->JSON.Classify.classify {
-          | String(str) => str
-          | Number(num) => num->Float.toString
-          | _ => ""
-          }
-
-          (key, value)
-        })
-        ->Dict.fromArray
-
-      let ordersUrl = getURL(
-        ~entityName=V2(V2_ORDERS_LIST),
-        ~methodType=Get,
-        ~queryParamerters=Some(filter->FilterUtils.parseFilterDict),
-      )
-      let res = await fetchDetails(ordersUrl, ~version=V2)
+      let res = RevenueRecoveryData.orderData
 
       let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
       let total = res->getDictFromJsonObject->getInt("total_count", 0)
@@ -92,7 +51,9 @@ let make = () => {
           let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
           filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-          let res = await fetchDetails(ordersUrl, ~version=V2)
+          //let res = await fetchDetails(ordersUrl, ~version=V2)
+          let res = RevenueRecoveryData.orderData
+
           let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
           let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -183,32 +144,14 @@ let make = () => {
           subTitle="List of failed Invoices picked up for retry"
           customTitleStyle
         />
-        <RenderIf
-          condition={billingConnectorID->isNonEmptyString &&
-            billingConnectorName->isNonEmptyString}>
-          <Button
-            text="View Details"
-            buttonType={Secondary}
-            onClick={_ => {
-              mixpanelEvent(~eventName="recovery_view_details")
-              RescriptReactRouter.replace(
-                GlobalVars.appendDashboardPath(
-                  ~url=`/v2/recovery/summary/${billingConnectorID}?name=${billingConnectorName}`,
-                ),
-              )
-            }}
-            buttonSize={Small}
-            customButtonStyle="w-fit"
-          />
-        </RenderIf>
       </div>
       //<div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState>
         <LoadedTableWithCustomColumns
           title="Recovery"
           actualData=revenueRecoveryData
-          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId)}
-          resultsPerPage=20
+          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId, profileId)}
+          resultsPerPage=10
           showSerialNumber=true
           totalResults={totalCount}
           offset

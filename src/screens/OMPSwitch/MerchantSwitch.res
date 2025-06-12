@@ -11,6 +11,7 @@ module NewMerchantCreationModal = {
       try {
         switch activeProduct {
         | Orchestration
+        | DynamicRouting
         | CostObservability => {
             let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
             let _ = await updateDetails(url, values, Post)
@@ -176,8 +177,7 @@ let make = () => {
         ~methodType=Get,
       )
       let v2MerchantResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
-      let v2MerchantList = v2MerchantResponse->getArrayDataFromJson(merchantItemToObjMapper)
-      v2MerchantList
+      v2MerchantResponse->getArrayFromJson([])
     } catch {
     | _ => []
     }
@@ -196,11 +196,11 @@ let make = () => {
       } else {
         []
       }
-
-      let v1MerchantList = v1MerchantResponse->getArrayDataFromJson(merchantItemToObjMapper)
-      let concatMerchantList = v1MerchantList->Array.concat(v2MerchantList)
-
-      setMerchantList(_ => concatMerchantList)
+      let concatenatedList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
+      let response =
+        concatenatedList->LogicUtils.uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
+      let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
+      setMerchantList(_ => concatenatedListTyped)
     } catch {
     | _ => {
         setMerchantList(_ => [ompDefaultValue(merchantId, "")])
@@ -218,7 +218,7 @@ let make = () => {
         ->Option.getOr(ompDefaultValue(merchantId, ""))
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
       let productType = merchantData.productType->Option.getOr(Orchestration)
-      let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version)
+      let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version, ~changePath=true)
       setActiveProductValue(productType)
       setShowSwitchingMerch(_ => false)
     } catch {
@@ -251,9 +251,7 @@ let make = () => {
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
   React.useEffect(() => {
-    if subHeading != merchantDetailsTypedValue.merchant_name->Option.getOr("") {
-      getMerchantList()->ignore
-    }
+    getMerchantList()->ignore
     None
   }, [merchantDetailsTypedValue.merchant_name])
 
@@ -284,6 +282,7 @@ let make = () => {
     }
     listItem
   })
+
   <div className="w-fit">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -291,7 +290,7 @@ let make = () => {
       input
       deselectDisable=true
       options={updatedMerchantList->generateDropdownOptionsCustomComponent}
-      marginTop={`mt-8 ${borderColor} shadow-generic_shadow`}
+      marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true
       addButton=false
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
@@ -310,6 +309,8 @@ let make = () => {
       dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
       customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
+      searchInputPlaceHolder="Search Merchant Account or ID"
+      placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />

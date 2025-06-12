@@ -1,7 +1,7 @@
 open RevenueRecoveryEntity
 open LogicUtils
 open RecoveryOverviewHelper
-open RevenueRecoveryOrderTypes
+
 module ShowOrderDetails = {
   @react.component
   let make = (
@@ -44,42 +44,18 @@ module OrderInfo = {
     <div className="flex flex-col mb-6  w-full">
       <ShowOrderDetails
         data=order
-        getHeading=getHeadingForSummary
-        getCell=getCellForSummary
-        detailsFields=[PaymentId, OrderAmount, Created]
+        getHeading
+        getCell
+        detailsFields=[Id, Status, OrderAmount, Connector, Created, PaymentMethodType]
         isButtonEnabled=true
       />
-      <ShowOrderDetails
-        data=order
-        getHeading=getHeadingForAboutPayment
-        getCell=getCellForAboutPayment
-        detailsFields=[Connector, Status, PaymentMethodType, CardNetwork]
-      />
-    </div>
-  }
-}
-module AttemptsSection = {
-  @react.component
-  let make = (~data: attempts) => {
-    let widthClass = "w-1/3"
-    <div className="flex flex-row flex-wrap">
-      <div className="w-full p-2">
-        <Details
-          heading=String("Attempt Details")
-          data
-          detailsFields=attemptDetailsField
-          getHeading=getAttemptHeading
-          getCell=getAttemptCell
-          widthClass
-        />
-      </div>
     </div>
   }
 }
 
 module Attempts = {
   @react.component
-  let make = (~order) => {
+  let make = (~order: RevenueRecoveryOrderTypes.order) => {
     let getStyle = status => {
       let orderStatus = status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
 
@@ -103,7 +79,7 @@ module Attempts = {
                 {`#${(order.attempts->Array.length - index)->Int.toString}`->React.string}
               </div>
               <div className="w-full flex justify-end text-xs opacity-50">
-                <Table.DateCell timestamp={item.created} isCard=true hideTime=true />
+                {<Table.DateCell timestamp={item.created} isCard=true hideTime=true />}
               </div>
             </div>
             <div className="relative ml-7">
@@ -120,7 +96,7 @@ module Attempts = {
                 data=item
                 getHeading=getAttemptHeading
                 getCell=getAttemptCell
-                detailsFields=[AttemptedBy, Connector, Status]
+                detailsFields=[AttemptTriggeredBy, Status, Error]
               />
             </div>
           </div>
@@ -135,23 +111,39 @@ module Attempts = {
 let make = (~id) => {
   open APIUtils
   let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ =>
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
   )
   let showToast = ToastState.useShowToast()
-  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
 
-      let ordersUrl = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
-      let res = await fetchDetails(ordersUrl)
+      let _ordersUrl = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+      //let res = await fetchDetails(ordersUrl)
+      let res = RevenueRecoveryData.orderData
 
-      let order = RevenueRecoveryEntity.itemToObjMapper(res->getDictFromJsonObject)
-      setRevenueRecoveryData(_ => order)
+      let data =
+        res
+        ->getDictFromJsonObject
+        ->getArrayFromDict("data", [])
+
+      let order =
+        data
+        ->Array.map(item => {
+          item
+          ->getDictFromJsonObject
+          ->RevenueRecoveryEntity.itemToObjMapper
+        })
+        ->Array.find(item => item.id == id)
+
+      switch order {
+      | Some(value) => setRevenueRecoveryData(_ => value)
+      | _ => ()
+      }
+
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -189,14 +181,6 @@ let make = (~id) => {
       <div className="flex flex-row justify-between items-center">
         <div className="flex gap-2 items-center">
           <PageUtils.PageHeading title="Invoice summary" />
-        </div>
-        <div className="flex gap-2 ">
-          <ACLButton
-            text="Stop Recovery"
-            customButtonStyle="!w-fit"
-            buttonType={Primary}
-            buttonState={Disabled}
-          />
         </div>
       </div>
       <PageLoaderWrapper

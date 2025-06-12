@@ -322,6 +322,5 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
         </div>
       </div>
     </div>
-    <FormValuesSpy />
   </Form>
 }

@@ -112,22 +112,10 @@ module OperatorInp = {
 
 module ValueInp = {
   @react.component
-  let make = (
-    ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
-    ~variantValues,
-    ~keyType,
-    ~id,
-    ~valuePath,
-  ) => {
+  let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~variantValues, ~keyType) => {
     let valueField = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let opField = (fieldsArray[2]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
-    let form = ReactFinalForm.useForm()
-
-    React.useEffect(() => {
-      form.change(`${id}.${valuePath}`, valueField.value)
-      None
-    }, [valueField.value])
 
     React.useEffect(() => {
       typeField.onChange(
@@ -170,6 +158,7 @@ module ValueInp = {
         hideMultiSelectButtons=true
         showSelectionAsChips={false}
         maxHeight="max-h-full sm:max-h-64"
+        customButtonStyle="!w-full"
       />
     | IS | IS_NOT => {
         let val = valueField.value->LogicUtils.getStringFromJson("")
@@ -180,6 +169,7 @@ module ValueInp = {
           options={variantValues->SelectBox.makeOptions}
           hideMultiSelectButtons=true
           fixedDropDownDirection=SelectBox.TopRight
+          customButtonStyle="!w-full"
         />
       }
     | EQUAL_TO =>
@@ -232,10 +222,10 @@ module MetadataInp = {
 let renderOperatorInp = keyType => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <OperatorInp fieldsArray keyType />
 }
-let renderValueInp = (keyType: string, variantValues, id, valuePath) => (
+let renderValueInp = (keyType: string, variantValues) => (
   fieldsArray: array<ReactFinalForm.fieldRenderProps>,
 ) => {
-  <ValueInp fieldsArray variantValues keyType id valuePath />
+  <ValueInp fieldsArray variantValues keyType />
 }
 
 let renderMetaInput = keyType => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
@@ -263,7 +253,7 @@ let valueInput = (id, variantValues, keyType) => {
   }
   makeMultiInputFieldInfoOld(
     ~label="",
-    ~comboCustomInput=renderValueInp(keyType, variantValues, id, valuePath),
+    ~comboCustomInput=renderValueInp(keyType, variantValues),
     ~inputFields=[
       makeInputFieldInfo(~name=`${id}.lhs`),
       makeInputFieldInfo(~name=`${id}.${valuePath}`),
@@ -392,7 +382,7 @@ module RuleFieldBase = {
         | _ => Window.getAllKeys()
         }
       }
-    }, [])
+    }, [field.value])
 
     <RenderIf condition={methodKeys->Array.length > 0}>
       {if isExpanded {
@@ -428,7 +418,7 @@ module RuleFieldBase = {
           </RenderIf>
         </div>
       } else {
-        <MakeRuleFieldComponent.CompressedView isFirst id />
+        <MakeRuleFieldComponent.CompressedView isFirst id keyType />
       }}
     </RenderIf>
   }

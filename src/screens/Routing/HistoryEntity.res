@@ -2,16 +2,7 @@ open LogicUtils
 open RoutingUtils
 open RoutingTypes
 
-let allColumns: array<historyColType> = [
-  Name,
-  Type,
-  ProfileId,
-  ProfileName,
-  Description,
-  Created,
-  LastUpdated,
-  Status,
-]
+let allColumns: array<historyColType> = [Name, Type, Description, Created, LastUpdated, Status]
 
 let itemToObjMapper = dict => {
   {
@@ -25,21 +16,12 @@ let itemToObjMapper = dict => {
   }
 }
 
-let defaultColumns: array<historyColType> = [
-  Name,
-  ProfileId,
-  ProfileName,
-  Type,
-  Description,
-  Status,
-]
+let defaultColumns: array<historyColType> = [Name, Type, Description, Status]
 
 let getHeading: historyColType => Table.header = colType => {
   switch colType {
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name of Control")
   | Type => Table.makeHeaderInfo(~key="kind", ~title="Type of Control")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
-  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~dataType=DropDown)
   | Created => Table.makeHeaderInfo(~key="created_at", ~title="Created")
@@ -52,12 +34,6 @@ let getTableCell = activeRoutingIds => {
     | Name => Text(historyData.name)
     | Type =>
       Text(`${historyData.kind->routingTypeMapper->routingTypeName->capitalizeString} Based`)
-    | ProfileId => Text(historyData.profile_id)
-    | ProfileName =>
-      Table.CustomCell(
-        <HelperComponents.BusinessProfileComponent profile_id={historyData.profile_id} />,
-        "",
-      )
     | Description => Text(historyData.description)
     | Created => Text(historyData.created_at)
     | LastUpdated => Text(historyData.modified_at)
@@ -66,10 +42,7 @@ let getTableCell = activeRoutingIds => {
         title: activeRoutingIds->Array.includes(historyData.id)
           ? "ACTIVE"
           : "INACTIVE"->String.toUpperCase,
-        color: switch activeRoutingIds->Array.includes(historyData.id) {
-        | true => LabelGreen
-        | false => LabelWhite
-        },
+        color: activeRoutingIds->Array.includes(historyData.id) ? LabelGreen : LabelGray,
       })
     }
   }

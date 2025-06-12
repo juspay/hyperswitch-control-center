@@ -201,14 +201,13 @@ let make = (
             <div className="flex justify-end w-full pr-5 pb-3 mt-5">
               <FormRenderer.SubmitButton loadingText="Processing..." text="Submit" />
             </div>
-            // <FormValuesSpy />
           </Form>
         </PageLoaderWrapper>
       </Modal>
     </RenderIf>
     <ACLDiv
       authorization={userHasAccess(~groupAccess=ConnectorsManage)}
-      className="cursor-pointer w-150"
+      className="cursor-pointer w-150 truncate whitespace-nowrap overflow-hidden"
       onClick={_ => getProcessorDetails()->ignore}>
       {switch element {
       | Some(component) => component

@@ -12,13 +12,14 @@ let make = () => {
   let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
   let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (metrics, setMetrics) = React.useState(_ => [])
+  let (_metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let loadInfo = async () => {
     try {
@@ -160,7 +161,9 @@ let make = () => {
     ~origin="analytics",
     (),
   )
-
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="analytics_payments_date_filter_opened")
+  }
   React.useEffect(() => {
     setInitialFilters()
     None
@@ -207,6 +210,15 @@ let make = () => {
     None
   }, (startTimeVal, endTimeVal, body->JSON.stringify))
 
+  //This is to trigger the mixpanel event to see active analytics users
+
+  React.useEffect(() => {
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      mixpanelEvent(~eventName="analytics_payments_date_filter")
+    }
+    None
+  }, [startTimeVal, endTimeVal])
+
   let topFilterUi = switch filterDataJson {
   | Some(filterData) =>
     <div className="flex flex-row">
@@ -215,7 +227,10 @@ let make = () => {
         initialFilters={initialFilterFields(filterData)}
         options=[]
         popupFilterFields={options(filterData)}
-        initialFixedFilters={initialFixedFilterFields(filterData)}
+        initialFixedFilters={initialFixedFilterFields(
+          filterData,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=defaultFilters
         tabNames=tabKeys
         updateUrlWith=updateExistingKeys
@@ -232,7 +247,10 @@ let make = () => {
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(filterData)}
+        initialFixedFilters={initialFixedFilterFields(
+          filterData,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=defaultFilters
         tabNames=tabKeys
         updateUrlWith=updateExistingKeys //
@@ -299,7 +317,7 @@ let make = () => {
           colMapper
           distributionArray={Some([distribution])}
           tableEntity={Some(paymentTableEntity(~uri=paymentAnalyticsUrl))}
-          deltaMetrics={getStringListFromArrayDict(metrics)}
+          deltaMetrics=["payment_success_rate", "payment_count", "payment_success_count"]
           deltaArray=[]
           tableGlobalFilter=filterByData
           weeklyTableMetricsCols

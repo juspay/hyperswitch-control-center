@@ -2,15 +2,15 @@ open APIUtils
 open MerchantAccountUtils
 
 @react.component
-let make = (~urlEntityName, ~baseUrlForRedirection) => {
+let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
-  let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
-  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-  let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
@@ -18,7 +18,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
   let typedConnectorValue = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PaymentProcessor,
+    ~retainInList=connectorVariant,
   )
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 
@@ -111,7 +111,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}
           profile={profile}
-          options={businessProfiles->businessProfileNameDropDownOption}
+          options={[businessProfileRecoilVal]->businessProfileNameDropDownOption}
           label="Profile"
         />
       </div>

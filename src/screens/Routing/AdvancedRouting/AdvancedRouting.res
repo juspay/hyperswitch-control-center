@@ -321,6 +321,7 @@ module RuleBasedUI = {
   ) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let rulesJsonPath = `algorithm.data.rules`
+    let showToast = ToastState.useShowToast()
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
 
@@ -329,13 +330,39 @@ module RuleBasedUI = {
       None
     }, [rules])
 
+    let isEmptyRule = rule => {
+      defaultRule->Identity.genericTypeToJson->getDictFromJsonObject->Dict.delete("name")
+      rule->getDictFromJsonObject->Dict.delete("name")
+      defaultRule->Identity.genericTypeToJson == rule
+    }
+
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
-      let newRule = copy
-        ? existingRules[index]->Option.getOr(defaultRule->Identity.genericTypeToJson)
-        : defaultRule->Identity.genericTypeToJson
-      let newRules = existingRules->Array.concat([newRule])
-      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
+      if !copy && existingRules->Array.some(isEmptyRule) {
+        showToast(
+          ~message="Unable to add a new rule while an empty rule exists!",
+          ~toastType=ToastState.ToastError,
+        )
+      } else if copy {
+        switch existingRules[index] {
+        | Some(rule) =>
+          if isEmptyRule(rule) {
+            showToast(
+              ~message="Unable to copy an empty rule configuration!",
+              ~toastType=ToastState.ToastError,
+            )
+          } else {
+            let newRule = rule->Identity.genericTypeToJson
+            let newRules = existingRules->Array.concat([newRule])
+            ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
+          }
+        | None => ()
+        }
+      } else {
+        let newRule = defaultRule->Identity.genericTypeToJson
+        let newRules = existingRules->Array.concat([newRule])
+        ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
+      }
     }
 
     let removeRule = index => {
@@ -444,9 +471,9 @@ let make = (
 ) => {
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-  let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
   let (initialValues, setInitialValues) = React.useState(_ =>
     initialValues->Identity.genericTypeToJson
   )
@@ -477,7 +504,7 @@ let make = (
 
       setInitialValues(_ => routingJson)
       setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
-      setProfile(_ => schemaValue->getString("profile_id", defaultBusinessProfile.profile_id))
+      setProfile(_ => schemaValue->getString("profile_id", businessProfileRecoilVal.profile_id))
       setFormState(_ => ViewConfig)
     } catch {
     | Exn.Error(e) =>
@@ -771,7 +798,29 @@ let make = (
                     />
                     {switch pageState {
                     | Preview =>
-                      <div className="flex flex-col md:flex-row gap-4 my-5">
+                      <div className="flex flex-col md:flex-row gap-4 p-1">
+                        <Button
+                          text={"Duplicate and Edit Configuration"}
+                          buttonType={isActive ? Primary : Secondary}
+                          onClick={_ => {
+                            setPageState(_ => Create)
+                            let manipualtedJSONValue =
+                              initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
+
+                            let rulesValue =
+                              manipualtedJSONValue
+                              ->getDictFromJsonObject
+                              ->getObj("algorithm", Dict.make())
+                              ->getDictfromDict("data")
+
+                            setInitialValues(_ =>
+                              initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
+                            )
+                            setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
+                          }}
+                          customButtonStyle="w-1/5"
+                          buttonState=Normal
+                        />
                         <RenderIf condition={!isActive}>
                           <Button
                             text={"Activate Configuration"}
@@ -786,7 +835,7 @@ let make = (
                         <RenderIf condition={isActive}>
                           <Button
                             text={"Deactivate Configuration"}
-                            buttonType={Primary}
+                            buttonType={Secondary}
                             onClick={_ => {
                               handleDeactivateConfiguration()->ignore
                             }}
@@ -820,7 +869,6 @@ let make = (
                 />
               </div>
             </div>
-            <FormValuesSpy />
           </Form>
         : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
     </PageLoaderWrapper>

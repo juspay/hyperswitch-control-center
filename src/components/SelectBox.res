@@ -1214,18 +1214,24 @@ module RenderListItemInBaseRadio = {
       })
       ->React.array
 
-    let sidebarScrollbarCss = `
+    let selectBoxScrollbarCss = `
       @supports (-webkit-appearance: none) {
-        .sidebar-scrollbar {
-          scrollbar-color: #8a8c8f;
+        .selectbox-scrollbar {
+         scrollbar-width: auto;
+          scrollbar-color: #CACFD8;
         }
-
-        .sidebar-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #8a8c8f;
+        .selectbox-scrollbar::-webkit-scrollbar {
+          display: block;
+          overflow: scroll;
+          height: 5px;
+          width: 5px;
+        }
+        .selectbox-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #CACFD8;
           border-radius: 3px;
         }
 
-        .sidebar-scrollbar::-webkit-scrollbar-track {
+        .selectbox-scrollbar::-webkit-scrollbar-track {
           display: none;
         }
       }
@@ -1233,13 +1239,13 @@ module RenderListItemInBaseRadio = {
     let (className, styleElement) = switch (customScrollStyle, isHorizontal) {
     | (None, false) => ("", React.null)
     | (Some(style), false) => (
-        `${style} sidebar-scrollbar`,
-        <style> {React.string(sidebarScrollbarCss)} </style>,
+        `${style} selectbox-scrollbar`,
+        <style> {React.string(selectBoxScrollbarCss)} </style>,
       )
     | (None, true) => ("flex flex-row", React.null)
     | (Some(style), true) => (
-        `${style}  sidebar-scrollbar flex flex-row`,
-        <style> {React.string(sidebarScrollbarCss)} </style>,
+        `${style}  selectbox-scrollbar flex flex-row`,
+        <style> {React.string(selectBoxScrollbarCss)} </style>,
       )
     }
     <>
@@ -1329,6 +1335,7 @@ module BaseRadio = {
     ~shouldDisplaySelectedOnTop=false,
     ~labelDescriptionClass="",
     ~customSelectionIcon=Button.NoIcon,
+    ~placeholderCss="",
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1473,6 +1480,7 @@ module BaseRadio = {
               ? "Search name or ID..."
               : searchInputPlaceHolder}
             showSearchIcon
+            placeholderCss
           />
         </div>
       </div>
@@ -1652,6 +1660,7 @@ module BaseDropdown = {
     ~shouldDisplaySelectedOnTop=false,
     ~labelDescriptionClass="",
     ~customSelectionIcon=Button.NoIcon,
+    ~placeholderCss="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1925,6 +1934,7 @@ module BaseDropdown = {
         labelDescriptionClass
         customSelectionIcon
         customSearchStyle
+        placeholderCss
       />
     }
 
@@ -2337,6 +2347,7 @@ let make = (
   ~wrapBasis="",
   ~customScrollStyle=?,
   ~shouldDisplaySelectedOnTop=false,
+  ~placeholderCss="",
   (),
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
@@ -2410,6 +2421,7 @@ let make = (
       showSearchIcon
       ?customScrollStyle
       shouldDisplaySelectedOnTop
+      placeholderCss
     />
   } else if allowMultiSelect {
     <BaseSelect
@@ -2481,6 +2493,7 @@ let make = (
       showToolTipOptions
       ?customScrollStyle
       shouldDisplaySelectedOnTop
+      placeholderCss
     />
   }
 }

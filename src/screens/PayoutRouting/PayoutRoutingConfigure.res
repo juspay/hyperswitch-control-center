@@ -57,7 +57,11 @@ let make = (~routingType) => {
           baseUrlForRedirection
         />
       | DEFAULTFALLBACK =>
-        <DefaultRouting urlEntityName=V1(PAYOUT_DEFAULT_FALLBACK) baseUrlForRedirection />
+        <DefaultRouting
+          urlEntityName=V1(PAYOUT_DEFAULT_FALLBACK)
+          baseUrlForRedirection
+          connectorVariant=ConnectorTypes.PayoutProcessor
+        />
       | _ => React.null
       }}
     </History.BreadCrumbWrapper>

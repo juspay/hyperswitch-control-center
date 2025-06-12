@@ -5,7 +5,8 @@ let make = () => {
   // let count = 0
   // let merchantCount = 1
 
-  <div className="flex flex-1 flex-col gap-8 w-full h-screen items-center">
+  <div
+    className="flex flex-1 flex-col gap-6 md:gap-8 w-full h-screen items-center overflow-auto p-4">
     <div className="flex flex-col w-full gap-3 items-center justify-center cursor-pointer">
       <PageHeading
         customHeadingStyle="flex flex-col items-center"
@@ -25,7 +26,7 @@ let make = () => {
       //   </span>
       // </div>
     </div>
-    <div className="flex gap-4 w-1034-px">
+    <div className="flex flex-col md:flex-row gap-4 w-full max-w-5xl">
       {defaultHomeActionArray
       ->Array.map(item =>
         <DefaultActionItem
@@ -34,11 +35,11 @@ let make = () => {
       )
       ->React.array}
     </div>
-    <div className="flex flex-col gap-6">
-      <p className="text-fs-20 leading-24 w-1034-px font-semibold">
+    <div className="flex flex-col gap-4 md:gap-6 w-full max-w-5xl">
+      <p className="text-fs-20 leading-24 font-semibold">
         {"Explore composable services"->React.string}
       </p>
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {defaultHomeCardsArray
         ->Array.map(item =>
           <DefaultHomeCard

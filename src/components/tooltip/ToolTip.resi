@@ -29,4 +29,5 @@ let make: (
   ~isRelative: bool=?,
   ~dismissable: bool=?,
   ~newDesign: bool=?,
+  ~iconOpacityVal: string=?,
 ) => React.element

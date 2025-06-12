@@ -25,6 +25,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     is_click_to_pay_enabled,
     authentication_product_ids,
     force_3ds_challenge,
+    is_debit_routing_enabled,
   } = profileRecord
 
   let profileInfo =
@@ -70,7 +71,12 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "three_ds_requestor_url",
     authentication_connector_details.three_ds_requestor_url,
   )
+  profileInfo->setOptionString(
+    "three_ds_requestor_app_url",
+    authentication_connector_details.three_ds_requestor_app_url,
+  )
   profileInfo->setOptionBool("force_3ds_challenge", force_3ds_challenge)
+  profileInfo->setOptionBool("is_debit_routing_enabled", is_debit_routing_enabled)
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
@@ -226,6 +232,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "three_ds_requestor_url",
     valuesDict->getString("three_ds_requestor_url", "")->getNonEmptyString,
   )
+  authenticationConnectorDetails->setOptionString(
+    "three_ds_requestor_app_url",
+    valuesDict->getString("three_ds_requestor_app_url", "")->getNonEmptyString,
+  )
 
   let profileDetailsDict = Dict.make()
   profileDetailsDict->setDictNull(
@@ -266,6 +276,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionBool(
     "force_3ds_challenge",
     valuesDict->getOptionBool("force_3ds_challenge"),
+  )
+  profileDetailsDict->setOptionBool(
+    "is_debit_routing_enabled",
+    valuesDict->getOptionBool("is_debit_routing_enabled"),
   )
 
   profileDetailsDict->setOptionDict(
@@ -386,10 +400,11 @@ let validationFieldsMapper = key => {
   | Website => "website"
   | WebhookUrl => "webhook_url"
   | ReturnUrl => "return_url"
-  | AuthetnticationConnectors(_) => "authentication_connectors"
+  | AuthenticationConnectors(_) => "authentication_connectors"
   | ThreeDsRequestorUrl => "three_ds_requestor_url"
   | UnknownValidateFields(key) => key
   | MaxAutoRetries => "max_auto_retries_enabled"
+  | ThreeDsRequestorAppUrl => "three_ds_requestor_app_url"
   }
 }
 
@@ -441,7 +456,7 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
 
 let validateEmptyArray = (key, errors, arrayValue) => {
   switch key {
-  | AuthetnticationConnectors(_) =>
+  | AuthenticationConnectors(_) =>
     if arrayValue->Array.length === 0 {
       Dict.set(
         errors,
@@ -478,6 +493,23 @@ let validateCustom = (key, errors, value, isLiveMode) => {
 
       if !regexUrl {
         Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
+      }
+    }
+  | ThreeDsRequestorAppUrl =>
+    if value->LogicUtils.isEmptyString {
+      Dict.set(errors, key->validationFieldsMapper, "URL cannot be empty"->JSON.Encode.string)
+    } else {
+      let httpUrlValid = isLiveMode
+        ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
+        : RegExp.test(%re("/^(http|https):\/\//i"), value)
+
+      let deepLinkValid = RegExp.test(%re("/^[a-zA-Z][a-zA-Z0-9]*:\/\//i"), value)
+      if !(httpUrlValid || deepLinkValid) {
+        Dict.set(
+          errors,
+          key->validationFieldsMapper,
+          "Please enter a valid URL or Mobile Deeplink"->JSON.Encode.string,
+        )
       }
     }
   | _ => ()
@@ -518,10 +550,11 @@ let validateMerchantAccountForm = (
 
   let threedsArray = getArrayFromDict(valuesDict, "authentication_connectors", [])->getNonEmptyArray
   let threedsUrl = getString(valuesDict, "three_ds_requestor_url", "")->getNonEmptyString
+  let threedsAppUrl = getString(valuesDict, "three_ds_requestor_app_url", "")->getNonEmptyString
   switch threedsArray {
   | Some(valArr) => {
       let url = getString(valuesDict, "three_ds_requestor_url", "")
-      AuthetnticationConnectors(valArr)->validateEmptyArray(errors, valArr)
+      AuthenticationConnectors(valArr)->validateEmptyArray(errors, valArr)
       ThreeDsRequestorUrl->validateCustom(errors, url, isLiveMode)
     }
   | _ => ()
@@ -529,8 +562,16 @@ let validateMerchantAccountForm = (
   switch threedsUrl {
   | Some(str) => {
       let arr = getArrayFromDict(valuesDict, "authentication_connectors", [])
-      AuthetnticationConnectors(arr)->validateEmptyArray(errors, arr)
+      AuthenticationConnectors(arr)->validateEmptyArray(errors, arr)
       ThreeDsRequestorUrl->validateCustom(errors, str, isLiveMode)
+    }
+  | _ => ()
+  }
+  switch threedsAppUrl {
+  | Some(str) => {
+      let arr = getArrayFromDict(valuesDict, "authentication_connectors", [])
+      AuthenticationConnectors(arr)->validateEmptyArray(errors, arr)
+      ThreeDsRequestorAppUrl->validateCustom(errors, str, isLiveMode)
     }
   | _ => ()
   }
@@ -556,6 +597,7 @@ let defaultValueForBusinessProfile = {
   authentication_connector_details: {
     authentication_connectors: None,
     three_ds_requestor_url: None,
+    three_ds_requestor_app_url: None,
   },
   collect_shipping_details_from_wallet_connector: None,
   always_collect_shipping_details_from_wallet_connector: None,
@@ -569,6 +611,7 @@ let defaultValueForBusinessProfile = {
   is_click_to_pay_enabled: None,
   authentication_product_ids: None,
   force_3ds_challenge: None,
+  is_debit_routing_enabled: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

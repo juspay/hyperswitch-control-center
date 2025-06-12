@@ -26,12 +26,17 @@ module RequestConnector = {
 
 module CantFindProcessor = {
   @react.component
-  let make = (~showRequestConnectorBtn, ~setShowModal) => {
+  let make = (~showRequestConnectorBtn) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let handleClick = () => {
+      mixpanelEvent(~eventName="vault_request_processor")
+      "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"->Window._open
+    }
     <RenderIf condition={showRequestConnectorBtn}>
       <div
-        className="flex flex-row items-center gap-2 text-primary cursor-pointer"
-        onClick={_ => setShowModal(_ => true)}>
-        <ToolTip />
+        className="flex flex-row items-center gap-2 text-primary cursor-pointer font-semibold"
+        onClick={_ => handleClick()}>
+        <ToolTip iconOpacityVal="100" />
         {"Request a processor"->React.string}
       </div>
     </RenderIf>
@@ -59,15 +64,6 @@ let make = (
       configuredConnectors->Array.find(item => item === total)->Option.isNone
     )
 
-  let (showModal, setShowModal) = React.useState(_ => false)
-  let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
-  let searchRef = React.useRef(Nullable.null)
-
-  let leftIcon =
-    <div id="leftIcon" className="self-center py-3 pl-5 pr-4">
-      <Icon size=18 name="search" />
-    </div>
-
   let handleClick = connectorName => {
     mixpanelEvent(~eventName=`vault_connector_click_${connectorName}`)
     setShowSideBar(_ => false)
@@ -77,16 +73,9 @@ let make = (
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
 
-  let handleSearch = event => {
-    let val = ref(ReactEvent.Form.currentTarget(event)["value"])
-    setSearchedConnector(_ => val.contents)
-  }
-
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     ~heading: string,
-    ~showRequestConnectorBtn,
-    ~showSearch=true,
     ~showDummyConnectorButton=false,
     (),
   ) => {
@@ -102,23 +91,6 @@ let make = (
         </h2>
       </AddDataAttributes>
       <div className="flex w-full justify-between gap-4 mt-4 mb-4">
-        <RenderIf condition={showSearch}>
-          <AddDataAttributes attributes=[("data-testid", "search-processor")]>
-            <div
-              className="flex flex-row  border border-gray-300 rounded-2xl  focus:outline-none w-1/3 font-500 ">
-              {leftIcon}
-              <input
-                ref={searchRef->ReactDOM.Ref.domRef}
-                type_="text"
-                value=searchedConnector
-                onChange=handleSearch
-                placeholder="Search a processor"
-                className={`outline-none`}
-                id="search-processor"
-              />
-            </div>
-          </AddDataAttributes>
-        </RenderIf>
         <RenderIf
           condition={!featureFlagDetails.isLiveMode &&
           configuredConnectors->Array.length > 0 &&
@@ -139,23 +111,22 @@ let make = (
             onClick={_ => setProcessorModal(_ => true)}
           />
         </RenderIf>
-        <CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
-      <RenderIf condition={connectorList->Array.length > 0}>
-        <div
-          className={`grid gap-x-5 gap-y-6 
+      <div
+        className={`grid gap-x-5 gap-y-6 
               2xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2 grid-cols-3 mb-5`}>
+        <RenderIf condition={connectorList->Array.length > 0}>
           {connectorList
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString
             let connectorInfo = connector->getConnectorInfo
-            let size = "w-14 h-14 rounded-sm"
+            let size = "w-10 h-10 rounded-sm"
 
             <ACLDiv
               authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               onClick={_ => handleClick(connectorName)}
               key={i->Int.toString}
-              className="border p-6 gap-4 bg-white rounded-lg flex flex-col  justify-between h-12.5-rem hover:bg-gray-50 hover:cursor-pointer"
+              className="border p-4 gap-2 bg-white rounded-lg flex flex-col  justify-between h-9.5-rem hover:bg-gray-50 hover:cursor-pointer"
               dataAttrStr=connectorName>
               <div className="flex flex-row gap-3 items-center">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
@@ -169,52 +140,26 @@ let make = (
             </ACLDiv>
           })
           ->React.array}
-        </div>
-      </RenderIf>
-      <RequestConnector connectorList setShowModal />
+        </RenderIf>
+        <VaultConnectorHelper.VaultRequestProcessorCard />
+      </div>
     </>
   }
 
-  let connectorListFiltered = {
-    if searchedConnector->LogicUtils.isNonEmptyString {
-      connectorsAvailableForIntegration->Array.filter(item =>
-        item->getConnectorNameString->String.includes(searchedConnector->String.toLowerCase)
-      )
-    } else {
-      connectorsAvailableForIntegration
-    }
-  }
-  <div className="mt-10">
-    <RenderIf condition={unConfiguredConnectorsCount > 0}>
-      <RenderIf condition={showAllConnectors}>
-        <div className="flex flex-col gap-4">
-          {connectorListFiltered->descriptedConnectors(
-            ~heading="Connect a new processor",
-            ~showRequestConnectorBtn=true,
-            ~showDummyConnectorButton=false,
-            (),
-          )}
-        </div>
-        <RenderIf condition={showModal}>
-          <HSwitchFeedBackModal
-            modalHeading="Request a processor"
-            setShowModal
-            showModal
-            modalType={RequestConnectorModal}
-          />
-        </RenderIf>
-      </RenderIf>
-      <RenderIf condition={showTestProcessor}>
-        {showTestProcessor
-        ->dummyConnectorList
-        ->descriptedConnectors(
+  <RenderIf condition={unConfiguredConnectorsCount > 0}>
+    <RenderIf condition={showAllConnectors}>
+      <div className="flex flex-col gap-4">
+        {connectorsAvailableForIntegration->descriptedConnectors(
           ~heading="",
-          ~showRequestConnectorBtn=false,
-          ~showSearch=false,
           ~showDummyConnectorButton=false,
           (),
         )}
-      </RenderIf>
+      </div>
     </RenderIf>
-  </div>
+    <RenderIf condition={showTestProcessor}>
+      {showTestProcessor
+      ->dummyConnectorList
+      ->descriptedConnectors(~heading="", ~showDummyConnectorButton=false, ())}
+    </RenderIf>
+  </RenderIf>
 }

@@ -1,16 +1,3 @@
-let getCurrentDetailedUTCTime = () => {
-  Js.Date.fromFloat(Date.now())->Js.Date.toUTCString
-}
-
-let getCurrentShortUTCTime = () => {
-  let currentDate = Date.now()->Js.Date.fromFloat
-  let currMonth = currentDate->Js.Date.getUTCMonth->Float.toString
-  let currDay = currentDate->Js.Date.getUTCDate->Float.toString
-  let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString
-
-  `${currYear}-${currMonth}-${currDay}`
-}
-
 let operatorTypeToStringMapper = (operator: RoutingTypes.operator) => {
   switch operator {
   | CONTAINS => "CONTAINS"
@@ -55,12 +42,12 @@ let getRoutingTypeName = (routingType: RoutingTypes.routingType) => {
 let getRoutingNameString = (~routingType) => {
   open LogicUtils
   let routingText = routingType->getRoutingTypeName
-  `${routingText->capitalizeString} Based Routing-${getCurrentShortUTCTime()}`
+  `${routingText->capitalizeString} Based Routing-${RoutingUtils.getCurrentUTCTime()}`
 }
 
 let getRoutingDescriptionString = (~routingType) => {
   let routingText = routingType->getRoutingTypeName
-  `This is a ${routingText} based routing created at ${getCurrentDetailedUTCTime()}`
+  `This is a ${routingText} based routing created at ${RoutingUtils.currentTimeInUTC}`
 }
 
 let getWasmKeyType = (wasm, value) => {
@@ -294,9 +281,15 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
 
 let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   open LogicUtils
+
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
   | String(str) => str->isNonEmptyString
+  | Object(objectValue) => {
+      let key = objectValue->getString("key", "")
+      let value = objectValue->getString("value", "")
+      key->isNonEmptyString && value->isNonEmptyString
+    }
   | _ => false
   }
 
@@ -432,7 +425,7 @@ let defaultRule: RoutingTypes.rule = {
       lhs: "",
       comparison: "",
       value: {
-        \"type": "",
+        \"type": "number",
         value: ""->JSON.Encode.string,
       },
     },

@@ -21,6 +21,7 @@ let make = () => {
   let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
@@ -172,7 +173,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if userHasAccess(~groupAccess=AnalyticsView) === Access {
+    if userHasAccess(~groupAccess=AnalyticsView) === Access && version == V1 {
       getCategoryOptions()->ignore
     }
 

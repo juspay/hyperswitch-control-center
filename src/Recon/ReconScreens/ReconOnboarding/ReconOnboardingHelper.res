@@ -6,10 +6,12 @@ module ReconOnboardingLanding = {
     let {setCreateNewMerchant, activeProduct} = React.useContext(
       ProductSelectionProvider.defaultContext,
     )
+    let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
     let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
       #tenant_admin,
       #org_admin,
     ])
+
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let onTryDemoClick = () => {
       setCreateNewMerchant(ProductTypes.Recon)
@@ -17,11 +19,20 @@ module ReconOnboardingLanding = {
 
     let handleClick = () => {
       if activeProduct == Recon {
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recon/home"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recon/configuration"))
       } else {
         onTryDemoClick()
       }
     }
+
+    let showSidebar = () => {
+      setShowSideBar(_ => true)
+    }
+
+    React.useEffect(() => {
+      showSidebar()
+      None
+    }, [])
 
     <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
       <img alt="reconOnboarding" src="/Recon/landing.svg" className="rounded-3xl" />
@@ -98,7 +109,7 @@ module ListBaseComp = {
         </RenderIf>
       </div>
       <RenderIf condition={showDropdownArrow}>
-        <Icon className={`${arrowClassName} ml-1`} name="arrow-without-tail-new" size=15 />
+        <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
       </RenderIf>
     </div>
   }
@@ -120,8 +131,8 @@ module ReconCards = {
   let make = () => {
     <div className="grid grid-cols-3 gap-6 mt-2">
       <Card title="Automatic Reconciliation Rate" value="90%" />
-      <Card title="Total Reconciled Amount" value="$ 1,000,000" />
-      <Card title="Unreconciled Amount" value="$ 300,000" />
+      <Card title="Total Reconciled Amount" value="$ 2,500,011" />
+      <Card title="Unreconciled Amount" value="$ 300,007" />
       <Card title="Reconciled Orders" value="1800" />
       <Card title="Unreconciled Orders" value="150" />
       <Card title="Data Missing" value="50" />
@@ -132,6 +143,7 @@ module ReconCards = {
 module StackedBarGraphs = {
   @react.component
   let make = () => {
+    let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1600px)")
     <div className="grid grid-cols-2 gap-6">
       <div
         className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
@@ -164,11 +176,11 @@ module StackedBarGraphs = {
                   },
                 ],
                 labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(
-                  ~statType=No_Type,
+                  ~statType=Default,
                 ),
               },
               ~yMax=2000,
-              ~labelItemDistance=130,
+              ~labelItemDistance={isMiniLaptopView ? 45 : 90},
             )}
           />
         </div>
@@ -176,30 +188,30 @@ module StackedBarGraphs = {
       <div
         className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
         <p className="text-nd_gray-400 text-xs leading-5 font-medium">
-          {"Total Reconciled Amount"->React.string}
+          {"Total Amount"->React.string}
         </p>
         <p className="text-nd_gray-800 font-semibold text-2xl leading-8">
-          {"$ 1,000,000"->React.string}
+          {"$ 2,879,147"->React.string}
         </p>
         <div className="w-full">
           <StackedBarGraph
             options={StackedBarGraphUtils.getStackedBarGraphOptions(
               {
-                categories: ["Total Reconciled Amount"],
+                categories: ["Total Amount"],
                 data: [
                   {
                     name: "Missing",
-                    data: [100000.0],
-                    color: "#E377C2",
+                    data: [79129.0],
+                    color: "#FEBBB2",
                   },
                   {
                     name: "Mismatch",
-                    data: [200000.0],
+                    data: [300007.0],
                     color: "#A0872C",
                   },
                   {
                     name: "Matched",
-                    data: [700000.0],
+                    data: [2500011.0],
                     color: "#17BECF",
                   },
                 ],
@@ -208,8 +220,8 @@ module StackedBarGraphs = {
                   ~currency="$",
                 ),
               },
-              ~yMax=1000000,
-              ~labelItemDistance=80,
+              ~yMax=2879147,
+              ~labelItemDistance={isMiniLaptopView ? 10 : 40},
             )}
           />
         </div>
@@ -223,8 +235,8 @@ module ExceptionCards = {
   let make = () => {
     <div className="grid grid-cols-3 gap-6">
       <Card title="Exceptions Transactions" value="150" />
-      <Card title="Average Aging Time" value="2.5" />
-      <Card title="Total Exception Value" value="$ 200,000" />
+      <Card title="Average Aging Time" value="4.36" />
+      <Card title="Total Exception Value" value="$ 300,007" />
     </div>
   }
 }
@@ -253,6 +265,12 @@ module ReconciliationOverview = {
 
     let toggleChevronState = () => {
       setArrow(prev => !prev)
+    }
+
+    let navigateToExceptions = () => {
+      RescriptReactRouter.push(
+        GlobalVars.appendDashboardPath(~url="v2/recon/reports?tab=exceptions"),
+      )
     }
 
     let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
@@ -292,20 +310,16 @@ module ReconciliationOverview = {
       <div
         className="bg-nd_red-50 rounded-xl px-6 py-3 flex flex-row items-center justify-between self-stretch">
         <div className="flex flex-row gap-4 items-center">
-          <div className="flex flex-row items-center gap-3 pr-4 border-r border-nd_br_red-subtle">
+          <div className="flex flex-row items-center gap-3">
             <Icon name="nd-alert-triangle" size=24 />
             <p className="text-nd_gray-700 font-semibold leading-5 text-center text-sm">
-              {"32 Exceptions Found"->React.string}
+              {"150 Exceptions Found"->React.string}
             </p>
           </div>
-          <p className="text-nd_gray-700 font-semibold leading-5 text-center text-sm">
-            {"12 "->React.string}
-            <span className="text-nd_gray-500 font-medium leading-4 text-xs">
-              {"Critical Issues"->React.string}
-            </span>
-          </p>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div
+          className="flex items-center gap-1.5 cursor-pointer"
+          onClick={_ => navigateToExceptions()}>
           <p className="text-nd_primary_blue-500 font-semibold leading-6 text-center text-sm">
             {"View Details"->React.string}
           </p>
@@ -333,18 +347,38 @@ module Exceptions = {
           data: [
             {
               name: "1 Day",
-              y: 4500.0,
-              color: "#1E90FF",
+              y: 13711.0,
+              color: "#DB88C1",
             },
             {
               name: "2 Day",
-              y: 6000.0,
-              color: "#5CB7AF",
+              y: 44579.0,
+              color: "#DB88C1",
             },
             {
               name: "3 Day",
-              y: 9000.0,
-              color: "#B3596E",
+              y: 40510.0,
+              color: "#DB88C1",
+            },
+            {
+              name: "4 Day",
+              y: 48035.0,
+              color: "#DB88C1",
+            },
+            {
+              name: "5 Day",
+              y: 51640.0,
+              color: "#DB88C1",
+            },
+            {
+              name: "6 Day",
+              y: 51483.0,
+              color: "#DB88C1",
+            },
+            {
+              name: "7 Day",
+              y: 50049.0,
+              color: "#DB88C1",
             },
           ],
           color: "",
@@ -372,18 +406,18 @@ module Exceptions = {
           data: [
             {
               name: "Status Mismatch",
-              y: 75.0,
-              color: "#B89BEC",
+              y: 50.0,
+              color: "#BCBD22",
             },
             {
               name: "Amount Mismatch",
-              y: 75.0,
-              color: "#E377C2",
+              y: 50.0,
+              color: "#72BEF4",
             },
             {
               name: "Both",
-              y: 90.0,
-              color: "#B6D198",
+              y: 50.0,
+              color: "#4B6D8C",
             },
           ],
           color: "",
@@ -391,9 +425,9 @@ module Exceptions = {
       ],
       tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
         ~title="Unmatched Transactions",
-        ~metricType=No_Type,
+        ~metricType=Default,
       ),
-      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=No_Type),
+      yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(~statType=Default),
     }
 
     <div className="flex flex-col gap-6 w-full">
@@ -434,6 +468,14 @@ module ReconOverviewContent = {
   @react.component
   let make = () => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+
+    React.useEffect(() => {
+      mixpanelEvent(~eventName="recon_analytics_overview")
+      setShowSideBar(_ => true)
+      None
+    }, [])
+
     <div>
       <div
         className="absolute z-10 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
@@ -443,26 +485,10 @@ module ReconOverviewContent = {
             {"You're viewing sample analytics to help you understand how the reports will look with real data"->React.string}
           </p>
         </div>
-        <Button
-          text="Get Production Access"
-          buttonType=Primary
-          buttonSize=Medium
-          buttonState=Normal
-          onClick={_ => {
-            mixpanelEvent(~eventName="recon_send_an_email")
-            ()
-          }}
-        />
+        <ReconHelper.GetProductionAccess />
       </div>
       <ReconciliationOverview />
       <Exceptions />
     </div>
-  }
-}
-
-module ReconOverview = {
-  @react.component
-  let make = () => {
-    <ReconOverviewContent />
   }
 }

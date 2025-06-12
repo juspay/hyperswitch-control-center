@@ -257,7 +257,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     </div>}
     sectionHeight="!h-screen">
     <div>
-      <Heading />
+      <Heading title="Apple Pay" iconName="applepay" />
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(ZEN) =>
         <ApplePayZen applePayFields update closeModal setShowWalletConfigurationModal />
@@ -301,6 +301,5 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         }
       }}
     </div>
-    <FormValuesSpy />
   </PageLoaderWrapper>
 }

@@ -176,7 +176,7 @@ Cypress.Commands.add("mock_magic_link_signin_success", (user_email = "") => {
   }).as("getMagicLinkSuccess");
 });
 
-Cypress.Commands.add("signup_curl", (name = "", pass = "") => {
+Cypress.Commands.add("signup_API", (name = "", pass = "") => {
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
 
@@ -205,7 +205,7 @@ Cypress.Commands.add("signup_curl", (name = "", pass = "") => {
     });
 });
 
-Cypress.Commands.add("login_curl", (name = "", pass = "") => {
+Cypress.Commands.add("login_API", (name = "", pass = "") => {
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
   // /user/signin
@@ -223,26 +223,105 @@ Cypress.Commands.add("login_UI", (name = "", pass = "") => {
   cy.visit("/");
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
-  cy.get("[data-testid=email]").type(username);
-  cy.get("[data-testid=password]").type(password);
-  cy.get('button[type="submit"]').click({ force: true });
-  cy.get("[data-testid=skip-now]").click({ force: true });
+  signinPage.emailInput.type(username);
+  signinPage.passwordInput.type(password);
+  signinPage.signinButton.click();
+  signinPage.skip2FAButton.click();
 });
 
-Cypress.Commands.add("deleteConnector", (mca_id) => {
-  let token = window.localStorage.getItem("login");
-  let { merchant_id = "" } = JSON.parse(
-    window.localStorage.getItem("merchant"),
-  );
-  cy.request({
-    method: "DELETE",
-    url: `http://localhost:9000/api/account/${merchant_id}/connectors/${mca_id}`,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
+Cypress.Commands.add("createAPIKey", (merchant_id) => {
+  return cy
+    .request({
+      method: "POST",
+      url: `http://localhost:8080/api_keys/${merchant_id}`,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": "test_admin",
+      },
+      body: {
+        name: "API Key 1",
+        description: null,
+        expiration: "2060-09-23T01:02:03.000Z",
+      },
+    })
+    .then((response) => {
+      const apiKey = response.body.api_key;
+      return apiKey;
+    });
 });
+
+Cypress.Commands.add(
+  "createDummyConnectorAPI",
+  (merchant_id, connector_label) => {
+    cy.createAPIKey(merchant_id).then((apiKey) => {
+      cy.request({
+        method: "POST",
+        url: `http://localhost:8080/account/${merchant_id}/connectors`,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "api-key": apiKey, // Pass the apiKey here
+        },
+        body: {
+          connector_type: "payment_processor",
+          connector_name: "stripe_test",
+          connector_label: `${connector_label}`,
+          connector_account_details: {
+            api_key: "test_key",
+            auth_type: "HeaderKey",
+          },
+          status: "active",
+          test_mode: true,
+          payment_methods_enabled: [
+            {
+              payment_method: "card",
+              payment_method_types: [
+                {
+                  payment_method_type: "debit",
+                  card_networks: ["Mastercard"],
+                  minimum_amount: 0,
+                  maximum_amount: 68607706,
+                  recurring_enabled: true,
+                  installment_payment_enabled: false,
+                },
+                {
+                  payment_method_type: "debit",
+                  card_networks: ["Visa"],
+                  minimum_amount: 0,
+                  maximum_amount: 68607706,
+                  recurring_enabled: true,
+                  installment_payment_enabled: false,
+                },
+              ],
+            },
+            {
+              payment_method: "card",
+              payment_method_types: [
+                {
+                  payment_method_type: "credit",
+                  card_networks: ["Mastercard"],
+                  minimum_amount: 0,
+                  maximum_amount: 68607706,
+                  recurring_enabled: true,
+                  installment_payment_enabled: false,
+                },
+                {
+                  payment_method_type: "credit",
+                  card_networks: ["Visa"],
+                  minimum_amount: 0,
+                  maximum_amount: 68607706,
+                  recurring_enabled: true,
+                  installment_payment_enabled: false,
+                },
+              ],
+            },
+          ],
+        },
+      });
+    });
+  },
+);
 
 Cypress.Commands.add("create_connector_UI", () => {
   cy.get("[data-testid=connectors]").click();
@@ -282,6 +361,103 @@ Cypress.Commands.add("create_connector_UI", () => {
     .should("be.visible");
 });
 
+Cypress.Commands.add("deleteConnector", (mca_id) => {
+  let token = window.localStorage.getItem("login");
+  let { merchant_id = "" } = JSON.parse(
+    window.localStorage.getItem("merchant"),
+  );
+  cy.request({
+    method: "DELETE",
+    url: `http://localhost:9000/api/account/${merchant_id}/connectors/${mca_id}`,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+});
+
+Cypress.Commands.add("createPaymentAPI", (merchant_id) => {
+  cy.createAPIKey(merchant_id).then((apiKey) => {
+    cy.request({
+      method: "POST",
+      url: `http://localhost:8080/payments`,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": apiKey, // Pass the apiKey here
+      },
+      body: {
+        amount: 10000,
+        currency: "USD",
+        confirm: true,
+        capture_method: "automatic",
+        customer_id: "test_customer",
+        authentication_type: "no_three_ds",
+        return_url: "https://google.com",
+        email: "abc@test.com",
+        name: "Joseph Doe",
+        phone: "999999999",
+        phone_country_code: "+65",
+        merchant_order_reference_id: "abcd",
+        description: "Its my first payment",
+        statement_descriptor_name: "Juspay",
+        statement_descriptor_suffix: "Router",
+        payment_method: "card",
+        payment_method_type: "credit",
+        payment_method_data: {
+          card: {
+            card_number: "4242424242424242",
+            card_exp_month: "01",
+            card_exp_year: "2027",
+            card_holder_name: "joseph Doe",
+            card_cvc: "100",
+            nick_name: "hehe",
+          },
+        },
+        billing: {
+          address: {
+            city: "Toronto",
+            country: "CA",
+            line1: "1562",
+            line2: "HarrisonStreet",
+            line3: "HarrisonStreet",
+            zip: "M3C 0C1",
+            state: "ON",
+            first_name: "Joseph",
+            last_name: "Doe",
+          },
+          phone: {
+            number: "8056594427",
+            country_code: "+91",
+          },
+          email: "abc@test.com",
+        },
+        shipping: {
+          address: {
+            city: "Toronto",
+            country: "CA",
+            line1: "1562",
+            line2: "HarrisonStreet",
+            line3: "HarrisonStreet",
+            zip: "M3C 0C1",
+            state: "ON",
+            first_name: "Joseph",
+            last_name: "Doe",
+          },
+          phone: {
+            number: "8056594427",
+            country_code: "+91",
+          },
+          email: "abc@test.com",
+        },
+        metadata: {
+          key: "value",
+        },
+      },
+    });
+  });
+});
+
 Cypress.Commands.add("process_payment_sdk_UI", () => {
   cy.clearCookies("login_token");
   cy.get("[data-testid=connectors]").click();
@@ -316,7 +492,6 @@ Cypress.Commands.add("process_payment_sdk_UI", () => {
 });
 
 Cypress.Commands.add("sign_up_with_email", (username, password) => {
-  const MAIL_URL = "http://localhost:8025";
   cy.url().should("include", "/register");
   signupPage.emailInput.type(username);
   signupPage.signUpButton.click();
@@ -324,7 +499,7 @@ Cypress.Commands.add("sign_up_with_email", (username, password) => {
     "contain",
     "Please check your inbox",
   );
-  cy.visit(`${MAIL_URL}`);
+  cy.visit(Cypress.env("MAIL_URL"));
   cy.get("div.messages > div:nth-child(2)").click();
   cy.wait(1000);
   cy.get("iframe").then(($iframe) => {
@@ -343,6 +518,18 @@ Cypress.Commands.add("sign_up_with_email", (username, password) => {
     signinPage.signinButton.click();
     // Skip 2FA
     signinPage.skip2FAButton.click();
+  });
+});
+
+Cypress.Commands.add("redirect_from_mail_inbox", () => {
+  cy.visit(Cypress.env("MAIL_URL"));
+  cy.get("div.messages > div:nth-child(2)").click();
+  cy.wait(1000);
+  cy.get("iframe").then(($iframe) => {
+    // Verify email
+    const doc = $iframe.contents();
+    const verifyEmail = doc.find("a").get(0);
+    cy.visit(verifyEmail.href);
   });
 });
 

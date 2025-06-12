@@ -23,7 +23,7 @@ let make = (
     ~entityName=V2(V2_CONNECTOR),
     ~version=UserInfoTypes.V2,
   )
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
 
@@ -33,7 +33,8 @@ let make = (
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString
+  let connectorTypeFromName =
+    connector->getConnectorNameTypeFromString(~connectorType=ConnectorTypes.BillingProcessor)
 
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
@@ -45,10 +46,24 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "billing_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
+    initialValuesToDict->Dict.set(
+      "connector_account_details",
+      RevenueRecoveryData.connector_account_details,
+    )
+    initialValuesToDict->Dict.set(
+      "connector_webhook_details",
+      RevenueRecoveryData.connector_webhook_details,
+    )
+    initialValuesToDict->Dict.set(
+      "feature_metadata",
+      RevenueRecoveryData.feature_metadata(~id=connectorID),
+    )
+    initialValuesToDict->Dict.set("metadata", RevenueRecoveryData.metadata)
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
   let handleAuthKeySubmit = async (values, _) => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     setInitialValues(_ => values)
     onNextClick(currentStep, setNextStep)
     Nullable.null
@@ -58,7 +73,6 @@ let make = (
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     let dict = values->getDictFromJsonObject
     let values = dict->JSON.Encode.object
-
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
@@ -74,7 +88,7 @@ let make = (
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
-          setNextStep(_ => RevenueRecoveryOnboardingUtils.defaultStep)
+          setNextStep(_ => RevenueRecoveryOnboardingUtils.defaultStepBilling)
           setScreenState(_ => Success)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
@@ -100,16 +114,16 @@ let make = (
       }
     }
   }, [connector])
-
-  let (
-    _,
+  let handleClick = () => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
+    onNextClick(currentStep, setNextStep)->ignore
+  }
+  let {
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
-    _,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let validateMandatoryField = values => {
     let errors = Dict.make()
@@ -196,9 +210,7 @@ let make = (
           connector_account_reference_id=connectorID
         />
       | (#addAPlatform, #setupWebhookPlatform) =>
-        <BillingProcessorsWebhooks
-          initialValues merchantId onNextClick={_ => onNextClick(currentStep, setNextStep)->ignore}
-        />
+        <BillingProcessorsWebhooks initialValues merchantId onNextClick={_ => handleClick()} />
       | (#reviewDetails, _) => <BillingProcessorsReviewDetails />
       | _ => React.null
       }}

@@ -3,7 +3,9 @@ let make = (~isPayoutFlow=false) => {
   open PaymentMethodConfigUtils
   open PaymentMethodEntity
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtom,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (connectorResponse, setConnectorResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
@@ -14,7 +16,8 @@ let make = (~isPayoutFlow=false) => {
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getConnectedList
   )
-  let {updateExistingKeys, reset, filterValueJson} = FilterContext.filterContext->React.useContext
+  let {updateExistingKeys, reset, filterValueJson, filterValue} =
+    FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
   let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo(() => {
     filterValueJson->pmtConfigFilter
@@ -37,7 +40,7 @@ let make = (~isPayoutFlow=false) => {
   React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
     None
-  }, (isPayoutFlow, filterValueJson))
+  }, (isPayoutFlow, filterValue))
 
   let applyFilter = async () => {
     let res = connectorResponse->getFilterdConnectorList(allFilters)
@@ -76,28 +79,32 @@ let make = (~isPayoutFlow=false) => {
         defaultFilters={Dict.make()->JSON.Encode.object}
         fixedFilters=[]
         requiredSearchFieldsList=[]
-        localFilters={configuredConnectors->initialFilters(businessProfiles)}
+        localFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])}
         localOptions=[]
         remoteOptions=[]
-        remoteFilters={configuredConnectors->initialFilters(businessProfiles)}
+        remoteFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])}
         defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => handleClearFilter()->ignore}
-      />
-      <LoadedTable
-        title=" "
-        actualData={filteredConnectors->Array.map(Nullable.make)}
-        totalResults={filteredConnectors->Array.length}
-        resultsPerPage=20
-        showSerialNumber=true
-        offset
         setOffset
-        entity={PaymentMethodEntity.paymentMethodEntity(
-          ~setReferesh=getConnectorListAndUpdateState,
-        )}
-        currrentFetchCount={filteredConnectors->Array.length}
-        collapseTableRow=false
       />
+      <div className="mt-4">
+        <LoadedTable
+          title="Payment Methods"
+          hideTitle=true
+          actualData={filteredConnectors->Array.map(Nullable.make)}
+          totalResults={filteredConnectors->Array.length}
+          resultsPerPage=20
+          showSerialNumber=true
+          offset
+          setOffset
+          entity={PaymentMethodEntity.paymentMethodEntity(
+            ~setReferesh=getConnectorListAndUpdateState,
+          )}
+          currrentFetchCount={filteredConnectors->Array.length}
+          collapseTableRow=false
+        />
+      </div>
     </PageLoaderWrapper>
   </div>
 }

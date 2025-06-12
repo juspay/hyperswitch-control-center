@@ -74,8 +74,9 @@ module Details = {
     ~justifyClassName="justify-start",
     ~widthClass="w-1/4",
     ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+    ~itemWrapperClass="",
   ) => {
-    <FormRenderer.DesktopRow>
+    <FormRenderer.DesktopRow itemWrapperClass>
       <div
         className={`grid grid-cols-3 ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
         {detailsFields
@@ -87,8 +88,8 @@ module Details = {
                 value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
-                overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
-                textColor="!text-nd_gray-600 font-medium leading-6"
+                overiddingHeadingStyles="text-nd_gray-400 !text-sm font-medium"
+                textColor="!text-nd_gray-600 leading-6 !text-fs-16 !font-medium"
               />
             </div>
           </RenderIf>
@@ -132,6 +133,7 @@ module VaultedPaymentMethodsTable = {
     let (showModal, setShowModal) = React.useState(_ => false)
     let (paymentId, setPaymentId) = React.useState(_ => "")
     let customerIdFromUrl = url.path->List.toArray->Array.get(4)->Option.getOr("")
+    let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let fetchPaymentMethods = async () => {
       try {
@@ -173,7 +175,7 @@ module VaultedPaymentMethodsTable = {
 
     <PageLoaderWrapper screenState>
       <LoadedTable
-        title=" "
+        title="Vaulted Payment Methods"
         hideTitle=true
         resultsPerPage=7
         entity={VaultPaymentMethodsEntity.vaultPaymentMethodsEntity}
@@ -184,8 +186,10 @@ module VaultedPaymentMethodsTable = {
         onEntityClick={val => {
           setPaymentId(_ => val.id)
           setShowModal(_ => true)
+          mixpanelEvent(~eventName="vault_view_vaulted_payment_method_details")
         }}
         currrentFetchCount={tableData->Array.length}
+        showAutoScroll=true
       />
       <Modal
         showModal
@@ -203,9 +207,11 @@ module VaultedPaymentMethods = {
   @react.component
   let make = (~sampleReport) => {
     <>
-      <div
-        className={`font-semibold text-nd_gray-600 text-fs-24 leading-6 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
-        {"Vaulted Payment Methods"->React.string}
+      <div className="flex flex-col gap-1 mb-6">
+        <p className="text-xl font-semibold"> {"Vaulted Payment Method"->React.string} </p>
+        <p className="text-base text-nd_gray-400">
+          {"Click on an entry to view detailed information about a vaulted payment method."->React.string}
+        </p>
       </div>
       <VaultedPaymentMethodsTable sampleReport />
     </>
@@ -272,7 +278,9 @@ let make = (~id, ~sampleReport) => {
           </div>
         </div>
       </div>
-      <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
+      <div className="mb-8">
+        <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
+      </div>
       <VaultedPaymentMethods sampleReport />
     </div>
   </PageLoaderWrapper>

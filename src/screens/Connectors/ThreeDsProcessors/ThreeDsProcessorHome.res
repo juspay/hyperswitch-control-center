@@ -1,3 +1,50 @@
+module MenuOption = {
+  open HeadlessUI
+  @react.component
+  let make = (~disableConnector, ~isConnectorDisabled) => {
+    let showPopUp = PopUpState.useShowPopUp()
+    let openConfirmationPopUp = _ => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action?",
+        description: `You are about to ${isConnectorDisabled
+            ? "Enable"
+            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
+
+    let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
+
+    <Popover \"as"="div" className="relative inline-block text-left">
+      {_popoverProps => <>
+        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
+        <Popover.Panel className="absolute z-20 right-5 top-4">
+          {panelProps => {
+            <div
+              id="neglectTopbarTheme"
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              {<>
+                <Navbar.MenuOption
+                  text={connectorStatusAvailableToSwitch}
+                  onClick={_ => {
+                    panelProps["close"]()
+                    openConfirmationPopUp()
+                  }}
+                />
+              </>}
+            </div>
+          }}
+        </Popover.Panel>
+      </>}
+    </Popover>
+  }
+}
+
 @react.component
 let make = () => {
   open ThreeDsProcessorTypes
@@ -15,11 +62,9 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-
-  let activeBusinessProfile =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->MerchantAccountUtils.getValueFromBusinessProfile
+  let updateDetails = useUpdateMethod()
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"3ds-authenticators", "new"} => false
@@ -77,16 +122,39 @@ let make = () => {
       }
     }
   }, [connectorName])
+  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
 
-  let (
+  let isConnectorDisabled = connectorInfo.disabled
+  let disableConnector = async isConnectorDisabled => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let connectorID = connectorInfo.merchant_connector_id
+      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
+        connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
+        isConnectorDisabled,
+      )
+
+      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
+      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      setInitialValues(_ => res)
+      let _ = await fetchConnectorListResponse()
+      setScreenState(_ => PageLoaderWrapper.Success)
+      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
+    } catch {
+    | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+    }
+  }
+  let {
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
@@ -94,15 +162,15 @@ let make = () => {
     if !isUpdateFlow {
       initialValuesToDict->Dict.set(
         "profile_id",
-        activeBusinessProfile.profile_id->JSON.Encode.string,
+        businessProfileRecoilVal.profile_id->JSON.Encode.string,
       )
       initialValuesToDict->Dict.set(
         "connector_label",
-        `${connectorName}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+        `${connectorName}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
       )
     }
     None
-  }, [connectorName, activeBusinessProfile.profile_id])
+  }, [connectorName, businessProfileRecoilVal.profile_id])
 
   React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
@@ -162,9 +230,21 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
+  let connectorStatusStyle = connectorStatus =>
+    switch connectorStatus {
+    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
+    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
+    }
 
   let summaryPageButton = switch currentStep {
-  | Preview => React.null
+  | Preview =>
+    <div className="flex gap-6 items-center">
+      <div
+        className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
+        {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
+      </div>
+      <MenuOption disableConnector isConnectorDisabled />
+    </div>
   | _ =>
     <Button
       text="Done"
@@ -227,7 +307,6 @@ let make = () => {
                 />
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
-            <FormValuesSpy />
           </Form>
 
         | Summary | Preview =>

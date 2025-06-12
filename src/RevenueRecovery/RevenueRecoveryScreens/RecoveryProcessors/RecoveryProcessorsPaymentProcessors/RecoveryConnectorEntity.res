@@ -80,7 +80,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
     | Disabled =>
       Label({
         title: connector.disabled ? "DISABLED" : "ENABLED",
-        color: connector.disabled ? LabelRed : LabelGreen,
+        color: connector.disabled ? LabelGray : LabelGreen,
       })
 
     | Status =>
@@ -93,7 +93,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
     | ProfileId => DisplayCopyCell(connector.profile_id)
     | ProfileName =>
       Table.CustomCell(
-        <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
+        <HelperComponents.ProfileNameComponent profile_id={connector.profile_id} />,
         "",
       )
     | ConnectorLabel => Text(connector.connector_label)

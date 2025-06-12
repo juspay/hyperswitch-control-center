@@ -12,7 +12,6 @@ module PMSelectAll = {
     let pmEnabledValue =
       pmEnabledInp.value->getArrayDataFromJson(ConnectorInterfaceUtils.getPaymentMethodsEnabledV2)
     let pmArrayInp = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
-
     let (isSelectedAll, setIsSelectedAll) = React.useState(() => false)
     let removeAllPM = () => {
       if pm->getPMFromString == Card && pmt->getPMTFromString == Credit {
@@ -107,6 +106,12 @@ module PMSelectAll = {
       setIsSelectedAll(_ => isSelectedAll)
     }
 
+    let lengthoFPMSubTypes =
+      pmArrayInp.value
+      ->getDictFromJsonObject
+      ->getArrayFromDict("payment_method_subtypes", [])
+      ->Array.length
+
     React.useEffect(() => {
       let pmtData = pmEnabledValue->Array.find(ele => ele.payment_method_type == pm)
       let isPMEnabled = switch pmtData {
@@ -126,7 +131,7 @@ module PMSelectAll = {
       }
       setIsSelectedAll(_ => isPMEnabled)
       None
-    }, [])
+    }, [lengthoFPMSubTypes])
     <div className="flex gap-2 items-center">
       <p className="font-normal"> {"Select All"->React.string} </p>
       <BoolInput.BaseComponent

@@ -52,6 +52,10 @@ module TabInfo = {
     let tabDisabledStyle = "from-white to-white dark:from-jp-gray-950 dark:to-jp-gray-950 border-b-0 border-jp-gray-500 dark:border-jp-gray-960"
 
     let roundedClass = "rounded-t-md"
+    let displayElement = switch tabElement {
+    | Some(ele) => ele
+    | None => React.string(title)
+    }
 
     let defaultClasses = if isDisabled && disabledTab->Array.includes(title) {
       `cursor-not-allowed ${fontClass} w-max flex flex-auto flex-row items-center justify-center ${roundedClass} ${tabTextPadding} ${backgroundStyle} ${tabDisabledStyle} ${defaultBorderClass} font-semibold dark:text-jp-gray-text_darktheme dark:text-opacity-50 text-opacity-50 hover:text-opacity-50 dark:hover:text-opacity-50`
@@ -91,9 +95,9 @@ module TabInfo = {
     let tab =
       <div className={"flex flex-col cursor-pointer w-max"}>
         <div
-          className={`${defaultClasses} ${selectionClasses} select-none pb-2`}
+          className={`${defaultClasses} ${selectionClasses} select-none pb-2 `}
           onClick={handleClick}>
-          {React.string(title)}
+          {displayElement}
         </div>
         {if isSelected {
           <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />

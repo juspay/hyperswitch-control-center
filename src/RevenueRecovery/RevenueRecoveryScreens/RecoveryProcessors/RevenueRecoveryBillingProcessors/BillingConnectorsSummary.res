@@ -12,8 +12,13 @@ module BillingConnectorDetails = {
     let (screenState, setScreenState) = React.useState(_ => Loading)
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-    let url = RescriptReactRouter.useUrl()
-    let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
+    let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
+      ~interface=ConnectorInterface.connectorInterfaceV2,
+      ~retainInList=BillingProcessor,
+    )
+
+    let (connectorID, _) =
+      billingConnectorListFromRecoil->BillingProcessorsUtils.getConnectorDetails
 
     let getConnectorDetails = async () => {
       try {
@@ -41,7 +46,7 @@ module BillingConnectorDetails = {
       initialValues->LogicUtils.getDictFromJsonObject,
     )
 
-    let {connector_name: connectorName} = connectorInfodict
+    let {connector_name: connectorName, connector_webhook_details} = connectorInfodict
 
     let connectorDetails = React.useMemo(() => {
       try {
@@ -78,9 +83,7 @@ module BillingConnectorDetails = {
       }
     }, [connectorInfodict.id])
 
-    let (_, connectorAccountFields, _, _, connectorWebHookDetails, _, _) = getConnectorFields(
-      connectorDetails,
-    )
+    let {connectorAccountFields} = getConnectorFields(connectorDetails)
 
     let revenueRecovery =
       connectorInfodict.feature_metadata->getDictFromJsonObject->getDictfromDict("revenue_recovery")
@@ -92,7 +95,7 @@ module BillingConnectorDetails = {
       <div className="flex flex-col gap-7">
         <div className="flex justify-between border-b pb-4 px-2 items-end">
           <p className="text-lg font-semibold text-nd_gray-600">
-            {"Recovery Details"->React.string}
+            {"Revenue Recovery Details"->React.string}
           </p>
         </div>
         <div className="grid grid-cols-3 px-2">
@@ -131,10 +134,12 @@ module BillingConnectorDetails = {
           customElementStyle="px-2 "
         />
         <div className="grid grid-cols-3 px-2">
-          {connectorWebHookDetails
+          {connector_webhook_details
+          ->getDictFromJsonObject
           ->Dict.toArray
           ->Array.map(item => {
             let (key, value) = item
+
             <div className="flex flex-col gap-0.5-rem ">
               <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
               {value->JSON.Decode.string->Option.getOr("")->React.string}
@@ -210,15 +215,12 @@ module PaymentConnectorDetails = {
       }
     }, [connectorInfodict.id])
 
-    let (
-      _,
+    let {
       connectorAccountFields,
       connectorMetaDataFields,
-      _,
       connectorWebHookDetails,
       connectorLabelDetailField,
-      _,
-    ) = getConnectorFields(connectorDetails)
+    } = getConnectorFields(connectorDetails)
 
     let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
       try {
@@ -343,20 +345,8 @@ let make = () => {
     dict->JSON.Encode.object
   }
 
-  <div className="flex flex-col gap-7 p-6">
-    <BreadCrumbNavigation
-      path=[{title: "Recovery Overview", link: "/v2/recovery/overview"}]
-      currentPageTitle="View Details"
-      cursorStyle="cursor-pointer"
-      customTextClass="text-nd_gray-400"
-      titleTextClass="text-nd_gray-600 font-medium"
-      fontWeight="font-medium"
-      dividerVal=Slash
-      childGapClass="gap-2"
-    />
-    <div className="flex flex-col gap-20 -ml-2">
-      <BillingConnectorDetails removeFieldsFromRespose merchantId setPaymentConnectorId />
-      <PaymentConnectorDetails connectorId=paymentConnectorId removeFieldsFromRespose merchantId />
-    </div>
+  <div className="flex flex-col gap-20 -ml-2">
+    <BillingConnectorDetails removeFieldsFromRespose merchantId setPaymentConnectorId />
+    <PaymentConnectorDetails connectorId=paymentConnectorId removeFieldsFromRespose merchantId />
   </div>
 }

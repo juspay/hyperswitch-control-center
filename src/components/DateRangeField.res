@@ -132,6 +132,7 @@ module Base = {
     ~removeConversion=false,
     ~customborderCSS="",
     ~isTooltipVisible=true,
+    ~events=?,
   ) => {
     open DateRangeUtils
     open LogicUtils
@@ -181,6 +182,12 @@ module Base = {
       setLocalEndDate(_ => "")
       setLocalOpt(_ => "")
     }
+    let handleEvent = React.useCallback(() => {
+      switch events {
+      | Some(fn) => fn()
+      | _ => ()
+      }
+    }, [events])
 
     React.useEffect(() => {
       switch dateRangeLimit {
@@ -195,6 +202,14 @@ module Base = {
       }
       None
     }, (localStartDate, localEndDate))
+
+    React.useEffect(() => {
+      if isDropdownExpanded == true {
+        handleEvent()
+      }
+
+      None
+    }, [isDropdownExpanded])
 
     let dateRangeRef = React.useRef(Nullable.null)
     let dropdownRef = React.useRef(Nullable.null)
@@ -556,7 +571,7 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let customStyleForBtn = "rounded-lg bg-white"
+    let customStyleForBtn = "rounded-lg bg-white w-fit"
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
@@ -884,6 +899,7 @@ let make = (
   ~standardTimeToday=false,
   ~removeConversion=false,
   ~isTooltipVisible=true,
+  ~events=?,
 ) => {
   let startInput = ReactFinalForm.useField(startKey).input
   let endInput = ReactFinalForm.useField(endKey).input
@@ -916,5 +932,6 @@ let make = (
     standardTimeToday
     removeConversion
     isTooltipVisible
+    ?events
   />
 }

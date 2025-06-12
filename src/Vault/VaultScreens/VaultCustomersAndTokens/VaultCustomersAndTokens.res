@@ -34,7 +34,8 @@ module NoDataFoundComponent = {
     }
 
     <div className="mt-7">
-      <div className="flex bg-nd_gray-50 h-11 gap-45-px border rounded-t-lg overflow-clip ">
+      <div
+        className="flex bg-nd_gray-50 h-11 gap-72-px border rounded-t-lg overflow-x-auto whitespace-nowrap">
         {fieldArray
         ->Array.map(item =>
           <p className="pl-6 font-medium text-fs-13 text-nd_gray-400 p-3">
@@ -44,7 +45,7 @@ module NoDataFoundComponent = {
         ->React.array}
       </div>
       <div className="border border-t-0 h-1/2">
-        <div className="flex flex-col  items-center gap-4 justify-center h-[65vh]">
+        <div className="flex flex-col  items-center gap-4 justify-center h-[55vh]">
           <div className="flex flex-col items-center">
             <p className=" text-nd_gray-700 font-semibold text-lg">
               {"No Data Available"->React.string}
@@ -81,6 +82,7 @@ let make = (~sampleReport, ~setSampleReport) => {
   let (searchVal, setSearchVal) = React.useState(_ => "")
   let total = 100 // TODO: take this value from API response [currenctly set to 5 pages]
   let limit = 10 // each api calls will return 50 results
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let getCustomersList = async () => {
     try {
@@ -127,7 +129,6 @@ let make = (~sampleReport, ~setSampleReport) => {
     Email,
     Phone,
     PhoneCountryCode,
-    Description,
     Address,
     CreatedAt,
   ]
@@ -150,37 +151,55 @@ let make = (~sampleReport, ~setSampleReport) => {
     setFilteredCustomersData(_ => filteredList)
   }, ~wait=200)
 
+  let callMixpanel = eventName => {
+    mixpanelEvent(~eventName)
+  }
   <PageLoaderWrapper screenState>
-    <PageHeading
-      title="Customers & Tokens" subTitle="List of customers and their vaulted payment tokens"
-    />
-    <VaultCustomersTotalDataView sampleReport custCount={customersData->Array.length} />
-    <RenderIf condition={customersData->Array.length == 0}>
-      <NoDataFoundComponent
-        setSampleReport setCustomersData setFilteredCustomersData offset setOffset total fieldArray
-      />
-    </RenderIf>
-    <RenderIf condition={customersData->Array.length > 0}>
-      <LoadedTable
-        title=" "
-        hideTitle=true
-        actualData=filteredCustomersData
-        entity={customersEntity}
-        resultsPerPage=10
-        filters={<TableSearchFilter
-          data={customersData}
-          filterLogic
-          placeholder="Search any customer ID"
-          searchVal
-          setSearchVal
-        />}
-        totalResults=total
-        offset
-        setOffset
-        currrentFetchCount={customersData->Array.length}
-        showResultsPerPageSelector=false
-        showAutoScroll=true
-      />
-    </RenderIf>
+    <div className="flex flex-col gap-5">
+      <PageHeading title="Customers & Tokens" />
+      <div className="-mt-2">
+        <VaultCustomersTotalDataView sampleReport custCount={customersData->Array.length} />
+      </div>
+      <RenderIf condition={customersData->Array.length == 0}>
+        <NoDataFoundComponent
+          setSampleReport
+          setCustomersData
+          setFilteredCustomersData
+          offset
+          setOffset
+          total
+          fieldArray
+        />
+      </RenderIf>
+      <RenderIf condition={customersData->Array.length > 0}>
+        <div className="flex flex-col gap-1">
+          <p className="text-xl font-semibold"> {"Customer Details"->React.string} </p>
+          <p className="text-base text-nd_gray-400">
+            {"Click on a customer entry to view their details and vaulted payment methods."->React.string}
+          </p>
+        </div>
+        <LoadedTable
+          title="Vault Customers And tokens"
+          hideTitle=true
+          actualData=filteredCustomersData
+          entity={customersEntity(callMixpanel)}
+          resultsPerPage=20
+          filters={<TableSearchFilter
+            data={customersData}
+            filterLogic
+            placeholder="Search any customer ID"
+            searchVal
+            setSearchVal
+          />}
+          totalResults={filteredCustomersData->Array.length}
+          offset
+          setOffset
+          currrentFetchCount={filteredCustomersData->Array.length}
+          showResultsPerPageSelector=false
+          showAutoScroll=true
+          collapseTableRow=false
+        />
+      </RenderIf>
+    </div>
   </PageLoaderWrapper>
 }

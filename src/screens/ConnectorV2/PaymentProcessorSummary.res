@@ -1,6 +1,6 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs
 @react.component
-let make = (~baseUrl) => {
+let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
   open ConnectorUtils
   open LogicUtils
   open APIUtils
@@ -13,6 +13,10 @@ let make = (~baseUrl) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+    ~version=V2,
+  )
 
   let url = RescriptReactRouter.useUrl()
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
@@ -97,15 +101,12 @@ let make = (~baseUrl) => {
     }
   }, [connectorInfodict.id])
 
-  let (
-    _,
+  let {
     connectorAccountFields,
     connectorMetaDataFields,
-    _,
     connectorWebHookDetails,
     connectorLabelDetailField,
-    _,
-  ) = getConnectorFields(connectorDetails)
+  } = getConnectorFields(connectorDetails)
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
@@ -132,6 +133,7 @@ let make = (~baseUrl) => {
         }
       }
       let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
+      let _ = await fetchConnectorListResponse()
       setCurrentActiveSection(_ => None)
       setInitialValues(_ => response->removeFieldsFromRespose)
       setScreenState(_ => Success)
@@ -159,6 +161,11 @@ let make = (~baseUrl) => {
       errors->JSON.Encode.object,
     )
   }
+  let ignoreKeys =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->Dict.keysToArray
+    ->Array.filter(val => !Array.includes(["credit", "debit"], val))
 
   <PageLoaderWrapper screenState>
     <BreadCrumbNavigation
@@ -175,7 +182,7 @@ let make = (~baseUrl) => {
       titleTextClass="text-ng_gray-600 font-medium"
     />
     <Form onSubmit initialValues validate=validateMandatoryField>
-      <div className="flex flex-col gap-10 p-6">
+      <div className={`flex flex-col gap-10 ${topPadding} `}>
         <div>
           <div className="flex flex-row gap-4 items-center">
             <GatewayIcon
@@ -188,17 +195,21 @@ let make = (~baseUrl) => {
         </div>
         <div className="flex flex-col gap-12">
           <div className="flex gap-10 max-w-3xl flex-wrap px-2">
-            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+            <ConnectorWebhookPreview
+              merchantId connectorName=connectorInfodict.id truncateDisplayValue=true
+            />
             <div className="flex flex-col gap-0.5-rem ">
               <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
               {connectorInfodict.profile_id->React.string}
             </div>
-            <div className="flex flex-col gap-0.5-rem ">
-              <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
-              <div className="flex flex-row gap-2 items-center ">
-                <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
+            <RenderIf condition=showProcessorStatus>
+              <div className="flex flex-col gap-0.5-rem ">
+                <h4 className="text-nd_gray-400 "> {"Processor status"->React.string} </h4>
+                <div className="flex flex-row gap-2 items-center ">
+                  <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
+                </div>
               </div>
-            </div>
+            </RenderIf>
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between border-b pb-4 px-2 items-end">
@@ -314,10 +325,11 @@ let make = (~baseUrl) => {
               }}
             </div>
           </div>
-          <ConnectorPaymentMethodV2 initialValues isInEditState={checkCurrentEditState(PMTs)} />
+          <ConnectorPaymentMethodV2
+            initialValues isInEditState={checkCurrentEditState(PMTs)} ignoreKeys
+          />
         </div>
       </div>
-      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }

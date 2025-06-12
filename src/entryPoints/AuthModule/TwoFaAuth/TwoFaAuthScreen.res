@@ -5,11 +5,10 @@ let make = (~setAuthStatus) => {
   let (_mode, setMode) = React.useState(_ => TestButtonMode)
   let {isMagicLinkEnabled, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
   let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
+  let pageViewEvent = MixpanelHook.usePageView()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let authInitState = LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
-
-  let (actualAuthType, setActualAuthType) = React.useState(_ => authInitState)
 
   React.useEffect(() => {
     if isLiveMode {
@@ -18,18 +17,15 @@ let make = (~setAuthStatus) => {
       setMode(_ => TestButtonMode)
     }
 
-    switch url.path {
-    | list{"user", "verify_email"} => setActualAuthType(_ => EmailVerify)
-    | list{"login"} =>
-      setActualAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
-    | list{"user", "set_password"} =>
-      checkAuthMethodExists([PASSWORD]) ? setActualAuthType(_ => ResetPassword) : ()
-    | list{"user", "accept_invite_from_email"} => setActualAuthType(_ => ActivateFromEmail)
+    switch url.path->HSwitchUtils.urlPath {
+    | list{"verify_email"} => setAuthType(_ => EmailVerify)
+    | list{"login"} => setAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
+    | list{"set_password"} =>
+      checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ResetPassword) : ()
+    | list{"accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
     | list{"forget-password"} =>
-      checkAuthMethodExists([PASSWORD]) ? setActualAuthType(_ => ForgetPassword) : ()
-    | list{"register"} =>
-      // In Live mode users are not allowed to singup directly
-      !isLiveMode ? setActualAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
+      checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ForgetPassword) : ()
+    | list{"register"} => !isLiveMode ? setAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
     | _ => ()
     }
 
@@ -37,39 +33,18 @@ let make = (~setAuthStatus) => {
   }, [url.path])
 
   React.useEffect(() => {
-    if authType != actualAuthType {
-      setAuthType(_ => actualAuthType)
-    }
-    None
-  }, [actualAuthType])
-
-  React.useEffect(() => {
-    switch (authType, url.path) {
-    | (
-        LoginWithEmail | LoginWithPassword,
-        list{"user", "verify_email"}
-        | list{"user", "accept_invite_from_email"}
-        | list{"user", "login"}
-        | list{"user", "set_password"}
-        | list{"register", ..._},
-      ) => () // to prevent duplicate push
-    | (LoginWithPassword | LoginWithEmail, _) => AuthUtils.redirectToLogin()
-
-    | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
-    | (SignUP, _) => GlobalVars.appendDashboardPath(~url="/register")->RescriptReactRouter.push
-
-    | (ForgetPassword | ForgetPasswordEmailSent, list{"forget-password", ..._}) => () // to prevent duplicate push
-    | (ForgetPassword | ForgetPasswordEmailSent, _) =>
-      GlobalVars.appendDashboardPath(~url="/forget-password")->RescriptReactRouter.push
-
-    | (ResendVerifyEmail | ResendVerifyEmailSent, list{"resend-mail", ..._}) => () // to prevent duplicate push
-    | (ResendVerifyEmail | ResendVerifyEmailSent, _) =>
-      GlobalVars.appendDashboardPath(~url="/resend-mail")->RescriptReactRouter.push
-
-    | _ => ()
-    }
+    setAuthType(_ => authType)
     None
   }, [authType])
+
+  React.useEffect(() => {
+    let path = url.path->List.toArray->Array.joinWith("/")
+    if featureFlagDetails.mixpanel {
+      pageViewEvent(~path)->ignore
+    }
+
+    None
+  }, (featureFlagDetails.mixpanel, authType))
 
   <TwoFaAuth setAuthStatus authType setAuthType />
 }

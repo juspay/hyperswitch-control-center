@@ -4,8 +4,8 @@ let make = (~showOnBoarding) => {
 
   {
     switch showOnBoarding {
+    | false => <ReconOverviewContent />
     | true => <ReconOnboardingLanding />
-    | false => <ReconOverview />
     }
   }
 }

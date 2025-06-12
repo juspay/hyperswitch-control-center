@@ -414,7 +414,7 @@ module OrderActions = {
     })
     React.useEffect(_ => {
       setAmoutAvailableToRefund(_ =>
-        orderData.amount /. 100.0 -.
+        orderData.amount_received /. 100.0 -.
         amountRefunded.contents /. 100.0 -.
         requestedRefundAmount.contents /. 100.0
       )
@@ -590,7 +590,7 @@ module FraudRiskBanner = {
 let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   open OrderUIUtils
-  let url = RescriptReactRouter.useUrl()
+  let _url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -639,7 +639,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     )
     fetchOrderDetails(accountUrl)->ignore
     None
-  }, [url])
+  }, [id])
 
   let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 

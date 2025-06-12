@@ -77,15 +77,14 @@ let make = (
   let ip2 = ReactFinalForm.useField(`description`).input
   let ip3 = ReactFinalForm.useField(`profile_id`).input
 
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
-
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   //Need to check if necessary
   let form = ReactFinalForm.useForm()
   React.useEffect(() => {
     form.change(
       "profile_id",
-      profile->Option.getOr(defaultBusinessProfile.profile_id)->JSON.Encode.string,
+      profile->Option.getOr(businessProfileRecoilVal.profile_id)->JSON.Encode.string,
     )
     None
   }, [])
@@ -133,8 +132,8 @@ let make = (
                 </span>
                 <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
                   <span className="font-semibold">
-                    <HelperComponents.BusinessProfileComponent
-                      profile_id={profile->Option.getOr(defaultBusinessProfile.profile_id)}
+                    <HelperComponents.ProfileNameComponent
+                      profile_id={profile->Option.getOr(businessProfileRecoilVal.profile_id)}
                     />
                   </span>
                 </AddDataAttributes>
@@ -150,8 +149,8 @@ let make = (
             <RenderIf condition={!isThreeDs}>
               <BusinessProfileInp
                 setProfile={setProfile->Option.getOr(_ => ())}
-                profile={profile->Option.getOr(defaultBusinessProfile.profile_id)}
-                options={businessProfiles->businessProfileNameDropDownOption}
+                profile={profile->Option.getOr(businessProfileRecoilVal.profile_id)}
+                options={[businessProfileRecoilVal]->businessProfileNameDropDownOption}
                 label="Profile"
                 routingType
               />

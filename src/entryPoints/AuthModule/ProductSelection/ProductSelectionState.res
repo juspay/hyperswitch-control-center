@@ -12,7 +12,6 @@ type productSelectProviderTypes = {
   setSwitchToMerchant: (OMPSwitchTypes.ompListTypes, productTypes) => unit,
   setSelectMerchantToSwitch: array<OMPSwitchTypes.ompListTypes> => unit,
   onProductSelectClick: string => unit,
-  setDefaultProductToSessionStorage: productTypes => unit,
 }
 
 let defaultValueOfProductProvider = (~currentProductValue) => {
@@ -22,5 +21,4 @@ let defaultValueOfProductProvider = (~currentProductValue) => {
   setSwitchToMerchant: (_, _) => (),
   setSelectMerchantToSwitch: _ => (),
   onProductSelectClick: _ => (),
-  setDefaultProductToSessionStorage: _ => (),
 }

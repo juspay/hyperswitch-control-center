@@ -20,6 +20,7 @@ module.exports = {
   theme: {
     fontFamily: {
       "inter-style": '"InterDisplay"',
+      "jetbrain-mono": '"JetBrains Mono"',
     },
     extend: {
       screens: {
@@ -37,6 +38,7 @@ module.exports = {
         "6-rem": "6rem",
         "7-rem": "7rem",
         "8-rem": "8rem",
+        "9.5-rem": "9.5rem",
         "12.5-rem": "12.5rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
@@ -59,7 +61,6 @@ module.exports = {
         "130-px": "130px",
         "195-px": "195px",
         "774-px": "774px",
-        "923-px": "923px",
         "12.5-rem": "12.5rem",
         onBordingSupplier: "calc(100vh - 300px)",
       },
@@ -72,6 +73,13 @@ module.exports = {
       inset: {
         "76-px": "76px",
       },
+      letterSpacing: {
+        compressed: "-2px",
+        condensed: "-1px",
+        normal: "0px",
+        expanded: "1px",
+        extended: "2px",
+      },
       width: {
         "90-px": "90px",
         100: "25rem",
@@ -79,6 +87,7 @@ module.exports = {
         200: "58rem",
         150: "9.375rem",
         "1.1-rem": "1.125rem",
+        "13.5-rem": "13.5rem",
         "18-rem": "18rem",
         "22-rem": "22rem",
         "77-rem": "77rem",
@@ -103,6 +112,7 @@ module.exports = {
       },
       gap: {
         "0.5-rem": "0.5rem",
+        "72-px": "72px",
       },
       maxWidth: {
         fixedPageWidth: "82.75rem",
@@ -112,12 +122,20 @@ module.exports = {
         800: "800px",
       },
       lineHeight: {
+        17: "17px",
         18: "18px",
         20: "20px",
         21: "21px",
         24: "24px",
+        26: "26px",
+        32: "32px",
         38: "38px",
+        46: "46px",
+        56: "56px",
         60: "60px",
+        64: "64px",
+        70: "70px",
+        78: "78px",
       },
       blur: {
         xs: "0.2px",
@@ -156,6 +174,9 @@ module.exports = {
         "fs-28": "28px",
         "fs-32": "32px",
         "fs-48": "48px",
+        "fs-56": "56px",
+        "fs-64": "64px",
+        "fs-72": "72px",
       },
       colors: {
         primary: {
@@ -169,11 +190,11 @@ module.exports = {
         sidebar: {
           DEFAULT: withOpacity("--sidebar-primary"),
           primary: withOpacity("--sidebar-primary"),
-          secondary: withOpacity("--sidebar-secondary"),
-          hoverColor: withOpacity("--sidebar-hover-color"),
-          primaryTextColor: withOpacity("--sidebar-primary-text-color"),
-          secondaryTextColor: withOpacity("--sidebar-secondary-text-color"),
-          borderColor: withOpacity("--sidebar-border-color"),
+          textColor: withOpacity("--sidebar-text-color"),
+          textColorPrimary: withOpacity("--sidebar-text-color-primary"),
+          secondary: `hsl(from rgb(var(--sidebar-primary)) h s calc(l + 10) / 1)`, //color for dropdowns in sidebar
+          hoverColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.5)`,
+          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.8)`,
         },
 
         background: {
@@ -249,6 +270,7 @@ module.exports = {
         },
         orange: {
           100: "#FFFBE6",
+          400: "#C17D10",
           500: "#E07E41",
           600: "#FDD4B6",
           950: "#D88B54",
@@ -261,6 +283,8 @@ module.exports = {
         red: {
           DEFAULT: "#FF0000",
           100: "#FFF1F0",
+          200: "#FEECEB",
+          700: "#C0362D",
           800: "#C04141",
           900: "#DA0E0F",
           950: "#F04849",
@@ -358,6 +382,7 @@ module.exports = {
           300: "#6AA1F2",
           400: "#4287EF",
           500: "#1C6DEA",
+          600: "#0561E2",
         },
         //borders gray
         nd_br_gray: {
@@ -371,13 +396,24 @@ module.exports = {
         },
         nd_green: {
           50: "#ECF4EE",
+          100: "#E8F8F5",
           200: "#52B87A",
           400: "#2DA160",
+          500: "#11927E",
           600: "#217645",
         },
         nd_red: {
           50: "#FCF1EF",
+          600: "#C91C00",
           400: "#EC5941",
+        },
+        nd_orange: {
+          50: "#FDF1DD",
+          600: "#9E5400",
+        },
+        nd_yellow: {
+          100: "#FFFBEE",
+          800: "#998335",
         },
       },
       borderRadius: {

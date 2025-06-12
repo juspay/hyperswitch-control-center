@@ -6,7 +6,6 @@ let getProductVariantFromString = product => {
   | "vault" => Vault
   | "cost_observability" => CostObservability
   | "dynamic_routing" => DynamicRouting
-  | "alternate_payment_methods" => AlternatePaymentMethods
   | _ => Orchestration
   }
 }
@@ -14,23 +13,21 @@ let getProductVariantFromString = product => {
 let getProductDisplayName = product =>
   switch product {
   | Recon => "Recon"
-  | Recovery => "Recovery"
+  | Recovery => "Revenue Recovery"
   | Orchestration => "Orchestrator"
   | Vault => "Vault"
-  | CostObservability => "Hypersense"
+  | CostObservability => "Cost Observability"
   | DynamicRouting => "Intelligent Routing"
-  | AlternatePaymentMethods => "Alternate Payment Methods"
   }
 
 let getProductVariantFromDisplayName = product => {
   switch product {
   | "Recon" => Recon
-  | "Recovery" => Recovery
+  | "Revenue Recovery" => Recovery
   | "Orchestrator" => Orchestration
   | "Vault" => Vault
-  | "Hypersense" => CostObservability
+  | "Cost Observability" => CostObservability
   | "Intelligent Routing" => DynamicRouting
-  | "Alternate Payment Methods" => AlternatePaymentMethods
   | _ => Orchestration
   }
 }
@@ -43,6 +40,11 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
     } else {
       url
     }
-  | _ => `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
+  | Recon => `/dashboard/v2/recon/overview`
+  | Recovery => `/dashboard/v2/recovery/overview`
+  | Vault
+  | CostObservability
+  | DynamicRouting =>
+    `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
   }
 }

@@ -60,10 +60,11 @@ module OrderInfo = {
 }
 @react.component
 let make = (~isModal, ~setShowModal, ~selectedId) => {
+  open ReconReportUtils
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let showToast = ToastState.useShowToast()
   let (reconReport, setReconReport) = React.useState(_ =>
-    Dict.make()->ReportsTableEntity.getAllReportPayloadType
+    Dict.make()->ReconReportUtils.getAllReportPayloadType
   )
   let handleAboutPaymentsClick = () => {
     RescriptReactRouter.replace(
@@ -96,13 +97,15 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
     fetchOrderDetails()->ignore
     None
   }, [])
-  if reconReport.recon_status == "Reconciled" {
+
+  switch reconReport.recon_status->getReconStatusTypeFromString {
+  | Reconciled =>
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      <div className="flex flex-col h-[82vh] px-6">
+      <div className="flex flex-col px-6">
         <OrderInfo reportDetails=reconReport isModal />
       </div>
       <Button
@@ -112,19 +115,19 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
         customButtonStyle="w-full"
       />
     </PageLoaderWrapper>
-  } else {
+  | Unreconciled =>
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      <div className="flex flex-col h-[82vh] px-6">
+      <div className="flex flex-col px-6">
         <OrderInfo reportDetails=reconReport isModal />
         <div className="gap-6 border-t">
           <div className="flex flex-col gap-2 my-6">
             <p className="text-nd_gray-400  text-sm font-medium"> {"Reason"->React.string} </p>
             <p className="text-base font-medium text-nd_gray-600">
-              {"Missing (PG processed payment, but no bank settlement found."->React.string}
+              {"Missing (Payment Gateway processed payment, but no bank settlement found."->React.string}
             </p>
           </div>
         </div>
@@ -133,6 +136,30 @@ let make = (~isModal, ~setShowModal, ~selectedId) => {
         text="More Details "
         buttonType=Primary
         onClick={_ => handleAboutPaymentsClick()}
+        customButtonStyle="w-full"
+      />
+    </PageLoaderWrapper>
+  | Missing =>
+    <PageLoaderWrapper
+      screenState
+      customUI={<NoDataFound
+        message="Payment does not exists in out record" renderType=NotFound
+      />}>
+      <div className="flex flex-col px-6">
+        <OrderInfo reportDetails=reconReport isModal />
+        <div className="gap-6 border-t">
+          <div className="flex flex-col gap-2 my-6">
+            <p className="text-nd_gray-400  text-sm font-medium"> {"Reason"->React.string} </p>
+            <p className="text-base font-medium text-nd_gray-600">
+              {"Missing (Payment Gateway processed payment, but no bank settlement found."->React.string}
+            </p>
+          </div>
+        </div>
+      </div>
+      <Button
+        text="OK"
+        buttonType=Primary
+        onClick={_ => setShowModal(_ => false)}
         customButtonStyle="w-full"
       />
     </PageLoaderWrapper>

@@ -33,6 +33,7 @@ type webhookDetails = {
 type authConnectorDetailsType = {
   authentication_connectors: option<array<JSON.t>>,
   three_ds_requestor_url: option<string>,
+  three_ds_requestor_app_url: option<string>,
 }
 
 type profileSetting = {
@@ -102,8 +103,9 @@ type validationFields =
   | Website
   | WebhookUrl
   | ReturnUrl
-  | AuthetnticationConnectors(array<JSON.t>)
+  | AuthenticationConnectors(array<JSON.t>)
   | ThreeDsRequestorUrl
+  | ThreeDsRequestorAppUrl
   | UnknownValidateFields(string)
   | MaxAutoRetries
 
@@ -161,6 +163,7 @@ type profileEntity = {
   max_auto_retries_enabled: option<int>,
   metadata: option<Dict.t<JSON.t>>,
   force_3ds_challenge: option<bool>,
+  is_debit_routing_enabled: option<bool>,
 }
 
 type twoFaType = RecoveryCode | Totp

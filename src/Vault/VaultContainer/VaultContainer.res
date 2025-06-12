@@ -9,6 +9,7 @@ let make = () => {
 
   let (sampleReport, setSampleReport) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
 
   let setUpVaultContainer = async () => {
     try {
@@ -17,6 +18,7 @@ let make = () => {
         userHasAccess(~groupAccess=WorkflowsView) === Access ||
         userHasAccess(~groupAccess=WorkflowsManage) === Access
       ) {
+        setConnectorList(_ => []->Identity.genericTypeToJson)
         let _ = await fetchConnectorListResponse()
       }
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -39,7 +41,10 @@ let make = () => {
         access=Access
         renderList={() => <VaultConfiguration />}
         renderNewForm={() => <VaultOnboarding />}
-        renderShow={(_, _) => <PaymentProcessorSummary baseUrl="v2/vault/onboarding" />}
+        renderShow={(_, _) =>
+          <PaymentProcessorSummary
+            baseUrl="v2/vault/onboarding" showProcessorStatus=false topPadding="!p-0"
+          />}
       />
     | list{"v2", "vault", "customers-tokens", ...remainingPath} =>
       <EntityScaffold

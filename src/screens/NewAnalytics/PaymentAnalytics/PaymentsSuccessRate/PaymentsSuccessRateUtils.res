@@ -41,20 +41,31 @@ let paymentsSuccessRateMapper = (
 
   let lineGraphData = data->getLineGraphData(~xKey, ~yKey)
 
-  let title = {
-    text: "Payments Success Rate",
-  }
   {
+    chartHeight: DefaultHeight,
+    chartLeftSpacing: DefaultLeftSpacing,
     categories: primaryCategories,
     data: lineGraphData,
-    title,
+    title: {
+      text: "",
+    },
     yAxisMaxValue: 100->Some,
+    yAxisMinValue: Some(0),
     tooltipFormatter: tooltipFormatter(
       ~secondaryCategories,
       ~title="Payments Success Rate",
       ~metricType=Rate,
       ~comparison,
     ),
+    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
+      ~statType=Default,
+      ~currency="",
+      ~suffix="",
+    ),
+    legend: {
+      useHTML: true,
+      labelFormatter: LineGraphUtils.valueFormatter,
+    },
   }
 }
 

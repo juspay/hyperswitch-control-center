@@ -16,11 +16,11 @@ let getIconSize = buttonType => {
 module MenuOption = {
   @react.component
   let make = (~text=?, ~children=?, ~onClick=?) => {
-    let {globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {
+      globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
+    } = React.useContext(ThemeProvider.themeContext)
     <button
-      className={`px-4 py-3 flex text-sm w-full ${secondaryTextColor} cursor-pointer ${backgroundColor.sidebarSecondary} hover:bg-black/10`}
+      className={`px-4 py-3 flex text-sm w-full ${secondaryTextColor} cursor-pointer ${backgroundColor.sidebarSecondary} ${hoverColor}`}
       ?onClick>
       {switch text {
       | Some(str) => React.string(str)
@@ -70,9 +70,9 @@ module SidebarSubOption = {
           : "transition duration-[1000ms] animate-textTransitionSideBarOff"} ${isSideBarExpanded
           ? "mx-2"
           : "mx-1"} border-light_grey `}>
-      <div className="w-6" />
+      <div className="w-8" />
       <div
-        className={`${subOptionClass} w-full pl-3 py-3 p-4.5 flex items-center ${hoverColor} whitespace-nowrap my-0.5 rounded-lg`}>
+        className={`${subOptionClass} w-full py-2.5 px-3 flex items-center ${hoverColor} whitespace-nowrap my-1 rounded-lg`}>
         {React.string(name)}
         {children}
       </div>
@@ -207,31 +207,23 @@ module NestedSidebarItem = {
     let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
 
     let selectedClass = if isSelected {
-      "font-semibold mx-1"
+      "font-semibold"
     } else {
-      `font-medium mx-1 rounded-lg hover:transition hover:duration-300`
+      "font-medium rounded-lg hover:transition hover:duration-300"
     }
-
     let textColor = if isSelected {
-      `text-md font-small ${primaryTextColor}`
+      `${primaryTextColor}`
     } else {
-      `text-md font-small ${secondaryTextColor}  `
+      `${secondaryTextColor}`
     }
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-    let paddingClass = if isSideBarExpanded {
-      "pl-4"
-    } else {
-      ""
-    }
     let isMobileView = MatchMedia.useMobileChecker()
-
     let nestedSidebarItemRef = React.useRef(Nullable.null)
 
     <RenderIf condition={isSideBarExpanded}>
       {switch tabInfo {
       | SubLevelLink(tabOption) => {
           let {name, link, access, ?iconTag, ?iconStyles, ?iconSize} = tabOption
-          let linkTagPadding = "pl-2"
 
           <RenderIf condition={access !== NoAccess}>
             <Link to_={GlobalVars.appendDashboardPath(~url=`${link}${getSearchParamByLink(link)}`)}>
@@ -242,10 +234,10 @@ module NestedSidebarItem = {
                 <div
                   ref={nestedSidebarItemRef->ReactDOM.Ref.domRef}
                   onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
-                  className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg ${paddingClass} ${selectedClass} `}>
+                  className={`${textColor} ${selectedClass} text-md relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg ml-3`}>
                   <SidebarSubOption name isSectionExpanded isSelected isSideBarExpanded>
                     <RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
-                      <div className=linkTagPadding>
+                      <div className="ml-2">
                         <Icon
                           size={iconSize->Option.getOr(26)}
                           name={iconTag->Option.getOr("")}
@@ -332,11 +324,11 @@ module NestedSectionItem = {
           </div>
           <RenderIf condition={isSideBarExpanded}>
             <Icon
-              name={"Nested_arrow_down"}
+              name={"nd-angle-down"}
               className={isSectionExpanded
-                ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor}  `
-                : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor}  `}
-              size=16
+                ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`
+                : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`}
+              size=12
             />
           </RenderIf>
         </div>
@@ -493,7 +485,7 @@ let make = (
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
-  let handleLogout = APIUtils.useHandleLogout()
+  let handleLogout = APIUtils.useHandleLogout(~eventName="user_signout_manual")
   let isMobileView = MatchMedia.useMobileChecker()
   let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
   let sideBarRef = React.useRef(Nullable.null)
@@ -570,7 +562,7 @@ let make = (
   @supports (-webkit-appearance: none){
     .sidebar-scrollbar {
         scrollbar-width: auto;
-        scrollbar-color: #8a8c8f;
+        scrollbar-color: #CACFD8;
       }
       
       .sidebar-scrollbar::-webkit-scrollbar {
@@ -580,8 +572,8 @@ let make = (
         width: 5px;
       }
       
-      .sidebar-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #8a8c8f;
+      .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: #CACFD8;
         border-radius: 3px;
       }
       
@@ -604,7 +596,7 @@ let make = (
       }
     />
     <div
-      className={`absolute z-20 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
+      className={`absolute z-30 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
       <OrgSidebar />
       <RenderIf condition={showSideBar}>
         <div
@@ -629,7 +621,7 @@ let make = (
             className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
             style={height: `calc(100vh - ${verticalOffset})`}>
             <style> {React.string(sidebarScrollbarCss)} </style>
-            <div className="p-2.5">
+            <div className="p-2.5 pt-0">
               {sidebars
               ->Array.mapWithIndex((tabInfo, index) => {
                 switch tabInfo {
@@ -778,7 +770,12 @@ let make = (
                             }}
                             text="Profile"
                           />
-                          <MenuOption onClick={_ => handleLogout()->ignore} text="Sign out" />
+                          <MenuOption
+                            onClick={_ => {
+                              handleLogout()->ignore
+                            }}
+                            text="Sign out"
+                          />
                         </div>
                       }}
                     </Popover.Panel>

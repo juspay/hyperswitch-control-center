@@ -22,3 +22,7 @@ let useMatchMedia = mediaQuery => {
 let useMobileChecker = () => {
   useMatchMedia("(max-width: 700px)")
 }
+
+let useScreenSizeChecker = (~screenSize) => {
+  useMatchMedia(`(max-width: ${screenSize}px)`)
+}

@@ -4,23 +4,24 @@ open IntelligentRoutingTypes
 type cols =
   | PaymentID
   | PaymentMethodType
-  | CardNetwork
   | TxnAmount
   | Status
+  | CardNetwork
   | ActualGateway
   | SuggestedGateway
   | SuccessRateUplift
-  | LastUpdated
+  | CreatedAt
 
 let defaultColumns = [
   PaymentID,
   PaymentMethodType,
+  CardNetwork,
   TxnAmount,
   Status,
   ActualGateway,
   SuggestedGateway,
   SuccessRateUplift,
-  LastUpdated,
+  CreatedAt,
 ]
 
 let getHeading = colType => {
@@ -29,12 +30,12 @@ let getHeading = colType => {
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
   | CardNetwork => Table.makeHeaderInfo(~key="card_network", ~title="Card Network")
-  | TxnAmount => Table.makeHeaderInfo(~key="tax_amount", ~title="Txn Amount")
+  | TxnAmount => Table.makeHeaderInfo(~key="tax_amount", ~title="Txn Amount ($)")
   | Status => Table.makeHeaderInfo(~key="payment_status", ~title="Status")
   | ActualGateway => Table.makeHeaderInfo(~key="payment_gateway", ~title="Actual Gateway")
   | SuggestedGateway => Table.makeHeaderInfo(~key="model_connector", ~title="Suggested Gateway")
-  | SuccessRateUplift => Table.makeHeaderInfo(~key="suggested_uplift", ~title="Success Rate Uplift")
-  | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
+  | SuccessRateUplift => Table.makeHeaderInfo(~key="suggested_uplift", ~title="Auth Rate Uplift")
+  | CreatedAt => Table.makeHeaderInfo(~key="last_updated", ~title="Timestamp")
   }
 }
 
@@ -63,32 +64,25 @@ module UpliftCell = {
   }
 }
 
-let getCell = (~transactionsData: transactionDetails, colType): Table.cell => {
+let getCell = (~transactionsData: transactionObj, colType): Table.cell => {
   switch colType {
-  | PaymentID => Text(transactionsData.payment_intent_id)
-  | PaymentMethodType => Text(transactionsData.payment_method_type)
-  | CardNetwork => Text(transactionsData.payment_gateway)
-  | TxnAmount =>
+  | PaymentID =>
     CustomCell(
-      <CurrencyCell
-        amount={transactionsData.amount->Float.toString} currency=transactionsData.order_currency
-      />,
+      <HelperComponents.EllipsisText displayValue={transactionsData.payment_attempt_id} />,
       "",
     )
+  | PaymentMethodType => Text(transactionsData.payment_method_type->LogicUtils.getTitle)
+  | CardNetwork => Text(transactionsData.card_network)
+  | TxnAmount => Text(transactionsData.amount->Float.toString)
   | Status =>
-    transactionsData.payment_status
-      ? Label({
-          title: "Success"->String.toUpperCase,
-          color: LabelGreen,
-        })
-      : Label({
-          title: "Failed"->String.toUpperCase,
-          color: LabelRed,
-        })
+    Label({
+      title: transactionsData.payment_status ? "Success" : "Failed",
+      color: transactionsData.payment_status ? LabelGreen : LabelRed,
+    })
   | ActualGateway => Text(transactionsData.payment_gateway)
   | SuggestedGateway => Text(transactionsData.model_connector)
   | SuccessRateUplift => CustomCell(<UpliftCell uplift=transactionsData.suggested_uplift />, "")
-  | LastUpdated => Date(transactionsData.created_at)
+  | CreatedAt => DateWithCustomDateStyle(transactionsData.created_at, "MMM DD, YYYY hh:mm:ss A")
   }
 }
 
@@ -100,6 +94,7 @@ let itemToObjectMapper = dict => {
     amount: dict->getFloat("amount", 0.0),
     payment_gateway: dict->getString("payment_gateway", ""),
     payment_status: dict->getBool("payment_status", false),
+    card_network: dict->getString("card_network", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
     order_currency: dict->getString("order_currency", ""),
     model_connector: dict->getString("model_connector", ""),
@@ -108,8 +103,10 @@ let itemToObjectMapper = dict => {
   }
 }
 
-let getTransactionsData: JSON.t => array<transactionDetails> = json => {
-  getArrayDataFromJson(json, itemToObjectMapper)
+let getTransactionsData: JSON.t => array<transactionObj> = json => {
+  let dict = json->getDictFromJsonObject
+  let simulatorOutcome = dict->getArrayFromDict("simulation_outcome_of_each_txn", [])
+  getArrayDataFromJson(simulatorOutcome->JSON.Encode.array, itemToObjectMapper)
 }
 
 let transactionDetailsEntity = () => {

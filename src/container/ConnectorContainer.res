@@ -9,8 +9,10 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+
   let setUpConnectoreContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -20,7 +22,7 @@ let make = () => {
         userHasAccess(~groupAccess=WorkflowsManage) === Access
       ) {
         let _ = await fetchConnectorListResponse()
-        let _ = await fetchBusinessProfiles()
+        let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -145,9 +147,21 @@ let make = () => {
       <EntityScaffold
         entityName="PaymentSettings"
         remainingPath
-        renderList={() => <PaymentSettingsList />}
-        renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
+        renderList={() => <PaymentSettings webhookOnly=false showFormOnly=false />}
       />
+    | list{"webhooks", ...remainingPath} =>
+      <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
+        <FilterContext key="webhooks" index="webhooks">
+          <EntityScaffold
+            entityName="Webhooks"
+            remainingPath
+            access=Access
+            renderList={() => <Webhooks />}
+            renderShow={(id, _) => <WebhooksDetails id />}
+          />
+        </FilterContext>
+      </AccessControl>
+
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

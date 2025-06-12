@@ -4,13 +4,8 @@ let make = () => {
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "recovery"} => <RevenueRecoveryOnboardingLanding />
-    | list{"v2", "recovery", "home"}
-    | list{"v2", "recovery", "onboarding", ..._}
-    | list{"v2", "recovery", "overview", ..._} =>
-      <RecoveryConnectorContainer />
-    | list{"v2", "recovery", "summary", ..._} => <BillingConnectorsSummary />
-    | _ => React.null
+    | list{"v2", "recovery"} => <RevenueRecoveryOnboardingLanding createMerchant=true />
+    | _ => <RecoveryConnectorContainer />
     }
   }
 }

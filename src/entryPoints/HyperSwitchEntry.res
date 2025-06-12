@@ -1,10 +1,12 @@
 module HyperSwitchEntryComponent = {
+  open HyperswitchAtom
   @react.component
   let make = () => {
+    open HyperSwitchEntryUtils
     let fetchDetails = APIUtils.useGetMethod()
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
-    let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
+    let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
     let configureFavIcon = (faviconUrl: option<string>) => {
@@ -19,9 +21,6 @@ module HyperSwitchEntryComponent = {
       | _ => Exn.raiseError("Error on configuring favicon")
       }
     }
-
-    let themesID =
-      url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("theme_id")->Option.getOr("")
 
     let configEnv = (urlConfig: JSON.t) => {
       open LogicUtils
@@ -52,16 +51,33 @@ module HyperSwitchEntryComponent = {
       }
     }
 
+    let fetchThemeAndDomainFromUrl = () => {
+      let params = url.search->LogicUtils.getDictFromUrlSearchParams
+      let themeID = params->Dict.get("theme_id")
+      let domainUrl = params->Dict.get("domain")
+
+      if themeID->Option.isSome {
+        setThemeIdtoStore(themeID->Option.getOr(""))
+      }
+
+      if domainUrl->Option.isSome {
+        setDomaintoStore(domainUrl->Option.getOr(""))
+      }
+      let themeId = getThemeIdfromStore()
+      (themeId, domainUrl)
+    }
+
     let fetchConfig = async () => {
       try {
-        let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="")
-        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}` // todo: domain shall be removed from query params later
+        let (themeId, domain) = fetchThemeAndDomainFromUrl()
+        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain->Option.getOr(
+            "",
+          )}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
-        let devThemeFeature = featureFlags.devThemeFeature
         let _ = configEnv(res) // to set initial env
-        let _ = await getThemesJson(themesID, res, devThemeFeature)
+        let _ = await getThemesJson(~themesID=themeId, ~domain)
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -71,12 +87,11 @@ module HyperSwitchEntryComponent = {
     }
 
     React.useEffect(() => {
-      let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
-      let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search) // todo: setting domain in session storage shall be removed later
-
+      let _ = setSessionData(~key="auth_id", ~searchParams=url.search)
       let _ = fetchConfig()->ignore
       None
     }, [])
+
     React.useEffect(() => {
       TimeZoneUtils.getUserTimeZone()->setZone
       None
@@ -106,6 +121,7 @@ module HyperSwitchEntryComponent = {
       }
       None
     }, [url.path])
+
     <PageLoaderWrapper
       screenState
       sectionHeight="h-screen"
