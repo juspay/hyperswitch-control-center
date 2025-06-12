@@ -22,10 +22,9 @@ module FieldRendererWithStyles = {
   }
 }
 
-module AcquirerConfigAnimatedCustomTable = {
+module AcquirerConfigContent = {
   @react.component
   let make = (
-    ~isAcquirerConfigExpanded=false,
     ~isAcquirerConfigArrEmpty=true,
     ~acquirerConfigArr=[],
     ~isShowAcquirerConfigSettings=false,
@@ -125,47 +124,30 @@ module AcquirerConfigAnimatedCustomTable = {
         />
       </Motion.Div>
 
-    let expandedView =
-      <Motion.Div
-        key="acquirer-config-content"
-        initial={{height: "0px"}}
-        animate={{height: "auto"}}
-        exit={{height: "0px"}}
-        transition={{duration: 0.3, ease: "easeInOut"}}
-        className="border-t-2 dark:border-jp-gray-950 md:border-0 overflow-hidden">
-        <AddDataAttributes attributes=[("data-section", "Acquirer Config Settings")]>
-          {<>
-            <div className="overflow-x-auto">
-              <RenderIf condition={!isAcquirerConfigArrEmpty}>
-                <LoadedTable
-                  title="Acquirer Configurations"
-                  hideTitle=true
-                  actualData
-                  totalResults
-                  resultsPerPage
-                  offset
-                  setOffset
-                  entity
-                  currrentFetchCount=totalResults
-                  showPagination={totalResults > resultsPerPage}
-                  tableLocalFilter=false
-                  showSerialNumber=false
-                  customBorderClass="rounded-none"
-                  tableheadingClass="bg-transparent"
-                  nonFrozenTableParentClass="rounded-none"
-                />
-              </RenderIf>
-            </div>
-            <AnimatePresence mode="wait">
-              {!isShowAcquirerConfigSettings && !isAcquirerConfigArrEmpty
-                ? actionButtons
-                : settingsForm}
-            </AnimatePresence>
-          </>}
-        </AddDataAttributes>
-      </Motion.Div>
-
-    <AnimatePresence> {isAcquirerConfigExpanded ? expandedView : React.null} </AnimatePresence>
+    <div className="border-t-2 dark:border-jp-gray-950 md:border-0 w-full overflow-scroll">
+      <RenderIf condition={!isAcquirerConfigArrEmpty}>
+        <LoadedTable
+          title="Acquirer Configurations"
+          hideTitle=true
+          actualData
+          totalResults
+          resultsPerPage
+          offset
+          setOffset
+          entity
+          currrentFetchCount=totalResults
+          showPagination={totalResults > resultsPerPage}
+          tableLocalFilter=false
+          showSerialNumber=false
+          customBorderClass="rounded-none"
+          tableheadingClass="bg-transparent"
+          nonFrozenTableParentClass="rounded-none"
+        />
+      </RenderIf>
+      <AnimatePresence mode="wait">
+        {!isShowAcquirerConfigSettings && !isAcquirerConfigArrEmpty ? actionButtons : settingsForm}
+      </AnimatePresence>
+    </div>
   }
 }
 
@@ -181,8 +163,6 @@ let make = (~isDisabled=false, ~acquirerConfigData) => {
 
   let showToast = ToastState.useShowToast()
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-  let (isAcquirerConfigExpanded, setIsAcquirerConfigExpanded) = React.useState(_ => false)
-
   let (isShowAcquirerConfigSettings, setIsShowAcquirerConfigSettings) = React.useState(_ => false)
   let isAcquirerConfigArrEmpty = acquirerConfigArr->Array.length == 0
 
@@ -208,36 +188,31 @@ let make = (~isDisabled=false, ~acquirerConfigData) => {
 
   let validateForm = values => validateAcquirerConfigForm(values, formKeys)
 
+  let accordionData: array<Accordion.accordion> = [
+    {
+      title: "Acquirer Config Settings",
+      renderContent: () =>
+        <AcquirerConfigContent
+          isAcquirerConfigArrEmpty
+          acquirerConfigArr
+          isShowAcquirerConfigSettings
+          setIsShowAcquirerConfigSettings
+          isDisabled
+          onSubmit
+          validateForm
+        />,
+      renderContentOnTop: None,
+    },
+  ]
+
   <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
-    <div
-      className={`border overflow-hidden border-jp-gray-500 rounded-md dark:border-jp-gray-960"`}>
-      {<AddDataAttributes attributes=[("data-section", "Acquirer Config Settings")]>
-        <div className="md:bg-jp-gray-100 dark:bg-transparent">
-          <div
-            role="button"
-            className={`flex items-center justify-between px-4 py-3 cursor-pointer md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75 dark:bg-jp-gray-lightgray_background`}
-            onClick={_ => {
-              setIsAcquirerConfigExpanded(prev => !prev)
-              setIsShowAcquirerConfigSettings(_ => false)
-            }}>
-            <h3 className="text-base"> {"Acquirer Config Settings"->React.string} </h3>
-            <div
-              className="flex justify-center items-center text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-auto">
-              <Icon name={isAcquirerConfigExpanded ? "angle-down" : "angle-right"} size=15 />
-            </div>
-          </div>
-          <AcquirerConfigAnimatedCustomTable
-            isAcquirerConfigExpanded
-            isAcquirerConfigArrEmpty
-            acquirerConfigArr
-            isShowAcquirerConfigSettings
-            setIsShowAcquirerConfigSettings
-            isDisabled
-            onSubmit
-            validateForm
-          />
-        </div>
-      </AddDataAttributes>}
-    </div>
+    <Accordion
+      accordion=accordionData
+      accordianTopContainerCss="border overflow-hidden border-jp-gray-500 rounded-md dark:border-jp-gray-960"
+      accordianBottomContainerCss="px-4 py-3 md:bg-jp-gray-100 dark:bg-jp-gray-lightgray_background"
+      contentExpandCss="!bg-jp-gray-100 dark:!bg-jp-gray-lightgray_background p-0"
+      arrowFillColor="#6B7280"
+      titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75"
+    />
   </div>
 }
