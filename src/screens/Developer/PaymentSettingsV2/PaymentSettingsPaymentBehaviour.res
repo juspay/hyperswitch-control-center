@@ -115,7 +115,7 @@ module AutoRetriesV2 = {
   }
 }
 
-module ClickToPaySection = {
+module ClickToPaySectionV2 = {
   @react.component
   let make = () => {
     open FormRenderer
@@ -185,7 +185,7 @@ module ClickToPaySection = {
   }
 }
 
-module WebHook = {
+module WebHookV2 = {
   @react.component
   let make = () => {
     open FormRenderer
@@ -200,7 +200,7 @@ module WebHook = {
   }
 }
 
-module ReturnUrl = {
+module ReturnUrlV2 = {
   @react.component
   let make = () => {
     open FormRenderer
@@ -220,7 +220,6 @@ module ReturnUrl = {
 @react.component
 let make = () => {
   open APIUtils
-
   open FormRenderer
 
   let getURL = useGetURL()
@@ -311,12 +310,12 @@ let make = () => {
         />
       </DesktopRow>
       <hr />
-      <ClickToPaySection />
+      <ClickToPaySectionV2 />
       <hr />
       <AutoRetriesV2 />
       <hr />
-      <ReturnUrl />
-      <WebHook />
+      <ReturnUrlV2 />
+      <WebHookV2 />
       <DesktopRow wrapperClass="mt-8">
         <div className="flex justify-end mt-4 w-full">
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
