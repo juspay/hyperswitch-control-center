@@ -68,6 +68,7 @@ let businessProfileTypeMapper = values => {
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
   }
 }
 

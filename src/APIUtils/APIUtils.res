@@ -756,6 +756,13 @@ let useGetURL = () => {
         | _ => ""
         }
 
+      /* MERCHANT ACQUIRER */
+      | ACQUIRER_CONFIG_SETTINGS =>
+        switch methodType {
+        | Post => `profile_acquirer`
+        | _ => ""
+        }
+
       /* DISPUTES EVIDENCE */
       | ACCEPT_DISPUTE =>
         switch id {
