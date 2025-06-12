@@ -120,35 +120,31 @@ module AcquirerConfigAnimatedCustomTable = {
         />
       </Motion.Div>
 
-    <AnimatePresence>
-      <RenderIf condition={isAcquirerConfigExpanded}>
-        <Motion.Div
-          key="acquirer-config-content"
-          initial={{height: "0px"}}
-          animate={{height: "auto"}}
-          exit={{height: "0px"}}
-          transition={{duration: 0.3, ease: "easeInOut"}}
-          className="border-t-2 dark:border-jp-gray-950 md:border-0 overflow-hidden">
-          <AddDataAttributes attributes=[("data-section", "Acquirer Config Settings")]>
-            {<>
-              <div className="overflow-x-auto">
-                <RenderIf condition={!isAcquirerConfigArrEmpty}>
-                  <AcquirerConfigTable acquirerConfigData={acquirerConfigArr} />
-                </RenderIf>
-              </div>
-              <AnimatePresence mode="wait">
-                <RenderIf condition={!isShowAcquirerConfigSettings && !isAcquirerConfigArrEmpty}>
-                  actionButtons
-                </RenderIf>
-                <RenderIf condition={isShowAcquirerConfigSettings || isAcquirerConfigArrEmpty}>
-                  settingsForm
-                </RenderIf>
-              </AnimatePresence>
-            </>}
-          </AddDataAttributes>
-        </Motion.Div>
-      </RenderIf>
-    </AnimatePresence>
+    let expandedView =
+      <Motion.Div
+        key="acquirer-config-content"
+        initial={{height: "0px"}}
+        animate={{height: "auto"}}
+        exit={{height: "0px"}}
+        transition={{duration: 0.3, ease: "easeInOut"}}
+        className="border-t-2 dark:border-jp-gray-950 md:border-0 overflow-hidden">
+        <AddDataAttributes attributes=[("data-section", "Acquirer Config Settings")]>
+          {<>
+            <div className="overflow-x-auto">
+              <RenderIf condition={!isAcquirerConfigArrEmpty}>
+                <AcquirerConfigTable acquirerConfigData={acquirerConfigArr} />
+              </RenderIf>
+            </div>
+            <AnimatePresence mode="wait">
+              {!isShowAcquirerConfigSettings && !isAcquirerConfigArrEmpty
+                ? actionButtons
+                : settingsForm}
+            </AnimatePresence>
+          </>}
+        </AddDataAttributes>
+      </Motion.Div>
+
+    <AnimatePresence> {isAcquirerConfigExpanded ? expandedView : React.null} </AnimatePresence>
   }
 }
 
