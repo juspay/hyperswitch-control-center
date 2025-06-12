@@ -269,10 +269,12 @@ module FileDropdownBaseComp = {
 module FileDropdownBottomComp = {
   @react.component
   let make = () => {
-    let {globalUIConfig: {button: {backgroundColor}}} = React.useContext(ThemeProvider.themeContext)
+    let {globalUIConfig: {button: {backgroundColor}, font: {textColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
 
     let customStyle = {
-      `${backgroundColor.primaryOutline} text-nd_primary_blue-500 !border-none`
+      `${backgroundColor.primaryOutline} ${textColor.primaryNormal} !border-none`
     }
 
     let restartSimulation = () => {
@@ -284,7 +286,7 @@ module FileDropdownBottomComp = {
       <p
         className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle} cursor-pointer`}
         onClick={_ => restartSimulation()}>
-        <Icon name="nd-upload" size=15 customIconColor="text-nd_primary_blue" />
+        <Icon name="nd-upload" size=15 customIconColor={textColor.primaryNormal} />
         {"Change File"->React.string}
       </p>
     </div>

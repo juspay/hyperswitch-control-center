@@ -20,7 +20,14 @@ module OrgTile = {
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
-        sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
+        sidebarColor: {
+          backgroundColor,
+          primaryTextColor,
+          secondaryTextColor,
+          borderColor: sidebarBorderColor,
+        },
+        border: {borderColor: borderColorNew},
+        font: {textColor},
       },
     } = React.useContext(ThemeProvider.themeContext)
 
@@ -110,11 +117,11 @@ module OrgTile = {
       className={`w-10 h-10 rounded-lg  flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
       <div
         className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md ${isActive
-            ? `bg-white/20 ${primaryTextColor} !border-nd_primary_blue-500 !text-nd_primary_blue-500`
+            ? `bg-white/20 ${primaryTextColor} ${borderColorNew.primaryFocused} ${textColor.primaryNormal}`
             : ` ${secondaryTextColor}  hover:bg-white/10 border-sidebar-textColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
         <div
-          className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40 `}>
+          className={` ${currentEditCSS} ${nonEditCSS} border ${sidebarBorderColor} border-opacity-40 `}>
           <InlineEditInput
             index
             labelText={orgName}

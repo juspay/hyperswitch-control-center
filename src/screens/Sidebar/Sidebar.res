@@ -340,7 +340,7 @@ module NestedSectionItem = {
         </div>
         <RenderIf condition={isElementShown}>
           <div className="flex flex-1 w-full mt-4">
-            <div className="w-8" />
+            <div className="w-12" />
             <div className="border-l border-nd_gray-200" />
             <div className="flex flex-col gap-1.5 w-full leading-5">
               {section.links
@@ -503,6 +503,8 @@ module ProductTypeSectionItem = {
     ~openItem,
     ~setOpenItem,
     ~isExploredModule: bool,
+    ~allowProductToggle: bool,
+    ~expandedSections,
   ) => {
     let {
       globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
@@ -518,11 +520,11 @@ module ProductTypeSectionItem = {
     let isActiveProduct = activeProductVariant === sectionProductVariant
 
     React.useEffect(() => {
-      if isActiveProduct && isExploredModule {
+      if isActiveProduct && isExploredModule && expandedSections->Array.length == 0 {
         onToggle()
       }
       None
-    }, [isActiveProduct]) //
+    }, [activeProduct])
 
     let textColor = isActiveProduct ? `${primaryTextColor}` : `${secondaryTextColor}`
 
@@ -531,8 +533,8 @@ module ProductTypeSectionItem = {
       : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`
 
     let handleClick = _ => {
-      if isExploredModule {
-        onToggle() //
+      if isExploredModule && allowProductToggle {
+        onToggle()
       } else {
         onProductSelectClick(section.name)
       }
@@ -547,12 +549,11 @@ module ProductTypeSectionItem = {
           <div
             className={`text-sm whitespace-nowrap ${isActiveProduct
                 ? `${primaryTextColor} font-semibold`
-                : ""}`}>
+                : `${secondaryTextColor}`}`}>
             {React.string(section.name)}
           </div>
         </div>
-        <RenderIf condition={isSidebarExpanded && isExploredModule}>
-          //
+        <RenderIf condition={isSidebarExpanded && isExploredModule && allowProductToggle}>
           <Icon name="nd-angle-down" className=iconClassName size=12 />
         </RenderIf>
       </div>
@@ -646,6 +647,7 @@ let make = (
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (expandedSections, setExpandedSections) = React.useState(_ => [])
   let {devModularityV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let allowProductToggle = exploredSidebars->Array.length > 1
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -657,7 +659,7 @@ let make = (
     | true =>
       switch isMobileView {
       | true => "100%"
-      | false => "304px"
+      | false => "304px" //
       }
     | false => "304px"
     }
@@ -810,6 +812,8 @@ let make = (
                     openItem
                     setOpenItem
                     isExploredModule=true
+                    allowProductToggle
+                    expandedSections
                   />
                 })
                 ->React.array}
@@ -835,6 +839,8 @@ let make = (
                       openItem
                       setOpenItem
                       isExploredModule=false
+                      allowProductToggle
+                      expandedSections
                     />
                   })
                   ->React.array}

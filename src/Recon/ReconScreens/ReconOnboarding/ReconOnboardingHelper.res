@@ -246,7 +246,9 @@ module ReconciliationOverview = {
   let make = () => {
     open OMPSwitchTypes
     open ReconOnboardingUtils
-
+    let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
     let (selectedReconId, setSelectedReconId) = React.useState(_ => "Recon_235")
     let (reconList, _) = React.useState(_ => [{id: "Recon_235", name: "Recon_235"}])
     let (arrow, setArrow) = React.useState(_ => false)
@@ -320,10 +322,10 @@ module ReconciliationOverview = {
         <div
           className="flex items-center gap-1.5 cursor-pointer"
           onClick={_ => navigateToExceptions()}>
-          <p className="text-nd_primary_blue-500 font-semibold leading-6 text-center text-sm">
+          <p className={`${primaryNormal} font-semibold leading-6 text-center text-sm`}>
             {"View Details"->React.string}
           </p>
-          <Icon name="nd-angle-right" size=16 className="text-nd_primary_blue-500" />
+          <Icon name="nd-angle-right" size=16 className={primaryNormal} />
         </div>
       </div>
       <ReconCards />
