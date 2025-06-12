@@ -135,6 +135,7 @@ let make = (~setScreenState) => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
+    | list{"chat-bot"} => <ChatBot />
     | _ =>
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
       <MerchantAccountContainer setAppScreenState=setScreenState />

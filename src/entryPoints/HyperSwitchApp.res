@@ -167,6 +167,9 @@ let make = () => {
                     </RenderIf>
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
+                      <div className="absolute bottom-5 right-5 border bg-blue-200 p-2">
+                        {"try"->React.string}
+                      </div>
                       <ErrorBoundary>
                         {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
                         /* DEFAULT HOME */
