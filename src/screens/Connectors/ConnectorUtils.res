@@ -118,6 +118,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYSTACK),
   Processors(FACILITAPAY),
   Processors(ARCHIPEL),
+  Processors(WORLDPAYVANTIV),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -623,6 +624,10 @@ let archipelInfo = {
   description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
 }
 
+let worldpayVantivInfo = {
+  description: "Worldpay Vantiv, also known as the Worldpay CNP API, is a robust XML-based interface used to process online (card-not-present) transactions such as e-commerce purchases, subscription billing, and digital payments.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -704,6 +709,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYSTACK => "paystack"
   | FACILITAPAY => "facilitapay"
   | ARCHIPEL => "archipel"
+  | WORLDPAYVANTIV => "worldpayvantiv"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -852,6 +858,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paystack" => Processors(PAYSTACK)
     | "facilitapay" => Processors(FACILITAPAY)
     | "archipel" => Processors(ARCHIPEL)
+    | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -980,6 +987,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYSTACK => paystackInfo
   | FACILITAPAY => facilitapayInfo
   | ARCHIPEL => archipelInfo
+  | WORLDPAYVANTIV => worldpayVantivInfo
   }
 }
 
@@ -1851,6 +1859,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYSTACK => "Paystack"
   | FACILITAPAY => "Facilitapay"
   | ARCHIPEL => "ArchiPEL"
+  | WORLDPAYVANTIV => "Worldpay Vantiv"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

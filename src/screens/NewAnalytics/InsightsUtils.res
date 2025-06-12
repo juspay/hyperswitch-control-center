@@ -624,12 +624,8 @@ let fillMissingDataPoints = (
   dataPoints->Dict.valuesToArray
 }
 
-let getSampleDateRange = (~useSampleDates) => {
+let getSampleDateRange = (~useSampleDates, ~sampleDateRange) => {
   let defaultDateRange: filterBody = getDateFilteredObject(~range=7)
-  let sampleDateRange: filterBody = {
-    start_time: "2024-09-04T00:00:00.000Z",
-    end_time: "2024-10-03T00:00:00.000Z",
-  }
   let dates = useSampleDates ? sampleDateRange : defaultDateRange
   let comparison = useSampleDates ? (EnableComparison :> string) : (DisableComparison :> string)
   let (compareStart, compareEnd) = getComparisionTimePeriod(

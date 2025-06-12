@@ -48,6 +48,8 @@ type metrics = [
   | #challenge_success_count
   | #authentication_funnel
   | #authentication_error_message
+  | #authentication_exemption_approved_count
+  | #authentication_exemption_requested_count
 ]
 type granularity = [
   | #G_ONEDAY
@@ -70,6 +72,7 @@ type moduleEntity = {
   requestBodyConfig: requestBodyConfig,
   title: string,
   domain: domain,
+  description?: string,
 }
 
 type getObjects<'data> = {
@@ -78,6 +81,7 @@ type getObjects<'data> = {
   yKey: string,
   comparison?: DateRangeUtils.comparison,
   currency?: string,
+  title?: string,
 }
 
 type chartEntity<'t, 'chartOption, 'data> = {

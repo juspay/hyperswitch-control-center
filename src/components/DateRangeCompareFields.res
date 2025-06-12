@@ -153,7 +153,7 @@ module Base = {
 
     let (isDropdownExpanded, setIsDropdownExpanded) = React.useState(_ => false)
     let (calendarVisibility, setCalendarVisibility) = React.useState(_ => false)
-
+    let (selectedOption, setSelectedOption) = React.useState(_ => No_Comparison)
     let isMobileView = MatchMedia.useMobileChecker()
     let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
 
@@ -552,7 +552,8 @@ module Base = {
         setLocalDate(_ => date)
       }
     }
-    let handleCompareOptionClick = value => {
+    let handleCompareOptionClick = (value: compareOption) => {
+      setSelectedOption(_ => value)
       switch value {
       | Custom =>
         setCalendarVisibility(_ => true)
@@ -584,14 +585,19 @@ module Base = {
     }
 
     let dropDownElement = () => {
-      <div className={"flex md:flex-row flex-col w-full py-2"}>
+      <div className={"flex flex-col tablet:flex-row w-full gap-2 p-2"}>
         <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
           <div className="flex flex-wrap gap-1 md:flex-col">
             {[No_Comparison, Previous_Period, Custom]
             ->Array.mapWithIndex((value, i) => {
               <div key={i->Int.toString} className="w-full md:min-w-max text-center md:text-start">
                 <CompareOption
-                  value comparison startDateVal endDateVal onClick=handleCompareOptionClick
+                  value
+                  selectedOption
+                  comparison
+                  startDateVal
+                  endDateVal
+                  onClick=handleCompareOptionClick
                 />
               </div>
             })
