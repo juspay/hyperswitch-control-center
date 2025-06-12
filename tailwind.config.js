@@ -69,6 +69,7 @@ module.exports = {
         "10-px": "10px",
       },
       maxHeight: {
+        "15-rem": "15rem",
         "25-rem": "25rem",
       },
       inset: {
@@ -390,6 +391,7 @@ module.exports = {
           200: "#93BCF6",
           300: "#6AA1F2",
           400: "#4287EF",
+          450: "#247DF9",
           500: "#1C6DEA",
           600: "#0561E2",
         },

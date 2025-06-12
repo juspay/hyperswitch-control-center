@@ -164,7 +164,21 @@ let webhookUrl = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.textInput(~autoComplete="off"),
   ~isRequired=false,
 )
+let webhookUrlV2 = FormRenderer.makeFieldInfo(
+  ~label="Webhook URL",
+  ~name="webhook_details.webhook_url",
+  ~placeholder="Enter Webhook URL",
+  ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
+  ~isRequired=false,
+)
 
+let returnUrlV2 = FormRenderer.makeFieldInfo(
+  ~label="Return URL",
+  ~name="return_url",
+  ~placeholder="Enter Return URL",
+  ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
+  ~isRequired=false,
+)
 let returnUrl = FormRenderer.makeFieldInfo(
   ~label="Return URL",
   ~name="return_url",
@@ -173,6 +187,20 @@ let returnUrl = FormRenderer.makeFieldInfo(
   ~isRequired=false,
 )
 
+let authenticationConnectorsV2 = connectorList =>
+  FormRenderer.makeFieldInfo(
+    ~label="Authentication Connectors",
+    ~name="authentication_connector_details.authentication_connectors",
+    ~customInput=InputFields.multiSelectInput(
+      ~options=connectorList->SelectBox.makeOptions,
+      ~buttonText="Select Field",
+      ~showSelectionAsChips=false,
+      ~customButtonStyle=` !rounded-xl`,
+      ~fixedDropDownDirection=BottomRight,
+      ~dropdownClassName="!max-h-15-rem !overflow-auto",
+    ),
+    ~isRequired=false,
+  )
 let authenticationConnectors = connectorList =>
   FormRenderer.makeFieldInfo(
     ~label="Authentication Connectors",
@@ -208,6 +236,30 @@ let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~name="max_auto_retries_enabled",
   ~placeholder="Enter number of max auto retries",
   ~customInput=InputFields.numericTextInput(),
+  ~isRequired=true,
+)
+
+let threeDsRequestorUrlV2 = FormRenderer.makeFieldInfo(
+  ~label="3DS Requestor URL",
+  ~name="authentication_connector_details.three_ds_requestor_url",
+  ~placeholder="Enter 3DS Requestor URL",
+  ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
+  ~isRequired=false,
+)
+
+let threeDsRequestoApprUrlV2 = FormRenderer.makeFieldInfo(
+  ~label="3DS Requestor App URL",
+  ~name="authentication_connector_details.three_ds_requestor_app_url",
+  ~placeholder="Enter 3DS Requestor App URL",
+  ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
+  ~isRequired=false,
+)
+
+let maxAutoRetriesV2 = FormRenderer.makeFieldInfo(
+  ~label="Max Auto Retries",
+  ~name="max_auto_retries_enabled",
+  ~placeholder="Enter number of max auto retries",
+  ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
   ~isRequired=true,
 )
 

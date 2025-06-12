@@ -40,7 +40,7 @@ let make = () => {
     {
       title: "Payment Behaviour",
       renderContent: () => {
-        React.null
+        <PaymentSettingsPaymentBehaviour />
       },
     },
     {
