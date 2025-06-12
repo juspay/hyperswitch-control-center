@@ -17,6 +17,9 @@ module.exports = defineConfig({
     CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD,
     MAIL_URL: process.env.MAIL_URL || "http://localhost:8025",
     RBAC: "", //"profile,admin"
+    CYPRESS_SSO_BASE_URL: process.env.CYPRESS_SSO_BASE_URL,
+    CYPRESS_SSO_CLIENT_ID: process.env.CYPRESS_SSO_CLIENT_ID,
+    CYPRESS_SSO_CLIENT_SECRET: process.env.CYPRESS_SSO_CLIENT_SECRET,
     CYPRESS_SSO_USERNAME: process.env.CYPRESS_SSO_USERNAME,
     CYPRESS_SSO_PASSWORD: process.env.CYPRESS_SSO_PASSWORD,
   },

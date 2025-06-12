@@ -83,15 +83,19 @@ class SignInPage {
 
   //Okta SSO
   get oktaEmailInput() {
-    return cy.get('[id="okta-signin-username"]');
+    return cy.get('[name="identifier"]');
+  }
+
+  get oktaNextButton() {
+    return cy.get('[value="Next"]');
   }
 
   get oktaPasswordInput() {
-    return cy.get('[id="okta-signin-password"]');
+    return cy.get('[type="password"]');
   }
 
-  get oktaSigninButton() {
-    return cy.get('[id="okta-signin-submit"]');
+  get oktaVerifynButton() {
+    return cy.get('[value="Verify"]');
   }
 
   get oktaErrorMessage() {
