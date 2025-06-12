@@ -36,7 +36,7 @@ module MenuOption = {
 
 module SidebarOption = {
   @react.component
-  let make = (~isSidebarExpanded, ~name, ~icon, ~isSelected) => {
+  let make = (~isSidebarExpanded, ~name, ~icon, ~isSelected, ~showIcon=false) => {
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
@@ -46,9 +46,13 @@ module SidebarOption = {
     let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor}  `
 
     if isSidebarExpanded {
-      <div className="flex items-center gap-5">
-        <div className="w-1" />
-        <div className={`text-sm ${textBoldStyles} whitespace-nowrap`}> {React.string(name)} </div>
+      <div className="flex items-center gap-2">
+        <RenderIf condition={showIcon}>
+          <Icon size=18 name=icon className={iconColor} />
+        </RenderIf>
+        <div className={`text-sm ${textBoldStyles} whitespace-nowrap ${showIcon ? "" : "ml-3"}`}>
+          {React.string(name)}
+        </div>
       </div>
     } else {
       <Icon size=18 name=icon className=iconColor />
@@ -320,10 +324,9 @@ module NestedSectionItem = {
               ? ""
               : sectionExpandedAnimation} ${hoverColor}`}
           onClick=toggleSectionExpansion>
-          <div className="flex-row items-center select-none min-w-max flex  gap-5">
-            <div className="w-1" />
+          <div className="flex-row items-center select-none min-w-max flex gap-5">
             <RenderIf condition={isSideBarExpanded}>
-              <div className={`text-sm ${expandedTextColor} whitespace-nowrap`}>
+              <div className={`text-sm ${expandedTextColor} whitespace-nowrap ml-3`}>
                 {React.string(section.name)}
               </div>
             </RenderIf>
@@ -340,7 +343,7 @@ module NestedSectionItem = {
         </div>
         <RenderIf condition={isElementShown}>
           <div className="flex flex-1 w-full mt-4">
-            <div className="w-12" />
+            <div className="w-8" />
             <div className="border-l border-nd_gray-200" />
             <div className="flex flex-col gap-1.5 w-full leading-5">
               {section.links
@@ -544,12 +547,12 @@ module ProductTypeSectionItem = {
       <div
         onClick=handleClick
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${hoverColor} rounded-lg`}>
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2">
           <Icon size=14 name={section.icon} className={textColor} />
           <div
             className={`text-sm whitespace-nowrap ${isActiveProduct
-                ? `${primaryTextColor} font-semibold`
-                : `${secondaryTextColor}`}`}>
+                ? `${primaryTextColor}`
+                : `${secondaryTextColor}`} font-medium`}>
             {React.string(section.name)}
           </div>
         </div>
@@ -558,7 +561,7 @@ module ProductTypeSectionItem = {
         </RenderIf>
       </div>
       <RenderIf condition={isExpanded && isExploredModule}>
-        <div className="pl-4 flex flex-col gap-1 mt-2">
+        <div className="flex flex-col gap-1 mt-2 ml-2">
           {section.links
           ->Array.mapWithIndex((tabInfo, index) => {
             switch tabInfo {
@@ -659,9 +662,9 @@ let make = (
     | true =>
       switch isMobileView {
       | true => "100%"
-      | false => "304px" //
+      | false => "248px" //
       }
-    | false => "304px"
+    | false => "248px"
     }
   }
   let profileMaxWidth = "150px"
@@ -706,7 +709,7 @@ let make = (
   let expansionClass = !isSidebarExpanded ? "-translate-x-full" : ""
 
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
-  let sidebarCollapseWidth = showSideBar ? "325px" : "56px"
+  let sidebarCollapseWidth = showSideBar ? "304px" : "56px"
   let sidebarContainerClassWidth = isMobileView ? "0px" : `${sidebarCollapseWidth}`
 
   let transformClass = "transform md:translate-x-0 transition"
@@ -780,7 +783,7 @@ let make = (
             className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
             style={height: `calc(100vh - ${verticalOffset})`}>
             <style> {React.string(sidebarScrollbarCss)} </style>
-            <div className="p-2.5 pt-0">
+            <div className="p-3 pt-0">
               <RenderIf condition={devModularityV2}>
                 <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
                   <div
@@ -788,7 +791,7 @@ let make = (
                         ? ""
                         : "mx-1"} ${hoverColor}`}>
                     <SidebarOption
-                      name="Home" icon="nd-home" isSidebarExpanded isSelected={false}
+                      name="Home" icon="nd-home" isSidebarExpanded isSelected={false} showIcon=true
                     />
                   </div>
                 </Link>
@@ -849,33 +852,32 @@ let make = (
             </div>
           </div>
           <div
-            className={`flex items-center justify-between px-3 py-1.5 ${borderColor} ${hoverColor}`}>
+            className={`flex items-center justify-between px-4 py-3 border-t ${borderColor} ${hoverColor}`}>
             <RenderIf condition={isSidebarExpanded}>
               <Popover className="relative inline-block text-left">
                 {popoverProps => <>
                   <Popover.Button
                     className={
                       let openClasses = if popoverProps["open"] {
-                        `group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                        `group border rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
                       } else {
-                        `text-opacity-90 group pl-3 border py-2 rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                        `text-opacity-90 group border rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
                       }
                       `${openClasses} border-none`
                     }>
                     {_ => <>
                       <div className="flex items-center justify-between gap-x-3">
                         <Icon name="nd-user" size=24 />
-                        <ToolTip
-                          description=email
-                          toolTipFor={<RenderIf condition={isSidebarExpanded}>
-                            <div
-                              className={`w-[${profileMaxWidth}] text-sm font-medium text-left ${secondaryTextColor} dark:text-gray-600 text-ellipsis overflow-hidden`}>
-                              {email->React.string}
-                            </div>
-                          </RenderIf>}
-                          toolTipPosition=ToolTip.Top
-                          tooltipWidthClass="!w-fit !z-50"
-                        />
+                        <div className="flex flex-col gap-0.5">
+                          <div
+                            className={`w-[${profileMaxWidth}] text-sm font-medium text-left text-nd_gray-600 dark:text-nd_gray-600 text-ellipsis overflow-hidden`}>
+                            {email->React.string}
+                          </div>
+                          <div
+                            className={`w-[${profileMaxWidth}] text-sm font-medium leading-4.5 text-left text-nd_gray-400 dark:text-nd_gray-400 text-ellipsis overflow-hidden`}>
+                            {roleId->LogicUtils.snakeToTitle->React.string}
+                          </div>
+                        </div>
                         <div className={`flex flex-row`}>
                           <Icon
                             name="nd-dropdown-menu"

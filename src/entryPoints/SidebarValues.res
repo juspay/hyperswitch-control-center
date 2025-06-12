@@ -163,7 +163,7 @@ let threeDsConnector = (~userHasResourceAccess) => {
 
 let pmAuthenticationProcessor = (~userHasResourceAccess) => {
   SubLevelLink({
-    name: "PM Authentication Processor",
+    name: "PM Auth Processor",
     link: `/pm-authentication-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(

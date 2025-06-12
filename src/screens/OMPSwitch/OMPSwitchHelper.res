@@ -26,7 +26,7 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
+          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-0.5`}>
           <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
             {"Merchant Account"->React.string}
           </span>
