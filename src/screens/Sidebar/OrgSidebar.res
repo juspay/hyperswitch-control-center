@@ -20,13 +20,8 @@ module OrgTile = {
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
-        sidebarColor: {
-          backgroundColor,
-          primaryTextColor,
-          secondaryTextColor,
-          borderColor: sidebarBorderColor,
-        },
-        border: {borderColor: borderColorNew},
+        sidebarColor: {backgroundColor, secondaryTextColor, borderColor: sidebarBorderColor},
+        border: {borderColor},
         font: {textColor},
       },
     } = React.useContext(ThemeProvider.themeContext)
@@ -117,7 +112,7 @@ module OrgTile = {
       className={`w-10 h-10 rounded-lg  flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
       <div
         className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md ${isActive
-            ? `bg-white/20 ${primaryTextColor} ${borderColorNew.primaryFocused} ${textColor.primaryNormal}`
+            ? `bg-white/20 ${borderColor.primaryNormal} ${textColor.primaryNormal}`
             : ` ${secondaryTextColor}  hover:bg-white/10 border-sidebar-textColor/30`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
         <div
@@ -335,7 +330,10 @@ let make = () => {
   }
 
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
+    globalUIConfig: {
+      sidebarColor: {backgroundColor, hoverColor, borderColor},
+      font: {textColor: {primaryNormal}},
+    },
   } = React.useContext(ThemeProvider.themeContext)
   let getOrgList = async () => {
     try {
@@ -414,8 +412,8 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary} text-nd_primary-500`}>
-          <Icon name="plus" size=20 className={secondaryTextColor} />
+      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary} ${primaryNormal}`}>
+          <Icon name="plus" size=20 className={primaryNormal} />
         </div>
       </RenderIf>
     </div>
