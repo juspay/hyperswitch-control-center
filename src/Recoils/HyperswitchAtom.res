@@ -22,8 +22,11 @@ let businessProfileFromIdAtom = Recoil.atom(
   "businessProfileFromIdAtom",
   JSON.Encode.null->BusinessProfileMapper.businessProfileTypeMapper,
 )
-//Todo:remove this
-let businessProfileFromIdAtomInterface = Recoil.atom("businessProfileFromIdAtom", JSON.Encode.null)
+//Todo:remove this after businessProfileInterface is stable
+let businessProfileFromIdAtomInterface = Recoil.atom(
+  "businessProfileFromIdAtomInterface",
+  JSON.Encode.null,
+)
 
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
