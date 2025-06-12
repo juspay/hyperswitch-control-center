@@ -153,9 +153,7 @@ let make = () => {
     | list{"payment-settings-new", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.paymentSettingsV2} authorization=Access>
         <EntityScaffold
-          entityName="PaymentSettingsV2"
-          remainingPath
-          renderList={() => <PaymentSettingsV2  />}
+          entityName="PaymentSettingsV2" remainingPath renderList={() => <PaymentSettingsV2 />}
         />
       </AccessControl>
 

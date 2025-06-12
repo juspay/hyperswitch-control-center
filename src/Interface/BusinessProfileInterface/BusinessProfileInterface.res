@@ -41,9 +41,3 @@ let mapJsonToBusinessProfile = (
 ): b => {
   L.mapJsonToBusinessProfile(inp)
 }
-
-let useBusinessProfileMapper = (~interface) => {
-  let value = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfileFromIdAtomInterface)
-  let data = mapJsonToBusinessProfile(interface, value)
-  data
-}

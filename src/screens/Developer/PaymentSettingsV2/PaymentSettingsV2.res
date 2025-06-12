@@ -30,7 +30,7 @@ let make = () => {
   open HSwitchSettingTypes
   open Typography
 
-  let businessProfileRecoilVal = BusinessProfileInterface.useBusinessProfileMapper(
+  let businessProfileRecoilVal = BusinessProfileHook.useBusinessProfileMapper(
     ~interface=BusinessProfileInterface.businessProfileInterfaceV1,
   )
 
