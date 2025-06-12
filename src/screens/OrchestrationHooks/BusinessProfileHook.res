@@ -38,8 +38,8 @@ let useFetchBusinessProfileFromId = () => {
     try {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Get, ~id=profileId)
       let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
+      //Todo: remove this once we start using businessProfileInterface
       setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
-      //todo: remove this after businessProfileInterface is stable
       setBusinessProfileInterfaceRecoil(_ => res)
       res
     } catch {

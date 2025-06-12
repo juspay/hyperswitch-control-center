@@ -17,7 +17,7 @@ let connectorListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom(
   "connectorListAtom",
   JSON.Encode.null,
 )
-//Todo: refactor this to support businessProfileInterface
+//Todo: remove this once we start using businessProfileInterface
 let businessProfileFromIdAtom = Recoil.atom(
   "businessProfileFromIdAtom",
   JSON.Encode.null->BusinessProfileMapper.businessProfileTypeMapper,
