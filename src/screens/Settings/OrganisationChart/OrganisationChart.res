@@ -94,6 +94,8 @@ let make = () => {
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)
   let (switching, setSwitching) = React.useState(() => SwitchingNone)
   let showToast = ToastState.useShowToast()
+  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let onOrgSelect = async (org: OMPSwitchTypes.ompListTypes) => {
     try {
       setSwitching(_ => SwitchingOrg)
@@ -112,7 +114,18 @@ let make = () => {
     try {
       setSwitching(_ => SwitchingMerchant)
       setSelectedMerchant(_ => merchant.id)
-      let _ = await internalSwitch(~expectedMerchantId=Some(merchant.id))
+      let merchantData =
+        merchantList
+        ->Array.find(m => m.id == merchant.id)
+        ->Option.getOr(merchant)
+      let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
+      let productType = merchantData.productType->Option.getOr(Orchestration)
+      let _ = await internalSwitch(
+        ~expectedMerchantId=Some(merchant.id),
+        ~version,
+        ~changePath=true,
+      )
+      setActiveProductValue(productType)
       setSwitching(_ => SwitchingNone)
     } catch {
     | _ => {
