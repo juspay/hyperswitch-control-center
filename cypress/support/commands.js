@@ -540,3 +540,42 @@ const getIframeBody = () => {
     .should("not.be.empty")
     .then(cy.wrap);
 };
+
+Cypress.Commands.add("create_auth", () => {
+  cy.request({
+    method: "POST",
+    url: `http://localhost:8080/user/auth`,
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": "test_admin",
+    },
+    body: {
+      owner_id: "okta_test",
+      owner_type: "organization",
+      auth_method: {
+        auth_type: "open_id_connect",
+        private_config: {
+          base_url: Cypress.env("CYPRESS_SSO_BASE_URL"),
+          client_id: Cypress.env("CYPRESS_SSO_CLIENT_ID"),
+          client_secret: Cypress.env("CYPRESS_SSO_CLIENT_SECRET"),
+        },
+        public_config: {
+          name: "okta",
+        },
+      },
+      allow_signup: false,
+      email_domain: "cypresstest.in",
+    },
+  });
+});
+
+Cypress.Commands.add("get_authID_by_email", () => {
+  return cy
+    .request({
+      method: "GET",
+      url: `http://localhost:8080/user/auth/list?email_domain=cypresstest.in`,
+    })
+    .then((response) => {
+      return response.body[0].auth_id;
+    });
+});

@@ -5,7 +5,7 @@ class PaymentRouting {
   }
 
   get volumeBasedRoutingHeader() {
-    return cy.get('[class="flex items-center gap-4"]');
+    return cy.get('[class="flex items-center gap-4 "]');
   }
 
   get ruleBasedRoutingSetupButton() {
@@ -13,7 +13,7 @@ class PaymentRouting {
   }
 
   get defaultFallbackManageButton() {
-    return cy.get('[data-button-for="manage"]');
+    return cy.get('[data-button-for="manage"]').children().eq(0);
   }
 }
 

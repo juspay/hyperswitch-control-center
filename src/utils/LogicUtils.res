@@ -221,6 +221,13 @@ let getBoolFromString = (boolString, default: bool) => {
   | _ => default
   }
 }
+let getStringFromDictAsBool = (dict, key, default: bool) => {
+  dict
+  ->getOptionString(key)
+  ->Option.mapOr(default, boolString => {
+    getBoolFromString(boolString, default)
+  })
+}
 let getStringFromBool = boolValue => {
   switch boolValue {
   | true => "true"
@@ -274,6 +281,15 @@ let getFloatFromJson = (json, default) => {
   switch json->JSON.Classify.classify {
   | String(str) => getFloatFromString(str, default)
   | Number(floatValue) => floatValue
+  | _ => default
+  }
+}
+
+let isUint8Array: 'a => bool = %raw("(val) => val instanceof Uint8Array")
+
+let getUInt8ArrayFromJson = (json, default) => {
+  switch JSON.Classify.classify(json) {
+  | Object(obj) => isUint8Array(obj) ? Identity.anyTypeToUint8Array(obj) : default
   | _ => default
   }
 }
@@ -768,4 +784,23 @@ let uniqueObjectFromArrayOfObjects = (arr, keyExtractor) => {
     Dict.set(uniqueDict, key, item)
   })
   Dict.valuesToArray(uniqueDict)
+}
+
+let randomString = (~length) => {
+  let ranges = [(48.0, 57.0), (65.0, 90.0), (97.0, 122.0)] // 0-9 // A-Z // a-z
+
+  let text =
+    Array.make(~length, "")
+    ->Array.map(_ => {
+      let (min, max) =
+        ranges
+        ->Array.get(Js.Math.random_int(0, 3))
+        ->Option.getOr((48.0, 57.0))
+      let index = Math.floor(Math.random() *. (max -. min +. 1.0) +. min)->Int.fromFloat
+
+      String.fromCharCode(index)
+    })
+    ->Array.joinWith("")
+
+  text
 }

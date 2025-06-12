@@ -292,12 +292,11 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
-  open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
-  let (showEditOrgModal, setShowEditOrgModal) = React.useState(_ => false)
+
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -305,6 +304,28 @@ let make = () => {
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let showToast = ToastState.useShowToast()
+  let (showAllOrgs, setShowAllOrgs) = React.useState(_ => false)
+  let (maxVisibleOrgs, setMaxVisibleOrgs) = React.useState(_ => 15)
+  let calculateMaxOrgs = () => {
+    let screenHeight = Window.innerHeight->Int.toFloat
+    let orgTileHeight = 50.
+    let reservedSpace = 170.
+    let availableHeight = screenHeight -. reservedSpace
+    let calculated = (availableHeight /. orgTileHeight)->Float.toInt
+    setMaxVisibleOrgs(_ => calculated)
+  }
+  React.useEffect(() => {
+    calculateMaxOrgs()
+    let handler = _ => calculateMaxOrgs()
+    Window.addEventListener("resize", handler) //for window resize cases
+    Some(() => Window.removeEventListener("resize", handler))
+  }, [])
+
+  let visibleOrgList = if showAllOrgs {
+    orgList->Array.slice(~start=maxVisibleOrgs, ~end=orgList->Array.length)
+  } else {
+    orgList->Array.slice(~start=0, ~end=maxVisibleOrgs)
+  }
 
   let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
     compareLogic(org2.name->String.toLowerCase, org1.name->String.toLowerCase)
@@ -353,10 +374,18 @@ let make = () => {
     setUnderEdit(_ => selectedEditId)
   }
 
-  <div className={`${backgroundColor.sidebarNormal}  p-2 border-r w-14 ${borderColor}`}>
+  <div className={`${backgroundColor.sidebarNormal}  p-2 pt-3 border-r w-14 ${borderColor}`}>
     // the org tiles
-    <div className="flex flex-col gap-5 py-3 px-2 items-center justify-center ">
-      {orgList
+    <div className="flex flex-col gap-5 pt-2 px-2 items-center justify-center ">
+      <RenderIf condition={showAllOrgs}>
+        <Icon
+          name="nd-angle-up"
+          size=13
+          className="mt-3 ml-1 text-primary cursor-pointer"
+          onClick={_ => setShowAllOrgs(_ => false)}
+        />
+      </RenderIf>
+      {visibleOrgList
       ->Array.mapWithIndex((org, i) => {
         <OrgTile
           key={Int.toString(i)}
@@ -370,6 +399,14 @@ let make = () => {
         />
       })
       ->React.array}
+      <RenderIf condition={orgList->Array.length > maxVisibleOrgs && !showAllOrgs}>
+        <Icon
+          name="nd-angle-down"
+          size=14
+          className="ml-1 text-primary -mt-3 cursor-pointer"
+          onClick={_ => setShowAllOrgs(_ => true)}
+        />
+      </RenderIf>
       <RenderIf condition={tenantUser && isTenantAdmin}>
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
@@ -379,14 +416,6 @@ let make = () => {
         </div>
       </RenderIf>
     </div>
-    <RenderIf condition={showAddOrgModal}>
-      <NewOrgCreationModal
-        setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} getOrgList
-      />
-    </RenderIf>
-    <EditOrgName
-      showModal={showEditOrgModal} setShowModal={setShowEditOrgModal} orgList orgId getOrgList
-    />
     <RenderIf condition={showAddOrgModal}>
       <NewOrgCreationModal
         setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} getOrgList

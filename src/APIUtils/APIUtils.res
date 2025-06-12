@@ -104,6 +104,7 @@ let useGetURL = () => {
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
+    let recoveryAnalyticsDemo = "revenue-recovery-demo"
 
     let endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -406,6 +407,51 @@ let useGetURL = () => {
         | _ => ""
         }
       | ACTIVE_ROUTING => `routing/active`
+      | ENABLE_AUTH_RATE_ROUTING =>
+        switch methodType {
+        | Post =>
+          switch queryParamerters {
+          | Some(param) =>
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/toggle?${param}`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | SET_CONFIG_AUTH_RATE_ROUTING =>
+        switch methodType {
+        | Patch =>
+          switch id {
+          | Some(id) =>
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/config/${id}`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | ACTIVATE_AUTH_RATE_ROUTING =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(id) => `routing/${id}/activate`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | SET_VOLUME_SPLIT =>
+        switch methodType {
+        | Post =>
+          switch queryParamerters {
+          | Some(param) =>
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/set_volume_split?${param}`
+          | None => ""
+          }
+        | _ => ""
+        }
+      | GET_VOLUME_SPLIT =>
+        switch methodType {
+        | Get =>
+          `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
+        | _ => ""
+        }
       /* ANALYTICS V2 */
 
       | ANALYTICS_PAYMENTS_V2 =>
@@ -531,6 +577,18 @@ let useGetURL = () => {
 
         | _ => ""
         }
+      | ANALYTICS_SCA_EXEMPTION_SANKEY =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization => `analytics/v1/org/metrics/auth_events/sankey`
+          | #Merchant => `analytics/v1/merchant/metrics/auth_events/sankey`
+          | #Profile => `analytics/v1/profile/metrics/auth_events/sankey`
+          }
+
+        | _ => ""
+        }
       /* PAYOUTS ROUTING */
       | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
       | PAYOUT_ROUTING =>
@@ -636,7 +694,15 @@ let useGetURL = () => {
           }
         | _ => ""
         }
-
+      | ROUTING_EVENT_LOGS =>
+        switch methodType {
+        | Get =>
+          switch queryParamerters {
+          | Some(params) => `analytics/v1/profile/routing_event_logs?${params}`
+          | None => `analytics/v1/routing_event_logs`
+          }
+        | _ => ""
+        }
       /* SAMPLE DATA */
       | GENERATE_SAMPLE_DATA => `user/sample_data`
 
@@ -729,17 +795,32 @@ let useGetURL = () => {
         }
 
       /* INTELLIGENT ROUTING */
+      | GET_REVIEW_FIELDS => `dynamic-routing/simulate/baseline-review-fields`
       | SIMULATE_INTELLIGENT_ROUTING =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate/${merchantId}?${queryParams}`
-        | None => `simulate/${merchantId}`
+        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}?${queryParams}`
+        | None => `dynamic-routing/simulate/${merchantId}`
         }
       | INTELLIGENT_ROUTING_RECORDS =>
         switch queryParamerters {
-        | Some(queryParams) => `simulate/${merchantId}/get-records?${queryParams}`
-        | None => `simulate/${merchantId}/get-records`
+        | Some(queryParams) => `dynamic-routing/simulate/${merchantId}/get-records?${queryParams}`
+        | None => `dynamic-routing/simulate/${merchantId}/get-records`
         }
-      | INTELLIGENT_ROUTING_GET_STATISTICS => `simulate/${merchantId}/get-statistics`
+      | INTELLIGENT_ROUTING_GET_STATISTICS =>
+        `dynamic-routing/simulate/${merchantId}/get-statistics`
+
+      /* Revenue Recovery */
+      | TRANSACTION_OVERVIEW => `${recoveryAnalyticsDemo}/analytics/transaction_overview`
+      | RETRY_PERFORMANCE => `${recoveryAnalyticsDemo}/analytics/retry_performance`
+      | MONTHLY_RETRY_SUCCESS => `${recoveryAnalyticsDemo}/analytics/monthly_retry_success`
+      | RETRY_ATTEMPTS_TREND => `${recoveryAnalyticsDemo}/analytics/retry_attempts_trend`
+      | ERROR_CATEGORY_ANALYSIS => `${recoveryAnalyticsDemo}/analytics/error_category_analysis`
+      | RECOVERY_INVOICES => `${recoveryAnalyticsDemo}/list-invoices`
+      | RECOVERY_ATTEMPTS =>
+        switch queryParamerters {
+        | Some(queryParams) => `${recoveryAnalyticsDemo}/list-attempts/${queryParams}`
+        | None => `${recoveryAnalyticsDemo}/list-attempts`
+        }
 
       /* USERS */
       | USERS =>
@@ -880,6 +961,7 @@ let useGetURL = () => {
 
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
+      | SDK_PAYMENT => "payments"
       }
 
     | V2(entityNameForv2) =>

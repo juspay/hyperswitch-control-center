@@ -94,6 +94,7 @@ let connectorList: array<connectorTypes> = [
   Processors(VOLT),
   Processors(WORLDLINE),
   Processors(WORLDPAY),
+  Processors(WORLDPAYXML),
   Processors(ZEN),
   Processors(ZSL),
   Processors(PLACETOPAY),
@@ -116,11 +117,14 @@ let connectorList: array<connectorTypes> = [
   Processors(HIPAY),
   Processors(PAYSTACK),
   Processors(FACILITAPAY),
+  Processors(ARCHIPEL),
+  Processors(WORLDPAYVANTIV),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
+  Processors(ARCHIPEL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -140,6 +144,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(PAYPAL),
   Processors(PAYBOX),
   Processors(PAYME),
+  Processors(REDSYS),
   Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
@@ -277,6 +282,10 @@ let airwallexInfo = {
 
 let worldpayInfo = {
   description: "Leading processor facilitating secure online and in-person payments with global coverage and a range of payment options.",
+}
+
+let worldpayxmlInfo = {
+  description: "Worldpay XML connector enables payment processing through Worldpay’s XML API, allowing seamless transaction requests and responses using structured XML messages.",
 }
 
 let cybersourceInfo = {
@@ -611,6 +620,13 @@ let riskifyedInfo = {
     },
   ],
 }
+let archipelInfo = {
+  description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
+}
+
+let worldpayVantivInfo = {
+  description: "Worldpay Vantiv, also known as the Worldpay CNP API, is a robust XML-based interface used to process online (card-not-present) transactions such as e-commerce purchases, subscription billing, and digital payments.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -624,6 +640,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BLUESNAP => "bluesnap"
   | AIRWALLEX => "airwallex"
   | WORLDPAY => "worldpay"
+  | WORLDPAYXML => "worldpayxml"
   | CYBERSOURCE => "cybersource"
   | COINGATE => "coingate"
   | ELAVON => "elavon"
@@ -691,6 +708,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | HIPAY => "hipay"
   | PAYSTACK => "paystack"
   | FACILITAPAY => "facilitapay"
+  | ARCHIPEL => "archipel"
+  | WORLDPAYVANTIV => "worldpayvantiv"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -770,6 +789,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "bluesnap" => Processors(BLUESNAP)
     | "airwallex" => Processors(AIRWALLEX)
     | "worldpay" => Processors(WORLDPAY)
+    | "worldpayxml" => Processors(WORLDPAYXML)
     | "cybersource" => Processors(CYBERSOURCE)
     | "elavon" => Processors(ELAVON)
     | "coingate" => Processors(COINGATE)
@@ -837,6 +857,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "hipay" => Processors(HIPAY)
     | "paystack" => Processors(PAYSTACK)
     | "facilitapay" => Processors(FACILITAPAY)
+    | "archipel" => Processors(ARCHIPEL)
+    | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -897,6 +919,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | BLUESNAP => bluesnapInfo
   | AIRWALLEX => airwallexInfo
   | WORLDPAY => worldpayInfo
+  | WORLDPAYXML => worldpayxmlInfo
   | CYBERSOURCE => cybersourceInfo
   | COINGATE => coingateInfo
   | ELAVON => elavonInfo
@@ -963,6 +986,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | HIPAY => hipayInfo
   | PAYSTACK => paystackInfo
   | FACILITAPAY => facilitapayInfo
+  | ARCHIPEL => archipelInfo
+  | WORLDPAYVANTIV => worldpayVantivInfo
   }
 }
 
@@ -1274,13 +1299,18 @@ let generateInitialValuesDict = (
 
   let connectorWebHookDetails =
     dict->getJsonObjectFromDict("connector_webhook_details")->getDictFromJsonObject
-
-  dict->Dict.set(
-    "connector_webhook_details",
-    connectorWebHookDetails->getOptionString("merchant_secret")->Option.isSome
-      ? connectorWebHookDetails->JSON.Encode.object
-      : JSON.Encode.null,
-  )
+  let hasMerchantSecret = connectorWebHookDetails->getOptionString("merchant_secret")->Option.isSome
+  let hasAdditionalSecret =
+    connectorWebHookDetails->getOptionString("additional_secret")->Option.isSome
+  let connectorWebhookDict = switch (hasMerchantSecret, hasAdditionalSecret) {
+  | (true, _) => connectorWebHookDetails->JSON.Encode.object
+  | (false, true) => {
+      connectorWebHookDetails->Dict.set("merchant_secret", ""->JSON.Encode.string)
+      connectorWebHookDetails->JSON.Encode.object
+    }
+  | _ => JSON.Encode.null
+  }
+  dict->Dict.set("connector_webhook_details", connectorWebhookDict)
 
   dict->JSON.Encode.object
 }
@@ -1447,7 +1477,7 @@ let getConnectorFields = connectorDetails => {
   let connectorAccountDict =
     connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
   let bodyType = switch connectorAccountDict->JSON.Classify.classify {
-  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "")
+  | Object(dict) => dict->Dict.keysToArray->getValueFromArray(0, "NoKey")
   | String(_) => "NoKey"
   | _ => ""
   }
@@ -1761,6 +1791,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BLUESNAP => "Bluesnap"
   | AIRWALLEX => "Airwallex"
   | WORLDPAY => "Worldpay"
+  | WORLDPAYXML => "Worldpay WPG"
   | CYBERSOURCE => "Cybersource"
   | COINGATE => "CoinGate"
   | ELAVON => "Elavon"
@@ -1827,6 +1858,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | HIPAY => "HiPay"
   | PAYSTACK => "Paystack"
   | FACILITAPAY => "Facilitapay"
+  | ARCHIPEL => "ArchiPEL"
+  | WORLDPAYVANTIV => "Worldpay Vantiv"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

@@ -22,6 +22,7 @@ let routingTypeMapper = routingType => {
   | "volume_split" => VOLUME_SPLIT
   | "advanced" => ADVANCED
   | "default" => DEFAULTFALLBACK
+  | "dynamic" => AUTH_RATE_ROUTING
   | _ => NO_ROUTING
   }
 }
@@ -31,6 +32,7 @@ let routingTypeName = routingType => {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
   | DEFAULTFALLBACK => "default"
+  | AUTH_RATE_ROUTING => "auth-rate"
   | NO_ROUTING => ""
   }
 }
@@ -82,7 +84,7 @@ let getContent = routetype =>
   switch routetype {
   | DEFAULTFALLBACK => {
       heading: "Default fallback ",
-      subHeading: "Fallback is a priority order of all the configured processors which is used to route traffic standalone or when other routing rules are not applicable. You can reorder the list with simple drag and drop",
+      subHeading: "Fallback is the priority list of configured processors used for routing traffic alone or when other rules don’t apply. You can reorder it via drag and drop",
     }
   | VOLUME_SPLIT => {
       heading: "Volume Based Configuration",
@@ -91,6 +93,10 @@ let getContent = routetype =>
   | ADVANCED => {
       heading: "Rule Based Configuration",
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
+    }
+  | AUTH_RATE_ROUTING => {
+      heading: "Auth Rate Based Routing",
+      subHeading: "Dynamically route payments to maximise payment authorization rates",
     }
   | _ => {
       heading: "",
@@ -161,8 +167,8 @@ module SaveAndActivateButton = {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson = onSubmitResponse->getValFromNullableValue(JSON.Encode.null)
         let currentActivatedId =
-          currentActivatedFromJson->getDictFromJsonObject->getString("id", "")
-        let _ = await handleActivateConfiguration(Some(currentActivatedId))
+          currentActivatedFromJson->getDictFromJsonObject->getOptionString("id")
+        let _ = await handleActivateConfiguration(currentActivatedId)
       } catch {
       | Exn.Error(e) =>
         let _ = Exn.message(e)->Option.getOr("Failed to save and activate configuration!")
@@ -175,7 +181,7 @@ module SaveAndActivateButton = {
       onClick={_ => {
         handleSaveAndActivate()->ignore
       }}
-      customButtonStyle="w-1/5 rounded-sm"
+      customButtonStyle="w-1/5"
     />
   }
 }
@@ -198,7 +204,7 @@ module ConfigureRuleButton = {
       ->Array.joinWith("\n")
 
     <Button
-      text={"Configure Rule"}
+      text="Configure Rule"
       tooltipText={description}
       toolTipPosition={BottomRight}
       showTooltip={errorsList->Array.length > 0}

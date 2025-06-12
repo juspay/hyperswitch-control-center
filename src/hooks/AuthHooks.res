@@ -23,6 +23,7 @@ let getHeaders = (
   ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
+  let isRecoveryInvoices = uri->String.includes("list-invoices")
 
   let headerObj = if isMixpanel {
     [
@@ -34,6 +35,10 @@ let getHeaders = (
     | (Some(str), V1) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
+
+        if isRecoveryInvoices {
+          headers->Dict.set("x-tenant-id", `public`)
+        }
       }
     | (Some(str), V2) => headers->Dict.set("authorization", `Bearer ${str}`)
     | _ => ()
@@ -47,7 +52,7 @@ let getHeaders = (
     }
 
     // this header is specific to Intelligent Routing (Dynamic Routing)
-    if uri->String.includes("simulate") {
+    if uri->String.includes("dynamic-routing") {
       headers->Dict.set("x-feature", "dynamo-simulator")
     }
     // headers for V2

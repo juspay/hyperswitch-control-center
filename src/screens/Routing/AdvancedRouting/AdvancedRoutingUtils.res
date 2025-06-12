@@ -35,6 +35,7 @@ let getRoutingTypeName = (routingType: RoutingTypes.routingType) => {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
   | DEFAULTFALLBACK => "default"
+  | AUTH_RATE_ROUTING => "auth-rate"
   | NO_ROUTING => ""
   }
 }
@@ -285,6 +286,7 @@ let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
   | String(str) => str->isNonEmptyString
+  | Number(_) => true
   | Object(objectValue) => {
       let key = objectValue->getString("key", "")
       let value = objectValue->getString("value", "")
@@ -394,7 +396,11 @@ let generateStatements = statements => {
       filteredArr
     }
 
-    newAcc
+    let filteredAcc = newAcc->Array.filter(item => {
+      item.condition->Array.length > 0
+    })
+
+    filteredAcc
   })
 }
 

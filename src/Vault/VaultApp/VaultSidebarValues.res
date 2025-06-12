@@ -23,11 +23,11 @@ let vaultCustomersAndTokens = {
 }
 let vaultHome = {
   Link({
-    name: "Home",
+    name: "Overview",
     link: `/v2/vault/home`,
     icon: "home",
     access: Access,
-    searchOptions: [("Vault home", "")],
+    searchOptions: [("Vault home", ""), ("Vault overview", "")],
     selectedIcon: "home",
   })
 }

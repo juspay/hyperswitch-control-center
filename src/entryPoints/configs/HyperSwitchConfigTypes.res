@@ -11,8 +11,10 @@ type urlConfig = {
   applePayCertificateUrl: option<string>,
   reconIframeUrl: option<string>,
   dssCertificateUrl: option<string>,
+  dynamoSimulationTemplateUrl: option<string>,
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
+  clarityBaseUrl: option<string>,
 }
 
 // Type definition for themes

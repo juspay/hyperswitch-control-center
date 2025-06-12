@@ -106,6 +106,7 @@ module OperatorInp = {
       hideMultiSelectButtons=true
       textStyle={`text-body ${textColorStyle}`}
       disableSelect
+      customButtonStyle="!w-full"
     />
   }
 }
@@ -332,12 +333,14 @@ module FieldInp = {
       checked: true,
     }
 
-    <div className="flex">
-      <SelectBox.BaseDropdown
-        allowMultiSelect=false buttonText="Select Field" input options hideMultiSelectButtons=true
-      />
-      <span className="text-lg text-red-500 ml-1"> {React.string("*")} </span>
-    </div>
+    <SelectBox.BaseDropdown
+      allowMultiSelect=false
+      buttonText="Select Field"
+      input
+      options
+      hideMultiSelectButtons=true
+      customButtonStyle="!w-full"
+    />
   }
 }
 

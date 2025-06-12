@@ -33,6 +33,9 @@ module HyperSwitchEntryComponent = {
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
           agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
           dssCertificateUrl: dict->getString("dss_certificate_url", "")->getNonEmptyString,
+          dynamoSimulationTemplateUrl: dict
+          ->getString("dynamo_simulation_template_url", "")
+          ->getNonEmptyString,
           applePayCertificateUrl: dict
           ->getString("apple_pay_certificate_url", "")
           ->getNonEmptyString,
@@ -43,9 +46,11 @@ module HyperSwitchEntryComponent = {
             logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           },
           hypersenseUrl: dict->getString("hypersense_url", ""),
+          clarityBaseUrl: dict->getString("clarity_base_url", "")->getNonEmptyString,
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore
+        value
       } catch {
       | _ => Exn.raiseError("Error on configuring endpoint")
       }
@@ -67,6 +72,25 @@ module HyperSwitchEntryComponent = {
       (themeId, domainUrl)
     }
 
+    let appendScript = clarityBaseUrl => {
+      try {
+        open DOMUtils
+        let script = createElement(DOMUtils.document, "script")
+        let _ = setAttribute(script, "type", "text/javascript")
+        let clarityScript = `
+        (function(c,l,a,r,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="${clarityBaseUrl}";
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script");`
+        let textNode = DOMUtils.document->DOMUtils.createTextNode(clarityScript)
+        script->Webapi.Dom.Element.appendChild(~child=textNode)
+        appendHead(script)->ignore
+      } catch {
+      | _ => Js.log("Error on appending clarity script")
+      }
+    }
+
     let fetchConfig = async () => {
       try {
         let (themeId, domain) = fetchThemeAndDomainFromUrl()
@@ -76,10 +100,15 @@ module HyperSwitchEntryComponent = {
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
-        let _ = configEnv(res) // to set initial env
+        let configValues = configEnv(res) // to set initial env
         let _ = await getThemesJson(~themesID=themeId, ~domain)
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
+
+        if configValues.clarityBaseUrl->Option.isSome {
+          appendScript(configValues.clarityBaseUrl->Option.getOr(""))->ignore
+        }
+
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => Custom)

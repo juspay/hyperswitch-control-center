@@ -133,6 +133,7 @@ module Base = {
     ~customborderCSS="",
     ~isTooltipVisible=true,
     ~events=?,
+    ~customButtonStyle="",
   ) => {
     open DateRangeUtils
     open LogicUtils
@@ -571,8 +572,6 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let customStyleForBtn = "rounded-lg bg-white w-fit"
-
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
     let getDiffForPredefined = predefinedDay => {
@@ -712,7 +711,7 @@ module Base = {
     }
 
     let calendarElement =
-      <div className={`flex md:flex-row flex-col w-full py-2`}>
+      <div className={`flex flex-col tablet:flex-row w-full py-2`}>
         {if predefinedDays->Array.length > 0 && showOption {
           <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
             <div className="flex flex-wrap gap-1 md:flex-col">
@@ -741,7 +740,7 @@ module Base = {
               ->React.array}
               <AddDataAttributes attributes=[("data-daterange-dropdown-value", "Custom Range")]>
                 <div
-                  className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
+                  className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-full hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
                   onClick={_ => {
                     setCalendarVisibility(_ => true)
                     setIsCustomSelected(_ => true)
@@ -757,7 +756,7 @@ module Base = {
         <AddDataAttributes attributes=[("data-date-picker-section", "date-picker-calendar")]>
           <div
             className={calendarVisibility && isCustomSelected
-              ? "w-auto md:w-max h-auto"
+              ? "w-full tablet:w-auto h-auto"
               : "hidden"}>
             <CalendarList
               count=numMonths
@@ -768,7 +767,7 @@ module Base = {
               disablePastDates
               disableFutureDates
               ?dateRangeLimit
-              calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
+              calendarContaierStyle="md:mx-2 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
             <div
@@ -822,7 +821,7 @@ module Base = {
                 isDropdownOpen=isDropdownExpandedActual
                 onClick={_ => handleDropdownClick()}
                 iconBorderColor={customborderCSS}
-                customButtonStyle={customStyleForBtn}
+                customButtonStyle
                 buttonState={disable ? Disabled : Normal}
                 ?buttonType
                 ?textStyle
@@ -849,7 +848,7 @@ module Base = {
               leaveTo="transform opacity-0 scale-95">
               <div
                 ref={dropdownRef->ReactDOM.Ref.domRef}
-                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`}>
+                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-min max-w-lg tablet:max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-100 tablet:right-0`}>
                 calendarElement
               </div>
             </Transition>
@@ -900,6 +899,7 @@ let make = (
   ~removeConversion=false,
   ~isTooltipVisible=true,
   ~events=?,
+  ~customButtonStyle="",
 ) => {
   let startInput = ReactFinalForm.useField(startKey).input
   let endInput = ReactFinalForm.useField(endKey).input
@@ -933,5 +933,6 @@ let make = (
     removeConversion
     isTooltipVisible
     ?events
+    customButtonStyle
   />
 }

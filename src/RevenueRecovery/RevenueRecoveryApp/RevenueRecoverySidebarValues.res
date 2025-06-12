@@ -18,6 +18,15 @@ let revenueRecoveryPayments = {
   })
 }
 
+let revenueRecoveryInvoices = {
+  Link({
+    name: "Invoices",
+    link: `/v2/recovery/invoices`,
+    access: Access,
+    icon: "nd-operations",
+  })
+}
+
 let revenueRecoverySummary = {
   Link({
     name: "Configuration Details",
@@ -28,7 +37,7 @@ let revenueRecoverySummary = {
 }
 
 let recoverySidebars = {
-  let links = [revenueRecoveryPayments, revenueRecoverySummary]
+  let links = [revenueRecoveryPayments, revenueRecoveryInvoices, revenueRecoverySummary]
 
   links
 }

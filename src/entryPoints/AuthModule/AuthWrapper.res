@@ -105,15 +105,17 @@ let make = (~children) => {
   }
 
   React.useEffect(() => {
-    switch url.path->HSwitchUtils.urlPath {
-    | list{"login"}
-    | list{"register"} =>
-      setAuthStateToLogout()
-    | list{"verify_email"}
-    | list{"set_password"}
-    | list{"accept_invite_from_email"} =>
+    switch url.path {
+    //redirection urls from email
+    | list{"user", "login"}
+    | list{"user", "verify_email"}
+    | list{"user", "set_password"}
+    | list{"user", "accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
+    //redirection url from sso
     | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
+
+    | list{"register"} => setAuthStateToLogout()
     | _ => getAuthDetails()
     }
     None

@@ -1726,15 +1726,17 @@ module BaseDropdown = {
     }, [showDropDown])
 
     let onClick = _ => {
-      switch buttonClickFn {
-      | Some(fn) => fn(input.name)
-      | None => ()
-      }
-      setShowDropDown(_ => !showDropDown)
-      setIsGrowDown(_ => true)
-      let _id = setTimeout(() => setIsGrowDown(_ => false), 250)
-      if isInitialRender {
-        setIsInitialRender(_ => false)
+      if !disableSelect {
+        switch buttonClickFn {
+        | Some(fn) => fn(input.name)
+        | None => ()
+        }
+        setShowDropDown(_ => !showDropDown)
+        setIsGrowDown(_ => true)
+        let _id = setTimeout(() => setIsGrowDown(_ => false), 250)
+        if isInitialRender {
+          setIsInitialRender(_ => false)
+        }
       }
     }
 
@@ -1950,9 +1952,9 @@ module BaseDropdown = {
       <Icon
         name=downArrowIcon
         size=arrowIconSize
-        className={`transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] ${showDropDown
+        className={` text-nd_gray-400 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] ${showDropDown
             ? "-rotate-180"
-            : ""}`}
+            : ""} ${disableSelect ? "text-nd_gray-600" : ""}`}
       />
 
     let textStyle = if isSelectTextDark && selectButtonText !== buttonText {
@@ -1961,11 +1963,16 @@ module BaseDropdown = {
       textStyle
     }
 
-    <div className={`flex relative  flex-row  flex-wrap`}>
+    <div
+      className={`flex relative flex-row flex-wrap ${disableSelect
+          ? "cursor-not-allowed"
+          : "cursor-pointer"}`}>
       <div className={`flex relative ${flexWrapper} ${fullLength ? "w-full" : ""}`}>
         <div
           ref={selectBoxRef->ReactDOM.Ref.domRef}
-          className={`text-opacity-50 ${fullLength ? "w-full" : ""}`}>
+          className={`text-opacity-50 ${fullLength ? "w-full" : ""} ${disableSelect
+              ? "pointer-events-none"
+              : ""}`}>
           {switch baseComponent {
           | Some(comp) => <span onClick> {comp} </span>
           | None =>

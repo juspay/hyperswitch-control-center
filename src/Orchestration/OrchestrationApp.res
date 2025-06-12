@@ -19,8 +19,7 @@ let make = (~setScreenState) => {
     | list{"run-recon"}
     | list{"recon-analytics"}
     | list{"reports"}
-    | list{"config-settings"}
-    | list{"sdk"} =>
+    | list{"config-settings"} =>
       <MerchantAccountContainer setAppScreenState=setScreenState />
     // Commented as not needed now
     // list{"file-processor"}
@@ -35,13 +34,11 @@ let make = (~setScreenState) => {
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
-    | list{"webhooks", ..._} =>
+    | list{"payment-settings-new", ..._}
+    | list{"webhooks", ..._}
+    | list{"sdk"} =>
       <ConnectorContainer />
     | list{"apm"} => <APMContainer />
-    //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
-    // | list{"business-details", ..._}
-    // | list{"business-profiles", ..._} =>
-    //   <BusinessProfileContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}
@@ -53,15 +50,16 @@ let make = (~setScreenState) => {
     | list{"analytics-disputes"}
     | list{"analytics-authentication"} =>
       <AnalyticsContainer />
-    | list{"new-analytics-payment"}
-    | list{"new-analytics-refund"}
-    | list{"new-analytics-smart-retry"} =>
+    | list{"new-analytics"}
+    | list{"new-analytics", "payment"}
+    | list{"new-analytics", "refund"}
+    | list{"new-analytics", "smart-retry"} =>
       <AccessControl
         isEnabled={featureFlagDetails.newAnalytics &&
         useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
         authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="NewAnalytics" index="NewAnalytics">
-          <NewAnalyticsContainer />
+          <InsightsAnalyticsContainer />
         </FilterContext>
       </AccessControl>
     | list{"customers", ...remainingPath} =>

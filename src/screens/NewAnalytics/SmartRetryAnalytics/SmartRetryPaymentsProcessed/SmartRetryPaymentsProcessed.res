@@ -1,7 +1,7 @@
-open NewAnalyticsTypes
-open NewAnalyticsHelper
+open InsightsTypes
+open InsightsHelper
 open SmartRetryPaymentsProcessedUtils
-open NewSmartRetryAnalyticsEntity
+open InsightsSmartRetryAnalyticsEntity
 open PaymentsProcessedTypes
 
 module TableModule = {
@@ -51,7 +51,7 @@ module TableModule = {
 }
 
 module SmartRetryPaymentsProcessedHeader = {
-  open NewAnalyticsUtils
+  open InsightsUtils
   open LogicUtils
   open LogicUtilsTypes
 
@@ -149,8 +149,10 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open NewAnalyticsUtils
+  open InsightsUtils
+  open InsightsContainerUtils
   let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -182,7 +184,7 @@ let make = (
     ~granularity=featureFlag.granularity,
   )
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
-
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
       setGranularity(_ => defaulGranularity)
@@ -199,25 +201,28 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let primaryBody = requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
+      let primaryResponse = if isSampleDataEnabled {
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->(res => res->Fetch.Response.json)
+        paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("paymentSampleData")
+      } else {
+        let primaryBody = requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~delta=entity.requestBodyConfig.delta,
+          ~metrics=entity.requestBodyConfig.metrics,
+          ~granularity=granularity.value->Some,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
 
-      let secondaryBody = requestBody(
-        ~startTime=compareToStartTime,
-        ~endTime=compareToEndTime,
-        ~delta=entity.requestBodyConfig.delta,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~granularity=granularity.value->Some,
-        ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
-      )
-
-      let primaryResponse = await updateDetails(url, primaryBody, Post)
+        await updateDetails(url, primaryBody, Post)
+      }
       let primaryData =
         primaryResponse
         ->getDictFromJsonObject
@@ -234,7 +239,30 @@ let make = (
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
-          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryResponse = if isSampleDataEnabled {
+            let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+            let res = await fetchApi(
+              paymentsUrl,
+              ~method_=Get,
+              ~xFeatureRoute=false,
+              ~forceCookies=false,
+            )
+            let paymentsResponse = await res->(res => res->Fetch.Response.json)
+            paymentsResponse
+            ->getDictFromJsonObject
+            ->getJsonObjectFromDict("secondaryPaymentSampleData")
+          } else {
+            let secondaryBody = requestBody(
+              ~startTime=compareToStartTime,
+              ~endTime=compareToEndTime,
+              ~delta=entity.requestBodyConfig.delta,
+              ~metrics=entity.requestBodyConfig.metrics,
+              ~granularity=granularity.value->Some,
+              ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+            )
+
+            await updateDetails(url, secondaryBody, Post)
+          }
           let secondaryData =
             secondaryResponse
             ->getDictFromJsonObject
@@ -312,6 +340,7 @@ let make = (
     comparison,
     currency,
     granularity.value,
+    isSampleDataEnabled,
   ))
 
   let params = {

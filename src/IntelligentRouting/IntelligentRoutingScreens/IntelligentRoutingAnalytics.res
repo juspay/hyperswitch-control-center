@@ -1,37 +1,3 @@
-module GetProductionAccess = {
-  @react.component
-  let make = () => {
-    let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
-      GlobalProvider.defaultContext,
-    )
-    let isProdIntent = isProdIntentCompleted->Option.getOr(false)
-    let productionAccessString = isProdIntent
-      ? "Production Access Requested"
-      : "Get Production Access"
-
-    switch isProdIntentCompleted {
-    | Some(_) =>
-      <Button
-        text=productionAccessString
-        buttonType=Primary
-        buttonSize=Medium
-        buttonState=Normal
-        onClick={_ => {
-          if !isProdIntent {
-            setShowProdIntentForm(_ => true)
-            mixpanelEvent(~eventName="intelligent_routing_get_production_access")
-          }
-        }}
-      />
-    | None =>
-      <Shimmer
-        styleClass="h-10 px-4 py-3 m-2 ml-2 mb-3 dark:bg-black bg-white rounded" shimmerType={Small}
-      />
-    }
-  }
-}
-
 module TransactionsTable = {
   @react.component
   let make = (~setTimeRange) => {
@@ -196,7 +162,7 @@ module Card = {
       }
 
     let getPercentageChange = (~primaryValue, ~secondaryValue) => {
-      let (value, direction) = NewAnalyticsUtils.calculatePercentageChange(
+      let (value, direction) = InsightsUtils.calculatePercentageChange(
         ~primaryValue,
         ~secondaryValue,
       )
@@ -279,6 +245,54 @@ module Overview = {
   }
 }
 
+module FileDropdownBaseComp = {
+  @react.component
+  let make = (~fileName, ~arrow) => {
+    let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
+
+    let arrowClassName = `${arrow
+        ? "rotate-180"
+        : "rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+
+    <div
+      className="text-left flex gap-1 justify-between w-fit border border-nd_gray-200 rounded-md py-1 px-2">
+      <p className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
+        {fileName->React.string}
+      </p>
+      <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
+    </div>
+  }
+}
+
+module FileDropdownBottomComp = {
+  @react.component
+  let make = () => {
+    let {
+      globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, borderColor}},
+    } = React.useContext(ThemeProvider.themeContext)
+
+    let customStyle = {
+      `${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`
+    }
+
+    let restartSimulation = () => {
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/dynamic-routing/home"))
+    }
+
+    <div className="flex items-center">
+      <hr className={borderColor} />
+      <p
+        className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle} cursor-pointer`}
+        onClick={_ => restartSimulation()}>
+        <Icon name="nd-upload" size=15 customIconColor="text-nd_primary_blue" />
+        {"Change File"->React.string}
+      </p>
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   open IntelligentRoutingHelper
@@ -293,6 +307,9 @@ let make = () => {
   let (timeStampOptions, setTimeStampOptions) = React.useState(() => [])
   let (gateways, setGateways) = React.useState(() => [])
   let (timeRange, setTimeRange) = React.useState(() => defaultTimeRange)
+  let (selectedFile, setSelectedFile) = React.useState(() => "sample.csv")
+  let (fileList, setFileList) = React.useState(() => [])
+  let (arrow, setArrow) = React.useState(_ => false)
 
   let getStatistics = async () => {
     try {
@@ -300,12 +317,15 @@ let make = () => {
       let url = getURL(~entityName=V1(INTELLIGENT_ROUTING_GET_STATISTICS), ~methodType=Get)
       let response = await fetchDetails(url)
       setStats(_ => response)
+      let fileName = (response->IntelligentRoutingUtils.responseMapper).file_name
       let statsData = (response->IntelligentRoutingUtils.responseMapper).time_series_data
-      let gatewayData = switch statsData->Array.get(0) {
-      | Some(statsData) => statsData.volume_distribution_as_per_sr
-      | None => JSON.Encode.null
-      }
+      let gatewayData =
+        statsData
+        ->Array.get(0)
+        ->Option.mapOr(JSON.Encode.null, stats => stats.volume_distribution_as_per_sr)
 
+      setFileList(_ => [fileName])
+      setSelectedFile(_ => fileName)
       statsData->Array.sort((t1, t2) => {
         let t1 = t1.time_stamp
         let t2 = t2.time_stamp
@@ -376,94 +396,128 @@ let make = () => {
   let customScrollStyle = `max-h-40 overflow-scroll px-1 pt-1 border-pink-400`
   let dropdownContainerStyle = `rounded-md border border-1 border md:w-40 md:max-w-50`
 
+  let generateDropdownOptions: array<string> => array<SelectBox.dropdownOption> = dropdownList => {
+    let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+      item
+    ): SelectBox.dropdownOption => {
+      {
+        label: item,
+        value: item,
+      }
+    })
+    options
+  }
+
+  let inputFileDropdown: ReactFinalForm.fieldRenderPropsInput = {
+    name: "filename",
+    onBlur: _ => (),
+    onChange: ev => {
+      let value = ev->Identity.formReactEventToString
+      setSelectedFile(_ => value)
+    },
+    onFocus: _ => (),
+    value: selectedFile->JSON.Encode.string,
+    checked: true,
+  }
+
+  let toggleChevronState = () => {
+    setArrow(prev => !prev)
+  }
+
   <PageLoaderWrapper screenState={screenState}>
-    <div
-      className="absolute z-20 top-76-px left-0 w-full py-3 px-10 bg-orange-50 flex justify-between items-center">
-      <div className="flex gap-4 items-center">
-        <Icon name="nd-information-triangle" size=24 />
-        <p className="text-nd_gray-600 text-base leading-6 font-medium">
-          {"You are in demo environment and this is sample setup."->React.string}
-        </p>
-      </div>
-      <GetProductionAccess />
-    </div>
-    <div className="mt-10">
-      <div className="flex items-center justify-between">
-        <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
+    <div className="flex items-center justify-between">
+      <PageUtils.PageHeading title="Intelligent Routing Uplift Analysis" />
+      <div className="flex items-center gap-4">
         <p className="text-nd_gray-500 font-medium"> {dateRange->React.string} </p>
+        <SelectBox.BaseDropdown
+          allowMultiSelect=false
+          buttonText=""
+          input=inputFileDropdown
+          deselectDisable=true
+          options={fileList->generateDropdownOptions}
+          marginTop="mt-12 shadow-generic_shadow"
+          hideMultiSelectButtons=true
+          addButton=false
+          baseComponent={<FileDropdownBaseComp fileName=selectedFile arrow />}
+          bottomComponent={<FileDropdownBottomComp />}
+          toggleChevronState
+          customScrollStyle
+          dropdownContainerStyle
+          shouldDisplaySelectedOnTop=true
+        />
       </div>
-      <div className="flex flex-col gap-12">
-        <Overview data=stats />
-        <div className="flex flex-col gap-6">
-          <div className="text-nd_gray-600 font-semibold text-fs-18">
-            {"Insights"->React.string}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col border rounded-lg p-4">
-              <div className="flex justify-between">
-                <p className="text-fs-14 text-nd_gray-600 font-semibold leading-17">
-                  {"Overall Transaction Distribution"->React.string}
-                </p>
-              </div>
-              <div className="w-full flex justify-center my-8">
-                <div className="flex flex-col lg:flex-row gap-3 ">
-                  {displayLegend(gateways)->React.array}
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <div
-                  className="flex flex-col xl:flex-row items-center justify-around gap-8 xl:gap-2 tablet:gap-16">
-                  <PieGraph
-                    options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
-                  />
-                  <PieGraph
-                    options={PieGraphUtils.getPieChartOptions(pieGraphOptionsSimulated(stats))}
-                  />
-                </div>
+    </div>
+    <div className="flex flex-col gap-12">
+      <Overview data=stats />
+      <div className="flex flex-col gap-6">
+        <div className="text-nd_gray-600 font-semibold text-fs-18">
+          {"Insights"->React.string}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col border rounded-lg p-4">
+            <div className="flex justify-between">
+              <p className="text-fs-14 text-nd_gray-600 font-semibold leading-17">
+                {"Overall Transaction Distribution"->React.string}
+              </p>
+            </div>
+            <div className="w-full flex justify-center my-8">
+              <div className="flex flex-col lg:flex-row gap-3 ">
+                {displayLegend(gateways)->React.array}
               </div>
             </div>
-            <div className="border rounded-lg p-4">
-              <LineGraph
-                options={LineGraphUtils.getLineGraphOptions(
-                  lineGraphOptions(
-                    stats,
-                    ~isSmallScreen=MatchMedia.useScreenSizeChecker(~screenSize="1279"),
-                  ),
-                )}
-              />
-            </div>
-          </div>
-          <div className="border rounded-lg p-4 flex flex-col">
-            <div className="relative">
-              <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
-                <SelectBox.BaseDropdown
-                  allowMultiSelect=false
-                  buttonText="Select timestamp"
-                  input
-                  searchable=false
-                  deselectDisable=true
-                  customButtonStyle="!rounded-lg"
-                  options={makeOption(timeStampOptions)}
-                  marginTop="mt-10"
-                  hideMultiSelectButtons=true
-                  addButton=false
-                  fullLength=true
-                  shouldDisplaySelectedOnTop=true
-                  customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
-                  customScrollStyle
-                  dropdownContainerStyle
+            <div className="flex justify-center">
+              <div
+                className="flex flex-col xl:flex-row items-center justify-around gap-8 xl:gap-2 tablet:gap-16">
+                <PieGraph
+                  options={PieGraphUtils.getPieChartOptions(pieGraphOptionsActual(stats))}
+                />
+                <PieGraph
+                  options={PieGraphUtils.getPieChartOptions(pieGraphOptionsSimulated(stats))}
                 />
               </div>
             </div>
-            <LineAndColumnGraph
-              options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
-                lineColumnGraphOptions(stats, ~timeStamp=selectedTimeStamp),
+          </div>
+          <div className="border rounded-lg p-4">
+            <LineGraph
+              options={LineGraphUtils.getLineGraphOptions(
+                lineGraphOptions(
+                  stats,
+                  ~isSmallScreen=MatchMedia.useScreenSizeChecker(~screenSize="1279"),
+                ),
               )}
             />
           </div>
         </div>
-        <TransactionsTable setTimeRange />
+        <div className="border rounded-lg p-4 flex flex-col">
+          <div className="relative">
+            <div className="!w-full flex justify-end absolute z-10 top-0 right-0 left-0">
+              <SelectBox.BaseDropdown
+                allowMultiSelect=false
+                buttonText="Select timestamp"
+                input
+                searchable=false
+                deselectDisable=true
+                customButtonStyle="!rounded-lg"
+                options={makeOption(timeStampOptions)}
+                marginTop="mt-10"
+                hideMultiSelectButtons=true
+                addButton=false
+                fullLength=true
+                shouldDisplaySelectedOnTop=true
+                customSelectionIcon={CustomIcon(<Icon name="nd-check" />)}
+                customScrollStyle
+                dropdownContainerStyle
+              />
+            </div>
+          </div>
+          <LineAndColumnGraph
+            options={LineAndColumnGraphUtils.getLineColumnGraphOptions(
+              lineColumnGraphOptions(stats, ~timeStamp=selectedTimeStamp),
+            )}
+          />
+        </div>
       </div>
+      <TransactionsTable setTimeRange />
     </div>
   </PageLoaderWrapper>
 }
