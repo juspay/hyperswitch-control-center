@@ -32,11 +32,15 @@ let useFetchBusinessProfileFromId = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+  let setBusinessProfileInterfaceRecoil =
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
   async (~profileId) => {
     try {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Get, ~id=profileId)
       let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
+      //Todo: remove this once we start using businessProfileInterface
       setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+      setBusinessProfileInterfaceRecoil(_ => res)
       res
     } catch {
     | Exn.Error(e) => {
@@ -68,4 +72,9 @@ let useUpdateBusinessProfile = () => {
       }
     }
   }
+}
+let useBusinessProfileMapper = (~interface) => {
+  let value = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfileFromIdAtomInterface)
+  let data = BusinessProfileInterface.mapJsonToBusinessProfile(interface, value)
+  data
 }

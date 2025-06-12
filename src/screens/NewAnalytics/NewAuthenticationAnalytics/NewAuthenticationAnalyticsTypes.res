@@ -7,6 +7,8 @@ type queryDataType = {
   authentication_count: int,
   authentication_attempt_count: int,
   authentication_success_count: int,
+  authentication_exemption_approved_count: option<int>,
+  authentication_exemption_requested_count: option<int>,
   challenge_flow_count: int,
   challenge_attempt_count: int,
   challenge_success_count: int,
@@ -63,6 +65,7 @@ type insightsDataType = {
 
 type metricsData = {
   title: string,
+  name: string,
   value: float,
   valueType: LogicUtilsTypes.valueType,
   tooltip_description: string,
