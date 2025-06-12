@@ -1,6 +1,6 @@
 open LogicUtils
 open APIUtilsTypes
-open AcquirerConfigHelpers
+open AcquirerConfigUtils
 open AcquirerConfigEntity
 open FormRenderer
 open FramerMotion
@@ -8,7 +8,7 @@ open FramerMotion
 module FieldRendererWithStyles = {
   @react.component
   let make = (~field, ~containerClass=?) => {
-    let styles = AcquirerConfigHelpers.fieldStyles
+    let styles = AcquirerConfigUtils.fieldStyles
     let errorClass = styles["errorClass"]
     let labelClass = styles["labelClass"]
     let fieldWrapperClass = styles["fieldWrapperClass"]

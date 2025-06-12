@@ -44,7 +44,7 @@ let merchantCountryCode = makeSelectInputField(
   ~label="Merchant country code",
   ~name="merchant_country_code",
   ~placeholder="Select merchant country code",
-  ~options=AcquirerConfigHelpers.countryDropDownOptions,
+  ~options=AcquirerConfigUtils.countryDropDownOptions,
 )
 
 let acquirerBin = makeTextInputField(
@@ -63,7 +63,7 @@ let network = makeSelectInputField(
   ~label="Network",
   ~name="network",
   ~placeholder="Select network",
-  ~options=AcquirerConfigHelpers.networkDropDownOptions,
+  ~options=AcquirerConfigUtils.networkDropDownOptions,
 )
 
 open Table
