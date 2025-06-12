@@ -24,7 +24,7 @@ module FieldRendererWithStyles = {
 
 module SettingsForm = {
   @react.component
-  let make = (~isAcquirerConfigArrEmpty, ~setIsShowAcquirerConfigSettings, ~isDisabled) => {
+  let make = (~isAcquirerConfigArrEmpty, ~setIsShowAcquirerConfigSettings) => {
     let showToast = ToastState.useShowToast()
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let getURL = APIUtils.useGetURL()
@@ -79,16 +79,16 @@ module SettingsForm = {
                   <div className="col-span-4">
                     <div>
                       <DesktopRow>
-                        <FieldRendererWithStyles field={merchantName(~isDisabled)} />
-                        <FieldRendererWithStyles field={merchantCountryCode(~isDisabled)} />
+                        <FieldRendererWithStyles field={merchantName} />
+                        <FieldRendererWithStyles field={merchantCountryCode} />
                       </DesktopRow>
                       <DesktopRow>
-                        <FieldRendererWithStyles field={acquirerBin(~isDisabled)} />
-                        <FieldRendererWithStyles field={acquirerAssignedMerchantId(~isDisabled)} />
+                        <FieldRendererWithStyles field={acquirerBin} />
+                        <FieldRendererWithStyles field={acquirerAssignedMerchantId} />
                       </DesktopRow>
                       <DesktopRow>
-                        <FieldRendererWithStyles field={acquirerFraudRate(~isDisabled)} />
-                        <FieldRendererWithStyles field={network(~isDisabled)} />
+                        <FieldRendererWithStyles field={acquirerFraudRate} />
+                        <FieldRendererWithStyles field={network} />
                       </DesktopRow>
                     </div>
                   </div>
@@ -96,12 +96,7 @@ module SettingsForm = {
               </div>
               <DesktopRow>
                 <div className="flex justify-end w-full gap-2">
-                  <SubmitButton
-                    text="Save"
-                    buttonType=Button.Primary
-                    buttonSize=Button.Medium
-                    disabledParamter=isDisabled
-                  />
+                  <SubmitButton text="Save" buttonType=Button.Primary buttonSize=Button.Medium />
                   <RenderIf condition={!isAcquirerConfigArrEmpty}>
                     <Button
                       buttonType=Button.Secondary
@@ -144,17 +139,20 @@ module ActionButtons = {
 
 module AcquirerConfigContent = {
   @react.component
-  let make = (
-    ~acquirerConfigArr=[],
-    ~setIsShowAcquirerConfigSettings=_ => (),
-    ~isDisabled=false,
-  ) => {
+  let make = () => {
     let (offset, setOffset) = React.useState(_ => 0)
     let resultsPerPage = 10
     let (isShowAcquirerConfigSettings, setIsShowAcquirerConfigSettings) = React.useState(_ => false)
-    let isAcquirerConfigArrEmpty = acquirerConfigArr->Array.length == 0
+    let {acquirer_configs: acquirerConfig} =
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+
+    let acquirerConfigArr = React.useMemo(
+      () => acquirerConfig->Option.mapOr([], data => data->Array.map(acquirerConfigTypeMapper)),
+      [acquirerConfig],
+    )
     let actualData = acquirerConfigArr->Array.map(Nullable.make)
     let totalResults = acquirerConfigArr->Array.length
+    let isAcquirerConfigArrEmpty = acquirerConfigArr->Array.length == 0
 
     <div className="border-t-2 dark:border-jp-gray-950 md:border-0 w-full overflow-scroll">
       <RenderIf condition={!isAcquirerConfigArrEmpty}>
@@ -179,23 +177,18 @@ module AcquirerConfigContent = {
       <AnimatePresence mode="wait">
         {!isShowAcquirerConfigSettings && !isAcquirerConfigArrEmpty
           ? <ActionButtons setIsShowAcquirerConfigSettings />
-          : <SettingsForm isAcquirerConfigArrEmpty setIsShowAcquirerConfigSettings isDisabled />}
+          : <SettingsForm isAcquirerConfigArrEmpty setIsShowAcquirerConfigSettings />}
       </AnimatePresence>
     </div>
   }
 }
 
 @react.component
-let make = (~isDisabled=false, ~acquirerConfigData) => {
-  let acquirerConfigArr = React.useMemo(
-    () => acquirerConfigData->Option.mapOr([], data => data->Array.map(acquirerConfigTypeMapper)),
-    [acquirerConfigData],
-  )
-
+let make = () => {
   let accordionData: array<Accordion.accordion> = [
     {
       title: "Acquirer Config Settings",
-      renderContent: () => <AcquirerConfigContent acquirerConfigArr isDisabled />,
+      renderContent: () => <AcquirerConfigContent />,
       renderContentOnTop: None,
     },
   ]
