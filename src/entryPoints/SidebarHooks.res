@@ -65,26 +65,6 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   sidebar
 }
 
-let useGetSidebarValuesForCurrentActive = (
-  ~isReconEnabled,
-  ~productType: ProductTypes.productTypes,
-) => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let defaultSidebar = []
-
-  let sidebarValuesForProduct = switch productType {
-  | Orchestration => hsSidebars
-  | Recon => ReconSidebarValues.reconSidebars
-  | Recovery =>
-    RevenueRecoverySidebarValues.recoverySidebars(featureFlagDetails.devRecoveryV2ProductAnalytics)
-  | Vault => VaultSidebarValues.vaultSidebars
-  | CostObservability => HypersenseSidebarValues.hypersenseSidebars
-  | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
-  }
-  defaultSidebar->Array.concat(sidebarValuesForProduct)
-}
-
 let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
   let products = [ProductTypes.Orchestration]
 
@@ -111,9 +91,25 @@ let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
   products
 }
 
+let useGetOrchestratorSidebars = (~isReconEnabled) => useGetHsSidebarValues(~isReconEnabled)
+
 let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.productTypes>) => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let orchestratorSidebar = useGetOrchestratorSidebars(~isReconEnabled)
+
   products->Array.map(productType => {
-    let links = useGetSidebarValuesForCurrentActive(~isReconEnabled, ~productType)
+    let links = switch productType {
+    | Orchestration => orchestratorSidebar
+    | Recon => ReconSidebarValues.reconSidebars
+    | Recovery =>
+      RevenueRecoverySidebarValues.recoverySidebars(
+        featureFlagDetails.devRecoveryV2ProductAnalytics,
+      )
+    | Vault => VaultSidebarValues.vaultSidebars
+    | CostObservability => HypersenseSidebarValues.hypersenseSidebars
+    | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
+    }
+
     {
       name: productType->ProductUtils.getProductDisplayName,
       icon: productType->ProductUtils.productTypeIconMapper,
