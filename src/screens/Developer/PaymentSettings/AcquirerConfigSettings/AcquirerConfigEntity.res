@@ -83,90 +83,52 @@ let network = (~isDisabled) =>
     ~isDisabled,
   )
 
-module AcquirerConfigTable = {
-  open Table
-  let getHeading = (colType: colType): header => {
-    switch colType {
-    | AcquirerAssignedMerchantId =>
-      makeHeaderInfo(
-        ~key="acquirer_assigned_merchant_id",
-        ~title="Acquirer Assigned Merchant ID",
-        ~dataType=TextType,
-      )
-    | MerchantName =>
-      makeHeaderInfo(~key="merchant_name", ~title="Merchant Name", ~dataType=TextType)
-    | MerchantCountryCode =>
-      makeHeaderInfo(
-        ~key="merchant_country_code",
-        ~title="Merchant Country Code",
-        ~dataType=TextType,
-      )
-    | Network => makeHeaderInfo(~key="network", ~title="Network", ~dataType=TextType)
-    | AcquirerBin => makeHeaderInfo(~key="acquirer_bin", ~title="Acquirer BIN", ~dataType=TextType)
-    | AcquirerFraudRate =>
-      makeHeaderInfo(
-        ~key="acquirer_fraud_rate",
-        ~title="Acquirer Fraud Rate",
-        ~dataType=NumericType,
-      )
-    }
-  }
-
-  let getCell = (data: acquirerConfig, colType: colType): cell => {
-    switch colType {
-    | AcquirerAssignedMerchantId => Text(data.acquirer_assigned_merchant_id)
-    | MerchantName => Text(data.merchant_name)
-    | MerchantCountryCode => Text(data.merchant_country_code)
-    | Network => Text(data.network)
-    | AcquirerBin => Text(data.acquirer_bin)
-    | AcquirerFraudRate => Numeric(data.acquirer_fraud_rate, num => num->Float.toString ++ "%")
-    }
-  }
-
-  let defaultColumns = [
-    AcquirerAssignedMerchantId,
-    MerchantName,
-    MerchantCountryCode,
-    Network,
-    AcquirerBin,
-    AcquirerFraudRate,
-  ]
-
-  @react.component
-  let make = (~acquirerConfigData: array<acquirerConfig>) => {
-    let (offset, setOffset) = React.useState(_ => 0)
-    let resultsPerPage = 10
-
-    let entity = EntityType.makeEntity(
-      ~uri="",
-      ~getObjects=_ => [],
-      ~defaultColumns,
-      ~getHeading,
-      ~getCell,
-      ~dataKey="",
-      ~searchFields=[],
-      ~searchUrl="",
+open Table
+let getHeading = (colType: colType): header => {
+  switch colType {
+  | AcquirerAssignedMerchantId =>
+    makeHeaderInfo(
+      ~key="acquirer_assigned_merchant_id",
+      ~title="Acquirer Assigned Merchant ID",
+      ~dataType=TextType,
     )
-
-    let actualData = acquirerConfigData->Array.map(Nullable.make)
-    let totalResults = acquirerConfigData->Array.length
-
-    <LoadedTable
-      title="Acquirer Configurations"
-      hideTitle=true
-      actualData
-      totalResults
-      resultsPerPage
-      offset
-      setOffset
-      entity
-      currrentFetchCount=totalResults
-      showPagination={totalResults > resultsPerPage}
-      tableLocalFilter=false
-      showSerialNumber=false
-      customBorderClass="rounded-none"
-      tableheadingClass="bg-transparent"
-      nonFrozenTableParentClass="rounded-none"
-    />
+  | MerchantName => makeHeaderInfo(~key="merchant_name", ~title="Merchant Name", ~dataType=TextType)
+  | MerchantCountryCode =>
+    makeHeaderInfo(~key="merchant_country_code", ~title="Merchant Country Code", ~dataType=TextType)
+  | Network => makeHeaderInfo(~key="network", ~title="Network", ~dataType=TextType)
+  | AcquirerBin => makeHeaderInfo(~key="acquirer_bin", ~title="Acquirer BIN", ~dataType=TextType)
+  | AcquirerFraudRate =>
+    makeHeaderInfo(~key="acquirer_fraud_rate", ~title="Acquirer Fraud Rate", ~dataType=NumericType)
   }
 }
+
+let getCell = (data: acquirerConfig, colType: colType): cell => {
+  switch colType {
+  | AcquirerAssignedMerchantId => Text(data.acquirer_assigned_merchant_id)
+  | MerchantName => Text(data.merchant_name)
+  | MerchantCountryCode => Text(data.merchant_country_code)
+  | Network => Text(data.network)
+  | AcquirerBin => Text(data.acquirer_bin)
+  | AcquirerFraudRate => Numeric(data.acquirer_fraud_rate, num => num->Float.toString ++ "%")
+  }
+}
+
+let defaultColumns = [
+  AcquirerAssignedMerchantId,
+  MerchantName,
+  MerchantCountryCode,
+  Network,
+  AcquirerBin,
+  AcquirerFraudRate,
+]
+
+let entity = EntityType.makeEntity(
+  ~uri="",
+  ~getObjects=_ => [],
+  ~defaultColumns,
+  ~getHeading,
+  ~getCell,
+  ~dataKey="",
+  ~searchFields=[],
+  ~searchUrl="",
+)

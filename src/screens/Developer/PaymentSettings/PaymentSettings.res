@@ -734,10 +734,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
           </div>
         </div>
         <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>
-          <AcquirerConfigSettings
-            acquirerConfigData={businessProfileRecoilVal.acquirer_configs}
-            fetchBusinessProfileFromId
-          />
+          <AcquirerConfigSettings acquirerConfigData={businessProfileRecoilVal.acquirer_configs} />
         </RenderIf>
       </div>
     </div>

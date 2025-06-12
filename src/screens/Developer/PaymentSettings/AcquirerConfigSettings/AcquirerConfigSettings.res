@@ -34,6 +34,11 @@ module AcquirerConfigAnimatedCustomTable = {
     ~isDisabled=false,
     ~validateForm,
   ) => {
+    let (offset, setOffset) = React.useState(_ => 0)
+    let resultsPerPage = 10
+
+    let actualData = acquirerConfigArr->Array.map(Nullable.make)
+    let totalResults = acquirerConfigArr->Array.length
     let settingsForm =
       <Motion.Div
         key="config-form"
@@ -132,7 +137,23 @@ module AcquirerConfigAnimatedCustomTable = {
           {<>
             <div className="overflow-x-auto">
               <RenderIf condition={!isAcquirerConfigArrEmpty}>
-                <AcquirerConfigTable acquirerConfigData={acquirerConfigArr} />
+                <LoadedTable
+                  title="Acquirer Configurations"
+                  hideTitle=true
+                  actualData
+                  totalResults
+                  resultsPerPage
+                  offset
+                  setOffset
+                  entity
+                  currrentFetchCount=totalResults
+                  showPagination={totalResults > resultsPerPage}
+                  tableLocalFilter=false
+                  showSerialNumber=false
+                  customBorderClass="rounded-none"
+                  tableheadingClass="bg-transparent"
+                  nonFrozenTableParentClass="rounded-none"
+                />
               </RenderIf>
             </div>
             <AnimatePresence mode="wait">
@@ -149,10 +170,10 @@ module AcquirerConfigAnimatedCustomTable = {
 }
 
 @react.component
-let make = (~isDisabled=false, ~acquirerConfigData, ~fetchBusinessProfileFromId) => {
+let make = (~isDisabled=false, ~acquirerConfigData) => {
   let updateDetails = APIUtils.useUpdateMethod()
   let getURL = APIUtils.useGetURL()
-
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let acquirerConfigArr = React.useMemo(
     () => acquirerConfigData->Option.mapOr([], data => data->Array.map(acquirerConfigTypeMapper)),
     [acquirerConfigData],
