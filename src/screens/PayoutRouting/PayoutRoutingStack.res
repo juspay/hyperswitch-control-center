@@ -22,6 +22,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
     open Tabs
     [
       {
+        title: "Active configuration",
+        renderContent: () => <PayoutCurrentActiveRouting routingType />,
+      },
+      {
         title: "Manage rules",
         renderContent: () => {
           records->Array.length > 0
@@ -33,10 +37,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
                 overriddingStylesTitle="text-3xl font-semibold"
               />
         },
-      },
-      {
-        title: "Active configuration",
-        renderContent: () => <PayoutCurrentActiveRouting routingType />,
       },
     ]
   }, [routingType])
@@ -139,8 +139,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
                 tabs
                 showBorder=false
                 includeMargin=false
-                lightThemeColor="black"
+                lightThemeColor="primary"
                 defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+                selectTabBottomBorderColor="bg-primary"
                 onTitleClick={indx => {
                   setTabIndex(_ => indx)
                   setCurrentTabName(_ => getTabName(indx))
