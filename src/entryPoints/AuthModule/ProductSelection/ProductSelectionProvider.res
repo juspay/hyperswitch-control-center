@@ -286,7 +286,7 @@ module CreateNewMerchantBody = {
               ~productType=merchantDetailsTypedValue.product_type,
               ~url=currentUrl,
             )
-            RescriptReactRouter.replace(productUrl)
+            RescriptReactRouter.replace(productUrl) //
           }}>
           <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
         </div>

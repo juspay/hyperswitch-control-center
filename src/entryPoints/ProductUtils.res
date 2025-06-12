@@ -12,7 +12,7 @@ let getProductVariantFromString = product => {
 
 let getProductDisplayName = product =>
   switch product {
-  | Recon => "Recon"
+  | Recon => "Reconciliation"
   | Recovery => "Revenue Recovery"
   | Orchestration => "Orchestrator"
   | Vault => "Vault"
@@ -22,13 +22,24 @@ let getProductDisplayName = product =>
 
 let getProductVariantFromDisplayName = product => {
   switch product {
-  | "Recon" => Recon
+  | "Reconciliation" => Recon
   | "Revenue Recovery" => Recovery
   | "Orchestrator" => Orchestration
   | "Vault" => Vault
   | "Cost Observability" => CostObservability
   | "Intelligent Routing" => DynamicRouting
   | _ => Orchestration
+  }
+}
+
+let productTypeIconMapper = productType => {
+  switch productType {
+  | Orchestration => "orchestrator-home"
+  | Recon => "recon-home"
+  | Recovery => "recovery-home"
+  | Vault => "vault-home"
+  | CostObservability => "cost-observability-home"
+  | DynamicRouting => "intelligent-routing-home"
   }
 }
 
@@ -45,6 +56,6 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
   | Vault
   | CostObservability
   | DynamicRouting =>
-    `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
+    `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}`
   }
 }

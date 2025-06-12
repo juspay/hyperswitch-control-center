@@ -80,6 +80,9 @@ module AddNewOMPButton = {
     }
     let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
     let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
+    let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
 
     <ACLDiv
       authorization={hasOMPCreateAccess}
@@ -93,7 +96,7 @@ module AddNewOMPButton = {
       {<>
         <hr className={customHRTagStyle} />
         <div
-          className={` flex  items-center gap-2 font-medium  px-3.5 py-3 text-sm ${customStyle}`}>
+          className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle} ${primaryNormal}`}>
           <Icon name="nd-plus" size=15 />
           {`Create new`->React.string}
         </div>
@@ -246,7 +249,6 @@ module MerchantDropdownItem = {
   ) => {
     open LogicUtils
     open APIUtils
-    open ProductTypes
     open ProductUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
@@ -263,17 +265,6 @@ module MerchantDropdownItem = {
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let isMobileView = MatchMedia.useMobileChecker()
 
-    let productTypeIconMapper = productType => {
-      switch productType {
-      | Orchestration => "orchestrator-home"
-      | Recon => "recon-home"
-      | Recovery => "recovery-home"
-      | Vault => "vault-home"
-      | CostObservability => "nd-piggy-bank"
-      | DynamicRouting => "intelligent-routing-home"
-      }
-    }
-
     let isActive = currentId == merchantId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
 
@@ -286,7 +277,7 @@ module MerchantDropdownItem = {
         description={productType->getProductDisplayName}
         customStyle="!whitespace-nowrap"
         toolTipFor={<Icon
-          name={productType->productTypeIconMapper}
+          name={productType->ProductUtils.productTypeIconMapper}
           className={`${secondaryTextColor} opacity-50`}
           size=14
         />}

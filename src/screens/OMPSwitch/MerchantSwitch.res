@@ -161,9 +161,7 @@ let make = () => {
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let {
-    globalUIConfig: {
-      sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
-    },
+    globalUIConfig: {sidebarColor: {backgroundColor, borderColor, secondaryTextColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {devModularityV2} = featureFlagDetails
@@ -300,7 +298,7 @@ let make = () => {
       bottomComponent={<AddNewOMPButton
         user=#Merchant
         setShowModal
-        customStyle={`${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`}
+        customStyle={`${backgroundColor.sidebarSecondary} ${borderColor} !border-none`}
         addItemBtnStyle
         customHRTagStyle={`${borderColor}`}
       />}
