@@ -113,7 +113,7 @@ module OrgTile = {
       <div
         className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md ${isActive
             ? `bg-white/20 ${borderColor.primaryNormal} ${textColor.primaryNormal}`
-            : ` ${secondaryTextColor}  hover:bg-white/10 border-sidebar-textColor/30`}`}>
+            : `${secondaryTextColor}hover:bg-white/10 border-sidebar-borderColor`}`}>
         <span className="text-xs font-medium"> {displayText->React.string} </span>
         <div
           className={` ${currentEditCSS} ${nonEditCSS} border ${sidebarBorderColor} border-opacity-40 `}>

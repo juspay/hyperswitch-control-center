@@ -65,6 +65,8 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   sidebar
 }
 
+let useGetOrchestratorSidebars = (~isReconEnabled) => useGetHsSidebarValues(~isReconEnabled)
+
 let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
   let products = [ProductTypes.Orchestration]
 
@@ -91,15 +93,13 @@ let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
   products
 }
 
-let useGetOrchestratorSidebars = (~isReconEnabled) => useGetHsSidebarValues(~isReconEnabled)
-
 let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.productTypes>) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let orchestratorSidebar = useGetOrchestratorSidebars(~isReconEnabled)
+  let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
 
   products->Array.map(productType => {
     let links = switch productType {
-    | Orchestration => orchestratorSidebar
+    | Orchestration => orchestratorSidebars
     | Recon => ReconSidebarValues.reconSidebars
     | Recovery =>
       RevenueRecoverySidebarValues.recoverySidebars(

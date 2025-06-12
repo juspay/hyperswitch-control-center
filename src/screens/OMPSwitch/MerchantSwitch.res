@@ -294,13 +294,13 @@ let make = () => {
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
       searchable=true
       baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
-      baseComponentCustomStyle={`!border-none`}
+      baseComponentCustomStyle="!border-none"
       bottomComponent={<AddNewOMPButton
         user=#Merchant
         setShowModal
         customStyle={`${backgroundColor.sidebarSecondary} ${borderColor} !border-none`}
         addItemBtnStyle
-        customHRTagStyle={`${borderColor}`}
+        customHRTagStyle={borderColor}
       />}
       toggleChevronState
       customScrollStyle
