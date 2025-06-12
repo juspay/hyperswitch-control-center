@@ -13,6 +13,15 @@ let getTitleForColumn = (col: retrySummaryCols): string => {
   }
 }
 
+let getDescriptionForColumn = (col: retrySummaryCols): string => {
+  switch col {
+  | StaticRetries => "Authorization success rate improvements observed by invoices following external retry logic"
+  | SmartRetries => "Authorization success rate improvements observed by retrying only soft decline transactions."
+  | SmartRetriesBooster => "Authorization success rate improvements observed by retrying both soft and hard decline transactions."
+  | _ => ""
+  }
+}
+
 let getStringFromVariant = (col: retrySummaryCols): string => {
   switch col {
   | StaticRetries => (#static_retries: response_keys :> string)

@@ -1,10 +1,16 @@
 type actionType =
-  | InternalRoute(string)
+  | InternalRoute
   | ExternalLink({url: string, trackingEvent: string})
-  | CustomAction
 
 type productDetailCards = {
-  product?: ProductTypes.productTypes,
+  product: ProductTypes.productTypes,
+  heading: string,
+  description: string,
+  imgSrc: string,
+  action: actionType,
+}
+
+type actionDetailCards = {
   heading: string,
   description: string,
   imgSrc: string,
