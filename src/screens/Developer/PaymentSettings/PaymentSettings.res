@@ -406,12 +406,15 @@ module AutoRetries = {
     let isAutoRetryEnabled =
       formState.values->getDictFromJsonObject->getBool("is_auto_retries_enabled", false)
 
-    if !isAutoRetryEnabled {
-      form.change("max_auto_retries_enabled", JSON.Encode.null->Identity.genericTypeToJson)
-      setCheckMaxAutoRetry(_ => false)
-    } else {
-      setCheckMaxAutoRetry(_ => true)
-    }
+    React.useEffect(() => {
+      if !isAutoRetryEnabled {
+        form.change("max_auto_retries_enabled", JSON.Encode.null->Identity.genericTypeToJson)
+        setCheckMaxAutoRetry(_ => false)
+      } else {
+        setCheckMaxAutoRetry(_ => true)
+      }
+      None
+    }, [isAutoRetryEnabled])
 
     <>
       <DesktopRow>
@@ -730,6 +733,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             />
           </div>
         </div>
+        <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>
+          <AcquirerConfigSettings />
+        </RenderIf>
       </div>
     </div>
   </PageLoaderWrapper>
