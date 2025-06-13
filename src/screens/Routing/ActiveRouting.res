@@ -171,7 +171,8 @@ module LevelWiseRoutingSection = {
           </div>
         )
         ->React.array}
-        <RenderIf condition={debitRouting}>
+        <RenderIf
+          condition={debitRouting && onRedirectBaseUrl->getRoutingTypefromString == Routing}>
           <DebitRouting />
         </RenderIf>
       </div>
