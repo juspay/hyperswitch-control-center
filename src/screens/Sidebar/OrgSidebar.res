@@ -99,7 +99,7 @@ module OrgTile = {
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
     let ringClass = switch isActive {
-    | true => "border-primary ring-primary/20 ring-offset-0 ring-2"
+    | true => "border-sidebar-textColorPrimary ring-sidebar-textColorPrimary/20 ring-offset-0 ring-2"
     | false => "ring-grey-outline"
     }
 
