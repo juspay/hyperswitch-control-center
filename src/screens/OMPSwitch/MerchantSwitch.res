@@ -244,7 +244,7 @@ let make = () => {
 
   let addItemBtnStyle = `w-full ${borderColor} border-t-0`
   let customScrollStyle = `max-h-72 overflow-scroll px-1 pt-1 ${borderColor}`
-  let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass}`
+  let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass} -ml-3`
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 

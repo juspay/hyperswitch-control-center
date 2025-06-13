@@ -46,7 +46,7 @@ module SidebarOption = {
     let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor}  `
 
     if isSidebarExpanded {
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 px-3 py-1.5">
         <RenderIf condition={showIcon}>
           <Icon size=18 name=icon className={iconColor} />
         </RenderIf>
@@ -877,7 +877,7 @@ let make = (
                     leave={"transition ease-in duration-150"}
                     leaveFrom="opacity-100 translate-y-0"
                     leaveTo="opacity-0 translate-y-1">
-                    <Popover.Panel className={`absolute !z-30 bottom-[100%] left-1 `}>
+                    <Popover.Panel className={`absolute !z-30 bottom-[100%] -ml-3`}>
                       {panelProps => {
                         <div
                           id="neglectTopbarTheme"
