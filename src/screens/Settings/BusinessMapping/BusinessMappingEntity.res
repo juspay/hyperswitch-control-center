@@ -187,6 +187,7 @@ let itemToObjMapper = dict => {
     ),
     force_3ds_challenge: None,
     is_debit_routing_enabled: None,
+    acquirer_configs: dict->getOptionalArrayFromDict("acquirer_configs"),
   }
 }
 
