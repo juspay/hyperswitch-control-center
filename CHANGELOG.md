@@ -3,6 +3,42 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.13.0
+
+### Features
+
+- Acquirer config settings ([#3084](https://github.com/juspay/hyperswitch-control-center/pull/3084)) ([`0429084`](https://github.com/juspay/hyperswitch-control-center/commit/042908479669e5810de9f3c322e236f2ff5f8725))
+
+### Bug Fixes
+
+- Correct 3DS sankey data calculation and ui ([#3156](https://github.com/juspay/hyperswitch-control-center/pull/3156)) ([`03c46ea`](https://github.com/juspay/hyperswitch-control-center/commit/03c46eaa7f5a237bdf9bfeb34bf2568e46e002d3))
+
+### Testing
+
+- Add support for sso tests ([#3134](https://github.com/juspay/hyperswitch-control-center/pull/3134)) ([`172609b`](https://github.com/juspay/hyperswitch-control-center/commit/172609b07bcbf4a83939fc8a669e32945375aa32))
+
+### Miscellaneous Tasks
+
+- Payment settings page revamp main page ([#3132](https://github.com/juspay/hyperswitch-control-center/pull/3132)) ([`46b94ed`](https://github.com/juspay/hyperswitch-control-center/commit/46b94ed42e373d4bb7649a21f8d0bab3237a1fe0))
+
+**Full Changelog:** [`2025.06.11.2...2025.06.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.11.2...2025.06.13.0)
+
+- - -
+
+## 2025.06.11.2
+
+### Features
+
+- Add 3ds exemption analytics ([#3072](https://github.com/juspay/hyperswitch-control-center/pull/3072)) ([`a460aa0`](https://github.com/juspay/hyperswitch-control-center/commit/a460aa03c2b2044ae05a82e6dc71644141653d98))
+
+### Bug Fixes
+
+- Calendar overlapping bugfix ([#3146](https://github.com/juspay/hyperswitch-control-center/pull/3146)) ([`c478492`](https://github.com/juspay/hyperswitch-control-center/commit/c478492e1b4743e3265b9cfe0eeddfa8b12adaf8))
+
+**Full Changelog:** [`2025.06.11.1...2025.06.11.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.11.1...2025.06.11.2)
+
+- - -
+
 ## 2025.06.11.1
 
 ### Bug Fixes

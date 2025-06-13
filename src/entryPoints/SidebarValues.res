@@ -448,6 +448,14 @@ let paymentSettings = userHasResourceAccess => {
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
 }
+let paymentSettingsV2 = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Payment Settings V2",
+    link: `/payment-settings-new`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
+  })
+}
 
 let webhooks = userHasResourceAccess => {
   SubLevelLink({
@@ -463,15 +471,20 @@ let developers = (
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
+  ~isPaymentSettingsV2Enabled,
 ) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let paymentSettingsV2 = paymentSettingsV2(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
   if isWebhooksEnabled {
     defaultDevelopersOptions->Array.push(webhooks)
+  }
+  if isPaymentSettingsV2Enabled {
+    defaultDevelopersOptions->Array.push(paymentSettingsV2)
   }
 
   if !isProfileUser {
@@ -607,6 +620,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     authenticationAnalytics,
     devAltPaymentMethods,
     devWebhooks,
+    paymentSettingsV2,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -641,7 +655,12 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     ),
     devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(~isWebhooksEnabled=devWebhooks, ~userHasResourceAccess, ~checkUserEntity),
+    default->developers(
+      ~isWebhooksEnabled=devWebhooks,
+      ~userHasResourceAccess,
+      ~checkUserEntity,
+      ~isPaymentSettingsV2Enabled=paymentSettingsV2,
+    ),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 

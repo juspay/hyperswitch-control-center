@@ -44,6 +44,11 @@ jobs:
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_SSO_BASE_URL: ${{ secrets.CYPRESS_SSO_BASE_URL }}
+          CYPRESS_SSO_CLIENT_ID: ${{ secrets.CYPRESS_SSO_CLIENT_ID }}
+          CYPRESS_SSO_CLIENT_SECRET: ${{ secrets.CYPRESS_SSO_CLIENT_SECRET }}
+          CYPRESS_SSO_USERNAME: ${{ secrets.CYPRESS_SSO_USERNAME }}
+          CYPRESS_SSO_PASSWORD: ${{ secrets.CYPRESS_SSO_PASSWORD }}
         with:
           install: false
           build: npm run build:test
