@@ -848,7 +848,7 @@ module Base = {
               leaveTo="transform opacity-0 scale-95">
               <div
                 ref={dropdownRef->ReactDOM.Ref.domRef}
-                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-60-rem tablet:max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`}>
+                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-30-rem tablet:max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`}>
                 calendarElement
               </div>
             </Transition>
