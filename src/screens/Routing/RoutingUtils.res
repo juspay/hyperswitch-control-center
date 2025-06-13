@@ -191,25 +191,10 @@ module ConfigureRuleButton = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let {errors} = formState
-    let errorsList = JsonFlattenUtils.flattenObject(errors, false)->Dict.toArray
-
-    let description =
-      errorsList
-      ->Array.map(entry => {
-        let (key, jsonValue) = entry
-        let value = LogicUtils.getStringFromJson(jsonValue, "Error")
-        `${key->LogicUtils.snakeToTitle}: ${value}`
-      })
-      ->Array.joinWith("\n")
 
     <Button
       text="Configure Rule"
-      tooltipText={description}
-      toolTipPosition={BottomRight}
-      showTooltip={errorsList->Array.length > 0}
       buttonType=Primary
-      showBtnTextToolTip=true
       buttonState={!formState.hasValidationErrors ? Normal : Disabled}
       onClick={_ => {
         setShowModal(_ => true)
