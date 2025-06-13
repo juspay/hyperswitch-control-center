@@ -134,7 +134,7 @@ module ModuleHeader = {
   let make = (~title, ~description="") => {
     open Typography
     <div className="p-4 bg-nd_gray-25 border-b dark:border-jp-gray-850">
-      <h2 className={`${heading.xl.semibold} text-jp-gray-900`}> {title->React.string} </h2>
+      <h2 className={`${heading.md.semibold} text-jp-gray-900`}> {title->React.string} </h2>
       <div className={`${body.md.medium} text-jp-gray-800 dark:text-dark_theme my-2`}>
         {description->React.string}
       </div>
