@@ -326,6 +326,7 @@ let boolInput: (
   ~isDisabled: bool,
   ~isCheckBox: bool=?,
   ~boolCustomClass: string=?,
+  ~toggleEnableColor: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
 let colorPickerInput: (
   ~defaultValue: string=?,
