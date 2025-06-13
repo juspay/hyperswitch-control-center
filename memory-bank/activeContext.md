@@ -7,22 +7,26 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ### Primary Development Areas
 
 1. **Connector Integration Enhancements**
+
    - **Worldpayxml Processor Addition (2025-05-26)**: Successfully integrated new payment processor
      - Added `WORLDPAYXML` variant to `src/screens/Connectors/ConnectorTypes.res`
      - Updated connector utilities in `src/screens/Connectors/ConnectorUtils.res`
      - Implemented processor-specific configuration and display logic
 
 2. **API Integration Standardization**
+
    - Refining API call patterns following established ReScript conventions
    - Enhanced PageLoaderWrapper integration for consistent loading states
    - Improved type safety with comprehensive response type definitions
 
 3. **Component Architecture Improvements**
+
    - **AuthModule/ProductSelection**: Enhanced product selection logic in `src/entryPoints/AuthModule/ProductSelection/ProductSelectionProvider.res`
    - **State Management**: Advanced table state management using Recoil in `src/Recoils/TableAtoms.res`
    - **Navigation**: Refined sidebar values and navigation in `src/entryPoints/SidebarValues.res`
 
 4. **Feature Module Development**
+
    - **Revenue Recovery**: Active development of overview screen in `src/RevenueRecovery/RevenueRecoveryScreens/RevenueRecoveryOverview/RevenueRecoveryOverview.res`
    - **Customer Management**: Enhanced customer interfaces in `src/screens/Customers/` modules
    - **Routing History**: Improved routing history tracking in `src/screens/Routing/HistoryEntity.res`
@@ -41,12 +45,14 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ### Current Sprint Priorities
 
 1. **API Integration Enhancements**
+
    - Standardizing API call patterns across the application following the established ReScript pattern
    - Implementing consistent error handling with PageLoaderWrapper integration
    - Enhancing type safety with improved response type definitions
    - Refining API hook usage patterns for better reusability
 
 2. **Payment Processing Workflow**
+
    - Refining payment management interfaces
    - Optimizing refund and dispute handling flows
    - Enhancing payment status visualization
@@ -61,6 +67,7 @@ This document tracks the current focus areas and recent changes in the Hyperswit
      - `src/screens/Connectors/ConnectorTypes.res` and `src/screens/Connectors/ConnectorUtils.res`
 
 3. **Intelligent Routing**
+
    - Enhancing rule-based routing configuration interfaces
    - Implementing performance simulation and visualization tools
    - Creating intuitive drag-and-drop UI for complex routing scenarios
@@ -75,6 +82,7 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ### Recent Changes
 
 #### Latest Features Added
+
 - **Worldpayxml Processor Integration (2025-05-26)**: Complete integration of new payment processor
 - Enhanced analytics dashboard with customizable visualization options
 - Streamlined connector integration workflow with guided setup
@@ -83,6 +91,7 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 - Introduced PageLoaderWrapper component for standardized loading states
 
 #### Refactoring and Improvements
+
 - Consolidated API utility functions with improved typing and error handling
 - Standardized component prop interfaces with comprehensive .resi files
 - Migrated to ReScript 11.1.1 with enhanced compiler performance
@@ -90,6 +99,7 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 - Improved API response handling with standardized loader states
 
 #### Technical Debt Addressed
+
 - Fixed inconsistent error handling patterns
 - Improved type definitions for better type safety
 - Consolidated duplicate code in utility functions
@@ -106,10 +116,12 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ## Known Issues and Constraints
 
 1. **Performance Challenges**
+
    - Large data sets may cause rendering slowdowns in some analytics views
    - Initial load time on low-end devices may be suboptimal
 
 2. **Browser Compatibility**
+
    - Optimized for Chrome, Firefox, Safari, and Edge
    - Some visual inconsistencies may appear in older browsers
 
@@ -120,15 +132,18 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ## Next Milestone Goals
 
 1. **Payment Method Management**
+
    - Enhanced saved payment method management for customers
    - Better visualization of payment method performance
 
 2. **Advanced Analytics**
+
    - Implement advanced filtering capabilities
    - Add customizable dashboard widgets
    - Provide deeper insights into payment performance
 
 3. **Multi-tenant Capabilities**
+
    - Improve organization and merchant management
    - Enhance user permission systems
    - Support for more complex organizational hierarchies
@@ -140,10 +155,12 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ## Active Experiments
 
 1. **UI/UX Improvements**
+
    - Testing alternative navigation patterns for complex workflows
    - Evaluating different visualization approaches for payment data
 
 2. **Performance Optimizations**
+
    - Evaluating code splitting strategies for faster initial load
    - Testing various caching mechanisms for API responses
 
@@ -154,12 +171,14 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ## Recent Decisions
 
 1. **Architecture**
+
    - Continued commitment to ReScript for type safety benefits
    - Adoption of more granular component composition patterns
    - Standardization of data fetching with PageLoaderWrapper pattern
    - Consistent API call structure with central type definitions
 
 2. **UI/UX**
+
    - Emphasis on accessibility improvements across all components
    - Standardized mobile-first approach for all new components
    - Commitment to comprehensive dark mode support

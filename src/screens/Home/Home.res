@@ -21,6 +21,7 @@ let make = (~setAppScreenState) => {
         customSubTitleStyle="text-fs-16 text-nd_gray-400 !opacity-100 font-medium !mt-1"
       />
       <ControlCenter />
+      <ExploreWorkflowsSection />
       <DevResources />
     </div>
   </>
