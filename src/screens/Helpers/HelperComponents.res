@@ -204,7 +204,7 @@ module ConnectorCustomCell = {
     if connectorName->LogicUtils.isNonEmptyString {
       <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-6">
         <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6 mr-2" />
-        <div className="capitalize">
+        <div>
           {connectorName
           ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connector_Type)
           ->React.string}

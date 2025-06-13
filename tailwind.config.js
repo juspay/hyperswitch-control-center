@@ -71,6 +71,7 @@ module.exports = {
       maxHeight: {
         "15-rem": "15rem",
         "25-rem": "25rem",
+        "30-rem": "30rem",
       },
       inset: {
         "76-px": "76px",

@@ -2009,6 +2009,8 @@ let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
 
 let connectorTypeFromConnectorName: string => connector = connectorName =>
   switch connectorName {
-  | "juspaythreedsserver" => ThreeDsAuthenticator
+  | "juspaythreedsserver"
+  | "threedsecureio" =>
+    ThreeDsAuthenticator
   | _ => Processor
   }
