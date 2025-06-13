@@ -1,7 +1,4 @@
-type options = {
-  name: string,
-  key: string,
-}
+open PaymentSettingsV2Types
 module CollectDetailsV2 = {
   @react.component
   let make = (~title, ~subTitle, ~options: array<options>) => {
@@ -10,6 +7,10 @@ module CollectDetailsV2 = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let defaultOption = {
+      name: "",
+      key: "",
+    }
     let valuesDict = formState.values->getDictFromJsonObject
     let initValue = options->Array.some(option => valuesDict->getBool(option.key, false))
     let form = ReactFinalForm.useForm()
@@ -22,10 +23,10 @@ module CollectDetailsV2 = {
     let handleToggle = newValue => {
       if newValue {
         let value = options->Array.some(option => valuesDict->getBool(option.key, false))
+        let firstOption = options->getValueFromArray(0, defaultOption)
         if !value {
-          switch options->Array.get(0) {
-          | Some(name) => form.change(name.key, true->JSON.Encode.bool)
-          | _ => ()
+          if firstOption.key->isNonEmptyString {
+            form.change(firstOption.key, true->JSON.Encode.bool)
           }
         }
       } else {
@@ -34,7 +35,7 @@ module CollectDetailsV2 = {
     }
 
     <DesktopRow itemWrapperClass="mx-1">
-      <div className="w-full pt-8 pb-8 ">
+      <div className="w-full py-8 ">
         <div className="flex justify-between items-center">
           <div className="flex-1 ">
             <p className="font-bold text-fs-16 text-nd_gray-600"> {title->React.string} </p>
@@ -91,7 +92,7 @@ module AutoRetriesV2 = {
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
           labelClass="!text-fs-15 !text-grey-700 font-semibold"
-          fieldWrapperClass="w-full flex justify-between items-center pt-8 pb-8 "
+          fieldWrapperClass="w-full flex justify-between items-center py-8 "
           field={makeFieldInfo(
             ~name="is_auto_retries_enabled",
             ~label="Auto Retries",
@@ -204,16 +205,14 @@ module ReturnUrlV2 = {
   @react.component
   let make = () => {
     open FormRenderer
-    <>
-      <div className="ml-1 mt-4">
-        <FieldRenderer
-          field={DeveloperUtils.returnUrlV2}
-          errorClass={HSwitchUtils.errorClass}
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
-          fieldWrapperClass="max-w-xl pt-8 border-gray-200 "
-        />
-      </div>
-    </>
+    <div className="ml-1 mt-4">
+      <FieldRenderer
+        field={DeveloperUtils.returnUrlV2}
+        errorClass={HSwitchUtils.errorClass}
+        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        fieldWrapperClass="max-w-xl pt-8 border-gray-200 "
+      />
+    </div>
   }
 }
 
@@ -265,8 +264,8 @@ let make = () => {
         )
       }}>
       <CollectDetailsV2
-        title={"Collect billing details from wallets"}
-        subTitle={"Enable automatic collection of billing information when customers connect their wallets"}
+        title="Collect billing details from wallets"
+        subTitle="Enable automatic collection of billing information when customers connect their wallets"
         options=[
           {
             name: "only if required by connector",
@@ -280,8 +279,8 @@ let make = () => {
       />
       <hr />
       <CollectDetailsV2
-        title={"Collect shipping details from wallets"}
-        subTitle={"Enable automatic collection of shipping information when customers connect their wallets"}
+        title="Collect shipping details from wallets"
+        subTitle="Enable automatic collection of shipping information when customers connect their wallets"
         options=[
           {
             name: "only if required by connector",
@@ -297,7 +296,7 @@ let make = () => {
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
           labelClass="!text-fs-15 !text-grey-700 font-semibold"
-          fieldWrapperClass="w-full flex justify-between items-center pt-8 pb-8  "
+          fieldWrapperClass="w-full flex justify-between items-center py-8"
           field={makeFieldInfo(
             ~name="is_connector_agnostic_mit_enabled",
             ~label="Connector Agnostic",

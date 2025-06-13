@@ -195,7 +195,7 @@ let authenticationConnectorsV2 = connectorList =>
       ~options=connectorList->SelectBox.makeOptions,
       ~buttonText="Select Field",
       ~showSelectionAsChips=false,
-      ~customButtonStyle=` !rounded-xl`,
+      ~customButtonStyle="!rounded-xl",
       ~fixedDropDownDirection=BottomRight,
       ~dropdownClassName="!max-h-15-rem !overflow-auto",
     ),

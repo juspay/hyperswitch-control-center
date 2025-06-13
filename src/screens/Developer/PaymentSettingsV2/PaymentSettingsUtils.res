@@ -1,14 +1,4 @@
-type validationFieldsV2 =
-  | WebhookDetails
-  | ReturnUrl
-  | AuthenticationConnectorDetails
-  | AuthenticationConnectors(array<JSON.t>)
-  | ThreeDsRequestorUrl
-  | ThreeDsRequestorAppUrl
-  | MaxAutoRetries
-  | AutoRetry
-  | UnknownValidateFields(string)
-
+open PaymentSettingsV2Types
 let parseBusinessProfileForPaymentBehaviour = (
   profileRecord: HSwitchSettingTypes.profileEntity,
 ) => {
