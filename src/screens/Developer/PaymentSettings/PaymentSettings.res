@@ -735,7 +735,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </DesktopRow>
-                <FormValuesSpy />
               </form>
             }}
           />
