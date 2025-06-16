@@ -8,7 +8,7 @@ external toWasm: Dict.t<JSON.t> => RoutingTypes.wasmModule = "%identity"
 module Add3DSCondition = {
   @react.component
   let make = (~isFirst, ~id, ~isExpanded, ~threeDsType, ~isFrom3DsExemptions=false) => {
-    let classStyle = "flex justify-center relative py-2 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
+    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
 
     let options: array<SelectBox.dropdownOption> = if isFrom3DsExemptions {
       [
@@ -42,7 +42,7 @@ module Add3DSCondition = {
                 ~customInput=InputFields.selectInput(
                   ~options,
                   ~buttonText="Select Field",
-                  ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                  ~customButtonStyle=`!-mt-5 ${classStyle} !py-0 !rounded-md`,
                   ~deselectDisable=true,
                 ),
               )}
