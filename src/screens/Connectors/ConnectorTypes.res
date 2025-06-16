@@ -107,6 +107,7 @@ type processorTypes =
   | FACILITAPAY
   | ARCHIPEL
   | WORLDPAYVANTIV
+  | TOKENIO
 
 type payoutProcessorTypes =
   | ADYEN

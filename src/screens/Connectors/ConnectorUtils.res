@@ -119,6 +119,7 @@ let connectorList: array<connectorTypes> = [
   Processors(FACILITAPAY),
   Processors(ARCHIPEL),
   Processors(WORLDPAYVANTIV),
+  Processors(TOKENIO),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -448,6 +449,9 @@ let paystackInfo = {
 let facilitapayInfo = {
   description: "Facilitapay is a payment provider for international businesses.Their all-in-one payment hub encompasses all payment methods,pay-ins and pay-outs.",
 }
+let tokenioInfo = {
+  description: "Token.io is a fintech company that provides open banking-based, account-to-account (A2A) payment infrastructure—essentially enabling “Pay by Bank” solutions for banks, fintechs, platforms, and payment service providers.",
+}
 
 // Dummy Connector Info
 let pretendpayInfo = {
@@ -710,6 +714,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FACILITAPAY => "facilitapay"
   | ARCHIPEL => "archipel"
   | WORLDPAYVANTIV => "worldpayvantiv"
+  | TOKENIO => "tokenio"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -859,6 +864,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "facilitapay" => Processors(FACILITAPAY)
     | "archipel" => Processors(ARCHIPEL)
     | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
+    | "tokenio" => Processors(TOKENIO)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -988,6 +994,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FACILITAPAY => facilitapayInfo
   | ARCHIPEL => archipelInfo
   | WORLDPAYVANTIV => worldpayVantivInfo
+  | TOKENIO => tokenioInfo
   }
 }
 
@@ -1860,6 +1867,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | FACILITAPAY => "Facilitapay"
   | ARCHIPEL => "ArchiPEL"
   | WORLDPAYVANTIV => "Worldpay Vantiv"
+  | TOKENIO => "Token.io"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
