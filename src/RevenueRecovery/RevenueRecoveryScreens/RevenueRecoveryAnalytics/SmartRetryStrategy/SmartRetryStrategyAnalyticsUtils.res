@@ -24,14 +24,6 @@ let yAxisFormatter = LineScatterGraphUtils.lineGraphYAxisFormatter(
   ~scaleFactor=1.0,
 )
 
-let legend: LineScatterGraphTypes.legend = {
-  useHTML: true,
-  labelFormatter: LineScatterGraphUtils.valueFormatter,
-  align: "left",
-  verticalAlign: "top",
-  y: -10,
-}
-
 let title: LineScatterGraphTypes.title = {
   text: "",
 }
@@ -45,7 +37,7 @@ let smartRetriesMapper = (
   ~params: InsightsTypes.getObjects<JSON.t>,
 ): LineScatterGraphTypes.lineScatterGraphPayload => {
   open InsightsUtils
-  let {data, yKey} = params
+  let {data, yKey, xKey} = params
 
   let dataDict = data->getDictFromJsonObject
 
@@ -114,7 +106,26 @@ let smartRetriesMapper = (
   let tooltipFormatter = LineScatterGraphUtils.tooltipFormatter(
     ~title="Smart Retries",
     ~metricType=Rate,
+    ~svgIconUrl=xKey,
   )
+
+  let valueFormatter = (
+    @this
+    this => {
+      open LineScatterGraphTypes
+      let icon = this.name == "Smart Retry attempts" ? "/icons/smart-retry.svg" : ""
+
+      icon->String.length > 0
+        ? `<div style="display: flex; align-items: center;margin-bottom:15px;">
+              <img src=${icon} alt="Smart Retry Icon" width="16" height="16" style="margin-right: 5px;" />
+              <div style="margin-left: 0px;">${this.name}</div>
+            </div>`
+        : `<div style="display: flex; align-items: center;margin-bottom:15px;">
+        <div style="width: 13px; height: 13px; background-color:${this.color}; border-radius:3px;"></div>
+        <div style="margin-left: 5px;">${this.name}</div>
+    </div>`
+    }
+  )->LineScatterGraphTypes.asLegendsFormatter
 
   {
     chartHeight: DefaultHeight,
@@ -126,7 +137,14 @@ let smartRetriesMapper = (
     yAxisMinValue: Some(0),
     tooltipFormatter,
     yAxisFormatter,
-    legend,
+    legend: {
+      useHTML: true,
+      labelFormatter: valueFormatter,
+      align: "left",
+      verticalAlign: "top",
+      y: -10,
+    },
+    symbol: `url(${xKey})`,
   }
 }
 
@@ -145,7 +163,7 @@ let overallSRMapper = (
 
   let tooltipFormatter = tooltipFormatter(
     ~secondaryCategories=[],
-    ~title="Do not Honor Success Rate",
+    ~title=`${params.title->Option.getOr("")} Success Rate`,
     ~metricType=Rate,
   )
 

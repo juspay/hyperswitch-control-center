@@ -23,14 +23,6 @@ let yAxisFormatter = LineScatterGraphUtils.lineGraphYAxisFormatter(
   ~scaleFactor=1.0,
 )
 
-let legend: LineScatterGraphTypes.legend = {
-  useHTML: true,
-  labelFormatter: LineScatterGraphUtils.valueFormatter,
-  align: "left",
-  verticalAlign: "top",
-  y: -10,
-}
-
 let title: LineScatterGraphTypes.title = {
   text: "",
 }
@@ -84,10 +76,12 @@ let smartRetriesComparisionMapper = (
     color: "#6BBDF6",
   }
 
+  let label = params.title->Option.getOr("")
+
   let scatterGraphData: LineScatterGraphTypes.dataObj = {
     \"type": "scatter",
     showInLegend: true,
-    name: `${xKey} attempts`,
+    name: `${label} attempts`,
     data: scatterData,
     color: "#EBD35C",
   }
@@ -95,14 +89,40 @@ let smartRetriesComparisionMapper = (
   let helperScatterGraphData: LineScatterGraphTypes.dataObj = {
     \"type": "line",
     showInLegend: false,
-    name: `${xKey} attempts`,
+    name: `${label} attempts`,
     data: helperScatterData,
     color: "transparent",
   }
 
   open LogicUtilsTypes
 
-  let tooltipFormatter = LineScatterGraphUtils.tooltipFormatter(~title=`${xKey}`, ~metricType=Rate)
+  let tooltipFormatter = LineScatterGraphUtils.tooltipFormatter(
+    ~title=`${label}`,
+    ~metricType=Rate,
+    ~svgIconUrl=xKey,
+  )
+
+  let valueFormatter = (
+    @this
+    this => {
+      open LineScatterGraphTypes
+      let icon = switch this.name {
+      | "Static Retries attempts" => "/icons/static-retry.svg"
+      | "Smart Retries attempts" => "/icons/smart-retry.svg"
+      | _ => ""
+      }
+
+      icon->String.length > 0
+        ? `<div style="display: flex; align-items: center;margin-bottom:15px;">
+              <img src=${icon} alt="Smart Retry Icon" width="16" height="16" style="margin-right: 5px;" />
+              <div style="margin-left: 0px;">${this.name}</div>
+            </div>`
+        : `<div style="display: flex; align-items: center;margin-bottom:15px;">
+        <div style="width: 13px; height: 13px; background-color:${this.color}; border-radius:3px;"></div>
+        <div style="margin-left: 5px;">${this.name}</div>
+    </div>`
+    }
+  )->LineScatterGraphTypes.asLegendsFormatter
 
   {
     chartHeight: DefaultHeight,
@@ -114,6 +134,13 @@ let smartRetriesComparisionMapper = (
     yAxisMinValue: Some(0),
     tooltipFormatter,
     yAxisFormatter,
-    legend,
+    legend: {
+      useHTML: true,
+      labelFormatter: valueFormatter,
+      align: "left",
+      verticalAlign: "top",
+      y: -10,
+    },
+    symbol: `url(${xKey})`,
   }
 }

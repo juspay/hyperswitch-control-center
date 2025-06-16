@@ -36,7 +36,7 @@ let make = (~entity: moduleEntity) => {
     data->Array.map(item => {
       let params = {
         data: item,
-        xKey: "",
+        xKey: "/icons/smart-retry.svg",
         yKey: TimeBucket->getStringFromVariant,
       }
 
@@ -47,11 +47,12 @@ let make = (~entity: moduleEntity) => {
     })
   }
 
-  let getMainChartOptions = data => {
+  let getMainChartOptions = (data, category) => {
     let params = {
       data: data->Identity.genericTypeToJson,
       xKey: SuccessRate->getStringFromVariant,
       yKey: TimeBucket->getStringFromVariant,
+      title: category,
     }
 
     LineGraphUtils.getLineGraphOptions(overallSRMapper(~params))
@@ -78,7 +79,9 @@ let make = (~entity: moduleEntity) => {
                 </h2>
               </div>
               <div className="p-4">
-                <LineGraph options={overallSRData->getMainChartOptions} className="mr-3" />
+                <LineGraph
+                  options={overallSRData->getMainChartOptions(category)} className="mr-3"
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-5">

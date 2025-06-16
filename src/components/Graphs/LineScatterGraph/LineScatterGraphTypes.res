@@ -186,4 +186,5 @@ type lineScatterGraphPayload = {
   tooltipFormatter: pointFormatter => string,
   yAxisFormatter: pointFormatter => string,
   legend: legend,
+  symbol?: string,
 }
