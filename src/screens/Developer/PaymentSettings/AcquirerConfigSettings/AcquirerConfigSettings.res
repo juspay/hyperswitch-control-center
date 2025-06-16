@@ -2,6 +2,7 @@ open LogicUtils
 open APIUtilsTypes
 open AcquirerConfigUtils
 open AcquirerConfigEntity
+open AcquirerConfigTypes
 open FormRenderer
 open FramerMotion
 
@@ -24,7 +25,8 @@ module FieldRendererWithStyles = {
 
 module SettingsForm = {
   @react.component
-  let make = (~isAcquirerConfigArrEmpty, ~setIsShowAcquirerConfigSettings) => {
+  let make = (~isAcquirerConfigArrEmpty, ~handleCloseForm, ~editingConfig=None) => {
+    open Fetch
     let showToast = ToastState.useShowToast()
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let getURL = APIUtils.useGetURL()
@@ -32,24 +34,73 @@ module SettingsForm = {
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let validateForm = values => validateAcquirerConfigForm(values, formKeys)
 
+    let isUpdateMode = editingConfig->Option.isSome
+    let initialValues =
+      editingConfig
+      ->Option.map(config => {
+        [
+          (
+            "acquirer_assigned_merchant_id",
+            config.acquirer_assigned_merchant_id->JSON.Encode.string,
+          ),
+          ("merchant_name", config.merchant_name->JSON.Encode.string),
+          ("merchant_country_code", config.merchant_country_code->JSON.Encode.string),
+          ("network", config.network->JSON.Encode.string),
+          ("acquirer_bin", config.acquirer_bin->JSON.Encode.string),
+          ("acquirer_fraud_rate", config.acquirer_fraud_rate->JSON.Encode.float),
+        ]
+        ->Dict.fromArray
+        ->JSON.Encode.object
+      })
+      ->Option.getOr(JSON.Encode.null)
+
+    let (submitButtonTitle, cancelButtonTitle) = isUpdateMode
+      ? ("Update", "Exit Update Mode")
+      : ("Save", "Close")
+
     let onSubmit = async (values, _) => {
       try {
-        showToast(~message="Updating acquirer config...", ~toastType=ToastState.ToastInfo)
+        let actionMessage = isUpdateMode
+          ? "Updating acquirer config..."
+          : "Creating acquirer config..."
+        let successMessage = isUpdateMode ? "Acquirer config updated" : "Acquirer config created"
+
+        showToast(~message=actionMessage, ~toastType=ToastState.ToastInfo)
         let valuesDict = values->getDictFromJsonObject
-        valuesDict->Dict.set("profile_id", profileId->JSON.Encode.string)
 
-        let url = getURL(~entityName=V1(ACQUIRER_CONFIG_SETTINGS), ~methodType=Fetch.Post)
-        let _ = await updateDetails(url, valuesDict->JSON.Encode.object, Fetch.Post)
+        if !isUpdateMode {
+          valuesDict->Dict.set("profile_id", profileId->JSON.Encode.string)
+        }
 
-        setIsShowAcquirerConfigSettings(_ => false)
-        showToast(~message="Acquirer config updated", ~toastType=ToastState.ToastSuccess)
+        let (entityName, methodType) = (V1(ACQUIRER_CONFIG_SETTINGS), Post)
 
+        let url = switch (isUpdateMode, editingConfig) {
+        | (true, Some({id})) => getURL(~entityName, ~methodType, ~id=Some(id))
+        | _ => getURL(~entityName, ~methodType)
+        }
+
+        let _ = await updateDetails(url, valuesDict->JSON.Encode.object, Post)
+
+        handleCloseForm()
+        showToast(~message=successMessage, ~toastType=ToastState.ToastSuccess)
         fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
       } catch {
-      | _ =>
-        showToast(~message="Failed to update acquirer config", ~toastType=ToastState.ToastError)
+      | Exn.Error(e) => {
+          let defaultErrorMessage = "Failed to update acquirer config"
+          let errorMessage = switch Exn.message(e) {
+          | Some(err) => {
+              let errorCode =
+                err->JSON.parseExn->getDictFromJsonObject->LogicUtils.getString("code", "")
+              switch errorCode {
+              | "IR_38" => "Duplicate entry found"
+              | _ => defaultErrorMessage
+              }
+            }
+          | None => defaultErrorMessage
+          }
+          showToast(~message=errorMessage, ~toastType=ToastState.ToastError)
+        }
       }
-
       Nullable.null
     }
 
@@ -68,6 +119,7 @@ module SettingsForm = {
           subscription=ReactFinalForm.subscribeToValues
           validate=validateForm
           onSubmit
+          initialValues
           render={({handleSubmit}) => {
             <form
               onSubmit={handleSubmit}
@@ -96,12 +148,14 @@ module SettingsForm = {
               </div>
               <DesktopRow>
                 <div className="flex justify-end w-full gap-2">
-                  <SubmitButton text="Save" buttonType=Button.Primary buttonSize=Button.Medium />
+                  <SubmitButton
+                    text=submitButtonTitle buttonType=Button.Primary buttonSize=Button.Medium
+                  />
                   <RenderIf condition={!isAcquirerConfigArrEmpty}>
                     <Button
                       buttonType=Button.Secondary
-                      onClick={_ => setIsShowAcquirerConfigSettings(_ => false)}
-                      text="Cancel"
+                      onClick={_ => handleCloseForm()}
+                      text=cancelButtonTitle
                     />
                   </RenderIf>
                 </div>
@@ -143,6 +197,7 @@ module AcquirerConfigContent = {
     let (offset, setOffset) = React.useState(_ => 0)
     let resultsPerPage = 10
     let (isShowAcquirerConfigSettings, setIsShowAcquirerConfigSettings) = React.useState(_ => false)
+    let (editingConfig, setEditingConfig) = React.useState(_ => None)
     let {acquirer_configs: acquirerConfig} =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
@@ -154,6 +209,21 @@ module AcquirerConfigContent = {
     let totalResults = acquirerConfigArr->Array.length
     let isAcquirerConfigArrEmpty = acquirerConfigArr->Array.length == 0
 
+    let handleEdit = (config: acquirerConfig) => {
+      setEditingConfig(_ => Some(config))
+      setIsShowAcquirerConfigSettings(_ => true)
+    }
+
+    let handleCloseForm = _ => {
+      setIsShowAcquirerConfigSettings(_ => false)
+      setEditingConfig(_ => None)
+    }
+
+    let entityWithEditHandler = React.useMemo(
+      () => makeEntityWithEditHandler(~onEdit=Some(handleEdit)),
+      [handleEdit],
+    )
+
     <div className="border-t-2 dark:border-jp-gray-950 md:border-0 w-full">
       <RenderIf condition={!isAcquirerConfigArrEmpty}>
         <LoadedTable
@@ -164,7 +234,7 @@ module AcquirerConfigContent = {
           resultsPerPage
           offset
           setOffset
-          entity
+          entity=entityWithEditHandler
           currrentFetchCount=totalResults
           showPagination={totalResults > resultsPerPage}
           tableLocalFilter=false
@@ -177,7 +247,7 @@ module AcquirerConfigContent = {
       <AnimatePresence mode="wait">
         {!isShowAcquirerConfigSettings && !isAcquirerConfigArrEmpty
           ? <ActionButtons setIsShowAcquirerConfigSettings />
-          : <SettingsForm isAcquirerConfigArrEmpty setIsShowAcquirerConfigSettings />}
+          : <SettingsForm isAcquirerConfigArrEmpty handleCloseForm editingConfig />}
       </AnimatePresence>
     </div>
   }

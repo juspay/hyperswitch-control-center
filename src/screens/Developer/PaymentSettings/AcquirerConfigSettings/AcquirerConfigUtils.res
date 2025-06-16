@@ -71,6 +71,7 @@ let validateAcquirerConfigForm = (values, keys) => {
 let acquirerConfigTypeMapper = (json: JSON.t): acquirerConfig => {
   let dict = json->getDictFromJsonObject
   {
+    id: dict->getString("profile_acquirer_id", ""),
     acquirer_assigned_merchant_id: dict->getString("acquirer_assigned_merchant_id", ""),
     merchant_name: dict->getString("merchant_name", ""),
     merchant_country_code: dict->getString("merchant_country_code", ""),
