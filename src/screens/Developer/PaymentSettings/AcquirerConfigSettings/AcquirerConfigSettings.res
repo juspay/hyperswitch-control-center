@@ -154,7 +154,7 @@ module AcquirerConfigContent = {
     let totalResults = acquirerConfigArr->Array.length
     let isAcquirerConfigArrEmpty = acquirerConfigArr->Array.length == 0
 
-    <div className="border-t-2 dark:border-jp-gray-950 md:border-0 w-full overflow-scroll">
+    <div className="border-t-2 dark:border-jp-gray-950 md:border-0 w-full">
       <RenderIf condition={!isAcquirerConfigArrEmpty}>
         <LoadedTable
           title="Acquirer Configurations"
@@ -196,11 +196,11 @@ let make = () => {
   <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
     <Accordion
       accordion=accordionData
-      accordianTopContainerCss="border overflow-hidden border-jp-gray-500 rounded-md dark:border-jp-gray-960"
+      accordianTopContainerCss="border overflow-visible border-jp-gray-500 rounded-md dark:border-jp-gray-960"
       accordianBottomContainerCss="px-4 py-3 md:bg-jp-gray-100 dark:bg-jp-gray-lightgray_background"
-      contentExpandCss="!bg-jp-gray-100 dark:!bg-jp-gray-lightgray_background p-0"
+      contentExpandCss="!bg-jp-gray-100 dark:!bg-jp-gray-lightgray_background p-0 rounded-md"
       arrowFillColor="#6B7280"
-      titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75"
+      titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75 rounded-md"
     />
   </div>
 }
