@@ -209,6 +209,13 @@ function getPayoutVariantValues(str) {
     return [];
   }
 }
+function getMerchantCategoryCodeWithName() {
+  if (wasm) {
+    return wasm.getMerchantCategoryCodeWithName();
+  } else {
+    return {};
+  }
+}
 
 const getAccessibleColor = (hex) => {
   let color = hex.replace(/#/g, "");

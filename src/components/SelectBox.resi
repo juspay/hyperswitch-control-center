@@ -84,6 +84,7 @@ let useTransformed: array<dropdownOption> => array<dropdownOptionWithoutOptional
 type allSelectType = Icon | Text
 type opt = {name_: string}
 let makeOptions: array<string> => array<dropdownOption>
+let makeOptionsWithDifferentValues: array<JSON.t> => array<dropdownOption>
 module BaseSelect: {
   @react.component
   let make: (

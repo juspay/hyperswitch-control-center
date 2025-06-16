@@ -109,6 +109,9 @@ external getPayoutVariantValues: string => array<string> = "getPayoutVariantValu
 @val @scope("window")
 external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCategory"
 
+@val @scope("window")
+external getMerchantCategoryCodeWithName: unit => array<JSON.t> = "getMerchantCategoryCodeWithName"
+
 module MatchMedia = {
   type matchEvent = {
     matches: bool,
