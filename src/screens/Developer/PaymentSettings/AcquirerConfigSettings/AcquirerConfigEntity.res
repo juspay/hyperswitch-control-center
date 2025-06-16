@@ -29,40 +29,40 @@ let makeNumericInputField = (~label, ~name, ~placeholder, ~maxLength=6) =>
   )
 
 let acquirerAssignedMerchantId = makeTextInputField(
-  ~label="Acquirer assigned merchant id",
+  ~label="Acquirer Assigned Merchant Id",
   ~name="acquirer_assigned_merchant_id",
-  ~placeholder="Enter acquirer assigned merchant id",
+  ~placeholder="Enter Acquirer Assigned Merchant Id",
 )
 
 let merchantName = makeTextInputField(
-  ~label="Merchant name",
+  ~label="Merchant Name",
   ~name="merchant_name",
-  ~placeholder="Enter merchant name",
+  ~placeholder="Enter Merchant Name",
 )
 
 let merchantCountryCode = makeSelectInputField(
-  ~label="Merchant country code",
+  ~label="Merchant Country",
   ~name="merchant_country_code",
-  ~placeholder="Select merchant country code",
+  ~placeholder="Select Merchant Country",
   ~options=AcquirerConfigUtils.countryDropDownOptions,
 )
 
 let acquirerBin = makeTextInputField(
-  ~label="Acquirer BIN",
+  ~label="Acquirer Bin",
   ~name="acquirer_bin",
-  ~placeholder="Enter acquirer BIN",
+  ~placeholder="Enter Acquirer Bin",
 )
 
 let acquirerFraudRate = makeNumericInputField(
-  ~label="Acquirer fraud rate",
+  ~label="Acquirer Fraud Rate",
   ~name="acquirer_fraud_rate",
-  ~placeholder="Enter acquirer fraud rate",
+  ~placeholder="Enter Acquirer Fraud Rate",
 )
 
 let network = makeSelectInputField(
   ~label="Network",
   ~name="network",
-  ~placeholder="Select network",
+  ~placeholder="Select Network",
   ~options=AcquirerConfigUtils.networkDropDownOptions,
 )
 
