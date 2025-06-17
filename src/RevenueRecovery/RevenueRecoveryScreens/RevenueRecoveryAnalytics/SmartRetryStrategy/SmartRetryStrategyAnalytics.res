@@ -36,7 +36,8 @@ let make = (~entity: moduleEntity) => {
     data->Array.map(item => {
       let params = {
         data: item,
-        xKey: "/icons/smart-retry.svg",
+        icon: "/icons/smart-retry.svg",
+        xKey: "",
         yKey: TimeBucket->getStringFromVariant,
       }
 

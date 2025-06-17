@@ -37,7 +37,9 @@ let smartRetriesMapper = (
   ~params: InsightsTypes.getObjects<JSON.t>,
 ): LineScatterGraphTypes.lineScatterGraphPayload => {
   open InsightsUtils
-  let {data, yKey, xKey} = params
+  let {data, yKey} = params
+
+  let icon = params.icon->Option.getOr("icon")
 
   let dataDict = data->getDictFromJsonObject
 
@@ -106,7 +108,7 @@ let smartRetriesMapper = (
   let tooltipFormatter = LineScatterGraphUtils.tooltipFormatter(
     ~title="Smart Retries",
     ~metricType=Rate,
-    ~svgIconUrl=xKey,
+    ~svgIconUrl=icon,
   )
 
   let valueFormatter = (
@@ -144,7 +146,7 @@ let smartRetriesMapper = (
       verticalAlign: "top",
       y: -10,
     },
-    symbol: `url(${xKey})`,
+    symbol: `url(${icon})`,
   }
 }
 

@@ -82,6 +82,7 @@ type getObjects<'data> = {
   comparison?: DateRangeUtils.comparison,
   currency?: string,
   title?: string,
+  icon?: string,
 }
 
 type chartEntity<'t, 'chartOption, 'data> = {
