@@ -284,3 +284,12 @@ let urlToVariantMapper = (url: RescriptReactRouter.url) => {
   | _ => Routing
   }
 }
+
+let getRoutingTypefromString = (routingType: string) => {
+  switch routingType {
+  | "payoutrouting" => PayoutRouting
+  | "3dsrouting" => ThreedsRouting
+  | "surchargerouting" => SurchargeRouting
+  | _ => Routing
+  }
+}

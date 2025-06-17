@@ -119,6 +119,7 @@ let connectorList: array<connectorTypes> = [
   Processors(FACILITAPAY),
   Processors(ARCHIPEL),
   Processors(WORLDPAYVANTIV),
+  Processors(BARCLAYCARD),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -449,6 +450,10 @@ let facilitapayInfo = {
   description: "Facilitapay is a payment provider for international businesses.Their all-in-one payment hub encompasses all payment methods,pay-ins and pay-outs.",
 }
 
+let barclaycardInfo = {
+  description: "Barclaycard, part of Barclays Bank UK PLC, is a leading global payment business that helps consumers, retailers and businesses to make and take payments flexibly, and to access short-term credit and point of sale finance.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -710,6 +715,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FACILITAPAY => "facilitapay"
   | ARCHIPEL => "archipel"
   | WORLDPAYVANTIV => "worldpayvantiv"
+  | BARCLAYCARD => "barclaycard"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -859,6 +865,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "facilitapay" => Processors(FACILITAPAY)
     | "archipel" => Processors(ARCHIPEL)
     | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
+    | "barclaycard" => Processors(BARCLAYCARD)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -988,6 +995,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FACILITAPAY => facilitapayInfo
   | ARCHIPEL => archipelInfo
   | WORLDPAYVANTIV => worldpayVantivInfo
+  | BARCLAYCARD => barclaycardInfo
   }
 }
 
@@ -1860,6 +1868,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | FACILITAPAY => "Facilitapay"
   | ARCHIPEL => "ArchiPEL"
   | WORLDPAYVANTIV => "Worldpay Vantiv"
+  | BARCLAYCARD => "BarclayCard SmartPay Fuse"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
