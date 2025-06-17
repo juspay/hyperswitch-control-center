@@ -1,33 +1,6 @@
 type pageState = NEW | LANDING
 open RoutingTypes
 
-let getPageConfigs = isFrom3DsExemptions =>
-  if isFrom3DsExemptions {
-    {
-      isFrom3DsExemptions: true,
-      pageTitle: "3DS Exemption Rules",
-      pageSubtitle: "Optimize  3DS strategy by correctly applying 3DS exemptions to offer a seamless experience to the users while balancing fraud",
-      configureTitle: "Configure 3DS Exemption Rules",
-      configureDescription: "Configure advanced rules on parameters like amount, currency, and method to automatically apply 3DS exemptions, balancing regulatory compliance with seamless user experience.",
-      baseUrl: "/3ds-exemption",
-      newUrl: "/3ds-exemption?type=new",
-      entityName: V1(THREE_DS_EXEMPTION_RULES),
-      mixpanelEvent: "create_new_3ds_rule",
-    }
-  } else {
-    {
-      isFrom3DsExemptions: false,
-      pageTitle: "3DS Decision Manager",
-      pageSubtitle: "Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters",
-      configureTitle: "Configure 3DS Rule",
-      configureDescription: "Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions",
-      baseUrl: "/3ds",
-      newUrl: "/3ds?type=new",
-      entityName: V1(THREE_DS),
-      mixpanelEvent: "create_new_3ds_rule",
-    }
-  }
-
 let statementObject: array<statement> = [
   {
     lhs: "amount",
@@ -101,42 +74,50 @@ let pageStateMapper = pageType => {
   }
 }
 
-let buildThreeDsPayloadBody = (~isFrom3DsExemptions=false, values) => {
+let buildThreeDsPayloadBody = values => {
   open LogicUtils
 
   let valuesDict = values->getDictFromJsonObject
   let dataDict = valuesDict->getDictfromDict("algorithm")
   let rulesDict = dataDict->getArrayFromDict("rules", [])
 
-  let modifiedRules = rulesDict->AdvancedRoutingUtils.generateRule(~isFrom3DsExemptions)
+  let modifiedRules = rulesDict->AdvancedRoutingUtils.generateRule
 
-  if isFrom3DsExemptions {
-    {
-      "name": valuesDict->getString("name", ""),
-      "profile_id": valuesDict->getString("profile_id", ""),
-      "description": valuesDict->getString("description", ""),
-      "transaction_type": "three_ds_authentication",
-      "algorithm": {
-        "type": "three_ds_decision_rule",
-        "data": {
-          "defaultSelection": {
-            "decision": "no_three_ds",
-          },
-          "rules": modifiedRules,
-          "metadata": Dict.make()->JSON.Encode.object,
-        },
+  {
+    "name": valuesDict->getString("name", ""),
+    "algorithm": {
+      "defaultSelection": {
+        "override_3ds": JSON.Encode.null,
       },
-    }->Identity.genericTypeToJson
-  } else {
-    {
-      "name": valuesDict->getString("name", ""),
-      "algorithm": {
+      "rules": modifiedRules,
+      "metadata": Dict.make()->JSON.Encode.object,
+    },
+  }->Identity.genericTypeToJson
+}
+
+let buildThreeDsExemptionPayloadBody = values => {
+  open LogicUtils
+
+  let valuesDict = values->getDictFromJsonObject
+  let dataDict = valuesDict->getDictfromDict("algorithm")
+  let rulesDict = dataDict->getArrayFromDict("rules", [])
+
+  let modifiedRules = rulesDict->AdvancedRoutingUtils.generateRuleForThreeDsExemption
+
+  {
+    "name": valuesDict->getString("name", ""),
+    "profile_id": valuesDict->getString("profile_id", ""),
+    "description": valuesDict->getString("description", ""),
+    "transaction_type": "three_ds_authentication",
+    "algorithm": {
+      "type": "three_ds_decision_rule",
+      "data": {
         "defaultSelection": {
-          "override_3ds": JSON.Encode.null,
+          "decision": "no_three_ds",
         },
         "rules": modifiedRules,
         "metadata": Dict.make()->JSON.Encode.object,
       },
-    }->Identity.genericTypeToJson
-  }
+    },
+  }->Identity.genericTypeToJson
 }

@@ -1,46 +1,22 @@
 open RoutingTypes
+open ThreeDSUtils
+open LogicUtils
+open APIUtils
+
 external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
 module ActiveRulePreview = {
-  open LogicUtils
-  open APIUtils
   @react.component
-  let make = (~initialRule, ~setInitialRule) => {
-    let getURL = useGetURL()
-    let updateDetails = useUpdateMethod()
-    let showPopUp = PopUpState.useShowPopUp()
-    let showToast = ToastState.useShowToast()
+  let make = (~initialRule) => {
     let ruleInfo = initialRule->Option.getOr(Dict.make())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let ruleInfo =
       ruleInfo
       ->getJsonObjectFromDict("algorithm")
       ->getDictFromJsonObject
-      ->AdvancedRoutingUtils.ruleInfoTypeMapper
-
-    let deleteCurrentThreedsRule = async () => {
-      try {
-        let url = getURL(~entityName=V1(THREE_DS), ~methodType=Delete)
-        let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
-        showToast(~message="Successfully deleted current active 3ds rule", ~toastType=ToastSuccess)
-        setInitialRule(_ => None)
-      } catch {
-      | _ => showToast(~message="Failed to delete current active 3ds rule.", ~toastType=ToastError)
-      }
-    }
-
-    let handleDeletePopup = () =>
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Confirm delete?",
-        description: React.string(
-          "Are you sure you want to delete currently active 3DS rule? Deleting the rule will remove its associated settings and configurations, potentially affecting functionality.",
-        ),
-        handleConfirm: {text: "Confirm", onClick: _ => deleteCurrentThreedsRule()->ignore},
-      })
+      ->AdvancedRoutingUtils.ruleInfoTypeMapperForThreeDsExemption
 
     <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
       <div
@@ -52,22 +28,12 @@ module ActiveRulePreview = {
           <p className="text-xl font-semibold text-grey-700">
             {name->capitalizeString->React.string}
           </p>
-          <ACLDiv
-            authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-            onClick={_ => handleDeletePopup()}
-            description="Delete existing 3ds rule">
-            <Icon
-              name="delete"
-              size=20
-              className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
-            />
-          </ACLDiv>
         </div>
         <p className="text-base font-normal text-grey-700 opacity-50">
           {description->React.string}
         </p>
       </div>
-      <RulePreviewer ruleInfo isFrom3ds=true />
+      <RulePreviewer ruleInfo isFrom3DsExemptions=true />
     </div>
   }
 }
@@ -76,27 +42,27 @@ module Configure3DSRule = {
   @react.component
   let make = (~wasm) => {
     let ruleInput = ReactFinalForm.useField("algorithm.rules").input
-    let (rules, setRules) = React.useState(_ => ruleInput.value->LogicUtils.getArrayFromJson([]))
+    let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
     React.useEffect(() => {
       ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
     let addRule = (index, _copy) => {
-      let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
+      let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = existingRules[index]->Option.getOr(JSON.Encode.null)
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     let removeRule = index => {
-      let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
+      let existingRules = ruleInput.value->getArrayFromJson([])
       let newRules = existingRules->Array.filterWithIndex((_, i) => i !== index)
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     <div>
       {
-        let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
+        let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
         let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${Int.toString(index)}]`}
@@ -112,7 +78,7 @@ module Configure3DSRule = {
             notFirstRule
             isDragging
             wasm
-            isFrom3ds=true
+            isFrom3DsExemptions=true
           />
         }
         if notFirstRule {
@@ -130,56 +96,75 @@ module Configure3DSRule = {
     </div>
   }
 }
+
 @react.component
 let make = () => {
-  // Three Ds flow
-  open APIUtils
-  open ThreeDSUtils
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (wasm, setWasm) = React.useState(_ => None)
-  let (initialValues, _setInitialValues) = React.useState(_ =>
-    buildInitial3DSValue->Identity.genericTypeToJson
-  )
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageView, setPageView) = React.useState(_ => NEW)
   let showPopUp = PopUpState.useShowPopUp()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastState.useShowToast()
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+
+  let pageConfig = {
+    pageTitle: "3DS Exemption Rules",
+    pageSubtitle: "Optimize  3DS strategy by correctly applying 3DS exemptions to offer a seamless experience to the users while balancing fraud",
+    configureTitle: "Configure 3DS Exemption Rules",
+    configureDescription: "Configure advanced rules on parameters like amount, currency, and method to automatically apply 3DS exemptions, balancing regulatory compliance with seamless user experience.",
+    baseUrl: "/3ds-exemption",
+    newUrl: "/3ds-exemption?type=new",
+    entityName: V1(THREE_DS_EXEMPTION_RULES),
+    mixpanelEvent: "create_new_3ds_rule",
+  }
+
+  let (initialValues, _setInitialValues) = React.useState(_ => {
+    buildInitial3DSValueForExemption->Identity.genericTypeToJson
+  })
 
   let getWasm = async () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
-      let fetchedWasm =
-        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Dict.make())
+      let fetchedWasm = wasmResult->getDictFromJsonObject->getObj("wasm", Dict.make())
       setWasm(_ => Some(fetchedWasm->toWasm))
     } catch {
     | _ => ()
     }
   }
   let activeRoutingDetails = async () => {
-    open LogicUtils
     try {
-      let threeDsUrl = getURL(~entityName=V1(THREE_DS), ~methodType=Get)
+      let threeDsUrl = getURL(~entityName=pageConfig.entityName, ~methodType=Get)
       let threeDsRuleDetail = await fetchDetails(threeDsUrl)
-      let responseDict = threeDsRuleDetail->getDictFromJsonObject
-      let programValue = responseDict->getObj("program", Dict.make())
+      let threeDsRuleArray = threeDsRuleDetail->JSON.Decode.array->Option.getOr([])
+      let firstRule = threeDsRuleArray->Array.get(0)->Option.getOr(JSON.Encode.null)
+      let ruleId = firstRule->getDictFromJsonObject->getString("id", "")
 
-      let intitialValue =
-        [
-          ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
-          (
-            "description",
-            responseDict->LogicUtils.getString("description", "")->JSON.Encode.string,
-          ),
-          ("algorithm", programValue->JSON.Encode.object),
-        ]->Dict.fromArray
+      if ruleId != "" {
+        let activeRulesUrl = getURL(
+          ~entityName=pageConfig.entityName,
+          ~methodType=Get,
+          ~id=Some(ruleId),
+        )
+        let threeDsActiveRuleDetail = await fetchDetails(activeRulesUrl)
+        let responseDict = threeDsActiveRuleDetail->getDictFromJsonObject
+        let programValue =
+          responseDict->getObj("algorithm", Dict.make())->getObj("data", Dict.make())
 
-      setInitialRule(_ => Some(intitialValue))
+        let intitialValue =
+          [
+            ("name", responseDict->getString("name", "")->JSON.Encode.string),
+            ("description", responseDict->getString("description", "")->JSON.Encode.string),
+            ("algorithm", programValue->JSON.Encode.object),
+          ]->Dict.fromArray
+
+        setInitialRule(_ => Some(intitialValue))
+      }
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -208,6 +193,13 @@ let make = () => {
   }
 
   React.useEffect(() => {
+    setInitialRule(_ => None)
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    setPageView(_ => LANDING)
+    None
+  }, [])
+
+  React.useEffect(() => {
     fetchDetails()->ignore
     None
   }, [])
@@ -215,7 +207,7 @@ let make = () => {
   React.useEffect(() => {
     let searchParams = url.search
     let filtersFromUrl =
-      LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("type")->Option.getOr("")
+      getDictFromUrlSearchParams(searchParams)->Dict.get("type")->Option.getOr("")
     setPageView(_ => filtersFromUrl->pageStateMapper)
     None
   }, [url.search])
@@ -223,12 +215,36 @@ let make = () => {
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => Loading)
-      let threeDsPayload = values->buildThreeDsPayloadBody
 
-      let getActivateUrl = getURL(~entityName=V1(THREE_DS), ~methodType=Put)
-      let _ = await updateDetails(getActivateUrl, threeDsPayload->Identity.genericTypeToJson, Put)
+      let valuesWithProfileId = values->getDictFromJsonObject
+      valuesWithProfileId->Dict.set("profile_id", profileId->JSON.Encode.string)
+      let threeDsPayload =
+        valuesWithProfileId
+        ->JSON.Encode.object
+        ->buildThreeDsExemptionPayloadBody
+      let getActivateUrl = getURL(~entityName=pageConfig.entityName, ~methodType=Post)
+      let result = await updateDetails(
+        getActivateUrl,
+        threeDsPayload->Identity.genericTypeToJson,
+        Post,
+      )
+      let resultDict = result->getDictFromJsonObject
+      let routingId = resultDict->getString("id", "")
+      let body =
+        [("transaction_type", "three_ds_authentication"->JSON.Encode.string)]
+        ->Dict.fromArray
+        ->JSON.Encode.object
+
+      let activateUrl = getURL(
+        ~entityName=pageConfig.entityName,
+        ~methodType=Post,
+        ~id=Some(routingId),
+      )
+
+      let _ = await updateDetails(activateUrl, body, Post)
+
       fetchDetails()->ignore
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=pageConfig.baseUrl))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
       showToast(~message="Configuration saved successfully!", ~toastType=ToastState.ToastSuccess)
@@ -241,7 +257,7 @@ let make = () => {
   }
 
   let validate = (values: JSON.t) => {
-    let dict = values->LogicUtils.getDictFromJsonObject
+    let dict = values->getDictFromJsonObject
 
     let errors = Dict.make()
 
@@ -254,12 +270,12 @@ let make = () => {
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {
         let index = 1
-        let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
+        let rules = jsonDict->getArrayFromDict("rules", [])
         if index === 1 && rules->Array.length === 0 {
           errors->Dict.set(`Rules`, "Minimum 1 rule needed"->JSON.Encode.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
-            let ruleDict = rule->LogicUtils.getDictFromJsonObject
+            let ruleDict = rule->getDictFromJsonObject
             if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
               errors->Dict.set(
                 `Rule ${(i + 1)->Int.toString} - Condition`,
@@ -277,11 +293,11 @@ let make = () => {
   }
   let redirectToNewRule = () => {
     setPageView(_ => NEW)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds?type=new"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=pageConfig.newUrl))
   }
 
   let handleCreateNew = () => {
-    mixpanelEvent(~eventName="create_new_3ds_rule")
+    mixpanelEvent(~eventName=pageConfig.mixpanelEvent)
     if initialRule->Option.isSome {
       showPopUp({
         popUpType: (Warning, WithIcon),
@@ -304,10 +320,7 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll gap-6">
-      <PageUtils.PageHeading
-        title={"3DS Decision Manager"}
-        subTitle="Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters"
-      />
+      <PageUtils.PageHeading title={pageConfig.pageTitle} subTitle={pageConfig.pageSubtitle} />
       {switch pageView {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
@@ -346,7 +359,9 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
+                  RescriptReactRouter.replace(
+                    GlobalVars.appendDashboardPath(~url=pageConfig.baseUrl),
+                  )
                 }}
               />
               <FormRenderer.SubmitButton
@@ -358,14 +373,14 @@ let make = () => {
       | LANDING =>
         <div className="flex flex-col gap-6">
           <RenderIf condition={initialRule->Option.isSome}>
-            <ActiveRulePreview initialRule setInitialRule />
+            <ActiveRulePreview initialRule />
           </RenderIf>
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">
-              {"Configure 3DS Rule"->React.string}
+              {pageConfig.configureTitle->React.string}
             </p>
             <p className="text-base font-normal text-grey-700 opacity-50">
-              {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions"->React.string}
+              {pageConfig.configureDescription->React.string}
             </p>
             <ACLButton
               text="Create New"
