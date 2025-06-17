@@ -53,8 +53,7 @@ external getPayoutConnectorConfig: string => JSON.t = "getPayoutConnectorConfig"
 external getThreeDsKeys: unit => array<string> = "getThreeDsKeys"
 
 @val @scope("window")
-external getThreeDsDecisionRuleEngineKeys: unit => array<string> =
-  "getThreeDsDecisionRuleEngineKeys"
+external getThreeDsDecisionRuleKeys: unit => array<string> = "getThreeDsDecisionRuleKeys"
 
 @val @scope("window")
 external getSurchargeKeys: unit => array<string> = "getSurchargeKeys"
