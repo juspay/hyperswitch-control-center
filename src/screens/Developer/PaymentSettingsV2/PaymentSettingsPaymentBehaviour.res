@@ -1,5 +1,5 @@
 open PaymentSettingsV2Types
-open PaymentSettingsV2Utils
+open PaymentSettingsV2Helper
 module CollectDetails = {
   @react.component
   let make = (~title, ~subTitle, ~options: array<options>) => {
