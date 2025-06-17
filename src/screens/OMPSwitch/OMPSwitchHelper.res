@@ -272,6 +272,7 @@ module MerchantDropdownItem = {
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -316,13 +317,18 @@ module MerchantDropdownItem = {
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
       let regexForMerchantName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-
+      let isDuplicate =
+        merchantList->Array.some(merchant =>
+          merchant.name->String.toLowerCase == merchantName->String.toLowerCase
+        )
       let errorMessage = if merchantName->isEmptyString {
         "Merchant name cannot be empty"
       } else if merchantName->String.length > 64 {
         "Merchant name cannot exceed 64 characters"
       } else if !RegExp.test(RegExp.fromString(regexForMerchantName), merchantName) {
         "Merchant name should not contain special characters"
+      } else if isDuplicate {
+        "Merchant with this name already exists"
       } else {
         ""
       }
