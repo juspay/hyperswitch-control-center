@@ -107,6 +107,7 @@ type processorTypes =
   | FACILITAPAY
   | ARCHIPEL
   | WORLDPAYVANTIV
+  | BARCLAYCARD
 
 type payoutProcessorTypes =
   | ADYEN
