@@ -167,7 +167,10 @@ let make = () => {
                     </RenderIf>
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
-                      <div className="absolute bottom-5 right-5 border bg-blue-200 p-2">
+                      <div
+                        onClick={_ =>
+                          RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
+                        className="absolute bottom-5 right-5 border bg-blue-200 p-2">
                         {"try"->React.string}
                       </div>
                       <ErrorBoundary>
