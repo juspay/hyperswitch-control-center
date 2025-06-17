@@ -172,7 +172,7 @@ let make = () => {
                         /* DEFAULT HOME */
                         | (_, list{"v2", "home"}) => <DefaultHome />
 
-                        | (_, list{"organisation-chart"}) => <OrganisationChart />
+                        | (_, list{"organization-chart"}) => <OrganisationChart />
 
                         | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
 

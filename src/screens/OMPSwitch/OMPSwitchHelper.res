@@ -39,8 +39,8 @@ module ListBaseComp = {
                   className="bg-nd_gray-150 w-5 h-5 rounded-sm flex items-center justify-center"
                   onClick={ev => {
                     ReactEvent.Mouse.stopPropagation(ev)
-                    RescriptReactRouter.replace(
-                      GlobalVars.appendDashboardPath(~url="/organisation-chart"),
+                    RescriptReactRouter.push(
+                      GlobalVars.appendDashboardPath(~url="/organization-chart"),
                     )
                   }}>
                   <Icon name="github-fork" size=14 className="text-gray-500" />
