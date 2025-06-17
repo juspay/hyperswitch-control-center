@@ -117,6 +117,7 @@ let make = (
   ~isCheckBox=false,
   ~boolCustomClass="",
   ~addAttributeId="",
+  ~toggleEnableColor="bg-green-950",
 ) => {
   let boolInput = baseInput->ffInputToBoolInput
   let boolValue: JSON.t = boolInput.value
@@ -130,6 +131,11 @@ let make = (
   isCheckBox
     ? <CheckBoxIcon isSelected setIsSelected isDisabled={isDisabled} />
     : <BaseComponent
-        isSelected setIsSelected isDisabled={isDisabled} boolCustomClass addAttributeId
+        isSelected
+        setIsSelected
+        isDisabled={isDisabled}
+        boolCustomClass
+        addAttributeId
+        toggleEnableColor
       />
 }
