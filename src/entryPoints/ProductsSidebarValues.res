@@ -27,6 +27,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     devVaultV2Product,
     devHypersenseV2Product,
     devIntelligentRoutingV2,
+    devOrchestrationV2Product,
   } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -86,6 +87,16 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
         name: DynamicRouting->getProductDisplayName,
         icon: "intelligent-routing-home",
         link: "/v2/onboarding/intelligent-routing",
+        access: Access,
+      }),
+    )
+  }
+  if devOrchestrationV2Product {
+    sideBarValues->Array.push(
+      Link({
+        name: OrchestrationV2->getProductDisplayName,
+        icon: "orchestrator-home",
+        link: "/v2/onboarding/orchestrator-v2",
         access: Access,
       }),
     )

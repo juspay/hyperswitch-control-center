@@ -202,6 +202,10 @@ let make = () => {
                         | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
                           <IntelligentRoutingApp />
 
+                        /* ORCHESTRATOR V2 PRODUCT */
+                        | (OrchestrationV2, list{"v2", "orchestration-v2", ..._}) =>
+                          <OrchestrationV2App />
+
                         /* ORCHESTRATOR PRODUCT */
                         | (Orchestration, _) => <OrchestrationApp setScreenState />
 
