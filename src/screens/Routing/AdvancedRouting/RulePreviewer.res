@@ -168,10 +168,7 @@ let make = (
                 <RenderIf condition={isFrom3ds || isFrom3DsExemptions}>
                   <ThreedsTypeView threeDsType />
                 </RenderIf>
-                <RenderIf condition={!isFrom3ds}>
-                  <GatewayView gateways={rule.connectorSelection.data->Option.getOr([])} />
-                </RenderIf>
-                <RenderIf condition={!isFrom3DsExemptions}>
+                <RenderIf condition={!isFrom3ds && !isFrom3DsExemptions}>
                   <GatewayView gateways={rule.connectorSelection.data->Option.getOr([])} />
                 </RenderIf>
                 <RenderIf condition={isFromSurcharge}>
