@@ -68,7 +68,7 @@ let network = makeSelectInputField(
 )
 
 open Table
-let getHeading = (colType: colType): header => {
+let getHeading = colType => {
   switch colType {
   | AcquirerAssignedMerchantId =>
     makeHeaderInfo(
@@ -97,36 +97,36 @@ let defaultColumns = [
   Update,
 ]
 
-let makeEntityWithEditHandler = (~onEdit: option<acquirerConfig => unit>=None) => {
-  let getCellWithEdit = (data: acquirerConfig, colType: colType): cell => {
-    switch colType {
-    | AcquirerAssignedMerchantId => Text(data.acquirer_assigned_merchant_id)
-    | MerchantName => Text(data.merchant_name)
-    | MerchantCountryCode => Text(data.merchant_country_code)
-    | Network => Text(data.network)
-    | AcquirerBin => Text(data.acquirer_bin)
-    | AcquirerFraudRate => Numeric(data.acquirer_fraud_rate, num => num->Float.toString ++ "%")
-    | Update =>
-      CustomCell(
-        <div className="flex gap-2 justify-center">
-          <Icon
-            name="edit"
-            className="cursor-pointer text-blue-500 hover:text-blue-700 mr-1"
-            size=16
-            onClick={_ => onEdit->Option.forEach(editFn => editFn(data))}
-          />
-        </div>,
-        "",
-      )
-    }
+let getCellWithEdit = (data, colType, onEdit) => {
+  switch colType {
+  | AcquirerAssignedMerchantId => Text(data.acquirer_assigned_merchant_id)
+  | MerchantName => Text(data.merchant_name)
+  | MerchantCountryCode => Text(data.merchant_country_code)
+  | Network => Text(data.network)
+  | AcquirerBin => Text(data.acquirer_bin)
+  | AcquirerFraudRate => Numeric(data.acquirer_fraud_rate, num => num->Float.toString ++ "%")
+  | Update =>
+    CustomCell(
+      <div className="flex gap-2 justify-center">
+        <Icon
+          name="edit"
+          className="cursor-pointer text-blue-500 hover:text-blue-700 mr-1"
+          size=16
+          onClick={_ => onEdit->Option.forEach(editFn => editFn(data))}
+        />
+      </div>,
+      "",
+    )
   }
+}
 
+let makeEntityWithEditHandler = (~onEdit) => {
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
-    ~getCell=getCellWithEdit,
+    ~getCell=(data, colType) => getCellWithEdit(data, colType, onEdit),
     ~dataKey="",
     ~searchFields=[],
     ~searchUrl="",

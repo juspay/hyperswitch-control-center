@@ -37,77 +37,86 @@ module SettingsForm = {
     let isUpdateMode = editingConfig->Option.isSome
     let initialValues =
       editingConfig
-      ->Option.map(config => {
-        [
-          (
-            "acquirer_assigned_merchant_id",
-            config.acquirer_assigned_merchant_id->JSON.Encode.string,
-          ),
-          ("merchant_name", config.merchant_name->JSON.Encode.string),
-          ("merchant_country_code", config.merchant_country_code->JSON.Encode.string),
-          ("network", config.network->JSON.Encode.string),
-          ("acquirer_bin", config.acquirer_bin->JSON.Encode.string),
-          ("acquirer_fraud_rate", config.acquirer_fraud_rate->JSON.Encode.float),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-      })
+      ->Option.map(getInitialValuesFromConfig)
       ->Option.getOr(JSON.Encode.null)
 
     let (submitButtonTitle, cancelButtonTitle) = isUpdateMode
       ? ("Update", "Exit Update Mode")
       : ("Save", "Close")
 
-    let onSubmit = async (values, _) => {
+    let prepareFormData = values => {
+      let valuesDict = values->getDictFromJsonObject
+      let acquirerBinValue = valuesDict->getFloat("acquirer_bin", 0.0)
+      if acquirerBinValue > 0.0 {
+        valuesDict->Dict.set(
+          "acquirer_bin",
+          acquirerBinValue->Float.toInt->Int.toString->JSON.Encode.string,
+        )
+      }
+      valuesDict
+    }
+
+    let handleApiError = e => {
+      let defaultErrorMessage = "Failed to process acquirer config"
+      let errorMessage = switch Exn.message(e) {
+      | Some(err) => {
+          let errorCode =
+            err->JSON.parseExn->getDictFromJsonObject->LogicUtils.getString("code", "")
+          switch errorCode {
+          | "IR_38" => "Duplicate entry found"
+          | _ => defaultErrorMessage
+          }
+        }
+      | None => defaultErrorMessage
+      }
+      showToast(~message=errorMessage, ~toastType=ToastState.ToastError)
+    }
+
+    let createAcquirerConfig = async values => {
       try {
-        let actionMessage = isUpdateMode
-          ? "Updating acquirer config..."
-          : "Creating acquirer config..."
-        let successMessage = isUpdateMode ? "Acquirer config updated" : "Acquirer config created"
+        showToast(~message="Creating acquirer config...", ~toastType=ToastState.ToastInfo)
 
-        showToast(~message=actionMessage, ~toastType=ToastState.ToastInfo)
-        let valuesDict = values->getDictFromJsonObject
-
-        let acquirerBinValue = valuesDict->getFloat("acquirer_bin", 0.0)
-        if acquirerBinValue > 0.0 {
-          valuesDict->Dict.set(
-            "acquirer_bin",
-            acquirerBinValue->Float.toInt->Int.toString->JSON.Encode.string,
-          )
-        }
-
-        if !isUpdateMode {
-          valuesDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-        }
+        let valuesDict = prepareFormData(values)
+        valuesDict->Dict.set("profile_id", profileId->JSON.Encode.string)
 
         let (entityName, methodType) = (V1(ACQUIRER_CONFIG_SETTINGS), Post)
-
-        let url = switch (isUpdateMode, editingConfig) {
-        | (true, Some({id})) => getURL(~entityName, ~methodType, ~id=Some(id))
-        | _ => getURL(~entityName, ~methodType)
-        }
+        let url = getURL(~entityName, ~methodType)
 
         let _ = await updateDetails(url, valuesDict->JSON.Encode.object, Post)
 
         handleCloseForm()
-        showToast(~message=successMessage, ~toastType=ToastState.ToastSuccess)
+        showToast(~message="Acquirer config created", ~toastType=ToastState.ToastSuccess)
         fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
       } catch {
-      | Exn.Error(e) => {
-          let defaultErrorMessage = "Failed to update acquirer config"
-          let errorMessage = switch Exn.message(e) {
-          | Some(err) => {
-              let errorCode =
-                err->JSON.parseExn->getDictFromJsonObject->LogicUtils.getString("code", "")
-              switch errorCode {
-              | "IR_38" => "Duplicate entry found"
-              | _ => defaultErrorMessage
-              }
-            }
-          | None => defaultErrorMessage
-          }
-          showToast(~message=errorMessage, ~toastType=ToastState.ToastError)
-        }
+      | Exn.Error(e) => handleApiError(e)
+      }
+    }
+
+    let updateAcquirerConfig = async (values, configId) => {
+      try {
+        showToast(~message="Updating acquirer config...", ~toastType=ToastState.ToastInfo)
+
+        let valuesDict = prepareFormData(values)
+
+        let (entityName, methodType) = (V1(ACQUIRER_CONFIG_SETTINGS), Post)
+        let url = getURL(~entityName, ~methodType, ~id=Some(configId))
+
+        let _ = await updateDetails(url, valuesDict->JSON.Encode.object, Post)
+
+        handleCloseForm()
+        showToast(~message="Acquirer config updated", ~toastType=ToastState.ToastSuccess)
+        fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
+      } catch {
+      | Exn.Error(e) => handleApiError(e)
+      }
+    }
+
+    let onSubmit = async (values, _) => {
+      switch (isUpdateMode, editingConfig) {
+      | (true, Some({id})) => await updateAcquirerConfig(values, id)
+      | (false, _) => await createAcquirerConfig(values)
+      | (true, None) =>
+        showToast(~message="No config selected for update", ~toastType=ToastState.ToastError)
       }
       Nullable.null
     }
