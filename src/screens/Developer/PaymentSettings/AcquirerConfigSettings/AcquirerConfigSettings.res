@@ -68,6 +68,14 @@ module SettingsForm = {
         showToast(~message=actionMessage, ~toastType=ToastState.ToastInfo)
         let valuesDict = values->getDictFromJsonObject
 
+        let acquirerBinValue = valuesDict->getFloat("acquirer_bin", 0.0)
+        if acquirerBinValue > 0.0 {
+          valuesDict->Dict.set(
+            "acquirer_bin",
+            acquirerBinValue->Float.toInt->Int.toString->JSON.Encode.string,
+          )
+        }
+
         if !isUpdateMode {
           valuesDict->Dict.set("profile_id", profileId->JSON.Encode.string)
         }

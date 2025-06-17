@@ -51,6 +51,18 @@ let validateAcquirerConfigForm = (values, keys) => {
       if fraudRate < 0.0 || fraudRate > 100.0 {
         key->setFieldError("Fraud rate should be between 0 and 100")
       }
+    | "acquirer_bin" =>
+      let binValue = valuesDict->getFloat(key, 0.0)
+      let binString = binValue->Float.toString
+      let binLength = binString->String.length
+
+      if binValue <= 0.0 {
+        key->setFieldError("This field is required")
+      } else if binValue !== Float.fromInt(Float.toInt(binValue)) {
+        key->setFieldError("Acquirer BIN must be a whole number")
+      } else if binLength < 5 || binLength > 20 {
+        key->setFieldError("Acquirer BIN must be between 5 and 20 digits")
+      }
     | _ =>
       if value === "" {
         key->setFieldError("This field is required")
