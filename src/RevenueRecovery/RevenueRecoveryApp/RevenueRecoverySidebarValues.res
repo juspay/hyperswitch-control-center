@@ -37,7 +37,11 @@ let revenueRecoverySummary = {
 }
 
 let recoverySidebars = {
-  let links = [revenueRecoveryPayments, revenueRecoveryInvoices, revenueRecoverySummary]
+  let links = [revenueRecoveryInvoices, revenueRecoverySummary]
+
+  if "recovery"->LogicUtils.isEmptyString {
+    links->Array.unshift(revenueRecoveryPayments)
+  }
 
   links
 }

@@ -3,6 +3,7 @@ let make = () => {
   open HSwitchUtils
   open GlobalVars
   open APIUtils
+  open LogicUtils
 
   open HyperswitchAtom
   open HyperswitchAppHelper
@@ -14,10 +15,11 @@ let make = () => {
     dashboardPageState,
     setDashboardPageState,
   } = React.useContext(GlobalProvider.defaultContext)
-
-  let {activeProduct, setActiveProductValue} = React.useContext(
+  let {activeProduct, setActiveProductValue, setCreateNewMerchant} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -35,7 +37,7 @@ let make = () => {
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
-
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -63,6 +65,50 @@ let make = () => {
     }
   }
 
+  let fetchV2MerchantList = async () => {
+    try {
+      let url = getURL(~entityName=V2(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
+      let v2MerchantResponse = await fetchDetails(url, ~version=V2)
+      v2MerchantResponse->getArrayFromJson([])
+    } catch {
+    | _ => []
+    }
+  }
+
+  let handleStandaloneMerchant = async (merchantResponse: HSwitchSettingTypes.merchantPayload) => {
+    open ProductUtils
+    if merchantResponse.product_type == "recovery"->getProductVariantFromString {
+      setActiveProductValue(merchantResponse.product_type)
+      setupProductUrl(~productType=merchantResponse.product_type)
+    } else {
+      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_MERCHANT, ~methodType=Get)
+      let v1MerchantResponse = await fetchDetails(url)
+
+      let v2MerchantList = if featureFlagDetails.devModularityV2 {
+        await fetchV2MerchantList()
+      } else {
+        []
+      }
+
+      let merchantList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
+
+      let recoveryMerchant =
+        merchantList
+        ->LogicUtils.getMappedValueFromArrayOfJson(OMPSwitchUtils.merchantItemToObjMapper)
+        ->Array.filter(merchant =>
+          merchant.productType->Option.getOr(Orchestration) ==
+            "recovery"->getProductVariantFromString
+        )
+        ->Array.get(0)
+
+      switch recoveryMerchant {
+      | Some(merchant) =>
+        let _ = await internalSwitch(~expectedMerchantId=merchant.id->Some, ~version=V2)
+      | None => setCreateNewMerchant("recovery"->getProductVariantFromString)
+      }
+    }
+  }
+
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
@@ -72,9 +118,11 @@ let make = () => {
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      setActiveProductValue(merchantResponse.product_type)
+
+      await handleStandaloneMerchant(merchantResponse)
+
+      setScreenState(_ => PageLoaderWrapper.Success)
       setShowSideBar(_ => true)
-      setupProductUrl(~productType=merchantResponse.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -93,7 +141,6 @@ let make = () => {
   React.useEffect(() => {
     if userGroupACL->Option.isSome {
       setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
   }, [userGroupACL])
@@ -141,7 +188,7 @@ let make = () => {
                         </div>
                       </div>}
                       headerLeftActions={switch logoURL {
-                      | Some(url) if url->LogicUtils.isNonEmptyString =>
+                      | Some(url) if url->isNonEmptyString =>
                         <div className="flex md:gap-4 gap-2 items-center">
                           <img className="h-8 w-auto object-contain" alt="image" src={url} />
                           <ProfileSwitch />
@@ -162,7 +209,7 @@ let make = () => {
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
-                    <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
+                    <RenderIf condition={maintenanceAlert->isNonEmptyString}>
                       <HSwitchUtils.AlertBanner bannerText={maintenanceAlert} bannerType={Info} />
                     </RenderIf>
                     <div

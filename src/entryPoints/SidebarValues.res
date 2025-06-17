@@ -696,5 +696,9 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   }
-  defaultSidebar->Array.concat(sidebarValuesForProduct)
+
+  switch "recovery"->ProductUtils.getProductVariantFromString {
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
+  | _ => defaultSidebar->Array.concat(sidebarValuesForProduct)
+  }
 }

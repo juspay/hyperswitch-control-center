@@ -18,7 +18,12 @@ let make = (~setAppScreenState) => {
 
   <div>
     {switch url.path->urlPath {
-    | list{"home"} => <Home setAppScreenState />
+    | list{"home"} =>
+      switch "recovery"->ProductUtils.getProductVariantFromString {
+      | Recovery => <RevenueRecoveryHome />
+      | _ => <Home setAppScreenState />
+      }
+
     | list{"recon"} =>
       <AccessControl
         isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])}

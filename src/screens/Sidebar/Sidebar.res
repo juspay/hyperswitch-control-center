@@ -668,7 +668,8 @@ let make = (
               })
               ->React.array}
             </div>
-            <RenderIf condition={productSiebars->Array.length > 0}>
+            <RenderIf
+              condition={productSiebars->Array.length > 0 && "recovery"->LogicUtils.isEmptyString}>
               <div className={"p-2.5"}>
                 <div
                   className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>

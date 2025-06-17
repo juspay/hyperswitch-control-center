@@ -206,7 +206,17 @@ let make = () => {
       let response =
         concatenatedList->LogicUtils.uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
       let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
-      setMerchantList(_ => concatenatedListTyped)
+
+      let updatedList = if "recovery"->isNonEmptyString {
+        concatenatedListTyped->Array.filter(merchant =>
+          merchant.productType->Option.getOr(Orchestration) ==
+            "recovery"->ProductUtils.getProductVariantFromString
+        )
+      } else {
+        concatenatedListTyped
+      }
+
+      setMerchantList(_ => updatedList)
     } catch {
     | _ => {
         setMerchantList(_ => [ompDefaultValue(merchantId, "")])
