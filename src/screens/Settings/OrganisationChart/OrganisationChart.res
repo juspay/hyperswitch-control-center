@@ -1,8 +1,6 @@
 type switchingEntity =
-  | SwitchingNone
-  | SwitchingOrg
-  | SwitchingMerchant
-  | SwitchingProfile
+  | Switching(string)
+  | None
 
 module OrgChartTree = {
   @react.component
@@ -92,27 +90,27 @@ let make = () => {
   let (selectedOrg, setSelectedOrg) = React.useState(() => orgId)
   let (selectedMerchant, setSelectedMerchant) = React.useState(() => merchantId)
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)
-  let (switching, setSwitching) = React.useState(() => SwitchingNone)
+  let (switching, setSwitching) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let onOrgSelect = async (org: OMPSwitchTypes.ompListTypes) => {
     try {
-      setSwitching(_ => SwitchingOrg)
+      setSwitching(_ => Switching("organization"))
       setSelectedOrg(_ => org.id)
       let _ = await internalSwitch(~expectedOrgId=Some(org.id))
-      setSwitching(_ => SwitchingNone)
+      setSwitching(_ => None)
     } catch {
     | _ => {
         setSelectedOrg(_ => orgId)
         showToast(~message="Failed to switch organization", ~toastType=ToastError)
-        setSwitching(_ => SwitchingNone)
+        setSwitching(_ => None)
       }
     }
   }
   let onMerchantSelect = async (merchant: OMPSwitchTypes.ompListTypes) =>
     try {
-      setSwitching(_ => SwitchingMerchant)
+      setSwitching(_ => Switching("merchant"))
       setSelectedMerchant(_ => merchant.id)
       let merchantData =
         merchantList
@@ -126,25 +124,25 @@ let make = () => {
         ~changePath=true,
       )
       setActiveProductValue(productType)
-      setSwitching(_ => SwitchingNone)
+      setSwitching(_ => None)
     } catch {
     | _ => {
         setSelectedMerchant(_ => merchantId)
         showToast(~message="Failed to switch merchant", ~toastType=ToastError)
-        setSwitching(_ => SwitchingNone)
+        setSwitching(_ => None)
       }
     }
   let onProfileSelect = async (profile: OMPSwitchTypes.ompListTypes) =>
     try {
-      setSwitching(_ => SwitchingProfile)
+      setSwitching(_ => Switching("profile"))
       setSelectedProfile(_ => profile.id)
       let _ = await internalSwitch(~expectedProfileId=Some(profile.id))
-      setSwitching(_ => SwitchingNone)
+      setSwitching(_ => None)
     } catch {
     | _ => {
         setSelectedProfile(_ => profileId)
         showToast(~message="Failed to switch profile", ~toastType=ToastError)
-        setSwitching(_ => SwitchingNone)
+        setSwitching(_ => None)
       }
     }
   <div className="flex flex-col px-4 lg:px-10 gap-8">
@@ -166,13 +164,11 @@ let make = () => {
       </div>
     </div>
     <LoaderModal
-      showModal={switching != SwitchingNone}
-      setShowModal={_ => setSwitching(_ => SwitchingNone)}
+      showModal={switching != None}
+      setShowModal={_ => setSwitching(_ => None)}
       text={switch switching {
-      | SwitchingOrg => "Switching organisation..."
-      | SwitchingMerchant => "Switching merchant..."
-      | SwitchingProfile => "Switching profile..."
-      | SwitchingNone => ""
+      | Switching(entityType) => `Switching ${entityType}...`
+      | None => ""
       }}
     />
   </div>
