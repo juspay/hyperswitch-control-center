@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.16.0
+
+### Bug Fixes
+
+- Validation of not allowing same merchant name in same organisation ([#3103](https://github.com/juspay/hyperswitch-control-center/pull/3103)) ([`7cf354c`](https://github.com/juspay/hyperswitch-control-center/commit/7cf354c5956028b1f04fca501eeec714599624ef))
+- Screen sizes calender filter positioning ([#3155](https://github.com/juspay/hyperswitch-control-center/pull/3155)) ([`3122aec`](https://github.com/juspay/hyperswitch-control-center/commit/3122aec76cd9f445b1ec6095ccc1437304f7dc4d))
+
+### Miscellaneous Tasks
+
+- Not Found for 3ds secure io ([#3166](https://github.com/juspay/hyperswitch-control-center/pull/3166)) ([`90444bd`](https://github.com/juspay/hyperswitch-control-center/commit/90444bda9dce54acf8140198d342051b2ea28a23))
+- Removed unused payment settings list and business profile pages ([#3171](https://github.com/juspay/hyperswitch-control-center/pull/3171)) ([`c1ac401`](https://github.com/juspay/hyperswitch-control-center/commit/c1ac4010aab9ddab7e6b88424046f35b01040a72))
+
+**Full Changelog:** [`2025.06.13.0...2025.06.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.13.0...2025.06.16.0)
+
+- - -
+
 ## 2025.06.13.0
 
 ### Features
