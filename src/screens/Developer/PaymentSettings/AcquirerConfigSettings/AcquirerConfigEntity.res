@@ -47,14 +47,15 @@ let merchantCountryCode = makeSelectInputField(
   ~options=AcquirerConfigUtils.countryDropDownOptions,
 )
 
-let acquirerBin = makeTextInputField(
+let acquirerBin = makeNumericInputField(
   ~label="Acquirer Bin",
   ~name="acquirer_bin",
   ~placeholder="Enter Acquirer Bin",
+  ~maxLength=20,
 )
 
 let acquirerFraudRate = makeNumericInputField(
-  ~label="Acquirer Fraud Rate",
+  ~label="Acquirer Fraud Rate (%)",
   ~name="acquirer_fraud_rate",
   ~placeholder="Enter Acquirer Fraud Rate",
 )
