@@ -261,6 +261,7 @@ let make = () => {
         PaymentSettingsV2Utils.validateMerchantAccountFormV2(
           ~values,
           ~isLiveMode=featureFlagDetails.isLiveMode,
+          ~businessProfileRecoilVal,
         )
       }}>
       <CollectDetails

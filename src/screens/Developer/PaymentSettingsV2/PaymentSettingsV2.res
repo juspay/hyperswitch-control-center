@@ -45,7 +45,7 @@ let make = () => {
     },
     {
       title: "3DS",
-      renderContent: () => React.null,
+      renderContent: () => <PaymentSettingsThreeDs />,
     },
     {
       title: "Custom Headers",
