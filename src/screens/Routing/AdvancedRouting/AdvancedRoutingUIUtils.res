@@ -387,7 +387,7 @@ module RuleFieldBase = {
       if isFrom3ds {
         Window.getThreeDsKeys()
       } else if isFrom3DsExemptions {
-        Window.getThreeDsDecisionRuleEngineKeys()
+        Window.getThreeDsDecisionRuleKeys()
       } else if isFromSurcharge {
         Window.getSurchargeKeys()
       } else {

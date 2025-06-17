@@ -107,9 +107,9 @@ function getThreeDsKeys() {
   }
 }
 
-function getThreeDsDecisionRuleEngineKeys() {
+function getThreeDsDecisionRuleKeys() {
   if (wasm) {
-    return wasm.getThreeDsDecisionRuleEngineKeys();
+    return wasm.getThreeDsDecisionRuleKeys();
   } else {
     return [];
   }
