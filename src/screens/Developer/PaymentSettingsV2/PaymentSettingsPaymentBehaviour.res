@@ -1,5 +1,6 @@
 open PaymentSettingsV2Types
-module CollectDetailsV2 = {
+open PaymentSettingsV2Utils
+module CollectDetails = {
   @react.component
   let make = (~title, ~subTitle, ~options: array<options>) => {
     open LogicUtils
@@ -76,11 +77,10 @@ module CollectDetailsV2 = {
   }
 }
 
-module AutoRetriesV2 = {
+module AutoRetries = {
   @react.component
   let make = () => {
     open FormRenderer
-    open DeveloperUtils
     open LogicUtils
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -106,7 +106,7 @@ module AutoRetriesV2 = {
       </DesktopRow>
       <RenderIf condition={isAutoRetryEnabledFormVal}>
         <FieldRenderer
-          field={maxAutoRetriesV2}
+          field={maxAutoRetries}
           errorClass
           labelClass="!text-fs-15 !text-grey-700 font-semibold"
           fieldWrapperClass="pb-8 "
@@ -116,7 +116,7 @@ module AutoRetriesV2 = {
   }
 }
 
-module ClickToPaySectionV2 = {
+module ClickToPaySection = {
   @react.component
   let make = () => {
     open FormRenderer
@@ -186,14 +186,14 @@ module ClickToPaySectionV2 = {
   }
 }
 
-module WebHookV2 = {
+module WebHook = {
   @react.component
   let make = () => {
     open FormRenderer
 
     <div className="ml-1 mt-4">
       <FieldRenderer
-        field={DeveloperUtils.webhookUrlV2}
+        field={webhookUrl}
         labelClass="!text-fs-15 !text-grey-700 font-semibold"
         fieldWrapperClass="max-w-xl  "
       />
@@ -201,13 +201,13 @@ module WebHookV2 = {
   }
 }
 
-module ReturnUrlV2 = {
+module ReturnUrl = {
   @react.component
   let make = () => {
     open FormRenderer
     <div className="ml-1 mt-4">
       <FieldRenderer
-        field={DeveloperUtils.returnUrlV2}
+        field={returnUrl}
         errorClass={HSwitchUtils.errorClass}
         labelClass="!text-fs-15 !text-grey-700 font-semibold"
         fieldWrapperClass="max-w-xl pt-8 border-gray-200 "
@@ -263,7 +263,7 @@ let make = () => {
           ~isLiveMode=featureFlagDetails.isLiveMode,
         )
       }}>
-      <CollectDetailsV2
+      <CollectDetails
         title="Collect billing details from wallets"
         subTitle="Enable automatic collection of billing information when customers connect their wallets"
         options=[
@@ -278,7 +278,7 @@ let make = () => {
         ]
       />
       <hr />
-      <CollectDetailsV2
+      <CollectDetails
         title="Collect shipping details from wallets"
         subTitle="Enable automatic collection of shipping information when customers connect their wallets"
         options=[
@@ -309,12 +309,12 @@ let make = () => {
         />
       </DesktopRow>
       <hr />
-      <ClickToPaySectionV2 />
+      <ClickToPaySection />
       <hr />
-      <AutoRetriesV2 />
+      <AutoRetries />
       <hr />
-      <ReturnUrlV2 />
-      <WebHookV2 />
+      <ReturnUrl />
+      <WebHook />
       <DesktopRow wrapperClass="mt-8">
         <div className="flex justify-end mt-4 w-full">
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
