@@ -119,6 +119,7 @@ let connectorList: array<connectorTypes> = [
   Processors(FACILITAPAY),
   Processors(ARCHIPEL),
   Processors(WORLDPAYVANTIV),
+  Processors(BARCLAYCARD),
   Processors(TOKENIO),
 ]
 
@@ -449,6 +450,10 @@ let paystackInfo = {
 let facilitapayInfo = {
   description: "Facilitapay is a payment provider for international businesses.Their all-in-one payment hub encompasses all payment methods,pay-ins and pay-outs.",
 }
+
+let barclaycardInfo = {
+  description: "Barclaycard, part of Barclays Bank UK PLC, is a leading global payment business that helps consumers, retailers and businesses to make and take payments flexibly, and to access short-term credit and point of sale finance.",
+}
 let tokenioInfo = {
   description: "Token.io is a fintech company that provides open banking-based, account-to-account (A2A) payment infrastructure—essentially enabling “Pay by Bank” solutions for banks, fintechs, platforms, and payment service providers.",
 }
@@ -714,6 +719,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FACILITAPAY => "facilitapay"
   | ARCHIPEL => "archipel"
   | WORLDPAYVANTIV => "worldpayvantiv"
+  | BARCLAYCARD => "barclaycard"
   | TOKENIO => "tokenio"
   }
 
@@ -864,6 +870,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "facilitapay" => Processors(FACILITAPAY)
     | "archipel" => Processors(ARCHIPEL)
     | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
+    | "barclaycard" => Processors(BARCLAYCARD)
     | "tokenio" => Processors(TOKENIO)
     | _ => UnknownConnector("Not known")
     }
@@ -994,6 +1001,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FACILITAPAY => facilitapayInfo
   | ARCHIPEL => archipelInfo
   | WORLDPAYVANTIV => worldpayVantivInfo
+  | BARCLAYCARD => barclaycardInfo
   | TOKENIO => tokenioInfo
   }
 }
@@ -1867,6 +1875,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | FACILITAPAY => "Facilitapay"
   | ARCHIPEL => "ArchiPEL"
   | WORLDPAYVANTIV => "Worldpay Vantiv"
+  | BARCLAYCARD => "BarclayCard SmartPay Fuse"
   | TOKENIO => "Token.io"
   }
 
