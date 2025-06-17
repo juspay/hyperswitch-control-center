@@ -407,6 +407,7 @@ module.exports = {
           subtle: "#FCDAD7",
         },
         nd_green: {
+          10: "#DFFBF7",
           50: "#ECF4EE",
           100: "#E8F8F5",
           200: "#52B87A",
@@ -428,6 +429,9 @@ module.exports = {
           100: "#FFFBEE",
           200: "#5E4200",
           800: "#998335",
+        },
+        nd_purple: {
+          50: "#EFE3FC",
         },
       },
       borderRadius: {
