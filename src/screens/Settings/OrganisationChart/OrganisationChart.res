@@ -145,8 +145,8 @@ let make = () => {
     <div className="flex flex-col">
       <PageUtils.PageHeading
         title="Organization Chart"
-        subTitle="Review your configured processor details, enabled payment methods and associated settings."
-        customSubTitleStyle={` ${body.lg.medium} text-gray-500`}
+        subTitle="An entity-level overview enabling navigation and transitions across your organization based on access permissions."
+        customSubTitleStyle={`${body.lg.medium} text-gray-500`}
       />
       <div className="relative w-full">
         <OrgChartTree
