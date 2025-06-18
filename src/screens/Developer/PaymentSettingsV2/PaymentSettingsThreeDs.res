@@ -114,7 +114,7 @@ let make = () => {
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
           labelClass="!text-fs-15 !text-grey-700 font-semibold"
-          fieldWrapperClass="w-full flex justify-between items-center  border-gray-200 pt-8 pb-4  "
+          fieldWrapperClass="w-full flex justify-between items-center border-gray-200 pt-8 pb-4"
           field={makeFieldInfo(
             ~name="force_3ds_challenge",
             ~label="Force 3DS Challenge",
@@ -133,7 +133,7 @@ let make = () => {
             ->Array.map(item => item.connector_name)
             ->authenticationConnectors}
             errorClass
-            labelClass="!text-fs-15 !text-grey-700 font-semibold "
+            labelClass="!text-fs-15 !text-grey-700 font-semibold  "
             fieldWrapperClass="max-w-sm  "
           />
           <ThreeDsRequestorUrl />

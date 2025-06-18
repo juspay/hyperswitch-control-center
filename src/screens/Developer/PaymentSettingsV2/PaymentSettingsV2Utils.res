@@ -278,9 +278,10 @@ let parseBusinessProfileForThreeDS = (profileRecord: HSwitchSettingTypes.profile
 }
 
 let isAuthConnectorArrayEmpty = values => {
+  open LogicUtils
   values
-  ->LogicUtils.getDictFromJsonObject
-  ->LogicUtils.getDictfromDict("authentication_connector_details")
-  ->LogicUtils.getArrayFromDict("authentication_connectors", [])
+  ->getDictFromJsonObject
+  ->getDictfromDict("authentication_connector_details")
+  ->getArrayFromDict("authentication_connectors", [])
   ->Array.length === 0
 }
