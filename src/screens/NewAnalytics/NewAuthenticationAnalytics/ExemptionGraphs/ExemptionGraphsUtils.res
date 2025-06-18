@@ -107,7 +107,7 @@ let tooltipFormatter = (
 }
 
 let getLineGraphData = (data, ~xKey, ~yKey, ~groupByKey, ~isAmount=false) => {
-  if groupByKey->String.length > 0 {
+  if groupByKey->isNonEmptyString {
     let separatorDict = Dict.make()
     data
     ->getArrayFromJson([])
