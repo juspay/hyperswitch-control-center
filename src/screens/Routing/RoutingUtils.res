@@ -229,10 +229,11 @@ let validateConditionJson = (json, keys) => {
 
 let validateConditionsFor3ds = dict => {
   let conditionsArray = dict->getArrayFromDict("statements", [])
+  let decisionValue = dict->getDictfromDict("connectorSelection")->getString("override_3ds", "")
 
   conditionsArray->Array.every(value => {
     value->validateConditionJson(["comparison", "lhs"])
-  })
+  }) && decisionValue->isNonEmptyString
 }
 
 let getRecordsObject = json => {
