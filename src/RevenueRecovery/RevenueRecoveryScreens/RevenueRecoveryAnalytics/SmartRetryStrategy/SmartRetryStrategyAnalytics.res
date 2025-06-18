@@ -36,22 +36,33 @@ let make = (~entity: moduleEntity) => {
     data->Array.map(item => {
       let params = {
         data: item,
+        icon: "/icons/smart-retry.svg",
         xKey: "",
         yKey: TimeBucket->getStringFromVariant,
       }
 
       let itemDict = item->getDictFromJsonObject
+
       let title = itemDict->getString(GroupName->getStringFromVariant, "")
 
-      (title, LineScatterGraphUtils.getLineGraphOptions(smartRetriesMapper(~params)))
+      let getValue = key =>
+        itemDict->getString((key: SmartRetryStrategyAnalyticsTypes.responseKeys :> string), "")
+
+      let description = `Billing State : ${getValue(#billing_state)}, 
+      Card Funding : ${getValue(#card_funding)}, 
+      Card Network : ${getValue(#card_network)}, 
+      Card Issuer : ${getValue(#card_issuer)}`
+
+      (title, LineScatterGraphUtils.getLineGraphOptions(smartRetriesMapper(~params)), description)
     })
   }
 
-  let getMainChartOptions = data => {
+  let getMainChartOptions = (data, category) => {
     let params = {
       data: data->Identity.genericTypeToJson,
       xKey: SuccessRate->getStringFromVariant,
       yKey: TimeBucket->getStringFromVariant,
+      title: category,
     }
 
     LineGraphUtils.getLineGraphOptions(overallSRMapper(~params))
@@ -78,18 +89,30 @@ let make = (~entity: moduleEntity) => {
                 </h2>
               </div>
               <div className="p-4">
-                <LineGraph options={overallSRData->getMainChartOptions} className="mr-3" />
+                <LineGraph
+                  options={overallSRData->getMainChartOptions(category)} className="mr-3"
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-5">
               {groupSRData
               ->getSmartRetryGraphOptions
               ->Array.map(item => {
-                let (title, options) = item
+                let (title, options, description) = item
 
                 <div className="rounded-xl border border-gray-200 w-full bg-white">
-                  <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+                  <div
+                    className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl flex justify-between">
                     <h2 className="font-medium text-gray-800"> {title->React.string} </h2>
+                    <ToolTip
+                      description
+                      toolTipFor={<div className="cursor-pointer flex gap-2 text-gray-700">
+                        <Icon name="info-vacent" size=15 />
+                        {"View Grouping"->React.string}
+                      </div>}
+                      toolTipPosition=ToolTip.Top
+                      newDesign=true
+                    />
                   </div>
                   <div className="p-4">
                     <LineScatterGraph options className="mr-3" />
