@@ -268,7 +268,7 @@ let make = () => {
   let topFilterUi = {
     let (initialFilters, popupFilterFields, key) = switch filterDataJson {
     | Some(filterData) => (
-        HSAnalyticsUtils.initialFilterFields(filterData, ~disableSelect=isSampleDataEnabled),
+        isSampleDataEnabled ? [] : HSAnalyticsUtils.initialFilterFields(filterData),
         HSAnalyticsUtils.options(filterData),
         "0",
       )
@@ -364,7 +364,7 @@ let make = () => {
       includeMargin=false
       lightThemeColor="black"
       textStyle="text-blue-600"
-      selectTabBottomBorderColor="bg-blue-600"
+      selectTabBottomBorderColor="bg-blue-600 !z-0"
     />
   </PageLoaderWrapper>
 }

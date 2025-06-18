@@ -81,7 +81,7 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let initialFilterFields = (json, ~disableSelect=false) => {
+let initialFilterFields = json => {
   open LogicUtils
 
   let dropdownValue =
@@ -116,7 +116,6 @@ let initialFilterFields = (json, ~disableSelect=false) => {
                   ~showToolTip=true,
                   ~showNameAsToolTip=true,
                   ~customButtonStyle="bg-none",
-                  ~disableSelect,
                   (),
                 ),
               ),

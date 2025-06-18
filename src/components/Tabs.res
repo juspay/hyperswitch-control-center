@@ -78,7 +78,7 @@ module TabInfo = {
     }, (index, handleSelectedIndex))
 
     let lineStyle = showBottomBorder
-      ? `bg-black w-full h-0.5 rounded-full z-0 ${selectTabBottomBorderColor}`
+      ? `bg-black w-full h-0.5 rounded-full z-10 ${selectTabBottomBorderColor}`
       : ""
 
     React.useEffect(() => {
