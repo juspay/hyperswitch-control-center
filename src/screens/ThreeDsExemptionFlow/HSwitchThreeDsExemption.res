@@ -270,17 +270,16 @@ let make = () => {
 
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {
-        let index = 1
         let rules = jsonDict->getArrayFromDict("rules", [])
-        if index === 1 && rules->Array.length === 0 {
-          errors->Dict.set(`Rules`, "Minimum 1 rule needed"->JSON.Encode.string)
+        if rules->Array.length === 0 {
+          errors->Dict.set("Rules", "Minimum 1 rule needed"->JSON.Encode.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->getDictFromJsonObject
             if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
               errors->Dict.set(
                 `Rule ${(i + 1)->Int.toString} - Condition`,
-                `Invalid`->JSON.Encode.string,
+                "Invalid"->JSON.Encode.string,
               )
             }
           })

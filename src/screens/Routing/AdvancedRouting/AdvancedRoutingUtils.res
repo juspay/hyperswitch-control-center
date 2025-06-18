@@ -212,39 +212,8 @@ let getDefaultSelectionFor3dsExemption = (
   open LogicUtils
   open RoutingTypes
   let override3dsValue = defaultSelection->getString("decision", "")
-  let surchargeDetailsOptionalValue = defaultSelection->Dict.get("surcharge_details")
-  let surchargeDetailsValue = defaultSelection->getDictfromDict("surcharge_details")
-
-  if override3dsValue->isNonEmptyString {
-    {
-      override_3ds: override3dsValue,
-    }
-  } else if surchargeDetailsOptionalValue->Option.isSome {
-    let surchargeValue = surchargeDetailsValue->getDictfromDict("surcharge")
-
-    {
-      surcharge_details: {
-        surcharge: {
-          \"type": surchargeValue->getString("type", "rate"),
-          value: {
-            percentage: surchargeValue->getDictfromDict("value")->getFloat("percentage", 0.0),
-            amount: surchargeValue->getDictfromDict("value")->getFloat("amount", 0.0),
-          },
-        },
-        tax_on_surcharge: {
-          percentage: surchargeDetailsValue
-          ->getDictfromDict("tax_on_surcharge")
-          ->getFloat("percentage", 0.0),
-        },
-      }->Nullable.make,
-    }
-  } else {
-    {
-      \"type": defaultSelection->getString("type", ""),
-      data: defaultSelection
-      ->getArrayFromDict("data", [])
-      ->Array.map(ele => ele->connectorSelectionDataMapperFromJson),
-    }
+  {
+    override_3ds: override3dsValue,
   }
 }
 
