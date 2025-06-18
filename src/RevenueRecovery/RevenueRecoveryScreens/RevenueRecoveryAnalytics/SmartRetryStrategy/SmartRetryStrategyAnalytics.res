@@ -127,6 +127,8 @@ let make = (~entity: moduleEntity) => {
       tab
     })
 
+    tabs->Array.reverse
+
     tabs
   }
 
