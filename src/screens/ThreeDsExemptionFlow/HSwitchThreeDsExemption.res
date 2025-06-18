@@ -108,7 +108,7 @@ let make = () => {
   let (wasm, setWasm) = React.useState(_ => None)
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (pageView, setPageView) = React.useState(_ => NEW)
+  let (pageView, setPageView) = React.useState(_ => LANDING)
   let showPopUp = PopUpState.useShowPopUp()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastState.useShowToast()
@@ -142,11 +142,11 @@ let make = () => {
     try {
       let threeDsUrl = getURL(~entityName=pageConfig.entityName, ~methodType=Get)
       let threeDsRuleDetail = await fetchDetails(threeDsUrl)
-      let threeDsRuleArray = threeDsRuleDetail->JSON.Decode.array->Option.getOr([])
-      let firstRule = threeDsRuleArray->Array.get(0)->Option.getOr(JSON.Encode.null)
+      let threeDsRuleArray = threeDsRuleDetail->getArrayFromJson([])
+      let firstRule = threeDsRuleArray->getValueFromArray(0, JSON.Encode.null)
       let ruleId = firstRule->getDictFromJsonObject->getString("id", "")
 
-      if ruleId != "" {
+      if ruleId->LogicUtils.isNonEmptyString {
         let activeRulesUrl = getURL(
           ~entityName=pageConfig.entityName,
           ~methodType=Get,
@@ -154,8 +154,8 @@ let make = () => {
         )
         let threeDsActiveRuleDetail = await fetchDetails(activeRulesUrl)
         let responseDict = threeDsActiveRuleDetail->getDictFromJsonObject
-        let programValue =
-          responseDict->getObj("algorithm", Dict.make())->getObj("data", Dict.make())
+
+        let programValue = responseDict->getDictfromDict("algorithm")->getDictfromDict("data")
 
         let intitialValue =
           [
@@ -194,13 +194,6 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    setInitialRule(_ => None)
-    setScreenState(_ => PageLoaderWrapper.Loading)
-    setPageView(_ => LANDING)
-    None
-  }, [])
-
-  React.useEffect(() => {
     fetchDetails()->ignore
     None
   }, [])
@@ -232,9 +225,9 @@ let make = () => {
       let resultDict = result->getDictFromJsonObject
       let routingId = resultDict->getString("id", "")
       let body =
-        [("transaction_type", "three_ds_authentication"->JSON.Encode.string)]
-        ->Dict.fromArray
-        ->JSON.Encode.object
+        [
+          ("transaction_type", "three_ds_authentication"->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson
 
       let activateUrl = getURL(
         ~entityName=pageConfig.entityName,

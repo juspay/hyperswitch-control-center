@@ -465,9 +465,7 @@ let generateRuleForThreeDsExemption = rulesDict => {
       let connectorSelectionJson = ruleDict->getJsonObjectFromDict("connectorSelection")
       let connectorSelectionDict = connectorSelectionJson->getDictFromJsonObject
       let decision = connectorSelectionDict->getString("override_3ds", "")
-      let dict = Dict.make()
-      dict->Dict.set("decision", decision->JSON.Encode.string)
-      dict->JSON.Encode.object
+      [("decision", decision->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
     }
 
     {
