@@ -18,6 +18,11 @@ export function convertCurrency(amount: bigint, from_currency: any, to_currency:
  */
 export function getTwoLetterCountryCode(): any;
 /**
+ * This function can be used by the frontend to get all the merchant category codes
+ * along with their names.
+ */
+export function getMerchantCategoryCodeWithName(): any;
+/**
  * This function can be used by the frontend to provide the WASM with information about
  * all the merchant's connector accounts. The input argument is a vector of all the merchant's
  * connector accounts from the API.
@@ -36,6 +41,7 @@ export function getAllKeys(): any;
 export function getKeyType(key: string): string;
 export function getThreeDsKeys(): any;
 export function getSurchargeKeys(): any;
+export function getThreeDsDecisionRuleKeys(): any;
 export function parseToString(val: string): string;
 export function getVariantValues(key: string): any;
 export function addTwo(n1: bigint, n2: bigint): bigint;
@@ -64,6 +70,7 @@ export interface InitOutput {
   readonly setForexData: (a: number, b: number) => void;
   readonly convertCurrency: (a: number, b: bigint, c: number, d: number) => void;
   readonly getTwoLetterCountryCode: (a: number) => void;
+  readonly getMerchantCategoryCodeWithName: (a: number) => void;
   readonly seedKnowledgeGraph: (a: number, b: number) => void;
   readonly getValidConnectorsForRule: (a: number, b: number) => void;
   readonly analyzeProgram: (a: number, b: number) => void;
@@ -73,6 +80,7 @@ export interface InitOutput {
   readonly getKeyType: (a: number, b: number, c: number) => void;
   readonly getThreeDsKeys: (a: number) => void;
   readonly getSurchargeKeys: (a: number) => void;
+  readonly getThreeDsDecisionRuleKeys: (a: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
   readonly addTwo: (a: bigint, b: bigint) => bigint;
   readonly getDescriptionCategory: (a: number) => void;
@@ -86,7 +94,7 @@ export interface InitOutput {
   readonly getAllPayoutKeys: (a: number) => void;
   readonly getPayoutVariantValues: (a: number, b: number, c: number) => void;
   readonly getPayoutDescriptionCategory: (a: number) => void;
-  readonly ring_core_0_17_8_bn_mul_mont: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+  readonly ring_core_0_17_14__bn_mul_mont: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;

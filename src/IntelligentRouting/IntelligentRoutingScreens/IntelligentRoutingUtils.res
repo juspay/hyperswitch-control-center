@@ -14,18 +14,26 @@ let dataTypeVariantToString = dataType =>
 
 let sections = [
   {
-    id: "analyze",
+    id: (#analyze: sections :> string),
     name: "Choose Your Data Source",
     icon: "nd-shield",
     subSections: None,
   },
   {
-    id: "review",
+    id: (#review: sections :> string),
     name: "Review Data Summary",
     icon: "nd-flag",
     subSections: None,
   },
 ]
+
+let stringToSectionVariantMapper = string => {
+  switch string {
+  | "analyze" => #analyze
+  | "review" => #review
+  | _ => #analyze
+  }
+}
 
 let getFileTypeHeading = fileType => {
   switch fileType {
@@ -151,6 +159,7 @@ let responseMapper = (response: JSON.t) => {
   let dict = response->getDictFromJsonObject
 
   {
+    file_name: dict->getString("file_name", ""),
     overall_success_rate: dict->getJsonObjectFromDict("overall_success_rate")->getStats,
     total_failed_payments: dict->getJsonObjectFromDict("total_failed_payments")->getStats,
     total_revenue: dict->getJsonObjectFromDict("total_revenue")->getStats,
@@ -159,3 +168,35 @@ let responseMapper = (response: JSON.t) => {
     overall_success_rate_improvement: dict->getFloat("overall_success_rate_improvement", 0.0),
   }
 }
+
+let getFileData = json => {
+  let dict = json->getDictFromJsonObject
+  let data = dict->getJsonObjectFromDict("data")
+  let stats = dict->getDictfromDict("stats")
+
+  {
+    data: data->getUInt8ArrayFromJson(Js.TypedArray2.Uint8Array.make([])),
+    stats: IntelligentRoutingReviewFieldsEntity.itemToObjMapper(stats),
+  }
+}
+
+let getDisplayFileSize = fileSize =>
+  if fileSize / 1024 / 1024 > 1 {
+    `${(fileSize / 1024 / 1024)->Int.toString} MB`
+  } else if fileSize / 1024 > 1 {
+    ` ${(fileSize / 1024)->Int.toString} KB`
+  } else {
+    `${fileSize->Int.toString} B`
+  }
+
+let getFileName = file =>
+  switch file {
+  | Some(file) => file["name"]
+  | None => "No file selected"
+  }
+
+let getFileSize = file =>
+  switch file {
+  | Some(file) => file["size"]
+  | None => 0
+  }

@@ -140,7 +140,7 @@ The module provides two primary methods for making API requests:
 ```rescript
 let useGetMethod = (~showErrorToast=true) => {
   // Access user context, auth hooks, toast notifications, etc.
-  
+
   async (url, ~version=UserInfoTypes.V1) => {
     try {
       let res = await fetchApi(
@@ -177,7 +177,7 @@ let useGetMethod = (~showErrorToast=true) => {
 ```rescript
 let useUpdateMethod = (~showErrorToast=true) => {
   // Access user context, auth hooks, toast notifications, etc.
-  
+
   async (
     url,
     body,
@@ -313,7 +313,7 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-  
+
   () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
@@ -352,7 +352,7 @@ React.useEffect0(() => {
       setLoading(_ => false)
     }
   }
-  
+
   fetchPayments()->ignore
   None
 })
@@ -402,6 +402,7 @@ try {
 ### 1. Type Safety
 
 The APIUtils module leverages ReScript's type system to ensure:
+
 - All API endpoints follow the expected structure
 - Method types match endpoint capabilities
 - Proper handling of optional parameters
@@ -410,6 +411,7 @@ The APIUtils module leverages ReScript's type system to ensure:
 ### 2. Context-Aware URL Construction
 
 The URL generation automatically adapts based on:
+
 - User's entity context (Merchant, Profile, Organization, Tenant)
 - API versioning (V1 vs V2)
 - Transaction entity context
@@ -418,6 +420,7 @@ The URL generation automatically adapts based on:
 ### 3. Centralized Error Handling
 
 Error handling is consistently managed across the application:
+
 - Notification system for user-facing errors
 - Session expiration detection and handling
 - Access control verification
@@ -427,6 +430,7 @@ Error handling is consistently managed across the application:
 ### 4. Security Integration
 
 The module integrates with the application's security system:
+
 - Authentication headers
 - Session management
 - Access control enforcement
@@ -438,7 +442,7 @@ The module integrates with the application's security system:
 
 ```
 GET    v1/payments/{id}                - Get payment details
-GET    v1/payments/list                - List payments 
+GET    v1/payments/list                - List payments
 POST   v1/payments/list                - Search payments
 GET    v1/payments/aggregate           - Get payment aggregates
 GET    v1/payments/v2/filter           - Get payment filters
@@ -492,22 +496,27 @@ POST   v1/user/create_merchant         - Create merchant
 ## Best Practices
 
 1. **Type-First Approach**
+
    - Always use the proper entity types when constructing URLs
    - Let ReScript's type system validate your API calls
 
 2. **Centralized URL Generation**
+
    - Always use `useGetURL()` for constructing API endpoints
    - Never hardcode URLs in components
 
 3. **Consistent Error Handling**
+
    - Use the `showErrorToast` parameter to control user-facing errors
    - Add specific error handling in components as needed
 
 4. **Request Isolation**
+
    - Wrap each API call in its own try/catch block
    - Avoid chaining multiple API calls without error handling
 
 5. **Response Typing**
+
    - Cast response data to typed structures
    - Use option types for potentially missing values
 
@@ -526,6 +535,7 @@ let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useR
 ```
 
 These flags control:
+
 - Route versioning and feature availability
 - Cookie handling for API requests
 
@@ -573,13 +583,13 @@ This provides visibility into API health and performance.
 
 ## Common Errors and Handling
 
-| Error Code | Type | Handling |
-|------------|------|----------|
-| 400 | Bad Request | Specific error code checking, toast notification |
-| 401 | Unauthorized | Session expiration, redirect to login |
-| 403 | Forbidden | Access control popup, explaining missing permissions |
-| 404 | Not Found | Potentially redirect to home, toast notification |
-| 5xx | Server Error | Event tracking, toast notification |
+| Error Code | Type         | Handling                                             |
+| ---------- | ------------ | ---------------------------------------------------- |
+| 400        | Bad Request  | Specific error code checking, toast notification     |
+| 401        | Unauthorized | Session expiration, redirect to login                |
+| 403        | Forbidden    | Access control popup, explaining missing permissions |
+| 404        | Not Found    | Potentially redirect to home, toast notification     |
+| 5xx        | Server Error | Event tracking, toast notification                   |
 
 ## Conclusion
 

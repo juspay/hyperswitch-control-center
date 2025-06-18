@@ -391,25 +391,6 @@ let userManagement = userHasResourceAccess => {
     searchOptions: [("View user management", "")],
   })
 }
-
-let businessDetails = userHasResourceAccess => {
-  SubLevelLink({
-    name: "Business Details",
-    link: `/business-details`,
-    access: userHasResourceAccess(~resourceAccess=Account),
-    searchOptions: [("Configure business details", "")],
-  })
-}
-
-let businessProfiles = userHasResourceAccess => {
-  SubLevelLink({
-    name: "Business Profiles",
-    link: `/business-profiles`,
-    access: userHasResourceAccess(~resourceAccess=Account),
-    searchOptions: [("Configure business profiles", "")],
-  })
-}
-
 let configurePMTs = userHasResourceAccess => {
   SubLevelLink({
     name: "Configure PMTs",
@@ -429,11 +410,7 @@ let complianceCertificateSection = {
 }
 
 let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
-  let settingsLinkArray = [
-    //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
-    // businessDetails(userHasResourceAccess),
-    // businessProfiles(userHasResourceAccess),
-  ]
+  let settingsLinkArray = []
 
   if isConfigurePmtsEnabled {
     settingsLinkArray->Array.push(configurePMTs(userHasResourceAccess))->ignore
@@ -471,6 +448,14 @@ let paymentSettings = userHasResourceAccess => {
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
 }
+let paymentSettingsV2 = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Payment Settings V2",
+    link: `/payment-settings-new`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
+  })
+}
 
 let webhooks = userHasResourceAccess => {
   SubLevelLink({
@@ -486,15 +471,20 @@ let developers = (
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
+  ~isPaymentSettingsV2Enabled,
 ) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let paymentSettingsV2 = paymentSettingsV2(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
   if isWebhooksEnabled {
     defaultDevelopersOptions->Array.push(webhooks)
+  }
+  if isPaymentSettingsV2Enabled {
+    defaultDevelopersOptions->Array.push(paymentSettingsV2)
   }
 
   if !isProfileUser {
@@ -630,6 +620,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     authenticationAnalytics,
     devAltPaymentMethods,
     devWebhooks,
+    paymentSettingsV2,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -664,7 +655,12 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     ),
     devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(~isWebhooksEnabled=devWebhooks, ~userHasResourceAccess, ~checkUserEntity),
+    default->developers(
+      ~isWebhooksEnabled=devWebhooks,
+      ~userHasResourceAccess,
+      ~checkUserEntity,
+      ~isPaymentSettingsV2Enabled=paymentSettingsV2,
+    ),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
@@ -695,8 +691,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration => hsSidebars
   | Recon => ReconSidebarValues.reconSidebars
-  | Recovery =>
-    RevenueRecoverySidebarValues.recoverySidebars(featureFlagDetails.devRecoveryV2ProductAnalytics)
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars

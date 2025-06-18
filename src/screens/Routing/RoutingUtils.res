@@ -22,6 +22,7 @@ let routingTypeMapper = routingType => {
   | "volume_split" => VOLUME_SPLIT
   | "advanced" => ADVANCED
   | "default" => DEFAULTFALLBACK
+  | "dynamic" => AUTH_RATE_ROUTING
   | _ => NO_ROUTING
   }
 }
@@ -31,6 +32,7 @@ let routingTypeName = routingType => {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
   | DEFAULTFALLBACK => "default"
+  | AUTH_RATE_ROUTING => "auth-rate"
   | NO_ROUTING => ""
   }
 }
@@ -91,6 +93,10 @@ let getContent = routetype =>
   | ADVANCED => {
       heading: "Rule Based Configuration",
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
+    }
+  | AUTH_RATE_ROUTING => {
+      heading: "Auth Rate Based Routing",
+      subHeading: "Dynamically route payments to maximise payment authorization rates",
     }
   | _ => {
       heading: "",
@@ -161,8 +167,8 @@ module SaveAndActivateButton = {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson = onSubmitResponse->getValFromNullableValue(JSON.Encode.null)
         let currentActivatedId =
-          currentActivatedFromJson->getDictFromJsonObject->getString("id", "")
-        let _ = await handleActivateConfiguration(Some(currentActivatedId))
+          currentActivatedFromJson->getDictFromJsonObject->getOptionString("id")
+        let _ = await handleActivateConfiguration(currentActivatedId)
       } catch {
       | Exn.Error(e) =>
         let _ = Exn.message(e)->Option.getOr("Failed to save and activate configuration!")
@@ -175,7 +181,7 @@ module SaveAndActivateButton = {
       onClick={_ => {
         handleSaveAndActivate()->ignore
       }}
-      customButtonStyle="w-1/5 rounded-sm"
+      customButtonStyle="w-1/5"
     />
   }
 }
@@ -187,7 +193,7 @@ module ConfigureRuleButton = {
     )
 
     <Button
-      text={"Configure Rule"}
+      text="Configure Rule"
       buttonType=Primary
       buttonState={!formState.hasValidationErrors ? Normal : Disabled}
       onClick={_ => {
@@ -275,6 +281,15 @@ let urlToVariantMapper = (url: RescriptReactRouter.url) => {
   | list{"payoutrouting", _} => PayoutRouting
   | list{"3ds", _} => ThreedsRouting
   | list{"surcharge", _} => SurchargeRouting
+  | _ => Routing
+  }
+}
+
+let getRoutingTypefromString = (routingType: string) => {
+  switch routingType {
+  | "payoutrouting" => PayoutRouting
+  | "3dsrouting" => ThreedsRouting
+  | "surchargerouting" => SurchargeRouting
   | _ => Routing
   }
 }

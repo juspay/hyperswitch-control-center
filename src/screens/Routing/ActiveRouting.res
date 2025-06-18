@@ -9,6 +9,7 @@ module TopLeftIcons = {
     | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
     | VOLUME_SPLIT => <Icon name="processorLevel" size=25 className="w-14" />
     | ADVANCED => <Icon name="parameterLevel" size=25 className="w-20" />
+    | AUTH_RATE_ROUTING => <Icon name="authRate" size=25 className="w-12" />
     | _ => React.null
     }
   }
@@ -30,7 +31,8 @@ module ActionButtons = {
 
     switch routeType {
     | VOLUME_SPLIT
-    | ADVANCED =>
+    | ADVANCED
+    | AUTH_RATE_ROUTING =>
       <ACLButton
         text={"Setup"}
         authorization={userHasAccess(~groupAccess=WorkflowsManage)}
@@ -72,21 +74,24 @@ module ActiveSection = {
   @react.component
   let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl) => {
     open LogicUtils
-    let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {userInfo: {profileId: currentprofileId}} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    let debitRoutingValue =
-      (
-        HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-      ).is_debit_routing_enabled->Option.getOr(false)
     let routingName = switch activeRoutingType {
     | DEFAULTFALLBACK => ""
     | _ => `${activeRouting->getDictFromJsonObject->getString("name", "")->capitalizeString} - `
     }
 
-    let profileId = activeRouting->getDictFromJsonObject->getString("profile_id", "")
-    <div className="flex flex-col sm:flex-row gap-8">
+    let profileId = if activeRoutingType == DEFAULTFALLBACK {
+      currentprofileId
+    } else {
+      activeRouting->getDictFromJsonObject->getString("profile_id", "")
+    }
+
+    <div className="flex flex-1">
       <div className="relative flex flex-1 flex-col bg-white border rounded-lg p-4 pt-10 gap-8">
         <div className=" flex flex-1 flex-col gap-7">
           <div
@@ -135,9 +140,6 @@ module ActiveSection = {
           }}
         />
       </div>
-      <RenderIf condition={debitRoutingValue && debitRouting}>
-        <DebitRoutingActiveCard profileId />
-      </RenderIf>
     </div>
   }
 }
@@ -169,7 +171,8 @@ module LevelWiseRoutingSection = {
           </div>
         )
         ->React.array}
-        <RenderIf condition={debitRouting}>
+        <RenderIf
+          condition={debitRouting && onRedirectBaseUrl->getRoutingTypefromString == Routing}>
           <DebitRouting />
         </RenderIf>
       </div>
@@ -179,7 +182,15 @@ module LevelWiseRoutingSection = {
 
 @react.component
 let make = (~routingType: array<JSON.t>) => {
-  <div className="mt-8 flex flex-col gap-6">
+  let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let debitRoutingValue =
+    (
+      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    ).is_debit_routing_enabled->Option.getOr(false)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let totalCards = routingType->Array.length + (debitRoutingValue && debitRouting ? 1 : 0)
+  let gridClass = totalCards > 1 ? "grid grid-cols-1 lg:grid-cols-2 gap-9" : ""
+  <div className={`mt-8 ${gridClass}`}>
     {routingType
     ->Array.mapWithIndex((ele, i) => {
       let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
@@ -188,5 +199,8 @@ let make = (~routingType: array<JSON.t>) => {
       />
     })
     ->React.array}
+    <RenderIf condition={debitRoutingValue && debitRouting}>
+      <DebitRoutingActiveCard profileId />
+    </RenderIf>
   </div>
 }

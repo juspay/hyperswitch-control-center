@@ -13,8 +13,8 @@ async function init() {
 
 async function dynamicRoutingInit() {
   try {
-    dynamicRoutingWasm = await import("/pkg/procesmo.js");
-    await dynamicRoutingWasm.default("/pkg/procesmo_bg.wasm");
+    dynamicRoutingWasm = await import("/dynamo_wasm/procesmo.js");
+    await dynamicRoutingWasm.default("/dynamo_wasm/procesmo_bg.wasm");
     return { status: true, dynamicRoutingWasm };
   } catch (e) {
     console.error(e, "FAILED TO LOAD DYNAMIC ROUTING WASM CONFIG");

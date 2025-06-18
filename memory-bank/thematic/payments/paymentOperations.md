@@ -12,17 +12,17 @@ graph TD
     A --> C[Refund Management]
     A --> D[Dispute Handling]
     A --> E[Payment Analytics]
-    
+
     B --> F[Payment Status Tracking]
     B --> G[Payment Method Management]
-    
+
     C --> H[Refund Creation]
     C --> I[Refund Status Tracking]
-    
+
     D --> J[Dispute Response]
     D --> K[Evidence Management]
     D --> L[Dispute Resolution]
-    
+
     E --> M[Transaction Metrics]
     E --> N[Performance Analysis]
 ```
@@ -74,7 +74,7 @@ let make = () => {
   let getMethod = APIUtils.useGetMethod()
   let (payments, setPayments) = React.useState(_ => [])
   let (loading, setLoading) = React.useState(_ => true)
-  
+
   React.useEffect0(() => {
     let fetchPayments = async () => {
       try {
@@ -88,11 +88,11 @@ let make = () => {
         setLoading(_ => false)
       }
     }
-    
+
     fetchPayments()->ignore
     None
   })
-  
+
   // Render payment table with filters, sorting, and pagination
 }
 ```
@@ -110,7 +110,7 @@ let make = (~paymentId) => {
   let updateMethod = APIUtils.useUpdateMethod()
   let (payment, setPayment) = React.useState(_ => None)
   let (loading, setLoading) = React.useState(_ => true)
-  
+
   React.useEffect1(() => {
     let fetchPaymentDetails = async () => {
       try {
@@ -124,11 +124,11 @@ let make = (~paymentId) => {
         setLoading(_ => false)
       }
     }
-    
+
     fetchPaymentDetails()->ignore
     None
   }, [paymentId])
-  
+
   let capturePayment = async () => {
     try {
       let url = getURL(~entityName=V1(ORDERS), ~methodType=Post, ~id=Some(paymentId))
@@ -141,7 +141,7 @@ let make = (~paymentId) => {
     | _ => () // Error handling
     }
   }
-  
+
   // Render payment details and action buttons
 }
 ```
@@ -159,7 +159,7 @@ let make = (~paymentId, ~paymentAmount) => {
   let (amount, setAmount) = React.useState(_ => "")
   let (reason, setReason) = React.useState(_ => "")
   let (submitting, setSubmitting) = React.useState(_ => false)
-  
+
   let createRefund = async () => {
     setSubmitting(_ => true)
     try {
@@ -177,7 +177,7 @@ let make = (~paymentId, ~paymentAmount) => {
       setSubmitting(_ => false)
     }
   }
-  
+
   // Render refund form
 }
 ```
@@ -195,7 +195,7 @@ let make = (~disputeId) => {
   let updateMethod = APIUtils.useUpdateMethod()
   let (dispute, setDispute) = React.useState(_ => None)
   let (loading, setLoading) = React.useState(_ => true)
-  
+
   React.useEffect1(() => {
     let fetchDisputeDetails = async () => {
       try {
@@ -209,11 +209,11 @@ let make = (~disputeId) => {
         setLoading(_ => false)
       }
     }
-    
+
     fetchDisputeDetails()->ignore
     None
   }, [disputeId])
-  
+
   let submitEvidence = async (evidenceData) => {
     try {
       let url = getURL(~entityName=V1(DISPUTES_ATTACH_EVIDENCE), ~methodType=Post, ~id=Some(disputeId))
@@ -223,7 +223,7 @@ let make = (~disputeId) => {
     | _ => () // Error handling
     }
   }
-  
+
   // Render dispute details and evidence submission form
 }
 ```
@@ -233,14 +233,14 @@ let make = (~disputeId) => {
 ### 1. Payment Data Model
 
 ```typescript
-type PaymentStatus = 
-  | "initiated" 
-  | "processing" 
-  | "authorized" 
-  | "captured" 
-  | "completed" 
-  | "failed" 
-  | "cancelled"
+type PaymentStatus =
+  | "initiated"
+  | "processing"
+  | "authorized"
+  | "captured"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 interface Payment {
   id: string;
@@ -267,11 +267,7 @@ interface Payment {
 ### 2. Refund Data Model
 
 ```typescript
-type RefundStatus = 
-  | "initiated" 
-  | "processing" 
-  | "succeeded" 
-  | "failed"
+type RefundStatus = "initiated" | "processing" | "succeeded" | "failed";
 
 interface Refund {
   id: string;
@@ -290,12 +286,7 @@ interface Refund {
 ### 3. Dispute Data Model
 
 ```typescript
-type DisputeStatus = 
-  | "open" 
-  | "under_review" 
-  | "won" 
-  | "lost" 
-  | "expired"
+type DisputeStatus = "open" | "under_review" | "won" | "lost" | "expired";
 
 interface Dispute {
   id: string;
@@ -322,7 +313,7 @@ sequenceDiagram
     participant UI
     participant API
     participant Processor
-    
+
     Merchant->>UI: View Authorized Payment
     Merchant->>UI: Click "Capture"
     UI->>API: POST /payments/{id} (action=capture)
@@ -340,7 +331,7 @@ sequenceDiagram
     participant UI
     participant API
     participant Processor
-    
+
     Merchant->>UI: View Completed Payment
     Merchant->>UI: Click "Refund"
     UI->>Merchant: Display Refund Form
@@ -361,7 +352,7 @@ sequenceDiagram
     participant UI
     participant API
     participant Processor
-    
+
     Merchant->>UI: View Open Dispute
     Merchant->>UI: Click "Respond to Dispute"
     UI->>Merchant: Display Evidence Form
@@ -376,18 +367,18 @@ sequenceDiagram
 
 ## Key API Endpoints
 
-| Endpoint | Purpose | Method | Parameters |
-|----------|---------|--------|------------|
-| `/payments/list` | List payments | GET | page, page_size, filters |
-| `/payments/{id}` | Get payment details | GET | payment_id |
-| `/payments/{id}` | Capture/Cancel payment | POST | payment_id, action |
-| `/refunds` | Create refund | POST | payment_id, amount, reason |
-| `/refunds/list` | List refunds | GET | page, page_size, filters |
-| `/refunds/{id}` | Get refund details | GET | refund_id |
-| `/disputes/list` | List disputes | GET | page, page_size, filters |
-| `/disputes/{id}` | Get dispute details | GET | dispute_id |
-| `/disputes/evidence/{id}` | Submit dispute evidence | POST | dispute_id, evidence_data |
-| `/disputes/accept/{id}` | Accept dispute | POST | dispute_id |
+| Endpoint                  | Purpose                 | Method | Parameters                 |
+| ------------------------- | ----------------------- | ------ | -------------------------- |
+| `/payments/list`          | List payments           | GET    | page, page_size, filters   |
+| `/payments/{id}`          | Get payment details     | GET    | payment_id                 |
+| `/payments/{id}`          | Capture/Cancel payment  | POST   | payment_id, action         |
+| `/refunds`                | Create refund           | POST   | payment_id, amount, reason |
+| `/refunds/list`           | List refunds            | GET    | page, page_size, filters   |
+| `/refunds/{id}`           | Get refund details      | GET    | refund_id                  |
+| `/disputes/list`          | List disputes           | GET    | page, page_size, filters   |
+| `/disputes/{id}`          | Get dispute details     | GET    | dispute_id                 |
+| `/disputes/evidence/{id}` | Submit dispute evidence | POST   | dispute_id, evidence_data  |
+| `/disputes/accept/{id}`   | Accept dispute          | POST   | dispute_id                 |
 
 ## UI Components
 
@@ -409,7 +400,7 @@ let make = (~status: string) => {
   | "cancelled" => ("bg-gray-100 text-gray-800", "Cancelled")
   | _ => ("bg-gray-100 text-gray-800", status)
   }
-  
+
   <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
     {React.string(text)}
   </span>
@@ -425,13 +416,13 @@ Renders payment method details:
 @react.component
 let make = (~paymentMethod) => {
   let methodType = paymentMethod->Dict.get("type")->Option.getOr("")
-  
+
   switch methodType {
   | "card" => {
       let card = paymentMethod->Dict.get("card")->Option.getOr(Dict.make())
       let last4 = card->Dict.get("last4")->Option.getOr("")
       let brand = card->Dict.get("brand")->Option.getOr("")
-      
+
       <div className="flex items-center">
         <Icon name={brand->getCardIcon} className="mr-2" />
         <span>
@@ -442,7 +433,7 @@ let make = (~paymentMethod) => {
   | "wallet" => {
       let wallet = paymentMethod->Dict.get("wallet")->Option.getOr(Dict.make())
       let walletType = wallet->Dict.get("type")->Option.getOr("")
-      
+
       <div className="flex items-center">
         <Icon name={walletType->getWalletIcon} className="mr-2" />
         <span>
@@ -464,7 +455,7 @@ Contextual action buttons based on payment status:
 @react.component
 let make = (~payment, ~onCapture, ~onRefund, ~onCancel) => {
   let status = payment->Dict.get("status")->Option.getOr("")
-  
+
   <div className="flex space-x-2">
     <RenderIf condition={status == "authorized"}>
       <Button
@@ -474,7 +465,7 @@ let make = (~payment, ~onCapture, ~onRefund, ~onCancel) => {
         onClick={_ => onCapture()}
       />
     </RenderIf>
-    
+
     <RenderIf condition={status == "captured" || status == "completed"}>
       <Button
         text="Refund"
@@ -483,7 +474,7 @@ let make = (~payment, ~onCapture, ~onRefund, ~onCancel) => {
         onClick={_ => onRefund()}
       />
     </RenderIf>
-    
+
     <RenderIf condition={status == "authorized" || status == "initiated"}>
       <Button
         text="Cancel"
@@ -510,7 +501,7 @@ let make = (~timeframe) => {
   let getMethod = APIUtils.useGetMethod()
   let (metrics, setMetrics) = React.useState(_ => None)
   let (loading, setLoading) = React.useState(_ => true)
-  
+
   React.useEffect1(() => {
     let fetchMetrics = async () => {
       try {
@@ -531,11 +522,11 @@ let make = (~timeframe) => {
         setLoading(_ => false)
       }
     }
-    
+
     fetchMetrics()->ignore
     None
   }, [timeframe])
-  
+
   // Render success rate metrics and charts
 }
 ```
@@ -552,7 +543,7 @@ let make = (~timeframe, ~groupBy) => {
   let updateMethod = APIUtils.useUpdateMethod()
   let (volumeData, setVolumeData) = React.useState(_ => None)
   let (loading, setLoading) = React.useState(_ => true)
-  
+
   React.useEffect2(() => {
     let fetchVolumeData = async () => {
       try {
@@ -574,11 +565,11 @@ let make = (~timeframe, ~groupBy) => {
         setLoading(_ => false)
       }
     }
-    
+
     fetchVolumeData()->ignore
     None
   }, [timeframe, groupBy])
-  
+
   // Render volume charts
 }
 ```
@@ -628,12 +619,12 @@ let usePaymentDetails = (paymentId) => {
   let (payment, setPayment) = React.useState(_ => None)
   let (loading, setLoading) = React.useState(_ => true)
   let (error, setError) = React.useState(_ => None)
-  
+
   React.useEffect1(() => {
     let fetchPayment = async () => {
       setLoading(_ => true)
       setError(_ => None)
-      
+
       try {
         let url = getURL(~entityName=V1(ORDERS), ~methodType=Get, ~id=Some(paymentId))
         let response = await getMethod(url)
@@ -644,14 +635,14 @@ let usePaymentDetails = (paymentId) => {
         setLoading(_ => false)
       }
     }
-    
+
     if paymentId->String.length > 0 {
       fetchPayment()->ignore
     }
-    
+
     None
   }, [paymentId])
-  
+
   (payment, loading, error)
 }
 
@@ -661,11 +652,11 @@ let useCapturePayment = () => {
   let updateMethod = APIUtils.useUpdateMethod()
   let (loading, setLoading) = React.useState(_ => false)
   let (error, setError) = React.useState(_ => None)
-  
+
   let capturePayment = async (paymentId) => {
     setLoading(_ => true)
     setError(_ => None)
-    
+
     try {
       let url = getURL(~entityName=V1(ORDERS), ~methodType=Post, ~id=Some(paymentId))
       let body = {
@@ -682,7 +673,7 @@ let useCapturePayment = () => {
       setLoading(_ => false)
     }
   }
-  
+
   (capturePayment, loading, error)
 }
 ```
@@ -695,10 +686,10 @@ Payment operations integrate with feature flags:
 @react.component
 let make = () => {
   let {auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  
+
   <div>
     <PaymentTable />
-    
+
     <RenderIf condition=auditTrail>
       <PaymentAuditTrail />
     </RenderIf>
@@ -728,7 +719,7 @@ let usePaymentStatusPolling = (paymentId, initialStatus) => {
   let getURL = APIUtils.useGetURL()
   let getMethod = APIUtils.useGetMethod()
   let (status, setStatus) = React.useState(_ => initialStatus)
-  
+
   React.useEffect2(() => {
     let isTerminalStatus = s => {
       switch s {
@@ -736,7 +727,7 @@ let usePaymentStatusPolling = (paymentId, initialStatus) => {
       | _ => false
       }
     }
-    
+
     let rec pollStatus = () => {
       if isTerminalStatus(status) {
         // Stop polling for terminal statuses
@@ -754,24 +745,24 @@ let usePaymentStatusPolling = (paymentId, initialStatus) => {
             | _ => () // Handle errors
             }
           }
-          
+
           fetchStatus()->ignore
           // Continue polling
           pollStatus()->ignore
         }, 5000) // Poll every 5 seconds
-        
+
         Some(() => Js.Global.clearTimeout(timerId))
       }
     }
-    
+
     pollStatus()->ignore
-    
+
     // Clean up on unmount
     Some(() => {
       // Any cleanup code
     })
   }, (paymentId, status))
-  
+
   status
 }
 ```
@@ -788,16 +779,16 @@ let make = (~selectedPaymentIds) => {
   let updateMethod = APIUtils.useUpdateMethod()
   let (processing, setProcessing) = React.useState(_ => false)
   let (results, setResults) = React.useState(_ => [])
-  
+
   let processBatchRefunds = async () => {
     setProcessing(_ => true)
     setResults(_ => [])
-    
+
     let processedResults = []
-    
+
     for (i in 0 to selectedPaymentIds->Array.length - 1) {
       let paymentId = selectedPaymentIds[i]
-      
+
       try {
         let url = getURL(~entityName=V1(REFUNDS), ~methodType=Post)
         let body = {
@@ -805,7 +796,7 @@ let make = (~selectedPaymentIds) => {
           "amount": 0, // Full refund
         }
         let response = await updateMethod(url, body, Post)
-        
+
         processedResults->Array.push({
           "payment_id": paymentId,
           "status": "succeeded",
@@ -821,11 +812,11 @@ let make = (~selectedPaymentIds) => {
         }
       }
     }
-    
+
     setResults(_ => processedResults)
     setProcessing(_ => false)
   }
-  
+
   // Render batch refund interface
 }
 ```
@@ -843,27 +834,27 @@ let make = () => {
   let (filters, setFilters) = React.useState(_ => Dict.make())
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let (loading, setLoading) = React.useState(_ => false)
-  
+
   let updateFilter = (key, value) => {
     let updatedFilters = filters->Dict.copy
-    
+
     if value->String.length > 0 {
       updatedFilters->Dict.set(key, value)
     } else {
       updatedFilters->Dict.remove(key)
     }
-    
+
     setFilters(_ => updatedFilters)
   }
-  
+
   let performSearch = async () => {
     setLoading(_ => true)
-    
+
     try {
       let url = getURL(~entityName=V1(ORDER_FILTERS), ~methodType=Get)
       let filtersJson = filters->JSON.stringify
       let searchUrl = `${url}?filters=${filtersJson}`
-      
+
       let response = await getMethod(searchUrl)
       setSearchResults(_ => response["data"])
     } catch {
@@ -872,7 +863,7 @@ let make = () => {
       setLoading(_ => false)
     }
   }
-  
+
   // Render search interface and results
 }
 ```

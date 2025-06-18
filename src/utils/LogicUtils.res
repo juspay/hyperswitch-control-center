@@ -785,3 +785,22 @@ let uniqueObjectFromArrayOfObjects = (arr, keyExtractor) => {
   })
   Dict.valuesToArray(uniqueDict)
 }
+
+let randomString = (~length) => {
+  let ranges = [(48.0, 57.0), (65.0, 90.0), (97.0, 122.0)] // 0-9 // A-Z // a-z
+
+  let text =
+    Array.make(~length, "")
+    ->Array.map(_ => {
+      let (min, max) =
+        ranges
+        ->Array.get(Js.Math.random_int(0, 3))
+        ->Option.getOr((48.0, 57.0))
+      let index = Math.floor(Math.random() *. (max -. min +. 1.0) +. min)->Int.fromFloat
+
+      String.fromCharCode(index)
+    })
+    ->Array.joinWith("")
+
+  text
+}

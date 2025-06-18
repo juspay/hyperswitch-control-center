@@ -5,6 +5,7 @@ This document provides detailed information about the LineAndColumn graph compon
 ## Overview
 
 The LineAndColumn graph is a powerful visualization that combines:
+
 - Bar/column charts (typically for volume metrics)
 - Line charts (typically for percentage or rate metrics)
 
@@ -29,9 +30,9 @@ external lineAndColumnGraphOptionsToJson: LineAndColumnGraphTypes.lineAndColumnG
 @react.component
 let make = (~options: LineAndColumnGraphTypes.lineAndColumnGraphOptions, ~className="") => {
   <div className>
-    <Highcharts.Chart 
-      options={options->lineAndColumnGraphOptionsToJson} 
-      highcharts={Highcharts.highcharts} 
+    <Highcharts.Chart
+      options={options->lineAndColumnGraphOptionsToJson}
+      highcharts={Highcharts.highcharts}
     />
   </div>
 }
@@ -133,7 +134,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
     maxValY2,
     legend,
   } = lineColumnGraphOptions
-  
+
   // Configure dual y-axes
   let yAxis: LineAndColumnGraphTypes.yAxis = [
     {
@@ -152,7 +153,7 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       min: 0,
     },
   ]
-  
+
   // Return the complete configuration
   {
     chart: { /* ... */ },
@@ -229,7 +230,7 @@ let lineColumnGraphTooltipFormatter = (
 
       // Generate the final HTML content
       let content = `
-          <div style=" 
+          <div style="
           padding:5px 12px;
           display:flex;
           flex-direction:column;
@@ -289,14 +290,17 @@ let lineColumnGraphYAxisFormatter = (
 The LineAndColumn graph is particularly useful for:
 
 1. **Payment Analytics**
+
    - Column: Payment volume
    - Line: Success rate percentage
 
 2. **Revenue Reporting**
+
    - Column: Revenue amount
    - Line: Growth rate
 
 3. **Operational Metrics**
+
    - Column: Transaction count
    - Line: Average processing time
 
@@ -361,14 +365,17 @@ let options = LineAndColumnGraphUtils.getLineColumnGraphOptions(lineColumnConfig
 ## Styling Considerations
 
 1. **Color Coordination**
+
    - Use contrasting colors between column and line series
    - Ensure colors align with application's design system
 
 2. **Axis Scaling**
+
    - Set appropriate min/max values for each axis
    - Consider truncating Y-axis to highlight variations
 
 3. **Legend Placement**
+
    - Bottom placement often works best for dual-axis charts
    - Use HTML formatting for custom legend appearance
 
@@ -380,18 +387,22 @@ let options = LineAndColumnGraphUtils.getLineColumnGraphOptions(lineColumnConfig
 ## Best Practices
 
 1. **Related Metrics**
+
    - Only combine metrics that have a meaningful relationship
    - Use dual axes when metrics have different scales but related meaning
 
 2. **Clear Labels**
+
    - Label both Y-axes clearly
    - Use different colors for axis labels to match series colors
 
 3. **Consistent Categories**
+
    - Use consistent X-axis categories (typically time periods)
    - Limit the number of categories to avoid overcrowding
 
 4. **Mobile Responsiveness**
+
    - Test charts at various screen sizes
    - Consider simplifying for mobile views
 
@@ -402,12 +413,14 @@ let options = LineAndColumnGraphUtils.getLineColumnGraphOptions(lineColumnConfig
 ## Common Customizations
 
 1. **Adjusting Axis Ranges**
+
    ```rescript
    minValY2: 80, // Custom minimum for right axis
    maxValY2: 100, // Custom maximum for right axis
    ```
 
 2. **Adding Chart Title**
+
    ```rescript
    titleObj: {
      chartTitle: {
@@ -423,6 +436,7 @@ let options = LineAndColumnGraphUtils.getLineColumnGraphOptions(lineColumnConfig
    ```
 
 3. **Customizing Series Types**
+
    ```rescript
    data: [
      {
@@ -445,18 +459,22 @@ let options = LineAndColumnGraphUtils.getLineColumnGraphOptions(lineColumnConfig
 ## Troubleshooting
 
 1. **Missing Data Points**
+
    - Ensure data arrays match category array length
    - Use `null` or `0.0` for missing data points
 
 2. **Axis Scale Issues**
+
    - Check min/max values for both axes
    - Ensure Y-axis types match data types
 
 3. **Tooltip Formatting Errors**
+
    - Verify the tooltip formatter handles all possible series combinations
    - Include null checks for missing data
 
 4. **Legend Display Problems**
+
    - Check HTML formatting in legend formatter
    - Ensure sufficient space for legend display
 

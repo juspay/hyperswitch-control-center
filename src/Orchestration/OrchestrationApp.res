@@ -34,14 +34,11 @@ let make = (~setScreenState) => {
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
+    | list{"payment-settings-new", ..._}
     | list{"webhooks", ..._}
     | list{"sdk"} =>
       <ConnectorContainer />
     | list{"apm"} => <APMContainer />
-    //TODO:This code needs to be removed after PR:chore: removed business details and business profile page is merged
-    // | list{"business-details", ..._}
-    // | list{"business-profiles", ..._} =>
-    //   <BusinessProfileContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}

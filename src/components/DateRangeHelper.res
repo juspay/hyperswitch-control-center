@@ -2,9 +2,21 @@ open DateRangeUtils
 
 module CompareOption = {
   @react.component
-  let make = (~value: compareOption, ~comparison, ~startDateVal, ~endDateVal, ~onClick) => {
+  let make = (
+    ~value: compareOption,
+    ~selectedOption,
+    ~comparison,
+    ~startDateVal,
+    ~endDateVal,
+    ~onClick,
+  ) => {
+    open Typography
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
-
+    let selectedBg = if value == selectedOption {
+      "bg-jp-gray-100 "
+    } else {
+      "bg-white "
+    }
     let previousPeriod = React.useMemo(() => {
       let startDateStr = formatDateString(
         ~dateVal=startDateVal,
@@ -24,7 +36,7 @@ module CompareOption = {
 
     <div
       onClick={_ => onClick(value)}
-      className={`text-center md:text-start min-w-max bg-white w-full   hover:bg-jp-gray-100 hover:bg-opacity-75 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 `}>
+      className={`text-left ${selectedBg} w-full hover:bg-jp-gray-100 cursor-pointer rounded-md p-2 ${body.md.medium} text-grey-900`}>
       {switch value {
       | No_Comparison => "No Comparison"->React.string
       | Previous_Period =>
