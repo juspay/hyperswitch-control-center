@@ -1,7 +1,8 @@
 open RoutingTypes
-open ThreeDSUtils
+open ThreeDsExemptionUtils
 open LogicUtils
 open APIUtils
+open ThreeDSUtils
 
 external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
@@ -125,7 +126,7 @@ let make = () => {
   }
 
   let (initialValues, _setInitialValues) = React.useState(_ => {
-    buildInitial3DSValueForExemption->Identity.genericTypeToJson
+    buildInitial3DSValueFor3DsExemptions->Identity.genericTypeToJson
   })
 
   let getWasm = async () => {
