@@ -467,7 +467,7 @@ let make = (
   ~defaultSort: string,
   ~tabKeys: array<string>,
   ~tabValues: array<DynamicTabs.tab>,
-  ~initialFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  ~initialFilters: (JSON.t, ~disableSelect: bool=?) => array<EntityType.initialFilters<'t>>,
   ~initialFixedFilters: (JSON.t, ~events: unit => unit=?) => array<EntityType.initialFilters<'t>>,
   ~options: JSON.t => array<EntityType.optionType<'t>>,
   ~getTable: JSON.t => array<'a>,

@@ -1,6 +1,7 @@
 open ExemptionGraphsTypes
 open LogicUtils
 open InsightsTypes
+open InsightsUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -35,23 +36,130 @@ let getVariantValueFromString = value => {
   }
 }
 
-let exemptionGraphsMapper = (~params: getObjects<JSON.t>): LineGraphTypes.lineGraphPayload => {
-  open InsightsUtils
+let tooltipFormatter = (
+  ~title,
+  ~metricType,
+  ~currency="",
+  ~suffix="",
+  ~showNameInTooltip=false,
+) => {
+  open LineGraphTypes
 
+  (
+    @this
+    (this: pointFormatter) => {
+      let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
+
+      let getRowsHtml = (~iconColor, ~date, ~name="", ~value, ~comparisionComponent="") => {
+        let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
+        let key = showNameInTooltip ? name : date
+        `<div style="display: flex; align-items: center;">
+            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
+            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
+        </div>`
+      }
+
+      let tableItemsArray =
+        this.points
+        ->Array.map(point => {
+          let pointData = point->Identity.genericTypeToJson->getDictFromJsonObject
+          let iconColor = pointData->getString("color", "#000000")
+          let date = pointData->getString("x", "")
+          let series = pointData->getDictfromDict("series")
+          let name = series->getString("name", "")
+          let value = pointData->getFloat("y", 0.0)
+          getRowsHtml(~iconColor, ~date, ~name, ~value)
+        })
+        ->Array.joinWith("")
+
+      let content = `
+          <div style=" 
+          padding:5px 12px;
+          border-left: 3px solid #0069FD;
+          display:flex;
+          flex-direction:column;
+          justify-content: space-between;
+          gap: 7px;">
+              ${title}
+              <div style="
+                margin-top: 5px;
+                display:flex;
+                flex-direction:column;
+                gap: 7px;">
+                ${tableItemsArray}
+              </div>
+        </div>`
+
+      `<div style="
+    padding: 10px;
+    width:fit-content;
+    border-radius: 7px;
+    background-color:#FFFFFF;
+    padding:10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid #E5E5E5;
+    position:relative;">
+        ${content}
+    </div>`
+    }
+  )->asTooltipPointFormatter
+}
+
+let getLineGraphData = (data, ~xKey, ~yKey, ~groupByKey, ~isAmount=false) => {
+  if groupByKey->String.length > 0 {
+    let separatorDict = Dict.make()
+    data
+    ->getArrayFromJson([])
+    ->Array.forEach(itemArray => {
+      let itemList = itemArray->getArrayFromJson([])
+      itemList->Array.forEach(item => {
+        let itemDict = item->getDictFromJsonObject
+        let name = itemDict->getString(groupByKey, "NA")
+
+        switch separatorDict->Dict.get(name) {
+        | Some(existingArray) => {
+            let updatedArray = existingArray->Array.concat([item])
+            separatorDict->Dict.set(name, updatedArray)
+          }
+        | None => separatorDict->Dict.set(name, [item])
+        }
+      })
+    })
+
+    let dataArray =
+      separatorDict
+      ->Dict.toArray
+      ->Array.mapWithIndex(((name, dictData), index) => {
+        let color = index->getColor
+        getLineGraphObj(~array=dictData, ~key=xKey, ~name, ~color, ~isAmount)
+      })
+
+    dataArray
+  } else {
+    data
+    ->getArrayFromJson([])
+    ->Array.mapWithIndex((item, index) => {
+      let name = getLabelName(~key=yKey, ~index, ~points=item)
+      let color = index->getColor
+      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color, ~isAmount)
+    })
+  }
+}
+
+let exemptionGraphsMapper = (~params: getObjects<JSON.t>): LineGraphTypes.lineGraphPayload => {
   let {data, xKey, yKey} = params
   let title = params.title->Option.getOr("")
   let currency = params.currency->Option.getOr("")
   let primaryCategories = data->getCategories(0, yKey)
-  let secondaryCategories = data->getCategories(1, yKey)
+  let groupByKey = params.groupByKey->Option.getOr("")
 
-  let lineGraphData = data->getLineGraphData(~xKey, ~yKey)
-
+  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~groupByKey)
   let tooltipFormatter = tooltipFormatter(
-    ~secondaryCategories,
     ~title,
     ~metricType=Amount,
-    ~comparison=params.comparison,
     ~currency,
+    ~showNameInTooltip=true,
   )
 
   {
@@ -183,27 +291,35 @@ let modifyQueryData = data => {
     let authenticationSuccessRate = if authenticationCount == 0 {
       0.0
     } else {
-      float_of_int(authenticationSuccessCount) /. float_of_int(authenticationCount) *. 100.0
+      let rate =
+        float_of_int(authenticationSuccessCount) /. float_of_int(authenticationCount) *. 100.0
+      Float.toFixedWithPrecision(rate, ~digits=2)->Float.fromString->Option.getOr(0.0)
     }
 
     let exemptionApprovalRate = if authenticationExemptionRequestedCount == 0 {
       0.0
     } else {
-      float_of_int(authenticationExemptionApprovedCount) /.
-      float_of_int(authenticationExemptionRequestedCount) *. 100.0
+      let rate =
+        float_of_int(authenticationExemptionApprovedCount) /.
+        float_of_int(authenticationExemptionRequestedCount) *. 100.0
+      Float.toFixedWithPrecision(rate, ~digits=2)->Float.fromString->Option.getOr(0.0)
     }
 
     let exemptionRequestRate = if authenticationExemptionRequestedCount == 0 {
       0.0
     } else {
-      float_of_int(authenticationExemptionRequestedCount) /.
-      float_of_int(authenticationAttemptCount) *. 100.0
+      let rate =
+        float_of_int(authenticationExemptionRequestedCount) /.
+        float_of_int(authenticationAttemptCount) *. 100.0
+      Float.toFixedWithPrecision(rate, ~digits=2)->Float.fromString->Option.getOr(0.0)
     }
     let userDropOffRate = if authenticationAttemptCount == 0 {
       0.0
     } else {
-      float_of_int(authenticationAttemptCount - authenticationSuccessCount) /.
-      float_of_int(authenticationAttemptCount) *. 100.0
+      let rate =
+        float_of_int(authenticationAttemptCount - authenticationSuccessCount) /.
+        float_of_int(authenticationAttemptCount) *. 100.0
+      Float.toFixedWithPrecision(rate, ~digits=2)->Float.fromString->Option.getOr(0.0)
     }
     valueDict->Dict.set(
       Authentication_Success_Rate->getStringFromVariant,
@@ -232,7 +348,6 @@ let modifyQueryData = data => {
 }
 
 let getCell = (obj: exemptionGraphsObject, colType): Table.cell => {
-  open InsightsUtils
   switch colType {
   | Authentication_Connector => Text(obj.authentication_connector)
   | Authentication_Success_Rate => Text(obj.authentication_success_rate->Float.toString ++ "%")

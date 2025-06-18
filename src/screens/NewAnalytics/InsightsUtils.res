@@ -7,6 +7,21 @@ let sankyBlue = "#E4EFFF"
 let sankyRed = "#F7E0E0"
 let sankyLightBlue = "#91B7EE"
 let sankyLightRed = "#EC6262"
+let coralRed = "#FF6B6B"
+let turquoise = "#4ECDC4"
+let skyBlue = "#45B7D1"
+let mintGreen = "#96CEB4"
+let lightYellow = "#FFEAA7"
+let plum = "#DDA0DD"
+let seafoam = "#98D8C8"
+let goldenYellow = "#F7DC6F"
+let lightPurple = "#BB8FCE"
+let lightBlue = "#85C1E9"
+let peach = "#F8C471"
+let lightGreen = "#82E0AA"
+let salmon = "#F1948A"
+let powderBlue = "#AED6F1"
+let lavender = "#D7BDE2"
 
 open InsightsTypes
 open HSwitchRemoteFilter
@@ -300,7 +315,27 @@ let bargraphTooltipFormatter = (~title, ~metricType) => {
 }
 
 let getColor = index => {
-  [blue, green]->Array.get(index)->Option.getOr(blue)
+  [
+    blue,
+    green,
+    coralRed,
+    turquoise,
+    skyBlue,
+    mintGreen,
+    lightYellow,
+    plum,
+    seafoam,
+    goldenYellow,
+    lightPurple,
+    lightBlue,
+    peach,
+    lightGreen,
+    salmon,
+    powderBlue,
+    lavender,
+  ]
+  ->Array.get(index)
+  ->Option.getOr(blue)
 }
 
 let getAmountValue = (data, ~id) => {
