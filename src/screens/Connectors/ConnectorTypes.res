@@ -108,6 +108,7 @@ type processorTypes =
   | ARCHIPEL
   | WORLDPAYVANTIV
   | BARCLAYCARD
+  | TOKENIO
 
 type payoutProcessorTypes =
   | ADYEN
