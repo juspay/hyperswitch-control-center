@@ -6,6 +6,7 @@ let getProductVariantFromString = product => {
   | "vault" => Vault
   | "cost_observability" => CostObservability
   | "dynamic_routing" => DynamicRouting
+  | "orchestration_v2" => OrchestrationV2
   | _ => Orchestration
   }
 }
@@ -18,6 +19,7 @@ let getProductDisplayName = product =>
   | Vault => "Vault"
   | CostObservability => "Cost Observability"
   | DynamicRouting => "Intelligent Routing"
+  | OrchestrationV2 => "Orchestrator V2"
   }
 
 let getProductVariantFromDisplayName = product => {
@@ -28,6 +30,7 @@ let getProductVariantFromDisplayName = product => {
   | "Vault" => Vault
   | "Cost Observability" => CostObservability
   | "Intelligent Routing" => DynamicRouting
+  | "Orchestrator V2" => OrchestrationV2
   | _ => Orchestration
   }
 }
@@ -44,7 +47,8 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
   | Recovery => `/dashboard/v2/recovery/overview`
   | Vault
   | CostObservability
-  | DynamicRouting =>
+  | DynamicRouting
+  | OrchestrationV2 =>
     `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
   }
 }

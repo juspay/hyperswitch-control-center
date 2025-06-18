@@ -6,3 +6,4 @@ type productTypes =
   | @as("vault") Vault
   | @as("cost_observability") CostObservability
   | @as("dynamic_routing") DynamicRouting
+  | @as("orchestration_v2") OrchestrationV2
