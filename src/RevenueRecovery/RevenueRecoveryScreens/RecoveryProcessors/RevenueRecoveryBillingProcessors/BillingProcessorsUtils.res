@@ -49,7 +49,7 @@ type optionType = {
   icon: string,
 }
 
-module CustomDropDown = {
+module ReadOnlyOptionsList = {
   @react.component
   let make = (~list: array<optionType>, ~headerText, ~customWrapperStyle="") => {
     <div

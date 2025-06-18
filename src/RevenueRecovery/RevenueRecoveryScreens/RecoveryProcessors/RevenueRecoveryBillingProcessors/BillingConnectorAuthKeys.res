@@ -61,12 +61,12 @@ let make = (
               placeHolder="Choose a platform" heading="platform" subHeading=connector arrow
             />}
             bottomComponent={<>
-              <BillingProcessorsUtils.CustomDropDown
+              <BillingProcessorsUtils.ReadOnlyOptionsList
                 list=RevenueRecoveryOnboardingUtils.billingConnectorProdList
                 headerText="Available for production"
                 customWrapperStyle="border-t-2"
               />
-              <BillingProcessorsUtils.CustomDropDown
+              <BillingProcessorsUtils.ReadOnlyOptionsList
                 list=RevenueRecoveryOnboardingUtils.billingConnectorInHouseList
                 headerText="In House"
                 customWrapperStyle="border-t-2"

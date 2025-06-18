@@ -285,7 +285,7 @@ let make = (
                     user=#Profile
                     addItemBtnStyle
                   />
-                  <BillingProcessorsUtils.CustomDropDown
+                  <BillingProcessorsUtils.ReadOnlyOptionsList
                     list=RecoveryConnectorUtils.recoveryConnectorInHouseList
                     headerText="Payment Orchestrator"
                   />
