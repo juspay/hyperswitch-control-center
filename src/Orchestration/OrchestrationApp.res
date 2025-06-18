@@ -136,7 +136,7 @@ let make = (~setScreenState) => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <EmptyDefaultPage />
+    | _ => <EmptyPage path="/home" />
     }
   }
 }
