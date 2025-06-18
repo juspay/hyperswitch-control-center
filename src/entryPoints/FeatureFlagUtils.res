@@ -57,6 +57,7 @@ type featureFlag = {
   sampleDataAnalytics: bool,
   paymentSettingsV2: bool,
   acquirerConfigSettings: bool,
+  devOmpChart: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -116,6 +117,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
     acquirerConfigSettings: dict->getBool("acquirer_config_settings", false),
     paymentSettingsV2: dict->getBool("payment_settings_v2", false),
+    devOmpChart: dict->getBool("dev_omp_chart", false),
   }
 }
 
