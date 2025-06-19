@@ -1,4 +1,5 @@
 type acquirerConfig = {
+  id: string,
   acquirer_assigned_merchant_id: string,
   merchant_name: string,
   merchant_country_code: string,
@@ -14,3 +15,4 @@ type colType =
   | Network
   | AcquirerBin
   | AcquirerFraudRate
+  | Update

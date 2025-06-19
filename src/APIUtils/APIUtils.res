@@ -776,7 +776,11 @@ let useGetURL = () => {
       /* MERCHANT ACQUIRER */
       | ACQUIRER_CONFIG_SETTINGS =>
         switch methodType {
-        | Post => `profile_acquirer`
+        | Post =>
+          switch id {
+          | Some(acquirerId) => `profile_acquirer/${profileId}/${acquirerId}`
+          | None => `profile_acquirer`
+          }
         | _ => ""
         }
 
