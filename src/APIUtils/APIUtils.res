@@ -622,6 +622,23 @@ let useGetURL = () => {
       /* THREE DS ROUTING */
       | THREE_DS => `routing/decision`
 
+      /* THREE DS ROUTING */
+
+      | THREE_DS_EXEMPTION_RULES =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(routingId) => `routing/${routingId}`
+          | None => `routing/active?transaction_type=three_ds_authentication&limit=100`
+          }
+        | Post =>
+          switch id {
+          | Some(routing_id) => `routing/${routing_id}/activate`
+          | _ => "routing"
+          }
+        | _ => ""
+        }
+
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
 
