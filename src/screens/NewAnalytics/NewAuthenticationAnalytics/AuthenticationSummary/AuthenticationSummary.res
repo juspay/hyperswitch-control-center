@@ -4,6 +4,7 @@ open ExemptionGraphsUtils
 open ExemptionGraphsTypes
 open InsightsUtils
 open NewAuthenticationAnalyticsEntity
+open Typography
 
 module TableModule = {
   open LogicUtils
@@ -155,7 +156,7 @@ let make = (~entity: moduleEntity) => {
   <PageLoaderWrapper
     screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
     <div
-      className="font-bold text-xl bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75 my-4">
+      className={`${heading.md.semibold} bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75 my-4`}>
       {React.string(entity.title)}
     </div>
     <TableModule data={authenticationSummaryTableData} />
