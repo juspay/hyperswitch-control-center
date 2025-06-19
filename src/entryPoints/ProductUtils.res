@@ -4,8 +4,8 @@ let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => 
   | ("recon", V2) => Recon
   | ("recovery", V2) => Recovery
   | ("vault", V2) => Vault
-  | ("cost_observability", V2) => CostObservability
-  | ("dynamic_routing", V2) => DynamicRouting
+  | ("cost_observability", V1) => CostObservability
+  | ("dynamic_routing", V1) => DynamicRouting
   | ("orchestration", V2) => Orchestration(V2)
   | ("orchestration", V1) => Orchestration(V1)
   | _ => Orchestration(V1)
