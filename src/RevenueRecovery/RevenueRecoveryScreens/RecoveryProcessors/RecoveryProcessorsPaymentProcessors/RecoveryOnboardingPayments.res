@@ -278,12 +278,18 @@ let make = (
                 baseComponent={<ListBaseComp
                   placeHolder="Choose a processor" heading="Profile" subHeading=connector arrow
                 />}
-                bottomComponent={<AddNewOMPButton
-                  filterConnector=None
-                  prodConnectorList=RecoveryConnectorUtils.recoveryConnectorListProd
-                  user=#Profile
-                  addItemBtnStyle
-                />}
+                bottomComponent={<>
+                  <AddNewOMPButton
+                    filterConnector=None
+                    prodConnectorList=RecoveryConnectorUtils.recoveryConnectorListProd
+                    user=#Profile
+                    addItemBtnStyle
+                  />
+                  <BillingProcessorsUtils.ReadOnlyOptionsList
+                    list=RecoveryConnectorUtils.recoveryConnectorInHouseList
+                    headerText="Payment Orchestrator"
+                  />
+                </>}
                 hideMultiSelectButtons=true
                 addButton=false
                 searchable=true
