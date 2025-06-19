@@ -112,11 +112,9 @@ module SettingsForm = {
     }
 
     let onSubmit = async (values, _) => {
-      switch (isUpdateMode, editingConfig) {
-      | (true, Some({id})) => await updateAcquirerConfig(values, id)
-      | (false, _) => await createAcquirerConfig(values)
-      | (true, None) =>
-        showToast(~message="No config selected for update", ~toastType=ToastState.ToastError)
+      switch editingConfig {
+      | Some({id}) => await updateAcquirerConfig(values, id)
+      | _ => await createAcquirerConfig(values)
       }
       Nullable.null
     }
