@@ -72,7 +72,7 @@ let make = (
     customUI={<InsightsHelper.NoData height="h-48 p-0 -m-0" />}>
     <div className="rounded-xl border border-gray-200 p-4 w-full bg-white">
       <div className="flex items-center justify-start gap-3 mb-4">
-        <p className="text-sm text-gray-500"> {"Current Subscription Auth Rate"->React.string} </p>
+        <p className="text-sm text-gray-500"> {"First Attempt Success rate"->React.string} </p>
         <span className="text-sm bg-gray-100 border px-2 py-0.5 rounded-md font-medium">
           {"Without any Retries"->React.string}
         </span>
