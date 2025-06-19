@@ -31,6 +31,7 @@ let authenticationSuccessEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
     metrics: [#authentication_count, #authentication_success_count],
+    groupBy: [#authentication_connector],
   },
   title: "Authentication Success Rate",
   description: "Breakdown of ThreeDS 2.0 Journey",
@@ -51,6 +52,7 @@ let userDropOffRateEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
     metrics: [#authentication_attempt_count, #authentication_success_count],
+    groupBy: [#authentication_connector],
   },
   title: "User Drop-off Rate",
   description: "Breakdown of user drop-off rates by device type",
