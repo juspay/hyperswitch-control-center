@@ -177,10 +177,11 @@ let validateMerchantAccountFormV2 = (
       | _ => ()
       }
     | AuthenticationConnectorDetails =>
-      let initiallyConnectedAuthConnectorsLength = switch businessProfileRecoilVal.authentication_connector_details.authentication_connectors {
-      | Some(arr) => arr->Array.length
-      | None => 0
-      }
+      let initiallyConnectedAuthConnectorsLength =
+        businessProfileRecoilVal.authentication_connector_details.authentication_connectors->Option.mapOr(
+          0,
+          arr => {arr->Array.length},
+        )
 
       let authenticationConnectorDetailsDict =
         valuesDict->getDictfromDict("authentication_connector_details")
@@ -188,10 +189,7 @@ let validateMerchantAccountFormV2 = (
         authenticationConnectorDetailsDict
         ->getArrayFromDict("authentication_connectors", [])
         ->getNonEmptyArray
-      let threeDsArrayVal = switch threedsArray {
-      | Some(arr) => arr
-      | None => []
-      }
+      let threeDsArrayVal = threedsArray->Option.mapOr([], arr => arr)
       let threedsUrl =
         authenticationConnectorDetailsDict
         ->getString("three_ds_requestor_url", "")
