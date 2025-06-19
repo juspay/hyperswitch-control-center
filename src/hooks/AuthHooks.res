@@ -79,7 +79,7 @@ let useApiFetcher = () => {
       ~betaEndpointConfig=?,
       ~contentType=Headers("application/json"),
       ~xFeatureRoute,
-      ~forceCookies=!(uri->String.includes("v2/payments/list")),
+      ~forceCookies,
       ~merchantId="",
       ~profileId="",
       ~version=UserInfoTypes.V1,
