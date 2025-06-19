@@ -23,7 +23,7 @@ let getStepsForWorkflow = (workflowTitle): array<stepDetails> => {
       {
         title: "Step 1: Connect Processors",
         description: "Navigate to Connectors > Add Processor, and enter your API credentials. Connect at least two processors so Smart Retries has a backup.",
-        videoPath: Some("connect_processor.mp4"),
+        videoPath: Some("smartRetry/enable_auto_retry.mp4"),
         ctaText: Some("Add processors →"),
         ctaLink: Some("/connectors"),
       },
@@ -54,7 +54,7 @@ let getStepsForWorkflow = (workflowTitle): array<stepDetails> => {
       {
         title: "Step 1: Define Routing Rules",
         description: "Create rules in the Routing section to direct payments based on your criteria.",
-        videoPath: Some("connect_processor.mp4"),
+        videoPath: Some("smartRetry/enable_auto_retry.mp4"),
         ctaText: Some("Setup Routing →"),
         ctaLink: Some("/routing"),
       },
