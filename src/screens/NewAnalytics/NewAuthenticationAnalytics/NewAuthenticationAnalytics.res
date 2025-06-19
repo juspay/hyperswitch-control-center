@@ -293,7 +293,7 @@ let make = () => {
         showCustomFilter=false
         refreshFilters=false
       />
-      <div className="mt-4">
+      <div className="mt-15-px">
         <Portal to="NewAnalyticsOMPView">
           <OMPSwitchHelper.OMPViews
             views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
