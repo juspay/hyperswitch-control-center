@@ -8,7 +8,7 @@ external toWasm: Dict.t<JSON.t> => RoutingTypes.wasmModule = "%identity"
 module Add3DSCondition = {
   @react.component
   let make = (~isFirst, ~id, ~isExpanded, ~threeDsType) => {
-    let classStyle = "flex justify-center relative py-2 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
+    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
 
     let options: array<SelectBox.dropdownOption> = [
       {value: "three_ds", label: "3DS"},
@@ -31,7 +31,54 @@ module Add3DSCondition = {
                 ~customInput=InputFields.selectInput(
                   ~options,
                   ~buttonText="Select Field",
-                  ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                  ~customButtonStyle=`!-mt-5 ${classStyle} !py-0 !rounded-md`,
+                  ~deselectDisable=true,
+                ),
+              )}
+            />
+          </div>
+        </div>
+      </div>
+    } else {
+      <RulePreviewer.ThreedsTypeView threeDsType />
+    }
+  }
+}
+
+module Add3DSConditionForThreeDsExemption = {
+  @react.component
+  let make = (~isFirst, ~id, ~isExpanded, ~threeDsType) => {
+    let classStyle = "flex justify-center relative py-2.5 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
+
+    let options: array<SelectBox.dropdownOption> = [
+      {value: "no_three_ds", label: "Request No-3DS"},
+      {value: "challenge_requested", label: "Mandate 3DS Challenge"},
+      {value: "challenge_preferred", label: "Prefer 3DS Challenge"},
+      {value: "three_ds_exemption_requested_tra", label: "Request 3DS Exemption, Type: TRA"},
+      {
+        value: "three_ds_exemption_requested_low_value",
+        label: "Request 3DS Exemption, Type: Low Value Transaction",
+      },
+      {value: "issuer_three_ds_exemption_requested", label: "No challenge requested"},
+    ]
+
+    if isExpanded {
+      <div className="flex flex-row ml-2">
+        <RenderIf condition={!isFirst}>
+          <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+        </RenderIf>
+        <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
+          <div className="flex flex-wrap gap-4 -mt-2">
+            <div className=classStyle> {"Auth type"->React.string} </div>
+            <div className=classStyle> {"= is Equal to"->React.string} </div>
+            <FormRenderer.FieldRenderer
+              field={FormRenderer.makeFieldInfo(
+                ~label="",
+                ~name=`${id}.connectorSelection.override_3ds`,
+                ~customInput=InputFields.selectInput(
+                  ~options,
+                  ~buttonText="Select Field",
+                  ~customButtonStyle=`!-mt-5 ${classStyle} !py-0 !rounded-md`,
                   ~deselectDisable=true,
                 ),
               )}
@@ -148,6 +195,7 @@ module Wrapper = {
     ~wasm,
     ~isFrom3ds=false,
     ~isFromSurcharge=false,
+    ~isFrom3DsExemptions=false,
   ) => {
     let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
     let showToast = ToastState.useShowToast()
@@ -190,7 +238,7 @@ module Wrapper = {
       )
 
     let handleClickExpand = _ => {
-      if isFrom3ds {
+      if isFrom3ds || isFrom3DsExemptions {
         if threeDsType->String.length > 0 {
           setIsExpanded(p => !p)
         } else {
@@ -291,13 +339,18 @@ module Wrapper = {
             ${border} 
             ${borderColor.primaryNormal}`}>
         <RenderIf condition={!isFirst}>
-          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
+          <AdvancedRoutingUIUtils.MakeRuleField
+            id isExpanded wasm isFrom3ds isFromSurcharge isFrom3DsExemptions
+          />
         </RenderIf>
-        <RenderIf condition={!isFrom3ds && !isFromSurcharge}>
+        <RenderIf condition={!isFrom3ds && !isFromSurcharge && !isFrom3DsExemptions}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
         </RenderIf>
         <RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id isExpanded threeDsType />
+        </RenderIf>
+        <RenderIf condition={isFrom3DsExemptions}>
+          <Add3DSConditionForThreeDsExemption isFirst id isExpanded threeDsType />
         </RenderIf>
         <RenderIf condition={isFromSurcharge}>
           <AddSurchargeCondition

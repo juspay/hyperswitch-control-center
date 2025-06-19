@@ -32,6 +32,9 @@ module.exports = {
       scale: {
         400: "4",
       },
+      margin: {
+        "15-px": "15px",
+      },
       height: {
         "1.1-rem": "1.125rem",
         "5-rem": "5rem",
