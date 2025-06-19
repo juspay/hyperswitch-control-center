@@ -10,9 +10,9 @@ module ListBaseComp = {
     ~showDropdownArrow=true,
     ~user: UserInfoTypes.entity,
   ) => {
-    let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {
+      globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
+    } = React.useContext(ThemeProvider.themeContext)
     let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let arrowClassName = isDarkBg
       ? `${arrow
@@ -36,14 +36,14 @@ module ListBaseComp = {
                 description="Organisation Chart"
                 customStyle="!whitespace-nowrap"
                 toolTipFor={<button
-                  className="bg-nd_gray-150 w-5 h-5 rounded-sm flex items-center justify-center"
+                  className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
                   onClick={ev => {
                     ReactEvent.Mouse.stopPropagation(ev)
                     RescriptReactRouter.push(
                       GlobalVars.appendDashboardPath(~url="/organization-chart"),
                     )
                   }}>
-                  <Icon name="github-fork" size=14 className="text-gray-500" />
+                  <Icon name="github-fork" size=14 className={`${secondaryTextColor}`} />
                 </button>}
                 toolTipPosition=ToolTip.Right
               />
@@ -62,7 +62,7 @@ module ListBaseComp = {
 
       | #Profile =>
         <div
-          className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
+          className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-150 shadow-sm">
           <div className="md:max-w-40 max-w-16">
             <p
               className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre">
