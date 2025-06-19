@@ -187,6 +187,18 @@ let authenticationConnectors = connectorList =>
     ~isRequired=false,
   )
 
+let merchantCategoryCode = merchantCodeArray =>
+  FormRenderer.makeFieldInfo(
+    ~label="Merchant Code with Name",
+    ~name="merchant_category_code",
+    ~placeholder="Enter Merchant Code with Name",
+    ~customInput=InputFields.selectInput(
+      ~options=merchantCodeArray->SelectBox.makeOptionsWithDifferentValues,
+      ~buttonText="Select Option",
+    ),
+    ~isRequired=false,
+  )
+
 let threeDsRequestorUrl = FormRenderer.makeFieldInfo(
   ~label="3DS Requestor URL",
   ~name="three_ds_requestor_url",

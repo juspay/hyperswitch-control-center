@@ -45,6 +45,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
   }
 }
 let mapJsonToBusinessProfileV2 = (values): profileEntity => {
@@ -90,5 +91,6 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
   }
 }
