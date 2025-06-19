@@ -132,7 +132,7 @@ let make = () => {
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
                           <RenderIf
-                            condition={merchantDetailsTypedValue.product_type == Orchestration}>
+                            condition={merchantDetailsTypedValue.product_type == Orchestration(V1)}>
                             <GlobalSearchBar />
                           </RenderIf>
                           <RenderIf condition={isInternalUser}>
@@ -155,7 +155,7 @@ let make = () => {
                       }}
                       midUiActions={<TestMode />}
                       midUiActionsCustomClass={`top-0 relative flex justify-center ${activeProduct !==
-                          Orchestration
+                          Orchestration(V1)
                           ? "-left-[180px]"
                           : ""} `}
                     />
@@ -203,11 +203,11 @@ let make = () => {
                           <IntelligentRoutingApp />
 
                         /* ORCHESTRATOR V2 PRODUCT */
-                        | (OrchestrationV2, list{"v2", "orchestration-v2", ..._}) =>
+                        | (Orchestration(V2), list{"v2", "orchestration", ..._}) =>
                           <OrchestrationV2App />
 
                         /* ORCHESTRATOR PRODUCT */
-                        | (Orchestration, _) => <OrchestrationApp setScreenState />
+                        | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
 
                         | _ =>
                           <UnauthorizedPage

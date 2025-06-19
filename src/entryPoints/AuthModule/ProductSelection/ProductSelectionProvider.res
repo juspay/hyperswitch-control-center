@@ -179,7 +179,10 @@ module CreateNewMerchantBody = {
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
-      dict->Dict.set("product_type", (Obj.magic(selectedProduct) :> string)->JSON.Encode.string)
+      dict->Dict.set(
+        "product_type",
+        selectedProduct->ProductUtils.getProductStringName->JSON.Encode.string,
+      )
       dict->JSON.Encode.object
     }, [selectedProduct])
 
@@ -200,7 +203,7 @@ module CreateNewMerchantBody = {
         Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
 
         let res = switch selectedProduct {
-        | Orchestration
+        | Orchestration(V1)
         | DynamicRouting
         | CostObservability => {
             let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
@@ -353,8 +356,11 @@ let currentProductValue =
   sessionStorage.getItem("product")
   ->Nullable.toOption
   ->Option.getOr("orchestration")
+// let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
-let defaultContext = React.createContext(defaultValueOfProductProvider(~currentProductValue))
+let defaultContext = React.createContext(
+  defaultValueOfProductProvider(~currentProductValue, ~version=V1),
+)
 
 module Provider = {
   let make = React.Context.provider(defaultContext)
@@ -365,8 +371,9 @@ let make = (~children) => {
   let merchantList: array<OMPSwitchTypes.ompListTypes> = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantListAtom,
   )
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let (activeProduct, setActiveProduct) = React.useState(_ =>
-    currentProductValue->ProductUtils.getProductVariantFromString
+    currentProductValue->ProductUtils.getProductVariantFromString(~version)
   )
   let (action, setAction) = React.useState(_ => None)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -406,7 +413,7 @@ let make = (~children) => {
         ->Option.getOr({
           name: "",
           id: "",
-          productType: Orchestration,
+          productType: Orchestration(V1),
         })
 
       setSwitchToMerchant(merchantIdToSwitch, productVariant)

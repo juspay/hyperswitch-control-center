@@ -8,7 +8,7 @@ let emptyComponent = CustomComponent({
 let home = Link({
   name: "Overview",
   icon: "nd-home",
-  link: "v2/orchestration-v2/home",
+  link: "v2/orchestration/home",
   access: Access,
   selectedIcon: "nd-fill-home",
 })
@@ -16,7 +16,7 @@ let home = Link({
 let paymentProcessor = (_isLiveMode, userHasResourceAccess) => {
   SubLevelLink({
     name: "Payment Processors",
-    link: `v2/orchestration-v2/connectors`,
+    link: `v2/orchestration/connectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     // searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
     //   ~processorList=isLiveMode

@@ -33,7 +33,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
 
   let sideBarValues = [
     Link({
-      name: Orchestration->getProductDisplayName,
+      name: Orchestration(V1)->getProductDisplayName,
       icon: "orchestrator-home",
       link: "/v2/onboarding/orchestrator",
       access: Access,
@@ -94,7 +94,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devOrchestrationV2Product {
     sideBarValues->Array.push(
       Link({
-        name: OrchestrationV2->getProductDisplayName,
+        name: Orchestration(V2)->getProductDisplayName,
         icon: "orchestrator-home",
         link: "/v2/onboarding/orchestrator-v2",
         access: Access,

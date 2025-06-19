@@ -32,7 +32,7 @@ let make = () => {
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
-    | list{"v2", "orchestration-v2", "connectors", ...remainingPath} =>
+    | list{"v2", "orchestration", "connectors", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold
           entityName="Payment Connectors" remainingPath renderList={() => <PaymentConnectorsV2 />}
