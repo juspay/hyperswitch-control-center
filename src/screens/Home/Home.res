@@ -4,6 +4,7 @@ let make = (~setAppScreenState) => {
   open PageUtils
   let greeting = getGreeting()
   let {userInfo: {recoveryCodesLeft}} = React.useContext(UserInfoProvider.defaultContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
 
   <>
@@ -21,7 +22,9 @@ let make = (~setAppScreenState) => {
         customSubTitleStyle="text-fs-16 text-nd_gray-400 !opacity-100 font-medium !mt-1"
       />
       <ControlCenter />
-      <ExploreWorkflowsSection />
+      <RenderIf condition={featureFlagDetails.exploreRecipes}>
+        <ExploreWorkflowsSection />
+      </RenderIf>
       <DevResources />
     </div>
   </>
