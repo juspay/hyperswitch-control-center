@@ -408,6 +408,14 @@ let complianceCertificateSection = {
     searchOptions: [("PCI certificate", "")],
   })
 }
+let themepreview = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Themes",
+    link: `/themes`,
+    access: userHasResourceAccess(~resourceAccess=User),
+    searchOptions: [("Customise Themes", "")],
+  })
+}
 
 let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
   let settingsLinkArray = []
@@ -421,7 +429,7 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
   }
 
   settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
-
+  settingsLinkArray->Array.push(themepreview(userHasResourceAccess))->ignore
   Section({
     name: "Settings",
     icon: "nd-settings",
