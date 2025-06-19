@@ -60,6 +60,18 @@ let make = (
             baseComponent={<ListBaseComp
               placeHolder="Choose a platform" heading="platform" subHeading=connector arrow
             />}
+            bottomComponent={<>
+              <BillingProcessorsUtils.ReadOnlyOptionsList
+                list=RevenueRecoveryOnboardingUtils.billingConnectorProdList
+                headerText="Available for production"
+                customWrapperStyle="border-t-2"
+              />
+              <BillingProcessorsUtils.ReadOnlyOptionsList
+                list=RevenueRecoveryOnboardingUtils.billingConnectorInHouseList
+                headerText="In House"
+                customWrapperStyle="border-t-2"
+              />
+            </>}
             addButton=false
             customScrollStyle
             dropdownContainerStyle
