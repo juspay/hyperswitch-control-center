@@ -234,10 +234,9 @@ let make = () => {
         ~methodType=Post,
         ~id=Some(routingId),
       )
-
+      setScreenState(_ => Loading)
       let _ = await updateDetails(activateUrl, body, Post)
-
-      fetchDetails()->ignore
+      let _ = await fetchDetails()
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=pageConfig.baseUrl))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
