@@ -13,7 +13,7 @@ module ListBaseComp = {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-
+    let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let arrowClassName = isDarkBg
       ? `${arrow
             ? "rotate-180"
@@ -27,9 +27,28 @@ module ListBaseComp = {
       | #Merchant =>
         <div
           className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
-          <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
-            {"Merchant Account"->React.string}
-          </span>
+          <div className="flex flex-row w-full justify-between">
+            <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+              {"Merchant Account"->React.string}
+            </span>
+            <RenderIf condition=devOmpChart>
+              <ToolTip
+                description="Organisation Chart"
+                customStyle="!whitespace-nowrap"
+                toolTipFor={<button
+                  className="bg-nd_gray-150 w-5 h-5 rounded-sm flex items-center justify-center"
+                  onClick={ev => {
+                    ReactEvent.Mouse.stopPropagation(ev)
+                    RescriptReactRouter.push(
+                      GlobalVars.appendDashboardPath(~url="/organization-chart"),
+                    )
+                  }}>
+                  <Icon name="github-fork" size=14 className="text-gray-500" />
+                </button>}
+                toolTipPosition=ToolTip.Right
+              />
+            </RenderIf>
+          </div>
           <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
@@ -62,6 +81,7 @@ module ListBaseComp = {
     </>
   }
 }
+
 module AddNewOMPButton = {
   @react.component
   let make = (
@@ -255,6 +275,7 @@ module MerchantDropdownItem = {
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -299,13 +320,18 @@ module MerchantDropdownItem = {
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
       let regexForMerchantName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-
+      let isDuplicate =
+        merchantList->Array.some(merchant =>
+          merchant.name->String.toLowerCase == merchantName->String.toLowerCase
+        )
       let errorMessage = if merchantName->isEmptyString {
         "Merchant name cannot be empty"
       } else if merchantName->String.length > 64 {
         "Merchant name cannot exceed 64 characters"
       } else if !RegExp.test(RegExp.fromString(regexForMerchantName), merchantName) {
         "Merchant name should not contain special characters"
+      } else if isDuplicate {
+        "Merchant with this name already exists"
       } else {
         ""
       }

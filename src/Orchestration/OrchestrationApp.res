@@ -34,6 +34,7 @@ let make = (~setScreenState) => {
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
+    | list{"payment-settings-new", ..._}
     | list{"webhooks", ..._}
     | list{"sdk"} =>
       <ConnectorContainer />
@@ -49,6 +50,7 @@ let make = (~setScreenState) => {
     | list{"analytics-disputes"}
     | list{"analytics-authentication"} =>
       <AnalyticsContainer />
+
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}
     | list{"new-analytics", "refund"}
@@ -135,9 +137,7 @@ let make = (~setScreenState) => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ =>
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
-      <MerchantAccountContainer setAppScreenState=setScreenState />
+    | _ => <EmptyPage path="/home" />
     }
   }
 }

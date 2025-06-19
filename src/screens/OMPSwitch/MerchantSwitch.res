@@ -7,6 +7,7 @@ module NewMerchantCreationModal = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let createNewMerchant = async values => {
       try {
         switch activeProduct {
@@ -75,14 +76,19 @@ module NewMerchantCreationModal = {
       open LogicUtils
       let errors = Dict.make()
       let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
+      let isDuplicate =
+        merchantList->Array.some(merchant =>
+          merchant.name->String.toLowerCase == companyName->String.toLowerCase
+        )
       let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-
       let errorMessage = if companyName->isEmptyString {
         "Merchant name cannot be empty"
       } else if companyName->String.length > 64 {
         "Merchant name cannot exceed 64 characters"
       } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
         "Merchant name should not contain special characters"
+      } else if isDuplicate {
+        "Merchant with this name already exists"
       } else {
         ""
       }

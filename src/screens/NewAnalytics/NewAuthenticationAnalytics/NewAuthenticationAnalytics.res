@@ -80,6 +80,8 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       if isSampleDataEnabled {
+        setQueryData(_ => Dict.make()->itemToObjMapperForQueryData)
+        setFunnelData(_ => Dict.make()->itemToObjMapperForFunnelData)
         let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
         let res = await fetchApi(
           paymentsUrl,
@@ -132,6 +134,8 @@ let make = () => {
         setFunnelData(_ => funnelDict)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
+        setQueryData(_ => Dict.make()->itemToObjMapperForQueryData)
+        setFunnelData(_ => Dict.make()->itemToObjMapperForFunnelData)
         let metricsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
         let metricsRequestBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
@@ -255,14 +259,14 @@ let make = () => {
       getMetricsDetails()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, filterValue))
+  }, (startTimeVal, endTimeVal, filterValue, isSampleDataEnabled))
 
   let topFilterUi = switch filterDataJson {
   | Some(filterData) =>
     <div className="flex flex-row">
       <DynamicFilter
         title="AuthenticationAnalyticsV2"
-        initialFilters={HSAnalyticsUtils.initialFilterFields(filterData)}
+        initialFilters={isSampleDataEnabled ? [] : HSAnalyticsUtils.initialFilterFields(filterData)}
         options=[]
         popupFilterFields={HSAnalyticsUtils.options(filterData)}
         initialFixedFilters={initialFixedFilterFields(
@@ -285,7 +289,10 @@ let make = () => {
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
+        initialFixedFilters={initialFixedFilterFields(
+          ~events=dateDropDownTriggerMixpanelCallback,
+          ~sampleDataIsEnabled=isSampleDataEnabled,
+        )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
         key="1"
@@ -360,7 +367,7 @@ let make = () => {
     <Insights />
     <hr className="w-full mt-6" />
     <div className="my-4">
-      <h2 className={`${heading.xl.semibold} text-jp-gray-900`}>
+      <h2 className={`${heading.md.semibold} text-jp-gray-900`}>
         {"3DS Exemption Analytics"->React.string}
       </h2>
     </div>
