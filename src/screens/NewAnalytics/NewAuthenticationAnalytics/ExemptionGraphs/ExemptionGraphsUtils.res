@@ -48,19 +48,7 @@ let tooltipFormatter = (
   (
     @this
     (this: pointFormatter) => {
-      let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
-
-      let getRowsHtml = (~iconColor, ~date, ~name="", ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
-        let key = showNameInTooltip ? name : date
-        `<div style="display: flex; align-items: center;">
-            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
-        </div>`
-      }
-
-      let tableItemsArray =
+      let tableItems =
         this.points
         ->Array.map(point => {
           let pointData = point->Identity.genericTypeToJson->getDictFromJsonObject
@@ -69,39 +57,20 @@ let tooltipFormatter = (
           let series = pointData->getDictfromDict("series")
           let name = series->getString("name", "")
           let value = pointData->getFloat("y", 0.0)
-          getRowsHtml(~iconColor, ~date, ~name, ~value)
+          getRowsHtml(
+            ~iconColor,
+            ~date,
+            ~name,
+            ~value,
+            ~metricType,
+            ~currency,
+            ~suffix,
+            ~showNameInTooltip,
+          )
         })
         ->Array.joinWith("")
 
-      let content = `
-          <div style=" 
-          padding:5px 12px;
-          border-left: 3px solid #0069FD;
-          display:flex;
-          flex-direction:column;
-          justify-content: space-between;
-          gap: 7px;">
-              ${title}
-              <div style="
-                margin-top: 5px;
-                display:flex;
-                flex-direction:column;
-                gap: 7px;">
-                ${tableItemsArray}
-              </div>
-        </div>`
-
-      `<div style="
-    padding: 10px;
-    width:fit-content;
-    border-radius: 7px;
-    background-color:#FFFFFF;
-    padding:10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid #E5E5E5;
-    position:relative;">
-        ${content}
-    </div>`
+      getContentsUI(~title=getTitleUI(~title), ~tableItems)
     }
   )->asTooltipPointFormatter
 }
@@ -137,13 +106,7 @@ let getLineGraphData = (data, ~xKey, ~yKey, ~groupByKey, ~isAmount=false) => {
 
     dataArray
   } else {
-    data
-    ->getArrayFromJson([])
-    ->Array.mapWithIndex((item, index) => {
-      let name = getLabelName(~key=yKey, ~index, ~points=item)
-      let color = index->getColor
-      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color, ~isAmount)
-    })
+    data->InsightsUtils.getLineGraphData(~xKey, ~yKey, ~isAmount)
   }
 }
 

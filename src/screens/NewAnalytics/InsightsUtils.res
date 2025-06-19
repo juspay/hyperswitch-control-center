@@ -379,6 +379,59 @@ let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false) => {
   })
 }
 
+let getTitleUI = (~title) => {`<div style="font-size: 16px; font-weight: bold;">${title}</div>`}
+
+let getRowsHtml = (
+  ~iconColor,
+  ~date,
+  ~name="",
+  ~value,
+  ~comparisionComponent="",
+  ~metricType,
+  ~currency,
+  ~suffix,
+  ~showNameInTooltip,
+) => {
+  let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
+  let key = showNameInTooltip ? name : date
+  `<div style="display: flex; align-items: center;">
+            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
+            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
+        </div>`
+}
+
+let getContentsUI = (~title, ~tableItems) => {
+  let content = `
+          <div style=" 
+          padding:5px 12px;
+          display:flex;
+          flex-direction:column;
+          justify-content: space-between;
+          gap: 7px;">
+              ${title}
+              <div style="
+                margin-top: 5px;
+                display:flex;
+                flex-direction:column;
+                gap: 7px;">
+                ${tableItems}
+              </div>
+        </div>`
+
+  `<div style="
+    padding: 10px;
+    width:fit-content;
+    border-radius: 7px;
+    background-color:#FFFFFF;
+    padding:10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid #E5E5E5;
+    position:relative;">
+        ${content}
+    </div>`
+}
+
 let tooltipFormatter = (
   ~secondaryCategories,
   ~title,
@@ -404,16 +457,6 @@ let tooltipFormatter = (
       let primartPoint = this.points->getValueFromArray(primaryIndex, defaultValue)
       let secondaryPoint = this.points->getValueFromArray(secondaryIndex, defaultValue)
 
-      let getRowsHtml = (~iconColor, ~date, ~name="", ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
-        let key = showNameInTooltip ? name : date
-        `<div style="display: flex; align-items: center;">
-            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
-        </div>`
-      }
-
       let tableItems = [
         getRowsHtml(
           ~iconColor=primartPoint.color,
@@ -432,6 +475,10 @@ let tooltipFormatter = (
             | None => ""
             }
           },
+          ~metricType,
+          ~currency,
+          ~suffix,
+          ~showNameInTooltip,
         ),
         {
           switch comparison {
@@ -442,6 +489,10 @@ let tooltipFormatter = (
                   ~date=secondaryCategories->getValueFromArray(secondaryPoint.point.index, ""),
                   ~value=secondaryPoint.y,
                   ~name=secondaryPoint.series.name,
+                  ~metricType,
+                  ~currency,
+                  ~suffix,
+                  ~showNameInTooltip,
                 )
               : ""
           | None => ""
@@ -449,35 +500,7 @@ let tooltipFormatter = (
         },
       ]->Array.joinWith("")
 
-      let content = `
-          <div style=" 
-          padding:5px 12px;
-          border-left: 3px solid #0069FD;
-          display:flex;
-          flex-direction:column;
-          justify-content: space-between;
-          gap: 7px;">
-              ${title}
-              <div style="
-                margin-top: 5px;
-                display:flex;
-                flex-direction:column;
-                gap: 7px;">
-                ${tableItems}
-              </div>
-        </div>`
-
-      `<div style="
-    padding: 10px;
-    width:fit-content;
-    border-radius: 7px;
-    background-color:#FFFFFF;
-    padding:10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid #E5E5E5;
-    position:relative;">
-        ${content}
-    </div>`
+      getContentsUI(~title=getTitleUI(~title), ~tableItems)
     }
   )->asTooltipPointFormatter
 }
