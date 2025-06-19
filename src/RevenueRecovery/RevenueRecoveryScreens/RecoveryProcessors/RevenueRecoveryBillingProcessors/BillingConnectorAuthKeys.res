@@ -39,6 +39,25 @@ let make = (
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
 
+  let gatewaysBottomComponent = {
+    open BillingProcessorsUtils
+    <>
+      <p
+        className="text-nd_gray-500 font-semibold leading-3 text-fs-12 tracking-wider bg-white border-t px-5 pt-4">
+        {"Available for Production"->React.string}
+      </p>
+      <div className="p-2">
+        <ReadOnlyOptionsList
+          list=RevenueRecoveryOnboardingUtils.billingConnectorProdList
+          headerText="Billing Platforms"
+        />
+        <ReadOnlyOptionsList
+          list=RevenueRecoveryOnboardingUtils.billingConnectorInHouseList headerText="In House"
+        />
+      </div>
+    </>
+  }
+
   open RevenueRecoveryOnboardingUtils
   <PageWrapper
     title="Choose your Billing Platform"
@@ -60,18 +79,7 @@ let make = (
             baseComponent={<ListBaseComp
               placeHolder="Choose a platform" heading="platform" subHeading=connector arrow
             />}
-            bottomComponent={<>
-              <BillingProcessorsUtils.ReadOnlyOptionsList
-                list=RevenueRecoveryOnboardingUtils.billingConnectorProdList
-                headerText="Available for production"
-                customWrapperStyle="border-t-2"
-              />
-              <BillingProcessorsUtils.ReadOnlyOptionsList
-                list=RevenueRecoveryOnboardingUtils.billingConnectorInHouseList
-                headerText="In House"
-                customWrapperStyle="border-t-2"
-              />
-            </>}
+            bottomComponent=gatewaysBottomComponent
             addButton=false
             customScrollStyle
             dropdownContainerStyle
