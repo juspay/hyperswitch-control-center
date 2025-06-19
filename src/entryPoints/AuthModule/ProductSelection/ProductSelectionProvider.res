@@ -356,7 +356,6 @@ let currentProductValue =
   sessionStorage.getItem("product")
   ->Nullable.toOption
   ->Option.getOr("orchestration")
-// let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
 let defaultContext = React.createContext(
   defaultValueOfProductProvider(~currentProductValue, ~version=V1),
