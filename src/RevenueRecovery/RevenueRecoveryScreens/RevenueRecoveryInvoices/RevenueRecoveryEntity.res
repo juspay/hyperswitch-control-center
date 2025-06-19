@@ -45,7 +45,7 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
   attempt_triggered_by: dict
   ->getDictfromDict("feature_metadata")
   ->getDictfromDict("revenue_recovery")
-  ->getString("attempt_triggered_by", ""),
+  ->getString("attempt_triggered_by", "Internal"),
   created: dict->getString("created", ""),
 }
 
@@ -77,7 +77,7 @@ let getCell = (
   order: RevenueRecoveryOrderTypes.order,
   colType: RevenueRecoveryOrderTypes.colType,
 ): Table.cell => {
-  let orderStatus = order.status->HSwitchOrderUtils.refundStatusVariantMapper
+  let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Id =>
     CustomCell(
@@ -91,10 +91,18 @@ let getCell = (
     Label({
       title: order.status->String.toUpperCase,
       color: switch orderStatus {
-      | Success => LabelGreen
-      | Failure => LabelRed
-      | Pending => LabelBlue
-      | _ => LabelLightGray
+      | Succeeded
+      | PartiallyCaptured =>
+        LabelGreen
+      | Failed
+      | Cancelled =>
+        LabelRed
+      | Processing
+      | RequiresCustomerAction
+      | RequiresConfirmation
+      | RequiresPaymentMethod =>
+        LabelBlue
+      | _ => LabelBlue
       },
     })
   | OrderAmount =>

@@ -22,23 +22,24 @@ let getHeaders = (
   ~profileId,
   ~version: UserInfoTypes.version,
 ) => {
-  let isMixpanel = uri->String.includes("mixpanel")
-  let isRecoveryInvoices = uri->String.includes("list-invoices")
+  let isMixpanel = uri->String.includes("v2/payments/list")
 
   let headerObj = if isMixpanel {
     [
-      ("Content-Type", "application/x-www-form-urlencoded"),
       ("accept", "application/json"),
+      ("X-Profile-Id", "pro_2bd1deOY5VnN7SZ4OUAG"),
+      ("X-Merchant-Id", "cloth_seller_nD6M0xEq8iXKl4I3PtUr"),
+      ("api-key", "snd_xcoAFGk8YOAXn03VWVaWD0ReqiT6Bi76WKMcKxQUGgNHm9eIvuBdu8zfhCgaaUad"),
+      (
+        "authorization",
+        `api-key=snd_xcoAFGk8YOAXn03VWVaWD0ReqiT6Bi76WKMcKxQUGgNHm9eIvuBdu8zfhCgaaUad`,
+      ),
     ]->Dict.fromArray
   } else {
     switch (token, version) {
     | (Some(str), V1) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
-
-        if isRecoveryInvoices {
-          headers->Dict.set("x-tenant-id", `public`)
-        }
       }
     | (Some(str), V2) => headers->Dict.set("authorization", `Bearer ${str}`)
     | _ => ()
@@ -84,7 +85,7 @@ let useApiFetcher = () => {
       ~betaEndpointConfig=?,
       ~contentType=Headers("application/json"),
       ~xFeatureRoute,
-      ~forceCookies,
+      ~forceCookies=!(uri->String.includes("v2/payments/list")),
       ~merchantId="",
       ~profileId="",
       ~version=UserInfoTypes.V1,

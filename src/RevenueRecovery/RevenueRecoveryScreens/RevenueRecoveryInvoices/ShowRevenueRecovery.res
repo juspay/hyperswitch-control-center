@@ -123,11 +123,12 @@ let make = (~id) => {
       setScreenState(_ => Loading)
 
       let url = getURL(
-        ~entityName=V1(RECOVERY_ATTEMPTS),
+        ~entityName=V2(V2_ORDERS_LIST),
         ~methodType=Get,
-        ~queryParamerters=Some(id),
+        ~id=Some(id),
+        ~queryParamerters=Some("expand_attempts=true"),
       )
-      let data = await fetchDetails(url, ~version=V1)
+      let data = await fetchDetails(url, ~version=V2)
 
       setRevenueRecoveryData(_ =>
         data
