@@ -10,7 +10,12 @@ module SwitchMerchantBody = {
     let switchMerch = async () => {
       try {
         let version = UserUtils.getVersion(selectedProduct)
-        let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id), ~version)
+        let _ = await internalSwitch(
+          ~expectedMerchantId=Some(merchantDetails.id),
+          ~version,
+          ~productType=Some(selectedProduct),
+          ~landToHome=false,
+        )
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -89,7 +94,12 @@ module SelectMerchantBody = {
         let merchantid = dict->getString("merchant_selected", "")->String.trim
         let version = UserUtils.getVersion(selectedProduct)
 
-        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
+        let _ = await internalSwitch(
+          ~expectedMerchantId=Some(merchantid),
+          ~version,
+          ~productType=Some(selectedProduct),
+          ~landToHome=false,
+        )
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -187,7 +197,12 @@ module CreateNewMerchantBody = {
       try {
         let version = UserUtils.getVersion(selectedProduct)
 
-        let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
+        let _ = await internalSwitch(
+          ~expectedMerchantId=Some(merchantid),
+          ~version,
+          ~landToHome=false,
+          ~productType=Some(selectedProduct),
+        )
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }

@@ -6,6 +6,8 @@ let make = (
 ) => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+  let url = RescriptReactRouter.useUrl()
 
   let showSidebar = () => {
     setShowSideBar(_ => true)
@@ -13,6 +15,7 @@ let make = (
 
   React.useEffect(() => {
     showSidebar()
+    HyperSwitchAppUtils.setupProductUrl(~productType=Some(activeProduct), ~url)
     None
   }, [])
 

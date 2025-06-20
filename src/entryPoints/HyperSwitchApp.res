@@ -58,7 +58,7 @@ let make = () => {
     }
   }
   // set the product url based on the product type
-  let setupProductUrl = (~productType: ProductTypes.productTypes) => {
+  let _setupProductUrl = (~productType: ProductTypes.productTypes) => {
     let currentUrl = GlobalVars.extractModulePath(
       ~path=url.path,
       ~query=url.search,
@@ -83,7 +83,6 @@ let make = () => {
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
-      setupProductUrl(~productType=merchantResponse.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }

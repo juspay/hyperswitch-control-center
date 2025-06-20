@@ -45,17 +45,12 @@ let productTypeIconMapper = productType => {
 
 let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
   switch productType {
-  | Orchestration =>
-    if url->String.includes("v2") {
-      `/dashboard/home`
-    } else {
-      url
-    }
+  | Orchestration => `/dashboard/home`
   | Recon => `/dashboard/v2/recon/overview`
   | Recovery => `/dashboard/v2/recovery/overview`
   | Vault
   | CostObservability
   | DynamicRouting =>
-    `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}`
+    `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
   }
 }
