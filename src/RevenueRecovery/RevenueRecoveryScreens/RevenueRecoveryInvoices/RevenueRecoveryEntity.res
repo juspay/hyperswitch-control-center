@@ -46,7 +46,7 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
   ->getDictfromDict("feature_metadata")
   ->getDictfromDict("revenue_recovery")
   ->getString("attempt_triggered_by", "Internal"),
-  created: dict->getString("created", ""),
+  created: dict->getString("created_at", ""),
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {

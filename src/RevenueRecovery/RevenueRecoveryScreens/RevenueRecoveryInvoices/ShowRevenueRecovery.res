@@ -112,14 +112,14 @@ module Attempts = {
       let dict = nextScheduleTime->getDictFromJsonObject
 
       <RenderIf condition={dict->Dict.keysToArray->Array.length > 0}>
-        <div className="grid grid-cols-10 gap-5">
-          <div className="flex flex-col gap-1">
-            <div className="w-full flex justify-end font-semibold"> {`#0`->React.string} </div>
+        <div className="grid grid-cols-12 gap-5">
+          <div className="col-span-2 flex flex-col gap-1">
+            <div className="w-full flex justify-end font-semibold">
+              {`#${(attemptsList->Array.length + 1)->Int.toString}`->React.string}
+            </div>
             <div className="w-full flex justify-end text-xs opacity-50">
               {<Table.DateCell
-                timestamp={dict->getString("schedule_time_for_payment", "")}
-                isCard=true
-                hideTime=true
+                timestamp={dict->getString("schedule_time_for_payment", "")} isCard=true
               />}
             </div>
           </div>
@@ -130,12 +130,12 @@ module Attempts = {
             </div>
             <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
           </div>
-          <div className="border col-span-8 rounded-lg px-5">
+          <div className="border col-span-9 rounded-lg px-5">
             <div className="flex justify-start">
               <div className="w-1/3">
                 <DisplayKeyValueParams
                   heading={getAttemptHeading(AttemptTriggeredBy)}
-                  value={Text("Monitored")}
+                  value={Text("Internal")}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
                   overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
@@ -170,13 +170,13 @@ module Attempts = {
           ->Array.mapWithIndex((item: RevenueRecoveryOrderTypes.attempts, index) => {
             let (border, icon) = item.status->getStyle
 
-            <div className="grid grid-cols-10 gap-5" key={index->Int.toString}>
-              <div className="flex flex-col gap-1">
+            <div className="grid grid-cols-12 gap-5" key={index->Int.toString}>
+              <div className="col-span-2 flex  flex-col gap-1 ">
                 <div className="w-full flex justify-end font-semibold">
                   {`#${(attemptsList->Array.length - index)->Int.toString}`->React.string}
                 </div>
                 <div className="w-full flex justify-end text-xs opacity-50">
-                  {<Table.DateCell timestamp={item.created} isCard=true hideTime=true />}
+                  {<Table.DateCell timestamp={item.created} isCard=true />}
                 </div>
               </div>
               <div className="relative ml-7">
@@ -188,7 +188,7 @@ module Attempts = {
                   <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
                 </RenderIf>
               </div>
-              <div className="border col-span-8 rounded-lg px-2">
+              <div className="border col-span-9 rounded-lg px-2">
                 <ShowOrderDetails
                   data=item
                   getHeading=getAttemptHeading
