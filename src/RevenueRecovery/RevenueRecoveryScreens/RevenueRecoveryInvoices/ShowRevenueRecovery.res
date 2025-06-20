@@ -88,13 +88,16 @@ module Attempts = {
         let url = getURL(~entityName=V2(V2_ATTEMPTS_LIST), ~methodType=Get, ~id=Some(id))
         let data = await fetchDetails(url, ~version=V2)
 
-        setAttemptsList(_ =>
+        let array =
           data
           ->getDictFromJsonObject
           ->getArrayFromDict("payment_attempt_list", [])
           ->JSON.Encode.array
           ->getAttempts
-        )
+
+        array->Array.reverse
+
+        setAttemptsList(_ => array)
       } catch {
       | _ => ()
       }
