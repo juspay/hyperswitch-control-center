@@ -96,7 +96,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Orchestration(V2)->getProductDisplayName,
         icon: "orchestrator-home",
-        link: "/v2/onboarding/orchestrator-v2",
+        link: "/v2/onboarding/orchestrator",
         access: Access,
       }),
     )
