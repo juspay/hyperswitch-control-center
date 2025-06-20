@@ -1,14 +1,16 @@
 open ProductTypes
 let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => {
-  switch (product->String.toLowerCase, version) {
-  | ("recon", V2) => Recon
-  | ("recovery", V2) => Recovery
-  | ("vault", V2) => Vault
-  | ("cost_observability", V1) => CostObservability
-  | ("dynamic_routing", V1) => DynamicRouting
-  | ("orchestration", V2) => Orchestration(V2)
-  | ("orchestration", V1) => Orchestration(V1)
-  | _ => Orchestration(V1)
+  switch product->String.toLowerCase {
+  | "recon" => Recon
+  | "recovery" => Recovery
+  | "vault" => Vault
+  | "cost_observability" => CostObservability
+  | "dynamic_routing" => DynamicRouting
+  | _ =>
+    switch version {
+    | V1 => Orchestration(V1)
+    | V2 => Orchestration(V2)
+    }
   }
 }
 

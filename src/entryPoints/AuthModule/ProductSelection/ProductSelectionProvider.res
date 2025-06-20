@@ -400,7 +400,12 @@ let make = (~children) => {
     setSelectedProduct(_ => Some(product->ProductUtils.getProductVariantFromDisplayName))
 
     let midsWithProductValue = merchantList->Array.filter(mid => {
-      mid.productType->Option.mapOr(false, productVaule => productVaule === productVariant)
+      mid.productType->Option.mapOr(false, productVaule => {
+        switch (productVaule, productVariant) {
+        | (Orchestration(v1), Orchestration(v2)) => v1 == v2
+        | (produceValue, productVariant) => produceValue == productVariant ? true : false
+        }
+      })
     })
 
     if midsWithProductValue->Array.length == 0 {
