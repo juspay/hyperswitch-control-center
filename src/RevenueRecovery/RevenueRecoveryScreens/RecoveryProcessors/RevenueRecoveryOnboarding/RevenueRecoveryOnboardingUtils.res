@@ -166,6 +166,10 @@ let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
     name: "Zoura",
     icon: "/assets/zoura-logo.png",
   },
+  {
+    name: "Stripe Billing",
+    icon: "/icons/stripe-billing.png",
+  },
 ]
 
 let billingConnectorInHouseList: array<BillingProcessorsUtils.optionType> = [
