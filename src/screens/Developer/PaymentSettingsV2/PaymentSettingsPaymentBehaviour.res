@@ -233,12 +233,9 @@ let make = () => {
 
   let onSubmit = async (values, _) => {
     try {
-      open LogicUtils
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let valuesDict = values->getDictFromJsonObject
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->JSON.Encode.object
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, values, Post)
       let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
 
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
@@ -261,6 +258,7 @@ let make = () => {
         PaymentSettingsV2Utils.validateMerchantAccountFormV2(
           ~values,
           ~isLiveMode=featureFlagDetails.isLiveMode,
+          ~businessProfileRecoilVal,
         )
       }}>
       <CollectDetails
