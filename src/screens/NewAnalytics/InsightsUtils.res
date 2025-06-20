@@ -7,6 +7,21 @@ let sankyBlue = "#E4EFFF"
 let sankyRed = "#F7E0E0"
 let sankyLightBlue = "#91B7EE"
 let sankyLightRed = "#EC6262"
+let coralRed = "#FF6B6B"
+let turquoise = "#4ECDC4"
+let skyBlue = "#45B7D1"
+let mintGreen = "#96CEB4"
+let lightYellow = "#FFEAA7"
+let plum = "#DDA0DD"
+let seafoam = "#98D8C8"
+let goldenYellow = "#F7DC6F"
+let lightPurple = "#BB8FCE"
+let lightBlue = "#85C1E9"
+let peach = "#F8C471"
+let lightGreen = "#82E0AA"
+let salmon = "#F1948A"
+let powderBlue = "#AED6F1"
+let lavender = "#D7BDE2"
 
 open InsightsTypes
 open HSwitchRemoteFilter
@@ -300,7 +315,27 @@ let bargraphTooltipFormatter = (~title, ~metricType) => {
 }
 
 let getColor = index => {
-  [blue, green]->Array.get(index)->Option.getOr(blue)
+  [
+    blue,
+    green,
+    coralRed,
+    turquoise,
+    skyBlue,
+    mintGreen,
+    lightYellow,
+    plum,
+    seafoam,
+    goldenYellow,
+    lightPurple,
+    lightBlue,
+    peach,
+    lightGreen,
+    salmon,
+    powderBlue,
+    lavender,
+  ]
+  ->Array.get(index)
+  ->Option.getOr(blue)
 }
 
 let getAmountValue = (data, ~id) => {
@@ -344,6 +379,59 @@ let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false) => {
   })
 }
 
+let getTitleUI = (~title) => {`<div style="font-size: 16px; font-weight: bold;">${title}</div>`}
+
+let getRowsHtml = (
+  ~iconColor,
+  ~date,
+  ~name="",
+  ~value,
+  ~comparisionComponent="",
+  ~metricType,
+  ~currency,
+  ~suffix,
+  ~showNameInTooltip,
+) => {
+  let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
+  let key = showNameInTooltip ? name : date
+  `<div style="display: flex; align-items: center;">
+            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
+            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
+        </div>`
+}
+
+let getContentsUI = (~title, ~tableItems) => {
+  let content = `
+          <div style=" 
+          padding:5px 12px;
+          display:flex;
+          flex-direction:column;
+          justify-content: space-between;
+          gap: 7px;">
+              ${title}
+              <div style="
+                margin-top: 5px;
+                display:flex;
+                flex-direction:column;
+                gap: 7px;">
+                ${tableItems}
+              </div>
+        </div>`
+
+  `<div style="
+    padding: 10px;
+    width:fit-content;
+    border-radius: 7px;
+    background-color:#FFFFFF;
+    padding:10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid #E5E5E5;
+    position:relative;">
+        ${content}
+    </div>`
+}
+
 let tooltipFormatter = (
   ~secondaryCategories,
   ~title,
@@ -369,16 +457,6 @@ let tooltipFormatter = (
       let primartPoint = this.points->getValueFromArray(primaryIndex, defaultValue)
       let secondaryPoint = this.points->getValueFromArray(secondaryIndex, defaultValue)
 
-      let getRowsHtml = (~iconColor, ~date, ~name="", ~value, ~comparisionComponent="") => {
-        let valueString = valueFormatter(value, metricType, ~currency, ~suffix)
-        let key = showNameInTooltip ? name : date
-        `<div style="display: flex; align-items: center;">
-            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
-        </div>`
-      }
-
       let tableItems = [
         getRowsHtml(
           ~iconColor=primartPoint.color,
@@ -397,6 +475,10 @@ let tooltipFormatter = (
             | None => ""
             }
           },
+          ~metricType,
+          ~currency,
+          ~suffix,
+          ~showNameInTooltip,
         ),
         {
           switch comparison {
@@ -407,6 +489,10 @@ let tooltipFormatter = (
                   ~date=secondaryCategories->getValueFromArray(secondaryPoint.point.index, ""),
                   ~value=secondaryPoint.y,
                   ~name=secondaryPoint.series.name,
+                  ~metricType,
+                  ~currency,
+                  ~suffix,
+                  ~showNameInTooltip,
                 )
               : ""
           | None => ""
@@ -414,35 +500,7 @@ let tooltipFormatter = (
         },
       ]->Array.joinWith("")
 
-      let content = `
-          <div style=" 
-          padding:5px 12px;
-          border-left: 3px solid #0069FD;
-          display:flex;
-          flex-direction:column;
-          justify-content: space-between;
-          gap: 7px;">
-              ${title}
-              <div style="
-                margin-top: 5px;
-                display:flex;
-                flex-direction:column;
-                gap: 7px;">
-                ${tableItems}
-              </div>
-        </div>`
-
-      `<div style="
-    padding: 10px;
-    width:fit-content;
-    border-radius: 7px;
-    background-color:#FFFFFF;
-    padding:10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid #E5E5E5;
-    position:relative;">
-        ${content}
-    </div>`
+      getContentsUI(~title=getTitleUI(~title), ~tableItems)
     }
   )->asTooltipPointFormatter
 }
@@ -624,12 +682,8 @@ let fillMissingDataPoints = (
   dataPoints->Dict.valuesToArray
 }
 
-let getSampleDateRange = (~useSampleDates) => {
+let getSampleDateRange = (~useSampleDates, ~sampleDateRange) => {
   let defaultDateRange: filterBody = getDateFilteredObject(~range=7)
-  let sampleDateRange: filterBody = {
-    start_time: "2024-09-04T00:00:00.000Z",
-    end_time: "2024-10-03T00:00:00.000Z",
-  }
   let dates = useSampleDates ? sampleDateRange : defaultDateRange
   let comparison = useSampleDates ? (EnableComparison :> string) : (DisableComparison :> string)
   let (compareStart, compareEnd) = getComparisionTimePeriod(

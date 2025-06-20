@@ -55,6 +55,8 @@ type nodeDataLabels = {
 type node = {
   id: string,
   dataLabels: nodeDataLabels,
+  offset?: int,
+  column?: int,
 }
 type style = {
   fontWeight: fontWeight,

@@ -52,6 +52,7 @@ type plotSeries = {states: states}
 type marker = {
   ...enabled,
   radius?: float,
+  symbol?: string,
 }
 
 type scatter = {marker: marker}
@@ -185,4 +186,5 @@ type lineScatterGraphPayload = {
   tooltipFormatter: pointFormatter => string,
   yAxisFormatter: pointFormatter => string,
   legend: legend,
+  symbol?: string,
 }

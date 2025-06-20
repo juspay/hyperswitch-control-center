@@ -113,7 +113,14 @@ let make = () => {
   let applySampleDateFilters = async isSampleDateEnabled => {
     try {
       setScreenState(_ => Loading)
-      let values = InsightsUtils.getSampleDateRange(~useSampleDates=isSampleDateEnabled)
+      let sampleDateRange: HSwitchRemoteFilter.filterBody = {
+        start_time: "2024-09-04T00:00:00.000Z",
+        end_time: "2024-10-03T00:00:00.000Z",
+      }
+      let values = InsightsUtils.getSampleDateRange(
+        ~useSampleDates=isSampleDateEnabled,
+        ~sampleDateRange,
+      )
       values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
       let _ = await updateFilterAsync(~delay=1000, values)
       setScreenState(_ => Success)

@@ -176,7 +176,7 @@ module CreateNewMerchantBody = {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
-
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
       dict->Dict.set("product_type", (Obj.magic(selectedProduct) :> string)->JSON.Encode.string)
@@ -249,13 +249,18 @@ module CreateNewMerchantBody = {
       let errors = Dict.make()
       let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
       let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-
+      let isDuplicate =
+        merchantList->Array.some(merchant =>
+          merchant.name->String.toLowerCase == companyName->String.toLowerCase
+        )
       let errorMessage = if companyName->isEmptyString {
         "Merchant name cannot be empty"
       } else if companyName->String.length > 64 {
         "Merchant name cannot exceed 64 characters"
       } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
         "Merchant name should not contain special characters"
+      } else if isDuplicate {
+        "Merchant with this name already exists in this organization"
       } else {
         ""
       }

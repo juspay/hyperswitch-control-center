@@ -330,6 +330,16 @@ let payoutRouting = userHasResourceAccess => {
   })
 }
 
+let threeDsExemption = userHasResourceAccess => {
+  SubLevelLink({
+    name: "3DS Exemption Manager",
+    iconTag: "betaTag",
+    link: `/3ds-exemption`,
+    access: userHasResourceAccess(~resourceAccess=ThreeDsDecisionManager), // Assuming same access as 3DS Decision Manager for now
+    searchOptions: [("View 3DS Exemption", "")],
+  })
+}
+
 let threeDs = userHasResourceAccess => {
   SubLevelLink({
     name: "3DS Decision Manager",
@@ -350,6 +360,7 @@ let surcharge = userHasResourceAccess => {
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
+  threedsExemptionRules,
   ~userHasResourceAccess,
   ~isPayoutEnabled,
   ~userEntity,
@@ -370,6 +381,9 @@ let workflow = (
   }
   if isPayoutEnabled {
     defaultWorkFlow->Array.push(payoutRouting)->ignore
+  }
+  if threedsExemptionRules {
+    defaultWorkFlow->Array.push(threeDsExemption(userHasResourceAccess))->ignore
   }
 
   isWorkflowEnabled
@@ -448,6 +462,14 @@ let paymentSettings = userHasResourceAccess => {
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
 }
+let paymentSettingsV2 = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Payment Settings V2",
+    link: `/payment-settings-new`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
+  })
+}
 
 let webhooks = userHasResourceAccess => {
   SubLevelLink({
@@ -463,15 +485,20 @@ let developers = (
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
+  ~isPaymentSettingsV2Enabled,
 ) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let paymentSettingsV2 = paymentSettingsV2(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
   if isWebhooksEnabled {
     defaultDevelopersOptions->Array.push(webhooks)
+  }
+  if isPaymentSettingsV2Enabled {
+    defaultDevelopersOptions->Array.push(paymentSettingsV2)
   }
 
   if !isProfileUser {

@@ -24,6 +24,8 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     authenticationAnalytics,
     devAltPaymentMethods,
     devWebhooks,
+    threedsExemptionRules,
+    paymentSettingsV2,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForMerchant,
@@ -52,13 +54,19 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     ),
     default->workflow(
       isSurchargeEnabled,
+      threedsExemptionRules,
       ~userHasResourceAccess,
       ~isPayoutEnabled=payOut,
       ~userEntity,
     ),
     devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(~isWebhooksEnabled=devWebhooks, ~userHasResourceAccess, ~checkUserEntity),
+    default->developers(
+      ~isWebhooksEnabled=devWebhooks,
+      ~userHasResourceAccess,
+      ~checkUserEntity,
+      ~isPaymentSettingsV2Enabled=paymentSettingsV2,
+    ),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
@@ -94,17 +102,13 @@ let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
 }
 
 let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.productTypes>) => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
 
   products->Array.map(productType => {
     let links = switch productType {
     | Orchestration => orchestratorSidebars
     | Recon => ReconSidebarValues.reconSidebars
-    | Recovery =>
-      RevenueRecoverySidebarValues.recoverySidebars(
-        featureFlagDetails.devRecoveryV2ProductAnalytics,
-      )
+    | Recovery => RevenueRecoverySidebarValues.recoverySidebars
     | Vault => VaultSidebarValues.vaultSidebars
     | CostObservability => HypersenseSidebarValues.hypersenseSidebars
     | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars

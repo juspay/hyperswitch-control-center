@@ -577,6 +577,18 @@ let useGetURL = () => {
 
         | _ => ""
         }
+      | ANALYTICS_SCA_EXEMPTION_SANKEY =>
+        switch methodType {
+        | Post =>
+          switch analyticsEntity {
+          | #Tenant
+          | #Organization => `analytics/v1/org/metrics/auth_events/sankey`
+          | #Merchant => `analytics/v1/merchant/metrics/auth_events/sankey`
+          | #Profile => `analytics/v1/profile/metrics/auth_events/sankey`
+          }
+
+        | _ => ""
+        }
       /* PAYOUTS ROUTING */
       | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
       | PAYOUT_ROUTING =>
@@ -609,6 +621,23 @@ let useGetURL = () => {
 
       /* THREE DS ROUTING */
       | THREE_DS => `routing/decision`
+
+      /* THREE DS ROUTING */
+
+      | THREE_DS_EXEMPTION_RULES =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(routingId) => `routing/${routingId}`
+          | None => `routing/active?transaction_type=three_ds_authentication&limit=100`
+          }
+        | Post =>
+          switch id {
+          | Some(routing_id) => `routing/${routing_id}/activate`
+          | _ => "routing"
+          }
+        | _ => ""
+        }
 
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
@@ -741,6 +770,17 @@ let useGetURL = () => {
           | None => `api_keys/${merchantId}`
           }
         | Delete => `api_keys/${merchantId}/${id->Option.getOr("")}`
+        | _ => ""
+        }
+
+      /* MERCHANT ACQUIRER */
+      | ACQUIRER_CONFIG_SETTINGS =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(acquirerId) => `profile_acquirer/${profileId}/${acquirerId}`
+          | None => `profile_acquirer`
+          }
         | _ => ""
         }
 

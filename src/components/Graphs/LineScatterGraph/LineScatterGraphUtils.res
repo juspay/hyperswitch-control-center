@@ -16,7 +16,7 @@ let valueFormatter = (
   }
 )->asLegendsFormatter
 
-let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="") => {
+let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="", ~svgIconUrl="") => {
   (
     @this
     (this: pointFormatter) => {
@@ -68,8 +68,14 @@ let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="") => {
         ${content}
     </div>`
 
+        // Embed the SVG icon
+        let svgIcon =
+          svgIconUrl->String.length > 0
+            ? `<img src=${svgIconUrl} alt="Smart Retry Icon" width="16" height="16" style="margin-right: 5px;" />`
+            : ""
+
         let withRetry = `<div style="
-        padding: 12px;
+        padding: 10px 25px 10px 10px;
         width: fit-content;
         border-radius: 8px;
         background-color: #ffffff;
@@ -80,7 +86,7 @@ let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="") => {
       ">
         <div style="border-left: 3px solid #0069FD;">
         <div style="display: flex; align-items: center; margin-bottom: 8px;padding-left:5px;">
-          <span style="font-size: 16px; color: #0069fd; margin-right: 8px;">⚡</span>
+          ${svgIcon}
           <span style="font-size: 14px; font-weight: bold;">${title} Attempted</span>
         </div>
         <div style="display: flex; flex-direction: column; gap: 8px;padding-left:10px;">
@@ -137,6 +143,8 @@ let getLineGraphOptions = (lineGraphOptions: lineScatterGraphPayload) => {
     yAxisFormatter,
     legend,
   } = lineGraphOptions
+
+  let symbol = lineGraphOptions.symbol
 
   let yAxis: yAxis = {
     title: {
@@ -233,7 +241,6 @@ let getLineGraphOptions = (lineGraphOptions: lineScatterGraphPayload) => {
     legend: {
       ...legend,
       useHTML: true,
-      labelFormatter: valueFormatter,
       symbolPadding: 0,
       symbolWidth: 0,
       itemStyle: {
@@ -252,7 +259,8 @@ let getLineGraphOptions = (lineGraphOptions: lineScatterGraphPayload) => {
       scatter: {
         marker: {
           enabled: true, // Enable markers for the scatter plot
-          radius: 5.0, // Set the size of scatter points
+          radius: 10.0, // Set the size of scatter points
+          symbol: symbol->Option.getOr("circle"),
         },
       },
       series: {
