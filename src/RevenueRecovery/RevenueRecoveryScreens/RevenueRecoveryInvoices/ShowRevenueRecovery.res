@@ -55,7 +55,13 @@ module OrderInfo = {
 
 module Attempts = {
   @react.component
-  let make = (~order: RevenueRecoveryOrderTypes.order) => {
+  let make = (~order: RevenueRecoveryOrderTypes.order, ~id) => {
+    open APIUtils
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+
+    let (nextScheduleTime, setNextScheduleTime) = React.useState(_ => JSON.Encode.string(""))
+
     let getStyle = status => {
       let orderStatus = status->HSwitchOrderUtils.refundStatusVariantMapper
 
@@ -66,9 +72,81 @@ module Attempts = {
       }
     }
 
+    let fetchProcessTrackerDetails = async _ => {
+      try {
+        let url = getURL(~entityName=V2(PROCESS_TRACKER), ~methodType=Get, ~id=Some(id))
+        let data = await fetchDetails(url, ~version=V2)
+
+        setNextScheduleTime(_ => data)
+      } catch {
+      | _ => ()
+      }
+    }
+
+    React.useEffect(() => {
+      fetchProcessTrackerDetails()->ignore
+      None
+    }, [])
+
+    let scheduleTimeComponent = {
+      let (border, icon) = ""->getStyle
+
+      let dict = nextScheduleTime->getDictFromJsonObject
+
+      <RenderIf condition={dict->Dict.keysToArray->Array.length > 0}>
+        <div className="grid grid-cols-10 gap-5">
+          <div className="flex flex-col gap-1">
+            <div className="w-full flex justify-end font-semibold"> {`#0`->React.string} </div>
+            <div className="w-full flex justify-end text-xs opacity-50">
+              {<Table.DateCell
+                timestamp={dict->getString("schedule_time_for_payment", "")}
+                isCard=true
+                hideTime=true
+              />}
+            </div>
+          </div>
+          <div className="relative ml-7">
+            <div
+              className={`absolute left-0 -ml-0.5 top-0 border-1.5 p-2 rounded-full h-fit w-fit border-${border} bg-white z-10`}>
+              <Icon name=icon className={`w-5 h-5 text-${border}`} />
+            </div>
+            <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
+          </div>
+          <div className="border col-span-8 rounded-lg px-5">
+            <div className="flex justify-start">
+              <div className="w-1/3">
+                <DisplayKeyValueParams
+                  heading={getAttemptHeading(AttemptTriggeredBy)}
+                  value={Text("Monitored")}
+                  customMoneyStyle="!font-normal !text-sm"
+                  labelMargin="!py-0 mt-2"
+                  overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
+                  isHorizontal=false
+                />
+              </div>
+              <div className="w-1/3">
+                <DisplayKeyValueParams
+                  heading={getAttemptHeading(Status)}
+                  value={Label({
+                    title: dict->getString("status", "")->String.toUpperCase,
+                    color: LabelBlue,
+                  })}
+                  customMoneyStyle="!font-normal !text-sm"
+                  labelMargin="!py-0 mt-2"
+                  overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
+                  isHorizontal=false
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </RenderIf>
+    }
+
     <div className="border rounded-lg w-full h-fit p-5">
       <div className="font-bold text-lg mb-5 px-4"> {"Attempts History"->React.string} </div>
       <div className="p-5 flex flex-col gap-11 ">
+        {scheduleTimeComponent}
         {order.attempts
         ->Array.mapWithIndex((item, index) => {
           let (border, icon) = item.status->getStyle
@@ -186,7 +264,7 @@ let make = (~id) => {
       </PageLoaderWrapper>
     </div>
     <div className="overflow-scroll">
-      <Attempts order={revenueRecoveryData} />
+      <Attempts order={revenueRecoveryData} id />
     </div>
   </div>
 }

@@ -57,6 +57,15 @@ let getV2Url = (
       }
     | _ => ""
     }
+  | PROCESS_TRACKER =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) => `v2/process_tracker/revenue_recovery_workflow/${key_id}`
+      | None => "v2/process_tracker/revenue_recovery_workflow"
+      }
+    | _ => ""
+    }
   | V2_ORDER_FILTERS => "v2/payments/profile/filter"
   | PAYMENT_METHOD_LIST =>
     switch id {

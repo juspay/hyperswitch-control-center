@@ -94,6 +94,7 @@ type v2entityNameType =
   | USERS
   | TOTAL_TOKEN_COUNT
   | MERCHANT_ACCOUNT
+  | PROCESS_TRACKER
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
