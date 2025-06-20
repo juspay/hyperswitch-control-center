@@ -87,6 +87,7 @@ type entityName =
 type v2entityNameType =
   | CUSTOMERS
   | V2_CONNECTOR
+  | V2_ATTEMPTS_LIST
   | V2_ORDERS_LIST
   | PAYMENT_METHOD_LIST
   | RETRIEVE_PAYMENT_METHOD

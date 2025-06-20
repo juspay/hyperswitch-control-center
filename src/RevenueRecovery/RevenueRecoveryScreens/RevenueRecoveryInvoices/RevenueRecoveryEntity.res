@@ -41,7 +41,7 @@ let getAttemptHeading = (attemptColType: RevenueRecoveryOrderTypes.attemptColTyp
 let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempts = dict => {
   id: dict->getString("id", ""),
   status: dict->getString("status", ""),
-  error: dict->getString("error", ""),
+  error: dict->getDictfromDict("error")->getString("message", ""),
   attempt_triggered_by: dict
   ->getDictfromDict("feature_metadata")
   ->getDictfromDict("revenue_recovery")
@@ -148,15 +148,39 @@ let defaultColumns: array<RevenueRecoveryOrderTypes.colType> = [
   PaymentMethodType,
 ]
 
+let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict => {
+  let attempts = dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts
+
+  let revenueRecoveryMetadata =
+    dict
+    ->getDictfromDict("feature_metadata")
+    ->getDictfromDict("payment_revenue_recovery_metadata")
+
+  attempts->Array.reverse
+  {
+    id: dict->getString("id", ""),
+    status: dict->getString("status", ""),
+    order_amount: dict
+    ->getDictfromDict("amount_details")
+    ->getFloat("order_amount", 0.0),
+    connector: revenueRecoveryMetadata->getString("connector", ""),
+    created: dict->getString("created", ""),
+    payment_method_type: revenueRecoveryMetadata->getString("payment_method_type", ""),
+    payment_method_subtype: revenueRecoveryMetadata->getString("payment_method_subtype", ""),
+    attempts,
+  }
+}
+
 let itemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict => {
   let attempts = dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts
+
   attempts->Array.reverse
   {
     id: dict->getString("id", ""),
     status: dict->getString("status", ""),
     order_amount: dict
     ->getDictfromDict("amount")
-    ->getFloat("order_amount", 0.0) *. 100.0,
+    ->getFloat("order_amount", 0.0),
     connector: dict->getString("connector", ""),
     created: dict->getString("created", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
