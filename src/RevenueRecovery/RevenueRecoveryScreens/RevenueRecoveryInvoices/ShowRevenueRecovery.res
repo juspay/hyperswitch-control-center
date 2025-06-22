@@ -94,6 +94,7 @@ module Attempts = {
           ->getArrayFromDict("payment_attempt_list", [])
           ->JSON.Encode.array
           ->getAttempts
+          ->Array.filter(item => item.status !== "started")
 
         array->Array.reverse
 
@@ -114,7 +115,9 @@ module Attempts = {
 
       let dict = nextScheduleTime->getDictFromJsonObject
 
-      <RenderIf condition={dict->Dict.keysToArray->Array.length > 0}>
+      <RenderIf
+        condition={dict->Dict.keysToArray->Array.length > 0 &&
+          dict->getString("status", "") != "finish"}>
         <div className="grid grid-cols-12 gap-5">
           <div className="col-span-2 flex flex-col gap-1">
             <div className="w-full flex justify-end font-semibold">
