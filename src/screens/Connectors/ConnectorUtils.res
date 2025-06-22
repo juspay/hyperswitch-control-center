@@ -590,6 +590,10 @@ let chargebeeInfo = {
   description: "Chargebee is a subscription management and billing platform that integrates with multiple payment gateways, allowing businesses to accept payments across various geographies and currencies.",
 }
 
+let stripeBillingInfo = {
+  description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
+}
+
 let nexixpayInfo = {
   description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
 }
@@ -768,6 +772,7 @@ let getTaxProcessorNameString = (taxProcessor: taxProcessorTypes) => {
 let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) => {
   switch billingProcessor {
   | CHARGEBEE => "chargebee"
+  | STRIPE_BILLING => "stripebilling"
   }
 }
 
@@ -914,6 +919,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | BillingProcessor =>
     switch connector {
     | "chargebee" => BillingProcessor(CHARGEBEE)
+    | "stripebilling" => BillingProcessor(STRIPE_BILLING)
     | _ => UnknownConnector("Not known")
     }
   }
@@ -1050,6 +1056,7 @@ let getTaxProcessorInfo = (taxProcessor: ConnectorTypes.taxProcessorTypes) => {
 let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessorTypes) => {
   switch billingProcessor {
   | CHARGEBEE => chargebeeInfo
+  | STRIPE_BILLING => stripeBillingInfo
   }
 }
 
@@ -1340,8 +1347,8 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE), "additional_secret") => true
+  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "merchant_secret") => true
+  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "additional_secret") => true
   | _ => false
   }
 }
@@ -1921,6 +1928,7 @@ let getDisplayNameForTaxProcessor = taxProcessor => {
 let getDisplayNameForBillingProcessor = billingProcessor => {
   switch billingProcessor {
   | CHARGEBEE => "Chargebee"
+  | STRIPE_BILLING => "Stripe Billing"
   }
 }
 

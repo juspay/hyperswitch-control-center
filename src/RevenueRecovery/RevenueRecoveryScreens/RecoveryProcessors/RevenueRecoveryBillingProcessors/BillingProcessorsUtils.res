@@ -40,6 +40,18 @@ let getConnectorConfig = connector => {
         ]->Map.fromArray,
       },
     }->Identity.genericTypeToJson
+  | "stripebilling" =>
+    {
+      "connector_auth": {
+        "HeaderKey": {
+          "api_key": "Stripe billing API Key",
+        },
+      },
+      "connector_webhook_details": {
+        "merchant_secret": "Username",
+        "additional_secret": "Password",
+      },
+    }->Identity.genericTypeToJson
   | _ => JSON.Encode.null
   }
 }
