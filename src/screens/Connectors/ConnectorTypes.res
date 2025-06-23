@@ -131,7 +131,7 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
-type billingProcessorTypes = CHARGEBEE
+type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING
 
 type connectorTypeVariants =
   | PaymentProcessor

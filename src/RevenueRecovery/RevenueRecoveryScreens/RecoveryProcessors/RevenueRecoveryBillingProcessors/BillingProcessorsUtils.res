@@ -40,6 +40,18 @@ let getConnectorConfig = connector => {
         ]->Map.fromArray,
       },
     }->Identity.genericTypeToJson
+  | "stripebilling" =>
+    {
+      "connector_auth": {
+        "HeaderKey": {
+          "api_key": "Stripe billing API Key",
+        },
+      },
+      "connector_webhook_details": {
+        "merchant_secret": "Username",
+        "additional_secret": "Password",
+      },
+    }->Identity.genericTypeToJson
   | _ => JSON.Encode.null
   }
 }
@@ -54,8 +66,7 @@ module ReadOnlyOptionsList = {
   let make = (~list: array<optionType>, ~headerText, ~customWrapperStyle="") => {
     <div
       className={`flex flex-col items-start gap-3.5 font-medium  px-3.5 py-3 ${customWrapperStyle}`}>
-      <p
-        className="uppercase text-nd_gray-400 font-semibold leading-3 text-fs-10 tracking-wider bg-white">
+      <p className=" text-nd_gray-500 font-semibold leading-3 text-fs-12 tracking-wider bg-white">
         {headerText->React.string}
       </p>
       <div className="flex flex-col gap-2.5 overflow-scroll cursor-not-allowed w-full">

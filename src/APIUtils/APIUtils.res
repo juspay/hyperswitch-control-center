@@ -47,13 +47,31 @@ let getV2Url = (
       | Some(key_id) =>
         switch queryParamerters {
         | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
-        | None => `${peymantsBaseURL}/${key_id}`
+        | None => `${peymantsBaseURL}/${key_id}/get-intent`
         }
       | None =>
         switch queryParamerters {
         | Some(queryParams) => `${peymantsBaseURL}/list?${queryParams}`
         | None => `${peymantsBaseURL}/list?limit=100`
         }
+      }
+    | _ => ""
+    }
+  | V2_ATTEMPTS_LIST =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) => `${peymantsBaseURL}/${key_id}/list_attempts`
+      | None => ""
+      }
+    | _ => ""
+    }
+  | PROCESS_TRACKER =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) => `v2/process_tracker/revenue_recovery_workflow/${key_id}`
+      | None => "v2/process_tracker/revenue_recovery_workflow"
       }
     | _ => ""
     }
