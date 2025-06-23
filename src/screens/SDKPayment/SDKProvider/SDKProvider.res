@@ -15,7 +15,7 @@ let defaultValue = {
   setPaymentResult: _ => (),
   showSetupFutureUsage: false,
   setShowSetupFutureUsage: _ => (),
-  sendAuthType: false,
+  sendAuthType: true,
   setSendAuthType: _ => (),
   errorMessage: "",
   setErrorMessage: _ => (),

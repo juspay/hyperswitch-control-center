@@ -142,7 +142,7 @@ let getTypedPaymentData = (
   ~showBillingAddress,
   ~isGuestMode,
   ~showSetupFutureUsage=false,
-  ~sendAuthType=false,
+  ~sendAuthType=true,
 ) => {
   open LogicUtils
   open SDKPaymentTypes
