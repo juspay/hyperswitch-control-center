@@ -45,7 +45,7 @@ module ListBaseComp = {
             : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
     <div
-      className={`flex flex-row cursor-pointer items-center py-5 px-4 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm`}>
+      className={`flex flex-row cursor-pointer items-center py-5 px-4 gap-2 min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-150 shadow-sm`}>
       <div className="flex flex-row items-center gap-2">
         <RenderIf condition={subHeading->String.length > 0}>
           <GatewayIcon gateway={subHeading->String.toUpperCase} className="w-6 h-6" />

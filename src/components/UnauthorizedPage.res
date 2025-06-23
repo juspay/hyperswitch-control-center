@@ -23,7 +23,7 @@ let make = (
       buttonSize=Small
       onClick={_ => {
         setDashboardPageState(_ => #HOME)
-        let productUrl = ProductUtils.getProductUrl(~productType, ~url)
+        let productUrl = ProductUtils.getProductUrl(~productType, ~url="v2/home")
         RescriptReactRouter.replace(productUrl)
       }}
       customButtonStyle="mt-4"

@@ -16,7 +16,7 @@ let valueFormatter = (
   }
 )->asLegendsFormatter
 
-let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="") => {
+let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="", ~svgIconUrl="") => {
   (
     @this
     (this: pointFormatter) => {
@@ -69,7 +69,10 @@ let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="") => {
     </div>`
 
         // Embed the SVG icon
-        let svgIcon = `<img src="/icons/smart-retry.svg" alt="Smart Retry Icon" width="16" height="16" style="margin-right: 5px;" />`
+        let svgIcon =
+          svgIconUrl->String.length > 0
+            ? `<img src=${svgIconUrl} alt="Smart Retry Icon" width="16" height="16" style="margin-right: 5px;" />`
+            : ""
 
         let withRetry = `<div style="
         padding: 10px 25px 10px 10px;
@@ -140,6 +143,8 @@ let getLineGraphOptions = (lineGraphOptions: lineScatterGraphPayload) => {
     yAxisFormatter,
     legend,
   } = lineGraphOptions
+
+  let symbol = lineGraphOptions.symbol
 
   let yAxis: yAxis = {
     title: {
@@ -236,7 +241,6 @@ let getLineGraphOptions = (lineGraphOptions: lineScatterGraphPayload) => {
     legend: {
       ...legend,
       useHTML: true,
-      labelFormatter: valueFormatter,
       symbolPadding: 0,
       symbolWidth: 0,
       itemStyle: {
@@ -256,7 +260,7 @@ let getLineGraphOptions = (lineGraphOptions: lineScatterGraphPayload) => {
         marker: {
           enabled: true, // Enable markers for the scatter plot
           radius: 10.0, // Set the size of scatter points
-          symbol: "url(/icons/smart-retry.svg)",
+          symbol: symbol->Option.getOr("circle"),
         },
       },
       series: {
