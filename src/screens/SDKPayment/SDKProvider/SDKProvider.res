@@ -13,6 +13,10 @@ let defaultValue = {
   setPaymentStatus: _ => (),
   paymentResult: JSON.Encode.null,
   setPaymentResult: _ => (),
+  showSetupFutureUsage: false,
+  setShowSetupFutureUsage: _ => (),
+  sendAuthType: false,
+  setSendAuthType: _ => (),
   errorMessage: "",
   setErrorMessage: _ => (),
   isGuestMode: false,
@@ -49,13 +53,19 @@ let make = (~children) => {
   )
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
   let (clientSecretStatus, setClientSecretStatus) = React.useState(_ => IntialPreview)
+  let (showSetupFutureUsage, setShowSetupFutureUsage) = React.useState(_ => false)
+  let (sendAuthType, setSendAuthType) = React.useState(_ => true)
 
   let (paymentResult, setPaymentResult) = React.useState(_ => JSON.Encode.null)
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (isGuestMode, setIsGuestMode) = React.useState(_ => false)
 
   let (initialValuesForCheckoutForm, setInitialValuesForCheckoutForm) = React.useState(_ =>
-    SDKPaymentUtils.initialValueForForm(businessProfileRecoilVal)
+    SDKPaymentUtils.initialValueForForm(
+      ~showSetupFutureUsage,
+      ~sendAuthType,
+      businessProfileRecoilVal,
+    )
   )
 
   <Provider
@@ -69,6 +79,10 @@ let make = (~children) => {
       keyForReRenderingSDK,
       setKeyForReRenderingSDK,
       paymentStatus,
+      showSetupFutureUsage,
+      setShowSetupFutureUsage,
+      sendAuthType,
+      setSendAuthType,
       setPaymentStatus,
       paymentResult,
       setPaymentResult,
