@@ -24,15 +24,19 @@ module ChatBot = {
     />
   }
 }
+type response = {
+  summary: string,
+  markdown: string,
+}
 type chat = {
   message: string,
-  response: string,
+  response: response,
 }
 @react.component
 let make = () => {
   let fetchApiWindow = AuthHooks.useApiFetcher()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (html, setHtml) = React.useState(_ => "")
+  let (markdown, setMarkdown) = React.useState(_ => "")
   let (loading, setLoading) = React.useState(_ => false)
   let (chat, setChat) = React.useState(_ => [])
 
@@ -46,18 +50,53 @@ let make = () => {
         ~xFeatureRoute,
         ~forceCookies,
       )
-      let response = await res->(res => res->Fetch.Response.json)
-      let html = response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("html", "")
-      setHtml(_ => html)
-      setChat(_ =>
-        [
-          ...chat,
-          {
-            message,
-            response: html,
-          },
-        ]
-      )
+      let response =
+        (await res->(res => res->Fetch.Response.json))->LogicUtils.getDictFromJsonObject
+
+      switch JSON.Classify.classify(response->LogicUtils.getJsonObjectFromDict("data")) {
+      | Object(dict) =>
+        let summary = dict->LogicUtils.getString("summary", "")
+        let markdown = dict->LogicUtils.getString("markdown", "")
+        setChat(_ =>
+          [
+            ...chat,
+            {
+              message,
+              response: {
+                summary,
+                markdown,
+              },
+            },
+          ]
+        )
+      | String(str) =>
+        setChat(_ =>
+          [
+            ...chat,
+            {
+              message,
+              response: {
+                summary: "",
+                markdown: str,
+              },
+            },
+          ]
+        )
+      | _ =>
+        setChat(_ =>
+          [
+            ...chat,
+            {
+              message,
+              response: {
+                summary: "",
+                markdown: "Error: Invalid response format",
+              },
+            },
+          ]
+        )
+      }
+
       setLoading(_ => false)
     } catch {
     | _ => setLoading(_ => false)
@@ -68,17 +107,17 @@ let make = () => {
     Nullable.null
   }
   <>
-    <RenderIf condition={html != ""}>
+    <RenderIf condition={chat->Array.length > 0}>
       <div />
       <div className="flex flex-col gap-2">
         {chat
-        ->Array.map(item =>
-          <div className="flex flex-col gap-1">
+        ->Array.mapWithIndex((item, index) =>
+          <div key={index->Int.toString} className="flex flex-col gap-1">
             <div className="text-hyperswitch_black font-semibold"> {"User:"->React.string} </div>
             <div className="text-hyperswitch_black"> {item.message->React.string} </div>
             <div className="text-hyperswitch_black font-semibold"> {"Bot:"->React.string} </div>
-            // <div className="text-hyperswitch_black" dangerouslySetInnerHTML={item.response} />
-            <Markdown.MDEditor value={item.response} hideToolbar=true preview="preview" />
+            <div className="text-hyperswitch_black"> {item.response.summary->React.string} </div>
+            <Markdown.MDEditor value={item.response.markdown} hideToolbar=true preview="preview" />
           </div>
         )
         ->React.array}
