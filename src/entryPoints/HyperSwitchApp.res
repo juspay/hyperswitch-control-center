@@ -170,8 +170,8 @@ let make = () => {
                       <div
                         onClick={_ =>
                           RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
-                        className="absolute bottom-5 right-5 border bg-blue-200 p-2">
-                        {"try"->React.string}
+                        className="absolute z-10 bottom-5 right-5 border bg-blue-200 p-2 cursor-pointer rounded-full hover:bg-blue-300 transition-all">
+                        <Icon name="robot" size=32 customIconColor="text-primary" />
                       </div>
                       <ErrorBoundary>
                         {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
