@@ -427,13 +427,6 @@ type opt = {name_: string}
 let makeOptions = (options: array<string>): array<dropdownOption> => {
   options->Array.map(str => {label: str, value: str})
 }
-let makeOptionsWithDifferentValues = (options: array<JSON.t>): array<dropdownOption> => {
-  open LogicUtils
-  options->Array.map(item => {
-    let itemDict = item->LogicUtils.getDictFromJsonObject
-    {label: itemDict->getString("name", ""), value: itemDict->getString("code", "")}
-  })
-}
 
 module BaseSelect = {
   @react.component

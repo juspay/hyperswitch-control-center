@@ -138,6 +138,13 @@ let makeOptions: array<string> => array<SelectBox.dropdownOption> = options => {
     option
   })
 }
+let makeOptionsWithDifferentValues = (options: array<JSON.t>): array<SelectBox.dropdownOption> => {
+  open LogicUtils
+  options->Array.map((item): SelectBox.dropdownOption => {
+    let itemDict = item->LogicUtils.getDictFromJsonObject
+    {label: itemDict->getString("name", ""), value: itemDict->getString("code", "")}
+  })
+}
 
 let keyExpiry = FormRenderer.makeFieldInfo(
   ~label="Expiration",
@@ -193,7 +200,9 @@ let merchantCategoryCode = merchantCodeArray =>
     ~name="merchant_category_code",
     ~placeholder="Enter Merchant Code with Name",
     ~customInput=InputFields.selectInput(
-      ~options=merchantCodeArray->SelectBox.makeOptionsWithDifferentValues,
+      ~options={
+        merchantCodeArray->makeOptionsWithDifferentValues
+      },
       ~buttonText="Select Option",
     ),
     ~isRequired=false,

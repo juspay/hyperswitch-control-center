@@ -503,7 +503,17 @@ module MerchantCategoryCode = {
   @react.component
   let make = () => {
     open FormRenderer
-    let merchantCodeWithNameArray = Window.getMerchantCategoryCodeWithName()
+
+    let merchantCodeWithNameArray = React.useMemo(() => {
+      try {
+        Window.getMerchantCategoryCodeWithName()
+      } catch {
+      | Exn.Error(e) =>
+        let _ = Exn.message(e)->Option.getOr("Error fetching merchant category codes")
+        []
+      }
+    }, [])
+
     let errorClass = "text-sm leading-4 font-medium text-start ml-1"
 
     <DesktopRow>
@@ -735,6 +745,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </DesktopRow>
+                <FormValuesSpy />
               </form>
             }}
           />
