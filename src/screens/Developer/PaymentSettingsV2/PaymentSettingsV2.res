@@ -49,7 +49,7 @@ let make = () => {
     },
     {
       title: "Custom Headers",
-      renderContent: () => React.null,
+      renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
     },
     {
       title: "Metadata Headers",
