@@ -31,20 +31,36 @@ let getProductVariantFromDisplayName = product => {
   | _ => Orchestration
   }
 }
+let preservedRoutes = ["organization-chart", "account-settings"]
 
-let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
+let isPreservedRoute = url => {
+  preservedRoutes->Array.some(route => url->String.includes(route))
+}
+
+let getDefaultProductRoute = (productType: ProductTypes.productTypes) => {
   switch productType {
-  | Orchestration =>
-    if url->String.includes("v2") {
-      `/dashboard/home`
-    } else {
-      url
-    }
   | Recon => `/dashboard/v2/recon/overview`
   | Recovery => `/dashboard/v2/recovery/overview`
   | Vault
   | CostObservability
   | DynamicRouting =>
     `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
+  | Orchestration => `/dashboard/home` // default for orchestration
+  }
+}
+
+let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
+  if isPreservedRoute(url) {
+    url
+  } else {
+    switch productType {
+    | Orchestration =>
+      if url->String.includes("v2") {
+        getDefaultProductRoute(Orchestration)
+      } else {
+        url
+      }
+    | _ => getDefaultProductRoute(productType)
+    }
   }
 }

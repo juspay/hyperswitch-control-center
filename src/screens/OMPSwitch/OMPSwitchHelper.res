@@ -14,6 +14,7 @@ module ListBaseComp = {
       globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let arrowClassName = isDarkBg
       ? `${arrow
             ? "rotate-180"
@@ -39,6 +40,7 @@ module ListBaseComp = {
                   className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
                   onClick={ev => {
                     ReactEvent.Mouse.stopPropagation(ev)
+                    mixpanelEvent(~eventName="organization_chart")
                     RescriptReactRouter.push(
                       GlobalVars.appendDashboardPath(~url="/organization-chart"),
                     )
