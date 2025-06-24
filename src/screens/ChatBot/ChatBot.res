@@ -82,7 +82,7 @@ module ChatMessage = {
             <RenderIf condition={isTyping || response.markdown->LogicUtils.isNonEmptyString}>
               <div
                 className="bg-white dark:bg-nd_gray-800 rounded-2xl rounded-tl-none border border-nd_gray-150 dark:border-nd_gray-700 shadow-sm">
-                {if isTyping {
+                <RenderIf condition={isTyping}>
                   <div className="px-4 py-6 flex items-center space-x-2">
                     <div className="flex space-x-1">
                       <div
@@ -99,13 +99,14 @@ module ChatMessage = {
                       />
                     </div>
                   </div>
-                } else {
+                </RenderIf>
+                <RenderIf condition={!isTyping}>
                   <div className="max-w-none p-4 h-full">
                     <Markdown.MDEditor
                       value={response.markdown} hideToolbar=true preview="preview"
                     />
                   </div>
-                }}
+                </RenderIf>
               </div>
             </RenderIf>
           </div>
@@ -118,7 +119,7 @@ module ChatMessage = {
 module EmptyState = {
   @react.component
   let make = () => {
-    <div className="flex flex-col items-center justify-center h-full py-12 px-4">
+    <div className="flex flex-col items-center justify-center h-full">
       <div
         className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center mb-6">
         <Icon name="robot" size=32 customIconColor="text-primary" />
@@ -251,7 +252,7 @@ let make = () => {
   }
 
   <div className="relative flex flex-col h-85-vh justify-between">
-    <div className="border-b border-nd_gray-150 dark:border-nd_gray-700 px-6 py-4">
+    <div className="px-6 py-4">
       <div className="flex items-center space-x-3">
         <div
           className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
@@ -269,7 +270,7 @@ let make = () => {
         <EmptyState />
       </RenderIf>
       <RenderIf condition={chat->Array.length > 0}>
-        <div className="w-full space-y-6">
+        <div className="w-full space-y-6 mb-16">
           {chat
           ->Array.mapWithIndex((item, index) => {
             let isLatest = index === chat->Array.length - 1
@@ -289,7 +290,9 @@ let make = () => {
       initialValues={JSON.Encode.null}
       onSubmit={(values, f) => onSubmit(values, f)}
       formClass="w-full">
-      <ChatBot loading />
+      <div className="fixed bottom-4 w-77-rem">
+        <ChatBot loading />
+      </div>
       // <FormValuesSpy />
     </Form>
   </div>
