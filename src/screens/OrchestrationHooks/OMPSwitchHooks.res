@@ -187,6 +187,8 @@ let useInternalSwitch = () => {
     ~expectedProfileId=None,
     ~version=UserInfoTypes.V1,
     ~changePath=false,
+    ~productType: option<ProductTypes.productTypes>=None,
+    ~landToHome=true,
   ) => {
     try {
       let userInfoResFromSwitchOrg = await orgSwitch(
@@ -216,6 +218,9 @@ let useInternalSwitch = () => {
         // update the path to "/dashboard/payment" by removing the "id" part.
         let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
         RescriptReactRouter.replace(currentUrl)
+      }
+      if landToHome {
+        HyperSwitchAppUtils.setupProductUrl(~productType, ~url)
       }
     } catch {
     | Exn.Error(e) => {

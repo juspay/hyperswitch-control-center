@@ -12,7 +12,7 @@ let getProductVariantFromString = product => {
 
 let getProductDisplayName = product =>
   switch product {
-  | Recon => "Recon"
+  | Recon => "Reconciliation"
   | Recovery => "Revenue Recovery"
   | Orchestration => "Orchestrator"
   | Vault => "Vault"
@@ -22,7 +22,7 @@ let getProductDisplayName = product =>
 
 let getProductVariantFromDisplayName = product => {
   switch product {
-  | "Recon" => Recon
+  | "Reconciliation" => Recon
   | "Revenue Recovery" => Recovery
   | "Orchestrator" => Orchestration
   | "Vault" => Vault
@@ -32,14 +32,20 @@ let getProductVariantFromDisplayName = product => {
   }
 }
 
+let productTypeIconMapper = productType => {
+  switch productType {
+  | Orchestration => "orchestrator-home"
+  | Recon => "recon-home"
+  | Recovery => "recovery-home"
+  | Vault => "vault-home"
+  | CostObservability => "cost-observability-home"
+  | DynamicRouting => "intelligent-routing-home"
+  }
+}
+
 let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
   switch productType {
-  | Orchestration =>
-    if url->String.includes("v2") {
-      `/dashboard/home`
-    } else {
-      url
-    }
+  | Orchestration => `/dashboard/home`
   | Recon => `/dashboard/v2/recon/overview`
   | Recovery => `/dashboard/v2/recovery/overview`
   | Vault

@@ -37,8 +37,17 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
-  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
+  let exploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=true)
+  let unexploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=false)
+  let exploredSidebars = SidebarHooks.useGetAllProductSections(
+    ~isReconEnabled,
+    ~products=exploredModules,
+  )
+  let unexploredSidebars = SidebarHooks.useGetAllProductSections(
+    ~isReconEnabled,
+    ~products=unexploredModules,
+  )
+
   sessionExpired := false
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
@@ -49,7 +58,7 @@ let make = () => {
     }
   }
   // set the product url based on the product type
-  let setupProductUrl = (~productType: ProductTypes.productTypes) => {
+  let _setupProductUrl = (~productType: ProductTypes.productTypes) => {
     let currentUrl = GlobalVars.extractModulePath(
       ~path=url.path,
       ~query=url.search,
@@ -74,7 +83,6 @@ let make = () => {
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
-      setupProductUrl(~productType=merchantResponse.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -116,12 +124,7 @@ let make = () => {
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
-                <Sidebar
-                  path={url.path}
-                  sidebars={hyperSwitchAppSidebars}
-                  key={(screenState :> string)}
-                  productSiebars=productSidebars
-                />
+                <Sidebar path=url.path exploredSidebars unexploredSidebars />
               </RenderIf>
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
