@@ -765,7 +765,7 @@ let make = (
                             onClick={_ => {
                               panelProps["close"]()
                               RescriptReactRouter.replace(
-                                GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
+                                GlobalVars.appendDashboardPath(~url="/account-settings"),
                               )
                             }}
                             text="Profile"

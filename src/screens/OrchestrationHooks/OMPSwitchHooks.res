@@ -211,18 +211,10 @@ let useInternalSwitch = () => {
       )
       setUserInfoData(userInfoFromProfile)
       if changePath {
-        let shouldTruncate = switch url.path->HSwitchUtils.urlPath {
-        | list{"payments", ..._}
-        | list{"refunds", ..._}
-        | list{"disputes", ..._}
-        | list{"payouts", ..._} => true
-        | _ => false
-        }
-        let currentUrl = if shouldTruncate {
-          GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
-        } else {
-          GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=url.path->List.length)
-        }
+        // When the internal switch is triggered from the dropdown,
+        // and the current path is "/dashboard/payment/id",
+        // update the path to "/dashboard/payment" by removing the "id" part.
+        let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
         RescriptReactRouter.replace(currentUrl)
       }
     } catch {

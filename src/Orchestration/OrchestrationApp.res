@@ -106,16 +106,6 @@ let make = (~setScreenState) => {
         authorization={userHasAccess(~groupAccess=WorkflowsView)}>
         <HSwitchThreeDsExemption />
       </AccessControl>
-    | list{"account-settings"} =>
-      <AccessControl
-        isEnabled=featureFlagDetails.sampleData
-        // TODO: Remove `MerchantDetailsManage` permission in future
-        authorization={hasAnyGroupAccess(
-          userHasAccess(~groupAccess=MerchantDetailsManage),
-          userHasAccess(~groupAccess=AccountManage),
-        )}>
-        <HSwitchSettings />
-      </AccessControl>
     | list{"search"} => <SearchResultsPage />
     | list{"payment-attempts"} =>
       <AccessControl
