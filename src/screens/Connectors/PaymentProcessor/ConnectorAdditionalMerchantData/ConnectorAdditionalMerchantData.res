@@ -5,6 +5,7 @@ let make = (~connector, ~connectorAdditionalMerchantData) => {
   {
     switch connector {
     | Processors(PLAID) => <PlaidAdditionalMerchantData connectorAdditionalMerchantData />
+    | Processors(TOKENIO) => <TokenioAdditionalMerchantData connectorAdditionalMerchantData />
     | _ => React.null
     }
   }
