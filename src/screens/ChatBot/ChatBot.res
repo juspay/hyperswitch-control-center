@@ -46,6 +46,8 @@ module ChatMessage = {
   let make = (~message: string, ~response: response, ~isLatest: bool, ~loading: bool) => {
     let isTyping = isLatest && loading && response.markdown->LogicUtils.isEmptyString
 
+    Js.log2("markdown", response.markdown)
+
     <div className="space-y-6">
       <div className="flex justify-end">
         <div
@@ -102,9 +104,7 @@ module ChatMessage = {
                 </RenderIf>
                 <RenderIf condition={!isTyping}>
                   <div className="max-w-none p-4 h-full">
-                    <Markdown.MDEditor
-                      value={response.markdown} hideToolbar=true preview="preview"
-                    />
+                    <Markdown.MdPreview source={response.markdown} style={{fontSize: "14px"}} />
                   </div>
                 </RenderIf>
               </div>
@@ -166,6 +166,27 @@ let make = () => {
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (loading, setLoading) = React.useState(_ => false)
   let (chat, setChat) = React.useState(_ => [])
+  let chatContainerRef = React.useRef(Nullable.null)
+
+  let scrollToBottom = () => {
+    switch chatContainerRef.current->Nullable.toOption {
+    | Some(element) =>
+      element->Webapi.Dom.Element.setScrollTop(
+        element->Webapi.Dom.Element.scrollHeight->Int.toFloat,
+      )
+    | None => ()
+    }
+  }
+
+  React.useEffect(() => {
+    if chat->Array.length > 0 {
+      // Small delay to ensure DOM is updated
+      let timeoutId = setTimeout(() => scrollToBottom(), 100)
+      Some(() => clearTimeout(timeoutId))
+    } else {
+      None
+    }
+  }, [chat])
 
   let onSubmit = async (values, form: ReactFinalForm.formApi) => {
     let message = values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", "")
@@ -174,9 +195,9 @@ let make = () => {
       Nullable.null
     } else {
       form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
-      setChat(prevChat =>
+      setChat(_ =>
         [
-          ...prevChat,
+          ...chat,
           {
             message,
             response: {
@@ -265,7 +286,7 @@ let make = () => {
         </div>
       </div>
     </div>
-    <div className="p-6 h-80-vh overflow-y-auto">
+    <div className="p-6 h-80-vh overflow-y-auto" ref={chatContainerRef->ReactDOM.Ref.domRef}>
       <RenderIf condition={chat->Array.length === 0}>
         <EmptyState />
       </RenderIf>

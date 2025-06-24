@@ -1,4 +1,4 @@
-module MDEditor = {
-  @react.component @module("@uiw/react-md-editor")
-  external make: (~value: string, ~hideToolbar: bool, ~preview: string) => React.element = "default"
+module MdPreview = {
+  @react.component @module("@uiw/react-markdown-preview")
+  external make: (~source: string, ~style: ReactDOM.Style.t=?) => React.element = "default"
 }
