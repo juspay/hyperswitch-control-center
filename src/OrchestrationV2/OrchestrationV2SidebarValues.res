@@ -13,6 +13,31 @@ let home = Link({
   selectedIcon: "nd-fill-home",
 })
 
+let payments = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Payments",
+    link: `v2/orchestration/payments`,
+    access: userHasResourceAccess(~resourceAccess=Payment),
+    searchOptions: [("View payment operations", "")],
+  })
+}
+
+let operations = (isOperationsEnabled, ~userHasResourceAccess) => {
+  let payments = payments(userHasResourceAccess)
+
+  let links = [payments]
+
+  isOperationsEnabled
+    ? Section({
+        name: "Operations",
+        icon: "nd-operations",
+        showSection: true,
+        links,
+        selectedIcon: "nd-operations-fill",
+      })
+    : emptyComponent
+}
+
 let paymentProcessor = (_isLiveMode, userHasResourceAccess) => {
   SubLevelLink({
     name: "Payment Processors",
@@ -46,7 +71,11 @@ let useGetOrchestrationV2SidebarValues = () => {
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let {default, isLiveMode} = featureFlagDetails
 
-  let sidebar = [home, default->connectors(~isLiveMode, ~userHasResourceAccess)]
+  let sidebar = [
+    home,
+    default->connectors(~isLiveMode, ~userHasResourceAccess),
+    default->operations(~userHasResourceAccess),
+  ]
 
   sidebar
 }
