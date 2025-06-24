@@ -47,13 +47,31 @@ let getV2Url = (
       | Some(key_id) =>
         switch queryParamerters {
         | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
-        | None => `${peymantsBaseURL}/${key_id}`
+        | None => `${peymantsBaseURL}/${key_id}/get-intent`
         }
       | None =>
         switch queryParamerters {
         | Some(queryParams) => `${peymantsBaseURL}/list?${queryParams}`
         | None => `${peymantsBaseURL}/list?limit=100`
         }
+      }
+    | _ => ""
+    }
+  | V2_ATTEMPTS_LIST =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) => `${peymantsBaseURL}/${key_id}/list_attempts`
+      | None => ""
+      }
+    | _ => ""
+    }
+  | PROCESS_TRACKER =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) => `v2/process_tracker/revenue_recovery_workflow/${key_id}`
+      | None => "v2/process_tracker/revenue_recovery_workflow"
       }
     | _ => ""
     }
@@ -622,6 +640,23 @@ let useGetURL = () => {
       /* THREE DS ROUTING */
       | THREE_DS => `routing/decision`
 
+      /* THREE DS ROUTING */
+
+      | THREE_DS_EXEMPTION_RULES =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(routingId) => `routing/${routingId}`
+          | None => `routing/active?transaction_type=three_ds_authentication&limit=100`
+          }
+        | Post =>
+          switch id {
+          | Some(routing_id) => `routing/${routing_id}/activate`
+          | _ => "routing"
+          }
+        | _ => ""
+        }
+
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
 
@@ -759,7 +794,11 @@ let useGetURL = () => {
       /* MERCHANT ACQUIRER */
       | ACQUIRER_CONFIG_SETTINGS =>
         switch methodType {
-        | Post => `profile_acquirer`
+        | Post =>
+          switch id {
+          | Some(acquirerId) => `profile_acquirer/${profileId}/${acquirerId}`
+          | None => `profile_acquirer`
+          }
         | _ => ""
         }
 

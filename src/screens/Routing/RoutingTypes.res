@@ -58,6 +58,7 @@ type volumeDistribution = {
 }
 
 type routingOutputType = {override_3ds: string}
+type threeDSRulesOutputType = {decision: string}
 
 type historyData = {
   id: string,
@@ -114,6 +115,7 @@ type connectorSelection = {
   \"type"?: string,
   data?: array<connectorSelectionData>,
   override_3ds?: string,
+  decision?: string,
   surcharge_details?: Js.nullable<surchargeDetailsType>,
 }
 
@@ -143,4 +145,15 @@ type advancedRoutingType = {
   name: string,
   description: string,
   algorithm: algorithmData,
+}
+
+type pageConfig = {
+  pageTitle: string,
+  pageSubtitle: string,
+  configureTitle: string,
+  configureDescription: string,
+  baseUrl: string,
+  newUrl: string,
+  entityName: APIUtilsTypes.entityTypeWithVersion,
+  mixpanelEvent: string,
 }

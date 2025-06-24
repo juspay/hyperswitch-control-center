@@ -3,6 +3,67 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.06.24.1
+
+### Bug Fixes
+
+- Webhook responsiveness fix ([#3204](https://github.com/juspay/hyperswitch-control-center/pull/3204)) ([`63086a1`](https://github.com/juspay/hyperswitch-control-center/commit/63086a134f2a479b8a0eabaaacd9590de0c91531))
+- Fixed dropdown width and disabled deselect in merchant category … ([#3212](https://github.com/juspay/hyperswitch-control-center/pull/3212)) ([`9d6a0db`](https://github.com/juspay/hyperswitch-control-center/commit/9d6a0db8cd9162cb3b5809f89977d7cdaf459b15))
+
+**Full Changelog:** [`2025.06.24.0...2025.06.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.24.0...2025.06.24.1)
+
+- - -
+
+## 2025.06.24.0
+
+### Features
+
+- Added merchant category code dropdown in payment settings page ([#3175](https://github.com/juspay/hyperswitch-control-center/pull/3175)) ([`ecf3f9a`](https://github.com/juspay/hyperswitch-control-center/commit/ecf3f9affa6fc8186baf1750408ea3a4c28bfeb7))
+
+**Full Changelog:** [`2025.06.23.1...2025.06.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.23.1...2025.06.24.0)
+
+- - -
+
+## 2025.06.23.1
+
+### Miscellaneous Tasks
+
+- Payment settings threeds tab component ([#3188](https://github.com/juspay/hyperswitch-control-center/pull/3188)) ([`a533761`](https://github.com/juspay/hyperswitch-control-center/commit/a533761ccd84a6f772e32fbd4f4b52ad8bcc9f20))
+- Recovery demo items changes ([#3200](https://github.com/juspay/hyperswitch-control-center/pull/3200)) ([`b9c48a9`](https://github.com/juspay/hyperswitch-control-center/commit/b9c48a981cea36808af4985016332433f7b229fb))
+
+**Full Changelog:** [`2025.06.23.0...2025.06.23.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.23.0...2025.06.23.1)
+
+- - -
+
+## 2025.06.23.0
+
+### Bug Fixes
+
+- Theme colors for sidebar ompchart and border fix ([#3197](https://github.com/juspay/hyperswitch-control-center/pull/3197)) ([`b113ce3`](https://github.com/juspay/hyperswitch-control-center/commit/b113ce3fcd5334da0ea315c8c7702f1dce7aa029))
+
+**Full Changelog:** [`2025.06.19.1...2025.06.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.19.1...2025.06.23.0)
+
+- - -
+
+## 2025.06.19.1
+
+### Features
+
+- Addition of new connectors for recovery on onboarding display ([#3191](https://github.com/juspay/hyperswitch-control-center/pull/3191)) ([`f252a1a`](https://github.com/juspay/hyperswitch-control-center/commit/f252a1ac53ca21af3ad3b4580c198eee5a5e3cfe))
+- 3ds-exemption-rules ([#3190](https://github.com/juspay/hyperswitch-control-center/pull/3190)) ([`20b0fcb`](https://github.com/juspay/hyperswitch-control-center/commit/20b0fcb1320787ee34e227e71ab381ac5215f986))
+
+### Bug Fixes
+
+- Acquirer config bug fixes ([#3185](https://github.com/juspay/hyperswitch-control-center/pull/3185)) ([`ae2bad1`](https://github.com/juspay/hyperswitch-control-center/commit/ae2bad1ebc5f7a4f7ea0e21d5061f07b03d658c6))
+
+### Refactors
+
+- Refactored UI using tabs and individual authentication connector graphs ([#3193](https://github.com/juspay/hyperswitch-control-center/pull/3193)) ([`6d6b6f9`](https://github.com/juspay/hyperswitch-control-center/commit/6d6b6f99b3e101d56a3dca68424f962a2e6461ce))
+
+**Full Changelog:** [`2025.06.19.0...2025.06.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.19.0...2025.06.19.1)
+
+- - -
+
 ## 2025.06.19.0
 
 ### Features
