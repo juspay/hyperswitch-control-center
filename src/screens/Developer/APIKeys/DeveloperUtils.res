@@ -204,6 +204,8 @@ let merchantCategoryCode = merchantCodeArray =>
         merchantCodeArray->makeOptionsWithDifferentValues
       },
       ~buttonText="Select Option",
+      ~deselectDisable=true,
+      ~dropdownCustomWidth="w-full",
     ),
     ~isRequired=false,
   )
