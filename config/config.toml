@@ -62,12 +62,14 @@ dev_modularity_v2=false
 dev_alt_payment_methods=false
 dev_hypersense_v2_product=false
 dev_intelligent_routing_v2=false
+threeds_exemption=false
 dev_recon_v2_product=false
 dev_debit_routing=false
 google_pay_decryption_flow=false
 dev_webhooks=false
 acquirer_config_settings=false
 payment_settings_v2=false
+dev_omp_chart=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]

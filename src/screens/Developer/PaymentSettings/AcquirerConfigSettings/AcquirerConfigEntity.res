@@ -29,45 +29,46 @@ let makeNumericInputField = (~label, ~name, ~placeholder, ~maxLength=6) =>
   )
 
 let acquirerAssignedMerchantId = makeTextInputField(
-  ~label="Acquirer assigned merchant id",
+  ~label="Acquirer Assigned Merchant Id",
   ~name="acquirer_assigned_merchant_id",
-  ~placeholder="Enter acquirer assigned merchant id",
+  ~placeholder="Enter Acquirer Assigned Merchant Id",
 )
 
 let merchantName = makeTextInputField(
-  ~label="Merchant name",
+  ~label="Merchant Name",
   ~name="merchant_name",
-  ~placeholder="Enter merchant name",
+  ~placeholder="Enter Merchant Name",
 )
 
 let merchantCountryCode = makeSelectInputField(
-  ~label="Merchant country code",
+  ~label="Merchant Country",
   ~name="merchant_country_code",
-  ~placeholder="Select merchant country code",
+  ~placeholder="Select Merchant Country",
   ~options=AcquirerConfigUtils.countryDropDownOptions,
 )
 
-let acquirerBin = makeTextInputField(
-  ~label="Acquirer BIN",
+let acquirerBin = makeNumericInputField(
+  ~label="Acquirer Bin",
   ~name="acquirer_bin",
-  ~placeholder="Enter acquirer BIN",
+  ~placeholder="Enter Acquirer Bin",
+  ~maxLength=20,
 )
 
 let acquirerFraudRate = makeNumericInputField(
-  ~label="Acquirer fraud rate",
+  ~label="Acquirer Fraud Rate (%)",
   ~name="acquirer_fraud_rate",
-  ~placeholder="Enter acquirer fraud rate",
+  ~placeholder="Enter Acquirer Fraud Rate",
 )
 
 let network = makeSelectInputField(
   ~label="Network",
   ~name="network",
-  ~placeholder="Select network",
+  ~placeholder="Select Network",
   ~options=AcquirerConfigUtils.networkDropDownOptions,
 )
 
 open Table
-let getHeading = (colType: colType): header => {
+let getHeading = colType => {
   switch colType {
   | AcquirerAssignedMerchantId =>
     makeHeaderInfo(
@@ -82,17 +83,7 @@ let getHeading = (colType: colType): header => {
   | AcquirerBin => makeHeaderInfo(~key="acquirer_bin", ~title="Acquirer BIN", ~dataType=TextType)
   | AcquirerFraudRate =>
     makeHeaderInfo(~key="acquirer_fraud_rate", ~title="Acquirer Fraud Rate", ~dataType=NumericType)
-  }
-}
-
-let getCell = (data: acquirerConfig, colType: colType): cell => {
-  switch colType {
-  | AcquirerAssignedMerchantId => Text(data.acquirer_assigned_merchant_id)
-  | MerchantName => Text(data.merchant_name)
-  | MerchantCountryCode => Text(data.merchant_country_code)
-  | Network => Text(data.network)
-  | AcquirerBin => Text(data.acquirer_bin)
-  | AcquirerFraudRate => Numeric(data.acquirer_fraud_rate, num => num->Float.toString ++ "%")
+  | Update => makeHeaderInfo(~key="update", ~title="Update", ~dataType=TextType)
   }
 }
 
@@ -103,15 +94,41 @@ let defaultColumns = [
   Network,
   AcquirerBin,
   AcquirerFraudRate,
+  Update,
 ]
 
-let entity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=_ => [],
-  ~defaultColumns,
-  ~getHeading,
-  ~getCell,
-  ~dataKey="",
-  ~searchFields=[],
-  ~searchUrl="",
-)
+let getCellWithEdit = (data, colType, onEdit) => {
+  switch colType {
+  | AcquirerAssignedMerchantId => Text(data.acquirer_assigned_merchant_id)
+  | MerchantName => Text(data.merchant_name)
+  | MerchantCountryCode => Text(data.merchant_country_code)
+  | Network => Text(data.network)
+  | AcquirerBin => Text(data.acquirer_bin)
+  | AcquirerFraudRate => Numeric(data.acquirer_fraud_rate, num => num->Float.toString ++ "%")
+  | Update =>
+    CustomCell(
+      <div className="flex gap-2 justify-center">
+        <Icon
+          name="edit"
+          className="cursor-pointer text-blue-500 hover:text-blue-700 mr-1"
+          size=16
+          onClick={_ => onEdit->Option.forEach(editFn => editFn(data))}
+        />
+      </div>,
+      "",
+    )
+  }
+}
+
+let makeEntityWithEditHandler = (~onEdit) => {
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=_ => [],
+    ~defaultColumns,
+    ~getHeading,
+    ~getCell=(data, colType) => getCellWithEdit(data, colType, onEdit),
+    ~dataKey="",
+    ~searchFields=[],
+    ~searchUrl="",
+  )
+}

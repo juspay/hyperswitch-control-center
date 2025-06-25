@@ -10,10 +10,10 @@ module ListBaseComp = {
     ~showDropdownArrow=true,
     ~user: UserInfoTypes.entity,
   ) => {
-    let {globalUIConfig: {sidebarColor: {secondaryTextColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
-
+    let {
+      globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
+    } = React.useContext(ThemeProvider.themeContext)
+    let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let arrowClassName = isDarkBg
       ? `${arrow
             ? "rotate-180"
@@ -27,9 +27,28 @@ module ListBaseComp = {
       | #Merchant =>
         <div
           className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
-          <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
-            {"Merchant Account"->React.string}
-          </span>
+          <div className="flex flex-row w-full justify-between">
+            <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+              {"Merchant Account"->React.string}
+            </span>
+            <RenderIf condition=devOmpChart>
+              <ToolTip
+                description="Organisation Chart"
+                customStyle="!whitespace-nowrap"
+                toolTipFor={<button
+                  className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
+                  onClick={ev => {
+                    ReactEvent.Mouse.stopPropagation(ev)
+                    RescriptReactRouter.push(
+                      GlobalVars.appendDashboardPath(~url="/organization-chart"),
+                    )
+                  }}>
+                  <Icon name="github-fork" size=14 className={`${secondaryTextColor}`} />
+                </button>}
+                toolTipPosition=ToolTip.Right
+              />
+            </RenderIf>
+          </div>
           <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
@@ -43,7 +62,7 @@ module ListBaseComp = {
 
       | #Profile =>
         <div
-          className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-100 shadow-sm">
+          className="flex flex-row cursor-pointer items-center p-3 gap-2 md:min-w-44 justify-between h-8 bg-white border rounded-lg border-nd_gray-150 shadow-sm">
           <div className="md:max-w-40 max-w-16">
             <p
               className="overflow-scroll text-nowrap text-sm font-medium text-nd_gray-500 whitespace-pre">
@@ -62,6 +81,7 @@ module ListBaseComp = {
     </>
   }
 }
+
 module AddNewOMPButton = {
   @react.component
   let make = (

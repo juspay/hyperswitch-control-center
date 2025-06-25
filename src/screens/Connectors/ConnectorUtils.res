@@ -120,6 +120,7 @@ let connectorList: array<connectorTypes> = [
   Processors(ARCHIPEL),
   Processors(WORLDPAYVANTIV),
   Processors(BARCLAYCARD),
+  Processors(TOKENIO),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -453,6 +454,9 @@ let facilitapayInfo = {
 let barclaycardInfo = {
   description: "Barclaycard, part of Barclays Bank UK PLC, is a leading global payment business that helps consumers, retailers and businesses to make and take payments flexibly, and to access short-term credit and point of sale finance.",
 }
+let tokenioInfo = {
+  description: "Token.io is a fintech company that provides open banking-based, account-to-account (A2A) payment infrastructure—essentially enabling “Pay by Bank” solutions for banks, fintechs, platforms, and payment service providers.",
+}
 
 // Dummy Connector Info
 let pretendpayInfo = {
@@ -586,6 +590,10 @@ let chargebeeInfo = {
   description: "Chargebee is a subscription management and billing platform that integrates with multiple payment gateways, allowing businesses to accept payments across various geographies and currencies.",
 }
 
+let stripeBillingInfo = {
+  description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
+}
+
 let nexixpayInfo = {
   description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
 }
@@ -716,6 +724,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ARCHIPEL => "archipel"
   | WORLDPAYVANTIV => "worldpayvantiv"
   | BARCLAYCARD => "barclaycard"
+  | TOKENIO => "tokenio"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -763,6 +772,7 @@ let getTaxProcessorNameString = (taxProcessor: taxProcessorTypes) => {
 let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) => {
   switch billingProcessor {
   | CHARGEBEE => "chargebee"
+  | STRIPE_BILLING => "stripebilling"
   }
 }
 
@@ -866,6 +876,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "archipel" => Processors(ARCHIPEL)
     | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
     | "barclaycard" => Processors(BARCLAYCARD)
+    | "tokenio" => Processors(TOKENIO)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -908,6 +919,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | BillingProcessor =>
     switch connector {
     | "chargebee" => BillingProcessor(CHARGEBEE)
+    | "stripebilling" => BillingProcessor(STRIPE_BILLING)
     | _ => UnknownConnector("Not known")
     }
   }
@@ -996,6 +1008,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | ARCHIPEL => archipelInfo
   | WORLDPAYVANTIV => worldpayVantivInfo
   | BARCLAYCARD => barclaycardInfo
+  | TOKENIO => tokenioInfo
   }
 }
 
@@ -1043,6 +1056,7 @@ let getTaxProcessorInfo = (taxProcessor: ConnectorTypes.taxProcessorTypes) => {
 let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessorTypes) => {
   switch billingProcessor {
   | CHARGEBEE => chargebeeInfo
+  | STRIPE_BILLING => stripeBillingInfo
   }
 }
 
@@ -1333,8 +1347,8 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE), "additional_secret") => true
+  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "merchant_secret") => true
+  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "additional_secret") => true
   | _ => false
   }
 }
@@ -1869,6 +1883,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | ARCHIPEL => "ArchiPEL"
   | WORLDPAYVANTIV => "Worldpay Vantiv"
   | BARCLAYCARD => "BarclayCard SmartPay Fuse"
+  | TOKENIO => "Token.io"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -1913,6 +1928,7 @@ let getDisplayNameForTaxProcessor = taxProcessor => {
 let getDisplayNameForBillingProcessor = billingProcessor => {
   switch billingProcessor {
   | CHARGEBEE => "Chargebee"
+  | STRIPE_BILLING => "Stripe Billing"
   }
 }
 

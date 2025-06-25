@@ -3,9 +3,6 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open NewAuthenticationAnalyticsUtils
-  open NewAuthenticationAnalyticsHelper
-  open NewAuthenticationAnalyticsEntity
-  open Typography
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -34,6 +31,13 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="authentication_analytics_date_filter_opened")
   }
+
+  let (tabIndex, setTabIndex) = React.useState(_ => 0)
+
+  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
 
   let loadInfo = async () => {
     try {
@@ -261,46 +265,46 @@ let make = () => {
     None
   }, (startTimeVal, endTimeVal, filterValue, isSampleDataEnabled))
 
-  let topFilterUi = switch filterDataJson {
-  | Some(filterData) =>
+  let topFilterUi = {
+    let (initialFilters, popupFilterFields, key) = switch filterDataJson {
+    | Some(filterData) => (
+        isSampleDataEnabled ? [] : HSAnalyticsUtils.initialFilterFields(filterData),
+        HSAnalyticsUtils.options(filterData),
+        "0",
+      )
+    | None => ([], [], "1")
+    }
+
     <div className="flex flex-row">
       <DynamicFilter
         title="AuthenticationAnalyticsV2"
-        initialFilters={isSampleDataEnabled ? [] : HSAnalyticsUtils.initialFilterFields(filterData)}
+        initialFilters
         options=[]
-        popupFilterFields={HSAnalyticsUtils.options(filterData)}
+        popupFilterFields
         initialFixedFilters={initialFixedFilterFields(
           ~events=dateDropDownTriggerMixpanelCallback,
           ~sampleDataIsEnabled=isSampleDataEnabled,
         )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
-        key="0"
+        key
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
       />
-    </div>
-  | None =>
-    <div className="flex flex-row">
-      <DynamicFilter
-        title="AuthenticationAnalyticsV2"
-        initialFilters=[]
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(
-          ~events=dateDropDownTriggerMixpanelCallback,
-          ~sampleDataIsEnabled=isSampleDataEnabled,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames
-        key="1"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
+      <div className="mt-15-px">
+        <Portal to="NewAnalyticsOMPView">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            selectedEntity={analyticsEntity}
+            onChange={updateAnalytcisEntity}
+            entityMapper=UserInfoUtils.analyticsEntityMapper
+            disabled=isSampleDataEnabled
+            disabledDisplayName="Hyperswitch_test"
+          />
+        </Portal>
+      </div>
     </div>
   }
   let applySampleDateFilters = async isSampleDateEnabled => {
@@ -330,6 +334,18 @@ let make = () => {
       funnelData.authentication_successful > 0,
     [funnelData],
   )
+
+  let tabs: array<Tabs.tab> = [
+    {
+      title: "Authentication Analytics",
+      renderContent: () =>
+        <AuthenticationContainer queryData funnelData metrics funnelRenderCondition />,
+    },
+    {
+      title: "3DS Exemption Analytics",
+      renderContent: () => <ExemptionContainer queryData />,
+    },
+  ]
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
     <InsightsHelper.SampleDataBanner applySampleDateFilters />
     <PageUtils.PageHeading title />
@@ -339,76 +355,16 @@ let make = () => {
     <div className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
       {topFilterUi}
     </div>
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {getMetricsData(queryData)
-      ->Array.mapWithIndex((metric, index) =>
-        <RenderIf condition={metric.name === "authentication"}>
-          <StatCard
-            key={index->Int.toString}
-            title={metric.title}
-            value={metric.value}
-            valueType={metric.valueType}
-            description={metric.tooltip_description}
-          />
-        </RenderIf>
-      )
-      ->React.array}
-    </div>
-    <RenderIf condition={funnelRenderCondition}>
-      <div className="border border-gray-200 mt-5 rounded-lg">
-        <FunnelChart
-          data={getFunnelChartData(funnelData)}
-          metrics={metrics}
-          moduleName="Authentication Funnel"
-          description=Some("Breakdown of ThreeDS 2.0 Journey")
-        />
-      </div>
-    </RenderIf>
-    <Insights />
-    <hr className="w-full mt-6" />
-    <div className="my-4">
-      <h2 className={`${heading.md.semibold} text-jp-gray-900`}>
-        {"3DS Exemption Analytics"->React.string}
-      </h2>
-    </div>
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {getMetricsData(queryData)
-      ->Array.mapWithIndex((metric, index) =>
-        <RenderIf condition={metric.name === "3ds_exemption_authentication"}>
-          <StatCard
-            key={index->Int.toString}
-            title={metric.title}
-            value={metric.value}
-            valueType={metric.valueType}
-            description={metric.tooltip_description}
-          />
-        </RenderIf>
-      )
-      ->React.array}
-    </div>
-    <SCAExemptionAnalytics entity={scaExemptionEntity} chartEntity={scaExemptionChartEntity} />
-    <div className="grid grid-cols-2 gap-6 mt-6">
-      <ExemptionGraphs
-        entity={authenticationSuccessEntity}
-        chartEntity={authenticationSuccessChartEntity}
-        metricXKey="authentication_success_count"
-      />
-      <ExemptionGraphs
-        entity={userDropOffRateEntity}
-        chartEntity={userDropOffRateChartEntity}
-        metricXKey="user_drop_off_rate"
-      />
-      <ExemptionGraphs
-        entity={exemptionApprovalRateEntity}
-        chartEntity={exemptionApprovalRateChartEntity}
-        metricXKey="exemption_approval_rate"
-      />
-      <ExemptionGraphs
-        entity={exemptionRequestRateEntity}
-        chartEntity={exemptionRequestRateChartEntity}
-        metricXKey="exemption_request_rate"
-      />
-    </div>
-    <AuthenticationSummary entity={authenticationSummaryEntity} />
+    <Tabs
+      initialIndex={tabIndex}
+      tabs
+      onTitleClick={tabId => setTabIndex(_ => tabId)}
+      disableIndicationArrow=true
+      showBorder=true
+      includeMargin=false
+      lightThemeColor="black"
+      textStyle="text-blue-600"
+      selectTabBottomBorderColor="bg-blue-600 !z-0"
+    />
   </PageLoaderWrapper>
 }
