@@ -196,7 +196,7 @@ let authenticationConnectors = connectorList =>
 
 let merchantCategoryCode = merchantCodeArray =>
   FormRenderer.makeFieldInfo(
-    ~label="Merchant Code with Name",
+    ~label="Merchant Category Code",
     ~name="merchant_category_code",
     ~placeholder="Enter Merchant Code with Name",
     ~customInput=InputFields.selectInput(
