@@ -150,16 +150,6 @@ let getCustomHeadersPayload = (values: JSON.t) => {
         formValues->getString(val, "")->getNonEmptyString,
       )
     })
-  let _ =
-    valuesDict
-    ->getDictfromDict("outgoing_webhook_custom_http_headers")
-    ->Dict.keysToArray
-    ->Array.forEach(val => {
-      outGoingWebHookCustomHttpHeaders->setOptionString(
-        val,
-        formValues->getString(val, "")->getNonEmptyString,
-      )
-    })
   customHeaderDict->setOptionDict(
     "outgoing_webhook_custom_http_headers",
     Some(outGoingWebHookCustomHttpHeaders),
@@ -174,13 +164,6 @@ let getMetdataKeyValuePayload = (values: JSON.t) => {
   let customMetadataVal = Dict.make()
   let formValues = valuesDict->getDictfromDict("metadata")
 
-  let _ =
-    valuesDict
-    ->getDictfromDict("metadata")
-    ->Dict.keysToArray
-    ->Array.forEach(val => {
-      customMetadataVal->setOptionString(val, formValues->getString(val, "")->getNonEmptyString)
-    })
   let _ =
     valuesDict
     ->getDictfromDict("metadata")
