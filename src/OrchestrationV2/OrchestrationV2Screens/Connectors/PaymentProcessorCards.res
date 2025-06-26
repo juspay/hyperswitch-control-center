@@ -133,13 +133,13 @@ let make = (
               <Icon
                 name="plus"
                 size=16
-                className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+                className="text-nd_gray-600 fill-opacity-50 dark:jp-gray-text_darktheme"
               />,
             )}
             text="Connect a Dummy Processor"
             buttonType={Secondary}
             buttonSize={Large}
-            textStyle="text-jp-gray-900"
+            textStyle="text-nd_gray-600"
             onClick={_ => setProcessorModal(_ => true)}
           />
         </RenderIf>
