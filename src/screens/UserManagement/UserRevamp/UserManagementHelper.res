@@ -66,7 +66,7 @@ module MerchantSelection = {
     }
 
     let v1MerchantList =
-      merchList->Array.filter(merchant => merchant.productType === Some(Orchestration))
+      merchList->Array.filter(merchant => merchant.productType === Some(Orchestration(V1)))
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {

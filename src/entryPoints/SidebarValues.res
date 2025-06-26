@@ -695,6 +695,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
+  let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let defaultSidebar = []
 
   if featureFlagDetails.devModularityV2 {
@@ -713,12 +714,13 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   }
 
   let sidebarValuesForProduct = switch activeProduct {
-  | Orchestration => hsSidebars
+  | Orchestration(V1) => hsSidebars
   | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
+  | Orchestration(V2) => orchestratorV2Sidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }
