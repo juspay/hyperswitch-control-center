@@ -424,10 +424,10 @@ let complianceCertificateSection = {
 }
 let themepreview = userHasResourceAccess => {
   SubLevelLink({
-    name: "Themes",
-    link: `/themes`,
-    access: userHasResourceAccess(~resourceAccess=User),
-    searchOptions: [("Customise Themes", "")],
+    name: "Theme",
+    link: `/theme`,
+    access: userHasResourceAccess(~resourceAccess=Theme),
+    searchOptions: [("Customise Theme", "")],
   })
 }
 
