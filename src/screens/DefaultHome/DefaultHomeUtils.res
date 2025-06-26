@@ -100,7 +100,7 @@ let defaultHomeActionArray = {
 let defaultHomeCardsArray = {
   [
     {
-      product: Orchestration,
+      product: Orchestration(V1),
       heading: "Orchestrator",
       description: "Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",

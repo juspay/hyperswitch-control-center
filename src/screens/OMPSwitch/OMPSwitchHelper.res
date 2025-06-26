@@ -288,12 +288,13 @@ module MerchantDropdownItem = {
 
     let productTypeIconMapper = productType => {
       switch productType {
-      | Orchestration => "orchestrator-home"
+      | Orchestration(V1) => "orchestrator-home"
       | Recon => "recon-home"
       | Recovery => "recovery-home"
       | Vault => "vault-home"
       | CostObservability => "nd-piggy-bank"
       | DynamicRouting => "intelligent-routing-home"
+      | Orchestration(V2) => "orchestrator-home"
       }
     }
 

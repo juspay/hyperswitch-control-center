@@ -236,7 +236,7 @@ let stringToVariantForAllSelection = formStringValue =>
 
 let getVersion = (product: ProductTypes.productTypes) => {
   switch product {
-  | Orchestration
+  | Orchestration(V1)
   | DynamicRouting
   | CostObservability =>
     UserInfoTypes.V1

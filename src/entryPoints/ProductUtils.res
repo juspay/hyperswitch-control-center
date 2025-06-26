@@ -1,12 +1,16 @@
 open ProductTypes
-let getProductVariantFromString = product => {
+let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => {
   switch product->String.toLowerCase {
   | "recon" => Recon
   | "recovery" => Recovery
   | "vault" => Vault
   | "cost_observability" => CostObservability
   | "dynamic_routing" => DynamicRouting
-  | _ => Orchestration
+  | _ =>
+    switch version {
+    | V1 => Orchestration(V1)
+    | V2 => Orchestration(V2)
+    }
   }
 }
 
@@ -14,23 +18,48 @@ let getProductDisplayName = product =>
   switch product {
   | Recon => "Recon"
   | Recovery => "Revenue Recovery"
-  | Orchestration => "Orchestrator"
+  | Orchestration(V1) => "Orchestrator"
   | Vault => "Vault"
   | CostObservability => "Cost Observability"
   | DynamicRouting => "Intelligent Routing"
+  | Orchestration(V2) => "Orchestrator V2"
+  }
+
+let getProductRouteName = product =>
+  switch product {
+  | Recon => "recon"
+  | Recovery => "recovery"
+  | Vault => "vault"
+  | CostObservability => "cost-observability"
+  | DynamicRouting => "dynamic-routing"
+  | Orchestration(V1) => "orchestration"
+  | Orchestration(V2) => "orchestration"
+  }
+
+let getProductStringName = product =>
+  switch product {
+  | Recon => "recon"
+  | Recovery => "recovery"
+  | Vault => "vault"
+  | CostObservability => "cost_observability"
+  | DynamicRouting => "dynamic_routing"
+  | Orchestration(V1) => "orchestration"
+  | Orchestration(V2) => "orchestration"
   }
 
 let getProductVariantFromDisplayName = product => {
   switch product {
   | "Recon" => Recon
   | "Revenue Recovery" => Recovery
-  | "Orchestrator" => Orchestration
+  | "Orchestrator" => Orchestration(V1)
   | "Vault" => Vault
   | "Cost Observability" => CostObservability
   | "Intelligent Routing" => DynamicRouting
-  | _ => Orchestration
+  | "Orchestrator V2" => Orchestration(V2)
+  | _ => Orchestration(V1)
   }
 }
+
 let preservedRoutes = ["organization-chart", "account-settings"]
 
 let isPreservedRoute = url => {
@@ -43,9 +72,10 @@ let getDefaultProductRoute = (productType: ProductTypes.productTypes) => {
   | Recovery => `/dashboard/v2/recovery/overview`
   | Vault
   | CostObservability
-  | DynamicRouting =>
-    `/dashboard/v2/${(Obj.magic(productType) :> string)->LogicUtils.toKebabCase}/home`
-  | Orchestration => `/dashboard/home` // default for orchestration
+  | DynamicRouting
+  | Orchestration(V2) =>
+    `/dashboard/v2/${productType->getProductRouteName}/home`
+  | Orchestration(V1) => `/dashboard/home`
   }
 }
 
@@ -54,9 +84,9 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
     url
   } else {
     switch productType {
-    | Orchestration =>
+    | Orchestration(V1) =>
       if url->String.includes("v2") {
-        getDefaultProductRoute(Orchestration)
+        getDefaultProductRoute(productType)
       } else {
         url
       }
