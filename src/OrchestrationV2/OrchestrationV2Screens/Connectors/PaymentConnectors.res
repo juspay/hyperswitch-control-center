@@ -150,12 +150,8 @@ let make = () => {
         </RenderIf>
         <PaymentProcessorCards configuredConnectors connectorsAvailableForIntegration />
         <RenderIf condition={processorModal}>
-          <DummyProcessorModal
-            processorModal
-            setProcessorModal
-            urlPrefix="connectors/new"
-            configuredConnectors
-            connectorsAvailableForIntegration
+          <DummyProcessorModalV2
+            processorModal setProcessorModal configuredConnectors connectorsAvailableForIntegration
           />
         </RenderIf>
       </div>
