@@ -123,27 +123,30 @@ let make = (
             />
           </AddDataAttributes>
         </RenderIf>
-        <RenderIf
-          condition={!featureFlagDetails.isLiveMode &&
-          configuredConnectors->Array.length > 0 &&
-          showDummyConnectorButton}>
-          <ACLButton
-            authorization={userHasAccess(~groupAccess=ConnectorsManage)}
-            leftIcon={CustomIcon(
-              <Icon
-                name="plus"
-                size=16
-                className="text-nd_gray-600 fill-opacity-50 dark:jp-gray-text_darktheme"
-              />,
-            )}
-            text="Connect a Dummy Processor"
-            buttonType={Secondary}
-            buttonSize={Large}
-            textStyle="text-nd_gray-600"
-            onClick={_ => setProcessorModal(_ => true)}
-          />
-        </RenderIf>
-        <CantFindProcessor showRequestConnectorBtn setShowModal />
+        <div className="flex gap-4">
+          <RenderIf
+            condition={!featureFlagDetails.isLiveMode &&
+            configuredConnectors->Array.length > 0 &&
+            showDummyConnectorButton}>
+            <ACLButton
+              authorization={userHasAccess(~groupAccess=ConnectorsManage)}
+              leftIcon={CustomIcon(
+                <Icon
+                  name="nd-plus"
+                  size=16
+                  className="text-nd_gray-600 fill-opacity-50 dark:jp-gray-text_darktheme"
+                />,
+              )}
+              customIconMargin="ml-4"
+              text="Connect a Dummy Processor"
+              buttonType={NonFilled}
+              buttonSize={Large}
+              textStyle="text-nd_gray-600 font-semibold !py-2.5 pr-4 pl-2"
+              onClick={_ => setProcessorModal(_ => true)}
+            />
+          </RenderIf>
+          <CantFindProcessor showRequestConnectorBtn setShowModal />
+        </div>
       </div>
       <div
         className="grid gap-x-5 gap-y-6 
@@ -194,7 +197,7 @@ let make = (
         {connectorListFiltered->descriptedConnectors(
           ~heading="Connect a new processor",
           ~showRequestConnectorBtn=true,
-          ~showDummyConnectorButton=false,
+          ~showDummyConnectorButton=true,
           (),
         )}
       </div>
