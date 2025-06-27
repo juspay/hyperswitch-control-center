@@ -144,7 +144,12 @@ let make = () => {
         let metricsRequestBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
-          ~filter=Some(getUpdatedFilterValueJson(filterValueJson, ~tabIndex)->JSON.Encode.object),
+          ~filter=Some(
+            getUpdatedFilterValueJson(
+              filterValueJson,
+              ~currentTab=getTabFromIndex(tabIndex),
+            )->JSON.Encode.object,
+          ),
           ~mode=Some("ORDER"),
           ~metrics=[
             #authentication_count,
@@ -175,7 +180,12 @@ let make = () => {
         let secondFunnelRequestBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
-          ~filter=Some(getUpdatedFilterValueJson(filterValueJson, ~tabIndex)->JSON.Encode.object),
+          ~filter=Some(
+            getUpdatedFilterValueJson(
+              filterValueJson,
+              ~currentTab=getTabFromIndex(tabIndex),
+            )->JSON.Encode.object,
+          ),
           ~metrics=[#authentication_funnel],
           ~delta=Some(true),
         )
@@ -197,7 +207,7 @@ let make = () => {
 
         let updatedFilters = Js.Dict.map(
           t => t,
-          getUpdatedFilterValueJson(filterValueJson, ~tabIndex),
+          getUpdatedFilterValueJson(filterValueJson, ~currentTab=getTabFromIndex(tabIndex)),
         )
         updatedFilters->Dict.set(
           "authentication_status",

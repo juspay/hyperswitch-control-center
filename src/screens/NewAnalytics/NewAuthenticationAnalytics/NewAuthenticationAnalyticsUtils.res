@@ -328,9 +328,11 @@ let getMetricsData = (queryData: queryDataType) => {
   dataArray
 }
 
-let getUpdatedFilterValueJson = (filterValueJson: Dict.t<JSON.t>, ~tabIndex: int=1) => {
+let getUpdatedFilterValueJson = (
+  filterValueJson: Dict.t<JSON.t>,
+  ~currentTab: tabType=ThreeDSExemptionAnalyticsTab,
+) => {
   let updatedFilterValueJson = Js.Dict.map(t => t, filterValueJson)
-  let currentTab = getTabFromIndex(tabIndex)
   let booleanFilterFields = ["exemption_accepted", "exemption_requested", "whitelist_decision"]
 
   switch currentTab {

@@ -59,7 +59,10 @@ module Insights = {
             ~groupByNames=Some(["error_message"]),
             ~metrics=[#authentication_error_message],
             ~filter=Some(
-              getUpdatedFilterValueJson(filterValueJson, ~tabIndex=0)->JSON.Encode.object,
+              getUpdatedFilterValueJson(
+                filterValueJson,
+                ~currentTab=AuthenticationAnalyticsTab,
+              )->JSON.Encode.object,
             ),
             ~delta=Some(true),
           )
