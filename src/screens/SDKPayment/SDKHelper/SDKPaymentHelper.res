@@ -154,31 +154,36 @@ let selectCaptureMethodField = FormRenderer.makeFieldInfo(
   ),
 )
 
-let selectSetupFutureUsageField = FormRenderer.makeFieldInfo(
-  ~label="Setup Future Usage",
-  ~name="setup_future_usage",
-  ~placeholder="",
-  ~customInput=InputFields.selectInput(
-    ~options=dropDownOptionsForSetupFutureUsage,
-    ~buttonText="Select Setup Future Usage",
-    ~deselectDisable=true,
-    ~fullLength=true,
-    ~textStyle="!font-normal",
-  ),
-)
+let selectSetupFutureUsageField = showSetupFutureUsage =>
+  FormRenderer.makeFieldInfo(
+    ~label="Setup Future Usage",
+    ~name="setup_future_usage",
+    ~placeholder="",
+    ~customInput=InputFields.selectInput(
+      ~options={dropDownOptionsForSetupFutureUsage},
+      ~buttonText="Select Setup Future Usage",
+      ~deselectDisable=true,
+      ~fullLength=true,
+      ~textStyle="!font-normal",
+      ~dropdownCustomWidth="w-full",
+      ~disableSelect=!showSetupFutureUsage,
+    ),
+  )
 
-let selectAuthenticationField = FormRenderer.makeFieldInfo(
-  ~label="Authentication Type",
-  ~name="authentication_type",
-  ~placeholder="",
-  ~customInput=InputFields.selectInput(
-    ~options=dropDownOptionsForAuthenticationType,
-    ~buttonText="Select Authentication Type",
-    ~deselectDisable=true,
-    ~fullLength=true,
-    ~textStyle="!font-normal",
-  ),
-)
+let selectAuthenticationField = sendAuthTypeasNull =>
+  FormRenderer.makeFieldInfo(
+    ~label="Authentication Type",
+    ~name="authentication_type",
+    ~placeholder="",
+    ~customInput=InputFields.selectInput(
+      ~options=dropDownOptionsForAuthenticationType,
+      ~buttonText="Select Authentication Type",
+      ~deselectDisable=true,
+      ~textStyle="!font-normal",
+      ~disableSelect=!sendAuthTypeasNull,
+      ~dropdownCustomWidth="w-fit",
+    ),
+  )
 
 let selectExternal3DSAuthentication = FormRenderer.makeFieldInfo(
   ~label="Request External 3DS Authentication",
@@ -219,7 +224,11 @@ let selectShowSavedCardField = FormRenderer.makeFieldInfo(
 let external3DSAuthToggle = FormRenderer.makeFieldInfo(
   ~name="request_external_three_ds_authentication",
   ~label="Request External 3DS Authentication",
-  ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+  ~customInput=InputFields.boolInput(
+    ~isDisabled=false,
+    ~boolCustomClass="rounded-lg",
+    ~toggleEnableColor="bg-primary",
+  ),
 )
 
 let enterEmailField = FormRenderer.makeFieldInfo(
