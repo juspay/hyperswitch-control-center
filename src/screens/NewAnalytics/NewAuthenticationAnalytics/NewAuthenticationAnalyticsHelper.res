@@ -58,7 +58,9 @@ module Insights = {
             ~endTime=endTimeVal,
             ~groupByNames=Some(["error_message"]),
             ~metrics=[#authentication_error_message],
-            ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
+            ~filter=Some(
+              getUpdatedFilterValueJson(filterValueJson, ~tabIndex=0)->JSON.Encode.object,
+            ),
             ~delta=Some(true),
           )
           await updateDetails(insightsUrl, insightsRequestBody, Post)
