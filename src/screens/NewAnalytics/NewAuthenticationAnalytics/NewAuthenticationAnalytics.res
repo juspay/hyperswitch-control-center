@@ -144,7 +144,12 @@ let make = () => {
         let metricsRequestBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
-          ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
+          ~filter=Some(
+            getUpdatedFilterValueJson(
+              filterValueJson,
+              ~currentTab=getTabFromIndex(tabIndex),
+            )->JSON.Encode.object,
+          ),
           ~mode=Some("ORDER"),
           ~metrics=[
             #authentication_count,
@@ -175,7 +180,12 @@ let make = () => {
         let secondFunnelRequestBody = InsightsUtils.requestBody(
           ~startTime=startTimeVal,
           ~endTime=endTimeVal,
-          ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
+          ~filter=Some(
+            getUpdatedFilterValueJson(
+              filterValueJson,
+              ~currentTab=getTabFromIndex(tabIndex),
+            )->JSON.Encode.object,
+          ),
           ~metrics=[#authentication_funnel],
           ~delta=Some(true),
         )
@@ -195,7 +205,10 @@ let make = () => {
           ->getValueFromArray(0, defaultSecondFunnelData)
         ).authentication_funnel
 
-        let updatedFilters = Js.Dict.map(t => t, getUpdatedFilterValueJson(filterValueJson))
+        let updatedFilters = Js.Dict.map(
+          t => t,
+          getUpdatedFilterValueJson(filterValueJson, ~currentTab=getTabFromIndex(tabIndex)),
+        )
         updatedFilters->Dict.set(
           "authentication_status",
           ["success"->JSON.Encode.string, "failed"->JSON.Encode.string]->JSON.Encode.array,
@@ -263,12 +276,12 @@ let make = () => {
       getMetricsDetails()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, filterValue, isSampleDataEnabled))
+  }, (startTimeVal, endTimeVal, filterValue, isSampleDataEnabled, tabIndex))
 
   let topFilterUi = {
     let (initialFilters, popupFilterFields, key) = switch filterDataJson {
     | Some(filterData) => (
-        isSampleDataEnabled ? [] : HSAnalyticsUtils.initialFilterFields(filterData),
+        isSampleDataEnabled ? [] : HSAnalyticsUtils.initialFilterFields(filterData, ~isTitle=true),
         HSAnalyticsUtils.options(filterData),
         "0",
       )
@@ -350,7 +363,7 @@ let make = () => {
     <InsightsHelper.SampleDataBanner applySampleDateFilters />
     <PageUtils.PageHeading title />
     <div className="flex justify-end mr-4">
-      <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
+      <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} disableReport={isSampleDataEnabled} />
     </div>
     <div className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
       {topFilterUi}

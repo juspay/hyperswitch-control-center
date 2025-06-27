@@ -121,7 +121,11 @@ let make = (~entity: moduleEntity) => {
           ~delta=entity.requestBodyConfig.delta,
           ~metrics=entity.requestBodyConfig.metrics,
           ~groupByNames=Some(["authentication_connector"]),
-          ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
+          ~filter=Some(
+            NewAuthenticationAnalyticsUtils.getUpdatedFilterValueJson(
+              filterValueJson,
+            )->JSON.Encode.object,
+          ),
         )
         await updateDetails(url, primaryBody, Post)
       }

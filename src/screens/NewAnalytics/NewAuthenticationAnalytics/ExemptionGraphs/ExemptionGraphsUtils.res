@@ -212,26 +212,6 @@ let getKey = id => {
   (key: responseKeys :> string)
 }
 
-let getUpdatedFilterValueJson = (filterValueJson: Dict.t<JSON.t>) => {
-  let updatedFilterValueJson = Js.Dict.map(t => t, filterValueJson)
-
-  // Get all keys from the filter dictionary
-  let filterKeys = updatedFilterValueJson->Dict.keysToArray
-
-  // Process each key except startTime and endTime
-  filterKeys->Array.forEach(key => {
-    if key !== "startTime" && key !== "endTime" {
-      let arrayValue = filterValueJson->getArrayFromDict(key, [])->getNonEmptyArray
-      updatedFilterValueJson->LogicUtils.setOptionArray(key, arrayValue)
-    }
-  })
-
-  // Remove nested keys
-  updatedFilterValueJson->deleteNestedKeys(["startTime", "endTime"])
-
-  updatedFilterValueJson
-}
-
 let modifyQueryData = data => {
   let dataDict = Dict.make()
 
