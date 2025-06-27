@@ -59,6 +59,7 @@ type featureFlag = {
   paymentSettingsV2: bool,
   acquirerConfigSettings: bool,
   devOmpChart: bool,
+  devOrchestrationV2Product: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -120,6 +121,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     paymentSettingsV2: dict->getBool("payment_settings_v2", false),
     threedsExemptionRules: dict->getBool("threeds_exemption", false),
     devOmpChart: dict->getBool("dev_omp_chart", false),
+    devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
   }
 }
 
