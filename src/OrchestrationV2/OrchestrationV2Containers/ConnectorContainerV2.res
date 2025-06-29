@@ -3,22 +3,24 @@ let make = () => {
   open HSwitchUtils
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess, _} = GroupACLHooks.useUserGroupACLHook()
-  let _fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let _fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
+    ~entityName=V2(V2_CONNECTOR),
+    ~version=V2,
+  )
+  let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
-  let setUpConnectoreContainer = async () => {
+  let setUpConnectorContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      // TODO: implement call for V2 apis here
-      // if (
-      //   userHasAccess(~groupAccess=ConnectorsView) === Access ||
-      //   userHasAccess(~groupAccess=WorkflowsView) === Access ||
-      //   userHasAccess(~groupAccess=WorkflowsManage) === Access
-      // ) {
-      //   let _ = await fetchConnectorListResponse()
-      //   let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-      // }
+      if (
+        userHasAccess(~groupAccess=ConnectorsView) === Access ||
+        userHasAccess(~groupAccess=WorkflowsView) === Access ||
+        userHasAccess(~groupAccess=WorkflowsManage) === Access
+      ) {
+        setConnectorList(_ => []->Identity.genericTypeToJson)
+        let _ = await fetchConnectorListResponse()
+      }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -26,7 +28,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    setUpConnectoreContainer()->ignore
+    setUpConnectorContainer()->ignore
     None
   }, [])
 
@@ -35,7 +37,14 @@ let make = () => {
     | list{"v2", "orchestration", "connectors", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
         <EntityScaffold
-          entityName="Payment Connectors" remainingPath renderList={() => <PaymentConnectorsV2 />}
+          entityName="Payment Connectors"
+          remainingPath
+          renderList={() => <PaymentConnectors />}
+          renderNewForm={() => <PaymentConnectorOnboarding />}
+          renderShow={(_, _) =>
+            <PaymentProcessorSummary
+              baseUrl="v2/orchestration/connectors" showProcessorStatus=false topPadding="!p-0"
+            />}
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
