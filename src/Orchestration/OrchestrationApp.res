@@ -76,6 +76,7 @@ let make = (~setScreenState) => {
         />
       </AccessControl>
     | list{"users", ..._} => <UserManagementContainer />
+    | list{"theme"} => <Themes />
     | list{"developer-api-keys"} =>
       <AccessControl
         // TODO: Remove `MerchantDetailsManage` permission in future
