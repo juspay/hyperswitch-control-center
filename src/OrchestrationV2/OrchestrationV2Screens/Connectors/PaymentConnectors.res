@@ -148,7 +148,9 @@ let make = () => {
             showAutoScroll=true
           />
         </RenderIf>
-        <PaymentProcessorCards configuredConnectors connectorsAvailableForIntegration />
+        <PaymentProcessorCards
+          configuredConnectors connectorsAvailableForIntegration setProcessorModal
+        />
         <RenderIf condition={processorModal}>
           <DummyProcessorModalV2
             processorModal setProcessorModal configuredConnectors connectorsAvailableForIntegration
