@@ -319,7 +319,7 @@ let make = (
               className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
               {_ => {
                 <>
-                  <div className="px-1 py-1">
+                  <div className="px-1 py-1 overflow-y-auto max-h-96">
                     {allFilters
                     ->Array.mapWithIndex((option, i) =>
                       <Menu.Item key={i->Int.toString}>
