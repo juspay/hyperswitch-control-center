@@ -96,8 +96,10 @@ let scaExemptionResponseMapper = (json: JSON.t) => {
         }
       }
 
-    | "pending" =>
-      countersDict->Dict.set("3ds_incomplete", countersDict->getInt("3ds_incomplete", 0) + count)
+    | "pending" => {
+        countersDict->Dict.set("3ds_incomplete", countersDict->getInt("3ds_incomplete", 0) + count)
+        countersDict->Dict.set("auth_failure", countersDict->getInt("auth_failure", 0) + count)
+      }
     | _ =>
       countersDict->Dict.set("3ds_incomplete", countersDict->getInt("3ds_incomplete", 0) + count)
     }

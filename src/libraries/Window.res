@@ -53,6 +53,9 @@ external getPayoutConnectorConfig: string => JSON.t = "getPayoutConnectorConfig"
 external getThreeDsKeys: unit => array<string> = "getThreeDsKeys"
 
 @val @scope("window")
+external getThreeDsDecisionRuleKeys: unit => array<string> = "getThreeDsDecisionRuleKeys"
+
+@val @scope("window")
 external getSurchargeKeys: unit => array<string> = "getSurchargeKeys"
 
 @val @scope("window")
@@ -108,6 +111,9 @@ external getPayoutVariantValues: string => array<string> = "getPayoutVariantValu
 
 @val @scope("window")
 external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCategory"
+
+@val @scope("window")
+external getMerchantCategoryCodeWithName: unit => array<JSON.t> = "getMerchantCategoryCodeWithName"
 
 module MatchMedia = {
   type matchEvent = {

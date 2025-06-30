@@ -164,6 +164,8 @@ type profileEntity = {
   metadata: option<Dict.t<JSON.t>>,
   force_3ds_challenge: option<bool>,
   is_debit_routing_enabled: option<bool>,
+  acquirer_configs: option<array<JSON.t>>,
+  merchant_category_code: option<string>,
 }
 
 type twoFaType = RecoveryCode | Totp

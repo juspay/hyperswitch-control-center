@@ -167,7 +167,9 @@ let make = () => {
   let (loading, setLoading) = React.useState(_ => false)
   let (chat, setChat) = React.useState(_ => [])
   let chatContainerRef = React.useRef(Nullable.null)
-
+  let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let scrollToBottom = () => {
     switch chatContainerRef.current->Nullable.toOption {
     | Some(element) =>
@@ -209,12 +211,21 @@ let make = () => {
       )
 
       try {
+        let dict =
+          [
+            ("org_id", orgId->JSON.Encode.string),
+            ("merchant_id", merchantId->JSON.Encode.string),
+            ("profile_id", profileId->JSON.Encode.string),
+          ]
+          ->Dict.fromArray
+          ->JSON.Encode.object
         setLoading(_ => true)
         let res = await fetchApiWindow(
-          `http://localhost:5678/webhook/n8n?message=${message}`,
-          ~method_=Get,
+          `http://0.0.0.0:8000/api/bot?message=${message}`,
+          ~method_=Post,
           ~xFeatureRoute,
           ~forceCookies,
+          ~bodyStr=JSON.stringify(dict),
         )
         let response =
           (await res->(res => res->Fetch.Response.json))->LogicUtils.getDictFromJsonObject

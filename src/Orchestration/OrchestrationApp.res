@@ -50,6 +50,7 @@ let make = (~setScreenState) => {
     | list{"analytics-disputes"}
     | list{"analytics-authentication"} =>
       <AnalyticsContainer />
+
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}
     | list{"new-analytics", "refund"}
@@ -99,6 +100,12 @@ let make = (~setScreenState) => {
         authorization={userHasAccess(~groupAccess=WorkflowsView)}>
         <Surcharge />
       </AccessControl>
+    | list{"3ds-exemption"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.threedsExemptionRules}
+        authorization={userHasAccess(~groupAccess=WorkflowsView)}>
+        <HSwitchThreeDsExemption />
+      </AccessControl>
     | list{"account-settings"} =>
       <AccessControl
         isEnabled=featureFlagDetails.sampleData
@@ -136,9 +143,7 @@ let make = (~setScreenState) => {
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
     | list{"chat-bot"} => <ChatBot />
-    | _ =>
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
-      <MerchantAccountContainer setAppScreenState=setScreenState />
+    | _ => <EmptyPage path="/home" />
     }
   }
 }

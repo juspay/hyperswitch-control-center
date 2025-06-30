@@ -12,6 +12,7 @@ let make = (
     JSON.t,
   >,
   ~metricXKey: string,
+  ~groupByKey: string,
 ) => {
   open LogicUtils
   open APIUtils
@@ -78,6 +79,11 @@ let make = (
           ~endTime=endTimeVal,
           ~delta=entity.requestBodyConfig.delta,
           ~metrics=entity.requestBodyConfig.metrics,
+          ~groupByNames=Some(
+            entity.requestBodyConfig.groupBy
+            ->Option.getOr([])
+            ->Array.map(dimension => (dimension: InsightsTypes.dimension :> string)),
+          ),
           ~granularity=granularity.value->Some,
           ~filter=Some(
             NewAuthenticationAnalyticsUtils.getUpdatedFilterValueJson(
@@ -146,7 +152,7 @@ let make = (
     xKey: metricXKey,
     yKey: Time_Bucket->getStringFromVariant,
     title: entity.title,
-    comparison,
+    groupByKey,
   }
 
   let options = chartEntity.getObjects(~params)->chartEntity.getChatOptions

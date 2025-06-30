@@ -17,6 +17,7 @@ type dimension = [
   | #error_reason
   | #refund_error_message
   | #refund_reason
+  | #authentication_connector
 ]
 type status = [#charged | #failure | #success | #pending]
 type metrics = [
@@ -82,6 +83,8 @@ type getObjects<'data> = {
   comparison?: DateRangeUtils.comparison,
   currency?: string,
   title?: string,
+  icon?: string,
+  groupByKey?: string,
 }
 
 type chartEntity<'t, 'chartOption, 'data> = {

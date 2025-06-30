@@ -137,10 +137,10 @@ module BillingConnectorDetails = {
           {connector_webhook_details
           ->getDictFromJsonObject
           ->Dict.toArray
-          ->Array.map(item => {
+          ->Array.mapWithIndex((item, index) => {
             let (key, value) = item
 
-            <div className="flex flex-col gap-0.5-rem ">
+            <div className="flex flex-col gap-0.5-rem " key={index->Int.toString}>
               <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
               {value->JSON.Decode.string->Option.getOr("")->React.string}
             </div>
