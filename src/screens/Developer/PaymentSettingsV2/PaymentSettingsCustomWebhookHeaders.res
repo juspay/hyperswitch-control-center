@@ -13,7 +13,7 @@ module AuthenticationInput = {
         formState.values
         ->getDictFromJsonObject
         ->getDictfromDict("outgoing_webhook_custom_http_headers")
-      let key = outGoingWebhookDict->Dict.keysToArray->LogicUtils.getValueFromArray(index, "")
+      let key = outGoingWebhookDict->Dict.keysToArray->getValueFromArray(index, "")
       let outGoingWebHookVal = outGoingWebhookDict->getOptionString(key)
       switch outGoingWebHookVal {
       | Some(value) => (key, value)
@@ -128,7 +128,7 @@ module WebHookAuthenticationHeaders = {
     }
 
     React.useEffect(() => {
-      let isEmpty = outGoingWebhookDict->LogicUtils.isEmptyDict
+      let isEmpty = outGoingWebhookDict->isEmptyDict
       setDisabled(_ => !isEmpty)
       setAllowEdit(_ => isEmpty)
       None
@@ -140,8 +140,7 @@ module WebHookAuthenticationHeaders = {
           className={`text-fs-16 dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-600 font-semibold ml-1 mt-6`}>
           {"Custom Headers"->React.string}
         </p>
-        <RenderIf
-          condition={!(outGoingWebhookDict->LogicUtils.isEmptyDict) && isDisabled && !allowEdit}>
+        <RenderIf condition={!(outGoingWebhookDict->isEmptyDict) && isDisabled && !allowEdit}>
           <div
             className="flex gap-2 items-center cursor-pointer"
             onClick={_ => setShowModal(_ => true)}>
