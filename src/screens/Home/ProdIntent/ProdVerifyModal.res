@@ -18,7 +18,10 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
       let bodyValues = values->getBody->JSON.Encode.object
       bodyValues
       ->LogicUtils.getDictFromJsonObject
-      ->Dict.set("product_type", (activeProduct :> string)->JSON.Encode.string)
+      ->Dict.set(
+        "product_type",
+        activeProduct->ProductUtils.getProductStringName->JSON.Encode.string,
+      )
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(
@@ -38,7 +41,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let onSubmit = (values, _) => {
     values
     ->LogicUtils.getDictFromJsonObject
-    ->Dict.set("product_type", (Obj.magic(activeProduct) :> string)->JSON.Encode.string)
+    ->Dict.set("product_type", activeProduct->ProductUtils.getProductStringName->JSON.Encode.string)
     mixpanelEvent(~eventName="create_get_production_access_request", ~metadata=values)
     setScreenState(_ => PageLoaderWrapper.Loading)
     updateProdDetails(values)

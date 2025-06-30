@@ -14,8 +14,8 @@ type productSelectProviderTypes = {
   onProductSelectClick: string => unit,
 }
 
-let defaultValueOfProductProvider = (~currentProductValue) => {
-  activeProduct: currentProductValue->ProductUtils.getProductVariantFromString,
+let defaultValueOfProductProvider = (~currentProductValue, ~version) => {
+  activeProduct: currentProductValue->ProductUtils.getProductVariantFromString(~version),
   setActiveProductValue: _ => (),
   setCreateNewMerchant: _ => (),
   setSwitchToMerchant: (_, _) => (),
