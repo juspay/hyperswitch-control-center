@@ -141,7 +141,7 @@ let make = () => {
         setSwitching(_ => None)
       }
     }
-  <div className="flex flex-col px-4 lg:px-10 gap-8">
+  <div className="flex flex-col gap-8">
     <div className="flex flex-col">
       <PageUtils.PageHeading
         title="Organization Chart"

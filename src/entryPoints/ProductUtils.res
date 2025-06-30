@@ -60,6 +60,7 @@ let getProductVariantFromDisplayName = product => {
   }
 }
 
+// Common routes across all products that bypass default product switching redirections
 let preservedRoutes = ["organization-chart", "account-settings"]
 
 let isPreservedRoute = url => {
