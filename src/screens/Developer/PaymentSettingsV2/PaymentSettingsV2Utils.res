@@ -1,8 +1,7 @@
 open PaymentSettingsV2Types
+open HSwitchSettingTypes
 
-let parseBusinessProfileForPaymentBehaviour = (
-  profileRecord: HSwitchSettingTypes.profileEntity,
-) => {
+let parseBusinessProfileForPaymentBehaviour = (profileRecord: profileEntity) => {
   open LogicUtils
   let {
     profile_name,
@@ -52,7 +51,7 @@ let parseBusinessProfileForPaymentBehaviour = (
 }
 
 let validateEmptyArray = (key, errors, arrayValue) => {
-  switch key {
+  switch (key: validationFieldsV2) {
   | AuthenticationConnectors(_) =>
     let newDict = errors->LogicUtils.getDictfromDict("authentication_connector_details")
 
@@ -139,7 +138,7 @@ let validationFieldsReverseMapperV2 = value => {
 let validateMerchantAccountFormV2 = (
   ~values: JSON.t,
   ~isLiveMode,
-  ~businessProfileRecoilVal: HSwitchSettingTypes.profileEntity,
+  ~businessProfileRecoilVal: profileEntity,
 ) => {
   open LogicUtils
   let errors = Dict.make()
@@ -282,4 +281,42 @@ let isAuthConnectorArrayEmpty = values => {
   ->getDictfromDict("authentication_connector_details")
   ->getArrayFromDict("authentication_connectors", [])
   ->Array.length === 0
+}
+
+let parseCustomHeadersFromEntity = (profileRecord: profileEntity) => {
+  open LogicUtils
+
+  let customHeaderDict = Dict.make()
+
+  switch profileRecord.outgoing_webhook_custom_http_headers {
+  | Some(headers) =>
+    customHeaderDict->setOptionDict("outgoing_webhook_custom_http_headers", Some(headers))
+  | None => ()
+  }
+
+  customHeaderDict
+}
+
+let getCustomHeadersPayload = (values: JSON.t) => {
+  open LogicUtils
+  let customHeaderDict = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  let outGoingWebHookCustomHttpHeaders = Dict.make()
+  let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      outGoingWebHookCustomHttpHeaders->setOptionString(
+        val,
+        formValues->getString(val, "")->getNonEmptyString,
+      )
+    })
+  customHeaderDict->setOptionDict(
+    "outgoing_webhook_custom_http_headers",
+    Some(outGoingWebHookCustomHttpHeaders),
+  )
+  customHeaderDict
 }
