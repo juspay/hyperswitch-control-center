@@ -17,6 +17,7 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | OrganizationManage => "organization_manage"
   | AccountView => "account_view"
   | AccountManage => "account_manage"
+  | ThemeManage => "theme_manage"
   | UnknownGroupAccess(val) => val
   }
 
@@ -36,6 +37,7 @@ let mapStringToGroupAccessType = val =>
   | "organization_manage" => OrganizationManage
   | "account_view" => AccountView
   | "account_manage" => AccountManage
+  | "theme_manage" => ThemeManage
   | val => UnknownGroupAccess(val)
   }
 
@@ -64,6 +66,7 @@ let mapStringToResourceAccessType = val =>
   | "recon_reports" => ReconReports
   | "run_recon" => RunRecon
   | "recon_config" => ReconConfig
+  | "theme" => Theme
   | _ => UnknownResourceAccess(val)
   }
 
@@ -82,6 +85,7 @@ let defaultValueForGroupAccessJson = {
   organizationManage: NoAccess,
   accountView: NoAccess,
   accountManage: NoAccess,
+  themeManage: NoAccess,
 }
 
 let getAccessValue = (~groupAccess: groupAccessType, ~groupACL) =>
@@ -103,6 +107,7 @@ let getGroupAccessJson = groupACL => {
   organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
   accountView: getAccessValue(~groupAccess=AccountView, ~groupACL),
   accountManage: getAccessValue(~groupAccess=AccountManage, ~groupACL),
+  themeManage: getAccessValue(~groupAccess=ThemeManage, ~groupACL),
 }
 
 let convertValueToMapGroup = arrayValue => {
