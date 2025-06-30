@@ -2,7 +2,7 @@
 let make = (
   ~message="You don't have access to this module. Contact admin for access",
   ~url="unauthorized",
-  ~productType=ProductTypes.Orchestration,
+  ~productType=ProductTypes.Orchestration(V1),
 ) => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)

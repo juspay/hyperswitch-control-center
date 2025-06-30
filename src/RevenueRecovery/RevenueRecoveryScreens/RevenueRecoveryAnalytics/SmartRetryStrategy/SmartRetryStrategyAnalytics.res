@@ -51,7 +51,9 @@ let make = (~entity: moduleEntity) => {
       let description = `Billing State : ${getValue(#billing_state)}, 
       Card Funding : ${getValue(#card_funding)}, 
       Card Network : ${getValue(#card_network)}, 
-      Card Issuer : ${getValue(#card_issuer)}`
+      Card Issuer : ${getValue(#card_issuer)}
+      
+      +13 more parameters`
 
       (title, LineScatterGraphUtils.getLineGraphOptions(smartRetriesMapper(~params)), description)
     })

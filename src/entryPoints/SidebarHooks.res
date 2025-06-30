@@ -76,7 +76,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
 let useGetOrchestratorSidebars = (~isReconEnabled) => useGetHsSidebarValues(~isReconEnabled)
 
 let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
-  let products = [ProductTypes.Orchestration]
+  let products = [ProductTypes.Orchestration(V1)]
 
   if featureFlagDetails.devReconv2Product {
     products->Array.push(ProductTypes.Recon)->ignore
@@ -101,17 +101,24 @@ let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
   products
 }
 
-let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.productTypes>) => {
+let useGetAllProductSections = (
+  ~isReconEnabled,
+  ~products: array<ProductTypes.productTypes>,
+  ~version: UserInfoTypes.version,
+) => {
   let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
 
   products->Array.map(productType => {
     let links = switch productType {
-    | Orchestration => orchestratorSidebars
+    // | Orchestration(V1) => orchestratorSidebars
+    // | Orchestration(V2) => orchestratorSidebars
     | Recon => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars
     | Vault => VaultSidebarValues.vaultSidebars
     | CostObservability => HypersenseSidebarValues.hypersenseSidebars
     | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
+
+    | _ => orchestratorSidebars
     }
 
     {
@@ -126,13 +133,16 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.p
 let useGetSidebarProductModules = (~isExplored) => {
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
   let allProducts = getAllProductsBasedOnFeatureFlags(featureFlagDetails)
-
   let filteredProducts = allProducts->Array.filter(productType => {
     let hasProduct = merchantList->Array.some(merchant => {
       switch merchant.productType {
-      | Some(merchantProductType) => merchantProductType === productType
+      | Some(merchantProductType) =>
+        switch merchantProductType {
+        | Orchestration(_) => true
+        | _ => merchantProductType === productType
+        }
+
       | None => false
       }
     })

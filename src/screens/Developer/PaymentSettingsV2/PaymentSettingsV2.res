@@ -45,11 +45,11 @@ let make = () => {
     },
     {
       title: "3DS",
-      renderContent: () => React.null,
+      renderContent: () => <PaymentSettingsThreeDs />,
     },
     {
       title: "Custom Headers",
-      renderContent: () => React.null,
+      renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
     },
     {
       title: "Metadata Headers",
@@ -57,7 +57,7 @@ let make = () => {
     },
   ]
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")
-  let truncatedHashKey = hashKeyVal->String.slice(~start=0, ~end=20)
+  let truncatedHashKey = `${hashKeyVal->String.slice(~start=0, ~end=20)}....`
 
   <div className="flex flex-col gap-8">
     <div className="flex flex-col gap-2">

@@ -17,7 +17,8 @@ let useFetchMerchantDetails = () => {
           await fetchDetails(accountUrl, ~version=V2)
         }
       }
-      let jsonToTypedValue = merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails
+      let jsonToTypedValue =
+        merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails(~version)
       setMerchantDetailsValue(_ => jsonToTypedValue)
       jsonToTypedValue
     } catch {

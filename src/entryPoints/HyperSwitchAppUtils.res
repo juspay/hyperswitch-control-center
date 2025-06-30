@@ -9,7 +9,7 @@ let setupProductUrl = (
   )
 
   let productUrl = ProductUtils.getProductUrl(
-    ~productType=productType->Option.getOr(ProductTypes.Orchestration),
+    ~productType=productType->Option.getOr(ProductTypes.Orchestration(V1)),
     ~url=currentUrl,
   )
   RescriptReactRouter.replace(productUrl)

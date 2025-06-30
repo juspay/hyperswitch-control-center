@@ -86,7 +86,7 @@ module SidebarSubOption = {
 module SidebarItem = {
   @react.component
   let make = (
-    ~product=ProductTypes.Orchestration,
+    ~product=ProductTypes.Orchestration(V1),
     ~tabInfo,
     ~isSelected,
     ~isSidebarExpanded,
@@ -129,8 +129,15 @@ module SidebarItem = {
           isMobileView ? setIsSidebarExpanded(_ => false) : ()
           setOpenItem(prev => {prev == name ? "" : name})
 
-          if activeProductVariant !== product {
-            onItemClickCustom()
+          switch (activeProductVariant, product) {
+          | (Orchestration(V1), Orchestration(V1)) => ()
+          | (Orchestration(V1), _) => onItemClickCustom()
+          | _ =>
+            if activeProductVariant !== product {
+              onItemClickCustom()
+            } else {
+              ()
+            }
           }
         }
         <RenderIf condition={access !== NoAccess}>
@@ -199,13 +206,14 @@ module SidebarItem = {
 module NestedSidebarItem = {
   @react.component
   let make = (
-    ~product=ProductTypes.Orchestration,
+    ~product=ProductTypes.Orchestration(V1),
     ~tabInfo,
     ~isSelected,
     ~isSideBarExpanded,
     ~isSectionExpanded,
     ~onItemClickCustom,
   ) => {
+    Js.log(product)
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
@@ -249,8 +257,16 @@ module NestedSidebarItem = {
 
                     switch onItemClickCustom {
                     | Some(fn) =>
-                      if activeProductVariant !== product {
-                        fn() //
+                      // if activeProductVariant !== product {
+                      //   fn() //
+                      // }
+                      switch (activeProductVariant, product) {
+                      | (Orchestration(V1), Orchestration(V1)) => ()
+                      | (Orchestration(V1), _) => fn()
+                      | _ =>
+                        if activeProductVariant !== product {
+                          fn()
+                        }
                       }
                     | None => ()
                     }
@@ -280,7 +296,7 @@ module NestedSidebarItem = {
 module NestedSectionItem = {
   @react.component
   let make = (
-    ~product=ProductTypes.Orchestration,
+    ~product=ProductTypes.Orchestration(V1),
     ~section: sectionType,
     ~isSectionExpanded,
     ~textColor,
@@ -358,7 +374,7 @@ module NestedSectionItem = {
 module SidebarNestedSection = {
   @react.component
   let make = (
-    ~product=ProductTypes.Orchestration,
+    ~product=ProductTypes.Orchestration(V1),
     ~section: sectionType,
     ~linkSelectionCheck,
     ~firstPart,
