@@ -33,6 +33,11 @@ let proxy = [
     target: "",
     changeOrigin: true,
   },
+  {
+    context: ["/3ds-exemption"],
+    target: "",
+    changeOrigin: true,
+  },
 ];
 
 let configMiddleware = (req, res, next) => {

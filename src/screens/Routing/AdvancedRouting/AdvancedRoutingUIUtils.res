@@ -361,19 +361,25 @@ module RuleFieldBase = {
     let (keyType, setKeyType) = React.useState(_ => "")
     let (variantValues, setVariantValues) = React.useState(_ => [])
     let field = ReactFinalForm.useField(`${id}.lhs`).input
-
-    let setKeyTypeAndVariants = (wasm, value) => {
-      let keyType = getWasmKeyType(wasm, value)
-      let keyVariant = keyType->variantTypeMapper
-      if keyVariant !== Number || keyVariant !== Metadata_value {
-        let variantValues = switch url->RoutingUtils.urlToVariantMapper {
-        | PayoutRouting => getWasmPayoutVariantValues(wasm, value)
-        | _ => getWasmVariantValues(wasm, value)
+    let issuerNames = Recoil.useRecoilValueFromAtom(AcquirerConfigAtoms.issuerNamesList)
+    let setKeyTypeAndVariants = (wasm, value) =>
+      switch (value, issuerNames) {
+      | ("issuer_name", Some(issuerNameList)) =>
+        setVariantValues(_ => issuerNameList)
+        setKeyType(_ => "enum_variant")
+      | (_, _) => {
+          let keyType = getWasmKeyType(wasm, value)
+          let keyVariant = keyType->variantTypeMapper
+          if keyVariant !== Number || keyVariant !== Metadata_value {
+            let variantValues = switch url->RoutingUtils.urlToVariantMapper {
+            | PayoutRouting => getWasmPayoutVariantValues(wasm, value)
+            | _ => getWasmVariantValues(wasm, value)
+            }
+            setVariantValues(_ => variantValues)
+          }
+          setKeyType(_ => keyType)
         }
-        setVariantValues(_ => variantValues)
       }
-      setKeyType(_ => keyType)
-    }
 
     let onChangeMethod = value => {
       setKeyTypeAndVariants(wasm, value)
