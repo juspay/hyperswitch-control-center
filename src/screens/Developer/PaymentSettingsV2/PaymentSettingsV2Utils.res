@@ -297,10 +297,9 @@ let parseCustomHeadersFromEntity = (profileRecord: profileEntity) => {
   customHeaderDict
 }
 
-let getCustomHeadersPayload = (values: JSON.t) => {
+let getCustomHeadersPayload = valuesDict => {
   open LogicUtils
   let customHeaderDict = Dict.make()
-  let valuesDict = values->getDictFromJsonObject
   let outGoingWebHookCustomHttpHeaders = Dict.make()
   let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
 
@@ -333,10 +332,9 @@ let parseMetadataCustomHeadersFromEntity = (profileRecord: profileEntity) => {
 
   customHeaderDict
 }
-let getMetdataKeyValuePayload = (values: JSON.t) => {
+let getMetdataKeyValuePayload = valuesDict => {
   open LogicUtils
   let customHeaderDict = Dict.make()
-  let valuesDict = values->getDictFromJsonObject
   let customMetadataVal = Dict.make()
   let formValues = valuesDict->getDictfromDict("metadata")
 

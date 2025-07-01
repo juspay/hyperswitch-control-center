@@ -20,7 +20,7 @@ module MetadataAuthenticationInput = {
       | _ => ("", "")
       }
     }
-
+    let keyField = `metadata.${key}`
     React.useEffect(() => {
       let (metadataKey, customMetadataVal) = getMetadatKeyValues()
       setValue(_ => customMetadataVal)
@@ -37,11 +37,10 @@ module MetadataAuthenticationInput = {
         //When we try to change just key field.
         if metadataKey->String.length > 0 {
           let name = `metadata.${metadataKey}`
-          let newKey = `metadata.${key}`
 
           form.change(name, JSON.Encode.null)
           if key->String.length > 0 {
-            form.change(newKey, customMetadataVal->JSON.Encode.string)
+            form.change(keyField, customMetadataVal->JSON.Encode.string)
           }
         }
 
@@ -49,8 +48,7 @@ module MetadataAuthenticationInput = {
         if (
           metadataKey->String.length <= 0 && metaValue->String.length > 0 && key->String.length > 0
         ) {
-          let field = `metadata.${key}`
-          form.change(field, metaValue->JSON.Encode.string)
+          form.change(keyField, metaValue->JSON.Encode.string)
         }
       },
       onChange: ev => {
@@ -68,8 +66,7 @@ module MetadataAuthenticationInput = {
           true
         }
         if value->String.length <= 0 {
-          let name = `metadata.${key}`
-          form.change(name, JSON.Encode.null)
+          form.change(keyField, JSON.Encode.null)
         }
         //Not allow users to enter just integers
         value->getOptionIntFromString->Option.isNone && isValid ? setKey(_ => value) : ()
@@ -82,8 +79,7 @@ module MetadataAuthenticationInput = {
       name: "string",
       onBlur: _ => {
         if key->String.length > 0 {
-          let name = `metadata.${key}`
-          form.change(name, metaValue->JSON.Encode.string)
+          form.change(keyField, metaValue->JSON.Encode.string)
         }
       },
       onChange: ev => {
@@ -199,7 +195,7 @@ module MetadataHeaders = {
 }
 
 @react.component
-let make = (~profileId="") => {
+let make = () => {
   open APIUtils
   open LogicUtils
   open FormRenderer
@@ -225,7 +221,7 @@ let make = (~profileId="") => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
+      let body = valuesDict->getMetdataKeyValuePayload->JSON.Encode.object
       let _ = await updateDetails(url, body, Post)
       let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       setInitialValues(_ => response)
