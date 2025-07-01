@@ -3,6 +3,58 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.01.0
+
+### Features
+
+- Orchestrator v2 connectors list screen ([#3227](https://github.com/juspay/hyperswitch-control-center/pull/3227)) ([`f843512`](https://github.com/juspay/hyperswitch-control-center/commit/f843512c89c6bf5eae193a7ca3656c8d157cca64))
+
+### Bug Fixes
+
+- Make filter menu scrollable and fix filter type issues ([#3218](https://github.com/juspay/hyperswitch-control-center/pull/3218)) ([`b000101`](https://github.com/juspay/hyperswitch-control-center/commit/b0001017f71d8af77357c6c4bc586e9da141b000))
+
+### Miscellaneous Tasks
+
+- Added custom webhook headers tab in revamped payment settings ([#3210](https://github.com/juspay/hyperswitch-control-center/pull/3210)) ([`074a9ab`](https://github.com/juspay/hyperswitch-control-center/commit/074a9abb9af9b9ffb2aa73420bbd97a9226c94dd))
+- Orchestration v2 connectors static changes ([#3224](https://github.com/juspay/hyperswitch-control-center/pull/3224)) ([`6edc146`](https://github.com/juspay/hyperswitch-control-center/commit/6edc1460c141d641ea5975564d1c1ede0d7a224d))
+- Updated dynamo wasm ([#3222](https://github.com/juspay/hyperswitch-control-center/pull/3222)) ([`9c116ee`](https://github.com/juspay/hyperswitch-control-center/commit/9c116ee820290c992813fa3375d4e633db65bba2))
+
+**Full Changelog:** [`2025.06.26.0...2025.07.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.26.0...2025.07.01.0)
+
+- - -
+
+## 2025.06.26.0
+
+### Miscellaneous Tasks
+
+- Orchestration v2 folder structure ([#3183](https://github.com/juspay/hyperswitch-control-center/pull/3183)) ([`94df672`](https://github.com/juspay/hyperswitch-control-center/commit/94df672f3924887e7af5f4ac5090132d4c65d156))
+- Changes merchant category code dropdown name ([#3216](https://github.com/juspay/hyperswitch-control-center/pull/3216)) ([`41c95ce`](https://github.com/juspay/hyperswitch-control-center/commit/41c95ce5a2c1f67e31f8ab61ed552657f394e5be))
+
+**Full Changelog:** [`2025.06.24.1...2025.06.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.24.1...2025.06.26.0)
+
+- - -
+
+## 2025.06.24.1
+
+### Bug Fixes
+
+- Webhook responsiveness fix ([#3204](https://github.com/juspay/hyperswitch-control-center/pull/3204)) ([`63086a1`](https://github.com/juspay/hyperswitch-control-center/commit/63086a134f2a479b8a0eabaaacd9590de0c91531))
+- Fixed dropdown width and disabled deselect in merchant category … ([#3212](https://github.com/juspay/hyperswitch-control-center/pull/3212)) ([`9d6a0db`](https://github.com/juspay/hyperswitch-control-center/commit/9d6a0db8cd9162cb3b5809f89977d7cdaf459b15))
+
+**Full Changelog:** [`2025.06.24.0...2025.06.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.24.0...2025.06.24.1)
+
+- - -
+
+## 2025.06.24.0
+
+### Features
+
+- Added merchant category code dropdown in payment settings page ([#3175](https://github.com/juspay/hyperswitch-control-center/pull/3175)) ([`ecf3f9a`](https://github.com/juspay/hyperswitch-control-center/commit/ecf3f9affa6fc8186baf1750408ea3a4c28bfeb7))
+
+**Full Changelog:** [`2025.06.23.1...2025.06.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.23.1...2025.06.24.0)
+
+- - -
+
 ## 2025.06.23.1
 
 ### Miscellaneous Tasks

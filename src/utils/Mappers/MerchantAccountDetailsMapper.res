@@ -1,5 +1,5 @@
 open HSwitchSettingTypes
-let getMerchantDetails = (values: JSON.t) => {
+let getMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let merchantDetails = valuesDict->getObj("merchant_details", Dict.make())
@@ -69,7 +69,7 @@ let getMerchantDetails = (values: JSON.t) => {
       valuesDict,
       "product_type",
       "",
-    )->ProductUtils.getProductVariantFromString,
+    )->ProductUtils.getProductVariantFromString(~version),
   }
   payload
 }
