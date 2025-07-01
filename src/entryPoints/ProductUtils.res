@@ -62,12 +62,12 @@ let getProductVariantFromDisplayName = product => {
 
 let productTypeIconMapper = productType => {
   switch productType {
-  | Orchestration(V1) => "orchestrator-home"
   | Recon => "recon-home"
   | Recovery => "recovery-home"
   | Vault => "vault-home"
   | CostObservability => "cost-observability-home"
   | DynamicRouting => "intelligent-routing-home"
+  | _ => "orchestrator-home"
   }
 }
 
