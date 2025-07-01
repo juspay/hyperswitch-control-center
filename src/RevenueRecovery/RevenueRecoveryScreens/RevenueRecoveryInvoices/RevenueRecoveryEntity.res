@@ -25,7 +25,7 @@ let getAttemptCell = (
   | Error => Text(attempt.error)
   | AttemptTriggeredBy => Text(attempt.attempt_triggered_by->LogicUtils.snakeToTitle)
   | Created => Text(attempt.created)
-  | CardNetwork => Text(`${attempt.card_network} - ${attempt.last4}`)
+  | CardNetwork => Text(`${attempt.card_network} - ***** ${attempt.last4}`)
   | DeclineCode => Text(attempt.network_decline_code)
   | ErrorMessage => Text(attempt.network_error_message)
   }
