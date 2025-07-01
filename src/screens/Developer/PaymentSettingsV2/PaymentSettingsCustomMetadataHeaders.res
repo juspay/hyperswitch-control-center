@@ -1,4 +1,4 @@
-module AuthenticationInput = {
+module MetadataAuthenticationInput = {
   @react.component
   let make = (~index, ~allowEdit, ~isDisabled) => {
     open LogicUtils
@@ -8,36 +8,49 @@ module AuthenticationInput = {
     )
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
-    let getOutGoingWebhook = () => {
-      let outGoingWebhookDict =
+    let getMetadatKeyValues = () => {
+      let metadataKeyValueDict =
         formState.values
         ->getDictFromJsonObject
-        ->getDictfromDict("outgoing_webhook_custom_http_headers")
-      let key = outGoingWebhookDict->Dict.keysToArray->getValueFromArray(index, "")
-      let outGoingWebHookVal = outGoingWebhookDict->getOptionString(key)
-      switch outGoingWebHookVal {
+        ->getDictfromDict("metadata")
+      let key = metadataKeyValueDict->Dict.keysToArray->getValueFromArray(index, "")
+      let customMetadataVal = metadataKeyValueDict->getOptionString(key)
+      switch customMetadataVal {
       | Some(value) => (key, value)
       | _ => ("", "")
       }
     }
-
+    let keyField = `metadata.${key}`
     React.useEffect(() => {
-      let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
-      setValue(_ => outGoingWebHookValue)
-      setKey(_ => outGoingWebhookKey)
+      let (metadataKey, customMetadataVal) = getMetadatKeyValues()
+      setValue(_ => customMetadataVal)
+      setKey(_ => metadataKey)
       None
     }, [])
 
-    React.useEffect(() => {
-      if allowEdit {
-        setValue(_ => "")
-      }
-      None
-    }, [allowEdit])
     let form = ReactFinalForm.useForm()
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ => (),
+      onBlur: _ => {
+        let (metadataKey, customMetadataVal) = getMetadatKeyValues()
+
+        //When we try to change just key field.
+        if metadataKey->String.length > 0 {
+          let name = `metadata.${metadataKey}`
+
+          form.change(name, JSON.Encode.null)
+          if key->String.length > 0 {
+            form.change(keyField, customMetadataVal->JSON.Encode.string)
+          }
+        }
+
+        //When we empty the key field , then just put a new key field name, keeping the value field the same.
+        if (
+          metadataKey->String.length <= 0 && metaValue->String.length > 0 && key->String.length > 0
+        ) {
+          form.change(keyField, metaValue->JSON.Encode.string)
+        }
+      },
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|-)+$"
@@ -52,11 +65,8 @@ module AuthenticationInput = {
         } else {
           true
         }
-
-        //If key is empty, then that key is set to null value
         if value->String.length <= 0 {
-          let name = `outgoing_webhook_custom_http_headers.${key}`
-          form.change(name, JSON.Encode.null)
+          form.change(keyField, JSON.Encode.null)
         }
         //Not allow users to enter just integers
         value->getOptionIntFromString->Option.isNone && isValid ? setKey(_ => value) : ()
@@ -68,10 +78,8 @@ module AuthenticationInput = {
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        //If key is present , it sets that to whatever is the value, even if the value is empty.
         if key->String.length > 0 {
-          let name = `outgoing_webhook_custom_http_headers.${key}`
-          form.change(name, metaValue->JSON.Encode.string)
+          form.change(keyField, metaValue->JSON.Encode.string)
         }
       },
       onChange: ev => {
@@ -103,29 +111,26 @@ module AuthenticationInput = {
     </DesktopRow>
   }
 }
-module WebHookAuthenticationHeaders = {
+module MetadataHeaders = {
   @react.component
   let make = (~setAllowEdit, ~allowEdit) => {
     open LogicUtils
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let form = ReactFinalForm.useForm()
-    let outGoingWebhookDict =
+    let metadataKeyValueDict =
       formState.values
       ->getDictFromJsonObject
-      ->getDictfromDict("outgoing_webhook_custom_http_headers")
+      ->getDictfromDict("metadata")
     let (showModal, setShowModal) = React.useState(_ => false)
     let (isDisabled, setDisabled) = React.useState(_ => true)
 
     let allowEditConfiguration = () => {
-      form.change(`outgoing_webhook_custom_http_headers`, JSON.Encode.null)
       setAllowEdit(_ => true)
       setShowModal(_ => false)
     }
-
     React.useEffect(() => {
-      let isEmpty = outGoingWebhookDict->isEmptyDict
+      let isEmpty = metadataKeyValueDict->isEmptyDict
       setDisabled(_ => !isEmpty)
       setAllowEdit(_ => isEmpty)
       None
@@ -134,10 +139,10 @@ module WebHookAuthenticationHeaders = {
     <div className="flex-1">
       <div className="flex flex-row justify-between items-center gap-4 ">
         <p
-          className={`text-fs-16 dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-600 font-semibold ml-1 mt-6`}>
-          {"Custom Headers"->React.string}
+          className={`ml-1 text-fs-16 dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-600 font-semibold mt-6 `}>
+          {"Custom Metadata Headers"->React.string}
         </p>
-        <RenderIf condition={!(outGoingWebhookDict->isEmptyDict) && isDisabled && !allowEdit}>
+        <RenderIf condition={!(metadataKeyValueDict->isEmptyDict) && isDisabled && !allowEdit}>
           <div
             className="flex gap-2 items-center cursor-pointer"
             onClick={_ => setShowModal(_ => true)}>
@@ -146,11 +151,11 @@ module WebHookAuthenticationHeaders = {
           </div>
         </RenderIf>
       </div>
-      <div className="grid grid-cols-5 ">
-        {Array.fromInitializer(~length=4, i => i)
+      <div className="grid grid-cols-5 gap-2">
+        {Array.fromInitializer(~length=2, i => i)
         ->Array.mapWithIndex((_, index) =>
           <div key={index->Int.toString} className="-ml-3 col-span-4">
-            <AuthenticationInput index={index} allowEdit isDisabled />
+            <MetadataAuthenticationInput index={index} allowEdit isDisabled />
           </div>
         )
         ->React.array}
@@ -195,19 +200,20 @@ let make = () => {
   open LogicUtils
   open FormRenderer
   open PaymentSettingsV2Utils
-
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-
   let (initialValues, setInitialValues) = React.useState(_ =>
-    businessProfileRecoilVal->parseCustomHeadersFromEntity->JSON.Encode.object
+    businessProfileRecoilVal
+    ->parseMetadataCustomHeadersFromEntity
+    ->JSON.Encode.object
   )
 
   let onSubmit = async (values, _) => {
@@ -215,18 +221,13 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->getCustomHeadersPayload->JSON.Encode.object
+      let body = valuesDict->getMetdataKeyValuePayload->JSON.Encode.object
       let _ = await updateDetails(url, body, Post)
       let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+      setInitialValues(_ => response)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
-      setAllowEdit(_ => false)
-      setInitialValues(_ =>
-        response
-        ->BusinessProfileMapper.businessProfileTypeMapper
-        ->parseCustomHeadersFromEntity
-        ->JSON.Encode.object
-      )
       setScreenState(_ => PageLoaderWrapper.Success)
+      setAllowEdit(_ => false)
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -235,10 +236,9 @@ let make = () => {
     }
     Nullable.null
   }
-
   <PageLoaderWrapper screenState>
-    <Form onSubmit initialValues>
-      <WebHookAuthenticationHeaders setAllowEdit allowEdit />
+    <Form initialValues onSubmit>
+      <MetadataHeaders setAllowEdit allowEdit />
       <DesktopRow>
         <div className="flex justify-end w-full gap-2">
           <SubmitButton
