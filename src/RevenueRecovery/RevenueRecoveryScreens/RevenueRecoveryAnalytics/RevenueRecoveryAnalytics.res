@@ -9,22 +9,9 @@ let make = () => {
         title="Overview" subTitle="Viewing data of: Jan 2024 - Dec 2024" customTitleStyle
       />
     </div>
-    // <div className="flex flex-col gap-10">
-    //   <div className="flex flex-col gap-5">
-    //     <AuthRateSummary entity={authRateSummaryEntity} chartEntity={authRateSummaryChartEntity} />
-    //     <RetryStrategiesAnalytics entity={retryStrategiesEntity} />
-    //   </div>
-    //   <OverallRetryStrategyAnalytics
-    //     entity={overallRetryStrategysEntity} chartEntity={overallRetryStrategyChartEntity}
-    //   />
-    //   <RetriesComparisionAnalytics
-    //     entity={retriesComparisionEntity} chartEntity={retriesComparisionChartEntity}
-    //   />
-    //   <SmartRetryStrategyAnalytics entity={smartRetryStrategyEntity} />
-    // </div>
-
     <div className="flex flex-col gap-10">
       <SingleStatsAnalytics />
+      <RecoveryAmountLineGraph />
       <FailureBreakdown />
     </div>
   </div>
