@@ -33,9 +33,9 @@ module AuthorizationAndCaptureSettings = {
     }
 
     <>
-      <DesktopRow itemWrapperClass="">
+      <DesktopRow itemWrapperClass=" ">
         <FieldRenderer field=selectCaptureMethodField />
-        <div className="flex justify-between">
+        <div className="flex justify-between mr-2">
           <FieldRenderer field={selectSetupFutureUsageField(showSetupFutureUsage)} />
           <BoolInput.BaseComponent
             isSelected=showSetupFutureUsage
@@ -45,8 +45,9 @@ module AuthorizationAndCaptureSettings = {
           />
         </div>
       </DesktopRow>
-      <DesktopRow itemWrapperClass="">
-        <div className="flex justify-between">
+      <DesktopRow itemWrapperClass=" ">
+        <FieldRenderer field=external3DSAuthToggle />
+        <div className="flex justify-between mr-2">
           <FieldRenderer field={selectAuthenticationField(sendAuthType)} />
           <BoolInput.BaseComponent
             boolCustomClass="rounded-xl mt-5"
@@ -55,7 +56,6 @@ module AuthorizationAndCaptureSettings = {
             setIsSelected={val => handleIsSelectedForThreeDs(val, setSendAuthType)}
           />
         </div>
-        <FieldRenderer field=external3DSAuthToggle />
       </DesktopRow>
     </>
   }

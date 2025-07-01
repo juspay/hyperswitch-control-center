@@ -151,6 +151,7 @@ let selectCaptureMethodField = FormRenderer.makeFieldInfo(
     ~deselectDisable=true,
     ~fullLength=true,
     ~textStyle="!font-normal",
+    ~customButtonStyle="!w-1/2",
   ),
 )
 
