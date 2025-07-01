@@ -72,10 +72,7 @@ module MetadataAuthenticationInput = {
           form.change(name, JSON.Encode.null)
         }
         //Not allow users to enter just integers
-        switch (value->getOptionIntFromString->Option.isNone, isValid) {
-        | (true, true) => setKey(_ => value)
-        | _ => ()
-        }
+        value->getOptionIntFromString->Option.isNone && isValid ? setKey(_ => value) : ()
       },
       onFocus: _ => (),
       value: key->JSON.Encode.string,
