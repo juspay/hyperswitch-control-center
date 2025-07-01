@@ -208,6 +208,7 @@ let make = (
 
     let option: BillingProcessorsUtils.optionType = {
       name: connectorName->getDisplayNameForConnector(~connectorType=ConnectorTypes.Processor),
+      value: connectorName,
       icon: `/Gateway/${connectorName->String.toUpperCase}.svg`,
     }
 

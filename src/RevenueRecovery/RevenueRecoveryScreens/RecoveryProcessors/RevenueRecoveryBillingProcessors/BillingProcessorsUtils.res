@@ -59,6 +59,7 @@ let getConnectorConfig = connector => {
 type optionType = {
   name: string,
   icon: string,
+  value: string,
 }
 
 module ReadOnlyOptionsList = {

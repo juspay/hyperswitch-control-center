@@ -151,23 +151,38 @@ module PageWrapper = {
 }
 
 open ConnectorTypes
-let billingConnectorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
+let billingConnectorList: array<BillingProcessorsUtils.optionType> = [
+  {
+    name: "Custom",
+    value: "custom",
+    icon: "/Gateway/CUSTOM.svg",
+  },
+]
 
 let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
   {
+    name: "Chargebee",
+    value: BillingProcessor(CHARGEBEE)->ConnectorUtils.getConnectorNameString,
+    icon: "/Gateway/CHARGEBEE.svg",
+  },
+  {
     name: "Recurly",
+    value: "recurly",
     icon: "/assets/recurly-logo.png",
   },
   {
     name: "Recharge",
+    value: "recharge",
     icon: "/assets/recharge-logo.png",
   },
   {
     name: "Zoura",
+    value: "zoura",
     icon: "/assets/zoura-logo.png",
   },
   {
     name: "Stripe Billing",
+    value: "stripebilling",
     icon: "/Gateway/STRIPEBILLING.svg",
   },
 ]
@@ -175,11 +190,8 @@ let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
 let billingConnectorInHouseList: array<BillingProcessorsUtils.optionType> = [
   {
     name: "Kill Bill",
+    value: "killbill",
     icon: "/assets/kill_bill-logo.png",
-  },
-  {
-    name: "Custom",
-    icon: "/assets/custom-logo.png",
   },
 ]
 

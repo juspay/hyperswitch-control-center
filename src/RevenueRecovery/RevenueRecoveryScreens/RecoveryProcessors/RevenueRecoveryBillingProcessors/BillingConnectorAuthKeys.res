@@ -1,3 +1,18 @@
+let getOptions: array<BillingProcessorsUtils.optionType> => array<
+  SelectBox.dropdownOption,
+> = dropdownList => {
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+    option
+  ): SelectBox.dropdownOption => {
+    {
+      label: option.name,
+      value: option.value,
+      icon: Button.CustomIcon(<img alt="image" src=option.icon className="mr-2 w-5 h-5" />),
+    }
+  })
+  options
+}
+
 @react.component
 let make = (
   ~initialValues,
@@ -33,8 +48,7 @@ let make = (
     setArrow(prev => !prev)
   }
 
-  let options =
-    RevenueRecoveryOnboardingUtils.billingConnectorList->RevenueRecoveryOnboardingUtils.getOptions
+  let options = RevenueRecoveryOnboardingUtils.billingConnectorList->getOptions
 
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
@@ -91,7 +105,7 @@ let make = (
             shouldDisplaySelectedOnTop=true
             searchInputPlaceHolder="Search Platform"
           />
-          <RenderIf condition={connector->isNonEmptyString}>
+          <RenderIf condition={connector->isNonEmptyString && connector != "custom"}>
             <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
               <ConnectorAuthKeys
                 initialValues={updatedInitialVal}
@@ -118,6 +132,7 @@ let make = (
               />
             </div>
           </RenderIf>
+          <RenderIf condition={connector == "custom"}> {"hello"->React.string} </RenderIf>
         </Form>
       </PageLoaderWrapper>
     </div>

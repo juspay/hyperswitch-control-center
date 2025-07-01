@@ -92,6 +92,7 @@ let recoveryConnectorListProd: array<connectorTypes> = [
 let recoveryConnectorInHouseList: array<BillingProcessorsUtils.optionType> = [
   {
     name: "Hyperswitch",
+    value: "hyperswitch",
     icon: "/assets/Light/hyperswitchLogoIcon.svg",
   },
 ]
