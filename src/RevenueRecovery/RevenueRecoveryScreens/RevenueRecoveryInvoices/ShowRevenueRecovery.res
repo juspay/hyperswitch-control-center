@@ -263,11 +263,11 @@ let make = (~id) => {
     try {
       let url = `${Window.env.apiBaseUrl}/v2/process_tracker/revenue_recovery_workflow/${id}/stop`
       let _ = await fetchDetails(url, ~version=V2)
-      setIsExpanded(_ => false)
       showToast(~message="Success", ~toastType=ToastState.ToastError)
     } catch {
     | _ => showToast(~message="Failed to Stop the Scheduler", ~toastType=ToastState.ToastError)
     }
+    setIsExpanded(_ => false)
   }
 
   <div className="flex flex-col gap-8">
