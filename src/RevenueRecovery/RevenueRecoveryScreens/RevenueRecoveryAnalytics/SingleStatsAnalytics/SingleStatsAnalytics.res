@@ -9,7 +9,6 @@ module StatCard = {
         {React.string(value)}
         <span className="ml-2 text-green-500 text-base font-medium"> {React.string(change)} </span>
       </div>
-      <div className="text-gray-400 text-sm mt-1"> {React.string(desc)} </div>
       <div className="border-t border-dashed border-gray-200 my-2" />
       <div className="mt-4 text-xs text-gray-500">
         <span className="font-semibold "> {"Decline Breakdown:"->React.string} </span>

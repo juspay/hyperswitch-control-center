@@ -90,13 +90,13 @@ let getV2Url = (
   /* API KEYS */
   | API_KEYS =>
     switch methodType {
-    | Get => `v2/api_keys/${merchantId}/list`
+    | Get => `v2/api-keys/${merchantId}/list`
     | Post =>
       switch id {
-      | Some(key_id) => `v2/api_keys/${merchantId}/${key_id}`
-      | None => `v2/api_keys/${merchantId}`
+      | Some(key_id) => `v2/api-keys/${merchantId}/${key_id}`
+      | None => `v2/api-keys/${merchantId}`
       }
-    | Delete => `v2/api_keys/${merchantId}/${id->Option.getOr("")}`
+    | Delete => `v2/api-keys/${merchantId}/${id->Option.getOr("")}`
     | _ => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */

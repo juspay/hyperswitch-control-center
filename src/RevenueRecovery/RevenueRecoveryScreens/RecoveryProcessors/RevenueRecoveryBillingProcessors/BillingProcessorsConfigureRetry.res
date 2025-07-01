@@ -76,7 +76,7 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
                   {"Pick how much you're willing to spend each month (e.g. $500)."->React.string}
                 </li>
                 <li>
-                  {"We only use it when our system sees a &gt;25% chance of success."->React.string}
+                  {"We only use it when our system sees a > 25% chance of success."->React.string}
                 </li>
               </ul>
             </div>

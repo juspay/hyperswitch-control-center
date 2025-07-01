@@ -70,10 +70,10 @@ let sections = [
         id: (#connectProcessor: revenueRecoverySubsections :> string),
         name: #connectProcessor->getStepName,
       },
-      {
-        id: (#setupWebhookPlatform: revenueRecoverySubsections :> string),
-        name: #setupWebhookPlatform->getStepName,
-      },
+      // {
+      //   id: (#setupWebhookPlatform: revenueRecoverySubsections :> string),
+      //   name: #setupWebhookPlatform->getStepName,
+      // },
     ]),
   },
   {
