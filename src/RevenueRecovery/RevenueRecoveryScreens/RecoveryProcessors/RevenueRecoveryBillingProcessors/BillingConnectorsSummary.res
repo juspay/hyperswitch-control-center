@@ -119,9 +119,7 @@ module BillingConnectorDetails = {
           <div className="flex flex-col gap-0.5-rem ">
             <h4 className="text-nd_gray-400 "> {"Biller Platform "->React.string} </h4>
             <div className="flex gap-2 align-center">
-              <GatewayIcon
-                gateway={connectorName->String.toUpperCase} className=" w-7 h-7 rounded-sm"
-              />
+              <GatewayIcon gateway={"CUSTOM"->String.toUpperCase} className=" w-7 h-7 rounded-sm" />
               {connectorName->React.string}
             </div>
           </div>
