@@ -25,6 +25,7 @@ let make = () => {
 
     <div className="flex flex-col gap-10">
       <SingleStatsAnalytics />
+      <FailureBreakdown />
     </div>
   </div>
 }
