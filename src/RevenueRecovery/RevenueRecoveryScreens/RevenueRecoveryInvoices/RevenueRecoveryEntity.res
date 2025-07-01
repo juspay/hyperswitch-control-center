@@ -25,7 +25,9 @@ let getAttemptCell = (
   | Error => Text(attempt.error)
   | AttemptTriggeredBy => Text(attempt.attempt_triggered_by->LogicUtils.snakeToTitle)
   | Created => Text(attempt.created)
-  | CardNetwork => Text(`${attempt.card_network}-${attempt.last4}`)
+  | CardNetwork => Text(`${attempt.card_network} - ${attempt.last4}`)
+  | DeclineCode => Text(attempt.network_decline_code)
+  | ErrorMessage => Text(attempt.network_error_message)
   }
 }
 
@@ -37,6 +39,8 @@ let getAttemptHeading = (attemptColType: RevenueRecoveryOrderTypes.attemptColTyp
   | AttemptTriggeredBy => Table.makeHeaderInfo(~key="AttemptTriggeredBy", ~title="Attempted By")
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created")
   | CardNetwork => Table.makeHeaderInfo(~key="Card used", ~title="Card used")
+  | DeclineCode => Table.makeHeaderInfo(~key=" DeclineCode", ~title=" Decline Code")
+  | ErrorMessage => Table.makeHeaderInfo(~key="ErrorMessage", ~title="Error Message")
   }
 }
 
@@ -51,10 +55,18 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
   created: dict->getString("created_at", ""),
   card_network: dict
   ->getDictfromDict("payment_method_data")
-  ->getString("card_network", ""),
+  ->getDictfromDict("card")
+  ->getString("card_issuer", ""),
   last4: dict
   ->getDictfromDict("payment_method_data")
+  ->getDictfromDict("card")
   ->getString("last4", ""),
+  network_decline_code: dict
+  ->getDictfromDict("error")
+  ->getString("network_decline_code", ""),
+  network_error_message: dict
+  ->getDictfromDict("error")
+  ->getString("network_error_message", ""),
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {

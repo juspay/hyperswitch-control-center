@@ -10,7 +10,7 @@ module ShowOrderDetails = {
     ~getCell,
     ~detailsFields,
     ~justifyClassName="justify-start",
-    ~widthClass="w-1/3",
+    ~widthClass="w-1/5",
     ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
     ~isButtonEnabled=false,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
@@ -55,7 +55,7 @@ module OrderInfo = {
 
 module Attempts = {
   @react.component
-  let make = (~id) => {
+  let make = (~id, ~setHasNextSchedule) => {
     open APIUtils
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
@@ -76,7 +76,7 @@ module Attempts = {
       try {
         let url = getURL(~entityName=V2(PROCESS_TRACKER), ~methodType=Get, ~id=Some(id))
         let data = await fetchDetails(url, ~version=V2)
-
+        setHasNextSchedule(_ => true)
         setNextScheduleTime(_ => data)
       } catch {
       | _ => ()
@@ -107,7 +107,15 @@ module Attempts = {
     React.useEffect(() => {
       fetchOrderAttemptListDetails()->ignore
       fetchProcessTrackerDetails()->ignore
-      None
+
+      let intervalId = setInterval(() => {
+        fetchOrderAttemptListDetails()->ignore
+        fetchProcessTrackerDetails()->ignore
+      }, 10000)
+      let cleanup = () => {
+        clearInterval(intervalId)
+      }
+      Some(cleanup)
     }, [])
 
     let scheduleTimeComponent = {
@@ -199,7 +207,7 @@ module Attempts = {
                   data=item
                   getHeading=getAttemptHeading
                   getCell=getAttemptCell
-                  detailsFields=[AttemptTriggeredBy, Status, AttemptTriggeredBy, Error]
+                  detailsFields=[AttemptTriggeredBy, Status, CardNetwork, DeclineCode, ErrorMessage]
                 />
               </div>
             </div>
@@ -220,6 +228,7 @@ let make = (~id) => {
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ =>
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
   )
+  let (hasNextSchedule, setHasNextSchedule) = React.useState(_ => false)
   let showToast = ToastState.useShowToast()
 
   let fetchOrderDetails = async _ => {
@@ -259,10 +268,12 @@ let make = (~id) => {
 
   let (isExpanded, setIsExpanded) = React.useState(_ => false)
 
+  let updateDetails = useUpdateMethod()
+
   let fetchProcessTrackerDetails = async _ => {
     try {
       let url = `${Window.env.apiBaseUrl}/v2/process_tracker/revenue_recovery_workflow/${id}/stop`
-      let _ = await fetchDetails(url, ~version=V2)
+      let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Post, ~version=V2)
       showToast(~message="Success", ~toastType=ToastState.ToastError)
     } catch {
     | _ => showToast(~message="Failed to Stop the Scheduler", ~toastType=ToastState.ToastError)
@@ -290,6 +301,7 @@ let make = (~id) => {
           buttonType={Primary}
           text="Stop Recovery"
           buttonSize=Small
+          buttonState={hasNextSchedule ? Normal : Disabled}
           onClick={_ => setIsExpanded(_ => true)}
           showBorder={true}
         />
@@ -305,7 +317,7 @@ let make = (~id) => {
       </PageLoaderWrapper>
     </div>
     <div className="overflow-scroll">
-      <Attempts id />
+      <Attempts id setHasNextSchedule />
     </div>
     <Modal
       showModal=isExpanded
