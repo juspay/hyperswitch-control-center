@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  //open RevenueRecoveryAnalyticsEntity
+  open RevenueRecoveryAnalyticsEntity
   let customTitleStyle = "py-0 !pt-0"
 
   <div className={`flex flex-col mx-auto h-full w-full gap-7`}>
@@ -11,8 +11,13 @@ let make = () => {
     </div>
     <div className="flex flex-col gap-10">
       <SingleStatsAnalytics />
-      <RecoveryAmountLineGraph />
-      <FailureBreakdown />
+      <OverallRetryStrategyAnalytics
+        entity={overallRetryStrategysEntity} chartEntity={overallRetryStrategyChartEntity}
+      />
+      <RetriesComparisionAnalytics
+        entity={retriesComparisionEntity} chartEntity={retriesComparisionChartEntity}
+      />
+      <SmartRetryStrategyAnalytics entity={smartRetryStrategyEntity} />
     </div>
   </div>
 }

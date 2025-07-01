@@ -10,7 +10,7 @@ module StatCard = {
         <span className="ml-2 text-green-500 text-base font-medium"> {React.string(change)} </span>
       </div>
       <div className="text-gray-400 text-sm mt-1"> {React.string(desc)} </div>
-      <div className="border-t border-dashed border-gray-200 my-4" />
+      <div className="border-t border-dashed border-gray-200 my-2" />
       <div className="mt-4 text-xs text-gray-500">
         <span className="font-semibold "> {"Decline Breakdown:"->React.string} </span>
         <div className="mt-2 flex gap-4">
@@ -93,33 +93,33 @@ let make = () => {
       <StatCard
         title="Total Declines invoices"
         value="1.78K"
-        change="↑ 3.45%"
+        change=""
         desc="Last month"
-        soft="8.87%"
-        hard="3.06%"
+        soft="67.77%"
+        hard="33.33%"
       />
       <StatCard
         title="Total Recovered invoice"
-        value="1.78K"
-        change="↑ 3.45%"
+        value="1.33K"
+        change=""
         desc="Last month"
-        soft="8.87%"
-        hard="3.06%"
+        soft="77%"
+        hard="23%"
       />
       <StatCard
         title="Pending Recovery invoices"
-        value="1.78K"
+        value="450"
         change=""
         desc="Last month"
-        soft="8.87%"
-        hard="3.06%"
+        soft="82%"
+        hard="18%"
       />
       <StatCard
-        title="Recovered MRR" value="$ 1.78K" change="" desc="Last month" soft="8.87%" hard="3.06%"
+        title="Recovered MRR" value="$ 26.7K" change="" desc="Last month" soft="77%" hard="23%"
       />
     </div>
     <BudgetCard
-      budget="1200" used="400" spent="1.4K" recovered="13.4K" pending="16.4K" invoices="03 of 12"
+      budget="1600" used="400" spent="400" recovered="6.12K" pending="1.62K" invoices="1 of 4"
     />
   </div>
 }

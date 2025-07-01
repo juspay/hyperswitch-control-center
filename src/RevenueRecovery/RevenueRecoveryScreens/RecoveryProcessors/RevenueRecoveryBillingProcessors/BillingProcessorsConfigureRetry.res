@@ -69,14 +69,14 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
                 {"Hard Declines Budget"->React.string}
               </div>
               <div className="text-gray-500 text-sm mb-2">
-                {"Some card declines (e.g. lost/stolen or AVS mismatch) are still salvageable—but they need extra “retry power” like switching gateways or using backup networks."->React.string}
+                {"Some card declines (e.g. lost/stolen or AVS mismatch) are still salvageable"->React.string}
               </div>
               <ul className="list-disc pl-5 text-gray-500 text-sm space-y-1">
                 <li>
                   {"Pick how much you're willing to spend each month (e.g. $500)."->React.string}
                 </li>
                 <li>
-                  {"We only use it when our system sees a &gt;50% chance of success."->React.string}
+                  {"We only use it when our system sees a &gt;25% chance of success."->React.string}
                 </li>
               </ul>
             </div>
