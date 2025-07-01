@@ -320,3 +320,33 @@ let getCustomHeadersPayload = (values: JSON.t) => {
   )
   customHeaderDict
 }
+
+let parseMetadataCustomHeadersFromEntity = (profileRecord: profileEntity) => {
+  open LogicUtils
+
+  let customHeaderDict = Dict.make()
+
+  switch profileRecord.metadata {
+  | Some(headers) => customHeaderDict->setOptionDict("metadata", Some(headers))
+  | None => ()
+  }
+
+  customHeaderDict
+}
+let getMetdataKeyValuePayload = (values: JSON.t) => {
+  open LogicUtils
+  let customHeaderDict = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  let customMetadataVal = Dict.make()
+  let formValues = valuesDict->getDictfromDict("metadata")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("metadata")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      customMetadataVal->setOptionString(val, formValues->getString(val, "")->getNonEmptyString)
+    })
+  customHeaderDict->setOptionDict("metadata", Some(customMetadataVal))
+  customHeaderDict
+}
