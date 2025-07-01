@@ -81,7 +81,7 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let initialFilterFields = json => {
+let initialFilterFields = (json, ~isTitle=false) => {
   open LogicUtils
 
   let dropdownValue =
@@ -109,7 +109,7 @@ let initialFilterFields = json => {
                 ~label=dimensionLabel,
                 ~name=dimensionValue,
                 ~customInput=InputFields.filterMultiSelectInput(
-                  ~options=value->FilterSelectBox.makeOptions,
+                  ~options=value->FilterSelectBox.makeOptions(~isTitle),
                   ~buttonText=dimensionTitleCase,
                   ~showSelectionAsChips=false,
                   ~searchable=true,
