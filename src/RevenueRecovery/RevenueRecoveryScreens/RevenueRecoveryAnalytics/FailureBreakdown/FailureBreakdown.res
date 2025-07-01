@@ -71,6 +71,64 @@ module FailureReasonsBreakDown = {
   }
 }
 
+module PlaceHolder = {
+  @react.component
+  let make = () => {
+    <div className="rounded-xl border border-gray-200 w-full bg-white">
+      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+        <h2 className="font-medium text-gray-800">
+          {"Recovery leakage breakdown"->React.string}
+        </h2>
+      </div>
+      <div className="p-4">
+        <div className="flex items-center mb-6 space-x-6 text-sm">
+          <div className="flex items-center space-x-1">
+            <span className="w-3 h-3 rounded bg-blue-400 inline-block" />
+            <span> {"Recovered"->React.string} </span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <span className="w-3 h-3 rounded bg-orange-200 inline-block" />
+            <span> {"In schedule"->React.string} </span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <span className="w-3 h-3 rounded bg-gray-300 inline-block" />
+            <span> {"Cancelled"->React.string} </span>
+          </div>
+        </div>
+        <div className="relative space-y-8">
+          <div className="flex items-center space-x-4">
+            <div className="w-24 text-gray-500 text-sm"> {"Processor"->React.string} </div>
+            <div className="w-72 h-4 bg-gray-100 rounded-full flex overflow-hidden">
+              <div className="bg-blue-400 h-full" style={ReactDOM.Style.make(~width="63%", ())} />
+              <div className="bg-orange-200 h-full" style={ReactDOM.Style.make(~width="27%", ())} />
+              <div className="bg-gray-300 h-full" style={ReactDOM.Style.make(~width="10%", ())} />
+            </div>
+            <div className="ml-2 text-gray-500 text-sm"> {"57%"->React.string} </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="w-24 text-gray-500 text-sm"> {"Network"->React.string} </div>
+            <div className="w-72 h-4 bg-gray-100 rounded-full flex overflow-hidden">
+              <div className="bg-blue-400 h-full" style={ReactDOM.Style.make(~width="0%", ())} />
+              <div className="bg-orange-200 h-full" style={ReactDOM.Style.make(~width="0%", ())} />
+              <div className="bg-gray-300 h-full" style={ReactDOM.Style.make(~width="24%", ())} />
+            </div>
+            <div className="ml-2 text-gray-500 text-sm"> {"24%"->React.string} </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="w-24 text-gray-500 text-sm"> {"Issuer"->React.string} </div>
+            <div className="w-72 h-4 bg-gray-100 rounded-full flex overflow-hidden">
+              <div className="bg-blue-400 h-full" style={ReactDOM.Style.make(~width="19%", ())} />
+              <div className="bg-orange-200 h-full" style={ReactDOM.Style.make(~width="0%", ())} />
+              <div className="bg-gray-300 h-full" style={ReactDOM.Style.make(~width="0%", ())} />
+            </div>
+            <div className="ml-2 text-gray-500 text-sm"> {"19%"->React.string} </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   <div>
@@ -81,6 +139,7 @@ let make = () => {
       </p>
     </div>
     <div className="grid grid-cols-2 gap-10">
+      <PlaceHolder />
       <div className="rounded-xl border border-gray-200 w-full bg-white">
         <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
           <h2 className="font-medium text-gray-800"> {"Top Reasons for failure"->React.string} </h2>
