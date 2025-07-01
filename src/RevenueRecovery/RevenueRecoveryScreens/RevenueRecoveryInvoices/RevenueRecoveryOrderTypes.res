@@ -12,6 +12,7 @@ type attemptColType =
   | Error
   | AttemptTriggeredBy
   | Created
+  | CardNetwork
 
 type attempts = {
   id: string,
@@ -19,6 +20,8 @@ type attempts = {
   error: string,
   attempt_triggered_by: string,
   created: string,
+  card_network: string,
+  last4: string,
 }
 
 type order = {

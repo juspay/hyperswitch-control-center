@@ -199,7 +199,7 @@ module Attempts = {
                   data=item
                   getHeading=getAttemptHeading
                   getCell=getAttemptCell
-                  detailsFields=[AttemptTriggeredBy, Status, Error]
+                  detailsFields=[AttemptTriggeredBy, Status, AttemptTriggeredBy, Error]
                 />
               </div>
             </div>

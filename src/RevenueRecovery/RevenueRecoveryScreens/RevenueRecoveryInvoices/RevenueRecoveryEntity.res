@@ -25,6 +25,7 @@ let getAttemptCell = (
   | Error => Text(attempt.error)
   | AttemptTriggeredBy => Text(attempt.attempt_triggered_by->LogicUtils.snakeToTitle)
   | Created => Text(attempt.created)
+  | CardNetwork => Text(`${attempt.card_network}-${attempt.last4}`)
   }
 }
 
@@ -35,6 +36,7 @@ let getAttemptHeading = (attemptColType: RevenueRecoveryOrderTypes.attemptColTyp
   | Error => Table.makeHeaderInfo(~key="Error", ~title="Error Reason")
   | AttemptTriggeredBy => Table.makeHeaderInfo(~key="AttemptTriggeredBy", ~title="Attempted By")
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created")
+  | CardNetwork => Table.makeHeaderInfo(~key="Card used", ~title="Card used")
   }
 }
 
@@ -47,6 +49,12 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
   ->getDictfromDict("revenue_recovery")
   ->getString("attempt_triggered_by", "Internal"),
   created: dict->getString("created_at", ""),
+  card_network: dict
+  ->getDictfromDict("payment_method_data")
+  ->getString("card_network", ""),
+  last4: dict
+  ->getDictfromDict("payment_method_data")
+  ->getString("last4", ""),
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
