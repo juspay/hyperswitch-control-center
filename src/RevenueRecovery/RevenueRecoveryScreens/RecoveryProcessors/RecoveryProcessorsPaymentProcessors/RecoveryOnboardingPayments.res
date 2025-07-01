@@ -69,14 +69,28 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-    initialValuesToDict->Dict.set(
-      "connector_webhook_details",
-      RevenueRecoveryData.payment_connector_webhook_details,
-    )
+
+    open RevenueRecoveryData
+    let connector_account_details =
+      [
+        ("auth_type", "SignatureKey"->JSON.Encode.string),
+        ("api_key", generateRandomApiKey(~prefix="api")->JSON.Encode.string),
+        ("key1", merchantId->JSON.Encode.string),
+        ("api_secret", generateRandomApiKey(~prefix="secret")->JSON.Encode.string),
+      ]->Dict.fromArray
+
     initialValuesToDict->Dict.set(
       "connector_account_details",
-      RevenueRecoveryData.connector_account_details,
+      connector_account_details->JSON.Encode.object,
     )
+
+    let metaData =
+      [
+        ("report_group", "default"->JSON.Encode.string),
+        ("merchant_config_currency", "USD"->JSON.Encode.string),
+      ]->Dict.fromArray
+    initialValuesToDict->Dict.set("metadata", metaData->JSON.Encode.object)
+
     let keys =
       connectorDetails
       ->getDictFromJsonObject
