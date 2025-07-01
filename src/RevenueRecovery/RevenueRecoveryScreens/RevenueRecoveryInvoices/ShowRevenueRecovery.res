@@ -257,6 +257,19 @@ let make = (~id) => {
     None
   }, [])
 
+  let (isExpanded, setIsExpanded) = React.useState(_ => false)
+
+  let fetchProcessTrackerDetails = async _ => {
+    try {
+      let url = `${Window.env.apiBaseUrl}/v2/process_tracker/revenue_recovery_workflow/${id}/stop`
+      let _ = await fetchDetails(url, ~version=V2)
+      setIsExpanded(_ => false)
+      showToast(~message="Success", ~toastType=ToastState.ToastError)
+    } catch {
+    | _ => showToast(~message="Failed to Stop the Scheduler", ~toastType=ToastState.ToastError)
+    }
+  }
+
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
       path=[{title: "Invoices", link: "/v2/recovery/invoices"}]
@@ -273,6 +286,13 @@ let make = (~id) => {
         <div className="flex gap-2 items-center">
           <PageUtils.PageHeading title="Invoice summary" />
         </div>
+        <Button
+          buttonType={Primary}
+          text="Stop Recovery"
+          buttonSize=Small
+          onClick={_ => setIsExpanded(_ => true)}
+          showBorder={true}
+        />
       </div>
       <PageLoaderWrapper
         screenState
@@ -287,5 +307,39 @@ let make = (~id) => {
     <div className="overflow-scroll">
       <Attempts id />
     </div>
+    <Modal
+      showModal=isExpanded
+      closeOnOutsideClick=false
+      setShowModal=setIsExpanded
+      childClass="p-0"
+      borderBottom=true
+      modalClass="w-full !max-w-lg mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-20">
+        <div className="bg-white rounded-xl shadow-lg w-full max-w-xl p-8 relative">
+          <button
+            className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 text-2xl font-light"
+            onClick={_ => setIsExpanded(_ => false)}>
+            {"X"->React.string}
+          </button>
+          <div className="text-2xl font-semibold text-gray-900 mb-4">
+            {"Stop Recovery"->React.string}
+          </div>
+          <div className="text-gray-500 text-lg mb-8">
+            {"Are you sure you want to stop retrying this payment? The invoice amount will remain unrecovered."->React.string}
+          </div>
+          <div className="flex justify-end gap-4">
+            <button
+              className="px-6 py-2 rounded-lg border border-gray-200 text-gray-700 font-medium bg-white hover:bg-gray-50">
+              {"Cancel"->React.string}
+            </button>
+            <button
+              className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700"
+              onClick={_ => fetchProcessTrackerDetails()->ignore}>
+              {"Confirm"->React.string}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Modal>
   </div>
 }
