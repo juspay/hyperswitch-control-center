@@ -118,6 +118,7 @@ let make = (~id) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => JSON.Encode.null)
@@ -173,6 +174,7 @@ let make = (~id) => {
         ~id=Some(selectedEvent.eventId),
       )
       let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Post)
+      mixpanelEvent(~eventName="webhooks_retry")
       fetchWebhooksEventDetails()->ignore
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to retry webhook", ~toastType=ToastError)

@@ -297,10 +297,9 @@ let parseCustomHeadersFromEntity = (profileRecord: profileEntity) => {
   customHeaderDict
 }
 
-let getCustomHeadersPayload = (values: JSON.t) => {
+let getCustomHeadersPayload = valuesDict => {
   open LogicUtils
   let customHeaderDict = Dict.make()
-  let valuesDict = values->getDictFromJsonObject
   let outGoingWebHookCustomHttpHeaders = Dict.make()
   let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
 
@@ -318,5 +317,34 @@ let getCustomHeadersPayload = (values: JSON.t) => {
     "outgoing_webhook_custom_http_headers",
     Some(outGoingWebHookCustomHttpHeaders),
   )
+  customHeaderDict
+}
+
+let parseMetadataCustomHeadersFromEntity = (profileRecord: profileEntity) => {
+  open LogicUtils
+
+  let customHeaderDict = Dict.make()
+
+  switch profileRecord.metadata {
+  | Some(headers) => customHeaderDict->setOptionDict("metadata", Some(headers))
+  | None => ()
+  }
+
+  customHeaderDict
+}
+let getMetdataKeyValuePayload = valuesDict => {
+  open LogicUtils
+  let customHeaderDict = Dict.make()
+  let customMetadataVal = Dict.make()
+  let formValues = valuesDict->getDictfromDict("metadata")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("metadata")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      customMetadataVal->setOptionString(val, formValues->getString(val, "")->getNonEmptyString)
+    })
+  customHeaderDict->setOptionDict("metadata", Some(customMetadataVal))
   customHeaderDict
 }

@@ -117,6 +117,16 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
+  let leftCustomClass = switch activeProduct {
+  | Orchestration(V1) => ""
+  | _ => "-left-180-px"
+  }
+
+  let showGlobalSearchBar = switch merchantDetailsTypedValue.product_type {
+  | Orchestration(V1) => true
+  | _ => false
+  }
+
   <>
     <div>
       {switch dashboardPageState {
@@ -136,8 +146,7 @@ let make = () => {
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
-                          <RenderIf
-                            condition={merchantDetailsTypedValue.product_type == Orchestration(V1)}>
+                          <RenderIf condition={showGlobalSearchBar}>
                             <GlobalSearchBar />
                           </RenderIf>
                           <RenderIf condition={isInternalUser}>
@@ -159,10 +168,7 @@ let make = () => {
                         </div>
                       }}
                       midUiActions={<TestMode />}
-                      midUiActionsCustomClass={`top-0 relative flex justify-center ${activeProduct !==
-                          Orchestration(V1)
-                          ? "-left-[180px]"
-                          : ""} `}
+                      midUiActionsCustomClass={`top-0 relative flex justify-center ${leftCustomClass}`}
                     />
                   </div>
                   <div

@@ -78,6 +78,7 @@ module.exports = {
       },
       inset: {
         "76-px": "76px",
+        "180-px": "180px",
       },
       letterSpacing: {
         compressed: "-2px",
@@ -391,6 +392,7 @@ module.exports = {
           1000: "#050506",
         },
         nd_primary_blue: {
+          25: "#F6FAFE",
           50: "#E4F1FD",
           100: "#BCD7FA",
           200: "#93BCF6",
