@@ -60,14 +60,15 @@ let getProductVariantFromDisplayName = product => {
   }
 }
 
-let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
+// Common routes across all products that bypass default product switching redirections
+let preservedRoutes = ["organization-chart", "account-settings"]
+
+let isPreservedRoute = url => {
+  preservedRoutes->Array.some(route => url->String.includes(route))
+}
+
+let getDefaultProductRoute = (productType: ProductTypes.productTypes) => {
   switch productType {
-  | Orchestration(V1) =>
-    if url->String.includes("v2") {
-      `/dashboard/home`
-    } else {
-      url
-    }
   | Recon => `/dashboard/v2/recon/overview`
   | Recovery => `/dashboard/v2/recovery/overview`
   | Vault
@@ -75,5 +76,22 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
   | DynamicRouting
   | Orchestration(V2) =>
     `/dashboard/v2/${productType->getProductRouteName}/home`
+  | Orchestration(V1) => `/dashboard/home`
+  }
+}
+
+let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
+  if isPreservedRoute(url) {
+    url
+  } else {
+    switch productType {
+    | Orchestration(V1) =>
+      if url->String.includes("v2") {
+        getDefaultProductRoute(productType)
+      } else {
+        url
+      }
+    | _ => getDefaultProductRoute(productType)
+    }
   }
 }

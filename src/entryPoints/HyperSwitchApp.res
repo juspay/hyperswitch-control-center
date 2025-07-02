@@ -182,7 +182,7 @@ let make = () => {
 
                         | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
 
-                        | (_, list{"account-settings", "profile", ...remainingPath}) =>
+                        | (_, list{"account-settings", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"
                             remainingPath
