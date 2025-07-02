@@ -158,7 +158,7 @@ let make = (
   open HeadlessUI
   open LogicUtils
 
-  let isMobileView = MatchMedia.useMobileChecker()
+  let isSmallScreen = MatchMedia.useScreenSizeChecker(~screenSize="1512")
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
   let (allFilters, setAllFilters) = React.useState(_ =>
     remoteFilters->Array.map(item => item.field)
@@ -167,7 +167,6 @@ let make = (
   let (filterList, setFilterList) = React.useState(_ => [])
   let (count, setCount) = React.useState(_ => initalCount)
   let searchParams = query->decodeURI
-  let verticalGap = !isMobileView ? "gap-y-3" : ""
 
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
@@ -320,7 +319,7 @@ let make = (
               className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
               {_ => {
                 <>
-                  <div className="px-1 py-1">
+                  <div className="px-1 py-1 overflow-y-auto max-h-96">
                     {allFilters
                     ->Array.mapWithIndex((option, i) =>
                       <Menu.Item key={i->Int.toString}>
@@ -364,10 +363,13 @@ let make = (
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys submitInputOnEnter />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
-        <div className="flex lg:flex-row flex-col justify-between gap-4 my-2">
-          <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
-            {customLeftView}
+        <div className="mb-4"> {customLeftView} </div>
+        <div className="flex lg:flex-row flex-col justify-between items-center gap-4 mb-2">
+          <div className="flex gap-2 flex-wrap items-center">
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
+            <RenderIf condition={isSmallScreen}>
+              <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
+            </RenderIf>
           </div>
           <div className="flex gap-2 items-center">
             <RenderIf condition={fixedFilters->Array.length > 0}>
@@ -377,11 +379,13 @@ let make = (
                 fieldWrapperClass="p-0"
               />
             </RenderIf>
-            <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
+            <RenderIf condition={!isSmallScreen}>
+              <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
+            </RenderIf>
             <PortalCapture key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} />
           </div>
         </div>
-        <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
+        <div className="flex gap-2 flex-wrap items-center">
           <FormRenderer.FieldsRenderer
             fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
           />

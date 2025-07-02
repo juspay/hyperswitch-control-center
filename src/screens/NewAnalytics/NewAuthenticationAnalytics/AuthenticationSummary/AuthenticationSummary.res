@@ -4,6 +4,7 @@ open ExemptionGraphsUtils
 open ExemptionGraphsTypes
 open InsightsUtils
 open NewAuthenticationAnalyticsEntity
+open Typography
 
 module TableModule = {
   open LogicUtils
@@ -14,7 +15,7 @@ module TableModule = {
       key: "",
       order: Table.INC,
     }
-    let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30 mt-7"
+    let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
     let paymentsProcessed =
       data
@@ -32,34 +33,26 @@ module TableModule = {
     ]
 
     <div className>
-      <div className="flex flex-1 flex-col my-5">
-        <div className="relative">
-          <div
-            className="absolute font-bold text-xl bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75">
-            {React.string("Authentication Summary")}
-          </div>
-          <LoadedTable
-            visibleColumns=cols
-            title="Authentication Summary"
-            hideTitle=true
-            actualData={paymentsProcessed}
-            entity=authSummaryTableEntity
-            resultsPerPage=10
-            totalResults={paymentsProcessed->Array.length}
-            offset
-            setOffset
-            defaultSort
-            currrentFetchCount={paymentsProcessed->Array.length}
-            tableLocalFilter=false
-            tableheadingClass=tableBorderClass
-            tableBorderClass
-            ignoreHeaderBg=true
-            showSerialNumber=true
-            tableDataBorderClass=tableBorderClass
-            isAnalyticsModule=true
-          />
-        </div>
-      </div>
+      <LoadedTable
+        visibleColumns=cols
+        title="Authentication Summary"
+        hideTitle=true
+        actualData={paymentsProcessed}
+        entity=authSummaryTableEntity
+        resultsPerPage=10
+        totalResults={paymentsProcessed->Array.length}
+        offset
+        setOffset
+        defaultSort
+        currrentFetchCount={paymentsProcessed->Array.length}
+        tableLocalFilter=false
+        tableheadingClass=tableBorderClass
+        tableBorderClass
+        ignoreHeaderBg=true
+        showSerialNumber=true
+        tableDataBorderClass=tableBorderClass
+        isAnalyticsModule=true
+      />
     </div>
   }
 }
@@ -128,7 +121,11 @@ let make = (~entity: moduleEntity) => {
           ~delta=entity.requestBodyConfig.delta,
           ~metrics=entity.requestBodyConfig.metrics,
           ~groupByNames=Some(["authentication_connector"]),
-          ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
+          ~filter=Some(
+            NewAuthenticationAnalyticsUtils.getUpdatedFilterValueJson(
+              filterValueJson,
+            )->JSON.Encode.object,
+          ),
         )
         await updateDetails(url, primaryBody, Post)
       }
@@ -162,6 +159,10 @@ let make = (~entity: moduleEntity) => {
 
   <PageLoaderWrapper
     screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+    <div
+      className={`${heading.md.semibold} bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75 my-4`}>
+      {React.string(entity.title)}
+    </div>
     <TableModule data={authenticationSummaryTableData} />
   </PageLoaderWrapper>
 }

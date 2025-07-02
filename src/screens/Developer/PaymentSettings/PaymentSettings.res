@@ -406,12 +406,15 @@ module AutoRetries = {
     let isAutoRetryEnabled =
       formState.values->getDictFromJsonObject->getBool("is_auto_retries_enabled", false)
 
-    if !isAutoRetryEnabled {
-      form.change("max_auto_retries_enabled", JSON.Encode.null->Identity.genericTypeToJson)
-      setCheckMaxAutoRetry(_ => false)
-    } else {
-      setCheckMaxAutoRetry(_ => true)
-    }
+    React.useEffect(() => {
+      if !isAutoRetryEnabled {
+        form.change("max_auto_retries_enabled", JSON.Encode.null->Identity.genericTypeToJson)
+        setCheckMaxAutoRetry(_ => false)
+      } else {
+        setCheckMaxAutoRetry(_ => true)
+      }
+      None
+    }, [isAutoRetryEnabled])
 
     <>
       <DesktopRow>
@@ -494,6 +497,33 @@ module ClickToPaySection = {
         </DesktopRow>
       </RenderIf>
     </RenderIf>
+  }
+}
+module MerchantCategoryCode = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    let merchantCodeWithNameArray = React.useMemo(() => {
+      try {
+        Window.getMerchantCategoryCodeWithName()
+      } catch {
+      | Exn.Error(e) =>
+        let _ = Exn.message(e)->Option.getOr("Error fetching merchant category codes")
+        []
+      }
+    }, [])
+
+    let errorClass = "text-sm leading-4 font-medium text-start ml-1"
+
+    <DesktopRow>
+      <FieldRenderer
+        field={merchantCodeWithNameArray->DeveloperUtils.merchantCategoryCode}
+        errorClass
+        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        fieldWrapperClass="max-w-xl  "
+      />
+    </DesktopRow>
   }
 }
 
@@ -671,6 +701,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 </DesktopRow>
                 <ClickToPaySection />
                 <AutoRetries setCheckMaxAutoRetry />
+                <RenderIf condition={featureFlagDetails.debitRouting}>
+                  <MerchantCategoryCode />
+                </RenderIf>
                 <RenderIf condition={isBusinessProfileHasThreeds}>
                   <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4">
                     <FieldRenderer
@@ -712,6 +745,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </DesktopRow>
+                <FormValuesSpy />
               </form>
             }}
           />
@@ -730,6 +764,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             />
           </div>
         </div>
+        <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>
+          <AcquirerConfigSettings />
+        </RenderIf>
       </div>
     </div>
   </PageLoaderWrapper>

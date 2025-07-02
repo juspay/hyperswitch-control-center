@@ -176,10 +176,13 @@ module CreateNewMerchantBody = {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
-
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
-      dict->Dict.set("product_type", (Obj.magic(selectedProduct) :> string)->JSON.Encode.string)
+      dict->Dict.set(
+        "product_type",
+        selectedProduct->ProductUtils.getProductStringName->JSON.Encode.string,
+      )
       dict->JSON.Encode.object
     }, [selectedProduct])
 
@@ -200,7 +203,7 @@ module CreateNewMerchantBody = {
         Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
 
         let res = switch selectedProduct {
-        | Orchestration
+        | Orchestration(V1)
         | DynamicRouting
         | CostObservability => {
             let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
@@ -249,13 +252,18 @@ module CreateNewMerchantBody = {
       let errors = Dict.make()
       let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
       let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-
+      let isDuplicate =
+        merchantList->Array.some(merchant =>
+          merchant.name->String.toLowerCase == companyName->String.toLowerCase
+        )
       let errorMessage = if companyName->isEmptyString {
         "Merchant name cannot be empty"
       } else if companyName->String.length > 64 {
         "Merchant name cannot exceed 64 characters"
       } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
         "Merchant name should not contain special characters"
+      } else if isDuplicate {
+        "Merchant with this name already exists in this organization"
       } else {
         ""
       }
@@ -349,7 +357,9 @@ let currentProductValue =
   ->Nullable.toOption
   ->Option.getOr("orchestration")
 
-let defaultContext = React.createContext(defaultValueOfProductProvider(~currentProductValue))
+let defaultContext = React.createContext(
+  defaultValueOfProductProvider(~currentProductValue, ~version=V1),
+)
 
 module Provider = {
   let make = React.Context.provider(defaultContext)
@@ -360,8 +370,9 @@ let make = (~children) => {
   let merchantList: array<OMPSwitchTypes.ompListTypes> = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantListAtom,
   )
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let (activeProduct, setActiveProduct) = React.useState(_ =>
-    currentProductValue->ProductUtils.getProductVariantFromString
+    currentProductValue->ProductUtils.getProductVariantFromString(~version)
   )
   let (action, setAction) = React.useState(_ => None)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -389,7 +400,12 @@ let make = (~children) => {
     setSelectedProduct(_ => Some(product->ProductUtils.getProductVariantFromDisplayName))
 
     let midsWithProductValue = merchantList->Array.filter(mid => {
-      mid.productType->Option.mapOr(false, productVaule => productVaule === productVariant)
+      mid.productType->Option.mapOr(false, productVaule => {
+        switch (productVaule, productVariant) {
+        | (Orchestration(v1), Orchestration(v2)) => v1 == v2
+        | (produceValue, productVariant) => produceValue == productVariant ? true : false
+        }
+      })
     })
 
     if midsWithProductValue->Array.length == 0 {
@@ -401,7 +417,7 @@ let make = (~children) => {
         ->Option.getOr({
           name: "",
           id: "",
-          productType: Orchestration,
+          productType: Orchestration(V1),
         })
 
       setSwitchToMerchant(merchantIdToSwitch, productVariant)

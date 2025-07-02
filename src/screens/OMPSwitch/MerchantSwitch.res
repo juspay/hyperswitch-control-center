@@ -7,10 +7,11 @@ module NewMerchantCreationModal = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let createNewMerchant = async values => {
       try {
         switch activeProduct {
-        | Orchestration
+        | Orchestration(V1)
         | DynamicRouting
         | CostObservability => {
             let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
@@ -40,7 +41,7 @@ module NewMerchantCreationModal = {
       let dict = Dict.make()
       dict->Dict.set(
         "product_type",
-        (Obj.magic(activeProduct) :> string)->String.toLowerCase->JSON.Encode.string,
+        activeProduct->ProductUtils.getProductStringName->String.toLowerCase->JSON.Encode.string,
       )
       dict->JSON.Encode.object
     }, [activeProduct])
@@ -75,14 +76,19 @@ module NewMerchantCreationModal = {
       open LogicUtils
       let errors = Dict.make()
       let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
+      let isDuplicate =
+        merchantList->Array.some(merchant =>
+          merchant.name->String.toLowerCase == companyName->String.toLowerCase
+        )
       let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-
       let errorMessage = if companyName->isEmptyString {
         "Merchant name cannot be empty"
       } else if companyName->String.length > 64 {
         "Merchant name cannot exceed 64 characters"
       } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
         "Merchant name should not contain special characters"
+      } else if isDuplicate {
+        "Merchant with this name already exists"
       } else {
         ""
       }
@@ -217,7 +223,7 @@ let make = () => {
         ->Array.find(merchant => merchant.id == value)
         ->Option.getOr(ompDefaultValue(merchantId, ""))
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
-      let productType = merchantData.productType->Option.getOr(Orchestration)
+      let productType = merchantData.productType->Option.getOr(Orchestration(V1))
       let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version, ~changePath=true)
       setActiveProductValue(productType)
       setShowSwitchingMerch(_ => false)
@@ -268,7 +274,7 @@ let make = () => {
         merchantName=item.name
         productType={switch item.productType {
         | Some(product) => product
-        | None => Orchestration
+        | None => Orchestration(V1)
         }}
         index=i
         currentId=item.id

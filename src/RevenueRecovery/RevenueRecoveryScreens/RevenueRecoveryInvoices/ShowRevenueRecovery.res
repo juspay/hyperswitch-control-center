@@ -46,7 +46,7 @@ module OrderInfo = {
         data=order
         getHeading
         getCell
-        detailsFields=[Id, Status, OrderAmount, Connector, Created, PaymentMethodType]
+        detailsFields=[Id, Status, OrderAmount, Connector, PaymentMethodType]
         isButtonEnabled=true
       />
     </div>
@@ -55,7 +55,13 @@ module OrderInfo = {
 
 module Attempts = {
   @react.component
-  let make = (~order: RevenueRecoveryOrderTypes.order) => {
+  let make = (~id) => {
+    open APIUtils
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let (attemptsList, setAttemptsList) = React.useState(_ => [])
+    let (nextScheduleTime, setNextScheduleTime) = React.useState(_ => JSON.Encode.string(""))
+
     let getStyle = status => {
       let orderStatus = status->HSwitchOrderUtils.refundStatusVariantMapper
 
@@ -66,44 +72,142 @@ module Attempts = {
       }
     }
 
-    <div className="border rounded-lg w-full h-fit p-5">
-      <div className="font-bold text-lg mb-5 px-4"> {"Attempts History"->React.string} </div>
-      <div className="p-5 flex flex-col gap-11 ">
-        {order.attempts
-        ->Array.mapWithIndex((item, index) => {
-          let (border, icon) = item.status->getStyle
+    let fetchProcessTrackerDetails = async _ => {
+      try {
+        let url = getURL(~entityName=V2(PROCESS_TRACKER), ~methodType=Get, ~id=Some(id))
+        let data = await fetchDetails(url, ~version=V2)
 
-          <div className="grid grid-cols-10 gap-5" key={index->Int.toString}>
-            <div className="flex flex-col gap-1">
-              <div className="w-full flex justify-end font-semibold">
-                {`#${(order.attempts->Array.length - index)->Int.toString}`->React.string}
-              </div>
-              <div className="w-full flex justify-end text-xs opacity-50">
-                {<Table.DateCell timestamp={item.created} isCard=true hideTime=true />}
-              </div>
+        setNextScheduleTime(_ => data)
+      } catch {
+      | _ => ()
+      }
+    }
+
+    let fetchOrderAttemptListDetails = async _ => {
+      try {
+        let url = getURL(~entityName=V2(V2_ATTEMPTS_LIST), ~methodType=Get, ~id=Some(id))
+        let data = await fetchDetails(url, ~version=V2)
+
+        let array =
+          data
+          ->getDictFromJsonObject
+          ->getArrayFromDict("payment_attempt_list", [])
+          ->JSON.Encode.array
+          ->getAttempts
+          ->Array.filter(item => item.status !== "started")
+
+        array->Array.reverse
+
+        setAttemptsList(_ => array)
+      } catch {
+      | _ => ()
+      }
+    }
+
+    React.useEffect(() => {
+      fetchOrderAttemptListDetails()->ignore
+      fetchProcessTrackerDetails()->ignore
+      None
+    }, [])
+
+    let scheduleTimeComponent = {
+      let (border, icon) = ""->getStyle
+
+      let dict = nextScheduleTime->getDictFromJsonObject
+
+      <RenderIf
+        condition={dict->Dict.keysToArray->Array.length > 0 &&
+          dict->getString("status", "") != "finish"}>
+        <div className="grid grid-cols-12 gap-5">
+          <div className="col-span-2 flex flex-col gap-1">
+            <div className="w-full flex justify-end font-semibold">
+              {`#${(attemptsList->Array.length + 1)->Int.toString}`->React.string}
             </div>
-            <div className="relative ml-7">
-              <div
-                className={`absolute left-0 -ml-0.5 top-0 border-1.5 p-2 rounded-full h-fit w-fit border-${border} bg-white z-10`}>
-                <Icon name=icon className={`w-5 h-5 text-${border}`} />
-              </div>
-              <RenderIf condition={index != order.attempts->Array.length - 1}>
-                <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
-              </RenderIf>
-            </div>
-            <div className="border col-span-8 rounded-lg px-2">
-              <ShowOrderDetails
-                data=item
-                getHeading=getAttemptHeading
-                getCell=getAttemptCell
-                detailsFields=[AttemptTriggeredBy, Status, Error]
-              />
+            <div className="w-full flex justify-end text-xs opacity-50">
+              {<Table.DateCell
+                timestamp={dict->getString("schedule_time_for_payment", "")} isCard=true
+              />}
             </div>
           </div>
-        })
-        ->React.array}
+          <div className="relative ml-7">
+            <div
+              className={`absolute left-0 -ml-0.5 top-0 border-1.5 p-2 rounded-full h-fit w-fit border-${border} bg-white z-10`}>
+              <Icon name=icon className={`w-5 h-5 text-${border}`} />
+            </div>
+            <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
+          </div>
+          <div className="border col-span-9 rounded-lg px-5">
+            <div className="flex justify-start">
+              <div className="w-1/3">
+                <DisplayKeyValueParams
+                  heading={getAttemptHeading(AttemptTriggeredBy)}
+                  value={Text("Internal")}
+                  customMoneyStyle="!font-normal !text-sm"
+                  labelMargin="!py-0 mt-2"
+                  overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
+                  isHorizontal=false
+                />
+              </div>
+              <div className="w-1/3">
+                <DisplayKeyValueParams
+                  heading={getAttemptHeading(Status)}
+                  value={Label({
+                    title: dict->getString("status", "")->String.toUpperCase,
+                    color: LabelBlue,
+                  })}
+                  customMoneyStyle="!font-normal !text-sm"
+                  labelMargin="!py-0 mt-2"
+                  overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
+                  isHorizontal=false
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </RenderIf>
+    }
+
+    <RenderIf condition={attemptsList->Array.length > 0}>
+      <div className="border rounded-lg w-full h-fit p-5">
+        <div className="font-bold text-lg mb-5 px-4"> {"Attempts History"->React.string} </div>
+        <div className="p-5 flex flex-col gap-11 ">
+          {scheduleTimeComponent}
+          {attemptsList
+          ->Array.mapWithIndex((item: RevenueRecoveryOrderTypes.attempts, index) => {
+            let (border, icon) = item.status->getStyle
+
+            <div className="grid grid-cols-12 gap-5" key={index->Int.toString}>
+              <div className="col-span-2 flex  flex-col gap-1 ">
+                <div className="w-full flex justify-end font-semibold">
+                  {`#${(attemptsList->Array.length - index)->Int.toString}`->React.string}
+                </div>
+                <div className="w-full flex justify-end text-xs opacity-50">
+                  {<Table.DateCell timestamp={item.created} isCard=true />}
+                </div>
+              </div>
+              <div className="relative ml-7">
+                <div
+                  className={`absolute left-0 -ml-0.5 top-0 border-1.5 p-2 rounded-full h-fit w-fit border-${border} bg-white z-10`}>
+                  <Icon name=icon className={`w-5 h-5 text-${border}`} />
+                </div>
+                <RenderIf condition={index != attemptsList->Array.length - 1}>
+                  <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
+                </RenderIf>
+              </div>
+              <div className="border col-span-9 rounded-lg px-2">
+                <ShowOrderDetails
+                  data=item
+                  getHeading=getAttemptHeading
+                  getCell=getAttemptCell
+                  detailsFields=[AttemptTriggeredBy, Status, Error]
+                />
+              </div>
+            </div>
+          })
+          ->React.array}
+        </div>
       </div>
-    </div>
+    </RenderIf>
   }
 }
 
@@ -122,17 +226,13 @@ let make = (~id) => {
     try {
       setScreenState(_ => Loading)
 
-      let url = getURL(
-        ~entityName=V1(RECOVERY_ATTEMPTS),
-        ~methodType=Get,
-        ~queryParamerters=Some(id),
-      )
-      let data = await fetchDetails(url, ~version=V1)
+      let url = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+      let data = await fetchDetails(url, ~version=V2)
 
       setRevenueRecoveryData(_ =>
         data
         ->getDictFromJsonObject
-        ->RevenueRecoveryEntity.itemToObjMapper
+        ->RevenueRecoveryEntity.itemToObjMapperForIntents
       )
 
       setScreenState(_ => Success)
@@ -185,7 +285,7 @@ let make = (~id) => {
       </PageLoaderWrapper>
     </div>
     <div className="overflow-scroll">
-      <Attempts order={revenueRecoveryData} />
+      <Attempts id />
     </div>
   </div>
 }

@@ -39,11 +39,13 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
+    acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
     authentication_product_ids: Some(
       jsonDict
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
   }
 }
 let mapJsonToBusinessProfileV2 = (values): profileEntity => {
@@ -83,10 +85,12 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
+    acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
     authentication_product_ids: Some(
       jsonDict
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
+    merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
   }
 }

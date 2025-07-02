@@ -55,7 +55,11 @@ type featureFlag = {
   googlePayDecryptionFlow: bool,
   devWebhooks: bool,
   sampleDataAnalytics: bool,
+  threedsExemptionRules: bool,
   paymentSettingsV2: bool,
+  acquirerConfigSettings: bool,
+  devOmpChart: bool,
+  devOrchestrationV2Product: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -113,7 +117,11 @@ let featureFlagType = (featureFlags: JSON.t) => {
     googlePayDecryptionFlow: dict->getBool("google_pay_decryption_flow", false),
     devWebhooks: dict->getBool("dev_webhooks", false),
     sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
+    acquirerConfigSettings: dict->getBool("acquirer_config_settings", false),
     paymentSettingsV2: dict->getBool("payment_settings_v2", false),
+    threedsExemptionRules: dict->getBool("threeds_exemption", false),
+    devOmpChart: dict->getBool("dev_omp_chart", false),
+    devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
   }
 }
 

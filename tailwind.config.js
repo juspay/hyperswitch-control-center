@@ -32,6 +32,9 @@ module.exports = {
       scale: {
         400: "4",
       },
+      margin: {
+        "15-px": "15px",
+      },
       height: {
         "1.1-rem": "1.125rem",
         "5-rem": "5rem",
@@ -69,10 +72,13 @@ module.exports = {
         "10-px": "10px",
       },
       maxHeight: {
+        "15-rem": "15rem",
         "25-rem": "25rem",
+        "30-rem": "30rem",
       },
       inset: {
         "76-px": "76px",
+        "180-px": "180px",
       },
       letterSpacing: {
         compressed: "-2px",
@@ -385,11 +391,13 @@ module.exports = {
           800: "#222530",
         },
         nd_primary_blue: {
+          25: "#F6FAFE",
           50: "#E4F1FD",
           100: "#BCD7FA",
           200: "#93BCF6",
           300: "#6AA1F2",
           400: "#4287EF",
+          450: "#247DF9",
           500: "#1C6DEA",
           600: "#0561E2",
         },
