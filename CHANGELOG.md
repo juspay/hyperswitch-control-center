@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.02.0
+
+### Bug Fixes
+
+- Webhooks retry mixpanel event added ([#3241](https://github.com/juspay/hyperswitch-control-center/pull/3241)) ([`50453d5`](https://github.com/juspay/hyperswitch-control-center/commit/50453d50605838de319d435d06a498bc574146e3))
+
+### Miscellaneous Tasks
+
+- Added custom metadata headers tab in revamped payment settings ([#3235](https://github.com/juspay/hyperswitch-control-center/pull/3235)) ([`90f1e6b`](https://github.com/juspay/hyperswitch-control-center/commit/90f1e6b056b0d680cfcd03f6ac210ce32faa3b53))
+- Product type matching bugfix ([#3236](https://github.com/juspay/hyperswitch-control-center/pull/3236)) ([`a0773a0`](https://github.com/juspay/hyperswitch-control-center/commit/a0773a026c9b18be40101f479afc6272797bc28d))
+
+**Full Changelog:** [`2025.07.01.0...2025.07.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.01.0...2025.07.02.0)
+
+- - -
+
 ## 2025.07.01.0
 
 ### Features
