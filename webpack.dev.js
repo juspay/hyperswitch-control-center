@@ -6,7 +6,6 @@ const config = import("./src/server/config.mjs");
 
 let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
-// UPDATED: Changed from object to array format
 let proxy = [
   {
     context: ["/api"],
