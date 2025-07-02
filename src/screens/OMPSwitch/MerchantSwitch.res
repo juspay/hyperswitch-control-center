@@ -2,6 +2,7 @@ module NewMerchantCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~getMerchantList) => {
     open APIUtils
+    open LogicUtils
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
@@ -39,15 +40,14 @@ module NewMerchantCreationModal = {
 
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
-      dict->Dict.set(
-        "product_type",
-        activeProduct->ProductUtils.getProductStringName->String.toLowerCase->JSON.Encode.string,
-      )
+      let productName = activeProduct->ProductUtils.getProductStringName
+      dict->Dict.set("product_type", productName->String.toLowerCase->JSON.Encode.string)
+      let randomString = randomString(~length=10)
+      dict->Dict.set("company_name", JSON.Encode.string(`${productName}_${randomString}`))
       dict->JSON.Encode.object
     }, [activeProduct])
 
     let onSubmit = (values, _) => {
-      open LogicUtils
       let dict = values->getDictFromJsonObject
       let trimmedData = dict->getString("company_name", "")->String.trim
       Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
@@ -73,7 +73,6 @@ module NewMerchantCreationModal = {
     )
 
     let validateForm = (values: JSON.t) => {
-      open LogicUtils
       let errors = Dict.make()
       let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
       let isDuplicate =
