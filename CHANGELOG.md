@@ -3,6 +3,41 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.02.0
+
+### Bug Fixes
+
+- Webhooks retry mixpanel event added ([#3241](https://github.com/juspay/hyperswitch-control-center/pull/3241)) ([`50453d5`](https://github.com/juspay/hyperswitch-control-center/commit/50453d50605838de319d435d06a498bc574146e3))
+
+### Miscellaneous Tasks
+
+- Added custom metadata headers tab in revamped payment settings ([#3235](https://github.com/juspay/hyperswitch-control-center/pull/3235)) ([`90f1e6b`](https://github.com/juspay/hyperswitch-control-center/commit/90f1e6b056b0d680cfcd03f6ac210ce32faa3b53))
+- Product type matching bugfix ([#3236](https://github.com/juspay/hyperswitch-control-center/pull/3236)) ([`a0773a0`](https://github.com/juspay/hyperswitch-control-center/commit/a0773a026c9b18be40101f479afc6272797bc28d))
+
+**Full Changelog:** [`2025.07.01.0...2025.07.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.01.0...2025.07.02.0)
+
+- - -
+
+## 2025.07.01.0
+
+### Features
+
+- Orchestrator v2 connectors list screen ([#3227](https://github.com/juspay/hyperswitch-control-center/pull/3227)) ([`f843512`](https://github.com/juspay/hyperswitch-control-center/commit/f843512c89c6bf5eae193a7ca3656c8d157cca64))
+
+### Bug Fixes
+
+- Make filter menu scrollable and fix filter type issues ([#3218](https://github.com/juspay/hyperswitch-control-center/pull/3218)) ([`b000101`](https://github.com/juspay/hyperswitch-control-center/commit/b0001017f71d8af77357c6c4bc586e9da141b000))
+
+### Miscellaneous Tasks
+
+- Added custom webhook headers tab in revamped payment settings ([#3210](https://github.com/juspay/hyperswitch-control-center/pull/3210)) ([`074a9ab`](https://github.com/juspay/hyperswitch-control-center/commit/074a9abb9af9b9ffb2aa73420bbd97a9226c94dd))
+- Orchestration v2 connectors static changes ([#3224](https://github.com/juspay/hyperswitch-control-center/pull/3224)) ([`6edc146`](https://github.com/juspay/hyperswitch-control-center/commit/6edc1460c141d641ea5975564d1c1ede0d7a224d))
+- Updated dynamo wasm ([#3222](https://github.com/juspay/hyperswitch-control-center/pull/3222)) ([`9c116ee`](https://github.com/juspay/hyperswitch-control-center/commit/9c116ee820290c992813fa3375d4e633db65bba2))
+
+**Full Changelog:** [`2025.06.26.0...2025.07.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.06.26.0...2025.07.01.0)
+
+- - -
+
 ## 2025.06.26.0
 
 ### Miscellaneous Tasks
