@@ -15,9 +15,9 @@ let getAttemptCell = (
   | Status =>
     Label({
       title: attempt.status->String.toUpperCase,
-      color: switch attempt.status->HSwitchOrderUtils.refundStatusVariantMapper {
-      | Success => LabelGreen
-      | Failure => LabelRed
+      color: switch attempt.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
+      | #CHARGED => LabelGreen
+      | #FAILURE => LabelRed
       | _ => LabelLightGray
       },
     })
@@ -70,7 +70,44 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
-  LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
+  let errorCode = ref("")
+  let errorMessage = ref("")
+  json
+  ->getArrayFromJson([])
+  ->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+
+    let network_decline_code =
+      dict
+      ->getDictfromDict("error")
+      ->getString("network_decline_code", "")
+    let network_error_message =
+      dict
+      ->getDictfromDict("error")
+      ->getString("network_error_message", "")
+
+    if (
+      (network_decline_code->isEmptyString || network_error_message->isEmptyString) &&
+        dict->getString("status", "") != "charged"
+    ) {
+      let temp =
+        [
+          ("network_decline_code", errorCode.contents->JSON.Encode.string),
+          ("network_error_message", errorMessage.contents->JSON.Encode.string),
+        ]
+        ->Dict.fromArray
+        ->JSON.Encode.object
+
+      dict->Dict.set("error", temp)
+    }
+
+    if errorCode.contents->isEmptyString || errorMessage.contents->isEmptyString {
+      errorCode := network_decline_code
+      errorMessage := network_error_message
+    }
+
+    dict->attemptsItemToObjMapper
+  })
 }
 
 let allColumns: array<RevenueRecoveryOrderTypes.colType> = [

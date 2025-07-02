@@ -87,7 +87,7 @@ let make = (~handleAuthKeySubmit, ~initialValues, ~validateMandatoryField) => {
             </label>
             <div
               className="w-full border border-gray-200 rounded-lg px-4 py-2 text-gray-700 bg-gray-50">
-              {" $ 1600"->React.string}
+              {" $ 3k"->React.string}
             </div>
           </div>
         </div>

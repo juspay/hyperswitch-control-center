@@ -91,7 +91,7 @@ let make = () => {
     <div className="col-span-2 grid grid-cols-2 gap-4">
       <StatCard
         title="Total Declines invoices"
-        value="1.78K"
+        value="121.5K"
         change=""
         desc="Last month"
         soft="67.77%"
@@ -99,7 +99,7 @@ let make = () => {
       />
       <StatCard
         title="Total Recovered invoice"
-        value="1.33K"
+        value="66.8K"
         change=""
         desc="Last month"
         soft="77%"
@@ -107,18 +107,18 @@ let make = () => {
       />
       <StatCard
         title="Pending Recovery invoices"
-        value="450"
+        value="24.3K"
         change=""
         desc="Last month"
         soft="82%"
         hard="18%"
       />
       <StatCard
-        title="Recovered MRR" value="$ 26.7K" change="" desc="Last month" soft="77%" hard="23%"
+        title="Recovered MRR" value="$ 1.33M" change="" desc="Last month" soft="77%" hard="23%"
       />
     </div>
     <BudgetCard
-      budget="1600" used="400" spent="400" recovered="6.12K" pending="1.62K" invoices="1 of 4"
+      budget="3k" used="1.38k" spent="1.38k" recovered="72.8K" pending="87.48K" invoices="1 of 4"
     />
   </div>
 }

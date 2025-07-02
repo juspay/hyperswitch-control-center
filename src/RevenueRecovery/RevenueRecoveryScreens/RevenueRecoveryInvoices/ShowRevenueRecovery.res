@@ -55,7 +55,7 @@ module OrderInfo = {
 
 module Attempts = {
   @react.component
-  let make = (~id, ~setHasNextSchedule) => {
+  let make = (~id, ~setHasNextSchedule, ~order: RevenueRecoveryOrderTypes.order) => {
     open APIUtils
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
@@ -63,11 +63,11 @@ module Attempts = {
     let (nextScheduleTime, setNextScheduleTime) = React.useState(_ => JSON.Encode.string(""))
 
     let getStyle = status => {
-      let orderStatus = status->HSwitchOrderUtils.refundStatusVariantMapper
+      let orderStatus = status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
 
       switch orderStatus {
-      | Success => ("green-status", "nd-check")
-      | Failure => ("red-status", "nd-alert-triangle-outline")
+      | #CHARGED => ("green-status", "nd-check")
+      | #FAILURE => ("red-status", "nd-alert-triangle-outline")
       | _ => ("orange-status", "nd-calender")
       }
     }
@@ -111,7 +111,7 @@ module Attempts = {
       let intervalId = setInterval(() => {
         fetchOrderAttemptListDetails()->ignore
         fetchProcessTrackerDetails()->ignore
-      }, 10000)
+      }, 5000)
       let cleanup = () => {
         clearInterval(intervalId)
       }
@@ -131,10 +131,11 @@ module Attempts = {
             <div className="w-full flex justify-end font-semibold">
               {`#${(attemptsList->Array.length + 1)->Int.toString}`->React.string}
             </div>
-            <div className="w-full flex justify-end text-xs opacity-50">
-              {<Table.DateCell
-                timestamp={dict->getString("schedule_time_for_payment", "")} isCard=true
-              />}
+            <div className="w-full flex justify-end text-xs  text-bold">
+              {`${TimeZoneHook.formattedISOString(
+                  dict->getString("schedule_time_for_payment", ""),
+                  "MMM DD, YYYY hh:mm A",
+                )} IST`->React.string}
             </div>
           </div>
           <div className="relative ml-7">
@@ -317,7 +318,7 @@ let make = (~id) => {
       </PageLoaderWrapper>
     </div>
     <div className="overflow-scroll">
-      <Attempts id setHasNextSchedule />
+      <Attempts id setHasNextSchedule order=revenueRecoveryData />
     </div>
     <Modal
       showModal=isExpanded
