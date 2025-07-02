@@ -202,8 +202,7 @@ let make = () => {
         []
       }
       let concatenatedList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
-      let response =
-        concatenatedList->LogicUtils.uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
+      let response = concatenatedList->uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
       let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
       setMerchantList(_ => concatenatedListTyped)
     } catch {
