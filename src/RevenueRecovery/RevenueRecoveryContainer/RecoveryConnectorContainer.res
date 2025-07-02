@@ -85,7 +85,7 @@ let make = () => {
         <RevenueRecoveryOnboardingLanding createMerchant=false />
       }
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <NotFoundPage />
+    | _ => <EmptyPage path="/v2/recovery/overview" />
     }}
   </PageLoaderWrapper>
 }

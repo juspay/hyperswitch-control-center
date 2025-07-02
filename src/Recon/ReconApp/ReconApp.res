@@ -6,7 +6,7 @@ let make = () => {
   open VerticalStepIndicatorTypes
   open ReconConfigurationTypes
   open ReconOnboardingHelper
-
+  open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let (showOnBoarding, setShowOnBoarding) = React.useState(_ => true)
   let (currentStep, setCurrentStep) = React.useState(() => {
@@ -16,7 +16,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
+  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let getReconStatus = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -56,12 +56,16 @@ let make = () => {
   }, [])
 
   <PageLoaderWrapper screenState sectionHeight="!h-screen">
-    {switch url.path->HSwitchUtils.urlPath {
-    | list{"v2", "recon"} => <ReconOnboardingLanding />
-    | list{"v2", "recon", "overview"} => <ReconOverviewContainer showOnBoarding />
-    | list{"v2", "recon", "configuration"} =>
-      <ReconConfigurationContainer setShowOnBoarding currentStep setCurrentStep />
-    | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer showOnBoarding />
+    {switch merchantDetailsTypedValue.product_type {
+    | Recon =>
+      switch url.path->HSwitchUtils.urlPath {
+      | list{"v2", "recon"} => <ReconOnboardingLanding />
+      | list{"v2", "recon", "overview"} => <ReconOverviewContainer showOnBoarding />
+      | list{"v2", "recon", "configuration"} =>
+        <ReconConfigurationContainer setShowOnBoarding currentStep setCurrentStep />
+      | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer showOnBoarding />
+      | _ => <EmptyPage path="/v2/recon/overview" />
+      }
     | _ => React.null
     }}
   </PageLoaderWrapper>
