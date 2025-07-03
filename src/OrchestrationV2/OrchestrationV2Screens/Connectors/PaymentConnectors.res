@@ -1,13 +1,16 @@
 @react.component
 let make = () => {
   open ConnectorUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  // let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
-  let (_previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
-  let (_filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
+  let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
+  let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
+  let (offset, setOffset) = React.useState(_ => 0)
+  let (searchText, setSearchText) = React.useState(_ => "")
   let (_processorModal, setProcessorModal) = React.useState(_ => false)
 
   let connectorsList = ConnectorInterface.useConnectorArrayMapper(
@@ -42,11 +45,34 @@ let make = () => {
     None
   }, [connectorsList->Array.length])
 
+  let filterLogic = ReactDebounce.useDebounced(ob => {
+    open LogicUtils
+    let (searchText, arr) = ob
+    let filteredList = if searchText->isNonEmptyString {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadV2>) => {
+        switch Nullable.toOption(obj) {
+        | Some(obj) =>
+          isContainingStringLowercase(obj.connector_name, searchText) ||
+          isContainingStringLowercase(obj.id, searchText) ||
+          isContainingStringLowercase(obj.connector_label, searchText)
+        | None => false
+        }
+      })
+    } else {
+      arr
+    }
+    setFilteredConnectorData(_ => filteredList)
+  }, ~wait=200)
+
   let isMobileView = MatchMedia.useMobileChecker()
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? connectorListForLive
     : connectorList
+
+  let callMixpanel = eventName => {
+    mixpanelEvent(~eventName)
+  }
 
   <div>
     <PageLoaderWrapper screenState>
@@ -93,6 +119,33 @@ let make = () => {
             setShowModal={setShowFeedbackModal}
             modalHeading="Tell us about your integration experience"
             feedbackVia="connected_a_connector"
+          />
+        </RenderIf>
+        <RenderIf condition={configuredConnectors->Array.length > 0}>
+          <LoadedTable
+            title="Connected Processors"
+            actualData=filteredConnectorData
+            totalResults={filteredConnectorData->Array.length}
+            filters={<TableSearchFilter
+              data={previouslyConnectedData}
+              filterLogic
+              placeholder="Search Processor or Merchant Connector Id or Connector Label"
+              customSearchBarWrapperWidth="w-full lg:w-1/2"
+              customInputBoxWidth="w-full"
+              searchVal=searchText
+              setSearchVal=setSearchText
+            />}
+            resultsPerPage=20
+            offset
+            setOffset
+            entity={PaymentProcessorEntity.connectorEntity(
+              "v2/orchestration/connectors",
+              ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
+              callMixpanel,
+            )}
+            currrentFetchCount={filteredConnectorData->Array.length}
+            collapseTableRow=false
+            showAutoScroll=true
           />
         </RenderIf>
         <PaymentProcessorCards

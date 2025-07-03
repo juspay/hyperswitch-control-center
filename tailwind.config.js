@@ -78,6 +78,7 @@ module.exports = {
       },
       inset: {
         "76-px": "76px",
+        "180-px": "180px",
       },
       letterSpacing: {
         compressed: "-2px",

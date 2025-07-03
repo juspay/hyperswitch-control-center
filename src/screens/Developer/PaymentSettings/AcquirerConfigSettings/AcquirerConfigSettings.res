@@ -48,10 +48,7 @@ module SettingsForm = {
       let valuesDict = values->getDictFromJsonObject
       let acquirerBinValue = valuesDict->getFloat("acquirer_bin", 0.0)
       if acquirerBinValue > 0.0 {
-        valuesDict->Dict.set(
-          "acquirer_bin",
-          acquirerBinValue->Float.toInt->Int.toString->JSON.Encode.string,
-        )
+        valuesDict->Dict.set("acquirer_bin", acquirerBinValue->Float.toString->JSON.Encode.string)
       }
       valuesDict
     }

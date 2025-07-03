@@ -179,10 +179,10 @@ module CreateNewMerchantBody = {
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
-      dict->Dict.set(
-        "product_type",
-        selectedProduct->ProductUtils.getProductStringName->JSON.Encode.string,
-      )
+      let productName = selectedProduct->ProductUtils.getProductStringName
+      dict->Dict.set("product_type", productName->JSON.Encode.string)
+      let randomString = randomString(~length=10)
+      dict->Dict.set("company_name", JSON.Encode.string(`${productName}_${randomString}`))
       dict->JSON.Encode.object
     }, [selectedProduct])
 
