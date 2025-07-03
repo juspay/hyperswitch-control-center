@@ -16,6 +16,7 @@ let proxy = {
   "/test-data/recon": { target: "", changeOrigin: true },
   "/test-data/analytics": { target: "", changeOrigin: true },
   "/dynamo-simulation-template": { target: "", changeOrigin: true },
+  "/3ds-exemption": { target: "", changeOrigin: true },
 };
 
 let configMiddleware = (req, res, next) => {
