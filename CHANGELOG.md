@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.03.0
+
+### Features
+
+- Orchestrator v2 connected connectors table ([#3229](https://github.com/juspay/hyperswitch-control-center/pull/3229)) ([`7ddbf2c`](https://github.com/juspay/hyperswitch-control-center/commit/7ddbf2c5456dc0c34a2db4c72aa9717f2670b0e7))
+
+### Bug Fixes
+
+- Improvement and bug fixes ([#3239](https://github.com/juspay/hyperswitch-control-center/pull/3239)) ([`43445f2`](https://github.com/juspay/hyperswitch-control-center/commit/43445f24cd37a261d1695f529e564b646927184c))
+
+### Miscellaneous Tasks
+
+- Display prefilled merchant name in create merchant modal ([#3249](https://github.com/juspay/hyperswitch-control-center/pull/3249)) ([`58d2150`](https://github.com/juspay/hyperswitch-control-center/commit/58d2150e92d1db738945e8b11ac1488a6b3a6791))
+
+**Full Changelog:** [`2025.07.02.0...2025.07.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.02.0...2025.07.03.0)
+
+- - -
+
 ## 2025.07.02.0
 
 ### Bug Fixes
