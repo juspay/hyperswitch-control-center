@@ -745,11 +745,14 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.click();
-    cy.get('[class="flex flex-wrap gap-1 md:flex-col"]').within(() => {
-      timeRangeFilters.forEach((option) => {
-        cy.contains(option).should("exist");
+    cy.get('[data-date-picker-predifined="predefined-options"]')
+      .should("exist")
+      .should("be.visible")
+      .within(() => {
+        timeRangeFilters.forEach((option) => {
+          cy.contains(option).should("exist");
+        });
       });
-    });
   });
 
   it.skip("should verify applied when predefined timerange is applied from dropdown", () => {
@@ -806,7 +809,10 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.click();
-    cy.get('[data-daterange-dropdown-value="Custom Range"]').click();
+    cy.get('[data-daterange-dropdown-value="Custom Range"]')
+      .should("exist")
+      .should("be.visible")
+      .click();
 
     cy.get("[data-testid]")
       .filter(`[data-testid*=" ${startDate},"]`)
