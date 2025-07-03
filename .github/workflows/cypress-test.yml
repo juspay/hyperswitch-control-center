@@ -53,7 +53,7 @@ jobs:
           install: false
           build: npm run build:test
           start: npm run test:start
-          spec: cypress/e2e/3-operations/paymentOperations.cy.js
+          # spec: cypress/e2e/quick-start/sbx-quick-start.cy.js
 
       - name: Test Artifacts
         uses: actions/upload-artifact@v4
@@ -61,13 +61,6 @@ jobs:
         with:
           name: cypress-screenshots
           path: ./cypress/screenshots
-
-      - name: Upload videos of tests failed 
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-videos
-          path: ./cypress/videos
 
       # - name: Check Coverage Thresholds
       #   run: |
