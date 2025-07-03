@@ -745,7 +745,7 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.click();
-    cy.get('[data-date-picker-predifined="predefined-options"]').within(() => {
+    cy.get('[class="flex flex-wrap gap-1 md:flex-col"]').within(() => {
       timeRangeFilters.forEach((option) => {
         cy.contains(option).should("exist");
       });
