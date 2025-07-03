@@ -744,7 +744,7 @@ describe("Payment Operations", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
-    paymentOperations.dateSelector.click();
+    paymentOperations.dateSelector.should("be.visible").click();
     cy.get('[data-date-picker-predifined="predefined-options"]')
       .should("exist")
       .should("be.visible")
@@ -808,11 +808,11 @@ describe("Payment Operations", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
-    paymentOperations.dateSelector.click();
+    paymentOperations.dateSelector.should("be.visible").click();
     cy.get('[data-daterange-dropdown-value="Custom Range"]')
       .should("exist")
       .should("be.visible")
-      .click();
+      .click({ force: true });
 
     cy.get("[data-testid]")
       .filter(`[data-testid*=" ${startDate},"]`)
