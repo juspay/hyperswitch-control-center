@@ -16,7 +16,7 @@ let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => 
 
 let getProductDisplayName = product =>
   switch product {
-  | Recon => "Recon"
+  | Recon => "Reconciliation"
   | Recovery => "Revenue Recovery"
   | Orchestration(V1) => "Orchestrator"
   | Vault => "Vault"
@@ -49,7 +49,7 @@ let getProductStringName = product =>
 
 let getProductVariantFromDisplayName = product => {
   switch product {
-  | "Recon" => Recon
+  | "Reconciliation" => Recon
   | "Revenue Recovery" => Recovery
   | "Orchestrator" => Orchestration(V1)
   | "Vault" => Vault
@@ -57,6 +57,17 @@ let getProductVariantFromDisplayName = product => {
   | "Intelligent Routing" => DynamicRouting
   | "Orchestrator V2" => Orchestration(V2)
   | _ => Orchestration(V1)
+  }
+}
+
+let productTypeIconMapper = productType => {
+  switch productType {
+  | Recon => "recon-home"
+  | Recovery => "recovery-home"
+  | Vault => "vault-home"
+  | CostObservability => "cost-observability-home"
+  | DynamicRouting => "intelligent-routing-home"
+  | _ => "orchestrator-home"
   }
 }
 

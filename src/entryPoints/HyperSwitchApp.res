@@ -37,8 +37,19 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
 
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
-  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
+  let exploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=true)
+  let unexploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=false)
+  let exploredSidebars = SidebarHooks.useGetAllProductSections(
+    ~isReconEnabled,
+    ~products=exploredModules,
+    ~version,
+  )
+  let unexploredSidebars = SidebarHooks.useGetAllProductSections(
+    ~isReconEnabled,
+    ~products=unexploredModules,
+    ~version,
+  )
+
   sessionExpired := false
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
@@ -49,7 +60,7 @@ let make = () => {
     }
   }
   // set the product url based on the product type
-  let setupProductUrl = (~productType: ProductTypes.productTypes) => {
+  let _setupProductUrl = (~productType: ProductTypes.productTypes) => {
     let currentUrl = GlobalVars.extractModulePath(
       ~path=url.path,
       ~query=url.search,
@@ -74,7 +85,6 @@ let make = () => {
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
-      setupProductUrl(~productType=merchantResponse.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -126,12 +136,7 @@ let make = () => {
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
-                <Sidebar
-                  path={url.path}
-                  sidebars={hyperSwitchAppSidebars}
-                  key={(screenState :> string)}
-                  productSiebars=productSidebars
-                />
+                <Sidebar path=url.path exploredSidebars unexploredSidebars />
               </RenderIf>
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
@@ -174,55 +179,82 @@ let make = () => {
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
-                        {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
-                        /* DEFAULT HOME */
-                        | (_, list{"v2", "home"}) => <DefaultHome />
+                        {switch url.path->urlPath {
+                        // /* DEFAULT HOME */
+                        | list{"v2", "home"} => <DefaultHome />
+                        | list{"organization-chart"} => <OrganisationChart />
+                        | list{"v2", "onboarding", ..._} => <DefaultOnboardingPage />
 
-                        | (_, list{"organization-chart"}) => <OrganisationChart />
-
-                        | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
-
-                        | (_, list{"account-settings", "profile", ...remainingPath}) =>
+                        | list{"account-settings", "profile", ...remainingPath} =>
                           <EntityScaffold
                             entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
-
-                        | (_, list{"unauthorized"}) =>
+                        | list{"unauthorized"} =>
                           <UnauthorizedPage message="You don't have access to this module." />
-
-                        /* RECON PRODUCT */
-                        | (Recon, list{"v2", "recon", ..._}) => <ReconApp />
-
-                        /* RECOVERY PRODUCT */
-                        | (Recovery, list{"v2", "recovery", ..._}) => <RevenueRecoveryApp />
-
-                        /* VAULT PRODUCT */
-                        | (Vault, list{"v2", "vault", ..._}) => <VaultApp />
-
-                        /* HYPERSENSE PRODUCT */
-                        | (CostObservability, list{"v2", "cost-observability", ..._}) =>
-                          <HypersenseApp />
-
-                        /* INTELLIGENT ROUTING PRODUCT */
-                        | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
-                          <IntelligentRoutingApp />
-
-                        /* ORCHESTRATOR V2 PRODUCT */
-                        | (Orchestration(V2), list{"v2", "orchestration", ..._}) =>
-                          <OrchestrationV2App />
-
-                        /* ORCHESTRATOR PRODUCT */
-                        | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
-
-                        | _ =>
-                          <UnauthorizedPage
-                            productType=merchantDetailsTypedValue.product_type
-                            message="You don't have access to this module."
-                          />
+                        | list{"v2", "recon", ..._} => <ReconApp />
+                        | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
+                        | list{"v2", "vault", ..._} => <VaultApp />
+                        | list{"v2", "dynamic-routing", ..._} => <IntelligentRoutingApp />
+                        | list{"v2", "cost-observability", ..._} => <HypersenseApp />
+                        // | _ => <OrchestrationApp setScreenState />
+                        | _ => <OrchestrationApp setScreenState />
+                        // <UnauthorizedPage
+                        //   productType=merchantDetailsTypedValue.product_type
+                        //   message="You don't have access to this module."
+                        // />
                         }}
+                        // {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
+                        // /* DEFAULT HOME */
+                        // | (_, list{"v2", "home"}) => <DefaultHome />
+
+                        // | (_, list{"organization-chart"}) => <OrganisationChart />
+
+                        // | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
+
+                        // | (_, list{"account-settings", "profile", ...remainingPath}) =>
+                        //   <EntityScaffold
+                        //     entityName="profile setting"
+                        //     remainingPath
+                        //     renderList={() => <HSwitchProfileSettings />}
+                        //     renderShow={(_, _) => <ModifyTwoFaSettings />}
+                        //   />
+
+                        // | (_, list{"unauthorized"}) =>
+                        //   <UnauthorizedPage message="You don't have access to this module." />
+
+                        // /* RECON PRODUCT */
+                        // | (Recon, list{"v2", "recon", ..._}) => <ReconApp />
+
+                        // /* RECOVERY PRODUCT */
+                        // | (Recovery, list{"v2", "recovery", ..._}) => <RevenueRecoveryApp />
+
+                        // /* VAULT PRODUCT */
+                        // | (Vault, list{"v2", "vault", ..._}) => <VaultApp />
+
+                        // /* HYPERSENSE PRODUCT */
+                        // | (CostObservability, list{"v2", "cost-observability", ..._}) =>
+                        //   <HypersenseApp />
+
+                        // /* INTELLIGENT ROUTING PRODUCT */
+                        // | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
+                        //   <IntelligentRoutingApp />
+
+                        // /* ORCHESTRATOR V2 PRODUCT */
+                        // | (Orchestration(V2), list{"v2", "orchestration", ..._}) =>
+                        //   <OrchestrationV2App />
+
+                        // /* ORCHESTRATOR PRODUCT */
+                        // | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
+
+                        // | _ =>
+                        //   <UnauthorizedPage
+                        //     productType=merchantDetailsTypedValue.product_type
+                        //     message="You don't have access to this module."
+                        //   />
+                        // }}
                       </ErrorBoundary>
                     </div>
                   </div>

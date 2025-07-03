@@ -163,7 +163,7 @@ let threeDsConnector = (~userHasResourceAccess) => {
 
 let pmAuthenticationProcessor = (~userHasResourceAccess) => {
   SubLevelLink({
-    name: "PM Authentication Processor",
+    name: "PM Auth Processor",
     link: `/pm-authentication-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
@@ -602,7 +602,7 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
     }
   | (true, false, true) =>
     Link({
-      name: "Reconciliation",
+      name: "Recon And Settlement",
       icon: isReconEnabled ? "recon" : "recon-lock",
       link: `/recon`,
       access: userHasResourceAccess(~resourceAccess=ReconToken),
@@ -610,109 +610,4 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
 
   | _ => emptyComponent
   }
-}
-
-let useGetHsSidebarValues = (~isReconEnabled: bool) => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let {
-    frm,
-    payOut,
-    recon,
-    default,
-    surcharge: isSurchargeEnabled,
-    isLiveMode,
-    threedsAuthenticator,
-    disputeAnalytics,
-    configurePmts,
-    complianceCertificate,
-    performanceMonitor: performanceMonitorFlag,
-    pmAuthenticationProcessor,
-    taxProcessor,
-    newAnalytics,
-    authenticationAnalytics,
-    devAltPaymentMethods,
-    devWebhooks,
-    threedsExemptionRules,
-    paymentSettingsV2,
-  } = featureFlagDetails
-  let {
-    useIsFeatureEnabledForMerchant,
-    merchantSpecificConfig,
-  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let isNewAnalyticsEnable =
-    newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
-  let sidebar = [
-    default->home,
-    default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
-    default->connectors(
-      ~isLiveMode,
-      ~isFrmEnabled=frm,
-      ~isPayoutsEnabled=payOut,
-      ~isThreedsConnectorEnabled=threedsAuthenticator,
-      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
-      ~isTaxProcessor=taxProcessor,
-      ~userHasResourceAccess,
-    ),
-    default->analytics(
-      disputeAnalytics,
-      performanceMonitorFlag,
-      isNewAnalyticsEnable,
-      ~authenticationAnalyticsFlag=authenticationAnalytics,
-      ~userHasResourceAccess,
-    ),
-    default->workflow(
-      isSurchargeEnabled,
-      threedsExemptionRules,
-      ~userHasResourceAccess,
-      ~isPayoutEnabled=payOut,
-      ~userEntity,
-    ),
-    devAltPaymentMethods->alternatePaymentMethods,
-    recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(
-      ~isWebhooksEnabled=devWebhooks,
-      ~userHasResourceAccess,
-      ~checkUserEntity,
-      ~isPaymentSettingsV2Enabled=paymentSettingsV2,
-    ),
-    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
-  ]
-
-  sidebar
-}
-
-let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
-  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
-  let defaultSidebar = []
-
-  if featureFlagDetails.devModularityV2 {
-    defaultSidebar->Array.pushMany([
-      Link({
-        name: "Home",
-        icon: "nd-home",
-        link: "/v2/home",
-        access: Access,
-        selectedIcon: "nd-fill-home",
-      }),
-      CustomComponent({
-        component: <ProductHeaderComponent />,
-      }),
-    ])
-  }
-
-  let sidebarValuesForProduct = switch activeProduct {
-  | Orchestration(V1) => hsSidebars
-  | Recon => ReconSidebarValues.reconSidebars
-  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
-  | Vault => VaultSidebarValues.vaultSidebars
-  | CostObservability => HypersenseSidebarValues.hypersenseSidebars
-  | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
-  | Orchestration(V2) => orchestratorV2Sidebars
-  }
-  defaultSidebar->Array.concat(sidebarValuesForProduct)
 }
