@@ -174,13 +174,14 @@ let useProfileSwitch = () => {
   }
 }
 
-let useInternalSwitch = () => {
+let useInternalSwitch = (~setActiveProductValue) => {
   let orgSwitch = useOrgSwitch()
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
 
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let url = RescriptReactRouter.useUrl()
+  // let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   async (
     ~expectedOrgId=None,
     ~expectedMerchantId=None,
@@ -189,6 +190,7 @@ let useInternalSwitch = () => {
     ~changePath=false,
   ) => {
     try {
+      setActiveProductValue(ProductTypes.Invalid)
       let userInfoResFromSwitchOrg = await orgSwitch(
         ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
         ~currentOrgId=userInfo.orgId,

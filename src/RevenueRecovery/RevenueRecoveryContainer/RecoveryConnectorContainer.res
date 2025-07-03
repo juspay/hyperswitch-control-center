@@ -39,7 +39,6 @@ let make = () => {
     setUpConnectorContainer()->ignore
     None
   }, [merchantId, profileId])
-
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>

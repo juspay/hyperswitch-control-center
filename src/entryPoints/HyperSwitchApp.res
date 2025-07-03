@@ -1,19 +1,3 @@
-module HyperswitchURLRouting = {
-  @react.component
-  let make = (~setScreenState) => {
-    open HyperswitchAtom
-    let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-    switch merchantDetailsTypedValue.product_type {
-    | Orchestration(V1) => <OrchestrationApp setScreenState />
-    | Orchestration(V2) => <EmptyPage path="/v2/orchestration/home" />
-    | Recon => <EmptyPage path="/v2/recon/overview" />
-    | Recovery => <EmptyPage path="/v2/recovery" />
-    | Vault => <EmptyPage path="/v2/vault/home" />
-    | CostObservability => <EmptyPage path="/v2/cost-observability/home" />
-    | DynamicRouting => <EmptyPage path="/v2/dynamic-routing/home" />
-    }
-  }
-}
 @react.component
 let make = () => {
   open HSwitchUtils
@@ -34,6 +18,8 @@ let make = () => {
   let {activeProduct, setActiveProductValue} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
+
+  // let (currentProduct, setCurrentProduct) = React.useState(_ => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -84,12 +70,15 @@ let make = () => {
       // NOTE: Treat groupACL map similar to screenstate
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
+      setActiveProductValue(Invalid)
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
+      Js.log2(merchantResponse.product_type, "merchantResponse.product_type")
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
+      // setCurrentProduct(_=>Some(merchantResponse.product_type))
       // setupProductUrl(~productType=merchantResponse.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
@@ -97,6 +86,8 @@ let make = () => {
   }
 
   React.useEffect(() => {
+    // setCurrentProduct(_ => None)
+    Js.log("LOG LOG")
     setUpDashboard()->ignore
     None
   }, [orgId, merchantId, profileId])
@@ -217,7 +208,11 @@ let make = () => {
                         | list{"v2", "dynamic-routing", ..._} => <IntelligentRoutingApp />
                         /* ORCHESTRATOR V2 PRODUCT */
                         | list{"v2", "orchestration", ..._} => <OrchestrationV2App />
-                        | _ => <HyperswitchURLRouting setScreenState />
+                        | _ =>
+                          switch activeProduct {
+                          | Orchestration(V1) => <OrchestrationApp setScreenState />
+                          | _ => <HyperswitchURLRouting />
+                          }
                         }}
                         // {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
                         // /* DEFAULT HOME */

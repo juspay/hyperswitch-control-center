@@ -1,11 +1,10 @@
 @react.component
 let make = () => {
-  open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
   {
-    switch merchantDetailsTypedValue.product_type {
+    switch activeProduct {
     | Orchestration(V2) =>
       switch url.path->HSwitchUtils.urlPath {
       | list{"v2", "orchestration", "home", ..._} => <OrchestrationV2Home />

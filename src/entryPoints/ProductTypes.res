@@ -5,3 +5,4 @@ type productTypes =
   | CostObservability
   | DynamicRouting
   | Recovery
+  | Invalid

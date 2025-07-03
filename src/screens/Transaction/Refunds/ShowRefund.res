@@ -91,7 +91,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let showToast = ToastState.useShowToast()
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {userInfo: {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo}} = React.useContext(
     UserInfoProvider.defaultContext,
   )

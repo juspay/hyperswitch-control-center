@@ -293,6 +293,7 @@ module MerchantDropdownItem = {
       | CostObservability => "nd-piggy-bank"
       | DynamicRouting => "intelligent-routing-home"
       | Orchestration(V2) => "orchestrator-home"
+      | Invalid => ""
       }
     }
 

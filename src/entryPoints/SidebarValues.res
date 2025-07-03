@@ -713,6 +713,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
+  | Invalid => []
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

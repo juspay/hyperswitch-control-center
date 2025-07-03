@@ -6,7 +6,7 @@ let make = () => {
   open VerticalStepIndicatorTypes
   open ReconConfigurationTypes
   open ReconOnboardingHelper
-  open HyperswitchAtom
+
   let url = RescriptReactRouter.useUrl()
   let (showOnBoarding, setShowOnBoarding) = React.useState(_ => true)
   let (currentStep, setCurrentStep) = React.useState(() => {
@@ -16,7 +16,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let getReconStatus = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -56,7 +56,7 @@ let make = () => {
   }, [])
 
   <PageLoaderWrapper screenState sectionHeight="!h-screen">
-    {switch merchantDetailsTypedValue.product_type {
+    {switch activeProduct {
     | Recon =>
       switch url.path->HSwitchUtils.urlPath {
       | list{"v2", "recon"} => <ReconOnboardingLanding />

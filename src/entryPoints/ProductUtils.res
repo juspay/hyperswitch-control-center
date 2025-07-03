@@ -23,6 +23,7 @@ let getProductDisplayName = product =>
   | CostObservability => "Cost Observability"
   | DynamicRouting => "Intelligent Routing"
   | Orchestration(V2) => "Orchestrator V2"
+  | Invalid => ""
   }
 
 let getProductRouteName = product =>
@@ -34,6 +35,7 @@ let getProductRouteName = product =>
   | DynamicRouting => "dynamic-routing"
   | Orchestration(V1) => "orchestration"
   | Orchestration(V2) => "orchestration"
+  | Invalid => ""
   }
 
 let getProductStringName = product =>
@@ -45,6 +47,7 @@ let getProductStringName = product =>
   | DynamicRouting => "dynamic_routing"
   | Orchestration(V1) => "orchestration"
   | Orchestration(V2) => "orchestration"
+  | Invalid => ""
   }
 
 let getProductVariantFromDisplayName = product => {
@@ -75,5 +78,6 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
   | DynamicRouting
   | Orchestration(V2) =>
     `/dashboard/v2/${productType->getProductRouteName}/home`
+  | Invalid => ""
   }
 }

@@ -1,11 +1,10 @@
 @react.component
 let make = () => {
-  open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
   {
-    switch merchantDetailsTypedValue.product_type {
+    switch activeProduct {
     | Vault =>
       switch url.path->HSwitchUtils.urlPath {
       | list{"v2", "dynamic-routing"} => <IntelligentRoutingHome />
@@ -13,7 +12,7 @@ let make = () => {
       | list{"v2", "dynamic-routing", "dashboard"} => <IntelligentRoutingAnalytics />
       | _ => <EmptyPage path="/v2/dynamic-routing/home" />
       }
-    | _ => React.null
+    | _ => <HyperswitchURLRouting />
     }
   }
 }
