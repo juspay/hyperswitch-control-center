@@ -560,7 +560,9 @@ describe("Payment Operations", () => {
     paymentOperations.addFilters.click();
 
     allFilters.forEach((filter) => {
-      cy.get('[class="px-1 py-1"]').contains(filter).should("exist");
+      cy.get('[class="px-1 py-1 overflow-y-auto max-h-96"]')
+        .contains(filter)
+        .should("exist");
     });
   });
 
@@ -750,10 +752,82 @@ describe("Payment Operations", () => {
     });
   });
 
-  // Views
-  // Timerange
-  // custom timerange
+  it.skip("should verify applied when predefined timerange is applied from dropdown", () => {
+    const predefinedTimeRange = [
+      "Last 30 Mins",
+      "Last 1 Hour",
+      "Last 2 Hours",
+      "Today",
+      "Yesterday",
+      "Last 2 Days",
+      "Last 7 Days",
+      "Last 30 Days",
+      "This Month",
+      "Last Month",
+    ];
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    for (const timeRange of predefinedTimeRange) {
+      paymentOperations.dateSelector.click();
+      cy.get('[data-date-picker-predifined="predefined-options"]').within(
+        () => {
+          cy.contains(timeRange).click();
+        },
+      );
+      cy.get(`[data-testid="date-range-selector"]`).should(
+        "contain",
+        timeRange,
+      );
+    }
+    // Verify that the date range is applied correctly
+  });
+
+  it("should verify applied custom timerange is displayed correctly", () => {
+    const now = new Date();
+    const today = now.getDate();
+    const previousMonth = new Date(
+      now.setMonth(now.getMonth() - 1),
+    ).toLocaleString("default", { month: "short" });
+    const currentYear = now.getFullYear();
+
+    const startDate = today === 2 ? 1 : 2;
+    const endDate = today === 28 ? 29 : 28;
+
+    const formatDate = (day) => {
+      const paddedDay = String(day).padStart(2, "0");
+      return `${previousMonth} ${paddedDay}, ${currentYear}`;
+    };
+
+    const expectedRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    paymentOperations.dateSelector.click();
+    cy.get('[data-daterange-dropdown-value="Custom Range"]').click();
+
+    cy.get("[data-testid]")
+      .filter(`[data-testid*=" ${startDate},"]`)
+      .first()
+      .click();
+    cy.get("[data-testid]")
+      .filter(`[data-testid*=" ${endDate},"]`)
+      .first()
+      .click();
+    cy.get('[data-button-text="Apply"]').click();
+
+    cy.get(`[data-button-text="${expectedRange}"]`).should(
+      "contain",
+      expectedRange,
+    );
+  });
+
   // generate reports
+
+  // Views
+
   // Verify "Open in new tab" button for payment ID
 
   // Payment details page
