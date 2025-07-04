@@ -284,6 +284,7 @@ module ChooseColumns = {
     ~orderdColumnBasedOnDefaultCol: bool=false,
     ~showSerialNumber=true,
     ~mandatoryOptions=[],
+    ~isDraggable=false,
   ) => {
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
     let {getHeading} = entity
@@ -304,6 +305,7 @@ module ChooseColumns = {
         sortingBasedOnDisabled
         orderdColumnBasedOnDefaultCol
         showSerialNumber
+        isDraggable
       />
     } else {
       React.null
@@ -324,6 +326,7 @@ module ChooseColumnsWrapper = {
     ~sortingBasedOnDisabled=true,
     ~showSerialNumber=true,
     ~setShowDropDown=_ => (),
+    ~isDraggable=false,
   ) => {
     switch optionalActiveColumnsAtom {
     | Some(activeColumnsAtom) =>
@@ -338,6 +341,7 @@ module ChooseColumnsWrapper = {
           showColumnSelector
           sortingBasedOnDisabled
           showSerialNumber
+          isDraggable
         />
       </AddDataAttributes>
     | None => React.null

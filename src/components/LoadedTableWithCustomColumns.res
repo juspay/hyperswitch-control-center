@@ -67,6 +67,7 @@ let make = (
   ~showAutoScroll=false,
   ~hideCustomisableColumnButton=false,
   ~customizeColumnButtonIcon="customise-columns",
+  ~isDraggable=false,
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -82,6 +83,7 @@ let make = (
       showColumnSelector
       sortingBasedOnDisabled
       showSerialNumber={showSerialNumberInCustomizeColumns}
+      isDraggable
     />
 
   let filt =

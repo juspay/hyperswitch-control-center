@@ -483,6 +483,7 @@ module BaseSelect = {
     ~wrapBasis="",
     ~preservedAppliedOptions=[],
     ~customComponent=None,
+    ~isDraggable=false,
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let (searchString, setSearchString) = React.useState(() => "")
@@ -492,12 +493,12 @@ module BaseSelect = {
       maxHeight
     }
 
-    let saneValue = React.useMemo(() =>
+    let saneValue = React.useMemo(() => {
       switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
       }
-    , [values])
+    }, [values])
 
     let initialSelectedOptions = React.useMemo(() => {
       options->Array.filter(item => saneValue->Array.includes(item.value))
@@ -507,7 +508,15 @@ module BaseSelect = {
       let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
       let item2Index = initialSelectedOptions->Array.findIndex(item => item.label === item2.label)
 
-      item1Index <= item2Index ? 1. : -1.
+      if item1Index >= 0 && item2Index >= 0 {
+        item1Index < item2Index ? -1. : 1.
+      } else if item1Index >= 0 && item2Index === -1 {
+        -1.
+      } else if item1Index === -1 && item2Index >= 0 {
+        1.
+      } else {
+        0.
+      }
     })
 
     let transformedOptions = useTransformed(options)
@@ -697,6 +706,79 @@ module BaseSelect = {
       ""
     }
 
+    let keyExtractor = (_, item: dropdownOptionWithoutOptional, _) => {
+      let valueToConsider = item.value
+      let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
+      let isPrevSelected = switch filteredOptions->Array.get(index - 1) {
+      | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
+      | None => false
+      }
+      let isNextSelected = switch filteredOptions->Array.get(index + 1) {
+      | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
+      | None => false
+      }
+      let isSelected = index > -1
+      let serialNumber = isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
+      let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
+      <div className="flex">
+        <ListItem
+          isDropDown
+          isSelected
+          optionSize
+          isSelectedStateMinus
+          isPrevSelected
+          isNextSelected
+          searchString
+          onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
+          text=item.label
+          labelValue=item.label
+          multiSelect=true
+          customLabelStyle
+          icon=item.icon
+          leftVacennt
+          isDisabled={item.isDisabled || disableSelect}
+          showToggle
+          customStyle
+          serialNumber
+          isMobileView
+          description=item.description
+          customMarginStyle
+          listFlexDirection
+          dataId=index
+          showDescriptionAsTool
+          optionClass
+          selectClass
+          toggleProps
+          checkboxDimension
+          iconStroke=item.iconStroke
+        />
+      </div>
+    }
+
+    let handleSetDraggableList = val => {
+      setFilteredOptions(_ => val)
+      let selectedValues = val->Array.filter(item => saneValue->Array.includes(item.value))
+
+      onSelect(selectedValues->Array.map(item => item.value))
+    }
+    let handleDisable = (item: dropdownOptionWithoutOptional, _) => {
+      if saneValue->Array.includes(item.value) {
+        false
+      } else {
+        true
+      }
+    }
+
+    let dragDropComp = {
+      <DragDropTableComponent
+        keyExtractor
+        listItems=filteredOptions
+        setListItems={val => handleSetDraggableList(val)}
+        isHorizontal=false
+        isDragDisabled={(index, item) => handleDisable(item, index)}
+      />
+    }
+
     <div
       id="neglectTopbarTheme"
       className={`${widthClass} ${outerClass} ${borderClass} ${animationClass} ${dropdownClassName}`}>
@@ -852,61 +934,65 @@ module BaseSelect = {
           switch customComponent {
           | Some(elem) => elem
           | _ =>
-            filteredOptions
-            ->Array.mapWithIndex((item, indx) => {
-              let valueToConsider = item.value
-              let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-              let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
-              | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
-              | None => false
-              }
-              let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
-              | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
-              | None => false
-              }
-              let isSelected = index > -1
-              let serialNumber =
-                isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
-              let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
-              <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
-                <ListItem
-                  isDropDown
-                  isSelected
-                  optionSize
-                  isSelectedStateMinus
-                  isPrevSelected
-                  isNextSelected
-                  searchString
-                  onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
-                  text=item.label
-                  labelValue=item.label
-                  multiSelect=true
-                  customLabelStyle
-                  icon=item.icon
-                  leftVacennt
-                  isDisabled={item.isDisabled || disableSelect}
-                  showToggle
-                  customStyle
-                  serialNumber
-                  isMobileView
-                  description=item.description
-                  customMarginStyle
-                  listFlexDirection
-                  dataId=indx
-                  showDescriptionAsTool
-                  optionClass
-                  selectClass
-                  toggleProps
-                  checkboxDimension
-                  iconStroke=item.iconStroke
-                />
-                {switch optionRigthElement {
-                | Some(rightElement) => rightElement
-                | None => React.null
-                }}
-              </div>
-            })
-            ->React.array
+            if isDraggable {
+              dragDropComp
+            } else {
+              filteredOptions
+              ->Array.mapWithIndex((item, indx) => {
+                let valueToConsider = item.value
+                let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
+                let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
+                | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
+                | None => false
+                }
+                let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
+                | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
+                | None => false
+                }
+                let isSelected = index > -1
+                let serialNumber =
+                  isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
+                let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
+                <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
+                  <ListItem
+                    isDropDown
+                    isSelected
+                    optionSize
+                    isSelectedStateMinus
+                    isPrevSelected
+                    isNextSelected
+                    searchString
+                    onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
+                    text=item.label
+                    labelValue=item.label
+                    multiSelect=true
+                    customLabelStyle
+                    icon=item.icon
+                    leftVacennt
+                    isDisabled={item.isDisabled || disableSelect}
+                    showToggle
+                    customStyle
+                    serialNumber
+                    isMobileView
+                    description=item.description
+                    customMarginStyle
+                    listFlexDirection
+                    dataId=indx
+                    showDescriptionAsTool
+                    optionClass
+                    selectClass
+                    toggleProps
+                    checkboxDimension
+                    iconStroke=item.iconStroke
+                  />
+                  {switch optionRigthElement {
+                  | Some(rightElement) => rightElement
+                  | None => React.null
+                  }}
+                </div>
+              })
+              ->React.array
+            }
           }
         }}
       </div>

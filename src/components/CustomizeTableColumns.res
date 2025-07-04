@@ -11,8 +11,19 @@ let make = (
   ~orderdColumnBasedOnDefaultCol: bool=false,
   ~sortingBasedOnDisabled=true,
   ~showSerialNumber=true,
+  ~isDraggable=false,
 ) => {
-  let heading = allHeadersArray
+  let heading = {
+    let notInVisible = allHeadersArray->Array.reduce([], (acc, item) => {
+      if visibleColumns->Array.includes(item) {
+        acc
+      } else {
+        acc->Array.concat([item])
+      }
+    })
+
+    Array.concat(visibleColumns, notInVisible)
+  }
 
   let headingDict =
     heading
@@ -45,7 +56,9 @@ let make = (
     }
     options
   })
-  let initialValues = visibleColumns->Array.map(head => getHeading(head).title)
+  let initialValues = visibleColumns->Array.map(head => {
+    getHeading(head).title
+  })
 
   let onSubmit = values => {
     let getHeadingCol = text => {
@@ -71,5 +84,6 @@ let make = (
     options=initalHeadingData
     sortingBasedOnDisabled
     showSerialNumber
+    isDraggable
   />
 }
