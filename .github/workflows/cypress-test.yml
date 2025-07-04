@@ -53,7 +53,6 @@ jobs:
           install: false
           build: npm run build:test
           start: npm run test:start
-          browser: chrome
           # spec: cypress/e2e/quick-start/sbx-quick-start.cy.js
 
       - name: Test Artifacts
