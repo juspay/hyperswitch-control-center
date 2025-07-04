@@ -15,7 +15,7 @@ const columnSize = 23;
 const requiredColumnsSize = 14;
 
 describe("Payment Operations", () => {
-  it("should verify all components in Payment Operations page", () => {
+  it("should verify all components in Payment Operations page when no payment exists", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
@@ -502,8 +502,11 @@ describe("Payment Operations", () => {
       });
   });
 
+  //TODO
   it.skip("should display a valid message and expand search timerange when searched with invalid payment ID", () => {
     let merchant_id;
+    let invalid_paymentID = "invalidID";
+
     homePage.merchantID
       .eq(0)
       .invoke("text")
@@ -518,8 +521,8 @@ describe("Payment Operations", () => {
 
     paymentOperations.searchBox
       .should("be.visible")
-      .should("not.be.disabled")
-      .type("invalid-payment-id" + "{enter}");
+      //.should("not.be.disabled")
+      .type(invalid_paymentID);
 
     cy.get(`[class="items-center text-2xl text-black font-bold mb-4"]`).should(
       "have.text",
@@ -557,12 +560,135 @@ describe("Payment Operations", () => {
     paymentOperations.addFilters.click();
 
     allFilters.forEach((filter) => {
-      cy.get('[class="px-1 py-1"]').contains(filter).should("exist");
+      cy.get('[class="px-1 py-1 overflow-y-auto max-h-96"]')
+        .contains(filter)
+        .should("exist");
     });
   });
 
+  it("should verify all filters can be selected from 'Add filter' dropdown", () => {
+    let merchant_id = "";
+
+    const filterKeys = [
+      "Connector",
+      "Currency",
+      "Status",
+      "Payment Method",
+      "Authentication Type",
+      "Card Network",
+      "Card Discovery",
+      "Payment Method Type",
+      //"Customer Id",
+      "Amount",
+      //"Merchant Order Reference Id"
+    ];
+
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id).then((response) => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
+
+          filterKeys.forEach((filter) => {
+            paymentOperations.addFilters.click();
+            cy.get(".mr-5.text-left").contains(filter).click();
+            cy.get('[class="flex relative  flex-row  flex-wrap"]').should(
+              "contain",
+              `Select ${filter}`,
+            );
+            cy.get('[data-icon="cross-outline"]').click();
+          });
+
+          //"Customer Id"
+          paymentOperations.addFilters.click();
+          cy.get(".mr-5.text-left").contains("Customer Id").click();
+          cy.get('[name="customer_id"]')
+            .should("be.visible")
+            .should("have.attr", "placeholder", "Enter Customer Id...");
+          cy.get('[data-icon="cross-outline"]').click();
+
+          //"Merchant Order Reference Id"
+          paymentOperations.addFilters.click();
+          cy.get(".mr-5.text-left")
+            .contains("Merchant Order Reference Id")
+            .click();
+          cy.get('[name="merchant_order_reference_id"]')
+            .should("be.visible")
+            .should(
+              "have.attr",
+              "placeholder",
+              "Enter Merchant Order Reference Id...",
+            );
+        });
+      });
+  });
+
+  it("should verify applying 'Connector', 'Currency' and 'Status' filters", () => {
+    let merchant_id = "";
+
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id).then((response) => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
+
+          paymentOperations.addFilters.click();
+          cy.get(".mr-5.text-left").contains("Connector").click();
+          cy.get('[class="flex relative  flex-row  flex-wrap"]').click();
+          cy.get('[value="Stripe Test"]').click();
+          cy.get('[data-button-text="Apply"]').click();
+          cy.get('[class="flex relative  flex-row  flex-wrap"]').should(
+            "contain",
+            `Stripe Test`,
+          );
+
+          paymentOperations.addFilters.click();
+          cy.get(".mr-5.text-left").contains("Status").click();
+          cy.get('[data-component-field-wrapper="field-status"]').click();
+          cy.get('[value="Succeeded"]').click();
+          cy.get('[data-button-text="Apply"]').click();
+          cy.get('[class="flex relative  flex-row  flex-wrap"]').should(
+            "contain",
+            `Succeeded`,
+          );
+
+          paymentOperations.addFilters.click();
+          cy.get(".mr-5.text-left").contains("Currency").click();
+          cy.contains("div", "Select Currency").click();
+          cy.get('[placeholder="Search..."]').type("USD");
+          cy.get('[data-searched-text="USD"]').click();
+          cy.get('[data-button-text="Apply"]').click();
+          cy.get('[class="flex relative  flex-row  flex-wrap"]').should(
+            "contain",
+            `USD`,
+          );
+
+          cy.get('[data-table-location="Orders_tr1_td3"').should(
+            "contain",
+            "Stripe",
+          );
+          cy.get('[data-table-location="Orders_tr1_td6"]').should(
+            "contain",
+            "SUCCEEDED",
+          );
+          cy.get('[data-table-location="Orders_tr1_td5"]').should(
+            "contain",
+            "USD",
+          );
+        });
+      });
+  });
+
   // Date Selector
-  it("should extend the time range by 90 days", () => {
+  it("should extend the time range by 90 days when no payments are listed", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
@@ -600,6 +726,118 @@ describe("Payment Operations", () => {
       });
   });
 
+  it.skip("should verify all time range filters are displayed in date selector dropdown", () => {
+    // fails in CI
+    const timeRangeFilters = [
+      "Last 30 Mins",
+      "Last 1 Hour",
+      "Last 2 Hours",
+      "Today",
+      "Yesterday",
+      "Last 2 Days",
+      "Last 7 Days",
+      "Last 30 Days",
+      "This Month",
+      "Last Month",
+      "Custom Range",
+    ];
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    paymentOperations.dateSelector.should("be.visible").click();
+    cy.get('[data-date-picker-predifined="predefined-options"]')
+      .should("exist")
+      .should("be.visible")
+      .within(() => {
+        timeRangeFilters.forEach((option) => {
+          cy.contains(option).should("exist");
+        });
+      });
+  });
+
+  it.skip("should verify applied custom timerange is displayed correctly", () => {
+    //fails in CI
+    const now = new Date();
+    const today = now.getDate();
+    const previousMonth = new Date(
+      now.setMonth(now.getMonth() - 1),
+    ).toLocaleString("default", { month: "short" });
+    const currentYear = now.getFullYear();
+
+    const startDate = today === 2 ? 1 : 2;
+    const endDate = today === 28 ? 29 : 28;
+
+    const formatDate = (day) => {
+      const paddedDay = String(day).padStart(2, "0");
+      return `${previousMonth} ${paddedDay}, ${currentYear}`;
+    };
+
+    const expectedRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    paymentOperations.dateSelector.should("be.visible").click();
+    cy.get('[data-daterange-dropdown-value="Custom Range"]')
+      .should("exist")
+      .should("be.visible")
+      .click({ force: true });
+
+    cy.get("[data-testid]")
+      .filter(`[data-testid*=" ${startDate},"]`)
+      .first()
+      .click();
+    cy.get("[data-testid]")
+      .filter(`[data-testid*=" ${endDate},"]`)
+      .first()
+      .click();
+    cy.get('[data-button-text="Apply"]').click();
+
+    cy.get(`[data-button-text="${expectedRange}"]`).should(
+      "contain",
+      expectedRange,
+    );
+  });
+
+  // TODO
+  it.skip("should verify applied when predefined timerange is applied from dropdown", () => {
+    const predefinedTimeRange = [
+      "Last 30 Mins",
+      "Last 1 Hour",
+      "Last 2 Hours",
+      "Today",
+      "Yesterday",
+      "Last 2 Days",
+      "Last 7 Days",
+      "Last 30 Days",
+      "This Month",
+      "Last Month",
+    ];
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    for (const timeRange of predefinedTimeRange) {
+      paymentOperations.dateSelector.click();
+      cy.get('[data-date-picker-predifined="predefined-options"]').within(
+        () => {
+          cy.contains(timeRange).click();
+        },
+      );
+      cy.get(`[data-testid="date-range-selector"]`).should(
+        "contain",
+        timeRange,
+      );
+    }
+    // Verify that the date range is applied correctly
+  });
+
+  // generate reports
+
   // Views
+
+  // Verify "Open in new tab" button for payment ID
+
   // Payment details page
 });

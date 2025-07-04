@@ -533,6 +533,20 @@ Cypress.Commands.add("redirect_from_mail_inbox", () => {
   });
 });
 
+Cypress.Commands.add("signin_from_mail_inbox", () => {
+  cy.visit(Cypress.env("MAIL_URL"));
+  cy.get("div.messages > div")
+    .contains("Unlock Hyperswitch: Use Your Magic Link to Sign In")
+    .click();
+  cy.wait(1000);
+  cy.get("iframe").then(($iframe) => {
+    // Verify email
+    const doc = $iframe.contents();
+    const verifyEmail = doc.find("a").get(0);
+    cy.visit(verifyEmail.href);
+  });
+});
+
 const getIframeBody = () => {
   return cy
     .get("iframe")
