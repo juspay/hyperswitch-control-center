@@ -261,6 +261,14 @@ let refundAnalytics = SubLevelLink({
   access: Access,
   searchOptions: [("View analytics", "")],
 })
+
+let routingAnalytics = SubLevelLink({
+  name: "Routing Analytics",
+  link: "/analytics-routing",
+  access: Access,
+  searchOptions: [("View routing analytics", "")],
+})
+
 let authenticationAnalytics = SubLevelLink({
   name: "Authentication",
   link: `/analytics-authentication`,
@@ -284,11 +292,10 @@ let analytics = (
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
   }
-
+  links->Array.push(routingAnalytics)
   if newAnalyticsflag {
     links->Array.unshift(newAnalytics)
   }
-
   if performanceMonitorFlag {
     links->Array.push(performanceMonitor)
   }
@@ -302,6 +309,7 @@ let analytics = (
       })
     : emptyComponent
 }
+
 let routing = userHasResourceAccess => {
   SubLevelLink({
     name: "Routing",

@@ -51,6 +51,13 @@ let make = (~setScreenState) => {
     | list{"analytics-authentication"} =>
       <AnalyticsContainer />
 
+    | list{"analytics-routing"} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=AnalyticsView)}>
+        <FilterContext key="RoutingAnalytics" index="RoutingAnalytics">
+          <RoutingAnalyticsPage />
+        </FilterContext>
+      </AccessControl>
+
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}
     | list{"new-analytics", "refund"}
