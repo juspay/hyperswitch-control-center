@@ -22,6 +22,7 @@ let make = (
   ~showConversionRate=false,
   ~headerTextClass="text-3xl font-semibold tracking-tight",
   ~headerClass="",
+  ~isDraggable=false,
 ) => {
   let maxLengthArray = (arr, setValues) => {
     switch maxSelection {
@@ -106,6 +107,7 @@ let make = (
           disableSelect
           isModalView
           sortingBasedOnDisabled
+          isDraggable
         />
       </div>
       {showConversionRate
