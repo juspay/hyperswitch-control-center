@@ -24,3 +24,8 @@ let reconExceptionReportsDefaultCols = Recoil.atom(
   "reconExceptionReportsDefaultCols",
   ReportsExceptionTableEntity.defaultColumns,
 )
+
+let routingAnalyticsDefaultCols = Recoil.atom(
+  "routingAnalyticsDefaultCols",
+  RoutingAnalyticsEntity.defaultRoutingColumns,
+)

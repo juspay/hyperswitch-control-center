@@ -83,6 +83,7 @@ type entityName =
   | RECOVERY_INVOICES
   | RECOVERY_ATTEMPTS
   | THREE_DS_EXEMPTION_RULES
+  | ANALYTICS_ROUTING_V1
 
 type v2entityNameType =
   | CUSTOMERS

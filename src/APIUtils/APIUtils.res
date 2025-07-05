@@ -1008,6 +1008,12 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
+      | ANALYTICS_ROUTING_V1 =>
+        switch methodType {
+        | Post => "analytics/v1/org/metrics/routing"
+        | Get => "analytics/v1/org/routing/info"
+        | _ => ""
+        }
       }
 
     | V2(entityNameForv2) =>
