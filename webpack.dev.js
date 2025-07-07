@@ -8,7 +8,7 @@ let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
 let proxy = {
   "/api": {
-    target: "https://integ.hyperswitch.io/api",
+    target: "http://localhost:8080",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
