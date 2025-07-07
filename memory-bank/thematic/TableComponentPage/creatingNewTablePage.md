@@ -467,7 +467,6 @@ The `itemToObjMapper` function is crucial for converting raw JSON objects from y
 - **Mapper Signature for `LogicUtils.getArrayDataFromJson`:**
   The `LogicUtils.getArrayDataFromJson(jsonArray, mapperFunc)` utility expects `mapperFunc` to have the signature:
   `Js.Dict.t<JSON.t> => yourRecordType`.
-
   - **Correct `itemToObjMapper` definition:**
     ```rescript
     let itemToObjMapper = (dict: Js.Dict.t<JSON.t>): myNewPageItem => {

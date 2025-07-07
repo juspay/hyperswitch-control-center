@@ -705,6 +705,16 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
     ])
   }
 
+  defaultSidebar->Array.push(
+    Link({
+      name: "Test Application",
+      icon: "nd-home",
+      link: "/de-routing",
+      access: Access,
+      selectedIcon: "nd-fill-home",
+    }),
+  )
+
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration(V1) => hsSidebars
   | Recon => ReconSidebarValues.reconSidebars

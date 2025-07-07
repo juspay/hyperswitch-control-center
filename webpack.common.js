@@ -18,6 +18,13 @@ module.exports = () => {
       clean: true,
       publicPath: "/",
     },
+    // resolve: {
+    //   modules: ['node_modules', 'src'],
+    //   extensions: ['.js', '.jsx', '.css'],
+    //   alias: {
+    //     'de-routing-styles': path.resolve(__dirname, 'node_modules/DE-routing-playground/dist/style.css'),
+    //   },
+    // },
     module: {
       rules: [
         {
@@ -68,6 +75,10 @@ module.exports = () => {
         patterns: [
           { from: "public/common" },
           { from: `public/hyperswitch` },
+          {
+            from: "node_modules/DE-routing-playground/dist/",
+            to: path.resolve(__dirname, "dist/hyperswitch/ext_libs/de-routing"),
+          },
         ].filter(Boolean),
       }),
       new MonacoWebpackPlugin(),

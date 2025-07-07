@@ -15,11 +15,15 @@ external event: string => event = "Event"
 @send external postMessage: (window, JSON.t, string) => unit = "postMessage"
 @get external keyCode: 'a => int = "keyCode"
 @send external querySelectorAll: (document, string) => array<Dom.element> = "querySelectorAll"
+
+@send external attachShadow: (Dom.element, {.."mode": string}) => Dom.element = "attachShadow"
 @send external setAttribute: (Dom.element, string, string) => unit = "setAttribute"
 @send external remove: (Dom.element, unit) => unit = "remove"
 @scope(("document", "body"))
 external appendChild: Dom.element => unit = "appendChild"
 
+@send
+external appendChildToElement: (Dom.element, Dom.element) => unit = "appendChild"
 @scope(("document", "head"))
 external appendHead: Dom.element => unit = "appendChild"
 external domProps: {..} => JsxDOM.domProps = "%identity"

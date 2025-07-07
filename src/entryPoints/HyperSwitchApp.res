@@ -181,6 +181,7 @@ let make = () => {
                         | (_, list{"organization-chart"}) => <OrganisationChart />
 
                         | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
+                        | (_, list{"de-routing", ..._}) => <ShadowDomWrapper />
 
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
