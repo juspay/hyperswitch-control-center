@@ -394,13 +394,55 @@ module ApiKeysTable = {
   }
 }
 
+module ApiKeysBanner = {
+  @react.component
+  let make = (~bannerText) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+
+    let redirectToDocs = _ => {
+      let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms" // edit url
+      mixpanelEvent(~eventName="api_keys_banner_learn_more")
+      Window._open(docsUrl)
+    }
+
+    <div
+      className="flex justify-between w-full py-4 px-4 rounded-xl bg-nd_orange-50 text-nd_gray-600">
+      <div className="flex items-center gap-4">
+        <Icon name="tooltip_info" size=20 />
+        <div>
+          <span className="leading-24"> {bannerText->React.string} </span>
+          <span onClick={redirectToDocs} className="text-nd_primary_blue-500 hover:cursor-pointer">
+            {" Learn More"->React.string}
+          </span>
+        </div>
+      </div>
+    </div>
+  }
+}
+
 module KeysManagement = {
   @react.component
   let make = () => {
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+
+    let isPlatformOrg = OMPSwitchUtils.isPlatformOMP(orgList, orgId)
+    let isPlatformMerchant = OMPSwitchUtils.isPlatformOMP(merchantList, merchantId)
+    let hasCreateApiKeyAccess = userHasAccess(~groupAccess=MerchantDetailsManage)
+
     <div>
       <PageUtils.PageHeading
         title="Keys" subTitle="Manage API keys and credentials for integrated payment services"
       />
+      <RenderIf condition={isPlatformOrg}>
+        <div className="py-4">
+          <ApiKeysBanner
+            bannerText={DeveloperUtils.bannerText(isPlatformMerchant, hasCreateApiKeyAccess)}
+          />
+        </div>
+      </RenderIf>
       <ApiKeysTable />
       <PublishableAndHashKeySection />
     </div>

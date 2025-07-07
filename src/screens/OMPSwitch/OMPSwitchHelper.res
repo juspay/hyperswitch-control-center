@@ -9,6 +9,7 @@ module ListBaseComp = {
     ~isDarkBg=false,
     ~showDropdownArrow=true,
     ~user: UserInfoTypes.entity,
+    ~isPlatform=false,
   ) => {
     let {
       globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
@@ -28,9 +29,11 @@ module ListBaseComp = {
         <div
           className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
           <div className="flex flex-row w-full justify-between">
-            <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
-              {"Merchant Account"->React.string}
-            </span>
+            <RenderIf condition={isPlatform}>
+              <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium uppercase`}>
+                {"Platform Merchant"->React.string}
+              </span>
+            </RenderIf>
             <RenderIf condition=devOmpChart>
               <ToolTip
                 description="Organisation Chart"

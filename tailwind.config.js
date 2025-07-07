@@ -77,6 +77,7 @@ module.exports = {
         "30-rem": "30rem",
       },
       inset: {
+        "5-px": "5px",
         "76-px": "76px",
         "180-px": "180px",
       },
@@ -169,6 +170,7 @@ module.exports = {
       fontSize: {
         base: "var(--base-font-size)",
         heading: "var(--base-heading-font-size)",
+        "fs-8": "8px",
         "fs-10": "10px",
         "fs-11": "11px",
         "fs-12": "12px",

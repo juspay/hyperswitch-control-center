@@ -291,3 +291,23 @@ module SuccessUI = {
     </div>
   }
 }
+
+let bannerText = (isPlatformMerchant, hasCreateApiKeyAccess: CommonAuthTypes.authorization) =>
+  switch (isPlatformMerchant, hasCreateApiKeyAccess) {
+  | (
+      true,
+      Access,
+    ) => "The API keys shown here, including any new ones you create, can be used to create other merchants and generate their API keys within this organization."
+  | (
+      true,
+      NoAccess,
+    ) => "The API keys shown here, can be used to create other merchants and generate their API keys within this organization."
+  | (
+      false,
+      Access,
+    ) => "The API keys shown here include ones you’ve created, as well as any created for you by the platform merchant account."
+  | (
+      false,
+      NoAccess,
+    ) => "The API keys shown here include ones created for you by the platform merchant account."
+  }

@@ -282,12 +282,18 @@ let make = () => {
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,
       name: item.name,
+      \"type": item.\"type"->Option.getOr(#standard),
       customComponent,
     }
     listItem
   })
 
-  <div className="w-fit">
+  let isPlatformMerchant = isPlatformOMPCustomType(updatedMerchantList, merchantId)
+
+  <div className="w-fit flex flex-col gap-4">
+    <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+      {"Merchant Account"->React.string}
+    </span>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -299,7 +305,9 @@ let make = () => {
       addButton=false
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
       searchable=true
-      baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
+      baseComponent={<ListBaseComp
+        user=#Merchant heading="Merchant" subHeading arrow isPlatform=isPlatformMerchant
+      />}
       baseComponentCustomStyle={`!border-none`}
       bottomComponent={<AddNewOMPButton
         user=#Merchant
