@@ -325,6 +325,7 @@ let make = () => {
       customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
       searchInputPlaceHolder="Search Merchant Account or ID"
       placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
+      reverseSortGroupKeys=true
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />
