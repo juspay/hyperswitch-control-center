@@ -18,7 +18,7 @@ module.exports = {
   darkMode: "class",
   content: [
     "./src/**/*.js",
-    "./node_modules/DE-routing-playground/dist/index.umd.js",
+    "dist/hyperswitch/ext_libs/de-routing/index.umd.js",
   ],
   theme: {
     fontFamily: {

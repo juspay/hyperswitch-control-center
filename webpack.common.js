@@ -18,13 +18,6 @@ module.exports = () => {
       clean: true,
       publicPath: "/",
     },
-    // resolve: {
-    //   modules: ['node_modules', 'src'],
-    //   extensions: ['.js', '.jsx', '.css'],
-    //   alias: {
-    //     'de-routing-styles': path.resolve(__dirname, 'node_modules/DE-routing-playground/dist/style.css'),
-    //   },
-    // },
     module: {
       rules: [
         {
