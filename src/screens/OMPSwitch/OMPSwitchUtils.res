@@ -21,6 +21,13 @@ let ompTypeMapper = (ompType: string): ompType => {
   }
 }
 
+let ompTypeHeading = (ompType: ompType): string => {
+  switch ompType {
+  | #platform => "Platform Merchant"
+  | #standard => "Merchants"
+  }
+}
+
 let orgItemToObjMapper: dict<JSON.t> => ompListTypes = dict => {
   open LogicUtils
   {

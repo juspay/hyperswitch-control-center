@@ -573,13 +573,36 @@ let generateDropdownOptions: (
   options
 }
 
-let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCustom> => array<
-  SelectBox.dropdownOption,
-> = dropdownList => {
+let generateDropdownOptionsCustomComponent: (
+  array<OMPSwitchTypes.ompListTypesCustom>,
+  bool,
+) => array<SelectBox.dropdownOption> = (dropdownList, isPlatformOrg) => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
     item
   ): SelectBox.dropdownOption => {
-    let option: SelectBox.dropdownOption = {
+    let platformOptions: SelectBox.dropdownOption = {
+      label: item.name,
+      value: item.id,
+      customComponent: item.customComponent,
+      icon: Button.CustomRightIcon(
+        <ToolTip
+          description={item.id}
+          customStyle="!whitespace-nowrap"
+          toolTipFor={<div className="cursor-pointer">
+            <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
+          </div>}
+          toolTipPosition=ToolTip.TopRight
+        />,
+      ),
+      optGroup: {
+        switch item.\"type" {
+        | Some(val) => val->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+        | None => ""
+        }
+      },
+    }
+
+    let merchantOptions: SelectBox.dropdownOption = {
       label: item.name,
       value: item.id,
       customComponent: item.customComponent,
@@ -594,7 +617,9 @@ let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCus
         />,
       ),
     }
-    option
+
+    let options = isPlatformOrg ? platformOptions : merchantOptions
+    options
   })
   options
 }

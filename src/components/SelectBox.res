@@ -1496,7 +1496,7 @@ module BaseRadio = {
         </RenderIf>
       }}
       <div
-        className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
+        className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle} mt-1`}>
         {if newOptions->Array.length === 0 && showMatchingRecordsText {
           <div className={`flex justify-center items-center m-4 ${customSearchStyle}`}>
             {React.string("No matching records found")}
@@ -1534,7 +1534,9 @@ module BaseRadio = {
             optgroupKeys
             ->Array.mapWithIndex((ele, index) => {
               <React.Fragment key={index->Int.toString}>
-                <h2 className="p-3 font-bold"> {ele->React.string} </h2>
+                <h2 className="py-1.5 pl-3 font-semibold text-nd_gray-400 text-xs leading-14">
+                  {ele->React.string}
+                </h2>
                 <RenderListItemInBaseRadio
                   newOptions={getHashMappedOptionValues(newOptions)
                   ->Dict.get(ele)

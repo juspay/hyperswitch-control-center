@@ -156,7 +156,8 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
   let isMobileView = MatchMedia.useMobileChecker()
@@ -289,6 +290,7 @@ let make = () => {
   })
 
   let isPlatformMerchant = isPlatformOMPCustomType(updatedMerchantList, merchantId)
+  let isPlatformOrg = isPlatformOMP(orgList, orgId)
 
   <div className="w-fit flex flex-col gap-4">
     <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
@@ -299,7 +301,7 @@ let make = () => {
       buttonText=""
       input
       deselectDisable=true
-      options={updatedMerchantList->generateDropdownOptionsCustomComponent}
+      options={updatedMerchantList->generateDropdownOptionsCustomComponent(isPlatformOrg)}
       marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true
       addButton=false
