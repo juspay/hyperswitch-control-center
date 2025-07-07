@@ -707,7 +707,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
 
   defaultSidebar->Array.push(
     Link({
-      name: "Test Application",
+      name: "Debit Routing",
       icon: "nd-home",
       link: "/de-routing",
       access: Access,
