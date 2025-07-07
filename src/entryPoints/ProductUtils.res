@@ -50,11 +50,11 @@ let getProductStringName = product =>
 let getProductStringDisplayName = product =>
   switch product {
   | Recon => "recon"
-  | Recovery => "recovery"
+  | Recovery => "revenue_recovery"
   | Vault => "vault"
   | CostObservability => "cost_observability"
   | DynamicRouting => "intelligent_routing"
-  | Orchestration(V1) => "orchestration"
+  | Orchestration(V1)
   | Orchestration(V2) => "orchestration"
   }
 
