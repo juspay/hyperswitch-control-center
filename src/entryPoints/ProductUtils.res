@@ -47,6 +47,17 @@ let getProductStringName = product =>
   | Orchestration(V2) => "orchestration"
   }
 
+let getProductStringDisplayName = product =>
+  switch product {
+  | Recon => "recon"
+  | Recovery => "recovery"
+  | Vault => "vault"
+  | CostObservability => "cost_observability"
+  | DynamicRouting => "intelligent_routing"
+  | Orchestration(V1) => "orchestration"
+  | Orchestration(V2) => "orchestration"
+  }
+
 let getProductVariantFromDisplayName = product => {
   switch product {
   | "Recon" => Recon
