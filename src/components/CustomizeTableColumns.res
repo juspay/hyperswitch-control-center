@@ -14,7 +14,7 @@ let make = (
   ~isDraggable=false,
   ~varianType=CustomizableTableColumnsUtils.Unkown,
 ) => {
-  let heading = {
+  let headingWhenDraggable = {
     let notInVisible = allHeadersArray->Array.reduce([], (acc, item) => {
       if visibleColumns->Array.includes(item) {
         acc
@@ -25,6 +25,7 @@ let make = (
 
     Array.concat(visibleColumns, notInVisible)
   }
+  let heading = isDraggable ? headingWhenDraggable : allHeadersArray
 
   let headingDict =
     heading

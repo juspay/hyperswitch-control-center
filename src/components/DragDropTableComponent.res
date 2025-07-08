@@ -21,8 +21,6 @@ let make = (
   ~isDragDisabled: option<(int, 'a) => bool>=?,
 ) => {
   let onDragEnd = result => {
-    // dropped outside the list
-
     let dest = Nullable.toOption(result["destination"])
 
     switch dest {
@@ -32,10 +30,8 @@ let make = (
           droppableId: a.droppableId,
         }
 
-        // NEW: Check if destination is a valid drop target
         let isDestinationDisabled = switch isDragDisabled {
         | Some(disableFunction) =>
-          // Check if the item at destination index is disabled
           switch listItems->Array.get(res.index) {
           | Some(destinationItem) => disableFunction(res.index, destinationItem)
           | None => false
@@ -43,14 +39,12 @@ let make = (
         | None => false
         }
 
-        // Only perform reorder if destination is not disabled
         if !isDestinationDisabled {
           let (updatedList, hasChanged) = reorder(listItems, result["source"]["index"], res.index)
           if hasChanged {
             setListItems(updatedList)
           }
         }
-        // If destination is disabled, do nothing (drag will snap back)
       }
     | _ => ()
     }
@@ -85,15 +79,13 @@ let make = (
                       </div>
                     </div>
 
-                  // Apply draggableProps first
                   let elementWithDraggableProps =
                     draggableElement->React.cloneElement(provided["draggableProps"])
 
-                  // Only apply dragHandleProps if not null (when drag is enabled)
                   switch provided["dragHandleProps"]->Nullable.toOption {
                   | Some(dragHandleProps) =>
                     elementWithDraggableProps->React.cloneElement(dragHandleProps)
-                  | None => elementWithDraggableProps // When isDragDisabled=true
+                  | None => elementWithDraggableProps
                   }
                 }}
               </ReactBeautifulDND.Draggable>

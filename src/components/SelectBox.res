@@ -493,31 +493,23 @@ module BaseSelect = {
       maxHeight
     }
 
-    let saneValue = React.useMemo(() => {
+    let saneValue = React.useMemo(() =>
       switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
       }
-    }, [values])
+    , [values])
 
     let initialSelectedOptions = React.useMemo(() => {
       options->Array.filter(item => saneValue->Array.includes(item.value))
     }, [])
-
-    options->Array.sort((item1, item2) => {
-      let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
-      let item2Index = initialSelectedOptions->Array.findIndex(item => item.label === item2.label)
-
-      if item1Index >= 0 && item2Index >= 0 {
-        item1Index < item2Index ? -1. : 1.
-      } else if item1Index >= 0 && item2Index === -1 {
-        -1.
-      } else if item1Index === -1 && item2Index >= 0 {
-        1.
-      } else {
-        0.
-      }
-    })
+    if !isDraggable {
+      options->Array.sort((item1, item2) => {
+        let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
+        let item2Index = initialSelectedOptions->Array.findIndex(item => item.label === item2.label)
+        item1Index <= item2Index ? 1. : -1.
+      })
+    }
 
     let transformedOptions = useTransformed(options)
 
@@ -752,6 +744,10 @@ module BaseSelect = {
           checkboxDimension
           iconStroke=item.iconStroke
         />
+        {switch optionRigthElement {
+        | Some(rightElement) => rightElement
+        | None => React.null
+        }}
       </div>
     }
 
