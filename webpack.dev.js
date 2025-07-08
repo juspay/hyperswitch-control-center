@@ -9,7 +9,7 @@ let port = 9000;
 let proxy = [
   {
     context: ["/api"],
-    target: "https://integ.hyperswitch.io/api",
+    target: "http://localhost:8080",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
