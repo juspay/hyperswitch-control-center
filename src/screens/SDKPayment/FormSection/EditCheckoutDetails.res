@@ -42,13 +42,14 @@ module AuthorizationAndCaptureSettings = {
             setIsSelected={val => handleIsSelectedForFuture(val, setShowSetupFutureUsage)}
             boolCustomClass="rounded-xl mt-5"
             toggleEnableColor="bg-primary"
+            toggleBorder="border-primary"
           />
         </div>
       </DesktopRow>
       <DesktopRow itemWrapperClass=" ">
         <FieldRenderer field=external3DSAuthToggle />
         <div className="flex justify-between mr-2">
-          <FieldRenderer field={selectAuthenticationField(sendAuthType)} />
+          <FieldRenderer field={selectAuthenticationField(sendAuthType)} labelClass="mr-4" />
           <BoolInput.BaseComponent
             boolCustomClass="rounded-xl mt-5"
             toggleEnableColor="bg-primary"

@@ -83,7 +83,7 @@ let initialValueForForm = (
   defaultBusinessProfile: HSwitchSettingTypes.profileEntity,
 ): SDKPaymentTypes.paymentType => {
   let setupFutureValue = showSetupFutureUsage ? Some("on_session") : None
-  let authTypevalue = sendAuthType ? Nullable.make("three_ds") : Nullable.null
+  let authTypevalue = sendAuthType ? Some("three_ds") : None
   let shippingValue: SDKPaymentTypes.addressAndPhone = {
     address: {
       line1: "1600",
@@ -193,12 +193,6 @@ let getTypedPaymentData = (
     }
   }
 
-  let authenticationType = if sendAuthType {
-    Nullable.make(dict->getString("authentication_type", "three_ds"))
-  } else {
-    Nullable.null
-  }
-
   let base = {
     amount: dict->getFloat("amount", 10000.0),
     currency: getCurrency(),
@@ -206,7 +200,7 @@ let getTypedPaymentData = (
     customer_id: !isGuestMode ? dict->getOptionString("customer_id") : None,
     description: dict->getString("description", "Payment Transaction"),
     email: email->isNonEmptyString ? Nullable.make(email) : Nullable.null,
-    authentication_type: authenticationType,
+    authentication_type: sendAuthType ? dict->getOptionString("authentication_type") : None,
     setup_future_usage: showSetupFutureUsage ? dict->getOptionString("setup_future_usage") : None,
     shipping: None,
     billing: None,

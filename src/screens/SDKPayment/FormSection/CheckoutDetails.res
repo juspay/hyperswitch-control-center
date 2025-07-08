@@ -54,7 +54,7 @@ let make = (~getClientSecret) => {
   }
 
   <Form
-    formClass="mt-5"
+    formClass="mt-4"
     initialValues={initialValuesForCheckoutForm->Identity.genericTypeToJson}
     onSubmit>
     <FieldRenderer
@@ -90,6 +90,5 @@ let make = (~getClientSecret) => {
         paymentConnectorList->Array.length == 0}
       customSumbitButtonStyle="!mt-5 !w-full"
     />
-    <FormValuesSpy />
   </Form>
 }

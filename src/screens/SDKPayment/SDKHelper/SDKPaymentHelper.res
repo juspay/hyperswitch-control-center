@@ -152,6 +152,7 @@ let selectCaptureMethodField = FormRenderer.makeFieldInfo(
     ~fullLength=true,
     ~textStyle="!font-normal",
     ~customButtonStyle="!w-1/2",
+    ~dropdownCustomWidth="w-full",
   ),
 )
 
@@ -180,9 +181,10 @@ let selectAuthenticationField = sendAuthTypeasNull =>
       ~options=dropDownOptionsForAuthenticationType,
       ~buttonText="Select Authentication Type",
       ~deselectDisable=true,
+      ~fullLength=true,
       ~textStyle="!font-normal",
       ~disableSelect=!sendAuthTypeasNull,
-      ~dropdownCustomWidth="w-fit",
+      ~dropdownCustomWidth="w-full",
     ),
   )
 
