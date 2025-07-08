@@ -16,10 +16,7 @@ const plugin = require("tailwindcss/plugin");
 
 module.exports = {
   darkMode: "class",
-  content: [
-    "./src/**/*.js",
-    "./node_modules/DE-routing-playground/dist/index.es.js",
-  ],
+  content: ["./src/**/*.js"],
   theme: {
     fontFamily: {
       "inter-style": '"InterDisplay"',

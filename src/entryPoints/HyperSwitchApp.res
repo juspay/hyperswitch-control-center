@@ -182,8 +182,11 @@ let make = () => {
 
                         | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
                         | (_, list{"de-routing", ..._}) =>
-                          <ShadowDomWrapper styleHref=Some("de-routing/style.css")>
-                            <DERouting basename={`/${GlobalVars.dashboardPrefix}`} />
+                          <ShadowDomWrapper>
+                            {<>
+                              <link rel="stylesheet" href={`/ext_libs/de-routing/style.css`} />
+                              <DERouting basename={`/${GlobalVars.dashboardPrefix}`} />
+                            </>}
                           </ShadowDomWrapper>
 
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
