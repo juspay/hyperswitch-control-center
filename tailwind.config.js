@@ -424,6 +424,7 @@ module.exports = {
         },
         nd_red: {
           50: "#FCF1EF",
+          200: "#FCB5AA",
           600: "#C91C00",
           400: "#EC5941",
         },
@@ -435,6 +436,7 @@ module.exports = {
         nd_yellow: {
           100: "#FFFBEE",
           200: "#5E4200",
+          300: "#FFDF20",
           800: "#998335",
         },
       },

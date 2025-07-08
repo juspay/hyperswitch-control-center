@@ -243,7 +243,12 @@ let getConnectorIDFromUrl = (urlList, defaultValue) => {
 
 module AlertBanner = {
   @react.component
-  let make = (~bannerText, ~bannerType: HSwitchUtilsTypes.bannerType, ~children=?) => {
+  let make = (
+    ~bannerText="",
+    ~custom=React.null,
+    ~bannerType: HSwitchUtilsTypes.bannerType,
+    ~children=?,
+  ) => {
     let bgClass = switch bannerType {
     | Success => " bg-green-100"
     | Warning => "bg-orange-100"
@@ -258,11 +263,19 @@ module AlertBanner = {
     | Info => "info-banner"
     }
 
+    let borderColor = switch bannerType {
+    | Success => "border-nd_green-200"
+    | Warning => "border-nd_yellow-300"
+    | Error => "border-nd_red-200"
+    | Info => "border-nd_primary_blue-200"
+    }
+
     <div
-      className={`${bgClass} flex justify-between border border-none w-full py-4 px-4 rounded-md`}>
+      className={`${bgClass} flex justify-between border ${borderColor} text-nd_gray-700 w-full py-4 px-4 rounded-md`}>
       <div className="flex items-center gap-4">
         <Icon name=iconName size=20 />
-        {bannerText->React.string}
+        <RenderIf condition={custom == React.null}> {bannerText->React.string} </RenderIf>
+        <RenderIf condition={custom != React.null}> {custom} </RenderIf>
       </div>
       <div>
         {switch children {
