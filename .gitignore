@@ -25,4 +25,3 @@ downloads
 .env
 .nyc_output
 coverage
-ext/
