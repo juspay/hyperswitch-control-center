@@ -48,10 +48,20 @@ let paymentInterfaceV2: paymentInterfaceFCM<Dict.t<JSON.t>, PaymentInterfaceType
   V2
 )
 
-let mapJsonArrayToPaymentPayloads = (
+let mapJsonDictToPaymentPayload = (
   type a b,
   module(L: PaymentInterface with type mapperInput = a and type mapperOutput = b),
   inp: a,
 ): b => {
   L.mapDictToPaymentPayload(inp)
+}
+
+let mapJsonDictToPaymentPayload = (
+  version: UserInfoTypes.version,
+  inp: dict<JSON.t>,
+): PaymentInterfaceTypes.order => {
+  switch version {
+  | V1 => mapJsonDictToPaymentPayload(paymentInterfaceV1, inp)
+  | V2 => mapJsonDictToPaymentPayload(paymentInterfaceV2, inp)
+  }
 }
