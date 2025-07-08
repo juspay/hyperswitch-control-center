@@ -20,6 +20,16 @@ let getThemeIdfromStore = () => {
   let themeId = LocalStorage.getItem("theme_id")->Nullable.toOption
   themeId
 }
+let setCustomTableHeaders = val => {
+  let val = val->LogicUtils.getNonEmptyString
+  if val->Option.isSome {
+    LocalStorage.setItem("tableColumnsOrder", val->Option.getOr(""))
+  }
+}
+let getCustomTableColumnsfromStore = () => {
+  let customTableColumns = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
+  customTableColumns
+}
 
 let setThemeIdtoStore = themeId => {
   let themeID = themeId->LogicUtils.getNonEmptyString
@@ -40,4 +50,28 @@ let setDomaintoStore = domain => {
 let getDomainfromStore = () => {
   let domain = LocalStorage.getItem("domain")->Nullable.toOption
   domain
+}
+let getEmailfromStore = () => {
+  let email = LocalStorage.getItem("email")->Nullable.toOption
+  email
+}
+let setEmailToStore = email => {
+  let email = email->LogicUtils.getNonEmptyString
+  if email->Option.isSome {
+    LocalStorage.setItem("email", email->Option.getOr(""))
+  }
+}
+
+let handleSavedColumnsInStore = email => {
+  let optionalEmail = Some(email)
+  let savedEmail = getEmailfromStore()->Option.getOr("")
+  let getCustomTableColumnsfromStore = getCustomTableColumnsfromStore()
+  if {
+    (!(savedEmail == email) || optionalEmail->Option.isNone) &&
+      getCustomTableColumnsfromStore->Option.isSome
+  } {
+    LocalStorage.removeItem("tableColumnsOrder")
+  } else {
+    ()
+  }
 }

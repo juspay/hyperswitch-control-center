@@ -75,6 +75,7 @@ let make = (
 
   let chooseCols =
     <DynamicTableUtils.ChooseColumnsWrapper
+      title
       entity
       totalResults={actualData->Array.length}
       activeColumnsAtom

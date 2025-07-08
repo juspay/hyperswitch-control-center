@@ -12,6 +12,7 @@ let make = (
   ~sortingBasedOnDisabled=true,
   ~showSerialNumber=true,
   ~isDraggable=false,
+  ~varianType=CustomizableTableColumnsUtils.Unkown,
 ) => {
   let heading = {
     let notInVisible = allHeadersArray->Array.reduce([], (acc, item) => {
@@ -59,18 +60,40 @@ let make = (
   let initialValues = visibleColumns->Array.map(head => {
     getHeading(head).title
   })
+  let optionalValueFromLocalStorage = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
+  let valueFromLocalStorage = switch optionalValueFromLocalStorage {
+  | Some(str) => str
+  | _ => ""
+  }
 
+  let createValForLocalStorage = (val, varianType) => {
+    open LogicUtils
+
+    let valueDict =
+      valueFromLocalStorage
+      ->safeParse
+      ->getDictFromJsonObject
+
+    valueDict->Dict.set(
+      varianType->CustomizableTableColumnsUtils.variantToTextMapper,
+      val->Array.toString->JSON.Encode.string,
+    )
+
+    let finalString =
+      valueDict->Identity.genericTypeToDictOfJson->JSON.Encode.object->JSON.stringify
+    finalString
+  }
   let onSubmit = values => {
     let getHeadingCol = text => {
       let index = heading->Array.map(head => getHeading(head).title)->Array.indexOf(text)
       heading[index]
     }
-
     let headers = values->Belt.Array.keepMap(getHeadingCol)
     let headers = orderdColumnBasedOnDefaultCol
       ? headers->Array.copy->Array.toSorted(sortByOrderOderedArr)
       : headers
-
+    let valForLocalStorage = createValForLocalStorage(values, varianType)
+    LocalStorage.setItem("tableColumnsOrder", valForLocalStorage)
     setColumns(_ => headers)
   }
 
