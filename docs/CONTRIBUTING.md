@@ -80,33 +80,40 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 ### Steps to Raise a PR from a Branch
 
 1. **Clone the Repository**:
+
    - Clone the main repository to your local machine using the following command:
      ```bash
      git clone https://github.com/juspay/hyperswitch-control-center.git
      ```
 
 2. **Create a New Branch**:
+
    - Create a new branch for your changes directly in the main repository. Please ensure the branch name is descriptive and relates to the feature or bug you're addressing.
      ```bash
      git checkout -b feature/your-feature-name
      ```
 
 3. **Make Changes**:
+
    - Make the necessary changes in the codebase, ensuring that you follow the project's coding guidelines and standards.
 
 4. **Commit Changes**:
+
    - Commit your changes with a clear and descriptive commit message. Please follow conventional commit [guidelines](https://www.conventionalcommits.org/).
 
 5. **Push Changes**:
+
    - Push your changes to the branch in the main repository.
      ```bash
      git push origin feature/your-feature-name
      ```
 
 6. **Create a Pull Request**:
+
    - Navigate to the main repository on GitHub and create a new PR from your branch. Provide a detailed description of the changes, along with any relevant context or screenshots.
 
 7. **Respond to Feedback**:
+
    - Be responsive to feedback from reviewers. Address any comments or suggestions promptly and make the necessary changes as required.
 
 ### Additional Notes
