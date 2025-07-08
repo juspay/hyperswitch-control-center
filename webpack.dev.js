@@ -9,7 +9,7 @@ let port = 9000;
 let proxy = [
   {
     context: ["/api"],
-    target: "http://localhost:8080",
+    target: "https://integ.hyperswitch.io/api",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
@@ -73,9 +73,6 @@ let devServer = {
   port: port,
   historyApiFallback: {
     rewrites: [{ from: /^\/dashboard/, to: "/index.html" }],
-  },
-  devMiddleware: {
-    writeToDisk: true,
   },
   proxy: proxy,
   setupMiddlewares: (middlewares, devServer) => {
