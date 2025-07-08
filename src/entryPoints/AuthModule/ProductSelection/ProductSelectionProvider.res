@@ -180,9 +180,10 @@ module CreateNewMerchantBody = {
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
       let productName = selectedProduct->ProductUtils.getProductStringName
+      let display_product_name = selectedProduct->ProductUtils.getProductStringDisplayName
       dict->Dict.set("product_type", productName->JSON.Encode.string)
       let randomString = randomString(~length=10)
-      dict->Dict.set("company_name", JSON.Encode.string(`${productName}_${randomString}`))
+      dict->Dict.set("company_name", JSON.Encode.string(`${display_product_name}_${randomString}`))
       dict->JSON.Encode.object
     }, [selectedProduct])
 
