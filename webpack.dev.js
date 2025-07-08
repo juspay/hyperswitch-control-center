@@ -57,6 +57,9 @@ let devServer = {
   historyApiFallback: {
     rewrites: [{ from: /^\/dashboard/, to: "/index.html" }],
   },
+  devMiddleware: {
+    writeToDisk: true,
+  },
   proxy: proxy,
   setupMiddlewares: (middlewares, devServer) => {
     devServer.app.use(configMiddleware);

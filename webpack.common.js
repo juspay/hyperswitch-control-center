@@ -66,12 +66,16 @@ module.exports = () => {
       new MiniCssExtractPlugin(),
       new CopyPlugin({
         patterns: [
-          { from: "public/common" },
-          { from: `public/hyperswitch` },
           {
-            from: "node_modules/DE-routing-playground/dist/",
+            from: "node_modules/DE-routing-playground/dist/style.css",
             to: path.resolve(__dirname, "dist/hyperswitch/ext_libs/de-routing"),
           },
+          {
+            from: "node_modules/DE-routing-playground/dist/index.umd.js",
+            to: path.resolve(__dirname, "ext/de-routing"),
+          },
+          { from: "public/common" },
+          { from: `public/hyperswitch` },
         ].filter(Boolean),
       }),
       new MonacoWebpackPlugin(),
