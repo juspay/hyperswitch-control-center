@@ -21,7 +21,7 @@ let reconTransactions = {
 
 let reconExceptions = {
   Link({
-    name: "Recon Exceptions",
+    name: "Exceptions",
     link: `/v2/recon-engine/exceptions`,
     access: Access,
     icon: "",
@@ -39,7 +39,7 @@ let reconQueue = {
 
 let reconRuleCreation = {
   Link({
-    name: "Recon Rule Creation",
+    name: "Rule Library",
     link: `/v2/recon-engine/rules`,
     access: Access,
     icon: "",
