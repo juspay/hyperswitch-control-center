@@ -1,11 +1,11 @@
 @get external shadowRoot: Dom.element => Nullable.t<Dom.element> = "shadowRoot"
-open DOMUtils
 
 @react.component
 let make = (~children, ~styleHref=None) => {
+  open DOMUtils
   let (cssLoaded, setCssLoaded) = React.useState(_ => false)
   React.useEffect(() => {
-    let test = document->getElementById("shadow-dom-for-application")
+    let test = DOMUtils.document->getElementById("shadow-dom-for-application")
 
     let shadowRoot = switch test->shadowRoot->Nullable.toOption {
     | Some(existingShadowRoot) => existingShadowRoot
@@ -14,12 +14,10 @@ let make = (~children, ~styleHref=None) => {
 
     switch styleHref {
     | Some(hrefUrl) => {
-        let link = document->createElement("link")
+        let link = DOMUtils.document->createElement("link")
         link->setAttribute("rel", "stylesheet")
         link->setAttribute("href", `/ext_libs/${hrefUrl}`)
-        link->setOnload(_ => {
-          setCssLoaded(_ => true)
-        })
+        link->setOnload(_ => setCssLoaded(_ => true))
         shadowRoot->appendChildToElement(link)
       }
     | None => setCssLoaded(_ => true)
