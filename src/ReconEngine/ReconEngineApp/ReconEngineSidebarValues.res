@@ -39,7 +39,7 @@ let reconQueue = {
 
 let reconRuleCreation = {
   Link({
-    name: "Rule Library",
+    name: "Rules Library",
     link: `/v2/recon-engine/rules`,
     access: Access,
     icon: "",
