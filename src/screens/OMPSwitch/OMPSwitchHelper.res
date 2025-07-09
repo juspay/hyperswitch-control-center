@@ -118,14 +118,6 @@ module ListBaseComp = {
               />
             </RenderIf>
           </div>
-          <Modal
-            modalHeading="What is a Platform Merchant Account?"
-            showModal
-            setShowModal
-            modalClass="max-w-4xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background border border-green-500"
-            childClass="p-4">
-            {customModalContent}
-          </Modal>
           <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
@@ -135,6 +127,14 @@ module ListBaseComp = {
               ? <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
               : React.null}
           </div>
+          <Modal
+            modalHeading="What is a Platform Merchant Account?"
+            showModal
+            setShowModal
+            modalClass="max-w-4xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background border border-green-500"
+            childClass="p-4">
+            {customModalContent}
+          </Modal>
         </div>
 
       | #Profile =>
