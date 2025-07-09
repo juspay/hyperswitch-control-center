@@ -181,6 +181,13 @@ let make = () => {
                         | (_, list{"organization-chart"}) => <OrganisationChart />
 
                         | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
+                        | (_, list{"de-routing", ..._}) =>
+                          <AccessControl
+                            authorization={Access} isEnabled={featureFlagDetails.extDeRouting}>
+                            <ShadowDomWrapper styleHref={Some("de-routing/style.css")}>
+                              <DERouting basename={`/${GlobalVars.dashboardPrefix}`} />
+                            </ShadowDomWrapper>
+                          </AccessControl>
 
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold

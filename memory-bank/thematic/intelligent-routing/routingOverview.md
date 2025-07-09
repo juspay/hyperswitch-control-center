@@ -243,17 +243,14 @@ let make = () => {
 ## Common Challenges and Solutions
 
 1. **Complex Rule Interactions**
-
    - **Challenge**: Rules may have unexpected interactions when combined
    - **Solution**: Simulation tools to visualize and test rule outcomes
 
 2. **Performance Monitoring**
-
    - **Challenge**: Determining if routing is actually improving performance
    - **Solution**: Detailed analytics comparing routing strategies
 
 3. **Processor-Specific Limitations**
-
    - **Challenge**: Different processors have different capabilities
    - **Solution**: Processor capability matrix in the UI for guidance
 

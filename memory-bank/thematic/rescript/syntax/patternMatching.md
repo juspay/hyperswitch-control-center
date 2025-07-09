@@ -60,7 +60,7 @@ let renderStatus = status => {
 ### Variants with Data
 
 ```rescript
-type apiResponse<'data> = 
+type apiResponse<'data> =
   | Loading
   | Success('data)
   | Error(string)
@@ -79,7 +79,7 @@ let handleResponse = response => {
 ### Complex Variant Matching
 
 ```rescript
-type userAction = 
+type userAction =
   | Login(string, string) // email, password
   | Logout
   | UpdateProfile(string, option<string>) // name, avatar
@@ -88,19 +88,19 @@ type userAction =
 
 let processAction = action => {
   switch action {
-  | Login(email, password) => 
+  | Login(email, password) =>
     `Attempting login for ${email}`
-  | Logout => 
+  | Logout =>
     "User logged out"
-  | UpdateProfile(name, Some(avatar)) => 
+  | UpdateProfile(name, Some(avatar)) =>
     `Updating profile: ${name} with avatar ${avatar}`
-  | UpdateProfile(name, None) => 
+  | UpdateProfile(name, None) =>
     `Updating profile: ${name} without avatar`
-  | ChangePassword(oldPass, newPass) => 
+  | ChangePassword(oldPass, newPass) =>
     "Password change requested"
-  | DeleteAccount(confirmation) when confirmation == "DELETE" => 
+  | DeleteAccount(confirmation) when confirmation == "DELETE" =>
     "Account deletion confirmed"
-  | DeleteAccount(_) => 
+  | DeleteAccount(_) =>
     "Invalid confirmation for account deletion"
   }
 }
@@ -150,11 +150,11 @@ let getFullAddress = user => {
   switch user.address {
   | None => "No address provided"
   | Some({street: None, city: None, country: None}) => "Incomplete address"
-  | Some({street: Some(s), city: Some(c), country: Some(co)}) => 
+  | Some({street: Some(s), city: Some(c), country: Some(co)}) =>
     `${s}, ${c}, ${co}`
-  | Some({city: Some(c), country: Some(co)}) => 
+  | Some({city: Some(c), country: Some(co)}) =>
     `${c}, ${co}`
-  | Some({country: Some(co)}) => 
+  | Some({country: Some(co)}) =>
     co
   | Some(_) => "Partial address available"
   }
@@ -264,17 +264,17 @@ type payment = {
 
 let getPaymentInfo = payment => {
   switch payment {
-  | {status: "completed", amount} when amount > 1000.0 => 
+  | {status: "completed", amount} when amount > 1000.0 =>
     "Large completed payment"
-  | {status: "completed"} => 
+  | {status: "completed"} =>
     "Payment completed"
-  | {status: "pending", metadata: Some(_)} => 
+  | {status: "pending", metadata: Some(_)} =>
     "Pending payment with metadata"
-  | {status: "pending"} => 
+  | {status: "pending"} =>
     "Pending payment"
-  | {status: "failed", amount} => 
+  | {status: "failed", amount} =>
     `Failed payment of ${Float.toString(amount)}`
-  | {status} => 
+  | {status} =>
     `Payment status: ${status}`
   }
 }
@@ -343,13 +343,13 @@ let categorizeNumber = num => {
 
 let validateUser = user => {
   switch user {
-  | {name, age: Some(a)} when String.length(name) > 0 && a >= 18 => 
+  | {name, age: Some(a)} when String.length(name) > 0 && a >= 18 =>
     "Valid adult user"
-  | {name} when String.length(name) > 0 => 
+  | {name} when String.length(name) > 0 =>
     "Valid user (age unknown)"
-  | {name} when String.length(name) == 0 => 
+  | {name} when String.length(name) == 0 =>
     "Invalid: empty name"
-  | _ => 
+  | _ =>
     "Invalid user"
   }
 }
@@ -375,7 +375,7 @@ let handleApiCall = () => {
   } catch {
   | Fetch.Error(NetworkError) => "Network error occurred"
   | Fetch.Error(ParseError) => "Failed to parse response"
-  | Exn.Error(obj) => 
+  | Exn.Error(obj) =>
     switch Exn.message(obj) {
     | Some(msg) => `Error: ${msg}`
     | None => "Unknown error occurred"
@@ -408,7 +408,7 @@ let getButtonClass = (color, size) => {
 ### Component State Matching
 
 ```rescript
-type loadingState<'data> = 
+type loadingState<'data> =
   | Loading
   | Success('data)
   | Error(string)
@@ -417,21 +417,21 @@ type loadingState<'data> =
 @react.component
 let make = (~data: loadingState<array<string>>) => {
   switch data {
-  | Loading => 
+  | Loading =>
     <div className="loading"> {React.string("Loading...")} </div>
-  | Success(items) when Array.length(items) == 0 => 
+  | Success(items) when Array.length(items) == 0 =>
     <div className="empty"> {React.string("No items found")} </div>
-  | Success(items) => 
+  | Success(items) =>
     <ul>
       {items
-      ->Array.mapWithIndex((item, index) => 
+      ->Array.mapWithIndex((item, index) =>
           <li key={Int.toString(index)}> {React.string(item)} </li>
         )
       ->React.array}
     </ul>
-  | Error(message) => 
+  | Error(message) =>
     <div className="error"> {React.string(`Error: ${message}`)} </div>
-  | Empty => 
+  | Empty =>
     <div className="empty"> {React.string("No data available")} </div>
   }
 }
@@ -440,7 +440,7 @@ let make = (~data: loadingState<array<string>>) => {
 ### Event Handling with Pattern Matching
 
 ```rescript
-type formEvent = 
+type formEvent =
   | Submit(ReactEvent.Form.t)
   | InputChange(string, string) // field name, value
   | Reset
@@ -480,7 +480,7 @@ type apiError = {
   message: string,
 }
 
-type apiResponse<'data> = 
+type apiResponse<'data> =
   | Loading
   | Success('data)
   | Error(apiError)
@@ -488,27 +488,27 @@ type apiResponse<'data> =
 
 let handleApiResponse = response => {
   switch response {
-  | Loading => 
+  | Loading =>
     <PageLoaderWrapper screenState={PageLoaderWrapper.Loading}>
       React.null
     </PageLoaderWrapper>
-  | Success(data) => 
+  | Success(data) =>
     <PageLoaderWrapper screenState={PageLoaderWrapper.Success}>
       <DataDisplay data />
     </PageLoaderWrapper>
-  | Error({code: "UNAUTHORIZED"}) => 
+  | Error({code: "UNAUTHORIZED"}) =>
     <PageLoaderWrapper screenState={PageLoaderWrapper.Error("Please log in again")}>
       React.null
     </PageLoaderWrapper>
-  | Error({code: "FORBIDDEN"}) => 
+  | Error({code: "FORBIDDEN"}) =>
     <PageLoaderWrapper screenState={PageLoaderWrapper.Error("Access denied")}>
       React.null
     </PageLoaderWrapper>
-  | Error({message}) => 
+  | Error({message}) =>
     <PageLoaderWrapper screenState={PageLoaderWrapper.Error(message)}>
       React.null
     </PageLoaderWrapper>
-  | NetworkError(msg) => 
+  | NetworkError(msg) =>
     <PageLoaderWrapper screenState={PageLoaderWrapper.Error(`Network error: ${msg}`)}>
       React.null
     </PageLoaderWrapper>
@@ -519,7 +519,7 @@ let handleApiResponse = response => {
 ### Form Validation
 
 ```rescript
-type validationError = 
+type validationError =
   | Required(string) // field name
   | InvalidFormat(string, string) // field name, expected format
   | TooShort(string, int) // field name, minimum length
@@ -537,13 +537,13 @@ let getErrorMessage = error => {
 let validateField = (fieldName, value) => {
   switch (fieldName, value) {
   | ("email", "") => Some(Required("Email"))
-  | ("email", email) when !String.includes(email, "@") => 
+  | ("email", email) when !String.includes(email, "@") =>
     Some(InvalidFormat("Email", "user@domain.com"))
   | ("password", "") => Some(Required("Password"))
-  | ("password", pwd) when String.length(pwd) < 8 => 
+  | ("password", pwd) when String.length(pwd) < 8 =>
     Some(TooShort("Password", 8))
   | ("name", "") => Some(Required("Name"))
-  | ("name", name) when String.length(name) > 50 => 
+  | ("name", name) when String.length(name) > 50 =>
     Some(TooLong("Name", 50))
   | _ => None
   }
@@ -553,7 +553,7 @@ let validateField = (fieldName, value) => {
 ### Route Matching
 
 ```rescript
-type route = 
+type route =
   | Dashboard
   | Payments(option<string>) // optional payment ID
   | Connectors

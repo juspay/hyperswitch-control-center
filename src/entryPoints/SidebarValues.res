@@ -706,7 +706,8 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   }
 
   let sidebarValuesForProduct = switch activeProduct {
-  | Orchestration(V1) => hsSidebars
+  | Orchestration(V1) =>
+    hsSidebars->Array.concat(ExtLibSidebarValues.getExternalLibs(featureFlagDetails))
   | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars

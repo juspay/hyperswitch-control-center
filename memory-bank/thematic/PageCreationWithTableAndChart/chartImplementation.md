@@ -127,17 +127,14 @@ This approach maintains type safety within the utility functions while allowing 
 ## Best Practices
 
 1. **Separation of Concerns**:
-
    - Keep chart configuration logic separate from display components
    - Use utility functions for generating complex chart options
 
 2. **Type Handling**:
-
    - Use proper type annotations for function parameters and returns
    - When necessary, use `Obj.magic` at the interface boundary between JSON and typed components
 
 3. **JavaScript Interop**:
-
    - Use `%raw` for JavaScript code that doesn't easily translate to ReScript
    - Keep raw JavaScript minimal and focused on specific functionality (like formatters)
 
