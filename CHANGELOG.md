@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.09.0
+
+### Features
+
+- Orchestrator v2 connectors configuration steps ([#3232](https://github.com/juspay/hyperswitch-control-center/pull/3232)) ([`c11c6d5`](https://github.com/juspay/hyperswitch-control-center/commit/c11c6d53ffa2e38dcc23f432f9442849679148a3))
+
+**Full Changelog:** [`2025.07.08.0...2025.07.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.08.0...2025.07.09.0)
+
+- - -
+
 ## 2025.07.08.0
 
 ### Bug Fixes
