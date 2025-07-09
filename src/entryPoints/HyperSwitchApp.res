@@ -193,8 +193,13 @@ let make = () => {
                         | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
 
-                        /* RECON PRODUCT */
-                        | (Recon, list{"v2", "recon", ..._}) => <ReconApp />
+                        /* RECON V1 PRODUCT */
+
+                        | (Recon(V1), list{"v2", "recon-engine", ..._}) => <ReconEngineApp />
+
+                        /* RECON V2 PRODUCT */
+
+                        | (Recon(V2), list{"v2", "recon", ..._}) => <ReconApp />
 
                         /* RECOVERY PRODUCT */
                         | (Recovery, list{"v2", "recovery", ..._}) => <RevenueRecoveryApp />
