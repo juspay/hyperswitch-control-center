@@ -422,6 +422,14 @@ let complianceCertificateSection = {
     searchOptions: [("PCI certificate", "")],
   })
 }
+let themepreview = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Theme",
+    link: `/theme`,
+    access: userHasResourceAccess(~resourceAccess=Theme),
+    searchOptions: [("Customise Theme", "")],
+  })
+}
 
 let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
   let settingsLinkArray = []
@@ -435,7 +443,7 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
   }
 
   settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
-
+  settingsLinkArray->Array.push(themepreview(userHasResourceAccess))->ignore
   Section({
     name: "Settings",
     icon: "nd-settings",
@@ -714,5 +722,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
   }
-  defaultSidebar->Array.concat(sidebarValuesForProduct)
+
+  let sidebarSettingsValue = ThemeSidebarValues.themeSidebars
+  defaultSidebar->Array.concat(sidebarValuesForProduct)->Array.concat(sidebarSettingsValue)
 }

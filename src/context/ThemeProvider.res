@@ -85,6 +85,94 @@ let useTheme = () => {
   theme
 }
 
+let themeDataJsonMapper = (uiConfg: JSON.t): HyperSwitchConfigTypes.customStylesTheme => {
+  open LogicUtils
+  let dict = uiConfg->getDictFromJsonObject
+  let settings = dict->getDictfromDict("settings")
+  let url = dict->getDictfromDict("urls")
+  let colorsConfig = settings->getDictfromDict("colors")
+  let sidebarConfig = settings->getDictfromDict("sidebar")
+  let typography = settings->getDictfromDict("typography")
+  let borders = settings->getDictfromDict("borders")
+  let spacing = settings->getDictfromDict("spacing")
+  let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("primary")
+  let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
+  let {settings: defaultSettings, _} = newDefaultConfig
+  {
+    settings: {
+      colors: {
+        primary: colorsConfig->getString("primary", defaultSettings.colors.primary),
+        secondary: colorsConfig->getString("secondary", defaultSettings.colors.secondary),
+        background: colorsConfig->getString("background", defaultSettings.colors.background),
+      },
+      sidebar: {
+        primary: sidebarConfig->getString("primary", defaultSettings.sidebar.primary),
+        textColor: sidebarConfig->getString("textColor", defaultSettings.sidebar.textColor),
+        textColorPrimary: sidebarConfig->getString(
+          "textColorPrimary",
+          defaultSettings.sidebar.textColorPrimary,
+        ),
+      },
+      typography: {
+        fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
+        fontSize: typography->getString("fontSize", defaultSettings.typography.fontSize),
+        headingFontSize: typography->getString(
+          "headingFontSize",
+          defaultSettings.typography.headingFontSize,
+        ),
+        textColor: typography->getString("textColor", defaultSettings.typography.textColor),
+        linkColor: typography->getString("linkColor", defaultSettings.typography.linkColor),
+        linkHoverColor: typography->getString(
+          "linkHoverColor",
+          defaultSettings.typography.linkHoverColor,
+        ),
+      },
+      buttons: {
+        primary: {
+          backgroundColor: colorsBtnPrimary->getString(
+            "backgroundColor",
+            defaultSettings.buttons.primary.backgroundColor,
+          ),
+          textColor: colorsBtnPrimary->getString(
+            "textColor",
+            defaultSettings.buttons.primary.textColor,
+          ),
+          hoverBackgroundColor: colorsBtnPrimary->getString(
+            "hoverBackgroundColor",
+            defaultSettings.buttons.primary.hoverBackgroundColor,
+          ),
+        },
+        secondary: {
+          backgroundColor: colorsBtnSecondary->getString(
+            "backgroundColor",
+            defaultSettings.buttons.secondary.backgroundColor,
+          ),
+          textColor: colorsBtnSecondary->getString(
+            "textColor",
+            defaultSettings.buttons.secondary.textColor,
+          ),
+          hoverBackgroundColor: colorsBtnSecondary->getString(
+            "hoverBackgroundColor",
+            defaultSettings.buttons.secondary.hoverBackgroundColor,
+          ),
+        },
+      },
+      borders: {
+        defaultRadius: borders->getString("defaultRadius", defaultSettings.borders.defaultRadius),
+        borderColor: borders->getString("borderColor", defaultSettings.borders.borderColor),
+      },
+      spacing: {
+        padding: spacing->getString("padding", defaultSettings.spacing.padding),
+        margin: spacing->getString("margin", defaultSettings.spacing.margin),
+      },
+    },
+    urls: {
+      faviconUrl: url->getOptionString("faviconUrl"),
+      logoUrl: url->getOptionString("logoUrl"),
+    },
+  }
+}
+
 @react.component
 let make = (~children) => {
   let eventTheme = ThemeUtils.useThemeFromEvent()
@@ -122,91 +210,7 @@ let make = (~children) => {
   }
 
   let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
-    open LogicUtils
-    let dict = uiConfg->getDictFromJsonObject
-    let settings = dict->getDictfromDict("settings")
-    let url = dict->getDictfromDict("urls")
-    let colorsConfig = settings->getDictfromDict("colors")
-    let sidebarConfig = settings->getDictfromDict("sidebar")
-    let typography = settings->getDictfromDict("typography")
-    let borders = settings->getDictfromDict("borders")
-    let spacing = settings->getDictfromDict("spacing")
-    let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("primary")
-    let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
-    let {settings: defaultSettings, _} = newDefaultConfig
-    let value: HyperSwitchConfigTypes.customStylesTheme = {
-      settings: {
-        colors: {
-          primary: colorsConfig->getString("primary", defaultSettings.colors.primary),
-          secondary: colorsConfig->getString("secondary", defaultSettings.colors.secondary),
-          background: colorsConfig->getString("background", defaultSettings.colors.background),
-        },
-        sidebar: {
-          primary: sidebarConfig->getString("primary", defaultSettings.sidebar.primary),
-          textColor: sidebarConfig->getString("textColor", defaultSettings.sidebar.textColor),
-          textColorPrimary: sidebarConfig->getString(
-            "textColorPrimary",
-            defaultSettings.sidebar.textColorPrimary,
-          ),
-        },
-        typography: {
-          fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
-          fontSize: typography->getString("fontSize", defaultSettings.typography.fontSize),
-          headingFontSize: typography->getString(
-            "headingFontSize",
-            defaultSettings.typography.headingFontSize,
-          ),
-          textColor: typography->getString("textColor", defaultSettings.typography.textColor),
-          linkColor: typography->getString("linkColor", defaultSettings.typography.linkColor),
-          linkHoverColor: typography->getString(
-            "linkHoverColor",
-            defaultSettings.typography.linkHoverColor,
-          ),
-        },
-        buttons: {
-          primary: {
-            backgroundColor: colorsBtnPrimary->getString(
-              "backgroundColor",
-              defaultSettings.buttons.primary.backgroundColor,
-            ),
-            textColor: colorsBtnPrimary->getString(
-              "textColor",
-              defaultSettings.buttons.primary.textColor,
-            ),
-            hoverBackgroundColor: colorsBtnPrimary->getString(
-              "hoverBackgroundColor",
-              defaultSettings.buttons.primary.hoverBackgroundColor,
-            ),
-          },
-          secondary: {
-            backgroundColor: colorsBtnSecondary->getString(
-              "backgroundColor",
-              defaultSettings.buttons.secondary.backgroundColor,
-            ),
-            textColor: colorsBtnSecondary->getString(
-              "textColor",
-              defaultSettings.buttons.secondary.textColor,
-            ),
-            hoverBackgroundColor: colorsBtnSecondary->getString(
-              "hoverBackgroundColor",
-              defaultSettings.buttons.secondary.hoverBackgroundColor,
-            ),
-          },
-        },
-        borders: {
-          defaultRadius: borders->getString("defaultRadius", defaultSettings.borders.defaultRadius),
-          borderColor: borders->getString("borderColor", defaultSettings.borders.borderColor),
-        },
-        spacing: {
-          padding: spacing->getString("padding", defaultSettings.spacing.padding),
-          margin: spacing->getString("margin", defaultSettings.spacing.margin),
-        },
-      },
-      urls: {
-        faviconUrl: url->getOptionString("faviconUrl"),
-        logoUrl: url->getOptionString("logoUrl"),
-      },
-    }
+    let value = themeDataJsonMapper(uiConfg)
     Window.appendStyle(value)
   }, [])
   let configureFavIcon = (faviconUrl: option<string>) => {

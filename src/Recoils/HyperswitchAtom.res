@@ -86,3 +86,5 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   "moduleListRecoil",
   [],
 )
+
+let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON.Encode.null)
