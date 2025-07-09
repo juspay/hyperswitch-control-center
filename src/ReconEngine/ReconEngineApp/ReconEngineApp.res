@@ -5,7 +5,7 @@ let make = () => {
 
   {
     switch url.path->urlPath {
-    | list{"v1", "recon-engine", "overview"} => <ReconEngineOverviewContainer />
+    | list{"v1", "recon-engine", "overview", ..._} => <ReconEngineOverviewContainer />
     | list{"v1", "recon-engine", "transactions"} => <ReconEngineTransactionContainer />
     | list{"v1", "recon-engine", "exceptions"} => <ReconEngineExceptionContainer />
     | list{"v1", "recon-engine", "queue"} => <ReconEngineQueueContainer />
