@@ -50,7 +50,7 @@ let parseColumnsFromLocalStorage = title => {
     valueFromLocalStorage
     ->safeParse
     ->getDictFromJsonObject
-    ->LogicUtils.getString(title, "")
+    ->getString(title, "")
     ->String.split(",")
 
   parsedValue
