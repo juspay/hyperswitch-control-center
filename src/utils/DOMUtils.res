@@ -11,10 +11,13 @@ type window = {mutable _env_: HyperSwitchConfigTypes.urlConfig}
 type event
 @new
 external event: string => event = "Event"
+@set external setOnload: (Dom.element, Dom.event => unit) => unit = "onload"
+
 @send external dispatchEvent: ('a, event) => unit = "dispatchEvent"
 @send external postMessage: (window, JSON.t, string) => unit = "postMessage"
 @get external keyCode: 'a => int = "keyCode"
 @send external querySelectorAll: (document, string) => array<Dom.element> = "querySelectorAll"
+@send external querySelector: (document, string) => option<Dom.element> = "querySelector"
 
 @send external attachShadow: (Dom.element, {.."mode": string}) => Dom.element = "attachShadow"
 @send external setAttribute: (Dom.element, string, string) => unit = "setAttribute"

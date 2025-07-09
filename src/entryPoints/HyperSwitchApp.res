@@ -184,11 +184,8 @@ let make = () => {
                         | (_, list{"de-routing", ..._}) =>
                           <AccessControl
                             authorization={Access} isEnabled={featureFlagDetails.extDeRouting}>
-                            <ShadowDomWrapper>
-                              {<>
-                                <link rel="stylesheet" href={`/ext_libs/de-routing/style.css`} />
-                                <DERouting basename={`/${GlobalVars.dashboardPrefix}`} />
-                              </>}
+                            <ShadowDomWrapper styleHref={Some("de-routing/style.css")}>
+                              <DERouting basename={`/${GlobalVars.dashboardPrefix}`} />
                             </ShadowDomWrapper>
                           </AccessControl>
 
