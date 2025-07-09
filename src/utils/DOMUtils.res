@@ -7,6 +7,7 @@ type window = {mutable _env_: HyperSwitchConfigTypes.urlConfig}
 @val external window: window = "window"
 @send external click: (Dom.element, unit) => unit = "click"
 @send external reset: (Dom.element, unit) => unit = "reset"
+@get external shadowRoot: Dom.element => Nullable.t<Dom.element> = "shadowRoot"
 
 type event
 @new

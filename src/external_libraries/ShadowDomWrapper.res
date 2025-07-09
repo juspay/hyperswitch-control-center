@@ -1,5 +1,3 @@
-@get external shadowRoot: Dom.element => Nullable.t<Dom.element> = "shadowRoot"
-
 @react.component
 let make = (~children, ~styleHref=None) => {
   open DOMUtils
