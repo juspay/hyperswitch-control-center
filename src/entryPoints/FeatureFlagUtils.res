@@ -60,6 +60,7 @@ type featureFlag = {
   acquirerConfigSettings: bool,
   devOmpChart: bool,
   devOrchestrationV2Product: bool,
+  extDeRouting: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -122,6 +123,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     threedsExemptionRules: dict->getBool("threeds_exemption", false),
     devOmpChart: dict->getBool("dev_omp_chart", false),
     devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
+    extDeRouting: dict->getBool("ext_de_routing", false),
   }
 }
 

@@ -705,18 +705,9 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
     ])
   }
 
-  defaultSidebar->Array.push(
-    Link({
-      name: "Debit Routing",
-      icon: "nd-home",
-      link: "/de-routing",
-      access: Access,
-      selectedIcon: "nd-fill-home",
-    }),
-  )
-
   let sidebarValuesForProduct = switch activeProduct {
-  | Orchestration(V1) => hsSidebars
+  | Orchestration(V1) =>
+    hsSidebars->Array.concat(ExtLibSidebarValues.getExternalLibs(featureFlagDetails))
   | Recon => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
