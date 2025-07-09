@@ -21,7 +21,7 @@ let getThemeIdfromStore = () => {
   themeId
 }
 let setCustomTableHeaders = val => {
-  let val = val->LogicUtils.getNonEmptyString
+  let val = val->getNonEmptyString
   if val->Option.isSome {
     LocalStorage.setItem("tableColumnsOrder", val->Option.getOr(""))
   }
@@ -32,7 +32,7 @@ let getCustomTableColumnsfromStore = () => {
 }
 
 let setThemeIdtoStore = themeId => {
-  let themeID = themeId->LogicUtils.getNonEmptyString
+  let themeID = themeId->getNonEmptyString
   if themeID->Option.isSome {
     LocalStorage.setItem("theme_id", themeID->Option.getOr(""))
   } else {
@@ -41,7 +41,7 @@ let setThemeIdtoStore = themeId => {
 }
 
 let setDomaintoStore = domain => {
-  let domain = domain->LogicUtils.getNonEmptyString
+  let domain = domain->getNonEmptyString
   if domain->Option.isSome {
     LocalStorage.setItem("domain", domain->Option.getOr(""))
   }
@@ -56,7 +56,7 @@ let getEmailfromStore = () => {
   email
 }
 let setEmailToStore = email => {
-  let email = email->LogicUtils.getNonEmptyString
+  let email = email->getNonEmptyString
   if email->Option.isSome {
     LocalStorage.setItem("email", email->Option.getOr(""))
   }
