@@ -24,3 +24,4 @@ let reconExceptionReportsDefaultCols = Recoil.atom(
   "reconExceptionReportsDefaultCols",
   ReportsExceptionTableEntity.defaultColumns,
 )
+let themeTableDefaultCols = Recoil.atom("themeTableDefaultCols", ThemeEntity.visibleColumns)

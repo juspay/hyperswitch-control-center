@@ -173,7 +173,7 @@ let make = () => {
                         | (_, list{"v2", "home"}) => <DefaultHome />
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
-
+                        | (_, list{"themev2", ..._}) => <ThemeContainer />
                         | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
 
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>

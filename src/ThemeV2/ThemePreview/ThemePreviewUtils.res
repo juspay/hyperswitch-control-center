@@ -1,29 +1,6 @@
-// ThemePreviewUtils.res
 open ThemePreviewTypes
 open Typography
-let defaultTheme = {
-  themeName: "Default Theme",
-  primaryColor: "#006DF9",
-  sidebar: {
-    primary: "#FCFCFD",
-    textColor: "#525866",
-    textColorPrimary: "#1C6DEA",
-  },
-  buttons: {
-    primary: {
-      backgroundColor: "#1272f9",
-      textColor: "#ffffff",
-      hoverBackgroundColor: "#0860dd",
-    },
-    secondary: {
-      backgroundColor: "#f3f3f3",
-      textColor: "#626168",
-      hoverBackgroundColor: "#fcfcfd",
-    },
-  },
-  faviconUrl: "",
-  logoUrl: "",
-}
+let defaultTheme = ThemeProvider.newDefaultConfig
 let renderInfoIcon = (~info) => {
   <ToolTip
     description=info
@@ -98,7 +75,8 @@ let renderColorInput = (label: string, value: string, onChange: string => unit) 
   </div>
 }
 
-let renderImageUploader = (~asset: string, value: string, onChange: string => unit) => {
+let renderImageUploader = (~asset: string, value: option<string>, onChange) => {
+  let value = value->Option.getOr("")
   <div className="flex flex-col gap-2">
     <div className="flex flex-row gap-2 items-center">
       <span className={`${body.md.medium} text-gray-700`}> {`${asset} URL`->React.string} </span>

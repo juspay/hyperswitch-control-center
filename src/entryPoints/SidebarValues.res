@@ -722,5 +722,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
   }
-  defaultSidebar->Array.concat(sidebarValuesForProduct)
+
+  let sidebarSettingsValue = ThemeSidebarValues.themeSidebars
+  defaultSidebar->Array.concat(sidebarValuesForProduct)->Array.concat(sidebarSettingsValue)
 }

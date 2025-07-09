@@ -301,9 +301,10 @@ let iconFieldWithMessageDes: (
   (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element,
   ~description: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
-let passwordMatchField: (
-  ~leftIcon: React.element=?,
-) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
+let passwordMatchField: (~leftIcon: React.element=?) => (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder: string,
+) => React.element
 let checkboxInput: (
   ~isHorizontal: bool=?,
   ~options: array<SelectBox.dropdownOption>,
@@ -328,6 +329,7 @@ let boolInput: (
   ~boolCustomClass: string=?,
   ~toggleEnableColor: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
-let colorPickerInput: (
-  ~defaultValue: string=?,
-) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
+let colorPickerInput: (~defaultValue: string=?, ~colorSquarePosition: string=?) => (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder: 'a,
+) => React.element

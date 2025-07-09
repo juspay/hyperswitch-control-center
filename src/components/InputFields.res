@@ -711,9 +711,9 @@ let boolInput = (
   <BoolInput input isDisabled isCheckBox boolCustomClass toggleEnableColor />
 }
 
-let colorPickerInput = (~defaultValue="") => (
+let colorPickerInput = (~defaultValue="", ~colorSquarePosition="right") => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder as _,
 ) => {
-  <ColorPickerInput input defaultValue />
+  <ColorPickerInput input defaultValue colorSquarePosition />
 }
