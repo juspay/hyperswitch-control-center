@@ -121,13 +121,6 @@ let defaultHomeCardsArray = {
       action: InternalRoute,
     },
     {
-      product: Recon(V1),
-      heading: "Reconciliation Engine",
-      description: "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
-      imgSrc: "/assets/DefaultHomeReconCard.svg",
-      action: InternalRoute,
-    },
-    {
       product: Recovery,
       heading: "Revenue Recovery",
       description: "A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.",

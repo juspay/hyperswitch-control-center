@@ -32,7 +32,7 @@ let getProductDisplayName = product =>
 
 let getProductRouteName = product =>
   switch product {
-  | Recon(V2) => "recon"
+  | Recon(V2)
   | Recon(V1) => "recon"
   | Recovery => "recovery"
   | Vault => "vault"
