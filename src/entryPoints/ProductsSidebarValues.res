@@ -91,7 +91,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Recon(V1)->getProductDisplayName,
         icon: "recon-engine-v1",
-        link: "/v2/onboarding/recon-engine",
+        link: "/v1/onboarding/recon-engine",
         access: Access,
       }),
     )

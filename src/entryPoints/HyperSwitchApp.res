@@ -180,7 +180,9 @@ let make = () => {
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
 
-                        | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
+                        | (_, list{"v2", "onboarding", ..._})
+                        | (_, list{"v1", "onboarding", ..._}) =>
+                          <DefaultOnboardingPage />
 
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
@@ -195,7 +197,7 @@ let make = () => {
 
                         /* RECON V1 PRODUCT */
 
-                        | (Recon(V1), list{"v2", "recon-engine", ..._}) => <ReconEngineApp />
+                        | (Recon(V1), list{"v1", "recon-engine", ..._}) => <ReconEngineApp />
 
                         /* RECON V2 PRODUCT */
 

@@ -5,11 +5,11 @@ let make = () => {
 
   {
     switch url.path->urlPath {
-    | list{"v2", "recon-engine", "overview"} => <ReconEngineOverviewContainer />
-    | list{"v2", "recon-engine", "transactions"} => <ReconEngineTransactionContainer />
-    | list{"v2", "recon-engine", "exceptions"} => <ReconEngineExceptionContainer />
-    | list{"v2", "recon-engine", "queue"} => <ReconEngineQueueContainer />
-    | list{"v2", "recon-engine", "rules"} => <ReconEngineRulesContainer />
+    | list{"v1", "recon-engine", "overview"} => <ReconEngineOverviewContainer />
+    | list{"v1", "recon-engine", "transactions"} => <ReconEngineTransactionContainer />
+    | list{"v1", "recon-engine", "exceptions"} => <ReconEngineExceptionContainer />
+    | list{"v1", "recon-engine", "queue"} => <ReconEngineQueueContainer />
+    | list{"v1", "recon-engine", "rules"} => <ReconEngineRulesContainer />
     | _ => React.null
     }
   }

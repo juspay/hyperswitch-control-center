@@ -540,7 +540,7 @@ let make = (
     switch List.head(tail) {
     | Some(x) =>
       /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
-      if x === "v2" {
+      if x === "v2" || x === "v1" {
         `/${x}` ++ level2(tail)
       } else {
         `/${x}`

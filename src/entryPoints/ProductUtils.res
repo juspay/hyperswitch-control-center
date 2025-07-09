@@ -89,7 +89,7 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
       url
     }
   | Recon(V2) => `/dashboard/v2/recon/overview`
-  | Recon(V1) => `/dashboard/v2/recon-engine/overview`
+  | Recon(V1) => `/dashboard/v1/recon-engine/overview`
   | Recovery => `/dashboard/v2/recovery/overview`
   | Vault
   | CostObservability
