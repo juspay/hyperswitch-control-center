@@ -397,7 +397,7 @@ module ApiKeysTable = {
 module KeysManagement = {
   @react.component
   let make = () => {
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
@@ -405,7 +405,12 @@ module KeysManagement = {
 
     let isPlatformOrg = OMPSwitchUtils.isPlatformOMP(orgList, orgId)
     let isPlatformMerchant = OMPSwitchUtils.isPlatformOMP(merchantList, merchantId)
-    let hasCreateApiKeyAccess = userHasAccess(~groupAccess=MerchantDetailsManage)
+    let hasCreateApiKeyAccess = {
+      hasAnyGroupAccess(
+        userHasAccess(~groupAccess=MerchantDetailsManage),
+        userHasAccess(~groupAccess=AccountManage),
+      )
+    }
 
     let redirectToDocs = _ => {
       let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms"
