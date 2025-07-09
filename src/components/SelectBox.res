@@ -698,57 +698,75 @@ module BaseSelect = {
       ""
     }
 
-    let keyExtractor = (_, item: dropdownOptionWithoutOptional, _) => {
+    let listComponent = (~item: dropdownOptionWithoutOptional, ~indx, ~isItemDisabled=false) => {
+      let dragIcon = isItemDisabled
+        ? React.null
+        : <Icon
+            name="nd-grip-vertical"
+            size=14
+            className={"cursor-pointer mr-2"}
+            customIconColor="!nd_gray-600"
+          />
       let valueToConsider = item.value
       let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-      let isPrevSelected = switch filteredOptions->Array.get(index - 1) {
+      let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
       | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
       | None => false
       }
-      let isNextSelected = switch filteredOptions->Array.get(index + 1) {
+      let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
       | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
       | None => false
       }
+      let draggableClass = isDraggable
+        ? "flex justify-between border mb-4 rounded-lg hover:bg-jp-gray-100 dark:hover:bg-jp-gray-text_darktheme dark:hover:bg-opacity-10 dark:hover:text-white dark:text-white "
+        : ""
       let isSelected = index > -1
       let serialNumber = isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
       let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
-      <div className="flex">
-        <ListItem
-          isDropDown
-          isSelected
-          optionSize
-          isSelectedStateMinus
-          isPrevSelected
-          isNextSelected
-          searchString
-          onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
-          text=item.label
-          labelValue=item.label
-          multiSelect=true
-          customLabelStyle
-          icon=item.icon
-          leftVacennt
-          isDisabled={item.isDisabled || disableSelect}
-          showToggle
-          customStyle
-          serialNumber
-          isMobileView
-          description=item.description
-          customMarginStyle
-          listFlexDirection
-          dataId=index
-          showDescriptionAsTool
-          optionClass
-          selectClass
-          toggleProps
-          checkboxDimension
-          iconStroke=item.iconStroke
-        />
+      <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
+        <div className={`${draggableClass}`}>
+          <ListItem
+            isDropDown
+            isSelected
+            optionSize
+            isSelectedStateMinus
+            isPrevSelected
+            isNextSelected
+            searchString
+            onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
+            text=item.label
+            labelValue=item.label
+            multiSelect=true
+            customLabelStyle
+            icon=item.icon
+            leftVacennt
+            isDisabled={item.isDisabled || disableSelect}
+            showToggle
+            customStyle
+            serialNumber
+            isMobileView
+            description=item.description
+            customMarginStyle
+            listFlexDirection
+            dataId=indx
+            showDescriptionAsTool
+            optionClass
+            selectClass
+            toggleProps
+            checkboxDimension
+            iconStroke=item.iconStroke
+          />
+          {isDraggable ? dragIcon : React.null}
+        </div>
         {switch optionRigthElement {
         | Some(rightElement) => rightElement
         | None => React.null
         }}
       </div>
+    }
+
+    let keyExtractor = (index, item: dropdownOptionWithoutOptional, _, isDragDisabled) => {
+      listComponent(~item, ~indx=index, ~isItemDisabled=isDragDisabled)
     }
 
     let handleSetDraggableList = val => {
@@ -766,7 +784,7 @@ module BaseSelect = {
     }
 
     let dragDropComp = {
-      <DragDropTableComponent
+      <DragDropComponent
         keyExtractor
         listItems=filteredOptions
         setListItems={val => handleSetDraggableList(val)}
@@ -935,57 +953,7 @@ module BaseSelect = {
             } else {
               filteredOptions
               ->Array.mapWithIndex((item, indx) => {
-                let valueToConsider = item.value
-                let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-                let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
-                | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
-                | None => false
-                }
-                let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
-                | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
-                | None => false
-                }
-                let isSelected = index > -1
-                let serialNumber =
-                  isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
-                let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
-                <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
-                  <ListItem
-                    isDropDown
-                    isSelected
-                    optionSize
-                    isSelectedStateMinus
-                    isPrevSelected
-                    isNextSelected
-                    searchString
-                    onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
-                    text=item.label
-                    labelValue=item.label
-                    multiSelect=true
-                    customLabelStyle
-                    icon=item.icon
-                    leftVacennt
-                    isDisabled={item.isDisabled || disableSelect}
-                    showToggle
-                    customStyle
-                    serialNumber
-                    isMobileView
-                    description=item.description
-                    customMarginStyle
-                    listFlexDirection
-                    dataId=indx
-                    showDescriptionAsTool
-                    optionClass
-                    selectClass
-                    toggleProps
-                    checkboxDimension
-                    iconStroke=item.iconStroke
-                  />
-                  {switch optionRigthElement {
-                  | Some(rightElement) => rightElement
-                  | None => React.null
-                  }}
-                </div>
+                listComponent(~item, ~indx)
               })
               ->React.array
             }

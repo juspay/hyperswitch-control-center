@@ -290,38 +290,21 @@ module ChooseColumns = {
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
     let variant = title->CustomizableTableColumnsUtils.textToVariantMapper
 
-    let arrayFromLocalStorage = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
-
     let {getHeading} = entity
     let getHeadingCol = text => {
       let optionallArray = entity.allColumns
-      let allArray = switch optionallArray {
-      | Some(arr) => arr
-      | None => []
-      }
+      let allArray = optionallArray->Option.getOr([])
       let index =
         allArray
         ->Array.map(head => getHeading(head).title)
         ->Array.indexOf(text)
       allArray[index]
     }
-    let parseColumnsFromLocalStorage = () => {
-      let value = switch arrayFromLocalStorage {
-      | Some(str) => str
-      | None => ""
-      }
-      let parsedValue =
-        value
-        ->LogicUtils.safeParse
-        ->LogicUtils.getDictFromJsonObject
-        ->LogicUtils.getString(title, "")
-        ->String.split(",")
 
-      let typedArray = parsedValue->Belt.Array.keepMap(getHeadingCol)
-
-      typedArray
-    }
-    let colTypeArray = parseColumnsFromLocalStorage()
+    let colTypeArray =
+      CustomizableTableColumnsUtils.parseColumnsFromLocalStorage(title)->Belt.Array.keepMap(
+        getHeadingCol,
+      )
 
     let setColumns = React.useCallback(fn => {
       setVisibleColumns(fn)
@@ -336,6 +319,7 @@ module ChooseColumns = {
       }
       None
     }, [])
+
     if entity.allColumns->Option.isSome && totalResults > 0 {
       <CustomizeTableColumns
         showModal=showColumnSelector

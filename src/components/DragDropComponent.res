@@ -12,9 +12,15 @@ let reorder = (currentState, startIndex, endIndex) => {
   }
 }
 @react.component
-let make = (~isHorizontal=true, ~listItems, ~gap="", ~setListItems, ~keyExtractor) => {
+let make = (
+  ~isHorizontal=true,
+  ~listItems,
+  ~gap="",
+  ~setListItems,
+  ~keyExtractor,
+  ~isDragDisabled: option<(int, 'a) => bool>=?,
+) => {
   let onDragEnd = result => {
-    // dropped outside the list
     let dest = Nullable.toOption(result["destination"])
 
     switch dest {
@@ -23,17 +29,29 @@ let make = (~isHorizontal=true, ~listItems, ~gap="", ~setListItems, ~keyExtracto
           index: a.index,
           droppableId: a.droppableId,
         }
-        let (updatedList, hasChanged) = reorder(listItems, result["source"]["index"], res.index)
-        if hasChanged {
-          setListItems(updatedList)
+
+        let isDestinationDisabled = switch isDragDisabled {
+        | Some(disableFunction) =>
+          switch listItems->Array.get(res.index) {
+          | Some(destinationItem) => disableFunction(res.index, destinationItem)
+          | None => false
+          }
+        | None => false
+        }
+
+        if !isDestinationDisabled {
+          let (updatedList, hasChanged) = reorder(listItems, result["source"]["index"], res.index)
+          if hasChanged {
+            setListItems(updatedList)
+          }
         }
       }
-
     | _ => ()
     }
   }
   let directionClass = isHorizontal ? "flex-row" : "flex-col"
   let droppableDirection = isHorizontal ? "horizontal" : "vertical"
+
   <ReactBeautifulDND.DragDropContext onDragEnd={onDragEnd}>
     <ReactBeautifulDND.Droppable droppableId="droppable" direction={droppableDirection}>
       {(provided, _snapshot) => {
@@ -41,18 +59,29 @@ let make = (~isHorizontal=true, ~listItems, ~gap="", ~setListItems, ~keyExtracto
           <div className={`flex ${directionClass} ${gap} w-full`} ref={provided["innerRef"]}>
             {listItems
             ->Array.mapWithIndex((item, index) => {
+              let isItemDisabled = switch isDragDisabled {
+              | Some(disableFunction) => disableFunction(index, item)
+              | None => false
+              }
               <ReactBeautifulDND.Draggable
                 key={`item-${Int.toString(index)}`}
                 index={index}
-                draggableId={`item-${Int.toString(index)}`}>
+                draggableId={`item-${Int.toString(index)}`}
+                isDragDisabled=isItemDisabled>
                 {(provided, snapshot) => {
                   let draggableElement =
                     <div onDragStart={provided["onDragStart"]} ref={provided["innerRef"]}>
-                      {keyExtractor(index, item, snapshot["isDragging"])}
+                      {keyExtractor(index, item, snapshot["isDragging"], isItemDisabled)}
                     </div>
-                  draggableElement
-                  ->React.cloneElement(provided["draggableProps"])
-                  ->React.cloneElement(provided["dragHandleProps"])
+
+                  let elementWithDraggableProps =
+                    draggableElement->React.cloneElement(provided["draggableProps"])
+
+                  switch provided["dragHandleProps"]->Nullable.toOption {
+                  | Some(dragHandleProps) =>
+                    elementWithDraggableProps->React.cloneElement(dragHandleProps)
+                  | None => elementWithDraggableProps
+                  }
                 }}
               </ReactBeautifulDND.Draggable>
             })

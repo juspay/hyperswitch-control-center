@@ -1,3 +1,4 @@
+open LogicUtils
 type operationSection =
   | Refunds
   | Orders
@@ -16,13 +17,41 @@ let textToVariantMapper = text => {
   | _ => Unkown
   }
 }
-let variantToTextMapper = val => {
-  switch val {
-  | Orders => "Orders"
-  | Refunds => "Refunds"
-  | Disputes => "Disputes"
-  | Payouts => "Payouts"
-  | Customers => "Customers"
+
+let createValForLocalStorage = (val, varianType: operationSection) => {
+  let optionalValueFromLocalStorage = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
+  let valueFromLocalStorage = switch optionalValueFromLocalStorage {
+  | Some(str) => str
   | _ => ""
   }
+
+  let valueDict =
+    valueFromLocalStorage
+    ->safeParse
+    ->getDictFromJsonObject
+
+  valueDict->Dict.set((varianType :> string), val->Array.toString->JSON.Encode.string)
+
+  let finalString =
+    valueDict
+    ->JSON.Encode.object
+    ->JSON.stringify
+  finalString
+}
+
+let parseColumnsFromLocalStorage = title => {
+  let optionalValueFromLocalStorage = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
+  let valueFromLocalStorage = switch optionalValueFromLocalStorage {
+  | Some(str) => str
+  | _ => ""
+  }
+
+  let parsedValue =
+    valueFromLocalStorage
+    ->safeParse
+    ->getDictFromJsonObject
+    ->LogicUtils.getString(title, "")
+    ->String.split(",")
+
+  parsedValue
 }
