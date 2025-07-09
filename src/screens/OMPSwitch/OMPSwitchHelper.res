@@ -14,7 +14,9 @@ module ListBaseComp = {
     let {
       globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
     } = React.useContext(ThemeProvider.themeContext)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let (showModal, setShowModal) = React.useState(_ => false)
     let arrowClassName = isDarkBg
       ? `${arrow
             ? "rotate-180"
@@ -23,17 +25,81 @@ module ListBaseComp = {
             ? "rotate-0"
             : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
+    let headingText = isPlatform ? "Platform Merchant Account" : "Merchant Account"
+
+    let openPlatformModal = e => {
+      e->ReactEvent.Mouse.stopPropagation
+      setShowModal(_ => true)
+    }
+
+    let onLearnMoreClick = e => {
+      e->ReactEvent.Mouse.stopPropagation
+      let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms"
+      mixpanelEvent(~eventName="platform_account_modal_learn_more")
+      Window._open(docsUrl)
+    }
+
+    let handleModalClick = e => {
+      e->ReactEvent.Mouse.stopPropagation
+    }
+
+    let listItem = (~title, ~text) =>
+      <li>
+        <span className="text-nd_gray-600 font-semibold"> {title->React.string} </span>
+        <span className="text-nd_gray-500 font-normal"> {` ${text}`->React.string} </span>
+      </li>
+
+    let customModalContent =
+      <div className="grid grid-cols-3 gap-8" onClick={handleModalClick}>
+        <div className="flex flex-col gap-5 col-span-1">
+          <p className="text-nd_gray-500 font-normal">
+            {"A Platform merchant account lets you onboard and manage multiple merchants in one place and gives you full API access to do it all programmatically."->React.string}
+          </p>
+          <div className="flex flex-col gap-3.5">
+            <p className="text-nd_gray-700 font-semibold"> {"At a glance:"->React.string} </p>
+            <div className="pl-4">
+              <ul className="flex flex-col gap-2 list-disc">
+                {listItem(
+                  ~title="Auto-onboard sellers:",
+                  ~text="Spin up new merchant accounts in seconds via our API",
+                )}
+                {listItem(
+                  ~title="Generate API keys:",
+                  ~text="Generate and rotate API keys for each merchant as a Platform Merchant",
+                )}
+                {listItem(
+                  ~title="Maintain API key mapping:",
+                  ~text="Keep track of each key so you can process payments, refunds, etc. on behalf of any sub-merchant",
+                )}
+              </ul>
+            </div>
+          </div>
+          <div className="flex" onClick=onLearnMoreClick>
+            <span className="!text-nd_primary_blue-500"> {"Learn more"->React.string} </span>
+            <span>
+              <Icon name="nd-external-link-square" customIconColor="!text-nd_primary_blue-500" />
+            </span>
+          </div>
+        </div>
+        <div className="col-span-2 flex pl-4">
+          <img alt="platform-account" src="/assets/PlatformMerchant.svg" />
+        </div>
+      </div>
+
     <>
       {switch user {
       | #Merchant =>
         <div
           className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
           <div className="flex flex-row w-full justify-between">
-            <RenderIf condition={isPlatform}>
-              <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium uppercase`}>
-                {"Platform Merchant"->React.string}
+            <div className="flex gap-2">
+              <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+                {headingText->React.string}
               </span>
-            </RenderIf>
+              <RenderIf condition={isPlatform}>
+                <Icon name="nd_question_mark_circle" size=14 onClick={openPlatformModal} />
+              </RenderIf>
+            </div>
             <RenderIf condition=devOmpChart>
               <ToolTip
                 description="Organisation Chart"
@@ -52,6 +118,14 @@ module ListBaseComp = {
               />
             </RenderIf>
           </div>
+          <Modal
+            modalHeading="What is a Platform Merchant Account?"
+            showModal
+            setShowModal
+            modalClass="max-w-4xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background border border-green-500"
+            childClass="p-4">
+            {customModalContent}
+          </Modal>
           <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p
               className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>

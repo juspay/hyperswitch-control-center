@@ -293,9 +293,6 @@ let make = () => {
   let isPlatformOrg = isPlatformOMP(orgList, orgId)
 
   <div className="w-fit flex flex-col gap-4">
-    <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
-      {"Merchant Account"->React.string}
-    </span>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
