@@ -3,8 +3,6 @@ let make = () => {
   open HSwitchUtils
   let url = RescriptReactRouter.useUrl()
 
-  Js.log2("ReconEngineApp url", url)
-
   {
     switch url.path->urlPath {
     | list{"v2", "recon-engine", "overview"} => <ReconEngineOverviewContainer />
