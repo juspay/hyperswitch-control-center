@@ -15,7 +15,8 @@ let reconTransactions = {
     name: "Transactions",
     link: `/v2/recon-engine/transactions`,
     access: Access,
-    icon: "",
+    icon: "nd-reports",
+    selectedIcon: "nd-reports-fill",
   })
 }
 
@@ -24,7 +25,8 @@ let reconExceptions = {
     name: "Exceptions",
     link: `/v2/recon-engine/exceptions`,
     access: Access,
-    icon: "",
+    icon: "nd-operations",
+    selectedIcon: "nd-operations-fill",
   })
 }
 
@@ -33,7 +35,8 @@ let reconQueue = {
     name: "Recon Queue",
     link: `/v2/recon-engine/queue`,
     access: Access,
-    icon: "",
+    icon: "nd-workflow",
+    selectedIcon: "nd-workflow-fill",
   })
 }
 
@@ -42,7 +45,8 @@ let reconRuleCreation = {
     name: "Rules Library",
     link: `/v2/recon-engine/rules`,
     access: Access,
-    icon: "",
+    icon: "nd-reports",
+    selectedIcon: "nd-reports-fill",
   })
 }
 let reconEngineSidebars = {
