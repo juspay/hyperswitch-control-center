@@ -3,6 +3,7 @@ let make = () => {
   open RevenueRecoveryAnalyticsEntity
   let customTitleStyle = "py-0 !pt-0"
 
+  /* Recovery Analytics */
   <div className={`flex flex-col mx-auto h-full w-full gap-7`}>
     <div className="flex justify-between items-center mb-5">
       <PageUtils.PageHeading
