@@ -844,7 +844,7 @@ let useGetURL = () => {
         switch methodType {
         | Post =>
           switch id {
-          | Some(accountid) => `hyperswitch-recon/accounts/${accountid}/upload`
+          | Some(accountid) => `hyperswitch-recon-engine/accounts/${accountid}/upload`
           | None => ``
           }
         | _ => ""
