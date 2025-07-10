@@ -3,6 +3,55 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.10.0
+
+### Features
+
+- Recon(V1) product setup ([#3262](https://github.com/juspay/hyperswitch-control-center/pull/3262)) ([`72ceac7`](https://github.com/juspay/hyperswitch-control-center/commit/72ceac7b2a2ed0ec4e2e62810b38a963e5407b47))
+
+**Full Changelog:** [`2025.07.09.0...2025.07.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.09.0...2025.07.10.0)
+
+- - -
+
+## 2025.07.09.0
+
+### Features
+
+- Orchestrator v2 connectors configuration steps ([#3232](https://github.com/juspay/hyperswitch-control-center/pull/3232)) ([`c11c6d5`](https://github.com/juspay/hyperswitch-control-center/commit/c11c6d53ffa2e38dcc23f432f9442849679148a3))
+
+**Full Changelog:** [`2025.07.08.0...2025.07.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.08.0...2025.07.09.0)
+
+- - -
+
+## 2025.07.08.0
+
+### Bug Fixes
+
+- Prod access form not visible ([#3252](https://github.com/juspay/hyperswitch-control-center/pull/3252)) ([`9471bca`](https://github.com/juspay/hyperswitch-control-center/commit/9471bca999add0e10cad61e1303e6402a7cac0e4))
+- Merchant name product prefix fix ([#3256](https://github.com/juspay/hyperswitch-control-center/pull/3256)) ([`2cc5829`](https://github.com/juspay/hyperswitch-control-center/commit/2cc5829cc4b61fbdef453d90378db8cce58ecdd6))
+
+**Full Changelog:** [`2025.07.03.0...2025.07.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.03.0...2025.07.08.0)
+
+- - -
+
+## 2025.07.03.0
+
+### Features
+
+- Orchestrator v2 connected connectors table ([#3229](https://github.com/juspay/hyperswitch-control-center/pull/3229)) ([`7ddbf2c`](https://github.com/juspay/hyperswitch-control-center/commit/7ddbf2c5456dc0c34a2db4c72aa9717f2670b0e7))
+
+### Bug Fixes
+
+- Improvement and bug fixes ([#3239](https://github.com/juspay/hyperswitch-control-center/pull/3239)) ([`43445f2`](https://github.com/juspay/hyperswitch-control-center/commit/43445f24cd37a261d1695f529e564b646927184c))
+
+### Miscellaneous Tasks
+
+- Display prefilled merchant name in create merchant modal ([#3249](https://github.com/juspay/hyperswitch-control-center/pull/3249)) ([`58d2150`](https://github.com/juspay/hyperswitch-control-center/commit/58d2150e92d1db738945e8b11ac1488a6b3a6791))
+
+**Full Changelog:** [`2025.07.02.0...2025.07.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.02.0...2025.07.03.0)
+
+- - -
+
 ## 2025.07.02.0
 
 ### Bug Fixes
