@@ -70,7 +70,7 @@ let make = () => {
   let getAccountData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = Account.account->JSON.Decode.array->Option.getOr([])
+      let response = SampleOverviewData.account->JSON.Decode.array->Option.getOr([])
       setAccountData(_ => response)
       setScreenState(_ => Success)
     } catch {

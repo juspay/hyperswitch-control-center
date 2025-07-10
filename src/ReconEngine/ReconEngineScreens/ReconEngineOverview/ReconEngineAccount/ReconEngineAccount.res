@@ -30,7 +30,7 @@ module ProcessedEntriesTable = {
     let getProcessedEntriesData = async _ => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let response = Processed.processed->JSON.Decode.array->Option.getOr([])
+        let response = SampleOverviewData.processed->JSON.Decode.array->Option.getOr([])
         setProcessedData(_ => response)
 
         setScreenState(_ => Success)
@@ -195,7 +195,7 @@ module ProcessingEntriesTable = {
     let getProcessingEntriesData = async _ => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let response = Processing.processing->JSON.Decode.array->Option.getOr([])
+        let response = SampleOverviewData.processing->JSON.Decode.array->Option.getOr([])
         setProcessingData(_ => response)
 
         setScreenState(_ => Success)
@@ -273,7 +273,7 @@ let make = (~id) => {
   open LogicUtils
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
-  let accountData = Account.account->JSON.Decode.array->Option.getOr([])
+  let accountData = SampleOverviewData.account->JSON.Decode.array->Option.getOr([])
   let currentAccount =
     accountData
     ->Array.find(account => {
