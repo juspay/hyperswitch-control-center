@@ -83,3 +83,28 @@ let initialFixedFilterFields = (~events=?, ~sampleDataIsEnabled=false) => {
 
   newArr
 }
+
+let getSampleStackedBarGraphData = () => {
+  open StackedBarGraphTypes
+  {
+    categories: ["Total Orders"],
+    data: [
+      {
+        name: "Expected",
+        data: [400.0],
+        color: "#8BC2F3",
+      },
+      {
+        name: "Mismatch",
+        data: [400.0],
+        color: "#EA8A8F",
+      },
+      {
+        name: "Posted",
+        data: [1200.0],
+        color: "#7AB891",
+      },
+    ],
+    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
+  }
+}

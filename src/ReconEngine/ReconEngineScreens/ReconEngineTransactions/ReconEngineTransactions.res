@@ -125,7 +125,7 @@ let make = () => {
         totalResults={filteredTransactionsData->Array.length}
         offset
         setOffset
-        currrentFetchCount={configuredTransactions->Array.map(Nullable.make)->Array.length}
+        currrentFetchCount={configuredTransactions->Array.length}
         customColumnMapper=TableAtoms.reconTransactionsDefaultCols
         defaultColumns={TransactionsTableEntity.defaultColumns}
         showSerialNumberInCustomizeColumns=false
