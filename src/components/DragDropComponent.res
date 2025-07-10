@@ -33,7 +33,26 @@ let make = (
         let isDestinationDisabled = switch isDragDisabled {
         | Some(disableFunction) =>
           switch listItems->Array.get(res.index) {
-          | Some(destinationItem) => disableFunction(res.index, destinationItem)
+          | Some(destinationItem) =>
+            let isDisabled = disableFunction(res.index, destinationItem)
+            let sourceIndex = result["source"]["index"]
+
+            let indexToGet = {
+              if sourceIndex > res.index {
+                res.index - 1
+              } else {
+                res.index
+              }
+            }
+
+            if isDisabled && res.index > 0 {
+              switch listItems->Array.get(indexToGet) {
+              | Some(prevItem) => disableFunction(indexToGet, prevItem) ? isDisabled : false
+              | None => isDisabled
+              }
+            } else {
+              isDisabled
+            }
           | None => false
           }
         | None => false
