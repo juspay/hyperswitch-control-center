@@ -12,15 +12,11 @@ let make = (
   ~sortingBasedOnDisabled=true,
   ~showSerialNumber=true,
   ~isDraggable=false,
-  ~varianType=CustomizableTableColumnsUtils.Unkown,
+  ~varianType=CustomizableTableColumnsUtils.Unknown,
 ) => {
   let headingWhenDraggable = {
     let notInVisible = allHeadersArray->Array.reduce([], (acc, item) => {
-      if visibleColumns->Array.includes(item) {
-        acc
-      } else {
-        acc->Array.concat([item])
-      }
+      visibleColumns->Array.includes(item) ? acc : acc->Array.concat([item])
     })
 
     Array.concat(visibleColumns, notInVisible)

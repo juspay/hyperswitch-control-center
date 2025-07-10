@@ -5,7 +5,7 @@ type operationSection =
   | Payouts
   | Disputes
   | Customers
-  | Unkown
+  | Unknown
 
 let textToVariantMapper = text => {
   switch text {
@@ -14,16 +14,13 @@ let textToVariantMapper = text => {
   | "Disputes" => Disputes
   | "Payouts" => Payouts
   | "Customers" => Customers
-  | _ => Unkown
+  | _ => Unknown
   }
 }
 
 let createValForLocalStorage = (val, varianType: operationSection) => {
   let optionalValueFromLocalStorage = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
-  let valueFromLocalStorage = switch optionalValueFromLocalStorage {
-  | Some(str) => str
-  | _ => ""
-  }
+  let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
 
   let valueDict =
     valueFromLocalStorage
@@ -32,26 +29,18 @@ let createValForLocalStorage = (val, varianType: operationSection) => {
 
   valueDict->Dict.set((varianType :> string), val->Array.toString->JSON.Encode.string)
 
-  let finalString =
-    valueDict
-    ->JSON.Encode.object
-    ->JSON.stringify
-  finalString
+  valueDict
+  ->JSON.Encode.object
+  ->JSON.stringify
 }
 
 let parseColumnsFromLocalStorage = title => {
   let optionalValueFromLocalStorage = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
-  let valueFromLocalStorage = switch optionalValueFromLocalStorage {
-  | Some(str) => str
-  | _ => ""
-  }
+  let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
 
-  let parsedValue =
-    valueFromLocalStorage
-    ->safeParse
-    ->getDictFromJsonObject
-    ->getString(title, "")
-    ->String.split(",")
-
-  parsedValue
+  valueFromLocalStorage
+  ->safeParse
+  ->getDictFromJsonObject
+  ->getString(title, "")
+  ->String.split(",")
 }

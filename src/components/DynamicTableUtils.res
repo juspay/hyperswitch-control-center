@@ -290,15 +290,17 @@ module ChooseColumns = {
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
     let variant = title->CustomizableTableColumnsUtils.textToVariantMapper
 
-    let {getHeading} = entity
+    let {getHeading, allColumns} = entity
     let getHeadingCol = text => {
-      let optionallArray = entity.allColumns
-      let allArray = optionallArray->Option.getOr([])
-      let index =
-        allArray
-        ->Array.map(head => getHeading(head).title)
-        ->Array.indexOf(text)
-      allArray[index]
+      switch allColumns {
+      | Some(cols) =>
+        let index =
+          cols
+          ->Array.map(head => getHeading(head).title)
+          ->Array.indexOf(text)
+        cols->Array.get(index)
+      | None => None
+      }
     }
 
     let colTypeArray =
@@ -314,8 +316,6 @@ module ChooseColumns = {
     React.useEffect(() => {
       if !{colTypeArray->Array.length === 0} {
         setColumns(_ => colTypeArray)
-      } else {
-        ()
       }
       None
     }, [])

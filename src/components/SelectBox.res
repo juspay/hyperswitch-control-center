@@ -776,11 +776,7 @@ module BaseSelect = {
       onSelect(selectedValues->Array.map(item => item.value))
     }
     let handleDisable = (item: dropdownOptionWithoutOptional, _) => {
-      if saneValue->Array.includes(item.value) {
-        false
-      } else {
-        true
-      }
+      !(saneValue->Array.includes(item.value))
     }
 
     let dragDropComp = {

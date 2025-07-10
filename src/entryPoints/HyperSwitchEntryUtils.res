@@ -52,13 +52,12 @@ let getDomainfromStore = () => {
   domain
 }
 let getEmailfromStore = () => {
-  let email = LocalStorage.getItem("email")->Nullable.toOption
-  email
+  LocalStorage.getItem("email")->Nullable.toOption
 }
 let setEmailToStore = email => {
-  let email = email->getNonEmptyString
-  if email->Option.isSome {
-    LocalStorage.setItem("email", email->Option.getOr(""))
+  switch email->getNonEmptyString {
+  | Some(str) => LocalStorage.setItem("email", str)
+  | None => ()
   }
 }
 
@@ -71,7 +70,5 @@ let handleSavedColumnsInStore = email => {
       getCustomTableColumnsfromStore->Option.isSome
   } {
     LocalStorage.removeItem("tableColumnsOrder")
-  } else {
-    ()
   }
 }

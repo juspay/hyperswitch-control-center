@@ -25,27 +25,23 @@ let make = (
 
     switch dest {
     | Some(a) => {
-        let res: draggableDefaultDestination = {
+        let destination: draggableDefaultDestination = {
           index: a.index,
           droppableId: a.droppableId,
         }
 
         let isDestinationDisabled = switch isDragDisabled {
         | Some(disableFunction) =>
-          switch listItems->Array.get(res.index) {
+          switch listItems->Array.get(destination.index) {
           | Some(destinationItem) =>
-            let isDisabled = disableFunction(res.index, destinationItem)
+            let isDisabled = disableFunction(destination.index, destinationItem)
             let sourceIndex = result["source"]["index"]
 
             let indexToGet = {
-              if sourceIndex > res.index {
-                res.index - 1
-              } else {
-                res.index
-              }
+              sourceIndex > destination.index ? destination.index - 1 : destination.index
             }
 
-            if isDisabled && res.index > 0 {
+            if isDisabled && destination.index > 0 {
               switch listItems->Array.get(indexToGet) {
               | Some(prevItem) => disableFunction(indexToGet, prevItem) ? isDisabled : false
               | None => isDisabled
@@ -59,7 +55,11 @@ let make = (
         }
 
         if !isDestinationDisabled {
-          let (updatedList, hasChanged) = reorder(listItems, result["source"]["index"], res.index)
+          let (updatedList, hasChanged) = reorder(
+            listItems,
+            result["source"]["index"],
+            destination.index,
+          )
           if hasChanged {
             setListItems(updatedList)
           }
