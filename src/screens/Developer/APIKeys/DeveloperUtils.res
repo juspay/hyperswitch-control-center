@@ -292,7 +292,7 @@ module SuccessUI = {
   }
 }
 
-let bannerText = (isPlatformMerchant, hasCreateApiKeyAccess: CommonAuthTypes.authorization) =>
+let bannerText = (~isPlatformMerchant, ~hasCreateApiKeyAccess: CommonAuthTypes.authorization) =>
   switch (isPlatformMerchant, hasCreateApiKeyAccess) {
   | (
       true,

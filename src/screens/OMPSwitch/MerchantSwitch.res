@@ -323,6 +323,7 @@ let make = () => {
       searchInputPlaceHolder="Search Merchant Account or ID"
       placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
       reverseSortGroupKeys=true
+      displayGroupHeadings=true
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />

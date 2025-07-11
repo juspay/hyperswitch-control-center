@@ -1,5 +1,6 @@
-// TODO: remove productType optional
 type ompType = [#platform | #standard]
+
+// TODO: remove productType optional
 type ompListTypes = {
   id: string,
   name: string,

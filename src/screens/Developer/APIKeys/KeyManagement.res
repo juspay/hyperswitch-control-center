@@ -405,19 +405,21 @@ module KeysManagement = {
 
     let isPlatformOrg = OMPSwitchUtils.isPlatformOMP(orgList, orgId)
     let isPlatformMerchant = OMPSwitchUtils.isPlatformOMP(merchantList, merchantId)
-    let hasCreateApiKeyAccess = {
-      hasAnyGroupAccess(
-        userHasAccess(~groupAccess=MerchantDetailsManage),
-        userHasAccess(~groupAccess=AccountManage),
-      )
-    }
 
     let redirectToDocs = _ => {
       let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms"
       mixpanelEvent(~eventName="api_keys_banner_learn_more")
       Window._open(docsUrl)
     }
-    let bannerText = {DeveloperUtils.bannerText(isPlatformMerchant, hasCreateApiKeyAccess)}
+    let bannerText = {
+      DeveloperUtils.bannerText(
+        ~isPlatformMerchant,
+        ~hasCreateApiKeyAccess=hasAnyGroupAccess(
+          userHasAccess(~groupAccess=MerchantDetailsManage),
+          userHasAccess(~groupAccess=AccountManage),
+        ),
+      )
+    }
 
     <div>
       <PageUtils.PageHeading

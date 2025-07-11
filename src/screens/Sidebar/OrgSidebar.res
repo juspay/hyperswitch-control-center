@@ -165,8 +165,8 @@ module OrgTile = {
 module OrgTileGroup = {
   @react.component
   let make = (
-    ~heading="",
-    ~customHeading: React.element=React.null,
+    ~heading=?,
+    ~customHeading=?,
     ~hasPlatformOrg,
     ~orgList: array<OMPSwitchTypes.ompListTypes>,
     ~orgSwitch,
@@ -177,12 +177,17 @@ module OrgTileGroup = {
 
     <div className="flex flex-col justify-center gap-3">
       <RenderIf condition={hasPlatformOrg}>
-        <RenderIf condition={heading->LogicUtils.isNonEmptyString}>
+        {switch heading {
+        | Some(heading) =>
           <div className="text-nd_gray-400 uppercase leading-12 text-fs-8 font-bold">
             <div className="flex justify-center"> {heading->React.string} </div>
           </div>
-        </RenderIf>
-        <RenderIf condition={customHeading != React.null}> {customHeading} </RenderIf>
+        | None => React.null
+        }}
+        {switch customHeading {
+        | Some(customHeading) => customHeading
+        | None => React.null
+        }}
       </RenderIf>
       {orgList
       ->Array.mapWithIndex((org, i) => {
@@ -379,7 +384,7 @@ let make = () => {
   let getOrgsListBasedOnType = ompType =>
     visibleOrgList->Array.filter(item =>
       switch item.\"type" {
-      | Some(ompTypee) => ompTypee === ompType
+      | Some(userType) => userType === ompType
       | None => false
       }
     )
