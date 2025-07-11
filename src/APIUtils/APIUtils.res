@@ -530,16 +530,16 @@ let useGetURL = () => {
         | Get =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile => `analytics/v1/auth_events/info`
+          | #Organization => `analytics/v1/org/auth_events/info`
+          | #Merchant => `analytics/v1/merchant/auth_events/info`
+          | #Profile => `analytics/v1/profile/auth_events/info`
           }
         | Post =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile => `analytics/v1/metrics/auth_events`
+          | #Organization => `analytics/v1/org/metrics/auth_events`
+          | #Merchant => `analytics/v1/merchant/metrics/auth_events`
+          | #Profile => `analytics/v1/profile/metrics/auth_events`
           }
 
         | _ => ""
@@ -549,11 +549,10 @@ let useGetURL = () => {
         | Post =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile => `analytics/v1/filters/auth_events`
+          | #Organization => `analytics/v1/org/filters/auth_events`
+          | #Merchant => `analytics/v1/merchant/filters/auth_events`
+          | #Profile => `analytics/v1/profile/filters/auth_events`
           }
-
         | _ => ""
         }
       | ANALYTICS_FILTERS =>
