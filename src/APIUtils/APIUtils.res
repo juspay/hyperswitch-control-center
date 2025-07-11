@@ -838,7 +838,16 @@ let useGetURL = () => {
           | _ => ""
           }
         }
-
+      /* V1 RECON */
+      | RECON_FILE_UPLOAD =>
+        switch methodType {
+        | Post =>
+          switch id {
+          | Some(accountid) => `hyperswitch-recon-engine/accounts/${accountid}/upload`
+          | None => ``
+          }
+        | _ => ""
+        }
       /* INTELLIGENT ROUTING */
       | GET_REVIEW_FIELDS => `dynamic-routing/simulate/baseline-review-fields`
       | SIMULATE_INTELLIGENT_ROUTING =>
