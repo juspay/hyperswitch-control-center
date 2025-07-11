@@ -19,7 +19,6 @@ let textToVariantMapper = text => {
 }
 
 let createValForLocalStorage = (val, varianType: operationSection) => {
-
   let optionalValueFromLocalStorage = HyperSwitchEntryUtils.getCustomTableColumnsfromStore()
   let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
 
