@@ -123,16 +123,17 @@ module SelectMerchantBody = {
         <div
           className="h-fit"
           onClick={_ => {
-            let currentUrl = GlobalVars.extractModulePath(
-              ~path=url.path,
-              ~end=url.path->List.toArray->Array.length,
-            )
+            // let currentUrl = GlobalVars.extractModulePath(
+            //   ~path=url.path,
+            //   ~end=url.path->List.toArray->Array.length,
+            // )
+            setActiveProductValue(merchantDetailsTypedValue.product_type)
             setShowModal(_ => false)
-            let productUrl = ProductUtils.getProductUrl(
-              ~productType=merchantDetailsTypedValue.product_type,
-              ~url=currentUrl,
-            )
-            RescriptReactRouter.replace(productUrl)
+            // let productUrl = ProductUtils.getProductUrl(
+            //   ~productType=merchantDetailsTypedValue.product_type,
+            //   ~url=currentUrl,
+            // )
+            // RescriptReactRouter.replace(productUrl)
           }}>
           <Icon name="modal-close-icon" className="cursor-pointer text-gray-500" size=30 />
         </div>
@@ -290,16 +291,17 @@ module CreateNewMerchantBody = {
         <div
           className="h-fit"
           onClick={_ => {
-            let currentUrl = GlobalVars.extractModulePath(
-              ~path=url.path,
-              ~end=url.path->List.toArray->Array.length,
-            )
+            setActiveProductValue(merchantDetailsTypedValue.product_type)
+            // let currentUrl = GlobalVars.extractModulePath(
+            //   ~path=url.path,
+            //   ~end=url.path->List.toArray->Array.length,
+            // )
             setShowModal(_ => false)
-            let productUrl = ProductUtils.getProductUrl(
-              ~productType=merchantDetailsTypedValue.product_type,
-              ~url=currentUrl,
-            )
-            RescriptReactRouter.replace(productUrl)
+            // let productUrl = ProductUtils.getProductUrl(
+            //   ~productType=merchantDetailsTypedValue.product_type,
+            //   ~url=currentUrl,
+            // )
+            // RescriptReactRouter.replace("/")
           }}>
           <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
         </div>

@@ -81,7 +81,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Orchestration(V2)->getProductDisplayName,
         icon: "orchestrator-home",
-        link: "/v2/orchestrator/onboarding/",
+        link: "/v2/orchestrator/onboarding",
         access: Access,
       }),
     )
@@ -91,7 +91,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Recon(V1)->getProductDisplayName,
         icon: "recon-engine-v1",
-        link: "/v1/onboarding/recon-engine",
+        link: "/v1/recon-engine/onboarding",
         access: Access,
       }),
     )

@@ -65,6 +65,7 @@ let make = (~children) => {
 
   let setCreateNewMerchant = product => {
     setShowModal(_ => true)
+    setActiveProduct(_ => Invalid)
     setAction(_ => Some(CreateNewMerchant))
     setSelectedProduct(_ => Some(product))
   }
@@ -77,6 +78,7 @@ let make = (~children) => {
 
   let setSelectMerchantToSwitch = merchantList => {
     setShowModal(_ => true)
+    setActiveProduct(_ => Invalid)
     setAction(_ => Some(SelectMerchantToSwitch(merchantList)))
   }
 

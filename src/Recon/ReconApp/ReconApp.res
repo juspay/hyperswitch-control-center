@@ -57,7 +57,7 @@ let make = () => {
 
   <PageLoaderWrapper screenState sectionHeight="!h-screen">
     {switch activeProduct {
-    | Recon =>
+    | Recon(V2) =>
       switch url.path->HSwitchUtils.urlPath {
       | list{"v2", "recon"} => <ReconOnboardingLanding />
       | list{"v2", "recon", "overview"} => <ReconOverviewContainer showOnBoarding />

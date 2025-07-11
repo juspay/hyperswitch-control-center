@@ -75,7 +75,6 @@ let make = () => {
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
-      Js.log2(merchantResponse.product_type, "merchantResponse.product_type")
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
       // setCurrentProduct(_=>Some(merchantResponse.product_type))
@@ -86,8 +85,6 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    // setCurrentProduct(_ => None)
-    Js.log("LOG LOG")
     setUpDashboard()->ignore
     None
   }, [orgId, merchantId, profileId])
@@ -184,14 +181,15 @@ let make = () => {
                         {switch url.path->urlPath {
                         // /* DEFAULT HOME */
                         | list{"v2", "home"} => <DefaultHome />
-                        | list{"organization-chart"} => <OrganisationChart />
-                        | list{"v2", "onboarding", ..._} => <DefaultOnboardingPage />
 
                         | list{"organization-chart"} => <OrganisationChart />
 
-                        | list{"v2", "onboarding", ..._}
-                        | list{"v1", "onboarding", ..._} =>
-                          <DefaultOnboardingPage />
+                        | list{"v2", _, "onboarding", ..._}
+                        | list{"v1", _, "onboarding", ..._} =>
+                          switch activeProduct {
+                          | Invalid => <DefaultOnboardingPage />
+                          | _ => <HyperswitchURLRouting />
+                          }
 
                         | list{"account-settings", "profile", ...remainingPath} =>
                           <EntityScaffold
@@ -227,55 +225,6 @@ let make = () => {
                           | _ => <HyperswitchURLRouting />
                           }
                         }}
-                        // {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
-                        // /* DEFAULT HOME */
-                        // | (_, list{"v2", "home"}) => <DefaultHome />
-
-                        // | (_, list{"organization-chart"}) => <OrganisationChart />
-
-                        // | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
-
-                        // | (_, list{"account-settings", "profile", ...remainingPath}) =>
-                        //   <EntityScaffold
-                        //     entityName="profile setting"
-                        //     remainingPath
-                        //     renderList={() => <HSwitchProfileSettings />}
-                        //     renderShow={(_, _) => <ModifyTwoFaSettings />}
-                        //   />
-
-                        // | (_, list{"unauthorized"}) =>
-                        //   <UnauthorizedPage message="You don't have access to this module." />
-
-                        // /* RECON PRODUCT */
-                        // | (Recon, list{"v2", "recon", ..._}) => <ReconApp />
-
-                        // /* RECOVERY PRODUCT */
-                        // | (Recovery, list{"v2", "recovery", ..._}) => <RevenueRecoveryApp />
-
-                        // /* VAULT PRODUCT */
-                        // | (Vault, list{"v2", "vault", ..._}) => <VaultApp />
-
-                        // /* HYPERSENSE PRODUCT */
-                        // | (CostObservability, list{"v2", "cost-observability", ..._}) =>
-                        //   <HypersenseApp />
-
-                        // /* INTELLIGENT ROUTING PRODUCT */
-                        // | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
-                        //   <IntelligentRoutingApp />
-
-                        // /* ORCHESTRATOR V2 PRODUCT */
-                        // | (Orchestration(V2), list{"v2", "orchestration", ..._}) =>
-                        //   <OrchestrationV2App />
-
-                        // /* ORCHESTRATOR PRODUCT */
-                        // | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
-
-                        // | _ =>
-                        //   <UnauthorizedPage
-                        //     productType=merchantDetailsTypedValue.product_type
-                        //     message="You don't have access to this module."
-                        //   />
-                        // }}
                       </ErrorBoundary>
                     </div>
                   </div>
