@@ -14,11 +14,11 @@ module ReconOnboardingLanding = {
 
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let onTryDemoClick = () => {
-      setCreateNewMerchant(ProductTypes.Recon)
+      setCreateNewMerchant(ProductTypes.Recon(V2))
     }
 
     let handleClick = () => {
-      if activeProduct == Recon {
+      if activeProduct == Recon(V2) {
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recon/configuration"))
       } else {
         onTryDemoClick()

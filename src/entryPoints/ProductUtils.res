@@ -1,7 +1,11 @@
 open ProductTypes
 let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => {
   switch product->String.toLowerCase {
-  | "recon" => Recon
+  | "recon" =>
+    switch version {
+    | V1 => Recon(V1)
+    | V2 => Recon(V2)
+    }
   | "recovery" => Recovery
   | "vault" => Vault
   | "cost_observability" => CostObservability
@@ -16,7 +20,8 @@ let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => 
 
 let getProductDisplayName = product =>
   switch product {
-  | Recon => "Recon"
+  | Recon(V2) => "Recon"
+  | Recon(V1) => "Reconcilliation Engine"
   | Recovery => "Revenue Recovery"
   | Orchestration(V1) => "Orchestrator"
   | Vault => "Vault"
@@ -27,7 +32,8 @@ let getProductDisplayName = product =>
 
 let getProductRouteName = product =>
   switch product {
-  | Recon => "recon"
+  | Recon(V2)
+  | Recon(V1) => "recon"
   | Recovery => "recovery"
   | Vault => "vault"
   | CostObservability => "cost-observability"
@@ -38,7 +44,8 @@ let getProductRouteName = product =>
 
 let getProductStringName = product =>
   switch product {
-  | Recon => "recon"
+  | Recon(V1)
+  | Recon(V2) => "recon"
   | Recovery => "recovery"
   | Vault => "vault"
   | CostObservability => "cost_observability"
@@ -47,9 +54,22 @@ let getProductStringName = product =>
   | Orchestration(V2) => "orchestration"
   }
 
+let getProductStringDisplayName = product =>
+  switch product {
+  | Recon(V1)
+  | Recon(V2) => "recon"
+  | Recovery => "revenue_recovery"
+  | Vault => "vault"
+  | CostObservability => "cost_observability"
+  | DynamicRouting => "intelligent_routing"
+  | Orchestration(V1)
+  | Orchestration(V2) => "orchestration"
+  }
+
 let getProductVariantFromDisplayName = product => {
   switch product {
-  | "Recon" => Recon
+  | "Reconcilliation Engine" => Recon(V1)
+  | "Recon" => Recon(V2)
   | "Revenue Recovery" => Recovery
   | "Orchestrator" => Orchestration(V1)
   | "Vault" => Vault
@@ -68,7 +88,8 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
     } else {
       url
     }
-  | Recon => `/dashboard/v2/recon/overview`
+  | Recon(V2) => `/dashboard/v2/recon/overview`
+  | Recon(V1) => `/dashboard/v1/recon-engine/overview`
   | Recovery => `/dashboard/v2/recovery/overview`
   | Vault
   | CostObservability
