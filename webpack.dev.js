@@ -6,17 +6,34 @@ const config = import("./src/server/config.mjs");
 
 let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
-let proxy = {
-  "/api": {
+let proxy = [
+  {
+    context: ["/api"],
     target: "http://localhost:8080",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
-  "/themes": { target: "", changeOrigin: true },
-  "/test-data/recon": { target: "", changeOrigin: true },
-  "/test-data/analytics": { target: "", changeOrigin: true },
-  "/dynamo-simulation-template": { target: "", changeOrigin: true },
-};
+  {
+    context: ["/themes"],
+    target: "",
+    changeOrigin: true,
+  },
+  {
+    context: ["/test-data/recon"],
+    target: "",
+    changeOrigin: true,
+  },
+  {
+    context: ["/test-data/analytics"],
+    target: "",
+    changeOrigin: true,
+  },
+  {
+    context: ["/dynamo-simulation-template"],
+    target: "",
+    changeOrigin: true,
+  },
+];
 
 let configMiddleware = (req, res, next) => {
   if (req.path.includes("/config/feature") && req.method == "GET") {
