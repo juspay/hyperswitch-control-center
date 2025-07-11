@@ -428,7 +428,7 @@ module KeysManagement = {
       <RenderIf condition={isPlatformOrg}>
         <div className="py-4">
           <HSwitchUtils.AlertBanner
-            custom={<div>
+            bannerContent={<div>
               <RenderIf condition={isPlatformMerchant}>
                 <span className="leading-24 text-nd_gray-800 font-semibold">
                   {"Platform Merchant Account: "->React.string}

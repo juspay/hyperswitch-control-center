@@ -1342,7 +1342,6 @@ module BaseRadio = {
     ~customSelectionIcon=Button.NoIcon,
     ~placeholderCss="",
     ~reverseSortGroupKeys=false,
-    ~displayGroupHeadings=false,
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1546,11 +1545,9 @@ module BaseRadio = {
             optgroupKeys
             ->Array.mapWithIndex((ele, index) => {
               <React.Fragment key={index->Int.toString}>
-                <RenderIf condition={displayGroupHeadings}>
-                  <h2 className="py-1.5 pl-3 font-semibold text-nd_gray-400 text-xs leading-14">
-                    {ele->React.string}
-                  </h2>
-                </RenderIf>
+                <h2 className="py-1.5 pl-3 font-semibold text-nd_gray-400 text-xs leading-14">
+                  {ele->React.string}
+                </h2>
                 <RenderListItemInBaseRadio
                   newOptions={getHashMappedOptionValues(newOptions)
                   ->Dict.get(ele)
@@ -1678,7 +1675,6 @@ module BaseDropdown = {
     ~customSelectionIcon=Button.NoIcon,
     ~placeholderCss="",
     ~reverseSortGroupKeys=false,
-    ~displayGroupHeadings=false,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1956,7 +1952,6 @@ module BaseDropdown = {
         customSearchStyle
         placeholderCss
         reverseSortGroupKeys
-        displayGroupHeadings
       />
     }
 
