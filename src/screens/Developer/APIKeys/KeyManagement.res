@@ -427,7 +427,12 @@ module KeysManagement = {
         <div className="py-4">
           <HSwitchUtils.AlertBanner
             custom={<div>
-              <span className="leading-24"> {bannerText->React.string} </span>
+              <RenderIf condition={isPlatformMerchant}>
+                <span className="leading-24 text-nd_gray-800 font-semibold">
+                  {"Platform Merchant Account: "->React.string}
+                </span>
+              </RenderIf>
+              <span className="leading-24 text-nd_gray-600"> {bannerText->React.string} </span>
               <span
                 onClick={redirectToDocs} className="text-nd_primary_blue-500 hover:cursor-pointer">
                 {" Learn More"->React.string}

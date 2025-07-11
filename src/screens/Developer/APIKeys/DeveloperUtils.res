@@ -297,17 +297,17 @@ let bannerText = (isPlatformMerchant, hasCreateApiKeyAccess: CommonAuthTypes.aut
   | (
       true,
       Access,
-    ) => "The API keys shown here, including any new ones you create, can be used to create other merchants and generate their API keys within this organization."
+    ) => "Your API keys have elevated privileges. You can use them to create new merchants and generate API keys for any merchant within this organization."
   | (
       true,
       NoAccess,
-    ) => "The API keys shown here, can be used to create other merchants and generate their API keys within this organization."
+    ) => "The API keys shown here have elevated privileges. They can be used to create merchants and generate API keys for any merchant within this organization. Contact your administrator if you require access."
   | (
       false,
       Access,
-    ) => "The API keys shown here include ones you’ve created, as well as any created for you by the platform merchant account."
+    ) => "The API keys shown here include keys you've created yourself, along with keys generated for you by the Platform Merchant account."
   | (
       false,
       NoAccess,
-    ) => "The API keys shown here include ones created for you by the platform merchant account."
+    ) => "The API keys displayed here include keys generated for your account by the Platform Merchant."
   }

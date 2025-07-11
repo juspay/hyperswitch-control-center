@@ -1,36 +1,7 @@
-module ListBaseComp = {
+module PlatformMerchantModalContent = {
   @react.component
-  let make = (
-    ~heading="",
-    ~subHeading,
-    ~arrow,
-    ~showEditIcon=false,
-    ~onEditClick=_ => (),
-    ~isDarkBg=false,
-    ~showDropdownArrow=true,
-    ~user: UserInfoTypes.entity,
-    ~isPlatform=false,
-  ) => {
-    let {
-      globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
-    } = React.useContext(ThemeProvider.themeContext)
+  let make = () => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let (showModal, setShowModal) = React.useState(_ => false)
-    let arrowClassName = isDarkBg
-      ? `${arrow
-            ? "rotate-180"
-            : "-rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
-      : `${arrow
-            ? "rotate-0"
-            : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
-
-    let headingText = isPlatform ? "Platform Merchant Account" : "Merchant Account"
-
-    let openPlatformModal = e => {
-      e->ReactEvent.Mouse.stopPropagation
-      setShowModal(_ => true)
-    }
 
     let onLearnMoreClick = e => {
       e->ReactEvent.Mouse.stopPropagation
@@ -49,42 +20,76 @@ module ListBaseComp = {
         <span className="text-nd_gray-500 font-normal"> {` ${text}`->React.string} </span>
       </li>
 
-    let customModalContent =
-      <div className="grid grid-cols-3 gap-8" onClick={handleModalClick}>
-        <div className="flex flex-col gap-5 col-span-1">
-          <p className="text-nd_gray-500 font-normal">
-            {"A Platform merchant account lets you onboard and manage multiple merchants in one place and gives you full API access to do it all programmatically."->React.string}
-          </p>
-          <div className="flex flex-col gap-3.5">
-            <p className="text-nd_gray-700 font-semibold"> {"At a glance:"->React.string} </p>
-            <div className="pl-4">
-              <ul className="flex flex-col gap-2 list-disc">
-                {listItem(
-                  ~title="Auto-onboard sellers:",
-                  ~text="Spin up new merchant accounts in seconds via our API",
-                )}
-                {listItem(
-                  ~title="Generate API keys:",
-                  ~text="Generate and rotate API keys for each merchant as a Platform Merchant",
-                )}
-                {listItem(
-                  ~title="Maintain API key mapping:",
-                  ~text="Keep track of each key so you can process payments, refunds, etc. on behalf of any sub-merchant",
-                )}
-              </ul>
-            </div>
-          </div>
-          <div className="flex" onClick=onLearnMoreClick>
-            <span className="!text-nd_primary_blue-500"> {"Learn more"->React.string} </span>
-            <span>
-              <Icon name="nd-external-link-square" customIconColor="!text-nd_primary_blue-500" />
-            </span>
+    <div className="grid grid-cols-3 gap-8" onClick={handleModalClick}>
+      <div className="flex flex-col gap-5 col-span-1">
+        <p className="text-nd_gray-500 font-normal">
+          {"A Platform merchant account lets you onboard and manage multiple merchants in one place and gives you full API access to do it all programmatically."->React.string}
+        </p>
+        <div className="flex flex-col gap-3.5">
+          <p className="text-nd_gray-700 font-semibold"> {"At a glance:"->React.string} </p>
+          <div className="pl-4">
+            <ul className="flex flex-col gap-2 list-disc">
+              {listItem(
+                ~title="Auto-onboard sellers:",
+                ~text="Spin up new merchant accounts in seconds via our API",
+              )}
+              {listItem(
+                ~title="Generate API keys:",
+                ~text="Generate and rotate API keys for each merchant as a Platform Merchant",
+              )}
+              {listItem(
+                ~title="Maintain API key mapping:",
+                ~text="Keep track of each key so you can process payments, refunds, etc. on behalf of any sub-merchant",
+              )}
+            </ul>
           </div>
         </div>
-        <div className="col-span-2 flex pl-4">
-          <img alt="platform-account" src="/assets/PlatformMerchant.svg" />
+        <div className="flex" onClick=onLearnMoreClick>
+          <span className="!text-nd_primary_blue-500"> {"Learn more"->React.string} </span>
+          <span>
+            <Icon name="nd-external-link-square" customIconColor="!text-nd_primary_blue-500" />
+          </span>
         </div>
       </div>
+      <div className="col-span-2 flex pl-4">
+        <img alt="platform-account" src="/assets/PlatformMerchant.svg" />
+      </div>
+    </div>
+  }
+}
+
+module ListBaseComp = {
+  @react.component
+  let make = (
+    ~heading="",
+    ~subHeading,
+    ~arrow,
+    ~showEditIcon=false,
+    ~onEditClick=_ => (),
+    ~isDarkBg=false,
+    ~showDropdownArrow=true,
+    ~user: UserInfoTypes.entity,
+    ~isPlatform=false,
+  ) => {
+    let {
+      globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
+    } = React.useContext(ThemeProvider.themeContext)
+    let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let (showModal, setShowModal) = React.useState(_ => false)
+    let arrowClassName = isDarkBg
+      ? `${arrow
+            ? "rotate-180"
+            : "-rotate-0"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+      : `${arrow
+            ? "rotate-0"
+            : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
+
+    let headingText = isPlatform ? "Platform Merchant Account" : "Merchant Account"
+
+    let openPlatformModal = e => {
+      e->ReactEvent.Mouse.stopPropagation
+      setShowModal(_ => true)
+    }
 
     <>
       {switch user {
@@ -132,8 +137,9 @@ module ListBaseComp = {
             showModal
             setShowModal
             modalClass="max-w-4xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background border border-green-500"
-            childClass="p-4">
-            {customModalContent}
+            childClass="p-4"
+            closeOnOutsideClick=true>
+            <PlatformMerchantModalContent />
           </Modal>
         </div>
 
