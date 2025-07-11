@@ -397,10 +397,53 @@ module ApiKeysTable = {
 module KeysManagement = {
   @react.component
   let make = () => {
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+
+    let isPlatformOrg = OMPSwitchUtils.isPlatformOMP(orgList, orgId)
+    let isPlatformMerchant = OMPSwitchUtils.isPlatformOMP(merchantList, merchantId)
+
+    let redirectToDocs = _ => {
+      let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms"
+      mixpanelEvent(~eventName="api_keys_banner_learn_more")
+      Window._open(docsUrl)
+    }
+    let bannerText = {
+      DeveloperUtils.bannerText(
+        ~isPlatformMerchant,
+        ~hasCreateApiKeyAccess=hasAnyGroupAccess(
+          userHasAccess(~groupAccess=MerchantDetailsManage),
+          userHasAccess(~groupAccess=AccountManage),
+        ),
+      )
+    }
+
     <div>
       <PageUtils.PageHeading
         title="Keys" subTitle="Manage API keys and credentials for integrated payment services"
       />
+      <RenderIf condition={isPlatformOrg}>
+        <div className="py-4">
+          <HSwitchUtils.AlertBanner
+            bannerContent={<div>
+              <RenderIf condition={isPlatformMerchant}>
+                <span className="leading-24 text-nd_gray-800 font-semibold">
+                  {"Platform Merchant Account: "->React.string}
+                </span>
+              </RenderIf>
+              <span className="leading-24 text-nd_gray-600"> {bannerText->React.string} </span>
+              <span
+                onClick={redirectToDocs} className="text-nd_primary_blue-500 hover:cursor-pointer">
+                {" Learn More"->React.string}
+              </span>
+            </div>}
+            bannerType=Warning
+          />
+        </div>
+      </RenderIf>
       <ApiKeysTable />
       <PublishableAndHashKeySection />
     </div>

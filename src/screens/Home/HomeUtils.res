@@ -253,16 +253,18 @@ module LowRecoveryCodeBanner = {
   @react.component
   let make = (~recoveryCode) => {
     <HSwitchUtils.AlertBanner
-      bannerText={`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`}
-      bannerType=Warning>
-      <Button
+      bannerContent={<div>
+        {`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`->React.string}
+      </div>}
+      bannerType=Warning
+      customRightAction={<Button
         text="Regenerate recovery-codes"
         buttonType={Secondary}
         onClick={_ =>
           RescriptReactRouter.push(
             GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
           )}
-      />
-    </HSwitchUtils.AlertBanner>
+      />}
+    />
   }
 }

@@ -1279,14 +1279,19 @@ let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) 
   hashMappedOptions
 }
 
-let getSortedKeys = hashMappedOptions => {
+let getSortedKeys = (hashMappedOptions, ~reverseSort=false) => {
   hashMappedOptions
   ->Dict.keysToArray
   ->Array.toSorted((a, b) => {
     switch (a, b) {
     | ("-", _) => 1.
     | (_, "-") => -1.
-    | (_, _) => String.compare(a, b)
+    | (_, _) =>
+      if reverseSort {
+        String.compare(b, a)
+      } else {
+        String.compare(a, b)
+      }
     }
   })
 }
@@ -1336,6 +1341,7 @@ module BaseRadio = {
     ~labelDescriptionClass="",
     ~customSelectionIcon=Button.NoIcon,
     ~placeholderCss="",
+    ~reverseSortGroupKeys=false,
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1346,7 +1352,9 @@ module BaseRadio = {
     let isNonGrouped =
       hashMappedOptions->Dict.get("-")->Option.getOr([])->Array.length === options->Array.length
 
-    let (optgroupKeys, setOptgroupKeys) = React.useState(_ => getSortedKeys(hashMappedOptions))
+    let (optgroupKeys, setOptgroupKeys) = React.useState(_ =>
+      getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys)
+    )
 
     let (searchString, setSearchString) = React.useState(() => "")
     React.useEffect(() => {
@@ -1454,12 +1462,15 @@ module BaseRadio = {
           }
         } else {
           let hashMappedSearchedOptions = getHashMappedOptionValues(options)
-          let optgroupKeysForSearch = getSortedKeys(hashMappedSearchedOptions)
+          let optgroupKeysForSearch = getSortedKeys(
+            hashMappedSearchedOptions,
+            ~reverseSort=reverseSortGroupKeys,
+          )
           setOptgroupKeys(_ => optgroupKeysForSearch)
           options
         }
       } else {
-        setOptgroupKeys(_ => getSortedKeys(hashMappedOptions))
+        setOptgroupKeys(_ => getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys))
         options
       }
     }, (searchString, options, selectedString))
@@ -1496,7 +1507,7 @@ module BaseRadio = {
         </RenderIf>
       }}
       <div
-        className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
+        className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle} mt-1`}>
         {if newOptions->Array.length === 0 && showMatchingRecordsText {
           <div className={`flex justify-center items-center m-4 ${customSearchStyle}`}>
             {React.string("No matching records found")}
@@ -1534,7 +1545,9 @@ module BaseRadio = {
             optgroupKeys
             ->Array.mapWithIndex((ele, index) => {
               <React.Fragment key={index->Int.toString}>
-                <h2 className="p-3 font-bold"> {ele->React.string} </h2>
+                <h2 className="py-1.5 pl-3 font-semibold text-nd_gray-400 text-xs leading-14">
+                  {ele->React.string}
+                </h2>
                 <RenderListItemInBaseRadio
                   newOptions={getHashMappedOptionValues(newOptions)
                   ->Dict.get(ele)
@@ -1661,6 +1674,7 @@ module BaseDropdown = {
     ~labelDescriptionClass="",
     ~customSelectionIcon=Button.NoIcon,
     ~placeholderCss="",
+    ~reverseSortGroupKeys=false,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1937,6 +1951,7 @@ module BaseDropdown = {
         customSelectionIcon
         customSearchStyle
         placeholderCss
+        reverseSortGroupKeys
       />
     }
 

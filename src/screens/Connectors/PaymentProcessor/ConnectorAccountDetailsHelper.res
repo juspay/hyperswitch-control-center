@@ -514,7 +514,9 @@ module ConnectorHeaderWrapper = {
         | _ => false
         }}>
         <HSwitchUtils.AlertBanner
-          bannerText="Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."
+          bannerContent={<div>
+            {"Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."->React.string}
+          </div>}
           bannerType=Warning
         />
       </RenderIf>

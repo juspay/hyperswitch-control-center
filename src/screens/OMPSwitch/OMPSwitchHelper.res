@@ -1,3 +1,63 @@
+module PlatformMerchantModalContent = {
+  @react.component
+  let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+
+    let onLearnMoreClick = e => {
+      e->ReactEvent.Mouse.stopPropagation
+      let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms"
+      mixpanelEvent(~eventName="platform_account_modal_learn_more")
+      Window._open(docsUrl)
+    }
+
+    let handleModalClick = e => {
+      e->ReactEvent.Mouse.stopPropagation
+    }
+
+    let listItem = (~title, ~text) =>
+      <li>
+        <span className="text-nd_gray-600 font-semibold"> {title->React.string} </span>
+        <span className="text-nd_gray-500 font-normal"> {` ${text}`->React.string} </span>
+      </li>
+
+    <div className="grid grid-cols-3 gap-8" onClick={handleModalClick}>
+      <div className="flex flex-col gap-5 col-span-1">
+        <p className="text-nd_gray-500 font-normal">
+          {"A Platform merchant account lets you onboard and manage multiple merchants in one place and gives you full API access to do it all programmatically."->React.string}
+        </p>
+        <div className="flex flex-col gap-3.5">
+          <p className="text-nd_gray-700 font-semibold"> {"At a glance:"->React.string} </p>
+          <div className="pl-4">
+            <ul className="flex flex-col gap-2 list-disc">
+              {listItem(
+                ~title="Auto-onboard sellers:",
+                ~text="Spin up new merchant accounts in seconds via our API",
+              )}
+              {listItem(
+                ~title="Generate API keys:",
+                ~text="Generate and rotate API keys for each merchant as a Platform Merchant",
+              )}
+              {listItem(
+                ~title="Maintain API key mapping:",
+                ~text="Keep track of each key so you can process payments, refunds, etc. on behalf of any sub-merchant",
+              )}
+            </ul>
+          </div>
+        </div>
+        <div className="flex" onClick=onLearnMoreClick>
+          <span className="!text-nd_primary_blue-500"> {"Learn more"->React.string} </span>
+          <span>
+            <Icon name="nd-external-link-square" customIconColor="!text-nd_primary_blue-500" />
+          </span>
+        </div>
+      </div>
+      <div className="col-span-2 flex pl-4">
+        <img alt="platform-account" src="/assets/PlatformMerchant.svg" />
+      </div>
+    </div>
+  }
+}
+
 module ListBaseComp = {
   @react.component
   let make = (
@@ -9,11 +69,13 @@ module ListBaseComp = {
     ~isDarkBg=false,
     ~showDropdownArrow=true,
     ~user: UserInfoTypes.entity,
+    ~isPlatform=false,
   ) => {
     let {
       globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let (showModal, setShowModal) = React.useState(_ => false)
     let arrowClassName = isDarkBg
       ? `${arrow
             ? "rotate-180"
@@ -22,15 +84,27 @@ module ListBaseComp = {
             ? "rotate-0"
             : "rotate-180"} transition duration-[250ms] opacity-70 ${secondaryTextColor}`
 
+    let headingText = isPlatform ? "Platform Merchant Account" : "Merchant Account"
+
+    let openPlatformModal = e => {
+      e->ReactEvent.Mouse.stopPropagation
+      setShowModal(_ => true)
+    }
+
     <>
       {switch user {
       | #Merchant =>
         <div
           className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
           <div className="flex flex-row w-full justify-between">
-            <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
-              {"Merchant Account"->React.string}
-            </span>
+            <div className="flex gap-2">
+              <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+                {headingText->React.string}
+              </span>
+              <RenderIf condition={isPlatform}>
+                <Icon name="nd_question_mark_circle" size=14 onClick={openPlatformModal} />
+              </RenderIf>
+            </div>
             <RenderIf condition=devOmpChart>
               <ToolTip
                 description="Organisation Chart"
@@ -58,6 +132,15 @@ module ListBaseComp = {
               ? <Icon className={`${arrowClassName} ml-1`} name="nd-angle-down" size=12 />
               : React.null}
           </div>
+          <Modal
+            modalHeading="What is a Platform Merchant Account?"
+            showModal
+            setShowModal
+            modalClass="max-w-4xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background border border-green-500"
+            childClass="p-4"
+            closeOnOutsideClick=true>
+            <PlatformMerchantModalContent />
+          </Modal>
         </div>
 
       | #Profile =>
@@ -571,13 +654,36 @@ let generateDropdownOptions: (
   options
 }
 
-let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCustom> => array<
-  SelectBox.dropdownOption,
-> = dropdownList => {
+let generateDropdownOptionsCustomComponent: (
+  array<OMPSwitchTypes.ompListTypesCustom>,
+  bool,
+) => array<SelectBox.dropdownOption> = (dropdownList, isPlatformOrg) => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
     item
   ): SelectBox.dropdownOption => {
-    let option: SelectBox.dropdownOption = {
+    let platformOptions: SelectBox.dropdownOption = {
+      label: item.name,
+      value: item.id,
+      customComponent: item.customComponent,
+      icon: Button.CustomRightIcon(
+        <ToolTip
+          description={item.id}
+          customStyle="!whitespace-nowrap"
+          toolTipFor={<div className="cursor-pointer">
+            <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
+          </div>}
+          toolTipPosition=ToolTip.TopRight
+        />,
+      ),
+      optGroup: {
+        switch item.\"type" {
+        | Some(val) => val->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+        | None => ""
+        }
+      },
+    }
+
+    let merchantOptions: SelectBox.dropdownOption = {
       label: item.name,
       value: item.id,
       customComponent: item.customComponent,
@@ -592,7 +698,9 @@ let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypesCus
         />,
       ),
     }
-    option
+
+    let options = isPlatformOrg ? platformOptions : merchantOptions
+    options
   })
   options
 }
