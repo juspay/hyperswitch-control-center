@@ -7,6 +7,7 @@ type modalStep = AccountSelection | FileUpload
 let make = (~showModal, ~setShowModal) => {
   open FormDataUtils
   open APIUtils
+  open ReconEngineQueueUtils
   let (currentStep, setCurrentStep) = React.useState(_ => AccountSelection)
   let (selectedAccount, setSelectedAccount) = React.useState(_ => "")
   let getURL = useGetURL()
@@ -105,20 +106,6 @@ let make = (~showModal, ~setShowModal) => {
         </div>
       </label>
     </div>
-  }
-
-  let generateAccountDropdownOptions = (accountData: JSON.t): array<SelectBox.dropdownOption> => {
-    accountData
-    ->getArrayFromJson([])
-    ->Array.map(item => {
-      let accountDict = item->getDictFromJsonObject
-      let accountName = accountDict->getString("account_name", "")
-      let accountId = accountDict->getString("account_id", "")
-      {
-        SelectBox.label: accountName,
-        value: accountId,
-      }
-    })
   }
 
   <Modal
