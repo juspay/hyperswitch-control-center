@@ -54,9 +54,7 @@ let make = (
     }
     options
   })
-  let initialValues = visibleColumns->Array.map(head => {
-    getHeading(head).title
-  })
+  let initialValues = visibleColumns->Array.map(head => getHeading(head).title)
 
   let onSubmit = values => {
     let getHeadingCol = text => {
@@ -71,7 +69,7 @@ let make = (
       values,
       varianType,
     )
-    LocalStorage.setItem("tableColumnsOrder", valForLocalStorage)
+    HyperSwitchEntryUtils.setCustomTableHeaders(valForLocalStorage)
     setColumns(_ => headers)
   }
 

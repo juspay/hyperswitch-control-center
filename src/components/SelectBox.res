@@ -779,16 +779,6 @@ module BaseSelect = {
       !(saneValue->Array.includes(item.value))
     }
 
-    let dragDropComp = {
-      <DragDropComponent
-        keyExtractor
-        listItems=filteredOptions
-        setListItems={val => handleSetDraggableList(val)}
-        isHorizontal=false
-        isDragDisabled={(index, item) => handleDisable(item, index)}
-      />
-    }
-
     <div
       id="neglectTopbarTheme"
       className={`${widthClass} ${outerClass} ${borderClass} ${animationClass} ${dropdownClassName}`}>
@@ -945,7 +935,13 @@ module BaseSelect = {
           | Some(elem) => elem
           | _ =>
             if isDraggable {
-              dragDropComp
+              <DragDropComponent
+                keyExtractor
+                listItems=filteredOptions
+                setListItems={val => handleSetDraggableList(val)}
+                isHorizontal=false
+                isDragDisabled={(index, item) => handleDisable(item, index)}
+              />
             } else {
               filteredOptions
               ->Array.mapWithIndex((item, indx) => {

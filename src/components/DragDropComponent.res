@@ -92,15 +92,9 @@ let make = (
                     <div onDragStart={provided["onDragStart"]} ref={provided["innerRef"]}>
                       {keyExtractor(index, item, snapshot["isDragging"], isItemDisabled)}
                     </div>
-
-                  let elementWithDraggableProps =
-                    draggableElement->React.cloneElement(provided["draggableProps"])
-
-                  switch provided["dragHandleProps"]->Nullable.toOption {
-                  | Some(dragHandleProps) =>
-                    elementWithDraggableProps->React.cloneElement(dragHandleProps)
-                  | None => elementWithDraggableProps
-                  }
+                  draggableElement
+                  ->React.cloneElement(provided["draggableProps"])
+                  ->React.cloneElement(provided["dragHandleProps"])
                 }}
               </ReactBeautifulDND.Draggable>
             })

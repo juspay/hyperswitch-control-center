@@ -19,7 +19,8 @@ let textToVariantMapper = text => {
 }
 
 let createValForLocalStorage = (val, varianType: operationSection) => {
-  let optionalValueFromLocalStorage = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
+
+  let optionalValueFromLocalStorage = HyperSwitchEntryUtils.getCustomTableColumnsfromStore()
   let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
 
   let valueDict =
@@ -35,7 +36,7 @@ let createValForLocalStorage = (val, varianType: operationSection) => {
 }
 
 let parseColumnsFromLocalStorage = title => {
-  let optionalValueFromLocalStorage = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
+  let optionalValueFromLocalStorage = HyperSwitchEntryUtils.getCustomTableColumnsfromStore()
   let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
 
   valueFromLocalStorage
