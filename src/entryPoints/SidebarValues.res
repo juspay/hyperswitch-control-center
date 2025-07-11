@@ -707,13 +707,17 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
 
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration(V1) => hsSidebars
-  | Recon => ReconSidebarValues.reconSidebars
+  | Recon(V2) => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
+<<<<<<< HEAD
   | Invalid => []
+=======
+  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
+>>>>>>> 667b11b8dc633151fbace48d8fe738d47ae8267a
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

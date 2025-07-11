@@ -39,7 +39,12 @@ let make = () => {
   | None => React.null
   }
 
-  let productsToShowProductionAccess: array<ProductTypes.productTypes> = [DynamicRouting, Recon]
+  let isProdAccessAvailableForProduct = switch activeProduct {
+  | Orchestration(V1)
+  | DynamicRouting
+  | Recon(V2) => true
+  | _ => false
+  }
 
   let showGetProductionAccess =
     !isLiveMode &&
@@ -49,11 +54,7 @@ let make = () => {
       userHasAccess(~groupAccess=UserManagementTypes.MerchantDetailsManage),
       userHasAccess(~groupAccess=UserManagementTypes.AccountManage),
     ) === CommonAuthTypes.Access &&
-    productsToShowProductionAccess->Array.includes(activeProduct) &&
-    switch activeProduct {
-    | Orchestration(V1) => true
-    | _ => false
-    }
+    isProdAccessAvailableForProduct
 
   <RenderIf condition={showGetProductionAccess}> {prodAccess} </RenderIf>
 }

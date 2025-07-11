@@ -187,6 +187,12 @@ let make = () => {
                         | list{"organization-chart"} => <OrganisationChart />
                         | list{"v2", "onboarding", ..._} => <DefaultOnboardingPage />
 
+                        | list{"organization-chart"} => <OrganisationChart />
+
+                        | list{"v2", "onboarding", ..._}
+                        | list{"v1", "onboarding", ..._} =>
+                          <DefaultOnboardingPage />
+
                         | list{"account-settings", "profile", ...remainingPath} =>
                           <EntityScaffold
                             entityName="profile setting"
@@ -196,8 +202,15 @@ let make = () => {
                           />
                         | list{"unauthorized"} =>
                           <UnauthorizedPage message="You don't have access to this module." />
-                        /* RECON PRODUCT */
+
+                        /* RECON V1 PRODUCT */
+
+                        | list{"v1", "recon-engine", ..._} => <ReconEngineApp />
+
+                        /* RECON V2 PRODUCT */
+
                         | list{"v2", "recon", ..._} => <ReconApp />
+
                         /* RECOVERY PRODUCT */
                         | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
                         /* VAULT PRODUCT */
