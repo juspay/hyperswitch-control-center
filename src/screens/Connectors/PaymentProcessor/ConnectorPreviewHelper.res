@@ -81,7 +81,10 @@ module CashtoCodeCredsInfo = {
 
 module PreviewCreds = {
   @react.component
-  let make = (~connectorAccountFields, ~connectorInfo: ConnectorTypes.connectorPayloadCommonType) => {
+  let make = (
+    ~connectorAccountFields,
+    ~connectorInfo: ConnectorTypes.connectorPayloadCommonType,
+  ) => {
     switch connectorInfo.connector_account_details {
     | HeaderKey(authKeys) => <CredsInfoField authKeys connectorAccountFields connectorInfo />
     | BodyKey(bodyKey) => <CredsInfoField authKeys=bodyKey connectorAccountFields connectorInfo />

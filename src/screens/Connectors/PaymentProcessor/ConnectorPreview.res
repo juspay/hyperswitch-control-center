@@ -141,10 +141,7 @@ module ConnectorSummaryGrid = {
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-    let copyValueOfWebhookEndpoint = getWebhooksUrl(
-      ~connectorName={connectorInfo.id},
-      ~merchantId,
-    )
+    let copyValueOfWebhookEndpoint = getWebhooksUrl(~connectorName={connectorInfo.id}, ~merchantId)
     let (processorType, _) =
       connectorInfo.connector_type
       ->connectorTypeTypedValueToStringMapper

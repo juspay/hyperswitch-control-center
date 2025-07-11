@@ -103,9 +103,7 @@ let make = (
       let paymentMethoConfigUrl = getURL(~entityName=V1(PAYMENT_METHOD_CONFIG), ~methodType=Get)
       let data =
         connectorList
-        ->Array.filter(item =>
-          item.id === paymentMethodConfig.merchant_connector_id
-        )
+        ->Array.filter(item => item.id === paymentMethodConfig.merchant_connector_id)
         ->getValueFromArray(
           0,
           ConnectorInterface.mapDictToConnectorPayload(
