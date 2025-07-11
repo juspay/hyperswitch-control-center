@@ -14,10 +14,388 @@ module StackedBarGraph = {
           options={StackedBarGraphUtils.getStackedBarGraphOptions(
             ReconEngineTransactionsUtils.getSampleStackedBarGraphData(),
             ~yMax=2000,
-            ~labelItemDistance={isMiniLaptopView ? 45 : 90},
+            ~labelItemDistance={isMiniLaptopView ? 45 : 290},
           )}
         />
       </div>
+    </div>
+  }
+}
+
+module DisplayKeyValueParams = {
+  @react.component
+  let make = (
+    ~showTitle: bool=true,
+    ~heading: Table.header,
+    ~value: Table.cell,
+    ~isInHeader=false,
+    ~isHorizontal=false,
+    ~customMoneyStyle="",
+    ~labelMargin="",
+    ~customDateStyle="",
+    ~wordBreak=true,
+    ~overiddingHeadingStyles="",
+    ~textColor="font-medium text-nd_gray-600",
+  ) => {
+    let marginClass = if labelMargin->LogicUtils.isEmptyString {
+      "mt-4 py-0"
+    } else {
+      labelMargin
+    }
+
+    let fontClass = if isInHeader {
+      "text-fs-20"
+    } else {
+      "text-fs-13"
+    }
+
+    let textColor =
+      textColor->LogicUtils.isEmptyString ? "text-nd_gray-600 dark:text-white" : textColor
+
+    let description = heading.description->Option.getOr("")
+
+    {
+      <AddDataAttributes attributes=[("data-label", heading.title)]>
+        <div
+          className={`flex ${isHorizontal ? "flex-row justify-between" : "flex-col gap-2"} py-4`}>
+          <div
+            className={`flex flex-row text-fs-11  ${isHorizontal
+                ? "flex justify-start"
+                : ""} text-nd_gray-500 text-opacity-50 dark:text-nd_gray-500 dark:text-opacity-50 `}>
+            <div className={overiddingHeadingStyles}>
+              {React.string(showTitle ? heading.title : " x")}
+            </div>
+            <RenderIf condition={description->LogicUtils.isNonEmptyString}>
+              <div className="text-sm text-gray-500 mx-2 -mt-1">
+                <ToolTip description={description} toolTipPosition={ToolTip.Top} />
+              </div>
+            </RenderIf>
+          </div>
+          <div
+            className={`${isHorizontal
+                ? "flex justify-end"
+                : ""} ${fontClass} font-semibold text-left ${textColor}`}>
+            <Table.TableCell
+              cell=value
+              textAlign=Table.Left
+              fontBold=true
+              customMoneyStyle
+              labelMargin=marginClass
+              customDateStyle
+            />
+          </div>
+        </div>
+      </AddDataAttributes>
+    }
+  }
+}
+
+module TransactionDetails = {
+  @react.component
+  let make = (
+    ~data,
+    ~getHeading,
+    ~getCell,
+    ~detailsFields,
+    ~justifyClassName="justify-start",
+    ~widthClass="w-1/4",
+    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+    ~isButtonEnabled=false,
+    ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
+    ~customFlex="flex-wrap",
+    ~isHorizontal=false,
+  ) => {
+    <FormRenderer.DesktopRow>
+      <div
+        className={`flex ${customFlex} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
+        {detailsFields
+        ->Array.mapWithIndex((colType, i) => {
+          <div className=widthClass key={i->Int.toString}>
+            <DisplayKeyValueParams
+              heading={getHeading(colType)}
+              value={getCell(data, colType)}
+              customMoneyStyle="!font-normal !text-sm"
+              labelMargin="!py-0 mt-2"
+              overiddingHeadingStyles="text-nd_gray-500 text-sm font-medium"
+              isHorizontal
+            />
+          </div>
+        })
+        ->React.array}
+      </div>
+    </FormRenderer.DesktopRow>
+  }
+}
+
+module TransactionDetailInfo = {
+  @react.component
+  let make = (~currentTransactionDetails) => {
+    open TransactionsTableEntity
+
+    <div className="w-full border border-nd_gray-150 rounded-lg p-2">
+      <TransactionDetails
+        data=currentTransactionDetails
+        getHeading
+        getCell
+        detailsFields=[TransactionId, Status, Amount, Currency, Variance, CreatedAt]
+        isButtonEnabled=true
+      />
+    </div>
+  }
+}
+
+module TransactionAuditTrailDetails = {
+  @react.component
+  let make = (
+    ~data,
+    ~getHeading,
+    ~getCell,
+    ~detailsFields,
+    ~justifyClassName="justify-start",
+    ~widthClass="w-1/5",
+    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+    ~isButtonEnabled=false,
+    ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
+    ~customFlex="flex-wrap",
+    ~isHorizontal=false,
+  ) => {
+    <FormRenderer.DesktopRow>
+      <div
+        className={`flex ${customFlex} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
+        {detailsFields
+        ->Array.mapWithIndex((colType, i) => {
+          <div className=widthClass key={i->Int.toString}>
+            <DisplayKeyValueParams
+              heading={getHeading(colType)}
+              value={getCell(data, colType)}
+              customMoneyStyle="!font-normal !text-sm"
+              labelMargin="!py-0 mt-2"
+              overiddingHeadingStyles="text-nd_gray-500 text-sm font-medium"
+              isHorizontal
+            />
+          </div>
+        })
+        ->React.array}
+      </div>
+    </FormRenderer.DesktopRow>
+  }
+}
+
+module TransactionAuditTrailInfo = {
+  @react.component
+  let make = (~currentTransactionDetails) => {
+    open TransactionsTableEntity
+
+    <div className="w-full border border-nd_gray-150 rounded-lg p-2">
+      <TransactionAuditTrailDetails
+        data=currentTransactionDetails
+        getHeading
+        getCell
+        detailsFields=[TransactionId, Status, CreditAccount, DebitAccount, CreatedAt]
+        isButtonEnabled=true
+      />
+    </div>
+  }
+}
+
+module EntryAuditTrailDetails = {
+  @react.component
+  let make = (
+    ~data,
+    ~getHeading,
+    ~getCell,
+    ~detailsFields,
+    ~justifyClassName="justify-start",
+    ~widthClass="w-1/2",
+    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+    ~isButtonEnabled=false,
+    ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
+    ~customFlex="flex-wrap",
+    ~isHorizontal=false,
+  ) => {
+    <FormRenderer.DesktopRow>
+      <div
+        className={`flex ${customFlex} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
+        {detailsFields
+        ->Array.mapWithIndex((colType, i) => {
+          <div className=widthClass key={i->Int.toString}>
+            <DisplayKeyValueParams
+              heading={getHeading(colType)}
+              value={getCell(data, colType)}
+              customMoneyStyle="!font-normal !text-sm"
+              labelMargin="!py-0 mt-2"
+              overiddingHeadingStyles="text-nd_gray-500 text-sm font-medium"
+              isHorizontal
+            />
+          </div>
+        })
+        ->React.array}
+      </div>
+    </FormRenderer.DesktopRow>
+  }
+}
+
+module EntryAuditTrailInfo = {
+  @react.component
+  let make = (~entryDetails) => {
+    open EntriesTableEntity
+
+    <div className="flex flex-col gap-4 mb-6 px-2">
+      <div className="w-full border border-nd_gray-150 rounded-lg p-2">
+        <EntryAuditTrailDetails
+          data=entryDetails
+          getHeading
+          getCell
+          detailsFields=[
+            EntryId,
+            EntryType,
+            Amount,
+            Currency,
+            TransactionId,
+            Status,
+            CreatedAt,
+            EffectiveAt,
+          ]
+          isButtonEnabled=true
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Metadata"->React.string} </p>
+        <div className="w-full border border-nd_gray-150 rounded-lg p-2 bg-nd_gray-50">
+          <PrettyPrintJson jsonToDisplay={entryDetails.metadata->Js.Json.stringify} />
+        </div>
+      </div>
+    </div>
+  }
+}
+
+module AuditTrail = {
+  @react.component
+  let make = (~allTransactionDetails) => {
+    open AuditTrailStepIndicatorTypes
+    open ReconEngineTransactionsUtils
+    open LogicUtils
+
+    let (showModal, setShowModal) = React.useState(_ => false)
+    let (openedTransaction, setOpenedTransaction) = React.useState(_ =>
+      Dict.make()->getAllTransactionPayload
+    )
+    let (entriesList, setEntriesList) = React.useState(_ => [Dict.make()->getAllEntryPayload])
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
+    if allTransactionDetails->Array.length > 0 {
+      allTransactionDetails->Array.sort(ReconEngineTransactionsUtils.sortByVersion)
+    }
+
+    let getTransactionDetails = async _ => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let response = SampleTransactions.data
+        let data = response->getDictFromJsonObject->getArrayFromDict("entries", [])
+        let entriesList = data->getArrayOfEntriesListPayloadType
+        let entriesDataArray = openedTransaction.entry_id->Array.map(entryId => {
+          entriesList
+          ->Array.find(entry => entry.entry_id == entryId)
+          ->Option.getOr(Dict.make()->getAllEntryPayload)
+        })
+        setEntriesList(_ => entriesDataArray)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
+      }
+    }
+
+    let sections = allTransactionDetails->Array.map(transaction => {
+      let customComponent = {
+        id: transaction.version->Int.toString,
+        customComponent: Some(<TransactionAuditTrailInfo currentTransactionDetails=transaction />),
+        onClick: _ => {
+          setOpenedTransaction(_ => transaction)
+          setShowModal(_ => true)
+          getTransactionDetails()->ignore
+        },
+      }
+      customComponent
+    })
+
+    React.useEffect(() => {
+      getTransactionDetails()->ignore
+      None
+    }, [openedTransaction])
+
+    let modalHeading = {
+      <div className="flex justify-between border-b">
+        <div className="flex gap-4 items-center m-6">
+          <p className="font-semibold text-nd_gray-600 text-lg leading-6">
+            {"More Details"->React.string}
+          </p>
+        </div>
+        <Icon
+          name="modal-close-icon"
+          className="cursor-pointer mr-4"
+          size=30
+          onClick={_ => setShowModal(_ => false)}
+        />
+      </div>
+    }
+
+    let tabs: array<Tabs.tab> = React.useMemo(() => {
+      open Tabs
+      entriesList->Array.map(entryDetails => {
+        {
+          title: entryDetails.entry_id,
+          renderContent: () => <EntryAuditTrailInfo entryDetails />,
+        }
+      })
+    }, [entriesList])
+
+    <div>
+      <div className="mb-6">
+        <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Audit Trail"->React.string} </p>
+        <p className={`text-nd_gray-500 ${body.md.medium}`}>
+          {"This section shows the audit trail of the transaction, including all changes made to it."->React.string}
+        </p>
+      </div>
+      <Modal
+        setShowModal
+        showModal
+        closeOnOutsideClick=true
+        modalClass="flex flex-col w-1/3 h-screen float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
+        childClass="mb-6 mx-2 h-full flex flex-col justify-between"
+        customModalHeading=modalHeading>
+        <PageLoaderWrapper
+          screenState
+          customLoader={<div className="h-full flex flex-col justify-center items-center">
+            <div className="animate-spin mb-1">
+              <Icon name="spinner" size=20 />
+            </div>
+          </div>}>
+          <div className="flex flex-col gap-4 overflow-y-auto h-840-px">
+            <RenderIf condition={Array.length(tabs) > 0}>
+              <Tabs
+                tabs
+                showBorder=true
+                includeMargin=false
+                defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center px-6 ${body.md.semibold}`}
+                selectTabBottomBorderColor="bg-primary"
+                customBottomBorderColor="mb-6"
+              />
+            </RenderIf>
+            <RenderIf condition={Array.length(tabs) === 0}>
+              <div className="text-center text-nd_gray-500 py-8">
+                {"No entries found"->React.string}
+              </div>
+            </RenderIf>
+          </div>
+          <Button
+            customButtonStyle="!w-full"
+            buttonType=Button.Primary
+            onClick={_ => setShowModal(_ => false)}
+            text="OK"
+          />
+        </PageLoaderWrapper>
+      </Modal>
+      <AuditTrailStepIndicator sections />
     </div>
   }
 }
