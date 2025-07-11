@@ -128,7 +128,7 @@ module ConnectorSummaryGrid = {
   open CommonAuthHooks
   @react.component
   let make = (
-    ~connectorInfo: ConnectorTypes.connectorPayload,
+    ~connectorInfo: ConnectorTypes.connectorPayloadCommonType,
     ~connector,
     ~setCurrentStep,
     ~updateStepValue=None,
@@ -141,10 +141,7 @@ module ConnectorSummaryGrid = {
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-    let copyValueOfWebhookEndpoint = getWebhooksUrl(
-      ~connectorName={connectorInfo.merchant_connector_id},
-      ~merchantId,
-    )
+    let copyValueOfWebhookEndpoint = getWebhooksUrl(~connectorName={connectorInfo.id}, ~merchantId)
     let (processorType, _) =
       connectorInfo.connector_type
       ->connectorTypeTypedValueToStringMapper
@@ -174,7 +171,7 @@ module ConnectorSummaryGrid = {
           JSON.Encode.null
         }
       }
-    }, [connectorInfo.merchant_connector_id])
+    }, [connectorInfo.id])
     let {connectorAccountFields} = getConnectorFields(connectorDetails)
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
@@ -257,10 +254,10 @@ module ConnectorSummaryGrid = {
                 ->Array.mapWithIndex((field, index) => {
                   <InfoField
                     key={index->Int.toString}
-                    label={field.payment_method->LogicUtils.snakeToTitle}
+                    label={field.payment_method_type->LogicUtils.snakeToTitle}
                     render={Some(
-                      field.payment_method_types
-                      ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
+                      field.payment_method_subtypes
+                      ->Array.map(item => item.payment_method_subtype->LogicUtils.snakeToTitle)
                       ->Array.reduce([], (acc, curr) => {
                         if !(acc->Array.includes(curr)) {
                           acc->Array.push(curr)
@@ -358,7 +355,7 @@ let make = (
   let disableConnector = async isConnectorDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
+      let connectorID = connectorInfo.id
       let disableConnectorPayload = getDisableConnectorPayload(
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,

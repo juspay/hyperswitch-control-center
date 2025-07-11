@@ -21,11 +21,11 @@ let defaultColumns = [
 ]
 
 let getConnectorObjectFromListViaId = (
-  connectorList: array<ConnectorTypes.connectorPayload>,
+  connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   mca_id: string,
 ) => {
   connectorList
-  ->Array.find(ele => {ele.merchant_connector_id == mca_id})
+  ->Array.find(ele => {ele.id == mca_id})
   ->Option.getOr(
     ConnectorInterface.mapDictToConnectorPayload(
       ConnectorInterface.connectorInterfaceV1,
@@ -34,9 +34,9 @@ let getConnectorObjectFromListViaId = (
   )
 }
 
-let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>) => {
+let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeCommon>) => {
   let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {
-    acc->Array.concat([item.payment_method->LogicUtils.capitalizeString])
+    acc->Array.concat([item.payment_method_type->LogicUtils.capitalizeString])
   })
   paymentMethods
 }
@@ -61,7 +61,7 @@ let connectorStatusStyle = connectorStatus =>
   }
 
 let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
-  let getCell = (connector: connectorPayload, colType): Table.cell => {
+  let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
     switch colType {
     | Name =>
       CustomCell(
@@ -70,7 +70,8 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         />,
         "",
       )
-    | TestMode => Text(connector.test_mode ? "True" : "False")
+    | TestMode => Text(connector.test_mode->Option.getOr(true) ? "True" : "False") //
+
     | Disabled =>
       Label({
         title: connector.disabled ? "DISABLED" : "ENABLED",
@@ -99,8 +100,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
     | MerchantConnectorId =>
       CustomCell(
         <HelperComponents.CopyTextCustomComp
-          customTextCss="w-36 truncate whitespace-nowrap"
-          displayValue=Some(connector.merchant_connector_id)
+          customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(connector.id)
         />,
         "",
       )
@@ -117,7 +117,7 @@ let sortPreviouslyConnectedList = arr => {
   Array.toSorted(arr, comparatorFunction)
 }
 
-let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
+let getPreviouslyConnectedList: JSON.t => array<connectorPayloadCommonType> = json => {
   let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
     ConnectorInterface.connectorInterfaceV1,
     json,
@@ -138,7 +138,7 @@ let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorizati
       connec =>
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
           ),
           ~authorization,
         )
