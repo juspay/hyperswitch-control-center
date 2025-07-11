@@ -17,7 +17,6 @@ let (
   compareToStartTimeKey,
   compareToEndTimeKey,
   comparisonKey,
-  sampleDataKey,
 ) = (
   "startTime",
   "endTime",
@@ -25,16 +24,13 @@ let (
   "compareToStartTime",
   "compareToEndTime",
   "comparison",
-  "is_sample_data_enabled",
 )
-let initialFixedFilterFields = (~events=?, ~sampleDataIsEnabled=false) => {
+let initialFixedFilterFields = (~events=?) => {
   let events = switch events {
   | Some(fn) => fn
   | _ => () => ()
   }
-  let customButtonStyle = sampleDataIsEnabled
-    ? "!bg-nd_gray-50 !text-nd_gray-400 !rounded-lg !bg-none"
-    : "border !rounded-lg !bg-none"
+  let customButtonStyle = "border !rounded-lg !bg-none"
   let newArr = [
     (
       {
@@ -63,7 +59,6 @@ let initialFixedFilterFields = (~events=?, ~sampleDataIsEnabled=false) => {
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
-            ~disable=sampleDataIsEnabled,
             ~events,
             ~customButtonStyle,
           ),
@@ -75,4 +70,72 @@ let initialFixedFilterFields = (~events=?, ~sampleDataIsEnabled=false) => {
   ]
 
   newArr
+}
+
+let accountBalanceOptions: ColumnGraphTypes.columnGraphPayload = {
+  title: {
+    text: "",
+  },
+  data: [
+    {
+      showInLegend: false,
+      name: "Account Balance",
+      colorByPoint: true,
+      data: [
+        {
+          name: "1 Day",
+          y: 13711.0,
+          color: "#8BC2F3",
+        },
+        {
+          name: "2 Day",
+          y: 44579.0,
+          color: "#8BC2F3",
+        },
+        {
+          name: "3 Day",
+          y: 40510.0,
+          color: "#8BC2F3",
+        },
+        {
+          name: "4 Day",
+          y: 48035.0,
+          color: "#8BC2F3",
+        },
+        {
+          name: "5 Day",
+          y: 51640.0,
+          color: "#8BC2F3",
+        },
+        {
+          name: "6 Day",
+          y: 51483.0,
+          color: "#8BC2F3",
+        },
+        {
+          name: "7 Day",
+          y: 50049.0,
+          color: "#8BC2F3",
+        },
+      ],
+      color: "",
+    },
+  ],
+  tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
+    ~title="Account Balance",
+    ~metricType=FormattedAmount,
+  ),
+  yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
+    ~statType=FormattedAmount,
+    ~currency="$",
+  ),
+}
+
+let getAccountIcon = index => {
+  switch index {
+  | 0 => "settings"
+  | 1 => "credit-card"
+  | 2 => "nd-bank"
+  | _ => "building"
+  }
 }
