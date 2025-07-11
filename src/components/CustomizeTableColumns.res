@@ -11,8 +11,17 @@ let make = (
   ~orderdColumnBasedOnDefaultCol: bool=false,
   ~sortingBasedOnDisabled=true,
   ~showSerialNumber=true,
+  ~isDraggable=false,
+  ~varianType=CustomizableTableColumnsUtils.Unknown,
 ) => {
-  let heading = allHeadersArray
+  let headingWhenDraggable = {
+    let notInVisible = allHeadersArray->Array.reduce([], (acc, item) => {
+      visibleColumns->Array.includes(item) ? acc : acc->Array.concat([item])
+    })
+
+    Array.concat(visibleColumns, notInVisible)
+  }
+  let heading = isDraggable ? headingWhenDraggable : allHeadersArray
 
   let headingDict =
     heading
@@ -52,12 +61,15 @@ let make = (
       let index = heading->Array.map(head => getHeading(head).title)->Array.indexOf(text)
       heading[index]
     }
-
     let headers = values->Belt.Array.keepMap(getHeadingCol)
     let headers = orderdColumnBasedOnDefaultCol
       ? headers->Array.copy->Array.toSorted(sortByOrderOderedArr)
       : headers
-
+    let valForLocalStorage = CustomizableTableColumnsUtils.createValForLocalStorage(
+      values,
+      varianType,
+    )
+    HyperSwitchEntryUtils.setCustomTableHeaders(valForLocalStorage)
     setColumns(_ => headers)
   }
 
@@ -71,5 +83,6 @@ let make = (
     options=initalHeadingData
     sortingBasedOnDisabled
     showSerialNumber
+    isDraggable
   />
 }

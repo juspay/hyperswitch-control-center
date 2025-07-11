@@ -142,6 +142,7 @@ let make = () => {
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
           showAutoScroll=true
+          isDraggable=true
         />
       </PageLoaderWrapper>
     </div>

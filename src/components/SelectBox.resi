@@ -139,6 +139,7 @@ module BaseSelect: {
     ~wrapBasis: string=?,
     ~preservedAppliedOptions: array<string>=?,
     ~customComponent: option<React.element>=?,
+    ~isDraggable: bool=?,
   ) => React.element
 }
 module BaseSelectButton: {

@@ -190,6 +190,7 @@ let make = (~previewOnly=false) => {
           previewOnly
           remoteSortEnabled=true
           showAutoScroll=true
+          isDraggable=true
         />
       </PageLoaderWrapper>
     </div>
