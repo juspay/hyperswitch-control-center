@@ -48,11 +48,10 @@ let make = (~showModal, ~setShowModal) => {
   }
 
   let onSubmit = async (_, _) => {
-    if selectedFile->Option.isNone {
-      showToast(~message="Please select a file to upload.", ~toastType=ToastError)
-    } else {
+    switch selectedFile {
+    | None => showToast(~message="Please select a file to upload.", ~toastType=ToastError)
+    | Some(file) =>
       try {
-        let file = selectedFile->Option.getExn
         let url = getURL(
           ~entityName=V1(RECON_FILE_UPLOAD),
           ~methodType=Post,
@@ -60,7 +59,6 @@ let make = (~showModal, ~setShowModal) => {
         )
         let formData = formData()
         append(formData, "file", file)
-        append(formData, "file_type", "zurich_adyen")
         let _ = await updateDetails(
           ~bodyFormData=formData,
           url,
