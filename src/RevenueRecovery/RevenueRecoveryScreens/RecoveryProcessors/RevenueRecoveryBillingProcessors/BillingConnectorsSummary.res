@@ -55,6 +55,7 @@ module BillingConnectorDetails = {
 
           let revenueRecovery =
             connectorInfodict.feature_metadata
+            ->Option.getOr(JSON.Encode.null)
             ->getDictFromJsonObject
             ->getDictfromDict("revenue_recovery")
           let paymentConnectors =
@@ -86,7 +87,10 @@ module BillingConnectorDetails = {
     let {connectorAccountFields} = getConnectorFields(connectorDetails)
 
     let revenueRecovery =
-      connectorInfodict.feature_metadata->getDictFromJsonObject->getDictfromDict("revenue_recovery")
+      connectorInfodict.feature_metadata
+      ->Option.getOr(JSON.Encode.null)
+      ->getDictFromJsonObject
+      ->getDictfromDict("revenue_recovery")
     let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
     let billing_connector_retry_threshold =
       revenueRecovery->getInt("billing_connector_retry_threshold", 0)

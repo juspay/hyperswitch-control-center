@@ -32,7 +32,7 @@ module CredsInfoField = {
   let make = (
     ~authKeys,
     ~connectorAccountFields,
-    ~connectorInfo: ConnectorTypes.connectorPayload,
+    ~connectorInfo: ConnectorTypes.connectorPayloadCommonType,
   ) => {
     open LogicUtils
     let dict = authKeys->Identity.genericTypeToDictOfJson
@@ -81,7 +81,7 @@ module CashtoCodeCredsInfo = {
 
 module PreviewCreds = {
   @react.component
-  let make = (~connectorAccountFields, ~connectorInfo: ConnectorTypes.connectorPayload) => {
+  let make = (~connectorAccountFields, ~connectorInfo: ConnectorTypes.connectorPayloadCommonType) => {
     switch connectorInfo.connector_account_details {
     | HeaderKey(authKeys) => <CredsInfoField authKeys connectorAccountFields connectorInfo />
     | BodyKey(bodyKey) => <CredsInfoField authKeys=bodyKey connectorAccountFields connectorInfo />

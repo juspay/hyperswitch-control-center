@@ -50,7 +50,7 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadV2>) => {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||

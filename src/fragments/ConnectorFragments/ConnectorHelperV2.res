@@ -207,7 +207,7 @@ module PreviewCreds = {
   @react.component
   let make = (
     ~connectorAccountFields,
-    ~connectorInfo: ConnectorTypes.connectorPayloadV2,
+    ~connectorInfo: ConnectorTypes.connectorPayloadCommonType,
     ~customContainerStyle=?,
     ~customElementStyle=?,
   ) => {
@@ -256,7 +256,7 @@ let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonConnectorType
 
 module ProcessorStatus = {
   @react.component
-  let make = (~connectorInfo: ConnectorTypes.connectorPayloadV2) => {
+  let make = (~connectorInfo: ConnectorTypes.connectorPayloadCommonType) => {
     let form = ReactFinalForm.useForm()
     let updateConnectorStatus = (isSelected: bool) => {
       form.change("disabled", !isSelected->Identity.genericTypeToJson)

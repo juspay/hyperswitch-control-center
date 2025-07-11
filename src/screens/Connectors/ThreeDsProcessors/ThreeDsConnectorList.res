@@ -6,7 +6,12 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
+  let (
+    filteredConnectorData: array<
+      RescriptCore.Nullable.t<ConnectorTypes.connectorPayloadCommonType>,
+    >,
+    setFilteredConnectorData,
+  ) = React.useState(_ => [])
 
   let connectorList = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV1,
@@ -17,11 +22,11 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(obj.id, searchText) ||
           isContainingStringLowercase(obj.connector_label, searchText)
         | None => false
         }

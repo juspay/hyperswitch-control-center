@@ -49,11 +49,11 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(obj.id, searchText) ||
           isContainingStringLowercase(obj.connector_label, searchText)
         | None => false
         }
@@ -119,6 +119,7 @@ let make = () => {
             feedbackVia="connected_a_connector"
           />
         </RenderIf>
+        // todo:  make this common for v1 and v2
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"

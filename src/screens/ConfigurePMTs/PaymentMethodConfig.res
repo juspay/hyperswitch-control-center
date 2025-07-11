@@ -104,7 +104,7 @@ let make = (
       let data =
         connectorList
         ->Array.filter(item =>
-          item.merchant_connector_id === paymentMethodConfig.merchant_connector_id
+          item.id === paymentMethodConfig.merchant_connector_id
         )
         ->getValueFromArray(
           0,

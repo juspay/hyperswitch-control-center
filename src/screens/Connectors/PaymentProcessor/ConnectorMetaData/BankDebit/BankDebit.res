@@ -94,7 +94,7 @@ let make = (
       item.connector_name == connector->ConnectorUtils.getConnectorNameString
     })
     switch connectorData {
-    | Some(connectorData) => connectorData.merchant_connector_id
+    | Some(connectorData) => connectorData.id
     | None => ""
     }
   }

@@ -1,11 +1,11 @@
 module PMT = {
   @react.component
   let make = (
-    ~pmtData: ConnectorTypes.paymentMethodConfigTypeV2,
+    ~pmtData: ConnectorTypes.paymentMethodConfigTypeCommon,
     ~pm,
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
     ~connector,
-    ~formValues: ConnectorTypes.connectorPayloadV2,
+    ~formValues: ConnectorTypes.connectorPayloadCommonType,
   ) => {
     open ConnectorPaymentMethodV2Utils
     let pmInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input

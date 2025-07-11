@@ -460,8 +460,8 @@ module ClickToPaySection = {
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
     let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
       {
-        label: `${item.connector_label} - ${item.merchant_connector_id}`,
-        value: item.merchant_connector_id,
+        label: `${item.connector_label} - ${item.id}`,
+        value: item.id,
       }
     })
 

@@ -1,5 +1,5 @@
 @react.component
-let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetails) => {
+let make = (~connectorInfo: ConnectorTypes.connectorPayloadCommonType, ~getConnectorDetails) => {
   open ConnectorUtils
   open APIUtils
   open LogicUtils
@@ -41,7 +41,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         JSON.Encode.null
       }
     }
-  }, [connectorInfo.merchant_connector_id])
+  }, [connectorInfo.id])
   let {
     connectorAccountFields,
     connectorMetaDataFields,
@@ -95,7 +95,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       let url = getURL(
         ~entityName=V1(CONNECTOR),
         ~methodType=Post,
-        ~id=Some(connectorInfo.merchant_connector_id),
+        ~id=Some(connectorInfo.id),
       )
       let _ = await updateAPIHook(url, values, Post)
       switch getConnectorDetails {
