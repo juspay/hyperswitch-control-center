@@ -117,12 +117,14 @@ let useGetURL = () => {
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
+    ~hyperswitchReconType: hyperswitchReconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
+    let reconBaseURL = `hyperswitch-recon-engine`
 
     let endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -838,16 +840,83 @@ let useGetURL = () => {
           | _ => ""
           }
         }
-      /* V1 RECON */
-      | RECON_FILE_UPLOAD =>
-        switch methodType {
-        | Post =>
-          switch id {
-          | Some(accountid) => `hyperswitch-recon-engine/accounts/${accountid}/upload`
-          | None => ``
+
+      | HYPERSWITCH_RECON =>
+        switch hyperswitchReconType {
+        | #FILE_UPLOAD =>
+          switch methodType {
+          | Post =>
+            switch id {
+            | Some(accountid) => `${reconBaseURL}/accounts/${accountid}/upload`
+            | None => ``
+            }
+          | _ => ""
           }
-        | _ => ""
+        | #ACCOUNTS_LIST =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}`
+            | None => `${reconBaseURL}/accounts`
+            }
+          | _ => ""
+          }
+        | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/entries`
+            | None => `${reconBaseURL}/entries`
+            }
+          | _ => ""
+          }
+        | #PROCESSED_ENTRIES_LIST_WITH_TRANSACTION =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/entries`
+            | None => `${reconBaseURL}/entries`
+            }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRIES_LIST_WITH_ACCOUNT =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/staging_entries`
+            | None => `${reconBaseURL}/staging_entries`
+            }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRIES_LIST_WITH_TRANSACTION =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/staging_entries`
+            | None => `${reconBaseURL}/staging_entries`
+            }
+          | _ => ""
+          }
+        | #TRANSACTIONS_LIST =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
+            | None => `${reconBaseURL}/transactions`
+            }
+          | _ => ""
+          }
+        | #NONE => ""
         }
+      // | RECON_TRANSACTIONS_LIST =>
+      //   switch methodType {
+      //   | Get =>
+      //     switch id {
+      //     | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
+      //     | None => `${reconBaseURL}/transactions`
+      //     }
+      //   | _ => ""
+      //   }
       /* INTELLIGENT ROUTING */
       | GET_REVIEW_FIELDS => `dynamic-routing/simulate/baseline-review-fields`
       | SIMULATE_INTELLIGENT_ROUTING =>

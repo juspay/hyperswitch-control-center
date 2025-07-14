@@ -2,6 +2,7 @@
 let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
+  open APIUtils
 
   let (filterDataJson, _setFilterDataJson) = React.useState(_ => None)
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -18,6 +19,8 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
 
   let topFilterUi = {
     let (initialFilters, popupFilterFields, key) = switch filterDataJson {
@@ -65,10 +68,15 @@ let make = () => {
   }, ~wait=200)
 
   let getTransactionsList = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = SampleTransactions.data
-      let data = response->getDictFromJsonObject->getArrayFromDict("transactions", [])
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSACTIONS_LIST,
+      )
+      let res = await fetchDetails(url)
+      let data = res->getDictFromJsonObject->getArrayFromDict("transactions", [])
       let transactionsList = data->getArrayOfTransactionsListPayloadType
       setConfiguredReports(_ => transactionsList)
       setFilteredReports(_ => transactionsList->Array.map(Nullable.make))
@@ -87,7 +95,9 @@ let make = () => {
     <div className="flex flex-row justify-between items-center gap-4">
       <div className="flex-shrink-0">
         <PageUtils.PageHeading
-          title="Transactions" subTitle="View your transactions and their details"
+          title="Transactions"
+          subTitle="View your transactions and their details"
+          customHeadingStyle="!py-0"
         />
       </div>
       <div className="flex flex-row items-center gap-4">

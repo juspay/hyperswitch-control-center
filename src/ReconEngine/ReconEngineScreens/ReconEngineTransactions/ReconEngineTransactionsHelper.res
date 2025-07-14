@@ -122,6 +122,10 @@ module AuditTrail = {
     open AuditTrailStepIndicatorTypes
     open ReconEngineTransactionsUtils
     open LogicUtils
+    open APIUtils
+
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
 
     let (showModal, setShowModal) = React.useState(_ => false)
     let (openedTransaction, setOpenedTransaction) = React.useState(_ =>
@@ -136,12 +140,17 @@ module AuditTrail = {
       }
     }, [allTransactionDetails])
 
-    let getTransactionDetails = async _ => {
+    let getEntriesDetails = async _ => {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let response = SampleTransactions.data
-        let data = response->getDictFromJsonObject->getArrayFromDict("entries", [])
-        let entriesList = data->getArrayOfEntriesListPayloadType
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST_WITH_TRANSACTION,
+          ~id=Some(openedTransaction.transaction_id),
+        )
+        let res = await fetchDetails(url)
+        let entriesList = res->getArrayDataFromJson(getAllEntryPayload)
         let entriesDataArray = openedTransaction.entry_id->Array.map(entryId => {
           entriesList
           ->Array.find(entry => entry.entry_id == entryId)
@@ -159,23 +168,23 @@ module AuditTrail = {
         id: transaction.version->Int.toString,
         customComponent: Some(
           <TransactionDetailInfo
-            currentTransactionDetails=transaction
-            detailsFields=[TransactionId, Status, CreditAccount, DebitAccount, CreatedAt]
+            currentTransactionDetails=transaction detailsFields=[TransactionId, Status]
           />,
         ),
         onClick: _ => {
           setOpenedTransaction(_ => transaction)
           setShowModal(_ => true)
-          getTransactionDetails()->ignore
         },
       }
       customComponent
     })
 
     React.useEffect(() => {
-      getTransactionDetails()->ignore
+      if showModal {
+        getEntriesDetails()->ignore
+      }
       None
-    }, [openedTransaction])
+    }, [showModal])
 
     let modalHeading = {
       <div className="flex justify-between border-b">

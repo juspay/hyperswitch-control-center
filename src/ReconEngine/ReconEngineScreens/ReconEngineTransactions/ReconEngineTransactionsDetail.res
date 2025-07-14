@@ -3,6 +3,10 @@ let make = (~id) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsHelper
+  open APIUtils
+
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentTransactionDetails, setCurrentTransactionDetails) = React.useState(_ =>
@@ -13,10 +17,15 @@ let make = (~id) => {
   ])
 
   let getTransactionDetails = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = SampleTransactions.data
-      let data = response->getDictFromJsonObject->getArrayFromDict("transactions", [])
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSACTIONS_LIST,
+      )
+      let res = await fetchDetails(url)
+      let data = res->getDictFromJsonObject->getArrayFromDict("transactions", [])
       let transactionsList = data->getArrayOfTransactionsListPayloadType
       let selectedCurrentTransactionArray = transactionsList->Array.filter(item => item.id == id)
       let selectedCurrentTransactionData =
@@ -60,7 +69,7 @@ let make = (~id) => {
       <div className="flex flex-col gap-8">
         <TransactionDetailInfo
           currentTransactionDetails={currentTransactionDetails}
-          detailsFields=[TransactionId, Status, CreditAccount, DebitAccount, CreatedAt]
+          detailsFields=[TransactionId, Status]
         />
         <AuditTrail allTransactionDetails={allTransactionDetails} />
       </div>

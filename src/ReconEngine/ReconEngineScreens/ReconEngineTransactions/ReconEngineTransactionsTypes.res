@@ -2,10 +2,6 @@ type transactionPayload = {
   id: string,
   transaction_id: string,
   entry_id: array<string>,
-  credit_account: string,
-  debit_account: string,
-  amount: float,
-  currency: string,
   transaction_status: string,
   discarded_status: string,
   variance: int,
@@ -29,14 +25,7 @@ type entryPayload = {
 type transactionColType =
   | Id
   | TransactionId
-  | CreditAccount
-  | DebitAccount
-  | Amount
-  | Currency
   | Status
-  | DiscardedStatus
-  | Variance
-  | CreatedAt
 
 type entryColType =
   | EntryId

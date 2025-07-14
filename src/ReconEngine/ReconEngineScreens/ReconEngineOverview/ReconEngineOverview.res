@@ -37,7 +37,7 @@ module AccountCard = {
             {"Posted Balance"->React.string}
           </div>
           <div className={`${body.md.medium} text-nd_gray-900`}>
-            {account.posted_balance->React.string}
+            {account.posted_balance->Float.toString->React.string}
           </div>
         </div>
         <div>
@@ -45,7 +45,7 @@ module AccountCard = {
             {"Pending Balance"->React.string}
           </div>
           <div className={`${body.md.medium} text-nd_gray-900`}>
-            {account.pending_balance->React.string}
+            {account.pending_balance->Float.toString->React.string}
           </div>
         </div>
       </div>
@@ -56,14 +56,24 @@ module AccountCard = {
 @react.component
 let make = () => {
   open ReconEngineOverviewUtils
+  open APIUtils
+
   let (accountData, setAccountData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let getAccountData = async _ => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  let getAccountsData = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let response =
-        SampleOverviewData.account->LogicUtils.getArrayDataFromJson(accountItemToObjMapper)
-      setAccountData(_ => response)
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#ACCOUNTS_LIST,
+      )
+      let res = await fetchDetails(url)
+      let accountData = res->LogicUtils.getArrayDataFromJson(accountItemToObjMapper)
+      setAccountData(_ => accountData)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -71,7 +81,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getAccountData()->ignore
+    getAccountsData()->ignore
     None
   }, [])
   <PageLoaderWrapper screenState>
