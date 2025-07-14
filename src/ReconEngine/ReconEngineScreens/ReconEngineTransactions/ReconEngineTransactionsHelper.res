@@ -47,7 +47,7 @@ module TransactionDetails = {
     ~getCell,
     ~detailsFields,
     ~justifyClassName="justify-start",
-    ~widthClass="w-1/4",
+    ~widthClass="w-1/5",
     ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
     ~isButtonEnabled=false,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
@@ -70,34 +70,12 @@ module TransactionDetails = {
 
 module TransactionDetailInfo = {
   @react.component
-  let make = (~currentTransactionDetails) => {
+  let make = (~currentTransactionDetails, ~detailsFields) => {
     open TransactionsTableEntity
 
     <div className="w-full border border-nd_gray-150 rounded-lg p-2">
       <TransactionDetails
-        data=currentTransactionDetails
-        getHeading
-        getCell
-        detailsFields=[TransactionId, Status, Amount, Currency, Variance, CreatedAt]
-        isButtonEnabled=true
-      />
-    </div>
-  }
-}
-
-module TransactionAuditTrailInfo = {
-  @react.component
-  let make = (~currentTransactionDetails) => {
-    open TransactionsTableEntity
-
-    <div className="w-full border border-nd_gray-150 rounded-lg p-2">
-      <TransactionDetails
-        data=currentTransactionDetails
-        getHeading
-        getCell
-        detailsFields=[TransactionId, Status, CreditAccount, DebitAccount, CreatedAt]
-        isButtonEnabled=true
-        widthClass="w-1/5"
+        data=currentTransactionDetails getHeading getCell detailsFields isButtonEnabled=true
       />
     </div>
   }
@@ -179,7 +157,12 @@ module AuditTrail = {
     let sections = allTransactionDetails->Array.map(transaction => {
       let customComponent = {
         id: transaction.version->Int.toString,
-        customComponent: Some(<TransactionAuditTrailInfo currentTransactionDetails=transaction />),
+        customComponent: Some(
+          <TransactionDetailInfo
+            currentTransactionDetails=transaction
+            detailsFields=[TransactionId, Status, CreditAccount, DebitAccount, CreatedAt]
+          />,
+        ),
         onClick: _ => {
           setOpenedTransaction(_ => transaction)
           setShowModal(_ => true)
