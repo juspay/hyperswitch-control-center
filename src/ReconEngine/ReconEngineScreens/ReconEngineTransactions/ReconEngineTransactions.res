@@ -54,7 +54,7 @@ let make = () => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase(obj.status, searchText)
+          isContainingStringLowercase(obj.transaction_status, searchText)
         | None => false
         }
       })
@@ -68,7 +68,7 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let response = SampleTransactions.data
-      let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
+      let data = response->getDictFromJsonObject->getArrayFromDict("transactions", [])
       let transactionsList = data->getArrayOfTransactionsListPayloadType
       setConfiguredReports(_ => transactionsList)
       setFilteredReports(_ => transactionsList->Array.map(Nullable.make))
@@ -104,7 +104,6 @@ let make = () => {
         </div>
       </div>
     </div>
-    <ReconEngineTransactionsHelper.StackedBarGraph />
     <RenderIf condition={configuredTransactions->Array.length > 0}>
       <LoadedTableWithCustomColumns
         title="All Transactions"
