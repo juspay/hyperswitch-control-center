@@ -1,3 +1,4 @@
+// TODO: This sample data will be removed
 let rules = {
   [
     {
@@ -11,7 +12,6 @@ let rules = {
         {
           "id": "src_OBcNm1mG4e",
           "account_id": "account_V3AuIg3UwC",
-          //account name
           "trigger": {
             "trigger_version": "v1",
             "field": "metadata.card_type",
