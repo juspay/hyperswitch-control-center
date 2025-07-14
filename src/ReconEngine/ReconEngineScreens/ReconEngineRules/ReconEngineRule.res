@@ -1,5 +1,4 @@
 open ReconEngineRulesEntity
-open ReconEngineRulesUtils
 @react.component
 let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -9,9 +8,9 @@ let make = () => {
 
   React.useEffect(() => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let response = SampleData.rules
-      let rulesArray = response->JSON.Decode.array->Option.getOr([])
-      let data = rulesArray->getArrayOfRulesPayloadType
+      let data = response->LogicUtils.getArrayDataFromJson(ruleItemToObjMapper)
       setRulesData(_ => data)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

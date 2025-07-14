@@ -13,9 +13,3 @@ let ruleItemToObjMapper = dict => {
     targets: [],
   }
 }
-
-let getArrayOfRulesPayloadType = json => {
-  json->Array.map(reportJson => {
-    reportJson->getDictFromJsonObject->ReconEngineRulesEntity.ruleItemToObjMapper
-  })
-}
