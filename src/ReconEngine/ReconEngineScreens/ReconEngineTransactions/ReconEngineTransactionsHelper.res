@@ -62,7 +62,7 @@ module DisplayKeyValueParams = {
             className={`flex flex-row text-fs-11  ${isHorizontal
                 ? "flex justify-start"
                 : ""} text-nd_gray-500 text-opacity-50 dark:text-nd_gray-500 dark:text-opacity-50 `}>
-            <div className={overiddingHeadingStyles}>
+            <div className={`text-nd_gray-500 ${body.md.medium}`}>
               {React.string(showTitle ? heading.title : " x")}
             </div>
             <RenderIf condition={description->LogicUtils.isNonEmptyString}>
@@ -116,7 +116,6 @@ module TransactionDetails = {
               value={getCell(data, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-nd_gray-500 text-sm font-medium"
               isHorizontal
             />
           </div>
@@ -326,7 +325,7 @@ module AuditTrail = {
     let modalHeading = {
       <div className="flex justify-between border-b">
         <div className="flex gap-4 items-center m-6">
-          <p className="font-semibold text-nd_gray-600 text-lg leading-6">
+          <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
             {"More Details"->React.string}
           </p>
         </div>
