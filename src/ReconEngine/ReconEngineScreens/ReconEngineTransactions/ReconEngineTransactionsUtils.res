@@ -11,20 +11,45 @@ let getHeadersForCSV = () => {
 
 let getAllTransactionPayload = dict => {
   {
+    id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
+    entry_id: dict->getStrArray("entry_id"),
     credit_account: dict->getString("credit_account", ""),
     debit_account: dict->getString("debit_account", ""),
-    amount: dict->getInt("amount", 0),
+    amount: dict->getFloat("amount", 0.0),
     currency: dict->getString("currency", ""),
+    transaction_status: dict->getString("transaction_status", ""),
     variance: dict->getInt("variance", 0),
-    status: dict->getString("status", ""),
+    discarded_status: dict->getString("discarded_status", ""),
+    version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
   }
 }
 
 let getArrayOfTransactionsListPayloadType = json => {
-  json->Array.map(reportJson => {
-    reportJson->getDictFromJsonObject->getAllTransactionPayload
+  json->Array.map(transactionJson => {
+    transactionJson->getDictFromJsonObject->getAllTransactionPayload
+  })
+}
+
+let getAllEntryPayload = dict => {
+  {
+    entry_id: dict->getString("entry_id", ""),
+    entry_type: dict->getString("entry_type", ""),
+    transaction_id: dict->getString("transaction_id", ""),
+    amount: dict->getFloat("amount", 0.0),
+    currency: dict->getString("currency", ""),
+    status: dict->getString("status", ""),
+    discarded_status: dict->getString("discarded_status", ""),
+    metadata: dict->getJsonObjectFromDict("metadata"),
+    created_at: dict->getString("created_at", ""),
+    effective_at: dict->getString("effective_at", ""),
+  }
+}
+
+let getArrayOfEntriesListPayloadType = json => {
+  json->Array.map(entriesJson => {
+    entriesJson->getDictFromJsonObject->getAllEntryPayload
   })
 }
 
@@ -32,16 +57,25 @@ let getTransactionsList: JSON.t => array<transactionPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, getAllTransactionPayload)
 }
 
+let getEntriesList: JSON.t => array<entryPayload> = json => {
+  LogicUtils.getArrayDataFromJson(json, getAllEntryPayload)
+}
+
+let sortByVersion = (
+  c1: ReconEngineTransactionsTypes.transactionPayload,
+  c2: ReconEngineTransactionsTypes.transactionPayload,
+) => {
+  compareLogic(c1.version, c2.version)
+}
+
 let (startTimeFilterKey, endTimeFilterKey) = ("startTime", "endTime")
 
-let initialFixedFilterFields = (~events=?, ~sampleDataIsEnabled=false) => {
+let initialFixedFilterFields = (~events=?) => {
   let events = switch events {
   | Some(fn) => fn
   | _ => () => ()
   }
-  let customButtonStyle = sampleDataIsEnabled
-    ? "!bg-nd_gray-50 !text-nd_gray-400 !rounded-lg !bg-none"
-    : "border !rounded-lg !bg-none"
+
   let newArr = [
     (
       {
@@ -70,9 +104,8 @@ let initialFixedFilterFields = (~events=?, ~sampleDataIsEnabled=false) => {
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
-            ~disable=sampleDataIsEnabled,
+            ~disable=false,
             ~events,
-            ~customButtonStyle,
           ),
           ~inputFields=[],
           ~isRequired=false,
