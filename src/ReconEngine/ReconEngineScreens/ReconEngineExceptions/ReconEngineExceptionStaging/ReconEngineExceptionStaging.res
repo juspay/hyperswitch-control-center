@@ -1,13 +1,11 @@
 @react.component
 let make = () => {
   open LogicUtils
-
   let (stagingData, setStagingData) = React.useState(_ => [])
   let (filteredStagingData, setFilteredStagingData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {

@@ -2,7 +2,6 @@
 let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
-
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
