@@ -144,10 +144,10 @@ let clearLocalStorage = () => {
   let customTableColumns = HyperSwitchEntryUtils.getCustomTableColumnsfromStore()->Option.getOr("")
 
   LocalStorage.clear()
-  HyperSwitchEntryUtils.setEmailToStore(emaill)
+  HyperSwitchEntryUtils.setEmailToStore(emaill) // Preserve email in login page
   HyperSwitchEntryUtils.setThemeIdtoStore(themeId) // Preserve theme id in url and login page
   HyperSwitchEntryUtils.setDomaintoStore(domain) // Preserve domain in url and login page
-  HyperSwitchEntryUtils.setCustomTableHeaders(customTableColumns)
+  HyperSwitchEntryUtils.setCustomTableHeaders(customTableColumns) // Preserve tableColumnsOrder in login page
 }
 module ToggleLiveTestMode = {
   open GlobalVars
