@@ -286,9 +286,10 @@ module ChooseColumns = {
     ~mandatoryOptions=[],
     ~isDraggable=false,
     ~title="",
+    ~setValueInLocalStorage: (array<'a>, string) => unit=(_, _) => (),
+    ~retrieveValueFromLocalStorage: string => Belt.Array.t<string>=_ => [],
   ) => {
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
-    let variant = title->CustomizableTableColumnsUtils.textToVariantMapper
 
     let {getHeading, allColumns} = entity
     let getHeadingCol = text => {
@@ -303,10 +304,7 @@ module ChooseColumns = {
       }
     }
 
-    let colTypeArray =
-      CustomizableTableColumnsUtils.parseColumnsFromLocalStorage(title)->Belt.Array.keepMap(
-        getHeadingCol,
-      )
+    let colTypeArray = retrieveValueFromLocalStorage(title)->Belt.Array.keepMap(getHeadingCol)
 
     let setColumns = React.useCallback(fn => {
       setVisibleColumns(fn)
@@ -334,7 +332,8 @@ module ChooseColumns = {
         orderdColumnBasedOnDefaultCol
         showSerialNumber
         isDraggable
-        varianType=variant
+        title
+        setValueInLocalStorage
       />
     } else {
       React.null
@@ -357,6 +356,8 @@ module ChooseColumnsWrapper = {
     ~setShowDropDown=_ => (),
     ~isDraggable=false,
     ~title="",
+    ~setValueInLocalStorage: (array<'a>, string) => unit=(_, _) => (),
+    ~retrieveValueFromLocalStorage: string => Belt.Array.t<string>=_ => [],
   ) => {
     switch optionalActiveColumnsAtom {
     | Some(activeColumnsAtom) =>
@@ -373,6 +374,8 @@ module ChooseColumnsWrapper = {
           showSerialNumber
           isDraggable
           title
+          setValueInLocalStorage
+          retrieveValueFromLocalStorage
         />
       </AddDataAttributes>
     | None => React.null

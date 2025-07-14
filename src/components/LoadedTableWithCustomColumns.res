@@ -68,6 +68,8 @@ let make = (
   ~hideCustomisableColumnButton=false,
   ~customizeColumnButtonIcon="customise-columns",
   ~isDraggable=false,
+  ~setValueInLocalStorage: (array<'a>, string) => unit=(_, _) => (),
+  ~retrieveValueFromLocalStorage: string => Belt.Array.t<string>=_ => [],
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -85,6 +87,8 @@ let make = (
       sortingBasedOnDisabled
       showSerialNumber={showSerialNumberInCustomizeColumns}
       isDraggable
+      setValueInLocalStorage
+      retrieveValueFromLocalStorage
     />
 
   let filt =

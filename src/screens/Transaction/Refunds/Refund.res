@@ -143,6 +143,8 @@ let make = () => {
           sortingBasedOnDisabled=false
           showAutoScroll=true
           isDraggable=true
+          setValueInLocalStorage=TransactionUtils.setColumnValueInLocalStorage
+          retrieveValueFromLocalStorage=TransactionUtils.retrieveColumnValueFromLocalStorage
         />
       </PageLoaderWrapper>
     </div>

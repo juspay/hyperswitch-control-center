@@ -12,7 +12,8 @@ let make = (
   ~sortingBasedOnDisabled=true,
   ~showSerialNumber=true,
   ~isDraggable=false,
-  ~varianType=CustomizableTableColumnsUtils.Unknown,
+  ~title,
+  ~setValueInLocalStorage: (array<'a>, string) => unit=(_, _) => (),
 ) => {
   let headingWhenDraggable = {
     let notInVisible = allHeadersArray->Array.reduce([], (acc, item) => {
@@ -65,11 +66,9 @@ let make = (
     let headers = orderdColumnBasedOnDefaultCol
       ? headers->Array.copy->Array.toSorted(sortByOrderOderedArr)
       : headers
-    let valForLocalStorage = CustomizableTableColumnsUtils.createValForLocalStorage(
-      values,
-      varianType,
-    )
-    HyperSwitchEntryUtils.setCustomTableHeaders(valForLocalStorage)
+
+    setValueInLocalStorage(values, title)
+
     setColumns(_ => headers)
   }
 

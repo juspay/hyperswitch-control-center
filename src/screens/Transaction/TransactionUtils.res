@@ -18,7 +18,8 @@ let textToVariantMapper = text => {
   }
 }
 
-let createValForLocalStorage = (val, varianType: operationSection) => {
+let setColumnValueInLocalStorage = (val, title) => {
+  let varianType = title->textToVariantMapper
   let optionalValueFromLocalStorage = HyperSwitchEntryUtils.getCustomTableColumnsfromStore()
   let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
 
@@ -29,12 +30,14 @@ let createValForLocalStorage = (val, varianType: operationSection) => {
 
   valueDict->Dict.set((varianType :> string), val->Array.toString->JSON.Encode.string)
 
-  valueDict
-  ->JSON.Encode.object
-  ->JSON.stringify
+  let finalValue =
+    valueDict
+    ->JSON.Encode.object
+    ->JSON.stringify
+  HyperSwitchEntryUtils.setCustomTableHeaders(finalValue)
 }
 
-let parseColumnsFromLocalStorage = title => {
+let retrieveColumnValueFromLocalStorage = title => {
   let optionalValueFromLocalStorage = HyperSwitchEntryUtils.getCustomTableColumnsfromStore()
   let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
 

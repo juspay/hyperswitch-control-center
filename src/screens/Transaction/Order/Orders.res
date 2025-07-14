@@ -191,6 +191,8 @@ let make = (~previewOnly=false) => {
           remoteSortEnabled=true
           showAutoScroll=true
           isDraggable=true
+          setValueInLocalStorage=TransactionUtils.setColumnValueInLocalStorage
+          retrieveValueFromLocalStorage=TransactionUtils.retrieveColumnValueFromLocalStorage
         />
       </PageLoaderWrapper>
     </div>
