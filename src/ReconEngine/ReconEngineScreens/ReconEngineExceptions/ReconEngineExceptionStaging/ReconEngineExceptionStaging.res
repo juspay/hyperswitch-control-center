@@ -47,34 +47,32 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-4">
       <RenderIf condition={stagingData->Array.length > 0}>
-        <div>
-          <LoadedTable
-            title="Staging Entries"
-            hideTitle=true
-            actualData={filteredStagingData}
-            entity={ReconEngineAccountEntity.processingTableEntity}
-            resultsPerPage=10
-            totalResults={filteredStagingData->Array.length}
-            offset
-            setOffset
-            currrentFetchCount={stagingData->Array.length}
-            tableheadingClass="h-12"
-            tableHeadingTextClass="!font-normal"
-            nonFrozenTableParentClass="!rounded-lg"
-            loadedTableParentClass="flex flex-col"
-            enableEqualWidthCol=false
-            showAutoScroll=true
-            filters={<TableSearchFilter
-              data={stagingData->Array.map(Nullable.make)}
-              filterLogic
-              placeholder="Search Staging Entry ID or Status"
-              customSearchBarWrapperWidth="w-full lg:w-1/2 mt-8 mb-2"
-              customInputBoxWidth="w-full rounded-xl "
-              searchVal=searchText
-              setSearchVal=setSearchText
-            />}
-          />
-        </div>
+        <LoadedTable
+          title="Staging Entries"
+          hideTitle=true
+          actualData={filteredStagingData}
+          entity={ReconEngineAccountEntity.processingTableEntity}
+          resultsPerPage=10
+          totalResults={filteredStagingData->Array.length}
+          offset
+          setOffset
+          currrentFetchCount={stagingData->Array.length}
+          tableheadingClass="h-12"
+          tableHeadingTextClass="!font-normal"
+          nonFrozenTableParentClass="!rounded-lg"
+          loadedTableParentClass="flex flex-col"
+          enableEqualWidthCol=false
+          showAutoScroll=true
+          filters={<TableSearchFilter
+            data={stagingData->Array.map(Nullable.make)}
+            filterLogic
+            placeholder="Search Staging Entry ID or Status"
+            customSearchBarWrapperWidth="w-full lg:w-1/2 mt-8 mb-2"
+            customInputBoxWidth="w-full rounded-xl "
+            searchVal=searchText
+            setSearchVal=setSearchText
+          />}
+        />
       </RenderIf>
     </div>
   </PageLoaderWrapper>
