@@ -861,12 +861,21 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTIONS_LIST =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
+            | None => `${reconBaseURL}/transactions`
+            }
+          | _ => ""
+          }
         | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
           | Get =>
             switch id {
             | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/entries`
-            | None => `${reconBaseURL}/entries`
+            | None => ""
             }
           | _ => ""
           }
@@ -879,44 +888,25 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #PROCESSING_ENTRIES_LIST =>
+          switch methodType {
+          | Get => `${reconBaseURL}/staging_entries`
+          | _ => ""
+          }
+        //TODO: Remove once depercated
         | #PROCESSING_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
           | Get =>
             switch id {
             | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/staging_entries`
-            | None => `${reconBaseURL}/staging_entries`
+            | None => ""
             }
           | _ => ""
           }
-        | #PROCESSING_ENTRIES_LIST_WITH_TRANSACTION =>
-          switch methodType {
-          | Get =>
-            switch id {
-            | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/staging_entries`
-            | None => `${reconBaseURL}/staging_entries`
-            }
-          | _ => ""
-          }
-        | #TRANSACTIONS_LIST =>
-          switch methodType {
-          | Get =>
-            switch id {
-            | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
-            | None => `${reconBaseURL}/transactions`
-            }
-          | _ => ""
-          }
+
         | #NONE => ""
         }
-      // | RECON_TRANSACTIONS_LIST =>
-      //   switch methodType {
-      //   | Get =>
-      //     switch id {
-      //     | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
-      //     | None => `${reconBaseURL}/transactions`
-      //     }
-      //   | _ => ""
-      //   }
+
       /* INTELLIGENT ROUTING */
       | GET_REVIEW_FIELDS => `dynamic-routing/simulate/baseline-review-fields`
       | SIMULATE_INTELLIGENT_ROUTING =>
