@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     [
@@ -32,7 +32,6 @@ let make = () => {
             buttonType=Primary
             buttonSize=Large
             onClick={_ => {
-              let mixpanelEvent = MixpanelHook.useSendEvent()
               mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
             }}
           />
