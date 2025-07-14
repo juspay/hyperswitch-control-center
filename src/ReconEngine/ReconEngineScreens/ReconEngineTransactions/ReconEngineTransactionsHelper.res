@@ -1,67 +1,20 @@
 open Typography
 
-module StackedBarGraph = {
-  @react.component
-  let make = () => {
-    let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1600px)")
-
-    <div
-      className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
-      <p className={`text-nd_gray-400 ${body.sm.medium}`}> {"Total Orders"->React.string} </p>
-      <p className={`text-nd_gray-800 ${heading.lg.semibold}`}> {"2000"->React.string} </p>
-      <div className="w-full">
-        <StackedBarGraph
-          options={StackedBarGraphUtils.getStackedBarGraphOptions(
-            ReconEngineTransactionsUtils.getSampleStackedBarGraphData(),
-            ~yMax=2000,
-            ~labelItemDistance={isMiniLaptopView ? 45 : 290},
-          )}
-        />
-      </div>
-    </div>
-  }
-}
-
 module DisplayKeyValueParams = {
   @react.component
   let make = (
     ~showTitle: bool=true,
     ~heading: Table.header,
     ~value: Table.cell,
-    ~isInHeader=false,
-    ~isHorizontal=false,
-    ~customMoneyStyle="",
-    ~labelMargin="",
-    ~customDateStyle="",
     ~wordBreak=true,
-    ~overiddingHeadingStyles="",
-    ~textColor="font-medium text-nd_gray-600",
   ) => {
-    let marginClass = if labelMargin->LogicUtils.isEmptyString {
-      "mt-4 py-0"
-    } else {
-      labelMargin
-    }
-
-    let fontClass = if isInHeader {
-      "text-fs-20"
-    } else {
-      "text-fs-13"
-    }
-
-    let textColor =
-      textColor->LogicUtils.isEmptyString ? "text-nd_gray-600 dark:text-white" : textColor
-
     let description = heading.description->Option.getOr("")
 
     {
       <AddDataAttributes attributes=[("data-label", heading.title)]>
-        <div
-          className={`flex ${isHorizontal ? "flex-row justify-between" : "flex-col gap-2"} py-4`}>
+        <div className="flex flex-col gap-2 py-4">
           <div
-            className={`flex flex-row text-fs-11  ${isHorizontal
-                ? "flex justify-start"
-                : ""} text-nd_gray-500 text-opacity-50 dark:text-nd_gray-500 dark:text-opacity-50 `}>
+            className="flex flex-row text-fs-11 text-nd_gray-500 text-opacity-50 dark:text-nd_gray-500 dark:text-opacity-50">
             <div className={`text-nd_gray-500 ${body.md.medium}`}>
               {React.string(showTitle ? heading.title : " x")}
             </div>
@@ -71,17 +24,13 @@ module DisplayKeyValueParams = {
               </div>
             </RenderIf>
           </div>
-          <div
-            className={`${isHorizontal
-                ? "flex justify-end"
-                : ""} ${fontClass} font-semibold text-left ${textColor}`}>
+          <div className={`text-left text-nd_gray-600 ${body.md.semibold}`}>
             <Table.TableCell
               cell=value
               textAlign=Table.Left
               fontBold=true
-              customMoneyStyle
-              labelMargin=marginClass
-              customDateStyle
+              customMoneyStyle="!font-normal !text-sm"
+              labelMargin="!py-0 mt-2"
             />
           </div>
         </div>
@@ -103,7 +52,6 @@ module TransactionDetails = {
     ~isButtonEnabled=false,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~customFlex="flex-wrap",
-    ~isHorizontal=false,
   ) => {
     <FormRenderer.DesktopRow>
       <div
@@ -111,13 +59,7 @@ module TransactionDetails = {
         {detailsFields
         ->Array.mapWithIndex((colType, i) => {
           <div className=widthClass key={i->Int.toString}>
-            <DisplayKeyValueParams
-              heading={getHeading(colType)}
-              value={getCell(data, colType)}
-              customMoneyStyle="!font-normal !text-sm"
-              labelMargin="!py-0 mt-2"
-              isHorizontal
-            />
+            <DisplayKeyValueParams heading={getHeading(colType)} value={getCell(data, colType)} />
           </div>
         })
         ->React.array}
@@ -143,94 +85,21 @@ module TransactionDetailInfo = {
   }
 }
 
-module TransactionAuditTrailDetails = {
-  @react.component
-  let make = (
-    ~data,
-    ~getHeading,
-    ~getCell,
-    ~detailsFields,
-    ~justifyClassName="justify-start",
-    ~widthClass="w-1/5",
-    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
-    ~isButtonEnabled=false,
-    ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
-    ~customFlex="flex-wrap",
-    ~isHorizontal=false,
-  ) => {
-    <FormRenderer.DesktopRow>
-      <div
-        className={`flex ${customFlex} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
-        {detailsFields
-        ->Array.mapWithIndex((colType, i) => {
-          <div className=widthClass key={i->Int.toString}>
-            <DisplayKeyValueParams
-              heading={getHeading(colType)}
-              value={getCell(data, colType)}
-              customMoneyStyle="!font-normal !text-sm"
-              labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-nd_gray-500 text-sm font-medium"
-              isHorizontal
-            />
-          </div>
-        })
-        ->React.array}
-      </div>
-    </FormRenderer.DesktopRow>
-  }
-}
-
 module TransactionAuditTrailInfo = {
   @react.component
   let make = (~currentTransactionDetails) => {
     open TransactionsTableEntity
 
     <div className="w-full border border-nd_gray-150 rounded-lg p-2">
-      <TransactionAuditTrailDetails
+      <TransactionDetails
         data=currentTransactionDetails
         getHeading
         getCell
         detailsFields=[TransactionId, Status, CreditAccount, DebitAccount, CreatedAt]
         isButtonEnabled=true
+        widthClass="w-1/5"
       />
     </div>
-  }
-}
-
-module EntryAuditTrailDetails = {
-  @react.component
-  let make = (
-    ~data,
-    ~getHeading,
-    ~getCell,
-    ~detailsFields,
-    ~justifyClassName="justify-start",
-    ~widthClass="w-1/2",
-    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
-    ~isButtonEnabled=false,
-    ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
-    ~customFlex="flex-wrap",
-    ~isHorizontal=false,
-  ) => {
-    <FormRenderer.DesktopRow>
-      <div
-        className={`flex ${customFlex} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
-        {detailsFields
-        ->Array.mapWithIndex((colType, i) => {
-          <div className=widthClass key={i->Int.toString}>
-            <DisplayKeyValueParams
-              heading={getHeading(colType)}
-              value={getCell(data, colType)}
-              customMoneyStyle="!font-normal !text-sm"
-              labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-nd_gray-500 text-sm font-medium"
-              isHorizontal
-            />
-          </div>
-        })
-        ->React.array}
-      </div>
-    </FormRenderer.DesktopRow>
   }
 }
 
@@ -241,10 +110,11 @@ module EntryAuditTrailInfo = {
 
     <div className="flex flex-col gap-4 mb-6 px-2">
       <div className="w-full border border-nd_gray-150 rounded-lg p-2">
-        <EntryAuditTrailDetails
+        <TransactionDetails
           data=entryDetails
           getHeading
           getCell
+          widthClass="w-1/2"
           detailsFields=[
             EntryId,
             EntryType,
@@ -282,9 +152,11 @@ module AuditTrail = {
     let (entriesList, setEntriesList) = React.useState(_ => [Dict.make()->getAllEntryPayload])
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-    if allTransactionDetails->Array.length > 0 {
-      allTransactionDetails->Array.sort(ReconEngineTransactionsUtils.sortByVersion)
-    }
+    React.useMemo(() => {
+      if allTransactionDetails->Array.length > 0 {
+        allTransactionDetails->Array.sort(ReconEngineTransactionsUtils.sortByVersion)
+      }
+    }, [allTransactionDetails])
 
     let getTransactionDetails = async _ => {
       try {

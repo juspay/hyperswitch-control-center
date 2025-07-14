@@ -11,7 +11,6 @@ let make = (~id) => {
   let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [
     Dict.make()->getAllTransactionPayload,
   ])
-  let defaultObject = Dict.make()->getAllTransactionPayload
 
   let getTransactionDetails = async _ => {
     try {
@@ -21,7 +20,7 @@ let make = (~id) => {
       let transactionsList = data->getArrayOfTransactionsListPayloadType
       let selectedCurrentTransactionArray = transactionsList->Array.filter(item => item.id == id)
       let selectedCurrentTransactionData =
-        selectedCurrentTransactionArray->getValueFromArray(0, defaultObject)
+        selectedCurrentTransactionArray->getValueFromArray(0, Dict.make()->getAllTransactionPayload)
       let allTransactionDetails =
         transactionsList->Array.filter(item =>
           item.transaction_id == selectedCurrentTransactionData.transaction_id

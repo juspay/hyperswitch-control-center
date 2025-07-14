@@ -104,7 +104,6 @@ let make = () => {
         </div>
       </div>
     </div>
-    <ReconEngineTransactionsHelper.StackedBarGraph />
     <RenderIf condition={configuredTransactions->Array.length > 0}>
       <LoadedTableWithCustomColumns
         title="All Transactions"
