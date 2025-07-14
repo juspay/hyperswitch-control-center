@@ -121,16 +121,16 @@ let rulesTableEntity = () => {
   )
 }
 
-let rulesMapDefaultCols = (rawData: Nullable.t<rulePayload>) => {
-  switch rawData->Nullable.toOption {
-  | Some(rule) =>
-    Dict.fromArray([
-      ("rule_id", rule.rule_id->JSON.Encode.string),
-      ("rule_name", rule.rule_name->JSON.Encode.string),
-      ("rule_description", rule.rule_description->JSON.Encode.string),
-      ("status", (rule.is_active ? "active" : "inactive")->JSON.Encode.string),
-      ("priority", rule.priority->Int.toString->JSON.Encode.string),
-    ])->JSON.Encode.object
-  | None => Dict.make()->JSON.Encode.object
-  }
-}
+let rulesMapDefaultCols = (rawData: Nullable.t<rulePayload>) =>
+  {
+    switch rawData->Nullable.toOption {
+    | Some(rule) => [
+        ("rule_id", rule.rule_id->JSON.Encode.string),
+        ("rule_name", rule.rule_name->JSON.Encode.string),
+        ("rule_description", rule.rule_description->JSON.Encode.string),
+        ("status", (rule.is_active ? "active" : "inactive")->JSON.Encode.string),
+        ("priority", rule.priority->Int.toString->JSON.Encode.string),
+      ]
+    | None => []
+    }
+  }->getJsonFromArrayOfJson
