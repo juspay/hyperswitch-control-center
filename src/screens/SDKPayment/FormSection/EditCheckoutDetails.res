@@ -33,7 +33,7 @@ module AuthorizationAndCaptureSettings = {
     }
 
     <>
-      <DesktopRow itemWrapperClass=" ">
+      <DesktopRow itemWrapperClass="mx-0">
         <FieldRenderer field=selectCaptureMethodField />
         <div className="flex justify-between mr-2">
           <FieldRenderer field={selectSetupFutureUsageField(showSetupFutureUsage)} />
@@ -46,7 +46,7 @@ module AuthorizationAndCaptureSettings = {
           />
         </div>
       </DesktopRow>
-      <DesktopRow itemWrapperClass=" ">
+      <DesktopRow itemWrapperClass="mx-0">
         <FieldRenderer field=external3DSAuthToggle />
         <div className="flex justify-between mr-2">
           <FieldRenderer field={selectAuthenticationField(sendAuthType)} labelClass="mr-4" />
