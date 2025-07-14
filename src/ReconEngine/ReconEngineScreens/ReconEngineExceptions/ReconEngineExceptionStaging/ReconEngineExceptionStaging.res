@@ -1,50 +1,12 @@
 @react.component
 let make = () => {
-  open ReconEngineOverviewUtils
   open LogicUtils
 
-  let (filterDataJson, _setFilterDataJson) = React.useState(_ => None)
-  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (stagingData, setStagingData) = React.useState(_ => [])
   let (filteredStagingData, setFilteredStagingData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (dimensions, _setDimensions) = React.useState(_ => [])
-  let tabNames = HSAnalyticsUtils.getStringListFromArrayDict(dimensions)
-  let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_exception_staging_date_filter_opened")
-  }
-
-  let topFilterUi = {
-    let (initialFilters, popupFilterFields, key) = switch filterDataJson {
-    | Some(filterData) => (
-        HSAnalyticsUtils.initialFilterFields(filterData, ~isTitle=true),
-        HSAnalyticsUtils.options(filterData),
-        "0",
-      )
-    | None => ([], [], "1")
-    }
-
-    <div className="flex flex-row">
-      <DynamicFilter
-        title="ReconEngineExceptionStagingFilters"
-        initialFilters
-        options=[]
-        popupFilterFields
-        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames
-        key
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
-    </div>
-  }
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob

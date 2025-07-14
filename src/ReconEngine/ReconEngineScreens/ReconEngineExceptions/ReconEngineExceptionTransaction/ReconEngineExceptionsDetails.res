@@ -11,7 +11,6 @@ let make = (~id) => {
   let (allExceptionDetails, setAllExceptionDetails) = React.useState(_ => [
     Dict.make()->getAllTransactionPayload,
   ])
-  let defaultObject = Dict.make()->getAllTransactionPayload
 
   let getExceptionDetails = async _ => {
     try {
@@ -21,7 +20,7 @@ let make = (~id) => {
       let exceptionsList = data->getArrayOfTransactionsListPayloadType
       let selectedCurrentExceptionArray = exceptionsList->Array.filter(item => item.id == id)
       let selectedCurrentExceptionData =
-        selectedCurrentExceptionArray->getValueFromArray(0, defaultObject)
+        selectedCurrentExceptionArray->getValueFromArray(0, Dict.make()->getAllTransactionPayload)
       let allExceptionsDetails =
         exceptionsList->Array.filter(item =>
           item.transaction_id == selectedCurrentExceptionData.transaction_id
