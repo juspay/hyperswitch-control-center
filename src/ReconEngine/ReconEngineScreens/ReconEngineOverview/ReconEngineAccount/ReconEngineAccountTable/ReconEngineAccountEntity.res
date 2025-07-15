@@ -141,6 +141,7 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
       | "pending" => LabelBlue
       | "processed" => LabelGreen
       | "processing" => LabelOrange
+      | "needs_manual_review" => LabelOrange
       | "failed" => LabelRed
       | "cancelled" => LabelGray
       | _ => LabelLightGray

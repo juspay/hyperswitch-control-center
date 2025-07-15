@@ -121,6 +121,7 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDPAYVANTIV),
   Processors(BARCLAYCARD),
   Processors(TOKENIO),
+  Processors(PAYLOAD),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -458,6 +459,10 @@ let tokenioInfo = {
   description: "Token.io is a fintech company that provides open banking-based, account-to-account (A2A) payment infrastructure—essentially enabling “Pay by Bank” solutions for banks, fintechs, platforms, and payment service providers.",
 }
 
+let payloadInfo = {
+  description: "Payload is an embedded finance solution for modern platforms and businesses, automating inbound and outbound payments with an industry-leading platform and driving innovation into the future.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -725,6 +730,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WORLDPAYVANTIV => "worldpayvantiv"
   | BARCLAYCARD => "barclaycard"
   | TOKENIO => "tokenio"
+  | PAYLOAD => "payload"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -877,6 +883,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
     | "barclaycard" => Processors(BARCLAYCARD)
     | "tokenio" => Processors(TOKENIO)
+    | "payload" => Processors(PAYLOAD)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1008,6 +1015,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | ARCHIPEL => archipelInfo
   | WORLDPAYVANTIV => worldpayVantivInfo
   | BARCLAYCARD => barclaycardInfo
+  | PAYLOAD => payloadInfo
   | TOKENIO => tokenioInfo
   }
 }
@@ -1883,6 +1891,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | ARCHIPEL => "ArchiPEL"
   | WORLDPAYVANTIV => "Worldpay Vantiv"
   | BARCLAYCARD => "BarclayCard SmartPay Fuse"
+  | PAYLOAD => "Payload"
   | TOKENIO => "Token.io"
   }
 

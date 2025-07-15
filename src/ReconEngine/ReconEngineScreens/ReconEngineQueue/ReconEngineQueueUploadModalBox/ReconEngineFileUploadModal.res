@@ -121,7 +121,7 @@ let make = (~showModal, ~setShowModal) => {
           <Icon name="cloud-upload-alt" size=24 className="text-gray-400" />
           <div className="flex flex-col gap-2 items-center">
             <div className={`${body.lg.semibold} text-nd_gray-700`}>
-              {"Choose a file or drag & drop it here"->React.string}
+              {"Choose a file to upload"->React.string}
             </div>
             <div className={`${body.md.medium} text-nd_gray-500`}>
               {".csv only | Max size 8 MB"->React.string}
