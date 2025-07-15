@@ -212,16 +212,12 @@ let make = () => {
 
       try {
         let dict =
-          [
-            ("org_id", orgId->JSON.Encode.string),
-            ("merchant_id", merchantId->JSON.Encode.string),
-            ("profile_id", profileId->JSON.Encode.string),
-          ]
+          [("message", message->JSON.Encode.string)]
           ->Dict.fromArray
           ->JSON.Encode.object
         setLoading(_ => true)
         let res = await fetchApiWindow(
-          `http://0.0.0.0:8000/api/bot?message=${message}`,
+          `${Window.env.apiBaseUrl}/chat/ai/data`,
           ~method_=Post,
           ~xFeatureRoute,
           ~forceCookies,
