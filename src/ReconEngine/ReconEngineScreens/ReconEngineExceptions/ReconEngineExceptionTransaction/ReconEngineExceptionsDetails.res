@@ -3,7 +3,9 @@ let make = (~id) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsHelper
-
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentExceptionsDetails, setCurrentExceptionDetails) = React.useState(_ =>
     Dict.make()->getAllTransactionPayload
@@ -14,9 +16,13 @@ let make = (~id) => {
 
   let getExceptionDetails = async _ => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = SampleDataExceptionTransaction.data
-      let data = response->getDictFromJsonObject->getArrayFromDict("exceptions", [])
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSACTIONS_LIST,
+      )
+      let res = await fetchDetails(url)
+      let data = res->getDictFromJsonObject->getArrayFromDict("transactions", [])
       let exceptionsList = data->getArrayOfTransactionsListPayloadType
       let selectedCurrentExceptionArray = exceptionsList->Array.filter(item => item.id == id)
       let selectedCurrentExceptionData =
