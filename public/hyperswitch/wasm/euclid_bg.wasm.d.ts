@@ -28,6 +28,7 @@ export const getResponsePayload: (a: number, b: number) => void;
 export const getAllPayoutKeys: (a: number) => void;
 export const getPayoutVariantValues: (a: number, b: number, c: number) => void;
 export const getPayoutDescriptionCategory: (a: number) => void;
+export const getValidWebhookStatus: (a: number, b: number, c: number) => void;
 export const ring_core_0_17_14__bn_mul_mont: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
 export const parse: (a: number, b: number, c: number) => void;
 export const parseToString: (a: number, b: number, c: number) => void;
