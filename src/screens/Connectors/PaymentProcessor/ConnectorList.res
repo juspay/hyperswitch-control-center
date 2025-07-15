@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open ConnectorUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
@@ -33,7 +34,6 @@ let make = () => {
         connectorsList,
       )
       setConfiguredConnectors(_ => list)
-
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -69,6 +69,10 @@ let make = () => {
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? connectorListForLive
     : connectorList
+
+  let sendMixpanelEvent = () => {
+    mixpanelEvent(~eventName="orchestration_payment_connectors_view")
+  }
 
   <div>
     <PageLoaderWrapper screenState>
@@ -119,7 +123,6 @@ let make = () => {
             feedbackVia="connected_a_connector"
           />
         </RenderIf>
-        // todo:  make this common for v1 and v2
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
@@ -137,9 +140,11 @@ let make = () => {
             resultsPerPage=20
             offset
             setOffset
-            entity={ConnectorTableUtils.connectorEntity(
+            entity={ConnectorInterfaceTableEntity.connectorEntity(
               "connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
+              ~sendMixpanelEvent,
+              ~version=V1,
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false

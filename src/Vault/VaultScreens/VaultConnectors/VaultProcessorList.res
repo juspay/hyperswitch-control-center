@@ -40,8 +40,8 @@ let make = () => {
     None
   }, [connectorListFromRecoil->Array.length])
 
-  let callMixpanel = eventName => {
-    mixpanelEvent(~eventName)
+  let sendMixpanelEvent = () => {
+    mixpanelEvent(~eventName="vault_view_connector_details")
   }
 
   let connectorsAvailableForIntegration = VaultConnectorUtils.connectorListForVault
@@ -59,7 +59,7 @@ let make = () => {
           entity={VaultConnectorEntity.connectorEntity(
             "v2/vault/onboarding",
             ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
-            callMixpanel,
+            ~sendMixpanelEvent,
           )}
           currrentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false

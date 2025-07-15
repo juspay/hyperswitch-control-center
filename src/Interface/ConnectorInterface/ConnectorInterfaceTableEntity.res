@@ -1,19 +1,10 @@
 open ConnectorTypes
-let getPreviouslyConnectedList: JSON.t => array<connectorPayloadCommonType> = json => {
-  ConnectorInterface.mapJsonArrayToConnectorPayloads(
-    ConnectorInterface.connectorInterfaceV2,
-    json,
-    PaymentProcessor,
-  )
-}
 
 type colType =
   | Name
   | Status
   | Disabled
   | Actions
-  | ProfileId
-  | ProfileName
   | ConnectorLabel
   | PaymentMethods
   | MerchantConnectorId
@@ -21,9 +12,9 @@ type colType =
 let defaultColumns = [
   Name,
   MerchantConnectorId,
-  ProfileId,
-  ProfileName,
   ConnectorLabel,
+  Status,
+  Disabled,
   Actions,
   PaymentMethods,
 ]
@@ -34,20 +25,12 @@ let getHeading = colType => {
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | MerchantConnectorId =>
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
-  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | PaymentMethods => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
   }
 }
-
-let connectorStatusStyle = connectorStatus =>
-  switch connectorStatus->String.toLowerCase {
-  | "active" => "text-green-700"
-  | _ => "text-grey-800 opacity-50"
-  }
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeCommon>) => {
   let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {
@@ -55,6 +38,12 @@ let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeC
   })
   paymentMethods
 }
+
+let connectorStatusStyle = connectorStatus =>
+  switch connectorStatus->String.toLowerCase {
+  | "active" => "text-green-700"
+  | _ => "text-grey-800 opacity-50"
+  }
 
 let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
   let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
@@ -71,18 +60,11 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         title: connector.disabled ? "DISABLED" : "ENABLED",
         color: connector.disabled ? LabelGray : LabelGreen,
       })
-
     | Status =>
       Table.CustomCell(
         <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
           {connector.status->String.toUpperCase->React.string}
         </div>,
-        "",
-      )
-    | ProfileId => DisplayCopyCell(connector.profile_id)
-    | ProfileName =>
-      Table.CustomCell(
-        <HelperComponents.ProfileNameComponent profile_id={connector.profile_id} />,
         "",
       )
     | ConnectorLabel => Text(connector.connector_label)
@@ -97,27 +79,55 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         </div>,
         "",
       )
-    | MerchantConnectorId => DisplayCopyCell(connector.id)
+    | MerchantConnectorId =>
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(connector.id)
+        />,
+        "",
+      )
     }
   }
   getCell
 }
 
+let getPreviouslyConnectedListV1 = (json: JSON.t): array<connectorPayloadCommonType> => {
+  ConnectorInterface.mapJsonArrayToConnectorPayloads(
+    ConnectorInterface.connectorInterfaceV1,
+    json,
+    PaymentProcessor,
+  )
+}
+
+let getPreviouslyConnectedListV2 = (json: JSON.t): array<connectorPayloadCommonType> => {
+  ConnectorInterface.mapJsonArrayToConnectorPayloads(
+    ConnectorInterface.connectorInterfaceV2,
+    json,
+    PaymentProcessor,
+  )
+}
+
 let connectorEntity = (
   path: string,
   ~authorization: CommonAuthTypes.authorization,
-  callMixpanel,
+  ~sendMixpanelEvent,
+  ~version: UserInfoTypes.version,
 ) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects={
+      switch version {
+      | V1 => getPreviouslyConnectedListV1
+      | V2 => getPreviouslyConnectedListV2
+      }
+    },
     ~defaultColumns,
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),
     ~dataKey="",
     ~getShowLink={
       connec => {
-        callMixpanel("orchestration_v2_view_connector_details")
+        sendMixpanelEvent()
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
             ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
@@ -127,4 +137,18 @@ let connectorEntity = (
       }
     },
   )
+}
+
+let getConnectorObjectFromListViaId = (
+  connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  mca_id: string,
+  ~version: UserInfoTypes.version,
+) => {
+  let interface = switch version {
+  | V1 => ConnectorInterface.connectorInterfaceV1
+  | V2 => ConnectorInterface.connectorInterfaceV2
+  }
+  connectorList
+  ->Array.find(ele => {ele.id == mca_id})
+  ->Option.getOr(ConnectorInterface.mapDictToConnectorPayload(interface, Dict.make())) //interface
 }
