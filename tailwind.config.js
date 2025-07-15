@@ -64,6 +64,7 @@ module.exports = {
         "130-px": "130px",
         "195-px": "195px",
         "774-px": "774px",
+        "840-px": "840px",
         "890-px": "890px",
         "12.5-rem": "12.5rem",
         onBordingSupplier: "calc(100vh - 300px)",
@@ -78,6 +79,7 @@ module.exports = {
       },
       inset: {
         "76-px": "76px",
+        "180-px": "180px",
       },
       letterSpacing: {
         compressed: "-2px",
@@ -390,6 +392,7 @@ module.exports = {
           800: "#222530",
         },
         nd_primary_blue: {
+          25: "#F6FAFE",
           50: "#E4F1FD",
           100: "#BCD7FA",
           200: "#93BCF6",

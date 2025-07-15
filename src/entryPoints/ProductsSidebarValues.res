@@ -3,22 +3,6 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
-let useGetSideBarValues = () => {
-  let {devReconv2Product, devRecoveryV2Product} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let sideBarValues = []
-
-  if devReconv2Product {
-    sideBarValues->Array.pushMany(ReconSidebarValues.reconSidebars)
-  }
-
-  if devRecoveryV2Product {
-    sideBarValues->Array.pushMany(RevenueRecoverySidebarValues.recoverySidebars)
-  }
-
-  sideBarValues
-}
-
 let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => {
   open ProductUtils
   let {
@@ -27,12 +11,14 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     devVaultV2Product,
     devHypersenseV2Product,
     devIntelligentRoutingV2,
+    devOrchestrationV2Product,
+    devReconEngineV1,
   } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sideBarValues = [
     Link({
-      name: Orchestration->getProductDisplayName,
+      name: Orchestration(V1)->getProductDisplayName,
       icon: "orchestrator-home",
       link: "/v2/onboarding/orchestrator",
       access: Access,
@@ -42,7 +28,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   if devReconv2Product {
     sideBarValues->Array.push(
       Link({
-        name: Recon->getProductDisplayName,
+        name: Recon(V2)->getProductDisplayName,
         icon: "recon-home",
         link: "/v2/onboarding/recon",
         access: Access,
@@ -86,6 +72,26 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
         name: DynamicRouting->getProductDisplayName,
         icon: "intelligent-routing-home",
         link: "/v2/onboarding/intelligent-routing",
+        access: Access,
+      }),
+    )
+  }
+  if devOrchestrationV2Product {
+    sideBarValues->Array.push(
+      Link({
+        name: Orchestration(V2)->getProductDisplayName,
+        icon: "orchestrator-home",
+        link: "/v2/onboarding/orchestrator",
+        access: Access,
+      }),
+    )
+  }
+  if devReconEngineV1 {
+    sideBarValues->Array.push(
+      Link({
+        name: Recon(V1)->getProductDisplayName,
+        icon: "recon-engine-v1",
+        link: "/v1/onboarding/recon-engine",
         access: Access,
       }),
     )

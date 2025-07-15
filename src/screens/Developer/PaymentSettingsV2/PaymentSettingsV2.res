@@ -49,11 +49,11 @@ let make = () => {
     },
     {
       title: "Custom Headers",
-      renderContent: () => React.null,
+      renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
     },
     {
       title: "Metadata Headers",
-      renderContent: () => React.null,
+      renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
     },
   ]
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")
