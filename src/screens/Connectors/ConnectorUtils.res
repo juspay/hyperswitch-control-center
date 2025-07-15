@@ -460,7 +460,7 @@ let tokenioInfo = {
 }
 
 let authipayInfo = {
-  description: "Authipay is a payment gateway that provides secure and seamless payment processing solutions for businesses of all sizes."
+  description: "Authipay is a payment gateway that provides secure and seamless payment processing solutions for businesses of all sizes.",
 }
 
 // Dummy Connector Info
